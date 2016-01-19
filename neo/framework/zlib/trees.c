@@ -34,6 +34,13 @@
 /* #define GEN_TREES_H */
 
 #include "deflate.h"
+<<<<<<< HEAD:neo/framework/zlib/trees.c
+=======
+
+// RB: avoid problems with SourceAnnotations.h
+#define VERIFY_FORMAT_STRING
+#include "idlib/sys/sys_defines.h"
+>>>>>>> 414a426... VS 2015 and Windows 10 support. close #261 #271 #272:neo/libs/zlib/trees.c
 
 #ifdef DEBUG
 #  include <ctype.h>

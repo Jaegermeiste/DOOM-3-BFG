@@ -181,10 +181,24 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // win32 needs this, but 360 doesn't
 #pragma warning( disable: 6540 )	// warning C6540: The use of attribute annotations on this function will invalidate all of its existing __declspec annotations [D:\tech5\engine\engine-10.vcxproj]
 
-
+#if !defined(VERIFY_FORMAT_STRING)
 // checking format strings catches a LOT of errors
 #include <CodeAnalysis\SourceAnnotations.h>
 #define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
+<<<<<<< HEAD
+=======
+// DG: alternative for GCC with attribute (NOOP for MSVC)
+#define ID_STATIC_ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
+#endif
+
+#else
+#define	VERIFY_FORMAT_STRING
+// STRIDX: index of format string in function arguments (first arg == 1)
+// FIRSTARGIDX: index of first argument for the format string
+#define ID_STATIC_ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX) __attribute__ ((format (printf, STRIDX, FIRSTARGIDX)))
+// DG end
+#endif // _MSC_VER
+>>>>>>> 414a426... VS 2015 and Windows 10 support. close #261 #271 #272
 
 
 // We need to inform the compiler that Error() and FatalError() will

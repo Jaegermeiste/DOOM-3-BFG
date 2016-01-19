@@ -1,0 +1,65 @@
+﻿cl : Command line warning D9030: '/Gm' is incompatible with multiprocessing; ignoring /MP switch
+  zutil.c
+  uncompr.c
+  trees.c
+  inftrees.c
+  inflate.c
+  inffast.c
+  infback.c
+  gzio.c
+  deflate.c
+  crc32.c
+  compress.c
+  adler32.c
+  Generating Code...
+cl : Command line warning D9030: '/Gm' is incompatible with multiprocessing; ignoring /MP switch
+  jutils.cpp
+  jquant2.cpp
+  jquant1.cpp
+  jmemnobs.cpp
+  jmemmgr.cpp
+  jidctred.cpp
+  jidctint.cpp
+  jidctfst.cpp
+  jidctflt.cpp
+  jfdctint.cpp
+  jfdctfst.cpp
+  jfdctflt.cpp
+  jerror.cpp
+  jdtrans.cpp
+  jdsample.cpp
+  jdpostct.cpp
+  jdphuff.cpp
+  jdmerge.cpp
+  jdmaster.cpp
+  jdmarker.cpp
+  Generating Code...
+  Compiling...
+  jdmainct.cpp
+  jdinput.cpp
+  jdhuff.cpp
+  jddctmgr.cpp
+  jdcolor.cpp
+  jdcoefct.cpp
+  jdatasrc.cpp
+  jdatadst.cpp
+  jdapistd.cpp
+  jdapimin.cpp
+  jcsample.cpp
+  jcprepct.cpp
+  jcphuff.cpp
+  jcparam.cpp
+  jcomapi.cpp
+  jcmaster.cpp
+  jcmarker.cpp
+  jcmainct.cpp
+  jcinit.cpp
+  jchuff.cpp
+  Generating Code...
+  Compiling...
+  jcdctmgr.cpp
+  jccolor.cpp
+  jccoefct.cpp
+  jcapimin.cpp
+  Generating Code...
+  external.vcxproj -> L:\Repositories\Git\DOOM-3-BFG\neo\..\build\Win32\Debug\external.lib

@@ -1,0 +1,213 @@
+﻿  precompiled.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\CodeAnalysis\SourceAnnotations.h(68): error C2220: warning treated as error - no 'object' file generated
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\CodeAnalysis\SourceAnnotations.h(68): warning C4467: usage of ATL attributes is deprecated
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\CodeAnalysis\SourceAnnotations.h(68): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_public.h(619): warning C4458: declaration of 'silent' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_public.h(619): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_public.h(633): note: see declaration of 'idUDP::silent'
+l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(61): warning C4595: 'operator new': non-member operator new or delete functions may not be declared inline
+  l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(61): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(64): warning C4595: 'operator delete': non-member operator new or delete functions may not be declared inline
+  l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(64): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(67): warning C4595: 'operator new[]': non-member operator new or delete functions may not be declared inline
+  l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(67): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(70): warning C4595: 'operator delete[]': non-member operator new or delete functions may not be declared inline
+  l:\repositories\git\doom-3-bfg\neo\idlib\Heap.h(70): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Math.h(253): warning C4499: 'extern': an explicit specialization cannot have a storage class (ignored)
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Math.h(253): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Math.h(263): warning C4499: 'extern': an explicit specialization cannot have a storage class (ignored)
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Math.h(263): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Math.h(1377): warning C4499: 'extern': an explicit specialization cannot have a storage class (ignored)
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Math.h(1377): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Random.h(62): warning C4458: declaration of 'seed' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Random.h(62): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Random.h(55): note: see declaration of 'idRandom::seed'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Random.h(124): warning C4458: declaration of 'seed' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Random.h(124): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Random.h(114): note: see declaration of 'idRandom2::seed'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Complex.h(109): warning C4458: declaration of 'r' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Complex.h(109): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Complex.h(42): note: see declaration of 'idComplex::r'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Complex.h(109): warning C4458: declaration of 'i' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Complex.h(109): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Complex.h(43): note: see declaration of 'idComplex::i'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(118): warning C4458: declaration of 'x' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(118): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(56): note: see declaration of 'idVec2::x'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(118): warning C4458: declaration of 'y' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(118): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(57): note: see declaration of 'idVec2::y'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(412): warning C4458: declaration of 'x' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(412): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(320): note: see declaration of 'idVec3::x'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(412): warning C4458: declaration of 'y' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(412): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(321): note: see declaration of 'idVec3::y'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(412): warning C4458: declaration of 'z' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(412): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(322): note: see declaration of 'idVec3::z'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): warning C4458: declaration of 'x' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(821): note: see declaration of 'idVec4::x'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): warning C4458: declaration of 'y' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(822): note: see declaration of 'idVec4::y'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): warning C4458: declaration of 'z' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(823): note: see declaration of 'idVec4::z'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): warning C4458: declaration of 'w' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(877): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(824): note: see declaration of 'idVec4::w'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1459): warning C4458: declaration of 'radius' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1459): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1434): note: see declaration of 'idPolar3::radius'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1459): warning C4458: declaration of 'theta' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1459): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1434): note: see declaration of 'idPolar3::theta'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1459): warning C4458: declaration of 'phi' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1459): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Vector.h(1434): note: see declaration of 'idPolar3::phi'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1310): warning C4458: declaration of 'temp' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1310): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(248): note: see declaration of 'idMatX::temp'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1334): warning C4458: declaration of 'temp' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1334): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(248): note: see declaration of 'idMatX::temp'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1358): warning C4458: declaration of 'temp' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1358): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(248): note: see declaration of 'idMatX::temp'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1381): warning C4458: declaration of 'temp' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1381): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(248): note: see declaration of 'idMatX::temp'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1405): warning C4458: declaration of 'temp' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1405): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(248): note: see declaration of 'idMatX::temp'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1429): warning C4458: declaration of 'temp' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(1429): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/MatX.h(248): note: see declaration of 'idMatX::temp'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(120): warning C4458: declaration of 'pitch' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(120): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(53): note: see declaration of 'idAngles::pitch'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(120): warning C4458: declaration of 'yaw' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(120): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(54): note: see declaration of 'idAngles::yaw'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(120): warning C4458: declaration of 'roll' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(120): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Angles.h(55): note: see declaration of 'idAngles::roll'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): warning C4458: declaration of 'x' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(51): note: see declaration of 'idQuat::x'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): warning C4458: declaration of 'y' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(52): note: see declaration of 'idQuat::y'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): warning C4458: declaration of 'z' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(53): note: see declaration of 'idQuat::z'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): warning C4458: declaration of 'w' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(253): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(54): note: see declaration of 'idQuat::w'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(363): warning C4458: declaration of 'x' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(363): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(325): note: see declaration of 'idCQuat::x'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(363): warning C4458: declaration of 'y' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(363): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(326): note: see declaration of 'idCQuat::y'
+l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(363): warning C4458: declaration of 'z' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(363): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\math/Quat.h(327): note: see declaration of 'idCQuat::z'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(449): warning C4458: declaration of 'normal' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(449): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(111): note: see declaration of 'idDrawVert::normal'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(450): warning C4458: declaration of 'tangent' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(450): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(112): note: see declaration of 'idDrawVert::tangent'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(475): warning C4458: declaration of 'color' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(475): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(113): note: see declaration of 'idDrawVert::color'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(484): warning C4458: declaration of 'color' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(484): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(113): note: see declaration of 'idDrawVert::color'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(512): warning C4458: declaration of 'st' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(512): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(110): note: see declaration of 'idDrawVert::st'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(577): warning C4458: declaration of 'color2' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(577): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(114): note: see declaration of 'idDrawVert::color2'
+l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(586): warning C4458: declaration of 'color2' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(586): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\geometry/DrawVert.h(114): note: see declaration of 'idDrawVert::color2'
+l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1042): warning C4458: declaration of 'len' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1042): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(347): note: see declaration of 'idStr::len'
+l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1046): warning C4458: declaration of 'len' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1046): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(347): note: see declaration of 'idStr::len'
+l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1054): warning C4458: declaration of 'len' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1054): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(347): note: see declaration of 'idStr::len'
+l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1058): warning C4458: declaration of 'len' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(1058): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\Str.h(347): note: see declaration of 'idStr::len'
+l:\repositories\git\doom-3-bfg\neo\idlib\Lexer.h(302): warning C4458: declaration of 'flags' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\Lexer.h(302): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\Lexer.h(263): note: see declaration of 'idLexer::flags'
+l:\repositories\git\doom-3-bfg\neo\idlib\containers/StrPool.h(89): warning C4458: declaration of 'caseSensitive' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\containers/StrPool.h(89): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\containers/StrPool.h(79): note: see declaration of 'idStrPool::caseSensitive'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(146): warning C4458: declaration of 'value' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(146): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(157): note: see declaration of 'idCVar::value'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(147): warning C4458: declaration of 'value' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(147): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(157): note: see declaration of 'idCVar::value'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(148): warning C4458: declaration of 'value' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(148): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(157): note: see declaration of 'idCVar::value'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(149): warning C4458: declaration of 'value' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(149): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(157): note: see declaration of 'idCVar::value'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): warning C4458: declaration of 'name' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(156): note: see declaration of 'idCVar::name'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): warning C4458: declaration of 'value' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(157): note: see declaration of 'idCVar::value'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): warning C4458: declaration of 'flags' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(159): note: see declaration of 'idCVar::flags'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): warning C4458: declaration of 'description' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(280): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(158): note: see declaration of 'idCVar::description'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): warning C4458: declaration of 'valueMin' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(160): note: see declaration of 'idCVar::valueMin'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): warning C4458: declaration of 'valueMax' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(161): note: see declaration of 'idCVar::valueMax'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): warning C4458: declaration of 'valueStrings' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(162): note: see declaration of 'idCVar::valueStrings'
+l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): warning C4458: declaration of 'valueCompletion' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(281): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../framework/CVarSystem.h(163): note: see declaration of 'idCVar::valueCompletion'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(83): warning C4458: declaration of 'data' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(83): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(158): note: see declaration of 'idLZWCompressor::data'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(93): warning C4458: declaration of 'data' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(93): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(158): note: see declaration of 'idLZWCompressor::data'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(109): warning C4458: declaration of 'data' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(109): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(158): note: see declaration of 'idLZWCompressor::data'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(119): warning C4458: declaration of 'data' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(119): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/LightweightCompression.h(158): note: see declaration of 'idLZWCompressor::data'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_signin.h(65): warning C4458: declaration of 'minDesiredLocalUsers' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_signin.h(65): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_signin.h(94): note: see declaration of 'idSignInManagerBase::minDesiredLocalUsers'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_signin.h(65): warning C4458: declaration of 'maxDesiredLocalUsers' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_signin.h(65): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_signin.h(95): note: see declaration of 'idSignInManagerBase::maxDesiredLocalUsers'
+l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_stats.h(70): warning C4458: declaration of 'errorCode' hides class member
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_stats.h(70): note: to simplify migration, consider the temporary use of /Wv:18 flag with the version of the compiler with which you used to build without warnings
+  l:\repositories\git\doom-3-bfg\neo\idlib\../sys/sys_stats.h(86): note: see declaration of 'idLeaderboardCallback::errorCode'

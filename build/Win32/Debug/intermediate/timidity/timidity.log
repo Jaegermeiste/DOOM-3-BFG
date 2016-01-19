@@ -1,0 +1,39 @@
+﻿  common.cpp
+  controls.cpp
+  filter.cpp
+  instrum.cpp
+  mix.cpp
+  output.cpp
+  playmidi.cpp
+  readmidi.cpp
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\codeanalysis\sourceannotations.h(68): warning C4467: usage of ATL attributes is deprecated (compiling source file common.cpp)
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\codeanalysis\sourceannotations.h(68): warning C4467: usage of ATL attributes is deprecated (compiling source file instrum.cpp)
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\codeanalysis\sourceannotations.h(68): warning C4467: usage of ATL attributes is deprecated (compiling source file readmidi.cpp)
+  resample.cpp
+  sdl_a.cpp
+  sdl_c.cpp
+  tables.cpp
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\codeanalysis\sourceannotations.h(68): warning C4467: usage of ATL attributes is deprecated (compiling source file sdl_c.cpp)
+  timidity.cpp
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\codeanalysis\sourceannotations.h(68): warning C4467: usage of ATL attributes is deprecated (compiling source file timidity.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(61): warning C4595: 'operator new': non-member operator new or delete functions may not be declared inline (compiling source file instrum.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(64): warning C4595: 'operator delete': non-member operator new or delete functions may not be declared inline (compiling source file instrum.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(67): warning C4595: 'operator new[]': non-member operator new or delete functions may not be declared inline (compiling source file instrum.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(70): warning C4595: 'operator delete[]': non-member operator new or delete functions may not be declared inline (compiling source file instrum.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(61): warning C4595: 'operator new': non-member operator new or delete functions may not be declared inline (compiling source file common.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(64): warning C4595: 'operator delete': non-member operator new or delete functions may not be declared inline (compiling source file common.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(67): warning C4595: 'operator new[]': non-member operator new or delete functions may not be declared inline (compiling source file common.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(70): warning C4595: 'operator delete[]': non-member operator new or delete functions may not be declared inline (compiling source file common.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(61): warning C4595: 'operator new': non-member operator new or delete functions may not be declared inline (compiling source file readmidi.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(64): warning C4595: 'operator delete': non-member operator new or delete functions may not be declared inline (compiling source file readmidi.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(67): warning C4595: 'operator new[]': non-member operator new or delete functions may not be declared inline (compiling source file readmidi.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(70): warning C4595: 'operator delete[]': non-member operator new or delete functions may not be declared inline (compiling source file readmidi.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(61): warning C4595: 'operator new': non-member operator new or delete functions may not be declared inline (compiling source file sdl_c.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(64): warning C4595: 'operator delete': non-member operator new or delete functions may not be declared inline (compiling source file sdl_c.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(67): warning C4595: 'operator new[]': non-member operator new or delete functions may not be declared inline (compiling source file sdl_c.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(70): warning C4595: 'operator delete[]': non-member operator new or delete functions may not be declared inline (compiling source file sdl_c.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(61): warning C4595: 'operator new': non-member operator new or delete functions may not be declared inline (compiling source file timidity.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(64): warning C4595: 'operator delete': non-member operator new or delete functions may not be declared inline (compiling source file timidity.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(67): warning C4595: 'operator new[]': non-member operator new or delete functions may not be declared inline (compiling source file timidity.cpp)
+l:\repositories\git\doom-3-bfg\neo\idlib\heap.h(70): warning C4595: 'operator delete[]': non-member operator new or delete functions may not be declared inline (compiling source file timidity.cpp)
+  timidity.vcxproj -> L:\Repositories\Git\DOOM-3-BFG\neo\..\build\Win32\Debug\timidity.lib

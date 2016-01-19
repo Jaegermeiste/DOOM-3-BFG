@@ -1,0 +1,4 @@
+﻿  amplitude.cpp
+l:\repositories\git\doom-3-bfg\neo\amplitude\amplitude.cpp(276): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  amplitude.vcxproj -> L:\Repositories\Git\DOOM-3-BFG\neo\amplitude\Debug\amplitude.exe
+  amplitude.vcxproj -> Debug\amplitude.pdb (Full PDB)

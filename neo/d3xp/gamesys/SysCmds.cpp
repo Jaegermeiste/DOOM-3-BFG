@@ -127,10 +127,18 @@ void Cmd_ListSpawnArgs_f( const idCmdArgs &args ) {
 		gameLocal.Printf( "entity not found\n" );
 		return;
 	}
+<<<<<<< HEAD
 
 	for ( i = 0; i < ent->spawnArgs.GetNumKeyVals(); i++ ) {
 		const idKeyValue *kv = ent->spawnArgs.GetKeyVal( i );
 		gameLocal.Printf( "\"%s\"  "S_COLOR_WHITE"\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
+=======
+	
+	for( i = 0; i < ent->spawnArgs.GetNumKeyVals(); i++ )
+	{
+		const idKeyValue* kv = ent->spawnArgs.GetKeyVal( i );
+		gameLocal.Printf( "\"%s\"  " S_COLOR_WHITE "\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
+>>>>>>> 414a426... VS 2015 and Windows 10 support. close #261 #271 #272
 	}
 }
 
