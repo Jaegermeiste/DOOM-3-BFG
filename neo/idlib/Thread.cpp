@@ -73,7 +73,7 @@ idSysThread::~idSysThread() {
 idSysThread::StartThread
 ========================
 */
-bool idSysThread::StartThread( const char * name_, core_t core, xthreadPriority priority, int stackSize ) {
+bool idSysThread::StartThread( const char * name_, const core_t core, const xthreadPriority priority, const int stackSize ) {
 	if ( isRunning ) {
 		return false;
 	}
@@ -97,7 +97,7 @@ bool idSysThread::StartThread( const char * name_, core_t core, xthreadPriority 
 idSysThread::StartWorkerThread
 ========================
 */
-bool idSysThread::StartWorkerThread( const char * name_, core_t core, xthreadPriority priority, int stackSize ) {
+bool idSysThread::StartWorkerThread( const char * name_, const core_t core, const xthreadPriority priority, const int stackSize ) {
 	if ( isRunning ) {
 		return false;
 	}
@@ -116,7 +116,7 @@ bool idSysThread::StartWorkerThread( const char * name_, core_t core, xthreadPri
 idSysThread::StopThread
 ========================
 */
-void idSysThread::StopThread( bool wait ) {
+void idSysThread::StopThread(const bool wait ) {
 	if ( !isRunning ) {
 		return;
 	}

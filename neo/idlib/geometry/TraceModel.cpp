@@ -930,7 +930,7 @@ void idTraceModel::SetupPolygon( const idWinding &w ) {
 idTraceModel::VolumeFromPolygon
 ============
 */
-void idTraceModel::VolumeFromPolygon( idTraceModel &trm, float thickness ) const {
+void idTraceModel::VolumeFromPolygon( idTraceModel &trm, const float thickness ) const {
 	int i;
 
 	trm = *this;
@@ -1133,7 +1133,7 @@ bool idTraceModel::Compare( const idTraceModel &trm ) const {
 idTraceModel::GetPolygonArea
 ============
 */
-float idTraceModel::GetPolygonArea( int polyNum ) const {
+float idTraceModel::GetPolygonArea(const int polyNum ) const {
 	int i;
 	idVec3 base, v1, v2, cross;
 	float total;
@@ -1353,7 +1353,7 @@ typedef struct polygonIntegrals_s {
 idTraceModel::PolygonIntegrals
 ============
 */
-void idTraceModel::PolygonIntegrals( int polyNum, int a, int b, int c, struct polygonIntegrals_s &integrals ) const {
+void idTraceModel::PolygonIntegrals(const int polyNum, const int a, const int b, const int c, struct polygonIntegrals_s &integrals ) const {
 	projectionIntegrals_t pi;
 	idVec3 n;
 	float w;

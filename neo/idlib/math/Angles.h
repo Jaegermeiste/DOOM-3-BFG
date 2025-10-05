@@ -105,7 +105,7 @@ extern idAngles ang_zero;
 ID_INLINE idAngles::idAngles() {
 }
 
-ID_INLINE idAngles::idAngles( float pitch, float yaw, float roll ) {
+ID_INLINE idAngles::idAngles(const float pitch, const float yaw, const float roll ) {
 	this->pitch = pitch;
 	this->yaw	= yaw;
 	this->roll	= roll;
@@ -117,7 +117,7 @@ ID_INLINE idAngles::idAngles( const idVec3 &v ) {
 	this->roll	= v[2];
 }
 
-ID_INLINE void idAngles::Set( float pitch, float yaw, float roll ) {
+ID_INLINE void idAngles::Set(const float pitch, const float yaw, const float roll ) {
 	this->pitch = pitch;
 	this->yaw	= yaw;
 	this->roll	= roll;
@@ -128,12 +128,12 @@ ID_INLINE idAngles &idAngles::Zero() {
 	return *this;
 }
 
-ID_INLINE float idAngles::operator[]( int index ) const {
+ID_INLINE float idAngles::operator[](const int index ) const {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &pitch )[ index ];
 }
 
-ID_INLINE float &idAngles::operator[]( int index ) {
+ID_INLINE float &idAngles::operator[](const int index ) {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &pitch )[ index ];
 }
@@ -177,7 +177,7 @@ ID_INLINE idAngles idAngles::operator*( const float a ) const {
 	return idAngles( pitch * a, yaw * a, roll * a );
 }
 
-ID_INLINE idAngles& idAngles::operator*=( float a ) {
+ID_INLINE idAngles& idAngles::operator*=(const float a ) {
 	pitch	*= a;
 	yaw		*= a;
 	roll	*= a;
@@ -189,7 +189,7 @@ ID_INLINE idAngles idAngles::operator/( const float a ) const {
 	return idAngles( pitch * inva, yaw * inva, roll * inva );
 }
 
-ID_INLINE idAngles& idAngles::operator/=( float a ) {
+ID_INLINE idAngles& idAngles::operator/=(const float a ) {
 	float inva = 1.0f / a;
 	pitch	*= inva;
 	yaw		*= inva;

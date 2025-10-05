@@ -139,7 +139,7 @@ extern idPlane plane_origin;
 ID_INLINE idPlane::idPlane() {
 }
 
-ID_INLINE idPlane::idPlane( float a, float b, float c, float d ) {
+ID_INLINE idPlane::idPlane(const float a, const float b, const float c, const float d ) {
 	this->a = a;
 	this->b = b;
 	this->c = c;
@@ -153,15 +153,15 @@ ID_INLINE idPlane::idPlane( const idVec3 &normal, const float dist ) {
 	this->d = -dist;
 }
 
-ID_INLINE idPlane::idPlane( const idVec3 & v0, const idVec3 & v1, const idVec3 & v2, bool fixDegenerate ) {
+ID_INLINE idPlane::idPlane( const idVec3 & v0, const idVec3 & v1, const idVec3 & v2, const bool fixDegenerate ) {
 	FromPoints( v0, v1, v2, fixDegenerate );
 }
 
-ID_INLINE float idPlane::operator[]( int index ) const {
+ID_INLINE float idPlane::operator[](const int index ) const {
 	return ( &a )[ index ];
 }
 
-ID_INLINE float& idPlane::operator[]( int index ) {
+ID_INLINE float& idPlane::operator[](const int index ) {
 	return ( &a )[ index ];
 }
 
@@ -254,7 +254,7 @@ ID_INLINE idVec3 &idPlane::Normal() {
 	return *reinterpret_cast<idVec3 *>(&a);
 }
 
-ID_INLINE float idPlane::Normalize( bool fixDegenerate ) {
+ID_INLINE float idPlane::Normalize(const bool fixDegenerate ) {
 	float length = reinterpret_cast<idVec3 *>(&a)->Normalize();
 
 	if ( fixDegenerate ) {
@@ -267,7 +267,7 @@ ID_INLINE bool idPlane::FixDegenerateNormal() {
 	return Normal().FixDegenerateNormal();
 }
 
-ID_INLINE bool idPlane::FixDegeneracies( float distEpsilon ) {
+ID_INLINE bool idPlane::FixDegeneracies(const float distEpsilon ) {
 	bool fixedNormal = FixDegenerateNormal();
 	// only fix dist if the normal was degenerate
 	if ( fixedNormal ) {
@@ -286,7 +286,7 @@ ID_INLINE void idPlane::SetDist( const float dist ) {
 	d = -dist;
 }
 
-ID_INLINE bool idPlane::FromPoints( const idVec3 &p1, const idVec3 &p2, const idVec3 &p3, bool fixDegenerate ) {
+ID_INLINE bool idPlane::FromPoints( const idVec3 &p1, const idVec3 &p2, const idVec3 &p3, const bool fixDegenerate ) {
 	Normal() = (p1 - p2).Cross( p3 - p2 );
 	if ( Normalize( fixDegenerate ) == 0.0f ) {
 		return false;
@@ -295,7 +295,7 @@ ID_INLINE bool idPlane::FromPoints( const idVec3 &p1, const idVec3 &p2, const id
 	return true;
 }
 
-ID_INLINE bool idPlane::FromVecs( const idVec3 &dir1, const idVec3 &dir2, const idVec3 &p, bool fixDegenerate ) {
+ID_INLINE bool idPlane::FromVecs( const idVec3 &dir1, const idVec3 &dir2, const idVec3 &p, const bool fixDegenerate ) {
 	Normal() = dir1.Cross( dir2 );
 	if ( Normalize( fixDegenerate ) == 0.0f ) {
 		return false;

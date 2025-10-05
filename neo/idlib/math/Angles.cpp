@@ -235,6 +235,6 @@ idVec3 idAngles::ToAngularVelocity() const {
 idAngles::ToString
 =============
 */
-const char *idAngles::ToString( int precision ) const {
+const char *idAngles::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

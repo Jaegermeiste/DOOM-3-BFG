@@ -108,19 +108,19 @@ idQuat Slerp( const idQuat & from, const idQuat & to, const float t );
 ID_INLINE idQuat::idQuat() {
 }
 
-ID_INLINE idQuat::idQuat( float x, float y, float z, float w ) {
+ID_INLINE idQuat::idQuat(const float x, const float y, const float z, const float w ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 	this->w = w;
 }
 
-ID_INLINE float idQuat::operator[]( int index ) const {
+ID_INLINE float idQuat::operator[](const int index ) const {
 	assert( ( index >= 0 ) && ( index < 4 ) );
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idQuat::operator[]( int index ) {
+ID_INLINE float& idQuat::operator[](const int index ) {
 	assert( ( index >= 0 ) && ( index < 4 ) );
 	return ( &x )[ index ];
 }
@@ -195,7 +195,7 @@ ID_INLINE idVec3 idQuat::operator*( const idVec3 &a ) const {
 #endif
 }
 
-ID_INLINE idQuat idQuat::operator*( float a ) const {
+ID_INLINE idQuat idQuat::operator*(const float a ) const {
 	return idQuat( x * a, y * a, z * a, w * a );
 }
 
@@ -213,7 +213,7 @@ ID_INLINE idQuat& idQuat::operator*=( const idQuat &a ) {
 	return *this;
 }
 
-ID_INLINE idQuat& idQuat::operator*=( float a ) {
+ID_INLINE idQuat& idQuat::operator*=(const float a ) {
 	x *= a;
 	y *= a;
 	z *= a;
@@ -250,7 +250,7 @@ ID_INLINE bool idQuat::operator!=( const idQuat &a ) const {
 	return !Compare( a );
 }
 
-ID_INLINE void idQuat::Set( float x, float y, float z, float w ) {
+ID_INLINE void idQuat::Set(const float x, const float y, const float z, const float w ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
@@ -354,24 +354,24 @@ public:
 ID_INLINE idCQuat::idCQuat() {
 }
 
-ID_INLINE idCQuat::idCQuat( float x, float y, float z ) {
+ID_INLINE idCQuat::idCQuat(const float x, const float y, const float z ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
 
-ID_INLINE void idCQuat::Set( float x, float y, float z ) {
+ID_INLINE void idCQuat::Set(const float x, const float y, const float z ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
 
-ID_INLINE float idCQuat::operator[]( int index ) const {
+ID_INLINE float idCQuat::operator[](const int index ) const {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idCQuat::operator[]( int index ) {
+ID_INLINE float& idCQuat::operator[](const int index ) {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &x )[ index ];
 }

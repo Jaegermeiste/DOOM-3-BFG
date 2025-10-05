@@ -55,11 +55,11 @@ private:
 	int					seed;
 };
 
-ID_INLINE idRandom::idRandom( int seed ) {
+ID_INLINE idRandom::idRandom(const int seed ) {
 	this->seed = seed;
 }
 
-ID_INLINE void idRandom::SetSeed( int seed ) {
+ID_INLINE void idRandom::SetSeed(const int seed ) {
 	this->seed = seed;
 }
 
@@ -72,7 +72,7 @@ ID_INLINE int idRandom::RandomInt() {
 	return ( seed & idRandom::MAX_RAND );
 }
 
-ID_INLINE int idRandom::RandomInt( int max ) {
+ID_INLINE int idRandom::RandomInt(const int max ) {
 	if ( max == 0 ) {
 		return 0;			// avoid divide by zero error
 	}
@@ -117,11 +117,11 @@ private:
 	static const unsigned long	IEEE_MASK = 0x007fffff;
 };
 
-ID_INLINE idRandom2::idRandom2( unsigned long seed ) {
+ID_INLINE idRandom2::idRandom2(const unsigned long seed ) {
 	this->seed = seed;
 }
 
-ID_INLINE void idRandom2::SetSeed( unsigned long seed ) {
+ID_INLINE void idRandom2::SetSeed(const unsigned long seed ) {
 	this->seed = seed;
 }
 
@@ -134,7 +134,7 @@ ID_INLINE int idRandom2::RandomInt() {
 	return ( (int) seed & idRandom2::MAX_RAND );
 }
 
-ID_INLINE int idRandom2::RandomInt( int max ) {
+ID_INLINE int idRandom2::RandomInt(const int max ) {
 	if ( max == 0 ) {
 		return 0;		// avoid divide by zero error
 	}

@@ -384,7 +384,7 @@ ID_INLINE void idHashIndex::SetGranularity( const int newGranularity ) {
 idHashIndex::GenerateKey
 ================
 */
-ID_INLINE int idHashIndex::GenerateKey( const char *string, bool caseSensitive ) const {
+ID_INLINE int idHashIndex::GenerateKey( const char *string, const bool caseSensitive ) const {
 	if ( caseSensitive ) {
 		return ( idStr::Hash( string ) & hashMask );
 	} else {

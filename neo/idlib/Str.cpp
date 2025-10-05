@@ -64,7 +64,7 @@ const char *units[2][4] =
 idStr::ColorForIndex
 ============
 */
-idVec4 & idStr::ColorForIndex( int i ) {
+idVec4 & idStr::ColorForIndex(const int i ) {
 	return g_color_table[ i & 15 ];
 }
 
@@ -73,7 +73,7 @@ idVec4 & idStr::ColorForIndex( int i ) {
 idStr::ReAllocate
 ============
 */
-void idStr::ReAllocate( int amount, bool keepold ) {
+void idStr::ReAllocate(const int amount, const bool keepold ) {
 	char	*newbuffer;
 	int		newsize;
 	int		mod;
@@ -183,7 +183,7 @@ idStr::FindChar
 returns -1 if not found otherwise the index of the char
 ============
 */
-int idStr::FindChar( const char *str, const char c, int start, int end ) {
+int idStr::FindChar( const char *str, const char c, const int start, int end ) {
 	int i;
 
 	if ( end == -1 ) {
@@ -204,7 +204,7 @@ idStr::FindText
 returns -1 if not found otherwise the index of the text
 ============
 */
-int idStr::FindText( const char *str, const char *text, bool casesensitive, int start, int end ) {
+int idStr::FindText( const char *str, const char *text, const bool casesensitive, const int start, int end ) {
 	int l, i, j;
 
 	if ( end == -1 ) {
@@ -246,7 +246,7 @@ Several metacharacter may be used in the filter.
 
 ============
 */
-bool idStr::Filter( const char *filter, const char *name, bool casesensitive ) {
+bool idStr::Filter( const char *filter, const char *name, const bool casesensitive ) {
 	idStr buf;
 	int i, found, index;
 
@@ -575,7 +575,7 @@ idStr::FormatInt
 Formats integers with commas for readability.
 ========================
 */
-idStr idStr::FormatInt( const int num, bool isCash ) {
+idStr idStr::FormatInt( const int num, const bool isCash ) {
 	idStr val = va( "%d", num );
 	int len = val.Length();
 	for ( int i = 0 ; i < ( ( len - 1 ) / 3 ); i++ ) {
@@ -749,7 +749,7 @@ bool idStr::Replace( const char *old, const char *nw ) {
 idStr::Mid
 ============
 */
-const char *idStr::Mid( int start, int len, idStr &result ) const {
+const char *idStr::Mid(const int start, int len, idStr &result ) const {
 	int i;
 
 	result.Empty();
@@ -772,7 +772,7 @@ const char *idStr::Mid( int start, int len, idStr &result ) const {
 idStr::Mid
 ============
 */
-idStr idStr::Mid( int start, int len ) const {
+idStr idStr::Mid(const int start, int len ) const {
 	int i;
 	idStr result;
 
@@ -1538,7 +1538,7 @@ idStr::Copynz
 Safe strncpy that ensures a trailing zero
 =============
 */
-void idStr::Copynz( char *dest, const char *src, int destsize ) {
+void idStr::Copynz( char *dest, const char *src, const int destsize ) {
 	if ( !src ) {
 		idLib::common->Warning( "idStr::Copynz: NULL src" );
 		return;
@@ -1559,7 +1559,7 @@ idStr::Append
   never goes past bounds or leaves without a terminating 0
 ================
 */
-void idStr::Append( char *dest, int size, const char *src ) {
+void idStr::Append( char *dest, const int size, const char *src ) {
 	int		l1;
 
 	l1 = strlen( dest );
@@ -1691,7 +1691,7 @@ int idStr::UTF8Length( const byte * s ) {
 idStr::AppendUTF8Char
 ========================
 */
-void idStr::AppendUTF8Char( uint32 c ) {
+void idStr::AppendUTF8Char(const uint32 c ) {
 	if ( c < 0x80 ) {
 		Append( ( char)c );
 	} else if ( c < 0x800 ) { // 11 bits
@@ -1806,7 +1806,7 @@ char *idStr::RemoveColors( char *string ) {
 idStr::snPrintf
 ================
 */
-int idStr::snPrintf( char *dest, int size, const char *fmt, ...) {
+int idStr::snPrintf( char *dest, const int size, const char *fmt, ...) {
 	int len;
 	va_list argptr;
 	char buffer[32000];	// big, but small enough to fit in PPC stack
@@ -1843,7 +1843,7 @@ idStr::vsnPrintf: always appends a trailing '\0', returns number of characters w
 or returns -1 on failure or if the buffer would be overflowed.
 ============
 */
-int idStr::vsnPrintf( char *dest, int size, const char *fmt, va_list argptr ) {
+int idStr::vsnPrintf( char *dest, const int size, const char *fmt, const va_list argptr ) {
 	int ret;
 
 #undef _vsnprintf
@@ -1884,7 +1884,7 @@ vsprintf
 Sets the value of the string using a vprintf interface.
 ============
 */
-int vsprintf( idStr &string, const char *fmt, va_list argptr ) {
+int vsprintf( idStr &string, const char *fmt, const va_list argptr ) {
 	int l;
 	char buffer[32000];
 	
@@ -1926,7 +1926,7 @@ char *va( const char *fmt, ... ) {
 idStr::BestUnit
 ============
 */
-int idStr::BestUnit( const char *format, float value, Measure_t measure ) {
+int idStr::BestUnit( const char *format, float value, const Measure_t measure ) {
 	int unit = 1;
 	while ( unit <= 3 && ( 1 << ( unit * 10 ) < value ) ) {
 		unit++;
@@ -1944,7 +1944,7 @@ int idStr::BestUnit( const char *format, float value, Measure_t measure ) {
 idStr::SetUnit
 ============
 */
-void idStr::SetUnit( const char *format, float value, int unit, Measure_t measure ) {
+void idStr::SetUnit( const char *format, float value, const int unit, const Measure_t measure ) {
 	value /= 1 << ( unit * 10 );
 	sprintf( *this, format, value );
 	*this += " ";

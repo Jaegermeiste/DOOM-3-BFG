@@ -49,7 +49,7 @@ void idCmdArgs::operator=( const idCmdArgs &args ) {
 idCmdArgs::Args
 ============
 */
-const char *idCmdArgs::Args(  int start, int end, bool escapeArgs ) const {
+const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) const {
 	static char cmd_args[MAX_COMMAND_STRING];
 	int		i;
 

@@ -40,14 +40,14 @@ If you have questions concerning this license or the applicable additional terms
 class idCmdArgs {
 public:
 							idCmdArgs() { argc = 0; }
-							idCmdArgs( const char *text, bool keepAsStrings ) { TokenizeString( text, keepAsStrings ); }
+							idCmdArgs( const char *text, const bool keepAsStrings ) { TokenizeString( text, keepAsStrings ); }
 
 	void					operator=( const idCmdArgs &args );
 
 							// The functions that execute commands get their parameters with these functions.
 	int						Argc() const { return argc; }
 							// Argv() will return an empty string, not NULL if arg >= argc.
-	const char *			Argv( int arg ) const { return ( arg >= 0 && arg < argc ) ? argv[arg] : ""; }
+	const char *			Argv(const int arg ) const { return ( arg >= 0 && arg < argc ) ? argv[arg] : ""; }
 							// Returns a single string containing argv(start) to argv(end)
 							// escapeArgs is a fugly way to put the string back into a state ready to tokenize again
 	const char *			Args( int start = 1, int end = -1, bool escapeArgs = false ) const;

@@ -47,7 +47,7 @@ void idLocalization::ClearDictionary() {
 idLocalization::LoadDictionary
 ========================
 */
-bool idLocalization::LoadDictionary( const byte * data, int dataLen, const char * fileName ) {
+bool idLocalization::LoadDictionary( const byte * data, const int dataLen, const char * fileName ) {
 	return languageDict.Load( data, dataLen, fileName );
 }
 
@@ -523,7 +523,7 @@ int idLangDict::GetNumKeyVals() const {
 idLangDict::GetKeyVal
 ========================
 */
-const idLangKeyValue * idLangDict::GetKeyVal( int i ) const {
+const idLangKeyValue * idLangDict::GetKeyVal(const int i ) const {
 	return &keyVals[i];
 }
 

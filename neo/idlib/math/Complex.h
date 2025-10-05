@@ -115,12 +115,12 @@ ID_INLINE void idComplex::Zero() {
 	r = i = 0.0f;
 }
 
-ID_INLINE float idComplex::operator[]( int index ) const {
+ID_INLINE float idComplex::operator[](const int index ) const {
 	assert( index >= 0 && index < 2 );
 	return ( &r )[ index ];
 }
 
-ID_INLINE float& idComplex::operator[]( int index ) {
+ID_INLINE float& idComplex::operator[](const int index ) {
 	assert( index >= 0 && index < 2 );
 	return ( &r )[ index ];
 }

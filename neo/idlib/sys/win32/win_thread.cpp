@@ -46,7 +46,7 @@ typedef struct tagTHREADNAME_INFO {
 Sys_SetThreadName
 ========================
 */
-void Sys_SetThreadName( DWORD threadID, const char * name ) {
+void Sys_SetThreadName(const DWORD threadID, const char * name ) {
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;
 	info.szName = name;
@@ -76,13 +76,13 @@ void Sys_SetCurrentThreadName( const char * name ) {
 Sys_Createthread
 ========================
 */
-uintptr_t Sys_CreateThread( xthread_t function, void *parms, xthreadPriority priority, const char *name, core_t core, int stackSize, bool suspended ) {
+uintptr_t Sys_CreateThread(const xthread_t function, void *parms, const xthreadPriority priority, const char *name, core_t core, const int stackSize, const bool suspended ) {
 
 	DWORD flags = ( suspended ? CREATE_SUSPENDED : 0 );
 	// Without this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Commit Size"
 	// and the "Stack Reserve Size" is set to the value specified at link-time.
 	// With this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Reserve Size"
-	// and the “Stack Commit Size” is set to the value specified at link-time.
+	// and the ï¿½Stack Commit Sizeï¿½ is set to the value specified at link-time.
 	// For various reasons (some of which historic) we reserve a large amount of stack space in the
 	// project settings. By setting this flag and by specifying 64 kB for the "Stack Commit Size" in
 	// the project settings we can create new threads with a much smaller reserved (and committed)
@@ -137,7 +137,7 @@ uintptr_t Sys_GetCurrentThreadID() {
 Sys_WaitForThread
 ========================
 */
-void Sys_WaitForThread( uintptr_t threadHandle ) {
+void Sys_WaitForThread(const uintptr_t threadHandle ) {
 	WaitForSingleObject( (HANDLE)threadHandle, INFINITE );
 }
 
@@ -146,7 +146,7 @@ void Sys_WaitForThread( uintptr_t threadHandle ) {
 Sys_DestroyThread
 ========================
 */
-void Sys_DestroyThread( uintptr_t threadHandle ) {
+void Sys_DestroyThread(const uintptr_t threadHandle ) {
 	if ( threadHandle == 0 ) {
 		return;
 	}
@@ -176,7 +176,7 @@ void Sys_Yield() {
 Sys_SignalCreate
 ========================
 */
-void Sys_SignalCreate( signalHandle_t & handle, bool manualReset ) {
+void Sys_SignalCreate( signalHandle_t & handle, const bool manualReset ) {
 	handle = CreateEvent( NULL, manualReset, FALSE, NULL );
 }
 
@@ -213,7 +213,7 @@ void Sys_SignalClear( signalHandle_t & handle ) {
 Sys_SignalWait
 ========================
 */
-bool Sys_SignalWait( signalHandle_t & handle, int timeout ) {
+bool Sys_SignalWait( signalHandle_t & handle, const int timeout ) {
 	DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
 	assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
 	return ( result == WAIT_OBJECT_0 );
@@ -250,7 +250,7 @@ void Sys_MutexDestroy( mutexHandle_t & handle ) {
 Sys_MutexLock
 ========================
 */
-bool Sys_MutexLock( mutexHandle_t & handle, bool blocking ) {
+bool Sys_MutexLock( mutexHandle_t & handle, const bool blocking ) {
 	if ( TryEnterCriticalSection( &handle ) == 0 ) {
 		if ( !blocking ) {
 			return false;
@@ -300,7 +300,7 @@ interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t & value ) {
 Sys_InterlockedAdd
 ========================
 */
-interlockedInt_t Sys_InterlockedAdd( interlockedInt_t & value, interlockedInt_t i ) {
+interlockedInt_t Sys_InterlockedAdd( interlockedInt_t & value, const interlockedInt_t i ) {
 	return InterlockedExchangeAdd( & value, i ) + i;
 }
 
@@ -309,7 +309,7 @@ interlockedInt_t Sys_InterlockedAdd( interlockedInt_t & value, interlockedInt_t 
 Sys_InterlockedSub
 ========================
 */
-interlockedInt_t Sys_InterlockedSub( interlockedInt_t & value, interlockedInt_t i ) {
+interlockedInt_t Sys_InterlockedSub( interlockedInt_t & value, const interlockedInt_t i ) {
 	return InterlockedExchangeAdd( & value, - i ) - i;
 }
 
@@ -318,7 +318,7 @@ interlockedInt_t Sys_InterlockedSub( interlockedInt_t & value, interlockedInt_t 
 Sys_InterlockedExchange
 ========================
 */
-interlockedInt_t Sys_InterlockedExchange( interlockedInt_t & value, interlockedInt_t exchange ) {
+interlockedInt_t Sys_InterlockedExchange( interlockedInt_t & value, const interlockedInt_t exchange ) {
 	return InterlockedExchange( & value, exchange );
 }
 
@@ -327,7 +327,7 @@ interlockedInt_t Sys_InterlockedExchange( interlockedInt_t & value, interlockedI
 Sys_InterlockedCompareExchange
 ========================
 */
-interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t & value, interlockedInt_t comparand, interlockedInt_t exchange ) {
+interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t & value, const interlockedInt_t comparand, const interlockedInt_t exchange ) {
 	return InterlockedCompareExchange( & value, exchange, comparand );
 }
 

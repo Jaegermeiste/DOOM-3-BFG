@@ -36,17 +36,17 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-ID_INLINE_EXTERN float __fmuls( float a, float b )				{	return ( a * b ); }
-ID_INLINE_EXTERN float __fmadds( float a, float b, float c )	{	return ( a * b + c ); }
-ID_INLINE_EXTERN float __fnmsubs( float a, float b, float c )	{	return ( c - a * b ); }
-ID_INLINE_EXTERN float __fsels( float a, float b, float c )		{	return ( a >= 0.0f ) ? b : c; }
-ID_INLINE_EXTERN float __frcps( float x )						{	return ( 1.0f / x ); }
-ID_INLINE_EXTERN float __fdivs( float x, float y )				{	return ( x / y ); }
-ID_INLINE_EXTERN float __frsqrts( float x )						{	return ( 1.0f / sqrtf( x ) ); }
-ID_INLINE_EXTERN float __frcps16( float x )						{	return ( 1.0f / x ); }
-ID_INLINE_EXTERN float __fdivs16( float x, float y )			{	return ( x / y ); }
-ID_INLINE_EXTERN float __frsqrts16( float x )					{	return ( 1.0f / sqrtf( x ) ); }
-ID_INLINE_EXTERN float __frndz( float x )						{	return (float)( (int)( x ) ); }
+ID_INLINE_EXTERN float __fmuls(const float a, const float b )				{	return ( a * b ); }
+ID_INLINE_EXTERN float __fmadds(const float a, const float b, const float c )	{	return ( a * b + c ); }
+ID_INLINE_EXTERN float __fnmsubs(const float a, const float b, const float c )	{	return ( c - a * b ); }
+ID_INLINE_EXTERN float __fsels(const float a, const float b, const float c )		{	return ( a >= 0.0f ) ? b : c; }
+ID_INLINE_EXTERN float __frcps(const float x )						{	return ( 1.0f / x ); }
+ID_INLINE_EXTERN float __fdivs(const float x, const float y )				{	return ( x / y ); }
+ID_INLINE_EXTERN float __frsqrts(const float x )						{	return ( 1.0f / sqrtf( x ) ); }
+ID_INLINE_EXTERN float __frcps16(const float x )						{	return ( 1.0f / x ); }
+ID_INLINE_EXTERN float __fdivs16(const float x, const float y )			{	return ( x / y ); }
+ID_INLINE_EXTERN float __frsqrts16(const float x )					{	return ( 1.0f / sqrtf( x ) ); }
+ID_INLINE_EXTERN float __frndz(const float x )						{	return (float)( (int)( x ) ); }
 
 /*
 ================================================================================================
@@ -96,7 +96,7 @@ ID_FORCE_INLINE void FlushCacheLine( const void * ptr, int offset ) {
 #define CACHE_LINE_SIZE						128
 
 ID_INLINE void Prefetch( const void * ptr, int offset ) {}
-ID_INLINE void ZeroCacheLine( void * ptr, int offset ) {
+ID_INLINE void ZeroCacheLine( void * ptr, const int offset ) {
 	byte * bytePtr = (byte *)( ( ( (UINT_PTR) ( ptr ) ) + ( offset ) ) & ~( CACHE_LINE_SIZE - 1 ) );
 	memset( bytePtr, 0, CACHE_LINE_SIZE );
 }
@@ -111,7 +111,7 @@ ID_INLINE void FlushCacheLine( const void * ptr, int offset ) {}
 */
 
 // number of additional elements that are potentially cleared when clearing whole cache lines at a time
-ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT( int size ) {
+ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT(const int size ) {
 	if ( ( size & ( CACHE_LINE_SIZE - 1 ) ) == 0 ) {
 		return 0;
 	}
@@ -158,8 +158,8 @@ ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT( int size ) {
 // make the intrinsics "type unsafe"
 typedef union __declspec(intrin_type) _CRT_ALIGN(16) __m128c {
 				__m128c() {}
-				__m128c( __m128 f ) { m128 = f; }
-				__m128c( __m128i i ) { m128i = i; }
+				__m128c(const __m128 f ) { m128 = f; }
+				__m128c(const __m128i i ) { m128i = i; }
 	operator	__m128() { return m128; }
 	operator	__m128i() { return m128i; }
 	__m128		m128;
@@ -175,12 +175,12 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) __m128c {
 #define _mm_sld_ps( x, y, imm )				__m128c( _mm_or_si128( _mm_srli_si128( __m128c( x ), imm ), _mm_slli_si128( __m128c( y ), 16 - imm ) ) )
 #define _mm_sld_si128( x, y, imm )			_mm_or_si128( _mm_srli_si128( x, imm ), _mm_slli_si128( y, 16 - imm ) )
 
-ID_FORCE_INLINE_EXTERN __m128 _mm_msum3_ps( __m128 a, __m128 b )	{
+ID_FORCE_INLINE_EXTERN __m128 _mm_msum3_ps(const __m128 a, const __m128 b )	{
 	__m128 c = _mm_mul_ps( a, b );
 	return _mm_add_ps( _mm_splat_ps( c, 0 ), _mm_add_ps( _mm_splat_ps( c, 1 ), _mm_splat_ps( c, 2 ) ) );
 }
 
-ID_FORCE_INLINE_EXTERN __m128 _mm_msum4_ps( __m128 a, __m128 b ) {
+ID_FORCE_INLINE_EXTERN __m128 _mm_msum4_ps(const __m128 a, const __m128 b ) {
 	__m128 c = _mm_mul_ps( a, b );
 	c = _mm_add_ps( c, _mm_perm_ps( c, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	c = _mm_add_ps( c, _mm_perm_ps( c, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
@@ -192,24 +192,24 @@ ID_FORCE_INLINE_EXTERN __m128 _mm_msum4_ps( __m128 a, __m128 b ) {
 #define _mm_storeh_epi64( address, x )		_mm_storeh_pi( (__m64 *)address, __m128c( x ) )
 
 // floating-point reciprocal with close to full precision
-ID_FORCE_INLINE_EXTERN __m128 _mm_rcp32_ps( __m128 x ) {
+ID_FORCE_INLINE_EXTERN __m128 _mm_rcp32_ps(const __m128 x ) {
 	__m128 r = _mm_rcp_ps( x );		// _mm_rcp_ps() has 12 bits of precision
 	r = _mm_sub_ps( _mm_add_ps( r, r ), _mm_mul_ps( _mm_mul_ps( x, r ), r ) );
 	r = _mm_sub_ps( _mm_add_ps( r, r ), _mm_mul_ps( _mm_mul_ps( x, r ), r ) );
 	return r;
 }
 // floating-point reciprocal with at least 16 bits precision
-ID_FORCE_INLINE_EXTERN __m128 _mm_rcp16_ps( __m128 x ) {
+ID_FORCE_INLINE_EXTERN __m128 _mm_rcp16_ps(const __m128 x ) {
 	__m128 r = _mm_rcp_ps( x );		// _mm_rcp_ps() has 12 bits of precision
 	r = _mm_sub_ps( _mm_add_ps( r, r ), _mm_mul_ps( _mm_mul_ps( x, r ), r ) );
 	return r;
 }
 // floating-point divide with close to full precision
-ID_FORCE_INLINE_EXTERN __m128 _mm_div32_ps( __m128 x, __m128 y ) {
+ID_FORCE_INLINE_EXTERN __m128 _mm_div32_ps(const __m128 x, const __m128 y ) {
 	return _mm_mul_ps( x, _mm_rcp32_ps( y ) );
 }
 // floating-point divide with at least 16 bits precision
-ID_FORCE_INLINE_EXTERN __m128 _mm_div16_ps( __m128 x, __m128 y ) {
+ID_FORCE_INLINE_EXTERN __m128 _mm_div16_ps(const __m128 x, const __m128 y ) {
 	return _mm_mul_ps( x, _mm_rcp16_ps( y ) );
 }
 // load idBounds::GetMins()

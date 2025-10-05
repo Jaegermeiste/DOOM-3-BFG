@@ -1239,8 +1239,8 @@ GetMaxStep_SIMD
 ========================
 */
 static void GetMaxStep_SIMD( const float * f, const float * a, const float * delta_f, const float * delta_a,
-							const float * lo, const float * hi, const int * side, int numUnbounded, int numClamped,
-							int d, float dir, float & maxStep, int & limit, int & limitSide ) {
+							const float * lo, const float * hi, const int * side, const int numUnbounded, const int numClamped,
+							const int d, float dir, float & maxStep, int & limit, int & limitSide ) {
 
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
@@ -1753,7 +1753,7 @@ void idLCP_Square::SolveClamped( idVecX & x, const float * b ) {
 idLCP_Square::Swap
 ========================
 */
-void idLCP_Square::Swap( int i, int j ) {
+void idLCP_Square::Swap(const int i, const int j ) {
 
 	if ( i == j ) {
 		return;
@@ -1778,7 +1778,7 @@ void idLCP_Square::Swap( int i, int j ) {
 idLCP_Square::AddClamped
 ========================
 */
-void idLCP_Square::AddClamped( int r ) {
+void idLCP_Square::AddClamped(const int r ) {
 
 	assert( r >= numClamped );
 
@@ -1815,7 +1815,7 @@ void idLCP_Square::AddClamped( int r ) {
 idLCP_Square::RemoveClamped
 ========================
 */
-void idLCP_Square::RemoveClamped( int r ) {
+void idLCP_Square::RemoveClamped(const int r ) {
 
 	if ( !verify( r < numClamped ) ) {
 		// complete fail, most likely due to exceptional floating point values
@@ -1943,7 +1943,7 @@ idLCP_Square::CalcForceDelta
 Modifies this->delta_f.
 ========================
 */
-void idLCP_Square::CalcForceDelta( int d, float dir ) {
+void idLCP_Square::CalcForceDelta(const int d, const float dir ) {
 
 	delta_f[d] = dir;
 
@@ -1976,7 +1976,7 @@ idLCP_Square::CalcAccelDelta
 Modifies this->delta_a and uses this->delta_f.
 ========================
 */
-ID_INLINE void idLCP_Square::CalcAccelDelta( int d ) {
+ID_INLINE void idLCP_Square::CalcAccelDelta(const int d ) {
 	// only the not clamped variables, including the current variable, can have a change in acceleration
 	for ( int j = numClamped; j <= d; j++ ) {
 		// only the clamped variables and the current variable have a force delta unequal zero
@@ -1992,7 +1992,7 @@ idLCP_Square::ChangeForce
 Modifies this->f and uses this->delta_f.
 ========================
 */
-ID_INLINE void idLCP_Square::ChangeForce( int d, float step ) {
+ID_INLINE void idLCP_Square::ChangeForce(const int d, const float step ) {
 	// only the clamped variables and current variable have a force delta unequal zero
 	MultiplyAdd( f.ToFloatPtr(), step, delta_f.ToFloatPtr(), numClamped );
 	f[d] += step * delta_f[d];
@@ -2005,7 +2005,7 @@ idLCP_Square::ChangeAccel
 Modifies this->a and uses this->delta_a.
 ========================
 */
-ID_INLINE void idLCP_Square::ChangeAccel( int d, float step ) {
+ID_INLINE void idLCP_Square::ChangeAccel(const int d, const float step ) {
 	// only the not clamped variables, including the current variable, can have an acceleration unequal zero
 	MultiplyAdd( a.ToFloatPtr() + numClamped, step, delta_a.ToFloatPtr() + numClamped, d - numClamped + 1 );
 }
@@ -2370,7 +2370,7 @@ void idLCP_Symmetric::SolveClamped( idVecX &x, const float *b ) {
 idLCP_Symmetric::Swap
 ========================
 */
-void idLCP_Symmetric::Swap( int i, int j ) {
+void idLCP_Symmetric::Swap(const int i, const int j ) {
 
 	if ( i == j ) {
 		return;
@@ -2395,7 +2395,7 @@ void idLCP_Symmetric::Swap( int i, int j ) {
 idLCP_Symmetric::AddClamped
 ========================
 */
-void idLCP_Symmetric::AddClamped( int r, bool useSolveCache ) {
+void idLCP_Symmetric::AddClamped(const int r, const bool useSolveCache ) {
 
 	assert( r >= numClamped );
 
@@ -2447,7 +2447,7 @@ void idLCP_Symmetric::AddClamped( int r, bool useSolveCache ) {
 idLCP_Symmetric::RemoveClamped
 ========================
 */
-void idLCP_Symmetric::RemoveClamped( int r ) {
+void idLCP_Symmetric::RemoveClamped(const int r ) {
 
 	if ( !verify( r < numClamped ) ) {
 		// complete fail, most likely due to exceptional floating point values
@@ -2631,7 +2631,7 @@ idLCP_Symmetric::CalcForceDelta
 Modifies this->delta_f.
 ========================
 */
-ID_INLINE void idLCP_Symmetric::CalcForceDelta( int d, float dir ) {
+ID_INLINE void idLCP_Symmetric::CalcForceDelta(const int d, const float dir ) {
 
 	delta_f[d] = dir;
 
@@ -2658,7 +2658,7 @@ idLCP_Symmetric::CalcAccelDelta
 Modifies this->delta_a and uses this->delta_f.
 ========================
 */
-ID_INLINE void idLCP_Symmetric::CalcAccelDelta( int d ) {
+ID_INLINE void idLCP_Symmetric::CalcAccelDelta(const int d ) {
 	// only the not clamped variables, including the current variable, can have a change in acceleration
 	for ( int j = numClamped; j <= d; j++ ) {
 		// only the clamped variables and the current variable have a force delta unequal zero
@@ -2674,7 +2674,7 @@ idLCP_Symmetric::ChangeForce
 Modifies this->f and uses this->delta_f.
 ========================
 */
-ID_INLINE void idLCP_Symmetric::ChangeForce( int d, float step ) {
+ID_INLINE void idLCP_Symmetric::ChangeForce(const int d, const float step ) {
 	// only the clamped variables and current variable have a force delta unequal zero
 	MultiplyAdd( f.ToFloatPtr(), step, delta_f.ToFloatPtr(), numClamped );
 	f[d] += step * delta_f[d];
@@ -2687,7 +2687,7 @@ idLCP_Symmetric::ChangeAccel
 Modifies this->a and uses this->delta_a.
 ========================
 */
-ID_INLINE void idLCP_Symmetric::ChangeAccel( int d, float step ) {
+ID_INLINE void idLCP_Symmetric::ChangeAccel(const int d, const float step ) {
 	// only the not clamped variables, including the current variable, can have an acceleration unequal zero
 	MultiplyAdd( a.ToFloatPtr() + numClamped, step, delta_a.ToFloatPtr() + numClamped, d - numClamped + 1 );
 }
@@ -3013,7 +3013,7 @@ idLCP::~idLCP() {
 idLCP::SetMaxIterations
 ========================
 */
-void idLCP::SetMaxIterations( int max ) {
+void idLCP::SetMaxIterations(const int max ) {
 	maxIterations = max;
 }
 

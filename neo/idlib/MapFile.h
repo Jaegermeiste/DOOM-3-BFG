@@ -105,7 +105,7 @@ public:
 	bool					Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const;
 	int						GetNumSides() const { return sides.Num(); }
 	int						AddSide( idMapBrushSide *side ) { return sides.Append( side ); }
-	idMapBrushSide *		GetSide( int i ) const { return sides[i]; }
+	idMapBrushSide *		GetSide(const int i ) const { return sides[i]; }
 	unsigned int			GetGeometryCRC() const;
 
 protected:
@@ -126,9 +126,9 @@ public:
 	int						GetHorzSubdivisions() const { return horzSubdivisions; }
 	int						GetVertSubdivisions() const { return vertSubdivisions; }
 	bool					GetExplicitlySubdivided() const { return explicitSubdivisions; }
-	void					SetHorzSubdivisions( int n ) { horzSubdivisions = n; }
-	void					SetVertSubdivisions( int n ) { vertSubdivisions = n; }
-	void					SetExplicitlySubdivided( bool b ) { explicitSubdivisions = b; }
+	void					SetHorzSubdivisions(const int n ) { horzSubdivisions = n; }
+	void					SetVertSubdivisions(const int n ) { vertSubdivisions = n; }
+	void					SetExplicitlySubdivided(const bool b ) { explicitSubdivisions = b; }
 	unsigned int			GetGeometryCRC() const;
 
 protected:
@@ -147,7 +147,7 @@ ID_INLINE idMapPatch::idMapPatch() {
 	expanded = false;
 }
 
-ID_INLINE idMapPatch::idMapPatch( int maxPatchWidth, int maxPatchHeight ) {
+ID_INLINE idMapPatch::idMapPatch(const int maxPatchWidth, const int maxPatchHeight ) {
 	type = TYPE_PATCH;
 	horzSubdivisions = vertSubdivisions = 0;
 	explicitSubdivisions = false;
@@ -171,7 +171,7 @@ public:
 	static idMapEntity *	Parse( idLexer &src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile *fp, int entityNum ) const;
 	int						GetNumPrimitives() const { return primitives.Num(); }
-	idMapPrimitive *		GetPrimitive( int i ) const { return primitives[i]; }
+	idMapPrimitive *		GetPrimitive(const int i ) const { return primitives[i]; }
 	void					AddPrimitive( idMapPrimitive *p ) { primitives.Append( p ); }
 	unsigned int			GetGeometryCRC() const;
 	void					RemovePrimitiveData();
@@ -195,7 +195,7 @@ public:
 							// get the number of entities in the map
 	int						GetNumEntities() const { return entities.Num(); }
 							// get the specified entity
-	idMapEntity *			GetEntity( int i ) const { return entities[i]; }
+	idMapEntity *			GetEntity(const int i ) const { return entities[i]; }
 							// get the name without file extension
 	const char *			GetName() const { return name; }
 							// get the file time

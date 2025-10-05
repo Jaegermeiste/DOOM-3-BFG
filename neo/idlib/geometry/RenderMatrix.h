@@ -59,8 +59,8 @@ public:
 											float c0, float c1, float c2, float c3,
 											float d0, float d1, float d2, float d3 );
 
-	const float *			operator[]( int index ) const { assert( index >= 0 && index < 4 ); return &m[index*4]; }
-	float *					operator[]( int index ) { assert( index >= 0 && index < 4 ); return &m[index*4]; }
+	const float *			operator[](const int index ) const { assert( index >= 0 && index < 4 ); return &m[index*4]; }
+	float *					operator[](const int index ) { assert( index >= 0 && index < 4 ); return &m[index*4]; }
 
 	void					Zero() { memset( m, 0, sizeof( m ) ); }
 	ID_INLINE void			Identity();
@@ -159,10 +159,10 @@ extern const idRenderMatrix renderMatrix_windowSpaceToClipSpace;
 idRenderMatrix::idRenderMatrix
 ========================
 */
-ID_INLINE idRenderMatrix::idRenderMatrix(	float a0, float a1, float a2, float a3,
-											float b0, float b1, float b2, float b3,
-											float c0, float c1, float c2, float c3,
-											float d0, float d1, float d2, float d3 ) {
+ID_INLINE idRenderMatrix::idRenderMatrix(const float a0, const float a1, const float a2, const float a3,
+											const float b0, const float b1, const float b2, const float b3,
+											const float c0, const float c1, const float c2, const float c3,
+											const float d0, const float d1, const float d2, const float d3 ) {
 	m[0*4+0] = a0; m[0*4+1] = a1; m[0*4+2] = a2; m[0*4+3] = a3;
 	m[1*4+0] = b0; m[1*4+1] = b1; m[1*4+2] = b2; m[1*4+3] = b3;
 	m[2*4+0] = c0; m[2*4+1] = c1; m[2*4+2] = c2; m[2*4+3] = c3;
@@ -201,7 +201,7 @@ ID_INLINE void idRenderMatrix::Identity() {
 idRenderMatrix::IsZero
 ========================
 */
-ID_INLINE bool idRenderMatrix::IsZero( float epsilon ) const {
+ID_INLINE bool idRenderMatrix::IsZero(const float epsilon ) const {
 	for ( int i = 0; i < 16; i++ ) {
 		if ( idMath::Fabs( m[i] ) > epsilon ) {
 			return false;
@@ -215,7 +215,7 @@ ID_INLINE bool idRenderMatrix::IsZero( float epsilon ) const {
 idRenderMatrix::IsIdentity
 ========================
 */
-ID_INLINE bool idRenderMatrix::IsIdentity( float epsilon ) const {
+ID_INLINE bool idRenderMatrix::IsIdentity(const float epsilon ) const {
 	for ( int i = 0; i < 4; i++ ) {
 		for ( int j = 0; j < 4; j++ ) {
 			if ( i == j ) {
@@ -237,7 +237,7 @@ ID_INLINE bool idRenderMatrix::IsIdentity( float epsilon ) const {
 idRenderMatrix::IsAffineTransform
 ========================
 */
-ID_INLINE bool idRenderMatrix::IsAffineTransform( float epsilon ) const {
+ID_INLINE bool idRenderMatrix::IsAffineTransform(const float epsilon ) const {
 	if ( idMath::Fabs( m[3 * 4 + 0] ) > epsilon ||
 			idMath::Fabs( m[3 * 4 + 1] ) > epsilon ||
 				idMath::Fabs( m[3 * 4 + 2] ) > epsilon ||
@@ -252,7 +252,7 @@ ID_INLINE bool idRenderMatrix::IsAffineTransform( float epsilon ) const {
 idRenderMatrix::IsUniformScale
 ========================
 */
-ID_INLINE bool idRenderMatrix::IsUniformScale( float epsilon ) const {
+ID_INLINE bool idRenderMatrix::IsUniformScale(const float epsilon ) const {
 	float d0 = idMath::InvSqrt( m[0*4+0] * m[0*4+0] + m[1*4+0] * m[1*4+0] + m[2*4+0] * m[2*4+0] );
 	float d1 = idMath::InvSqrt( m[0*4+1] * m[0*4+1] + m[1*4+1] * m[1*4+1] + m[2*4+1] * m[2*4+1] );
 	float d2 = idMath::InvSqrt( m[0*4+2] * m[0*4+2] + m[1*4+2] * m[1*4+2] + m[2*4+2] * m[2*4+2] );
@@ -309,7 +309,7 @@ ID_INLINE void idRenderMatrix::TransformPoint( const idVec4 & in, idVec4 & out )
 idRenderMatrix::TransformDir
 ========================
 */
-ID_INLINE void idRenderMatrix::TransformDir( const idVec3 & in, idVec3 & out, bool normalize ) const {
+ID_INLINE void idRenderMatrix::TransformDir( const idVec3 & in, idVec3 & out, const bool normalize ) const {
 	const idRenderMatrix & matrix = *this;
 	float p0 = in[0] * matrix[0][0] + in[1] * matrix[0][1] + in[2] * matrix[0][2];
 	float p1 = in[0] * matrix[1][0] + in[1] * matrix[1][1] + in[2] * matrix[1][2];
@@ -330,7 +330,7 @@ ID_INLINE void idRenderMatrix::TransformDir( const idVec3 & in, idVec3 & out, bo
 idRenderMatrix::TransformPlane
 ========================
 */
-ID_INLINE void idRenderMatrix::TransformPlane( const idPlane & in, idPlane & out, bool normalize ) const {
+ID_INLINE void idRenderMatrix::TransformPlane( const idPlane & in, idPlane & out, const bool normalize ) const {
 	assert( IsUniformScale( 0.01f ) );
 	const idRenderMatrix & matrix = *this;
 	float p0 = in[0] * matrix[0][0] + in[1] * matrix[0][1] + in[2] * matrix[0][2];
@@ -356,7 +356,7 @@ ID_INLINE void idRenderMatrix::TransformPlane( const idPlane & in, idPlane & out
 idRenderMatrix::InverseTransformDir
 ========================
 */
-ID_INLINE void idRenderMatrix::InverseTransformDir( const idVec3 & in, idVec3 & out, bool normalize ) const {
+ID_INLINE void idRenderMatrix::InverseTransformDir( const idVec3 & in, idVec3 & out, const bool normalize ) const {
 	assert( in.ToFloatPtr() != out.ToFloatPtr() );
 	const idRenderMatrix & matrix = *this;
 	float p0 = in[0] * matrix[0][0] + in[1] * matrix[1][0] + in[2] * matrix[2][0];
@@ -378,7 +378,7 @@ ID_INLINE void idRenderMatrix::InverseTransformDir( const idVec3 & in, idVec3 & 
 idRenderMatrix::InverseTransformPlane
 ========================
 */
-ID_INLINE void idRenderMatrix::InverseTransformPlane( const idPlane & in, idPlane & out, bool normalize ) const {
+ID_INLINE void idRenderMatrix::InverseTransformPlane( const idPlane & in, idPlane & out, const bool normalize ) const {
 	assert( in.ToFloatPtr() != out.ToFloatPtr() );
 	const idRenderMatrix & matrix = *this;
 	float p0 = in[0] * matrix[0][0] + in[1] * matrix[1][0] + in[2] * matrix[2][0] + in[3] * matrix[3][0];
@@ -451,7 +451,7 @@ ID_INLINE void idRenderMatrix::ApplyDepthHack( idRenderMatrix & src ) {
 idRenderMatrix::ApplyModelDepthHack
 ========================
 */
-ID_INLINE void idRenderMatrix::ApplyModelDepthHack( idRenderMatrix & src, float value ) {
+ID_INLINE void idRenderMatrix::ApplyModelDepthHack( idRenderMatrix & src, const float value ) {
 	// offset projected z
 	src.m[2*4+3] -= value;
 }
@@ -461,7 +461,7 @@ ID_INLINE void idRenderMatrix::ApplyModelDepthHack( idRenderMatrix & src, float 
 idRenderMatrix::CullPointToMVP
 ========================
 */
-ID_INLINE bool idRenderMatrix::CullPointToMVP( const idRenderMatrix & mvp, const idVec3 & point, bool zeroToOne ) {
+ID_INLINE bool idRenderMatrix::CullPointToMVP( const idRenderMatrix & mvp, const idVec3 & point, const bool zeroToOne ) {
 	byte bits;
 	return CullPointToMVPbits( mvp, point, &bits, zeroToOne );
 }
@@ -471,7 +471,7 @@ ID_INLINE bool idRenderMatrix::CullPointToMVP( const idRenderMatrix & mvp, const
 idRenderMatrix::CullBoundsToMVP
 ========================
 */
-ID_INLINE bool idRenderMatrix::CullBoundsToMVP( const idRenderMatrix & mvp, const idBounds & bounds, bool zeroToOne ) {
+ID_INLINE bool idRenderMatrix::CullBoundsToMVP( const idRenderMatrix & mvp, const idBounds & bounds, const bool zeroToOne ) {
 	byte bits;
 	return CullBoundsToMVPbits( mvp, bounds, &bits, zeroToOne );
 }
@@ -481,7 +481,7 @@ ID_INLINE bool idRenderMatrix::CullBoundsToMVP( const idRenderMatrix & mvp, cons
 idRenderMatrix::CullExtrudedBoundsToMVP
 ========================
 */
-ID_INLINE bool idRenderMatrix::CullExtrudedBoundsToMVP( const idRenderMatrix & mvp, const idBounds & bounds, const idVec3 & extrudeDirection, const idPlane & clipPlane, bool zeroToOne ) {
+ID_INLINE bool idRenderMatrix::CullExtrudedBoundsToMVP( const idRenderMatrix & mvp, const idBounds & bounds, const idVec3 & extrudeDirection, const idPlane & clipPlane, const bool zeroToOne ) {
 	byte bits;
 	return CullExtrudedBoundsToMVPbits( mvp, bounds, extrudeDirection, clipPlane, &bits, zeroToOne );
 }

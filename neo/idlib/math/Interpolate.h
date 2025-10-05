@@ -49,7 +49,7 @@ public:
 	void				SetEndValue( const type &endValue ) { this->endValue = endValue; }
 
 	type				GetCurrentValue( int time ) const;
-	bool				IsDone( int time ) const { return ( time >= startTime + duration ); }
+	bool				IsDone(const int time ) const { return ( time >= startTime + duration ); }
 
 	int					GetStartTime() const { return startTime; }
 	int					GetEndTime() const { return startTime + duration; }
@@ -95,7 +95,7 @@ idInterpolate::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idInterpolate<type>::GetCurrentValue( int time ) const {
+ID_INLINE type idInterpolate<type>::GetCurrentValue(const int time ) const {
 	if ( time <= startTime ) {
 		return startValue;
 	} else if ( time >= startTime + duration ) {
@@ -123,13 +123,13 @@ public:
 						idInterpolateAccelDecelLinear();
 
 	void				Init( const int startTime, const int accelTime, const int decelTime, const int duration, const type &startValue, const type &endValue );
-	void				SetStartTime( int time ) { startTime = time; Invalidate(); }
+	void				SetStartTime(const int time ) { startTime = time; Invalidate(); }
 	void				SetStartValue( const type &startValue ) { this->startValue = startValue; Invalidate(); }
 	void				SetEndValue( const type &endValue ) { this->endValue = endValue; Invalidate(); }
 
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
-	bool				IsDone( int time ) const { return ( time >= startTime + accelTime + linearTime + decelTime ); }
+	bool				IsDone(const int time ) const { return ( time >= startTime + accelTime + linearTime + decelTime ); }
 
 	int					GetStartTime() const { return startTime; }
 	int					GetEndTime() const { return startTime + accelTime + linearTime + decelTime; }
@@ -213,7 +213,7 @@ idInterpolateAccelDecelLinear::SetPhase
 ====================
 */
 template< class type >
-ID_INLINE void idInterpolateAccelDecelLinear<type>::SetPhase( int time ) const {
+ID_INLINE void idInterpolateAccelDecelLinear<type>::SetPhase(const int time ) const {
 	const float deltaTime = time - startTime;
 	if ( deltaTime < accelTime ) {
 		if ( extrapolate.GetExtrapolationType() != EXTRAPOLATION_ACCELLINEAR ) {
@@ -268,13 +268,13 @@ public:
 						idInterpolateAccelDecelSine();
 
 	void				Init( const int startTime, const int accelTime, const int decelTime, const int duration, const type &startValue, const type &endValue );
-	void				SetStartTime( int time ) { startTime = time; Invalidate(); }
+	void				SetStartTime(const int time ) { startTime = time; Invalidate(); }
 	void				SetStartValue( const type &startValue ) { this->startValue = startValue; Invalidate(); }
 	void				SetEndValue( const type &endValue ) { this->endValue = endValue; Invalidate(); }
 
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
-	bool				IsDone( int time ) const { return ( time >= startTime + accelTime + linearTime + decelTime ); }
+	bool				IsDone(const int time ) const { return ( time >= startTime + accelTime + linearTime + decelTime ); }
 
 	int					GetStartTime() const { return startTime; }
 	int					GetEndTime() const { return startTime + accelTime + linearTime + decelTime; }
@@ -358,7 +358,7 @@ idInterpolateAccelDecelSine::SetPhase
 ====================
 */
 template< class type >
-ID_INLINE void idInterpolateAccelDecelSine<type>::SetPhase( int time ) const {
+ID_INLINE void idInterpolateAccelDecelSine<type>::SetPhase(const int time ) const {
 	const float deltaTime = time - startTime;
 	if ( deltaTime < accelTime ) {
 		if ( extrapolate.GetExtrapolationType() != EXTRAPOLATION_ACCELSINE ) {

@@ -127,12 +127,12 @@ ID_INLINE idMat2::idMat2( const float src[ 2 ][ 2 ] ) {
 	memcpy( mat, src, 2 * 2 * sizeof( float ) );
 }
 
-ID_INLINE const idVec2 &idMat2::operator[]( int index ) const {
+ID_INLINE const idVec2 &idMat2::operator[](const int index ) const {
 	//assert( ( index >= 0 ) && ( index < 2 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec2 &idMat2::operator[]( int index ) {
+ID_INLINE idVec2 &idMat2::operator[](const int index ) {
 	//assert( ( index >= 0 ) && ( index < 2 ) );
 	return mat[ index ];
 }
@@ -429,12 +429,12 @@ ID_INLINE idMat3::idMat3( const float src[ 3 ][ 3 ] ) {
 	memcpy( mat, src, 3 * 3 * sizeof( float ) );
 }
 
-ID_INLINE const idVec3 &idMat3::operator[]( int index ) const {
+ID_INLINE const idVec3 &idMat3::operator[](const int index ) const {
 	//assert( ( index >= 0 ) && ( index < 3 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec3 &idMat3::operator[]( int index ) {
+ID_INLINE idVec3 &idMat3::operator[](const int index ) {
 	//assert( ( index >= 0 ) && ( index < 3 ) );
 	return mat[ index ];
 }
@@ -870,12 +870,12 @@ ID_INLINE idMat4::idMat4( const float src[ 4 ][ 4 ] ) {
 	memcpy( mat, src, 4 * 4 * sizeof( float ) );
 }
 
-ID_INLINE const idVec4 &idMat4::operator[]( int index ) const {
+ID_INLINE const idVec4 &idMat4::operator[](const int index ) const {
 	//assert( ( index >= 0 ) && ( index < 4 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec4 &idMat4::operator[]( int index ) {
+ID_INLINE idVec4 &idMat4::operator[](const int index ) {
 	//assert( ( index >= 0 ) && ( index < 4 ) );
 	return mat[ index ];
 }
@@ -1214,12 +1214,12 @@ ID_INLINE idMat5::idMat5( const idVec5 &v0, const idVec5 &v1, const idVec5 &v2, 
 	mat[4] = v4;
 }
 
-ID_INLINE const idVec5 &idMat5::operator[]( int index ) const {
+ID_INLINE const idVec5 &idMat5::operator[](const int index ) const {
 	//assert( ( index >= 0 ) && ( index < 5 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec5 &idMat5::operator[]( int index ) {
+ID_INLINE idVec5 &idMat5::operator[](const int index ) {
 	//assert( ( index >= 0 ) && ( index < 5 ) );
 	return mat[ index ];
 }
@@ -1521,12 +1521,12 @@ ID_INLINE idMat6::idMat6( const float src[ 6 ][ 6 ] ) {
 	memcpy( mat, src, 6 * 6 * sizeof( float ) );
 }
 
-ID_INLINE const idVec6 &idMat6::operator[]( int index ) const {
+ID_INLINE const idVec6 &idMat6::operator[](const int index ) const {
 	//assert( ( index >= 0 ) && ( index < 6 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec6 &idMat6::operator[]( int index ) {
+ID_INLINE idVec6 &idMat6::operator[](const int index ) {
 	//assert( ( index >= 0 ) && ( index < 6 ) );
 	return mat[ index ];
 }
@@ -1714,7 +1714,7 @@ ID_INLINE bool idMat6::IsDiagonal( const float epsilon ) const {
 	return true;
 }
 
-ID_INLINE idMat3 idMat6::SubMat3( int n ) const {
+ID_INLINE idMat3 idMat6::SubMat3(const int n ) const {
 	assert( n >= 0 && n < 4 );
 	int b0 = ((n & 2) >> 1) * 3;
 	int b1 = (n & 1) * 3;

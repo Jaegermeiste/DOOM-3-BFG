@@ -349,7 +349,7 @@ void idParser::Warning( const char *str, ... ) const {
 idParser::PushIndent
 ================
 */
-void idParser::PushIndent( int type, int skip ) {
+void idParser::PushIndent(const int type, const int skip ) {
 	indent_t *indent;
 
 	indent = (indent_t *) Mem_Alloc(sizeof(indent_t), TAG_IDLIB_PARSER);
@@ -480,7 +480,7 @@ int idParser::UnreadSourceToken( idToken *token ) {
 idParser::ReadDefineParms
 ================
 */
-int idParser::ReadDefineParms( define_t *define, idToken **parms, int maxparms ) {
+int idParser::ReadDefineParms( define_t *define, idToken **parms, const int maxparms ) {
 	define_t *newdefine;
 	idToken token, *t, *last;
 	int i, done, lastcomma, numparms, indent;
@@ -1228,7 +1228,7 @@ void idParser::AddGlobalDefinesToSource() {
 idParser::Directive_if_def
 ================
 */
-int idParser::Directive_if_def( int type ) {
+int idParser::Directive_if_def(const int type ) {
 	idToken token;
 	define_t *d;
 	int skip;
@@ -1324,7 +1324,7 @@ typedef struct value_s
 	struct value_s *prev, *next;
 } value_t;
 
-int PC_OperatorPriority(int op) {
+int PC_OperatorPriority(const int op) {
 	switch(op) {
 		case P_MUL: return 15;
 		case P_DIV: return 15;
@@ -1814,7 +1814,7 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 idParser::Evaluate
 ================
 */
-int idParser::Evaluate( signed long int *intvalue, double *floatvalue, int integer ) {
+int idParser::Evaluate( signed long int *intvalue, double *floatvalue, const int integer ) {
 	idToken token, *firsttoken, *lasttoken;
 	idToken *t, *nexttoken;
 	define_t *define;
@@ -1905,7 +1905,7 @@ int idParser::Evaluate( signed long int *intvalue, double *floatvalue, int integ
 idParser::DollarEvaluate
 ================
 */
-int idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, int integer) {
+int idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, const int integer) {
 	int indent, defined = false;
 	idToken token, *firsttoken, *lasttoken;
 	idToken *t, *nexttoken;
@@ -2443,7 +2443,7 @@ int idParser::ExpectTokenString( const char *string ) {
 idParser::ExpectTokenType
 ================
 */
-int idParser::ExpectTokenType( int type, int subtype, idToken *token ) {
+int idParser::ExpectTokenType(const int type, const int subtype, idToken *token ) {
 	idStr str;
 
 	if ( !idParser::ReadToken( token ) ) {
@@ -2532,7 +2532,7 @@ int idParser::CheckTokenString( const char *string ) {
 idParser::CheckTokenType
 ================
 */
-int idParser::CheckTokenType( int type, int subtype, idToken *token ) {
+int idParser::CheckTokenType(const int type, const int subtype, idToken *token ) {
 	idToken tok;
 
 	if ( !ReadToken( &tok ) ) {
@@ -2574,7 +2574,7 @@ int idParser::PeekTokenString( const char *string ) {
 idParser::PeekTokenType
 ================
 */
-int idParser::PeekTokenType( int type, int subtype, idToken *token ) {
+int idParser::PeekTokenType(const int type, const int subtype, idToken *token ) {
 	idToken tok;
 
 	if ( !ReadToken( &tok ) ) {
@@ -2632,7 +2632,7 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-int idParser::SkipBracedSection( bool parseFirstBrace ) {
+int idParser::SkipBracedSection(const bool parseFirstBrace ) {
 	idToken token;
 	int depth;
 
@@ -2663,7 +2663,7 @@ Maintains the exact formating of the braced section
   FIXME: what about precompilation ?
 =================
 */
-const char *idParser::ParseBracedSectionExact( idStr &out, int tabs ) {
+const char *idParser::ParseBracedSectionExact( idStr &out, const int tabs ) {
 	return scriptstack->ParseBracedSectionExact( out, tabs );
 }
 
@@ -2676,7 +2676,7 @@ The next token should be an open brace. Parses until a matching close brace is f
 brace depths are properly skipped.
 ========================
 */
-const char* idParser::ParseBracedSection( idStr& out, int tabs, bool parseFirstBrace, char intro, char outro ) {
+const char* idParser::ParseBracedSection( idStr& out, int tabs, const bool parseFirstBrace, const char intro, const char outro ) {
 	idToken token;
 	int i, depth;
 	bool doTabs;
@@ -2855,7 +2855,7 @@ float idParser::ParseFloat() {
 idParser::Parse1DMatrix
 ================
 */
-int idParser::Parse1DMatrix( int x, float *m ) {
+int idParser::Parse1DMatrix(const int x, float *m ) {
 	int i;
 
 	if ( !idParser::ExpectTokenString( "(" ) ) {
@@ -2877,7 +2877,7 @@ int idParser::Parse1DMatrix( int x, float *m ) {
 idParser::Parse2DMatrix
 ================
 */
-int idParser::Parse2DMatrix( int y, int x, float *m ) {
+int idParser::Parse2DMatrix(const int y, const int x, float *m ) {
 	int i;
 
 	if ( !idParser::ExpectTokenString( "(" ) ) {
@@ -2901,7 +2901,7 @@ int idParser::Parse2DMatrix( int y, int x, float *m ) {
 idParser::Parse3DMatrix
 ================
 */
-int idParser::Parse3DMatrix( int z, int y, int x, float *m ) {
+int idParser::Parse3DMatrix(const int z, const int y, const int x, float *m ) {
 	int i;
 
 	if ( !idParser::ExpectTokenString( "(" ) ) {
@@ -2950,7 +2950,7 @@ idParser::GetStringFromMarker
   FIXME: this is very bad code, the script isn't even garrenteed to still be around
 ================
 */
-void idParser::GetStringFromMarker( idStr& out, bool clean ) {
+void idParser::GetStringFromMarker( idStr& out, const bool clean ) {
 	char*	p;
 	char	save;
 
@@ -3011,7 +3011,7 @@ void idParser::SetPunctuations( const punctuation_t *p ) {
 idParser::SetFlags
 ================
 */
-void idParser::SetFlags( int flags ) {
+void idParser::SetFlags(const int flags ) {
 	idLexer *s;
 
 	idParser::flags = flags;
@@ -3034,7 +3034,7 @@ int idParser::GetFlags() const {
 idParser::LoadFile
 ================
 */
-int idParser::LoadFile( const char *filename, bool OSPath ) {
+int idParser::LoadFile( const char *filename, const bool OSPath ) {
 	idLexer *script;
 
 	if ( idParser::loaded ) {
@@ -3070,7 +3070,7 @@ int idParser::LoadFile( const char *filename, bool OSPath ) {
 idParser::LoadMemory
 ================
 */
-int idParser::LoadMemory(const char *ptr, int length, const char *name ) {
+int idParser::LoadMemory(const char *ptr, const int length, const char *name ) {
 	idLexer *script;
 
 	if ( idParser::loaded ) {
@@ -3105,7 +3105,7 @@ int idParser::LoadMemory(const char *ptr, int length, const char *name ) {
 idParser::FreeSource
 ================
 */
-void idParser::FreeSource( bool keepDefines ) {
+void idParser::FreeSource(const bool keepDefines ) {
 	idLexer *script;
 	idToken *token;
 	define_t *define;
@@ -3154,7 +3154,7 @@ void idParser::FreeSource( bool keepDefines ) {
 idParser::GetPunctuationFromId
 ================
 */
-const char *idParser::GetPunctuationFromId( int id ) {
+const char *idParser::GetPunctuationFromId(const int id ) {
 	int i;
 
 	if ( !idParser::punctuations ) {
@@ -3214,7 +3214,7 @@ idParser::idParser() {
 idParser::idParser
 ================
 */
-idParser::idParser( int flags ) {
+idParser::idParser(const int flags ) {
 	this->loaded = false;
 	this->OSPath = false;
 	this->punctuations = 0;
@@ -3232,7 +3232,7 @@ idParser::idParser( int flags ) {
 idParser::idParser
 ================
 */
-idParser::idParser( const char *filename, int flags, bool OSPath ) {
+idParser::idParser( const char *filename, const int flags, const bool OSPath ) {
 	this->loaded = false;
 	this->OSPath = true;
 	this->punctuations = 0;
@@ -3251,7 +3251,7 @@ idParser::idParser( const char *filename, int flags, bool OSPath ) {
 idParser::idParser
 ================
 */
-idParser::idParser( const char *ptr, int length, const char *name, int flags ) {
+idParser::idParser( const char *ptr, const int length, const char *name, const int flags ) {
 	this->loaded = false;
 	this->OSPath = false;
 	this->punctuations = 0;

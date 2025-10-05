@@ -82,7 +82,7 @@ static unsigned char PADDING[64] = {
 #define HH(a, b, c, d, x, s) {(a) += H ((b), (c), (d)) + (x) + (UINT4)0x6ed9eba1; (a) = ROTATE_LEFT ((a), (s));}
 
 /* Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 4. */
-static void Encode( unsigned char *output, UINT4 *input, unsigned int len ) {
+static void Encode( unsigned char *output, UINT4 *input, const unsigned int len ) {
 	unsigned int i, j;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
@@ -94,7 +94,7 @@ static void Encode( unsigned char *output, UINT4 *input, unsigned int len ) {
 }
 
 /* Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 4. */
-static void Decode( UINT4 *output, const unsigned char *input, unsigned int len ) {
+static void Decode( UINT4 *output, const unsigned char *input, const unsigned int len ) {
 	unsigned int i, j;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
@@ -183,7 +183,7 @@ void MD4_Init( MD4_CTX *context ) {
 }
 
 /* MD4 block update operation. Continues an MD4 message-digest operation, processing another message block, and updating the context. */
-void MD4_Update( MD4_CTX *context, const unsigned char *input, unsigned int inputLen ) {
+void MD4_Update( MD4_CTX *context, const unsigned char *input, const unsigned int inputLen ) {
 	unsigned int i, index, partLen;
 
 	/* Compute number of bytes mod 64 */
@@ -244,7 +244,7 @@ void MD4_Final( MD4_CTX *context, unsigned char digest[16] ) {
 MD4_BlockChecksum
 ===============
 */
-unsigned long MD4_BlockChecksum( const void *data, int length ) {
+unsigned long MD4_BlockChecksum( const void *data, const int length ) {
 	unsigned long	digest[4];
 	unsigned long	val;
 	MD4_CTX			ctx;

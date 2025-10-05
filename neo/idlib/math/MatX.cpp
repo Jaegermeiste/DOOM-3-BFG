@@ -45,7 +45,7 @@ int		idMatX::tempIndex = 0;
 idMatX::ChangeSize
 ============
 */
-void idMatX::ChangeSize( int rows, int columns, bool makeZero ) {
+void idMatX::ChangeSize(const int rows, const int columns, const bool makeZero ) {
 	int alloc = ( rows * columns + 3 ) & ~3;
 	if ( alloc > alloced && alloced != -1 ) {
 		float *oldMat = mat;
@@ -98,7 +98,7 @@ void idMatX::ChangeSize( int rows, int columns, bool makeZero ) {
 idMatX::RemoveRow
 ============
 */
-idMatX &idMatX::RemoveRow( int r ) {
+idMatX &idMatX::RemoveRow(const int r ) {
 	int i;
 
 	assert( r < numRows );
@@ -117,7 +117,7 @@ idMatX &idMatX::RemoveRow( int r ) {
 idMatX::RemoveColumn
 ============
 */
-idMatX &idMatX::RemoveColumn( int r ) {
+idMatX &idMatX::RemoveColumn(const int r ) {
 	int i;
 
 	assert( r < numColumns );
@@ -137,7 +137,7 @@ idMatX &idMatX::RemoveColumn( int r ) {
 idMatX::RemoveRowColumn
 ============
 */
-idMatX &idMatX::RemoveRowColumn( int r ) {
+idMatX &idMatX::RemoveRowColumn(const int r ) {
 	int i;
 
 	assert( r < numRows && r < numColumns );
@@ -705,7 +705,7 @@ bool idMatX::UpperTriangularInverse() {
 idMatX::ToString
 =============
 */
-const char *idMatX::ToString( int precision ) const {
+const char *idMatX::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -716,7 +716,7 @@ idMatX::Update_RankOne
   Updates the matrix to obtain the matrix: A + alpha * v * w'
 ============
 */
-void idMatX::Update_RankOne( const idVecX &v, const idVecX &w, float alpha ) {
+void idMatX::Update_RankOne( const idVecX &v, const idVecX &w, const float alpha ) {
 	int i, j;
 	float s;
 
@@ -738,7 +738,7 @@ idMatX::Update_RankOneSymmetric
   Updates the matrix to obtain the matrix: A + alpha * v * v'
 ============
 */
-void idMatX::Update_RankOneSymmetric( const idVecX &v, float alpha ) {
+void idMatX::Update_RankOneSymmetric( const idVecX &v, const float alpha ) {
 	int i, j;
 	float s;
 
@@ -766,7 +766,7 @@ idMatX::Update_RowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-void idMatX::Update_RowColumn( const idVecX &v, const idVecX &w, int r ) {
+void idMatX::Update_RowColumn( const idVecX &v, const idVecX &w, const int r ) {
 	int i;
 
 	assert( w[r] == 0.0f );
@@ -794,7 +794,7 @@ idMatX::Update_RowColumnSymmetric
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1]
 ============
 */
-void idMatX::Update_RowColumnSymmetric( const idVecX &v, int r ) {
+void idMatX::Update_RowColumnSymmetric( const idVecX &v, const int r ) {
 	int i;
 
 	assert( numRows == numColumns );
@@ -875,7 +875,7 @@ idMatX::Update_Decrement
   Updates the matrix to obtain a matrix with row r and column r removed.
 ============
 */
-void idMatX::Update_Decrement( int r ) {
+void idMatX::Update_Decrement(const int r ) {
 	RemoveRowColumn( r );
 }
 
@@ -1019,7 +1019,7 @@ idMatX::Inverse_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-bool idMatX::Inverse_UpdateRowColumn( const idVecX &v, const idVecX &w, int r ) {
+bool idMatX::Inverse_UpdateRowColumn( const idVecX &v, const idVecX &w, const int r ) {
 	idVecX s;
 
 	assert( numRows == numColumns );
@@ -1078,7 +1078,7 @@ idMatX::Inverse_UpdateDecrement
   v and w should store the column and row of the original matrix respectively.
 ============
 */
-bool idMatX::Inverse_UpdateDecrement( const idVecX &v, const idVecX &w, int r ) {
+bool idMatX::Inverse_UpdateDecrement( const idVecX &v, const idVecX &w, const int r ) {
 	idVecX v1, w1;
 
 	assert( numRows == numColumns );
@@ -1213,7 +1213,7 @@ idMatX::LU_UpdateRankOne
   Updates the in-place LU factorization to obtain the factors for the matrix: LU + alpha * v * w'
 ============
 */
-bool idMatX::LU_UpdateRankOne( const idVecX &v, const idVecX &w, float alpha, int *index ) {
+bool idMatX::LU_UpdateRankOne( const idVecX &v, const idVecX &w, const float alpha, int *index ) {
 	int i, j, max;
 	float *y, *z;
 	double diag, beta, p0, p1, d;
@@ -1288,7 +1288,7 @@ idMatX::LU_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-bool idMatX::LU_UpdateRowColumn( const idVecX &v, const idVecX &w, int r, int *index ) {
+bool idMatX::LU_UpdateRowColumn( const idVecX &v, const idVecX &w, const int r, int *index ) {
 #if 0
 
 	idVecX s;
@@ -1485,7 +1485,7 @@ idMatX::LU_UpdateDecrement
   If index != NULL then u should store row index[r] of the original matrix. If index == NULL then u = w.
 ============
 */
-bool idMatX::LU_UpdateDecrement( const idVecX &v, const idVecX &w, const idVecX &u, int r, int *index ) {
+bool idMatX::LU_UpdateDecrement( const idVecX &v, const idVecX &w, const idVecX &u, const int r, int *index ) {
 	int i, p;
 	idVecX v1, w1;
 
@@ -1770,7 +1770,7 @@ idMatX::QR_Rotate
   Performs a Jacobi rotation on the rows i and i+1 of the unpacked QR factors.
 ============
 */
-void idMatX::QR_Rotate( idMatX &R, int i, float a, float b ) {
+void idMatX::QR_Rotate( idMatX &R, const int i, const float a, const float b ) {
 	int j;
 	float f, c, s, w, y;
 
@@ -1813,7 +1813,7 @@ idMatX::QR_UpdateRankOne
   Updates the unpacked QR factorization to obtain the factors for the matrix: QR + alpha * v * w'
 ============
 */
-bool idMatX::QR_UpdateRankOne( idMatX &R, const idVecX &v, const idVecX &w, float alpha ) {
+bool idMatX::QR_UpdateRankOne( idMatX &R, const idVecX &v, const idVecX &w, const float alpha ) {
 	int i, k;
 	float f;
 	idVecX u;
@@ -1864,7 +1864,7 @@ idMatX::QR_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-bool idMatX::QR_UpdateRowColumn( idMatX &R, const idVecX &v, const idVecX &w, int r ) {
+bool idMatX::QR_UpdateRowColumn( idMatX &R, const idVecX &v, const idVecX &w, const int r ) {
 	idVecX s;
 
 	assert( v.GetSize() >= numColumns );
@@ -1925,7 +1925,7 @@ idMatX::QR_UpdateDecrement
   v and w should store the column and row of the original matrix respectively.
 ============
 */
-bool idMatX::QR_UpdateDecrement( idMatX &R, const idVecX &v, const idVecX &w, int r ) {
+bool idMatX::QR_UpdateDecrement( idMatX &R, const idVecX &v, const idVecX &w, const int r ) {
 	idVecX v1, w1;
 
 	assert( numRows == numColumns );
@@ -2136,7 +2136,7 @@ idMatX::Pythag
   Computes (a^2 + b^2)^1/2 without underflow or overflow.
 ============
 */
-float idMatX::Pythag( float a, float b ) const {
+float idMatX::Pythag(const float a, const float b ) const {
 	double at, bt, ct;
 
 	at = idMath::Fabs( a );
@@ -2603,7 +2603,7 @@ idMatX::Cholesky_UpdateRankOne
   If offset > 0 only the lower right corner starting at (offset, offset) is updated.
 ============
 */
-bool idMatX::Cholesky_UpdateRankOne( const idVecX &v, float alpha, int offset ) {
+bool idMatX::Cholesky_UpdateRankOne( const idVecX &v, float alpha, const int offset ) {
 	int i, j;
 	float *y;
 	double diag, invDiag, diagSqr, newDiag, newDiagSqr, beta, p, d;
@@ -2658,7 +2658,7 @@ idMatX::Cholesky_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1]
 ============
 */
-bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, int r ) {
+bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 	int i, j;
 	double sum;
 	float *original, *y;
@@ -2886,7 +2886,7 @@ idMatX::Cholesky_UpdateDecrement
   v should store the row of the original matrix.
 ============
 */
-bool idMatX::Cholesky_UpdateDecrement( const idVecX &v, int r ) {
+bool idMatX::Cholesky_UpdateDecrement( const idVecX &v, const int r ) {
 	idVecX v1;
 
 	assert( numRows == numColumns );
@@ -3061,7 +3061,7 @@ idMatX::LDLT_UpdateRankOne
   If offset > 0 only the lower right corner starting at (offset, offset) is updated.
 ============
 */
-bool idMatX::LDLT_UpdateRankOne( const idVecX &v, float alpha, int offset ) {
+bool idMatX::LDLT_UpdateRankOne( const idVecX &v, float alpha, const int offset ) {
 	int i, j;
 	float *y;
 	double diag, newDiag, beta, p, d;
@@ -3113,7 +3113,7 @@ idMatX::LDLT_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1]
 ============
 */
-bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, int r ) {
+bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 	int i, j;
 	double sum;
 	float *original, *y;
@@ -3353,7 +3353,7 @@ idMatX::LDLT_UpdateDecrement
   v should store the row of the original matrix.
 ============
 */
-bool idMatX::LDLT_UpdateDecrement( const idVecX &v, int r ) {
+bool idMatX::LDLT_UpdateDecrement( const idVecX &v, const int r ) {
 	idVecX v1;
 
 	assert( numRows == numColumns );
@@ -3922,7 +3922,7 @@ idMatX::ComplexDivision
   Complex scalar division.
 ============
 */
-void idMatX::ComplexDivision( float xr, float xi, float yr, float yi, float &cdivr, float &cdivi ) {
+void idMatX::ComplexDivision(const float xr, const float xi, const float yr, const float yi, float &cdivr, float &cdivi ) {
 	float r, d;
 	if ( idMath::Fabs( yr ) > idMath::Fabs( yi ) ) {
 		r = yi / yr;

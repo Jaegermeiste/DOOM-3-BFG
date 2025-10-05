@@ -46,7 +46,7 @@ idListArrayNew
 ========================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void * idListArrayNew( int num, bool zeroBuffer ) {
+ID_INLINE void * idListArrayNew(const int num, const bool zeroBuffer ) {
 	_type_ * ptr = NULL;
 	if ( zeroBuffer ) {
 		ptr = (_type_ *)Mem_ClearedAlloc( sizeof(_type_) * num, _tag_ );
@@ -65,7 +65,7 @@ idListArrayDelete
 ========================
 */
 template< typename _type_ >
-ID_INLINE void idListArrayDelete( void *ptr, int num ) {
+ID_INLINE void idListArrayDelete( void *ptr, const int num ) {
 	// Call the destructors on all the elements
 	for ( int i = 0; i < num; i++ ) {
 		((_type_ *)ptr)[i].~_type_();
@@ -79,7 +79,7 @@ idListArrayResize
 ========================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void * idListArrayResize( void * voldptr, int oldNum, int newNum, bool zeroBuffer ) {
+ID_INLINE void * idListArrayResize( void * voldptr, const int oldNum, const int newNum, const bool zeroBuffer ) {
 	_type_ * oldptr = (_type_ *)voldptr;
 	_type_ * newptr = NULL;
 	if ( newNum > 0 ) {
@@ -178,7 +178,7 @@ public:
 	// result in corruption of the memory statistics.
 	//------------------------
 	memTag_t		GetMemTag() const { return (memTag_t)memTag; };
-	void			SetMemTag( memTag_t tag_ ) { memTag = (byte)tag_; };
+	void			SetMemTag(const memTag_t tag_ ) { memTag = (byte)tag_; };
 
 private:
 	int				num;
@@ -194,7 +194,7 @@ idList<_type_,_tag_>::idList( int )
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE idList<_type_,_tag_>::idList( int newgranularity ) {
+ID_INLINE idList<_type_,_tag_>::idList(const int newgranularity ) {
 	assert( newgranularity > 0 );
 
 	list		= NULL;
@@ -255,7 +255,7 @@ list to NULL.
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void idList<_type_,_tag_>::DeleteContents( bool clear ) {
+ID_INLINE void idList<_type_,_tag_>::DeleteContents(const bool clear ) {
 	int i;
 
 	for( i = 0; i < num; i++ ) {
@@ -335,7 +335,7 @@ idList<_type_,_tag_>::SetNum
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void idList<_type_,_tag_>::SetNum( int newnum ) {
+ID_INLINE void idList<_type_,_tag_>::SetNum(const int newnum ) {
 	assert( newnum >= 0 );
 	if ( newnum > size ) {
 		Resize( newnum );
@@ -351,7 +351,7 @@ Sets the base size of the array and resizes the array to match.
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void idList<_type_,_tag_>::SetGranularity( int newgranularity ) {
+ID_INLINE void idList<_type_,_tag_>::SetGranularity(const int newgranularity ) {
 	int newsize;
 
 	assert( newgranularity > 0 );
@@ -406,7 +406,7 @@ Contents are copied using their = operator so that data is correnctly instantiat
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void idList<_type_,_tag_>::Resize( int newsize ) {
+ID_INLINE void idList<_type_,_tag_>::Resize(const int newsize ) {
 	assert( newsize >= 0 );
 
 	// free up the list if no data is being reserved
@@ -436,7 +436,7 @@ Contents are copied using their = operator so that data is correnctly instantiat
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE void idList<_type_,_tag_>::Resize( int newsize, int newgranularity ) {
+ID_INLINE void idList<_type_,_tag_>::Resize(const int newsize, const int newgranularity ) {
 	assert( newsize >= 0 );
 
 	assert( newgranularity > 0 );
@@ -868,7 +868,7 @@ Note that the element is not destroyed, so any memory used by it may not be free
 ================
 */
 template< typename _type_, memTag_t _tag_ >
-ID_INLINE bool idList<_type_,_tag_>::RemoveIndex( int index ) {
+ID_INLINE bool idList<_type_,_tag_>::RemoveIndex(const int index ) {
 	int i;
 
 	assert( list != NULL );

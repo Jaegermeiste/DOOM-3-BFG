@@ -582,7 +582,7 @@ idHashTable<Type>::idHashTable
 ================
 */
 template< class Type >
-ID_INLINE idHashTable<Type>::idHashTable( int newtablesize ) {
+ID_INLINE idHashTable<Type>::idHashTable(const int newtablesize ) {
 
 	assert( idMath::IsPowerOfTwo( newtablesize ) );
 
@@ -738,7 +738,7 @@ exact index for a given element may change when new elements are added
 ================
 */
 template< class Type >
-ID_INLINE Type *idHashTable<Type>::GetIndex( int index ) const {
+ID_INLINE Type *idHashTable<Type>::GetIndex(const int index ) const {
 	hashnode_s	*node;
 	int			count;
 	int			i;

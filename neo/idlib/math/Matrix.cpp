@@ -124,7 +124,7 @@ bool idMat2::InverseFastSelf() {
 idMat2::ToString
 =============
 */
-const char *idMat2::ToString( int precision ) const {
+const char *idMat2::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -594,7 +594,7 @@ idMat3 &idMat3::InertiaRotateSelf( const idMat3 &rotation ) {
 idMat3::ToString
 =============
 */
-const char *idMat3::ToString( int precision ) const {
+const char *idMat3::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -1029,7 +1029,7 @@ bool idMat4::InverseFastSelf() {
 idMat4::ToString
 =============
 */
-const char *idMat4::ToString( int precision ) const {
+const char *idMat4::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -1722,7 +1722,7 @@ bool idMat5::InverseFastSelf() {
 idMat5::ToString
 =============
 */
-const char *idMat5::ToString( int precision ) const {
+const char *idMat5::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -2911,6 +2911,6 @@ bool idMat6::InverseFastSelf() {
 idMat6::ToString
 =============
 */
-const char *idMat6::ToString( int precision ) const {
+const char *idMat6::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

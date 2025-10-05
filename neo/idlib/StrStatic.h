@@ -63,7 +63,7 @@ public:
 					idStr::operator=( text );
 				}
 
-	ID_INLINE	idStrStatic( const idStrStatic & text, int start, int end ) : 
+	ID_INLINE	idStrStatic( const idStrStatic & text, const int start, const int end ) : 
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
@@ -77,7 +77,7 @@ public:
 					idStr::operator=( text );
 				}
 
-	ID_INLINE	idStrStatic( const char * text, int start, int end ) : 
+	ID_INLINE	idStrStatic( const char * text, const int start, const int end ) : 
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );

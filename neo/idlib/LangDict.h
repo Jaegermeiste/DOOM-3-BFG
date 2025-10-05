@@ -121,7 +121,7 @@ public:
 	idStrId() : index( -1 ) { }
 	idStrId( const idStrId & other ) : index( other.index ) { }
 
-	explicit idStrId( int i ) : index( i ) { }
+	explicit idStrId(const int i ) : index( i ) { }
 	explicit idStrId( const char * key ) { Set( key ); }
 	explicit idStrId( const idStr & key ) { Set( key ); }
 
@@ -141,7 +141,7 @@ public:
 	const char *	GetLocalizedString() const;
 
 	int				GetIndex() const { return index; }
-	void			SetIndex( int i ) { index = i; }
+	void			SetIndex(const int i ) { index = i; }
 
 private:
 	int index;	// Index into the language dictionary

@@ -51,7 +51,7 @@ static idStaticList< skippedAssertion_t,20 > skippedAssertions;
 AssertFailed
 ========================
 */
-bool AssertFailed( const char * file, int line, const char * expression ) {
+bool AssertFailed( const char * file, const int line, const char * expression ) {
 	// Set this to true to skip ALL assertions, including ones YOU CAUSE!
 	static volatile bool skipAllAssertions = false;
 	if ( skipAllAssertions ) {

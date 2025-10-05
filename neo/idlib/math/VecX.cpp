@@ -44,6 +44,6 @@ int		idVecX::tempIndex = 0;
 idVecX::ToString
 =============
 */
-const char *idVecX::ToString( int precision ) const {
+const char *idVecX::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

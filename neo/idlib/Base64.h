@@ -94,7 +94,7 @@ ID_INLINE void idBase64::Release() {
 	Init();
 }
 
-ID_INLINE void idBase64::EnsureAlloced( int size ) {
+ID_INLINE void idBase64::EnsureAlloced(const int size ) {
 	if ( size > alloced ) {
 		Release();
 	}

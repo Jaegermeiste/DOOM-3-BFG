@@ -36,6 +36,6 @@ idComplex complex_origin( 0.0f, 0.0f );
 idComplex::ToString
 =============
 */
-const char *idComplex::ToString( int precision ) const {
+const char *idComplex::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

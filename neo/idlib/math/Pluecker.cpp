@@ -81,6 +81,6 @@ float idPluecker::Distance3DSqr( const idPluecker &a ) const {
 idPluecker::ToString
 =============
 */
-const char *idPluecker::ToString( int precision ) const {
+const char *idPluecker::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

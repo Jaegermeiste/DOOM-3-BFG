@@ -62,7 +62,7 @@ typedef unsigned short halfFloat_t;
 F16toF32
 ========================
 */
-ID_INLINE float F16toF32( halfFloat_t x ) {
+ID_INLINE float F16toF32(const halfFloat_t x ) {
 	int e = HF_EXP( x );
 	int m = HF_MANTISSA( x );
 	int s = HF_SIGN( x );
@@ -296,7 +296,7 @@ ID_INLINE void idDrawVert::SetNormal( const idVec3 & n ) {
 idDrawVert::SetNormal
 ========================
 */
-ID_INLINE void idDrawVert::SetNormal( float x, float y, float z ) {
+ID_INLINE void idDrawVert::SetNormal(const float x, const float y, const float z ) {
 	VertexFloatToByte( x, y, z, normal );
 }
 
@@ -331,7 +331,7 @@ ID_INLINE const idVec3 idDrawVert::GetTangentRaw() const {
 idDrawVert::SetTangent
 ========================
 */
-ID_INLINE void idDrawVert::SetTangent( float x, float y, float z ) {
+ID_INLINE void idDrawVert::SetTangent(const float x, const float y, const float z ) {
 	VertexFloatToByte( x, y, z, tangent );
 }
 
@@ -376,7 +376,7 @@ ID_INLINE const idVec3 idDrawVert::GetBiTangentRaw() const {
 idDrawVert::SetBiTangent
 ========================
 */
-ID_INLINE void idDrawVert::SetBiTangent( float x, float y, float z ) {
+ID_INLINE void idDrawVert::SetBiTangent(const float x, const float y, const float z ) {
 	SetBiTangent( idVec3( x, y, z ) );
 }
 
@@ -414,7 +414,7 @@ ID_INLINE byte idDrawVert::GetBiTangentSignBit() const {
 idDrawVert::SetBiTangentSign
 ========================
 */
-ID_INLINE void idDrawVert::SetBiTangentSign( float sign ) {
+ID_INLINE void idDrawVert::SetBiTangentSign(const float sign ) {
 	tangent[3] = ( sign < 0.0f ) ? 0 : 255;
 }
 
@@ -423,7 +423,7 @@ ID_INLINE void idDrawVert::SetBiTangentSign( float sign ) {
 idDrawVert::SetBiTangentSignBit
 ========================
 */
-ID_INLINE void idDrawVert::SetBiTangentSignBit( byte sign ) {
+ID_INLINE void idDrawVert::SetBiTangentSignBit(const byte sign ) {
 	tangent[3] = sign ? 0 : 255;
 }
 
@@ -472,7 +472,7 @@ ID_INLINE void idDrawVert::LerpAll( const idDrawVert &a, const idDrawVert &b, co
 idDrawVert::SetNativeOrderColor
 ========================
 */
-ID_INLINE void idDrawVert::SetNativeOrderColor( dword color ) {
+ID_INLINE void idDrawVert::SetNativeOrderColor(const dword color ) {
 	*reinterpret_cast<dword *>(this->color) = color;
 }
 
@@ -481,7 +481,7 @@ ID_INLINE void idDrawVert::SetNativeOrderColor( dword color ) {
 idDrawVert::SetColor
 ========================
 */
-ID_INLINE void idDrawVert::SetColor( dword color ) {
+ID_INLINE void idDrawVert::SetColor(const dword color ) {
 	*reinterpret_cast<dword *>(this->color) = color;
 }
 
@@ -519,7 +519,7 @@ ID_INLINE void idDrawVert::SetTexCoord( const idVec2 & st ) {
 idDrawVert::SetTexCoord
 ========================
 */
-ID_INLINE void idDrawVert::SetTexCoord( float s, float t ) {
+ID_INLINE void idDrawVert::SetTexCoord(const float s, const float t ) {
 	SetTexCoordS( s );
 	SetTexCoordT( t );
 }
@@ -529,7 +529,7 @@ ID_INLINE void idDrawVert::SetTexCoord( float s, float t ) {
 idDrawVert::SetTexCoordS
 ========================
 */
-ID_INLINE void idDrawVert::SetTexCoordS( float s ) {
+ID_INLINE void idDrawVert::SetTexCoordS(const float s ) {
 	st[0] = F32toF16( s );
 }
 
@@ -538,7 +538,7 @@ ID_INLINE void idDrawVert::SetTexCoordS( float s ) {
 idDrawVert::SetTexCoordT
 ========================
 */
-ID_INLINE void idDrawVert::SetTexCoordT( float t ) {
+ID_INLINE void idDrawVert::SetTexCoordT(const float t ) {
 	st[1] = F32toF16( t );
 }
 
@@ -574,7 +574,7 @@ ID_INLINE const halfFloat_t idDrawVert::GetTexCoordNativeT() const {
 idDrawVert::SetNativeOrderColor2
 ========================
 */
-ID_INLINE void idDrawVert::SetNativeOrderColor2( dword color2 ) {
+ID_INLINE void idDrawVert::SetNativeOrderColor2(const dword color2 ) {
 	*reinterpret_cast<dword *>(this->color2) = color2;
 }
 
@@ -583,7 +583,7 @@ ID_INLINE void idDrawVert::SetNativeOrderColor2( dword color2 ) {
 idDrawVert::SetColor
 ========================
 */
-ID_INLINE void idDrawVert::SetColor2( dword color2 ) {
+ID_INLINE void idDrawVert::SetColor2(const dword color2 ) {
 	*reinterpret_cast<dword *>(this->color2) = color2;
 }
 
@@ -612,7 +612,7 @@ WriteDrawVerts16
 Use 16-byte in-order SIMD writes because the destVerts may live in write-combined memory
 ========================
 */
-ID_INLINE void WriteDrawVerts16( idDrawVert * destVerts, const idDrawVert * localVerts, int numVerts ) {
+ID_INLINE void WriteDrawVerts16( idDrawVert * destVerts, const idDrawVert * localVerts, const int numVerts ) {
 	assert_sizeof( idDrawVert, 32 );
 	assert_16_byte_aligned( destVerts );
 	assert_16_byte_aligned( localVerts );

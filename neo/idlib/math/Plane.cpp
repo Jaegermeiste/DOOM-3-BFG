@@ -149,6 +149,6 @@ bool idPlane::PlaneIntersection( const idPlane &plane, idVec3 &start, idVec3 &di
 idPlane::ToString
 =============
 */
-const char *idPlane::ToString( int precision ) const {
+const char *idPlane::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

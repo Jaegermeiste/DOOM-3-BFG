@@ -660,7 +660,7 @@ idRenderMatrix::CreateProjectionMatrix
 If zFar == 0, an infinite far plane will be used.
 ========================
 */
-void idRenderMatrix::CreateProjectionMatrix( float xMin, float xMax, float yMin, float yMax, float zNear, float zFar, idRenderMatrix & out ) {
+void idRenderMatrix::CreateProjectionMatrix(const float xMin, const float xMax, const float yMin, const float yMax, const float zNear, const float zFar, idRenderMatrix & out ) {
 	const float width  = xMax - xMin;
 	const float height = yMax - yMin;
 
@@ -712,7 +712,7 @@ xOffset and yOffset should be in the -1 to 1 range for sub-pixel accumulation ji
 xOffset can also be used for eye separation when rendering stereo.
 ========================
 */
-void idRenderMatrix::CreateProjectionMatrixFov( float xFovDegrees, float yFovDegrees, float zNear, float zFar, float xOffset, float yOffset, idRenderMatrix & out ) {
+void idRenderMatrix::CreateProjectionMatrixFov(const float xFovDegrees, const float yFovDegrees, const float zNear, const float zFar, const float xOffset, const float yOffset, idRenderMatrix & out ) {
 	float xMax = zNear * idMath::Tan( DEG2RAD( xFovDegrees ) * 0.5f );
 	float xMin = -xMax;
 
@@ -1013,7 +1013,7 @@ idRenderMatrix::Inverse
 
 inverse( M ) = ( 1 / determinant( M ) ) * transpose( cofactor( M ) )
 
-This code is based on the code written by Cédric Lallain, published on "Cell Performance"
+This code is based on the code written by Cï¿½dric Lallain, published on "Cell Performance"
 (by Mike Acton) and released under the BSD 3-Clause ("BSD New" or "BSD Simplified") license.
 https://code.google.com/p/cellperformance-snippets/
 
@@ -1652,7 +1652,7 @@ Normally the clip space extends from -1.0 to 1.0 on each axis, but by setting 'z
 to true, the clip space will extend from 0.0 to 1.0 on each axis for a light projection matrix.
 ========================
 */
-bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix & mvp, const idVec3 & p, byte * outBits, bool zeroToOne ) {
+bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix & mvp, const idVec3 & p, byte * outBits, const bool zeroToOne ) {
 
 	idVec4 c;
 	for ( int i = 0; i < 4; i++ ) {
@@ -2153,7 +2153,7 @@ projected[1][1] will still be valid and will NOT be set to the maximum when the 
 is W=0 clipped.
 ========================
 */
-void idRenderMatrix::ProjectedBounds( idBounds & projected, const idRenderMatrix & mvp, const idBounds & bounds, bool windowSpace ) {
+void idRenderMatrix::ProjectedBounds( idBounds & projected, const idRenderMatrix & mvp, const idBounds & bounds, const bool windowSpace ) {
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
@@ -3168,7 +3168,7 @@ ClipHomogeneousLineToSide
 Clips a line with homogeneous coordinates to the axis aligned plane[axis] = side.
 ========================
 */
-static idVec4 ClipHomogeneousLineToSide( const idVec4 & p0, const idVec4 & p1, int axis, float side ) {
+static idVec4 ClipHomogeneousLineToSide( const idVec4 & p0, const idVec4 & p1, const int axis, const float side ) {
 	const float d0 = p0.w * side - p0[axis];
 	const float d1 = p1.w * side - p1[axis];
 	const float delta = d0 - d1;
@@ -3184,7 +3184,7 @@ ClipHomogeneousPolygonToSide
 Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = sign * offset.
 ========================
 */
-static int ClipHomogeneousPolygonToSide_Generic( idVec4 * __restrict newPoints, idVec4 * __restrict points, int numPoints, int axis, float sign, float offset ) {
+static int ClipHomogeneousPolygonToSide_Generic( idVec4 * __restrict newPoints, idVec4 * __restrict points, const int numPoints, const int axis, const float sign, const float offset ) {
 	assert( newPoints != points );
 
 	assert( numPoints < 16 );
@@ -3260,7 +3260,7 @@ infinity then this code would also have to test for the view frustum being compl
 the given bounds in which case the projected bounds should be set to fully cover the view frustum.
 ========================
 */
-void idRenderMatrix::ProjectedFullyClippedBounds( idBounds & projected, const idRenderMatrix & mvp, const idBounds & bounds, bool windowSpace ) {
+void idRenderMatrix::ProjectedFullyClippedBounds( idBounds & projected, const idRenderMatrix & mvp, const idBounds & bounds, const bool windowSpace ) {
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
@@ -3513,7 +3513,7 @@ If 'windowSpace' is true then the calculated depth bounds are moved and clamped 
 The given bounding box is not clipped to the MVP so the depth bounds may not be as tight as possible.
 ========================
 */
-void idRenderMatrix::DepthBoundsForBounds( float & min, float & max, const idRenderMatrix & mvp, const idBounds & bounds, bool windowSpace ) {
+void idRenderMatrix::DepthBoundsForBounds( float & min, float & max, const idRenderMatrix & mvp, const idBounds & bounds, const bool windowSpace ) {
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
@@ -3634,7 +3634,7 @@ If 'windowSpace' is true then the calculated depth bounds are moved and clamped 
 The extruded bounding box is not clipped to the MVP so the depth bounds may not be as tight as possible.
 ========================
 */
-void idRenderMatrix::DepthBoundsForExtrudedBounds( float & min, float & max, const idRenderMatrix & mvp, const idBounds & bounds, const idVec3 & extrudeDirection, const idPlane & clipPlane, bool windowSpace ) {
+void idRenderMatrix::DepthBoundsForExtrudedBounds( float & min, float & max, const idRenderMatrix & mvp, const idBounds & bounds, const idVec3 & extrudeDirection, const idPlane & clipPlane, const bool windowSpace ) {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
 
 #ifdef ID_WIN_X86_SSE2_INTRIN
@@ -3900,7 +3900,7 @@ inside the shadow volume to also calculate the correct maximum Z. This could be 
 testing if the center of the far clipping plane is contained inside the shadow volume.
 ========================
 */
-void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const idRenderMatrix & mvp, const idBounds & bounds, const idVec3 & localLightOrigin, bool windowSpace ) {
+void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const idRenderMatrix & mvp, const idBounds & bounds, const idVec3 & localLightOrigin, const bool windowSpace ) {
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
@@ -4188,7 +4188,7 @@ Normally the clip space extends from -1.0 to 1.0 on each axis, but by setting 'z
 to true, the clip space will extend from 0.0 to 1.0 on each axis for a light projection matrix.
 ========================
 */
-void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix & frustum, bool zeroToOne, bool normalize ) {
+void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix & frustum, const bool zeroToOne, const bool normalize ) {
 	// FIXME:	need to know whether or not this is a D3D MVP.
 	//			We cannot just assume that it's an D3D MVP matrix when
 	//			zeroToOne = false and CLIP_SPACE_D3D is defined because

@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 idODE_Euler::idODE_Euler
 =============
 */
-idODE_Euler::idODE_Euler( const int dim, deriveFunction_t dr, const void *ud ) {
+idODE_Euler::idODE_Euler( const int dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	derivatives = new (TAG_MATH) float[dim];
 	derive = dr;
@@ -61,7 +61,7 @@ idODE_Euler::~idODE_Euler() {
 idODE_Euler::Evaluate
 =============
 */
-float idODE_Euler::Evaluate( const float *state, float *newState, float t0, float t1 ) {
+float idODE_Euler::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	float delta;
 	int i;
 
@@ -84,7 +84,7 @@ float idODE_Euler::Evaluate( const float *state, float *newState, float t0, floa
 idODE_Midpoint::idODE_Midpoint
 =============
 */
-idODE_Midpoint::idODE_Midpoint( const int dim, deriveFunction_t dr, const void *ud ) {
+idODE_Midpoint::idODE_Midpoint( const int dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	tmpState = new (TAG_MATH) float[dim];
 	derivatives = new (TAG_MATH) float[dim];
@@ -107,7 +107,7 @@ idODE_Midpoint::~idODE_Midpoint() {
 idODE_Midpoint::~Evaluate
 =============
 */
-float idODE_Midpoint::Evaluate( const float *state, float *newState, float t0, float t1 ) {
+float idODE_Midpoint::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	double delta, halfDelta;
     int i;
 
@@ -138,7 +138,7 @@ float idODE_Midpoint::Evaluate( const float *state, float *newState, float t0, f
 idODE_RK4::idODE_RK4
 =============
 */
-idODE_RK4::idODE_RK4( const int dim, deriveFunction_t dr, const void *ud ) {
+idODE_RK4::idODE_RK4( const int dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	derive = dr;
 	userData = ud;
@@ -167,7 +167,7 @@ idODE_RK4::~idODE_RK4() {
 idODE_RK4::Evaluate
 =============
 */
-float idODE_RK4::Evaluate( const float *state, float *newState, float t0, float t1 ) {
+float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	double delta, halfDelta, sixthDelta;
 	int i;
 
@@ -209,7 +209,7 @@ float idODE_RK4::Evaluate( const float *state, float *newState, float t0, float 
 idODE_RK4Adaptive::idODE_RK4Adaptive
 =============
 */
-idODE_RK4Adaptive::idODE_RK4Adaptive( const int dim, deriveFunction_t dr, const void *ud ) {
+idODE_RK4Adaptive::idODE_RK4Adaptive( const int dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	derive = dr;
 	userData = ud;
@@ -252,7 +252,7 @@ void idODE_RK4Adaptive::SetMaxError( const float err ) {
 idODE_RK4Adaptive::Evaluate
 =============
 */
-float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, float t0, float t1 ) {
+float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	double delta, halfDelta, fourthDelta, sixthDelta;
 	double error, max;
 	int i, n;

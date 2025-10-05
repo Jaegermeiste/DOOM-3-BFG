@@ -134,7 +134,7 @@ ID_INLINE idWinding::idWinding() {
 	p = NULL;
 }
 
-ID_INLINE idWinding::idWinding( int n ) {
+ID_INLINE idWinding::idWinding(const int n ) {
 	numPoints = allocedSize = 0;
 	p = NULL;
 	EnsureAlloced( n );
@@ -239,7 +239,7 @@ ID_INLINE int idWinding::GetNumPoints() const {
 	return numPoints;
 }
 
-ID_INLINE void idWinding::SetNumPoints( int n ) {
+ID_INLINE void idWinding::SetNumPoints(const int n ) {
 	if ( !EnsureAlloced( n, true ) ) {
 		return;
 	}
@@ -256,7 +256,7 @@ ID_INLINE void idWinding::BaseForPlane( const idPlane &plane ) {
 	BaseForPlane( plane.Normal(), plane.Dist() );
 }
 
-ID_INLINE bool idWinding::EnsureAlloced( int n, bool keep ) {
+ID_INLINE bool idWinding::EnsureAlloced(const int n, const bool keep ) {
 	if ( n > allocedSize ) {
 		return ReAllocate( n, keep );
 	}

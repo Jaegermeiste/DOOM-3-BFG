@@ -146,7 +146,7 @@ idVec3 idQuat::ToAngularVelocity() const {
 idQuat::ToString
 =============
 */
-const char *idQuat::ToString( int precision ) const {
+const char *idQuat::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -157,7 +157,7 @@ idQuat::Slerp
 Spherical linear interpolation between two quaternions.
 =====================
 */
-idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, float t ) {
+idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, const float t ) {
 	idQuat	temp;
 	float	omega, cosom, sinom, scale0, scale1;
 
@@ -291,7 +291,7 @@ idMat4 idCQuat::ToMat4() const {
 idCQuat::ToString
 =============
 */
-const char *idCQuat::ToString( int precision ) const {
+const char *idCQuat::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 

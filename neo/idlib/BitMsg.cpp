@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 idBitMsg::CheckOverflow
 ========================
 */
-bool idBitMsg::CheckOverflow( int numBits ) {
+bool idBitMsg::CheckOverflow(const int numBits ) {
 	if ( numBits > GetRemainingWriteBits() ) {
 		if ( !allowOverflow ) {
 			idLib::FatalError( "idBitMsg: overflow without allowOverflow set; maxsize=%i size=%i numBits=%i numRemainingWriteBits=%i",
@@ -63,7 +63,7 @@ bool idBitMsg::CheckOverflow( int numBits ) {
 idBitMsg::GetByteSpace
 ========================
 */
-byte *idBitMsg::GetByteSpace( int length ) {
+byte *idBitMsg::GetByteSpace(const int length ) {
 	byte *ptr;
 
 	if ( !writeData ) {
@@ -98,7 +98,7 @@ idBitMsg::WriteBits
 If the number of bits is negative a sign is included.
 ========================
 */
-void idBitMsg::WriteBits( int value, int numBits ) {
+void idBitMsg::WriteBits(const int value, int numBits ) {
 	if ( !writeData ) {
 		idLib::FatalError( "idBitMsg::WriteBits: cannot write to message" );
 	}
@@ -165,7 +165,7 @@ void idBitMsg::WriteBits( int value, int numBits ) {
 idBitMsg::WriteString
 ========================
 */
-void idBitMsg::WriteString( const char * s, int maxLength, bool make7Bit ) {
+void idBitMsg::WriteString( const char * s, const int maxLength, const bool make7Bit ) {
 	if ( !s ) {
 		WriteData( "", 1 );
 	} else {
@@ -201,7 +201,7 @@ void idBitMsg::WriteString( const char * s, int maxLength, bool make7Bit ) {
 idBitMsg::WriteData
 ========================
 */
-void idBitMsg::WriteData( const void *data, int length ) {
+void idBitMsg::WriteData( const void *data, const int length ) {
 	memcpy( GetByteSpace( length ), data, length );
 }
 
@@ -337,7 +337,7 @@ int idBitMsg::ReadBits( int numBits ) const {
 idBitMsg::ReadString
 ========================
 */
-int idBitMsg::ReadString( char * buffer, int bufferSize ) const {
+int idBitMsg::ReadString( char * buffer, const int bufferSize ) const {
 	int	l, c;
 	
 	ReadByteAlign();
@@ -393,7 +393,7 @@ int idBitMsg::ReadString( idStr & str ) const {
 idBitMsg::ReadData
 ========================
 */
-int idBitMsg::ReadData( void *data, int length ) const {
+int idBitMsg::ReadData( void *data, const int length ) const {
 	int cnt;
 
 	ReadByteAlign();
@@ -485,7 +485,7 @@ int idBitMsg::DirToBits( const idVec3 &dir, int numBits ) {
 idBitMsg::BitsToDir
 ========================
 */
-idVec3 idBitMsg::BitsToDir( int bits, int numBits ) {
+idVec3 idBitMsg::BitsToDir(const int bits, int numBits ) {
 	static float sign[2] = { 1.0f, -1.0f };
 	int max;
 	float invMax;

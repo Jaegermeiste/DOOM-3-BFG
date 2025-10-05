@@ -69,7 +69,7 @@ Encode
 Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 4.
 ========================
 */
-static void Encode( unsigned char *output, UINT4 *input, unsigned int len ) {
+static void Encode( unsigned char *output, UINT4 *input, const unsigned int len ) {
 	unsigned int i, j;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
@@ -87,7 +87,7 @@ Decode
 Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 4.
 ========================
 */
-static void Decode( UINT4 *output, const unsigned char *input, unsigned int len ) {
+static void Decode( UINT4 *output, const unsigned char *input, const unsigned int len ) {
 	unsigned int i, j;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
@@ -216,7 +216,7 @@ MD5 block update operation. Continues an MD5 message-digest operation, processin
 message block, and updating the context.
 ========================
 */
-void MD5_Update( MD5_CTX *context, unsigned char const *input, size_t inputLen ) {
+void MD5_Update( MD5_CTX *context, unsigned char const *input, const size_t inputLen ) {
 	unsigned int i, index, partLen;
 
 	// Compute number of bytes mod 64
@@ -285,7 +285,7 @@ MD5_BlockChecksum
 ========================
 */
 
-unsigned int MD5_BlockChecksum( const void *data, size_t length ) {
+unsigned int MD5_BlockChecksum( const void *data, const size_t length ) {
 	unsigned char	digest[16];
 	unsigned int	val;
 	MD5_CTX			ctx;

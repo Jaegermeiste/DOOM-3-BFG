@@ -55,8 +55,8 @@ public:
 	void				Init( const int startTime, const int duration, const type &startValue, const type &baseSpeed, const type &speed, const extrapolation_t extrapolationType );
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
-	bool				IsDone( int time ) const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && time >= startTime + duration ); }
-	void				SetStartTime( int time ) { startTime = time; }
+	bool				IsDone(const int time ) const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && time >= startTime + duration ); }
+	void				SetStartTime(const int time ) { startTime = time; }
 	int					GetStartTime() const { return startTime; }
 	int					GetEndTime() const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && duration > 0 ) ? startTime + duration : 0; }
 	int					GetDuration() const { return duration; }
@@ -174,7 +174,7 @@ idExtrapolate::GetCurrentSpeed
 ====================
 */
 template< class type >
-ID_INLINE type idExtrapolate<type>::GetCurrentSpeed( int time ) const {
+ID_INLINE type idExtrapolate<type>::GetCurrentSpeed(const int time ) const {
 	if ( time < startTime || duration == 0 ) {
 		return ( startValue - startValue ); //-V501
 	}

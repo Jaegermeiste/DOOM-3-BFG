@@ -157,7 +157,7 @@ void CRC32_FinishChecksum( unsigned long &crcvalue ) {
 	crcvalue ^= CRC32_XOR_VALUE;
 }
 
-unsigned long CRC32_BlockChecksum( const void *data, int length ) {
+unsigned long CRC32_BlockChecksum( const void *data, const int length ) {
 	unsigned long crc;
 
 	CRC32_InitChecksum( crc );

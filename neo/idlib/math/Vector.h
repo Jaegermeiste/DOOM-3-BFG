@@ -148,11 +148,11 @@ ID_INLINE bool idVec2::operator!=( const idVec2 &a ) const {
 	return !Compare( a );
 }
 
-ID_INLINE float idVec2::operator[]( int index ) const {
+ID_INLINE float idVec2::operator[](const int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idVec2::operator[]( int index ) {
+ID_INLINE float& idVec2::operator[](const int index ) {
 	return ( &x )[ index ];
 }
 
@@ -191,7 +191,7 @@ ID_INLINE float idVec2::NormalizeFast() {
 	return invLength * lengthSqr;
 }
 
-ID_INLINE idVec2 idVec2::Truncate( float length ) const {
+ID_INLINE idVec2 idVec2::Truncate(const float length ) const {
 	if ( length < idMath::FLT_SMALLEST_NON_DENORMAL ) {
 		return vec2_zero;
 	} else {
@@ -661,7 +661,7 @@ ID_INLINE float idVec3::Normalize() {
 	return invLength * sqrLength;
 }
 
-ID_INLINE idVec3 idVec3::Truncate( float length ) const {
+ID_INLINE idVec3 idVec3::Truncate(const float length ) const {
 	if ( length < idMath::FLT_SMALLEST_NON_DENORMAL ) {
 		return vec3_zero;
 	} else {
@@ -885,11 +885,11 @@ ID_INLINE void idVec4::Zero() {
 	x = y = z = w = 0.0f;
 }
 
-ID_INLINE float idVec4::operator[]( int index ) const {
+ID_INLINE float idVec4::operator[](const int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idVec4::operator[]( int index ) {
+ID_INLINE float& idVec4::operator[](const int index ) {
 	return ( &x )[ index ];
 }
 
@@ -1120,11 +1120,11 @@ ID_INLINE idVec5::idVec5( const float x, const float y, const float z, const flo
 	this->t = t;
 }
 
-ID_INLINE float idVec5::operator[]( int index ) const {
+ID_INLINE float idVec5::operator[](const int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idVec5::operator[]( int index ) {
+ID_INLINE float& idVec5::operator[](const int index ) {
 	return ( &x )[ index ];
 }
 
@@ -1407,11 +1407,11 @@ ID_INLINE int idVec6::GetDimension() const {
 	return 6;
 }
 
-ID_INLINE const idVec3 &idVec6::SubVec3( int index ) const {
+ID_INLINE const idVec3 &idVec6::SubVec3(const int index ) const {
 	return *reinterpret_cast<const idVec3 *>(p + index * 3);
 }
 
-ID_INLINE idVec3 &idVec6::SubVec3( int index ) {
+ID_INLINE idVec3 &idVec6::SubVec3(const int index ) {
 	return *reinterpret_cast<idVec3 *>(p + index * 3);
 }
 

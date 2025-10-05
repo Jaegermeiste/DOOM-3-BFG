@@ -91,7 +91,7 @@ void idMath::Init() {
 idMath::FloatToBits
 ================
 */
-int idMath::FloatToBits( float f, int exponentBits, int mantissaBits ) {
+int idMath::FloatToBits( float f, int exponentBits, const int mantissaBits ) {
 	int i, sign, exponent, mantissa, value;
 
 	assert( exponentBits >= 2 && exponentBits <= 8 );
@@ -133,7 +133,7 @@ int idMath::FloatToBits( float f, int exponentBits, int mantissaBits ) {
 idMath::BitsToFloat
 ================
 */
-float idMath::BitsToFloat( int i, int exponentBits, int mantissaBits ) {
+float idMath::BitsToFloat(const int i, int exponentBits, const int mantissaBits ) {
 	static int exponentSign[2] = { 1, -1 };
 	int sign, exponent, mantissa, value;
 

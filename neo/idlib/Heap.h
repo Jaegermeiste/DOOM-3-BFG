@@ -58,25 +58,25 @@ ID_INLINE void		Mem_Free( void *ptr ) { Mem_Free16( ptr ); }
 void *		Mem_ClearedAlloc( const int size, const memTag_t tag );
 char *		Mem_CopyString( const char *in );
 
-ID_INLINE void *operator new( size_t s ) {
+ID_INLINE void *operator new(const size_t s ) {
 	return Mem_Alloc( s, TAG_NEW );
 }
 ID_INLINE void operator delete( void *p ) {
 	Mem_Free( p );
 }
-ID_INLINE void *operator new[]( size_t s ) {
+ID_INLINE void *operator new[](const size_t s ) {
 	return Mem_Alloc( s, TAG_NEW );
 }
 ID_INLINE void operator delete[]( void *p ) {
 	Mem_Free( p );
 }
-ID_INLINE void *operator new( size_t s, memTag_t tag ) {
+ID_INLINE void *operator new(const size_t s, const memTag_t tag ) {
 	return Mem_Alloc( s, tag );
 }
 ID_INLINE void operator delete( void *p, memTag_t tag ) {
 	Mem_Free( p );
 }
-ID_INLINE void *operator new[]( size_t s, memTag_t tag ) {
+ID_INLINE void *operator new[](const size_t s, const memTag_t tag ) {
 	return Mem_Alloc( s, tag );
 }
 ID_INLINE void operator delete[]( void *p, memTag_t tag ) {
@@ -234,7 +234,7 @@ idBlockAlloc<_type_,_blockSize_,align_t>::idBlockAlloc
 ========================
 */
 template<class _type_, int _blockSize_, memTag_t memTag>
-ID_INLINE idBlockAlloc<_type_,_blockSize_,memTag>::idBlockAlloc( bool clear ) :
+ID_INLINE idBlockAlloc<_type_,_blockSize_,memTag>::idBlockAlloc(const bool clear ) :
 	blocks( NULL ),
 	free( NULL ),
 	total( 0 ),
@@ -333,7 +333,7 @@ idBlockAlloc<_type_,_blockSize_,align_t>::SetFixedBlocks
 ========================
 */
 template<class _type_, int _blockSize_, memTag_t memTag>
-ID_INLINE void idBlockAlloc<_type_,_blockSize_,memTag>::SetFixedBlocks( int numBlocks ) {
+ID_INLINE void idBlockAlloc<_type_,_blockSize_,memTag>::SetFixedBlocks(const int numBlocks ) {
 	int currentNumBlocks = 0;
 	for ( idBlock * block = blocks; block != NULL; block = block->next ) {
 		currentNumBlocks++;
@@ -560,7 +560,7 @@ class idDynamicBlock {
 public:
 	type *							GetMemory() const { return (type *)( ( (byte *) this ) + sizeof( idDynamicBlock<type> ) ); }
 	int								GetSize() const { return abs( size ); }
-	void							SetSize( int s, bool isBaseBlock ) { size = isBaseBlock ? -s : s; }
+	void							SetSize(const int s, const bool isBaseBlock ) { size = isBaseBlock ? -s : s; }
 	bool							IsBaseBlock() const { return ( size < 0 ); }
 
 #ifdef DYNAMIC_BLOCK_ALLOC_CHECK
@@ -673,7 +673,7 @@ void idDynamicBlockAlloc<type, baseBlockSize, minBlockSize, _tag_>::Shutdown() {
 }
 
 template<class type, int baseBlockSize, int minBlockSize, memTag_t _tag_>
-void idDynamicBlockAlloc<type, baseBlockSize, minBlockSize, _tag_>::SetFixedBlocks( int numBlocks ) {
+void idDynamicBlockAlloc<type, baseBlockSize, minBlockSize, _tag_>::SetFixedBlocks(const int numBlocks ) {
 	idDynamicBlock<type> *block;
 
 	for ( int i = numBaseBlocks; i < numBlocks; i++ ) {
@@ -706,7 +706,7 @@ void idDynamicBlockAlloc<type, baseBlockSize, minBlockSize, _tag_>::SetFixedBloc
 }
 
 template<class type, int baseBlockSize, int minBlockSize, memTag_t _tag_>
-void idDynamicBlockAlloc<type, baseBlockSize, minBlockSize, _tag_>::SetLockMemory( bool lock ) {
+void idDynamicBlockAlloc<type, baseBlockSize, minBlockSize, _tag_>::SetLockMemory(const bool lock ) {
 	lockMemory = lock;
 }
 

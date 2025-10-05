@@ -121,7 +121,7 @@ ID_INLINE void idRotation::SetVec( const idVec3 &rotationVec ) {
 	axisValid = false;
 }
 
-ID_INLINE void idRotation::SetVec( float x, float y, float z ) {
+ID_INLINE void idRotation::SetVec(const float x, const float y, const float z ) {
 	vec[0] = x;
 	vec[1] = y;
 	vec[2] = z;

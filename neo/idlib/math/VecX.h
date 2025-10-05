@@ -137,7 +137,7 @@ ID_INLINE idVecX::idVecX() {
 idVecX::idVecX
 ========================
 */
-ID_INLINE idVecX::idVecX( int length ) {
+ID_INLINE idVecX::idVecX(const int length ) {
 	size = alloced = 0;
 	p = NULL;
 	SetSize( length );
@@ -148,7 +148,7 @@ ID_INLINE idVecX::idVecX( int length ) {
 idVecX::idVecX
 ========================
 */
-ID_INLINE idVecX::idVecX( int length, float *data ) {
+ID_INLINE idVecX::idVecX(const int length, float *data ) {
 	size = alloced = 0;
 	p = NULL;
 	SetData( length, data );
@@ -171,7 +171,7 @@ ID_INLINE idVecX::~idVecX() {
 idVecX::Get
 ========================
 */
-ID_INLINE float idVecX::Get( int index ) const {
+ID_INLINE float idVecX::Get(const int index ) const {
 	assert( index >= 0 && index < size );
 	return p[index];
 }
@@ -181,7 +181,7 @@ ID_INLINE float idVecX::Get( int index ) const {
 idVecX::Get
 ========================
 */
-ID_INLINE float & idVecX::Get( int index ) {
+ID_INLINE float & idVecX::Get(const int index ) {
 	assert( index >= 0 && index < size );
 	return p[index];
 }
@@ -191,7 +191,7 @@ ID_INLINE float & idVecX::Get( int index ) {
 idVecX::operator[]
 ========================
 */
-ID_INLINE float idVecX::operator[]( int index ) const {
+ID_INLINE float idVecX::operator[](const int index ) const {
 	return Get( index );
 }
 
@@ -200,7 +200,7 @@ ID_INLINE float idVecX::operator[]( int index ) const {
 idVecX::operator[]
 ========================
 */
-ID_INLINE float & idVecX::operator[]( int index ) {
+ID_INLINE float & idVecX::operator[](const int index ) {
 	return Get( index );
 }
 
@@ -466,7 +466,7 @@ ID_INLINE bool idVecX::operator!=( const idVecX &a ) const {
 idVecX::SetSize
 ========================
 */
-ID_INLINE void idVecX::SetSize( int newSize ) {
+ID_INLINE void idVecX::SetSize(const int newSize ) {
 	//assert( p < idVecX::tempPtr || p > idVecX::tempPtr + VECX_MAX_TEMP );
 	if ( newSize != size || p == NULL ) {
 		int alloc = ( newSize + 3 ) & ~3;
@@ -487,7 +487,7 @@ ID_INLINE void idVecX::SetSize( int newSize ) {
 idVecX::ChangeSize
 ========================
 */
-ID_INLINE void idVecX::ChangeSize( int newSize, bool makeZero ) {
+ID_INLINE void idVecX::ChangeSize(const int newSize, const bool makeZero ) {
 	if ( newSize != size ) {
 		int alloc = ( newSize + 3 ) & ~3;
 		if ( alloc > alloced && alloced != -1 ) {
@@ -517,7 +517,7 @@ ID_INLINE void idVecX::ChangeSize( int newSize, bool makeZero ) {
 idVecX::SetTempSize
 ========================
 */
-ID_INLINE void idVecX::SetTempSize( int newSize ) {
+ID_INLINE void idVecX::SetTempSize(const int newSize ) {
 	size = newSize;
 	alloced = ( newSize + 3 ) & ~3;
 	assert( alloced < VECX_MAX_TEMP );
@@ -534,7 +534,7 @@ ID_INLINE void idVecX::SetTempSize( int newSize ) {
 idVecX::SetData
 ========================
 */
-ID_INLINE void idVecX::SetData( int length, float *data ) {
+ID_INLINE void idVecX::SetData(const int length, float *data ) {
 	if ( p != NULL && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 ) {
 		Mem_Free16( p );
 	}
@@ -565,7 +565,7 @@ ID_INLINE void idVecX::Zero() {
 idVecX::Zero
 ========================
 */
-ID_INLINE void idVecX::Zero( int length ) {
+ID_INLINE void idVecX::Zero(const int length ) {
 	SetSize( length );
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(VECX_SIMD)
 	for ( int i = 0; i < length; i += 4 ) {
@@ -581,7 +581,7 @@ ID_INLINE void idVecX::Zero( int length ) {
 idVecX::Random
 ========================
 */
-ID_INLINE void idVecX::Random( int seed, float l, float u ) {
+ID_INLINE void idVecX::Random(const int seed, const float l, const float u ) {
 	idRandom rnd( seed );
 
 	float c = u - l;
@@ -595,7 +595,7 @@ ID_INLINE void idVecX::Random( int seed, float l, float u ) {
 idVecX::Random
 ========================
 */
-ID_INLINE void idVecX::Random( int length, int seed, float l, float u ) {
+ID_INLINE void idVecX::Random(const int length, const int seed, const float l, const float u ) {
 	idRandom rnd( seed );
 
 	SetSize( length );
@@ -628,7 +628,7 @@ ID_INLINE void idVecX::Negate() {
 idVecX::Clamp
 ========================
 */
-ID_INLINE void idVecX::Clamp( float min, float max ) {
+ID_INLINE void idVecX::Clamp(const float min, const float max ) {
 	for ( int i = 0; i < size; i++ ) {
 		if ( p[i] < min ) {
 			p[i] = min;
@@ -643,7 +643,7 @@ ID_INLINE void idVecX::Clamp( float min, float max ) {
 idVecX::SwapElements
 ========================
 */
-ID_INLINE idVecX &idVecX::SwapElements( int e1, int e2 ) {
+ID_INLINE idVecX &idVecX::SwapElements(const int e1, const int e2 ) {
 	float tmp;
 	tmp = p[e1];
 	p[e1] = p[e2];
@@ -728,7 +728,7 @@ ID_INLINE int idVecX::GetDimension() const {
 idVecX::SubVec3
 ========================
 */
-ID_INLINE idVec3 &idVecX::SubVec3( int index ) {
+ID_INLINE idVec3 &idVecX::SubVec3(const int index ) {
 	assert( index >= 0 && index * 3 + 3 <= size );
 	return *reinterpret_cast<idVec3 *>(p + index * 3);
 }
@@ -738,7 +738,7 @@ ID_INLINE idVec3 &idVecX::SubVec3( int index ) {
 idVecX::SubVec3
 ========================
 */
-ID_INLINE const idVec3 &idVecX::SubVec3( int index ) const {
+ID_INLINE const idVec3 &idVecX::SubVec3(const int index ) const {
 	assert( index >= 0 && index * 3 + 3 <= size );
 	return *reinterpret_cast<const idVec3 *>(p + index * 3);
 }
@@ -748,7 +748,7 @@ ID_INLINE const idVec3 &idVecX::SubVec3( int index ) const {
 idVecX::SubVec6
 ========================
 */
-ID_INLINE idVec6 &idVecX::SubVec6( int index ) {
+ID_INLINE idVec6 &idVecX::SubVec6(const int index ) {
 	assert( index >= 0 && index * 6 + 6 <= size );
 	return *reinterpret_cast<idVec6 *>(p + index * 6);
 }
@@ -758,7 +758,7 @@ ID_INLINE idVec6 &idVecX::SubVec6( int index ) {
 idVecX::SubVec6
 ========================
 */
-ID_INLINE const idVec6 &idVecX::SubVec6( int index ) const {
+ID_INLINE const idVec6 &idVecX::SubVec6(const int index ) const {
 	assert( index >= 0 && index * 6 + 6 <= size );
 	return *reinterpret_cast<const idVec6 *>(p + index * 6);
 }

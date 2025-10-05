@@ -121,7 +121,7 @@ quick-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Quick : public idSort< _type_ > {
 public:
-	virtual void Sort( _type_ * base, unsigned int num ) const {
+	virtual void Sort( _type_ * base, const unsigned int num ) const {
 		if ( num <= 0 ) {
 			return;
 		}
@@ -235,7 +235,7 @@ heap-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Heap : public idSort< _type_ > {
 public:
-	virtual void Sort( _type_ * base, unsigned int num ) const {
+	virtual void Sort( _type_ * base, const unsigned int num ) const {
 		// get all elements in heap order
 #if 1
 		// O( n )
@@ -307,7 +307,7 @@ insertion-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Insertion : public idSort< _type_ > {
 public:
-	virtual void Sort( _type_ * base, unsigned int num ) const {
+	virtual void Sort( _type_ * base, const unsigned int num ) const {
 		_type_ * lo = base;
 		_type_ * hi = base + ( num - 1 );
 		while( hi > lo ) {

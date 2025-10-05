@@ -40,7 +40,7 @@ public:
 					idSysMutex() { Sys_MutexCreate( handle ); }
 					~idSysMutex() { Sys_MutexDestroy( handle ); }
 
-	bool			Lock( bool blocking = true ) { return Sys_MutexLock( handle, blocking ); }
+	bool			Lock(const bool blocking = true ) { return Sys_MutexLock( handle, blocking ); }
 	void			Unlock() { Sys_MutexUnlock( handle ); }
 
 private:
@@ -76,7 +76,7 @@ class idSysSignal {
 public:
 	static const int	WAIT_INFINITE = -1;
 
-			idSysSignal( bool manualReset = false )	{ Sys_SignalCreate( handle, manualReset ); }
+			idSysSignal(const bool manualReset = false )	{ Sys_SignalCreate( handle, manualReset ); }
 			~idSysSignal()	{ Sys_SignalDestroy( handle ); }
 
 	void	Raise() { Sys_SignalRaise( handle ); }
@@ -85,7 +85,7 @@ public:
 	// Wait returns true if the object is in a signalled state and
 	// returns false if the wait timed out. Wait also clears the signalled
 	// state when the signalled state is reached within the time out period.
-	bool	Wait( int timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
+	bool	Wait(const int timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
 
 private:
 	signalHandle_t		handle;
@@ -111,16 +111,16 @@ public:
 	int					Decrement() { return Sys_InterlockedDecrement( value ); }
 
 	// atomically adds a value to the integer and returns the new value
-	int					Add( int v ) { return Sys_InterlockedAdd( value, (interlockedInt_t) v ); }
+	int					Add(const int v ) { return Sys_InterlockedAdd( value, (interlockedInt_t) v ); }
 
 	// atomically subtracts a value from the integer and returns the new value
-	int					Sub( int v ) { return Sys_InterlockedSub( value, (interlockedInt_t) v ); }
+	int					Sub(const int v ) { return Sys_InterlockedSub( value, (interlockedInt_t) v ); }
 
 	// returns the current value of the integer
 	int					GetValue() const { return value; }
 
 	// sets a new value, Note: this operation is not atomic
-	void				SetValue( int v ) { value = (interlockedInt_t)v; }
+	void				SetValue(const int v ) { value = (interlockedInt_t)v; }
 
 private:
 	interlockedInt_t	value;
@@ -425,7 +425,7 @@ private:
 idSysThreadSynchronizer::SetNumThreads
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::SetNumThreads( unsigned int num ) {
+ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const unsigned int num ) {
 	assert( busyCount.GetValue() == signals.Num() );
 	if ( (int)num != signals.Num() ) {
 		signals.DeleteContents();
@@ -458,7 +458,7 @@ ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum ) {
 idSysThreadSynchronizer::Synchronize
 ========================
 */
-ID_INLINE bool idSysThreadSynchronizer::Synchronize( unsigned int threadNum, int timeout ) {
+ID_INLINE bool idSysThreadSynchronizer::Synchronize(const unsigned int threadNum, const int timeout ) {
 	return signals[threadNum]->Wait( timeout );
 }
 

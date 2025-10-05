@@ -108,7 +108,7 @@ void idMapBrushSide::GetTextureVectors( idVec4 v[2] ) const {
 idMapPatch::Parse
 =================
 */
-idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, bool patchDef3, float version ) {
+idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool patchDef3, const float version ) {
 	float		info[7];
 	idDrawVert *vert;
 	idToken		token;
@@ -221,7 +221,7 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, bool patchDef
 idMapPatch::Write
 ============
 */
-bool idMapPatch::Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const {
+bool idMapPatch::Write( idFile *fp, const int primitiveNum, const idVec3 &origin ) const {
 	int i, j;
 	const idDrawVert *v;
 
@@ -278,7 +278,7 @@ unsigned int idMapPatch::GetGeometryCRC() const {
 idMapBrush::Parse
 =================
 */
-idMapBrush *idMapBrush::Parse( idLexer &src, const idVec3 &origin, bool newFormat, float version ) {
+idMapBrush *idMapBrush::Parse( idLexer &src, const idVec3 &origin, const bool newFormat, const float version ) {
 	int i;
 	idVec3 planepts[3];
 	idToken token;
@@ -487,7 +487,7 @@ idMapBrush *idMapBrush::ParseQ3( idLexer &src, const idVec3 &origin ) {
 idMapBrush::Write
 ============
 */
-bool idMapBrush::Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const {
+bool idMapBrush::Write( idFile *fp, const int primitiveNum, const idVec3 &origin ) const {
 	int i;
 	idMapBrushSide *side;
 
@@ -540,7 +540,7 @@ unsigned int idMapBrush::GetGeometryCRC() const {
 idMapEntity::Parse
 ================
 */
-idMapEntity *idMapEntity::Parse( idLexer &src, bool worldSpawn, float version ) {
+idMapEntity *idMapEntity::Parse( idLexer &src, const bool worldSpawn, const float version ) {
 	idToken	token;
 	idMapEntity *mapEnt;
 	idMapPatch *mapPatch;
@@ -648,7 +648,7 @@ idMapEntity *idMapEntity::Parse( idLexer &src, bool worldSpawn, float version ) 
 idMapEntity::Write
 ============
 */
-bool idMapEntity::Write( idFile *fp, int entityNum ) const {
+bool idMapEntity::Write( idFile *fp, const int entityNum ) const {
 	int i;
 	idMapPrimitive *mapPrim;
 	idVec3 origin;
@@ -722,7 +722,7 @@ unsigned int idMapEntity::GetGeometryCRC() const {
 idMapFile::Parse
 ===============
 */
-bool idMapFile::Parse( const char *filename, bool ignoreRegion, bool osPath ) {
+bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool osPath ) {
 	// no string concatenation for epairs and allow path names for materials
 	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
 	idToken token;
@@ -835,7 +835,7 @@ bool idMapFile::Parse( const char *filename, bool ignoreRegion, bool osPath ) {
 idMapFile::Write
 ============
 */
-bool idMapFile::Write( const char *fileName, const char *ext, bool fromBasePath ) {
+bool idMapFile::Write( const char *fileName, const char *ext, const bool fromBasePath ) {
 	int i;
 	idStr qpath;
 	idFile *fp;

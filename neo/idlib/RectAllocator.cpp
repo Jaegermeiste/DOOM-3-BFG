@@ -62,7 +62,7 @@ float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i tota
 
 class idSortrects : public idSort_Quick< int, idSortrects > {
 public:
-	int SizeMetric( idVec2i v ) const {
+	int SizeMetric(const idVec2i v ) const {
 		// skinny rects will sort earlier than square ones, because
 		// they are more likely to grow the entire region
 		return v.x * v.x + v.y * v.y;

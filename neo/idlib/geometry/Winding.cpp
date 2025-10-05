@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 idWinding::ReAllocate
 =============
 */
-bool idWinding::ReAllocate( int n, bool keep ) {
+bool idWinding::ReAllocate( int n, const bool keep ) {
 	idVec5 *oldP;
 
 	oldP = p;
@@ -507,7 +507,7 @@ void idWinding::ReverseSelf() {
 idWinding::Check
 =============
 */
-bool idWinding::Check( bool print ) const {
+bool idWinding::Check(const bool print ) const {
 	int				i, j;
 	float			d, edgedist;
 	idVec3			dir, edgenormal;
@@ -994,7 +994,7 @@ idWinding::TryMerge
 */
 #define	CONTINUOUS_EPSILON	0.005f
 
-idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, int keep ) const {
+idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, const int keep ) const {
 	idVec3			*p1, *p2, *p3, *p4, *back;
 	idWinding		*newf;
 	const idWinding	*f1, *f2;
@@ -1102,7 +1102,7 @@ idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, i
 idWinding::RemovePoint
 =============
 */
-void idWinding::RemovePoint( int point ) {
+void idWinding::RemovePoint(const int point ) {
 	if ( point < 0 || point >= numPoints ) {
 		idLib::common->FatalError( "idWinding::removePoint: point out of range" );
 	}
@@ -1117,7 +1117,7 @@ void idWinding::RemovePoint( int point ) {
 idWinding::InsertPoint
 =============
 */
-void idWinding::InsertPoint( const idVec5 &point, int spot ) {
+void idWinding::InsertPoint( const idVec5 &point, const int spot ) {
 	int i;
 
 	if ( spot > numPoints ) {
@@ -1329,7 +1329,7 @@ idWinding::PlanesConcave
 */
 #define WCONVEX_EPSILON		0.2f
 
-bool idWinding::PlanesConcave( const idWinding &w2, const idVec3 &normal1, const idVec3 &normal2, float dist1, float dist2 ) const {
+bool idWinding::PlanesConcave( const idWinding &w2, const idVec3 &normal1, const idVec3 &normal2, const float dist1, const float dist2 ) const {
 	int i;
 
 	// check if one of the points of winding 1 is at the back of the plane of winding 2
@@ -1375,7 +1375,7 @@ bool idWinding::PointInside( const idVec3 &normal, const idVec3 &point, const fl
 idWinding::LineIntersection
 =============
 */
-bool idWinding::LineIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &end, bool backFaceCull ) const {
+bool idWinding::LineIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &end, const bool backFaceCull ) const {
 	float front, back, frac;
 	idVec3 mid;
 
@@ -1415,7 +1415,7 @@ bool idWinding::LineIntersection( const idPlane &windingPlane, const idVec3 &sta
 idWinding::RayIntersection
 =============
 */
-bool idWinding::RayIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &dir, float &scale, bool backFaceCull ) const {
+bool idWinding::RayIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &dir, float &scale, const bool backFaceCull ) const {
 	int i;
 	bool side, lastside = false;
 	idPluecker pl1, pl2;
@@ -1464,7 +1464,7 @@ float idWinding::TriangleArea( const idVec3 &a, const idVec3 &b, const idVec3 &c
 idFixedWinding::ReAllocate
 =============
 */
-bool idFixedWinding::ReAllocate( int n, bool keep ) {
+bool idFixedWinding::ReAllocate(const int n, bool keep ) {
 
 	assert( n <= MAX_POINTS_ON_WINDING );
 

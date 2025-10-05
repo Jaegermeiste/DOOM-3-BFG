@@ -68,7 +68,7 @@ public:
 	size_t				Allocated() const;
 	size_t				Size() const;
 
-	const idPoolStr *	operator[]( int index ) const { return pool[index]; }
+	const idPoolStr *	operator[](const int index ) const { return pool[index]; }
 
 	const idPoolStr *	AllocString( const char *string );
 	void				FreeString( const idPoolStr *poolStr );
@@ -86,7 +86,7 @@ private:
 idStrPool::SetCaseSensitive
 ================
 */
-ID_INLINE void idStrPool::SetCaseSensitive( bool caseSensitive ) {
+ID_INLINE void idStrPool::SetCaseSensitive(const bool caseSensitive ) {
 	this->caseSensitive = caseSensitive;
 }
 

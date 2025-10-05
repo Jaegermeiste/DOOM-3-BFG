@@ -188,7 +188,7 @@ idODSArray
 template< typename _type_, int max >
 class idODSArray {
 public:
-	idODSArray( const _type_ * array, int num ) : arrayPtr( array ), arrayNum( num ) {
+	idODSArray( const _type_ * array, const int num ) : arrayPtr( array ), arrayNum( num ) {
 		assert( num <= max );
 		Prefetch( array, 0 );
 	}
@@ -212,7 +212,7 @@ idODSIndexedArray
 template< typename _elemType_, typename _indexType_, int max >
 class idODSIndexedArray {
 public:
-	idODSIndexedArray( const _elemType_ * array, const _indexType_ * index, int num ) : arrayNum( num ) {
+	idODSIndexedArray( const _elemType_ * array, const _indexType_ * index, const int num ) : arrayNum( num ) {
 		assert( num <= max );
 		for ( int i = 0; i < num; i++ ) {
 			Prefetch( arrayPtr, abs( index[i] ) * sizeof( _elemType_ ) );
@@ -243,7 +243,7 @@ idODSStreamedOutputArray
 template< typename _type_, int _bufferSize_ >
 class ALIGNTYPE16 idODSStreamedOutputArray {
 public:
-				idODSStreamedOutputArray( _type_ * array, int * numElements, int maxElements ) :
+				idODSStreamedOutputArray( _type_ * array, int * numElements, const int maxElements ) :
 						localNum( 0 ),
 						outArray( array ),
 						outNum( numElements ),

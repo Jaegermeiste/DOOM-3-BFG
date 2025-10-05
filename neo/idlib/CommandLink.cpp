@@ -47,8 +47,8 @@ idCommandLink *CommandLinks( idCommandLink *cl ) {
 
 idCommandLink *commandLinks = NULL;
 
-idCommandLink::idCommandLink( const char *cmdName, cmdFunction_t function, 
-	const char *description, argCompletion_t argCompletion ) {
+idCommandLink::idCommandLink( const char *cmdName, const cmdFunction_t function, 
+	const char *description, const argCompletion_t argCompletion ) {
 		next = CommandLinks();
 		CommandLinks( this );
 		cmdName_ = cmdName;

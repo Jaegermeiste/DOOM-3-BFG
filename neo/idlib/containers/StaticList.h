@@ -163,7 +163,7 @@ list to NULL.
 ================
 */
 template<class type,int size>
-ID_INLINE void idStaticList<type,size>::DeleteContents( bool clear ) {
+ID_INLINE void idStaticList<type,size>::DeleteContents(const bool clear ) {
 	int i;
 
 	for( i = 0; i < num; i++ ) {
@@ -240,7 +240,7 @@ Set number of elements in list.
 ================
 */
 template<class type,int size>
-ID_INLINE void idStaticList<type,size>::SetNum( int newnum ) {
+ID_INLINE void idStaticList<type,size>::SetNum(const int newnum ) {
 	assert( newnum >= 0 );
 	assert( newnum <= size );
 	num = newnum;
@@ -538,7 +538,7 @@ Note that the element is not destroyed, so any memory used by it may not be free
 ================
 */
 template<class type,int size>
-ID_INLINE bool idStaticList<type,size>::RemoveIndex( int index ) {
+ID_INLINE bool idStaticList<type,size>::RemoveIndex(const int index ) {
 	int i;
 
 	assert( index >= 0 );
@@ -635,7 +635,7 @@ Contents are copied using their = operator so that data is correctly instantiate
 ========================
 */
 template< class type,int size >
-ID_INLINE void idStaticList<type,size>::Resize( int newsize ) {
+ID_INLINE void idStaticList<type,size>::Resize(const int newsize ) {
 
 	assert( newsize >= 0 );
 

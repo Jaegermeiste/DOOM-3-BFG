@@ -298,17 +298,17 @@ static void     (*_LittleBitField)( void *bp, int elsize );
 static void		(*_SixtetsForInt)( byte *out, int src );
 static int		(*_IntForSixtets)( byte *in );
 
-short	BigShort( short l ) { return _BigShort( l ); }
-short	LittleShort( short l ) { return _LittleShort( l ); }
-int		BigLong( int l ) { return _BigLong( l ); }
-int		LittleLong( int l ) { return _LittleLong( l ); }
-float	BigFloat( float l ) { return _BigFloat( l ); }
-float	LittleFloat( float l ) { return _LittleFloat( l ); }
-void	BigRevBytes( void *bp, int elsize, int elcount ) { _BigRevBytes( bp, elsize, elcount ); }
-void	LittleRevBytes( void *bp, int elsize, int elcount ){ _LittleRevBytes( bp, elsize, elcount ); }
-void	LittleBitField( void *bp, int elsize ){ _LittleBitField( bp, elsize ); }
+short	BigShort(const short l ) { return _BigShort( l ); }
+short	LittleShort(const short l ) { return _LittleShort( l ); }
+int		BigLong(const int l ) { return _BigLong( l ); }
+int		LittleLong(const int l ) { return _LittleLong( l ); }
+float	BigFloat(const float l ) { return _BigFloat( l ); }
+float	LittleFloat(const float l ) { return _LittleFloat( l ); }
+void	BigRevBytes( void *bp, const int elsize, const int elcount ) { _BigRevBytes( bp, elsize, elcount ); }
+void	LittleRevBytes( void *bp, const int elsize, const int elcount ){ _LittleRevBytes( bp, elsize, elcount ); }
+void	LittleBitField( void *bp, const int elsize ){ _LittleBitField( bp, elsize ); }
 
-void	SixtetsForInt( byte *out, int src) { _SixtetsForInt( out, src ); }
+void	SixtetsForInt( byte *out, const int src) { _SixtetsForInt( out, src ); }
 int		IntForSixtets( byte *in ) { return _IntForSixtets( in ); }
 
 /*
@@ -316,7 +316,7 @@ int		IntForSixtets( byte *in ) { return _IntForSixtets( in ); }
 ShortSwap
 ================
 */
-short ShortSwap( short l ) {
+short ShortSwap(const short l ) {
 	byte    b1,b2;
 
 	b1 = l&255;
@@ -330,7 +330,7 @@ short ShortSwap( short l ) {
 ShortNoSwap
 ================
 */
-short ShortNoSwap( short l ) {
+short ShortNoSwap(const short l ) {
 	return l;
 }
 
@@ -339,7 +339,7 @@ short ShortNoSwap( short l ) {
 LongSwap
 ================
 */
-int LongSwap ( int l ) {
+int LongSwap (const int l ) {
 	byte    b1,b2,b3,b4;
 
 	b1 = l&255;
@@ -355,7 +355,7 @@ int LongSwap ( int l ) {
 LongNoSwap
 ================
 */
-int	LongNoSwap( int l ) {
+int	LongNoSwap(const int l ) {
 	return l;
 }
 
@@ -364,7 +364,7 @@ int	LongNoSwap( int l ) {
 FloatSwap
 ================
 */
-float FloatSwap( float f ) {
+float FloatSwap(const float f ) {
 	union {
 		float	f;
 		byte	b[4];
@@ -384,7 +384,7 @@ float FloatSwap( float f ) {
 FloatNoSwap
 ================
 */
-float FloatNoSwap( float f ) {
+float FloatNoSwap(const float f ) {
 	return f;
 }
 
@@ -402,7 +402,7 @@ INPUTS
 RESULTS
    Reverses the byte order in each of elcount elements.
 ===================================================================== */
-void RevBytesSwap( void *bp, int elsize, int elcount ) {
+void RevBytesSwap( void *bp, const int elsize, int elcount ) {
 	register unsigned char *p, *q;
 
 	p = ( unsigned char * ) bp;

@@ -176,7 +176,7 @@ int idPolynomial::GetRoots( float *roots ) const {
 idPolynomial::ToString
 =============
 */
-const char *idPolynomial::ToString( int precision ) const {
+const char *idPolynomial::ToString(const int precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 

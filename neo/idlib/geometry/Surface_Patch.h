@@ -100,7 +100,7 @@ ID_INLINE idSurface_Patch::idSurface_Patch() {
 idSurface_Patch::idSurface_Patch
 =================
 */
-ID_INLINE idSurface_Patch::idSurface_Patch( int maxPatchWidth, int maxPatchHeight ) {
+ID_INLINE idSurface_Patch::idSurface_Patch(const int maxPatchWidth, const int maxPatchHeight ) {
 	width = height = 0;
 	maxWidth = maxPatchWidth;
 	maxHeight = maxPatchHeight;

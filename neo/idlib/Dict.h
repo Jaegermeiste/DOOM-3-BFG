@@ -197,26 +197,26 @@ ID_INLINE idDict::~idDict() {
 	Clear();
 }
 
-ID_INLINE void idDict::SetGranularity( int granularity ) {
+ID_INLINE void idDict::SetGranularity(const int granularity ) {
 	args.SetGranularity( granularity );
 	argHash.SetGranularity( granularity );
 }
 
-ID_INLINE void idDict::SetHashSize( int hashSize ) {
+ID_INLINE void idDict::SetHashSize(const int hashSize ) {
 	if ( args.Num() == 0 ) {
 		argHash.Clear( hashSize, 16 );
 	}
 }
 
-ID_INLINE void idDict::SetFloat( const char *key, float val ) {
+ID_INLINE void idDict::SetFloat( const char *key, const float val ) {
 	Set( key, va( "%f", val ) );
 }
 
-ID_INLINE void idDict::SetInt( const char *key, int val ) {
+ID_INLINE void idDict::SetInt( const char *key, const int val ) {
 	Set( key, va( "%i", val ) );
 }
 
-ID_INLINE void idDict::SetBool( const char *key, bool val ) {
+ID_INLINE void idDict::SetBool( const char *key, const bool val ) {
 	Set( key, va( "%i", val ) );
 }
 
@@ -288,7 +288,7 @@ ID_INLINE float idDict::GetFloat( const char *key, const float defaultFloat ) co
 	return defaultFloat;
 }
 
-ID_INLINE int idDict::GetInt( const char *key, int defaultInt ) const {
+ID_INLINE int idDict::GetInt( const char *key, const int defaultInt ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
 		return atoi( kv->GetValue() );
@@ -338,7 +338,7 @@ ID_INLINE int idDict::GetNumKeyVals() const {
 	return args.Num();
 }
 
-ID_INLINE const idKeyValue *idDict::GetKeyVal( int index ) const {
+ID_INLINE const idKeyValue *idDict::GetKeyVal(const int index ) const {
 	if ( index >= 0 && index < args.Num() ) {
 		return &args[ index ];
 	}

@@ -53,7 +53,7 @@ void idSIMD::Init() {
 idSIMD::InitProcessor
 ============
 */
-void idSIMD::InitProcessor( const char *module, bool forceGeneric ) {
+void idSIMD::InitProcessor( const char *module, const bool forceGeneric ) {
 	cpuid_t cpuid;
 	idSIMDProcessor *newProcessor;
 
@@ -162,7 +162,7 @@ long saved_ebx = 0;
 PrintClocks
 ============
 */
-void PrintClocks( char *string, int dataCount, int clocks, int otherClocks = 0 ) {
+void PrintClocks( char *string, const int dataCount, int clocks, int otherClocks = 0 ) {
 	int i;
 
 	idLib::common->Printf( string );

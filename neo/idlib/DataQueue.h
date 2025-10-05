@@ -64,7 +64,7 @@ idDataQueue::Append
 ========================
 */
 template< int maxItems, int maxBuffer >
-bool idDataQueue< maxItems, maxBuffer >::Append( int sequence, const byte * b1, int b1Len, const byte * b2, int b2Len ) {
+bool idDataQueue< maxItems, maxBuffer >::Append( int sequence, const byte * b1, const int b1Len, const byte * b2, const int b2Len ) {
 	if ( items.Num() == items.Max() ) {
 		return false;
 	}

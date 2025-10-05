@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 UpdateVertexIndex
 =================
 */
-ID_INLINE int UpdateVertexIndex( int vertexIndexNum[2], int *vertexRemap, int *vertexCopyIndex, int vertNum ) {
+ID_INLINE int UpdateVertexIndex( int vertexIndexNum[2], int *vertexRemap, int *vertexCopyIndex, const int vertNum ) {
 	int s = INT32_SIGNBITSET( vertexRemap[vertNum] );
 	vertexIndexNum[0] = vertexRemap[vertNum];
 	vertexRemap[vertNum] = vertexIndexNum[s];
@@ -781,7 +781,7 @@ bool idSurface::LineIntersection( const idVec3 &start, const idVec3 &end, bool b
 idSurface::RayIntersection
 =================
 */
-bool idSurface::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale, bool backFaceCull ) const {
+bool idSurface::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale, const bool backFaceCull ) const {
 	int i, i0, i1, i2, s0, s1, s2;
 	float d, s;
 	byte *sidedness;
@@ -905,7 +905,7 @@ void idSurface::GenerateEdgeIndexes() {
 idSurface::FindEdge
 =================
 */
-int idSurface::FindEdge( int v1, int v2 ) const {
+int idSurface::FindEdge(const int v1, const int v2 ) const {
 	int i, firstVert, secondVert;
 
 	if ( v1 < v2 ) {
