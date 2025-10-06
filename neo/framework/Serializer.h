@@ -311,8 +311,8 @@ public:
 		}
 	
 		// Verify we didn't go over
-		int endByte = ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize();
-		int sizeBytes = endByte - startByte;
+		size_t endByte = ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize();
+		size_t sizeBytes = endByte - startByte;
 		if ( !verify( sizeBytes <= maxSizeBytes ) ) {
 			idLib::Warning( "idSerializerScopedBlock went over maxSize (%d > %d)", sizeBytes, maxSizeBytes );
 			return;
@@ -325,15 +325,15 @@ public:
 			sizeBytes++;
 		}
 
-		int finalSize = ( ( ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize() ) - startByte );
+		size_t finalSize = ( ( ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize() ) - startByte );
 		verify( maxSizeBytes == finalSize );
 	}
 
 private:
 	idSerializer * ser;
-	int maxSizeBytes;
+	size_t maxSizeBytes;
 	
-	int startByte;
+	size_t startByte;
 	int startWriteBits;
 };
 

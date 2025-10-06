@@ -84,8 +84,8 @@ private:
 	void *				apiObject;
 
 	// sizeof() confuses typeinfo...
-	static const int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
-	static const int	OWNS_BUFFER_FLAG	= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
+	static constexpr int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
+	static constexpr int	OWNS_BUFFER_FLAG	= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
 
 private:
 	void				ClearWithoutFreeing();
@@ -133,8 +133,8 @@ private:
 	void *				apiObject;
 
 	// sizeof() confuses typeinfo...
-	static const int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
-	static const int	OWNS_BUFFER_FLAG	= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
+	static constexpr int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
+	static constexpr int	OWNS_BUFFER_FLAG	= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
 
 private:
 	void				ClearWithoutFreeing();
@@ -187,8 +187,8 @@ private:
 	void *				apiObject;
 
 	// sizeof() confuses typeinfo...
-	static const int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
-	static const int	OWNS_BUFFER_FLAG	= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
+	static constexpr int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
+	static constexpr int	OWNS_BUFFER_FLAG	= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
 
 private:
 	void				ClearWithoutFreeing();

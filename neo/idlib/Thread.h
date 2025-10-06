@@ -47,7 +47,7 @@ private:
 	mutexHandle_t	handle;
 
 					idSysMutex( const idSysMutex & s ) {}
-	void			operator=( const idSysMutex & s ) {}
+	void			operator=( const idSysMutex & s ) const {}
 };
 
 /*
@@ -74,7 +74,7 @@ a thread has reached a specific point.
 */
 class idSysSignal {
 public:
-	static const int	WAIT_INFINITE = -1;
+	static constexpr int	WAIT_INFINITE = -1;
 
 			idSysSignal(const bool manualReset = false )	{ Sys_SignalCreate( handle, manualReset ); }
 			~idSysSignal()	{ Sys_SignalDestroy( handle ); }
@@ -91,7 +91,7 @@ private:
 	signalHandle_t		handle;
 
 						idSysSignal( const idSysSignal & s ) {}
-	void				operator=( const idSysSignal & s ) {}
+	void				operator=( const idSysSignal & s ) const {}
 };
 
 /*
@@ -120,7 +120,7 @@ public:
 	int					GetValue() const { return value; }
 
 	// sets a new value, Note: this operation is not atomic
-	void				SetValue(const int v ) { value = (interlockedInt_t)v; }
+	void				SetValue(const int v ) { value = static_cast<interlockedInt_t>(v); }
 
 private:
 	interlockedInt_t	value;
@@ -135,17 +135,17 @@ routine to atomically set a pointer while retrieving the previous value of the p
 template< typename T >
 class idSysInterlockedPointer {
 public:
-			idSysInterlockedPointer() : ptr( NULL ) {}
+			idSysInterlockedPointer() : ptr(nullptr) {}
 
 	// atomically sets the pointer and returns the previous pointer value
 	T *		Set( T * newPtr ) { 
-				return (T *) Sys_InterlockedExchangePointer( (void * &) ptr, newPtr ); 
+				return static_cast<T*>(Sys_InterlockedExchangePointer((void* &)ptr, newPtr)); 
 			}
 
 	// atomically sets the pointer to 'newPtr' only if the previous pointer is equal to 'comparePtr'
 	// ptr = ( ptr == comparePtr ) ? newPtr : ptr
 	T *		CompareExchange( T * comparePtr, T * newPtr ) {
-				return (T *) Sys_InterlockedCompareExchangePointer( (void * &) ptr, comparePtr, newPtr );
+				return static_cast<T*>(Sys_InterlockedCompareExchangePointer((void* &)ptr, comparePtr, newPtr));
 	}
 
 	// returns the current value of the pointer
@@ -269,7 +269,7 @@ private:
 	static int		ThreadProc( idSysThread * thread );
 
 					idSysThread( const idSysThread & s ) {}
-	void			operator=( const idSysThread & s ) {}
+	void			operator=( const idSysThread & s ) const {}
 };
 
 /*
@@ -334,7 +334,7 @@ ID_INLINE idSysWorkerThreadGroup<threadType>::idSysWorkerThreadGroup( const char
 	numThreads = abs( numThreads );
 	for( int i = 0; i < numThreads; i++ ) {
 		threadType *thread = new (TAG_THREAD) threadType;
-		thread->StartWorkerThread( va( "%s_worker%i", name, i ), (core_t) i, priority, stackSize );
+		thread->StartWorkerThread( va( "%s_worker%i", name, i ), static_cast<core_t>(i), priority, stackSize );
 		threadList.Append( thread );
 	}
 }
@@ -409,7 +409,7 @@ synchronize with each other half-way through execution.
 */
 class idSysThreadSynchronizer {
 public:
-	static const int	WAIT_INFINITE = -1;
+	static constexpr int	WAIT_INFINITE = -1;
 
 	ID_INLINE	void			SetNumThreads( unsigned int num );
 	ID_INLINE	void			Signal( unsigned int threadNum );
@@ -427,9 +427,9 @@ idSysThreadSynchronizer::SetNumThreads
 */
 ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const unsigned int num ) {
 	assert( busyCount.GetValue() == signals.Num() );
-	if ( (int)num != signals.Num() ) {
+	if ( static_cast<int>(num) != signals.Num() ) {
 		signals.DeleteContents();
-		signals.SetNum( (int)num );
+		signals.SetNum( static_cast<int>(num) );
 		for ( unsigned int i = 0; i < num; i++ ) {
 			signals[i] = new (TAG_THREAD) idSysSignal();
 		}
@@ -445,7 +445,7 @@ idSysThreadSynchronizer::Signal
 */
 ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum ) {
 	if ( busyCount.Decrement() == 0 ) {
-		busyCount.SetValue( (unsigned int) signals.Num() );
+		busyCount.SetValue( static_cast<unsigned int>(signals.Num()) );
 		SYS_MEMORYBARRIER;
 		for ( int i = 0; i < signals.Num(); i++ ) {
 			signals[i]->Raise();

@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-const static int NUM_SINGLEPLAYER_OPTIONS = 8;
+static constexpr int NUM_SINGLEPLAYER_OPTIONS = 8;
 /*
 ========================
 idMenuScreen_Shell_Singleplayer::Initialize

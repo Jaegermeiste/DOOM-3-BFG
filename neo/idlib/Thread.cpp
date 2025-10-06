@@ -104,7 +104,7 @@ bool idSysThread::StartWorkerThread( const char * name_, const core_t core, cons
 
 	isWorker = true;
 
-	bool result = StartThread( name_, core, priority, stackSize );
+	const bool result = StartThread( name_, core, priority, stackSize );
 
 	signalWorkerDone.Wait( idSysSignal::WAIT_INFINITE );
 
@@ -250,7 +250,8 @@ idMyThread test class.
 */
 class idMyThread : public idSysThread {
 public:
-	virtual int Run() {
+	int Run() override
+	{
 		// run threaded code here
 		return 0;
 	}

@@ -37,8 +37,8 @@ CLASS_DECLARATION( idEntity, idBrittleFracture )
 	EVENT( EV_Touch, idBrittleFracture::Event_Touch )
 END_CLASS
 
-const int SHARD_ALIVE_TIME	= 5000;
-const int SHARD_FADE_START	= 2000;
+constexpr int SHARD_ALIVE_TIME	= 5000;
+constexpr int SHARD_FADE_START	= 2000;
 
 static const char *brittleFracture_SnapshotName = "_BrittleFracture_Snapshot_";
 

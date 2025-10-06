@@ -99,10 +99,10 @@ public:
 	idSWFSpriteInstance *	ToSprite();
 	idSWFTextInstance *		ToText();
 
-	idSWFScriptVar			GetNestedVar( const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL );
-	idSWFScriptObject *		GetNestedObj( const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL );
-	idSWFSpriteInstance *	GetNestedSprite( const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL );
-	idSWFTextInstance *		GetNestedText( const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL );
+	idSWFScriptVar			GetNestedVar( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
+	idSWFScriptObject *		GetNestedObj( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
+	idSWFSpriteInstance *	GetNestedSprite( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
+	idSWFTextInstance *		GetNestedText( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
 
 	const char *			TypeOf() const;
 

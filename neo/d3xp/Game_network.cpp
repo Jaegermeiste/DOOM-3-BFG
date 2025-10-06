@@ -32,15 +32,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "Game_local.h"
 #include "..\framework\Common_local.h"
 
-static const int SNAP_GAMESTATE = 0;
-static const int SNAP_SHADERPARMS = 1;
-static const int SNAP_PORTALS = 2;
-static const int SNAP_PLAYERSTATE = SNAP_PORTALS + 1;
-static const int SNAP_PLAYERSTATE_END = SNAP_PLAYERSTATE + MAX_PLAYERS;
-static const int SNAP_ENTITIES = SNAP_PLAYERSTATE_END;
-static const int SNAP_ENTITIES_END = SNAP_ENTITIES + MAX_GENTITIES;
-static const int SNAP_LAST_CLIENT_FRAME = SNAP_ENTITIES_END;
-static const int SNAP_LAST_CLIENT_FRAME_END = SNAP_LAST_CLIENT_FRAME + MAX_PLAYERS;
+static constexpr int SNAP_GAMESTATE = 0;
+static constexpr int SNAP_SHADERPARMS = 1;
+static constexpr int SNAP_PORTALS = 2;
+static constexpr int SNAP_PLAYERSTATE = SNAP_PORTALS + 1;
+static constexpr int SNAP_PLAYERSTATE_END = SNAP_PLAYERSTATE + MAX_PLAYERS;
+static constexpr int SNAP_ENTITIES = SNAP_PLAYERSTATE_END;
+static constexpr int SNAP_ENTITIES_END = SNAP_ENTITIES + MAX_GENTITIES;
+static constexpr int SNAP_LAST_CLIENT_FRAME = SNAP_ENTITIES_END;
+static constexpr int SNAP_LAST_CLIENT_FRAME_END = SNAP_LAST_CLIENT_FRAME + MAX_PLAYERS;
 
 /*
 ===============================================================================

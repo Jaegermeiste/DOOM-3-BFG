@@ -34,7 +34,7 @@ extern idCVar s_noSound;
 
 #define GPU_CONVERT_CPU_TO_CPU_CACHED_READONLY_ADDRESS( x ) x
 
-const uint32 SOUND_MAGIC_IDMSA = 0x6D7A7274;
+constexpr uint32 SOUND_MAGIC_IDMSA = 0x6D7A7274;
 
 extern idCVar sys_lang;
 
@@ -141,7 +141,7 @@ idSoundSample_XAudio2::LoadGeneratedSound
 */
 bool idSoundSample_XAudio2::LoadGeneratedSample( const idStr &filename ) {
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
-	if ( fileIn != NULL ) {
+	if ( fileIn != nullptr) {
 		uint32 magic;
 		fileIn->ReadBig( magic );
 		fileIn->ReadBig( timestamp );
@@ -257,7 +257,7 @@ bool idSoundSample_XAudio2::LoadWav( const idStr & filename ) {
 	LoadAmplitude( sampleName );
 
 	const char * formatError = wave.ReadWaveFormat( format );
-	if ( formatError != NULL ) {
+	if ( formatError != nullptr) {
 		idLib::Warning( "LoadWav( %s ) : %s", filename.c_str(), formatError );
 		MakeDefault();
 		return false;
@@ -393,7 +393,7 @@ idSoundSample_XAudio2::MakeDefault
 void idSoundSample_XAudio2::MakeDefault() {
 	FreeData();
 
-	static const int DEFAULT_NUM_SAMPLES = 256;
+	static constexpr int DEFAULT_NUM_SAMPLES = 256;
 
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
 	loaded = true;
@@ -459,7 +459,7 @@ idSoundSample_XAudio2::LoadAmplitude
 bool idSoundSample_XAudio2::LoadAmplitude( const idStr & name ) {
 	amplitude.Clear();
 	idFileLocal f( fileSystem->OpenFileRead( name ) );
-	if ( f == NULL ) {
+	if ( f == nullptr) {
 		return false;
 	}
 	amplitude.SetNum( f->Length() );

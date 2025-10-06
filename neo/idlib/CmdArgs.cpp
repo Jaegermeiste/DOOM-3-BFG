@@ -35,11 +35,9 @@ idCmdArgs::operator=
 ============
 */
 void idCmdArgs::operator=( const idCmdArgs &args ) {
-	int i;
-
 	argc = args.argc;
 	memcpy( tokenized, args.tokenized, MAX_COMMAND_STRING );
-	for ( i = 0; i < argc; i++ ) {
+	for ( int i = 0; i < argc; i++ ) {
 		argv[ i ] = tokenized + ( args.argv[ i ] - args.tokenized );
 	}
 }
@@ -51,7 +49,6 @@ idCmdArgs::Args
 */
 const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) const {
 	static char cmd_args[MAX_COMMAND_STRING];
-	int		i;
 
 	assert( argc < MAX_COMMAND_ARGS );
 	if ( end < 0 ) {
@@ -63,7 +60,7 @@ const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) co
 	if ( escapeArgs ) {
 		strcat( cmd_args, "\"" );
 	}
-	for ( i = start; i <= end; i++ ) {
+	for ( int i = start; i <= end; i++ ) {
 		if ( i > start ) {
 			if ( escapeArgs ) {
 				strcat( cmd_args, "\" \"" );
@@ -72,12 +69,12 @@ const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) co
 			}
 		}
 		if ( escapeArgs && strchr( argv[i], '\\' ) ) {
-			char *p = argv[i];
+			const char *p = argv[i];
 			while ( *p != '\0' ) {
 				if ( *p == '\\' ) {
 					strcat( cmd_args, "\\\\" );
 				} else {
-					int l = strlen( cmd_args );
+					const size_t l = strlen( cmd_args );
 					cmd_args[ l ] = *p;
 					cmd_args[ l+1 ] = '\0';
 				}
@@ -107,7 +104,7 @@ will point into this temporary buffer.
 void idCmdArgs::TokenizeString( const char *text, bool keepAsStrings ) {
 	idLexer		lex;
 	idToken		token, number;
-	int			len, totalLen;
+	size_t		len, totalLen;
 
 	// clear previous args
 	argc = 0;

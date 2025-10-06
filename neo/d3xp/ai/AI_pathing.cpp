@@ -50,13 +50,13 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-const float MAX_OBSTACLE_RADIUS			= 256.0f;
-const float PUSH_OUTSIDE_OBSTACLES		= 0.5f;
-const float CLIP_BOUNDS_EPSILON			= 10.0f;
-const int 	MAX_AAS_WALL_EDGES			= 256;
-const int 	MAX_OBSTACLES				= 256;
-const int	MAX_PATH_NODES				= 256;
-const int 	MAX_OBSTACLE_PATH			= 64;
+constexpr float MAX_OBSTACLE_RADIUS			= 256.0f;
+constexpr float PUSH_OUTSIDE_OBSTACLES		= 0.5f;
+constexpr float CLIP_BOUNDS_EPSILON			= 10.0f;
+constexpr int 	MAX_AAS_WALL_EDGES			= 256;
+constexpr int 	MAX_OBSTACLES				= 256;
+constexpr int	MAX_PATH_NODES				= 256;
+constexpr int 	MAX_OBSTACLE_PATH			= 64;
 
 typedef struct obstacle_s {
 	idVec2				bounds[2];
@@ -1021,8 +1021,8 @@ void idAI::FreeObstacleAvoidanceNodes() {
 ===============================================================================
 */
 
-const float OVERCLIP			= 1.001f;
-const int MAX_FRAME_SLIDE		= 5;
+constexpr float OVERCLIP			= 1.001f;
+constexpr int MAX_FRAME_SLIDE		= 5;
 
 typedef struct pathTrace_s {
 	float					fraction;

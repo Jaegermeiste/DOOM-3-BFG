@@ -124,7 +124,7 @@ void idLobby::RegisterUser( lobbyUser_t * lobbyUser ) {
 	// Register the user with the various managers
 	bool isLocal = IsSessionUserLocal( lobbyUser );
 
-	if ( lobbyBackend != NULL ) {
+	if ( lobbyBackend != nullptr) {
 		lobbyBackend->RegisterUser( lobbyUser, isLocal );
 	}
 
@@ -147,7 +147,7 @@ void idLobby::UnregisterUser( lobbyUser_t * lobbyUser ) {
 
 	bool isLocal = IsSessionUserLocal( lobbyUser );
 
-	if ( lobbyBackend != NULL ) {
+	if ( lobbyBackend != nullptr) {
 		lobbyBackend->UnregisterUser( lobbyUser, isLocal );
 	}
 
@@ -228,7 +228,7 @@ lobbyUser_t	* idLobby::GetLobbyUserByID( lobbyUserID_t lobbyUserID, bool ignoreL
 	int index = GetLobbyUserIndexByID( lobbyUserID, ignoreLobbyType );
 
 	if ( index == -1 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return GetLobbyUser( index );
@@ -257,7 +257,7 @@ lobbyUser_t idLobby::CreateLobbyUserFromLocalUser( const idLocalUser * localUser
 
 			if ( verify( myPartyUserIndex >= 0 ) ) {		// Just in case
 				lobbyUser_t * myPartyUser = sessionCB->GetPartyLobby().GetLobbyUser( myPartyUserIndex );
-				if ( myPartyUser != NULL ) {
+				if ( myPartyUser != nullptr) {
 					lobbyUser.partyToken = myPartyUser->partyToken;
 				}
 			}
@@ -333,17 +333,17 @@ This takes a session user, and converts to a local user
 */
 idLocalUser * idLobby::GetLocalUserFromLobbyUserIndex( int lobbyUserIndex ) {
 	if ( lobbyUserIndex < 0 || lobbyUserIndex >= GetNumLobbyUsers() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !IsSessionUserIndexLocal( lobbyUserIndex ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	lobbyUser_t * lobbyUser = GetLobbyUser( lobbyUserIndex );
 
-	if ( lobbyUser == NULL ) {
-		return NULL;
+	if ( lobbyUser == nullptr) {
+		return nullptr;
 	}
 	
 	return sessionCB->GetSignInManager().GetLocalUserByHandle( lobbyUser->lobbyUserID.GetLocalUserHandle() );
@@ -356,8 +356,8 @@ Takes a local user, and converts to a session user
 ========================
 */
 lobbyUser_t * idLobby::GetSessionUserFromLocalUser( const idLocalUser * localUser ) {
-	if ( localUser == NULL ) {
-		return NULL;
+	if ( localUser == nullptr) {
+		return nullptr;
 	}
 
 	int sessionUserIndex = GetLobbyUserIndexByLocalUserHandle( localUser->GetLocalUserHandle() );
@@ -367,7 +367,7 @@ lobbyUser_t * idLobby::GetSessionUserFromLocalUser( const idLocalUser * localUse
 		return GetLobbyUser( sessionUserIndex );
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -461,7 +461,7 @@ void idLobby::RemoveSessionUsersByIDList( idList< lobbyUserID_t > & usersToRemov
 	}
 
 	if ( usersToRemoveByID.Num() > 0 && IsHost() ) {
-		if ( lobbyBackend != NULL ) {
+		if ( lobbyBackend != nullptr) {
 			lobbyBackend->UpdateLobbySkill( GetAverageSessionLevel() );
 		}
 
@@ -589,7 +589,7 @@ lobbyUserID_t idLobby::AllocLobbyUserSlotForBot( const char * botName ) {
 	localUserHandle_t localUserHandle( session->GetSignInManager().GetUniqueLocalUserHandle( botSessionUser.gamertag ) );
 	botSessionUser.lobbyUserID = lobbyUserID_t( localUserHandle, lobbyType );
 
-	lobbyUser_t * botUser = NULL;
+	lobbyUser_t * botUser = nullptr;
 
 	int sessionUserIndex = -1;
 
@@ -606,7 +606,7 @@ lobbyUserID_t idLobby::AllocLobbyUserSlotForBot( const char * botName ) {
 		}
 	}
 
-	if ( botUser == NULL ) {
+	if ( botUser == nullptr) {
 		if ( freeUsers.Num() == 0 ) {
 			idLib::Warning( "NET: Out Of Session Users - Can't Add Bot %s!", botName );
 			return lobbyUserID_t();
@@ -636,7 +636,7 @@ void idLobby::RemoveBotFromLobbyUserList( lobbyUserID_t lobbyUserID ) {
 	const int index = GetLobbyUserIndexByID( lobbyUserID );
 
 	lobbyUser_t * botUser = GetLobbyUser( index );
-	if ( botUser == NULL ) {
+	if ( botUser == nullptr) {
 		assert( false );
 		idLib::Warning( "RemoveBotFromLobbyUserList: Invalid User Index!" );
 		return;
@@ -662,7 +662,7 @@ bool idLobby::GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const {
 	const int index = GetLobbyUserIndexByID( lobbyUserID );
 
 	const lobbyUser_t * botLobbyUser = GetLobbyUser( index );
-	if ( botLobbyUser == NULL ) {
+	if ( botLobbyUser == nullptr) {
 		return false;
 	}
 
@@ -711,7 +711,7 @@ void idLobby::AddUsersFromMsg( idBitMsg & msg, int fromPeer ) {
 
 		idLib::Printf( "NET: %s joined (%s) [partyToken = %08x].\n", newUser.gamertag, GetLobbyName(), newUser.partyToken );
 
-		lobbyUser_t * appendedUser = NULL;
+		lobbyUser_t * appendedUser = nullptr;
 
 		// First, try to replace a disconnected user
 		for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
@@ -726,7 +726,7 @@ void idLobby::AddUsersFromMsg( idBitMsg & msg, int fromPeer ) {
 		}
 
 		// Add them to our list
-		if ( appendedUser == NULL ) {
+		if ( appendedUser == nullptr) {
 			appendedUser = AllocUser( newUser );
 		}
 
@@ -847,7 +847,7 @@ void idLobby::UpdateLocalSessionUsers() {
 		idLocalUser * localUser = GetLocalUserFromLobbyUserIndex( i );
 		lobbyUser_t * lobbyUser = GetLobbyUser( i );
 
-		if ( localUser == NULL || lobbyUser == NULL ) {
+		if ( localUser == nullptr || lobbyUser == nullptr) {
 			continue;
 		}
 		if ( !lobbyUser->UpdateClientMutableData( localUser ) ) {
@@ -1027,7 +1027,7 @@ add/remove the users from the session.
 */
 void idLobby::SyncLobbyUsersWithLocalUsers( bool allowLocalJoins, bool onlineMatch ) {		
 	
-	if ( lobbyBackend == NULL ) {
+	if ( lobbyBackend == nullptr) {
 		return;
 	}
 
@@ -1040,7 +1040,7 @@ void idLobby::SyncLobbyUsersWithLocalUsers( bool allowLocalJoins, bool onlineMat
 		for ( int i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); i++ ) {
 			idLocalUser * localUser = sessionCB->GetSignInManager().GetLocalUserByIndex( i );
 						
-			if ( GetSessionUserFromLocalUser( localUser ) != NULL ) {
+			if ( GetSessionUserFromLocalUser( localUser ) != nullptr) {
 				continue;		// Already in the lobby
 			}
 
@@ -1064,13 +1064,13 @@ void idLobby::SyncLobbyUsersWithLocalUsers( bool allowLocalJoins, bool onlineMat
 		}
 
 		lobbyUser_t * lobbyUser = GetLobbyUser( i );
-		if ( lobbyUser != NULL && lobbyUser->isBot ) {
+		if ( lobbyUser != nullptr && lobbyUser->isBot ) {
 			continue;
 		}
 
 		idLocalUser * localUser = GetLocalUserFromLobbyUserIndex( i );
 		
-		if ( localUser == NULL || ( onlineMatch && !localUser->CanPlayOnline() ) ) {
+		if ( localUser == nullptr || ( onlineMatch && !localUser->CanPlayOnline() ) ) {
 			// Either the session user is no longer in the local user list,
 			//	or not allowed to join online lobbies.
 			RequestSessionUserDisconnect( i );
@@ -1087,7 +1087,7 @@ idLobby::IsLobbyUserDisconnected
 */
 bool idLobby::IsLobbyUserDisconnected( int userIndex ) const {
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
-	if ( user == NULL ) {
+	if ( user == nullptr) {
 		return true;
 	}
 
@@ -1125,7 +1125,7 @@ idLobby::ValidateConnectedUser
 ========================
 */
 bool idLobby::ValidateConnectedUser( const lobbyUser_t * user ) const {
-	if ( user == NULL ) {
+	if ( user == nullptr) {
 		return false;
 	}
 
@@ -1166,7 +1166,7 @@ bool idLobby::IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const {
 
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 
-	if ( user == NULL ) {
+	if ( user == nullptr) {
 		return false;
 	}
 
@@ -1223,7 +1223,7 @@ idLobby::GetLobbyUserIdByOrdinal
 */
 lobbyUserID_t idLobby::GetLobbyUserIdByOrdinal( int userIndex ) const {
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
-	if ( user == NULL ) {
+	if ( user == nullptr) {
 		return lobbyUserID_t();
 	}
 
@@ -1317,7 +1317,7 @@ float idLobby::GetAverageLocalUserLevel( bool onlineOnly ) {
 
 		const idPlayerProfile * profile = localUser->GetProfile();
 
-		if ( profile == NULL ) {
+		if ( profile == nullptr) {
 			continue;
 		}
 
@@ -1378,7 +1378,7 @@ void idLobby::KickLobbyUser( lobbyUserID_t lobbyUserID ) {
 
 	lobbyUser_t * user = GetLobbyUser( lobbyUserIndex );
 
-	if ( user != NULL && !IsSessionUserLocal( user ) ) {
+	if ( user != nullptr && !IsSessionUserLocal( user ) ) {
 		// Send an explicit kick msg, so they know why they were removed
 		if ( user->peerIndex >= 0 && user->peerIndex < peers.Num() ) {
 			byte buffer[ idPacketProcessor::MAX_MSG_SIZE ];

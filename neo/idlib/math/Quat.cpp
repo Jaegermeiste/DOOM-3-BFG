@@ -45,12 +45,11 @@ idQuat::ToRotation
 */
 idRotation idQuat::ToRotation() const {
 	idVec3 vec;
-	float angle;
 
 	vec.x = x;
 	vec.y = y;
 	vec.z = z;
-	angle = idMath::ACos( w );
+	float angle = idMath::ACos(w);
 	if ( angle == 0.0f ) {
 		vec.Set( 0.0f, 0.0f, 1.0f );
 	} else {
@@ -69,26 +68,22 @@ idQuat::ToMat3
 */
 idMat3 idQuat::ToMat3() const {
 	idMat3	mat;
-	float	wx, wy, wz;
-	float	xx, yy, yz;
-	float	xy, xz, zz;
-	float	x2, y2, z2;
 
-	x2 = x + x;
-	y2 = y + y;
-	z2 = z + z;
+	float x2 = x + x;
+	float y2 = y + y;
+	float z2 = z + z;
 
-	xx = x * x2;
-	xy = x * y2;
-	xz = x * z2;
+	float xx = x * x2;
+	float xy = x * y2;
+	float xz = x * z2;
 
-	yy = y * y2;
-	yz = y * z2;
-	zz = z * z2;
+	float yy = y * y2;
+	float yz = y * z2;
+	float zz = z * z2;
 
-	wx = w * x2;
-	wy = w * y2;
-	wz = w * z2;
+	float wx = w * x2;
+	float wy = w * y2;
+	float wz = w * z2;
 
 	mat[ 0 ][ 0 ] = 1.0f - ( yy + zz );
 	mat[ 0 ][ 1 ] = xy - wz;
@@ -159,7 +154,7 @@ Spherical linear interpolation between two quaternions.
 */
 idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, const float t ) {
 	idQuat	temp;
-	float	omega, cosom, sinom, scale0, scale1;
+	float	omega, sinom, scale0, scale1;
 
 	if ( t <= 0.0f ) {
 		*this = from;
@@ -176,7 +171,7 @@ idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, const float t ) {
 		return *this;
 	}
 
-	cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
+	float cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
 	if ( cosom < 0.0f ) {
 		temp = -to;
 		cosom = -cosom;
@@ -230,17 +225,17 @@ idQuat &idQuat::Lerp( const idQuat &from, const idQuat &to, const float t ) {
 		return *this;
 	}
 
-	float cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
+	const float cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
 
-	float scale0 = 1.0f - t;
-	float scale1 = ( cosom >= 0.0f ) ? t : -t;
+	const float scale0 = 1.0f - t;
+	const float scale1 = ( cosom >= 0.0f ) ? t : -t;
 
 	x = scale0 * from.x + scale1 * to.x;
 	y = scale0 * from.y + scale1 * to.y;
 	z = scale0 * from.z + scale1 * to.z;
 	w = scale0 * from.w + scale1 * to.w;
 
-	float s = idMath::InvSqrt( x * x + y * y + z * z + w * w );
+	const float s = idMath::InvSqrt( x * x + y * y + z * z + w * w );
 
 	x *= s;
 	y *= s;

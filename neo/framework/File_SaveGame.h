@@ -93,8 +93,8 @@ public:
 	// the next part of the generate / compress / IO pipeline.  The factor of two
 	// size difference between the uncompressed and compressed blocks is unrelated
 	// to the fact that there are two blocks in each buffer.
-	static const int COMPRESSED_BLOCK_SIZE		= 128 * 1024;
-	static const int UNCOMPRESSED_BLOCK_SIZE	= 256 * 1024;
+	static constexpr size_t COMPRESSED_BLOCK_SIZE		= 128 * 1024;
+	static constexpr size_t UNCOMPRESSED_BLOCK_SIZE	= 256 * 1024;
 
 
 							idFile_SaveGamePipelined();
@@ -132,9 +132,9 @@ public:
 	virtual int				Write( const void * buffer, int len );
 
 	// this file is strictly streaming, you can't seek at all
-	virtual int				Length() const  { return compressedLength; }
+	virtual size_t			Length() const  { return compressedLength; }
 	virtual void			SetLength( size_t len ) { compressedLength = len; }
-	virtual int				Tell() const { assert( 0 ); return 0; }
+	virtual size_t			Tell() const { assert( 0 ); return 0; }
 	virtual int				Seek( long offset, fsOrigin_t origin ) { assert( 0 ); return 0; }
 
 	virtual ID_TIME_T		Timestamp()	const { return 0; }
@@ -177,8 +177,8 @@ private:
 	mode_t					mode;		// Open mode.
 	size_t					compressedLength;
 
-	static const int COMPRESSED_BUFFER_SIZE		= COMPRESSED_BLOCK_SIZE * 2;
-	static const int UNCOMPRESSED_BUFFER_SIZE	= UNCOMPRESSED_BLOCK_SIZE * 2;
+	static constexpr size_t COMPRESSED_BUFFER_SIZE		= COMPRESSED_BLOCK_SIZE * 2;
+	static constexpr size_t UNCOMPRESSED_BUFFER_SIZE	= UNCOMPRESSED_BLOCK_SIZE * 2;
 
 	byte					uncompressed[UNCOMPRESSED_BUFFER_SIZE];
 	size_t					uncompressedProducedBytes;	// not masked

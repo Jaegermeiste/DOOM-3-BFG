@@ -40,7 +40,7 @@ public:
 	virtual idSWFScriptVar	Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ){ return idSWFScriptVar(); }; // this should never be hit
 	virtual void			AddRef(){};
 	virtual void			Release(){};
-	virtual idSWFScriptObject *GetPrototype() { return NULL; }
+	virtual idSWFScriptObject *GetPrototype() { return nullptr; }
 	virtual void			SetPrototype( idSWFScriptObject * _object ) { }
 };
 
@@ -66,7 +66,7 @@ class idSWFScriptFunction_Nested : public idSWFScriptFunction {
 protected:
 	T * pThis;
 public:
-							idSWFScriptFunction_Nested() : pThis( NULL ) { }
+							idSWFScriptFunction_Nested() : pThis(nullptr) { }
 
 	idSWFScriptFunction *	Bind( T * _pThis ) { pThis = _pThis; return this; }
 	virtual void			AddRef() { }
@@ -134,7 +134,7 @@ idSWFScriptFunction_Script is a script function that's implemented in action scr
 */
 class idSWFScriptFunction_Script : public idSWFScriptFunction {
 public:
-				idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), prototype( NULL ), data( NULL ), length( 0 ), defaultSprite( NULL ) { registers.SetNum( 4 ); }
+				idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), prototype(nullptr), data(nullptr), length( 0 ), defaultSprite(nullptr) { registers.SetNum( 4 ); }
 	virtual		~idSWFScriptFunction_Script();
 
 	static idSWFScriptFunction_Script *	Alloc() { return new (TAG_SWF) idSWFScriptFunction_Script; }

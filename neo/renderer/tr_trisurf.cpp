@@ -124,39 +124,39 @@ For memory profiling
 int R_TriSurfMemory( const srfTriangles_t *tri ) {
 	int total = 0;
 
-	if ( tri == NULL ) {
+	if ( tri == nullptr) {
 		return total;
 	}
 
-	if ( tri->preLightShadowVertexes != NULL ) {
+	if ( tri->preLightShadowVertexes != nullptr) {
 		total += tri->numVerts * 2 * sizeof( tri->preLightShadowVertexes[0] );
 	}
-	if ( tri->staticShadowVertexes != NULL ) {
+	if ( tri->staticShadowVertexes != nullptr) {
 		total += tri->numVerts * 2 * sizeof( tri->staticShadowVertexes[0] );
 	}
-	if ( tri->verts != NULL ) {
-		if ( tri->ambientSurface == NULL || tri->verts != tri->ambientSurface->verts ) {
+	if ( tri->verts != nullptr) {
+		if ( tri->ambientSurface == nullptr || tri->verts != tri->ambientSurface->verts ) {
 			total += tri->numVerts * sizeof( tri->verts[0] );
 		}
 	}
-	if ( tri->indexes != NULL ) {
-		if ( tri->ambientSurface == NULL || tri->indexes != tri->ambientSurface->indexes ) {
+	if ( tri->indexes != nullptr) {
+		if ( tri->ambientSurface == nullptr || tri->indexes != tri->ambientSurface->indexes ) {
 			total += tri->numIndexes * sizeof( tri->indexes[0] );
 		}
 	}
-	if ( tri->silIndexes != NULL ) {
+	if ( tri->silIndexes != nullptr) {
 		total += tri->numIndexes * sizeof( tri->silIndexes[0] );
 	}
-	if ( tri->silEdges != NULL ) {
+	if ( tri->silEdges != nullptr) {
 		total += tri->numSilEdges * sizeof( tri->silEdges[0] );
 	}
-	if ( tri->dominantTris != NULL ) {
+	if ( tri->dominantTris != nullptr) {
 		total += tri->numVerts * sizeof( tri->dominantTris[0] );
 	}
-	if ( tri->mirroredVerts != NULL ) {
+	if ( tri->mirroredVerts != nullptr) {
 		total += tri->numMirroredVerts * sizeof( tri->mirroredVerts[0] );
 	}
-	if ( tri->dupVerts != NULL ) {
+	if ( tri->dupVerts != nullptr) {
 		total += tri->numDupVerts * sizeof( tri->dupVerts[0] );
 	}
 
@@ -191,42 +191,42 @@ void R_FreeStaticTriSurf( srfTriangles_t *tri ) {
 	R_FreeStaticTriSurfVertexCaches( tri );
 
 	if ( !tri->referencedVerts ) {
-		if ( tri->verts != NULL ) {
+		if ( tri->verts != nullptr) {
 			// R_CreateLightTris points tri->verts at the verts of the ambient surface
-			if ( tri->ambientSurface == NULL || tri->verts != tri->ambientSurface->verts ) {
+			if ( tri->ambientSurface == nullptr || tri->verts != tri->ambientSurface->verts ) {
 				Mem_Free( tri->verts );
 			}
 		}
 	}
 
 	if ( !tri->referencedIndexes ) {
-		if ( tri->indexes != NULL ) {
+		if ( tri->indexes != nullptr) {
 			// if a surface is completely inside a light volume R_CreateLightTris points tri->indexes at the indexes of the ambient surface
-			if ( tri->ambientSurface == NULL || tri->indexes != tri->ambientSurface->indexes ) {
+			if ( tri->ambientSurface == nullptr || tri->indexes != tri->ambientSurface->indexes ) {
 				Mem_Free( tri->indexes );
 			}
 		}
-		if ( tri->silIndexes != NULL ) {
+		if ( tri->silIndexes != nullptr) {
 			Mem_Free( tri->silIndexes );
 		}
-		if ( tri->silEdges != NULL ) {
+		if ( tri->silEdges != nullptr) {
 			Mem_Free( tri->silEdges );
 		}
-		if ( tri->dominantTris != NULL ) {
+		if ( tri->dominantTris != nullptr) {
 			Mem_Free( tri->dominantTris );
 		}
-		if ( tri->mirroredVerts != NULL ) {
+		if ( tri->mirroredVerts != nullptr) {
 			Mem_Free( tri->mirroredVerts );
 		}
-		if ( tri->dupVerts != NULL ) {
+		if ( tri->dupVerts != nullptr) {
 			Mem_Free( tri->dupVerts );
 		}
 	}
 
-	if ( tri->preLightShadowVertexes != NULL ) {
+	if ( tri->preLightShadowVertexes != nullptr) {
 		Mem_Free( tri->preLightShadowVertexes );
 	}
-	if ( tri->staticShadowVertexes != NULL ) {
+	if ( tri->staticShadowVertexes != nullptr) {
 		Mem_Free( tri->staticShadowVertexes );
 	}
 
@@ -246,9 +246,9 @@ void R_FreeStaticTriSurfVerts( srfTriangles_t *tri ) {
 	// without a level change
 	tri->ambientCache = 0;
 
-	if ( tri->verts != NULL ) {
+	if ( tri->verts != nullptr) {
 		// R_CreateLightTris points tri->verts at the verts of the ambient surface
-		if ( tri->ambientSurface == NULL || tri->verts != tri->ambientSurface->verts ) {
+		if ( tri->ambientSurface == nullptr || tri->verts != tri->ambientSurface->verts ) {
 			Mem_Free( tri->verts );
 		}
 	}
@@ -416,7 +416,7 @@ R_FreeStaticTriSurfSilIndexes
 */
 void R_FreeStaticTriSurfSilIndexes( srfTriangles_t *tri ) {
 	Mem_Free( tri->silIndexes );
-	tri->silIndexes = NULL;
+	tri->silIndexes = nullptr;
 }
 
 /*
@@ -531,7 +531,7 @@ void R_CreateSilIndexes( srfTriangles_t *tri ) {
 
 	if ( tri->silIndexes ) {
 		Mem_Free( tri->silIndexes );
-		tri->silIndexes = NULL;
+		tri->silIndexes = nullptr;
 	}
 
 	remap = R_CreateSilRemap( tri );
@@ -587,7 +587,7 @@ R_DefineEdge
 ===============
 */
 static int c_duplicatedEdges, c_tripledEdges;
-static const int MAX_SIL_EDGES			= 0x7ffff;
+static constexpr int MAX_SIL_EDGES			= 0x7ffff;
 
 static void R_DefineEdge( const int v1, const int v2, const int planeNum, const int numPlanes,
 	idList<silEdge_t> & silEdges, idHashIndex	& silEdgeHash ) {
@@ -669,7 +669,7 @@ void R_IdentifySilEdges( srfTriangles_t *tri, bool omitCoplanarEdges ) {
 
 	omitCoplanarEdges = false;	// optimization doesn't work for some reason
 
-	static const int SILEDGE_HASH_SIZE		= 1024;
+	static constexpr int SILEDGE_HASH_SIZE		= 1024;
 
 	const int numTris = tri->numIndexes / 3;
 
@@ -868,7 +868,7 @@ static void	R_DuplicateMirroredVertexes( srfTriangles_t *tri ) {
 	tri->numMirroredVerts = totalVerts - tri->numVerts;
 
 	if ( tri->numMirroredVerts == 0 ) {
-		tri->mirroredVerts = NULL;
+		tri->mirroredVerts = nullptr;
 		return;
 	}
 
@@ -1107,7 +1107,7 @@ used by a vertex, creating drawVert->normal
 =====================
 */
 void R_CreateVertexNormals( srfTriangles_t *tri ) {
-	if ( tri->silIndexes == NULL ) {
+	if ( tri->silIndexes == nullptr) {
 		R_CreateSilIndexes( tri );
 	}
 
@@ -1325,7 +1325,7 @@ void R_BuildDominantTris( srfTriangles_t *tri ) {
 	dominantTri_t *dt;
 	const int numIndexes = tri->numIndexes;
 	indexSort_t *ind = (indexSort_t *)R_StaticAlloc( numIndexes * sizeof( indexSort_t ) );
-	if ( ind == NULL ) {
+	if ( ind == nullptr) {
 		idLib::Error( "Couldn't allocate index sort array" );
 		return;
 	}
@@ -1449,7 +1449,7 @@ void R_DeriveTangents( srfTriangles_t *tri ) {
 
 	tr.pc.c_tangentIndexes += tri->numIndexes;
 
-	if ( tri->dominantTris != NULL ) {
+	if ( tri->dominantTris != nullptr) {
 		R_DeriveUnsmoothedNormalsAndTangents( tri );
 	} else {
 		R_DeriveNormalsAndTangents( tri );
@@ -1814,9 +1814,9 @@ deformInfo_t *R_BuildDeformInfo( int numVerts, const idDrawVert *verts, int numI
 	deform->numDupVerts = tri.numDupVerts;
 	deform->dupVerts = tri.dupVerts;
 
-	if ( tri.dominantTris != NULL ) {
+	if ( tri.dominantTris != nullptr) {
 		Mem_Free( tri.dominantTris );
-		tri.dominantTris = NULL;
+		tri.dominantTris = nullptr;
 	}
 
 	idShadowVertSkinned * shadowVerts = (idShadowVertSkinned *) Mem_Alloc16( ALIGN( deform->numOutputVerts * 2 * sizeof( idShadowVertSkinned ), 16 ), TAG_MODEL );
@@ -1837,22 +1837,22 @@ R_FreeDeformInfo
 ===================
 */
 void R_FreeDeformInfo( deformInfo_t *deformInfo ) {
-	if ( deformInfo->verts != NULL ) {
+	if ( deformInfo->verts != nullptr) {
 		Mem_Free( deformInfo->verts );
 	}
-	if ( deformInfo->indexes != NULL ) {
+	if ( deformInfo->indexes != nullptr) {
 		Mem_Free( deformInfo->indexes );
 	}
-	if ( deformInfo->silIndexes != NULL ) {
+	if ( deformInfo->silIndexes != nullptr) {
 		Mem_Free( deformInfo->silIndexes );
 	}
-	if ( deformInfo->silEdges != NULL ) {
+	if ( deformInfo->silEdges != nullptr) {
 		Mem_Free( deformInfo->silEdges );
 	}
-	if ( deformInfo->mirroredVerts != NULL ) {
+	if ( deformInfo->mirroredVerts != nullptr) {
 		Mem_Free( deformInfo->mirroredVerts );
 	}
-	if ( deformInfo->dupVerts != NULL ) {
+	if ( deformInfo->dupVerts != nullptr) {
 		Mem_Free( deformInfo->dupVerts );
 	}
 	R_StaticFree( deformInfo );
@@ -1866,22 +1866,22 @@ R_DeformInfoMemoryUsed
 int R_DeformInfoMemoryUsed( deformInfo_t *deformInfo ) {
 	int total = 0;
 
-	if ( deformInfo->verts != NULL ) {
+	if ( deformInfo->verts != nullptr) {
 		total += deformInfo->numOutputVerts * sizeof( deformInfo->verts[0] );
 	}
-	if ( deformInfo->indexes != NULL ) {
+	if ( deformInfo->indexes != nullptr) {
 		total += deformInfo->numIndexes * sizeof( deformInfo->indexes[0] );
 	}
-	if ( deformInfo->mirroredVerts != NULL ) {
+	if ( deformInfo->mirroredVerts != nullptr) {
 		total += deformInfo->numMirroredVerts * sizeof( deformInfo->mirroredVerts[0] );
 	}
-	if ( deformInfo->dupVerts != NULL ) {
+	if ( deformInfo->dupVerts != nullptr) {
 		total += deformInfo->numDupVerts * sizeof( deformInfo->dupVerts[0] );
 	}
-	if ( deformInfo->silIndexes != NULL ) {
+	if ( deformInfo->silIndexes != nullptr) {
 		total += deformInfo->numIndexes * sizeof( deformInfo->silIndexes[0] );
 	}
-	if ( deformInfo->silEdges != NULL ) {
+	if ( deformInfo->silEdges != nullptr) {
 		total += deformInfo->numSilEdges * sizeof( deformInfo->silEdges[0] );
 	}
 
@@ -1912,7 +1912,7 @@ void R_InitDrawSurfFromTri( drawSurf_t & ds, srfTriangles_t & tri ) {
 	//
 	// deformed surfaces will not have any vertices but the ambient cache will have already
 	// been created for them.
-	if ( ( tri.verts == NULL ) && !tri.referencedIndexes ) {
+	if ( ( tri.verts == nullptr) && !tri.referencedIndexes ) {
 		// pre-generated shadow models will not have any verts, just shadowVerts
 		tri.ambientCache = 0;
 	} else if ( !vertexCache.CacheIsCurrent( tri.ambientCache ) ) {
@@ -1943,26 +1943,26 @@ void R_CreateStaticBuffersForTri( srfTriangles_t & tri ) {
 	tri.shadowCache = 0;
 
 	// index cache
-	if ( tri.indexes != NULL ) {
+	if ( tri.indexes != nullptr) {
 		tri.indexCache = vertexCache.AllocStaticIndex( tri.indexes, ALIGN( tri.numIndexes * sizeof( tri.indexes[0] ), INDEX_CACHE_ALIGN ) );
 	}
 
 	// vertex cache
-	if ( tri.verts != NULL ) {
+	if ( tri.verts != nullptr) {
 		tri.ambientCache = vertexCache.AllocStaticVertex( tri.verts, ALIGN( tri.numVerts * sizeof( tri.verts[0] ), VERTEX_CACHE_ALIGN ) );
 	}
 
 	// shadow cache
-	if ( tri.preLightShadowVertexes != NULL ) {
+	if ( tri.preLightShadowVertexes != nullptr) {
 		// this should only be true for the _prelight<NAME> pre-calculated shadow volumes
 		assert( tri.verts == NULL );	// pre-light shadow volume surfaces don't have ambient vertices
 		const int shadowSize = ALIGN( tri.numVerts * 2 * sizeof( idShadowVert ), VERTEX_CACHE_ALIGN );
 		tri.shadowCache = vertexCache.AllocStaticVertex( tri.preLightShadowVertexes, shadowSize );
-	} else if ( tri.verts != NULL ) {
+	} else if ( tri.verts != nullptr) {
 		// the shadowVerts for normal models include all the xyz values duplicated
 		// for a W of 1 (near cap) and a W of 0 (end cap, projected to infinity)
 		const int shadowSize = ALIGN( tri.numVerts * 2 * sizeof( idShadowVert ), VERTEX_CACHE_ALIGN );
-		if ( tri.staticShadowVertexes == NULL ) {
+		if ( tri.staticShadowVertexes == nullptr) {
 			tri.staticShadowVertexes = (idShadowVert *) Mem_Alloc16( shadowSize, TAG_TEMP );
 			idShadowVert::CreateShadowCache( tri.staticShadowVertexes, tri.verts, tri.numVerts );
 		}

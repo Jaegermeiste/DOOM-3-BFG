@@ -90,13 +90,13 @@ idHashIndex::ResizeIndex
 ================
 */
 void idHashIndex::ResizeIndex( const int newIndexSize ) {
-	int *oldIndexChain, mod, newSize;
+	int newSize;
 
 	if ( newIndexSize <= indexSize ) {
 		return;
 	}
 
-	mod = newIndexSize % granularity;
+	int mod = newIndexSize % granularity;
 	if ( !mod ) {
 		newSize = newIndexSize;
 	} else {
@@ -108,7 +108,7 @@ void idHashIndex::ResizeIndex( const int newIndexSize ) {
 		return;
 	}
 
-	oldIndexChain = indexChain;
+	int* oldIndexChain = indexChain;
 	indexChain = new (TAG_IDLIB_HASH) int[newSize];
 	memcpy( indexChain, oldIndexChain, indexSize * sizeof(int) );
 	memset( indexChain + indexSize, 0xff, (newSize - indexSize) * sizeof(int) );
@@ -122,17 +122,17 @@ idHashIndex::GetSpread
 ================
 */
 int idHashIndex::GetSpread() const {
-	int i, index, totalItems, *numHashItems, average, error, e;
+	int i;
 
 	if ( hash == INVALID_INDEX ) {
 		return 100;
 	}
 
-	totalItems = 0;
-	numHashItems = new (TAG_IDLIB_HASH) int[hashSize];
+	int totalItems = 0;
+	int* numHashItems = new(TAG_IDLIB_HASH) int[hashSize];
 	for ( i = 0; i < hashSize; i++ ) {
 		numHashItems[i] = 0;
-		for ( index = hash[i]; index >= 0; index = indexChain[index] ) {
+		for ( int index = hash[i]; index >= 0; index = indexChain[index] ) {
 			numHashItems[i]++;
 		}
 		totalItems += numHashItems[i];
@@ -142,10 +142,10 @@ int idHashIndex::GetSpread() const {
 		delete[] numHashItems;
 		return 100;
 	}
-	average = totalItems / hashSize;
-	error = 0;
+	int average = totalItems / hashSize;
+	int error = 0;
 	for ( i = 0; i < hashSize; i++ ) {
-		e = abs( numHashItems[i] - average );
+		int e = abs(numHashItems[i] - average);
 		if ( e > 1 ) {
 			error += e - 1;
 		}

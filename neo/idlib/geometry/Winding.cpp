@@ -41,9 +41,7 @@ idWinding::ReAllocate
 =============
 */
 bool idWinding::ReAllocate( int n, const bool keep ) {
-	idVec5 *oldP;
-
-	oldP = p;
+	idVec5* oldP = p;
 	n = (n+3) & ~3;	// align up to multiple of four
 	p = new (TAG_IDLIB_WINDING) idVec5[n];
 	if ( oldP ) {
@@ -63,9 +61,9 @@ idWinding::BaseForPlane
 =============
 */
 void idWinding::BaseForPlane( const idVec3 &normal, const float dist ) {
-	idVec3 org, vright, vup;
+	idVec3 vright, vup;
 
-	org = normal * dist;
+	idVec3 org = normal * dist;
 
 	normal.NormalVectors( vup, vright );
 	vup *= MAX_WORLD_SIZE;
@@ -89,20 +87,16 @@ idWinding::Split
 =============
 */
 int idWinding::Split( const idPlane &plane, const float epsilon, idWinding **front, idWinding **back ) const {
-	float *			dists;
-	byte *			sides;
 	int				counts[3];
 	float			dot;
 	int				i, j;
-	const idVec5 *	p1, *p2;
 	idVec5			mid;
 	idWinding *		f, *b;
-	int				maxpts;
 
 	assert( this );
 
-	dists = (float *) _alloca( (numPoints+4) * sizeof( float ) );
-	sides = (byte *) _alloca( (numPoints+4) * sizeof( byte ) );
+	float* dists = static_cast<float*>(_alloca((numPoints + 4) * sizeof(float)));
+	byte* sides = static_cast<byte*>(_alloca((numPoints + 4) * sizeof(byte)));
 
 	counts[0] = counts[1] = counts[2] = 0;
 
@@ -121,7 +115,7 @@ int idWinding::Split( const idPlane &plane, const float epsilon, idWinding **fro
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 	
-	*front = *back = NULL;
+	*front = *back = nullptr;
 
 	// if coplanar, put on the front side if the normals match
 	if ( !counts[SIDE_FRONT] && !counts[SIDE_BACK] ) {
@@ -147,13 +141,13 @@ int idWinding::Split( const idPlane &plane, const float epsilon, idWinding **fro
 		return SIDE_FRONT;
 	}
 
-	maxpts = numPoints+4;	// cant use counts[0]+2 because of fp grouping errors
+	int maxpts = numPoints + 4;	// cant use counts[0]+2 because of fp grouping errors
 
 	*front = f = new (TAG_IDLIB_WINDING) idWinding(maxpts);
 	*back = b = new (TAG_IDLIB_WINDING) idWinding(maxpts);
 		
 	for (i = 0; i < numPoints; i++) {
-		p1 = &p[i];
+		const idVec5* p1 = &p[i];
 		
 		if ( sides[i] == SIDE_ON ) {
 			f->p[f->numPoints] = *p1;
@@ -178,7 +172,7 @@ int idWinding::Split( const idPlane &plane, const float epsilon, idWinding **fro
 		}
 			
 		// generate a split point
-		p2 = &p[(i+1)%numPoints];
+		const idVec5* p2 = &p[(i + 1) % numPoints];
 		
 		// always calculate the split going from the same side
 		// or minor epsilon issues can happen
@@ -231,21 +225,15 @@ idWinding::Clip
 =============
 */
 idWinding *idWinding::Clip( const idPlane &plane, const float epsilon, const bool keepOn ) {
-	float *		dists;
-	byte *		sides;
-	idVec5 *	newPoints;
-	int			newNumPoints;
 	int			counts[3];
 	float		dot;
-	int			i, j;
-	idVec5 *	p1, *p2;
+	int			i;
 	idVec5		mid;
-	int			maxpts;
 
 	assert( this );
 
-	dists = (float *) _alloca( (numPoints+4) * sizeof( float ) );
-	sides = (byte *) _alloca( (numPoints+4) * sizeof( byte ) );
+	float* dists = static_cast<float*>(_alloca((numPoints + 4) * sizeof(float)));
+	byte* sides = static_cast<byte*>(_alloca((numPoints + 4) * sizeof(byte)));
 
 	counts[SIDE_FRONT] = counts[SIDE_BACK] = counts[SIDE_ON] = 0;
 
@@ -271,20 +259,20 @@ idWinding *idWinding::Clip( const idPlane &plane, const float epsilon, const boo
 	// if nothing at the front of the clipping plane
 	if ( !counts[SIDE_FRONT] ) {
 		delete this;
-		return NULL;
+		return nullptr;
 	}
 	// if nothing at the back of the clipping plane
 	if ( !counts[SIDE_BACK] ) {
 		return this;
 	}
 
-	maxpts = numPoints + 4;		// cant use counts[0]+2 because of fp grouping errors
+	int maxpts = numPoints + 4;		// cant use counts[0]+2 because of fp grouping errors
 
-	newPoints = (idVec5 *) _alloca16( maxpts * sizeof( idVec5 ) );
-	newNumPoints = 0;
+	idVec5* newPoints = static_cast<idVec5*>(_alloca16(maxpts * sizeof( idVec5 )));
+	int newNumPoints = 0;
 		
 	for ( i = 0; i < numPoints; i++ ) {
-		p1 = &p[i];
+		idVec5* p1 = &p[i];
 
 		if ( newNumPoints+1 > maxpts ) {
 			return this;		// can't split -- fall back to original
@@ -310,10 +298,10 @@ idWinding *idWinding::Clip( const idPlane &plane, const float epsilon, const boo
 		}
 
 		// generate a split point
-		p2 = &p[(i+1)%numPoints];
+		idVec5* p2 = &p[(i + 1) % numPoints];
 
 		dot = dists[i] / (dists[i] - dists[i+1]);
-		for ( j = 0; j < 3; j++ ) {
+		for ( int j = 0; j < 3; j++ ) {
 			// avoid round off error when possible
 			if ( plane.Normal()[j] == 1.0f ) {
 				mid[j] = plane.Dist();
@@ -346,21 +334,15 @@ idWinding::ClipInPlace
 =============
 */
 bool idWinding::ClipInPlace( const idPlane &plane, const float epsilon, const bool keepOn ) {
-	float*		dists;
-	byte *		sides;
-	idVec5 *	newPoints;
-	int			newNumPoints;
 	int			counts[3];
 	float		dot;
-	int			i, j;
-	idVec5 *	p1, *p2;
+	int			i;
 	idVec5		mid;
-	int			maxpts;
 
 	assert( this );
 
-	dists = (float *) _alloca( (numPoints+4) * sizeof( float ) );
-	sides = (byte *) _alloca( (numPoints+4) * sizeof( byte ) );
+	float* dists = static_cast<float*>(_alloca((numPoints + 4) * sizeof(float)));
+	byte* sides = static_cast<byte*>(_alloca((numPoints + 4) * sizeof(byte)));
 
 	counts[SIDE_FRONT] = counts[SIDE_BACK] = counts[SIDE_ON] = 0;
 
@@ -393,13 +375,13 @@ bool idWinding::ClipInPlace( const idPlane &plane, const float epsilon, const bo
 		return true;
 	}
 
-	maxpts = numPoints + 4;		// cant use counts[0]+2 because of fp grouping errors
+	int maxpts = numPoints + 4;		// cant use counts[0]+2 because of fp grouping errors
 
-	newPoints = (idVec5 *) _alloca16( maxpts * sizeof( idVec5 ) );
-	newNumPoints = 0;
+	idVec5* newPoints = static_cast<idVec5*>(_alloca16(maxpts * sizeof( idVec5 )));
+	int newNumPoints = 0;
 
 	for ( i = 0; i < numPoints; i++ ) {
-		p1 = &p[i];
+		idVec5* p1 = &p[i];
 
 		if ( newNumPoints+1 > maxpts ) {
 			return true;		// can't split -- fall back to original
@@ -425,10 +407,10 @@ bool idWinding::ClipInPlace( const idPlane &plane, const float epsilon, const bo
 		}
 
 		// generate a split point
-		p2 = &p[(i+1)%numPoints];
+		idVec5* p2 = &p[(i + 1) % numPoints];
 		
 		dot = dists[i] / (dists[i] - dists[i+1]);
-		for ( j = 0; j < 3; j++ ) {
+		for ( int j = 0; j < 3; j++ ) {
 			// avoid round off error when possible
 			if ( plane.Normal()[j] == 1.0f ) {
 				mid[j] = plane.Dist();
@@ -461,9 +443,7 @@ idWinding::Copy
 =============
 */
 idWinding *idWinding::Copy() const {
-	idWinding *w;
-
-	w = new (TAG_IDLIB_WINDING) idWinding( numPoints );
+	idWinding* w = new(TAG_IDLIB_WINDING) idWinding(numPoints);
 	w->numPoints = numPoints;
 	memcpy( w->p, p, numPoints * sizeof(p[0]) );
 	return w;
@@ -475,12 +455,9 @@ idWinding::Reverse
 =============
 */
 idWinding *idWinding::Reverse() const {
-	idWinding *w;
-	int i;
-
-	w = new (TAG_IDLIB_WINDING) idWinding( numPoints );
+	idWinding* w = new(TAG_IDLIB_WINDING) idWinding(numPoints);
 	w->numPoints = numPoints;
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 		w->p[ numPoints - i - 1 ] = p[i];
 	}
 	return w;
@@ -491,12 +468,10 @@ idWinding *idWinding::Reverse() const {
 idWinding::ReverseSelf
 =============
 */
-void idWinding::ReverseSelf() {
-	idVec5 v;
-	int i;
-
-	for ( i = 0; i < (numPoints>>1); i++ ) {
-		v = p[i];
+void idWinding::ReverseSelf() const
+{
+	for ( int i = 0; i < (numPoints>>1); i++ ) {
+		idVec5 v = p[i];
 		p[i] = p[numPoints - i - 1];
 		p[numPoints - i - 1] = v;
 	}
@@ -508,10 +483,7 @@ idWinding::Check
 =============
 */
 bool idWinding::Check(const bool print ) const {
-	int				i, j;
-	float			d, edgedist;
-	idVec3			dir, edgenormal;
-	float			area;
+	int j;
 	idPlane			plane;
 
 	if ( numPoints < 3 ) {
@@ -521,7 +493,7 @@ bool idWinding::Check(const bool print ) const {
 		return false;
 	}
 	
-	area = GetArea();
+	float area = GetArea();
 	if ( area < 1.0f ) {
 		if ( print ) {
 			idLib::common->Printf( "idWinding::Check: tiny area: %f", area );
@@ -531,7 +503,7 @@ bool idWinding::Check(const bool print ) const {
 
 	GetPlane( plane );
 	
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 		const idVec3 &p1 = p[i].ToVec3();
 
 		// check if the winding is huge
@@ -547,7 +519,7 @@ bool idWinding::Check(const bool print ) const {
 		j = i + 1 == numPoints ? 0 : i + 1;
 		
 		// check if the point is on the face plane
-		d = p1 * plane.Normal() + plane[3];
+		float d = p1 * plane.Normal() + plane[3];
 		if ( d < -ON_EPSILON || d > ON_EPSILON ) {
 			if ( print ) {
 				idLib::common->Printf( "idWinding::Check: point %d off plane.", i );
@@ -557,7 +529,7 @@ bool idWinding::Check(const bool print ) const {
 	
 		// check if the edge isn't degenerate
 		const idVec3 &p2 = p[j].ToVec3();
-		dir = p2 - p1;
+		idVec3 dir = p2 - p1;
 		
 		if ( dir.Length() < ON_EPSILON) {
 			if ( print ) {
@@ -567,9 +539,9 @@ bool idWinding::Check(const bool print ) const {
 		}
 
 		// check if the winding is convex
-		edgenormal = plane.Normal().Cross( dir );
+		idVec3 edgenormal = plane.Normal().Cross(dir);
 		edgenormal.Normalize();
-		edgedist = p1 * edgenormal;
+		float edgedist = p1 * edgenormal;
 		edgedist += ON_EPSILON;
 		
 		// all other points must be on front side
@@ -595,15 +567,11 @@ idWinding::GetArea
 =============
 */
 float idWinding::GetArea() const {
-	int i;
-	idVec3 d1, d2, cross;
-	float total;
-
-	total = 0.0f;
-	for ( i = 2; i < numPoints; i++ ) {
-		d1 = p[i-1].ToVec3() - p[0].ToVec3();
-		d2 = p[i].ToVec3() - p[0].ToVec3();
-		cross = d1.Cross( d2 );
+	float total = 0.0f;
+	for ( int i = 2; i < numPoints; i++ ) {
+		idVec3 d1 = p[i - 1].ToVec3() - p[0].ToVec3();
+		idVec3 d2 = p[i].ToVec3() - p[0].ToVec3();
+		idVec3 cross = d1.Cross(d2);
 		total += cross.Length();
 	}
 	return total * 0.5f;
@@ -615,14 +583,10 @@ idWinding::GetRadius
 =============
 */
 float idWinding::GetRadius( const idVec3 &center ) const {
-	int i;
-	float radius, r;
-	idVec3 dir;
-
-	radius = 0.0f;
-	for ( i = 0; i < numPoints; i++ ) {
-		dir = p[i].ToVec3() - center;
-		r = dir * dir;
+	float radius = 0.0f;
+	for ( int i = 0; i < numPoints; i++ ) {
+		idVec3 dir = p[i].ToVec3() - center;
+		float r = dir * dir;
 		if ( r > radius ) {
 			radius = r;
 		}
@@ -636,11 +600,10 @@ idWinding::GetCenter
 =============
 */
 idVec3 idWinding::GetCenter() const {
-	int i;
 	idVec3 center;
 
 	center.Zero();
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 		center += p[i].ToVec3();
 	}
 	center *= ( 1.0f / numPoints );
@@ -653,17 +616,15 @@ idWinding::GetPlane
 =============
 */
 void idWinding::GetPlane( idVec3 &normal, float &dist ) const {
-	idVec3 v1, v2, center;
-
 	if ( numPoints < 3 ) {
 		normal.Zero();
 		dist = 0.0f;
 		return;
 	}
 
-	center = GetCenter();
-	v1 = p[0].ToVec3() - center;
-	v2 = p[1].ToVec3() - center;
+	idVec3 center = GetCenter();
+	idVec3 v1 = p[0].ToVec3() - center;
+	idVec3 v2 = p[1].ToVec3() - center;
 	normal = v2.Cross( v1 );
 	normal.Normalize();
 	dist = p[0].ToVec3() * normal;
@@ -675,17 +636,14 @@ idWinding::GetPlane
 =============
 */
 void idWinding::GetPlane( idPlane &plane ) const {
-	idVec3 v1, v2;
-	idVec3 center;
-
 	if ( numPoints < 3 ) {
 		plane.Zero();
 		return;
 	}
 
-	center = GetCenter();
-	v1 = p[0].ToVec3() - center;
-	v2 = p[1].ToVec3() - center;
+	idVec3 center = GetCenter();
+	idVec3 v1 = p[0].ToVec3() - center;
+	idVec3 v2 = p[1].ToVec3() - center;
 	plane.SetNormal( v2.Cross( v1 ) );
 	plane.Normalize();
 	plane.FitThroughPoint( p[0].ToVec3() );
@@ -697,15 +655,13 @@ idWinding::GetBounds
 =============
 */
 void idWinding::GetBounds( idBounds &bounds ) const {
-	int i;
-
 	if ( !numPoints ) {
 		bounds.Clear();
 		return;
 	}
 
 	bounds[0] = bounds[1] = p[0].ToVec3();
-	for ( i = 1; i < numPoints; i++ ) {
+	for ( int i = 1; i < numPoints; i++ ) {
 		if ( p[i].x < bounds[0].x ) {
 			bounds[0].x = p[i].x;
 		} else if ( p[i].x > bounds[1].x ) {
@@ -730,14 +686,12 @@ idWinding::RemoveEqualPoints
 =============
 */
 void idWinding::RemoveEqualPoints( const float epsilon ) {
-	int i, j;
-
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 		if ( (p[i].ToVec3() - p[(i+numPoints-1)%numPoints].ToVec3()).LengthSqr() >= Square( epsilon ) ) {
 			continue;
 		}
 		numPoints--;
-		for ( j = i; j < numPoints; j++ ) {
+		for ( int j = i; j < numPoints; j++ ) {
 			p[j] = p[j+1];
 		}
 		i--;
@@ -750,27 +704,23 @@ idWinding::RemoveColinearPoints
 =============
 */
 void idWinding::RemoveColinearPoints( const idVec3 &normal, const float epsilon ) {
-	int i, j;
-	idVec3 edgeNormal;
-	float dist;
-
 	if ( numPoints <= 3 ) {
 		return;
 	}
 
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 
 		// create plane through edge orthogonal to winding plane
-		edgeNormal = (p[i].ToVec3() - p[(i+numPoints-1)%numPoints].ToVec3()).Cross( normal );
+		idVec3 edgeNormal = (p[i].ToVec3() - p[(i + numPoints - 1) % numPoints].ToVec3()).Cross(normal);
 		edgeNormal.Normalize();
-		dist = edgeNormal * p[i].ToVec3();
+		float dist = edgeNormal * p[i].ToVec3();
 
 		if ( idMath::Fabs( edgeNormal * p[(i+1)%numPoints].ToVec3() - dist ) > epsilon ) {
 			continue;
 		}
 
 		numPoints--;
-		for ( j = i; j < numPoints; j++ ) {
+		for ( int j = i; j < numPoints; j++ ) {
 			p[j] = p[j+1];
 		}
 		i--;
@@ -786,31 +736,24 @@ idWinding::AddToConvexHull
 =============
 */
 void idWinding::AddToConvexHull( const idWinding *winding, const idVec3 &normal, const float epsilon ) {
-	int				i, j, k;
+	int j;
 	idVec3			dir;
-	float			d;
-	int				maxPts;
-	idVec3 *		hullDirs;
-	bool *			hullSide;
-	bool			outside;
-	int				numNewHullPoints;
-	idVec5 *		newHullPoints;
 
 	if ( !winding ) {
 		return;
 	}
 
-	maxPts = this->numPoints + winding->numPoints;
+	int maxPts = this->numPoints + winding->numPoints;
 
 	if ( !this->EnsureAlloced( maxPts, true ) ) {
 		return;
 	}
 
-	newHullPoints = (idVec5 *) _alloca( maxPts * sizeof( idVec5 ) );
-	hullDirs = (idVec3 *) _alloca( maxPts * sizeof( idVec3 ) );
-	hullSide = (bool *) _alloca( maxPts * sizeof( bool ) );
+	idVec5* newHullPoints = static_cast<idVec5*>(_alloca(maxPts * sizeof(idVec5)));
+	idVec3* hullDirs = static_cast<idVec3*>(_alloca(maxPts * sizeof(idVec3)));
+	bool* hullSide = static_cast<bool*>(_alloca(maxPts * sizeof(bool)));
 
-	for ( i = 0; i < winding->numPoints; i++ ) {
+	for ( int i = 0; i < winding->numPoints; i++ ) {
 		const idVec5 &p1 = winding->p[i];
 
 		// calculate hull edge vectors
@@ -821,10 +764,10 @@ void idWinding::AddToConvexHull( const idWinding *winding, const idVec3 &normal,
 		}
 
 		// calculate side for each hull edge
-		outside = false;
+		bool outside = false;
 		for ( j = 0; j < this->numPoints; j++ ) {
 			dir = p1.ToVec3() - this->p[j].ToVec3();
-			d = dir * hullDirs[j];
+			float d = dir * hullDirs[j];
 			if ( d >= epsilon ) {
 				outside = true;
 			}
@@ -852,11 +795,11 @@ void idWinding::AddToConvexHull( const idWinding *winding, const idVec3 &normal,
 
 		// insert the point here
 		newHullPoints[0] = p1;
-		numNewHullPoints = 1;
+		int numNewHullPoints = 1;
 
 		// copy over all points that aren't double fronts
 		j = (j+1) % this->numPoints;
-		for ( k = 0; k < this->numPoints; k++ ) {
+		for ( int k = 0; k < this->numPoints; k++ ) {
 			if ( hullSide[ (j+k) % this->numPoints ] && hullSide[ (j+k+1) % this->numPoints ] ) {
 				continue;
 			}
@@ -878,13 +821,8 @@ idWinding::AddToConvexHull
 =============
 */
 void idWinding::AddToConvexHull( const idVec3 &point, const idVec3 &normal, const float epsilon ) {
-	int				j, k, numHullPoints;
+	int				j;
 	idVec3			dir;
-	float			d;
-	idVec3 *		hullDirs;
-	bool *			hullSide;
-	idVec5 *		hullPoints;
-	bool			outside;
 
 	switch( numPoints ) {
 		case 0: {
@@ -925,8 +863,8 @@ void idWinding::AddToConvexHull( const idVec3 &point, const idVec3 &normal, cons
 		}
 	}
 
-	hullDirs = (idVec3 *) _alloca( numPoints * sizeof( idVec3 ) );
-	hullSide = (bool *) _alloca( numPoints * sizeof( bool ) );
+	idVec3* hullDirs = static_cast<idVec3*>(_alloca(numPoints * sizeof(idVec3)));
+	bool* hullSide = static_cast<bool*>(_alloca(numPoints * sizeof(bool)));
 
 	// calculate hull edge vectors
 	for ( j = 0; j < numPoints; j++ ) {
@@ -935,10 +873,10 @@ void idWinding::AddToConvexHull( const idVec3 &point, const idVec3 &normal, cons
 	}
 
 	// calculate side for each hull edge
-	outside = false;
+	bool outside = false;
 	for ( j = 0; j < numPoints; j++ ) {
 		dir = point - p[j].ToVec3();
-		d = dir * hullDirs[j];
+		float d = dir * hullDirs[j];
 		if ( d >= epsilon ) {
 			outside = true;
 		}
@@ -964,15 +902,15 @@ void idWinding::AddToConvexHull( const idVec3 &point, const idVec3 &normal, cons
 		return;
 	}
 
-	hullPoints = (idVec5 *) _alloca( (numPoints+1) * sizeof( idVec5 ) );
+	idVec5* hullPoints = static_cast<idVec5*>(_alloca((numPoints + 1) * sizeof(idVec5)));
 
 	// insert the point here
 	hullPoints[0] = point;
-	numHullPoints = 1;
+	int numHullPoints = 1;
 
 	// copy over all points that aren't double fronts
 	j = (j+1) % numPoints;
-	for ( k = 0; k < numPoints; k++ ) {
+	for ( int k = 0; k < numPoints; k++ ) {
 		if ( hullSide[ (j+k) % numPoints ] && hullSide[ (j+k+1) % numPoints ] ) {
 			continue;
 		}
@@ -995,28 +933,23 @@ idWinding::TryMerge
 #define	CONTINUOUS_EPSILON	0.005f
 
 idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, const int keep ) const {
-	idVec3			*p1, *p2, *p3, *p4, *back;
-	idWinding		*newf;
-	const idWinding	*f1, *f2;
-	int				i, j, k, l;
-	idVec3			normal, delta;
-	float			dot;
-	bool			keep1, keep2;
+	idVec3 *p2;
+	int				i, k;
 
-	f1 = this;
-	f2 = &w;
+	const idWinding* f1 = this;
+	const idWinding* f2 = &w;
 	//
 	// find a idLib::common edge
 	//	
-	p1 = p2 = NULL;	// stop compiler warning
-	j = 0;
+	idVec3* p1 = p2 = nullptr;	// stop compiler warning
+	int j = 0;
 	
 	for ( i = 0; i < f1->numPoints; i++ ) {
 		p1 = &f1->p[i].ToVec3();
 		p2 = &f1->p[(i+1) % f1->numPoints].ToVec3();
 		for ( j = 0; j < f2->numPoints; j++ ) {
-			p3 = &f2->p[j].ToVec3();
-			p4 = &f2->p[(j+1) % f2->numPoints].ToVec3();
+			idVec3* p3 = &f2->p[j].ToVec3();
+			idVec3* p4 = &f2->p[(j + 1) % f2->numPoints].ToVec3();
 			for (k = 0; k < 3; k++ ) {
 				if ( idMath::Fabs((*p1)[k] - (*p4)[k]) > 0.1f ) {
 					break;
@@ -1035,26 +968,26 @@ idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, c
 	}
 	
 	if ( i == f1->numPoints ) {
-		return NULL;			// no matching edges
+		return nullptr;			// no matching edges
 	}
 
 	//
 	// check slope of connected lines
 	// if the slopes are colinear, the point can be removed
 	//
-	back = &f1->p[(i+f1->numPoints-1)%f1->numPoints].ToVec3();
-	delta = (*p1) - (*back);
-	normal = planenormal.Cross(delta);
+	idVec3* back = &f1->p[(i + f1->numPoints - 1) % f1->numPoints].ToVec3();
+	idVec3 delta = (*p1) - (*back);
+	idVec3 normal = planenormal.Cross(delta);
 	normal.Normalize();
 	
 	back = &f2->p[(j+2)%f2->numPoints].ToVec3();
 	delta = (*back) - (*p1);
-	dot = delta * normal;
+	float dot = delta * normal;
 	if ( dot > CONTINUOUS_EPSILON ) {
-		return NULL;			// not a convex polygon
+		return nullptr;			// not a convex polygon
 	}
 
-	keep1 = (bool)(dot < -CONTINUOUS_EPSILON);
+	bool keep1 = (bool)(dot < -CONTINUOUS_EPSILON);
 	
 	back = &f1->p[(i+2)%f1->numPoints].ToVec3();
 	delta = (*back) - (*p2);
@@ -1065,15 +998,15 @@ idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, c
 	delta = (*back) - (*p2);
 	dot = delta * normal;
 	if ( dot > CONTINUOUS_EPSILON ) {
-		return NULL;			// not a convex polygon
+		return nullptr;			// not a convex polygon
 	}
 
-	keep2 = (bool)(dot < -CONTINUOUS_EPSILON);
+	bool keep2 = (bool)(dot < -CONTINUOUS_EPSILON);
 
 	//
 	// build the new polygon
 	//
-	newf = new (TAG_IDLIB_WINDING) idWinding( f1->numPoints + f2->numPoints );
+	idWinding* newf = new(TAG_IDLIB_WINDING) idWinding(f1->numPoints + f2->numPoints);
 	
 	// copy first polygon
 	for ( k = (i+1) % f1->numPoints; k != i; k = (k+1) % f1->numPoints ) {
@@ -1086,7 +1019,7 @@ idWinding *idWinding::TryMerge( const idWinding &w, const idVec3 &planenormal, c
 	}
 	
 	// copy second polygon
-	for ( l = (j+1) % f2->numPoints; l != j; l = (l+1) % f2->numPoints ) {
+	for ( int l = (j + 1) % f2->numPoints; l != j; l = (l+1) % f2->numPoints ) {
 		if ( !keep && l == (j+1) % f2->numPoints && !keep1 ) {
 			continue;
 		}
@@ -1118,8 +1051,6 @@ idWinding::InsertPoint
 =============
 */
 void idWinding::InsertPoint( const idVec5 &point, const int spot ) {
-	int i;
-
 	if ( spot > numPoints ) {
 		idLib::common->FatalError( "idWinding::insertPoint: spot > numPoints" );
 	}
@@ -1129,7 +1060,7 @@ void idWinding::InsertPoint( const idVec5 &point, const int spot ) {
 	}
 
 	EnsureAlloced( numPoints+1, true );
-	for ( i = numPoints; i > spot; i-- ) {
+	for ( int i = numPoints; i > spot; i-- ) {
 		p[i] = p[i-1];
 	}
 	p[spot] = point;
@@ -1142,28 +1073,24 @@ idWinding::InsertPointIfOnEdge
 =============
 */
 bool idWinding::InsertPointIfOnEdge( const idVec5 &point, const idPlane &plane, const float epsilon ) {
-	int i;
-	float dist, dot;
-	idVec3 normal;
-
 	// point may not be too far from the winding plane
 	if ( idMath::Fabs( plane.Distance( point.ToVec3() ) ) > epsilon ) {
 		return false;
 	}
 
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 
 		// create plane through edge orthogonal to winding plane
-		normal = (p[(i+1)%numPoints].ToVec3() - p[i].ToVec3()).Cross( plane.Normal() );
+		idVec3 normal = (p[(i + 1) % numPoints].ToVec3() - p[i].ToVec3()).Cross(plane.Normal());
 		normal.Normalize();
-		dist = normal * p[i].ToVec3();
+		float dist = normal * p[i].ToVec3();
 
 		if ( idMath::Fabs( normal * point.ToVec3() - dist ) > epsilon ) {
 			continue;
 		}
 
 		normal = plane.Normal().Cross( normal );
-		dot = normal * point.ToVec3();
+		float dot = normal * point.ToVec3();
 
 		dist = dot - normal * p[i].ToVec3();
 
@@ -1199,15 +1126,10 @@ idWinding::IsTiny
 #define	EDGE_LENGTH		0.2f
 
 bool idWinding::IsTiny() const {
-	int		i;
-	float	len;
-	idVec3	delta;
-	int		edges;
-
-	edges = 0;
-	for ( i = 0; i < numPoints; i++ ) {
-		delta = p[(i+1)%numPoints].ToVec3() - p[i].ToVec3();
-		len = delta.Length();
+	int edges = 0;
+	for ( int i = 0; i < numPoints; i++ ) {
+		idVec3 delta = p[(i + 1) % numPoints].ToVec3() - p[i].ToVec3();
+		float len = delta.Length();
 		if ( len > EDGE_LENGTH ) {
 			if ( ++edges == 3 ) {
 				return false;
@@ -1223,10 +1145,8 @@ idWinding::IsHuge
 =============
 */
 bool idWinding::IsHuge() const {
-	int i, j;
-
-	for ( i = 0; i < numPoints; i++ ) {
-		for ( j = 0; j < 3; j++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
+		for ( int j = 0; j < 3; j++ ) {
 			if ( p[i][j] <= MIN_WORLD_COORD || p[i][j] >= MAX_WORLD_COORD ) {
 				return true;
 			}
@@ -1241,9 +1161,7 @@ idWinding::Print
 =============
 */
 void idWinding::Print() const {
-	int i;
-
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 		idLib::common->Printf( "(%5.1f, %5.1f, %5.1f)\n", p[i][0], p[i][1], p[i][2] );
 	}
 }
@@ -1254,13 +1172,10 @@ idWinding::PlaneDistance
 =============
 */
 float idWinding::PlaneDistance( const idPlane &plane ) const {
-	int		i;
-	float	d, min, max;
-
-	min = idMath::INFINITY;
-	max = -min;
-	for ( i = 0; i < numPoints; i++ ) {
-		d = plane.Distance( p[i].ToVec3() );
+	float min = idMath::INFINITY;
+	float max = -min;
+	for ( int i = 0; i < numPoints; i++ ) {
+		float d = plane.Distance(p[i].ToVec3());
 		if ( d < min ) {
 			min = d;
 			if ( IEEE_FLT_SIGNBITSET( min ) & IEEE_FLT_SIGNBITNOTSET( max ) ) {
@@ -1289,14 +1204,10 @@ idWinding::PlaneSide
 =============
 */
 int idWinding::PlaneSide( const idPlane &plane, const float epsilon ) const {
-	bool	front, back;
-	int		i;
-	float	d;
-
-	front = false;
-	back = false;
-	for ( i = 0; i < numPoints; i++ ) {
-		d = plane.Distance( p[i].ToVec3() );
+	bool front = false;
+	bool back = false;
+	for ( int i = 0; i < numPoints; i++ ) {
+		float d = plane.Distance(p[i].ToVec3());
 		if ( d < -epsilon ) {
 			if ( front ) {
 				return SIDE_CROSS;
@@ -1354,14 +1265,11 @@ idWinding::PointInside
 =============
 */
 bool idWinding::PointInside( const idVec3 &normal, const idVec3 &point, const float epsilon ) const {
-	int i;
-	idVec3 dir, n, pointvec;
+	for ( int i = 0; i < numPoints; i++ ) {
+		idVec3 dir = p[(i + 1) % numPoints].ToVec3() - p[i].ToVec3();
+		idVec3 pointvec = point - p[i].ToVec3();
 
-	for ( i = 0; i < numPoints; i++ ) {
-		dir = p[(i+1) % numPoints].ToVec3() - p[i].ToVec3();
-		pointvec = point - p[i].ToVec3();
-
-		n = dir.Cross( normal );
+		idVec3 n = dir.Cross(normal);
 
 		if ( pointvec * n < -epsilon ) {
 			return false;
@@ -1376,11 +1284,10 @@ idWinding::LineIntersection
 =============
 */
 bool idWinding::LineIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &end, const bool backFaceCull ) const {
-	float front, back, frac;
 	idVec3 mid;
 
-	front = windingPlane.Distance( start );
-	back = windingPlane.Distance( end );
+	float front = windingPlane.Distance(start);
+	float back = windingPlane.Distance(end);
 
 	// if both points at the same side of the plane
 	if ( front < 0.0f && back < 0.0f ) {
@@ -1401,7 +1308,7 @@ bool idWinding::LineIntersection( const idPlane &windingPlane, const idVec3 &sta
 		mid = end;
 	}
 	else {
-		frac = front / (front - back);
+		float frac = front / (front - back);
 		mid[0] = start[0] + (end[0] - start[0]) * frac;
 		mid[1] = start[1] + (end[1] - start[1]) * frac;
 		mid[2] = start[2] + (end[2] - start[2]) * frac;
@@ -1416,15 +1323,14 @@ idWinding::RayIntersection
 =============
 */
 bool idWinding::RayIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &dir, float &scale, const bool backFaceCull ) const {
-	int i;
-	bool side, lastside = false;
+	bool lastside = false;
 	idPluecker pl1, pl2;
 
 	scale = 0.0f;
 	pl1.FromRay( start, dir );
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( int i = 0; i < numPoints; i++ ) {
 		pl2.FromLine( p[i].ToVec3(), p[(i+1)%numPoints].ToVec3() );
-		side = pl1.PermutedInnerProduct( pl2 ) > 0.0f;
+		bool side = pl1.PermutedInnerProduct(pl2) > 0.0f;
 		if ( i && side != lastside ) {
 			return false;
 		}
@@ -1443,12 +1349,9 @@ idWinding::TriangleArea
 =================
 */
 float idWinding::TriangleArea( const idVec3 &a, const idVec3 &b, const idVec3 &c ) {
-	idVec3	v1, v2;
-	idVec3	cross;
-
-	v1 = b - a;
-	v2 = c - a;
-	cross = v1.Cross( v2 );
+	idVec3 v1 = b - a;
+	idVec3 v2 = c - a;
+	idVec3 cross = v1.Cross(v2);
 	return 0.5f * cross.Length();
 }
 
@@ -1485,8 +1388,8 @@ int idFixedWinding::Split( idFixedWinding *back, const idPlane &plane, const flo
 	float	dists[MAX_POINTS_ON_WINDING+4];
 	byte	sides[MAX_POINTS_ON_WINDING+4];
 	float	dot;
-	int		i, j;
-	idVec5 *p1, *p2;
+	int		i;
+	idVec5*p2;
 	idVec5	mid;
 	idFixedWinding out;
 
@@ -1525,7 +1428,7 @@ int idFixedWinding::Split( idFixedWinding *back, const idPlane &plane, const flo
 	back->numPoints = 0;
 
 	for ( i = 0; i < numPoints; i++ ) {
-		p1 = &p[i];
+		idVec5* p1 = &p[i];
 
 		if ( !out.EnsureAlloced( out.numPoints+1, true ) ) {
 			return SIDE_FRONT;		// can't split -- fall back to original
@@ -1564,7 +1467,7 @@ int idFixedWinding::Split( idFixedWinding *back, const idPlane &plane, const flo
 		}
 
 		// generate a split point
-		j = i + 1;
+		int j = i + 1;
 		if ( j >= numPoints ) {
 			p2 = &p[0];
 		}

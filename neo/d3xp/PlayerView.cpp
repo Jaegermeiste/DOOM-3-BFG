@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // _D3XP : rename all gameLocal.time to gameLocal.slow.time for merge!
 
-const int IMPULSE_DELAY = 150;
+constexpr int IMPULSE_DELAY = 150;
 /*
 ==============
 idPlayerView::idPlayerView

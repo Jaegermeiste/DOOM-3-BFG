@@ -90,7 +90,7 @@ typedef enum {
 	DS_PARSED
 } declState_t;
 
-const int DECL_LEXER_FLAGS	=	LEXFL_NOSTRINGCONCAT |				// multiple strings seperated by whitespaces are not concatenated
+constexpr int DECL_LEXER_FLAGS	=	LEXFL_NOSTRINGCONCAT |				// multiple strings seperated by whitespaces are not concatenated
 								LEXFL_NOSTRINGESCAPECHARS |			// no escape characters inside strings
 								LEXFL_ALLOWPATHNAMES |				// allow path seperators in names
 								LEXFL_ALLOWMULTICHARLITERALS |		// allow multi character literals
@@ -133,7 +133,7 @@ class idDecl {
 public:
 							// The constructor should initialize variables such that
 							// an immediate call to FreeData() does no harm.
-							idDecl() { base = NULL; }
+							idDecl() { base = nullptr; }
 	virtual 				~idDecl() {};
 
 							// Returns the name of the decl.

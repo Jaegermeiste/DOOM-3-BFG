@@ -9,9 +9,22 @@
 
 ===============================================================================
 */
+
+#ifndef _MD_TYPES
+#define _MD_TYPES
+/* POINTER defines a generic pointer type */
+typedef unsigned char* POINTER;
+
+/* UINT2 defines a two byte word */
+typedef unsigned short int UINT2;
+
+/* UINT4 defines a four byte word */
+typedef unsigned long int UINT4;
+#endif // _MD_TYPES
+
 struct MD5_CTX {
-	unsigned int	state[4];
-	unsigned int	bits[2];
+	UINT4	state[4];
+	UINT4	bits[2];
 	unsigned char	in[64];
 };
 

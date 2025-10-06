@@ -71,7 +71,7 @@ static const char * ANIM_STATE_TRANSITIONS[ idMenuWidget_Button::ANIM_STATE_MAX 
 };
 
 // script name for the control object for a given type of button
-static const char * const CONTROL_SPRITE_NAMES[ MAX_MENU_OPTION_TYPES ] = {
+static constexpr char * const CONTROL_SPRITE_NAMES[ MAX_MENU_OPTION_TYPES ] = {
 	NULL,
 	"sliderBar",
 	"sliderText", 

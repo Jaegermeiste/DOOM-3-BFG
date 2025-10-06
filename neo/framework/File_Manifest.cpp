@@ -45,7 +45,7 @@ idPreloadManifest::LoadManifest
 */ 
 bool idPreloadManifest::LoadManifest( const char *fileName ) {
 	idFile * inFile = fileSystem->OpenFileReadMemory( fileName );
-	if ( inFile != NULL ) {
+	if ( inFile != nullptr) {
 		int numEntries;
 		inFile->ReadBig( numEntries );
 		inFile->ReadString( filename );
@@ -73,7 +73,7 @@ idFileManifest::LoadManifest
 */ 
 bool idFileManifest::LoadManifest( const char *_fileName ) {
 	idFile *file = fileSystem->OpenFileRead( _fileName , false );
-	if ( file != NULL ) {
+	if ( file != nullptr) {
 		return LoadManifestFromFile( file );
 	}
 	return false;
@@ -87,7 +87,7 @@ idFileManifest::LoadManifestFromFile
 ========================
 */ 
 bool idFileManifest::LoadManifestFromFile( idFile *file ) {
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		return false;
 	}
 	filename = file->GetName();
@@ -114,7 +114,7 @@ idFileManifest::WriteManifestFile
 */ 
 void idFileManifest::WriteManifestFile( const char *fileName ) {
 	idFile *file = fileSystem->OpenFileWrite( fileName );
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		return;
 	}
 	idStr str;
@@ -133,7 +133,7 @@ idPreloadManifest::WriteManifestFile
 */ 
 void idPreloadManifest::WriteManifest( const char *fileName ) {
 	idFile *file = fileSystem->OpenFileWrite( fileName, "fs_savepath" );
-	if ( file != NULL ) {
+	if ( file != nullptr) {
 		WriteManifestToFile( file );
 		delete file;
 	}

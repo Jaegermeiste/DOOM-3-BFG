@@ -66,7 +66,7 @@ void R_SurfaceToTextureAxis( const srfTriangles_t *tri, idVec3 &origin, idVec3 a
 	const idVec2 boundsOrg( floor( ( boundsMin.x + boundsMax.x ) * 0.5f ), floor( ( boundsMin.y + boundsMax.y ) * 0.5f ) );
 
 	// determine the world S and T vectors from the first drawSurf triangle
-	const idJointMat * joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( tri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : nullptr;
 
 	const idVec3 aXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[0] ], joints );
 	const idVec3 bXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[1] ], joints );
@@ -197,12 +197,12 @@ void R_AddInGameGuis( const drawSurf_t * const drawSurfs[], const int numDrawSur
 
 		int guiNum = drawSurf->material->GetEntityGui() - 1;
 		if ( guiNum >= 0 && guiNum < MAX_RENDERENTITY_GUI ) {
-			if ( drawSurf->space->entityDef != NULL ) {
+			if ( drawSurf->space->entityDef != nullptr) {
 				gui = drawSurf->space->entityDef->parms.gui[ guiNum ];
 			}
 		}
 
-		if ( gui == NULL ) {
+		if ( gui == nullptr) {
 			continue;
 		}
 

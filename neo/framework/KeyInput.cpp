@@ -247,7 +247,7 @@ keyname_t keynames[] =
 	ALIASKEY( ",", COMMA ),
 	ALIASKEY( ".", PERIOD ),
 
-	{K_NONE, NULL, NULL}
+	{K_NONE, nullptr, nullptr}
 };
 
 class idKey {
@@ -260,7 +260,7 @@ public:
 };
 
 bool		key_overstrikeMode = false;
-idKey *		keys = NULL;
+idKey *		keys = nullptr;
 
 
 /*
@@ -667,7 +667,7 @@ returns the binding for the localized name of the key
 const char * idKeyInput::BindingFromKey( const char *key ) {
 	const int keyNum = idKeyInput::StringToKeyNum( key );
 	if ( keyNum < 0 || keyNum >= K_LAST_KEY ) {
-		return NULL;
+		return nullptr;
 	}
 	return keys[keyNum].binding.c_str();
 }
@@ -793,7 +793,7 @@ idKeyInput::Shutdown
 */
 void idKeyInput::Shutdown() {
 	delete [] keys;
-	keys = NULL;
+	keys = nullptr;
 }
 
 

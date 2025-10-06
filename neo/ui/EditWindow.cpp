@@ -98,12 +98,12 @@ void idEditWindow::CommonInit() {
 	cvarMax = 0;
 	wrap = false;
 	sourceFile = "";
-	scroller = NULL;
+	scroller = nullptr;
 	sizeBias = 0;
 	lastTextLength = 0;
 	forceScroll = false;
 	password = NULL;
-	cvar = NULL;
+	cvar = nullptr;
 	liveUpdate = true;
 	readonly = false;
 
@@ -189,7 +189,7 @@ const char *idEditWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 	if ( wrap ) {
 		// need to call this to allow proper focus and capturing on embedded children
 		const char * ret = idWindow::HandleEvent( event, updateVisuals );
-		if ( ret != NULL && *ret != NULL ) {
+		if ( ret != nullptr && *ret != NULL ) {
 			return ret;
 		}
 	}
@@ -470,7 +470,7 @@ void idEditWindow::InitScroller( bool horizontal )
 	}
 
 	scroller->InitWithDefaults(scrollerName, scrollRect, foreColor, matColor, mat->GetName(), thumbImage, !horizontal, true);
-	InsertChild(scroller, NULL);
+	InsertChild(scroller, nullptr);
 	scroller->SetBuddy(this);
 }
 
@@ -574,10 +574,10 @@ idEditWindow::InitCvar
 */
 void idEditWindow::InitCvar( ) {
 	if ( cvarStr[0] == '\0' ) {
-		if ( text.GetName() == NULL ) {
+		if ( text.GetName() == nullptr) {
 			common->Warning( "idEditWindow::InitCvar: gui '%s' window '%s' has an empty cvar string", gui->GetSourceFile(), name.c_str() );
 		}
-		cvar = NULL;
+		cvar = nullptr;
 		return;
 	}
 

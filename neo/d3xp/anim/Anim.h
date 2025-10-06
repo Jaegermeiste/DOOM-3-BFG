@@ -31,18 +31,18 @@ If you have questions concerning this license or the applicable additional terms
 //
 // animation channels
 // these can be changed by modmakers and licensees to be whatever they need.
-const int ANIM_NumAnimChannels		= 5;
-const int ANIM_MaxAnimsPerChannel	= 3;
-const int ANIM_MaxSyncedAnims		= 3;
+constexpr int ANIM_NumAnimChannels		= 5;
+constexpr int ANIM_MaxAnimsPerChannel	= 3;
+constexpr int ANIM_MaxSyncedAnims		= 3;
 
 //
 // animation channels.  make sure to change script/doom_defs.script if you add any channels, or change their order
 //
-const int ANIMCHANNEL_ALL			= 0;
-const int ANIMCHANNEL_TORSO			= 1;
-const int ANIMCHANNEL_LEGS			= 2;
-const int ANIMCHANNEL_HEAD			= 3;
-const int ANIMCHANNEL_EYELIDS		= 4;
+constexpr int ANIMCHANNEL_ALL			= 0;
+constexpr int ANIMCHANNEL_TORSO			= 1;
+constexpr int ANIMCHANNEL_LEGS			= 2;
+constexpr int ANIMCHANNEL_HEAD			= 3;
+constexpr int ANIMCHANNEL_EYELIDS		= 4;
 
 // for converting from 24 frames per second to milliseconds
 ID_INLINE int FRAME2MS( int framenum ) {

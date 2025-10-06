@@ -573,8 +573,8 @@ localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float r
 	byte * cullBits = (byte *) _alloca16( ALIGN( tri->numVerts, 4 ) );	// round up to a multiple of 4 for SIMD
 	byte totalOr = 0;
 
-	const idJointMat * joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
-	if ( joints != NULL ) {
+	const idJointMat * joints = ( tri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : nullptr;
+	if ( joints != nullptr) {
 		R_TracePointCullSkinned( cullBits, totalOr, radius, planes, tri->verts, tri->numVerts, joints );
 	} else {
 		R_TracePointCullStatic( cullBits, totalOr, radius, planes, tri->verts, tri->numVerts );

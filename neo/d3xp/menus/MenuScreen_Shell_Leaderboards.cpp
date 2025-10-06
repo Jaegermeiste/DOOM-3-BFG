@@ -29,9 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-const static int NUM_LEADERBOARD_ITEMS = 16;
-const int MAX_STAT_LISTINGS = 16;
-static const int MAX_ROWS_PER_BLOCK = 50;
+static constexpr int NUM_LEADERBOARD_ITEMS = 16;
+constexpr int MAX_STAT_LISTINGS = 16;
+static constexpr int MAX_ROWS_PER_BLOCK = 50;
 
 idMenuScreen_Shell_Leaderboards::~idMenuScreen_Shell_Leaderboards() {
 	if ( lbCache != NULL ) {

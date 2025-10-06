@@ -63,7 +63,7 @@ public:
 
 								// handles an event, can return an action string, the caller interprets
 								// any return and acts accordingly
-	virtual const char *		HandleEvent( const sysEvent_t *event, int time, bool *updateVisuals = NULL ) = 0;
+	virtual const char *		HandleEvent( const sysEvent_t *event, int time, bool *updateVisuals = nullptr) = 0;
 
 								// handles a named event
 	virtual void				HandleNamedEvent( const char *eventName ) = 0;

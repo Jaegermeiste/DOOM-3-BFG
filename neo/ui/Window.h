@@ -36,45 +36,45 @@ If you have questions concerning this license or the applicable additional terms
 #include "GuiScript.h"
 #include "SimpleWindow.h"
 
-const int WIN_CHILD			= 0x00000001;
-const int WIN_CAPTION		= 0x00000002;
-const int WIN_BORDER		= 0x00000004;
-const int WIN_SIZABLE		= 0x00000008;
-const int WIN_MOVABLE		= 0x00000010;
-const int WIN_FOCUS			= 0x00000020;
-const int WIN_CAPTURE		= 0x00000040;
-const int WIN_HCENTER		= 0x00000080;
-const int WIN_VCENTER		= 0x00000100;
-const int WIN_MODAL			= 0x00000200;
-const int WIN_INTRANSITION	= 0x00000400;
-const int WIN_CANFOCUS		= 0x00000800;
-const int WIN_SELECTED		= 0x00001000;
-const int WIN_TRANSFORM		= 0x00002000;
-const int WIN_HOLDCAPTURE	= 0x00004000;
-const int WIN_NOWRAP		= 0x00008000;
-const int WIN_NOCLIP		= 0x00010000;
-const int WIN_INVERTRECT	= 0x00020000;
-const int WIN_NATURALMAT	= 0x00040000;
-const int WIN_NOCURSOR		= 0x00080000;
-const int WIN_MENUGUI		= 0x00100000;
-const int WIN_ACTIVE		= 0x00200000;
-const int WIN_SHOWCOORDS	= 0x00400000;
-const int WIN_SHOWTIME		= 0x00800000;
-const int WIN_WANTENTER		= 0x01000000;
+constexpr int WIN_CHILD			= 0x00000001;
+constexpr int WIN_CAPTION		= 0x00000002;
+constexpr int WIN_BORDER		= 0x00000004;
+constexpr int WIN_SIZABLE		= 0x00000008;
+constexpr int WIN_MOVABLE		= 0x00000010;
+constexpr int WIN_FOCUS			= 0x00000020;
+constexpr int WIN_CAPTURE		= 0x00000040;
+constexpr int WIN_HCENTER		= 0x00000080;
+constexpr int WIN_VCENTER		= 0x00000100;
+constexpr int WIN_MODAL			= 0x00000200;
+constexpr int WIN_INTRANSITION	= 0x00000400;
+constexpr int WIN_CANFOCUS		= 0x00000800;
+constexpr int WIN_SELECTED		= 0x00001000;
+constexpr int WIN_TRANSFORM		= 0x00002000;
+constexpr int WIN_HOLDCAPTURE	= 0x00004000;
+constexpr int WIN_NOWRAP		= 0x00008000;
+constexpr int WIN_NOCLIP		= 0x00010000;
+constexpr int WIN_INVERTRECT	= 0x00020000;
+constexpr int WIN_NATURALMAT	= 0x00040000;
+constexpr int WIN_NOCURSOR		= 0x00080000;
+constexpr int WIN_MENUGUI		= 0x00100000;
+constexpr int WIN_ACTIVE		= 0x00200000;
+constexpr int WIN_SHOWCOORDS	= 0x00400000;
+constexpr int WIN_SHOWTIME		= 0x00800000;
+constexpr int WIN_WANTENTER		= 0x01000000;
 
-const int WIN_DESKTOP		= 0x10000000;
+constexpr int WIN_DESKTOP		= 0x10000000;
 
-const char CAPTION_HEIGHT[] = "16.0";
-const char SCROLLER_SIZE[] = "16.0";
-const int SCROLLBAR_SIZE = 16;
+constexpr char CAPTION_HEIGHT[] = "16.0";
+constexpr char SCROLLER_SIZE[] = "16.0";
+constexpr int SCROLLBAR_SIZE = 16;
 
-const int MAX_WINDOW_NAME = 32;
-const int MAX_LIST_ITEMS = 1024;
+constexpr int MAX_WINDOW_NAME = 32;
+constexpr int MAX_LIST_ITEMS = 1024;
 
-const char DEFAULT_BACKCOLOR[] = "1 1 1 1";
-const char DEFAULT_FORECOLOR[] = "0 0 0 1";
-const char DEFAULT_BORDERCOLOR[] = "0 0 0 1";
-const char DEFAULT_TEXTSCALE[] = "0.4";
+constexpr char DEFAULT_BACKCOLOR[] = "1 1 1 1";
+constexpr char DEFAULT_FORECOLOR[] = "0 0 0 1";
+constexpr char DEFAULT_BORDERCOLOR[] = "0 0 0 1";
+constexpr char DEFAULT_TEXTSCALE[] = "0.4";
 
 typedef enum {
 	WOP_TYPE_ADD,
@@ -224,7 +224,7 @@ public:
 	virtual size_t Allocated();
 	idStr* GetStrPtrByName(const char *_name);
 
-	virtual idWinVar *GetWinVarByName	(const char *_name, bool winLookup = false, drawWin_t** owner = NULL);
+	virtual idWinVar *GetWinVarByName	(const char *_name, bool winLookup = false, drawWin_t** owner = nullptr);
 
 	int  GetWinVarOffset( idWinVar *wv, drawWin_t *dw );
 	float GetMaxCharHeight();
@@ -293,11 +293,11 @@ public:
 
 	int NumTransitions();
 
-	bool ParseScript(idTokenParser *src, idGuiScriptList &list, int *timeParm = NULL, bool allowIf = false);
+	bool ParseScript(idTokenParser *src, idGuiScriptList &list, int *timeParm = nullptr, bool allowIf = false);
 	bool RunScript(int n);
 	bool RunScriptList(idGuiScriptList *src);
 	void SetRegs(const char *key, const char *val);
-	int ParseExpression( idTokenParser *src, idWinVar *var = NULL, int component = 0 );
+	int ParseExpression( idTokenParser *src, idWinVar *var = nullptr, int component = 0 );
 	int ExpressionConstant(float f);
 	idRegisterList *RegList() { return &regList; }
 	void AddCommand(const char *cmd);
@@ -316,7 +316,7 @@ public:
 
 	void		AddDefinedVar		( idWinVar* var );
 
-	idWindow*	FindChildByPoint	( float x, float y, idWindow* below = NULL );
+	idWindow*	FindChildByPoint	( float x, float y, idWindow* below = nullptr);
 	int			GetChildIndex		( idWindow* window );
 	int			GetChildCount		();
 	idWindow*	GetChild			( int index );
@@ -347,10 +347,10 @@ protected:
 
 	int ExpressionTemporary();
 	wexpOp_t *ExpressionOp();
-	int EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp = NULL );
-	int ParseEmitOp( idTokenParser *src, int a, wexpOpType_t opType, int priority, wexpOp_t **opp = NULL );
-	int ParseTerm( idTokenParser *src, idWinVar *var = NULL, int component = 0 );
-	int ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var = NULL, int component = 0 );
+	int EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp = nullptr);
+	int ParseEmitOp( idTokenParser *src, int a, wexpOpType_t opType, int priority, wexpOp_t **opp = nullptr);
+	int ParseTerm( idTokenParser *src, idWinVar *var = nullptr, int component = 0 );
+	int ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var = nullptr, int component = 0 );
 	void EvaluateRegisters(float *registers);
 	void SaveExpressionParseState();
 	void RestoreExpressionParseState();

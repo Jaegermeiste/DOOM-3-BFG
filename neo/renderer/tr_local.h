@@ -41,18 +41,18 @@ If you have questions concerning this license or the applicable additional terms
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine
-const int SMP_FRAMES				= 1;
+constexpr int SMP_FRAMES				= 1;
 
 // maximum texture units
-const int MAX_PROG_TEXTURE_PARMS	= 16;
+constexpr int MAX_PROG_TEXTURE_PARMS	= 16;
 
-const int FALLOFF_TEXTURE_SIZE		= 64;
+constexpr int FALLOFF_TEXTURE_SIZE		= 64;
 
-const float	DEFAULT_FOG_DISTANCE	= 500.0f;
+constexpr float	DEFAULT_FOG_DISTANCE	= 500.0f;
 
 // picky to get the bilerp correct at terminator
-const int FOG_ENTER_SIZE			= 64;
-const float FOG_ENTER				= (FOG_ENTER_SIZE+1.0f)/(FOG_ENTER_SIZE*2);
+constexpr int FOG_ENTER_SIZE			= 64;
+constexpr float FOG_ENTER				= (FOG_ENTER_SIZE+1.0f)/(FOG_ENTER_SIZE*2);
 
 enum demoCommand_t {
 	DC_BAD,
@@ -360,7 +360,7 @@ struct viewEntity_t {
 };
 
 
-const int	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
+constexpr int	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
 
 // viewDefs are allocated on the frame temporary stack memory
 struct viewDef_t {
@@ -506,7 +506,7 @@ struct postProcessCommand_t {
 
 // this is the inital allocation for max number of drawsurfs
 // in a given view, but it will automatically grow if needed
-const int INITIAL_DRAWSURFS =		2048;
+constexpr int INITIAL_DRAWSURFS =		2048;
 
 enum frameAllocType_t {
 	FRAME_ALLOC_VIEW_DEF,
@@ -600,7 +600,7 @@ struct tmu_t {
 };
 
 
-const int MAX_MULTITEXTURE_UNITS =	8;
+constexpr int MAX_MULTITEXTURE_UNITS =	8;
 
 enum vertexLayoutType_t {
 	LAYOUT_UNKNOWN = 0,
@@ -666,10 +666,10 @@ struct backEndState_t {
 
 class idParallelJobList;
 
-const int MAX_GUI_SURFACES	= 1024;		// default size of the drawSurfs list for guis, will
+constexpr int MAX_GUI_SURFACES	= 1024;		// default size of the drawSurfs list for guis, will
 										// be automatically expanded as needed
 
-static const int MAX_RENDER_CROPS = 8;
+static constexpr int MAX_RENDER_CROPS = 8;
 
 /*
 ** Most renderer globals are defined here.
@@ -704,7 +704,7 @@ public:
 	virtual void			Preload( const idPreloadManifest &manifest, const char *mapName );
 	virtual void			BeginAutomaticBackgroundSwaps( autoRenderIconType_t icon = AUTORENDER_DEFAULTICON );
 	virtual void			EndAutomaticBackgroundSwaps();
-	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t * usingAlternateIcon = NULL ) const;
+	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t * usingAlternateIcon = nullptr) const;
 
 	virtual idFont *		RegisterFont( const char * fontName );
 	virtual void			ResetFonts();

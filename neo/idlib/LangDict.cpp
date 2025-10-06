@@ -74,7 +74,7 @@ const char * idLocalization::FindString( const char * inString ) {
 idLocalization::VerifyUTF8
 ========================
 */
-utf8Encoding_t idLocalization::VerifyUTF8( const uint8 * buffer, const int bufferLen, const char * name ) {
+utf8Encoding_t idLocalization::VerifyUTF8(const uint8 * buffer, const size_t bufferLen, const char * name) {
 	utf8Encoding_t encoding;
 	idStr::IsValidUTF8( buffer, bufferLen, encoding );
 	if ( encoding == UTF8_INVALID ) {
@@ -92,7 +92,7 @@ utf8Encoding_t idLocalization::VerifyUTF8( const uint8 * buffer, const int buffe
 // string entries can refer to other string entries, 
 // recursing up to this many times before we decided someone did something stupid
 const char * idLangDict::KEY_PREFIX = "#str_";	// all keys should be prefixed with this for redirection to work
-const int idLangDict::KEY_PREFIX_LEN = idStr::Length( KEY_PREFIX );
+const size_t idLangDict::KEY_PREFIX_LEN = idStr::Length( KEY_PREFIX );
 
 /*
 ========================
@@ -119,11 +119,11 @@ idLangDict::Clear
 void idLangDict::Clear() {
 	//mem.PushHeap();
 	for ( int i = 0; i < keyVals.Num(); i++ ) {
-		if ( keyVals[i].value == NULL ) {
+		if ( keyVals[i].value == nullptr) {
 			continue;
 		}
 		blockAlloc.Free( keyVals[i].value );
-		keyVals[i].value = NULL;
+		keyVals[i].value = nullptr;
 	}
 	//mem.PopHeap();
 }
@@ -133,9 +133,9 @@ void idLangDict::Clear() {
 idLangDict::Load
 ========================
 */
-bool idLangDict::Load( const byte * buffer, const int bufferLen, const char *name ) {
+bool idLangDict::Load( const byte * buffer, const size_t bufferLen, const char *name ) {
 
-	if ( buffer == NULL || bufferLen <= 0 ) {
+	if ( buffer == nullptr || bufferLen <= 0 ) {
 		// let whoever called us deal with the failure (so sys_lang can be reset)
 		return false;
 	}
@@ -147,7 +147,7 @@ bool idLangDict::Load( const byte * buffer, const int bufferLen, const char *nam
 	// in all but retail builds, ensure that the byte-order mark is NOT MISSING so that
 	// we can avoid debugging UTF-8 code
 #ifndef ID_RETAIL
-	utf8Encoding_t encoding = idLocalization::VerifyUTF8( buffer, bufferLen, name );
+	const utf8Encoding_t encoding = idLocalization::VerifyUTF8( buffer, bufferLen, name );
 	if ( encoding == UTF8_ENCODED_BOM ) {
 		utf8 = true;
 	} else if ( encoding == UTF8_PURE_ASCII ) {
@@ -175,7 +175,7 @@ bool idLangDict::Load( const byte * buffer, const int bufferLen, const char *nam
 	int line = 0;
 	int numStrings = 0;
 
-	int i = 0;
+	size_t i = 0;
 	while ( i < bufferLen ) {
 		uint32 c = buffer[i++];
 		if ( c == '/' ) { // comment, read until new line
@@ -191,7 +191,7 @@ bool idLangDict::Load( const byte * buffer, const int bufferLen, const char *nam
 		} else if ( c == '\n' ) {
 			line++;
 		} else if ( c == '\"' ) {
-			int keyStart = i;
+			const size_t keyStart = i;
 			int keyEnd = -1;
 			while ( i < bufferLen ) {
 				c = buffer[i++];
@@ -203,7 +203,7 @@ bool idLangDict::Load( const byte * buffer, const int bufferLen, const char *nam
 			if ( keyEnd < keyStart ) {
 				idLib::FatalError( "%s File ended while reading key at line %d", name, line );
 			}
-			tempKey.CopyRange( (char *)buffer, keyStart, keyEnd );
+			tempKey.CopyRange( reinterpret_cast<const char *>(buffer), keyStart, keyEnd );
 
 			int valStart = -1;
 			while ( i < bufferLen ) {
@@ -255,7 +255,7 @@ bool idLangDict::Load( const byte * buffer, const int bufferLen, const char *nam
 				idLib::FatalError( "%s File ended while reading value at line %d", name, line );
 			}
 			if ( lang_maskLocalizedStrings.GetBool() && tempVal.Length() > 0 && tempKey.Find( "#font_" ) == -1 ) {
-				int len = tempVal.Length();
+				const size_t len = tempVal.Length();
 				if ( len > 0 ) {
 					tempVal.Fill( 'W', len - 1 );
 				} else {
@@ -285,16 +285,16 @@ idLangDict::Save
 */
 bool idLangDict::Save( const char * fileName ) {
 	idFile * outFile = fileSystem->OpenFileWrite( fileName );
-	if ( outFile == NULL ) {
+	if ( outFile == nullptr) {
 		idLib::Warning( "Error saving: %s", fileName );
 		return false;
 	}
-	byte bof[3] = { 0xEF, 0xBB, 0xBF };
+	constexpr byte bof[3] = { 0xEF, 0xBB, 0xBF };
 	outFile->Write( bof, 3 );
 	outFile->WriteFloatString( "// string table\n//\n\n{\n" );
 	for ( int j = 0; j < keyVals.Num(); j++ ) {
 		const idLangKeyValue & kvp = keyVals[j];
-		if ( kvp.value == NULL ) {
+		if ( kvp.value == nullptr) {
 			continue;
 		}
 		outFile->WriteFloatString( "\t\"%s\"\t\"", kvp.key );
@@ -326,7 +326,7 @@ idLangDict::GetString
 */
 const char * idLangDict::GetString( const char * str ) const {
 	const char * localized = FindString( str );
-	if ( localized == NULL ) {
+	if ( localized == nullptr) {
 		return str;
 	}
 	return localized;
@@ -338,10 +338,10 @@ idLangDict::FindStringIndex
 ========================
 */
 int idLangDict::FindStringIndex( const char * str ) const {
-	if ( str == NULL ) {
+	if ( str == nullptr) {
 		return -1;
 	}
-	int hash = idStr::IHash( str );
+	const int hash = idStr::IHash( str );
 	for ( int i = keyIndex.GetFirst( hash ); i >= 0; i = keyIndex.GetNext( i ) ) {
 		if ( idStr::Icmp( str, keyVals[i].key ) == 0 ) {
 			return i;
@@ -361,20 +361,20 @@ const char * idLangDict::FindString_r( const char * str, int & depth ) const {
 		// This isn't an error because we assume the error will be obvious somewhere in a GUI or something,
 		// and the whole point of tracking the depth is to avoid a crash.
 		idLib::Warning( "String '%s', indirection depth > %d", str, MAX_REDIRECTION_DEPTH );
-		return NULL;
+		return nullptr;
 	}
 
-	if ( str == NULL || str[0] == '\0' ) {
-		return NULL;
+	if ( str == nullptr || str[0] == '\0' ) {
+		return nullptr;
 	}
 
-	int index = FindStringIndex( str );
+	const int index = FindStringIndex( str );
 	if ( index < 0 ) {
-		return NULL;
+		return nullptr;
 	}
 	const char * value = keyVals[index].value;
-	if ( value == NULL ) {
-		return NULL;
+	if ( value == nullptr) {
+		return nullptr;
 	}
 	if ( IsStringId( value ) ) {
 		// this string is re-directed to another entry
@@ -414,7 +414,7 @@ bool idLangDict::DeleteString( const int idx ) {
 	
 	//mem.PushHeap();
 	blockAlloc.Free( keyVals[idx].value );
-	keyVals[idx].value = NULL;
+	keyVals[idx].value = nullptr;
 	//mem.PopHeap();
 
 	return true;
@@ -426,17 +426,17 @@ idLangDict::RenameStringKey
 ========================
 */
 bool idLangDict::RenameStringKey( const char * oldKey, const char * newKey ) {
-	int index = FindStringIndex( oldKey );
+	const int index = FindStringIndex( oldKey );
 	if ( index < 0 ) {
 		return false;
 	}
 	//mem.PushHeap();
 	blockAlloc.Free( keyVals[index].key );
-	int newKeyLen = idStr::Length( newKey );
+	const size_t newKeyLen = idStr::Length( newKey );
 	keyVals[index].key = blockAlloc.Alloc( newKeyLen + 1 );
 	idStr::Copynz( keyVals[index].key, newKey, newKeyLen + 1 );
-	int oldHash = idStr::IHash( oldKey );
-	int newHash = idStr::IHash( newKey );
+	const int oldHash = idStr::IHash( oldKey );
+	const int newHash = idStr::IHash( newKey );
 	if ( oldHash != newHash ) {
 		keyIndex.Remove( oldHash, index );
 		keyIndex.Add( newHash, index );
@@ -452,15 +452,15 @@ idLangDict::SetString
 ========================
 */
 bool idLangDict::SetString( const char * key, const char * val ) {
-	int index = FindStringIndex( key );
+	const int index = FindStringIndex( key );
 	if ( index < 0 ) {
 		return false;
 	}
 	//mem.PushHeap();
-	if ( keyVals[index].value != NULL ) {
+	if ( keyVals[index].value != nullptr) {
 		blockAlloc.Free( keyVals[index].value );
 	}
-	int valLen = idStr::Length( val );
+	const size_t valLen = idStr::Length( val );
 	keyVals[index].value = blockAlloc.Alloc( valLen + 1 );
 	idStr::Copynz( keyVals[index].value, val, valLen + 1 );
 	//mem.PopHeap();
@@ -477,17 +477,17 @@ void idLangDict::AddKeyVal( const char * key, const char * val ) {
 		return;
 	}
 	//mem.PushHeap();
-	int keyLen = idStr::Length( key );
+	const size_t keyLen = idStr::Length( key );
 	char * k = blockAlloc.Alloc( keyLen + 1 );
 	idStr::Copynz( k, key, keyLen + 1 );
-	char * v = NULL;
-	if ( val != NULL ) {
-		int valLen = idStr::Length( val );
+	char * v = nullptr;
+	if ( val != nullptr) {
+		const size_t valLen = idStr::Length( val );
 		v = blockAlloc.Alloc( valLen + 1 );
 		idStr::Copynz( v, val, valLen + 1 );
 	}
-	int index = keyVals.Append( idLangKeyValue( k, v ) );
-	int hash = idStr::IHash( key );
+	const int index = keyVals.Append( idLangKeyValue( k, v ) );
+	const int hash = idStr::IHash( key );
 	keyIndex.Add( hash, index );
 	//mem.PopHeap();
 }
@@ -505,7 +505,7 @@ const char * idLangDict::AddString( const char * val ) {
 		sprintf( key, "#str_%06d", ( i++ % 1000000 ) );
 	}
 	AddKeyVal( key, val );
-	int index = FindStringIndex( key );
+	const int index = FindStringIndex( key );
 	return keyVals[index].key;
 }
 
@@ -543,7 +543,7 @@ idLangDict::GetLocalizedString
 */
 const char * idLangDict::GetLocalizedString( const idStrId & strId ) const {
 	if ( strId.GetIndex() >= 0 && strId.GetIndex() < keyVals.Num() ) {
-		if ( keyVals[ strId.GetIndex() ].value == NULL ) {
+		if ( keyVals[ strId.GetIndex() ].value == nullptr) {
 			return keyVals[ strId.GetIndex() ].key;
 		} else {
 			return keyVals[ strId.GetIndex() ].value;
@@ -564,7 +564,7 @@ idStrId::Set
 ========================
 */
 void idStrId::Set( const char * key ) {
-	if ( key == NULL || key[0] == 0 ) {
+	if ( key == nullptr || key[0] == 0 ) {
 		index = -1;
 	} else {
 		index = idLocalization::languageDict.FindStringIndex( key );

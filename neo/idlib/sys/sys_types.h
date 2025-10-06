@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef SYS_TYPES_H
 #define SYS_TYPES_H
 
+#pragma once
+
 /*
 ================================================================================================
 Contains types and defines used throughout the engine.
@@ -86,13 +88,13 @@ class idFile;
 
 struct idNullPtr {
 	// one pointer member initialized to zero so you can pass NULL as a vararg
-	void *value; idNullPtr() : value( 0 ) { }
+	void *value; idNullPtr() : value( nullptr ) { }
 
 	// implicit conversion to all pointer types
-	template<typename T1> operator T1 * () const { return 0; }
+	template<typename T1> operator T1 * () const { return nullptr; }
 
 	// implicit conversion to all pointer to member types
-	template<typename T1, typename T2> operator T1 T2::* () const { return 0; }
+	template<typename T1, typename T2> operator T1 T2::* () const { return nullptr; }
 };
 
 //#undef NULL
@@ -103,8 +105,10 @@ struct idNullPtr {
 //#endif
 
 // C99 Standard
+#ifndef __cplusplus
 #ifndef nullptr
 		#define nullptr	idNullPtr()		
+#endif
 #endif
 
 #ifndef BIT
@@ -115,15 +119,21 @@ struct idNullPtr {
 #define NUMBITS( _type_ )		( sizeof( _type_ ) * 8 )
 #endif
 
-#define	MAX_STRING_CHARS		1024		// max length of a static string
-#define MAX_PRINT_MSG			16384		// buffer size for our various printf routines
+#ifndef STRING_LIMITS
+#define STRING_LIMITS
+constexpr auto MAX_STRING_CHARS = 1024U;		// max length of a static string;
+constexpr auto MAX_PRINT_MSG = 16384U;		// buffer size for our various printf routines;
+#endif
 
+#ifndef WORLD_LIMITS
+#define WORLD_LIMITS
 // maximum world size
-#define MAX_WORLD_COORD			( 128 * 1024 )
-#define MIN_WORLD_COORD			( -128 * 1024 )
+constexpr auto MAX_WORLD_COORD = ( 128 * 1024 );
+constexpr auto MIN_WORLD_COORD = ( -128 * 1024 );
 #define MAX_WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+#endif
 
-const float	MAX_ENTITY_COORDINATE = 64000.0f;
+constexpr float	MAX_ENTITY_COORDINATE = 64000.0f;
 
 #if 1
 
@@ -139,7 +149,7 @@ typedef unsigned int triIndex_t;
 
 // if writing to write-combined memroy, always write indexes as pairs for 32 bit writes
 ID_INLINE void WriteIndexPair( triIndex_t * dest, const triIndex_t a, const triIndex_t b ) {
-	*(unsigned *)dest = (unsigned)a | ( (unsigned)b<<16 );
+	*(unsigned *)dest = static_cast<unsigned>(a) | ( static_cast<unsigned>(b)<<16 );
 }
 
 #if defined(_DEBUG) || defined(_lint)

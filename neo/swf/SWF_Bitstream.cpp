@@ -91,9 +91,9 @@ void idSWFBitStream::Free() {
 		Mem_Free( (void *)startp );
 	}
 	free = false;
-	startp = NULL;
-	endp = NULL;
-	readp = NULL;
+	startp = nullptr;
+	endp = nullptr;
+	readp = nullptr;
 	ResetBits();
 }
 

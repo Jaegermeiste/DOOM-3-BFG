@@ -124,7 +124,7 @@ ID_INLINE idMat2::idMat2( const float xx, const float xy, const float yx, const 
 }
 
 ID_INLINE idMat2::idMat2( const float src[ 2 ][ 2 ] ) {
-	memcpy( mat, src, 2 * 2 * sizeof( float ) );
+	memcpy(mat, src, static_cast<unsigned long long>(2) * 2 * sizeof(float));
 }
 
 ID_INLINE const idVec2 &idMat2::operator[](const int index ) const {
@@ -182,8 +182,7 @@ ID_INLINE idMat2 &idMat2::operator*=( const float a ) {
 }
 
 ID_INLINE idMat2 &idMat2::operator*=( const idMat2 &a ) {
-	float x, y;
-	x = mat[0].x; y = mat[0].y;
+	float x = mat[0].x; float y = mat[0].y;
 	mat[0].x = x * a[0].x + y * a[1].x;
 	mat[0].y = x * a[0].y + y * a[1].y;
 	x = mat[1].x; y = mat[1].y;
@@ -282,9 +281,7 @@ ID_INLINE idMat2 idMat2::Transpose() const {
 }
 
 ID_INLINE idMat2 &idMat2::TransposeSelf() {
-	float tmp;
-
-	tmp = mat[0][1];
+	float tmp = mat[0][1];
 	mat[0][1] = mat[1][0];
 	mat[1][0] = tmp;
 
@@ -292,17 +289,13 @@ ID_INLINE idMat2 &idMat2::TransposeSelf() {
 }
 
 ID_INLINE idMat2 idMat2::Inverse() const {
-	idMat2 invMat;
-
-	invMat = *this;
+	idMat2 invMat = *this;
 	verify( invMat.InverseSelf() );
 	return invMat;
 }
 
 ID_INLINE idMat2 idMat2::InverseFast() const {
-	idMat2 invMat;
-
-	invMat = *this;
+	idMat2 invMat = *this;
 	verify( invMat.InverseFastSelf() );
 	return invMat;
 }
@@ -426,7 +419,7 @@ ID_INLINE idMat3::idMat3( const float xx, const float xy, const float xz, const 
 }
 
 ID_INLINE idMat3::idMat3( const float src[ 3 ][ 3 ] ) {
-	memcpy( mat, src, 3 * 3 * sizeof( float ) );
+	memcpy(mat, src, static_cast<unsigned long long>(3) * 3 * sizeof(float));
 }
 
 ID_INLINE const idVec3 &idMat3::operator[](const int index ) const {
@@ -453,17 +446,14 @@ ID_INLINE idVec3 idMat3::operator*( const idVec3 &vec ) const {
 }
 
 ID_INLINE idMat3 idMat3::operator*( const idMat3 &a ) const {
-	int i, j;
-	const float *m1Ptr, *m2Ptr;
-	float *dstPtr;
 	idMat3 dst;
 
-	m1Ptr = reinterpret_cast<const float *>(this);
-	m2Ptr = reinterpret_cast<const float *>(&a);
-	dstPtr = reinterpret_cast<float *>(&dst);
+	const float* m1Ptr = reinterpret_cast<const float*>(this);
+	const float* m2Ptr = reinterpret_cast<const float*>(&a);
+	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( i = 0; i < 3; i++ ) {
-		for ( j = 0; j < 3; j++ ) {
+	for ( int i = 0; i < 3; i++ ) {
+		for ( int j = 0; j < 3; j++ ) {
 			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 3 + j ]
 					+ m1Ptr[1] * m2Ptr[ 1 * 3 + j ]
 					+ m1Ptr[2] * m2Ptr[ 2 * 3 + j ];
@@ -504,15 +494,13 @@ ID_INLINE idMat3 &idMat3::operator*=( const float a ) {
 }
 
 ID_INLINE idMat3 &idMat3::operator*=( const idMat3 &a ) {
-	int i, j;
-	const float *m2Ptr;
-	float *m1Ptr, dst[3];
+	float dst[3];
 
-	m1Ptr = reinterpret_cast<float *>(this);
-	m2Ptr = reinterpret_cast<const float *>(&a);
+	float* m1Ptr = reinterpret_cast<float*>(this);
+	const float* m2Ptr = reinterpret_cast<const float*>(&a);
 
-	for ( i = 0; i < 3; i++ ) {
-		for ( j = 0; j < 3; j++ ) {
+	for ( int i = 0; i < 3; i++ ) {
+		for ( int j = 0; j < 3; j++ ) {
 			dst[j]  = m1Ptr[0] * m2Ptr[ 0 * 3 + j ]
 					+ m1Ptr[1] * m2Ptr[ 1 * 3 + j ]
 					+ m1Ptr[2] * m2Ptr[ 2 * 3 + j ];
@@ -548,8 +536,8 @@ ID_INLINE idMat3 operator*( const float a, const idMat3 &mat ) {
 }
 
 ID_INLINE idVec3 &operator*=( idVec3 &vec, const idMat3 &mat ) {
-	float x = mat[ 0 ].x * vec.x + mat[ 1 ].x * vec.y + mat[ 2 ].x * vec.z;
-	float y = mat[ 0 ].y * vec.x + mat[ 1 ].y * vec.y + mat[ 2 ].y * vec.z;
+	const float x = mat[ 0 ].x * vec.x + mat[ 1 ].x * vec.y + mat[ 2 ].x * vec.z;
+	const float y = mat[ 0 ].y * vec.x + mat[ 1 ].y * vec.y + mat[ 2 ].y * vec.z;
 	vec.z = mat[ 0 ].z * vec.x + mat[ 1 ].z * vec.y + mat[ 2 ].z * vec.z;
 	vec.x = x;
 	vec.y = y;
@@ -652,9 +640,7 @@ ID_INLINE float idMat3::Trace() const {
 }
 
 ID_INLINE idMat3 idMat3::OrthoNormalize() const {
-	idMat3 ortho;
-
-	ortho = *this;
+	idMat3 ortho = *this;
 	ortho[ 0 ].Normalize();
 	ortho[ 2 ].Cross( mat[ 0 ], mat[ 1 ] );
 	ortho[ 2 ].Normalize();
@@ -679,15 +665,13 @@ ID_INLINE idMat3 idMat3::Transpose() const {
 }
 
 ID_INLINE idMat3 &idMat3::TransposeSelf() {
-	float tmp0, tmp1, tmp2;
-
-	tmp0 = mat[0][1];
+	float tmp0 = mat[0][1];
 	mat[0][1] = mat[1][0];
 	mat[1][0] = tmp0;
-	tmp1 = mat[0][2];
+	float tmp1 = mat[0][2];
 	mat[0][2] = mat[2][0];
 	mat[2][0] = tmp1;
-	tmp2 = mat[1][2];
+	float tmp2 = mat[1][2];
 	mat[1][2] = mat[2][1];
 	mat[2][1] = tmp2;
 
@@ -695,17 +679,13 @@ ID_INLINE idMat3 &idMat3::TransposeSelf() {
 }
 
 ID_INLINE idMat3 idMat3::Inverse() const {
-	idMat3 invMat;
-
-	invMat = *this;
+	idMat3 invMat = *this;
 	verify( invMat.InverseSelf() );
 	return invMat;
 }
 
 ID_INLINE idMat3 idMat3::InverseFast() const {
-	idMat3 invMat;
-
-	invMat = *this;
+	idMat3 invMat = *this;
 	verify( invMat.InverseFastSelf() );
 	return invMat;
 }
@@ -867,7 +847,7 @@ ID_INLINE idMat4::idMat4( const idMat3 &rotation, const idVec3 &translation ) {
 }
 
 ID_INLINE idMat4::idMat4( const float src[ 4 ][ 4 ] ) {
-	memcpy( mat, src, 4 * 4 * sizeof( float ) );
+	memcpy(mat, src, static_cast<unsigned long long>(4) * 4 * sizeof(float));
 }
 
 ID_INLINE const idVec4 &idMat4::operator[](const int index ) const {
@@ -897,7 +877,7 @@ ID_INLINE idVec4 idMat4::operator*( const idVec4 &vec ) const {
 }
 
 ID_INLINE idVec3 idMat4::operator*( const idVec3 &vec ) const {
-	float s = mat[ 3 ].x * vec.x + mat[ 3 ].y * vec.y + mat[ 3 ].z * vec.z + mat[ 3 ].w;
+	const float s = mat[ 3 ].x * vec.x + mat[ 3 ].y * vec.y + mat[ 3 ].z * vec.z + mat[ 3 ].w;
 	if ( s == 0.0f ) {
 		return idVec3( 0.0f, 0.0f, 0.0f );
 	}
@@ -908,7 +888,7 @@ ID_INLINE idVec3 idMat4::operator*( const idVec3 &vec ) const {
 			mat[ 2 ].x * vec.x + mat[ 2 ].y * vec.y + mat[ 2 ].z * vec.z + mat[ 2 ].w );
 	}
 	else {
-		float invS = 1.0f / s;
+		const float invS = 1.0f / s;
 		return idVec3(
 			(mat[ 0 ].x * vec.x + mat[ 0 ].y * vec.y + mat[ 0 ].z * vec.z + mat[ 0 ].w) * invS,
 			(mat[ 1 ].x * vec.x + mat[ 1 ].y * vec.y + mat[ 1 ].z * vec.z + mat[ 1 ].w) * invS,
@@ -917,17 +897,14 @@ ID_INLINE idVec3 idMat4::operator*( const idVec3 &vec ) const {
 }
 
 ID_INLINE idMat4 idMat4::operator*( const idMat4 &a ) const {
-	int i, j;
-	const float *m1Ptr, *m2Ptr;
-	float *dstPtr;
 	idMat4 dst;
 
-	m1Ptr = reinterpret_cast<const float *>(this);
-	m2Ptr = reinterpret_cast<const float *>(&a);
-	dstPtr = reinterpret_cast<float *>(&dst);
+	const float* m1Ptr = reinterpret_cast<const float*>(this);
+	const float* m2Ptr = reinterpret_cast<const float*>(&a);
+	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( i = 0; i < 4; i++ ) {
-		for ( j = 0; j < 4; j++ ) {
+	for ( int i = 0; i < 4; i++ ) {
+		for ( int j = 0; j < 4; j++ ) {
 			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 4 + j ]
 					+ m1Ptr[1] * m2Ptr[ 1 * 4 + j ]
 					+ m1Ptr[2] * m2Ptr[ 2 * 4 + j ]
@@ -1007,12 +984,9 @@ ID_INLINE idVec3 &operator*=( idVec3 &vec, const idMat4 &mat ) {
 }
 
 ID_INLINE bool idMat4::Compare( const idMat4 &a ) const {
-	dword i;
-	const float *ptr1, *ptr2;
-
-	ptr1 = reinterpret_cast<const float *>(mat);
-	ptr2 = reinterpret_cast<const float *>(a.mat);
-	for ( i = 0; i < 4*4; i++ ) {
+	const float* ptr1 = reinterpret_cast<const float*>(mat);
+	const float* ptr2 = reinterpret_cast<const float*>(a.mat);
+	for ( dword i = 0; i < 4*4; i++ ) {
 		if ( ptr1[i] != ptr2[i] ) {
 			return false;
 		}
@@ -1021,12 +995,9 @@ ID_INLINE bool idMat4::Compare( const idMat4 &a ) const {
 }
 
 ID_INLINE bool idMat4::Compare( const idMat4 &a, const float epsilon ) const {
-	dword i;
-	const float *ptr1, *ptr2;
-
-	ptr1 = reinterpret_cast<const float *>(mat);
-	ptr2 = reinterpret_cast<const float *>(a.mat);
-	for ( i = 0; i < 4*4; i++ ) {
+	const float* ptr1 = reinterpret_cast<const float*>(mat);
+	const float* ptr2 = reinterpret_cast<const float*>(a.mat);
+	for ( dword i = 0; i < 4*4; i++ ) {
 		if ( idMath::Fabs( ptr1[i] - ptr2[i] ) > epsilon ) {
 			return false;
 		}
@@ -1101,17 +1072,13 @@ ID_INLINE float idMat4::Trace() const {
 }
 
 ID_INLINE idMat4 idMat4::Inverse() const {
-	idMat4 invMat;
-
-	invMat = *this;
+	idMat4 invMat = *this;
 	verify( invMat.InverseSelf() );
 	return invMat;
 }
 
 ID_INLINE idMat4 idMat4::InverseFast() const {
-	idMat4 invMat;
-
-	invMat = *this;
+	idMat4 invMat = *this;
 	verify( invMat.InverseFastSelf() );
 	return invMat;
 }
@@ -1203,7 +1170,7 @@ ID_INLINE idMat5::idMat5() {
 }
 
 ID_INLINE idMat5::idMat5( const float src[ 5 ][ 5 ] ) {
-	memcpy( mat, src, 5 * 5 * sizeof( float ) );
+	memcpy(mat, src, static_cast<unsigned long long>(5) * 5 * sizeof(float));
 }
 
 ID_INLINE idMat5::idMat5( const idVec5 &v0, const idVec5 &v1, const idVec5 &v2, const idVec5 &v3, const idVec5 &v4 ) {
@@ -1225,17 +1192,14 @@ ID_INLINE idVec5 &idMat5::operator[](const int index ) {
 }
 
 ID_INLINE idMat5 idMat5::operator*( const idMat5 &a ) const {
-	int i, j;
-	const float *m1Ptr, *m2Ptr;
-	float *dstPtr;
 	idMat5 dst;
 
-	m1Ptr = reinterpret_cast<const float *>(this);
-	m2Ptr = reinterpret_cast<const float *>(&a);
-	dstPtr = reinterpret_cast<float *>(&dst);
+	const float* m1Ptr = reinterpret_cast<const float*>(this);
+	const float* m2Ptr = reinterpret_cast<const float*>(&a);
+	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( i = 0; i < 5; i++ ) {
-		for ( j = 0; j < 5; j++ ) {
+	for ( int i = 0; i < 5; i++ ) {
+		for ( int j = 0; j < 5; j++ ) {
 			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 5 + j ]
 					+ m1Ptr[1] * m2Ptr[ 1 * 5 + j ]
 					+ m1Ptr[2] * m2Ptr[ 2 * 5 + j ]
@@ -1330,12 +1294,9 @@ ID_INLINE idVec5 &operator*=( idVec5 &vec, const idMat5 &mat ) {
 }
 
 ID_INLINE bool idMat5::Compare( const idMat5 &a ) const {
-	dword i;
-	const float *ptr1, *ptr2;
-
-	ptr1 = reinterpret_cast<const float *>(mat);
-	ptr2 = reinterpret_cast<const float *>(a.mat);
-	for ( i = 0; i < 5*5; i++ ) {
+	const float* ptr1 = reinterpret_cast<const float*>(mat);
+	const float* ptr2 = reinterpret_cast<const float*>(a.mat);
+	for ( dword i = 0; i < 5*5; i++ ) {
 		if ( ptr1[i] != ptr2[i] ) {
 			return false;
 		}
@@ -1344,12 +1305,9 @@ ID_INLINE bool idMat5::Compare( const idMat5 &a ) const {
 }
 
 ID_INLINE bool idMat5::Compare( const idMat5 &a, const float epsilon ) const {
-	dword i;
-	const float *ptr1, *ptr2;
-
-	ptr1 = reinterpret_cast<const float *>(mat);
-	ptr2 = reinterpret_cast<const float *>(a.mat);
-	for ( i = 0; i < 5*5; i++ ) {
+	const float* ptr1 = reinterpret_cast<const float*>(mat);
+	const float* ptr2 = reinterpret_cast<const float*>(a.mat);
+	for ( dword i = 0; i < 5*5; i++ ) {
 		if ( idMath::Fabs( ptr1[i] - ptr2[i] ) > epsilon ) {
 			return false;
 		}
@@ -1404,17 +1362,13 @@ ID_INLINE float idMat5::Trace() const {
 }
 
 ID_INLINE idMat5 idMat5::Inverse() const {
-	idMat5 invMat;
-
-	invMat = *this;
+	idMat5 invMat = *this;
 	verify( invMat.InverseSelf() );
 	return invMat;
 }
 
 ID_INLINE idMat5 idMat5::InverseFast() const {
-	idMat5 invMat;
-
-	invMat = *this;
+	idMat5 invMat = *this;
 	verify( invMat.InverseFastSelf() );
 	return invMat;
 }
@@ -1518,7 +1472,7 @@ ID_INLINE idMat6::idMat6( const idVec6 &v0, const idVec6 &v1, const idVec6 &v2, 
 }
 
 ID_INLINE idMat6::idMat6( const float src[ 6 ][ 6 ] ) {
-	memcpy( mat, src, 6 * 6 * sizeof( float ) );
+	memcpy(mat, src, static_cast<unsigned long long>(6) * 6 * sizeof(float));
 }
 
 ID_INLINE const idVec6 &idMat6::operator[](const int index ) const {
@@ -1532,17 +1486,14 @@ ID_INLINE idVec6 &idMat6::operator[](const int index ) {
 }
 
 ID_INLINE idMat6 idMat6::operator*( const idMat6 &a ) const {
-	int i, j;
-	const float *m1Ptr, *m2Ptr;
-	float *dstPtr;
 	idMat6 dst;
 
-	m1Ptr = reinterpret_cast<const float *>(this);
-	m2Ptr = reinterpret_cast<const float *>(&a);
-	dstPtr = reinterpret_cast<float *>(&dst);
+	const float* m1Ptr = reinterpret_cast<const float*>(this);
+	const float* m2Ptr = reinterpret_cast<const float*>(&a);
+	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( i = 0; i < 6; i++ ) {
-		for ( j = 0; j < 6; j++ ) {
+	for ( int i = 0; i < 6; i++ ) {
+		for ( int j = 0; j < 6; j++ ) {
 			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 6 + j ]
 					+ m1Ptr[1] * m2Ptr[ 1 * 6 + j ]
 					+ m1Ptr[2] * m2Ptr[ 2 * 6 + j ]
@@ -1645,12 +1596,9 @@ ID_INLINE idVec6 &operator*=( idVec6 &vec, const idMat6 &mat ) {
 }
 
 ID_INLINE bool idMat6::Compare( const idMat6 &a ) const {
-	dword i;
-	const float *ptr1, *ptr2;
-
-	ptr1 = reinterpret_cast<const float *>(mat);
-	ptr2 = reinterpret_cast<const float *>(a.mat);
-	for ( i = 0; i < 6*6; i++ ) {
+	const float* ptr1 = reinterpret_cast<const float*>(mat);
+	const float* ptr2 = reinterpret_cast<const float*>(a.mat);
+	for ( dword i = 0; i < 6*6; i++ ) {
 		if ( ptr1[i] != ptr2[i] ) {
 			return false;
 		}
@@ -1659,12 +1607,9 @@ ID_INLINE bool idMat6::Compare( const idMat6 &a ) const {
 }
 
 ID_INLINE bool idMat6::Compare( const idMat6 &a, const float epsilon ) const {
-	dword i;
-	const float *ptr1, *ptr2;
-
-	ptr1 = reinterpret_cast<const float *>(mat);
-	ptr2 = reinterpret_cast<const float *>(a.mat);
-	for ( i = 0; i < 6*6; i++ ) {
+	const float* ptr1 = reinterpret_cast<const float*>(mat);
+	const float* ptr2 = reinterpret_cast<const float*>(a.mat);
+	for ( dword i = 0; i < 6*6; i++ ) {
 		if ( idMath::Fabs( ptr1[i] - ptr2[i] ) > epsilon ) {
 			return false;
 		}
@@ -1716,8 +1661,8 @@ ID_INLINE bool idMat6::IsDiagonal( const float epsilon ) const {
 
 ID_INLINE idMat3 idMat6::SubMat3(const int n ) const {
 	assert( n >= 0 && n < 4 );
-	int b0 = ((n & 2) >> 1) * 3;
-	int b1 = (n & 1) * 3;
+	const int b0 = ((n & 2) >> 1) * 3;
+	const int b1 = (n & 1) * 3;
 	return idMat3(
 		mat[b0 + 0][b1 + 0], mat[b0 + 0][b1 + 1], mat[b0 + 0][b1 + 2],
 		mat[b0 + 1][b1 + 0], mat[b0 + 1][b1 + 1], mat[b0 + 1][b1 + 2],
@@ -1729,17 +1674,13 @@ ID_INLINE float idMat6::Trace() const {
 }
 
 ID_INLINE idMat6 idMat6::Inverse() const {
-	idMat6 invMat;
-
-	invMat = *this;
+	idMat6 invMat = *this;
 	verify( invMat.InverseSelf() );
 	return invMat;
 }
 
 ID_INLINE idMat6 idMat6::InverseFast() const {
-	idMat6 invMat;
-
-	invMat = *this;
+	idMat6 invMat = *this;
 	verify( invMat.InverseFastSelf() );
 	return invMat;
 }

@@ -73,7 +73,7 @@ bool idPlane::HeightFit( const idVec3 *points, const int numPoints ) {
 	int i;
 	float sumXX = 0.0f, sumXY = 0.0f, sumXZ = 0.0f;
 	float sumYY = 0.0f, sumYZ = 0.0f;
-	idVec3 sum, average, dir;
+	idVec3 sum, dir;
 
 	if ( numPoints == 1 ) {
 		a = 0.0f;
@@ -94,7 +94,7 @@ bool idPlane::HeightFit( const idVec3 *points, const int numPoints ) {
 	for ( i = 0; i < numPoints; i++) {
 		sum += points[i];
 	}
-	average = sum / numPoints;
+	idVec3 average = sum / numPoints;
 
 	for ( i = 0; i < numPoints; i++ ) {
 		dir = points[i] - average;
@@ -124,20 +124,18 @@ idPlane::PlaneIntersection
 ================
 */
 bool idPlane::PlaneIntersection( const idPlane &plane, idVec3 &start, idVec3 &dir ) const {
-	double n00, n01, n11, det, invDet, f0, f1;
-
-	n00 = Normal().LengthSqr();
-	n01 = Normal() * plane.Normal();
-	n11 = plane.Normal().LengthSqr();
-	det = n00 * n11 - n01 * n01;
+	double n00 = Normal().LengthSqr();
+	double n01 = Normal() * plane.Normal();
+	double n11 = plane.Normal().LengthSqr();
+	double det = n00 * n11 - n01 * n01;
 
 	if ( idMath::Fabs(det) < 1e-6f ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
-	f0 = ( n01 * plane.d - n11 * d ) * invDet;
-	f1 = ( n01 * d - n00 * plane.d ) * invDet;
+	double invDet = 1.0f / det;
+	double f0 = (n01 * plane.d - n11 * d) * invDet;
+	double f1 = (n01 * d - n00 * plane.d) * invDet;
 
 	dir = Normal().Cross( plane.Normal() );
 	start = f0 * Normal() + f1 * plane.Normal();

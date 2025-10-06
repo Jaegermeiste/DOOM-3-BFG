@@ -62,8 +62,8 @@ public:
 	const char * const *	GetArgs( int *argc );
 
 private:
-	static const int		MAX_COMMAND_ARGS = 64;
-	static const int		MAX_COMMAND_STRING = 2 * MAX_STRING_CHARS;
+	static constexpr int		MAX_COMMAND_ARGS = 64;
+	static constexpr int		MAX_COMMAND_STRING = 2 * MAX_STRING_CHARS;
 
 	int						argc;								// number of arguments
 	char *					argv[MAX_COMMAND_ARGS];				// points into tokenized

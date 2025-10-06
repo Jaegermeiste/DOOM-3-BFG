@@ -47,9 +47,9 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static const int MAX_DEFERRED_OVERLAYS		= 4;
-static const int DEFFERED_OVERLAY_TIMEOUT	= 200;	// don't create a overlay if it wasn't visible within the first 200 milliseconds
-static const int MAX_OVERLAYS				= 8;
+static constexpr int MAX_DEFERRED_OVERLAYS		= 4;
+static constexpr int DEFFERED_OVERLAY_TIMEOUT	= 200;	// don't create a overlay if it wasn't visible within the first 200 milliseconds
+static constexpr int MAX_OVERLAYS				= 8;
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_OVERLAYS ) );
 

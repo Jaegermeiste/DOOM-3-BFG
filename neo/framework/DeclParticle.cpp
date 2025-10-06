@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar binaryLoadParticles( "binaryLoadParticles", "1", 0, "enable binary load/write of particle decls" );
 
-static const byte BPRT_VERSION = 101;
-static const unsigned int BPRT_MAGIC = ( 'B' << 24 ) | ( 'P' << 16 ) | ( 'R' << 8 ) | BPRT_VERSION;
+static constexpr byte BPRT_VERSION = 101;
+static constexpr unsigned int BPRT_MAGIC = ( 'B' << 24 ) | ( 'P' << 16 ) | ( 'R' << 8 ) | BPRT_VERSION;
 
 struct ParticleParmDesc {
 	const char *name;
@@ -40,13 +40,13 @@ struct ParticleParmDesc {
 	const char *desc;
 };
 
-const ParticleParmDesc ParticleDistributionDesc[] = {
+constexpr ParticleParmDesc ParticleDistributionDesc[] = {
 	{ "rect", 3, "" },
 	{ "cylinder", 4, "" },
 	{ "sphere", 3, "" }
 };
 
-const ParticleParmDesc ParticleDirectionDesc[] = {
+constexpr ParticleParmDesc ParticleDirectionDesc[] = {
 	{ "cone", 1, "" },
 	{ "outward", 1, "" },
 };
@@ -67,7 +67,7 @@ const ParticleParmDesc ParticleCustomDesc[] = {
 	{ "drip", 2, "something something" }
 };
 
-const int CustomParticleCount = sizeof( ParticleCustomDesc ) / sizeof( const ParticleParmDesc );
+constexpr int CustomParticleCount = sizeof( ParticleCustomDesc ) / sizeof( const ParticleParmDesc );
 
 /*
 =================
@@ -184,7 +184,7 @@ idDeclParticle::ParseParametric
 void idDeclParticle::ParseParametric( idLexer &src, idParticleParm *parm ) {
 	idToken token;
 
-	parm->table = NULL;
+	parm->table = nullptr;
 	parm->from = parm->to = 0.0f;
 
 	if ( !src.ReadToken( &token ) ) {
@@ -528,7 +528,7 @@ idDeclParticle::LoadBinary
 */
 bool idDeclParticle::LoadBinary( idFile * file, unsigned int checksum ) {
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		return false;
 	}
 
@@ -537,7 +537,7 @@ bool idDeclParticle::LoadBinary( idFile * file, unsigned int checksum ) {
 			idStr name;
 			file->ReadString( name );
 			if ( name.IsEmpty() ) {
-				parm.table = NULL;
+				parm.table = nullptr;
 			} else {
 				parm.table = (idDeclTable *)declManager->FindType( DECL_TABLE, name, false );
 			}
@@ -570,7 +570,7 @@ bool idDeclParticle::LoadBinary( idFile * file, unsigned int checksum ) {
 		idStr name;
 		file->ReadString( name );
 		if ( name.IsEmpty() ) {
-			s->material = NULL;
+			s->material = nullptr;
 		} else {
 			s->material = declManager->FindMaterial( name );
 		}
@@ -627,13 +627,13 @@ idDeclParticle::WriteBinary
 */
 void idDeclParticle::WriteBinary( idFile * file, unsigned int checksum ) {
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		return;
 	}
 
 	struct local {
 		static void WriteParticleParm( idFile * file, idParticleParm & parm ) {
-			if ( parm.table != NULL && parm.table->GetName() != NULL ) {
+			if ( parm.table != nullptr && parm.table->GetName() != nullptr) {
 				file->WriteString( parm.table->GetName() );
 			} else {
 				file->WriteString( "" );
@@ -650,7 +650,7 @@ void idDeclParticle::WriteBinary( idFile * file, unsigned int checksum ) {
 	for ( int i = 0; i < stages.Num(); i++ ) {
 		idParticleStage * s = stages[i];
 
-		if ( s->material != NULL && s->material->GetName() != NULL ) {
+		if ( s->material != nullptr && s->material->GetName() != nullptr) {
 			file->WriteString( s->material->GetName() );
 		} else {
 			file->WriteString( "" );
@@ -914,7 +914,7 @@ idParticleStage::idParticleStage
 ================
 */
 idParticleStage::idParticleStage() {
-	material = NULL;
+	material = nullptr;
 	totalParticles = 0;
 	cycles = 0.0f;
 	cycleMsec = 0;
@@ -984,7 +984,7 @@ void idParticleStage::Default() {
 	orientationParms[3] = 0.0f;
 	speed.from = 150.0f;
 	speed.to = 150.0f;
-	speed.table = NULL;
+	speed.table = nullptr;
 	gravity = 1.0f;
 	worldGravity = false;
 	customPathType = PPATH_STANDARD;
@@ -1002,13 +1002,13 @@ void idParticleStage::Default() {
 	initialAngle = 0.0f;
 	rotationSpeed.from = 0.0f;
 	rotationSpeed.to = 0.0f;
-	rotationSpeed.table = NULL;
+	rotationSpeed.table = nullptr;
 	size.from = 4.0f;
 	size.to = 4.0f;
-	size.table = NULL;
+	size.table = nullptr;
 	aspect.from = 1.0f;
 	aspect.to = 1.0f;
-	aspect.table = NULL;
+	aspect.table = nullptr;
 	color.x = 1.0f;
 	color.y = 1.0f;
 	color.z = 1.0f;

@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-static const int NUM_CREDIT_LINES = 16;
+static constexpr int NUM_CREDIT_LINES = 16;
 
 void idMenuScreen_Shell_Credits::SetupCreditList() {
 

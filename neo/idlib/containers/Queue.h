@@ -68,9 +68,7 @@ void idQueueTemplate<type,nextOffset>::Add( type *element ) {
 
 template< class type, int nextOffset >
 type *idQueueTemplate<type,nextOffset>::Get() {
-	type *element;
-
-	element = first;
+	type* element = first;
 	if ( element ) {
 		first = QUEUE_NEXT_PTR(first);
 		if ( last == element ) {
@@ -154,9 +152,7 @@ idQueue<type,nodePtr>::RemoveFirst
 */
 template< typename type, idQueueNode<type> type::*nodePtr >
 type *idQueue<type,nodePtr>::RemoveFirst() {
-	type *element;
-
-	element = first;
+	type* element = first;
 	if ( element ) {
 		first = (first->*nodePtr).GetNext();
 		if ( last == element ) {
@@ -184,7 +180,7 @@ idQueue<type,nodePtr>::IsEmpty
 */
 template< typename type, idQueueNode<type> type::*nodePtr >
 bool idQueue<type,nodePtr>::IsEmpty() {
-	return ( first == NULL );
+	return ( first == nullptr);
 }
 
 /*

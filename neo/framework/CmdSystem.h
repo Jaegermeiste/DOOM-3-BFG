@@ -82,7 +82,7 @@ static idCommandLink sys_dumpMemory( "sys_dumpMemory", Sys_DumpMemory_f, "Walks 
 class idCommandLink {
 public:
 	idCommandLink( const char *cmdName, cmdFunction_t function,
-		const char *description, argCompletion_t argCompletion = NULL );
+		const char *description, argCompletion_t argCompletion = nullptr);
 	idCommandLink *	next;
 	const char *	cmdName_;
 	cmdFunction_t	function_;
@@ -92,7 +92,7 @@ public:
 
 // The command system will create commands for all the static definitions
 // when it initializes.
-idCommandLink *CommandLinks( idCommandLink *cl = NULL );
+idCommandLink *CommandLinks( idCommandLink *cl = nullptr);
 
 /*
 ================================================
@@ -145,7 +145,7 @@ public:
 	virtual void		Shutdown() = 0;
 
 						// Registers a command and the function to call for it.
-	virtual void		AddCommand( const char *cmdName, cmdFunction_t function, int flags, const char *description, argCompletion_t argCompletion = NULL ) = 0;
+	virtual void		AddCommand( const char *cmdName, cmdFunction_t function, int flags, const char *description, argCompletion_t argCompletion = nullptr) = 0;
 						// Removes a command.
 	virtual void		RemoveCommand( const char *cmdName ) = 0;
 						// Remove all commands with one of the flags set.

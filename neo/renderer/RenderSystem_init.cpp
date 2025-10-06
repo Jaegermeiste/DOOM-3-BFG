@@ -546,7 +546,7 @@ static void R_CheckPortableExtensions() {
 	glConfig.timerQueryAvailable = R_CheckExtension( "GL_ARB_timer_query" ) || R_CheckExtension( "GL_EXT_timer_query" );
 	if ( glConfig.timerQueryAvailable ) {
 		qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vARB" );
-		if ( qglGetQueryObjectui64vEXT == NULL ) {
+		if ( qglGetQueryObjectui64vEXT == nullptr) {
 			qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vEXT" );
 		}
 	}
@@ -560,7 +560,7 @@ static void R_CheckPortableExtensions() {
 		qglGetDebugMessageLogARB    = (PFNGLGETDEBUGMESSAGELOGARBPROC)GLimp_ExtensionPointer( "glGetDebugMessageLogARB" );
 
 		if ( r_debugContext.GetInteger() >= 1 ) {
-			qglDebugMessageCallbackARB( DebugCallback, NULL );
+			qglDebugMessageCallbackARB( DebugCallback, nullptr);
 		}
 		if ( r_debugContext.GetInteger() >= 2 ) {
 			// force everything to happen in the main thread instead of in a separate driver thread
@@ -571,7 +571,7 @@ static void R_CheckPortableExtensions() {
 			qglDebugMessageControlARB( GL_DONT_CARE,
 									GL_DONT_CARE,
 									GL_DEBUG_SEVERITY_LOW_ARB,
-									0, NULL, true );
+									0, nullptr, true );
 		}
 	}
 
@@ -787,7 +787,7 @@ void R_InitOpenGL() {
 	glConfig.shading_language_string = (const char *)qglGetString( GL_SHADING_LANGUAGE_VERSION );
 	glConfig.extensions_string = (const char *)qglGetString( GL_EXTENSIONS );
 
-	if ( glConfig.extensions_string == NULL ) {
+	if ( glConfig.extensions_string == nullptr) {
 		// As of OpenGL 3.2, glGetStringi is required to obtain the available extensions
 		qglGetStringi = (PFNGLGETSTRINGIPROC)GLimp_ExtensionPointer( "glGetStringi" );
 
@@ -848,8 +848,8 @@ void R_InitOpenGL() {
 				cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
 				Sys_GrabMouseCursor( false );
 			}
-			int ret = MessageBox( NULL, "Please install OpenGL drivers from your graphics hardware vendor to run " GAME_NAME ".\nYour OpenGL functionality is limited.",
-				"Insufficient OpenGL capabilities", MB_OKCANCEL | MB_ICONWARNING | MB_TASKMODAL );
+			int ret = MessageBox(nullptr, "Please install OpenGL drivers from your graphics hardware vendor to run " GAME_NAME ".\nYour OpenGL functionality is limited.",
+			                     "Insufficient OpenGL capabilities", MB_OKCANCEL | MB_ICONWARNING | MB_TASKMODAL );
 			if ( ret == IDCANCEL ) {
 				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "quit\n" );
 				cmdSystem->ExecuteCommandBuffer();
@@ -965,9 +965,9 @@ void R_TestImage_f( const idCmdArgs &args ) {
 
 	if ( tr.testVideo ) {
 		delete tr.testVideo;
-		tr.testVideo = NULL;
+		tr.testVideo = nullptr;
 	}
-	tr.testImage = NULL;
+	tr.testImage = nullptr;
 
 	if ( args.Argc() != 2 ) {
 		return;
@@ -993,9 +993,9 @@ Plays the cinematic file in a testImage
 void R_TestVideo_f( const idCmdArgs &args ) {
 	if ( tr.testVideo ) {
 		delete tr.testVideo;
-		tr.testVideo = NULL;
+		tr.testVideo = nullptr;
 	}
-	tr.testImage = NULL;
+	tr.testImage = nullptr;
 
 	if ( args.Argc() < 2 ) {
 		return;
@@ -1007,10 +1007,10 @@ void R_TestVideo_f( const idCmdArgs &args ) {
 
 	cinData_t	cin;
 	cin = tr.testVideo->ImageForTime( 0 );
-	if ( cin.imageY == NULL ) {
+	if ( cin.imageY == nullptr) {
 		delete tr.testVideo;
-		tr.testVideo = NULL;
-		tr.testImage = NULL;
+		tr.testVideo = nullptr;
+		tr.testImage = nullptr;
 		return;
 	}
 
@@ -1117,7 +1117,7 @@ tiling it into window-sized chunks and rendering each chunk separately
 If ref isn't specified, the full session UpdateScreen will be done.
 ====================
 */
-void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref = NULL ) {
+void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref = nullptr) {
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
@@ -1130,18 +1130,18 @@ void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref =
 		for ( int yo = 0 ; yo < height ; yo += sysHeight ) {
 			if ( ref ) {
 				// discard anything currently on the list
-				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+				tr.SwapCommandBuffers(nullptr, nullptr, nullptr, nullptr);
 
 				// build commands to render the scene
 				tr.primaryWorld->RenderScene( ref );
 
 				// finish off these commands
-				const emptyCommand_t * cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+				const emptyCommand_t * cmd = tr.SwapCommandBuffers(nullptr, nullptr, nullptr, nullptr);
 
 				// issue the commands to the GPU
 				tr.RenderCommandBuffers( cmd );
 			} else {
-				const bool captureToImage = false;
+				constexpr bool captureToImage = false;
 				common->UpdateScreen( captureToImage );
 			}
 
@@ -1280,7 +1280,7 @@ void R_ScreenshotFilename( int &lastNumber, const char *base, idStr &fileName ) 
 		if ( lastNumber == 99999 ) {
 			break;
 		}
-		int len = fileSystem->ReadFile( fileName, NULL, NULL );
+		int len = fileSystem->ReadFile( fileName, nullptr, nullptr);
 		if ( len <= 0 ) {
 			break;
 		}
@@ -1347,7 +1347,7 @@ void R_ScreenShot_f( const idCmdArgs &args ) {
 	// put the console away
 	console->Close();
 
-	tr.TakeScreenshot( width, height, checkname, blends, NULL );
+	tr.TakeScreenshot( width, height, checkname, blends, nullptr);
 
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
@@ -1513,9 +1513,9 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 	for ( i = 0 ; i < 6 ; i++ ) {
 		sprintf( fullname, "env/%s%s", baseName, extensions[i] );
 		common->Printf( "loading %s\n", fullname.c_str() );
-		const bool captureToImage = false;
+		constexpr bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
+		R_LoadImage( fullname, &buffers[i], &width, &height, nullptr, true );
 		if ( !buffers[i] ) {
 			common->Printf( "failed.\n" );
 			for ( i-- ; i >= 0 ; i-- ) {
@@ -1579,7 +1579,7 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 				sprintf( fullname, "env/%s_spec%s", baseName, extensions[i] );
 			}
 			common->Printf( "writing %s\n", fullname.c_str() );
-			const bool captureToImage = false;
+			constexpr bool captureToImage = false;
 			common->UpdateScreen( captureToImage );
 			R_WriteTGA( fullname, outBuffer, outSize, outSize );
 		}
@@ -1656,7 +1656,7 @@ void GfxInfo_f( const idCmdArgs &args ) {
 	typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 
-	if ( r_swapInterval.GetInteger() && wglSwapIntervalEXT != NULL ) {
+	if ( r_swapInterval.GetInteger() && wglSwapIntervalEXT != nullptr) {
 		common->Printf( "Forcing swapInterval %i\n", r_swapInterval.GetInteger() );
 	} else {
 		common->Printf( "swapInterval not forced\n" );
@@ -1850,7 +1850,7 @@ void R_TouchGui_f( const idCmdArgs &args ) {
 	}
 
 	common->Printf( "touchGui %s\n", gui );
-	const bool captureToImage = false;
+	constexpr bool captureToImage = false;
 	common->UpdateScreen( captureToImage );
 	uiManager->Touch( gui );
 }
@@ -1902,13 +1902,13 @@ void idRenderSystemLocal::Clear() {
 	frameShaderTime = 0.0f;
 	ambientLightVector.Zero();
 	worlds.Clear();
-	primaryWorld = NULL;
+	primaryWorld = nullptr;
 	memset( &primaryRenderView, 0, sizeof( primaryRenderView ) );
-	primaryView = NULL;
-	defaultMaterial = NULL;
-	testImage = NULL;
-	ambientCubeImage = NULL;
-	viewDef = NULL;
+	primaryView = nullptr;
+	defaultMaterial = nullptr;
+	testImage = nullptr;
+	ambientCubeImage = nullptr;
+	viewDef = nullptr;
 	memset( &pc, 0, sizeof( pc ) );
 	memset( &identitySpace, 0, sizeof( identitySpace ) );
 	memset( renderCrops, 0, sizeof( renderCrops ) );
@@ -1916,26 +1916,26 @@ void idRenderSystemLocal::Clear() {
 	currentColorNativeBytesOrder = 0xFFFFFFFF;
 	currentGLState = 0;
 	guiRecursionLevel = 0;
-	guiModel = NULL;
+	guiModel = nullptr;
 	memset( gammaTable, 0, sizeof( gammaTable ) );
 	takingScreenshot = false;
 
-	if ( unitSquareTriangles != NULL ) {
+	if ( unitSquareTriangles != nullptr) {
 		Mem_Free( unitSquareTriangles );
-		unitSquareTriangles = NULL;
+		unitSquareTriangles = nullptr;
 	}
 
-	if ( zeroOneCubeTriangles != NULL ) {
+	if ( zeroOneCubeTriangles != nullptr) {
 		Mem_Free( zeroOneCubeTriangles );
-		zeroOneCubeTriangles = NULL;
+		zeroOneCubeTriangles = nullptr;
 	}
 
-	if ( testImageTriangles != NULL ) {
+	if ( testImageTriangles != nullptr) {
 		Mem_Free( testImageTriangles );
-		testImageTriangles = NULL;
+		testImageTriangles = nullptr;
 	}
 
-	frontEndJobList = NULL;
+	frontEndJobList = nullptr;
 }
 
 /*
@@ -2008,8 +2008,8 @@ static srfTriangles_t * R_MakeZeroOneCubeTris() {
 
 	idDrawVert * verts = tri->verts;
 
-	const float low = 0.0f;
-	const float high = 1.0f;
+	constexpr float low = 0.0f;
+	constexpr float high = 1.0f;
 
 	idVec3 center( 0.0f );
 	idVec3 mx(  low, 0.0f, 0.0f );
@@ -2175,22 +2175,22 @@ void idRenderSystemLocal::Init() {
 	identitySpace.modelMatrix[2*4+2] = 1.0f;
 
 	// make sure the tr.unitSquareTriangles data is current in the vertex / index cache
-	if ( unitSquareTriangles == NULL ) {
+	if ( unitSquareTriangles == nullptr) {
 		unitSquareTriangles = R_MakeFullScreenTris();
 	}
 	// make sure the tr.zeroOneCubeTriangles data is current in the vertex / index cache
-	if ( zeroOneCubeTriangles == NULL ) {
+	if ( zeroOneCubeTriangles == nullptr) {
 		zeroOneCubeTriangles = R_MakeZeroOneCubeTris();
 	}
 	// make sure the tr.testImageTriangles data is current in the vertex / index cache
-	if ( testImageTriangles == NULL )  {
+	if ( testImageTriangles == nullptr)  {
 		testImageTriangles = R_MakeTestImageTriangles();
 	}
 
-	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
+	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, nullptr);
 
 	// make sure the command buffers are ready to accept the first screen update
-	SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	SwapCommandBuffers(nullptr, nullptr, nullptr, nullptr);
 
 	common->Printf( "renderSystem initialized.\n" );
 	common->Printf( "--------------------------------------\n" );

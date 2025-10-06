@@ -82,10 +82,8 @@ idSurface_Patch::ProjectPointOntoVector
 ================
 */
 void idSurface_Patch::ProjectPointOntoVector( const idVec3 &point, const idVec3 &vStart, const idVec3 &vEnd, idVec3 &vProj ) {
-	idVec3 pVec, vec;
-
-	pVec = point - vStart;
-	vec = vEnd - vStart;
+	idVec3 pVec = point - vStart;
+	idVec3 vec = vEnd - vStart;
 	vec.Normalize();
 	// project onto the directional vector for this segment
 	vProj = vStart + (pVec * vec) * vec;
@@ -154,8 +152,6 @@ idSurface_Patch::ResizeExpanded
 ================
 */
 void idSurface_Patch::ResizeExpanded(const int newHeight, const int newWidth ) {
-	int i, j;
-
 	assert( expanded == true );
 	if ( newHeight <= maxHeight && newWidth <= maxWidth ) {
 		return;
@@ -164,8 +160,8 @@ void idSurface_Patch::ResizeExpanded(const int newHeight, const int newWidth ) {
 		verts.SetNum( newHeight * newWidth );
 	}
 	// space out verts for new height and width
-	for ( j = maxHeight-1; j >= 0; j-- ) {
-		for ( i = maxWidth-1; i >= 0; i-- ) {
+	for ( int j = maxHeight - 1; j >= 0; j-- ) {
+		for ( int i = maxWidth - 1; i >= 0; i-- ) {
 			verts[j*newWidth + i] = verts[j*maxWidth + i];
 		}
 	}
@@ -179,15 +175,13 @@ idSurface_Patch::Collapse
 ================
 */
 void idSurface_Patch::Collapse() {
-	int i, j;
-
 	if ( !expanded ) {
 		idLib::common->FatalError("idSurface_Patch::Collapse: patch not expanded");
 	}
 	expanded = false;
 	if ( width != maxWidth ) {
-		for ( j = 0; j < height; j++ ) {
-			for ( i = 0; i < width; i++ ) {
+		for ( int j = 0; j < height; j++ ) {
+			for ( int i = 0; i < width; i++ ) {
 				verts[j*width + i] = verts[j*maxWidth + i];
 			}
 		}
@@ -201,16 +195,14 @@ idSurface_Patch::Expand
 ================
 */
 void idSurface_Patch::Expand() {
-	int i, j;
-
 	if ( expanded ) {
 		idLib::common->FatalError("idSurface_Patch::Expand: patch alread expanded");
 	}
 	expanded = true;
 	verts.SetNum( maxWidth * maxHeight );
 	if ( width != maxWidth ) {
-		for ( j = height-1; j >= 0; j-- ) {
-			for ( i = width-1; i >= 0; i-- ) {
+		for ( int j = height - 1; j >= 0; j-- ) {
+			for ( int i = width - 1; i >= 0; i-- ) {
 				verts[j*maxWidth + i] = verts[j*width + i];
 			}
 		}
@@ -241,16 +233,10 @@ Expects a Not expanded patch.
 #define	COPLANAR_EPSILON	0.1f
 
 void idSurface_Patch::GenerateNormals() {
-	int			i, j, k, dist;
-	idVec3		norm;
-	idVec3		sum;
-	int			count;
-	idVec3		base;
+	int			i, k;
 	idVec3		delta;
-	int			x, y;
-	idVec3		around[8], temp;
+	idVec3		around[8];
 	bool		good[8];
-	bool		wrapWidth, wrapHeight;
 	static int	neighbors[8][2] = {
 		{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}
 	};
@@ -261,13 +247,12 @@ void idSurface_Patch::GenerateNormals() {
 	// if all points are coplanar, set all normals to that plane
 	//
 	idVec3		extent[3];
-	float		offset;
-	
+
 	extent[0] = verts[width - 1].xyz - verts[0].xyz;
 	extent[1] = verts[(height-1) * width + width - 1].xyz - verts[0].xyz;
 	extent[2] = verts[(height-1) * width].xyz - verts[0].xyz;
 
-	norm = extent[0].Cross( extent[1] );
+	idVec3 norm = extent[0].Cross(extent[1]);
 	if ( norm.LengthSqr() == 0.0f ) {
 		norm = extent[0].Cross( extent[2] );
 		if ( norm.LengthSqr() == 0.0f ) {
@@ -278,9 +263,9 @@ void idSurface_Patch::GenerateNormals() {
 	// wrapped patched may not get a valid normal here
 	if ( norm.Normalize() != 0.0f ) {
 
-		offset = verts[0].xyz * norm;
+		float offset = verts[0].xyz * norm;
 		for ( i = 1; i < width * height; i++ ) {
-			float d = verts[i].xyz * norm;
+			const float d = verts[i].xyz * norm;
 			if ( idMath::Fabs( d - offset ) > COPLANAR_EPSILON ) {
 				break;
 			}
@@ -296,7 +281,7 @@ void idSurface_Patch::GenerateNormals() {
 	}
 
 	// check for wrapped edge cases, which should smooth across themselves
-	wrapWidth = false;
+	bool wrapWidth = false;
 	for ( i = 0; i < height; i++ ) {
 		delta = verts[i * width].xyz - verts[i * width + width-1].xyz;
 		if ( delta.LengthSqr() > Square( 1.0f ) ) {
@@ -307,7 +292,7 @@ void idSurface_Patch::GenerateNormals() {
 		wrapWidth = true;
 	}
 
-	wrapHeight = false;
+	bool wrapHeight = false;
 	for ( i = 0; i < width; i++ ) {
 		delta = verts[i].xyz - verts[(height-1) * width + i].xyz;
 		if ( delta.LengthSqr() > Square( 1.0f ) ) {
@@ -319,16 +304,16 @@ void idSurface_Patch::GenerateNormals() {
 	}
 
 	for ( i = 0; i < width; i++ ) {
-		for ( j = 0; j < height; j++ ) {
-			count = 0;
-			base = verts[j * width + i].xyz;
+		for ( int j = 0; j < height; j++ ) {
+			int count = 0;
+			idVec3 base = verts[j * width + i].xyz;
 			for ( k = 0; k < 8; k++ ) {
 				around[k] = vec3_origin;
 				good[k] = false;
 
-				for ( dist = 1; dist <= 3; dist++ ) {
-					x = i + neighbors[k][0] * dist;
-					y = j + neighbors[k][1] * dist;
+				for ( int dist = 1; dist <= 3; dist++ ) {
+					int x = i + neighbors[k][0] * dist;
+					int y = j + neighbors[k][1] * dist;
 					if ( wrapWidth ) {
 						if ( x < 0 ) {
 							x = width - 1 + x;
@@ -347,7 +332,7 @@ void idSurface_Patch::GenerateNormals() {
 					if ( x < 0 || x >= width || y < 0 || y >= height ) {
 						break;					// edge of patch
 					}
-					temp = verts[y * width + x].xyz - base;
+					idVec3 temp = verts[y * width + x].xyz - base;
 					if ( temp.Normalize() == 0.0f ) {
 						continue;				// degenerate edge, get more dist
 					} else {
@@ -358,7 +343,7 @@ void idSurface_Patch::GenerateNormals() {
 				}
 			}
 
-			sum = vec3_origin;
+			idVec3 sum = vec3_origin;
 			for ( k = 0; k < 8; k++ ) {
 				if ( !good[k] || !good[(k+1)&7] ) {
 					continue;	// didn't get two points
@@ -386,16 +371,14 @@ idSurface_Patch::GenerateIndexes
 =================
 */
 void idSurface_Patch::GenerateIndexes() {
-	int i, j, v1, v2, v3, v4, index;
-
 	indexes.SetNum( (width-1) * (height-1) * 2 * 3 );
-	index = 0;
-	for ( i = 0; i < width - 1; i++ ) {
-		for ( j = 0; j < height - 1; j++ ) {
-			v1 = j * width + i;
-			v2 = v1 + 1;
-			v3 = v1 + width + 1;
-			v4 = v1 + width;
+	int index = 0;
+	for ( int i = 0; i < width - 1; i++ ) {
+		for ( int j = 0; j < height - 1; j++ ) {
+			int v1 = j * width + i;
+			int v2 = v1 + 1;
+			int v3 = v1 + width + 1;
+			int v4 = v1 + width;
 			indexes[index++] = v1;
 			indexes[index++] = v3;
 			indexes[index++] = v2;
@@ -415,14 +398,12 @@ idSurface_Patch::SampleSinglePatchPoint
 */
 void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], const float u, const float v, idDrawVert *out ) const {
 	float	vCtrl[3][8];
-	int		vPoint;
 	int		axis;
 
 	// find the control points for the v coordinate
-	for ( vPoint = 0; vPoint < 3; vPoint++ ) {
+	for ( int vPoint = 0; vPoint < 3; vPoint++ ) {
 		for ( axis = 0; axis < 8; axis++ ) {
 			float a, b, c;
-			float qA, qB, qC;
 			if ( axis < 3 ) {
 				a = ctrl[0][vPoint].xyz[axis];
 				b = ctrl[1][vPoint].xyz[axis];
@@ -436,24 +417,21 @@ void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], const
 				b = ctrl[1][vPoint].GetTexCoord()[axis-6];
 				c = ctrl[2][vPoint].GetTexCoord()[axis-6];
 			}
-			qA = a - 2.0f * b + c;
-			qB = 2.0f * b - 2.0f * a;
-			qC = a;
+			float qA = a - 2.0f * b + c;
+			float qB = 2.0f * b - 2.0f * a;
+			float qC = a;
 			vCtrl[vPoint][axis] = qA * u * u + qB * u + qC;
 		}
 	}
 
 	// interpolate the v value
 	for ( axis = 0; axis < 8; axis++ ) {
-		float a, b, c;
-		float qA, qB, qC;
-
-		a = vCtrl[0][axis];
-		b = vCtrl[1][axis];
-		c = vCtrl[2][axis];
-		qA = a - 2.0f * b + c;
-		qB = 2.0f * b - 2.0f * a;
-		qC = a;
+		float a = vCtrl[0][axis];
+		float b = vCtrl[1][axis];
+		float c = vCtrl[2][axis];
+		float qA = a - 2.0f * b + c;
+		float qB = 2.0f * b - 2.0f * a;
+		float qC = a;
 
 		if ( axis < 3 ) {
 			out->xyz[axis] = qA * v * v + qB * v + qC;
@@ -476,15 +454,12 @@ idSurface_Patch::SampleSinglePatch
 ===================
 */
 void idSurface_Patch::SampleSinglePatch( const idDrawVert ctrl[3][3], const int baseCol, const int baseRow, const int width, int horzSub, int vertSub, idDrawVert *outVerts ) const {
-	int		i, j;
-	float	u, v;
-
 	horzSub++;
 	vertSub++;
-	for ( i = 0; i < horzSub; i++ ) {
-		for ( j = 0; j < vertSub; j++ ) {
-			u = (float) i / ( horzSub - 1 );
-			v = (float) j / ( vertSub - 1 );
+	for ( int i = 0; i < horzSub; i++ ) {
+		for ( int j = 0; j < vertSub; j++ ) {
+			float u = static_cast<float>(i) / (horzSub - 1);
+			float v = static_cast<float>(j) / (vertSub - 1);
 			SampleSinglePatchPoint( ctrl, u, v, &outVerts[((baseRow + j) * width) + i + baseCol] );
 		}
 	}
@@ -496,10 +471,10 @@ idSurface_Patch::SubdivideExplicit
 =================
 */
 void idSurface_Patch::SubdivideExplicit(const int horzSubdivisions, const int vertSubdivisions, const bool genNormals, const bool removeLinear ) {
-	int i, j, k, l;
+	int i;
 	idDrawVert sample[3][3];
-	int outWidth = ((width - 1) / 2 * horzSubdivisions) + 1;
-	int outHeight = ((height - 1) / 2 * vertSubdivisions) + 1;
+	const int outWidth = ((width - 1) / 2 * horzSubdivisions) + 1;
+	const int outHeight = ((height - 1) / 2 * vertSubdivisions) + 1;
 	idDrawVert *dv = new (TAG_IDLIB_SURFACE) idDrawVert[ outWidth * outHeight ];
 
 	// generate normals for the control mesh
@@ -510,9 +485,9 @@ void idSurface_Patch::SubdivideExplicit(const int horzSubdivisions, const int ve
 	int baseCol = 0;
 	for ( i = 0; i + 2 < width; i += 2 ) {
 		int baseRow = 0;
-		for ( j = 0; j + 2 < height; j += 2 ) {
-			for ( k = 0; k < 3; k++ ) {
-				for ( l = 0; l < 3; l++ ) {
+		for ( int j = 0; j + 2 < height; j += 2 ) {
+			for ( int k = 0; k < 3; k++ ) {
+				for ( int l = 0; l < 3; l++ ) {
 					sample[k][l] = verts[ ((j + l) * width) + i + k ];
 				}
 			}
@@ -540,9 +515,8 @@ void idSurface_Patch::SubdivideExplicit(const int horzSubdivisions, const int ve
 
 	// normalize all the lerped normals
 	if ( genNormals ) {
-		idVec3 tempNormal;
 		for ( i = 0; i < width * height; i++ ) {
-			tempNormal= verts[i].GetNormal();
+			idVec3 tempNormal = verts[i].GetNormal();
 			tempNormal.Normalize();
 			verts[i].SetNormal( tempNormal );
 		}
@@ -561,16 +535,15 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 	idDrawVert	prev, next, mid;
 	idVec3		prevxyz, nextxyz, midxyz;
 	idVec3		delta;
-	float		maxHorizontalErrorSqr, maxVerticalErrorSqr, maxLengthSqr;
 
 	// generate normals for the control mesh
 	if ( genNormals ) {
 		GenerateNormals();
 	}
 
-	maxHorizontalErrorSqr = Square( maxHorizontalError );
-	maxVerticalErrorSqr = Square( maxVerticalError );
-	maxLengthSqr = Square( maxLength );
+	float maxHorizontalErrorSqr = Square(maxHorizontalError);
+	float maxVerticalErrorSqr = Square(maxVerticalError);
+	float maxLengthSqr = Square(maxLength);
 
 	Expand();
 
@@ -686,9 +659,8 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 
 	// normalize all the lerped normals
 	if ( genNormals ) {
-		idVec3 tempNormal;
 		for ( i = 0; i < width * height; i++ ) {
-			tempNormal = verts[i].GetNormal();
+			idVec3 tempNormal = verts[i].GetNormal();
 			tempNormal.Normalize();
 			verts[i].SetNormal( tempNormal );
 		}

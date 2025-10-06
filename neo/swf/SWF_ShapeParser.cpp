@@ -52,7 +52,7 @@ void idSWFShapeParser::Parse( idSWFBitStream & bitstream, idSWFShape & shape, in
 	}
 
 	ReadFillStyle( bitstream );
-	ParseShapes( bitstream, NULL, false );
+	ParseShapes( bitstream, nullptr, false );
 	TriangulateSoup( shape );
 
 	shape.lineDraws.SetNum( lineDraws.Num() );
@@ -137,7 +137,7 @@ void idSWFShapeParser::ParseFont( idSWFBitStream & bitstream, idSWFFontGlyph & s
 
 	fillDraws.SetNum( 1 );
 
-	ParseShapes( bitstream, NULL, true );
+	ParseShapes( bitstream, nullptr, true );
 	TriangulateSoup( shape );
 }
 

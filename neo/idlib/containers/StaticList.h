@@ -144,7 +144,7 @@ Note:	The data is merely moved around the list, so any pointers to data within t
 */
 template< class type,int size >
 ID_INLINE void idStaticList<type,size>::Sort( const idSort<type> & sort ) {
-	if ( list == NULL ) {
+	if ( list == nullptr) {
 		return;
 	}
 	sort.Sort( Ptr(), Num() );
@@ -164,9 +164,7 @@ list to NULL.
 */
 template<class type,int size>
 ID_INLINE void idStaticList<type,size>::DeleteContents(const bool clear ) {
-	int i;
-
-	for( i = 0; i < num; i++ ) {
+	for( int i = 0; i < num; i++ ) {
 		delete list[ i ];
 		list[ i ] = NULL;
 	}
@@ -336,7 +334,7 @@ Returns a pointer to a new data element at the end of the list.
 template<class type,int size>
 ID_INLINE type *idStaticList<type,size>::Alloc() {
 	if ( num >= size ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return &list[ num++ ];
@@ -376,8 +374,6 @@ Returns the index of the new element, or -1 when list is full.
 */
 template<class type,int size>
 ID_INLINE int idStaticList<type,size>::Insert( type const & obj, int index ) {
-	int i;
-
 	assert( num < size );
 	if ( num >= size ) {
 		return -1;
@@ -390,7 +386,7 @@ ID_INLINE int idStaticList<type,size>::Insert( type const & obj, int index ) {
 		index = num;
 	}
 
-	for( i = num; i > index; --i ) {
+	for( int i = num; i > index; --i ) {
 		list[i] = list[i-1];
 	}
 
@@ -410,13 +406,12 @@ Returns the size of the new combined list
 */
 template<class type,int size>
 ID_INLINE int idStaticList<type,size>::Append( const idStaticList<type,size> &other ) {
-	int i;
 	int n = other.Num();
 
 	if ( num + n > size ) {
 		n = size - num;
 	}
-	for( i = 0; i < n; i++ ) {
+	for( int i = 0; i < n; i++ ) {
 		list[i + num] = other.list[i];
 	}
 	num += n;
@@ -432,9 +427,7 @@ Adds the data to the list if it doesn't already exist.  Returns the index of the
 */
 template<class type,int size>
 ID_INLINE int idStaticList<type,size>::AddUnique( type const & obj ) {
-	int index;
-
-	index = FindIndex( obj );
+	int index = FindIndex(obj);
 	if ( index < 0 ) {
 		index = Append( obj );
 	}
@@ -451,9 +444,7 @@ Searches for the specified data in the list and returns it's index.  Returns -1 
 */
 template<class type,int size>
 ID_INLINE int idStaticList<type,size>::FindIndex( type const & obj ) const {
-	int i;
-
-	for( i = 0; i < num; i++ ) {
+	for( int i = 0; i < num; i++ ) {
 		if ( list[ i ] == obj ) {
 			return i;
 		}
@@ -472,14 +463,12 @@ Searches for the specified data in the list and returns it's address. Returns NU
 */
 template<class type,int size>
 ID_INLINE type *idStaticList<type,size>::Find( type const & obj ) const {
-	int i;
-
-	i = FindIndex( obj );
+	int i = FindIndex(obj);
 	if ( i >= 0 ) {
-		return (type *) &list[ i ];
+		return static_cast<type*>(&list[i]);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -494,9 +483,7 @@ on non-pointer lists will cause a compiler error.
 */
 template<class type,int size>
 ID_INLINE int idStaticList<type,size>::FindNull() const {
-	int i;
-
-	for( i = 0; i < num; i++ ) {
+	for( int i = 0; i < num; i++ ) {
 		if ( list[ i ] == NULL ) {
 			return i;
 		}
@@ -518,9 +505,7 @@ but remains silent in release builds.
 */
 template<class type,int size>
 ID_INLINE int idStaticList<type,size>::IndexOf( type const *objptr ) const {
-	int index;
-
-	index = objptr - list;
+	int index = objptr - list;
 
 	assert( index >= 0 );
 	assert( index < num );
@@ -539,8 +524,6 @@ Note that the element is not destroyed, so any memory used by it may not be free
 */
 template<class type,int size>
 ID_INLINE bool idStaticList<type,size>::RemoveIndex(const int index ) {
-	int i;
-
 	assert( index >= 0 );
 	assert( index < num );
 
@@ -549,7 +532,7 @@ ID_INLINE bool idStaticList<type,size>::RemoveIndex(const int index ) {
 	}
 
 	num--;
-	for( i = index; i < num; i++ ) {
+	for( int i = index; i < num; i++ ) {
 		list[ i ] = list[ i + 1 ];
 	}
 
@@ -596,9 +579,7 @@ the element is not destroyed, so any memory used by it may not be freed until th
 */
 template<class type,int size>
 ID_INLINE bool idStaticList<type,size>::Remove( type const & obj ) {
-	int index;
-
-	index = FindIndex( obj );
+	int index = FindIndex(obj);
 	if ( index >= 0 ) {
 		return RemoveIndex( index );
 	}

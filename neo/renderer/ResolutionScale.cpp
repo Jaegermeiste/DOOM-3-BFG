@@ -34,8 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 
 idResolutionScale	resolutionScale;
 
-static const float MINIMUM_RESOLUTION_SCALE = 0.5f;
-static const float MAXIMUM_RESOLUTION_SCALE = 1.0f;
+static constexpr float MINIMUM_RESOLUTION_SCALE = 0.5f;
+static constexpr float MAXIMUM_RESOLUTION_SCALE = 1.0f;
 
 idCVar rs_enable( "rs_enable", "1", CVAR_INTEGER, "Enable dynamic resolution scaling, 0 - off, 1 - horz only, 2 - vert only, 3 - both" );
 idCVar rs_forceFractionX( "rs_forceFractionX", "0", CVAR_FLOAT, "Force a specific 0.0 to 1.0 horizontal resolution scale" );
@@ -96,7 +96,7 @@ void idResolutionScale::GetCurrentResolutionScale( float & x, float & y ) {
 		case 1: x = currentResolution; break;
 		case 2: y = currentResolution; break;
 		case 3: {
-			const float middle = ( MINIMUM_RESOLUTION_SCALE + MAXIMUM_RESOLUTION_SCALE ) * 0.5f;
+			constexpr float middle = ( MINIMUM_RESOLUTION_SCALE + MAXIMUM_RESOLUTION_SCALE ) * 0.5f;
 			if ( currentResolution >= middle ) {
 				// First scale horizontally from max to min
 				x = MINIMUM_RESOLUTION_SCALE + ( currentResolution - middle ) * 2.0f;

@@ -236,7 +236,7 @@ ID_INLINE bool idSphere::ContainsPoint( const idVec3 &p ) const {
 }
 
 ID_INLINE bool idSphere::IntersectsSphere( const idSphere &s ) const {
-	float r = s.radius + radius;
+	const float r = s.radius + radius;
 	if ( ( s.origin - origin ).LengthSqr() > r * r ) {
 		return false;
 	}
@@ -254,20 +254,19 @@ ID_INLINE void idSphere::FromSphereTranslation( const idSphere &sphere, const id
 }
 
 ID_INLINE void idSphere::FromPointRotation( const idVec3 &point, const idRotation &rotation ) {
-	idVec3 end = rotation * point;
+	const idVec3 end = rotation * point;
 	origin = ( point + end ) * 0.5f;
 	radius = idMath::Sqrt( 0.5f * ( end - point ).LengthSqr() );
 }
 
 ID_INLINE void idSphere::FromSphereRotation( const idSphere &sphere, const idVec3 &start, const idRotation &rotation ) {
-	idVec3 end = rotation * sphere.origin;
+	const idVec3 end = rotation * sphere.origin;
 	origin = start + ( sphere.origin + end ) * 0.5f;
 	radius = idMath::Sqrt( 0.5f * ( end - sphere.origin ).LengthSqr() ) + sphere.radius;
 }
 
 ID_INLINE void idSphere::AxisProjection( const idVec3 &dir, float &min, float &max ) const {
-	float d;
-	d = dir * origin;
+	float d = dir * origin;
 	min = d - radius;
 	max = d + radius;
 }

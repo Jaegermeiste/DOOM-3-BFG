@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 CLASS_DECLARATION( idPhysics_Actor, idPhysics_Monster )
 END_CLASS
 
-const float OVERCLIP = 1.001f;
+constexpr float OVERCLIP = 1.001f;
 
 /*
 =====================
@@ -757,8 +757,8 @@ void idPhysics_Monster::SetMaster( idEntity *master, const bool orientated ) {
 	}
 }
 
-const float	MONSTER_VELOCITY_MAX			= 4000;
-const int	MONSTER_VELOCITY_TOTAL_BITS		= 16;
+constexpr float	MONSTER_VELOCITY_MAX			= 4000;
+constexpr int	MONSTER_VELOCITY_TOTAL_BITS		= 16;
 const int	MONSTER_VELOCITY_EXPONENT_BITS	= idMath::BitsForInteger( idMath::BitsForFloat( MONSTER_VELOCITY_MAX ) ) + 1;
 const int	MONSTER_VELOCITY_MANTISSA_BITS	= MONSTER_VELOCITY_TOTAL_BITS - 1 - MONSTER_VELOCITY_EXPONENT_BITS;
 

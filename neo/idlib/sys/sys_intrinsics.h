@@ -46,7 +46,7 @@ ID_INLINE_EXTERN float __frsqrts(const float x )						{	return ( 1.0f / sqrtf( x
 ID_INLINE_EXTERN float __frcps16(const float x )						{	return ( 1.0f / x ); }
 ID_INLINE_EXTERN float __fdivs16(const float x, const float y )			{	return ( x / y ); }
 ID_INLINE_EXTERN float __frsqrts16(const float x )					{	return ( 1.0f / sqrtf( x ) ); }
-ID_INLINE_EXTERN float __frndz(const float x )						{	return (float)( (int)( x ) ); }
+ID_INLINE_EXTERN float __frndz(const float x )						{	return static_cast<float>((int)(x)); }
 
 /*
 ================================================================================================
@@ -160,8 +160,8 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) __m128c {
 				__m128c() {}
 				__m128c(const __m128 f ) { m128 = f; }
 				__m128c(const __m128i i ) { m128i = i; }
-	operator	__m128() { return m128; }
-	operator	__m128i() { return m128i; }
+	operator	__m128() const { return m128; }
+	operator	__m128i() const { return m128i; }
 	__m128		m128;
 	__m128i		m128i;
 } __m128c;
@@ -176,7 +176,7 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) __m128c {
 #define _mm_sld_si128( x, y, imm )			_mm_or_si128( _mm_srli_si128( x, imm ), _mm_slli_si128( y, 16 - imm ) )
 
 ID_FORCE_INLINE_EXTERN __m128 _mm_msum3_ps(const __m128 a, const __m128 b )	{
-	__m128 c = _mm_mul_ps( a, b );
+	const __m128 c = _mm_mul_ps( a, b );
 	return _mm_add_ps( _mm_splat_ps( c, 0 ), _mm_add_ps( _mm_splat_ps( c, 1 ), _mm_splat_ps( c, 2 ) ) );
 }
 

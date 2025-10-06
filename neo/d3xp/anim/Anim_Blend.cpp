@@ -2927,7 +2927,7 @@ idDeclModelDef::GetAnim
 int idDeclModelDef::GetAnim( const char *name ) const {
 	int				i;
 	int				which;
-	const int		MAX_ANIMS = 64;
+	constexpr int		MAX_ANIMS = 64;
 	int				animList[ MAX_ANIMS ];
 	int				numAnims;
 	int				len;

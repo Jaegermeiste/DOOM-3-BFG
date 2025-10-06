@@ -154,32 +154,32 @@ public:
 
 	// Consts
 
-	static const int PEER_HEARTBEAT_IN_SECONDS				= 5;		// Make sure something was sent every 5 seconds, so we don't time out
-	static const int CONNECT_REQUEST_FREQUENCY_IN_SECONDS	= 5;		// Frequency at which we resend a request to connect to a server (will increase in frequency over time down to MIN_CONNECT_FREQUENCY_IN_SECONDS)
-	static const int MIN_CONNECT_FREQUENCY_IN_SECONDS		= 1;		// Min frequency of connection attempts
-	static const int MAX_CONNECT_ATTEMPTS					= 5;
-	static const int BANDWIDTH_REPORTING_MAX				= 10240;	// make bps to report receiving (clamp if higher). For quantizing
-	static const int BANDWIDTH_REPORTING_BITS				= 16;		// number of bits to use for bandwidth reporting
-	static const int MAX_BPS_HISTORY						= 32;		// size of outgoing bps history to maintain for each client
+	static constexpr int PEER_HEARTBEAT_IN_SECONDS				= 5;		// Make sure something was sent every 5 seconds, so we don't time out
+	static constexpr int CONNECT_REQUEST_FREQUENCY_IN_SECONDS	= 5;		// Frequency at which we resend a request to connect to a server (will increase in frequency over time down to MIN_CONNECT_FREQUENCY_IN_SECONDS)
+	static constexpr int MIN_CONNECT_FREQUENCY_IN_SECONDS		= 1;		// Min frequency of connection attempts
+	static constexpr int MAX_CONNECT_ATTEMPTS					= 5;
+	static constexpr int BANDWIDTH_REPORTING_MAX				= 10240;	// make bps to report receiving (clamp if higher). For quantizing
+	static constexpr int BANDWIDTH_REPORTING_BITS				= 16;		// number of bits to use for bandwidth reporting
+	static constexpr int MAX_BPS_HISTORY						= 32;		// size of outgoing bps history to maintain for each client
 	
-	static const int MAX_SNAP_SIZE				= idPacketProcessor::MAX_MSG_SIZE;
-	static const int MAX_SNAPSHOT_QUEUE			= 64;
+	static constexpr int MAX_SNAP_SIZE				= idPacketProcessor::MAX_MSG_SIZE;
+	static constexpr int MAX_SNAPSHOT_QUEUE			= 64;
 
-	static const int OOB_HELLO					= 0;
-	static const int OOB_GOODBYE				= 1;
-	static const int OOB_GOODBYE_W_PARTY		= 2;
-	static const int OOB_GOODBYE_FULL			= 3;
-	static const int OOB_RESOURCE_LIST			= 4;
-	static const int OOB_VOICE_AUDIO			= 5;
+	static constexpr int OOB_HELLO					= 0;
+	static constexpr int OOB_GOODBYE				= 1;
+	static constexpr int OOB_GOODBYE_W_PARTY		= 2;
+	static constexpr int OOB_GOODBYE_FULL			= 3;
+	static constexpr int OOB_RESOURCE_LIST			= 4;
+	static constexpr int OOB_VOICE_AUDIO			= 5;
 	
-	static const int OOB_MATCH_QUERY			= 6;
-	static const int OOB_MATCH_QUERY_ACK		= 7;
+	static constexpr int OOB_MATCH_QUERY			= 6;
+	static constexpr int OOB_MATCH_QUERY_ACK		= 7;
 
-	static const int OOB_SYSTEMLINK_QUERY		= 8;
+	static constexpr int OOB_SYSTEMLINK_QUERY		= 8;
 		
-	static const int OOB_MIGRATE_INVITE			= 9;
+	static constexpr int OOB_MIGRATE_INVITE			= 9;
 
-	static const int OOB_BANDWIDTH_TEST			= 10;
+	static constexpr int OOB_BANDWIDTH_TEST			= 10;
 
 	enum connectionState_t {
 		CONNECTION_FREE				= 0,		// Free peer slot
@@ -197,8 +197,8 @@ public:
 			numResources			= 0;
 			lastHeartBeat			= 0;
 			connectionState			= CONNECTION_FREE;
-			packetProc				= NULL;
-			snapProc				= NULL;
+			packetProc				= nullptr;
+			snapProc				= nullptr;
 			nextPing				= 0; // do it asap
 			lastPingRtt				= 0;
 			sessionID				= idPacketProcessor::SESSION_ID_INVALID;
@@ -280,7 +280,7 @@ public:
 			pauseSnapshots			= false;
 	
 			// Reset the snapshot processor
-			if ( snapProc != NULL ) {
+			if ( snapProc != nullptr) {
 				snapProc->Reset( false );
 			}
 		}
@@ -377,8 +377,8 @@ public:
 	virtual int							GetNumLobbyUsers() const { return userList.Num(); }
 	virtual int							GetNumActiveLobbyUsers() const;
 	virtual bool						AllPeersInGame() const;
-	lobbyUser_t *						GetLobbyUser( int index ) { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : NULL; }
-	const lobbyUser_t *					GetLobbyUser( int index ) const { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : NULL; }
+	lobbyUser_t *						GetLobbyUser( int index ) { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr; }
+	const lobbyUser_t *					GetLobbyUser( int index ) const { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr; }
 
 	virtual bool						IsLobbyUserConnected( int index ) const { return !IsLobbyUserDisconnected( index ); }
 
@@ -460,7 +460,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	virtual void						SendReliableToLobbyUser( lobbyUserID_t lobbyUserID, int type, idBitMsg & msg );
 	virtual void						SendReliableToHost( int type, idBitMsg & msg );
 	void								SendGoodbye( const lobbyAddress_t & remoteAddress, bool wasFull = false );
-	void								QueueReliableMessage( int peerNum, byte type ) { QueueReliableMessage( peerNum, type, NULL, 0 ); }
+	void								QueueReliableMessage( int peerNum, byte type ) { QueueReliableMessage( peerNum, type, nullptr, 0 ); }
 	void								QueueReliableMessage( int p, byte type, const byte * data, int dataLen );
 	virtual int							GetNumConnectedPeers() const;
 	virtual int							GetNumConnectedPeersInGame() const;
@@ -470,7 +470,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								HandleReliablePlayerToPlayerMsg( int peerNum, idBitMsg & msg, int type );
 	void								HandleReliablePlayerToPlayerMsg( const reliablePlayerToPlayerHeader_t & info, idBitMsg & msg, int reliableType );
 
-	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type ) { SendConnectionLess( remoteAddress, type, NULL, 0 ); }
+	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type ) { SendConnectionLess( remoteAddress, type, nullptr, 0 ); }
 	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type, const byte * data, int dataLen );
 	void								SendConnectionRequest();
 	void								ConnectTo( const lobbyConnectInfo_t & connectInfo, bool fromInvite );
@@ -679,7 +679,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								DetectSaturation( int p );
 	virtual void						AddSnapObjTemplate( int objID, idBitMsg & msg );
 
-	static const int MAX_PEERS = MAX_PLAYERS;
+	static constexpr int MAX_PEERS = MAX_PLAYERS;
 
 	//------------------------
 	// Pings
@@ -688,12 +688,12 @@ public:		// Turning this on for now, for the sake of getting this up and running
 		idArray<short, MAX_PEERS> pings;
 	};
 
-	static const int PING_INTERVAL_MS = 3000;
+	static constexpr int PING_INTERVAL_MS = 3000;
 
 	int									lastPingValuesRecvTime; // so clients can display something when server stops pinging
 	int									nextSendPingValuesTime; // the next time to send RELIABLE_PING_VALUES
 
-	static const int MIGRATION_GAME_DATA_INTERVAL_MS = 1000;
+	static constexpr int MIGRATION_GAME_DATA_INTERVAL_MS = 1000;
 	int									nextSendMigrationGameTime;	// when to send next migration game data
 	int									nextSendMigrationGamePeer;	// who to send next migration game data to
 
@@ -789,10 +789,10 @@ public:		// Turning this on for now, for the sake of getting this up and running
 			bool							hasRelaunchedMigratedGame;
 
 			// A generic blob of data that the gamechallenge (or anything else) can read and write to for host migration
-			static const int MIGRATION_GAME_DATA_SIZE = 32;
+			static constexpr int MIGRATION_GAME_DATA_SIZE = 32;
 			byte gameData[ MIGRATION_GAME_DATA_SIZE ];
 
-			static const int MIGRATION_GAME_DATA_USER_SIZE = 64;
+			static constexpr int MIGRATION_GAME_DATA_USER_SIZE = 64;
 			byte gameDataUser[ MAX_PLAYERS ][ MIGRATION_GAME_DATA_USER_SIZE ];
 
 			bool hasGameData;
@@ -835,7 +835,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	//------------------------
 	// Snapshot jobs
 	//------------------------
-	static const int SNAP_OBJ_JOB_MEMORY = 1024 * 128;			// 128k of obj memory
+	static constexpr int SNAP_OBJ_JOB_MEMORY = 1024 * 128;			// 128k of obj memory
 
 	lzwCompressionData_t *				lzwData;				// Shared across all snapshot jobs
 	uint8 *								objMemory;				// Shared across all snapshot jobs

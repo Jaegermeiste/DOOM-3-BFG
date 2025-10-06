@@ -68,27 +68,27 @@ extern idCVar g_demoMode;
 */
 
 // distance between ladder rungs (actually is half that distance, but this sounds better)
-const int LADDER_RUNG_DISTANCE = 32;
+constexpr int LADDER_RUNG_DISTANCE = 32;
 
 // amount of health per dose from the health station
-const int HEALTH_PER_DOSE = 10;
+constexpr int HEALTH_PER_DOSE = 10;
 
 // time before a weapon dropped to the floor disappears
-const int WEAPON_DROP_TIME = 20 * 1000;
+constexpr int WEAPON_DROP_TIME = 20 * 1000;
 
 // time before a next or prev weapon switch happens
-const int WEAPON_SWITCH_DELAY = 150;
+constexpr int WEAPON_SWITCH_DELAY = 150;
 
 // how many units to raise spectator above default view height so it's in the head of someone
-const int SPECTATE_RAISE = 25;
+constexpr int SPECTATE_RAISE = 25;
 
-const int HEALTHPULSE_TIME = 333;
+constexpr int HEALTHPULSE_TIME = 333;
 
 // minimum speed to bob and play run/walk animations at
-const float MIN_BOB_SPEED = 5.0f;
+constexpr float MIN_BOB_SPEED = 5.0f;
 
 // Special team used for spectators that we ONLY store on lobby.  The local team property on player remains as 0 or 1.
-const float LOBBY_SPECTATE_TEAM_FOR_VOICE_CHAT = 2;
+constexpr float LOBBY_SPECTATE_TEAM_FOR_VOICE_CHAT = 2;
 
 const idEventDef EV_Player_GetButtons( "getButtons", NULL, 'd' );
 const idEventDef EV_Player_GetMove( "getMove", NULL, 'v' );
@@ -148,12 +148,12 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT( EV_Player_SetBloomParms,			idPlayer::Event_SetBloomParms )
 END_CLASS
 
-const int MAX_RESPAWN_TIME = 10000;
-const int RAGDOLL_DEATH_TIME = 3000;
-const int MAX_PDAS = 64;
-const int MAX_PDA_ITEMS = 128;
-const int STEPUP_TIME = 200;
-const int MAX_INVENTORY_ITEMS = 20;
+constexpr int MAX_RESPAWN_TIME = 10000;
+constexpr int RAGDOLL_DEATH_TIME = 3000;
+constexpr int MAX_PDAS = 64;
+constexpr int MAX_PDA_ITEMS = 128;
+constexpr int STEPUP_TIME = 200;
+constexpr int MAX_INVENTORY_ITEMS = 20;
 
 /*
 ==============
@@ -6110,7 +6110,7 @@ void idPlayer::UpdateViewAngles() {
 		viewAngles.pitch = idMath::ClampFloat( -varc, varc, viewAngles.pitch );
 	} else {
 		// don't let the player look up or down more than 90 degrees normally
-		const float restrict = 1.0f;
+		constexpr float restrict = 1.0f;
 
 		viewAngles.pitch = std::min( viewAngles.pitch, pm_maxviewpitch.GetFloat() * restrict );
 		viewAngles.pitch = std::max( viewAngles.pitch, pm_minviewpitch.GetFloat() * restrict );
@@ -7230,7 +7230,7 @@ void idPlayer::RunPhysics_RemoteClientCorrection() {
 		if ( std::abs( serverSpeedSquared - clientSpeedSquared ) > pm_clientAuthoritative_minSpeedSquared.GetFloat() ) {
 			idVec3 normalizedVelocity = physicsObj.GetLinearVelocity();
 
-			const float VELOCITY_EPSILON = 0.001f;
+			constexpr float VELOCITY_EPSILON = 0.001f;
 			if ( normalizedVelocity.LengthSqr() > VELOCITY_EPSILON ) {
 				normalizedVelocity.Normalize();
 			}

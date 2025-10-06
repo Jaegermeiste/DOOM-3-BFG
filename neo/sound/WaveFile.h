@@ -51,7 +51,7 @@ public:
 	uint32		GetChunkOffset( uint32 id );
 
 	ID_TIME_T	Timestamp() { return file->Timestamp(); }
-	const char * Name() { return ( file == NULL ? "" : file->GetName() ); }
+	const char * Name() { return ( file == nullptr ? "" : file->GetName() ); }
 
 	// This maps to the channel mask in waveFmtExtensible_t
 	enum {
@@ -95,7 +95,7 @@ public:
 
 #pragma pack( push, 1 )
 	struct waveFmt_t {
-		static const uint32 id = 'fmt ';
+		static constexpr uint32 id = 'fmt ';
 		// This is the basic data we'd expect to see in any valid wave file
 		struct basic_t {
 			uint16 formatTag;
@@ -154,13 +154,13 @@ public:
 #pragma pack( pop )
 
 	struct dataChunk_t {
-		static const uint32 id = 'data';
+		static constexpr uint32 id = 'data';
 		uint32 size;
 		void * data;
 	};
 
 	struct formatChunk_t {
-		static const uint32 id = 'fmt ';
+		static constexpr uint32 id = 'fmt ';
 		uint32 size;
 		uint16 compressionCode;
 		uint16 numChannels;
@@ -172,7 +172,7 @@ public:
 	};
 
 	struct samplerChunk_t {
-		static const uint32 id = 'smpl';
+		static constexpr uint32 id = 'smpl';
 		uint32 manufacturer;		// ignored
 		uint32 product;				// ignored
 		uint32 samplePeriod;		// ignored (normally 1000000000/samplesPerSec)
@@ -221,7 +221,7 @@ private:
 idWaveFile::idWaveFile
 ========================
 */
-ID_INLINE idWaveFile::idWaveFile() : file( NULL ) {
+ID_INLINE idWaveFile::idWaveFile() : file(nullptr) {
 }
 
 /*

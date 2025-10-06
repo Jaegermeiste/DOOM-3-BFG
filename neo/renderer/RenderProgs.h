@@ -29,12 +29,12 @@ If you have questions concerning this license or the applicable additional terms
 #define __RENDERPROGS_H__
 
 
-static const int PC_ATTRIB_INDEX_VERTEX		= 0;
-static const int PC_ATTRIB_INDEX_NORMAL		= 2;
-static const int PC_ATTRIB_INDEX_COLOR		= 3;
-static const int PC_ATTRIB_INDEX_COLOR2		= 4;
-static const int PC_ATTRIB_INDEX_ST			= 8;
-static const int PC_ATTRIB_INDEX_TANGENT	= 9;
+static constexpr int PC_ATTRIB_INDEX_VERTEX		= 0;
+static constexpr int PC_ATTRIB_INDEX_NORMAL		= 2;
+static constexpr int PC_ATTRIB_INDEX_COLOR		= 3;
+static constexpr int PC_ATTRIB_INDEX_COLOR2		= 4;
+static constexpr int PC_ATTRIB_INDEX_ST			= 8;
+static constexpr int PC_ATTRIB_INDEX_TANGENT	= 9;
 
 // This enum list corresponds to the global constant register indecies as defined in global.inc for all
 // shaders.  We used a shared pool to keeps things simple.  If something changes here then it also
@@ -195,7 +195,7 @@ public:
 	void	LoadAllShaders();
 	void	KillAllShaders();
 
-	static const int	MAX_GLSL_USER_PARMS = 8;
+	static constexpr int	MAX_GLSL_USER_PARMS = 8;
 	const char*	GetGLSLParmName( int rp ) const;
 	int			GetGLSLCurrentProgram() const { return currentRenderProgram; }
 	void		SetUniformValue( const renderParm_t rp, const float * value );
@@ -255,7 +255,7 @@ protected:
 	GLuint	LoadGLSLShader( GLenum target, const char * name, idList<int> & uniforms );
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
 
-	static const GLuint INVALID_PROGID = 0xFFFFFFFF;
+	static constexpr GLuint INVALID_PROGID = 0xFFFFFFFF;
 
 	struct vertexShader_t {
 					vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ) {}

@@ -36,12 +36,11 @@ idToken::NumberValue
 ================
 */
 void idToken::NumberValue() {
-	int i, pow, div, c;
-	const char *p;
+	int i, div;
 	double m;
 
 	assert( type == TT_NUMBER );
-	p = c_str();
+	const char* p = c_str();
 	floatvalue = 0;
 	intvalue = 0;
 	// floating point number
@@ -49,26 +48,26 @@ void idToken::NumberValue() {
 		if ( subtype & ( TT_INFINITE | TT_INDEFINITE | TT_NAN ) ) {
 			if ( subtype & TT_INFINITE ) {			// 1.#INF
 				unsigned int inf = 0x7f800000;
-				floatvalue = (double) *(float*)&inf;
+				floatvalue = static_cast<double>(*(float*)&inf);
 			}
 			else if ( subtype & TT_INDEFINITE ) {	// 1.#IND
 				unsigned int ind = 0xffc00000;
-				floatvalue = (double) *(float*)&ind;
+				floatvalue = static_cast<double>(*(float*)&ind);
 			}
 			else if ( subtype & TT_NAN ) {			// 1.#QNAN
 				unsigned int nan = 0x7fc00000;
-				floatvalue = (double) *(float*)&nan;
+				floatvalue = static_cast<double>(*(float*)&nan);
 			}
 		}
 		else {
 			while( *p && *p != '.' && *p != 'e' ) {
-				floatvalue = floatvalue * 10.0 + (double) (*p - '0');
+				floatvalue = floatvalue * 10.0 + static_cast<double>(*p - '0');
 				p++;
 			}
 			if ( *p == '.' ) {
 				p++;
 				for( m = 0.1; *p && *p != 'e'; p++ ) {
-					floatvalue = floatvalue + (double) (*p - '0') * m;
+					floatvalue = floatvalue + static_cast<double>(*p - '0') * m;
 					m *= 0.1;
 				}
 			}
@@ -85,7 +84,7 @@ void idToken::NumberValue() {
 				else {
 					div = false;
 				}
-				pow = 0;
+				int pow = 0;
 				for ( pow = 0; *p; p++ ) {
 					pow = pow * 10 + (int) (*p - '0');
 				}
@@ -110,7 +109,7 @@ void idToken::NumberValue() {
 		floatvalue = intvalue;
 	}
 	else if ( subtype & TT_IPADDRESS ) {
-		c = 0;
+		int c = 0;
 		while( *p && *p != ':' ) {
 			if ( *p == '.' ) {
 				while( c != 3 ) {
@@ -173,7 +172,7 @@ idToken::ClearTokenWhiteSpace
 ================
 */
 void idToken::ClearTokenWhiteSpace() {
-	whiteSpaceStart_p = NULL;
-	whiteSpaceEnd_p = NULL;
+	whiteSpaceStart_p = nullptr;
+	whiteSpaceEnd_p = nullptr;
 	linesCrossed = 0;
 }

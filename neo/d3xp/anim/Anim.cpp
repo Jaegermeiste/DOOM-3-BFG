@@ -34,10 +34,10 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar binaryLoadAnim( "binaryLoadAnim", "1", 0, "enable binary load/write of idMD5Anim" );
 
-static const byte B_ANIM_MD5_VERSION = 101;
-static const unsigned int B_ANIM_MD5_MAGIC = ( 'B' << 24 ) | ( 'M' << 16 ) | ( 'D' << 8 ) | B_ANIM_MD5_VERSION;
+static constexpr byte B_ANIM_MD5_VERSION = 101;
+static constexpr unsigned int B_ANIM_MD5_MAGIC = ( 'B' << 24 ) | ( 'M' << 16 ) | ( 'D' << 8 ) | B_ANIM_MD5_VERSION;
 
-static const int JOINT_FRAME_PAD	= 1;	// one extra to be able to read one more float than is necessary
+static constexpr int JOINT_FRAME_PAD	= 1;	// one extra to be able to read one more float than is necessary
 
 bool idAnimManager::forceExport = false;
 

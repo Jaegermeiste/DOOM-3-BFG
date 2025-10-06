@@ -41,8 +41,8 @@ idEventLoop::idEventLoop
 =================
 */
 idEventLoop::idEventLoop() {
-	com_journalFile = NULL;
-	com_journalDataFile = NULL;
+	com_journalFile = nullptr;
+	com_journalDataFile = nullptr;
 	initialTimeOffset = 0;
 }
 
@@ -216,8 +216,8 @@ void idEventLoop::Init() {
 
 	if ( !com_journalFile || !com_journalDataFile ) {
 		com_journal.SetInteger( 0 );
-		com_journalFile = 0;
-		com_journalDataFile = 0;
+		com_journalFile = nullptr;
+		com_journalDataFile = nullptr;
 		common->Printf( "Couldn't open journal files\n" );
 	}
 }
@@ -230,11 +230,11 @@ idEventLoop::Shutdown
 void idEventLoop::Shutdown() {
 	if ( com_journalFile ) {
 		fileSystem->CloseFile( com_journalFile );
-		com_journalFile = NULL;
+		com_journalFile = nullptr;
 	}
 	if ( com_journalDataFile ) {
 		fileSystem->CloseFile( com_journalDataFile );
-		com_journalDataFile = NULL;
+		com_journalDataFile = nullptr;
 	}
 }
 

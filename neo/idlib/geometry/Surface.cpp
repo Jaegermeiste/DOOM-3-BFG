@@ -35,7 +35,7 @@ UpdateVertexIndex
 =================
 */
 ID_INLINE int UpdateVertexIndex( int vertexIndexNum[2], int *vertexRemap, int *vertexCopyIndex, const int vertNum ) {
-	int s = INT32_SIGNBITSET( vertexRemap[vertNum] );
+	const int s = INT32_SIGNBITSET( vertexRemap[vertNum] );
 	vertexIndexNum[0] = vertexRemap[vertNum];
 	vertexRemap[vertNum] = vertexIndexNum[s];
 	vertexIndexNum[1] += s;
@@ -68,8 +68,8 @@ int idSurface::Split( const idPlane &plane, const float epsilon, idSurface **fro
 	idSurface *		surface[2];
 	idDrawVert		v;
 
-	dists = (float *) _alloca( verts.Num() * sizeof( float ) );
-	sides = (byte *) _alloca( verts.Num() * sizeof( byte ) );
+	dists = static_cast<float*>(_alloca(verts.Num() * sizeof(float)));
+	sides = static_cast<byte*>(_alloca(verts.Num() * sizeof(byte)));
 
 	counts[0] = counts[1] = counts[2] = 0;
 
@@ -86,7 +86,7 @@ int idSurface::Split( const idPlane &plane, const float epsilon, idSurface **fro
 		counts[sides[i]]++;
 	}
 	
-	*front = *back = NULL;
+	*front = *back = nullptr;
 
 	// if coplanar, put on the front side if the normals match
 	if ( !counts[SIDE_FRONT] && !counts[SIDE_BACK] ) {
@@ -115,7 +115,7 @@ int idSurface::Split( const idPlane &plane, const float epsilon, idSurface **fro
 	*front = surface[0] = new (TAG_IDLIB_SURFACE) idSurface();
 	*back = surface[1] = new (TAG_IDLIB_SURFACE) idSurface();
 
-	edgeSplitVertex = (int *) _alloca( edges.Num() * sizeof( int ) );
+	edgeSplitVertex = static_cast<int*>(_alloca(edges.Num() * sizeof(int)));
 	numEdgeSplitVertexes = 0;
 
 	maxOnPlaneEdges = 4 * counts[SIDE_ON];
@@ -146,13 +146,13 @@ int idSurface::Split( const idPlane &plane, const float epsilon, idSurface **fro
 	surface[1]->indexes.Resize( ( ( counts[SIDE_BACK] + counts[SIDE_ON] ) * 2 ) + ( numEdgeSplitVertexes * 4 ) );
 
 	// allocate indexes to construct the triangle indexes for the front and back surface
-	vertexRemap[0] = (int *) _alloca( verts.Num() * sizeof( int ) );
+	vertexRemap[0] = static_cast<int*>(_alloca(verts.Num() * sizeof(int)));
 	memset( vertexRemap[0], -1, verts.Num() * sizeof( int ) );
-	vertexRemap[1] = (int *) _alloca( verts.Num() * sizeof( int ) );
+	vertexRemap[1] = static_cast<int*>(_alloca(verts.Num() * sizeof(int)));
 	memset( vertexRemap[1], -1, verts.Num() * sizeof( int ) );
 
-	vertexCopyIndex[0] = (int *) _alloca( ( numEdgeSplitVertexes + verts.Num() ) * sizeof( int ) );
-	vertexCopyIndex[1] = (int *) _alloca( ( numEdgeSplitVertexes + verts.Num() ) * sizeof( int ) );
+	vertexCopyIndex[0] = static_cast<int*>(_alloca((numEdgeSplitVertexes + verts.Num()) * sizeof(int)));
+	vertexCopyIndex[1] = static_cast<int*>(_alloca((numEdgeSplitVertexes + verts.Num()) * sizeof(int)));
 
 	vertexIndexNum[0][0] = vertexIndexNum[1][0] = 0;
 	vertexIndexNum[0][1] = vertexIndexNum[1][1] = numEdgeSplitVertexes;
@@ -164,8 +164,8 @@ int idSurface::Split( const idPlane &plane, const float epsilon, idSurface **fro
 
 	maxOnPlaneEdges += 4 * numEdgeSplitVertexes;
 	// allocate one more in case no triangles are actually split which may happen for a disconnected surface
-	onPlaneEdges[0] = (int *) _alloca( ( maxOnPlaneEdges + 1 ) * sizeof( int ) );
-	onPlaneEdges[1] = (int *) _alloca( ( maxOnPlaneEdges + 1 ) * sizeof( int ) );
+	onPlaneEdges[0] = static_cast<int*>(_alloca((maxOnPlaneEdges + 1) * sizeof(int)));
+	onPlaneEdges[1] = static_cast<int*>(_alloca((maxOnPlaneEdges + 1) * sizeof(int)));
 	numOnPlaneEdges[0] = numOnPlaneEdges[1] = 0;
 
 	// split surface triangles
@@ -383,8 +383,8 @@ bool idSurface::ClipInPlace( const idPlane &plane, const float epsilon, const bo
 	idList<idDrawVert, TAG_IDLIB_LIST_SURFACE> newVerts;
 	idList<int, TAG_IDLIB_LIST_SURFACE>		newIndexes;
 
-	dists = (float *) _alloca( verts.Num() * sizeof( float ) );
-	sides = (byte *) _alloca( verts.Num() * sizeof( byte ) );
+	dists = static_cast<float*>(_alloca(verts.Num() * sizeof(float)));
+	sides = static_cast<byte*>(_alloca(verts.Num() * sizeof(byte)));
 
 	counts[0] = counts[1] = counts[2] = 0;
 
@@ -422,7 +422,7 @@ bool idSurface::ClipInPlace( const idPlane &plane, const float epsilon, const bo
 		return true;
 	}
 
-	edgeSplitVertex = (int *) _alloca( edges.Num() * sizeof( int ) );
+	edgeSplitVertex = static_cast<int*>(_alloca(edges.Num() * sizeof(int)));
 	numEdgeSplitVertexes = 0;
 
 	counts[SIDE_FRONT] = counts[SIDE_BACK] = 0;
@@ -449,10 +449,10 @@ bool idSurface::ClipInPlace( const idPlane &plane, const float epsilon, const bo
 	newIndexes.Resize( ( counts[SIDE_FRONT] << 1 ) + ( numEdgeSplitVertexes << 2 ) );
 
 	// allocate indexes to construct the triangle indexes for the front and back surface
-	vertexRemap = (int *) _alloca( verts.Num() * sizeof( int ) );
+	vertexRemap = static_cast<int*>(_alloca(verts.Num() * sizeof(int)));
 	memset( vertexRemap, -1, verts.Num() * sizeof( int ) );
 
-	vertexCopyIndex = (int *) _alloca( ( numEdgeSplitVertexes + verts.Num() ) * sizeof( int ) );
+	vertexCopyIndex = static_cast<int*>(_alloca((numEdgeSplitVertexes + verts.Num()) * sizeof(int)));
 
 	vertexIndexNum[0] = 0;
 	vertexIndexNum[1] = numEdgeSplitVertexes;
@@ -599,37 +599,31 @@ idSurface::IsConnected
 =============
 */
 bool idSurface::IsConnected() const {
-	int i, j, numIslands, numTris;
-	int queueStart, queueEnd;
-	int *queue, *islandNum;
-	int curTri, nextTri, edgeNum;
-	const int *index;
-
-	numIslands = 0;
-	numTris = indexes.Num() / 3;
-	islandNum = (int *) _alloca16( numTris * sizeof( int ) );
+	int numIslands = 0;
+	int numTris = indexes.Num() / 3;
+	int* islandNum = static_cast<int*>(_alloca16(numTris * sizeof( int )));
 	memset( islandNum, -1, numTris * sizeof( int ) );
-	queue = (int *) _alloca16( numTris * sizeof( int ) );
+	int* queue = static_cast<int*>(_alloca16(numTris * sizeof( int )));
 
-	for ( i = 0; i < numTris; i++ ) {
+	for ( int i = 0; i < numTris; i++ ) {
 
 		if ( islandNum[i] != -1 ) {
 			continue;
 		}
 
-        queueStart = 0;
-		queueEnd = 1;
+        int queueStart = 0;
+		int queueEnd = 1;
 		queue[0] = i;
 		islandNum[i] = numIslands;
 
-		for ( curTri = queue[queueStart]; queueStart < queueEnd; curTri = queue[++queueStart] ) {
+		for ( int curTri = queue[queueStart]; queueStart < queueEnd; curTri = queue[++queueStart] ) {
 
-			index = &edgeIndexes[curTri * 3];
+			const int* index = &edgeIndexes[curTri * 3];
 
-			for ( j = 0; j < 3; j++ ) {
+			for ( int j = 0; j < 3; j++ ) {
 
-				edgeNum = index[j];
-				nextTri = edges[abs(edgeNum)].tris[INT32_SIGNBITNOTSET(edgeNum)];
+				int edgeNum = index[j];
+				int nextTri = edges[abs(edgeNum)].tris[INT32_SIGNBITNOTSET(edgeNum)];
 
 				if ( nextTri == -1 ) {
 					continue;
@@ -671,17 +665,16 @@ idSurface::IsPolytope
 =============
 */
 bool idSurface::IsPolytope( const float epsilon ) const {
-	int i, j;
 	idPlane plane;
 
 	if ( !IsClosed() ) {
 		return false;
 	}
 
-	for ( i = 0; i < indexes.Num(); i += 3 ) {
+	for ( int i = 0; i < indexes.Num(); i += 3 ) {
 		plane.FromPoints( verts[indexes[i+0]].xyz, verts[indexes[i+1]].xyz, verts[indexes[i+2]].xyz );
 
-		for ( j = 0; j < verts.Num(); j++ ) {
+		for ( int j = 0; j < verts.Num(); j++ ) {
 			if ( plane.Side( verts[j].xyz, epsilon ) == SIDE_FRONT ) {
 				return false;
 			}
@@ -696,13 +689,10 @@ idSurface::PlaneDistance
 =============
 */
 float idSurface::PlaneDistance( const idPlane &plane ) const {
-	int		i;
-	float	d, min, max;
-
-	min = idMath::INFINITY;
-	max = -min;
-	for ( i = 0; i < verts.Num(); i++ ) {
-		d = plane.Distance( verts[i].xyz );
+	float min = idMath::INFINITY;
+	float max = -min;
+	for ( int i = 0; i < verts.Num(); i++ ) {
+		float d = plane.Distance(verts[i].xyz);
 		if ( d < min ) {
 			min = d;
 			if ( IEEE_FLT_SIGNBITSET( min ) & IEEE_FLT_SIGNBITNOTSET( max ) ) {
@@ -731,14 +721,10 @@ idSurface::PlaneSide
 =============
 */
 int idSurface::PlaneSide( const idPlane &plane, const float epsilon ) const {
-	bool	front, back;
-	int		i;
-	float	d;
-
-	front = false;
-	back = false;
-	for ( i = 0; i < verts.Num(); i++ ) {
-		d = plane.Distance( verts[i].xyz );
+	bool front = false;
+	bool back = false;
+	for ( int i = 0; i < verts.Num(); i++ ) {
+		float d = plane.Distance(verts[i].xyz);
 		if ( d < -epsilon ) {
 			if ( front ) {
 				return SIDE_CROSS;
@@ -782,13 +768,12 @@ idSurface::RayIntersection
 =================
 */
 bool idSurface::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale, const bool backFaceCull ) const {
-	int i, i0, i1, i2, s0, s1, s2;
-	float d, s;
-	byte *sidedness;
+	int i;
+	float s;
 	idPluecker rayPl, pl;
 	idPlane plane;
 
-	sidedness = (byte *)_alloca( edges.Num() * sizeof(byte) );
+	byte* sidedness = static_cast<byte*>(_alloca(edges.Num() * sizeof(byte)));
 	scale = idMath::INFINITY;
 
 	rayPl.FromRay( start, dir );
@@ -796,18 +781,18 @@ bool idSurface::RayIntersection( const idVec3 &start, const idVec3 &dir, float &
 	// ray sidedness for edges
 	for ( i = 0; i < edges.Num(); i++ ) {
 		pl.FromLine( verts[ edges[i].verts[1] ].xyz, verts[ edges[i].verts[0] ].xyz );
-		d = pl.PermutedInnerProduct( rayPl );
+		float d = pl.PermutedInnerProduct(rayPl);
 		sidedness[ i ] = IEEE_FLT_SIGNBITSET( d );
 	}
 
 	// test triangles
 	for ( i = 0; i < edgeIndexes.Num(); i += 3 ) {
-		i0 = edgeIndexes[i+0];
-		i1 = edgeIndexes[i+1];
-		i2 = edgeIndexes[i+2];
-		s0 = sidedness[abs(i0)] ^ INT32_SIGNBITSET( i0 );
-		s1 = sidedness[abs(i1)] ^ INT32_SIGNBITSET( i1 );
-		s2 = sidedness[abs(i2)] ^ INT32_SIGNBITSET( i2 );
+		int i0 = edgeIndexes[i + 0];
+		int i1 = edgeIndexes[i + 1];
+		int i2 = edgeIndexes[i + 2];
+		int s0 = sidedness[abs(i0)] ^ INT32_SIGNBITSET(i0);
+		int s1 = sidedness[abs(i1)] ^ INT32_SIGNBITSET(i1);
+		int s2 = sidedness[abs(i2)] ^ INT32_SIGNBITSET(i2);
 
 		if ( s0 & s1 & s2 ) {
 			plane.FromPoints( verts[indexes[i+0]].xyz, verts[indexes[i+1]].xyz, verts[indexes[i+2]].xyz );
@@ -838,13 +823,12 @@ idSurface::GenerateEdgeIndexes
 =================
 */
 void idSurface::GenerateEdgeIndexes() {
-	int i, j, i0, i1, i2, s, v0, v1, edgeNum;
-	int *index, *vertexEdges, *edgeChain;
+	int edgeNum;
 	surfaceEdge_t e[3];
 
-	vertexEdges = (int *) _alloca16( verts.Num() * sizeof( int ) );
+	int* vertexEdges = static_cast<int*>(_alloca16(verts.Num() * sizeof( int )));
 	memset( vertexEdges, -1, verts.Num() * sizeof( int ) );
-	edgeChain = (int *) _alloca16( indexes.Num() * sizeof( int ) );
+	int* edgeChain = static_cast<int*>(_alloca16(indexes.Num() * sizeof( int )));
 
 	edgeIndexes.SetNum( indexes.Num() );
 
@@ -854,14 +838,14 @@ void idSurface::GenerateEdgeIndexes() {
 	e[0].verts[0] = e[0].verts[1] = e[0].tris[0] = e[0].tris[1] = 0;
 	edges.Append( e[0] );
 
-	for ( i = 0; i < indexes.Num(); i += 3 ) {
-		index = indexes.Ptr() + i;
+	for ( int i = 0; i < indexes.Num(); i += 3 ) {
+		int* index = indexes.Ptr() + i;
 		// vertex numbers
-		i0 = index[0];
-		i1 = index[1];
-		i2 = index[2];
+		int i0 = index[0];
+		int i1 = index[1];
+		int i2 = index[2];
 		// setup edges each with smallest vertex number first
-		s = INT32_SIGNBITSET(i1 - i0);
+		int s = INT32_SIGNBITSET(i1 - i0);
 		e[0].verts[0] = index[s];
 		e[0].verts[1] = index[s^1];
 		s = INT32_SIGNBITSET(i2 - i1) + 1;
@@ -871,9 +855,9 @@ void idSurface::GenerateEdgeIndexes() {
 		e[2].verts[0] = index[s];
 		e[2].verts[1] = index[s^2];
 		// get edges
-		for ( j = 0; j < 3; j++ ) {
-			v0 = e[j].verts[0];
-			v1 = e[j].verts[1];
+		for ( int j = 0; j < 3; j++ ) {
+			int v0 = e[j].verts[0];
+			int v1 = e[j].verts[1];
 			for ( edgeNum = vertexEdges[v0]; edgeNum >= 0; edgeNum = edgeChain[edgeNum] ) {
 				if ( edges[edgeNum].verts[1] == v1 ) {
 					break;

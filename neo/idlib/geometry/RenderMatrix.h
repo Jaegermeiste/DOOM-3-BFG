@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERMATRIX_H__
 #define __RENDERMATRIX_H__
 
-static const int NUM_FRUSTUM_CORNERS	= 8;
+static constexpr int NUM_FRUSTUM_CORNERS	= 8;
 
 struct frustumCorners_t {
 	float	x[NUM_FRUSTUM_CORNERS];
@@ -253,9 +253,9 @@ idRenderMatrix::IsUniformScale
 ========================
 */
 ID_INLINE bool idRenderMatrix::IsUniformScale(const float epsilon ) const {
-	float d0 = idMath::InvSqrt( m[0*4+0] * m[0*4+0] + m[1*4+0] * m[1*4+0] + m[2*4+0] * m[2*4+0] );
-	float d1 = idMath::InvSqrt( m[0*4+1] * m[0*4+1] + m[1*4+1] * m[1*4+1] + m[2*4+1] * m[2*4+1] );
-	float d2 = idMath::InvSqrt( m[0*4+2] * m[0*4+2] + m[1*4+2] * m[1*4+2] + m[2*4+2] * m[2*4+2] );
+	const float d0 = idMath::InvSqrt( m[0*4+0] * m[0*4+0] + m[1*4+0] * m[1*4+0] + m[2*4+0] * m[2*4+0] );
+	const float d1 = idMath::InvSqrt( m[0*4+1] * m[0*4+1] + m[1*4+1] * m[1*4+1] + m[2*4+1] * m[2*4+1] );
+	const float d2 = idMath::InvSqrt( m[0*4+2] * m[0*4+2] + m[1*4+2] * m[1*4+2] + m[2*4+2] * m[2*4+2] );
 	if ( idMath::Fabs( d0 - d1 ) > epsilon ) { return false; }
 	if ( idMath::Fabs( d1 - d2 ) > epsilon ) { return false; }
 	if ( idMath::Fabs( d0 - d2 ) > epsilon ) { return false; }
@@ -315,7 +315,7 @@ ID_INLINE void idRenderMatrix::TransformDir( const idVec3 & in, idVec3 & out, co
 	float p1 = in[0] * matrix[1][0] + in[1] * matrix[1][1] + in[2] * matrix[1][2];
 	float p2 = in[0] * matrix[2][0] + in[1] * matrix[2][1] + in[2] * matrix[2][2];
 	if ( normalize ) {
-		float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
+		const float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
 		p0 *= r;
 		p1 *= r;
 		p2 *= r;
@@ -336,11 +336,11 @@ ID_INLINE void idRenderMatrix::TransformPlane( const idPlane & in, idPlane & out
 	float p0 = in[0] * matrix[0][0] + in[1] * matrix[0][1] + in[2] * matrix[0][2];
 	float p1 = in[0] * matrix[1][0] + in[1] * matrix[1][1] + in[2] * matrix[1][2];
 	float p2 = in[0] * matrix[2][0] + in[1] * matrix[2][1] + in[2] * matrix[2][2];
-	float d0 = matrix[0][3] - p0 * in[3];
-	float d1 = matrix[1][3] - p1 * in[3];
-	float d2 = matrix[2][3] - p2 * in[3];
+	const float d0 = matrix[0][3] - p0 * in[3];
+	const float d1 = matrix[1][3] - p1 * in[3];
+	const float d2 = matrix[2][3] - p2 * in[3];
 	if ( normalize ) {
-		float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
+		const float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
 		p0 *= r;
 		p1 *= r;
 		p2 *= r;
@@ -363,7 +363,7 @@ ID_INLINE void idRenderMatrix::InverseTransformDir( const idVec3 & in, idVec3 & 
 	float p1 = in[0] * matrix[0][1] + in[1] * matrix[1][1] + in[2] * matrix[2][1];
 	float p2 = in[0] * matrix[0][2] + in[1] * matrix[1][2] + in[2] * matrix[2][2];
 	if ( normalize ) {
-		float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
+		const float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
 		p0 *= r;
 		p1 *= r;
 		p2 *= r;
@@ -386,7 +386,7 @@ ID_INLINE void idRenderMatrix::InverseTransformPlane( const idPlane & in, idPlan
 	float p2 = in[0] * matrix[0][2] + in[1] * matrix[1][2] + in[2] * matrix[2][2] + in[3] * matrix[3][2];
 	float p3 = in[0] * matrix[0][3] + in[1] * matrix[1][3] + in[2] * matrix[2][3] + in[3] * matrix[3][3];
 	if ( normalize ) {
-		float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
+		const float r = idMath::InvSqrt( p0 * p0 + p1 * p1 + p2 * p2 );
 		p0 *= r;
 		p1 *= r;
 		p2 *= r;
@@ -427,7 +427,7 @@ Clip to normalized device coordinates.
 */
 ID_INLINE void idRenderMatrix::TransformClipToDevice( const idVec4 & clip, idVec3 & ndc ) {
 	assert( idMath::Fabs( clip[3] ) > idMath::FLT_SMALLEST_NON_DENORMAL );
-	float r = 1.0f / clip[3];
+	const float r = 1.0f / clip[3];
 	ndc[0] = clip[0] * r;
 	ndc[1] = clip[1] * r;
 	ndc[2] = clip[2] * r;

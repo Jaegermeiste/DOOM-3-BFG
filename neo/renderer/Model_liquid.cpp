@@ -51,7 +51,7 @@ idRenderModelLiquid::idRenderModelLiquid() {
 	drop_height = 4;
 	drop_radius = 4;
 	drop_delay	= 1000;
-    shader		= declManager->FindMaterial( NULL );
+    shader		= declManager->FindMaterial(nullptr);
 	update_tics	= 33;  // ~30 hz
 	time		= 0;
 	seed		= 0;
@@ -445,7 +445,7 @@ void idRenderModelLiquid::InitFromFile( const char *fileName ) {
 	bounds.AddPoint( idVec3( ( verts_x - 1 ) * scale_x, ( verts_y - 1 ) * scale_y, drop_height * 10.0f ) );
 
 	// set the timestamp for reloadmodels
-	fileSystem->ReadFile( name, NULL, &timeStamp );
+	fileSystem->ReadFile( name, nullptr, &timeStamp );
 
 	Reset();
 }
@@ -463,11 +463,11 @@ idRenderModel *idRenderModelLiquid::InstantiateDynamicModel( const struct render
 
 	if ( cachedModel ) {
 		delete cachedModel;
-		cachedModel = NULL;
+		cachedModel = nullptr;
 	}
 
 	if ( !deformInfo ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !view ) {

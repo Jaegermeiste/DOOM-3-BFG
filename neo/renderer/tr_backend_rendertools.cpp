@@ -317,7 +317,7 @@ void RB_ShowOverdraw() {
 	}
 
 	material = declManager->FindMaterial( "textures/common/overdrawtest", false );
-	if ( material == NULL ) {
+	if ( material == nullptr) {
 		return;
 	}
 
@@ -354,8 +354,8 @@ void RB_ShowOverdraw() {
 			const_cast<drawSurf_t *>(surf)->material = material;
 			newDrawSurfs[i++] = const_cast<drawSurf_t *>(surf);
 		}
-		vLight->localInteractions = NULL;
-		vLight->globalInteractions = NULL;
+		vLight->localInteractions = nullptr;
+		vLight->globalInteractions = nullptr;
 	}
 
 	switch( r_showOverDraw.GetInteger() ) {
@@ -553,7 +553,7 @@ static void RB_EnterWeaponDepthHack() {
 
 	memcpy( matrix, backEnd.viewDef->projectionMatrix, sizeof( matrix ) );
 
-	const float modelDepthHack = 0.25f;
+	constexpr float modelDepthHack = 0.25f;
 	matrix[2] *= modelDepthHack;
 	matrix[6] *= modelDepthHack;
 	matrix[10] *= modelDepthHack;
@@ -614,15 +614,15 @@ be updated after the triangle function completes.
 ====================
 */
 static void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, int numDrawSurfs, void (*triFunc_)( const drawSurf_t *) ) {
-	backEnd.currentSpace = NULL;
+	backEnd.currentSpace = nullptr;
 
 	for ( int i = 0 ; i < numDrawSurfs ; i++ ) {
 		const drawSurf_t * drawSurf = drawSurfs[i];
-		if ( drawSurf == NULL ) {
+		if ( drawSurf == nullptr) {
 			continue;
 		}
 		assert( drawSurf->space != NULL );
-		if ( drawSurf->space != NULL ) {	// is it ever NULL?  Do we need to check?
+		if ( drawSurf->space != nullptr) {	// is it ever NULL?  Do we need to check?
 			// Set these values ahead of time so we don't have to reconstruct the matrices on the consoles
 			if ( drawSurf->space->weaponDepthHack ) {
 				RB_SetWeaponDepthHack();
@@ -658,7 +658,7 @@ static void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, int numDr
 		// render it
 		triFunc_( drawSurf );
 
-		if ( drawSurf->space != NULL && ( drawSurf->space->weaponDepthHack || drawSurf->space->modelDepthHack != 0.0f ) ) {
+		if ( drawSurf->space != nullptr && ( drawSurf->space->weaponDepthHack || drawSurf->space->modelDepthHack != 0.0f ) ) {
 			RB_LeaveDepthHack();
 		}
 
@@ -1330,7 +1330,7 @@ static void RB_ShowTextureVectors( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 
 		const srfTriangles_t * tri = drawSurf->frontEndGeo;
 
-		if ( tri->verts == NULL ) {
+		if ( tri->verts == nullptr) {
 			continue;
 		}
 
@@ -1590,7 +1590,7 @@ static void RB_ShowLights() {
 	common->Printf( "volumes: " );	// FIXME: not in back end!
 
 	int count = 0;
-	for ( viewLight_t * vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next ) {
+	for ( viewLight_t * vLight = backEnd.viewDef->viewLights; vLight != nullptr; vLight = vLight->next ) {
 		count++;
 
 		// depth buffered planes
@@ -2319,9 +2319,9 @@ Display a single image over most of the screen
 ================
 */
 void RB_TestImage() {
-	idImage	*image = NULL;
-	idImage *imageCr = NULL;
-	idImage *imageCb = NULL;
+	idImage	*image = nullptr;
+	idImage *imageCr = nullptr;
+	idImage *imageCb = nullptr;
 	int		max;
 	float	w, h;
 
@@ -2334,12 +2334,12 @@ void RB_TestImage() {
 		cinData_t	cin;
 
 		cin = tr.testVideo->ImageForTime( backEnd.viewDef->renderView.time[1] - tr.testVideoStartTime );
-		if ( cin.imageY != NULL ) {
+		if ( cin.imageY != nullptr) {
 			image = cin.imageY;
 			imageCr = cin.imageCr;
 			imageCb = cin.imageCb;
 		} else {
-			tr.testImage = NULL;
+			tr.testImage = nullptr;
 			return;
 		}
 		w = 0.25;
@@ -2366,10 +2366,10 @@ void RB_TestImage() {
 	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 
 	// not really necessary but just for clarity
-	const float screenWidth = 1.0f;
-	const float screenHeight = 1.0f;
-	const float halfScreenWidth = screenWidth * 0.5f;
-	const float halfScreenHeight = screenHeight * 0.5f;
+	constexpr float screenWidth = 1.0f;
+	constexpr float screenHeight = 1.0f;
+	constexpr float halfScreenWidth = screenWidth * 0.5f;
+	constexpr float halfScreenHeight = screenHeight * 0.5f;
 
 	float scale[16] = { 0 };
 	scale[0] = w; // scale
@@ -2403,7 +2403,7 @@ void RB_TestImage() {
 	GL_Color( 1, 1, 1, 1 );
 
 	// Bind the Texture
-	if ( ( imageCr != NULL ) && ( imageCb != NULL ) ) {
+	if ( ( imageCr != nullptr) && ( imageCb != nullptr) ) {
 		GL_SelectTexture( 0 );
 		image->Bind();
 		GL_SelectTexture( 1 );
@@ -2527,7 +2527,7 @@ void RB_ShowTrace( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		surf = drawSurfs[i];
 		tri = surf->frontEndGeo;
 
-		if ( tri == NULL || tri->verts == NULL ) {
+		if ( tri == nullptr || tri->verts == nullptr) {
 			continue;
 		}
 

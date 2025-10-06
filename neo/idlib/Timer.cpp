@@ -39,16 +39,14 @@ idTimer::InitBaseClockTicks
 */
 void idTimer::InitBaseClockTicks() const {
 	idTimer timer;
-	double ct, b;
-	int i;
 
 	base = 0.0;
-	b = -1.0;
-	for ( i = 0; i < 1000; i++ ) {
+	double b = -1.0;
+	for ( int i = 0; i < 1000; i++ ) {
 		timer.Clear();
 		timer.Start();
 		timer.Stop();
-		ct = timer.ClockTicks();
+		double ct = timer.ClockTicks();
 		if ( b < 0.0 || ct < b ) {
 			b = ct;
 		}
@@ -134,7 +132,7 @@ void idTimerReport::AddTime( const char *name, idTimer *time ) {
 		}
 	}
 	if ( i == names.Num() ) {
-		int index = AddReport( name );
+		const int index = AddReport( name );
 		if ( index >= 0 ) {
 			timers[index]->Clear();
 			*timers[index] += *time;

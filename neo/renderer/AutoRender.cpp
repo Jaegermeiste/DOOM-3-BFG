@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 #include "tr_local.h"
 
-const int AUTO_RENDER_STACK_SIZE = 256 * 1024;
+constexpr int AUTO_RENDER_STACK_SIZE = 256 * 1024;
 
 idAutoRender rAutoRender;
 
@@ -74,7 +74,7 @@ void idAutoRender::StartBackgroundAutoSwaps( autoRenderIconType_t iconType ) {
 
 	idLib::Printf("Starting Background AutoSwaps\n");
 
-	const bool captureToImage = true;
+	constexpr bool captureToImage = true;
 	common->UpdateScreen( captureToImage );
 
 	// unbind any shaders prior to entering the background autoswaps so we don't run 
@@ -127,8 +127,8 @@ void idAutoRender::RenderFrame() {
 	GL_SetDefaultState();
 	
 	GL_Cull( CT_TWO_SIDED );
-	
-	const bool stereoRender = false;
+
+	constexpr bool stereoRender = false;
 
 	const int width = renderSystem->GetWidth();
 	const int height = renderSystem->GetHeight();

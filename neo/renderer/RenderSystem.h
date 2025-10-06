@@ -152,22 +152,22 @@ struct emptyCommand_t;
 
 bool R_IsInitialized();
 
-const int SMALLCHAR_WIDTH		= 8;
-const int SMALLCHAR_HEIGHT		= 16;
-const int BIGCHAR_WIDTH			= 16;
-const int BIGCHAR_HEIGHT		= 16;
+constexpr int SMALLCHAR_WIDTH		= 8;
+constexpr int SMALLCHAR_HEIGHT		= 16;
+constexpr int BIGCHAR_WIDTH			= 16;
+constexpr int BIGCHAR_HEIGHT		= 16;
 
 // all drawing is done to a 640 x 480 virtual screen size
 // and will be automatically scaled to the real resolution
-const int SCREEN_WIDTH			= 640;
-const int SCREEN_HEIGHT			= 480;
+constexpr int SCREEN_WIDTH			= 640;
+constexpr int SCREEN_HEIGHT			= 480;
 
-const int TITLESAFE_LEFT		= 32;
-const int TITLESAFE_RIGHT		= 608;
-const int TITLESAFE_TOP			= 24;
-const int TITLESAFE_BOTTOM		= 456;
-const int TITLESAFE_WIDTH		= TITLESAFE_RIGHT - TITLESAFE_LEFT;
-const int TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
+constexpr int TITLESAFE_LEFT		= 32;
+constexpr int TITLESAFE_RIGHT		= 608;
+constexpr int TITLESAFE_TOP			= 24;
+constexpr int TITLESAFE_BOTTOM		= 456;
+constexpr int TITLESAFE_WIDTH		= TITLESAFE_RIGHT - TITLESAFE_LEFT;
+constexpr int TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
 
 class idRenderWorld;
 
@@ -227,7 +227,7 @@ public:
 
 	virtual void			BeginAutomaticBackgroundSwaps( autoRenderIconType_t icon = AUTORENDER_DEFAULTICON ) = 0;
 	virtual void			EndAutomaticBackgroundSwaps() = 0;
-	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t * icon = NULL ) const = 0;
+	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t * icon = nullptr) const = 0;
 
 	// font support
 	virtual class idFont *	RegisterFont( const char * fontName ) = 0;

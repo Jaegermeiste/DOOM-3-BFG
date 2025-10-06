@@ -36,13 +36,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "ListWindow.h"
 
 // Number of pixels above the text that the rect starts
-static const int pixelOffset = 3;
+static constexpr int pixelOffset = 3;
 
 // number of pixels between columns
-static const int tabBorder = 4;
+static constexpr int tabBorder = 4;
 
 // Time in milliseconds between clicks to register as a double-click
-static const int doubleClickSpeed = 300;
+static constexpr int doubleClickSpeed = 300;
 
 void idListWindow::CommonInit() {
 	typed = "";
@@ -277,7 +277,7 @@ bool idListWindow::ParseInternalVar(const char *_name, idTokenParser *src) {
 
 		ParseString(src, matName);
 		mat = declManager->FindMaterial(matName);
-		if ( mat != NULL && !mat->TestMaterialFlag( MF_DEFAULTED ) ) {
+		if ( mat != nullptr && !mat->TestMaterialFlag( MF_DEFAULTED ) ) {
 			mat->SetSort(SS_GUI );
 		}
 		iconMaterials.Set(_name, mat);
@@ -441,7 +441,7 @@ void idListWindow::InitScroller( bool horizontal )
 	}
 
 	scroller->InitWithDefaults(scrollerName, scrollRect, foreColor, matColor, mat->GetName(), thumbImage, !horizontal, true);
-	InsertChild(scroller, NULL);
+	InsertChild(scroller, nullptr);
 	scroller->SetBuddy(this);
 }
 

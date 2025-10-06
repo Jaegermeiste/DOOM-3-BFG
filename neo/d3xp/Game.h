@@ -44,11 +44,11 @@ If you have questions concerning this license or the applicable additional terms
 
 struct gameReturn_t {
 
-	gameReturn_t() :
-		syncNextGameFrame( false ), 
-		vibrationLow( 0 ),
-		vibrationHigh( 0 ) {
-
+	gameReturn_t() noexcept : sessionCommand{},
+	                 syncNextGameFrame(false),
+	                 vibrationLow(0),
+	                 vibrationHigh(0)
+	{
 	}
 
 	char		sessionCommand[MAX_STRING_CHARS];	// "map", "disconnect", "victory", etc
@@ -308,7 +308,7 @@ extern idGameEdit *				gameEdit;
 ===============================================================================
 */
 
-const int GAME_API_VERSION		= 8;
+constexpr int GAME_API_VERSION		= 8;
 
 typedef struct {
 

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __JOINTTRANSFORM_H__
 #define __JOINTTRANSFORM_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -48,10 +50,10 @@ public:
 };
 
 // offsets for SIMD code
-#define JOINTQUAT_SIZE				(8*4)		// sizeof( idJointQuat )
-#define JOINTQUAT_SIZE_SHIFT		5			// log2( sizeof( idJointQuat ) )
-#define JOINTQUAT_Q_OFFSET			(0*4)		// offsetof( idJointQuat, q )
-#define JOINTQUAT_T_OFFSET			(4*4)		// offsetof( idJointQuat, t )
+#define JOINTQUAT_SIZE (8 * 4)		// sizeof( idJointQuat );
+#define JOINTQUAT_SIZE_SHIFT 5			// log2( sizeof( idJointQuat ) );
+#define JOINTQUAT_Q_OFFSET  (0 * 4)		// offsetof( idJointQuat, q );
+#define JOINTQUAT_T_OFFSET (4 * 4)		// offsetof( idJointQuat, t );
 
 assert_sizeof( idJointQuat, JOINTQUAT_SIZE );
 assert_sizeof( idJointQuat, (1<<JOINTQUAT_SIZE_SHIFT) );
@@ -296,9 +298,7 @@ idJointMat::Compare
 ========================
 */
 ID_INLINE bool idJointMat::Compare( const idJointMat &a ) const {
-	int i;
-
-	for ( i = 0; i < 12; i++ ) {
+	for ( int i = 0; i < 12; i++ ) {
 		if ( mat[i] != a.mat[i] ) {
 			return false;
 		}
@@ -312,9 +312,7 @@ idJointMat::Compare
 ========================
 */
 ID_INLINE bool idJointMat::Compare( const idJointMat &a, const float epsilon ) const {
-	int i;
-
-	for ( i = 0; i < 12; i++ ) {
+	for ( int i = 0; i < 12; i++ ) {
 		if ( idMath::Fabs( mat[i] - a.mat[i] ) > epsilon ) {
 			return false;
 		}

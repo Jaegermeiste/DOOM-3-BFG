@@ -135,11 +135,8 @@ Returns the number of nodes in the list.
 */
 template< class type >
 int idLinkList<type>::Num() const {
-	idLinkList<type>	*node;
-	int					num;
-
-	num = 0;
-	for( node = head->next; node != head; node = node->next ) {
+	int num = 0;
+	for( idLinkList<type>* node = head->next; node != head; node = node->next ) {
 		num++;
 	}
 
@@ -266,7 +263,7 @@ Returns the next object in the list, or NULL if at the end.
 template< class type >
 type *idLinkList<type>::Next() const {
 	if ( !next || ( next == head ) ) {
-		return NULL;
+		return nullptr;
 	}
 	return next->owner;
 }
@@ -281,7 +278,7 @@ Returns the previous object in the list, or NULL if at the beginning.
 template< class type >
 type *idLinkList<type>::Prev() const {
 	if ( !prev || ( prev == head ) ) {
-		return NULL;
+		return nullptr;
 	}
 	return prev->owner;
 }
@@ -296,7 +293,7 @@ Returns the next node in the list, or NULL if at the end.
 template< class type >
 idLinkList<type> *idLinkList<type>::NextNode() const {
 	if ( next == head ) {
-		return NULL;
+		return nullptr;
 	}
 	return next;
 }
@@ -311,7 +308,7 @@ Returns the previous node in the list, or NULL if at the beginning.
 template< class type >
 idLinkList<type> *idLinkList<type>::PrevNode() const {
 	if ( prev == head ) {
-		return NULL;
+		return nullptr;
 	}
 	return prev;
 }

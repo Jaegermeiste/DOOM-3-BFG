@@ -51,7 +51,7 @@ idAchievementSystem
 */
 class idAchievementSystem {
 public:
-	static const int MAX_ACHIEVEMENTS = 128;		// This matches the max number of achievements bits in the profile
+	static constexpr int MAX_ACHIEVEMENTS = 128;		// This matches the max number of achievements bits in the profile
 
 	virtual			~idAchievementSystem() {}
 
@@ -88,7 +88,7 @@ public:
 	virtual void	Pump() = 0;
 
 	// Cancels all in-flight achievements for all users if NULL, resets the system so a Init() must be re-issued
-	virtual void	Reset( idLocalUser * user = NULL ) {}
+	virtual void	Reset( idLocalUser * user = nullptr) {}
 
 	// Cancels all in-flight achievements, not very useful on PC
 	virtual void	Cancel( idLocalUser * user ) {}

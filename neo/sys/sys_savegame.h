@@ -126,7 +126,7 @@ struct saveGameCheck_t {
 	saveGameCheck_t() { 
 		exists = false;
 		autosaveExists = false;
-		autosaveFolder = NULL;
+		autosaveFolder = nullptr;
 	}
 	bool exists;
 	bool autosaveExists;
@@ -241,7 +241,7 @@ saveGameThreadArgs_t
 */
 struct saveGameThreadArgs_t {
 	saveGameThreadArgs_t() :
-		saveLoadParms( NULL ) {
+		saveLoadParms(nullptr) {
 	}
 	
 
@@ -284,7 +284,7 @@ class idSaveGameProcessor {
 
 public:
 	DEFINE_CLASS( idSaveGameProcessor );
-	static const int MAX_COMPLETED_CALLBACKS = 5;
+	static constexpr int MAX_COMPLETED_CALLBACKS = 5;
 
 							idSaveGameProcessor();
 	virtual					~idSaveGameProcessor() { }
@@ -388,7 +388,7 @@ public:
 		PACKAGE_NUM
 	};
 
-	const static int MAX_SAVEGAME_DIRECTORY_DEPTH = 5;
+	static constexpr int MAX_SAVEGAME_DIRECTORY_DEPTH = 5;
 
 	explicit				idSaveGameManager();
 							~idSaveGameManager();

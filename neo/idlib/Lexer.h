@@ -64,72 +64,75 @@ typedef enum {
 } lexerFlags_t;
 
 // punctuation ids
-#define P_RSHIFT_ASSIGN				1
-#define P_LSHIFT_ASSIGN				2
-#define P_PARMS						3
-#define P_PRECOMPMERGE				4
+typedef enum punctutation_ids_e {
+	P_NONE,
+	P_RSHIFT_ASSIGN,
+	P_LSHIFT_ASSIGN,
+	P_PARMS,
+	P_PRECOMPMERGE,
 
-#define P_LOGIC_AND					5
-#define P_LOGIC_OR					6
-#define P_LOGIC_GEQ					7
-#define P_LOGIC_LEQ					8
-#define P_LOGIC_EQ					9
-#define P_LOGIC_UNEQ				10
+	P_LOGIC_AND,
+	P_LOGIC_OR,
+	P_LOGIC_GEQ,
+	P_LOGIC_LEQ,
+	P_LOGIC_EQ,
+	P_LOGIC_UNEQ,
 
-#define P_MUL_ASSIGN				11
-#define P_DIV_ASSIGN				12
-#define P_MOD_ASSIGN				13
-#define P_ADD_ASSIGN				14
-#define P_SUB_ASSIGN				15
-#define P_INC						16
-#define P_DEC						17
+	P_MUL_ASSIGN,
+	P_DIV_ASSIGN,
+	P_MOD_ASSIGN,
+	P_ADD_ASSIGN,
+	P_SUB_ASSIGN,
+	P_INC,
+	P_DEC,
 
-#define P_BIN_AND_ASSIGN			18
-#define P_BIN_OR_ASSIGN				19
-#define P_BIN_XOR_ASSIGN			20
-#define P_RSHIFT					21
-#define P_LSHIFT					22
+	P_BIN_AND_ASSIGN,
+	P_BIN_OR_ASSIGN,
+	P_BIN_XOR_ASSIGN,
+	P_RSHIFT,
+	P_LSHIFT,
 
-#define P_POINTERREF				23
-#define P_CPP1						24
-#define P_CPP2						25
-#define P_MUL						26
-#define P_DIV						27
-#define P_MOD						28
-#define P_ADD						29
-#define P_SUB						30
-#define P_ASSIGN					31
+	P_POINTERREF,
+	P_CPP1,
+	P_CPP2,
+	P_MUL,
+	P_DIV,
+	P_MOD,
+	P_ADD,
+	P_SUB,
+	P_ASSIGN,
 
-#define P_BIN_AND					32
-#define P_BIN_OR					33
-#define P_BIN_XOR					34
-#define P_BIN_NOT					35
+	P_BIN_AND,
+	P_BIN_OR,
+	P_BIN_XOR,
+	P_BIN_NOT,
 
-#define P_LOGIC_NOT					36
-#define P_LOGIC_GREATER				37
-#define P_LOGIC_LESS				38
+	P_LOGIC_NOT,
+	P_LOGIC_GREATER,
+	P_LOGIC_LESS,
 
-#define P_REF						39
-#define P_COMMA						40
-#define P_SEMICOLON					41
-#define P_COLON						42
-#define P_QUESTIONMARK				43
+	P_REF,
+	P_COMMA,
+	P_SEMICOLON,
+	P_COLON,
+	P_QUESTIONMARK,
 
-#define P_PARENTHESESOPEN			44
-#define P_PARENTHESESCLOSE			45
-#define P_BRACEOPEN					46
-#define P_BRACECLOSE				47
-#define P_SQBRACKETOPEN				48
-#define P_SQBRACKETCLOSE			49
-#define P_BACKSLASH					50
+	P_PARENTHESESOPEN,
+	P_PARENTHESESCLOSE,
+	P_BRACEOPEN,
+	P_BRACECLOSE,
+	P_SQBRACKETOPEN,
+	P_SQBRACKETCLOSE,
+	P_BACKSLASH,
 
-#define P_PRECOMP					51
-#define P_DOLLAR					52
+	P_PRECOMP,
+	P_DOLLAR
+} punctuation_ids_t;
 
 // punctuation
 typedef struct punctuation_s
 {
-	char *p;						// punctuation character(s)
+	const char *p;						// punctuation character(s)
 	int n;							// punctuation id
 } punctuation_t;
 
@@ -151,17 +154,17 @@ public:
 					// load a script from the given memory with the given length and a specified line offset,
 					// so source strings extracted from a file can still refer to proper line numbers in the file
 					// NOTE: the ptr is expected to point at a valid C string: ptr[length] == '\0'
-	int				LoadMemory( const char *ptr, int length, const char *name, int startLine = 1 );
+	int				LoadMemory(const char *ptr, size_t length, const char *name, int startLine = 1);
 					// free the script
 	void			FreeSource();
 					// returns true if a script is loaded
-	int				IsLoaded() { return idLexer::loaded; };
+	int				IsLoaded() const { return idLexer::loaded; };
 					// read a token
 	int				ReadToken( idToken *token );
 					// expect a certain token, reads the token when available
 	int				ExpectTokenString( const char *string );
 					// expect a certain token type
-	int				ExpectTokenType( int type, int subtype, idToken *token );
+	int				ExpectTokenType(int type, const size_t subtype, idToken *token);
 					// expect a token
 	int				ExpectAnyToken( idToken *token );
 					// returns true when the token is available
@@ -194,7 +197,7 @@ public:
 	bool			ParseBool();
 					// read a floating point number.  If errorFlag is NULL, a non-numeric token will
 					// issue an Error().  If it isn't NULL, it will issue a Warning() and set *errorFlag = true
-	float			ParseFloat( bool *errorFlag = NULL );
+	float			ParseFloat( bool *errorFlag = nullptr);
 					// parse matrices with floats
 	int				Parse1DMatrix( int x, float *m );
 	int				Parse2DMatrix( int y, int x, float *m );
@@ -216,29 +219,29 @@ public:
 					// set an array with punctuations, NULL restores default C/C++ set, see default_punctuations for an example
 	void			SetPunctuations( const punctuation_t *p );
 					// returns a pointer to the punctuation with the given id
-	const char *	GetPunctuationFromId( int id );
+	const char *	GetPunctuationFromId( int id ) const;
 					// get the id for the given punctuation
-	int				GetPunctuationId( const char *p );
+	int				GetPunctuationId( const char *p ) const;
 					// set lexer flags
 	void			SetFlags( int flags );
 					// get lexer flags
-	int				GetFlags();
+	int				GetFlags() const;
 					// reset the lexer
 	void			Reset();
 					// returns true if at the end of the file
-	bool			EndOfFile();
+	bool			EndOfFile() const;
 					// returns the current filename
 	const char *	GetFileName();
 					// get offset in script
-	const int		GetFileOffset();
+	const int		GetFileOffset() const;
 					// get file time
-	const ID_TIME_T	GetFileTime();
+	const ID_TIME_T	GetFileTime() const;
 					// returns the current line number
-	const int		GetLineNum();
+	const int		GetLineNum() const;
 					// print an error message
 	void			Error( VERIFY_FORMAT_STRING const char *str, ... );
 					// print a warning message
-	void			Warning( VERIFY_FORMAT_STRING const char *str, ... );
+	void			Warning( VERIFY_FORMAT_STRING const char *str, ... ) const;
 					// returns true if Error() was called with LEXFL_NOFATALERRORS or LEXFL_NOERRORS set
 	bool			HadError() const;
 
@@ -255,8 +258,8 @@ private:
 	const char *	lastScript_p;			// script pointer before reading token
 	const char *	whiteSpaceStart_p;		// start of last white space
 	const char *	whiteSpaceEnd_p;		// end of last white space
-	ID_TIME_T			fileTime;				// file time
-	int				length;					// length of the script in bytes
+	ID_TIME_T		fileTime;				// file time
+	size_t			length;					// length of the script in bytes
 	int				line;					// current line in script
 	int				lastline;				// line before reading token
 	int				tokenavailable;			// set by unreadToken
@@ -280,22 +283,25 @@ private:
 	int				ReadPunctuation( idToken *token );
 	int				ReadPrimitive( idToken *token );
 	int				CheckString( const char *str ) const;
-	int				NumLinesCrossed();
+	int				NumLinesCrossed() const;
 };
 
 ID_INLINE const char *idLexer::GetFileName() {
 	return idLexer::filename;
 }
 
-ID_INLINE const int idLexer::GetFileOffset() {
+ID_INLINE const int idLexer::GetFileOffset() const
+{
 	return idLexer::script_p - idLexer::buffer;
 }
 
-ID_INLINE const ID_TIME_T idLexer::GetFileTime() {
+ID_INLINE const ID_TIME_T idLexer::GetFileTime() const
+{
 	return idLexer::fileTime;
 }
 
-ID_INLINE const int idLexer::GetLineNum() {
+ID_INLINE const int idLexer::GetLineNum() const
+{
 	return idLexer::line;
 }
 
@@ -303,7 +309,8 @@ ID_INLINE void idLexer::SetFlags(const int flags ) {
 	idLexer::flags = flags;
 }
 
-ID_INLINE int idLexer::GetFlags() {
+ID_INLINE int idLexer::GetFlags() const
+{
 	return idLexer::flags;
 }
 

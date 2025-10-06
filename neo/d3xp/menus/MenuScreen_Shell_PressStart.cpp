@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../Game_local.h"
 #include "../../framework/Common_local.h"
 
-static const int NUM_GAME_SELECTIONS_VISIBLE = 5;
+static constexpr int NUM_GAME_SELECTIONS_VISIBLE = 5;
 extern idCVar g_demoMode;
 
 namespace {

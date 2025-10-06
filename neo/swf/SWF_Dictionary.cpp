@@ -35,12 +35,12 @@ idSWF::idSWFDictionaryEntry::idSWFDictionaryEntry
 */
 idSWFDictionaryEntry::idSWFDictionaryEntry() :
 	type( SWF_DICT_NULL ),
-	material( NULL ),
-	shape( NULL ),
-	sprite( NULL ),
-	font( NULL ),
-	text( NULL ),
-	edittext( NULL ),
+	material(nullptr),
+	shape(nullptr),
+	sprite(nullptr),
+	font(nullptr),
+	text(nullptr),
+	edittext(nullptr),
 	imageSize( 0, 0 ),
 	imageAtlasOffset( 0, 0 ),
 	channelScale( 1.0f, 1.0f, 1.0f, 1.0f ) {
@@ -76,12 +76,12 @@ idSWFDictionaryEntry & idSWFDictionaryEntry::operator=( idSWFDictionaryEntry & o
 	imageSize = other.imageSize;
 	imageAtlasOffset = other.imageAtlasOffset;
 	other.type = SWF_DICT_NULL;
-	other.material = NULL;
-	other.shape = NULL;
-	other.sprite = NULL;
-	other.font = NULL;
-	other.text = NULL;
-	other.edittext = NULL;
+	other.material = nullptr;
+	other.shape = nullptr;
+	other.sprite = nullptr;
+	other.font = nullptr;
+	other.text = nullptr;
+	other.edittext = nullptr;
 	return *this;
 }
 
@@ -98,7 +98,7 @@ idSWFDictionaryEntry * idSWF::AddDictionaryEntry( int characterID, swfDictType_t
 
 	if ( dictionary[ characterID ].type != SWF_DICT_NULL ) {
 		idLib::Warning( "%s: Duplicate character %d", filename.c_str(), characterID );
-		return NULL;
+		return nullptr;
 	}
 
 	dictionary[ characterID ].type = type;
@@ -127,12 +127,12 @@ idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID, swfDictType_
 
 	if ( dictionary.Num() < characterID + 1 ) {
 		idLib::Warning( "%s: Could not find character %d", filename.c_str(), characterID );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( dictionary[ characterID ].type != type ) {
 		idLib::Warning( "%s: Character %d is the wrong type", filename.c_str(), characterID );
-		return NULL;
+		return nullptr;
 	}
 
 	return &dictionary[ characterID ];
@@ -148,7 +148,7 @@ idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID ) {
 
 	if ( dictionary.Num() < characterID + 1 ) {
 		idLib::Warning( "%s: Could not find character %d", filename.c_str(), characterID );
-		return NULL;
+		return nullptr;
 	}
 
 	return &dictionary[ characterID ];

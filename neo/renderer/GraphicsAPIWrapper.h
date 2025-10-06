@@ -53,9 +53,9 @@ class idRenderModelSurface;
 class idDeclRenderProg;
 class idRenderTexture;
 
-static const int MAX_OCCLUSION_QUERIES = 4096;
+static constexpr int MAX_OCCLUSION_QUERIES = 4096;
 // returned by GL_GetDeferredQueryResult() when the query is from too long ago and the result is no longer available
-static const int OCCLUSION_QUERY_TOO_OLD				= -1;
+static constexpr int OCCLUSION_QUERY_TOO_OLD				= -1;
 
 /*
 ================================================================================================

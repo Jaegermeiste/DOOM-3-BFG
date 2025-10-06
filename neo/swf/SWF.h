@@ -62,7 +62,7 @@ public:
 };
 
 struct purgableSwfImage_t {
-	purgableSwfImage_t() { image = NULL; swfFrameNum = 0; }
+	purgableSwfImage_t() { image = nullptr; swfFrameNum = 0; }
 	idImage * image;
 	unsigned swfFrameNum;
 };
@@ -74,7 +74,7 @@ This class handles loading and rendering SWF files
 */
 class idSWF {
 public:
-	idSWF( const char * filename, idSoundWorld * soundWorld = NULL );
+	idSWF( const char * filename, idSoundWorld * soundWorld = nullptr);
 	~idSWF();
 
 	bool	IsLoaded() { return ( frameRate > 0 ); }
@@ -271,7 +271,7 @@ private:
 		tooltipIcon_t() {
 			startIndex = -1;
 			endIndex = -1;
-			material = NULL;
+			material = nullptr;
 			imageWidth = 0;
 			imageHeight = 0;
 			baseline = 0;

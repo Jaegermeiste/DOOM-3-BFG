@@ -27,14 +27,16 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <utility>
+
 #include "../precompiled.h"
 
 #include "Simd_Generic.h"
 #include "Simd_SSE.h"
 
-idSIMDProcessor	*	processor = NULL;			// pointer to SIMD processor
-idSIMDProcessor *	generic = NULL;				// pointer to generic SIMD implementation
-idSIMDProcessor *	SIMDProcessor = NULL;
+static idSIMDProcessor	*	processor = nullptr;			// pointer to SIMD processor
+static idSIMDProcessor *	generic = nullptr;				// pointer to generic SIMD implementation
+idSIMDProcessor *	SIMDProcessor = nullptr;
 
 /*
 ================
@@ -44,7 +46,7 @@ idSIMD::Init
 void idSIMD::Init() {
 	generic = new (TAG_MATH) idSIMD_Generic;
 	generic->cpuid = CPUID_GENERIC;
-	processor = NULL;
+	processor = nullptr;
 	SIMDProcessor = generic;
 }
 
@@ -54,10 +56,9 @@ idSIMD::InitProcessor
 ============
 */
 void idSIMD::InitProcessor( const char *module, const bool forceGeneric ) {
-	cpuid_t cpuid;
 	idSIMDProcessor *newProcessor;
 
-	cpuid = idLib::sys->GetProcessorId();
+	cpuid_t cpuid = idLib::sys->GetProcessorId();
 
 	if ( forceGeneric ) {
 
@@ -65,7 +66,7 @@ void idSIMD::InitProcessor( const char *module, const bool forceGeneric ) {
 
 	} else {
 
-		if ( processor == NULL ) {
+		if ( processor == nullptr) {
 			if ( ( cpuid & CPUID_MMX ) && ( cpuid & CPUID_SSE ) ) {
 				processor = new (TAG_MATH) idSIMD_SSE;
 			} else {
@@ -103,9 +104,9 @@ void idSIMD::Shutdown() {
 		delete processor;
 	}
 	delete generic;
-	generic = NULL;
-	processor = NULL;
-	SIMDProcessor = NULL;
+	generic = nullptr;
+	processor = nullptr;
+	SIMDProcessor = nullptr;
 }
 
 
@@ -121,17 +122,22 @@ void idSIMD::Shutdown() {
 
 #define RANDOM_SEED		1013904223L	//((int)idLib::sys->GetClockTicks())
 
-idSIMDProcessor *p_simd;
-idSIMDProcessor *p_generic;
-long baseClocks = 0;
+static idSIMDProcessor *p_simd = nullptr;
+static idSIMDProcessor *p_generic = nullptr;
 
-
+#ifdef ID_WIN32
 #define TIME_TYPE int
+#elif defined (ID_WIN64)
+#define TIME_TYPE uint64_t
+#endif
+
+static TIME_TYPE baseClocks = 0;
 
 #pragma warning(disable : 4731)     // frame pointer register 'ebx' modified by inline assembly code
 
-long saved_ebx = 0;
+static long saved_ebx = 0;
 
+#ifdef ID_WIN32
 #define StartRecordTime( start )			\
 	__asm mov saved_ebx, ebx				\
 	__asm xor eax, eax						\
@@ -149,7 +155,20 @@ long saved_ebx = 0;
 	__asm mov ebx, saved_ebx				\
 	__asm xor eax, eax						\
 	__asm cpuid
-
+#elif defined (ID_WIN64)
+// Read TSC with proper serialization.
+// Pattern: LFENCE; RDTSC ... RDTSCP; LFENCE
+inline void StartRecordTime(TIME_TYPE &start) {
+	_mm_lfence();                 // serialize before start
+	start = __rdtsc();             // t0 (not serializing itself)
+}
+inline void StopRecordTime(TIME_TYPE &end) {
+	unsigned aux;
+	const uint64_t t = __rdtscp(&aux);  // serializing read
+	_mm_lfence();                 // keep following loads/stores after
+	end = t;
+}
+#endif // ID_WIN32
 
 #define GetBest( start, end, best )			\
 	if ( !best || end - start < best ) {	\
@@ -162,17 +181,15 @@ long saved_ebx = 0;
 PrintClocks
 ============
 */
-void PrintClocks( char *string, const int dataCount, int clocks, int otherClocks = 0 ) {
-	int i;
-
+static void PrintClocks(const char *string, const int dataCount, TIME_TYPE clocks, TIME_TYPE otherClocks = 0 ) {
 	idLib::common->Printf( string );
-	for ( i = idStr::LengthWithoutColors(string); i < 48; i++ ) {
+	for ( int i = idStr::LengthWithoutColors(string); i < 48; i++ ) {
 		idLib::common->Printf(" ");
 	}
 	clocks -= baseClocks;
 	if ( otherClocks && clocks ) {
 		otherClocks -= baseClocks;
-		float p = (float)otherClocks / (float)clocks;
+		const float p = static_cast<float>(otherClocks) / static_cast<float>(clocks);
 		idLib::common->Printf( "c = %4d, clcks = %5d, %.1fX\n", dataCount, clocks, p );
 	} else {
 		idLib::common->Printf( "c = %4d, clcks = %5d\n", dataCount, clocks );
@@ -184,11 +201,10 @@ void PrintClocks( char *string, const int dataCount, int clocks, int otherClocks
 GetBaseClocks
 ============
 */
-void GetBaseClocks() {
-	int i, start, end, bestClocks;
+static void GetBaseClocks() {
+	TIME_TYPE start = 0, end = 0, bestClocks = 0;
 
-	bestClocks = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
+	for ( unsigned short i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		StopRecordTime( end );
 		GetBest( start, end, bestClocks );
@@ -201,9 +217,9 @@ void GetBaseClocks() {
 TestMinMax
 ============
 */
-void TestMinMax() {
+static void TestMinMax() {
 	int i;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	ALIGN16( float fsrc0[COUNT] );
 	ALIGN16( idVec2 v2src0[COUNT] );
 	ALIGN16( idVec3 v3src0[COUNT] );
@@ -212,7 +228,6 @@ void TestMinMax() {
 	float min = 0.0f, max = 0.0f, min2 = 0.0f, max2 = 0.0f;
 	idVec2 v2min, v2max, v2min2, v2max2;
 	idVec3 vmin, vmax, vmin2, vmax2;
-	const char *result;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -229,7 +244,7 @@ void TestMinMax() {
 
 	idLib::common->Printf("====================================\n" );
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		min = idMath::INFINITY;
 		max = -idMath::INFINITY;
@@ -240,7 +255,7 @@ void TestMinMax() {
 	}
 	PrintClocks( "generic->MinMax( float[] )", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_simd->MinMax( min2, max2, fsrc0, COUNT );
@@ -248,7 +263,7 @@ void TestMinMax() {
 		GetBest( start, end, bestClocksSIMD );
 	}
 
-	result = ( min == min2 && max == max2 ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (min == min2 && max == max2) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->MinMax( float[] ) %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 
 	bestClocksGeneric = 0;
@@ -337,12 +352,11 @@ void TestMinMax() {
 TestMemcpy
 ============
 */
-void TestMemcpy() {
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+static void TestMemcpy() {
+	TIME_TYPE start, end;
 	int i;
 	byte test0[BIG_COUNT];
 	byte test1[BIG_COUNT];
-	const char * result;
 
 	idRandom random( RANDOM_SEED );
 	for ( i = 0; i < BIG_COUNT; i++ ) {
@@ -351,7 +365,7 @@ void TestMemcpy() {
 
 	idLib::common->Printf("====================================\n" );
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_generic->Memcpy( test1, test0, BIG_COUNT );
@@ -364,7 +378,7 @@ void TestMemcpy() {
 		test0[i] = random.RandomInt( 255 );
 	}
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_simd->Memcpy( test1, test0, BIG_COUNT );
@@ -376,7 +390,7 @@ void TestMemcpy() {
 			break;
 		}
 	}
-	result = ( i >= BIG_COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= BIG_COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->Memcpy() %s", result), BIG_COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -385,18 +399,17 @@ void TestMemcpy() {
 TestMemset
 ============
 */
-void TestMemset() {
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
-	int i, j;
-	const char * result;
+static void TestMemset() {
+	TIME_TYPE start, end;
+	int i;
 	byte test0[BIG_COUNT];
 
 	idRandom random( RANDOM_SEED );
-	j = 1 + random.RandomInt( 254 );
+	int j = 1 + random.RandomInt(254);
 
 	idLib::common->Printf("====================================\n" );
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_generic->Memset( test0, j, BIG_COUNT );
@@ -407,7 +420,7 @@ void TestMemset() {
 
 	j = 1 + random.RandomInt( 254 );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_simd->Memset( test0, j, BIG_COUNT );
@@ -415,11 +428,11 @@ void TestMemset() {
 		GetBest( start, end, bestClocksSIMD );
 	}
 	for ( i = 0; i < BIG_COUNT; i++ ) {
-		if ( test0[i] != j ) {
+		if (std::cmp_not_equal(test0[i], j)) {
 			break;
 		}
 	}
-	result = ( i >= BIG_COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= BIG_COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->Memset() %s", result), BIG_COUNT, bestClocksSIMD, bestClocksGeneric );
 
 	j = 0;
@@ -441,7 +454,7 @@ void TestMemset() {
 		GetBest( start, end, bestClocksSIMD );
 	}
 	for ( i = 0; i < BIG_COUNT; i++ ) {
-		if ( test0[i] != j ) {
+		if (std::cmp_not_equal(test0[i], j)) {
 			break;
 		}
 	}
@@ -454,16 +467,15 @@ void TestMemset() {
 TestBlendJoints
 ============
 */
-void TestBlendJoints() {
+static void TestBlendJoints() {
 	int i, j;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
 	idTempArray< idJointQuat > blendJoints( COUNT );
 	idTempArray< int > index( COUNT );
-	float lerp = 0.3f;
-	const char *result;
+	constexpr float lerp = 0.3f;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -488,7 +500,7 @@ void TestBlendJoints() {
 		index[i] = i;
 	}
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j < COUNT; j++ ) {
 			joints1[j] = baseJoints[j];
@@ -500,7 +512,7 @@ void TestBlendJoints() {
 	}
 	PrintClocks( "generic->BlendJoints()", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j < COUNT; j++ ) {
 			joints2[j] = baseJoints[j];
@@ -519,7 +531,7 @@ void TestBlendJoints() {
 			break;
 		}
 	}
-	result = ( i >= COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->BlendJoints() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -528,16 +540,15 @@ void TestBlendJoints() {
 TestBlendJoints
 ============
 */
-void TestBlendJointsFast() {
+static void TestBlendJointsFast() {
 	int i, j;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
 	idTempArray< idJointQuat > blendJoints( COUNT );
 	idTempArray< int > index( COUNT );
-	float lerp = 0.3f;
-	const char *result;
+	constexpr float lerp = 0.3f;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -562,7 +573,7 @@ void TestBlendJointsFast() {
 		index[i] = i;
 	}
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j < COUNT; j++ ) {
 			joints1[j] = baseJoints[j];
@@ -574,7 +585,7 @@ void TestBlendJointsFast() {
 	}
 	PrintClocks( "generic->BlendJointsFast()", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j < COUNT; j++ ) {
 			joints2[j] = baseJoints[j];
@@ -593,7 +604,7 @@ void TestBlendJointsFast() {
 			break;
 		}
 	}
-	result = ( i >= COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->BlendJointsFast() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -602,13 +613,12 @@ void TestBlendJointsFast() {
 TestConvertJointQuatsToJointMats
 ============
 */
-void TestConvertJointQuatsToJointMats() {
+static void TestConvertJointQuatsToJointMats() {
 	int i;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointMat > joints1( COUNT );
 	idTempArray< idJointMat > joints2( COUNT );
-	const char *result;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -623,7 +633,7 @@ void TestConvertJointQuatsToJointMats() {
 		baseJoints[i].t[2] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_generic->ConvertJointQuatsToJointMats( joints1.Ptr(), baseJoints.Ptr(), COUNT );
@@ -632,7 +642,7 @@ void TestConvertJointQuatsToJointMats() {
 	}
 	PrintClocks( "generic->ConvertJointQuatsToJointMats()", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_simd->ConvertJointQuatsToJointMats( joints2.Ptr(), baseJoints.Ptr(), COUNT );
@@ -645,7 +655,7 @@ void TestConvertJointQuatsToJointMats() {
 			break;
 		}
 	}
-	result = ( i >= COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->ConvertJointQuatsToJointMats() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -654,13 +664,12 @@ void TestConvertJointQuatsToJointMats() {
 TestConvertJointMatsToJointQuats
 ============
 */
-void TestConvertJointMatsToJointQuats() {
+static void TestConvertJointMatsToJointQuats() {
 	int i;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	idTempArray< idJointMat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
-	const char *result;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -677,7 +686,7 @@ void TestConvertJointMatsToJointQuats() {
 		baseJoints[i].SetTranslation( v );
 	}
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_generic->ConvertJointMatsToJointQuats( joints1.Ptr(), baseJoints.Ptr(), COUNT );
@@ -686,7 +695,7 @@ void TestConvertJointMatsToJointQuats() {
 	}
 	PrintClocks( "generic->ConvertJointMatsToJointQuats()", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
 		p_simd->ConvertJointMatsToJointQuats( joints2.Ptr(), baseJoints.Ptr(), COUNT );
@@ -702,7 +711,7 @@ void TestConvertJointMatsToJointQuats() {
 			break;
 		}
 	}
-	result = ( i >= COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->ConvertJointMatsToJointQuats() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -711,14 +720,13 @@ void TestConvertJointMatsToJointQuats() {
 TestTransformJoints
 ============
 */
-void TestTransformJoints() {
+static void TestTransformJoints() {
 	int i, j;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
 	idTempArray< int > parents( COUNT+1 );
-	const char *result;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -736,7 +744,7 @@ void TestTransformJoints() {
 		parents[i] = i - 1;
 	}
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j <= COUNT; j++ ) {
 			joints1[j] = joints[j];
@@ -748,7 +756,7 @@ void TestTransformJoints() {
 	}
 	PrintClocks( "generic->TransformJoints()", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j <= COUNT; j++ ) {
 			joints2[j] = joints[j];
@@ -764,7 +772,7 @@ void TestTransformJoints() {
 			break;
 		}
 	}
-	result = ( i >= COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->TransformJoints() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -773,14 +781,13 @@ void TestTransformJoints() {
 TestUntransformJoints
 ============
 */
-void TestUntransformJoints() {
+static void TestUntransformJoints() {
 	int i, j;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
+	TIME_TYPE start, end;
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
 	idTempArray< int > parents( COUNT+1 );
-	const char *result;
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -798,7 +805,7 @@ void TestUntransformJoints() {
 		parents[i] = i - 1;
 	}
 
-	bestClocksGeneric = 0;
+	TIME_TYPE bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j <= COUNT; j++ ) {
 			joints1[j] = joints[j];
@@ -810,7 +817,7 @@ void TestUntransformJoints() {
 	}
 	PrintClocks( "generic->UntransformJoints()", COUNT, bestClocksGeneric );
 
-	bestClocksSIMD = 0;
+	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		for ( j = 0; j <= COUNT; j++ ) {
 			joints2[j] = joints[j];
@@ -826,7 +833,7 @@ void TestUntransformJoints() {
 			break;
 		}
 	}
-	result = ( i >= COUNT ) ? "ok" : S_COLOR_RED"X";
+	const char* result = (i >= COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->UntransformJoints() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -835,7 +842,7 @@ void TestUntransformJoints() {
 TestMath
 ============
 */
-void TestMath() {
+static void TestMath() {
 	int i;
 	TIME_TYPE start, end, bestClocks;
 
@@ -1221,7 +1228,7 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	p_generic = generic;
 
 	if ( idStr::Length( args.Argv( 1 ) ) != 0 ) {
-		cpuid_t cpuid = idLib::sys->GetProcessorId();
+		const cpuid_t cpuid = idLib::sys->GetProcessorId();
 		idStr argString = args.Args();
 
 		argString.Replace( " ", "" );
@@ -1265,8 +1272,8 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	if ( p_simd != processor ) {
 		delete p_simd;
 	}
-	p_simd = NULL;
-	p_generic = NULL;
+	p_simd = nullptr;
+	p_generic = nullptr;
 
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_NORMAL );
 }

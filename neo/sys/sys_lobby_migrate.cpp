@@ -85,7 +85,7 @@ void idLobby::UpdateHostMigration() {
 
 	// If we are picking a new host, then update that
 	if ( migrationInfo.state == MIGRATE_PICKING_HOST ) {
-		const int MIGRATION_PICKING_HOST_TIMEOUT_IN_SECONDS = 20;		// FIXME: set back to 5 // Give other hosts 5 seconds
+		constexpr int MIGRATION_PICKING_HOST_TIMEOUT_IN_SECONDS = 20;		// FIXME: set back to 5 // Give other hosts 5 seconds
 
 		if ( time - migrationInfo.migrationStartTime > session->GetTitleStorageInt( "MIGRATION_PICKING_HOST_TIMEOUT_IN_SECONDS", MIGRATION_PICKING_HOST_TIMEOUT_IN_SECONDS ) * 1000 ) {
 			// Just become the host if we haven't heard from a host in awhile
@@ -100,7 +100,7 @@ void idLobby::UpdateHostMigration() {
 		return;
 	}
 
-	if ( lobbyBackend == NULL || lobbyBackend->GetState() != idLobbyBackend::STATE_READY ) {
+	if ( lobbyBackend == nullptr || lobbyBackend->GetState() != idLobbyBackend::STATE_READY ) {
 		return;
 	}
 
@@ -112,8 +112,8 @@ void idLobby::UpdateHostMigration() {
 		return;
 	}
 
-	const int MIGRATION_TIMEOUT_IN_SECONDS		= 30; // FIXME: setting to 30 for dev purposes. 10 seems more reasonable. Need to make unloading game / loading lobby async
-	const int MIGRATION_INVITE_TIME_IN_SECONDS	= 2;
+	constexpr int MIGRATION_TIMEOUT_IN_SECONDS		= 30; // FIXME: setting to 30 for dev purposes. 10 seems more reasonable. Need to make unloading game / loading lobby async
+	constexpr int MIGRATION_INVITE_TIME_IN_SECONDS	= 2;
 
 	if ( migrationInfo.invites.Num() == 0 || time - migrationInfo.migrationStartTime > session->GetTitleStorageInt( "MIGRATION_TIMEOUT_IN_SECONDS", MIGRATION_TIMEOUT_IN_SECONDS ) * 1000 ) {
 		// Either everyone acked, or we timed out, just keep who we have, and stop sending invites
@@ -316,7 +316,7 @@ void idLobby::BecomeHost() {
 	migrationInfo.state					= MIGRATE_BECOMING_HOST;
 	migrationInfo.migrationStartTime	= Sys_Milliseconds();
 
-	if ( lobbyBackend == NULL ) {
+	if ( lobbyBackend == nullptr) {
 		// If we don't have a lobbyBackend, then just create one
 		Shutdown();
 		StartCreating();
@@ -347,7 +347,7 @@ void idLobby::EndMigration() {
 
 	sessionCB->MigrationEnded( *this );
 	
-	if ( lobbyBackend != NULL ) {
+	if ( lobbyBackend != nullptr) {
 		lobbyBackend->FinishBecomeHost();
 	}
 
@@ -410,7 +410,7 @@ bool idLobby::GetMigrationGameDataUser( lobbyUserID_t lobbyUserID, idBitMsg & ms
 	}
 
 	lobbyUser_t * u = GetLobbyUser( userNum );
-	if ( u != NULL ) {
+	if ( u != nullptr) {
 		if ( reading ) {
 
 			if ( !IsMigratedStatsGame() || !migrationInfo.persistUntilGameEndsData.wasMigratedHost ) {
@@ -451,7 +451,7 @@ void idLobby::HandleMigrationGameData( idBitMsg & msg ) {
 	// Reset each user's migration game data. If we don't receive new data for them in this msg, we don't want to use the old data
 	for ( int i=0; i < GetNumLobbyUsers(); i++ ) {
 		lobbyUser_t * u = GetLobbyUser( i );
-		if ( u != NULL ) {
+		if ( u != nullptr) {
 			u->migrationGameData = -1;
 		}
 	}
@@ -463,7 +463,7 @@ void idLobby::HandleMigrationGameData( idBitMsg & msg ) {
 		lobbyUserID_t lobbyUserID;
 		lobbyUserID.ReadFromMsg( msg );
 		lobbyUser_t * user = GetLobbyUser( GetLobbyUserIndexByID( lobbyUserID ) );
-		if ( user != NULL ) {
+		if ( user != nullptr) {
 
 			NET_VERBOSE_PRINT( "NET:    Got migration data[%d] for user %s\n", dataIndex, user->gamertag );
 

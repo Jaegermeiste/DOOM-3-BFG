@@ -71,7 +71,7 @@ public:
 							// splits the surface into a front and back surface, the surface itself stays unchanged
 							// frontOnPlaneEdges and backOnPlaneEdges optionally store the indexes to the edges that lay on the split plane
 							// returns a SIDE_?
-	int						Split( const idPlane &plane, const float epsilon, idSurface **front, idSurface **back, int *frontOnPlaneEdges = NULL, int *backOnPlaneEdges = NULL ) const;
+	int						Split( const idPlane &plane, const float epsilon, idSurface **front, idSurface **back, int *frontOnPlaneEdges = nullptr, int *backOnPlaneEdges = nullptr) const;
 							// cuts off the part at the back side of the plane, returns true if some part was at the front
 							// if there is nothing at the front the number of points is set to zero
 	bool					ClipInPlace( const idPlane &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
@@ -168,12 +168,11 @@ idSurface::operator+=
 =================
 */
 ID_INLINE idSurface &idSurface::operator+=( const idSurface &surf ) {
-	int i, m, n;
-	n = verts.Num();
-	m = indexes.Num();
+	int n = verts.Num();
+	int m = indexes.Num();
 	verts.Append( surf.verts );			// merge verts where possible ?
 	indexes.Append( surf.indexes );
-	for ( i = m; i < indexes.Num(); i++ ) {
+	for ( int i = m; i < indexes.Num(); i++ ) {
 		indexes[i] += n;
 	}
 	GenerateEdgeIndexes();

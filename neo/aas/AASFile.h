@@ -204,7 +204,13 @@ typedef struct aasTrace_s {
 	int							numAreas;			// number of areas the trace went through
 	int *						areas;				// array to store areas the trace went through
 	idVec3 *					points;				// points where the trace entered each new area
-								aasTrace_s() { areas = NULL; points = NULL; getOutOfSolid = false; flags = travelFlags = maxAreas = 0; }
+	         					aasTrace_s() noexcept : fraction(0), planeNum(0), lastAreaNum(0), blockingAreaNum(0), numAreas(0)
+								{
+									areas = nullptr;
+									points = nullptr;
+									getOutOfSolid = false;
+									flags = travelFlags = maxAreas = 0;
+								}
 } aasTrace_t;
 
 // settings

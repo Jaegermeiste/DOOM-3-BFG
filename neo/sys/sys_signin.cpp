@@ -60,7 +60,7 @@ idSignInManagerBase::GetDefaultProfile
 ========================
 */
 idPlayerProfile * idSignInManagerBase::GetDefaultProfile() {
-	if ( defaultProfile == NULL ) {
+	if ( defaultProfile == nullptr) {
 		// Create a new profile
 		defaultProfile = idPlayerProfile::CreatePlayerProfile( 0 );
 	}
@@ -79,7 +79,7 @@ idLocalUser * idSignInManagerBase::GetLocalUserByInputDevice( int index ) {
 		}
 	}
 
-	return NULL;		// Not found
+	return nullptr;		// Not found
 }
 
 /*
@@ -94,7 +94,7 @@ idLocalUser * idSignInManagerBase::GetLocalUserByHandle( localUserHandle_t handl
 		}
 	}
 
-	return NULL;		// Not found
+	return nullptr;		// Not found
 }
 
 /*
@@ -104,8 +104,8 @@ idSignInManagerBase::GetPlayerProfileByInputDevice
 */
 idPlayerProfile * idSignInManagerBase::GetPlayerProfileByInputDevice( int index ) {
 	idLocalUser * user = session->GetSignInManager().GetLocalUserByInputDevice( index );
-	idPlayerProfile * profile = NULL;
-	if ( user != NULL ) {
+	idPlayerProfile * profile = nullptr;
+	if ( user != nullptr) {
 		profile = user->GetProfile();	
 	}
 	return profile;
@@ -151,9 +151,9 @@ idSignInManagerBase::SaveUserProfiles
 void idSignInManagerBase::SaveUserProfiles() {
 	for ( int i = 0; i < GetNumLocalUsers(); i++ ) {
 		idLocalUser * localUser = GetLocalUserByIndex( i );
-		if ( localUser != NULL ) {
+		if ( localUser != nullptr) {
 			idPlayerProfile * profile = localUser->GetProfile();
-			if ( profile != NULL ) {
+			if ( profile != nullptr) {
 				profile->SaveSettings( false );
 			}
 		}
@@ -230,8 +230,8 @@ localUserHandle_t idSignInManagerBase::GetUniqueLocalUserHandle( const char * na
 	MD5_Final( &ctx, (unsigned char *)digest );
 
 	// Quantize the 128 bit hash down to the number of bits needed for a localUserHandle_t
-	const int STRIDE_BYTES	= sizeof( localUserHandle_t::userHandleType_t );
-	const int NUM_LOOPS		= 16 / STRIDE_BYTES;
+	constexpr int STRIDE_BYTES	= sizeof( localUserHandle_t::userHandleType_t );
+	constexpr int NUM_LOOPS		= 16 / STRIDE_BYTES;
 
 	localUserHandle_t::userHandleType_t handle = 0;
 	

@@ -102,7 +102,7 @@ Contains external code for building ZipFiles.
 #define SIZEZIPLOCALHEADER (0x1e)
 */
 
-const char zip_copyright[] =
+constexpr char zip_copyright[] =
    " zip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
 
 #define LOCALHEADERMAGIC		(0x04034b50)
@@ -130,10 +130,10 @@ allocate_new_datablock
 ========================
 */
 linkedlist_datablock_internal* allocate_new_datablock() {
-    linkedlist_datablock_internal* ldi = NULL;
+    linkedlist_datablock_internal* ldi = nullptr;
     ldi = (linkedlist_datablock_internal*) ALLOC( sizeof( linkedlist_datablock_internal ) );
-    if ( ldi != NULL ) {
-        ldi->next_datablock = NULL;
+    if ( ldi != nullptr) {
+        ldi->next_datablock = nullptr;
         ldi->filled_in_this_block = 0;
         ldi->avail_in_this_block = SIZEDATA_INDATABLOCK;
     }
@@ -146,7 +146,7 @@ free_datablock
 ========================
 */
 void free_datablock( linkedlist_datablock_internal* ldi ) {
-    while ( ldi != NULL ) {
+    while ( ldi != nullptr) {
         linkedlist_datablock_internal* ldinext = ldi->next_datablock;
         TRYFREE( ldi );
         ldi = ldinext;
@@ -159,7 +159,7 @@ init_linkedlist
 ========================
 */
 void init_linkedlist( linkedlist_data* ll ) {
-    ll->first_block = ll->last_block = NULL;
+    ll->first_block = ll->last_block = nullptr;
 }
 
 /*
@@ -169,7 +169,7 @@ free_linkedlist
 */
 void free_linkedlist( linkedlist_data* ll ) {
     free_datablock( ll->first_block );
-    ll->first_block = ll->last_block = NULL;
+    ll->first_block = ll->last_block = nullptr;
 }
 
 /*
@@ -181,13 +181,13 @@ int add_data_in_datablock( linkedlist_data* ll, const void* buf, unsigned long l
     linkedlist_datablock_internal* ldi;
     const unsigned char* from_copy;
 
-	if ( ll == NULL ) {
+	if ( ll == nullptr) {
         return ZIP_INTERNALERROR;
 	}
 
-    if ( ll->last_block == NULL ) {
+    if ( ll->last_block == nullptr) {
         ll->first_block = ll->last_block = allocate_new_datablock();
-		if ( ll->first_block == NULL ) {
+		if ( ll->first_block == nullptr) {
             return ZIP_INTERNALERROR;
 		}
     }
@@ -201,7 +201,7 @@ int add_data_in_datablock( linkedlist_data* ll, const void* buf, unsigned long l
 
         if ( ldi->avail_in_this_block == 0 ) {
             ldi->next_datablock = allocate_new_datablock();
-			if ( ldi->next_datablock == NULL ) {
+			if ( ldi->next_datablock == nullptr) {
                 return ZIP_INTERNALERROR;
 			}
             ldi = ldi->next_datablock;
@@ -439,7 +439,7 @@ unsigned long ziplocal_SearchCentralDir( idFile* filestream ) {
 	}
 
     buf = (unsigned char*)ALLOC( BUFREADCOMMENT + 4 );
-	if ( buf == NULL ) {
+	if ( buf == nullptr) {
         return 0;
 	}
 
@@ -494,8 +494,8 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
 								( ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE | ZLIB_FILEFUNC_MODE_CREATE ) :
 								( ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE | ZLIB_FILEFUNC_MODE_EXISTING ) );
 */
-	if ( ziinit.filestream == NULL ) {
-        return NULL;
+	if ( ziinit.filestream == nullptr) {
+        return nullptr;
 	}
 	ziinit.begin_pos = (unsigned long)ziinit.filestream->Tell();
     ziinit.in_opened_file_inzip = 0;
@@ -505,15 +505,15 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
     init_linkedlist( &(ziinit.central_dir) );
 
     zi = (zip_internal*)ALLOC( sizeof( zip_internal ) );
-    if ( zi == NULL ) {
+    if ( zi == nullptr) {
 		delete ziinit.filestream;
-		ziinit.filestream = NULL;
-        return NULL;
+		ziinit.filestream = nullptr;
+        return nullptr;
     }
 
     /* now we add file in a zipfile */
 #ifndef NO_ADDFILEINEXISTINGZIP
-    ziinit.globalcomment = NULL;
+    ziinit.globalcomment = nullptr;
     if ( append == APPEND_STATUS_ADDINZIP ) {
         unsigned long byte_before_the_zipfile;	// byte before the zipfile, ( > 0 for sfx )
         unsigned long size_central_dir;			// size of the central directory
@@ -584,8 +584,8 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
 
         if ( err != ZIP_OK ) {
 			delete ziinit.filestream;
-            ziinit.filestream = NULL;
-            return NULL;
+            ziinit.filestream = nullptr;
+            return nullptr;
         }
 
         if ( size_comment > 0 ) {
@@ -640,7 +640,7 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
         TRYFREE( ziinit.globalcomment );
 #endif /* !NO_ADDFILEINEXISTINGZIP*/
         TRYFREE( zi );
-        return NULL;
+        return nullptr;
     } else {
         *zi = ziinit;
         return (zipFile)zi;
@@ -653,7 +653,7 @@ zipOpen
 ========================
 */
 zipFile zipOpen( const char *pathname, int append ) {
-    return zipOpen2( pathname, append, NULL );
+    return zipOpen2( pathname, append, nullptr);
 }
 
 /*
@@ -668,12 +668,12 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
     int err = ZIP_OK;
 
 #ifdef NOCRYPT
-	if ( password != NULL ) {
+	if ( password != nullptr) {
         return ZIP_PARAMERROR;
 	}
 #endif
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
 	if ( ( method != 0 ) && ( method != Z_DEFLATED ) ) {
@@ -689,11 +689,11 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 		}
     }
 
-	if ( filename == NULL ) {
+	if ( filename == nullptr) {
         filename = "-";
 	}
 
-	if ( comment == NULL ) {
+	if ( comment == nullptr) {
         size_comment = 0;
 	} else {
         size_comment = (unsigned int)idStr::Length( comment );
@@ -701,7 +701,7 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 
     size_filename = (unsigned int)idStr::Length( filename );
 
-	if ( zipfi == NULL ) {
+	if ( zipfi == nullptr) {
         zi->ci.dosDate = 0;
 	} else {
 		if ( zipfi->dosDate != 0 ) {
@@ -721,7 +721,7 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 	if ( ( level == 1 ) ) {
       zi->ci.flag |= 6;
 	}
-	if ( password != NULL ) {
+	if ( password != nullptr) {
       zi->ci.flag |= 1;
 	}
 
@@ -750,13 +750,13 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
     ziplocal_putValue_inmemory( zi->ci.central_header + 32, (unsigned long)size_comment, 2 );
     ziplocal_putValue_inmemory( zi->ci.central_header + 34, (unsigned long)0, 2 ); /*disk nm start*/
 
-	if ( zipfi == NULL ) {
+	if ( zipfi == nullptr) {
         ziplocal_putValue_inmemory( zi->ci.central_header + 36, (unsigned long)0, 2 );
 	} else {
         ziplocal_putValue_inmemory( zi->ci.central_header + 36, (unsigned long)zipfi->internal_fa, 2 );
 	}
 
-	if ( zipfi == NULL ) {
+	if ( zipfi == nullptr) {
         ziplocal_putValue_inmemory( zi->ci.central_header + 38,(unsigned long)0, 4);
 	} else {
         ziplocal_putValue_inmemory( zi->ci.central_header + 38,(unsigned long)zipfi->external_fa, 4);
@@ -776,7 +776,7 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
         *( zi->ci.central_header + SIZECENTRALHEADER + size_filename + size_extrafield_global + i ) = *( comment + i );
 	}
 
-	if ( zi->ci.central_header == NULL ) {
+	if ( zi->ci.central_header == nullptr) {
         return ZIP_INTERNALERROR;
 	}
 
@@ -837,9 +837,9 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
     zi->ci.stream.total_out = 0;
 
     if ( ( err == ZIP_OK ) && ( zi->ci.method == Z_DEFLATED ) && ( !zi->ci.raw ) ) {
-        zi->ci.stream.zalloc = (alloc_func)0;
-        zi->ci.stream.zfree = (free_func)0;
-        zi->ci.stream.opaque = (voidpf)0;
+        zi->ci.stream.zalloc = (alloc_func)nullptr;
+        zi->ci.stream.zfree = (free_func)nullptr;
+        zi->ci.stream.opaque = (voidpf)nullptr;
 
 		if ( windowBits > 0 ) {
             windowBits = -windowBits;
@@ -882,7 +882,7 @@ zipOpenNewFileInZip2
 int zipOpenNewFileInZip2( zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, unsigned int size_extrafield_local,
 									const void* extrafield_global, unsigned int size_extrafield_global, const char* comment, int method, int level, int raw ) {
     return zipOpenNewFileInZip3( file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global, size_extrafield_global,
-                                 comment, method, level, raw, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, NULL, 0 );
+                                 comment, method, level, raw, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0 );
 }
 
 /*
@@ -926,7 +926,7 @@ int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len ) {
     zip_internal* zi;
     int err = ZIP_OK;
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
     zi = (zip_internal*)file;
@@ -989,7 +989,7 @@ int zipCloseFileInZipRaw( zipFile file, unsigned long uncompressed_size, unsigne
     unsigned long compressed_size;
     int err = ZIP_OK;
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
     zi = (zip_internal*)file;
@@ -1099,7 +1099,7 @@ int zipClose( zipFile file, const char* global_comment ) {
     unsigned long size_centraldir = 0;
     unsigned long centraldir_pos_inzip;
     unsigned int size_global_comment;
-	if ( file == NULL ) {
+	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
     zi = (zip_internal*)file;
@@ -1109,11 +1109,11 @@ int zipClose( zipFile file, const char* global_comment ) {
     }
 
 #ifndef NO_ADDFILEINEXISTINGZIP
-	if ( global_comment == NULL ) {
+	if ( global_comment == nullptr) {
         global_comment = zi->globalcomment;
 	}
 #endif
-	if ( global_comment == NULL ) {
+	if ( global_comment == nullptr) {
         size_global_comment = 0;
 	} else {
         size_global_comment = (unsigned int)idStr::Length( global_comment );
@@ -1122,7 +1122,7 @@ int zipClose( zipFile file, const char* global_comment ) {
     centraldir_pos_inzip = (unsigned long)zi->filestream->Tell();
 	if ( err == ZIP_OK ) {
         linkedlist_datablock_internal* ldi = zi->central_dir.first_block;
-        while ( ldi != NULL ) {
+        while ( ldi != nullptr) {
 			if ( ( err == ZIP_OK ) && ( ldi->filled_in_this_block > 0 ) ) {
 				if ( zi->filestream->Write( ldi->data, ldi->filled_in_this_block ) != (int)ldi->filled_in_this_block ) {
 					err = ZIP_ERRNO;
@@ -1173,7 +1173,7 @@ int zipClose( zipFile file, const char* global_comment ) {
 	}
 
 	delete zi->filestream;
-	zi->filestream = NULL;
+	zi->filestream = nullptr;
 
 #ifndef NO_ADDFILEINEXISTINGZIP
     TRYFREE( zi->globalcomment );
@@ -1522,7 +1522,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory * > & src
 
 	// open the zip file
 	zipFile zf = zipOpen( zipFileName, 0 );
-	if ( zf == NULL ) {
+	if ( zf == nullptr) {
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
 	}
@@ -1544,9 +1544,9 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory * > & src
 			compressionMethod = 0;
 		}
 
-		int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, NULL, 0, NULL, 0, NULL /* comment*/,
+		int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, nullptr, 0, nullptr, 0, nullptr /* comment*/,
 			compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL, 
-			Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
+			Z_DEFAULT_STRATEGY, nullptr /*password*/, 0 /*fileCRC*/ );
 
 		if ( errcode != ZIP_OK ) {
 			idLib::Warning( "Error opening file in zipfile!" );
@@ -1601,12 +1601,12 @@ zipFile idZipBuilder::CreateZipFile( const char *name ) {
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if ( !Sys_IsFileWritable( name ) ) {
 		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writeable, cannot proceed.\n", name );
-		return NULL;
+		return nullptr;
 	}
 
 	// open the zip file
 	zipFile zf = zipOpen( name, 0 );
-	if ( zf == NULL ) {
+	if ( zf == nullptr) {
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, name );
 	}
 	return zf;
@@ -1634,9 +1634,9 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory *src, bool deleteFile ) {
 		compressionMethod = Z_NO_COMPRESSION;
 	}
 
-	int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, NULL, 0, NULL, 0, NULL /* comment*/,
+	int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, nullptr, 0, nullptr, 0, nullptr /* comment*/,
 		compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL, 
-		Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
+		Z_DEFAULT_STRATEGY, nullptr /*password*/, 0 /*fileCRC*/ );
 
 	if ( errcode != ZIP_OK ) {
 		idLib::Warning( "Error opening file in zipfile!" );
@@ -1815,7 +1815,7 @@ idZipBuilder::CombineFiles
 ========================
 */
 idFile_Memory * idZipBuilder::CombineFiles( const idList< idFile_Memory * > & srcFiles ) {
-	idFile_Memory * destFile = NULL;
+	idFile_Memory * destFile = nullptr;
 
 #if 0
 //#ifdef ID_PC

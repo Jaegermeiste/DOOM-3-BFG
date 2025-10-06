@@ -49,8 +49,8 @@ public:
 							idRenderTexture();
 							~idRenderTexture();
 
-	ID_INLINE int			GetWidth() const { return ( colorImage != NULL ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth(); }
-	ID_INLINE int			GetHeight() const { return ( colorImage != NULL ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight(); }
+	ID_INLINE int			GetWidth() const { return ( colorImage != nullptr) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth(); }
+	ID_INLINE int			GetHeight() const { return ( colorImage != nullptr) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight(); }
 
 	ID_INLINE idImage *		GetColorImage() const { return colorImage; }
 	ID_INLINE idImage *		GetDepthImage() const { return depthImage; }

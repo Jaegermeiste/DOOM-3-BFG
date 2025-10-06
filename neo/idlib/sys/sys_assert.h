@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_ASSERT_H__
 #define __SYS_ASSERT_H__
 
+#pragma once
+
+#include <type_traits>
+
 /*
 ================================================================================================
 
@@ -91,19 +95,22 @@ bool AssertFailed( const char *file, int line, const char *expression );
 
 #if !defined( __TYPEINFOGEN__ ) && !defined( _lint )	// pcLint has problems with assert_offsetof()
 
+// Safe replacement for (bool) cast — handles bools, integrals, and pointers
+#define TO_BOOL(x) (!!(x))
+
 template<bool> struct compile_time_assert_failed;
 template<> struct compile_time_assert_failed<true> {};
 template<int x> struct compile_time_assert_test {};
 #define compile_time_assert_join2( a, b )	a##b
 #define compile_time_assert_join( a, b )	compile_time_assert_join2(a,b)
-#define compile_time_assert( x )			typedef compile_time_assert_test<sizeof(compile_time_assert_failed<(bool)(x)>)> compile_time_assert_join(compile_time_assert_typedef_, __LINE__)
+#define compile_time_assert( x )			typedef compile_time_assert_test<sizeof(compile_time_assert_failed<TO_BOOL(x)>)> compile_time_assert_join(compile_time_assert_typedef_, __LINE__)
 
-#define assert_sizeof( type, size )						compile_time_assert( sizeof( type ) == size )
+#define assert_sizeof( type, size )						compile_time_assert( sizeof( type ) == (size) )
 #define assert_sizeof_8_byte_multiple( type )			compile_time_assert( ( sizeof( type ) &  7 ) == 0 )
 #define assert_sizeof_16_byte_multiple( type )			compile_time_assert( ( sizeof( type ) & 15 ) == 0 )
-#define assert_offsetof( type, field, offset )			compile_time_assert( offsetof( type, field ) == offset )
-#define assert_offsetof_8_byte_multiple( type, field )	compile_time_assert( ( offsetof( type, field ) & 7 ) == 0 )
-#define assert_offsetof_16_byte_multiple( type, field )	compile_time_assert( ( offsetof( type, field ) & 15 ) == 0 )
+#define assert_offsetof( type, field, offset )			compile_time_assert( __builtin_offsetof( type, field ) == (offset) )
+#define assert_offsetof_8_byte_multiple( type, field )	compile_time_assert( ( __builtin_offsetof( type, field ) & 7 ) == 0 )
+#define assert_offsetof_16_byte_multiple( type, field )	compile_time_assert( ( __builtin_offsetof( type, field ) & 15 ) == 0 )
 
 #else
 
@@ -119,7 +126,7 @@ template<int x> struct compile_time_assert_test {};
 
 // useful for verifying that an array of items has the same number of elements in it as an enum type
 #define verify_array_size( _array_name_, _max_enum_ ) \
-	compile_time_assert( sizeof( _array_name_ ) == ( _max_enum_ ) * sizeof( _array_name_[ 0 ] ) )
+	compile_time_assert( sizeof( _array_name_ ) == ( _max_enum_ ) * sizeof( (_array_name_)[ 0 ] ) )
 
 
 // ai debugging macros (designed to limit ai interruptions to non-ai programmers)

@@ -44,7 +44,7 @@ Mem_Alloc16
 */
 void * Mem_Alloc16( const int size, const memTag_t tag ) {
 	if ( !size ) {
-		return NULL;
+		return nullptr;
 	}
 	const int paddedSize = ( size + 15 ) & ~15;
 	return _aligned_malloc( paddedSize, 16 );
@@ -56,7 +56,7 @@ Mem_Free16
 ==================
 */
 void Mem_Free16( void *ptr ) {
-	if ( ptr == NULL ) {
+	if ( ptr == nullptr) {
 		return;
 	}
 	_aligned_free( ptr );
@@ -79,7 +79,7 @@ Mem_CopyString
 ==================
 */
 char *Mem_CopyString( const char *in ) {
-	char * out = (char *)Mem_Alloc( strlen(in) + 1, TAG_STRING );
+	char * out = static_cast<char*>(Mem_Alloc(strlen(in) + 1, TAG_STRING));
 	strcpy( out, in );
 	return out;
 }

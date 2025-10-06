@@ -78,8 +78,8 @@ public:
 	virtual int							GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const { return 0; }
 	virtual bool						SetLobbyUserTeam( lobbyUserID_t lobbyUserID, int teamNumber ) { return false; }
 	virtual int							GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const { return 0; }
-	virtual idPlayerProfile *			GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID ) { return NULL; }
-	virtual idLocalUser *				GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID ) { return NULL; }
+	virtual idPlayerProfile *			GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID ) { return nullptr; }
+	virtual idLocalUser *				GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID ) { return nullptr; }
 	virtual int							GetNumLobbyUsersOnTeam( int teamNumber ) const { return 0; }
 
 	virtual int							PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const { return -1; }
@@ -349,7 +349,7 @@ public:
 	virtual void			ShowLobbyUserGamerCardUI( lobbyUserID_t lobbyUserID ) = 0;
 
 	// Leaderboards
-	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment = NULL ) = 0;
+	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment = nullptr) = 0;
 	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback ) = 0;
 	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID ) = 0;
 
@@ -521,7 +521,7 @@ protected:
 	// -----------------------
 	// Downloadable Content
 	// -----------------------
-	static const int MAX_CONTENT_PACKAGES = 16;
+	static constexpr int MAX_CONTENT_PACKAGES = 16;
 
 
 	idStaticList<contentData_t, MAX_CONTENT_PACKAGES>	downloadedContent;

@@ -214,13 +214,13 @@ void idCommonLocal::Draw() {
 		Sys_Sleep( com_sleepDraw.GetInteger() );
 	}
 
-	if ( loadGUI != NULL ) {
+	if ( loadGUI != nullptr) {
 		loadGUI->Render( renderSystem, Sys_Milliseconds() );
 	} else if ( currentGame == DOOM_CLASSIC || currentGame == DOOM2_CLASSIC ) {
 		const float sysWidth = renderSystem->GetWidth() * renderSystem->GetPixelAspect();
 		const float sysHeight = renderSystem->GetHeight();
 		const float sysAspect = sysWidth / sysHeight;
-		const float doomAspect = 4.0f / 3.0f;
+		constexpr float doomAspect = 4.0f / 3.0f;
 		const float adjustment = sysAspect / doomAspect;
 		const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * (float)SCREEN_HEIGHT * 0.25f;
 		const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * (float)SCREEN_WIDTH * 0.25f;
@@ -278,7 +278,7 @@ void idCommonLocal::Draw() {
 		// draw the wipe material on top of this if it hasn't completed yet
 		DrawWipeModel();
 
-		Dialog().Render( loadGUI != NULL );
+		Dialog().Render( loadGUI != nullptr);
 
 		// draw the half console / notify console on top of everything
 		console->Draw( false );
@@ -411,13 +411,13 @@ void idCommonLocal::Frame() {
 		// save the screenshot and audio from the last draw if needed
 		if ( aviCaptureMode ) {
 			idStr name = va("demos/%s/%s_%05i.tga", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL );
+			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), nullptr);
 
 			// remove any printed lines at the top before taking the screenshot
 			console->ClearNotifyLines();
 
 			// this will call Draw, possibly multiple times if com_aviDemoSamples is > 1
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL );
+			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), nullptr);
 		}
 
 		//--------------------------------------------
@@ -430,7 +430,7 @@ void idCommonLocal::Frame() {
 		// this should exit right after vsync, with the GPU idle and ready to draw
 		// This may block if the GPU isn't finished renderng the previous frame.
 		frameTiming.startSyncTime = Sys_Microseconds();
-		const emptyCommand_t * renderCommands = NULL;
+		const emptyCommand_t * renderCommands = nullptr;
 		if ( com_smp.GetBool() ) {
 			renderCommands = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 		} else {
@@ -553,7 +553,7 @@ void idCommonLocal::Frame() {
 		if ( session->GetState() == idSession::LOADING ) {
 			// If the session reports we should be loading a map, load it!
 			ExecuteMapChange();
-			mapSpawnData.savegameFile = NULL;
+			mapSpawnData.savegameFile = nullptr;
 			mapSpawnData.persistentPlayerInfo.Clear();
 			return;
 		} else if ( session->GetState() != idSession::INGAME && mapSpawned ) {

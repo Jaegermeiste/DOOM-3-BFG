@@ -59,7 +59,7 @@ public:
 	void				SetVec( const float x, const float y, const float z );	// has to be normalized
 	void				SetAngle( const float rotationAngle );
 	void				Scale( const float s );
-	void				ReCalculateMatrix();
+	void				ReCalculateMatrix() const;
 	const idVec3 &		GetOrigin() const;
 	const idVec3 &		GetVec() const;
 	float				GetAngle() const;
@@ -138,7 +138,8 @@ ID_INLINE void idRotation::Scale( const float s ) {
 	axisValid = false;
 }
 
-ID_INLINE void idRotation::ReCalculateMatrix() {
+ID_INLINE void idRotation::ReCalculateMatrix() const
+{
 	axisValid = false;
 	ToMat3();
 }

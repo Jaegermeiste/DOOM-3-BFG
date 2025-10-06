@@ -35,35 +35,35 @@ CLASS_DECLARATION( idPhysics_Actor, idPhysics_Player )
 END_CLASS
 
 // movement parameters
-const float PM_STOPSPEED		= 100.0f;
-const float PM_SWIMSCALE		= 0.5f;
-const float PM_LADDERSPEED		= 100.0f;
-const float PM_STEPSCALE		= 1.0f;
+constexpr float PM_STOPSPEED		= 100.0f;
+constexpr float PM_SWIMSCALE		= 0.5f;
+constexpr float PM_LADDERSPEED		= 100.0f;
+constexpr float PM_STEPSCALE		= 1.0f;
 
-const float PM_ACCELERATE		= 10.0f;
-const float PM_AIRACCELERATE	= 1.0f;
-const float PM_WATERACCELERATE	= 4.0f;
-const float PM_FLYACCELERATE	= 8.0f;
+constexpr float PM_ACCELERATE		= 10.0f;
+constexpr float PM_AIRACCELERATE	= 1.0f;
+constexpr float PM_WATERACCELERATE	= 4.0f;
+constexpr float PM_FLYACCELERATE	= 8.0f;
 
-const float PM_FRICTION			= 6.0f;
-const float PM_AIRFRICTION		= 0.0f;
-const float PM_WATERFRICTION	= 1.0f;
-const float PM_FLYFRICTION		= 3.0f;
-const float PM_NOCLIPFRICTION	= 12.0f;
+constexpr float PM_FRICTION			= 6.0f;
+constexpr float PM_AIRFRICTION		= 0.0f;
+constexpr float PM_WATERFRICTION	= 1.0f;
+constexpr float PM_FLYFRICTION		= 3.0f;
+constexpr float PM_NOCLIPFRICTION	= 12.0f;
 
-const float MIN_WALK_NORMAL		= 0.7f;		// can't walk on very steep slopes
-const float OVERCLIP			= 1.001f;
+constexpr float MIN_WALK_NORMAL		= 0.7f;		// can't walk on very steep slopes
+constexpr float OVERCLIP			= 1.001f;
 
 // movementFlags
-const int PMF_DUCKED			= 1;		// set when ducking
-const int PMF_JUMPED			= 2;		// set when the player jumped this frame
-const int PMF_STEPPED_UP		= 4;		// set when the player stepped up this frame
-const int PMF_STEPPED_DOWN		= 8;		// set when the player stepped down this frame
-const int PMF_JUMP_HELD			= 16;		// set when jump button is held down
-const int PMF_TIME_LAND			= 32;		// movementTime is time before rejump
-const int PMF_TIME_KNOCKBACK	= 64;		// movementTime is an air-accelerate only time
-const int PMF_TIME_WATERJUMP	= 128;		// movementTime is waterjump
-const int PMF_ALL_TIMES			= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK);
+constexpr int PMF_DUCKED			= 1;		// set when ducking
+constexpr int PMF_JUMPED			= 2;		// set when the player jumped this frame
+constexpr int PMF_STEPPED_UP		= 4;		// set when the player stepped up this frame
+constexpr int PMF_STEPPED_DOWN		= 8;		// set when the player stepped down this frame
+constexpr int PMF_JUMP_HELD			= 16;		// set when jump button is held down
+constexpr int PMF_TIME_LAND			= 32;		// movementTime is time before rejump
+constexpr int PMF_TIME_KNOCKBACK	= 64;		// movementTime is an air-accelerate only time
+constexpr int PMF_TIME_WATERJUMP	= 128;		// movementTime is waterjump
+constexpr int PMF_ALL_TIMES			= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK);
 
 int c_pmove = 0;
 
@@ -2022,7 +2022,7 @@ void idPhysics_Player::SetPushedWithAbnormalVelocityHack( int deltaTime ) {
 	// in those cases.  Since it is literally only 1 or 2 frames, the remaining updates should
 	// continue to push the player by sane values.
 	//
-	const float ABNORMAL_VELOCITY = 600.0f;		// anything with a magnitude of this or higher will be ignored
+	constexpr float ABNORMAL_VELOCITY = 600.0f;		// anything with a magnitude of this or higher will be ignored
 	const float len = velocity.LengthSqr();
 	if ( len >= Square( ABNORMAL_VELOCITY ) ) {
 		velocity.Zero();	// just ignore the large velocity change completely
@@ -2129,12 +2129,12 @@ void idPhysics_Player::SetMaster( idEntity *master, const bool orientated ) {
 	}
 }
 
-const float	PLAYER_VELOCITY_MAX				= 4000;
-const int	PLAYER_VELOCITY_TOTAL_BITS		= 16;
+constexpr float	PLAYER_VELOCITY_MAX				= 4000;
+constexpr int	PLAYER_VELOCITY_TOTAL_BITS		= 16;
 const int	PLAYER_VELOCITY_EXPONENT_BITS	= idMath::BitsForInteger( idMath::BitsForFloat( PLAYER_VELOCITY_MAX ) ) + 1;
 const int	PLAYER_VELOCITY_MANTISSA_BITS	= PLAYER_VELOCITY_TOTAL_BITS - 1 - PLAYER_VELOCITY_EXPONENT_BITS;
-const int	PLAYER_MOVEMENT_TYPE_BITS		= 3;
-const int	PLAYER_MOVEMENT_FLAGS_BITS		= 8;
+constexpr int	PLAYER_MOVEMENT_TYPE_BITS		= 3;
+constexpr int	PLAYER_MOVEMENT_FLAGS_BITS		= 8;
 
 /*
 ================

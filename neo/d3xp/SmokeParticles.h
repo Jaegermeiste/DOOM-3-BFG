@@ -88,7 +88,7 @@ private:
 	renderEntity_t				renderEntity;			// used to present a model to the renderer
 	int							renderEntityHandle;		// handle to static renderer model
 
-	static const int			MAX_SMOKE_PARTICLES = 10000;
+	static constexpr int			MAX_SMOKE_PARTICLES = 10000;
 	singleSmoke_t				smokes[MAX_SMOKE_PARTICLES];
 
 	idList<activeSmokeStage_t, TAG_PARTICLE>	activeStages;

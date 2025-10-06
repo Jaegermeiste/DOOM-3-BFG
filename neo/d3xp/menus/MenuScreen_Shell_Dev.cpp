@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-const static int NUM_DEV_OPTIONS = 8;
+static constexpr int NUM_DEV_OPTIONS = 8;
 
 /*
 ========================

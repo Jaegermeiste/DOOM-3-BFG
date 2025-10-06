@@ -42,9 +42,7 @@ returns angles normalized to the range [0 <= angle < 360]
 =================
 */
 idAngles& idAngles::Normalize360() {
-	int i;
-
-	for ( i = 0; i < 3; i++ ) {
+	for ( int i = 0; i < 3; i++ ) {
 		if ( ( (*this)[i] >= 360.0f ) || ( (*this)[i] < 0.0f ) ) {
 			(*this)[i] -= floor( (*this)[i] / 360.0f ) * 360.0f;
 
@@ -130,16 +128,15 @@ idAngles::ToQuat
 */
 idQuat idAngles::ToQuat() const {
 	float sx, cx, sy, cy, sz, cz;
-	float sxcy, cxcy, sxsy, cxsy;
 
 	idMath::SinCos( DEG2RAD( yaw ) * 0.5f, sz, cz );
 	idMath::SinCos( DEG2RAD( pitch ) * 0.5f, sy, cy );
 	idMath::SinCos( DEG2RAD( roll ) * 0.5f, sx, cx );
 
-	sxcy = sx * cy;
-	cxcy = cx * cy;
-	sxsy = sx * sy;
-	cxsy = cx * sy;
+	float sxcy = sx * cy;
+	float cxcy = cx * cy;
+	float sxsy = sx * sy;
+	float cxsy = cx * sy;
 
 	return idQuat( cxsy*sz - sxcy*cz, -cxsy*cz - sxcy*sz, sxsy*cz - cxcy*sz, cxcy*cz + sxsy*sz );
 }
@@ -151,9 +148,7 @@ idAngles::ToRotation
 */
 idRotation idAngles::ToRotation() const {
 	idVec3 vec;
-	float angle, w;
 	float sx, cx, sy, cy, sz, cz;
-	float sxcy, cxcy, sxsy, cxsy;
 
 	if ( pitch == 0.0f ) {
 		if ( yaw == 0.0f ) {
@@ -170,16 +165,16 @@ idRotation idAngles::ToRotation() const {
 	idMath::SinCos( DEG2RAD( pitch ) * 0.5f, sy, cy );
 	idMath::SinCos( DEG2RAD( roll ) * 0.5f, sx, cx );
 
-	sxcy = sx * cy;
-	cxcy = cx * cy;
-	sxsy = sx * sy;
-	cxsy = cx * sy;
+	float sxcy = sx * cy;
+	float cxcy = cx * cy;
+	float sxsy = sx * sy;
+	float cxsy = cx * sy;
 
 	vec.x =  cxsy * sz - sxcy * cz;
 	vec.y = -cxsy * cz - sxcy * sz;
 	vec.z =  sxsy * cz - cxcy * sz;
-	w =		 cxcy * cz + sxsy * sz;
-	angle = idMath::ACos( w );
+	float w = cxcy * cz + sxsy * sz;
+	float angle = idMath::ACos(w);
 	if ( angle == 0.0f ) {
 		vec.Set( 0.0f, 0.0f, 1.0f );
 	} else {
@@ -226,7 +221,7 @@ idAngles::ToAngularVelocity
 =================
 */
 idVec3 idAngles::ToAngularVelocity() const {
-	idRotation rotation = idAngles::ToRotation();
+	const idRotation rotation = idAngles::ToRotation();
 	return rotation.GetVec() * DEG2RAD( rotation.GetAngle() );
 }
 

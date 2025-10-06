@@ -54,7 +54,7 @@ public:
 	}
 	idStr token;
 	int8  tokenType;
-	short tokenSubType;
+	size_t tokenSubType;
 };
 
 class idTokenIndexes {
@@ -134,7 +134,7 @@ public:
 	void Warning( VERIFY_FORMAT_STRING const char *str, ... );
 	int ParseInt();
 	bool ParseBool();
-	float ParseFloat( bool *errorFlag = NULL );
+	float ParseFloat( bool *errorFlag = nullptr);
 	void UpdateTimeStamp( ID_TIME_T &t ) {
 		if ( t > timeStamp ) {
 			timeStamp = t;

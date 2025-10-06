@@ -40,8 +40,8 @@ idLocalUserWin
 */
 class idLocalUserWin : public idLocalUser {
 public:
-	static const int MAX_GAMERTAG = 64;			// max number of bytes for a gamertag
-	static const int MAX_GAMERTAG_CHARS = 16;	// max number of UTF-8 characters to show
+	static constexpr int MAX_GAMERTAG = 64;			// max number of bytes for a gamertag
+	static constexpr int MAX_GAMERTAG_CHARS = 16;	// max number of UTF-8 characters to show
 
 	idLocalUserWin() : inputDevice( 0 ) {}
 

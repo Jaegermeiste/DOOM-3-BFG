@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-const static int NUM_LOBBY_OPTIONS = 8;
+static constexpr int NUM_LOBBY_OPTIONS = 8;
 
 extern idCVar net_inviteOnly;
 

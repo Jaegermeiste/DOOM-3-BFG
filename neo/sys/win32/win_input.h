@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <Xinput.h>
 //#endif
 
-static const int MAX_JOYSTICKS = 4;
+static constexpr int MAX_JOYSTICKS = 4;
 
 /*
 ================================================================================================

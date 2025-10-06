@@ -91,7 +91,7 @@ idSignInManagerWin::RegisterLocalUser
 ========================
 */
 void idSignInManagerWin::RegisterLocalUser( int inputDevice ) {
-	if ( GetLocalUserByInputDevice( inputDevice ) != NULL ) {
+	if ( GetLocalUserByInputDevice( inputDevice ) != nullptr) {
 		return;
 	}
 	

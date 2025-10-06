@@ -38,19 +38,17 @@ POSSIBILITY OF SUCH DAMAGE.
 idBase64::Encode
 ============
 */
-static const char sixtet_to_base64[] = 
+static constexpr char sixtet_to_base64[] = 
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-void idBase64::Encode( const byte *from, int size ) {
-	int i, j;
-	unsigned long w;
-	byte *to;
-	
+void idBase64::Encode( const byte *from, size_t size ) {
+	int j;
+
 	EnsureAlloced( 4*(size+3)/3 + 2 ); // ratio and padding + trailing \0
-	to = data;
+	byte* to = data;
 	
-	w = 0;
-	i = 0;
+	unsigned long w = 0;
+	int i = 0;
 	while (size > 0) {
 		w |= *from << i*8;
 		++from;
@@ -83,7 +81,7 @@ returns the minimum size in bytes of the target buffer for decoding
 4 base64 digits <-> 3 bytes
 ============
 */
-int idBase64::DecodeLength( void ) const {
+size_t idBase64::DecodeLength( void ) const {
 	return 3*len/4;
 }
 
@@ -92,10 +90,8 @@ int idBase64::DecodeLength( void ) const {
 idBase64::Decode
 ============
 */
-int idBase64::Decode( byte *to ) const {
-	unsigned long w;
+size_t idBase64::Decode( byte *to ) const {
 	int i, j;
-	size_t n;
 	static char base64_to_sixtet[256];
 	static int tab_init = 0;
 	byte *from = data;
@@ -108,9 +104,9 @@ int idBase64::Decode( byte *to ) const {
 		tab_init = 1;
 	}
 
-	w = 0;
+	unsigned long w = 0;
 	i = 0;
-	n = 0;
+	size_t n = 0;
 	byte in[4] = {0,0,0,0};
 	while (*from != '\0' && *from != '=' ) {
 		if (*from == ' ' || *from == '\n') {
@@ -140,7 +136,7 @@ idBase64::Encode
 ============
 */
 void idBase64::Encode( const idStr &src ) {
-	Encode( (const byte *)src.c_str(), src.Length() );
+	Encode( reinterpret_cast<const byte*>(src.c_str()), src.Length() );
 }
 
 /*
@@ -150,9 +146,9 @@ idBase64::Decode
 */
 void idBase64::Decode( idStr &dest ) const {
 	byte *buf = new (TAG_IDLIB) byte[ DecodeLength()+1 ]; // +1 for trailing \0
-	int out = Decode( buf );
+	const size_t out = Decode( buf );
 	buf[out] = '\0';
-	dest = (const char *)buf;
+	dest = reinterpret_cast<const char*>(buf);
 	delete[] buf;
 }
 
@@ -163,14 +159,14 @@ idBase64::Decode
 */
 void idBase64::Decode( idFile *dest ) const {	
 	byte *buf = new (TAG_IDLIB) byte[ DecodeLength()+1 ]; // +1 for trailing \0
-	int out = Decode( buf );
+	const size_t out = Decode( buf );
 	dest->Write( buf, out );
 	delete[] buf;
 }
 
 #if 0
 
-void idBase64_TestBase64() {
+static void idBase64_TestBase64() {
 		
 	idStr src;
 	idBase64 dest;

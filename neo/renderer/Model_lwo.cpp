@@ -277,7 +277,7 @@ lwClip *lwGetClip( idFile *fp, int cksize )
 
 Fail:
    lwFreeClip( clip );
-   return NULL;
+   return nullptr;
 }
 
 
@@ -338,9 +338,9 @@ Read an ENVL chunk from an LWO2 file.
 
 lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
 {
-   lwEnvelope *env = NULL;
-   lwKey *key = NULL;
-   lwPlugin *plug = NULL;
+   lwEnvelope *env = nullptr;
+   lwKey *key = nullptr;
+   lwPlugin *plug = nullptr;
    unsigned int id;
    unsigned short sz;
    float f[ 4 ];
@@ -400,7 +400,7 @@ lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
             break;
 
          case ID_SPAN:
-            if ( key == NULL ) goto Fail;
+            if ( key == nullptr) goto Fail;
             key->shape = getU4( fp );
 
             nparams = ( sz - 4 ) / 4;
@@ -468,7 +468,7 @@ lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
 
 Fail:
    lwFreeEnvelope( env );
-   return NULL;
+   return nullptr;
 }
 
 
@@ -772,7 +772,7 @@ float evalEnvelope( lwEnvelope *env, float time )
    skey = ekey = env->key;
 
    /* if there's no key, the value is 0 */
-   if ( env->nkeys == 0 || skey == NULL ) {
+   if ( env->nkeys == 0 || skey == nullptr) {
 	   return 0.0f;
    }
 
@@ -782,7 +782,7 @@ float evalEnvelope( lwEnvelope *env, float time )
    }
 
    /* find the last keys */
-   while ( ekey->next != NULL ) {
+   while ( ekey->next != nullptr) {
 	   ekey = ekey->next;
    }
 
@@ -797,7 +797,7 @@ float evalEnvelope( lwEnvelope *env, float time )
             return skey->value;
 
          case BEH_REPEAT:
-            time = range( time, skey->time, ekey->time, NULL );
+            time = range( time, skey->time, ekey->time, nullptr);
             break;
 
          case BEH_OSCILLATE:
@@ -812,7 +812,7 @@ float evalEnvelope( lwEnvelope *env, float time )
             break;
 
          case BEH_LINEAR:
-			 if ( skey->next != NULL ) {
+			 if ( skey->next != nullptr) {
 				out = outgoing( skey, skey->next )
 					/ ( skey->next->time - skey->time );
 				return out * ( time - skey->time ) + skey->value;
@@ -834,7 +834,7 @@ float evalEnvelope( lwEnvelope *env, float time )
             return ekey->value;
 
          case BEH_REPEAT:
-            time = range( time, skey->time, ekey->time, NULL );
+            time = range( time, skey->time, ekey->time, nullptr);
             break;
 
          case BEH_OSCILLATE:
@@ -858,13 +858,13 @@ float evalEnvelope( lwEnvelope *env, float time )
    /* get the endpoints of the interval being evaluated */
 
    key0 = env->key;
-   if ( key0 == NULL || key0->next == NULL ) {
+   if ( key0 == nullptr || key0->next == nullptr) {
 	   return 0.0f;
    }
    while ( time > key0->next->time )
       key0 = key0->next;
    key1 = key0->next;
-   if ( key1 == NULL ) {
+   if ( key1 == nullptr) {
 	   return 0.0f;
    }
 
@@ -936,10 +936,10 @@ Append a node to a list.
 
 void lwListAdd( void **list, void *node )
 {
-   lwNode *head = NULL, *tail = NULL;
+   lwNode *head = nullptr, *tail = nullptr;
 
    head = *(( lwNode ** ) list );
-   if ( head == NULL ) {
+   if ( head == nullptr) {
       *list = node;
       return;
    }
@@ -971,7 +971,7 @@ void lwListInsert( void **vlist, void *vitem, int ( *compare )( void *, void * )
    list = ( lwNode ** ) vlist;
    item = ( lwNode * ) vitem;
    node = *list;
-   prev = NULL;
+   prev = nullptr;
 
    while ( node ) {
       if ( 0 < compare( node, item )) break;
@@ -1019,20 +1019,20 @@ void *getbytes( idFile *fp, int size )
 {
    void *data;
 
-   if ( flen == FLEN_ERROR ) return NULL;
+   if ( flen == FLEN_ERROR ) return nullptr;
    if ( size < 0 ) {
       flen = FLEN_ERROR;
-      return NULL;
+      return nullptr;
    }
    data = Mem_ClearedAlloc( size, TAG_MODEL );
    if ( !data ) {
       flen = FLEN_ERROR;
-      return NULL;
+      return nullptr;
    }
    if ( size != fp->Read( data, size ) ) {
       flen = FLEN_ERROR;
       Mem_Free( data );
-      return NULL;
+      return nullptr;
    }
 
    flen += size;
@@ -1211,14 +1211,14 @@ char *getS0( idFile *fp )
    char *s;
    int i, c, len, pos;
 
-   if ( flen == FLEN_ERROR ) return NULL;
+   if ( flen == FLEN_ERROR ) return nullptr;
 
    pos = fp->Tell();
    for ( i = 1; ; i++ ) {
 	   c = 0;
 	   if (fp->Read(&c, 1) == -1) {
 		   flen = FLEN_ERROR;
-		   return NULL;
+		   return nullptr;
 	   }
 	   if ( c == 0 ) break;
    }
@@ -1228,23 +1228,23 @@ char *getS0( idFile *fp )
          flen = FLEN_ERROR;
       else
          flen += 2;
-      return NULL;
+      return nullptr;
    }
 
    len = i + ( i & 1 );
    s = (char*)Mem_ClearedAlloc( len, TAG_MODEL );
    if ( !s ) {
       flen = FLEN_ERROR;
-      return NULL;
+      return nullptr;
    }
 
    if ( fp->Seek( pos, FS_SEEK_SET )) {
       flen = FLEN_ERROR;
-      return NULL;
+      return nullptr;
    }
    if ( len != fp->Read( s, len )) {
       flen = FLEN_ERROR;
-      return NULL;
+      return nullptr;
    }
 
    flen += len;
@@ -1376,19 +1376,19 @@ char *sgetS0( unsigned char **bp )
    unsigned char *buf = *bp;
    int len;
 
-   if ( flen == FLEN_ERROR ) return NULL;
+   if ( flen == FLEN_ERROR ) return nullptr;
 
    len = strlen( (const char*)buf ) + 1;
    if ( len == 1 ) {
       flen += 2;
       (*bp) += 2;
-      return NULL;
+      return nullptr;
    }
    len += len & 1;
    s = (char*)Mem_ClearedAlloc( len, TAG_MODEL );
    if ( !s ) {
       flen = FLEN_ERROR;
-      return NULL;
+      return nullptr;
    }
 
    memcpy( s, buf, len );
@@ -1459,7 +1459,7 @@ If you don't need this information, failID and failpos can be NULL.
 
 lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos )
 {
-   idFile *fp = NULL;
+   idFile *fp = nullptr;
    lwObject *object;
    lwLayer *layer;
    lwNode *node;
@@ -1468,7 +1468,7 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
 
    fp = fileSystem->OpenFileRead( filename );
    if ( !fp ) {
-	   return NULL;
+	   return nullptr;
    }
 
    /* read the first 12 bytes */
@@ -1479,7 +1479,7 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
    type     = getU4( fp );
    if ( 12 != get_flen() ) {
       fileSystem->CloseFile( fp );
-      return NULL;
+      return nullptr;
    }
 
    /* is this a LW object? */
@@ -1487,7 +1487,7 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
    if ( id != ID_FORM ) {
       fileSystem->CloseFile( fp );
       if ( failpos ) *failpos = 12;
-      return NULL;
+      return nullptr;
    }
 
    if ( type != ID_LWO2 ) {
@@ -1496,7 +1496,7 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
          return lwGetObject5( filename, failID, failpos );
       else {
          if ( failpos ) *failpos = 12;
-         return NULL;
+         return nullptr;
       }
    }
 
@@ -1632,7 +1632,7 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
    }
 
    fileSystem->CloseFile( fp );
-   fp = NULL;
+   fp = nullptr;
 
    if ( object->nlayers == 0 )
       object->nlayers = 1;
@@ -1659,7 +1659,7 @@ Fail:
       fileSystem->CloseFile( fp );
    }
    lwFreeObject( object );
-   return NULL;
+   return nullptr;
 }
 
 
@@ -1711,14 +1711,14 @@ static int add_clip( char *s, lwClip **clist, int *nclips )
    char *p;
 
    clip = (lwClip*)Mem_ClearedAlloc( sizeof( lwClip ), TAG_MODEL );
-   if ( clip == NULL ) return 0;
+   if ( clip == nullptr) return 0;
 
    clip->contrast.val = 1.0f;
    clip->brightness.val = 1.0f;
    clip->saturation.val = 1.0f;
    clip->gamma.val = 1.0f;
 
-   if ( ( p = strstr( s, "(sequence)" ) ) != NULL ) {
+   if ( ( p = strstr( s, "(sequence)" ) ) != nullptr) {
       p[ -1 ] = 0;
       clip->type = ID_ISEQ;
       clip->source.seq.prefix = s;
@@ -1748,8 +1748,8 @@ parameters.
 
 static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs )
 {
-   lwEnvelope *env = NULL;
-   lwKey *key0 = NULL, *key1 = NULL;
+   lwEnvelope *env = nullptr;
+   lwKey *key0 = nullptr, *key1 = nullptr;
    int i;
 
    for ( i = 0; i < 3; i++ ) {
@@ -1799,7 +1799,7 @@ static lwTexture *get_texture( char *s )
    lwTexture *tex;
 
    tex = (lwTexture*)Mem_ClearedAlloc( sizeof( lwTexture ), TAG_MODEL );
-   if ( !tex ) return NULL;
+   if ( !tex ) return nullptr;
 
    tex->tmap.size.val[ 0 ] =
    tex->tmap.size.val[ 1 ] =
@@ -1836,10 +1836,10 @@ Read an lwSurface from an LWOB file.
 
 lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
 {
-   lwSurface *surf = NULL;
-   lwTexture *tex = NULL;
-   lwPlugin *shdr = NULL;
-   char *s = NULL;
+   lwSurface *surf = nullptr;
+   lwTexture *tex = nullptr;
+   lwPlugin *shdr = nullptr;
+   char *s = nullptr;
    float v[ 3 ];
    unsigned int id, flags;
    unsigned short sz;
@@ -2144,7 +2144,7 @@ lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
 
 Fail:
    if ( surf ) lwFreeSurface( surf );
-   return NULL;
+   return nullptr;
 }
 
 
@@ -2249,7 +2249,7 @@ If you don't need this information, failID and failpos can be NULL.
 
 lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos )
 {
-   idFile *fp = NULL;
+   idFile *fp = nullptr;
    lwObject *object;
    lwLayer *layer;
    lwNode *node;
@@ -2264,7 +2264,7 @@ lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos
    /* read the first 12 bytes */
    fp = fileSystem->OpenFileRead( filename );
    if ( !fp ) {
-	   return NULL;
+	   return nullptr;
    }
 
    set_flen( 0 );
@@ -2273,7 +2273,7 @@ lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos
    type     = getU4( fp );
    if ( 12 != get_flen() ) {
       fileSystem->CloseFile( fp );
-      return NULL;
+      return nullptr;
    }
 
    /* LWOB? */
@@ -2281,7 +2281,7 @@ lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos
    if ( id != ID_FORM || type != ID_LWOB ) {
       fileSystem->CloseFile( fp );
       if ( failpos ) *failpos = 12;
-      return NULL;
+      return nullptr;
    }
 
    /* allocate an object and a default layer */
@@ -2348,7 +2348,7 @@ lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos
    }
 
    fileSystem->CloseFile( fp );
-   fp = NULL;
+   fp = nullptr;
 
    lwGetBoundingBox( &layer->point, layer->bbox );
    lwGetPolyNormals( &layer->point, &layer->polygon );
@@ -2366,7 +2366,7 @@ Fail2:
       fileSystem->CloseFile( fp );
    }
    lwFreeObject( object );
-   return NULL;
+   return nullptr;
 }
 
 /*
@@ -3473,7 +3473,7 @@ lwTexture *lwGetTexture( idFile *fp, int bloksz, unsigned int type )
    int ok;
 
    tex = (lwTexture*)Mem_ClearedAlloc( sizeof( lwTexture ), TAG_MODEL );
-   if ( !tex ) return NULL;
+   if ( !tex ) return nullptr;
 
    tex->type = type;
    tex->tmap.size.val[ 0 ] =
@@ -3485,7 +3485,7 @@ lwTexture *lwGetTexture( idFile *fp, int bloksz, unsigned int type )
    sz = getU2( fp );
    if ( !lwGetTHeader( fp, sz, tex )) {
       Mem_Free( tex );
-      return NULL;
+      return nullptr;
    }
 
    sz = bloksz - sz - 6;
@@ -3499,7 +3499,7 @@ lwTexture *lwGetTexture( idFile *fp, int bloksz, unsigned int type )
 
    if ( !ok ) {
       lwFreeTexture( tex );
-      return NULL;
+      return nullptr;
    }
 
    set_flen( bloksz );
@@ -3522,7 +3522,7 @@ lwPlugin *lwGetShader( idFile *fp, int bloksz )
    int hsz, rlen, pos;
 
    shdr = (lwPlugin*)Mem_ClearedAlloc( sizeof( lwPlugin ), TAG_MODEL );
-   if ( !shdr ) return NULL;
+   if ( !shdr ) return nullptr;
 
    pos = fp->Tell();
    set_flen( 0 );
@@ -3593,7 +3593,7 @@ lwPlugin *lwGetShader( idFile *fp, int bloksz )
 
 Fail:
    lwFreePlugin( shdr );
-   return NULL;
+   return nullptr;
 }
 
 
@@ -3661,7 +3661,7 @@ lwSurface *lwDefaultSurface()
    lwSurface *surf;
 
    surf = (lwSurface*)Mem_ClearedAlloc( sizeof( lwSurface ), TAG_MODEL );
-   if ( !surf ) return NULL;
+   if ( !surf ) return nullptr;
 
    surf->color.rgb[ 0 ] = 0.78431f;
    surf->color.rgb[ 1 ] = 0.78431f;
@@ -3907,7 +3907,7 @@ lwSurface *lwGetSurface( idFile *fp, int cksize )
 
 Fail:
    if ( surf ) lwFreeSurface( surf );
-   return NULL;
+   return nullptr;
 }
 
 
@@ -3979,12 +3979,12 @@ lwVMap *lwGetVMap( idFile *fp, int cksize, int ptoffset, int poloffset,
 
    set_flen( 0 );
    buf = (unsigned char*)getbytes( fp, cksize );
-   if ( !buf ) return NULL;
+   if ( !buf ) return nullptr;
 
    vmap = (lwVMap*)Mem_ClearedAlloc( sizeof( lwVMap ), TAG_MODEL );
    if ( !vmap ) {
       Mem_Free( buf );
-      return NULL;
+      return nullptr;
    }
 
    /* initialize the vmap */
@@ -4045,7 +4045,7 @@ lwVMap *lwGetVMap( idFile *fp, int cksize, int ptoffset, int poloffset,
 Fail:
    if ( buf ) Mem_Free( buf );
    lwFreeVMap( vmap );
-   return NULL;
+   return nullptr;
 }
 
 

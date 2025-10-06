@@ -1144,6 +1144,7 @@
     <None Include="sys\win32\rc\res\doom3bfg.bin">
       <Filter>Sys\RC\res</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="sys\win32\rc\doom.rc">

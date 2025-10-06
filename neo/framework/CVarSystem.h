@@ -113,15 +113,15 @@ typedef enum {
 class idCVar {
 public:
 							// Never use the default constructor.
-							idCVar() { assert( typeid( this ) != typeid( idCVar ) ); }
+				            idCVar() { assert( typeid( this ) != typeid( idCVar ) ); }
 
 							// Always use one of the following constructors.
 							idCVar( const char *name, const char *value, int flags, const char *description,
-									argCompletion_t valueCompletion = NULL );
+									argCompletion_t valueCompletion = nullptr);
 							idCVar( const char *name, const char *value, int flags, const char *description,
-									float valueMin, float valueMax, argCompletion_t valueCompletion = NULL );
+									float valueMin, float valueMax, argCompletion_t valueCompletion = nullptr);
 							idCVar( const char *name, const char *value, int flags, const char *description,
-									const char **valueStrings, argCompletion_t valueCompletion = NULL );
+									const char **valueStrings, argCompletion_t valueCompletion = nullptr);
 
 	virtual					~idCVar() {}
 
@@ -185,12 +185,12 @@ ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const 
 	if ( !valueCompletion && ( flags & CVAR_BOOL ) ) {
 		valueCompletion = idCmdSystem::ArgCompletion_Boolean;
 	}
-	Init( name, value, flags, description, 1, -1, NULL, valueCompletion );
+	Init( name, value, flags, description, 1, -1, nullptr, valueCompletion );
 }
 
 ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const char *description,
 							float valueMin, float valueMax, argCompletion_t valueCompletion ) {
-	Init( name, value, flags, description, valueMin, valueMax, NULL, valueCompletion );
+	Init( name, value, flags, description, valueMin, valueMax, nullptr, valueCompletion );
 }
 
 ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const char *description,
@@ -291,7 +291,7 @@ ID_INLINE void idCVar::Init( const char *name, const char *value, int flags, con
 	this->integerValue = 0;
 	this->floatValue = 0.0f;
 	this->internalVar = this;
-	if ( staticVars != (idCVar *)0xFFFFFFFF ) {
+	if ( staticVars != reinterpret_cast<idCVar*>(0xFFFFFFFFFFFFFFFF)) {
 		this->next = staticVars;
 		staticVars = this;
 	} else {
@@ -300,11 +300,11 @@ ID_INLINE void idCVar::Init( const char *name, const char *value, int flags, con
 }
 
 ID_INLINE void idCVar::RegisterStaticVars() {
-	if ( staticVars != (idCVar *)0xFFFFFFFF ) {
+	if ( staticVars != reinterpret_cast<idCVar*>(0xFFFFFFFFFFFFFFFF)) {
 		for ( idCVar *cvar = staticVars; cvar; cvar = cvar->next ) {
 			cvarSystem->Register( cvar );
 		}
-		staticVars = (idCVar *)0xFFFFFFFF;
+		staticVars = reinterpret_cast<idCVar*>(0xFFFFFFFFFFFFFFFF);
 	}
 }
 

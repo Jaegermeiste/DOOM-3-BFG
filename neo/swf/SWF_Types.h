@@ -348,13 +348,13 @@ ratio( 0.0f ),
 depth( 0 ),
 clipDepth( 0 ),
 blendMode( 0 ),
-spriteInstance( NULL ),
-textInstance( NULL )
+spriteInstance(nullptr),
+textInstance(nullptr)
 {
 }
 
 ID_INLINE swfRenderState_t::swfRenderState_t() :
-material( NULL ),
+material(nullptr),
 materialWidth( 0 ),
 materialHeight( 0 ),
 activeMasks( 0 ),
@@ -371,7 +371,7 @@ advance( 0 )
 }
 
 ID_INLINE idSWFFont::idSWFFont() :
-fontID( 0 ),
+fontID( nullptr ),
 ascent( 0 ),
 descent( 0 ),
 leading( 0 )

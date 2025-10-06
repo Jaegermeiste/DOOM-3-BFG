@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../Game_local.h"
 #include "../../renderer/tr_local.h"
 
-const static int NUM_SETTING_OPTIONS = 7;
+static constexpr int NUM_SETTING_OPTIONS = 7;
 
 enum settingMenuCmds_t {
 	SETTING_CMD_CONTROLS,

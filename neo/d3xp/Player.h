@@ -53,29 +53,29 @@ extern const idEventDef EV_Player_ExitTeleporter;
 extern const idEventDef EV_Player_SelectWeapon;
 extern const idEventDef EV_SpectatorTouch;
 
-const float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
-const int	LAND_DEFLECT_TIME = 150;
-const int	LAND_RETURN_TIME = 300;
-const int	FOCUS_TIME = 300;
-const int	FOCUS_GUI_TIME = 500;
-const int	NUM_QUICK_SLOTS = 4;
+constexpr float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
+constexpr int	LAND_DEFLECT_TIME = 150;
+constexpr int	LAND_RETURN_TIME = 300;
+constexpr int	FOCUS_TIME = 300;
+constexpr int	FOCUS_GUI_TIME = 500;
+constexpr int	NUM_QUICK_SLOTS = 4;
 
-const int MAX_WEAPONS = 32;
+constexpr int MAX_WEAPONS = 32;
 
-const int DEAD_HEARTRATE = 0;			// fall to as you die
-const int LOWHEALTH_HEARTRATE_ADJ = 20; // 
-const int DYING_HEARTRATE = 30;			// used for volumen calc when dying/dead
-const int BASE_HEARTRATE = 70;			// default
-const int ZEROSTAMINA_HEARTRATE = 115;  // no stamina
-const int MAX_HEARTRATE = 130;			// maximum
-const int ZERO_VOLUME = -40;			// volume at zero
-const int DMG_VOLUME = 5;				// volume when taking damage
-const int DEATH_VOLUME = 15;			// volume at death
+constexpr int DEAD_HEARTRATE = 0;			// fall to as you die
+constexpr int LOWHEALTH_HEARTRATE_ADJ = 20; // 
+constexpr int DYING_HEARTRATE = 30;			// used for volumen calc when dying/dead
+constexpr int BASE_HEARTRATE = 70;			// default
+constexpr int ZEROSTAMINA_HEARTRATE = 115;  // no stamina
+constexpr int MAX_HEARTRATE = 130;			// maximum
+constexpr int ZERO_VOLUME = -40;			// volume at zero
+constexpr int DMG_VOLUME = 5;				// volume when taking damage
+constexpr int DEATH_VOLUME = 15;			// volume at death
 
-const int SAVING_THROW_TIME = 5000;		// maximum one "saving throw" every five seconds
+constexpr int SAVING_THROW_TIME = 5000;		// maximum one "saving throw" every five seconds
 
 const int ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 3000 );
-const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
+constexpr int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
 
 enum gameExpansionType_t {
 	GAME_BASE,
@@ -256,10 +256,10 @@ public:
 		EVENT_MAXEVENTS
 	};
 
-	static const int MAX_PLAYER_PDA = 100;
-	static const int MAX_PLAYER_VIDEO = 100;
-	static const int MAX_PLAYER_AUDIO = 100;
-	static const int MAX_PLAYER_AUDIO_ENTRIES = 2;
+	static constexpr int MAX_PLAYER_PDA = 100;
+	static constexpr int MAX_PLAYER_VIDEO = 100;
+	static constexpr int MAX_PLAYER_AUDIO = 100;
+	static constexpr int MAX_PLAYER_AUDIO_ENTRIES = 2;
 
 	usercmd_t				oldCmd;
 	usercmd_t				usercmd;
@@ -359,7 +359,7 @@ public:
 	// controller shake parms
 	//-----------------------------------------------------------------
 
-	const static int		MAX_SHAKE_BUFFER = 3;
+	static constexpr int		MAX_SHAKE_BUFFER = 3;
 	float					controllerShakeHighMag[ MAX_SHAKE_BUFFER ];		// magnitude of the high frequency controller shake
 	float					controllerShakeLowMag[ MAX_SHAKE_BUFFER ];		// magnitude of the low frequency controller shake
 	int						controllerShakeHighTime[ MAX_SHAKE_BUFFER ];	// time the controller shake ends for high frequency.
@@ -752,9 +752,9 @@ private:
 
 	idCamera *				privateCameraView;
 
-	static const int		NUM_LOGGED_VIEW_ANGLES = 64;		// for weapon turning angle offsets
+	static constexpr int		NUM_LOGGED_VIEW_ANGLES = 64;		// for weapon turning angle offsets
 	idAngles				loggedViewAngles[NUM_LOGGED_VIEW_ANGLES];	// [gameLocal.framenum&(LOGGED_VIEW_ANGLES-1)]
-	static const int		NUM_LOGGED_ACCELS = 16;			// for weapon turning angle offsets
+	static constexpr int		NUM_LOGGED_ACCELS = 16;			// for weapon turning angle offsets
 	loggedAccel_t			loggedAccel[NUM_LOGGED_ACCELS];	// [currentLoggedAccel & (NUM_LOGGED_ACCELS-1)]
 	int						currentLoggedAccel;
 

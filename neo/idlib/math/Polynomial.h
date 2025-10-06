@@ -104,20 +104,20 @@ private:
 ID_INLINE idPolynomial::idPolynomial() {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 }
 
 ID_INLINE idPolynomial::idPolynomial(const int d ) {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( d, false );
 }
 
 ID_INLINE idPolynomial::idPolynomial(const float a, const float b ) {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 1, false );
 	coefficient[0] = b;
 	coefficient[1] = a;
@@ -126,7 +126,7 @@ ID_INLINE idPolynomial::idPolynomial(const float a, const float b ) {
 ID_INLINE idPolynomial::idPolynomial(const float a, const float b, const float c ) {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 2, false );
 	coefficient[0] = c;
 	coefficient[1] = b;
@@ -136,7 +136,7 @@ ID_INLINE idPolynomial::idPolynomial(const float a, const float b, const float c
 ID_INLINE idPolynomial::idPolynomial(const float a, const float b, const float c, const float d ) {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 3, false );
 	coefficient[0] = d;
 	coefficient[1] = c;
@@ -147,7 +147,7 @@ ID_INLINE idPolynomial::idPolynomial(const float a, const float b, const float c
 ID_INLINE idPolynomial::idPolynomial(const float a, const float b, const float c, const float d, const float e ) {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 4, false );
 	coefficient[0] = e;
 	coefficient[1] = d;
@@ -167,11 +167,8 @@ ID_INLINE float& idPolynomial::operator[](const int index ) {
 }
 
 ID_INLINE idPolynomial idPolynomial::operator-() const {
-	int i;
-	idPolynomial n;
-
-	n = *this;
-	for ( i = 0; i <= degree; i++ ) {
+	idPolynomial n = *this;
+	for ( int i = 0; i <= degree; i++ ) {
 		n[i] = -n[i];
 	}
 	return n;
@@ -270,12 +267,11 @@ ID_INLINE idPolynomial idPolynomial::operator*( const float s ) const {
 }
 
 ID_INLINE idPolynomial idPolynomial::operator/( const float s ) const {
-	float invs;
 	idPolynomial n;
 
 	assert( s != 0.0f );
 	n.Resize( degree, false );
-	invs = 1.0f / s;
+	float invs = 1.0f / s;
 	for ( int i = 0; i <= degree; i++ ) {
 		n.coefficient[i] = coefficient[i] * invs;
 	}
@@ -346,10 +342,8 @@ ID_INLINE idPolynomial &idPolynomial::operator*=( const float s ) {
 }
 
 ID_INLINE idPolynomial &idPolynomial::operator/=( const float s ) {
-	float invs;
-
 	assert( s != 0.0f );
-	invs = 1.0f / s;
+	float invs = 1.0f / s;
 	for ( int i = 0; i <= degree; i++ ) {
 		coefficient[i] = invs;
 	}
@@ -408,9 +402,8 @@ ID_INLINE int idPolynomial::GetDegree() const {
 }
 
 ID_INLINE float idPolynomial::GetValue( const float x ) const {
-	float y, z;
-	y = coefficient[0];
-	z = x;
+	float y = coefficient[0];
+	float z = x;
 	for ( int i = 1; i <= degree; i++ ) {
 		y += coefficient[i] * z;
 		z *= x;
@@ -419,9 +412,9 @@ ID_INLINE float idPolynomial::GetValue( const float x ) const {
 }
 
 ID_INLINE idComplex idPolynomial::GetValue( const idComplex &x ) const {
-	idComplex y, z;
+	idComplex y;
 	y.Set( coefficient[0], 0.0f );
-	z = x;
+	idComplex z = x;
 	for ( int i = 1; i <= degree; i++ ) {
 		y += coefficient[i] * z;
 		z *= x;
@@ -463,15 +456,13 @@ ID_INLINE int idPolynomial::GetRoots1(const float a, const float b, float *roots
 }
 
 ID_INLINE int idPolynomial::GetRoots2(const float a, float b, float c, float *roots ) {
-	float inva, ds;
-
 	if ( a != 1.0f ) {
 		assert( a != 0.0f );
-		inva = 1.0f / a;
+		float inva = 1.0f / a;
 		c *= inva;
 		b *= inva;
 	}
-	ds = b * b - 4.0f * c;
+	float ds = b * b - 4.0f * c;
 	if ( ds < 0.0f ) {
 		return 0;
 	} else if ( ds > 0.0f ) {
@@ -486,27 +477,27 @@ ID_INLINE int idPolynomial::GetRoots2(const float a, float b, float c, float *ro
 }
 
 ID_INLINE int idPolynomial::GetRoots3(const float a, float b, float c, float d, float *roots ) {
-	float inva, f, g, halfg, ofs, ds, dist, angle, cs, ss, t;
+	float t;
 
 	if ( a != 1.0f ) {
 		assert( a != 0.0f );
-		inva = 1.0f / a;
+		float inva = 1.0f / a;
 		d *= inva;
 		c *= inva;
 		b *= inva;
 	}
 
-	f = ( 1.0f / 3.0f ) * ( 3.0f * c - b * b );
-	g = ( 1.0f / 27.0f ) * ( 2.0f * b * b * b - 9.0f * c * b + 27.0f * d );
-	halfg = 0.5f * g;
-	ofs = ( 1.0f / 3.0f ) * b;
-	ds = 0.25f * g * g + ( 1.0f / 27.0f ) * f * f * f;
+	float f = (1.0f / 3.0f) * (3.0f * c - b * b);
+	float g = (1.0f / 27.0f) * (2.0f * b * b * b - 9.0f * c * b + 27.0f * d);
+	float halfg = 0.5f * g;
+	float ofs = (1.0f / 3.0f) * b;
+	float ds = 0.25f * g * g + (1.0f / 27.0f) * f * f * f;
 
 	if ( ds < 0.0f ) {
-		dist = idMath::Sqrt( ( -1.0f / 3.0f ) * f );
-		angle = ( 1.0f / 3.0f ) * idMath::ATan( idMath::Sqrt( -ds ), -halfg );
-		cs = idMath::Cos( angle );
-		ss = idMath::Sin( angle );
+		float dist = idMath::Sqrt((-1.0f / 3.0f) * f);
+		float angle = (1.0f / 3.0f) * idMath::ATan(idMath::Sqrt(-ds), -halfg);
+		float cs = idMath::Cos(angle);
+		float ss = idMath::Sin(angle);
 		roots[0] = 2.0f * dist * cs - ofs;
 		roots[1] = -dist * ( cs + idMath::SQRT_THREE * ss ) - ofs;
 		roots[2] = -dist * ( cs - idMath::SQRT_THREE * ss ) - ofs;
@@ -541,33 +532,32 @@ ID_INLINE int idPolynomial::GetRoots3(const float a, float b, float c, float d, 
 }
 
 ID_INLINE int idPolynomial::GetRoots4(const float a, float b, float c, float d, float e, float *roots ) {
-	int count;
-	float inva, y, ds, r, s1, s2, t1, t2, tp, tm;
+	float s1, s2, t1, t2;
 	float roots3[3];
 
 	if ( a != 1.0f ) {
 		assert( a != 0.0f );
-		inva = 1.0f / a;
+		float inva = 1.0f / a;
 		e *= inva;
 		d *= inva;
 		c *= inva;
 		b *= inva;
 	}
 
-	count = 0;
+	int count = 0;
 
 	GetRoots3( 1.0f, -c, b * d - 4.0f * e, -b * b * e + 4.0f * c * e - d * d, roots3 );
-	y = roots3[0];
-	ds = 0.25f * b * b - c + y;
+	float y = roots3[0];
+	float ds = 0.25f * b * b - c + y;
 
 	if ( ds < 0.0f ) {
 		return 0;
 	} else if ( ds > 0.0f ) {
-		r = idMath::Sqrt( ds );
+		float r = idMath::Sqrt(ds);
 		t1 = 0.75f * b * b - r * r - 2.0f * c;
 		t2 = ( 4.0f * b * c - 8.0f * d - b * b * b ) / ( 4.0f * r );
-		tp = t1 + t2;
-		tm = t1 - t2;
+		float tp = t1 + t2;
+		float tm = t1 - t2;
 
 		if ( tp >= 0.0f ) {
 			s1 = idMath::Sqrt( tp );
@@ -609,10 +599,10 @@ ID_INLINE float *idPolynomial::ToFloatPtr() {
 }
 
 ID_INLINE void idPolynomial::Resize(const int d, const bool keep ) {
-	int alloc = ( d + 1 + 3 ) & ~3;
+	const int alloc = ( d + 1 + 3 ) & ~3;
 	if ( alloc > allocated ) {
-		float *ptr = (float *) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
-		if ( coefficient != NULL ) {
+		float *ptr = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
+		if ( coefficient != nullptr) {
 			if ( keep ) {
 				for ( int i = 0; i <= degree; i++ ) {
 					ptr[i] = coefficient[i];

@@ -181,8 +181,8 @@ typedef enum {
 	SVC_INVERSE_MODULATE
 } stageVertexColor_t;
 
-static const int	MAX_FRAGMENT_IMAGES = 8;
-static const int	MAX_VERTEX_PARMS = 4;
+static constexpr int	MAX_FRAGMENT_IMAGES = 8;
+static constexpr int	MAX_VERTEX_PARMS = 4;
 
 typedef struct {
 	int					vertexProgram;
@@ -246,12 +246,12 @@ typedef enum {
 } cullType_t;
 
 // these don't effect per-material storage, so they can be very large
-const int MAX_SHADER_STAGES			= 256;
+constexpr int MAX_SHADER_STAGES			= 256;
 
-const int MAX_TEXGEN_REGISTERS		= 4;
+constexpr int MAX_TEXGEN_REGISTERS		= 4;
 
-const int MAX_ENTITY_SHADER_PARMS	= 12;
-const int MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
+constexpr int MAX_ENTITY_SHADER_PARMS	= 12;
+constexpr int MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
 
 // material flags
 typedef enum {
@@ -291,8 +291,8 @@ typedef enum {
 } contentsFlags_t;
 
 // surface types
-const int NUM_SURFACE_BITS		= 4;
-const int MAX_SURFACE_TYPES		= 1 << NUM_SURFACE_BITS;
+constexpr int NUM_SURFACE_BITS		= 4;
+constexpr int MAX_SURFACE_TYPES		= 1 << NUM_SURFACE_BITS;
 
 typedef enum {
 	SURFTYPE_NONE,					// default type
@@ -348,7 +348,7 @@ public:
 	virtual void		Print() const;
 
 	//BSM Nerve: Added for material editor
-	bool				Save( const char *fileName = NULL );
+	bool				Save( const char *fileName = nullptr);
 
 						// returns the internal image name for stage 0, which can be used
 						// for the renderer CaptureRenderToImage() call
@@ -378,13 +378,13 @@ public:
 						// etc, will not have anything to draw.  A not drawn surface can still castShadow,
 						// which can be used to make a simplified shadow hull for a complex object set
 						// as noShadow
-	bool				IsDrawn() const { return ( numStages > 0 || entityGui != 0 || gui != NULL ); }
+	bool				IsDrawn() const { return ( numStages > 0 || entityGui != 0 || gui != nullptr); }
 
 						// returns true if the material will draw any non light interaction stages
 	bool				HasAmbient() const { return ( numAmbientStages > 0 ); }
 
 						// returns true if material has a gui
-	bool				HasGui() const { return ( entityGui != 0 || gui != NULL ); }
+	bool				HasGui() const { return ( entityGui != 0 || gui != nullptr); }
 
 						// returns true if the material will generate another view, either as
 						// a mirror or dynamic rendered image
@@ -441,7 +441,7 @@ public:
 						// necessary to prevent mutliple gui surfaces, mirrors, autosprites, and some other
 						// special effects from being combined into a single surface
 						// guis, merging sprites or other effects, mirrors and remote views are always discrete
-	bool				IsDiscrete() const { return ( entityGui || gui || deform != DFRM_NONE || sort == SS_SUBVIEW ||
+	bool				IsDiscrete() const { return ( entityGui || gui || deform != DFRM_NONE || sort == static_cast<int>(SS_SUBVIEW) ||
 												( surfaceFlags & SURF_DISCRETE ) != 0 ); }
 
 						// Normally, dmap chops each surface by every BSP boundary, then reoptimizes.

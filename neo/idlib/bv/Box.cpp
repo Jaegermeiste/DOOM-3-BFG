@@ -243,9 +243,7 @@ idBox::AddBox
 ============
 */
 bool idBox::AddBox( const idBox &a ) {
-	int i, besti;
-	float v, bestv;
-	idVec3 dir;
+	int i;
 	idMat3 ax[4];
 	idBounds bounds[4], b;
 
@@ -290,7 +288,7 @@ bool idBox::AddBox( const idBox &a ) {
 	}
 
 	// test axes aligned with the vector between the box centers and one of the box axis
-	dir = a.center - center;
+	idVec3 dir = a.center - center;
 	dir.Normalize();
 	for ( i = 2; i < 4; i++ ) {
 		ax[i][0] = dir;
@@ -305,10 +303,10 @@ bool idBox::AddBox( const idBox &a ) {
 	}
 
 	// get the bounds with the smallest volume
-	bestv = idMath::INFINITY;
-	besti = 0;
+	float bestv = idMath::INFINITY;
+	int besti = 0;
 	for ( i = 0; i < 4; i++ ) {
-		v = bounds[i].GetVolume();
+		float v = bounds[i].GetVolume();
 		if ( v < bestv ) {
 			bestv = v;
 			besti = i;
@@ -330,12 +328,10 @@ idBox::PlaneDistance
 ================
 */
 float idBox::PlaneDistance( const idPlane &plane ) const {
-	float d1, d2;
-
-	d1 = plane.Distance( center );
-	d2 = idMath::Fabs( extents[0] * plane.Normal()[0] ) +
-			idMath::Fabs( extents[1] * plane.Normal()[1] ) +
-				idMath::Fabs( extents[2] * plane.Normal()[2] );
+	float d1 = plane.Distance(center);
+	float d2 = idMath::Fabs(extents[0] * plane.Normal()[0]) +
+		idMath::Fabs(extents[1] * plane.Normal()[1]) +
+		idMath::Fabs(extents[2] * plane.Normal()[2]);
 
 	if ( d1 - d2 > 0.0f ) {
 		return d1 - d2;
@@ -352,12 +348,10 @@ idBox::PlaneSide
 ================
 */
 int idBox::PlaneSide( const idPlane &plane, const float epsilon ) const {
-	float d1, d2;
-
-	d1 = plane.Distance( center );
-	d2 = idMath::Fabs( extents[0] * plane.Normal()[0] ) +
-			idMath::Fabs( extents[1] * plane.Normal()[1] ) +
-				idMath::Fabs( extents[2] * plane.Normal()[2] );
+	float d1 = plane.Distance(center);
+	float d2 = idMath::Fabs(extents[0] * plane.Normal()[0]) +
+		idMath::Fabs(extents[1] * plane.Normal()[1]) +
+		idMath::Fabs(extents[2] * plane.Normal()[2]);
 
 	if ( d1 - d2 > epsilon ) {
 		return PLANESIDE_FRONT;
@@ -374,13 +368,13 @@ idBox::IntersectsBox
 ============
 */
 bool idBox::IntersectsBox( const idBox &a ) const {
-    idVec3 dir;			// vector between centers
+	// vector between centers
     float c[3][3];		// matrix c = axis.Transpose() * a.axis
     float ac[3][3];		// absolute values of c
     float axisdir[3];	// axis[i] * dir
-    float d, e0, e1;	// distance between centers and projected extents
+	// distance between centers and projected extents
 
-	dir = a.center - center;
+	idVec3 dir = a.center - center;
     
     // axis C0 + t * A0
     c[0][0] = axis[0] * a.axis[0];
@@ -391,9 +385,9 @@ bool idBox::IntersectsBox( const idBox &a ) const {
     ac[0][1] = idMath::Fabs( c[0][1] );
     ac[0][2] = idMath::Fabs( c[0][2] );
 
-    d = idMath::Fabs( axisdir[0] );
-	e0 = extents[0];
-    e1 = a.extents[0] * ac[0][0] + a.extents[1] * ac[0][1] + a.extents[2] * ac[0][2];
+    float d = idMath::Fabs(axisdir[0]);
+	float e0 = extents[0];
+    float e1 = a.extents[0] * ac[0][0] + a.extents[1] * ac[0][1] + a.extents[2] * ac[0][2];
 	if ( d > e0 + e1 ) {
         return false;
 	}
@@ -537,9 +531,9 @@ idBox::LineIntersection
 */
 bool idBox::LineIntersection( const idVec3 &start, const idVec3 &end ) const {
     float ld[3];
-    idVec3 lineDir = 0.5f * ( end - start );
-    idVec3 lineCenter = start + lineDir;
-    idVec3 dir = lineCenter - center;
+    const idVec3 lineDir = 0.5f * ( end - start );
+    const idVec3 lineCenter = start + lineDir;
+    const idVec3 dir = lineCenter - center;
 
     ld[0] = idMath::Fabs( lineDir * axis[0] );
 	if ( idMath::Fabs( dir * axis[0] ) > extents[0] + ld[0] ) {
@@ -556,7 +550,7 @@ bool idBox::LineIntersection( const idVec3 &start, const idVec3 &end ) const {
         return false;
 	}
 
-    idVec3 cross = lineDir.Cross( dir );
+    const idVec3 cross = lineDir.Cross( dir );
 
 	if ( idMath::Fabs( cross * axis[0] ) > extents[1] * ld[2] + extents[2] * ld[1] ) {
         return false;
@@ -612,10 +606,8 @@ idBox::RayIntersection
 ============
 */
 bool idBox::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale1, float &scale2 ) const {
-	idVec3 localStart, localDir;
-
-	localStart = ( start - center ) * axis.Transpose();
-	localDir = dir * axis.Transpose();
+	idVec3 localStart = (start - center) * axis.Transpose();
+	idVec3 localDir = dir * axis.Transpose();
 
 	scale1 = -idMath::INFINITY;
 	scale2 = idMath::INFINITY;
@@ -636,8 +628,6 @@ idBox::FromPoints
 */
 void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
 	int i;
-	float invNumPoints, sumXX, sumXY, sumXZ, sumYY, sumYZ, sumZZ;
-	idVec3 dir;
 	idBounds bounds;
 	idMatX eigenVectors;
 	idVecX eigenValues;
@@ -647,14 +637,14 @@ void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
 	for ( i = 1; i < numPoints; i++ ) {
 		center += points[i];
 	}
-	invNumPoints = 1.0f / numPoints;
+	float invNumPoints = 1.0f / numPoints;
 	center *= invNumPoints;
 
 	// compute covariances of points
-	sumXX = 0.0f; sumXY = 0.0f; sumXZ = 0.0f;
-	sumYY = 0.0f; sumYZ = 0.0f; sumZZ = 0.0f;
+	float sumXX = 0.0f; float sumXY = 0.0f; float sumXZ = 0.0f;
+	float sumYY = 0.0f; float sumYZ = 0.0f; float sumZZ = 0.0f;
 	for ( i = 0; i < numPoints; i++ ) {
-		dir = points[i] - center;
+		idVec3 dir = points[i] - center;
 		sumXX += dir.x * dir.x;
 		sumXY += dir.x * dir.y;
 		sumXZ += dir.x * dir.z;
@@ -670,8 +660,8 @@ void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
 	sumZZ *= invNumPoints;
 
 	// compute eigenvectors for covariance matrix
-	eigenValues.SetData( 3, VECX_ALLOCA( 3 ) );
-	eigenVectors.SetData( 3, 3, MATX_ALLOCA( 3 * 3 ) );
+	eigenValues.SetData( 3, VECX_ALLOCA(3));
+	eigenVectors.SetData( 3, 3, MATX_ALLOCA(3 * 3));
 
 	eigenVectors[0][0] = sumXX;
 	eigenVectors[0][1] = sumXY;
@@ -785,16 +775,14 @@ idBox::GetProjectionSilhouetteVerts
 ============
 */
 int idBox::GetProjectionSilhouetteVerts( const idVec3 &projectionOrigin, idVec3 silVerts[6] ) const {
-	float f;
-	int i, planeBits, *index;
-	idVec3 points[8], dir1, dir2;
+	idVec3 points[8];
 
 	ToPoints( points );
 
-	dir1 = points[0] - projectionOrigin;
-	dir2 = points[6] - projectionOrigin;
-	f = dir1 * axis[0];
-	planeBits = IEEE_FLT_SIGNBITNOTSET( f );
+	idVec3 dir1 = points[0] - projectionOrigin;
+	idVec3 dir2 = points[6] - projectionOrigin;
+	float f = dir1 * axis[0];
+	int planeBits = IEEE_FLT_SIGNBITNOTSET(f);
 	f = dir2 * axis[0];
 	planeBits |= IEEE_FLT_SIGNBITSET( f ) << 1;
 	f = dir1 * axis[1];
@@ -806,8 +794,8 @@ int idBox::GetProjectionSilhouetteVerts( const idVec3 &projectionOrigin, idVec3 
 	f = dir2 * axis[2];
 	planeBits |= IEEE_FLT_SIGNBITSET( f ) << 5;
 
-	index = boxPlaneBitsSilVerts[planeBits];
-	for ( i = 0; i < index[0]; i++ ) {
+	int* index = boxPlaneBitsSilVerts[planeBits];
+	for ( int i = 0; i < index[0]; i++ ) {
 		silVerts[i] = points[index[i+1]];
 	}
 
@@ -820,14 +808,12 @@ idBox::GetParallelProjectionSilhouetteVerts
 ============
 */
 int idBox::GetParallelProjectionSilhouetteVerts( const idVec3 &projectionDir, idVec3 silVerts[6] ) const {
-	float f;
-	int i, planeBits, *index;
 	idVec3 points[8];
 
 	ToPoints( points );
 
-	planeBits = 0;
-	f = projectionDir * axis[0];
+	int planeBits = 0;
+	float f = projectionDir * axis[0];
 	if ( IEEE_FLT_ISNOTZERO( f ) ) {
 		planeBits = 1 << IEEE_FLT_SIGNBITSET( f );
 	}
@@ -840,8 +826,8 @@ int idBox::GetParallelProjectionSilhouetteVerts( const idVec3 &projectionDir, id
 		planeBits |= 16 << IEEE_FLT_SIGNBITSET( f );
 	}
 
-	index = boxPlaneBitsSilVerts[planeBits];
-	for ( i = 0; i < index[0]; i++ ) {
+	int* index = boxPlaneBitsSilVerts[planeBits];
+	for ( int i = 0; i < index[0]; i++ ) {
 		silVerts[i] = points[index[i+1]];
 	}
 

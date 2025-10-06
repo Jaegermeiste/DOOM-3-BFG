@@ -132,8 +132,8 @@ ID_INLINE type idExtrapolate<type>::GetCurrentValue( int time ) const {
 			if ( duration == 0 ) {
 				return startValue;
 			} else {
-				const float deltaTime = ( time - startTime ) / (float)duration;
-				const float s = ( 0.5f * deltaTime * deltaTime ) * ( (float)duration * 0.001f );
+				const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
+				const float s = ( 0.5f * deltaTime * deltaTime ) * ( static_cast<float>(duration) * 0.001f );
 				return startValue + deltaTime * baseSpeed + s * speed;
 			}
 		}
@@ -141,8 +141,8 @@ ID_INLINE type idExtrapolate<type>::GetCurrentValue( int time ) const {
 			if ( duration == 0 ) {
 				return startValue;
 			} else {
-				const float deltaTime = ( time - startTime ) / (float)duration;
-				const float s = ( deltaTime - ( 0.5f * deltaTime * deltaTime ) ) * ( (float)duration * 0.001f );
+				const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
+				const float s = ( deltaTime - ( 0.5f * deltaTime * deltaTime ) ) * ( static_cast<float>(duration) * 0.001f );
 				return startValue + deltaTime * baseSpeed + s * speed;
 			}
 		}
@@ -150,8 +150,8 @@ ID_INLINE type idExtrapolate<type>::GetCurrentValue( int time ) const {
 			if ( duration == 0 ) {
 				return startValue;
 			} else {
-				const float deltaTime = ( time - startTime ) / (float)duration;
-				const float s = ( 1.0f - idMath::Cos( deltaTime * idMath::HALF_PI ) ) * (float)duration * 0.001f * idMath::SQRT_1OVER2;
+				const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
+				const float s = ( 1.0f - idMath::Cos( deltaTime * idMath::HALF_PI ) ) * static_cast<float>(duration) * 0.001f * idMath::SQRT_1OVER2;
 				return startValue + deltaTime * baseSpeed + s * speed;
 			}
 		}
@@ -159,8 +159,8 @@ ID_INLINE type idExtrapolate<type>::GetCurrentValue( int time ) const {
 			if ( duration == 0 ) {
 				return startValue;
 			} else {
-				const float deltaTime = ( time - startTime ) / (float)duration;
-				const float s = idMath::Sin( deltaTime * idMath::HALF_PI ) * (float)duration * 0.001f * idMath::SQRT_1OVER2;
+				const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
+				const float s = idMath::Sin( deltaTime * idMath::HALF_PI ) * static_cast<float>(duration) * 0.001f * idMath::SQRT_1OVER2;
 				return startValue + deltaTime * baseSpeed + s * speed;
 			}
 		}
@@ -191,22 +191,22 @@ ID_INLINE type idExtrapolate<type>::GetCurrentSpeed(const int time ) const {
 			return baseSpeed + speed;
 		}
 		case EXTRAPOLATION_ACCELLINEAR: {
-			const float deltaTime = ( time - startTime ) / (float)duration;
+			const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
 			const float s = deltaTime;
 			return baseSpeed + s * speed;
 		}
 		case EXTRAPOLATION_DECELLINEAR: {
-			const float deltaTime = ( time - startTime ) / (float)duration;
+			const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
 			const float s = 1.0f - deltaTime;
 			return baseSpeed + s * speed;
 		}
 		case EXTRAPOLATION_ACCELSINE: {
-			const float deltaTime = ( time - startTime ) / (float)duration;
+			const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
 			const float s = idMath::Sin( deltaTime * idMath::HALF_PI );
 			return baseSpeed + s * speed;
 		}
 		case EXTRAPOLATION_DECELSINE: {
-			const float deltaTime = ( time - startTime ) / (float)duration;
+			const float deltaTime = ( time - startTime ) / static_cast<float>(duration);
 			const float s = idMath::Cos( deltaTime * idMath::HALF_PI );
 			return baseSpeed + s * speed;
 		}

@@ -39,39 +39,39 @@ public:
 	idVec2i( int _x, int _y ) : x(_x), y(_y ) {}
 
 	void		Set( int _x, int _y ) { x = _x; y = _y; }
-	int			Area() const { return x * y; };
+	int			Area() const { return x * y; }
 
-	void		Min( idVec2i &v ) { x = MinInt( x, v.x ); y = MinInt( y, v.y ); }
+    void		Min( idVec2i &v ) { x = MinInt( x, v.x ); y = MinInt( y, v.y ); }
 	void		Max( idVec2i &v ) { x = MaxInt( x, v.x ); y = MaxInt( y, v.y ); }
 
 	int			operator[]( const int index ) const { assert( index == 0 || index == 1 ); return (&x)[index]; }
 	int &		operator[]( const int index ) { assert( index == 0 || index == 1 ); return (&x)[index]; }
 
-	idVec2i 	operator-() const { return idVec2i( -x, -y ); }
-	idVec2i 	operator!() const { return idVec2i( !x, !y ); }
+	idVec2i 	operator-() const { return {-x, -y}; }
+	idVec2i 	operator!() const { return {!x, !y}; }
 
-	idVec2i 	operator>>( const int a ) const { return idVec2i( x >> a, y >> a ); }
-	idVec2i 	operator<<( const int a ) const { return idVec2i( x << a, y << a ); }
-	idVec2i 	operator&( const int a ) const { return idVec2i( x & a, y & a ); }
-	idVec2i 	operator|( const int a ) const { return idVec2i( x | a, y | a ); }
-	idVec2i 	operator^( const int a ) const { return idVec2i( x ^ a, y ^ a ); }
-	idVec2i 	operator*( const int a ) const { return idVec2i( x * a, y * a ); }
-	idVec2i 	operator/( const int a ) const { return idVec2i( x / a, y / a ); }
-	idVec2i 	operator+( const int a ) const { return idVec2i( x + a, y + a ); }
-	idVec2i 	operator-( const int a ) const { return idVec2i( x - a, y - a ); }
+	idVec2i 	operator>>( const int a ) const { return {x >> a, y >> a}; }
+	idVec2i 	operator<<( const int a ) const { return {x << a, y << a}; }
+	idVec2i 	operator&( const int a ) const { return {x & a, y & a}; }
+	idVec2i 	operator|( const int a ) const { return {x | a, y | a}; }
+	idVec2i 	operator^( const int a ) const { return {x ^ a, y ^ a}; }
+	idVec2i 	operator*( const int a ) const { return {x * a, y * a}; }
+	idVec2i 	operator/( const int a ) const { return {x / a, y / a}; }
+	idVec2i 	operator+( const int a ) const { return {x + a, y + a}; }
+	idVec2i 	operator-( const int a ) const { return {x - a, y - a}; }
 
-	bool		operator==( const idVec2i &a ) const { return a.x == x && a.y == y; };
-	bool		operator!=( const idVec2i &a ) const { return a.x != x || a.y != y; };
+	bool		operator==( const idVec2i &a ) const { return a.x == x && a.y == y; }
+    bool		operator!=( const idVec2i &a ) const { return a.x != x || a.y != y; }
 
-	idVec2i		operator>>( const idVec2i &a ) const { return idVec2i( x >> a.x, y >> a.y ); }
-	idVec2i		operator<<( const idVec2i &a ) const { return idVec2i( x << a.x, y << a.y ); }
-	idVec2i		operator&( const idVec2i &a ) const { return idVec2i( x & a.x, y & a.y ); }
-	idVec2i		operator|( const idVec2i &a ) const { return idVec2i( x | a.x, y | a.y ); }
-	idVec2i		operator^( const idVec2i &a ) const { return idVec2i( x ^ a.x, y ^ a.y ); }
-	idVec2i		operator*( const idVec2i &a ) const { return idVec2i( x * a.x, y * a.y ); }
-	idVec2i		operator/( const idVec2i &a ) const { return idVec2i( x / a.x, y / a.y ); }
-	idVec2i		operator+( const idVec2i &a ) const { return idVec2i( x + a.x, y + a.y ); }
-	idVec2i		operator-( const idVec2i &a ) const { return idVec2i( x - a.x, y - a.y ); }
+    idVec2i		operator>>( const idVec2i &a ) const { return {x >> a.x, y >> a.y}; }
+	idVec2i		operator<<( const idVec2i &a ) const { return {x << a.x, y << a.y}; }
+	idVec2i		operator&( const idVec2i &a ) const { return {x & a.x, y & a.y}; }
+	idVec2i		operator|( const idVec2i &a ) const { return {x | a.x, y | a.y}; }
+	idVec2i		operator^( const idVec2i &a ) const { return {x ^ a.x, y ^ a.y}; }
+	idVec2i		operator*( const idVec2i &a ) const { return {x * a.x, y * a.y}; }
+	idVec2i		operator/( const idVec2i &a ) const { return {x / a.x, y / a.y}; }
+	idVec2i		operator+( const idVec2i &a ) const { return {x + a.x, y + a.y}; }
+	idVec2i		operator-( const idVec2i &a ) const { return {x - a.x, y - a.y}; }
 
 	idVec2i &	operator+=( const int a ) { x += a; y += a; return *this; }
 	idVec2i &	operator-=( const int a ) { x -= a; y -= a; return *this; }

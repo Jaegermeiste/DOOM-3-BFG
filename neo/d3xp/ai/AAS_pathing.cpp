@@ -35,13 +35,13 @@ If you have questions concerning this license or the applicable additional terms
 #define SUBSAMPLE_WALK_PATH		1
 #define SUBSAMPLE_FLY_PATH		0
 
-const int		maxWalkPathIterations		= 10;
-const float		maxWalkPathDistance			= 500.0f;
-const float		walkPathSampleDistance		= 8.0f;
+constexpr int		maxWalkPathIterations		= 10;
+constexpr float		maxWalkPathDistance			= 500.0f;
+constexpr float		walkPathSampleDistance		= 8.0f;
 
-const int		maxFlyPathIterations		= 10;
-const float		maxFlyPathDistance			= 500.0f;
-const float		flyPathSampleDistance		= 8.0f;
+constexpr int		maxFlyPathIterations		= 10;
+constexpr float		maxFlyPathDistance			= 500.0f;
+constexpr float		flyPathSampleDistance		= 8.0f;
 
 
 /*

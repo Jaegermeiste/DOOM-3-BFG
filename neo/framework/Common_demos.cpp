@@ -41,7 +41,7 @@ static idStr FindUnusedFileName( const char *format ) {
 
 	for ( int i = 0 ; i < 999 ; i++ ) {
 		filename.Format( format, i );
-		int len = fileSystem->ReadFile( filename, NULL, NULL );
+		int len = fileSystem->ReadFile( filename, nullptr, nullptr);
 		if ( len <= 0 ) {
 			return filename;	// file doesn't exist
 		}
@@ -73,7 +73,7 @@ void idCommonLocal::StartRecordingRenderDemo( const char *demoName ) {
 	if ( !writeDemo->OpenForWriting( demoName ) ) {
 		common->Printf( "error opening %s\n", demoName );
 		delete writeDemo;
-		writeDemo = NULL;
+		writeDemo = nullptr;
 		return;
 	}
 
@@ -103,7 +103,7 @@ void idCommonLocal::StopRecordingRenderDemo() {
 	writeDemo->Close();
 	common->Printf( "stopped recording %s.\n", writeDemo->GetName() );
 	delete writeDemo;
-	writeDemo = NULL;
+	writeDemo = nullptr;
 }
 
 /*
@@ -131,7 +131,7 @@ void idCommonLocal::StopPlayingRenderDemo() {
 
 	common->Printf( "stopped playing %s.\n", readDemo->GetName() );
 	delete readDemo;
-	readDemo = NULL;
+	readDemo = nullptr;
 
 	if ( timeDemo ) {
 		// report the stats
@@ -158,7 +158,7 @@ void idCommonLocal::DemoShot( const char *demoName ) {
 	StartRecordingRenderDemo( demoName );
 
 	// force draw one frame
-	const bool captureToImage = false;
+	constexpr bool captureToImage = false;
 	UpdateScreen( captureToImage );
 
 	StopRecordingRenderDemo();
@@ -192,13 +192,13 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName ) {
 	if ( !readDemo->OpenForReading( demoName ) ) {
 		common->Printf( "couldn't open %s\n", demoName.c_str() );
 		delete readDemo;
-		readDemo = NULL;
+		readDemo = nullptr;
 		Stop();
 		StartMenu();
 		return;
 	}
 
-	const bool captureToImage = false;
+	constexpr bool captureToImage = false;
 	UpdateScreen( captureToImage );
 
 	AdvanceRenderDemo( true );
@@ -220,7 +220,7 @@ void idCommonLocal::TimeRenderDemo( const char *demoName, bool twice, bool quit 
 	
 	if ( twice && readDemo ) {
 		while ( readDemo ) {
-			const bool captureToImage = false;
+			constexpr bool captureToImage = false;
 			UpdateScreen( captureToImage );
 			AdvanceRenderDemo( true );
 		}
@@ -300,7 +300,7 @@ void idCommonLocal::AVIRenderDemo( const char *_demoName ) {
 
 	// I don't understand why I need to do this twice, something
 	// strange with the nvidia swapbuffers?
-	const bool captureToImage = false;
+	constexpr bool captureToImage = false;
 	UpdateScreen( captureToImage );
 }
 
@@ -365,7 +365,7 @@ void idCommonLocal::CompressDemoFile( const char *scheme, const char *demoName )
 	common->SetRefreshOnPrint( true );
 	common->Printf( "Compressing %s to %s...\n", fullDemoName.c_str(), compressedName.c_str() );
 
-	static const int bufferSize = 65535;
+	static constexpr int bufferSize = 65535;
 	char buffer[bufferSize];
 	int bytesRead;
 	while ( 0 != (bytesRead = demoread.Read( buffer, bufferSize ) ) ) {

@@ -47,13 +47,13 @@ returns false, there is no need to call Close.
 bool idWaveFile::Open( const char * filename ) {
 	Close();
 
-	if ( filename == NULL || filename[0] == 0 ) {
+	if ( filename == nullptr || filename[0] == 0 ) {
 		return false;
 	}
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		file = fileSystem->OpenFileReadMemory( filename );
-		if ( file == NULL ) {
+		if ( file == nullptr) {
 			return false;
 		}
 	}
@@ -270,7 +270,7 @@ const char * idWaveFile::ReadWaveFormat( waveFmt_t & format ) {
 		return "Unknown wave format tag";
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -402,7 +402,7 @@ Writes a wave format header to a file ptr,
 */
 
 bool idWaveFile::WriteSampleDataDirect( idList< sampleData_t > & sampleData, idFile * file ) {
-	static const uint32 sample = 'smpl';
+	static constexpr uint32 sample = 'smpl';
 	file->WriteBig( sample );
 	uint32 samplerData = sampleData.Num() * 24;
 	uint32 chunkSize = 36 + samplerData;
@@ -440,7 +440,7 @@ Writes a data chunk to a file ptr
 */
 
 bool idWaveFile::WriteDataDirect( char * _data, uint32 size, idFile * file ) {
-	static const uint32 data = 'data';
+	static constexpr uint32 data = 'data';
 	file->WriteBig( data );
 	file->Write( &size, sizeof( uint32 ) );
 	file->WriteBigArray( _data, size );
@@ -456,8 +456,8 @@ Writes a wave header to a file ptr,
 */
 
 bool idWaveFile::WriteHeaderDirect( uint32 fileSize, idFile * file ) {
-	static const uint32 riff = 'RIFF';
-	static const uint32 wave = 'WAVE';
+	static constexpr uint32 riff = 'RIFF';
+	static constexpr uint32 wave = 'WAVE';
 	file->WriteBig( riff );
 	file->WriteBig( fileSize );
 	file->WriteBig( wave );
@@ -508,9 +508,9 @@ Closes the file and frees resources.
 ========================
 */
 void idWaveFile::Close() { 
-	if ( file != NULL ) {
+	if ( file != nullptr) {
 		delete file;
-		file = NULL;
+		file = nullptr;
 	}
 	chunks.SetNum( 0 );
 }

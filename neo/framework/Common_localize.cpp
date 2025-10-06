@@ -42,7 +42,7 @@ typedef idHashTable<idStrList> ListHash;
 void LoadMapLocalizeData(ListHash& listHash) {
 
 	idStr fileName = "map_localize.cfg";
-	const char *buffer = NULL;
+	const char *buffer = nullptr;
 	idLexer src( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT );
 
 	if ( fileSystem->ReadFile( fileName, (void**)&buffer ) > 0 ) {
@@ -76,7 +76,7 @@ void LoadMapLocalizeData(ListHash& listHash) {
 void LoadGuiParmExcludeList(idStrList& list) {
 
 	idStr fileName = "guiparm_exclude.cfg";
-	const char *buffer = NULL;
+	const char *buffer = nullptr;
 	idLexer src( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT );
 
 	if ( fileSystem->ReadFile( fileName, (void**)&buffer ) > 0 ) {
@@ -274,7 +274,7 @@ CONSOLE_COMMAND( localizeMaps, "localize maps", NULL ) {
 
 	{
 		// I think this is equivalent...
-		const byte * buffer = NULL;
+		const byte * buffer = nullptr;
 		int len = fileSystem->ReadFile( filename, (void**)&buffer );
 		if ( verify( len > 0 ) ) {
 			strTable.Load( buffer, len, filename );
@@ -336,7 +336,7 @@ CONSOLE_COMMAND( localizeGuis, "localize guis", NULL ) {
 
 	{
 		// I think this is equivalent...
-		const byte * buffer = NULL;
+		const byte * buffer = nullptr;
 		int len = fileSystem->ReadFile( filename, (void**)&buffer );
 		if ( verify( len > 0 ) ) {
 			strTable.Load( buffer, len, filename );
@@ -527,7 +527,7 @@ void idCommonLocal::LocalizeSpecificMapData( const char *fileName, idLangDict &l
 				for ( int j = 0; j < replaceArgs.GetNumKeyVals(); j++ ) {
 					const idLangKeyValue *kv = replaceArgs.GetKeyVal( j );
 					const char *temp = ent->epairs.GetString( kv->key );
-					if ( ( temp != NULL ) && *temp ) {
+					if ( ( temp != nullptr) && *temp ) {
 						idStr val = kv->value;
 						if ( val == temp ) {
 							ent->epairs.Set( kv->key, langDict.AddString( temp ) );
@@ -546,7 +546,7 @@ idCommonLocal::LocalizeMapData
 ===============
 */
 void idCommonLocal::LocalizeMapData( const char *fileName, idLangDict &langDict ) {
-	const char *buffer = NULL;
+	const char *buffer = nullptr;
 	idLexer src( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT );
 
 	common->SetRefreshOnPrint( true );
@@ -590,7 +590,7 @@ idCommonLocal::LocalizeGui
 */
 void idCommonLocal::LocalizeGui( const char *fileName, idLangDict &langDict ) {
 	idStr out, ws, work;
-	const char *buffer = NULL;
+	const char *buffer = nullptr;
 	out.Empty();
 	int k;
 	char ch;
@@ -604,7 +604,7 @@ void idCommonLocal::LocalizeGui( const char *fileName, idLangDict &langDict ) {
 			idFile *outFile = fileSystem->OpenFileWrite( fileName ); 
 			common->Printf( "Processing %s\n", fileName );
 
-			const bool captureToImage = false;
+			constexpr bool captureToImage = false;
 			UpdateScreen( captureToImage );
 			idToken token;
 			while( src.ReadToken( &token ) ) {

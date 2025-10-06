@@ -160,9 +160,9 @@ LeaderboardLocal_Upload
 =====================================
 */
 
-const static int FRAG_MULTIPLIER  = 100;
-const static int DEATH_MULTIPLIER = -50;
-const static int WINS_MULTIPLIER  = 20;
+static constexpr int FRAG_MULTIPLIER  = 100;
+static constexpr int DEATH_MULTIPLIER = -50;
+static constexpr int WINS_MULTIPLIER  = 20;
 
 void LeaderboardLocal_Upload( lobbyUserID_t lobbyUserID,int gameType, leaderboardStats_t & stats   ) {
 	assert( gameType > GAME_RANDOM );

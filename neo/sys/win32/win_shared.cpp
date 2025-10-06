@@ -139,9 +139,9 @@ returns in megabytes
 int Sys_GetVideoRam() {
 	unsigned int retSize = 64;
 
-	CComPtr<IWbemLocator> spLoc = NULL;
-	HRESULT hr = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_SERVER, IID_IWbemLocator, ( LPVOID * ) &spLoc );
-	if ( hr != S_OK || spLoc == NULL ) {
+	CComPtr<IWbemLocator> spLoc = nullptr;
+	HRESULT hr = CoCreateInstance( CLSID_WbemLocator, nullptr, CLSCTX_SERVER, IID_IWbemLocator, ( LPVOID * ) &spLoc );
+	if ( hr != S_OK || spLoc == nullptr) {
 		return retSize;
 	}
 
@@ -149,32 +149,32 @@ int Sys_GetVideoRam() {
 	CComPtr<IWbemServices> spServices;
 
 	// Connect to CIM
-	hr = spLoc->ConnectServer( bstrNamespace, NULL, NULL, 0, NULL, 0, 0, &spServices );
+	hr = spLoc->ConnectServer( bstrNamespace, nullptr, nullptr, nullptr, NULL, nullptr, nullptr, &spServices );
 	if ( hr != WBEM_S_NO_ERROR ) {
 		return retSize;
 	}
 
 	// Switch the security level to IMPERSONATE so that provider will grant access to system-level objects.  
-	hr = CoSetProxyBlanket( spServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
+	hr = CoSetProxyBlanket( spServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE );
 	if ( hr != S_OK ) {
 		return retSize;
 	}
 
 	// Get the vid controller
-	CComPtr<IEnumWbemClassObject> spEnumInst = NULL;
-	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, NULL, &spEnumInst ); 
-	if ( hr != WBEM_S_NO_ERROR || spEnumInst == NULL ) {
+	CComPtr<IEnumWbemClassObject> spEnumInst = nullptr;
+	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, nullptr, &spEnumInst ); 
+	if ( hr != WBEM_S_NO_ERROR || spEnumInst == nullptr) {
 		return retSize;
 	}
 
 	ULONG uNumOfInstances = 0;
-	CComPtr<IWbemClassObject> spInstance = NULL;
+	CComPtr<IWbemClassObject> spInstance = nullptr;
 	hr = spEnumInst->Next( 10000, 1, &spInstance, &uNumOfInstances );
 
 	if ( hr == S_OK && spInstance ) {
 		// Get properties from the object
 		CComVariant varSize;
-		hr = spInstance->Get( CComBSTR( _T( "AdapterRAM" ) ), 0, &varSize, 0, 0 );
+		hr = spInstance->Get( CComBSTR( _T( "AdapterRAM" ) ), 0, &varSize, nullptr, nullptr );
 		if ( hr == S_OK ) {
 			retSize = varSize.intVal / ( 1024 * 1024 );
 			if ( retSize == 0 ) {
@@ -288,7 +288,7 @@ char *Sys_GetCurrentUser() {
 
 #include <dbghelp.h>
 
-const int UNDECORATE_FLAGS =	UNDNAME_NO_MS_KEYWORDS |
+constexpr int UNDECORATE_FLAGS =	UNDNAME_NO_MS_KEYWORDS |
 								UNDNAME_NO_ACCESS_SPECIFIERS |
 								UNDNAME_NO_FUNCTION_RETURNS |
 								UNDNAME_NO_ALLOCATION_MODEL |
@@ -383,12 +383,12 @@ void Sym_Init( long addr ) {
 	module->name = (char *) malloc( strlen( moduleName ) + 1 );
 	strcpy( module->name, moduleName );
 	module->address = (int)mbi.AllocationBase;
-	module->symbols = NULL;
+	module->symbols = nullptr;
 	module->next = modules;
 	modules = module;
 
 	FILE * fp = fopen( moduleName, "rb" );
-	if ( fp == NULL ) {
+	if ( fp == nullptr) {
 		return;
 	}
 
@@ -471,9 +471,9 @@ void Sym_Shutdown() {
 	module_t *m;
 	symbol_t *s;
 
-	for ( m = modules; m != NULL; m = modules ) {
+	for ( m = modules; m != nullptr; m = modules ) {
 		modules = m->next;
-		for ( s = m->symbols; s != NULL; s = m->symbols ) {
+		for ( s = m->symbols; s != nullptr; s = m->symbols ) {
 			m->symbols = s->next;
 			free( s->name );
 			free( s );
@@ -481,7 +481,7 @@ void Sym_Shutdown() {
 		free( m->name );
 		free( m );
 	}
-	modules = NULL;
+	modules = nullptr;
 }
 
 /*
@@ -496,7 +496,7 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 
 	VirtualQuery( (void*)addr, &mbi, sizeof(mbi) );
 
-	for ( m = modules; m != NULL; m = m->next ) {
+	for ( m = modules; m != nullptr; m = m->next ) {
 		if ( m->address == (int) mbi.AllocationBase ) {
 			break;
 		}
@@ -506,7 +506,7 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 		m = modules;
 	}
 
-	for ( s = m->symbols; s != NULL; s = s->next ) {
+	for ( s = m->symbols; s != nullptr; s = s->next ) {
 		if ( s->address == addr ) {
 
 			char undName[MAX_STRING_CHARS];

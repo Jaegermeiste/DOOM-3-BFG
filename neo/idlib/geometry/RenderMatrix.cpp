@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../bv/Bounds.h"
 #include "RenderMatrix.h"
 
+#include <utility>
+
 // FIXME:	it would be nice if all render matrices were 16-byte aligned
 //			so there is no need for unaligned loads and stores everywhere
 
@@ -548,8 +550,8 @@ static int GetBoxFrontBits_SSE2( const __m128 & b0, const __m128 & b1, const __m
 #else
 
 static int GetBoxFrontBits_Generic( const idBounds & bounds, const idVec3 & viewOrigin ) {
-	idVec3 dir0 = viewOrigin - bounds[0];
-	idVec3 dir1 = bounds[1] - viewOrigin;
+	const idVec3 dir0 = viewOrigin - bounds[0];
+	const idVec3 dir1 = bounds[1] - viewOrigin;
 	int frontBits = 0;
 	frontBits |= IEEE_FLT_SIGNBITSET( dir0.x ) << 0;
 	frontBits |= IEEE_FLT_SIGNBITSET( dir0.y ) << 1;
@@ -1131,7 +1133,7 @@ bool idRenderMatrix::Inverse( const idRenderMatrix & src, idRenderMatrix & out )
 
 #else
 
-	const int FRL = 4;
+	constexpr int FRL = 4;
 
 	// 84+4+16 = 104 multiplications
 	//			   1 division
@@ -1251,79 +1253,79 @@ This is only for tools where more precision is needed.
 ========================
 */
 bool idRenderMatrix::InverseByDoubles( const idRenderMatrix & src, idRenderMatrix & out ) {
-	const int FRL = 4;
+	constexpr int FRL = 4;
 
 	// 84+4+16 = 104 multiplications
 	//			   1 division
 
 	// 2x2 sub-determinants required to calculate 4x4 determinant
-	const double det2_01_01 = (double)src.m[0*FRL+0] * (double)src.m[1*FRL+1] - (double)src.m[0*FRL+1] * (double)src.m[1*FRL+0];
-	const double det2_01_02 = (double)src.m[0*FRL+0] * (double)src.m[1*FRL+2] - (double)src.m[0*FRL+2] * (double)src.m[1*FRL+0];
-	const double det2_01_03 = (double)src.m[0*FRL+0] * (double)src.m[1*FRL+3] - (double)src.m[0*FRL+3] * (double)src.m[1*FRL+0];
-	const double det2_01_12 = (double)src.m[0*FRL+1] * (double)src.m[1*FRL+2] - (double)src.m[0*FRL+2] * (double)src.m[1*FRL+1];
-	const double det2_01_13 = (double)src.m[0*FRL+1] * (double)src.m[1*FRL+3] - (double)src.m[0*FRL+3] * (double)src.m[1*FRL+1];
-	const double det2_01_23 = (double)src.m[0*FRL+2] * (double)src.m[1*FRL+3] - (double)src.m[0*FRL+3] * (double)src.m[1*FRL+2];
+	const double det2_01_01 = static_cast<double>(src.m[0 * FRL + 0]) * static_cast<double>(src.m[1 * FRL + 1]) - static_cast<double>(src.m[0 * FRL + 1]) * static_cast<double>(src.m[1 * FRL + 0]);
+	const double det2_01_02 = static_cast<double>(src.m[0 * FRL + 0]) * static_cast<double>(src.m[1 * FRL + 2]) - static_cast<double>(src.m[0 * FRL + 2]) * static_cast<double>(src.m[1 * FRL + 0]);
+	const double det2_01_03 = static_cast<double>(src.m[0 * FRL + 0]) * static_cast<double>(src.m[1 * FRL + 3]) - static_cast<double>(src.m[0 * FRL + 3]) * static_cast<double>(src.m[1 * FRL + 0]);
+	const double det2_01_12 = static_cast<double>(src.m[0 * FRL + 1]) * static_cast<double>(src.m[1 * FRL + 2]) - static_cast<double>(src.m[0 * FRL + 2]) * static_cast<double>(src.m[1 * FRL + 1]);
+	const double det2_01_13 = static_cast<double>(src.m[0 * FRL + 1]) * static_cast<double>(src.m[1 * FRL + 3]) - static_cast<double>(src.m[0 * FRL + 3]) * static_cast<double>(src.m[1 * FRL + 1]);
+	const double det2_01_23 = static_cast<double>(src.m[0 * FRL + 2]) * static_cast<double>(src.m[1 * FRL + 3]) - static_cast<double>(src.m[0 * FRL + 3]) * static_cast<double>(src.m[1 * FRL + 2]);
 
 	// 3x3 sub-determinants required to calculate 4x4 determinant
-	const double det3_201_012 = (double)src.m[2*FRL+0] * det2_01_12 - (double)src.m[2*FRL+1] * det2_01_02 + (double)src.m[2*FRL+2] * det2_01_01;
-	const double det3_201_013 = (double)src.m[2*FRL+0] * det2_01_13 - (double)src.m[2*FRL+1] * det2_01_03 + (double)src.m[2*FRL+3] * det2_01_01;
-	const double det3_201_023 = (double)src.m[2*FRL+0] * det2_01_23 - (double)src.m[2*FRL+2] * det2_01_03 + (double)src.m[2*FRL+3] * det2_01_02;
-	const double det3_201_123 = (double)src.m[2*FRL+1] * det2_01_23 - (double)src.m[2*FRL+2] * det2_01_13 + (double)src.m[2*FRL+3] * det2_01_12;
+	const double det3_201_012 = static_cast<double>(src.m[2 * FRL + 0]) * det2_01_12 - static_cast<double>(src.m[2 * FRL + 1]) * det2_01_02 + static_cast<double>(src.m[2 * FRL + 2]) * det2_01_01;
+	const double det3_201_013 = static_cast<double>(src.m[2 * FRL + 0]) * det2_01_13 - static_cast<double>(src.m[2 * FRL + 1]) * det2_01_03 + static_cast<double>(src.m[2 * FRL + 3]) * det2_01_01;
+	const double det3_201_023 = static_cast<double>(src.m[2 * FRL + 0]) * det2_01_23 - static_cast<double>(src.m[2 * FRL + 2]) * det2_01_03 + static_cast<double>(src.m[2 * FRL + 3]) * det2_01_02;
+	const double det3_201_123 = static_cast<double>(src.m[2 * FRL + 1]) * det2_01_23 - static_cast<double>(src.m[2 * FRL + 2]) * det2_01_13 + static_cast<double>(src.m[2 * FRL + 3]) * det2_01_12;
 
-	const double det = ( - det3_201_123 * (double)src.m[3*FRL+0] + det3_201_023 * (double)src.m[3*FRL+1] - det3_201_013 * (double)src.m[3*FRL+2] + det3_201_012 * (double)src.m[3*FRL+3] );
+	const double det = ( - det3_201_123 * static_cast<double>(src.m[3 * FRL + 0]) + det3_201_023 * static_cast<double>(src.m[3 * FRL + 1]) - det3_201_013 * static_cast<double>(src.m[3 * FRL + 2]) + det3_201_012 * static_cast<double>(src.m[3 * FRL + 3]) );
 
 	const double rcpDet = 1.0f / det;
 
 	// remaining 2x2 sub-determinants
-	const double det2_03_01 = (double)src.m[0*FRL+0] * (double)src.m[3*FRL+1] - (double)src.m[0*FRL+1] * (double)src.m[3*FRL+0];
-	const double det2_03_02 = (double)src.m[0*FRL+0] * (double)src.m[3*FRL+2] - (double)src.m[0*FRL+2] * (double)src.m[3*FRL+0];
-	const double det2_03_03 = (double)src.m[0*FRL+0] * (double)src.m[3*FRL+3] - (double)src.m[0*FRL+3] * (double)src.m[3*FRL+0];
-	const double det2_03_12 = (double)src.m[0*FRL+1] * (double)src.m[3*FRL+2] - (double)src.m[0*FRL+2] * (double)src.m[3*FRL+1];
-	const double det2_03_13 = (double)src.m[0*FRL+1] * (double)src.m[3*FRL+3] - (double)src.m[0*FRL+3] * (double)src.m[3*FRL+1];
-	const double det2_03_23 = (double)src.m[0*FRL+2] * (double)src.m[3*FRL+3] - (double)src.m[0*FRL+3] * (double)src.m[3*FRL+2];
+	const double det2_03_01 = static_cast<double>(src.m[0 * FRL + 0]) * static_cast<double>(src.m[3 * FRL + 1]) - static_cast<double>(src.m[0 * FRL + 1]) * static_cast<double>(src.m[3 * FRL + 0]);
+	const double det2_03_02 = static_cast<double>(src.m[0 * FRL + 0]) * static_cast<double>(src.m[3 * FRL + 2]) - static_cast<double>(src.m[0 * FRL + 2]) * static_cast<double>(src.m[3 * FRL + 0]);
+	const double det2_03_03 = static_cast<double>(src.m[0 * FRL + 0]) * static_cast<double>(src.m[3 * FRL + 3]) - static_cast<double>(src.m[0 * FRL + 3]) * static_cast<double>(src.m[3 * FRL + 0]);
+	const double det2_03_12 = static_cast<double>(src.m[0 * FRL + 1]) * static_cast<double>(src.m[3 * FRL + 2]) - static_cast<double>(src.m[0 * FRL + 2]) * static_cast<double>(src.m[3 * FRL + 1]);
+	const double det2_03_13 = static_cast<double>(src.m[0 * FRL + 1]) * static_cast<double>(src.m[3 * FRL + 3]) - static_cast<double>(src.m[0 * FRL + 3]) * static_cast<double>(src.m[3 * FRL + 1]);
+	const double det2_03_23 = static_cast<double>(src.m[0 * FRL + 2]) * static_cast<double>(src.m[3 * FRL + 3]) - static_cast<double>(src.m[0 * FRL + 3]) * static_cast<double>(src.m[3 * FRL + 2]);
 
-	const double det2_13_01 = (double)src.m[1*FRL+0] * (double)src.m[3*FRL+1] - (double)src.m[1*FRL+1] * (double)src.m[3*FRL+0];
-	const double det2_13_02 = (double)src.m[1*FRL+0] * (double)src.m[3*FRL+2] - (double)src.m[1*FRL+2] * (double)src.m[3*FRL+0];
-	const double det2_13_03 = (double)src.m[1*FRL+0] * (double)src.m[3*FRL+3] - (double)src.m[1*FRL+3] * (double)src.m[3*FRL+0];
-	const double det2_13_12 = (double)src.m[1*FRL+1] * (double)src.m[3*FRL+2] - (double)src.m[1*FRL+2] * (double)src.m[3*FRL+1];
-	const double det2_13_13 = (double)src.m[1*FRL+1] * (double)src.m[3*FRL+3] - (double)src.m[1*FRL+3] * (double)src.m[3*FRL+1];
-	const double det2_13_23 = (double)src.m[1*FRL+2] * (double)src.m[3*FRL+3] - (double)src.m[1*FRL+3] * (double)src.m[3*FRL+2];
+	const double det2_13_01 = static_cast<double>(src.m[1 * FRL + 0]) * static_cast<double>(src.m[3 * FRL + 1]) - static_cast<double>(src.m[1 * FRL + 1]) * static_cast<double>(src.m[3 * FRL + 0]);
+	const double det2_13_02 = static_cast<double>(src.m[1 * FRL + 0]) * static_cast<double>(src.m[3 * FRL + 2]) - static_cast<double>(src.m[1 * FRL + 2]) * static_cast<double>(src.m[3 * FRL + 0]);
+	const double det2_13_03 = static_cast<double>(src.m[1 * FRL + 0]) * static_cast<double>(src.m[3 * FRL + 3]) - static_cast<double>(src.m[1 * FRL + 3]) * static_cast<double>(src.m[3 * FRL + 0]);
+	const double det2_13_12 = static_cast<double>(src.m[1 * FRL + 1]) * static_cast<double>(src.m[3 * FRL + 2]) - static_cast<double>(src.m[1 * FRL + 2]) * static_cast<double>(src.m[3 * FRL + 1]);
+	const double det2_13_13 = static_cast<double>(src.m[1 * FRL + 1]) * static_cast<double>(src.m[3 * FRL + 3]) - static_cast<double>(src.m[1 * FRL + 3]) * static_cast<double>(src.m[3 * FRL + 1]);
+	const double det2_13_23 = static_cast<double>(src.m[1 * FRL + 2]) * static_cast<double>(src.m[3 * FRL + 3]) - static_cast<double>(src.m[1 * FRL + 3]) * static_cast<double>(src.m[3 * FRL + 2]);
 
 	// remaining 3x3 sub-determinants
-	const double det3_203_012 = (double)src.m[2*FRL+0] * det2_03_12 - (double)src.m[2*FRL+1] * det2_03_02 + (double)src.m[2*FRL+2] * det2_03_01;
-	const double det3_203_013 = (double)src.m[2*FRL+0] * det2_03_13 - (double)src.m[2*FRL+1] * det2_03_03 + (double)src.m[2*FRL+3] * det2_03_01;
-	const double det3_203_023 = (double)src.m[2*FRL+0] * det2_03_23 - (double)src.m[2*FRL+2] * det2_03_03 + (double)src.m[2*FRL+3] * det2_03_02;
-	const double det3_203_123 = (double)src.m[2*FRL+1] * det2_03_23 - (double)src.m[2*FRL+2] * det2_03_13 + (double)src.m[2*FRL+3] * det2_03_12;
+	const double det3_203_012 = static_cast<double>(src.m[2 * FRL + 0]) * det2_03_12 - static_cast<double>(src.m[2 * FRL + 1]) * det2_03_02 + static_cast<double>(src.m[2 * FRL + 2]) * det2_03_01;
+	const double det3_203_013 = static_cast<double>(src.m[2 * FRL + 0]) * det2_03_13 - static_cast<double>(src.m[2 * FRL + 1]) * det2_03_03 + static_cast<double>(src.m[2 * FRL + 3]) * det2_03_01;
+	const double det3_203_023 = static_cast<double>(src.m[2 * FRL + 0]) * det2_03_23 - static_cast<double>(src.m[2 * FRL + 2]) * det2_03_03 + static_cast<double>(src.m[2 * FRL + 3]) * det2_03_02;
+	const double det3_203_123 = static_cast<double>(src.m[2 * FRL + 1]) * det2_03_23 - static_cast<double>(src.m[2 * FRL + 2]) * det2_03_13 + static_cast<double>(src.m[2 * FRL + 3]) * det2_03_12;
 
-	const double det3_213_012 = (double)src.m[2*FRL+0] * det2_13_12 - (double)src.m[2*FRL+1] * det2_13_02 + (double)src.m[2*FRL+2] * det2_13_01;
-	const double det3_213_013 = (double)src.m[2*FRL+0] * det2_13_13 - (double)src.m[2*FRL+1] * det2_13_03 + (double)src.m[2*FRL+3] * det2_13_01;
-	const double det3_213_023 = (double)src.m[2*FRL+0] * det2_13_23 - (double)src.m[2*FRL+2] * det2_13_03 + (double)src.m[2*FRL+3] * det2_13_02;
-	const double det3_213_123 = (double)src.m[2*FRL+1] * det2_13_23 - (double)src.m[2*FRL+2] * det2_13_13 + (double)src.m[2*FRL+3] * det2_13_12;
+	const double det3_213_012 = static_cast<double>(src.m[2 * FRL + 0]) * det2_13_12 - static_cast<double>(src.m[2 * FRL + 1]) * det2_13_02 + static_cast<double>(src.m[2 * FRL + 2]) * det2_13_01;
+	const double det3_213_013 = static_cast<double>(src.m[2 * FRL + 0]) * det2_13_13 - static_cast<double>(src.m[2 * FRL + 1]) * det2_13_03 + static_cast<double>(src.m[2 * FRL + 3]) * det2_13_01;
+	const double det3_213_023 = static_cast<double>(src.m[2 * FRL + 0]) * det2_13_23 - static_cast<double>(src.m[2 * FRL + 2]) * det2_13_03 + static_cast<double>(src.m[2 * FRL + 3]) * det2_13_02;
+	const double det3_213_123 = static_cast<double>(src.m[2 * FRL + 1]) * det2_13_23 - static_cast<double>(src.m[2 * FRL + 2]) * det2_13_13 + static_cast<double>(src.m[2 * FRL + 3]) * det2_13_12;
 
-	const double det3_301_012 = (double)src.m[3*FRL+0] * det2_01_12 - (double)src.m[3*FRL+1] * det2_01_02 + (double)src.m[3*FRL+2] * det2_01_01;
-	const double det3_301_013 = (double)src.m[3*FRL+0] * det2_01_13 - (double)src.m[3*FRL+1] * det2_01_03 + (double)src.m[3*FRL+3] * det2_01_01;
-	const double det3_301_023 = (double)src.m[3*FRL+0] * det2_01_23 - (double)src.m[3*FRL+2] * det2_01_03 + (double)src.m[3*FRL+3] * det2_01_02;
-	const double det3_301_123 = (double)src.m[3*FRL+1] * det2_01_23 - (double)src.m[3*FRL+2] * det2_01_13 + (double)src.m[3*FRL+3] * det2_01_12;
+	const double det3_301_012 = static_cast<double>(src.m[3 * FRL + 0]) * det2_01_12 - static_cast<double>(src.m[3 * FRL + 1]) * det2_01_02 + static_cast<double>(src.m[3 * FRL + 2]) * det2_01_01;
+	const double det3_301_013 = static_cast<double>(src.m[3 * FRL + 0]) * det2_01_13 - static_cast<double>(src.m[3 * FRL + 1]) * det2_01_03 + static_cast<double>(src.m[3 * FRL + 3]) * det2_01_01;
+	const double det3_301_023 = static_cast<double>(src.m[3 * FRL + 0]) * det2_01_23 - static_cast<double>(src.m[3 * FRL + 2]) * det2_01_03 + static_cast<double>(src.m[3 * FRL + 3]) * det2_01_02;
+	const double det3_301_123 = static_cast<double>(src.m[3 * FRL + 1]) * det2_01_23 - static_cast<double>(src.m[3 * FRL + 2]) * det2_01_13 + static_cast<double>(src.m[3 * FRL + 3]) * det2_01_12;
 
-	out.m[0*FRL+0] = (float)( - det3_213_123 * rcpDet );
-	out.m[1*FRL+0] = (float)( + det3_213_023 * rcpDet );
-	out.m[2*FRL+0] = (float)( - det3_213_013 * rcpDet );
-	out.m[3*FRL+0] = (float)( + det3_213_012 * rcpDet );
+	out.m[0*FRL+0] = static_cast<float>(-det3_213_123 * rcpDet);
+	out.m[1*FRL+0] = static_cast<float>(+det3_213_023 * rcpDet);
+	out.m[2*FRL+0] = static_cast<float>(-det3_213_013 * rcpDet);
+	out.m[3*FRL+0] = static_cast<float>(+det3_213_012 * rcpDet);
 
-	out.m[0*FRL+1] = (float)( + det3_203_123 * rcpDet );
-	out.m[1*FRL+1] = (float)( - det3_203_023 * rcpDet );
-	out.m[2*FRL+1] = (float)( + det3_203_013 * rcpDet );
-	out.m[3*FRL+1] = (float)( - det3_203_012 * rcpDet );
+	out.m[0*FRL+1] = static_cast<float>(+det3_203_123 * rcpDet);
+	out.m[1*FRL+1] = static_cast<float>(-det3_203_023 * rcpDet);
+	out.m[2*FRL+1] = static_cast<float>(+det3_203_013 * rcpDet);
+	out.m[3*FRL+1] = static_cast<float>(-det3_203_012 * rcpDet);
 
-	out.m[0*FRL+2] = (float)( + det3_301_123 * rcpDet );
-	out.m[1*FRL+2] = (float)( - det3_301_023 * rcpDet );
-	out.m[2*FRL+2] = (float)( + det3_301_013 * rcpDet );
-	out.m[3*FRL+2] = (float)( - det3_301_012 * rcpDet );
+	out.m[0*FRL+2] = static_cast<float>(+det3_301_123 * rcpDet);
+	out.m[1*FRL+2] = static_cast<float>(-det3_301_023 * rcpDet);
+	out.m[2*FRL+2] = static_cast<float>(+det3_301_013 * rcpDet);
+	out.m[3*FRL+2] = static_cast<float>(-det3_301_012 * rcpDet);
 
-	out.m[0*FRL+3] = (float)( - det3_201_123 * rcpDet );
-	out.m[1*FRL+3] = (float)( + det3_201_023 * rcpDet );
-	out.m[2*FRL+3] = (float)( - det3_201_013 * rcpDet );
-	out.m[3*FRL+3] = (float)( + det3_201_012 * rcpDet );
+	out.m[0*FRL+3] = static_cast<float>(-det3_201_123 * rcpDet);
+	out.m[1*FRL+3] = static_cast<float>(+det3_201_023 * rcpDet);
+	out.m[2*FRL+3] = static_cast<float>(-det3_201_013 * rcpDet);
+	out.m[3*FRL+3] = static_cast<float>(+det3_201_012 * rcpDet);
 
 	return true;
 }
@@ -1676,7 +1678,7 @@ bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix & mvp, const idVec
 	if ( c[2] < maxW ) { bits |= ( 1 << 5 ); }
 
 	// store out a bit set for each side where the point is outside the clip space
-	*outBits = (byte)( bits ^ 63 );
+	*outBits = static_cast<byte>(bits ^ 63);
 
 	// if any bits weren't set, the point is completely off one side of the frustum
 	return ( bits != 63 );
@@ -1835,7 +1837,7 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix & mvp, const idBo
 	}
 
 	// store out a bit set for each side where the bounds is outside the clip space
-	*outBits = (byte)( bits ^ 63 );
+	*outBits = static_cast<byte>(bits ^ 63);
 
 	// if any bits weren't set, the bounds is completely off one side of the frustum
 	return ( bits != 63 );
@@ -2085,8 +2087,8 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix & mvp, co
 
 	int bits = 0;
 
-	float closing = extrudeDirection * clipPlane.Normal();
-	float invClosing = -1.0f / closing;
+	const float closing = extrudeDirection * clipPlane.Normal();
+	const float invClosing = -1.0f / closing;
 
 	idVec3 v;
 	for ( int x = 0; x < 2; x++ ) {
@@ -2131,7 +2133,7 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix & mvp, co
 	}
 
 	// store out a bit set for each side where the bounds is outside the clip space
-	*outBits = (byte)(bits ^ 63);
+	*outBits = static_cast<byte>(bits ^ 63);
 
 	// if any bits weren't set, the bounds is completely off one side of the frustum
 	return ( bits != 63 );
@@ -2305,7 +2307,7 @@ void idRenderMatrix::ProjectedBounds( idBounds & projected, const idRenderMatrix
 				float tx = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
 				float ty = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
 				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
-				float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+				const float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 
 				if ( tw <= idMath::FLT_SMALLEST_NON_DENORMAL ) {
 					projected[0][0] = -RENDER_MATRIX_INFINITY;
@@ -2317,7 +2319,7 @@ void idRenderMatrix::ProjectedBounds( idBounds & projected, const idRenderMatrix
 					continue;
 				}
 
-				float rw = 1.0f / tw;
+				const float rw = 1.0f / tw;
 
 				tx = tx * rw;
 				ty = ty * rw;
@@ -3194,7 +3196,7 @@ static int ClipHomogeneousPolygonToSide_Generic( idVec4 * __restrict newPoints, 
 
 	// calculate the plane side for each original point and calculate all potential new points
 	for ( int i = 0; i < numPoints; i++ ) {
-		int j = ( i + 1 ) & ( ( i + 1 - numPoints ) >> 31 );
+		const int j = ( i + 1 ) & ( ( i + 1 - numPoints ) >> 31 );
 		sides[i] = sign * points[i][axis] < offset * points[i].w;
 		newPoints[i * 2 + 0] = points[i];
 		newPoints[i * 2 + 1] = ClipHomogeneousLineToSide( points[i], points[j], axis, side );
@@ -3595,7 +3597,7 @@ void idRenderMatrix::DepthBoundsForBounds( float & min, float & max, const idRen
 				v[2] = bounds[z][2];
 
 				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
-				float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+				const float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 
 				if ( tw > idMath::FLT_SMALLEST_NON_DENORMAL ) {
 					tz = tz / tw;
@@ -3812,14 +3814,14 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float & min, float & max, con
 
 					idVec3 test;
 					if ( extrude ) {
-						float extrudeDist = clipPlane.Distance( v ) * invClosing;
+						const float extrudeDist = clipPlane.Distance( v ) * invClosing;
 						test = v + extrudeDirection * extrudeDist;
 					} else {
 						test = v;
 					}
 
 					float tz = test[0] * mvp[2][0] + test[1] * mvp[2][1] + test[2] * mvp[2][2] + mvp[2][3];
-					float tw = test[0] * mvp[3][0] + test[1] * mvp[3][1] + test[2] * mvp[3][2] + mvp[3][3];
+					const float tw = test[0] * mvp[3][0] + test[1] * mvp[3][1] + test[2] * mvp[3][2] + mvp[3][3];
 
 					if ( tw > idMath::FLT_SMALLEST_NON_DENORMAL ) {
 						tz = tz / tw;
@@ -4090,7 +4092,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const
 	};
 
 	// calculate the front facing polygon bits
-	int frontBits = GetBoxFrontBits_Generic( bounds, localLightOrigin );
+	const int frontBits = GetBoxFrontBits_Generic( bounds, localLightOrigin );
 
 	// bounding box corners
 	ALIGNTYPE16 idVec4 projectedNearPoints[8];
@@ -4117,7 +4119,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const
 
 	// clip the front facing bounding box polygons at the near cap
 	const frontPolygons_t & frontPolygons = boxFrontPolygonsForFrontBits[frontBits];
-	for ( int i = 0; i < frontPolygons.count; i++ ) {
+	for ( int i = 0; std::cmp_less(i, frontPolygons.count); i++ ) {
 		const int polygon = frontPolygons.indices[i];
 		clippedPoints[numClippedPoints + 0] = projectedNearPoints[boxPolygonVertices[polygon][0]];
 		clippedPoints[numClippedPoints + 1] = projectedNearPoints[boxPolygonVertices[polygon][1]];
@@ -4127,7 +4129,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const
 	}
 
 	// clip the front facing bounding box polygons projected to the far cap
-	for ( int i = 0; i < frontPolygons.count; i++ ) {
+	for ( int i = 0; std::cmp_less(i, frontPolygons.count); i++ ) {
 		const int polygon = frontPolygons.indices[i];
 		clippedPoints[numClippedPoints + 0] = projectedFarPoints[boxPolygonVertices[polygon][0]];
 		clippedPoints[numClippedPoints + 1] = projectedFarPoints[boxPolygonVertices[polygon][1]];
@@ -4193,7 +4195,7 @@ void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix &
 	//			We cannot just assume that it's an D3D MVP matrix when
 	//			zeroToOne = false and CLIP_SPACE_D3D is defined because
 	//			this code may be called for non-MVP matrices.
-	const bool isZeroOneZ = false;
+	constexpr bool isZeroOneZ = false;
 
 	if ( zeroToOne ) {
 		// left: inside(p) = p * frustum[0] > 0
@@ -4254,7 +4256,7 @@ void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix &
 	// optionally normalize the planes
 	if ( normalize ) {
 		for ( int i = 0; i < 6; i++ ) {
-			float s = idMath::InvSqrt( planes[i].Normal().LengthSqr() );
+			const float s = idMath::InvSqrt( planes[i].Normal().LengthSqr() );
 			planes[i][0] *= s;
 			planes[i][1] *= s;
 			planes[i][2] *= s;
@@ -4354,14 +4356,14 @@ void idRenderMatrix::GetFrustumCorners( frustumCorners_t & corners, const idRend
 			for ( int z = 0; z < 2; z++ ) {
 				v[2] = frustumBounds[z][2];
 
-				float tx = v[0] * frustumTransform[0][0] + v[1] * frustumTransform[0][1] + v[2] * frustumTransform[0][2] + frustumTransform[0][3];
-				float ty = v[0] * frustumTransform[1][0] + v[1] * frustumTransform[1][1] + v[2] * frustumTransform[1][2] + frustumTransform[1][3];
-				float tz = v[0] * frustumTransform[2][0] + v[1] * frustumTransform[2][1] + v[2] * frustumTransform[2][2] + frustumTransform[2][3];
-				float tw = v[0] * frustumTransform[3][0] + v[1] * frustumTransform[3][1] + v[2] * frustumTransform[3][2] + frustumTransform[3][3];
+				const float tx = v[0] * frustumTransform[0][0] + v[1] * frustumTransform[0][1] + v[2] * frustumTransform[0][2] + frustumTransform[0][3];
+				const float ty = v[0] * frustumTransform[1][0] + v[1] * frustumTransform[1][1] + v[2] * frustumTransform[1][2] + frustumTransform[1][3];
+				const float tz = v[0] * frustumTransform[2][0] + v[1] * frustumTransform[2][1] + v[2] * frustumTransform[2][2] + frustumTransform[2][3];
+				const float tw = v[0] * frustumTransform[3][0] + v[1] * frustumTransform[3][1] + v[2] * frustumTransform[3][2] + frustumTransform[3][3];
 
 				assert( tw > idMath::FLT_SMALLEST_NON_DENORMAL );
 
-				float rw = 1.0f / tw;
+				const float rw = 1.0f / tw;
 
 				corners.x[(z<<2)|(y<<1)|(x<<0)] = tx * rw;
 				corners.y[(z<<2)|(y<<1)|(x<<0)] = ty * rw;

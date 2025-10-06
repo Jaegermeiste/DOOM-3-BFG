@@ -102,7 +102,6 @@ idVec3::ToPitch
 =============
 */
 float idVec3::ToPitch() const {
-	float	forward;
 	float	pitch;
 	
 	if ( ( x == 0.0f ) && ( y == 0.0f ) ) {
@@ -112,7 +111,7 @@ float idVec3::ToPitch() const {
 			pitch = 270.0f;
 		}
 	} else {
-		forward = ( float )idMath::Sqrt( x * x + y * y );
+		float forward = (float)idMath::Sqrt(x * x + y * y);
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if ( pitch < 0.0f ) {
 			pitch += 360.0f;
@@ -128,7 +127,6 @@ idVec3::ToAngles
 =============
 */
 idAngles idVec3::ToAngles() const {
-	float forward;
 	float yaw;
 	float pitch;
 	
@@ -145,7 +143,7 @@ idAngles idVec3::ToAngles() const {
 			yaw += 360.0f;
 		}
 
-		forward = ( float )idMath::Sqrt( x * x + y * y );
+		float forward = (float)idMath::Sqrt(x * x + y * y);
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if ( pitch < 0.0f ) {
 			pitch += 360.0f;
@@ -161,7 +159,6 @@ idVec3::ToPolar
 =============
 */
 idPolar3 idVec3::ToPolar() const {
-	float forward;
 	float yaw;
 	float pitch;
 	
@@ -178,7 +175,7 @@ idPolar3 idVec3::ToPolar() const {
 			yaw += 360.0f;
 		}
 
-		forward = ( float )idMath::Sqrt( x * x + y * y );
+		float forward = (float)idMath::Sqrt(x * x + y * y);
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if ( pitch < 0.0f ) {
 			pitch += 360.0f;
@@ -194,10 +191,9 @@ idVec3::ToMat3
 */
 idMat3 idVec3::ToMat3() const {
 	idMat3	mat;
-	float	d;
 
 	mat[0] = *this;
-	d = x * x + y * y;
+	float d = x * x + y * y;
 	if ( !d ) {
 		mat[1][0] = 1.0f;
 		mat[1][1] = 0.0f;
@@ -250,7 +246,7 @@ Vectors are expected to be normalized.
 #define LERP_DELTA 1e-6
 
 void idVec3::SLerp( const idVec3 &v1, const idVec3 &v2, const float t ) {
-	float omega, cosom, sinom, scale0, scale1;
+	float scale0, scale1;
 
 	if ( t <= 0.0f ) {
 		(*this) = v1;
@@ -260,10 +256,10 @@ void idVec3::SLerp( const idVec3 &v1, const idVec3 &v2, const float t ) {
 		return;
 	}
 
-	cosom = v1 * v2;
+	float cosom = v1 * v2;
 	if ( ( 1.0f - cosom ) > LERP_DELTA ) {
-		omega = acos( cosom );
-		sinom = sin( omega );
+		float omega = acos(cosom);
+		float sinom = sin(omega);
 		scale0 = sin( ( 1.0f - t ) * omega ) / sinom;
 		scale1 = sin( t * omega ) / sinom;
 	} else {
@@ -282,8 +278,8 @@ Projects the z component onto a sphere.
 =============
 */
 void idVec3::ProjectSelfOntoSphere( const float radius ) {
-	float rsqr = radius * radius;
-	float len = Length();
+	const float rsqr = radius * radius;
+	const float len = Length();
 	if ( len  < rsqr * 0.5f ) {
 		z = sqrt( rsqr - len );
 	} else {

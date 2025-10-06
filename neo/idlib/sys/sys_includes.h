@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef SYS_INCLUDES_H
 #define SYS_INCLUDES_H
 
+#pragma once
+
 // Include the various platform specific header files (windows.h, etc)
 
 /*
@@ -44,7 +46,14 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _D3SDK
 #ifndef GAME_DLL
 
-#define WINVER				0x501
+#include <winsdkver.h>
+#ifndef WINVER
+#define WINVER 0x0A00
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0A00
+#endif
+#include <sdkddkver.h>
 
 #include <winsock2.h>
 #include <mmsystem.h>

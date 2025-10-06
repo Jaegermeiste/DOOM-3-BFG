@@ -59,10 +59,12 @@ public:
 	idCallbackStatic( void (*f)() ) {
 		this->f = f;
 	}
-	void Call() {
+	void Call() override
+	{
 		f();
 	}
-	idCallback * Clone() const {
+	idCallback * Clone() const override
+	{
 		//idScopedGlobalHeap	everythingHereGoesInTheGlobalHeap;
 		return new (TAG_FUNC_CALLBACK) idCallbackStatic( f );
 	}
@@ -84,10 +86,12 @@ public:
 		this->t = t;
 		this->f = f;
 	}
-	void Call() {
+	void Call() override
+	{
 		(t->*f)();
 	}
-	idCallback * Clone() const {
+	idCallback * Clone() const override
+	{
 		return new (TAG_FUNC_CALLBACK) idCallbackBindMem( t, f );
 	}
 private:
@@ -110,10 +114,12 @@ public:
 		f( f_ ),
 		a1( a1_ ) {
 	}
-	void Call() {
+	void Call() override
+	{
 		(t->*f)( a1 );
 	}
-	idCallback * Clone() const {
+	idCallback * Clone() const override
+	{
 		return new (TAG_FUNC_CALLBACK) idCallbackBindMemArg1( t, f, a1 );
 	}
 private:

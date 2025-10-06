@@ -97,7 +97,7 @@ public :
 		int	startTime;
 	};
 
-	static const int		MAX_SIMULATED_PROJECTILES = 64;
+	static constexpr int		MAX_SIMULATED_PROJECTILES = 64;
 
 	// This list is used to "catch up" client projectiles to the current time on the server
 	static idArray< simulatedProjectile_t, MAX_SIMULATED_PROJECTILES >	projectilesToSimulate;

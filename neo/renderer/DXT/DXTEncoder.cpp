@@ -472,7 +472,7 @@ int idDxtEncoder::GetMinMaxAlphaHQ( const byte *colorBlock, const int alphaOffse
 		}
 	}
 
-	const int ALPHA_EXPAND = 32;
+	constexpr int ALPHA_EXPAND = 32;
 
 	alphaMin = ( alphaMin <= ALPHA_EXPAND ) ? 0 : alphaMin - ALPHA_EXPAND;
 	alphaMax = ( alphaMax >= 255 - ALPHA_EXPAND ) ? 255 : alphaMax + ALPHA_EXPAND;
@@ -672,7 +672,7 @@ int idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, byt
 	}
 
 	// expand the bounding box
-	const int C565_BBOX_EXPAND = 1;
+	constexpr int C565_BBOX_EXPAND = 1;
 
 	bboxMin[0] = ( bboxMin[0] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[0] - C565_BBOX_EXPAND;
 	bboxMin[1] = ( bboxMin[1] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[1] - C565_BBOX_EXPAND;
@@ -833,7 +833,7 @@ int idDxtEncoder::GetMinMaxCTX1HQ( const byte *colorBlock, byte *minColor, byte 
 	}
 
 	// expand the bounding box
-	const int CXT1_BBOX_EXPAND = 6;
+	constexpr int CXT1_BBOX_EXPAND = 6;
 
 	bboxMin[0] = ( bboxMin[0] <= CXT1_BBOX_EXPAND ) ? 0 : bboxMin[0] - CXT1_BBOX_EXPAND;
 	bboxMin[1] = ( bboxMin[1] <= CXT1_BBOX_EXPAND ) ? 0 : bboxMin[1] - CXT1_BBOX_EXPAND;
@@ -907,7 +907,7 @@ int idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, by
 	bboxMax[1] >>= 2;
 
 	// expand the bounding box
-	const int C565_BBOX_EXPAND = 1;
+	constexpr int C565_BBOX_EXPAND = 1;
 
 	bboxMin[1] = ( bboxMin[1] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[1] - C565_BBOX_EXPAND;
 	bboxMax[1] = ( bboxMax[1] >= (255>>2)-C565_BBOX_EXPAND ) ? (255>>2) : bboxMax[1] + C565_BBOX_EXPAND;
@@ -1100,9 +1100,9 @@ int NormalDistanceDXT5( const int *vector, const int *normalized ) {
 	const int c1 = 1;
 	const int c2 = 3;
 #else
-	const int c0 = 1;
-	const int c1 = 2;
-	const int c2 = 3;
+	constexpr int c0 = 1;
+	constexpr int c1 = 2;
+	constexpr int c2 = 3;
 #endif
 	float floatNormal[3];
 	byte intNormal[4];
@@ -1255,7 +1255,7 @@ int idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minColor
 	}
 
 	// expand the bounding box
-	const int C565_BBOX_EXPAND = 2;
+	constexpr int C565_BBOX_EXPAND = 2;
 
 	bboxMin[0] = ( bboxMin[0] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[0] - C565_BBOX_EXPAND;
 	bboxMin[1] = ( bboxMin[1] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[1] - C565_BBOX_EXPAND;
@@ -1488,8 +1488,8 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minColor
 	}
 
 	// expand the bounding box
-	const int C565_BBOX_EXPAND = 2;
-	const int ALPHA_BBOX_EXPAND = 32;
+	constexpr int C565_BBOX_EXPAND = 2;
+	constexpr int ALPHA_BBOX_EXPAND = 32;
 
 	bboxMin[0] = ( bboxMin[0] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[0] - C565_BBOX_EXPAND;
 	bboxMin[1] = ( bboxMin[1] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[1] - C565_BBOX_EXPAND;
@@ -1630,8 +1630,8 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minC
 	}
 
 	// expand the bounding box
-	const int C565_BBOX_EXPAND = 1;
-	const int ALPHA_BBOX_EXPAND = 128;
+	constexpr int C565_BBOX_EXPAND = 1;
+	constexpr int ALPHA_BBOX_EXPAND = 128;
 
 #if 0 // object-space
 	bboxMin[0] = ( bboxMin[0] <= C565_BBOX_EXPAND ) ? 0 : bboxMin[0] - C565_BBOX_EXPAND;
@@ -2151,8 +2151,8 @@ void idDxtEncoder::ScaleYCoCg( byte *colorBlock ) const {
 	if ( m3 > m2 ) m2 = m3;
 	if ( m2 > m0 ) m0 = m2;
 
-	const int s0 = 128 / 2 - 1;
-	const int s1 = 128 / 4 - 1;
+	constexpr int s0 = 128 / 2 - 1;
+	constexpr int s1 = 128 / 4 - 1;
 
 	int scale = 1 + ( m0 <= s0 ) + 2 * ( m0 <= s1 );
 
@@ -2570,8 +2570,8 @@ void idDxtEncoder::BiasScaleNormalY( byte *colorBlock ) const {
 	}
 #endif
 
-	const int s0 = 128 / 2 - 1;
-	const int s1 = 128 / 4 - 1;
+	constexpr int s0 = 128 / 2 - 1;
+	constexpr int s1 = 128 / 4 - 1;
 
 #if USE_SCALE
 	int scale = 1 + ( bestRange <= s0 ) + 2 * ( bestRange <= s1 );
@@ -2645,8 +2645,8 @@ void idDxtEncoder::RotateNormalsDXT5( byte *block ) const {
 			}
 		}
 
-		const int s0 = 128 / 2 - 1;
-		const int s1 = 128 / 4 - 1;
+		constexpr int s0 = 128 / 2 - 1;
+		constexpr int s1 = 128 / 4 - 1;
 
 		int range = Max( abs( minColor - 128 ), abs( maxColor - 128 ) );
 		int scale = 1 + ( range <= s0 ) + 2 * ( range <= s1 );
@@ -3455,7 +3455,7 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 
 	assert( maxAlpha >= minAlpha );
 
-	const int ALPHA_RANGE = 7;
+	constexpr int ALPHA_RANGE = 7;
 
 #if 1
 
@@ -3742,8 +3742,8 @@ void idDxtEncoder::ScaleYCoCg( byte *colorBlock, byte *minColor, byte *maxColor 
 	if ( m3 > m2 ) m2 = m3;
 	if ( m2 > m0 ) m0 = m2;
 
-	const int s0 = 128 / 2 - 1;
-	const int s1 = 128 / 4 - 1;
+	constexpr int s0 = 128 / 2 - 1;
+	constexpr int s1 = 128 / 4 - 1;
 
 	int mask0 = -( m0 <= s0 );
 	int mask1 = -( m0 <= s1 );
@@ -4163,7 +4163,7 @@ void idDxtEncoder::EmitGreenIndices( const byte *block, const int offset, const 
 
 	assert( maxGreen >= minGreen );
 
-	const int COLOR_RANGE = 3;
+	constexpr int COLOR_RANGE = 3;
 
 #if 1
 
@@ -4468,8 +4468,7 @@ paramO:	max		- Max grayscale value
 ========================
 */
 void idDxtEncoder::EncodeNormalRGBIndices( byte *outBuf, const byte min, const byte max, const byte *values ) {
-
-	const int COLOR_RANGE = 3;
+	constexpr int COLOR_RANGE = 3;
 
 	byte maskedMin, maskedMax, mid, yb1, yb2, yb3;
 

@@ -34,7 +34,7 @@ enum browserCommand_t {
 	BROWSER_COMMAND_SHOW_GAMERTAG,
 };
 
-static const int NUM_SERVER_LIST_ITEMS = 10;
+static constexpr int NUM_SERVER_LIST_ITEMS = 10;
 
 /*
 ================================================

@@ -44,17 +44,17 @@ extern int64 com_engineHz_denominator;
 
 // Returns the msec the frame starts on
 ID_INLINE int FRAME_TO_MSEC( int64 frame ) {
-	return (int)( ( frame * com_engineHz_numerator ) / com_engineHz_denominator );
+	return static_cast<int>((frame * com_engineHz_numerator) / com_engineHz_denominator);
 }
 // Rounds DOWN to the nearest frame
 ID_INLINE int MSEC_TO_FRAME_FLOOR( int msec ) {
-	return (int)( ( ( (int64)msec * com_engineHz_denominator ) + ( com_engineHz_denominator - 1 ) ) / com_engineHz_numerator );
+	return static_cast<int>(((static_cast<int64>(msec) * com_engineHz_denominator) + (com_engineHz_denominator - 1)) / com_engineHz_numerator);
 }
 // Rounds UP to the nearest frame
 ID_INLINE int MSEC_TO_FRAME_CEIL( int msec ) {
-	return (int)( ( ( (int64)msec * com_engineHz_denominator ) + ( com_engineHz_numerator - 1 ) ) / com_engineHz_numerator );
+	return static_cast<int>(((static_cast<int64>(msec) * com_engineHz_denominator) + (com_engineHz_numerator - 1)) / com_engineHz_numerator);
 }
-// Aligns msec so it starts on a frame bondary
+// Aligns msec so it starts on a frame boundary
 ID_INLINE int MSEC_ALIGN_TO_FRAME( int msec ) {
 	return FRAME_TO_MSEC( MSEC_TO_FRAME_CEIL( msec ) );
 }
@@ -77,7 +77,7 @@ ID_INLINE void EndProfileNamedEvent() {
 }
 
 ID_INLINE void BeginProfileNamedEvent( VERIFY_FORMAT_STRING const char * szName ) {
-	BeginProfileNamedEventColor( (uint32) 0xFF00FF00, szName );
+	BeginProfileNamedEventColor( 0xFF00FF00U, szName );
 }
 
 class idScopedProfileEvent {
@@ -112,8 +112,8 @@ typedef enum {
 	EDITOR_MATERIAL				= BIT(12)
 } toolFlag_t;
 
-#define STRTABLE_ID				"#str_"
-#define STRTABLE_ID_LENGTH		5
+constexpr auto STRTABLE_ID = "#str_";
+constexpr auto STRTABLE_ID_LENGTH = 5;
 
 extern idCVar		com_version;
 extern idCVar		com_developer;
@@ -156,7 +156,7 @@ struct mpMap_t {
 	uint32			supportedModes;
 };
 
-static const int	MAX_LOGGED_STATS = 60 * 120;		// log every half second 
+static constexpr int	MAX_LOGGED_STATS = 60 * 120;		// log every half second 
 
 enum currentGame_t {
 	DOOM_CLASSIC,

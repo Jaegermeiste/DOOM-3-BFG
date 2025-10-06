@@ -71,8 +71,8 @@ private:
 	static const float STEREO_DEPTH_FAR;
 
 	// if we exceed these limits we stop rendering GUI surfaces
-	static const int MAX_INDEXES = ( 20000 * 6 );
-	static const int MAX_VERTS	 = ( 20000 * 4 );
+	static constexpr int MAX_INDEXES = ( 20000 * 6 );
+	static constexpr int MAX_VERTS	 = ( 20000 * 4 );
 
 	vertCacheHandle_t			vertexBlock;
 	vertCacheHandle_t			indexBlock;

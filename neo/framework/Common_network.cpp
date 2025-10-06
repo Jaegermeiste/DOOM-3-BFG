@@ -73,7 +73,7 @@ idCVar net_interpolationSlowdownStart( "net_interpolationSlowdownStart", "0.5", 
 // Extrapolation is now disabled
 idCVar net_maxExtrapolationInMS( "net_maxExtrapolationInMS", "0", CVAR_INTEGER, "Max time in MS that extrapolation is allowed to occur.");
 
-static const int SNAP_USERCMDS = 8192;
+static constexpr int SNAP_USERCMDS = 8192;
 
 /*
 ===============
@@ -321,7 +321,7 @@ void idCommonLocal::NetReadUsercmds( int clientNum, idBitMsg & msg ) {
 	
 	// TODO: This shouldn't actually happen. Figure out why it does.
 	// Seen on clients when another client leaves a match.
-	if ( msg.GetReadData() == NULL ) {
+	if ( msg.GetReadData() == nullptr) {
 		return;
 	}
 

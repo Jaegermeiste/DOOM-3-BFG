@@ -70,15 +70,15 @@ typedef struct mpPlayerState_s {
 	int				deaths;
 } mpPlayerState_t;
 
-const int NUM_CHAT_NOTIFY	= 5;
-const int CHAT_FADE_TIME	= 400;
-const int FRAGLIMIT_DELAY	= 2000;
+constexpr int NUM_CHAT_NOTIFY	= 5;
+constexpr int CHAT_FADE_TIME	= 400;
+constexpr int FRAGLIMIT_DELAY	= 2000;
 
-const int MP_PLAYER_MINFRAGS = -100;
-const int MP_PLAYER_MAXFRAGS = 400;	// in CTF frags are player points
-const int MP_PLAYER_MAXWINS	= 100;
-const int MP_PLAYER_MAXPING	= 999;
-const int MP_CTF_MAXPOINTS = 400;
+constexpr int MP_PLAYER_MINFRAGS = -100;
+constexpr int MP_PLAYER_MAXFRAGS = 400;	// in CTF frags are player points
+constexpr int MP_PLAYER_MAXWINS	= 100;
+constexpr int MP_PLAYER_MAXPING	= 999;
+constexpr int MP_CTF_MAXPOINTS = 400;
 
 typedef struct mpChatLine_s {
 	idStr			line;

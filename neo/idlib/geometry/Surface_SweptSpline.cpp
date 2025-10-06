@@ -81,39 +81,33 @@ idSurface_SweptSpline::GetFrame
 ====================
 */
 void idSurface_SweptSpline::GetFrame( const idMat3 &previousFrame, const idVec3 dir, idMat3 &newFrame ) {
-	float wx, wy, wz;
-	float xx, yy, yz;
-	float xy, xz, zz;
-	float x2, y2, z2;
-	float a, c, s, x, y, z;
-	idVec3 d, v;
 	idMat3 axis;
 
-	d = dir;
+	idVec3 d = dir;
 	d.Normalize();
-	v = d.Cross( previousFrame[2] );
+	idVec3 v = d.Cross(previousFrame[2]);
 	v.Normalize();
 
-	a = idMath::ACos( previousFrame[2] * d ) * 0.5f;
-	c = idMath::Cos( a );
-	s = idMath::Sqrt( 1.0f - c * c );
+	float a = idMath::ACos(previousFrame[2] * d) * 0.5f;
+	float c = idMath::Cos(a);
+	float s = idMath::Sqrt(1.0f - c * c);
 
-	x = v[0] * s;
-	y = v[1] * s;
-	z = v[2] * s;
+	float x = v[0] * s;
+	float y = v[1] * s;
+	float z = v[2] * s;
 
-	x2 = x + x;
-	y2 = y + y;
-	z2 = z + z;
-	xx = x * x2;
-	xy = x * y2;
-	xz = x * z2;
-	yy = y * y2;
-	yz = y * z2;
-	zz = z * z2;
-	wx = c * x2;
-	wy = c * y2;
-	wz = c * z2;
+	float x2 = x + x;
+	float y2 = y + y;
+	float z2 = z + z;
+	float xx = x * x2;
+	float xy = x * y2;
+	float xz = x * z2;
+	float yy = y * y2;
+	float yz = y * z2;
+	float zz = z * z2;
+	float wx = c * x2;
+	float wy = c * y2;
+	float wz = c * z2;
 
 	axis[0][0] = 1.0f - ( yy + zz );
 	axis[0][1] = xy - wz;
@@ -143,9 +137,8 @@ idSurface_SweptSpline::Tessellate
 ====================
 */
 void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int sweptSplineSubdivisions ) {
-	int i, j, offset, baseOffset, splineDiv, sweptSplineDiv;
-	int i0, i1, j0, j1;
-	float totalTime, t;
+	int i, j, offset;
+	float t;
 	idVec4 splinePos, splineD1;
 	idMat3 splineMat;
 
@@ -157,9 +150,12 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 	verts.SetNum( splineSubdivisions * sweptSplineSubdivisions );
 
 	// calculate the points and first derivatives for the swept spline
-	totalTime = sweptSpline->GetTime( sweptSpline->GetNumValues() - 1 ) - sweptSpline->GetTime( 0 ) + sweptSpline->GetCloseTime();
-	sweptSplineDiv = sweptSpline->GetBoundaryType() == idCurve_Spline<idVec3>::BT_CLOSED ? sweptSplineSubdivisions : sweptSplineSubdivisions - 1;
-	baseOffset = (splineSubdivisions-1) * sweptSplineSubdivisions;
+	float totalTime = sweptSpline->GetTime(sweptSpline->GetNumValues() - 1) - sweptSpline->GetTime(0) + sweptSpline->
+		GetCloseTime();
+	int sweptSplineDiv = sweptSpline->GetBoundaryType() == idCurve_Spline<idVec3>::BT_CLOSED
+		                     ? sweptSplineSubdivisions
+		                     : sweptSplineSubdivisions - 1;
+	int baseOffset = (splineSubdivisions - 1) * sweptSplineSubdivisions;
 	for ( i = 0; i < sweptSplineSubdivisions; i++ ) {
 		t = totalTime * i / sweptSplineDiv;
 		splinePos = sweptSpline->GetCurrentValue( t );
@@ -171,9 +167,10 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 
 	// sweep the spline
 	totalTime = spline->GetTime( spline->GetNumValues() - 1 ) - spline->GetTime( 0 ) + spline->GetCloseTime();
-	splineDiv = spline->GetBoundaryType() == idCurve_Spline<idVec3>::BT_CLOSED ? splineSubdivisions : splineSubdivisions - 1;
+	int splineDiv = spline->GetBoundaryType() == idCurve_Spline<idVec3>::BT_CLOSED
+		                ? splineSubdivisions
+		                : splineSubdivisions - 1;
 	splineMat.Identity();
-	idVec3 tempNormal;
 	for ( i = 0; i < splineSubdivisions; i++ ) {
 		t = totalTime * i / splineDiv;
 
@@ -189,7 +186,7 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 			v->SetTexCoord( verts[baseOffset+j].GetTexCoord().x, splinePos.w );
 			v->SetTangent( verts[baseOffset+j].GetTangent() * splineMat );
 			v->SetBiTangent( splineD1.ToVec3() );
-			tempNormal = v->GetBiTangent().Cross( v->GetTangent() );
+			idVec3 tempNormal = v->GetBiTangent().Cross(v->GetTangent());
 			tempNormal.Normalize();
 			v->SetNormal( tempNormal );
 			v->color[0] = v->color[1] = v->color[2] = v->color[3] = 0;
@@ -201,13 +198,13 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 	// create indexes for the triangles
 	for ( offset = i = 0; i < splineDiv; i++ ) {
 
-		i0 = (i+0) * sweptSplineSubdivisions;
-		i1 = (i+1) % splineSubdivisions * sweptSplineSubdivisions;
+		int i0 = (i + 0) * sweptSplineSubdivisions;
+		int i1 = (i + 1) % splineSubdivisions * sweptSplineSubdivisions;
 
 		for ( j = 0; j < sweptSplineDiv; j++ ) {
 
-			j0 = (j+0);
-			j1 = (j+1) % sweptSplineSubdivisions;
+			int j0 = (j + 0);
+			int j1 = (j + 1) % sweptSplineSubdivisions;
 
 			indexes[offset++] = i0 + j0;
 			indexes[offset++] = i0 + j1;

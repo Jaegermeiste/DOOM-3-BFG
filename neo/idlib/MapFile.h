@@ -43,13 +43,13 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-const int OLD_MAP_VERSION					= 1;
-const int CURRENT_MAP_VERSION				= 2;
-const int DEFAULT_CURVE_SUBDIVISION			= 4;
-const float DEFAULT_CURVE_MAX_ERROR			= 4.0f;
-const float DEFAULT_CURVE_MAX_ERROR_CD		= 24.0f;
-const float DEFAULT_CURVE_MAX_LENGTH		= -1.0f;
-const float DEFAULT_CURVE_MAX_LENGTH_CD		= -1.0f;
+constexpr int OLD_MAP_VERSION					= 1;
+constexpr int CURRENT_MAP_VERSION				= 2;
+constexpr int DEFAULT_CURVE_SUBDIVISION			= 4;
+constexpr float DEFAULT_CURVE_MAX_ERROR			= 4.0f;
+constexpr float DEFAULT_CURVE_MAX_ERROR_CD		= 24.0f;
+constexpr float DEFAULT_CURVE_MAX_LENGTH		= -1.0f;
+constexpr float DEFAULT_CURVE_MAX_LENGTH_CD		= -1.0f;
 
 
 class idMapPrimitive {
@@ -78,7 +78,8 @@ public:
 	const idPlane &			GetPlane() const { return plane; }
 	void					SetPlane( const idPlane &p ) { plane = p; }
 	void					SetTextureMatrix( const idVec3 mat[2] ) { texMat[0] = mat[0]; texMat[1] = mat[1]; }
-	void					GetTextureMatrix( idVec3 &mat1, idVec3 &mat2 ) { mat1 = texMat[0]; mat2 = texMat[1]; }
+	void					GetTextureMatrix( idVec3 &mat1, idVec3 &mat2 ) const
+	{ mat1 = texMat[0]; mat2 = texMat[1]; }
 	void					GetTextureVectors( idVec4 v[2] ) const;
 
 protected:
@@ -99,7 +100,7 @@ ID_INLINE idMapBrushSide::idMapBrushSide() {
 class idMapBrush : public idMapPrimitive {
 public:
 							idMapBrush() { type = TYPE_BRUSH; sides.Resize( 8, 4 ); }
-							~idMapBrush() { sides.DeleteContents( true ); }
+							~idMapBrush() override { sides.DeleteContents( true ); }
 	static idMapBrush *		Parse( idLexer &src, const idVec3 &origin, bool newFormat = true, float version = CURRENT_MAP_VERSION );
 	static idMapBrush *		ParseQ3( idLexer &src, const idVec3 &origin );
 	bool					Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const;
@@ -118,7 +119,7 @@ class idMapPatch : public idMapPrimitive, public idSurface_Patch {
 public:
 							idMapPatch();
 							idMapPatch( int maxPatchWidth, int maxPatchHeight );
-							~idMapPatch() { }
+							~idMapPatch() override { }
 	static idMapPatch *		Parse( idLexer &src, const idVec3 &origin, bool patchDef3 = true, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const;
 	const char *			GetMaterial() const { return material; }
@@ -212,7 +213,7 @@ public:
 	void					RemoveEntities( const char *classname );
 	void					RemoveAllEntities();
 	void					RemovePrimitiveData();
-	bool					HasPrimitiveData() { return hasPrimitiveData; }
+	bool					HasPrimitiveData() const { return hasPrimitiveData; }
 
 protected:
 	float					version;

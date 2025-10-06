@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
+static constexpr int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
 extern idCVar r_multiSamples;
 extern idCVar r_motionBlur;
@@ -420,25 +420,25 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustField
 void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustField( const int fieldIndex, const int adjustAmount ) {
 	switch ( fieldIndex ) {
 		case SYSTEM_FIELD_FRAMERATE: {
-			static const int numValues = 2;
-			static const int values[numValues] = { 60, 120 };
+			static constexpr int numValues = 2;
+			static constexpr int values[numValues] = { 60, 120 };
 			com_engineHz.SetInteger( AdjustOption( com_engineHz.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_VSYNC: {
-			static const int numValues = 3;
-			static const int values[numValues] = { 0, 1, 2 };
+			static constexpr int numValues = 3;
+			static constexpr int values[numValues] = { 0, 1, 2 };
 			r_swapInterval.SetInteger( AdjustOption( r_swapInterval.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_ANTIALIASING: {
-			static const int numValues = 5;
+			static constexpr int numValues = 5;
 			static const int values[numValues] = { 0, 2, 4, 8, 16 };
 			r_multiSamples.SetInteger( AdjustOption( r_multiSamples.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_MOTIONBLUR: {
-			static const int numValues = 5;
+			static constexpr int numValues = 5;
 			static const int values[numValues] = { 0, 2, 3, 4, 5 };
 			r_motionBlur.SetInteger( AdjustOption( r_motionBlur.GetInteger(), values, numValues, adjustAmount ) );
 			break;

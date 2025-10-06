@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 //***************************************************************
 // DEFAULT SCOREBOARD
 //***************************************************************
-static const int MAX_SCOREBOARD_SLOTS = 8;
+static constexpr int MAX_SCOREBOARD_SLOTS = 8;
 
 /*
 ========================

@@ -56,7 +56,7 @@ void idRenderWindow::CommonInit() {
 	lightColor = idVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	modelOrigin.Zero();
 	viewOffset = idVec4(-128.0f, 0.0f, 0.0f, 1.0f);
-	modelAnim = NULL;
+	modelAnim = nullptr;
 	animLength = 0;
 	animEndTime = -1;
 	modelDef = -1;
@@ -85,7 +85,7 @@ void idRenderWindow::BuildAnimation(int time) {
 
 void idRenderWindow::PreRender() {
 	if (needsRender) {
-		world->InitFromMap( NULL );
+		world->InitFromMap(nullptr);
 		idDict spawnArgs;
 		spawnArgs.Set("classname", "light");
 		spawnArgs.Set("name", "light_1");

@@ -291,9 +291,9 @@ GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const 
 
 	common->Printf( "%s", fullPath.c_str() );
 
-	char * fileBuffer = NULL;
-	fileSystem->ReadFile( fullPath.c_str(), (void **)&fileBuffer, NULL );
-	if ( fileBuffer == NULL ) {
+	char * fileBuffer = nullptr;
+	fileSystem->ReadFile( fullPath.c_str(), (void **)&fileBuffer, nullptr);
+	if ( fileBuffer == nullptr) {
 		common->Printf( ": File not found\n" );
 		return INVALID_PROGID;
 	}
@@ -306,13 +306,13 @@ GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const 
 	// vertex and fragment shaders are both be present in a single file, so
 	// scan for the proper header to be the start point, and stamp a 0 in after the end
 	char * start = strstr( (char *)fileBuffer, startToken );
-	if ( start == NULL ) {
+	if ( start == nullptr) {
 		common->Printf( ": %s not found\n", startToken );
 		fileSystem->FreeFile( fileBuffer );
 		return INVALID_PROGID;
 	}
 	char * end = strstr( start, "END" );
-	if ( end == NULL ) {
+	if ( end == nullptr) {
 		common->Printf( ": END not found for %s\n", startToken );
 		fileSystem->FreeFile( fileBuffer );
 		return INVALID_PROGID;

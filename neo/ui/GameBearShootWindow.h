@@ -78,7 +78,7 @@ public:
 	virtual void		PostParse();
 	virtual void		Draw(int time, float x, float y);
 	virtual const char*	Activate(bool activate);
-	virtual idWinVar *	GetWinVarByName	(const char *_name, bool winLookup = false, drawWin_t** owner = NULL);
+	virtual idWinVar *	GetWinVarByName	(const char *_name, bool winLookup = false, drawWin_t** owner = nullptr);
 
 private:
 	void				CommonInit();

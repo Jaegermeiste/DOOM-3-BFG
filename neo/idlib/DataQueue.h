@@ -7,7 +7,7 @@ public:
 	idDataQueue() {
 		dataLength = 0;
 	}
-	bool Append( int sequence, const byte * b1, int b1Len, const byte * b2 = NULL, int b2Len = 0 );
+	bool Append( int sequence, const byte * b1, int b1Len, const byte * b2 = nullptr, int b2Len = 0 );
 	void RemoveOlderThan( int sequence );
 
 	int GetDataLength() const { return dataLength; }

@@ -35,15 +35,15 @@ idSWF::HitTest
 */
 idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, int x, int y, idSWFScriptObject * parentObject ) {
 
-	if ( spriteInstance->parent != NULL ) {
+	if ( spriteInstance->parent != nullptr) {
 		swfDisplayEntry_t * thisDisplayEntry = spriteInstance->parent->FindDisplayEntry( spriteInstance->depth );
 		if ( thisDisplayEntry->cxf.mul.w + thisDisplayEntry->cxf.add.w < 0.001f ) {
-			return NULL;
+			return nullptr;
 		}
 	}
 
 	if ( !spriteInstance->isVisible ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( spriteInstance->scriptObject->HasValidProperty( "onRelease" ) 
@@ -56,7 +56,7 @@ idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const 
 	}
 
 	// rather than returning the first object we find, we actually want to return the last object we find
-	idSWFScriptObject * returnObject = NULL;
+	idSWFScriptObject * returnObject = nullptr;
 	
 	float xOffset = spriteInstance->xOffset;
 	float yOffset = spriteInstance->yOffset;
@@ -64,7 +64,7 @@ idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const 
 	for ( int i = 0; i < spriteInstance->displayList.Num(); i++ ) {
 		const swfDisplayEntry_t & display = spriteInstance->displayList[i];
 		idSWFDictionaryEntry * entry = FindDictionaryEntry( display.characterID );
-		if ( entry == NULL ) {
+		if ( entry == nullptr) {
 			continue;
 		}
 		swfRenderState_t renderState2;
@@ -73,10 +73,10 @@ idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const 
 
 		if ( entry->type == SWF_DICT_SPRITE ) {
 			idSWFScriptObject * object = HitTest( display.spriteInstance, renderState2, x, y, parentObject );
-			if ( object != NULL && object->Get( "_visible" ).ToBool() ) {
+			if ( object != nullptr && object->Get( "_visible" ).ToBool() ) {
 				returnObject = object;
 			}
-		} else if ( entry->type == SWF_DICT_SHAPE && ( parentObject != NULL ) ) {
+		} else if ( entry->type == SWF_DICT_SHAPE && ( parentObject != nullptr) ) {
 			idSWFShape * shape = entry->shape;
 			for ( int i = 0; i < shape->fillDraws.Num(); i++ ) {
 				const idSWFShapeDrawFill & fill = shape->fillDraws[i];
@@ -108,17 +108,17 @@ idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const 
 		} else if ( entry->type == SWF_DICT_TEXT ) {
 			// FIXME: this should be roughly the same as SWF_DICT_SHAPE
 		} else if ( entry->type == SWF_DICT_EDITTEXT ) {
-			idSWFScriptObject * editObject = NULL;
+			idSWFScriptObject * editObject = nullptr;
 
 			if ( display.textInstance->scriptObject.HasProperty( "onRelease" ) || display.textInstance->scriptObject.HasProperty( "onPress" ) ) {
 				// if the edit box itself can be clicked, then we want to return it when it's clicked on
 				editObject = &display.textInstance->scriptObject;
-			} else if ( parentObject != NULL ) {
+			} else if ( parentObject != nullptr) {
 				// otherwise, we want to return the parent object
 				editObject = parentObject;
 			}
 
-			if ( editObject == NULL ) {
+			if ( editObject == nullptr) {
 				continue;
 			}
 
@@ -225,14 +225,14 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 					useMouse = false;
 					idSWFParmList waitParms;
 					waitParms.Append( event->evValue );
-					waitInput.GetFunction()->Call( NULL, waitParms );
+					waitInput.GetFunction()->Call(nullptr, waitParms );
 					waitParms.Clear();
 				} else {
 					useMouse = true;
 				}
 
-				idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, NULL );
-				if ( hitObject != NULL ) {
+				idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, nullptr);
+				if ( hitObject != nullptr) {
 					mouseObject = hitObject;
 					mouseObject->AddRef();
 					
@@ -270,11 +270,11 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 						var.GetFunction()->Call( mouseObject, parms );
 					}					
 					mouseObject->Release();
-					mouseObject = NULL;
+					mouseObject = nullptr;
 				}
 				if ( hoverObject ) {
 					hoverObject->Release();
-					hoverObject = NULL;
+					hoverObject = nullptr;
 				}
 
 				if ( var.IsFunction() ) {
@@ -313,7 +313,7 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 			} else if ( var.IsFunction() ) {
 				if ( event->evValue2 ) {
 					// anonymous functions only respond to key down events
-					var.GetFunction()->Call( NULL, eventParms );
+					var.GetFunction()->Call(nullptr, eventParms );
 					return true;
 				}
 				return false;
@@ -323,7 +323,7 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 			if ( useFunction.IsFunction() && event->evValue2 ) {
 				const char * action = idKeyInput::GetBinding( event->evValue );
 				if ( idStr::Cmp( "_use", action ) == 0 ) {
-					useFunction.GetFunction()->Call( NULL, idSWFParmList() );
+					useFunction.GetFunction()->Call(nullptr, idSWFParmList() );
 				}				
 			}
 
@@ -333,7 +333,7 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 				if ( event->evValue2 ) {
 					idSWFParmList waitParms;
 					waitParms.Append( event->evValue );
-					waitInput.GetFunction()->Call( NULL, waitParms );
+					waitInput.GetFunction()->Call(nullptr, waitParms );
 				}
 			} else {
 				useMouse = true;
@@ -404,8 +404,8 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 
 		bool retVal = false;
 
-		idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, NULL );
-		if ( hitObject != NULL ) {
+		idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, nullptr);
+		if ( hitObject != nullptr) {
 			hasHitObject = true;
 		} else {
 			hasHitObject = false;
@@ -413,17 +413,17 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 
 		if ( hitObject != hoverObject ) {
 			// First check to see if we should call onRollOut on our previous hoverObject
-			if ( hoverObject != NULL ) {
+			if ( hoverObject != nullptr) {
 				idSWFScriptVar var = hoverObject->Get( "onRollOut" );
 				if ( var.IsFunction() ) {
 					var.GetFunction()->Call( hoverObject, idSWFParmList() );
 					retVal = true;
 				}
 				hoverObject->Release();
-				hoverObject = NULL;
+				hoverObject = nullptr;
 			}
 			// Then call onRollOver on our hitObject
-			if ( hitObject != NULL ) {
+			if ( hitObject != nullptr) {
 				hoverObject = hitObject;
 				hoverObject->AddRef();
 				idSWFScriptVar var = hitObject->Get( "onRollOver" );
@@ -433,7 +433,7 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 				}
 			}
 		}
-		if ( mouseObject != NULL ) {
+		if ( mouseObject != nullptr) {
 			idSWFScriptVar var = mouseObject->Get( "onDrag" );
 			if ( var.IsFunction() ) {
 				idSWFParmList parms;

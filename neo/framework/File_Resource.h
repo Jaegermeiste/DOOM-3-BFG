@@ -67,13 +67,13 @@ public:
 	uint8				containerIndex;
 };
 
-static const uint32 RESOURCE_FILE_MAGIC = 0xD000000D;
+static constexpr uint32 RESOURCE_FILE_MAGIC = 0xD000000D;
 class idResourceContainer {
 	friend class	idFileSystemLocal;
 	//friend class	idReadSpawnThread;
 public:
 	idResourceContainer() {
-		resourceFile = NULL;
+		resourceFile = nullptr;
 		tableOffset = 0;
 		tableLength = 0;
 		resourceMagic = 0;

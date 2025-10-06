@@ -206,7 +206,7 @@ bool MA_ParseVertex(idParser& parser, maAttribHeader_t* header) {
 
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "VertexHeader", NULL)) { 
+	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "VertexHeader", nullptr)) { 
 		//This was just a header
 		return true;
 	}
@@ -239,7 +239,7 @@ bool MA_ParseVertexTransforms(idParser& parser, maAttribHeader_t* header) {
 
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "VertexTransformHeader", NULL)) {
+	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "VertexTransformHeader", nullptr)) {
 		//This was just a header
 		return true;
 	}
@@ -286,7 +286,7 @@ bool MA_ParseEdge(idParser& parser, maAttribHeader_t* header) {
 
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "EdgeHeader", NULL)) {
+	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "EdgeHeader", nullptr)) {
 		//This was just a header
 		return true;
 	}
@@ -314,7 +314,7 @@ bool MA_ParseNormal(idParser& parser, maAttribHeader_t* header) {
 
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "NormalHeader", NULL)) {
+	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "NormalHeader", nullptr)) {
 		//This was just a header
 		return true;
 	}
@@ -368,7 +368,7 @@ bool MA_ParseFace(idParser& parser, maAttribHeader_t* header) {
 
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "FaceHeader", NULL)) {
+	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "FaceHeader", nullptr)) {
 		//This was just a header
 		return true;
 	}
@@ -446,7 +446,7 @@ bool MA_ParseColor(idParser& parser, maAttribHeader_t* header) {
 
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "ColorHeader", NULL)) {
+	if(!MA_ParseHeaderIndex(header, minIndex, maxIndex, "ColorHeader", nullptr)) {
 		//This was just a header
 		return true;
 	}
@@ -958,7 +958,7 @@ maModel_t *MA_Parse( const char *buffer, const char* filename, bool verbose ) {
 	
 	
 	
-	maGlobal.currentObject = NULL;
+	maGlobal.currentObject = nullptr;
 
 	// NOTE: using new operator because aseModel_t contains idList class objects
 	maGlobal.model = new (TAG_MODEL) maModel_t;
@@ -1005,7 +1005,7 @@ maModel_t *MA_Load( const char *fileName ) {
 
 	fileSystem->ReadFile( fileName, (void **)&buf, &timeStamp );
 	if ( !buf ) {
-		return NULL;
+		return nullptr;
 	}
 
 	try {
@@ -1016,7 +1016,7 @@ maModel_t *MA_Load( const char *fileName ) {
 		if(maGlobal.model) {
 			MA_Free(maGlobal.model);
 		}
-		ma = NULL;
+		ma = nullptr;
 	}
 
 	fileSystem->FreeFile( buf );

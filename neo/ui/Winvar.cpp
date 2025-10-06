@@ -34,14 +34,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "UserInterfaceLocal.h"
 
 idWinVar::idWinVar() { 
-	guiDict = NULL; 
-	name = NULL; 
+	guiDict = nullptr; 
+	name = nullptr; 
 	eval = true;
 }
 
 idWinVar::~idWinVar() { 
 	delete name;
-	name = NULL;
+	name = nullptr;
 }
 
 void idWinVar::SetGuiInfo(idDict *gd, const char *_name) { 
@@ -52,7 +52,7 @@ void idWinVar::SetGuiInfo(idDict *gd, const char *_name) {
 
 void idWinVar::Init(const char *_name, idWindow *win) {
 	idStr key = _name;
-	guiDict = NULL;
+	guiDict = nullptr;
 	int len = key.Length();
 	if (len > 5 && key[0] == 'g' && key[1] == 'u' && key[2] == 'i' && key[3] == ':') {
 		key = key.Right(len - VAR_GUIPREFIX_LEN);

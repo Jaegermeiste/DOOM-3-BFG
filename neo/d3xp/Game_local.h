@@ -67,14 +67,14 @@ class idEditEntities;
 class idLocationEntity;
 class idMenuHandler_Shell;
 
-const int MAX_CLIENTS			= MAX_PLAYERS;
-const int MAX_CLIENTS_IN_PVS	= MAX_CLIENTS >> 3;
-const int GENTITYNUM_BITS		= 12;
-const int MAX_GENTITIES			= 1 << GENTITYNUM_BITS;
-const int ENTITYNUM_NONE		= MAX_GENTITIES - 1;
-const int ENTITYNUM_WORLD		= MAX_GENTITIES - 2;
-const int ENTITYNUM_MAX_NORMAL	= MAX_GENTITIES - 2;
-const int ENTITYNUM_FIRST_NON_REPLICATED	= ENTITYNUM_MAX_NORMAL - 256;
+constexpr int MAX_CLIENTS			= MAX_PLAYERS;
+constexpr int MAX_CLIENTS_IN_PVS	= MAX_CLIENTS >> 3;
+constexpr int GENTITYNUM_BITS		= 12;
+constexpr int MAX_GENTITIES			= 1 << GENTITYNUM_BITS;
+constexpr int ENTITYNUM_NONE		= MAX_GENTITIES - 1;
+constexpr int ENTITYNUM_WORLD		= MAX_GENTITIES - 2;
+constexpr int ENTITYNUM_MAX_NORMAL	= MAX_GENTITIES - 2;
+constexpr int ENTITYNUM_FIRST_NON_REPLICATED	= ENTITYNUM_MAX_NORMAL - 256;
 
 //============================================================================
 
@@ -104,12 +104,12 @@ class idWeapon;
 
 //============================================================================
 
-const int MAX_GAME_MESSAGE_SIZE		= 8192;
-const int MAX_ENTITY_STATE_SIZE		= 512;
-const int ENTITY_PVS_SIZE			= ((MAX_GENTITIES+31)>>5);
+constexpr int MAX_GAME_MESSAGE_SIZE		= 8192;
+constexpr int MAX_ENTITY_STATE_SIZE		= 512;
+constexpr int ENTITY_PVS_SIZE			= ((MAX_GENTITIES+31)>>5);
 const int NUM_RENDER_PORTAL_BITS	= idMath::BitsForInteger( PS_BLOCK_ALL );
 
-const int MAX_EVENT_PARAM_SIZE		= 128;
+constexpr int MAX_EVENT_PARAM_SIZE		= 128;
 
 typedef struct entityNetEvent_s {
 	int						spawnId;
@@ -529,7 +529,7 @@ public:
 	const char *			GetMPPlayerDefName() const;
 
 private:
-	const static int		INITIAL_SPAWN_COUNT = 1;
+	static constexpr int		INITIAL_SPAWN_COUNT = 1;
 
 	idStr					mapFileName;			// name of the map, empty string if no map loaded
 	idMapFile *				mapFile;				// will be NULL during the game unless in-game editing is used
@@ -749,7 +749,7 @@ typedef enum {
 #define	MASK_SHOT_RENDERMODEL		(CONTENTS_SOLID|CONTENTS_RENDERMODEL)
 #define	MASK_SHOT_BOUNDINGBOX		(CONTENTS_SOLID|CONTENTS_BODY)
 
-const float DEFAULT_GRAVITY			= 1066.0f;
+constexpr float DEFAULT_GRAVITY			= 1066.0f;
 #define DEFAULT_GRAVITY_STRING		"1066"
 const idVec3 DEFAULT_GRAVITY_VEC3( 0, 0, -DEFAULT_GRAVITY );
 

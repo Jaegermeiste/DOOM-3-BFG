@@ -97,7 +97,7 @@ public:
 
 	void		Printf( VERIFY_FORMAT_STRING const char *fmt, ... );
 
-	static const int		MAX_LOG_LEVELS = 20;
+	static constexpr int		MAX_LOG_LEVELS = 20;
 
 	int						activeLevel;
 	renderLogIndentLabel_t	indentLabel[MAX_LOG_LEVELS];
@@ -128,7 +128,7 @@ idRenderLog::Indent
 ========================
 */
 ID_INLINE void idRenderLog::Indent( renderLogIndentLabel_t label ) {
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 		indentLabel[indentLevel] = label;
 		indentLevel++;
 		for ( int i = 4; i > 0; i-- ) {
@@ -144,7 +144,7 @@ idRenderLog::Outdent
 ========================
 */
 ID_INLINE void idRenderLog::Outdent( renderLogIndentLabel_t label ) {
-	if ( logFile != NULL && indentLevel > 0 ) {
+	if ( logFile != nullptr && indentLevel > 0 ) {
 		indentLevel--;
 		assert( indentLabel[indentLevel] == label );	// indent and outdent out of sync ?
 		indentString[indentLevel * 4] = '\0';

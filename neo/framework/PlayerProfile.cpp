@@ -37,9 +37,9 @@ If you have questions concerning this license or the applicable additional terms
 //
 // The biggest reason these limitations exist is because if a newer profile is created and then loaded with a GMC
 // version, we have to support it.
-const int16		PROFILE_TAG					= ( 'D' << 8 ) | '3';
-const int8		PROFILE_VER_MAJOR			= 10;	// If this is changed, you should reset the minor version and remove all backward compatible code
-const int8		PROFILE_VER_MINOR			= 0;	// Within each major version, minor versions can be supported for backward compatibility
+constexpr int16		PROFILE_TAG					= ( 'D' << 8 ) | '3';
+constexpr int8		PROFILE_VER_MAJOR			= 10;	// If this is changed, you should reset the minor version and remove all backward compatible code
+constexpr int8		PROFILE_VER_MINOR			= 0;	// Within each major version, minor versions can be supported for backward compatibility
 
 class idPlayerProfileLocal : public idPlayerProfile {
 };
@@ -150,7 +150,7 @@ bool idPlayerProfile::Serialize( idSerializer & ser ) {
 		cvarDict.Delete( "r_multisamples" );
 		cvarDict.Delete( "com_engineHz" );
 		cvarSystem->SetCVarsFromDict( cvarDict );
-		common->StartupVariable( NULL );
+		common->StartupVariable(nullptr);
 	}
 
 	// The dlcReleaseVersion is used to determine that new content is available
@@ -397,7 +397,7 @@ void idPlayerProfile::ExecConfig( bool save, bool forceDefault ) {
 }
 
 CONSOLE_COMMAND( setProfileDefaults, "sets profile settings to default and saves", 0 ) {
-	if ( session->GetSignInManager().GetMasterLocalUser() == NULL ) {
+	if ( session->GetSignInManager().GetMasterLocalUser() == nullptr) {
 		return;
 	}
 	idPlayerProfile * profile = session->GetSignInManager().GetMasterLocalUser()->GetProfile();

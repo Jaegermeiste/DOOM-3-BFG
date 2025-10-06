@@ -41,33 +41,33 @@ If you have questions concerning this license or the applicable additional terms
 #define	PROC_FILE_ID				"mapProcFile003"
 
 // shader parms
-const int SHADERPARM_RED			= 0;
-const int SHADERPARM_GREEN			= 1;
-const int SHADERPARM_BLUE			= 2;
-const int SHADERPARM_ALPHA			= 3;
-const int SHADERPARM_TIMESCALE		= 3;
-const int SHADERPARM_TIMEOFFSET		= 4;
-const int SHADERPARM_DIVERSITY		= 5;	// random between 0.0 and 1.0 for some effects (muzzle flashes, etc)
-const int SHADERPARM_MODE			= 7;	// for selecting which shader passes to enable
-const int SHADERPARM_TIME_OF_DEATH	= 7;	// for the monster skin-burn-away effect enable and time offset
+constexpr int SHADERPARM_RED			= 0;
+constexpr int SHADERPARM_GREEN			= 1;
+constexpr int SHADERPARM_BLUE			= 2;
+constexpr int SHADERPARM_ALPHA			= 3;
+constexpr int SHADERPARM_TIMESCALE		= 3;
+constexpr int SHADERPARM_TIMEOFFSET		= 4;
+constexpr int SHADERPARM_DIVERSITY		= 5;	// random between 0.0 and 1.0 for some effects (muzzle flashes, etc)
+constexpr int SHADERPARM_MODE			= 7;	// for selecting which shader passes to enable
+constexpr int SHADERPARM_TIME_OF_DEATH	= 7;	// for the monster skin-burn-away effect enable and time offset
 
 // model parms
-const int SHADERPARM_MD3_FRAME		= 8;
-const int SHADERPARM_MD3_LASTFRAME	= 9;
-const int SHADERPARM_MD3_BACKLERP	= 10;
+constexpr int SHADERPARM_MD3_FRAME		= 8;
+constexpr int SHADERPARM_MD3_LASTFRAME	= 9;
+constexpr int SHADERPARM_MD3_BACKLERP	= 10;
 
-const int SHADERPARM_BEAM_END_X		= 8;	// for _beam models
-const int SHADERPARM_BEAM_END_Y		= 9;
-const int SHADERPARM_BEAM_END_Z		= 10;
-const int SHADERPARM_BEAM_WIDTH		= 11;
+constexpr int SHADERPARM_BEAM_END_X		= 8;	// for _beam models
+constexpr int SHADERPARM_BEAM_END_Y		= 9;
+constexpr int SHADERPARM_BEAM_END_Z		= 10;
+constexpr int SHADERPARM_BEAM_WIDTH		= 11;
 
-const int SHADERPARM_SPRITE_WIDTH		= 8;
-const int SHADERPARM_SPRITE_HEIGHT		= 9;
+constexpr int SHADERPARM_SPRITE_WIDTH		= 8;
+constexpr int SHADERPARM_SPRITE_HEIGHT		= 9;
 
-const int SHADERPARM_PARTICLE_STOPTIME = 8;	// don't spawn any more particles after this time
+constexpr int SHADERPARM_PARTICLE_STOPTIME = 8;	// don't spawn any more particles after this time
 
 // guis
-const int MAX_RENDERENTITY_GUI		= 3;
+constexpr int MAX_RENDERENTITY_GUI		= 3;
 
 // the renderEntity_s::joints array needs to point at enough memory to store the number of joints rounded up to two for SIMD
 ID_INLINE int SIMD_ROUND_JOINTS( int numJoints )							{ return ( ( numJoints + 1 ) & ~1 ); }
@@ -257,7 +257,7 @@ typedef struct modelTrace_s {
 } modelTrace_t;
 
 
-static const int NUM_PORTAL_ATTRIBUTES = 3;
+static constexpr int NUM_PORTAL_ATTRIBUTES = 3;
 
 typedef enum {
 	PS_BLOCK_NONE = 0,

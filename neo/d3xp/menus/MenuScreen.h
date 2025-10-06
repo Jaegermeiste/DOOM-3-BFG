@@ -73,8 +73,8 @@ idLBCache
 */
 class idLBCache { 
 public:
-	static const int NUM_ROW_BLOCKS		= 5;
-	static const leaderboardFilterMode_t DEFAULT_LEADERBOARD_FILTER = LEADERBOARD_FILTER_OVERALL;
+	static constexpr int NUM_ROW_BLOCKS		= 5;
+	static constexpr leaderboardFilterMode_t DEFAULT_LEADERBOARD_FILTER = LEADERBOARD_FILTER_OVERALL;
 
 	idLBCache() :
 		def( NULL ),

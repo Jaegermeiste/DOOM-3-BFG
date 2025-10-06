@@ -260,25 +260,25 @@ correct answer.
 ================================================================================================
 */
 
-const int ycbcr_shift	= 16;
-const int ycbcr_round	= 1 << ( ycbcr_shift - 1 );
+constexpr int ycbcr_shift	= 16;
+constexpr int ycbcr_round	= 1 << ( ycbcr_shift - 1 );
 
-const int r029900		= 19595;	// int( 0.29900 * (1<<16) + 0.5 )
-const int g058700		= 38470;	// int( 0.58700 * (1<<16) + 0.5 )
-const int b011400		= 7471;		// int( 0.11400 * (1<<16) + 0.5 )
+constexpr int r029900		= 19595;	// int( 0.29900 * (1<<16) + 0.5 )
+constexpr int g058700		= 38470;	// int( 0.58700 * (1<<16) + 0.5 )
+constexpr int b011400		= 7471;		// int( 0.11400 * (1<<16) + 0.5 )
 
-const int r016874		= 11059;	// int( 0.16874 * (1<<16) + 0.5 )
-const int g033126		= 21709;	// int( 0.33126 * (1<<16) + 0.5 )
-const int b050000		= 32768;	// int( 0.50000 * (1<<16) + 0.5 )
+constexpr int r016874		= 11059;	// int( 0.16874 * (1<<16) + 0.5 )
+constexpr int g033126		= 21709;	// int( 0.33126 * (1<<16) + 0.5 )
+constexpr int b050000		= 32768;	// int( 0.50000 * (1<<16) + 0.5 )
 
-const int r050000		= 32768;	// int( 0.50000 * (1<<16) + 0.5 )
-const int g041869		= 27439;	// int( 0.41869 * (1<<16) + 0.5 )
-const int b008131		= 5329;		// int( 0.08131 * (1<<16) + 0.5 )
+constexpr int r050000		= 32768;	// int( 0.50000 * (1<<16) + 0.5 )
+constexpr int g041869		= 27439;	// int( 0.41869 * (1<<16) + 0.5 )
+constexpr int b008131		= 5329;		// int( 0.08131 * (1<<16) + 0.5 )
 
-const int r140200		= 91881;	// int( 1.40200 * (1<<16) + 0.5 )
-const int b177200		= 116130;	// int( 1.77200 * (1<<16) + 0.5 )
-const int g071414		= 46802;	// int( 0.71414 * (1<<16) + 0.5 )
-const int g034414		= 22554;	// int( 0.34414 * (1<<16) + 0.5 )
+constexpr int r140200		= 91881;	// int( 1.40200 * (1<<16) + 0.5 )
+constexpr int b177200		= 116130;	// int( 1.77200 * (1<<16) + 0.5 )
+constexpr int g071414		= 46802;	// int( 0.71414 * (1<<16) + 0.5 )
+constexpr int g034414		= 22554;	// int( 0.34414 * (1<<16) + 0.5 )
 
 #define RGB_TO_YCBCR_Y( r, g, b )	( ( (   r * r029900 + g * g058700 + b * b011400 ) + ycbcr_round ) >> ycbcr_shift )
 #define RGB_TO_YCBCR_CB( r, g, b )	( ( ( - r * r016874 - g * g033126 + b * b050000 ) + ycbcr_round ) >> ycbcr_shift )
@@ -472,7 +472,7 @@ void idColorSpace::ConvertNormalMapToStereographicHeightMap( byte *heightMap, co
 	float * temp = (float *)buffer.Ptr();
 	memset( temp, 0, (width+1) * (height+1) * sizeof( float ) );
 
-	const int NUM_ITERATIONS = 32;
+	constexpr int NUM_ITERATIONS = 32;
 
 	float scale0 = 0.1f;
 	float scale1 = 0.9f;

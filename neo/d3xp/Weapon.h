@@ -51,12 +51,12 @@ typedef enum {
 } weaponStatus_t;
 
 typedef int ammo_t;
-static const int AMMO_NUMTYPES = 16;
+static constexpr int AMMO_NUMTYPES = 16;
 
 class idPlayer;
 
-static const int LIGHTID_WORLD_MUZZLE_FLASH = 1;
-static const int LIGHTID_VIEW_MUZZLE_FLASH = 100;
+static constexpr int LIGHTID_WORLD_MUZZLE_FLASH = 1;
+static constexpr int LIGHTID_VIEW_MUZZLE_FLASH = 100;
 
 class idMoveableItem;
 

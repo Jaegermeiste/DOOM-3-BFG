@@ -62,7 +62,7 @@ public:
 	virtual void			Init();
 	virtual void			Shutdown();
 
-	virtual void			AddCommand( const char *cmdName, cmdFunction_t function, int flags, const char *description, argCompletion_t argCompletion = NULL );
+	virtual void			AddCommand( const char *cmdName, cmdFunction_t function, int flags, const char *description, argCompletion_t argCompletion = nullptr);
 	virtual void			RemoveCommand( const char *cmdName );
 	virtual void			RemoveFlaggedCommands( int flags );
 
@@ -86,7 +86,7 @@ public:
 	commandDef_t *			GetCommands() const { return commands; }
 
 private:
-	static const int		MAX_CMD_BUFFER = 0x10000;
+	static constexpr int		MAX_CMD_BUFFER = 0x10000;
 
 	commandDef_t *			commands;
 
@@ -246,7 +246,7 @@ void idCmdSystemLocal::Exec_f( const idCmdArgs &args ) {
 
 	filename = args.Argv(1);
 	filename.DefaultFileExtension( ".cfg" );
-	len = fileSystem->ReadFile( filename, reinterpret_cast<void **>(&f), NULL );
+	len = fileSystem->ReadFile( filename, reinterpret_cast<void **>(&f), nullptr);
 	if ( !f ) {
 		common->Printf( "couldn't exec %s\n", args.Argv(1) );
 		return;
@@ -344,7 +344,7 @@ void idCmdSystemLocal::Init() {
 	AddCommand( "wait", Wait_f, CMD_FL_SYSTEM, "delays remaining buffered commands one or more frames" );
 
 	// link in all the commands declared with static idCommandLink variables or CONSOLE_COMMAND macros
-	for ( idCommandLink * link = CommandLinks(); link != NULL; link = link->next ) {
+	for ( idCommandLink * link = CommandLinks(); link != nullptr; link = link->next ) {
 		AddCommand( link->cmdName_, link->function_, CMD_FL_SYSTEM, link->description_, link->argCompletion_ );
 	}
 
@@ -767,7 +767,7 @@ idCmdSystemLocal::ArgCompletion_DeclName
 void idCmdSystemLocal::ArgCompletion_DeclName( const idCmdArgs &args, void(*callback)( const char *s ), int type ) {
 	int i, num;
 
-	if ( declManager == NULL ) {
+	if ( declManager == nullptr) {
 		return;
 	}
 	num = declManager->GetNumDecls( (declType_t)type );

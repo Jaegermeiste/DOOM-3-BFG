@@ -88,7 +88,7 @@ public:
 
 	int				GetDimension() const;
 
-	void			ToVectors( idVec3 *forward, idVec3 *right = NULL, idVec3 *up = NULL ) const;
+	void			ToVectors( idVec3 *forward, idVec3 *right = nullptr, idVec3 *up = nullptr) const;
 	idVec3			ToForward() const;
 	idQuat			ToQuat() const;
 	idRotation		ToRotation() const;
@@ -185,12 +185,12 @@ ID_INLINE idAngles& idAngles::operator*=(const float a ) {
 }
 
 ID_INLINE idAngles idAngles::operator/( const float a ) const {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	return idAngles( pitch * inva, yaw * inva, roll * inva );
 }
 
 ID_INLINE idAngles& idAngles::operator/=(const float a ) {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	pitch	*= inva;
 	yaw		*= inva;
 	roll	*= inva;

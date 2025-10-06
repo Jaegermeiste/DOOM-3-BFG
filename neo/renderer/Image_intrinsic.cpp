@@ -200,7 +200,7 @@ We calculate distance correctly in two planes, but the
 third will still be projection based
 ================
 */
-const int	FOG_SIZE = 128;
+constexpr int	FOG_SIZE = 128;
 
 void R_FogImage( idImage *image ) {
 	int		x,y;
@@ -251,8 +251,8 @@ FogFraction
 Height values below zero are inside the fog volume
 ================
 */
-static const float	RAMP_RANGE =	8;
-static const float	DEEP_RANGE =	-30;
+static constexpr float	RAMP_RANGE =	8;
+static constexpr float	DEEP_RANGE =	-30;
 static float	FogFraction( float viewHeight, float targetHeight ) {
 	float	total = idMath::Fabs( targetHeight - viewHeight );
 
@@ -357,8 +357,8 @@ R_QuadraticImage
 
 ================
 */
-static const int	QUADRATIC_WIDTH = 32;
-static const int	QUADRATIC_HEIGHT = 4;
+static constexpr int	QUADRATIC_WIDTH = 32;
+static constexpr int	QUADRATIC_HEIGHT = 4;
 
 void R_QuadraticImage( idImage *image ) {
 	int		x,y;

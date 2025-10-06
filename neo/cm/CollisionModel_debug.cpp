@@ -65,7 +65,7 @@ const char *cm_contentsNameByIndex[] = {
 	"aas_solid",					// 12
 	"aas_obstacle",					// 13
 	"flashlight_trigger",			// 14
-	NULL
+	nullptr
 };
 
 int cm_contentsFlagByIndex[] = {
@@ -111,7 +111,7 @@ int idCollisionModelManagerLocal::ContentsFromString( const char *string ) const
 		if ( token == "," ) {
 			continue;
 		}
-		for ( i = 1; cm_contentsNameByIndex[i] != NULL; i++ ) {
+		for ( i = 1; cm_contentsNameByIndex[i] != nullptr; i++ ) {
 			if ( token.Icmp( cm_contentsNameByIndex[i] ) == 0 ) {
 				contents |= cm_contentsFlagByIndex[i];
 				break;
@@ -485,5 +485,5 @@ void idCollisionModelManagerLocal::DebugOutput( const idVec3 &origin ) {
 	}
 
 	Mem_Free( testend );
-	testend = NULL;
+	testend = nullptr;
 }

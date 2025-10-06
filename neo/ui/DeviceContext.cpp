@@ -251,7 +251,7 @@ void idDeviceContext::DrawWinding( idWinding & w, const idMaterial * mat ) {
 	assert( numIndexes == ( w.GetNumPoints() - 2 ) * 3 );
 
 	idDrawVert * verts = renderSystem->AllocTris( w.GetNumPoints(), tempIndexes, numIndexes, mat );
-	if ( verts == NULL ) {
+	if ( verts == nullptr) {
 		return;
 	}
 	uint32 currentColor = renderSystem->GetColor();
@@ -428,7 +428,7 @@ void idDeviceContext::DrawFilledRect( float x, float y, float w, float h, const 
 
 	renderSystem->SetColor(color);
 	
-	if (ClippedCoords(&x, &y, &w, &h, NULL, NULL, NULL, NULL)) {
+	if (ClippedCoords(&x, &y, &w, &h, nullptr, nullptr, nullptr, nullptr)) {
 		return;
 	}
 
@@ -444,7 +444,7 @@ void idDeviceContext::DrawRect( float x, float y, float w, float h, float size, 
 
 	renderSystem->SetColor(color);
 	
-	if (ClippedCoords(&x, &y, &w, &h, NULL, NULL, NULL, NULL)) {
+	if (ClippedCoords(&x, &y, &w, &h, nullptr, nullptr, nullptr, nullptr)) {
 		return;
 	}
 
@@ -620,7 +620,7 @@ int idDeviceContext::CharWidth( const char c, float scale ) {
 }
 
 int idDeviceContext::TextWidth( const char *text, float scale, int limit ) {
-	if ( text == NULL ) {
+	if ( text == nullptr) {
 		return 0;
 	}
 
@@ -667,7 +667,7 @@ const idMaterial *idDeviceContext::GetScrollBarImage(int index) {
 
 // this only supports left aligned text
 idRegion *idDeviceContext::GetTextRegion(const char *text, float textScale, idRectangle rectDraw, float xStart, float yStart) {
-	return NULL;
+	return nullptr;
 }
 
 void idDeviceContext::DrawEditCursor( float x, float y, float scale ) {
@@ -1057,7 +1057,7 @@ int idDeviceContextOptimized::DrawText(float x, float y, float scale, idVec4 col
 			float y1 = yOffset + drawY * yScale;
 			float y2 = yOffset + ( drawY + h ) * yScale;
 			idDrawVert * verts = tr_guiModel->AllocTris( 4, quadPicIndexes, 6, glyphInfo.material, 0, STEREO_DEPTH_TYPE_NONE );
-			if ( verts != NULL ) {
+			if ( verts != nullptr) {
 				verts[0].xyz[0] = x1;
 				verts[0].xyz[1] = y1;
 				verts[0].xyz[2] = 0.0f;

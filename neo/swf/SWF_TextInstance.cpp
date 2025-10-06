@@ -50,7 +50,7 @@ idSWFTextInstance::idSWFTextInstance
 ========================
 */
 idSWFTextInstance::idSWFTextInstance() {
-	swf = NULL;
+	swf = nullptr;
 }
 
 /*
@@ -59,7 +59,7 @@ idSWFTextInstance::~idSWFTextInstance
 ================== ======
 */
 idSWFTextInstance::~idSWFTextInstance() {
-	scriptObject.SetText( NULL );
+	scriptObject.SetText(nullptr);
 	scriptObject.Clear();
 	scriptObject.Release();
 
@@ -624,22 +624,22 @@ int idSWFTextInstance::CalcMaxScroll( int numLines ) {
 		return 0;
 	}
 
-	if ( swf == NULL ) {
+	if ( swf == nullptr) {
 		return 0;
 	}
 
 	idSWFDictionaryEntry * fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );	
-	if ( fontEntry == NULL ) {
+	if ( fontEntry == nullptr) {
 		return 0;
 	}
 
 	idSWFFont * swfFont = fontEntry->font;
-	if ( swfFont == NULL ) {
+	if ( swfFont == nullptr) {
 		return 0;
 	}
 
 	const idFont * fontInfo = swfFont->fontID;
-	if ( fontInfo == NULL ) {
+	if ( fontInfo == nullptr) {
 		return 0;
 	}
 
@@ -742,7 +742,7 @@ int idSWFTextInstance::CalcNumLines() {
 	}
 
 	idSWFDictionaryEntry * fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );	
-	if ( fontEntry == NULL ) {
+	if ( fontEntry == nullptr) {
 		return 1;
 	}
 
@@ -758,7 +758,7 @@ int idSWFTextInstance::CalcNumLines() {
 		return 1;
 	}
 
-	if ( swf == NULL ) {
+	if ( swf == nullptr) {
 		return 1;
 	}
 

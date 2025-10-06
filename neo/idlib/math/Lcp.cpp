@@ -36,10 +36,10 @@ If you have questions concerning this license or the applicable additional terms
 
 static idCVar lcp_showFailures( "lcp_showFailures", "0", CVAR_BOOL, "show LCP solver failures" );
 
-const float LCP_BOUND_EPSILON			= 1e-5f;
-const float LCP_ACCEL_EPSILON			= 1e-5f;
-const float LCP_DELTA_ACCEL_EPSILON		= 1e-9f;
-const float LCP_DELTA_FORCE_EPSILON		= 1e-9f;
+constexpr float LCP_BOUND_EPSILON			= 1e-5f;
+constexpr float LCP_ACCEL_EPSILON			= 1e-5f;
+constexpr float LCP_DELTA_ACCEL_EPSILON		= 1e-9f;
+constexpr float LCP_DELTA_FORCE_EPSILON		= 1e-9f;
 
 #define IGNORE_UNSATISFIABLE_VARIABLES
 
@@ -81,7 +81,7 @@ Assumes the source and destination have the same memory alignment.
 */
 static void Multiply_SIMD( float * dst, const float * src0, const float * src1, const int count ) {
 	int i = 0;
-	for ( ; ( (unsigned int)dst & 0xF ) != 0 && i < count; i++ ) {
+	for ( ; ( reinterpret_cast<UINT_PTR>(dst) & 0xF ) != 0 && i < count; i++ ) {
 		dst[i] = src0[i] * src1[i];
 	}
 
@@ -129,7 +129,7 @@ Assumes the source and destination have the same memory alignment.
 */
 static void MultiplyAdd_SIMD( float * dst, const float constant, const float * src, const int count ) {
 	int i = 0;
-	for ( ; ( (unsigned int)dst & 0xF ) != 0 && i < count; i++ ) {
+	for ( ; ( reinterpret_cast<UINT_PTR>(dst) & 0xF ) != 0 && i < count; i++ ) {
 		dst[i] += constant * src[i];
 	}
 
@@ -237,7 +237,7 @@ static void LowerTriangularSolve_SIMD( const idMatX & L, float * x, const float 
 	}
 
 	const float *lptr = L.ToFloatPtr();
-	int nc = L.GetNumColumns();
+	const int nc = L.GetNumColumns();
 
 	assert( ( nc & 3 ) == 0 );
 
@@ -525,12 +525,12 @@ Solves x in L'x = b for the n * n sub-matrix of L.
 ========================
 */
 static void LowerTriangularSolveTranspose_SIMD( const idMatX & L, float * x, const float * b, const int n ) {
-	int nc = L.GetNumColumns();
+	const int nc = L.GetNumColumns();
 
 	assert( ( nc & 3 ) == 0 );
 
 	int m = n;
-	int r = n & 3;
+	const int r = n & 3;
 
 	if ( ( m & 3 ) != 0 ) {
 		const float * lptr = L.ToFloatPtr() + m * nc + m;
@@ -617,25 +617,25 @@ static void LowerTriangularSolveTranspose_SIMD( const idMatX & L, float * x, con
 		const float * xptr2 = xptr;	// x + i;
 		const float * lptr2 = lptr;	// ptr = L[i] + i - 4;
 		for ( int j = i; j < m; j += 4 ) {
-			float t0 = xptr2[0];
+			const float t0 = xptr2[0];
 			s0 -= lptr2[0] * t0;
 			s1 -= lptr2[1] * t0;
 			s2 -= lptr2[2] * t0;
 			s3 -= lptr2[3] * t0;
 			lptr2 += nc;
-			float t1 = xptr2[1];
+			const float t1 = xptr2[1];
 			s0 -= lptr2[0] * t1;
 			s1 -= lptr2[1] * t1;
 			s2 -= lptr2[2] * t1;
 			s3 -= lptr2[3] * t1;
 			lptr2 += nc;
-			float t2 = xptr2[2];
+			const float t2 = xptr2[2];
 			s0 -= lptr2[0] * t2;
 			s1 -= lptr2[1] * t2;
 			s2 -= lptr2[2] * t2;
 			s3 -= lptr2[3] * t2;
 			lptr2 += nc;
-			float t3 = xptr2[3];
+			const float t3 = xptr2[3];
 			s0 -= lptr2[0] * t3;
 			s1 -= lptr2[1] * t3;
 			s2 -= lptr2[2] * t3;
@@ -644,7 +644,7 @@ static void LowerTriangularSolveTranspose_SIMD( const idMatX & L, float * x, con
 			xptr2 += 4;
 		}
 		for ( int j = 0; j < r; j++ ) {
-			float t = xptr2[j];
+			const float t = xptr2[j];
 			s0 -= lptr2[0] * t;
 			s1 -= lptr2[1] * t;
 			s2 -= lptr2[2] * t;
@@ -716,12 +716,12 @@ static bool LU_Factor_SIMD( idMatX & mat, idVecX & invDiag, const int n ) {
 
 		invDiag[i] = d1 = 1.0f / d1;
 
-		float * ptr1 = mat[i];
+		const float * ptr1 = mat[i];
 
 		for ( int j = i + 1; j < n; j++ ) {
 
 			float * ptr2 = mat[j];
-			float d2 = ptr2[i] * d1;
+			const float d2 = ptr2[i] * d1;
 			ptr2[i] = d2;
 
 			int k;
@@ -781,8 +781,8 @@ NOTE:	The number of columns of mat must be a multiple of 4.
 static bool LDLT_Factor_SIMD( idMatX & mat, idVecX & invDiag, const int n ) {
 	float s0, s1, s2, d;
 
-	float * v = (float *) _alloca16( ( ( n + 3 ) & ~3 ) * sizeof( float ) );
-	float * diag = (float *) _alloca16( ( ( n + 3 ) & ~3 ) * sizeof( float ) );
+	float * v = static_cast<float*>(_alloca16(( ( n + 3 ) & ~3 ) * sizeof( float )));
+	float * diag = static_cast<float*>(_alloca16(( ( n + 3 ) & ~3 ) * sizeof( float )));
 	float * invDiagPtr = invDiag.ToFloatPtr();
 
 	int nc = mat.GetNumColumns();
@@ -1370,10 +1370,10 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 
 	// default to a full step for the current variable
 	{
-		float negAccel = -a[d];
-		float deltaAccel = delta_a[d];
-		int m0 = ( fabs( deltaAccel ) > LCP_DELTA_ACCEL_EPSILON );
-		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
+		const float negAccel = -a[d];
+		const float deltaAccel = delta_a[d];
+		const int m0 = ( fabs( deltaAccel ) > LCP_DELTA_ACCEL_EPSILON );
+		const float step = negAccel / ( m0 ? deltaAccel : 1.0f );
 		maxStep = m0 ? step : 0.0f;
 		limit = d;
 		limitSide = 0;
@@ -1381,14 +1381,14 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 
 	// test the current variable
 	{
-		float deltaForce = dir;
-		float forceLimit = ( deltaForce < 0.0f ) ? lo[d] : hi[d];
-		float step = ( forceLimit - f[d] ) / deltaForce;
-		int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
-		int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
-		int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
-		int m2 = ( step < maxStep );
-		int m3 = ( m0 & m1 & m2 );
+		const float deltaForce = dir;
+		const float forceLimit = ( deltaForce < 0.0f ) ? lo[d] : hi[d];
+		const float step = ( forceLimit - f[d] ) / deltaForce;
+		const int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
+		const int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
+		const int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
+		const int m2 = ( step < maxStep );
+		const int m3 = ( m0 & m1 & m2 );
 		maxStep = m3 ? step : maxStep;
 		limit = m3 ? d : limit;
 		limitSide = m3 ? setSide : limitSide;
@@ -1396,14 +1396,14 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 
 	// test the clamped bounded variables
 	for ( int i = numUnbounded; i < numClamped; i++ ) {
-		float deltaForce = delta_f[i];
-		float forceLimit = ( deltaForce < 0.0f ) ? lo[i] : hi[i];
-		int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
+		const float deltaForce = delta_f[i];
+		const float forceLimit = ( deltaForce < 0.0f ) ? lo[i] : hi[i];
+		const int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
 		float step = ( forceLimit - f[i] ) / ( m0 ? deltaForce : 1.0f );
 		int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
-		int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
-		int m2 = ( step < maxStep );
-		int m3 = ( m0 & m1 & m2 );
+		const int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
+		const int m2 = ( step < maxStep );
+		const int m3 = ( m0 & m1 & m2 );
 		maxStep = m3 ? step : maxStep;
 		limit = m3 ? i : limit;
 		limitSide = m3 ? setSide : limitSide;
@@ -1411,13 +1411,13 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 
 	// test the not clamped bounded variables
 	for ( int i = numClamped; i < d; i++ ) {
-		float negAccel = -a[i];
-		float deltaAccel = delta_a[i];
-		int m0 = ( side[i] * deltaAccel > LCP_DELTA_ACCEL_EPSILON );
+		const float negAccel = -a[i];
+		const float deltaAccel = delta_a[i];
+		const int m0 = ( side[i] * deltaAccel > LCP_DELTA_ACCEL_EPSILON );
 		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
-		int m1 = ( lo[i] < -LCP_BOUND_EPSILON || hi[i] > LCP_BOUND_EPSILON );
-		int m2 = ( step < maxStep );
-		int m3 = ( m0 & m1 & m2 );
+		const int m1 = ( lo[i] < -LCP_BOUND_EPSILON || hi[i] > LCP_BOUND_EPSILON );
+		const int m2 = ( step < maxStep );
+		const int m3 = ( m0 & m1 & m2 );
 		maxStep = m3 ? step : maxStep;
 		limit = m3 ? i : limit;
 		limitSide = m3 ? 0 : limitSide;
@@ -1694,7 +1694,7 @@ idLCP_Square
 */
 class idLCP_Square : public idLCP {
 public:
-	virtual bool	Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, const idVecX &o_lo, const idVecX &o_hi, const int *o_boxIndex );
+	bool	Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, const idVecX &o_lo, const idVecX &o_hi, const int *o_boxIndex ) override;
 
 private:
 	idMatX			m;					// original matrix
@@ -1766,7 +1766,7 @@ void idLCP_Square::Swap(const int i, const int j ) {
 	hi.SwapElements( i, j );
 	a.SwapElements( i, j );
 	f.SwapElements( i, j );
-	if ( boxIndex != NULL ) {
+	if ( boxIndex != nullptr) {
 		SwapValues( boxIndex[i], boxIndex[j] );
 	}
 	SwapValues( side[i], side[j] );
@@ -1829,10 +1829,10 @@ void idLCP_Square::RemoveClamped(const int r ) {
 		return;
 	}
 
-	float * y0 = (float *) _alloca16( numClamped * sizeof( float ) );
-	float * z0 = (float *) _alloca16( numClamped * sizeof( float ) );
-	float * y1 = (float *) _alloca16( numClamped * sizeof( float ) );
-	float * z1 = (float *) _alloca16( numClamped * sizeof( float ) );
+	float * y0 = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
+	float * z0 = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
+	float * y1 = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
+	float * z1 = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
 
 	// the row/column need to be subtracted from the factorization
 	for ( int i = 0; i < numClamped; i++ ) {
@@ -1864,8 +1864,8 @@ void idLCP_Square::RemoveClamped(const int r ) {
 
 	// update the beginning of the to be updated row and column
 	for ( int i = 0; i < r; i++ ) {
-		float p0 = y0[i];
-		float beta1 = z1[i] * diagonal[i];
+		const float p0 = y0[i];
+		const float beta1 = z1[i] * diagonal[i];
 
 		clamped[i][r] += p0;
 		for ( int j = i+1; j < numClamped; j++ ) {
@@ -1881,8 +1881,8 @@ void idLCP_Square::RemoveClamped(const int r ) {
 	for ( int i = r; i < numClamped; i++ ) {
 		float diag = clamped[i][i];
 
-		float p0 = y0[i];
-		float p1 = z0[i];
+		const float p0 = y0[i];
+		const float p1 = z0[i];
 		diag += p0 * p1;
 
 		if ( fabs( diag ) < idMath::FLT_SMALLEST_NON_DENORMAL ) {
@@ -1890,10 +1890,10 @@ void idLCP_Square::RemoveClamped(const int r ) {
 			diag = idMath::FLT_SMALLEST_NON_DENORMAL;
 		}
 
-		float beta0 = p1 / diag;
+		const float beta0 = p1 / diag;
 
-		float q0 = y1[i];
-		float q1 = z1[i];
+		const float q0 = y1[i];
+		const float q1 = z1[i];
 		diag += q0 * q1;
 
 		if ( fabs( diag ) < idMath::FLT_SMALLEST_NON_DENORMAL ) {
@@ -1902,7 +1902,7 @@ void idLCP_Square::RemoveClamped(const int r ) {
 		}
 
 		float d = 1.0f / diag;
-		float beta1 = q1 * d;
+		const float beta1 = q1 * d;
 
 		clamped[i][i] = diag;
 		diagonal[i] = d;
@@ -1952,7 +1952,7 @@ void idLCP_Square::CalcForceDelta(const int d, const float dir ) {
 	}
 
 	// get column d of matrix
-	float * ptr = (float *) _alloca16( numClamped * sizeof( float ) );
+	float * ptr = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
 	for ( int i = 0; i < numClamped; i++ ) {
 		ptr[i] = rowPtrs[i][d];
 	}
@@ -1980,7 +1980,7 @@ ID_INLINE void idLCP_Square::CalcAccelDelta(const int d ) {
 	// only the not clamped variables, including the current variable, can have a change in acceleration
 	for ( int j = numClamped; j <= d; j++ ) {
 		// only the clamped variables and the current variable have a force delta unequal zero
-		float dot = BigDotProduct( rowPtrs[j], delta_f.ToFloatPtr(), numClamped );
+		const float dot = BigDotProduct( rowPtrs[j], delta_f.ToFloatPtr(), numClamped );
 		delta_a[j] = dot + rowPtrs[j][d] * delta_f[d];
 	}
 }
@@ -2027,16 +2027,16 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 	assert( o_hi.GetSize() == o_m.GetNumRows() );
 
 	// allocate memory for permuted input
-	f.SetData( o_m.GetNumRows(), VECX_ALLOCA( o_m.GetNumRows() ) );
-	a.SetData( o_b.GetSize(), VECX_ALLOCA( o_b.GetSize() ) );
-	b.SetData( o_b.GetSize(), VECX_ALLOCA( o_b.GetSize() ) );
-	lo.SetData( o_lo.GetSize(), VECX_ALLOCA( o_lo.GetSize() ) );
-	hi.SetData( o_hi.GetSize(), VECX_ALLOCA( o_hi.GetSize() ) );
-	if ( o_boxIndex != NULL ) {
-		boxIndex = (int *)_alloca16( o_x.GetSize() * sizeof( int ) );
+	f.SetData( o_m.GetNumRows(), VECX_ALLOCA(o_m.GetNumRows()));
+	a.SetData( o_b.GetSize(), VECX_ALLOCA(o_b.GetSize()));
+	b.SetData( o_b.GetSize(), VECX_ALLOCA(o_b.GetSize()));
+	lo.SetData( o_lo.GetSize(), VECX_ALLOCA(o_lo.GetSize()));
+	hi.SetData( o_hi.GetSize(), VECX_ALLOCA(o_hi.GetSize()));
+	if ( o_boxIndex != nullptr) {
+		boxIndex = static_cast<int*>(_alloca16(o_x.GetSize() * sizeof( int )));
 		memcpy( boxIndex, o_boxIndex, o_x.GetSize() * sizeof( int ) );
 	} else {
-		boxIndex = NULL;
+		boxIndex = nullptr;
 	}
 
 	// we override the const on o_m here but on exit the matrix is unchanged
@@ -2048,16 +2048,16 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 	hi = o_hi;
 
 	// pointers to the rows of m
-	rowPtrs = (float **) _alloca16( m.GetNumRows() * sizeof( float * ) );
+	rowPtrs = static_cast<float**>(_alloca16(m.GetNumRows() * sizeof( float * )));
 	for ( int i = 0; i < m.GetNumRows(); i++ ) {
 		rowPtrs[i] = m[i];
 	}
 
 	// tells if a variable is at the low boundary, high boundary or inbetween
-	side = (int *) _alloca16( m.GetNumRows() * sizeof( int ) );
+	side = static_cast<int*>(_alloca16(m.GetNumRows() * sizeof( int )));
 
 	// index to keep track of the permutation
-	permuted = (int *) _alloca16( m.GetNumRows() * sizeof( int ) );
+	permuted = static_cast<int*>(_alloca16(m.GetNumRows() * sizeof( int )));
 	for ( int i = 0; i < m.GetNumRows(); i++ ) {
 		permuted[i] = i;
 	}
@@ -2087,8 +2087,8 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 	}
 
 	// sub matrix for factorization 
-	clamped.SetData( m.GetNumRows(), m.GetNumColumns(), MATX_ALLOCA( m.GetNumRows() * m.GetNumColumns() ) );
-	diagonal.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
+	clamped.SetData( m.GetNumRows(), m.GetNumColumns(), MATX_ALLOCA(m.GetNumRows() * m.GetNumColumns()));
+	diagonal.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
 
 	// all unbounded variables are clamped
 	numClamped = numUnbounded;
@@ -2113,8 +2113,8 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 	int numIgnored = 0;
 
 	// allocate for delta force and delta acceleration
-	delta_f.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
-	delta_a.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
+	delta_f.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
+	delta_a.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
 
 	// solve for bounded variables
 	idStr failed;
@@ -2126,7 +2126,7 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 				o_x[permuted[j]] = f[j];
 			}
 			for ( int j = boxStartIndex; j < m.GetNumRows(); j++ ) {
-				float s = o_x[boxIndex[j]];
+				const float s = o_x[boxIndex[j]];
 				if ( lo[j] != -idMath::INFINITY ) {
 					lo[j] = - idMath::Fabs( lo[j] * s );
 				}
@@ -2137,7 +2137,7 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 		}
 
 		// calculate acceleration for current variable
-		float dot = BigDotProduct( rowPtrs[i], f.ToFloatPtr(), i );
+		const float dot = BigDotProduct( rowPtrs[i], f.ToFloatPtr(), i );
 		a[i] = dot - b[i];
 
 		// if already at the low boundary
@@ -2164,7 +2164,7 @@ bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, con
 		for ( ; n < maxIterations; n++ ) {
 
 			// direction to move
-			float dir = ( a[i] <= 0.0f ) ? 1.0f : -1.0f;
+			const float dir = ( a[i] <= 0.0f ) ? 1.0f : -1.0f;
 
 			// calculate force delta
 			CalcForceDelta( i, dir );
@@ -2299,7 +2299,7 @@ idLCP_Symmetric
 */
 class idLCP_Symmetric : public idLCP {
 public:
-	virtual bool	Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, const idVecX &o_lo, const idVecX &o_hi, const int *o_boxIndex );
+	bool	Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, const idVecX &o_lo, const idVecX &o_hi, const int *o_boxIndex ) override;
 
 private:
 	idMatX			m;					// original matrix
@@ -2383,7 +2383,7 @@ void idLCP_Symmetric::Swap(const int i, const int j ) {
 	hi.SwapElements( i, j );
 	a.SwapElements( i, j );
 	f.SwapElements( i, j );
-	if ( boxIndex != NULL ) {
+	if ( boxIndex != nullptr) {
 		SwapValues( boxIndex[i], boxIndex[j] );
 	}
 	SwapValues( side[i], side[j] );
@@ -2419,7 +2419,7 @@ void idLCP_Symmetric::AddClamped(const int r, const bool useSolveCache ) {
 
 	} else {
 
-		float *v = (float *) _alloca16( numClamped * sizeof( float ) );
+		float *v = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
 
 		LowerTriangularSolve( clamped, v, rowPtrs[numClamped], numClamped, 0 );
 		// add bottom row to L
@@ -2469,7 +2469,7 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 	Swap( r, numClamped );
 
 	// update the factored matrix
-	float * addSub = (float *) _alloca16( numClamped * sizeof( float ) );
+	float * addSub = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
 
 	if ( r == 0 ) {
 
@@ -2485,8 +2485,8 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 		}
 
 		// calculate the row/column to be added to the lower right sub matrix starting at (r, r)
-		float * original = rowPtrs[numClamped];
-		float * ptr = rowPtrs[r];
+		const float * original = rowPtrs[numClamped];
+		const float * ptr = rowPtrs[r];
 		addSub[0] = ptr[0] - original[numClamped];
 		for ( int i = 1; i < numClamped; i++ ) {
 			addSub[i] = ptr[i] - original[i];
@@ -2494,7 +2494,7 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 
 	} else {
 
-		float * v = (float *) _alloca16( numClamped * sizeof( float ) );
+		float * v = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
 
 		// solve for v in L * v = rowPtr[r]
 		LowerTriangularSolve( clamped, v, rowPtrs[r], r, 0 );
@@ -2505,7 +2505,7 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 		// if the last row/column of the matrix is updated
 		if ( r == numClamped - 1 ) {
 			// only calculate new diagonal
-			float dot = BigDotProduct( clamped[r], v, r );
+			const float dot = BigDotProduct( clamped[r], v, r );
 			float diag = rowPtrs[r][r] - dot;
 			if ( fabs( diag ) < idMath::FLT_SMALLEST_NON_DENORMAL ) {
 				idLib::Printf( "idLCP_Symmetric::RemoveClamped: updating factorization failed\n" );
@@ -2527,7 +2527,7 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 			} else {
 				sum = clamped[r][r] * clamped[i][r];
 			}
-			float * ptr = clamped[i];
+			const float * ptr = clamped[i];
 			for ( int j = 0; j < r; j++ ) {
 				sum += ptr[j] * v[j];
 			}
@@ -2537,8 +2537,8 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 
 	// add row/column to the lower right sub matrix starting at (r, r)
 
-	float * v1 = (float *) _alloca16( numClamped * sizeof( float ) );
-	float * v2 = (float *) _alloca16( numClamped * sizeof( float ) );
+	float * v1 = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
+	float * v2 = static_cast<float*>(_alloca16(numClamped * sizeof( float )));
 
 	float diag = idMath::SQRT_1OVER2;
 	v1[r] = ( 0.5f * addSub[r] + 1.0f ) * diag;
@@ -2551,11 +2551,11 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 	float alpha2 = -1.0f;
 
 	// simultaneous update/downdate of the sub matrix starting at (r, r)
-	int n = clamped.GetNumColumns();
+	const int n = clamped.GetNumColumns();
 	for ( int i = r; i < numClamped; i++ ) {
 
 		diag = clamped[i][i];
-		float p1 = v1[i];
+		const float p1 = v1[i];
 		float newDiag = diag + alpha1 * p1 * p1;
 
 		if ( fabs( newDiag ) < idMath::FLT_SMALLEST_NON_DENORMAL ) {
@@ -2564,11 +2564,11 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 		}
 
 		alpha1 /= newDiag;
-		float beta1 = p1 * alpha1;
+		const float beta1 = p1 * alpha1;
 		alpha1 *= diag;
 
 		diag = newDiag;
-		float p2 = v2[i];
+		const float p2 = v2[i];
 		newDiag = diag + alpha2 * p2 * p2;
 
 		if ( fabs( newDiag ) < idMath::FLT_SMALLEST_NON_DENORMAL ) {
@@ -2577,11 +2577,11 @@ void idLCP_Symmetric::RemoveClamped(const int r ) {
 		}
 
 		clamped[i][i] = newDiag;
-		float invNewDiag = 1.0f / newDiag;
+		const float invNewDiag = 1.0f / newDiag;
 		diagonal[i] = invNewDiag;
 
 		alpha2 *= invNewDiag;
-		float beta2 = p2 * alpha2;
+		const float beta2 = p2 * alpha2;
 		alpha2 *= diag;
 
 		// update column below diagonal (i,i)
@@ -2662,7 +2662,7 @@ ID_INLINE void idLCP_Symmetric::CalcAccelDelta(const int d ) {
 	// only the not clamped variables, including the current variable, can have a change in acceleration
 	for ( int j = numClamped; j <= d; j++ ) {
 		// only the clamped variables and the current variable have a force delta unequal zero
-		float dot = BigDotProduct( rowPtrs[j], delta_f.ToFloatPtr(), numClamped );
+		const float dot = BigDotProduct( rowPtrs[j], delta_f.ToFloatPtr(), numClamped );
 		delta_a[j] = dot + rowPtrs[j][d] * delta_f[d];
 	}
 }
@@ -2709,16 +2709,16 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 	assert( o_hi.GetSize() == o_m.GetNumRows() );
 
 	// allocate memory for permuted input
-	f.SetData( o_m.GetNumRows(), VECX_ALLOCA( o_m.GetNumRows() ) );
-	a.SetData( o_b.GetSize(), VECX_ALLOCA( o_b.GetSize() ) );
-	b.SetData( o_b.GetSize(), VECX_ALLOCA( o_b.GetSize() ) );
-	lo.SetData( o_lo.GetSize(), VECX_ALLOCA( o_lo.GetSize() ) );
-	hi.SetData( o_hi.GetSize(), VECX_ALLOCA( o_hi.GetSize() ) );
-	if ( o_boxIndex != NULL ) {
-		boxIndex = (int *)_alloca16( o_x.GetSize() * sizeof( int ) );
+	f.SetData( o_m.GetNumRows(), VECX_ALLOCA(o_m.GetNumRows()));
+	a.SetData( o_b.GetSize(), VECX_ALLOCA(o_b.GetSize()));
+	b.SetData( o_b.GetSize(), VECX_ALLOCA(o_b.GetSize()));
+	lo.SetData( o_lo.GetSize(), VECX_ALLOCA(o_lo.GetSize()));
+	hi.SetData( o_hi.GetSize(), VECX_ALLOCA(o_hi.GetSize()));
+	if ( o_boxIndex != nullptr) {
+		boxIndex = static_cast<int*>(_alloca16(o_x.GetSize() * sizeof( int )));
 		memcpy( boxIndex, o_boxIndex, o_x.GetSize() * sizeof( int ) );
 	} else {
-		boxIndex = NULL;
+		boxIndex = nullptr;
 	}
 
 	// we override the const on o_m here but on exit the matrix is unchanged
@@ -2730,16 +2730,16 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 	hi = o_hi;
 
 	// pointers to the rows of m
-	rowPtrs = (float **) _alloca16( m.GetNumRows() * sizeof( float * ) );
+	rowPtrs = static_cast<float**>(_alloca16(m.GetNumRows() * sizeof( float * )));
 	for ( int i = 0; i < m.GetNumRows(); i++ ) {
 		rowPtrs[i] = m[i];
 	}
 
 	// tells if a variable is at the low boundary, high boundary or inbetween
-	side = (int *) _alloca16( m.GetNumRows() * sizeof( int ) );
+	side = static_cast<int*>(_alloca16(m.GetNumRows() * sizeof( int )));
 
 	// index to keep track of the permutation
-	permuted = (int *) _alloca16( m.GetNumRows() * sizeof( int ) );
+	permuted = static_cast<int*>(_alloca16(m.GetNumRows() * sizeof( int )));
 	for ( int i = 0; i < m.GetNumRows(); i++ ) {
 		permuted[i] = i;
 	}
@@ -2757,7 +2757,7 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 
 	// permute input so all variables using the boxIndex come last
 	int boxStartIndex = m.GetNumRows();
-	if ( boxIndex != NULL ) {
+	if ( boxIndex != nullptr) {
 		for ( int i = m.GetNumRows() - 1; i >= numUnbounded; i-- ) {
 			if ( boxIndex[i] >= 0 ) {
 				boxStartIndex--;
@@ -2770,9 +2770,9 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 
 	// sub matrix for factorization 
 	clamped.SetDataCacheLines( m.GetNumRows(), m.GetNumColumns(), MATX_ALLOCA_CACHE_LINES( m.GetNumRows() * m.GetNumColumns() ), true );
-	diagonal.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
-	solveCache1.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
-	solveCache2.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
+	diagonal.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
+	solveCache1.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
+	solveCache2.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
 
 	// all unbounded variables are clamped
 	numClamped = numUnbounded;
@@ -2797,8 +2797,8 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 	int numIgnored = 0;
 
 	// allocate for delta force and delta acceleration
-	delta_f.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
-	delta_a.SetData( m.GetNumRows(), VECX_ALLOCA( m.GetNumRows() ) );
+	delta_f.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
+	delta_a.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
 
 	// solve for bounded variables
 	idStr failed;
@@ -2812,7 +2812,7 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 				o_x[permuted[j]] = f[j];
 			}
 			for ( int j = boxStartIndex; j < m.GetNumRows(); j++ ) {
-				float s = o_x[boxIndex[j]];
+				const float s = o_x[boxIndex[j]];
 				if ( lo[j] != -idMath::INFINITY ) {
 					lo[j] = - idMath::Fabs( lo[j] * s );
 				}
@@ -2823,7 +2823,7 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 		}
 
 		// calculate acceleration for current variable
-		float dot = BigDotProduct( rowPtrs[i], f.ToFloatPtr(), i );
+		const float dot = BigDotProduct( rowPtrs[i], f.ToFloatPtr(), i );
 		a[i] = dot - b[i];
 
 		// if already at the low boundary
@@ -2850,7 +2850,7 @@ bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, 
 		for ( ; n < maxIterations; n++ ) {
 
 			// direction to move
-			float dir = ( a[i] <= 0.0f ) ? 1.0f : -1.0f;
+			const float dir = ( a[i] <= 0.0f ) ? 1.0f : -1.0f;
 
 			// calculate force delta
 			CalcForceDelta( i, dir );

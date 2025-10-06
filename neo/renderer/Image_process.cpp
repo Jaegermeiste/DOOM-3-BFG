@@ -313,7 +313,7 @@ byte * R_MipMapWithGamma( const byte *in, int width, int height ) {
 	int		newWidth, newHeight;
 
 	if ( width < 1 || height < 1 || ( width + height == 2 ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	row = width * 4;
@@ -371,7 +371,7 @@ byte * R_MipMap( const byte *in, int width, int height ) {
 	int		newWidth, newHeight;
 
 	if ( width < 1 || height < 1 || ( width + height == 2 ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	row = width * 4;

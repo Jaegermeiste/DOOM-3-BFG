@@ -34,20 +34,20 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef int32 objectSize_t;
 
-static const objectSize_t SIZE_STALE		= MAX_TYPE( objectSize_t );				// Special size to indicate object went stale
-static const objectSize_t SIZE_NOT_STALE	= MAX_TYPE( objectSize_t ) - 1;			// Special size to indicate object is no longer stale
+static constexpr objectSize_t SIZE_STALE		= MAX_TYPE( objectSize_t );				// Special size to indicate object went stale
+static constexpr objectSize_t SIZE_NOT_STALE	= MAX_TYPE( objectSize_t ) - 1;			// Special size to indicate object is no longer stale
 
-static const int RLE_COMPRESSION_PADDING				= 16;			// Padding to accommodate possible enlargement due to zlre compression
+static constexpr int RLE_COMPRESSION_PADDING				= 16;			// Padding to accommodate possible enlargement due to zlre compression
 
 // OBJ_DEST_SIZE_ALIGN16 returns the total space needed to store an object for reading/writing during jobs
 #define OBJ_DEST_SIZE_ALIGN16( s ) ( ( ( s ) + 15 ) & ~15 )
 
-static const uint32 OBJ_VIS_STALE		= ( 1 << 0 );			// Object went stale
-static const uint32 OBJ_VIS_NOT_STALE	= ( 1 << 1 );			// Object no longer stale
-static const uint32 OBJ_NEW				= ( 1 << 2 );			// New object (not in the last snap)
-static const uint32 OBJ_DELETED			= ( 1 << 3 );			// Object was deleted (not going to be in the new snap)
-static const uint32 OBJ_DIFFERENT		= ( 1 << 4 );			// Objects are in both snaps, but different
-static const uint32 OBJ_SAME			= ( 1 << 5 );			// Objects are in both snaps, and are the same (we don't send these, which means ack)
+static constexpr uint32 OBJ_VIS_STALE		= ( 1 << 0 );			// Object went stale
+static constexpr uint32 OBJ_VIS_NOT_STALE	= ( 1 << 1 );			// Object no longer stale
+static constexpr uint32 OBJ_NEW				= ( 1 << 2 );			// New object (not in the last snap)
+static constexpr uint32 OBJ_DELETED			= ( 1 << 3 );			// Object was deleted (not going to be in the new snap)
+static constexpr uint32 OBJ_DIFFERENT		= ( 1 << 4 );			// Objects are in both snaps, but different
+static constexpr uint32 OBJ_SAME			= ( 1 << 5 );			// Objects are in both snaps, and are the same (we don't send these, which means ack)
 
 // This struct is used to communicate data from the obj jobs to the lzw job
 struct ALIGNTYPE16 objHeader_t {

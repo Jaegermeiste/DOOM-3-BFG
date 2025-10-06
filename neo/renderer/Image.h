@@ -38,7 +38,7 @@ No texture is ever used that does not have a corresponding idImage.
 ====================================================================
 */
 
-static const int	MAX_TEXTURE_LEVELS = 14;
+static constexpr int	MAX_TEXTURE_LEVELS = 14;
 
 // How is this texture used?  Determines the storage and color format
 typedef enum {
@@ -179,7 +179,7 @@ private:
 
 	int					refCount;				// overall ref count
 
-	static const GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
+	static constexpr GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 
 	GLuint				texnum;				// gl texture binding
 
@@ -196,7 +196,7 @@ ID_INLINE idImage::idImage( const char * name ) : imgName( name ) {
 	internalFormat = 0;
 	dataFormat = 0;
 	dataType = 0;
-	generatorFunction = NULL;
+	generatorFunction = nullptr;
 	filter = TF_DEFAULT;
 	repeat = TR_REPEAT;
 	usage = TD_DEFAULT;
@@ -359,6 +359,6 @@ IMAGEPROGRAM
 ====================================================================
 */
 
-void R_LoadImageProgram( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamp, textureUsage_t * usage = NULL );
+void R_LoadImageProgram( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamp, textureUsage_t * usage = nullptr);
 const char *R_ParsePastImageProgram( idLexer &src );
 

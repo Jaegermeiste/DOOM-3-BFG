@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 CLASS_DECLARATION( idPhysics_Base, idPhysics_RigidBody )
 END_CLASS
 
-const float STOP_SPEED		= 10.0f;
+constexpr float STOP_SPEED		= 10.0f;
 
 
 #undef RB_TIMINGS
@@ -1476,12 +1476,12 @@ const float	RB_VELOCITY_MAX				= 16000;
 const int	RB_VELOCITY_TOTAL_BITS		= 16;
 const int	RB_VELOCITY_EXPONENT_BITS	= idMath::BitsForInteger( idMath::BitsForFloat( RB_VELOCITY_MAX ) ) + 1;
 const int	RB_VELOCITY_MANTISSA_BITS	= RB_VELOCITY_TOTAL_BITS - 1 - RB_VELOCITY_EXPONENT_BITS;
-const float	RB_MOMENTUM_MAX				= 1e20f;
-const int	RB_MOMENTUM_TOTAL_BITS		= 16;
+constexpr float	RB_MOMENTUM_MAX				= 1e20f;
+constexpr int	RB_MOMENTUM_TOTAL_BITS		= 16;
 const int	RB_MOMENTUM_EXPONENT_BITS	= idMath::BitsForInteger( idMath::BitsForFloat( RB_MOMENTUM_MAX ) ) + 1;
 const int	RB_MOMENTUM_MANTISSA_BITS	= RB_MOMENTUM_TOTAL_BITS - 1 - RB_MOMENTUM_EXPONENT_BITS;
-const float	RB_FORCE_MAX				= 1e20f;
-const int	RB_FORCE_TOTAL_BITS			= 16;
+constexpr float	RB_FORCE_MAX				= 1e20f;
+constexpr int	RB_FORCE_TOTAL_BITS			= 16;
 const int	RB_FORCE_EXPONENT_BITS		= idMath::BitsForInteger( idMath::BitsForFloat( RB_FORCE_MAX ) ) + 1;
 const int	RB_FORCE_MANTISSA_BITS		= RB_FORCE_TOTAL_BITS - 1 - RB_FORCE_EXPONENT_BITS;
 

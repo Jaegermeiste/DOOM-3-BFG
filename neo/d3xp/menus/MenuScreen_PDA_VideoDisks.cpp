@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-static const int MAX_VIDEO_ITEMS = 5;
+static constexpr int MAX_VIDEO_ITEMS = 5;
 
 /*
 ========================

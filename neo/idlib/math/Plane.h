@@ -255,7 +255,7 @@ ID_INLINE idVec3 &idPlane::Normal() {
 }
 
 ID_INLINE float idPlane::Normalize(const bool fixDegenerate ) {
-	float length = reinterpret_cast<idVec3 *>(&a)->Normalize();
+	const float length = reinterpret_cast<idVec3 *>(&a)->Normalize();
 
 	if ( fixDegenerate ) {
 		FixDegenerateNormal();
@@ -268,7 +268,7 @@ ID_INLINE bool idPlane::FixDegenerateNormal() {
 }
 
 ID_INLINE bool idPlane::FixDegeneracies(const float distEpsilon ) {
-	bool fixedNormal = FixDegenerateNormal();
+	const bool fixedNormal = FixDegenerateNormal();
 	// only fix dist if the normal was degenerate
 	if ( fixedNormal ) {
 		if ( idMath::Fabs( d - idMath::Rint( d ) ) < distEpsilon ) {
@@ -336,7 +336,7 @@ ID_INLINE float idPlane::Distance( const idVec3 &v ) const {
 }
 
 ID_INLINE int idPlane::Side( const idVec3 &v, const float epsilon ) const {
-	float dist = Distance( v );
+	const float dist = Distance( v );
 	if ( dist > epsilon ) {
 		return PLANESIDE_FRONT;
 	}
@@ -349,10 +349,8 @@ ID_INLINE int idPlane::Side( const idVec3 &v, const float epsilon ) const {
 }
 
 ID_INLINE bool idPlane::LineIntersection( const idVec3 &start, const idVec3 &end ) const {
-	float d1, d2, fraction;
-
-	d1 = Normal() * start + d;
-	d2 = Normal() * end + d;
+	float d1 = Normal() * start + d;
+	float d2 = Normal() * end + d;
 	if ( d1 == d2 ) {
 		return false;
 	}
@@ -362,15 +360,13 @@ ID_INLINE bool idPlane::LineIntersection( const idVec3 &start, const idVec3 &end
 	if ( d1 < 0.0f && d2 < 0.0f ) {
 		return false;
 	}
-	fraction = ( d1 / ( d1 - d2 ) );
+	float fraction = (d1 / (d1 - d2));
 	return ( fraction >= 0.0f && fraction <= 1.0f );
 }
 
 ID_INLINE bool idPlane::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale ) const {
-	float d1, d2;
-
-	d1 = Normal() * start + d;
-	d2 = Normal() * dir;
+	float d1 = Normal() * start + d;
+	float d2 = Normal() * dir;
 	if ( d2 == 0.0f ) {
 		return false;
 	}

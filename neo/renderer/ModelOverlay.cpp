@@ -82,10 +82,10 @@ idRenderModelOverlay::FreeOverlay
 ====================
 */
 void idRenderModelOverlay::FreeOverlay( overlay_t & overlay ) {
-	if ( overlay.verts != NULL ) {
+	if ( overlay.verts != nullptr) {
 		Mem_Free( overlay.verts );
 	}
-	if ( overlay.indexes != NULL ) {
+	if ( overlay.indexes != nullptr) {
 		Mem_Free( overlay.indexes );
 	}
 	memset( &overlay, 0, sizeof( overlay ) );
@@ -369,7 +369,7 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel *model, const idPl
 	for ( int surfNum = 0; surfNum < model->NumBaseSurfaces(); surfNum++ ) {
 		const modelSurface_t *surf = model->Surface( surfNum );
 
-		if ( surf->geometry == NULL || surf->shader == NULL ) {
+		if ( surf->geometry == nullptr || surf->shader == nullptr) {
 			continue;
 		}
 
@@ -392,7 +392,7 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel *model, const idPl
 			continue;
 		}
 
-		if ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) {
+		if ( tri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) {
 			R_OverlayPointCullSkinned( cullBits.Ptr(), texCoordS.Ptr(), texCoordT.Ptr(), localTextureAxis, tri->verts, tri->numVerts, tri->staticModelWithJoints->jointsInverted );
 		} else {
 			R_OverlayPointCullStatic( cullBits.Ptr(), texCoordS.Ptr(), texCoordT.Ptr(), localTextureAxis, tri->verts, tri->numVerts );
@@ -604,12 +604,12 @@ idRenderModelOverlay::CreateOverlayDrawSurf
 */
 drawSurf_t * idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t *space, const idRenderModel *baseModel, unsigned int index ) {
 	if ( index < 0 || index >= numOverlayMaterials ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// md5 models won't have any surfaces when r_showSkel is set
-	if ( baseModel == NULL || baseModel->IsDefaultModel() || baseModel->NumSurfaces() == 0 ) {
-		return NULL;
+	if ( baseModel == nullptr || baseModel->IsDefaultModel() || baseModel->NumSurfaces() == 0 ) {
+		return nullptr;
 	}
 
 	assert( baseModel->IsDynamicModel() == DM_STATIC );
@@ -629,15 +629,15 @@ drawSurf_t * idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t *sp
 	}
 
 	if ( maxVerts == 0 || maxIndexes == 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// create a new triangle surface in frame memory so it gets automatically disposed of
 	srfTriangles_t *newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
-	newTri->staticModelWithJoints = ( staticModel->jointsInverted != NULL ) ? const_cast< idRenderModelStatic * >( staticModel ) : NULL;	// allow GPU skinning
+	newTri->staticModelWithJoints = ( staticModel->jointsInverted != nullptr) ? const_cast< idRenderModelStatic * >( staticModel ) : nullptr;	// allow GPU skinning
 
-	newTri->ambientCache = vertexCache.AllocVertex( NULL, ALIGN( maxVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
-	newTri->indexCache = vertexCache.AllocIndex( NULL, ALIGN( maxIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
+	newTri->ambientCache = vertexCache.AllocVertex(nullptr, ALIGN( maxVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
+	newTri->indexCache = vertexCache.AllocIndex(nullptr, ALIGN( maxIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
 
 	idDrawVert * mappedVerts = (idDrawVert *)vertexCache.MappedVertexBuffer( newTri->ambientCache );
 	triIndex_t * mappedIndexes = (triIndex_t *)vertexCache.MappedIndexBuffer( newTri->indexCache );
@@ -660,10 +660,10 @@ drawSurf_t * idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t *sp
 		}
 
 		// get the source model surface for this overlay surface
-		const modelSurface_t * baseSurf = ( overlay.surfaceNum < staticModel->NumSurfaces() ) ? staticModel->Surface( overlay.surfaceNum ) : NULL;
+		const modelSurface_t * baseSurf = ( overlay.surfaceNum < staticModel->NumSurfaces() ) ? staticModel->Surface( overlay.surfaceNum ) : nullptr;
 
 		// if the surface ids no longer match
-		if ( baseSurf == NULL || baseSurf->id != overlay.surfaceId ) {
+		if ( baseSurf == nullptr || baseSurf->id != overlay.surfaceId ) {
 			// find the surface with the correct id
 			if ( staticModel->FindSurfaceWithId( overlay.surfaceId, overlay.surfaceNum ) ) {
 				baseSurf = staticModel->Surface( overlay.surfaceNum );
@@ -712,7 +712,7 @@ drawSurf_t * idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t *sp
 	drawSurf->renderZFail = 0;
 
 	R_SetupDrawSurfShader( drawSurf, material, &space->entityDef->parms );
-	R_SetupDrawSurfJoints( drawSurf, newTri, NULL );
+	R_SetupDrawSurfJoints( drawSurf, newTri, nullptr);
 
 	return drawSurf;
 }

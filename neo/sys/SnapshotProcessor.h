@@ -35,7 +35,7 @@ idSnapshotProcessor
 */
 class idSnapshotProcessor {
 public:
-	static const int INITIAL_SNAP_SEQUENCE = 42;
+	static constexpr int INITIAL_SNAP_SEQUENCE = 42;
 
 	idSnapshotProcessor();
 	~idSnapshotProcessor();
@@ -89,13 +89,13 @@ public:
 
 	void AddSnapObjTemplate( int objID, idBitMsg & msg );
 
-	static const int MAX_SNAPSHOT_QUEUE		= 64;
+	static constexpr int MAX_SNAPSHOT_QUEUE		= 64;
 
 private:
 
 	// Internal commands to set up, and flush the compressors
-	static const int MAX_SNAP_SIZE			= idPacketProcessor::MAX_MSG_SIZE;	
-	static const int MAX_SNAPSHOT_QUEUE_MEM	= 64 * 1024;	// 64k
+	static constexpr int MAX_SNAP_SIZE			= idPacketProcessor::MAX_MSG_SIZE;	
+	static constexpr int MAX_SNAPSHOT_QUEUE_MEM	= 64 * 1024;	// 64k
 
 	// sequence number of the last snapshot we sent/received
 	// on the server, the sequencing is different for each network peer (net_verboseSnapshot 1)
@@ -111,17 +111,17 @@ private:
 	bool			hasPendingSnap;		// true if pendingSnap is still waiting to be sent
 		
 	struct jobMemory_t {
-		static const int MAX_LZW_DELTAS		= 1;			// FIXME: cleanup the old multiple delta support completely
+		static constexpr int MAX_LZW_DELTAS		= 1;			// FIXME: cleanup the old multiple delta support completely
 
 		// @TODO this is a hack fix to allow online to load into coop (where there are lots of entities).  
 		// The real solution should be coming soon.
 		// Doom MP: we encountered the same problem, going from 1024 to 4096 as well until a better solution is in place
 		// (initial, useless, exchange of func_statics is killing us)
-		static const int MAX_OBJ_PARMS		= 4096;
+		static constexpr int MAX_OBJ_PARMS		= 4096;
 
-		static const int MAX_LZW_PARMS		= 32;
-		static const int MAX_OBJ_HEADERS	= 256;
-		static const int MAX_LZW_MEM		= 1024 * 8;		// 8k in the byte * lzwMem buffers, must be <= PS3_DMA_MAX
+		static constexpr int MAX_LZW_PARMS		= 32;
+		static constexpr int MAX_OBJ_HEADERS	= 256;
+		static constexpr int MAX_LZW_MEM		= 1024 * 8;		// 8k in the byte * lzwMem buffers, must be <= PS3_DMA_MAX
 
 		// Parm memory to jobs
 		idArray<objParms_t, MAX_OBJ_PARMS>		objParms;

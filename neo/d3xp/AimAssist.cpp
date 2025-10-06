@@ -416,7 +416,7 @@ bool idAimAssist::ComputeTargetPos( idEntity* entity, idVec3& primaryTargetPos, 
 		if ( actor->GetHeadEntity() != NULL ) {
 			torsoPos = actor->GetHeadEntity()->GetPhysics()->GetOrigin();
 		} else {
-			const float offsetScale = 0.9f;
+			constexpr float offsetScale = 0.9f;
 			torsoPos = actor->GetPhysics()->GetOrigin() + ( actor->EyeOffset() * offsetScale );
 		}
 

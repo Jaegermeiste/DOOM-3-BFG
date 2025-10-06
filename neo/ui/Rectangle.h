@@ -212,7 +212,7 @@ public:
 		if (index >= 0 && index < rects.Num()) {
 			return &rects[index];
 		}
-		return NULL;
+		return nullptr;
 	}
 
 protected:

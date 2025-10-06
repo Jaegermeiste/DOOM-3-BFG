@@ -50,7 +50,7 @@ idSoundShader::Init
 void idSoundShader::Init() {
 	leadin = false;
 	leadinVolume = 0;
-	altSound = NULL;
+	altSound = nullptr;
 }
 
 /*
@@ -162,7 +162,7 @@ bool idSoundShader::ParseShader( idLexer &src ) {
 	parms.soundClass = 0;
 
 	speakerMask = 0;
-	altSound = NULL;
+	altSound = nullptr;
 
 	entries.Clear();
 

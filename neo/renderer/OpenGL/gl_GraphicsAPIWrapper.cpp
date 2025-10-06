@@ -169,7 +169,7 @@ GL_Color
 ====================
 */
 void GL_Color( float * color ) {
-	if ( color == NULL ) {
+	if ( color == nullptr) {
 		return;
 	}
 	GL_Color( color[0], color[1], color[2], color[3] );

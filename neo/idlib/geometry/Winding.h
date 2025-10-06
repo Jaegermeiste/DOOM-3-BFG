@@ -80,7 +80,7 @@ public:
 					// returns a copy of the winding
 	idWinding *		Copy() const;
 	idWinding *		Reverse() const;
-	void			ReverseSelf();
+	void			ReverseSelf() const;
 	void			RemoveEqualPoints( const float epsilon = ON_EPSILON );
 	void			RemoveColinearPoints( const idVec3 &normal, const float epsilon = ON_EPSILON );
 	void			RemovePoint( int point );
@@ -131,25 +131,23 @@ protected:
 
 ID_INLINE idWinding::idWinding() {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 }
 
 ID_INLINE idWinding::idWinding(const int n ) {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	EnsureAlloced( n );
 }
 
 ID_INLINE idWinding::idWinding( const idVec3 *verts, const int n ) {
-	int i;
-
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	if ( !EnsureAlloced( n ) ) {
 		numPoints = 0;
 		return;
 	}
-	for ( i = 0; i < n; i++ ) {
+	for ( int i = 0; i < n; i++ ) {
 		p[i].ToVec3() = verts[i];
 		p[i].s = p[i].t = 0.0f;
 	}
@@ -158,23 +156,22 @@ ID_INLINE idWinding::idWinding( const idVec3 *verts, const int n ) {
 
 ID_INLINE idWinding::idWinding( const idVec3 &normal, const float dist ) {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	BaseForPlane( normal, dist );
 }
 
 ID_INLINE idWinding::idWinding( const idPlane &plane ) {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	BaseForPlane( plane );
 }
 
 ID_INLINE idWinding::idWinding( const idWinding &winding ) {
-	int i;
 	if ( !EnsureAlloced( winding.GetNumPoints() ) ) {
 		numPoints = 0;
 		return;
 	}
-	for ( i = 0; i < winding.GetNumPoints(); i++ ) {
+	for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
 		p[i] = winding[i];
 	}
 	numPoints = winding.GetNumPoints();
@@ -182,17 +179,15 @@ ID_INLINE idWinding::idWinding( const idWinding &winding ) {
 
 ID_INLINE idWinding::~idWinding() {
 	delete[] p;
-	p = NULL;
+	p = nullptr;
 }
 
 ID_INLINE idWinding &idWinding::operator=( const idWinding &winding ) {
-	int i;
-
 	if ( !EnsureAlloced( winding.numPoints ) ) {
 		numPoints = 0;
 		return *this;
 	}
-	for ( i = 0; i < winding.numPoints; i++ ) {
+	for ( int i = 0; i < winding.numPoints; i++ ) {
 		p[i] = winding.p[i];
 	}
 	numPoints = winding.numPoints;
@@ -249,7 +244,7 @@ ID_INLINE void idWinding::SetNumPoints(const int n ) {
 ID_INLINE void idWinding::Clear() {
 	numPoints = 0;
 	delete[] p;
-	p = NULL;
+	p = nullptr;
 }
 
 ID_INLINE void idWinding::BaseForPlane( const idPlane &plane ) {
@@ -288,11 +283,11 @@ public:
 					explicit idFixedWinding( const idPlane &plane );
 					explicit idFixedWinding( const idWinding &winding );
 					explicit idFixedWinding( const idFixedWinding &winding );
-	virtual			~idFixedWinding();
+					~idFixedWinding() override;
 
 	idFixedWinding &operator=( const idWinding &winding );
 
-	virtual void	Clear();
+					void	Clear() override;
 
 					// splits the winding in a back and front part, 'this' becomes the front part
 					// returns a SIDE_?
@@ -301,7 +296,7 @@ public:
 protected:
 	idVec5			data[MAX_POINTS_ON_WINDING];	// point data
 
-	virtual bool	ReAllocate( int n, bool keep = false );
+					bool	ReAllocate( int n, bool keep = false ) override;
 };
 
 ID_INLINE idFixedWinding::idFixedWinding() {
@@ -317,8 +312,6 @@ ID_INLINE idFixedWinding::idFixedWinding( int n ) {
 }
 
 ID_INLINE idFixedWinding::idFixedWinding( const idVec3 *verts, const int n ) {
-	int i;
-
 	numPoints = 0;
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
@@ -326,7 +319,7 @@ ID_INLINE idFixedWinding::idFixedWinding( const idVec3 *verts, const int n ) {
 		numPoints = 0;
 		return;
 	}
-	for ( i = 0; i < n; i++ ) {
+	for ( int i = 0; i < n; i++ ) {
 		p[i].ToVec3() = verts[i];
 		p[i].s = p[i].t = 0;
 	}
@@ -348,47 +341,41 @@ ID_INLINE idFixedWinding::idFixedWinding( const idPlane &plane ) {
 }
 
 ID_INLINE idFixedWinding::idFixedWinding( const idWinding &winding ) {
-	int i;
-
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
 	if ( !EnsureAlloced( winding.GetNumPoints() ) ) {
 		numPoints = 0;
 		return;
 	}
-	for ( i = 0; i < winding.GetNumPoints(); i++ ) {
+	for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
 		p[i] = winding[i];
 	}
 	numPoints = winding.GetNumPoints();
 }
 
 ID_INLINE idFixedWinding::idFixedWinding( const idFixedWinding &winding ) {
-	int i;
-
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
 	if ( !EnsureAlloced( winding.GetNumPoints() ) ) {
 		numPoints = 0;
 		return;
 	}
-	for ( i = 0; i < winding.GetNumPoints(); i++ ) {
+	for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
 		p[i] = winding[i];
 	}
 	numPoints = winding.GetNumPoints();
 }
 
 ID_INLINE idFixedWinding::~idFixedWinding() {
-	p = NULL;	// otherwise it tries to free the fixed buffer
+	p = nullptr;	// otherwise it tries to free the fixed buffer
 }
 
 ID_INLINE idFixedWinding &idFixedWinding::operator=( const idWinding &winding ) {
-	int i;
-
 	if ( !EnsureAlloced( winding.GetNumPoints() ) ) {
 		numPoints = 0;
 		return *this;
 	}
-	for ( i = 0; i < winding.GetNumPoints(); i++ ) {
+	for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
 		p[i] = winding[i];
 	}
 	numPoints = winding.GetNumPoints();

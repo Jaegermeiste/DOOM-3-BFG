@@ -96,10 +96,9 @@ idStrPool::AllocString
 ================
 */
 ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
-	int i, hash;
-	idPoolStr *poolStr;
+	int i;
 
-	hash = poolHash.GenerateKey( string, caseSensitive );
+	int hash = poolHash.GenerateKey(string, caseSensitive);
 	if ( caseSensitive ) {
 		for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
 			if ( pool[i]->Cmp( string ) == 0 ) {
@@ -116,7 +115,7 @@ ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
 		}
 	}
 
-	poolStr = new (TAG_IDLIB_STRING) idPoolStr;
+	idPoolStr* poolStr = new(TAG_IDLIB_STRING) idPoolStr;
 	*static_cast<idStr *>(poolStr) = string;
 	poolStr->pool = this;
 	poolStr->numUsers = 1;
@@ -130,14 +129,14 @@ idStrPool::FreeString
 ================
 */
 ID_INLINE void idStrPool::FreeString( const idPoolStr *poolStr ) {
-	int i, hash;
+	int i;
 
 	assert( poolStr->numUsers >= 1 );
 	assert( poolStr->pool == this );
 
 	poolStr->numUsers--;
 	if ( poolStr->numUsers <= 0 ) {
-		hash = poolHash.GenerateKey( poolStr->c_str(), caseSensitive );
+		int hash = poolHash.GenerateKey(poolStr->c_str(), caseSensitive);
 		if ( caseSensitive ) { 
 			for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
 				if ( pool[i]->Cmp( poolStr->c_str() ) == 0 ) {
@@ -184,9 +183,7 @@ idStrPool::Clear
 ================
 */
 ID_INLINE void idStrPool::Clear() {
-	int i;
-
-	for ( i = 0; i < pool.Num(); i++ ) {
+	for ( int i = 0; i < pool.Num(); i++ ) {
 		pool[i]->numUsers = 0;
 	}
 	pool.DeleteContents( true );
@@ -199,11 +196,8 @@ idStrPool::Allocated
 ================
 */
 ID_INLINE size_t idStrPool::Allocated() const {
-	int i;
-	size_t size;
-
-	size = pool.Allocated() + poolHash.Allocated();
-	for ( i = 0; i < pool.Num(); i++ ) {
+	size_t size = pool.Allocated() + poolHash.Allocated();
+	for ( int i = 0; i < pool.Num(); i++ ) {
 		size += pool[i]->Allocated();
 	}
 	return size;
@@ -215,11 +209,8 @@ idStrPool::Size
 ================
 */
 ID_INLINE size_t idStrPool::Size() const {
-	int i;
-	size_t size;
-
-	size = pool.Size() + poolHash.Size();
-	for ( i = 0; i < pool.Num(); i++ ) {
+	size_t size = pool.Size() + poolHash.Size();
+	for ( int i = 0; i < pool.Num(); i++ ) {
 		size += pool[i]->Size();
 	}
 	return size;

@@ -211,7 +211,7 @@ void idAchievementManager::EventCompletesAchievement( const achievement_t eventI
 		// Send a Reliable Message to the User that needs to unlock this. 
 		if ( owner != NULL ) {
 			int playerId = owner->entityNumber;
-			const int bufferSize = sizeof( playerId ) + sizeof( eventId );
+			constexpr int bufferSize = sizeof( playerId ) + sizeof( eventId );
 			byte buffer[ bufferSize ];
 			idBitMsg msg;
 			msg.InitWrite( buffer, bufferSize );

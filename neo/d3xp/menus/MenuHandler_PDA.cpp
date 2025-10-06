@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-static const int MAX_PDA_ITEMS = 15;
-static const int MAX_NAV_OPTIONS = 4;
+static constexpr int MAX_PDA_ITEMS = 15;
+static constexpr int MAX_NAV_OPTIONS = 4;
 
 /*
 ========================

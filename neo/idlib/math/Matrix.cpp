@@ -46,17 +46,16 @@ idMat2::InverseSelf
 bool idMat2::InverseSelf() {
 	// 2+4 = 6 multiplications
 	//		 1 division
-	double det, invDet, a;
 
-	det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+	double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	double invDet = 1.0f / det;
 
-	a = mat[0][0];
+	double a = mat[0][0];
 	mat[0][0] =   mat[1][1] * invDet;
 	mat[0][1] = - mat[0][1] * invDet;
 	mat[1][0] = - mat[1][0] * invDet;
@@ -74,17 +73,16 @@ bool idMat2::InverseFastSelf() {
 #if 1
 	// 2+4 = 6 multiplications
 	//		 1 division
-	double det, invDet, a;
 
-	det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+	double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	double invDet = 1.0f / det;
 
-	a = mat[0][0];
+	double a = mat[0][0];
 	mat[0][0] =   mat[1][1] * invDet;
 	mat[0][1] = - mat[0][1] * invDet;
 	mat[1][0] = - mat[1][0] * invDet;
@@ -147,7 +145,7 @@ returns the pitch/yaw/roll each in the range [-180, 180] degrees
 */
 idAngles idMat3::ToAngles() const {
 	idAngles angles;
-	float s = idMath::Sqrt( mat[0][0] * mat[0][0] + mat[0][1] * mat[0][1] );
+	const float s = idMath::Sqrt( mat[0][0] * mat[0][0] + mat[0][1] * mat[0][1] );
 	if ( s > idMath::FLT_EPSILON ) {
 		angles.pitch = RAD2DEG( - idMath::ATan( mat[0][2], s ) );
 		angles.yaw = RAD2DEG( idMath::ATan( mat[0][1], mat[0][0] ) );
@@ -167,16 +165,12 @@ idMat3::ToQuat
 */
 idQuat idMat3::ToQuat() const {
 	idQuat		q;
-	float		trace;
 	float		s;
 	float		t;
-	int     	i;
-	int			j;
-	int			k;
 
 	static int 	next[ 3 ] = { 1, 2, 0 };
 
-	trace = mat[ 0 ][ 0 ] + mat[ 1 ][ 1 ] + mat[ 2 ][ 2 ];
+	float trace = mat[0][0] + mat[1][1] + mat[2][2];
 
 	if ( trace > 0.0f ) {
 
@@ -190,15 +184,15 @@ idQuat idMat3::ToQuat() const {
 
 	} else {
 
-		i = 0;
+		int i = 0;
 		if ( mat[ 1 ][ 1 ] > mat[ 0 ][ 0 ] ) {
 			i = 1;
 		}
 		if ( mat[ 2 ][ 2 ] > mat[ i ][ i ] ) {
 			i = 2;
 		}
-		j = next[ i ];
-		k = next[ j ];
+		int j = next[i];
+		int k = next[j];
 
 		t = ( mat[ i ][ i ] - ( mat[ j ][ j ] + mat[ k ][ k ] ) ) + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
@@ -217,7 +211,7 @@ idMat3::ToCQuat
 ============
 */
 idCQuat idMat3::ToCQuat() const {
-	idQuat q = ToQuat();
+	const idQuat q = ToQuat();
 	if ( q.w < 0.0f ) {
 		return idCQuat( -q.x, -q.y, -q.z );
 	}
@@ -231,15 +225,11 @@ idMat3::ToRotation
 */
 idRotation idMat3::ToRotation() const {
 	idRotation	r;
-	float		trace;
 	float		s;
 	float		t;
-	int     	i;
-	int			j;
-	int			k;
 	static int 	next[ 3 ] = { 1, 2, 0 };
 
-	trace = mat[ 0 ][ 0 ] + mat[ 1 ][ 1 ] + mat[ 2 ][ 2 ];
+	float trace = mat[0][0] + mat[1][1] + mat[2][2];
 	if ( trace > 0.0f ) {
 
 		t = trace + 1.0f;
@@ -252,15 +242,15 @@ idRotation idMat3::ToRotation() const {
 
 	} else {
 
-		i = 0;
+		int i = 0;
 		if ( mat[ 1 ][ 1 ] > mat[ 0 ][ 0 ] ) {
 			i = 1;
 		}
 		if ( mat[ 2 ][ 2 ] > mat[ i ][ i ] ) {
 			i = 2;
 		}
-		j = next[ i ];  
-		k = next[ j ];
+		int j = next[i];  
+		int k = next[j];
     
 		t = ( mat[ i ][ i ] - ( mat[ j ][ j ] + mat[ k ][ k ] ) ) + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
@@ -272,7 +262,7 @@ idRotation idMat3::ToRotation() const {
 	}
 
 	r.angle = idMath::ACos( r.angle );
-	float lengthSqr = r.vec.LengthSqr();
+	const float lengthSqr = r.vec.LengthSqr();
 	if ( ( idMath::Fabs( r.angle ) < 1e-10f ) || ( lengthSqr < 1e-10f ) ) {
 		r.vec.Set( 0.0f, 0.0f, 1.0f );
 		r.angle = 0.0f;
@@ -294,7 +284,7 @@ idMat3::ToAngularVelocity
 =================
 */
 idVec3 idMat3::ToAngularVelocity() const {
-	idRotation rotation = ToRotation();
+	const idRotation rotation = ToRotation();
 	return rotation.GetVec() * DEG2RAD( rotation.GetAngle() );
 }
 
@@ -305,9 +295,9 @@ idMat3::Determinant
 */
 float idMat3::Determinant() const {
 
-	float det2_12_01 = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
-	float det2_12_02 = mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0];
-	float det2_12_12 = mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1];
+	const float det2_12_01 = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
+	const float det2_12_02 = mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0];
+	const float det2_12_12 = mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1];
 
 	return mat[0][0] * det2_12_12 - mat[0][1] * det2_12_02 + mat[0][2] * det2_12_01;
 }
@@ -321,19 +311,18 @@ bool idMat3::InverseSelf() {
 	// 18+3+9 = 30 multiplications
 	//			 1 division
 	idMat3 inverse;
-	double det, invDet;
 
 	inverse[0][0] = mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1];
 	inverse[1][0] = mat[1][2] * mat[2][0] - mat[1][0] * mat[2][2];
 	inverse[2][0] = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
 
-	det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
+	double det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	double invDet = 1.0f / det;
 
 	inverse[0][1] = mat[0][2] * mat[2][1] - mat[0][1] * mat[2][2];
 	inverse[0][2] = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
@@ -367,19 +356,18 @@ bool idMat3::InverseFastSelf() {
 	// 18+3+9 = 30 multiplications
 	//			 1 division
 	idMat3 inverse;
-	double det, invDet;
 
 	inverse[0][0] = mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1];
 	inverse[1][0] = mat[1][2] * mat[2][0] - mat[1][0] * mat[2][2];
 	inverse[2][0] = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
 
-	det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
+	double det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	double invDet = 1.0f / det;
 
 	inverse[0][1] = mat[0][2] * mat[2][1] - mat[0][1] * mat[2][2];
 	inverse[0][2] = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
@@ -523,9 +511,8 @@ idMat3::InertiaTranslate
 */
 idMat3 idMat3::InertiaTranslate( const float mass, const idVec3 &centerOfMass, const idVec3 &translation ) const {
 	idMat3 m;
-	idVec3 newCenter;
 
-	newCenter = centerOfMass + translation;
+	idVec3 newCenter = centerOfMass + translation;
 
 	m[0][0] = mass * ( ( centerOfMass[1] * centerOfMass[1] + centerOfMass[2] * centerOfMass[2] )
 				- ( newCenter[1] * newCenter[1] + newCenter[2] * newCenter[2] ) );
@@ -548,9 +535,8 @@ idMat3::InertiaTranslateSelf
 */
 idMat3 &idMat3::InertiaTranslateSelf( const float mass, const idVec3 &centerOfMass, const idVec3 &translation ) {
 	idMat3 m;
-	idVec3 newCenter;
 
-	newCenter = centerOfMass + translation;
+	idVec3 newCenter = centerOfMass + translation;
 
 	m[0][0] = mass * ( ( centerOfMass[1] * centerOfMass[1] + centerOfMass[2] * centerOfMass[2] )
 				- ( newCenter[1] * newCenter[1] + newCenter[2] * newCenter[2] ) );
@@ -615,10 +601,9 @@ idMat4::Transpose
 */
 idMat4 idMat4::Transpose() const {
 	idMat4	transpose;
-	int		i, j;
-   
-	for( i = 0; i < 4; i++ ) {
-		for( j = 0; j < 4; j++ ) {
+
+	for( int i = 0; i < 4; i++ ) {
+		for( int j = 0; j < 4; j++ ) {
 			transpose[ i ][ j ] = mat[ j ][ i ];
         }
 	}
@@ -631,12 +616,9 @@ idMat4::TransposeSelf
 ============
 */
 idMat4 &idMat4::TransposeSelf() {
-	float	temp;
-	int		i, j;
-   
-	for( i = 0; i < 4; i++ ) {
-		for( j = i + 1; j < 4; j++ ) {
-			temp = mat[ i ][ j ];
+	for( int i = 0; i < 4; i++ ) {
+		for( int j = i + 1; j < 4; j++ ) {
+			float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
         }
@@ -652,18 +634,18 @@ idMat4::Determinant
 float idMat4::Determinant() const {
 
 	// 2x2 sub-determinants
-	float det2_01_01 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
-	float det2_01_02 = mat[0][0] * mat[1][2] - mat[0][2] * mat[1][0];
-	float det2_01_03 = mat[0][0] * mat[1][3] - mat[0][3] * mat[1][0];
-	float det2_01_12 = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
-	float det2_01_13 = mat[0][1] * mat[1][3] - mat[0][3] * mat[1][1];
-	float det2_01_23 = mat[0][2] * mat[1][3] - mat[0][3] * mat[1][2];
+	const float det2_01_01 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+	const float det2_01_02 = mat[0][0] * mat[1][2] - mat[0][2] * mat[1][0];
+	const float det2_01_03 = mat[0][0] * mat[1][3] - mat[0][3] * mat[1][0];
+	const float det2_01_12 = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
+	const float det2_01_13 = mat[0][1] * mat[1][3] - mat[0][3] * mat[1][1];
+	const float det2_01_23 = mat[0][2] * mat[1][3] - mat[0][3] * mat[1][2];
 
 	// 3x3 sub-determinants
-	float det3_201_012 = mat[2][0] * det2_01_12 - mat[2][1] * det2_01_02 + mat[2][2] * det2_01_01;
-	float det3_201_013 = mat[2][0] * det2_01_13 - mat[2][1] * det2_01_03 + mat[2][3] * det2_01_01;
-	float det3_201_023 = mat[2][0] * det2_01_23 - mat[2][2] * det2_01_03 + mat[2][3] * det2_01_02;
-	float det3_201_123 = mat[2][1] * det2_01_23 - mat[2][2] * det2_01_13 + mat[2][3] * det2_01_12;
+	const float det3_201_012 = mat[2][0] * det2_01_12 - mat[2][1] * det2_01_02 + mat[2][2] * det2_01_01;
+	const float det3_201_013 = mat[2][0] * det2_01_13 - mat[2][1] * det2_01_03 + mat[2][3] * det2_01_01;
+	const float det3_201_023 = mat[2][0] * det2_01_23 - mat[2][2] * det2_01_03 + mat[2][3] * det2_01_02;
+	const float det3_201_123 = mat[2][1] * det2_01_23 - mat[2][2] * det2_01_13 + mat[2][3] * det2_01_12;
 
 	return ( - det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[3][3] );
 }
@@ -676,60 +658,60 @@ idMat4::InverseSelf
 bool idMat4::InverseSelf() {
 	// 84+4+16 = 104 multiplications
 	//			   1 division
-	double det, invDet;
 
 	// 2x2 sub-determinants required to calculate 4x4 determinant
-	float det2_01_01 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
-	float det2_01_02 = mat[0][0] * mat[1][2] - mat[0][2] * mat[1][0];
-	float det2_01_03 = mat[0][0] * mat[1][3] - mat[0][3] * mat[1][0];
-	float det2_01_12 = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
-	float det2_01_13 = mat[0][1] * mat[1][3] - mat[0][3] * mat[1][1];
-	float det2_01_23 = mat[0][2] * mat[1][3] - mat[0][3] * mat[1][2];
+	const float det2_01_01 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+	const float det2_01_02 = mat[0][0] * mat[1][2] - mat[0][2] * mat[1][0];
+	const float det2_01_03 = mat[0][0] * mat[1][3] - mat[0][3] * mat[1][0];
+	const float det2_01_12 = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
+	const float det2_01_13 = mat[0][1] * mat[1][3] - mat[0][3] * mat[1][1];
+	const float det2_01_23 = mat[0][2] * mat[1][3] - mat[0][3] * mat[1][2];
 
 	// 3x3 sub-determinants required to calculate 4x4 determinant
-	float det3_201_012 = mat[2][0] * det2_01_12 - mat[2][1] * det2_01_02 + mat[2][2] * det2_01_01;
-	float det3_201_013 = mat[2][0] * det2_01_13 - mat[2][1] * det2_01_03 + mat[2][3] * det2_01_01;
-	float det3_201_023 = mat[2][0] * det2_01_23 - mat[2][2] * det2_01_03 + mat[2][3] * det2_01_02;
-	float det3_201_123 = mat[2][1] * det2_01_23 - mat[2][2] * det2_01_13 + mat[2][3] * det2_01_12;
+	const float det3_201_012 = mat[2][0] * det2_01_12 - mat[2][1] * det2_01_02 + mat[2][2] * det2_01_01;
+	const float det3_201_013 = mat[2][0] * det2_01_13 - mat[2][1] * det2_01_03 + mat[2][3] * det2_01_01;
+	const float det3_201_023 = mat[2][0] * det2_01_23 - mat[2][2] * det2_01_03 + mat[2][3] * det2_01_02;
+	const float det3_201_123 = mat[2][1] * det2_01_23 - mat[2][2] * det2_01_13 + mat[2][3] * det2_01_12;
 
-	det = ( - det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[3][3] );
+	double det = (-det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[
+		3][3]);
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	double invDet = 1.0f / det;
 
 	// remaining 2x2 sub-determinants
-	float det2_03_01 = mat[0][0] * mat[3][1] - mat[0][1] * mat[3][0];
-	float det2_03_02 = mat[0][0] * mat[3][2] - mat[0][2] * mat[3][0];
-	float det2_03_03 = mat[0][0] * mat[3][3] - mat[0][3] * mat[3][0];
-	float det2_03_12 = mat[0][1] * mat[3][2] - mat[0][2] * mat[3][1];
-	float det2_03_13 = mat[0][1] * mat[3][3] - mat[0][3] * mat[3][1];
-	float det2_03_23 = mat[0][2] * mat[3][3] - mat[0][3] * mat[3][2];
+	const float det2_03_01 = mat[0][0] * mat[3][1] - mat[0][1] * mat[3][0];
+	const float det2_03_02 = mat[0][0] * mat[3][2] - mat[0][2] * mat[3][0];
+	const float det2_03_03 = mat[0][0] * mat[3][3] - mat[0][3] * mat[3][0];
+	const float det2_03_12 = mat[0][1] * mat[3][2] - mat[0][2] * mat[3][1];
+	const float det2_03_13 = mat[0][1] * mat[3][3] - mat[0][3] * mat[3][1];
+	const float det2_03_23 = mat[0][2] * mat[3][3] - mat[0][3] * mat[3][2];
 
-	float det2_13_01 = mat[1][0] * mat[3][1] - mat[1][1] * mat[3][0];
-	float det2_13_02 = mat[1][0] * mat[3][2] - mat[1][2] * mat[3][0];
-	float det2_13_03 = mat[1][0] * mat[3][3] - mat[1][3] * mat[3][0];
-	float det2_13_12 = mat[1][1] * mat[3][2] - mat[1][2] * mat[3][1];
-	float det2_13_13 = mat[1][1] * mat[3][3] - mat[1][3] * mat[3][1];
-	float det2_13_23 = mat[1][2] * mat[3][3] - mat[1][3] * mat[3][2];
+	const float det2_13_01 = mat[1][0] * mat[3][1] - mat[1][1] * mat[3][0];
+	const float det2_13_02 = mat[1][0] * mat[3][2] - mat[1][2] * mat[3][0];
+	const float det2_13_03 = mat[1][0] * mat[3][3] - mat[1][3] * mat[3][0];
+	const float det2_13_12 = mat[1][1] * mat[3][2] - mat[1][2] * mat[3][1];
+	const float det2_13_13 = mat[1][1] * mat[3][3] - mat[1][3] * mat[3][1];
+	const float det2_13_23 = mat[1][2] * mat[3][3] - mat[1][3] * mat[3][2];
 
 	// remaining 3x3 sub-determinants
-	float det3_203_012 = mat[2][0] * det2_03_12 - mat[2][1] * det2_03_02 + mat[2][2] * det2_03_01;
-	float det3_203_013 = mat[2][0] * det2_03_13 - mat[2][1] * det2_03_03 + mat[2][3] * det2_03_01;
-	float det3_203_023 = mat[2][0] * det2_03_23 - mat[2][2] * det2_03_03 + mat[2][3] * det2_03_02;
-	float det3_203_123 = mat[2][1] * det2_03_23 - mat[2][2] * det2_03_13 + mat[2][3] * det2_03_12;
+	const float det3_203_012 = mat[2][0] * det2_03_12 - mat[2][1] * det2_03_02 + mat[2][2] * det2_03_01;
+	const float det3_203_013 = mat[2][0] * det2_03_13 - mat[2][1] * det2_03_03 + mat[2][3] * det2_03_01;
+	const float det3_203_023 = mat[2][0] * det2_03_23 - mat[2][2] * det2_03_03 + mat[2][3] * det2_03_02;
+	const float det3_203_123 = mat[2][1] * det2_03_23 - mat[2][2] * det2_03_13 + mat[2][3] * det2_03_12;
 
-	float det3_213_012 = mat[2][0] * det2_13_12 - mat[2][1] * det2_13_02 + mat[2][2] * det2_13_01;
-	float det3_213_013 = mat[2][0] * det2_13_13 - mat[2][1] * det2_13_03 + mat[2][3] * det2_13_01;
-	float det3_213_023 = mat[2][0] * det2_13_23 - mat[2][2] * det2_13_03 + mat[2][3] * det2_13_02;
-	float det3_213_123 = mat[2][1] * det2_13_23 - mat[2][2] * det2_13_13 + mat[2][3] * det2_13_12;
+	const float det3_213_012 = mat[2][0] * det2_13_12 - mat[2][1] * det2_13_02 + mat[2][2] * det2_13_01;
+	const float det3_213_013 = mat[2][0] * det2_13_13 - mat[2][1] * det2_13_03 + mat[2][3] * det2_13_01;
+	const float det3_213_023 = mat[2][0] * det2_13_23 - mat[2][2] * det2_13_03 + mat[2][3] * det2_13_02;
+	const float det3_213_123 = mat[2][1] * det2_13_23 - mat[2][2] * det2_13_13 + mat[2][3] * det2_13_12;
 
-	float det3_301_012 = mat[3][0] * det2_01_12 - mat[3][1] * det2_01_02 + mat[3][2] * det2_01_01;
-	float det3_301_013 = mat[3][0] * det2_01_13 - mat[3][1] * det2_01_03 + mat[3][3] * det2_01_01;
-	float det3_301_023 = mat[3][0] * det2_01_23 - mat[3][2] * det2_01_03 + mat[3][3] * det2_01_02;
-	float det3_301_123 = mat[3][1] * det2_01_23 - mat[3][2] * det2_01_13 + mat[3][3] * det2_01_12;
+	const float det3_301_012 = mat[3][0] * det2_01_12 - mat[3][1] * det2_01_02 + mat[3][2] * det2_01_01;
+	const float det3_301_013 = mat[3][0] * det2_01_13 - mat[3][1] * det2_01_03 + mat[3][3] * det2_01_01;
+	const float det3_301_023 = mat[3][0] * det2_01_23 - mat[3][2] * det2_01_03 + mat[3][3] * det2_01_02;
+	const float det3_301_123 = mat[3][1] * det2_01_23 - mat[3][2] * det2_01_13 + mat[3][3] * det2_01_12;
 
 	mat[0][0] =	- det3_213_123 * invDet;
 	mat[1][0] = + det3_213_023 * invDet;
@@ -940,17 +922,16 @@ bool idMat4::InverseFastSelf() {
 	//	6*8+2*6 = 60 multiplications
 	//		2*1 =  2 divisions
 	idMat2 r0, r1, r2, r3;
-	float a, det, invDet;
 	float *mat = reinterpret_cast<float *>(this);
 
 	// r0 = m0.Inverse();
-	det = mat[0*4+0] * mat[1*4+1] - mat[0*4+1] * mat[1*4+0];
+	float det = mat[0 * 4 + 0] * mat[1 * 4 + 1] - mat[0 * 4 + 1] * mat[1 * 4 + 0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	float invDet = 1.0f / det;
 
 	r0[0][0] =   mat[1*4+1] * invDet;
 	r0[0][1] = - mat[0*4+1] * invDet;
@@ -984,7 +965,7 @@ bool idMat4::InverseFastSelf() {
 
 	invDet = 1.0f / det;
 
-	a = r3[0][0];
+	float a = r3[0][0];
 	r3[0][0] =   r3[1][1] * invDet;
 	r3[0][1] = - r3[0][1] * invDet;
 	r3[1][0] = - r3[1][0] * invDet;
@@ -1050,10 +1031,9 @@ idMat5::Transpose
 */
 idMat5 idMat5::Transpose() const {
 	idMat5	transpose;
-	int		i, j;
-   
-	for( i = 0; i < 5; i++ ) {
-		for( j = 0; j < 5; j++ ) {
+
+	for( int i = 0; i < 5; i++ ) {
+		for( int j = 0; j < 5; j++ ) {
 			transpose[ i ][ j ] = mat[ j ][ i ];
         }
 	}
@@ -1066,12 +1046,9 @@ idMat5::TransposeSelf
 ============
 */
 idMat5 &idMat5::TransposeSelf() {
-	float	temp;
-	int		i, j;
-   
-	for( i = 0; i < 5; i++ ) {
-		for( j = i + 1; j < 5; j++ ) {
-			temp = mat[ i ][ j ];
+	for( int i = 0; i < 5; i++ ) {
+		for( int j = i + 1; j < 5; j++ ) {
+			float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
         }
@@ -1087,35 +1064,35 @@ idMat5::Determinant
 float idMat5::Determinant() const {
 
 	// 2x2 sub-determinants required to calculate 5x5 determinant
-	float det2_34_01 = mat[3][0] * mat[4][1] - mat[3][1] * mat[4][0];
-	float det2_34_02 = mat[3][0] * mat[4][2] - mat[3][2] * mat[4][0];
-	float det2_34_03 = mat[3][0] * mat[4][3] - mat[3][3] * mat[4][0];
-	float det2_34_04 = mat[3][0] * mat[4][4] - mat[3][4] * mat[4][0];
-	float det2_34_12 = mat[3][1] * mat[4][2] - mat[3][2] * mat[4][1];
-	float det2_34_13 = mat[3][1] * mat[4][3] - mat[3][3] * mat[4][1];
-	float det2_34_14 = mat[3][1] * mat[4][4] - mat[3][4] * mat[4][1];
-	float det2_34_23 = mat[3][2] * mat[4][3] - mat[3][3] * mat[4][2];
-	float det2_34_24 = mat[3][2] * mat[4][4] - mat[3][4] * mat[4][2];
-	float det2_34_34 = mat[3][3] * mat[4][4] - mat[3][4] * mat[4][3];
+	const float det2_34_01 = mat[3][0] * mat[4][1] - mat[3][1] * mat[4][0];
+	const float det2_34_02 = mat[3][0] * mat[4][2] - mat[3][2] * mat[4][0];
+	const float det2_34_03 = mat[3][0] * mat[4][3] - mat[3][3] * mat[4][0];
+	const float det2_34_04 = mat[3][0] * mat[4][4] - mat[3][4] * mat[4][0];
+	const float det2_34_12 = mat[3][1] * mat[4][2] - mat[3][2] * mat[4][1];
+	const float det2_34_13 = mat[3][1] * mat[4][3] - mat[3][3] * mat[4][1];
+	const float det2_34_14 = mat[3][1] * mat[4][4] - mat[3][4] * mat[4][1];
+	const float det2_34_23 = mat[3][2] * mat[4][3] - mat[3][3] * mat[4][2];
+	const float det2_34_24 = mat[3][2] * mat[4][4] - mat[3][4] * mat[4][2];
+	const float det2_34_34 = mat[3][3] * mat[4][4] - mat[3][4] * mat[4][3];
 
 	// 3x3 sub-determinants required to calculate 5x5 determinant
-	float det3_234_012 = mat[2][0] * det2_34_12 - mat[2][1] * det2_34_02 + mat[2][2] * det2_34_01;
-	float det3_234_013 = mat[2][0] * det2_34_13 - mat[2][1] * det2_34_03 + mat[2][3] * det2_34_01;
-	float det3_234_014 = mat[2][0] * det2_34_14 - mat[2][1] * det2_34_04 + mat[2][4] * det2_34_01;
-	float det3_234_023 = mat[2][0] * det2_34_23 - mat[2][2] * det2_34_03 + mat[2][3] * det2_34_02;
-	float det3_234_024 = mat[2][0] * det2_34_24 - mat[2][2] * det2_34_04 + mat[2][4] * det2_34_02;
-	float det3_234_034 = mat[2][0] * det2_34_34 - mat[2][3] * det2_34_04 + mat[2][4] * det2_34_03;
-	float det3_234_123 = mat[2][1] * det2_34_23 - mat[2][2] * det2_34_13 + mat[2][3] * det2_34_12;
-	float det3_234_124 = mat[2][1] * det2_34_24 - mat[2][2] * det2_34_14 + mat[2][4] * det2_34_12;
-	float det3_234_134 = mat[2][1] * det2_34_34 - mat[2][3] * det2_34_14 + mat[2][4] * det2_34_13;
-	float det3_234_234 = mat[2][2] * det2_34_34 - mat[2][3] * det2_34_24 + mat[2][4] * det2_34_23;
+	const float det3_234_012 = mat[2][0] * det2_34_12 - mat[2][1] * det2_34_02 + mat[2][2] * det2_34_01;
+	const float det3_234_013 = mat[2][0] * det2_34_13 - mat[2][1] * det2_34_03 + mat[2][3] * det2_34_01;
+	const float det3_234_014 = mat[2][0] * det2_34_14 - mat[2][1] * det2_34_04 + mat[2][4] * det2_34_01;
+	const float det3_234_023 = mat[2][0] * det2_34_23 - mat[2][2] * det2_34_03 + mat[2][3] * det2_34_02;
+	const float det3_234_024 = mat[2][0] * det2_34_24 - mat[2][2] * det2_34_04 + mat[2][4] * det2_34_02;
+	const float det3_234_034 = mat[2][0] * det2_34_34 - mat[2][3] * det2_34_04 + mat[2][4] * det2_34_03;
+	const float det3_234_123 = mat[2][1] * det2_34_23 - mat[2][2] * det2_34_13 + mat[2][3] * det2_34_12;
+	const float det3_234_124 = mat[2][1] * det2_34_24 - mat[2][2] * det2_34_14 + mat[2][4] * det2_34_12;
+	const float det3_234_134 = mat[2][1] * det2_34_34 - mat[2][3] * det2_34_14 + mat[2][4] * det2_34_13;
+	const float det3_234_234 = mat[2][2] * det2_34_34 - mat[2][3] * det2_34_24 + mat[2][4] * det2_34_23;
 
 	// 4x4 sub-determinants required to calculate 5x5 determinant
-	float det4_1234_0123 = mat[1][0] * det3_234_123 - mat[1][1] * det3_234_023 + mat[1][2] * det3_234_013 - mat[1][3] * det3_234_012;
-	float det4_1234_0124 = mat[1][0] * det3_234_124 - mat[1][1] * det3_234_024 + mat[1][2] * det3_234_014 - mat[1][4] * det3_234_012;
-	float det4_1234_0134 = mat[1][0] * det3_234_134 - mat[1][1] * det3_234_034 + mat[1][3] * det3_234_014 - mat[1][4] * det3_234_013;
-	float det4_1234_0234 = mat[1][0] * det3_234_234 - mat[1][2] * det3_234_034 + mat[1][3] * det3_234_024 - mat[1][4] * det3_234_023;
-	float det4_1234_1234 = mat[1][1] * det3_234_234 - mat[1][2] * det3_234_134 + mat[1][3] * det3_234_124 - mat[1][4] * det3_234_123;
+	const float det4_1234_0123 = mat[1][0] * det3_234_123 - mat[1][1] * det3_234_023 + mat[1][2] * det3_234_013 - mat[1][3] * det3_234_012;
+	const float det4_1234_0124 = mat[1][0] * det3_234_124 - mat[1][1] * det3_234_024 + mat[1][2] * det3_234_014 - mat[1][4] * det3_234_012;
+	const float det4_1234_0134 = mat[1][0] * det3_234_134 - mat[1][1] * det3_234_034 + mat[1][3] * det3_234_014 - mat[1][4] * det3_234_013;
+	const float det4_1234_0234 = mat[1][0] * det3_234_234 - mat[1][2] * det3_234_034 + mat[1][3] * det3_234_024 - mat[1][4] * det3_234_023;
+	const float det4_1234_1234 = mat[1][1] * det3_234_234 - mat[1][2] * det3_234_134 + mat[1][3] * det3_234_124 - mat[1][4] * det3_234_123;
 
 	// determinant of 5x5 matrix
 	return mat[0][0] * det4_1234_1234 - mat[0][1] * det4_1234_0234 + mat[0][2] * det4_1234_0134 - mat[0][3] * det4_1234_0124 + mat[0][4] * det4_1234_0123;
@@ -1611,21 +1588,20 @@ bool idMat5::InverseFastSelf() {
 	// 86+30+6 = 122 multiplications
 	//	  2*1  =   2 divisions
 	idMat3 r0, r1, r2, r3;
-	float c0, c1, c2, det, invDet;
 	float *mat = reinterpret_cast<float *>(this);
 
 	// r0 = m0.Inverse();	// 3x3
-	c0 = mat[1*5+1] * mat[2*5+2] - mat[1*5+2] * mat[2*5+1];
-	c1 = mat[1*5+2] * mat[2*5+0] - mat[1*5+0] * mat[2*5+2];
-	c2 = mat[1*5+0] * mat[2*5+1] - mat[1*5+1] * mat[2*5+0];
+	float c0 = mat[1 * 5 + 1] * mat[2 * 5 + 2] - mat[1 * 5 + 2] * mat[2 * 5 + 1];
+	float c1 = mat[1 * 5 + 2] * mat[2 * 5 + 0] - mat[1 * 5 + 0] * mat[2 * 5 + 2];
+	float c2 = mat[1 * 5 + 0] * mat[2 * 5 + 1] - mat[1 * 5 + 1] * mat[2 * 5 + 0];
 
-	det = mat[0*5+0] * c0 + mat[0*5+1] * c1 + mat[0*5+2] * c2;
+	float det = mat[0 * 5 + 0] * c0 + mat[0 * 5 + 1] * c1 + mat[0 * 5 + 2] * c2;
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	float invDet = 1.0f / det;
 
 	r0[0][0] = c0 * invDet;
 	r0[0][1] = ( mat[0*5+2] * mat[2*5+1] - mat[0*5+1] * mat[2*5+2] ) * invDet;
@@ -1743,10 +1719,9 @@ idMat6::Transpose
 */
 idMat6 idMat6::Transpose() const {
 	idMat6	transpose;
-	int		i, j;
-   
-	for( i = 0; i < 6; i++ ) {
-		for( j = 0; j < 6; j++ ) {
+
+	for( int i = 0; i < 6; i++ ) {
+		for( int j = 0; j < 6; j++ ) {
 			transpose[ i ][ j ] = mat[ j ][ i ];
         }
 	}
@@ -1759,12 +1734,9 @@ idMat6::TransposeSelf
 ============
 */
 idMat6 &idMat6::TransposeSelf() {
-	float	temp;
-	int		i, j;
-   
-	for( i = 0; i < 6; i++ ) {
-		for( j = i + 1; j < 6; j++ ) {
-			temp = mat[ i ][ j ];
+	for( int i = 0; i < 6; i++ ) {
+		for( int j = i + 1; j < 6; j++ ) {
+			float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
         }
@@ -1780,68 +1752,68 @@ idMat6::Determinant
 float idMat6::Determinant() const {
 
 	// 2x2 sub-determinants required to calculate 6x6 determinant
-	float det2_45_01 = mat[4][0] * mat[5][1] - mat[4][1] * mat[5][0];
-	float det2_45_02 = mat[4][0] * mat[5][2] - mat[4][2] * mat[5][0];
-	float det2_45_03 = mat[4][0] * mat[5][3] - mat[4][3] * mat[5][0];
-	float det2_45_04 = mat[4][0] * mat[5][4] - mat[4][4] * mat[5][0];
-	float det2_45_05 = mat[4][0] * mat[5][5] - mat[4][5] * mat[5][0];
-	float det2_45_12 = mat[4][1] * mat[5][2] - mat[4][2] * mat[5][1];
-	float det2_45_13 = mat[4][1] * mat[5][3] - mat[4][3] * mat[5][1];
-	float det2_45_14 = mat[4][1] * mat[5][4] - mat[4][4] * mat[5][1];
-	float det2_45_15 = mat[4][1] * mat[5][5] - mat[4][5] * mat[5][1];
-	float det2_45_23 = mat[4][2] * mat[5][3] - mat[4][3] * mat[5][2];
-	float det2_45_24 = mat[4][2] * mat[5][4] - mat[4][4] * mat[5][2];
-	float det2_45_25 = mat[4][2] * mat[5][5] - mat[4][5] * mat[5][2];
-	float det2_45_34 = mat[4][3] * mat[5][4] - mat[4][4] * mat[5][3];
-	float det2_45_35 = mat[4][3] * mat[5][5] - mat[4][5] * mat[5][3];
-	float det2_45_45 = mat[4][4] * mat[5][5] - mat[4][5] * mat[5][4];
+	const float det2_45_01 = mat[4][0] * mat[5][1] - mat[4][1] * mat[5][0];
+	const float det2_45_02 = mat[4][0] * mat[5][2] - mat[4][2] * mat[5][0];
+	const float det2_45_03 = mat[4][0] * mat[5][3] - mat[4][3] * mat[5][0];
+	const float det2_45_04 = mat[4][0] * mat[5][4] - mat[4][4] * mat[5][0];
+	const float det2_45_05 = mat[4][0] * mat[5][5] - mat[4][5] * mat[5][0];
+	const float det2_45_12 = mat[4][1] * mat[5][2] - mat[4][2] * mat[5][1];
+	const float det2_45_13 = mat[4][1] * mat[5][3] - mat[4][3] * mat[5][1];
+	const float det2_45_14 = mat[4][1] * mat[5][4] - mat[4][4] * mat[5][1];
+	const float det2_45_15 = mat[4][1] * mat[5][5] - mat[4][5] * mat[5][1];
+	const float det2_45_23 = mat[4][2] * mat[5][3] - mat[4][3] * mat[5][2];
+	const float det2_45_24 = mat[4][2] * mat[5][4] - mat[4][4] * mat[5][2];
+	const float det2_45_25 = mat[4][2] * mat[5][5] - mat[4][5] * mat[5][2];
+	const float det2_45_34 = mat[4][3] * mat[5][4] - mat[4][4] * mat[5][3];
+	const float det2_45_35 = mat[4][3] * mat[5][5] - mat[4][5] * mat[5][3];
+	const float det2_45_45 = mat[4][4] * mat[5][5] - mat[4][5] * mat[5][4];
 
 	// 3x3 sub-determinants required to calculate 6x6 determinant
-	float det3_345_012 = mat[3][0] * det2_45_12 - mat[3][1] * det2_45_02 + mat[3][2] * det2_45_01;
-	float det3_345_013 = mat[3][0] * det2_45_13 - mat[3][1] * det2_45_03 + mat[3][3] * det2_45_01;
-	float det3_345_014 = mat[3][0] * det2_45_14 - mat[3][1] * det2_45_04 + mat[3][4] * det2_45_01;
-	float det3_345_015 = mat[3][0] * det2_45_15 - mat[3][1] * det2_45_05 + mat[3][5] * det2_45_01;
-	float det3_345_023 = mat[3][0] * det2_45_23 - mat[3][2] * det2_45_03 + mat[3][3] * det2_45_02;
-	float det3_345_024 = mat[3][0] * det2_45_24 - mat[3][2] * det2_45_04 + mat[3][4] * det2_45_02;
-	float det3_345_025 = mat[3][0] * det2_45_25 - mat[3][2] * det2_45_05 + mat[3][5] * det2_45_02;
-	float det3_345_034 = mat[3][0] * det2_45_34 - mat[3][3] * det2_45_04 + mat[3][4] * det2_45_03;
-	float det3_345_035 = mat[3][0] * det2_45_35 - mat[3][3] * det2_45_05 + mat[3][5] * det2_45_03;
-	float det3_345_045 = mat[3][0] * det2_45_45 - mat[3][4] * det2_45_05 + mat[3][5] * det2_45_04;
-	float det3_345_123 = mat[3][1] * det2_45_23 - mat[3][2] * det2_45_13 + mat[3][3] * det2_45_12;
-	float det3_345_124 = mat[3][1] * det2_45_24 - mat[3][2] * det2_45_14 + mat[3][4] * det2_45_12;
-	float det3_345_125 = mat[3][1] * det2_45_25 - mat[3][2] * det2_45_15 + mat[3][5] * det2_45_12;
-	float det3_345_134 = mat[3][1] * det2_45_34 - mat[3][3] * det2_45_14 + mat[3][4] * det2_45_13;
-	float det3_345_135 = mat[3][1] * det2_45_35 - mat[3][3] * det2_45_15 + mat[3][5] * det2_45_13;
-	float det3_345_145 = mat[3][1] * det2_45_45 - mat[3][4] * det2_45_15 + mat[3][5] * det2_45_14;
-	float det3_345_234 = mat[3][2] * det2_45_34 - mat[3][3] * det2_45_24 + mat[3][4] * det2_45_23;
-	float det3_345_235 = mat[3][2] * det2_45_35 - mat[3][3] * det2_45_25 + mat[3][5] * det2_45_23;
-	float det3_345_245 = mat[3][2] * det2_45_45 - mat[3][4] * det2_45_25 + mat[3][5] * det2_45_24;
-	float det3_345_345 = mat[3][3] * det2_45_45 - mat[3][4] * det2_45_35 + mat[3][5] * det2_45_34;
+	const float det3_345_012 = mat[3][0] * det2_45_12 - mat[3][1] * det2_45_02 + mat[3][2] * det2_45_01;
+	const float det3_345_013 = mat[3][0] * det2_45_13 - mat[3][1] * det2_45_03 + mat[3][3] * det2_45_01;
+	const float det3_345_014 = mat[3][0] * det2_45_14 - mat[3][1] * det2_45_04 + mat[3][4] * det2_45_01;
+	const float det3_345_015 = mat[3][0] * det2_45_15 - mat[3][1] * det2_45_05 + mat[3][5] * det2_45_01;
+	const float det3_345_023 = mat[3][0] * det2_45_23 - mat[3][2] * det2_45_03 + mat[3][3] * det2_45_02;
+	const float det3_345_024 = mat[3][0] * det2_45_24 - mat[3][2] * det2_45_04 + mat[3][4] * det2_45_02;
+	const float det3_345_025 = mat[3][0] * det2_45_25 - mat[3][2] * det2_45_05 + mat[3][5] * det2_45_02;
+	const float det3_345_034 = mat[3][0] * det2_45_34 - mat[3][3] * det2_45_04 + mat[3][4] * det2_45_03;
+	const float det3_345_035 = mat[3][0] * det2_45_35 - mat[3][3] * det2_45_05 + mat[3][5] * det2_45_03;
+	const float det3_345_045 = mat[3][0] * det2_45_45 - mat[3][4] * det2_45_05 + mat[3][5] * det2_45_04;
+	const float det3_345_123 = mat[3][1] * det2_45_23 - mat[3][2] * det2_45_13 + mat[3][3] * det2_45_12;
+	const float det3_345_124 = mat[3][1] * det2_45_24 - mat[3][2] * det2_45_14 + mat[3][4] * det2_45_12;
+	const float det3_345_125 = mat[3][1] * det2_45_25 - mat[3][2] * det2_45_15 + mat[3][5] * det2_45_12;
+	const float det3_345_134 = mat[3][1] * det2_45_34 - mat[3][3] * det2_45_14 + mat[3][4] * det2_45_13;
+	const float det3_345_135 = mat[3][1] * det2_45_35 - mat[3][3] * det2_45_15 + mat[3][5] * det2_45_13;
+	const float det3_345_145 = mat[3][1] * det2_45_45 - mat[3][4] * det2_45_15 + mat[3][5] * det2_45_14;
+	const float det3_345_234 = mat[3][2] * det2_45_34 - mat[3][3] * det2_45_24 + mat[3][4] * det2_45_23;
+	const float det3_345_235 = mat[3][2] * det2_45_35 - mat[3][3] * det2_45_25 + mat[3][5] * det2_45_23;
+	const float det3_345_245 = mat[3][2] * det2_45_45 - mat[3][4] * det2_45_25 + mat[3][5] * det2_45_24;
+	const float det3_345_345 = mat[3][3] * det2_45_45 - mat[3][4] * det2_45_35 + mat[3][5] * det2_45_34;
 
 	// 4x4 sub-determinants required to calculate 6x6 determinant
-	float det4_2345_0123 = mat[2][0] * det3_345_123 - mat[2][1] * det3_345_023 + mat[2][2] * det3_345_013 - mat[2][3] * det3_345_012;
-	float det4_2345_0124 = mat[2][0] * det3_345_124 - mat[2][1] * det3_345_024 + mat[2][2] * det3_345_014 - mat[2][4] * det3_345_012;
-	float det4_2345_0125 = mat[2][0] * det3_345_125 - mat[2][1] * det3_345_025 + mat[2][2] * det3_345_015 - mat[2][5] * det3_345_012;
-	float det4_2345_0134 = mat[2][0] * det3_345_134 - mat[2][1] * det3_345_034 + mat[2][3] * det3_345_014 - mat[2][4] * det3_345_013;
-	float det4_2345_0135 = mat[2][0] * det3_345_135 - mat[2][1] * det3_345_035 + mat[2][3] * det3_345_015 - mat[2][5] * det3_345_013;
-	float det4_2345_0145 = mat[2][0] * det3_345_145 - mat[2][1] * det3_345_045 + mat[2][4] * det3_345_015 - mat[2][5] * det3_345_014;
-	float det4_2345_0234 = mat[2][0] * det3_345_234 - mat[2][2] * det3_345_034 + mat[2][3] * det3_345_024 - mat[2][4] * det3_345_023;
-	float det4_2345_0235 = mat[2][0] * det3_345_235 - mat[2][2] * det3_345_035 + mat[2][3] * det3_345_025 - mat[2][5] * det3_345_023;
-	float det4_2345_0245 = mat[2][0] * det3_345_245 - mat[2][2] * det3_345_045 + mat[2][4] * det3_345_025 - mat[2][5] * det3_345_024;
-	float det4_2345_0345 = mat[2][0] * det3_345_345 - mat[2][3] * det3_345_045 + mat[2][4] * det3_345_035 - mat[2][5] * det3_345_034;
-	float det4_2345_1234 = mat[2][1] * det3_345_234 - mat[2][2] * det3_345_134 + mat[2][3] * det3_345_124 - mat[2][4] * det3_345_123;
-	float det4_2345_1235 = mat[2][1] * det3_345_235 - mat[2][2] * det3_345_135 + mat[2][3] * det3_345_125 - mat[2][5] * det3_345_123;
-	float det4_2345_1245 = mat[2][1] * det3_345_245 - mat[2][2] * det3_345_145 + mat[2][4] * det3_345_125 - mat[2][5] * det3_345_124;
-	float det4_2345_1345 = mat[2][1] * det3_345_345 - mat[2][3] * det3_345_145 + mat[2][4] * det3_345_135 - mat[2][5] * det3_345_134;
-	float det4_2345_2345 = mat[2][2] * det3_345_345 - mat[2][3] * det3_345_245 + mat[2][4] * det3_345_235 - mat[2][5] * det3_345_234;
+	const float det4_2345_0123 = mat[2][0] * det3_345_123 - mat[2][1] * det3_345_023 + mat[2][2] * det3_345_013 - mat[2][3] * det3_345_012;
+	const float det4_2345_0124 = mat[2][0] * det3_345_124 - mat[2][1] * det3_345_024 + mat[2][2] * det3_345_014 - mat[2][4] * det3_345_012;
+	const float det4_2345_0125 = mat[2][0] * det3_345_125 - mat[2][1] * det3_345_025 + mat[2][2] * det3_345_015 - mat[2][5] * det3_345_012;
+	const float det4_2345_0134 = mat[2][0] * det3_345_134 - mat[2][1] * det3_345_034 + mat[2][3] * det3_345_014 - mat[2][4] * det3_345_013;
+	const float det4_2345_0135 = mat[2][0] * det3_345_135 - mat[2][1] * det3_345_035 + mat[2][3] * det3_345_015 - mat[2][5] * det3_345_013;
+	const float det4_2345_0145 = mat[2][0] * det3_345_145 - mat[2][1] * det3_345_045 + mat[2][4] * det3_345_015 - mat[2][5] * det3_345_014;
+	const float det4_2345_0234 = mat[2][0] * det3_345_234 - mat[2][2] * det3_345_034 + mat[2][3] * det3_345_024 - mat[2][4] * det3_345_023;
+	const float det4_2345_0235 = mat[2][0] * det3_345_235 - mat[2][2] * det3_345_035 + mat[2][3] * det3_345_025 - mat[2][5] * det3_345_023;
+	const float det4_2345_0245 = mat[2][0] * det3_345_245 - mat[2][2] * det3_345_045 + mat[2][4] * det3_345_025 - mat[2][5] * det3_345_024;
+	const float det4_2345_0345 = mat[2][0] * det3_345_345 - mat[2][3] * det3_345_045 + mat[2][4] * det3_345_035 - mat[2][5] * det3_345_034;
+	const float det4_2345_1234 = mat[2][1] * det3_345_234 - mat[2][2] * det3_345_134 + mat[2][3] * det3_345_124 - mat[2][4] * det3_345_123;
+	const float det4_2345_1235 = mat[2][1] * det3_345_235 - mat[2][2] * det3_345_135 + mat[2][3] * det3_345_125 - mat[2][5] * det3_345_123;
+	const float det4_2345_1245 = mat[2][1] * det3_345_245 - mat[2][2] * det3_345_145 + mat[2][4] * det3_345_125 - mat[2][5] * det3_345_124;
+	const float det4_2345_1345 = mat[2][1] * det3_345_345 - mat[2][3] * det3_345_145 + mat[2][4] * det3_345_135 - mat[2][5] * det3_345_134;
+	const float det4_2345_2345 = mat[2][2] * det3_345_345 - mat[2][3] * det3_345_245 + mat[2][4] * det3_345_235 - mat[2][5] * det3_345_234;
 
 	// 5x5 sub-determinants required to calculate 6x6 determinant
-	float det5_12345_01234 = mat[1][0] * det4_2345_1234 - mat[1][1] * det4_2345_0234 + mat[1][2] * det4_2345_0134 - mat[1][3] * det4_2345_0124 + mat[1][4] * det4_2345_0123;
-	float det5_12345_01235 = mat[1][0] * det4_2345_1235 - mat[1][1] * det4_2345_0235 + mat[1][2] * det4_2345_0135 - mat[1][3] * det4_2345_0125 + mat[1][5] * det4_2345_0123;
-	float det5_12345_01245 = mat[1][0] * det4_2345_1245 - mat[1][1] * det4_2345_0245 + mat[1][2] * det4_2345_0145 - mat[1][4] * det4_2345_0125 + mat[1][5] * det4_2345_0124;
-	float det5_12345_01345 = mat[1][0] * det4_2345_1345 - mat[1][1] * det4_2345_0345 + mat[1][3] * det4_2345_0145 - mat[1][4] * det4_2345_0135 + mat[1][5] * det4_2345_0134;
-	float det5_12345_02345 = mat[1][0] * det4_2345_2345 - mat[1][2] * det4_2345_0345 + mat[1][3] * det4_2345_0245 - mat[1][4] * det4_2345_0235 + mat[1][5] * det4_2345_0234;
-	float det5_12345_12345 = mat[1][1] * det4_2345_2345 - mat[1][2] * det4_2345_1345 + mat[1][3] * det4_2345_1245 - mat[1][4] * det4_2345_1235 + mat[1][5] * det4_2345_1234;
+	const float det5_12345_01234 = mat[1][0] * det4_2345_1234 - mat[1][1] * det4_2345_0234 + mat[1][2] * det4_2345_0134 - mat[1][3] * det4_2345_0124 + mat[1][4] * det4_2345_0123;
+	const float det5_12345_01235 = mat[1][0] * det4_2345_1235 - mat[1][1] * det4_2345_0235 + mat[1][2] * det4_2345_0135 - mat[1][3] * det4_2345_0125 + mat[1][5] * det4_2345_0123;
+	const float det5_12345_01245 = mat[1][0] * det4_2345_1245 - mat[1][1] * det4_2345_0245 + mat[1][2] * det4_2345_0145 - mat[1][4] * det4_2345_0125 + mat[1][5] * det4_2345_0124;
+	const float det5_12345_01345 = mat[1][0] * det4_2345_1345 - mat[1][1] * det4_2345_0345 + mat[1][3] * det4_2345_0145 - mat[1][4] * det4_2345_0135 + mat[1][5] * det4_2345_0134;
+	const float det5_12345_02345 = mat[1][0] * det4_2345_2345 - mat[1][2] * det4_2345_0345 + mat[1][3] * det4_2345_0245 - mat[1][4] * det4_2345_0235 + mat[1][5] * det4_2345_0234;
+	const float det5_12345_12345 = mat[1][1] * det4_2345_2345 - mat[1][2] * det4_2345_1345 + mat[1][3] * det4_2345_1245 - mat[1][4] * det4_2345_1235 + mat[1][5] * det4_2345_1234;
 
 	// determinant of 6x6 matrix
 	return	mat[0][0] * det5_12345_12345 - mat[0][1] * det5_12345_02345 + mat[0][2] * det5_12345_01345 -
@@ -2758,21 +2730,20 @@ bool idMat6::InverseFastSelf() {
 	// 6*27+2*30 = 222 multiplications
 	//		2*1  =	 2 divisions
 	idMat3 r0, r1, r2, r3;
-	float c0, c1, c2, det, invDet;
 	float *mat = reinterpret_cast<float *>(this);
 
 	// r0 = m0.Inverse();
-	c0 = mat[1*6+1] * mat[2*6+2] - mat[1*6+2] * mat[2*6+1];
-	c1 = mat[1*6+2] * mat[2*6+0] - mat[1*6+0] * mat[2*6+2];
-	c2 = mat[1*6+0] * mat[2*6+1] - mat[1*6+1] * mat[2*6+0];
+	float c0 = mat[1 * 6 + 1] * mat[2 * 6 + 2] - mat[1 * 6 + 2] * mat[2 * 6 + 1];
+	float c1 = mat[1 * 6 + 2] * mat[2 * 6 + 0] - mat[1 * 6 + 0] * mat[2 * 6 + 2];
+	float c2 = mat[1 * 6 + 0] * mat[2 * 6 + 1] - mat[1 * 6 + 1] * mat[2 * 6 + 0];
 
-	det = mat[0*6+0] * c0 + mat[0*6+1] * c1 + mat[0*6+2] * c2;
+	float det = mat[0 * 6 + 0] * c0 + mat[0 * 6 + 1] * c1 + mat[0 * 6 + 2] * c2;
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	float invDet = 1.0f / det;
 
 	r0[0][0] = c0 * invDet;
 	r0[0][1] = ( mat[0*6+2] * mat[2*6+1] - mat[0*6+1] * mat[2*6+2] ) * invDet;

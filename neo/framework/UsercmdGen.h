@@ -40,42 +40,42 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // usercmd_t->button bits
-const int BUTTON_ATTACK			= BIT(0);
-const int BUTTON_RUN			= BIT(1);
-const int BUTTON_ZOOM			= BIT(2);
-const int BUTTON_SCORES			= BIT(3);
-const int BUTTON_USE			= BIT(4);
-const int BUTTON_JUMP			= BIT(5);
-const int BUTTON_CROUCH			= BIT(6);
-const int BUTTON_CHATTING		= BIT(7);
+constexpr int BUTTON_ATTACK			= BIT(0);
+constexpr int BUTTON_RUN			= BIT(1);
+constexpr int BUTTON_ZOOM			= BIT(2);
+constexpr int BUTTON_SCORES			= BIT(3);
+constexpr int BUTTON_USE			= BIT(4);
+constexpr int BUTTON_JUMP			= BIT(5);
+constexpr int BUTTON_CROUCH			= BIT(6);
+constexpr int BUTTON_CHATTING		= BIT(7);
 
 // usercmd_t->impulse commands
-const int IMPULSE_0				= 0;			// weap 0
-const int IMPULSE_1				= 1;			// weap 1
-const int IMPULSE_2				= 2;			// weap 2
-const int IMPULSE_3				= 3;			// weap 3
-const int IMPULSE_4				= 4;			// weap 4
-const int IMPULSE_5				= 5;			// weap 5
-const int IMPULSE_6				= 6;			// weap 6
-const int IMPULSE_7				= 7;			// weap 7
-const int IMPULSE_8				= 8;			// weap 8
-const int IMPULSE_9				= 9;			// weap 9
-const int IMPULSE_10			= 10;			// weap 10
-const int IMPULSE_11			= 11;			// weap 11
-const int IMPULSE_12			= 12;			// weap 12
-const int IMPULSE_13			= 13;			// weap reload
-const int IMPULSE_14			= 14;			// weap next
-const int IMPULSE_15			= 15;			// weap prev
-const int IMPULSE_16			= 16;			// toggle flashlight on/off
-const int IMPULSE_18			= 18;			// center view
-const int IMPULSE_19			= 19;			// show PDA/SCORES
-const int IMPULSE_22			= 22;			// spectate
-const int IMPULSE_25			= 25;			// Envirosuit light
-const int IMPULSE_27			= 27;			// Chainsaw
-const int IMPULSE_28			= 28;			// quick 0
-const int IMPULSE_29			= 29;			// quick 1
-const int IMPULSE_30			= 30;			// quick 2
-const int IMPULSE_31			= 31;			// quick 3
+constexpr int IMPULSE_0				= 0;			// weap 0
+constexpr int IMPULSE_1				= 1;			// weap 1
+constexpr int IMPULSE_2				= 2;			// weap 2
+constexpr int IMPULSE_3				= 3;			// weap 3
+constexpr int IMPULSE_4				= 4;			// weap 4
+constexpr int IMPULSE_5				= 5;			// weap 5
+constexpr int IMPULSE_6				= 6;			// weap 6
+constexpr int IMPULSE_7				= 7;			// weap 7
+constexpr int IMPULSE_8				= 8;			// weap 8
+constexpr int IMPULSE_9				= 9;			// weap 9
+constexpr int IMPULSE_10			= 10;			// weap 10
+constexpr int IMPULSE_11			= 11;			// weap 11
+constexpr int IMPULSE_12			= 12;			// weap 12
+constexpr int IMPULSE_13			= 13;			// weap reload
+constexpr int IMPULSE_14			= 14;			// weap next
+constexpr int IMPULSE_15			= 15;			// weap prev
+constexpr int IMPULSE_16			= 16;			// toggle flashlight on/off
+constexpr int IMPULSE_18			= 18;			// center view
+constexpr int IMPULSE_19			= 19;			// show PDA/SCORES
+constexpr int IMPULSE_22			= 22;			// spectate
+constexpr int IMPULSE_25			= 25;			// Envirosuit light
+constexpr int IMPULSE_27			= 27;			// Chainsaw
+constexpr int IMPULSE_28			= 28;			// quick 0
+constexpr int IMPULSE_29			= 29;			// quick 1
+constexpr int IMPULSE_30			= 30;			// quick 2
+constexpr int IMPULSE_31			= 31;			// quick 3
 
 class usercmd_t {
 public:
@@ -256,7 +256,7 @@ public:
 
 	// Set to 128 for now
 	// Temp fix for usercmds overflowing  Correct fix is to process usercmds as they come in (like q3), rather then buffer them up.
-	static const int USERCMD_BUFFER_SIZE = 128;
+	static constexpr int USERCMD_BUFFER_SIZE = 128;
 	
 	//usercmd_t	cmdBuffer[ USERCMD_BUFFER_SIZE ][ MAX_PLAYERS ];
 	id2DArray< usercmd_t, USERCMD_BUFFER_SIZE, MAX_PLAYERS >::type	cmdBuffer;

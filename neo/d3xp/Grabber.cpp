@@ -602,7 +602,7 @@ int idGrabber::Update( idPlayer *player, bool hide ) {
 			}
 
 			// Make sure the object isn't spinning too fast
-			const float MAX_ROTATION_SPEED = 12.f;
+			constexpr float MAX_ROTATION_SPEED = 12.f;
 
 			idVec3	angVel = entPhys->GetAngularVelocity();
 			float	rotationSpeed = angVel.LengthFast();

@@ -46,7 +46,7 @@ idSWF::idSWF
 */
 idSWF::idSWF( const char * filename_, idSoundWorld * soundWorld_ ) {
 
-	atlasMaterial = NULL;
+	atlasMaterial = nullptr;
 
 	swfScale = 1.0f;
 	scaleToVirtual.Set( 1.0f, 1.0f );
@@ -71,10 +71,10 @@ idSWF::idSWF( const char * filename_, idSoundWorld * soundWorld_ ) {
 	 tooltipButtonImage.Append( keyButtonImages_t( "<MOUSE3>", "guis/assets/hud/controller/mouse3", "", 64, 52, 0 ) );
 	 	
 	for ( int index = 0; index < tooltipButtonImage.Num(); index++ ) {
-		if ( ( tooltipButtonImage[index].xbImage != NULL ) && ( tooltipButtonImage[index].xbImage[0] != '\0' ) ) {
+		if ( ( tooltipButtonImage[index].xbImage != nullptr) && ( tooltipButtonImage[index].xbImage[0] != '\0' ) ) {
 			declManager->FindMaterial( tooltipButtonImage[index].xbImage );
 		}
-		if ( ( tooltipButtonImage[index].psImage != NULL ) && ( tooltipButtonImage[index].psImage[0] != '\0' ) ) {
+		if ( ( tooltipButtonImage[index].psImage != nullptr) && ( tooltipButtonImage[index].psImage[0] != '\0' ) ) {
 			declManager->FindMaterial( tooltipButtonImage[index].psImage );
 		}
 	}
@@ -96,9 +96,9 @@ idSWF::idSWF( const char * filename_, idSoundWorld * soundWorld_ ) {
 	useMouse = true;
 	mouseEnabled = false;
 	renderBorder = 0;
-	mouseObject = NULL;
-	hoverObject = NULL;
-	soundWorld = NULL;
+	mouseObject = nullptr;
+	hoverObject = nullptr;
+	soundWorld = nullptr;
 	forceNonPCPlatform = false;
 
 	if ( idStr::Cmpn( filename_, "swf/", 4 ) != 0 ) {
@@ -115,7 +115,7 @@ idSWF::idSWF( const char * filename_, idSoundWorld * soundWorld_ ) {
 	timestamp = fileSystem->GetTimestamp( filename );
 
 	mainsprite = new (TAG_SWF) idSWFSprite( this );
-	mainspriteInstance = NULL;
+	mainspriteInstance = nullptr;
 
 	idStr binaryFileName = "generated/";
 	binaryFileName += filename;
@@ -141,7 +141,7 @@ idSWF::idSWF( const char * filename_, idSoundWorld * soundWorld_ ) {
 	globals->Set( "Object", &scriptFunction_Object );
 
 	mainspriteInstance = spriteInstanceAllocator.Alloc();
-	mainspriteInstance->Init( mainsprite, NULL, 0 );
+	mainspriteInstance->Init( mainsprite, nullptr, 0 );
 
 	shortcutKeys = idSWFScriptObject::Alloc();
 	scriptFunction_shortcutKeys_clear.Bind( this );
@@ -216,23 +216,23 @@ idSWF::~idSWF() {
 	for ( int i = 0 ; i < dictionary.Num() ; i++ ) {
 		if ( dictionary[i].sprite ) {
 			delete dictionary[i].sprite;
-			dictionary[i].sprite = NULL;
+			dictionary[i].sprite = nullptr;
 		}
 		if ( dictionary[i].shape ) {
 			delete dictionary[i].shape;
-			dictionary[i].shape = NULL;
+			dictionary[i].shape = nullptr;
 		}
 		if ( dictionary[i].font ) {
 			delete dictionary[i].font;
-			dictionary[i].font = NULL;
+			dictionary[i].font = nullptr;
 		}
 		if ( dictionary[i].text ) {
 			delete dictionary[i].text;
-			dictionary[i].text = NULL;
+			dictionary[i].text = nullptr;
 		}
 		if ( dictionary[i].edittext ) {
 			delete dictionary[i].edittext;
-			dictionary[i].edittext = NULL;
+			dictionary[i].edittext = nullptr;
 		}
 	}
 	
@@ -284,7 +284,7 @@ int idSWF::PlaySound( const char * sound, int channel, bool blocking ) {
 	if ( !IsActive() ) {
 		return -1;
 	}
-	if ( soundWorld != NULL ) {
+	if ( soundWorld != nullptr) {
 		return soundWorld->PlayShaderDirectly( sound, channel );
 	} else {
 		idLib::Warning( "No playing sound world on soundSystem in swf play sound!" );
@@ -298,8 +298,8 @@ idSWF::PlaySound
 ===================
 */
 void idSWF::StopSound( int channel ) {
-	if ( soundWorld != NULL ) {
-		soundWorld->PlayShaderDirectly( NULL, channel );
+	if ( soundWorld != nullptr) {
+		soundWorld->PlayShaderDirectly(nullptr, channel );
 	} else {
 		idLib::Warning( "No playing sound world on soundSystem in swf play sound!" );
 	}

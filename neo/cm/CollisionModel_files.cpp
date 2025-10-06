@@ -374,8 +374,8 @@ cm_node_t *idCollisionModelManagerLocal::ParseNodes( idLexer *src, cm_model_t *m
 
 	model->numNodes++;
 	node = AllocNode( model, model->numNodes < NODE_BLOCK_SIZE_SMALL ? NODE_BLOCK_SIZE_SMALL : NODE_BLOCK_SIZE_LARGE );
-	node->brushes = NULL;
-	node->polygons = NULL;
+	node->brushes = nullptr;
+	node->polygons = nullptr;
 	node->parent = parent;
 	src->ExpectTokenString( "(" );
 	node->planeType = src->ParseInt();
@@ -421,13 +421,13 @@ void idCollisionModelManagerLocal::ParsePolygons( idLexer *src, cm_model_t *mode
 		p->plane.SetDist( src->ParseFloat() );
 		src->Parse1DMatrix( 3, p->bounds[0].ToFloatPtr() );
 		src->Parse1DMatrix( 3, p->bounds[1].ToFloatPtr() );
-		src->ExpectTokenType( TT_STRING, 0, &token );
+		src->ExpectTokenType(TT_STRING, 0, &token );
 		// get material
 		p->material = declManager->FindMaterial( token );
 		p->contents = p->material->GetContentFlags();
 		p->checkcount = 0;
 		// filter polygon into tree
-		R_FilterPolygonIntoTree( model, model->node, NULL, p );
+		R_FilterPolygonIntoTree( model, model->node, nullptr, p );
 	}
 }
 
@@ -471,9 +471,9 @@ void idCollisionModelManagerLocal::ParseBrushes( idLexer *src, cm_model_t *model
 		}
 		b->checkcount = 0;
 		b->primitiveNum = 0;
-		b->material = NULL;
+		b->material = nullptr;
 		// filter brush into tree
-		R_FilterBrushIntoTree( model, model->node, NULL, b );
+		R_FilterBrushIntoTree( model, model->node, nullptr, b );
 	}
 }
 
@@ -489,13 +489,13 @@ cm_model_t * idCollisionModelManagerLocal::ParseCollisionModel( idLexer *src ) {
 
 	if ( numModels >= MAX_SUBMODELS ) {
 		common->Error( "LoadModel: no free slots" );
-		return NULL;
+		return nullptr;
 	}
 	model = AllocModel();
 	models[numModels ] = model;
 	numModels++;
 	// parse the file
-	src->ExpectTokenType( TT_STRING, 0, &token );
+	src->ExpectTokenType(TT_STRING, 0, &token );
 	model->name = token;
 	src->ExpectTokenString( "{" );
 	while ( !src->CheckTokenString( "}" ) ) {
@@ -514,7 +514,7 @@ cm_model_t * idCollisionModelManagerLocal::ParseCollisionModel( idLexer *src ) {
 
 		if ( token == "nodes" ) {
 			src->ExpectTokenString( "{" );
-			model->node = ParseNodes( src, model, NULL );
+			model->node = ParseNodes( src, model, nullptr);
 			src->ExpectTokenString( "}" );
 			continue;
 		}
@@ -575,7 +575,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 	// see if we have a generated version of this 
 	bool loaded = false;
 	idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
-	if ( file != NULL ) {
+	if ( file != nullptr) {
 		int numEntries = 0;
 		file->ReadBig( numEntries );
 		file->ReadString( mapName );
@@ -606,7 +606,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 
 		int numEntries = 0;
 		idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
-		if ( outputFile != NULL ) {
+		if ( outputFile != nullptr) {
 			outputFile->WriteBig( numEntries );
 			outputFile->WriteString( mapName );
 			outputFile->WriteBig( mapFileCRC );
@@ -626,7 +626,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 			return false;
 		}
 
-		if ( !src->ExpectTokenType( TT_NUMBER, TT_INTEGER, &token ) ) {
+		if ( !src->ExpectTokenType(TT_NUMBER, TT_INTEGER, &token ) ) {
 			common->Warning( "%s has no map file CRC", fileName.c_str() );
 			delete src;
 			return false;
@@ -647,11 +647,11 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 
 			if ( token == "collisionModel" ) {
 				cm_model_t *model = ParseCollisionModel( src );
-				if ( model == NULL ) {
+				if ( model == nullptr) {
 					delete src;
 					return false;
 				}
-				if ( outputFile != NULL ) {
+				if ( outputFile != nullptr) {
 					WriteBinaryModelToFile( model, outputFile, currentTimeStamp );
 					numEntries++;
 				}
@@ -661,7 +661,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 			src->Error( "idCollisionModelManagerLocal::LoadCollisionModelFile: bad token \"%s\"", token.c_str() );
 		}
 		delete src;
-		if ( outputFile != NULL ) {
+		if ( outputFile != nullptr) {
 			outputFile->Seek( 0, FS_SEEK_SET );
 			outputFile->WriteBig( numEntries );
 		}

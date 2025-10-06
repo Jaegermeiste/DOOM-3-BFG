@@ -53,8 +53,8 @@ the level for matchmaking, etc.
 ================================================================================================
 */
 
-const int MAX_LEADERBOARDS			= 256;
-const int MAX_LEADERBOARD_COLUMNS	= 16;
+constexpr int MAX_LEADERBOARDS			= 256;
+constexpr int MAX_LEADERBOARD_COLUMNS	= 16;
 
 enum aggregationMethod_t {
 	AGGREGATE_MIN,  // Write the new value if it is less than the existing value.
@@ -87,7 +87,7 @@ struct leaderboardDefinition_t {
 	leaderboardDefinition_t() :
 		id ( -1 ),
 		numColumns( 0 ),
-		columnDefs( NULL ),
+		columnDefs(nullptr),
 		rankOrder( RANK_GREATEST_FIRST ),
 		supportsAttachments( false ),
 		checkAgainstCurrent( false ) {
@@ -134,7 +134,7 @@ idLeaderBoardEntry
 */
 class idLeaderBoardEntry {
 public:
-	static const int MAX_LEADERBOARD_COLUMNS = 16;
+	static constexpr int MAX_LEADERBOARD_COLUMNS = 16;
 	idStr username; // aka gamertag
 	int64 score;
 	int64 columns[ MAX_LEADERBOARD_COLUMNS ];

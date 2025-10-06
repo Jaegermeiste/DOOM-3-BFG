@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <utility>
+
 #include "precompiled.h"
 
 /*
@@ -41,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 idBitMsg::CheckOverflow
 ========================
 */
-bool idBitMsg::CheckOverflow(const int numBits ) {
+bool idBitMsg::CheckOverflow(const size_t numBits ) {
 	if ( numBits > GetRemainingWriteBits() ) {
 		if ( !allowOverflow ) {
 			idLib::FatalError( "idBitMsg: overflow without allowOverflow set; maxsize=%i size=%i numBits=%i numRemainingWriteBits=%i",
@@ -63,9 +65,7 @@ bool idBitMsg::CheckOverflow(const int numBits ) {
 idBitMsg::GetByteSpace
 ========================
 */
-byte *idBitMsg::GetByteSpace(const int length ) {
-	byte *ptr;
-
+byte *idBitMsg::GetByteSpace(const size_t length ) {
 	if ( !writeData ) {
 		idLib::FatalError( "idBitMsg::GetByteSpace: cannot write to message" );
 	}
@@ -76,7 +76,7 @@ byte *idBitMsg::GetByteSpace(const int length ) {
 	// check for overflow
 	CheckOverflow( length << 3 );
 
-	ptr = writeData + curSize;
+	byte* ptr = writeData + curSize;
 	curSize += length;
 	return ptr;
 }
@@ -98,7 +98,7 @@ idBitMsg::WriteBits
 If the number of bits is negative a sign is included.
 ========================
 */
-void idBitMsg::WriteBits(const int value, int numBits ) {
+void idBitMsg::WriteBits(const int value, short numBits ) {
 	if ( !writeData ) {
 		idLib::FatalError( "idBitMsg::WriteBits: cannot write to message" );
 	}
@@ -121,7 +121,7 @@ void idBitMsg::WriteBits(const int value, int numBits ) {
 			}
 		} else {
 			const unsigned shift = ( -1 - numBits );
-			int r = 1 << shift;
+			const int r = 1 << shift;
 			if ( value > r - 1 ) {
 				idLib::FatalError( "idBitMsg::WriteBits: value overflow %d %d", 
 									  value, numBits );
@@ -143,7 +143,7 @@ void idBitMsg::WriteBits(const int value, int numBits ) {
 	}
 
 	// Merge value with possible previous leftover
-	tempValue |= (((int64)value) & maskForNumBits64[numBits] ) << writeBit;
+	tempValue |= (static_cast<int64>(value) & maskForNumBits64[numBits] ) << writeBit;
 	
 	writeBit += numBits;
 	
@@ -165,20 +165,18 @@ void idBitMsg::WriteBits(const int value, int numBits ) {
 idBitMsg::WriteString
 ========================
 */
-void idBitMsg::WriteString( const char * s, const int maxLength, const bool make7Bit ) {
+void idBitMsg::WriteString( const char * s, const int64 maxLength, const bool make7Bit ) {
 	if ( !s ) {
 		WriteData( "", 1 );
 	} else {
-		int i, l;
-		byte *dataPtr;
-		const byte *bytePtr;
+		size_t i;
 
-		l = idStr::Length( s );
-		if ( maxLength >= 0 && l >= maxLength ) {
+		size_t l = idStr::Length(s);
+		if ( maxLength >= 0 && std::cmp_greater_equal(l, maxLength)) {
 			l = maxLength - 1;
 		}
-		dataPtr = GetByteSpace( l + 1 );
-		bytePtr = reinterpret_cast< const byte * >( s );
+		byte* dataPtr = GetByteSpace(l + 1);
+		const byte* bytePtr = reinterpret_cast<const byte*>(s);
 		if ( make7Bit ) {
 			for ( i = 0; i < l; i++ ) {
 				if ( bytePtr[i] > 127 ) {
@@ -201,7 +199,7 @@ void idBitMsg::WriteString( const char * s, const int maxLength, const bool make
 idBitMsg::WriteData
 ========================
 */
-void idBitMsg::WriteData( const void *data, const int length ) {
+void idBitMsg::WriteData( const void *data, const size_t length ) {
 	memcpy( GetByteSpace( length ), data, length );
 }
 
@@ -226,12 +224,12 @@ bool idBitMsg::WriteDeltaDict( const idDict &dict, const idDict *base ) {
 	const idKeyValue *kv, *basekv;
 	bool changed = false;
 
-	if ( base != NULL ) {
+	if ( base != nullptr) {
 
 		for ( i = 0; i < dict.GetNumKeyVals(); i++ ) {
 			kv = dict.GetKeyVal( i );
 			basekv = base->FindKey( kv->GetKey() );
-			if ( basekv == NULL || basekv->GetValue().Icmp( kv->GetValue() ) != 0 ) {
+			if ( basekv == nullptr || basekv->GetValue().Icmp( kv->GetValue() ) != 0 ) {
 				WriteString( kv->GetKey() );
 				WriteString( kv->GetValue() );
 				changed = true;
@@ -243,7 +241,7 @@ bool idBitMsg::WriteDeltaDict( const idDict &dict, const idDict *base ) {
 		for ( i = 0; i < base->GetNumKeyVals(); i++ ) {
 			basekv = base->GetKeyVal( i );
 			kv = dict.FindKey( basekv->GetKey() );
-			if ( kv == NULL ) {
+			if ( kv == nullptr) {
 				WriteString( basekv->GetKey() );
 				changed = true;
 			}
@@ -276,10 +274,6 @@ If the number of bits is negative a sign is included.
 ========================
 */
 int idBitMsg::ReadBits( int numBits ) const {
-	int		value;
-	int		valueBits;
-	int		get;
-	int		fraction;
 	bool	sgn;
 
 	if ( !readData ) {
@@ -291,8 +285,8 @@ int idBitMsg::ReadBits( int numBits ) const {
 		idLib::FatalError( "idBitMsg::ReadBits: bad numBits %i", numBits );
 	}
 
-	value = 0;
-	valueBits = 0;
+	int value = 0;
+	int valueBits = 0;
 
 	if ( numBits < 0 ) {
 		numBits = -numBits;
@@ -310,11 +304,11 @@ int idBitMsg::ReadBits( int numBits ) const {
 		if ( readBit == 0 ) {
 			readCount++;
 		}
-		get = 8 - readBit;
+		int get = 8 - readBit;
 		if ( get > (numBits - valueBits) ) {
 			get = (numBits - valueBits);
 		}
-		fraction = readData[readCount - 1];
+		int fraction = readData[readCount - 1];
 		fraction >>= readBit;
 		fraction &= ( 1 << get ) - 1;
 		value |= fraction << valueBits;
@@ -337,13 +331,11 @@ int idBitMsg::ReadBits( int numBits ) const {
 idBitMsg::ReadString
 ========================
 */
-int idBitMsg::ReadString( char * buffer, const int bufferSize ) const {
-	int	l, c;
-	
+size_t idBitMsg::ReadString( char * buffer, const size_t bufferSize ) const {
 	ReadByteAlign();
-	l = 0;
+	size_t l = 0;
 	while( 1 ) {
-		c = ReadByte();
+		int c = ReadByte();
 		if ( c <= 0 || c >= 255 ) {
 			break;
 		}
@@ -370,11 +362,11 @@ int idBitMsg::ReadString( char * buffer, const int bufferSize ) const {
 idBitMsg::ReadString
 ========================
 */
-int idBitMsg::ReadString( idStr & str ) const {
+size_t idBitMsg::ReadString( idStr & str ) const {
 	ReadByteAlign();
 
-	int cnt = 0;
-	for ( int i = readCount; i < curSize; i++ ) {
+	size_t cnt = 0;
+	for (size_t i = readCount; std::cmp_less(i, curSize); i++ ) {
 		if ( readData[i] == 0 ) {
 			break;
 		}
@@ -382,7 +374,7 @@ int idBitMsg::ReadString( idStr & str ) const {
 	}
 
 	str.Clear();
-	str.Append( (const char *)readData + readCount, cnt );
+	str.Append( reinterpret_cast<const char*>(readData) + readCount, cnt );
 	readCount += cnt + 1;
 
 	return str.Length();
@@ -393,11 +385,9 @@ int idBitMsg::ReadString( idStr & str ) const {
 idBitMsg::ReadData
 ========================
 */
-int idBitMsg::ReadData( void *data, const int length ) const {
-	int cnt;
-
+size_t idBitMsg::ReadData( void *data, const size_t length ) const {
 	ReadByteAlign();
-	cnt = readCount;
+	const size_t cnt = readCount;
 
 	if ( readCount + length > curSize ) {
 		if ( data ) {
@@ -422,7 +412,7 @@ idBitMsg::ReadNetadr
 void idBitMsg::ReadNetadr( netadr_t *adr ) const {
 	ReadData( adr->ip, 4 );
 	adr->port = ReadUShort();
-	adr->type = ( netadrtype_t ) ReadByte();
+	adr->type = static_cast<netadrtype_t>(ReadByte());
 }
 
 /*
@@ -435,7 +425,7 @@ bool idBitMsg::ReadDeltaDict( idDict &dict, const idDict *base ) const {
 	char		value[MAX_STRING_CHARS];
 	bool		changed = false;
 
-	if ( base != NULL ) {
+	if ( base != nullptr) {
 		dict = *base;
 	} else {
 		dict.Clear();
@@ -460,18 +450,15 @@ bool idBitMsg::ReadDeltaDict( idDict &dict, const idDict *base ) const {
 idBitMsg::DirToBits
 ========================
 */
-int idBitMsg::DirToBits( const idVec3 &dir, int numBits ) {
-	int max, bits;
-	float bias;
-
+int idBitMsg::DirToBits( const idVec3 &dir, size_t numBits ) {
 	assert( numBits >= 6 && numBits <= 32 );
 	assert( dir.LengthSqr() - 1.0f < 0.01f );
 
 	numBits /= 3;
-	max = ( 1 << ( numBits - 1 ) ) - 1;
-	bias = 0.5f / max;
+	int max = (1 << (numBits - 1)) - 1;
+	float bias = 0.5f / max;
 
-	bits = IEEE_FLT_SIGNBITSET( dir.x ) << ( numBits * 3 - 1 );
+	int bits = IEEE_FLT_SIGNBITSET(dir.x) << (numBits * 3 - 1);
 	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.x ) + bias ) * max ) ) << ( numBits * 2 );
 	bits |= IEEE_FLT_SIGNBITSET( dir.y ) << ( numBits * 2 - 1 );
 	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.y ) + bias ) * max ) ) << ( numBits * 1 );
@@ -485,17 +472,15 @@ int idBitMsg::DirToBits( const idVec3 &dir, int numBits ) {
 idBitMsg::BitsToDir
 ========================
 */
-idVec3 idBitMsg::BitsToDir(const int bits, int numBits ) {
+idVec3 idBitMsg::BitsToDir(const int bits, size_t numBits ) {
 	static float sign[2] = { 1.0f, -1.0f };
-	int max;
-	float invMax;
 	idVec3 dir;
 
 	assert( numBits >= 6 && numBits <= 32 );
 
 	numBits /= 3;
-	max = ( 1 << ( numBits - 1 ) ) - 1;
-	invMax = 1.0f / max;
+	int max = (1 << (numBits - 1)) - 1;
+	float invMax = 1.0f / max;
 
 	dir.x = sign[( bits >> ( numBits * 3 - 1 ) ) & 1] * ( ( bits >> ( numBits * 2 ) ) & max ) 
 					* invMax;

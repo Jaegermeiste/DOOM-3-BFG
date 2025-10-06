@@ -400,7 +400,7 @@ bool idZeroRunLengthCompressor::WriteRun() {
 			maxSize = -1;
 			return false;
 		}
-		if ( comp != NULL ) {
+		if ( comp != nullptr) {
 			comp->WriteByte( 0 );
 			comp->WriteByte( (uint8)zeroCount );
 		} else {
@@ -426,7 +426,7 @@ bool idZeroRunLengthCompressor::WriteByte( uint8 value ) {
 			maxSize = -1;
 			return false;
 		}
-		if ( comp != NULL ) {
+		if ( comp != nullptr) {
 			comp->WriteByte( value );
 		} else {
 			*dest++ = value; 
@@ -481,7 +481,7 @@ int idZeroRunLengthCompressor::End() {
 
 int idZeroRunLengthCompressor::ReadInternal() {
 	compressed++;
-	if ( comp != NULL ) {
+	if ( comp != nullptr) {
 		return comp->ReadByte();
 	}
 	return *dest++;

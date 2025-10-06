@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#include <cmath>
+
 #include "../containers/Array.h" // for idTupleSize
 
 #define VECTOR_EPSILON		0.001f
@@ -161,9 +163,7 @@ ID_INLINE float idVec2::Length() const {
 }
 
 ID_INLINE float idVec2::LengthFast() const {
-	float sqrLength;
-
-	sqrLength = x * x + y * y;
+	float sqrLength = x * x + y * y;
 	return sqrLength * idMath::InvSqrt( sqrLength );
 }
 
@@ -172,20 +172,16 @@ ID_INLINE float idVec2::LengthSqr() const {
 }
 
 ID_INLINE float idVec2::Normalize() {
-	float sqrLength, invLength;
-
-	sqrLength = x * x + y * y;
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = x * x + y * y;
+	float invLength = idMath::InvSqrt(sqrLength);
 	x *= invLength;
 	y *= invLength;
 	return invLength * sqrLength;
 }
 
 ID_INLINE float idVec2::NormalizeFast() {
-	float lengthSqr, invLength;
-
-	lengthSqr = x * x + y * y;
-	invLength = idMath::InvSqrt( lengthSqr );
+	float lengthSqr = x * x + y * y;
+	float invLength = idMath::InvSqrt(lengthSqr);
 	x *= invLength;
 	y *= invLength;
 	return invLength * lengthSqr;
@@ -195,9 +191,9 @@ ID_INLINE idVec2 idVec2::Truncate(const float length ) const {
 	if ( length < idMath::FLT_SMALLEST_NON_DENORMAL ) {
 		return vec2_zero;
 	} else {
-		float length2 = LengthSqr();
+		const float length2 = LengthSqr();
 		if ( length2 > length * length ) {
-			float ilength = length * idMath::InvSqrt( length2 );
+			const float ilength = length * idMath::InvSqrt( length2 );
 			return *this * ilength;
 		}
 	}
@@ -218,13 +214,13 @@ ID_INLINE void idVec2::Clamp( const idVec2 &min, const idVec2 &max ) {
 }
 
 ID_INLINE void idVec2::Snap() {
-	x = floor( x + 0.5f );
-	y = floor( y + 0.5f );
+	x = std::floor( x + 0.5f );
+	y = std::floor( y + 0.5f );
 }
 
 ID_INLINE void idVec2::SnapInt() {
-	x = float( int( x ) );
-	y = float( int( y ) );
+	x = static_cast<float>(static_cast<int>(x));
+	y = static_cast<float>(static_cast<int>(y));
 }
 
 ID_INLINE idVec2 idVec2::operator-() const {
@@ -244,7 +240,7 @@ ID_INLINE idVec2 idVec2::operator*( const float a ) const {
 }
 
 ID_INLINE idVec2 idVec2::operator/( const float a ) const {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	return idVec2( x * inva, y * inva );
 }
 
@@ -271,7 +267,7 @@ ID_INLINE idVec2 &idVec2::operator/=( const idVec2 &a ) {
 }
 
 ID_INLINE idVec2 &idVec2::operator/=( const float a ) {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	x *= inva;
 	y *= inva;
 
@@ -443,7 +439,7 @@ ID_INLINE idVec3 idVec3::operator*( const float a ) const {
 }
 
 ID_INLINE idVec3 idVec3::operator/( const float a ) const {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	return idVec3( x * inva, y * inva, z * inva );
 }
 
@@ -476,7 +472,7 @@ ID_INLINE idVec3 &idVec3::operator/=( const idVec3 &a ) {
 }
 
 ID_INLINE idVec3 &idVec3::operator/=( const float a ) {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	x *= inva;
 	y *= inva;
 	z *= inva;
@@ -529,10 +525,8 @@ ID_INLINE bool idVec3::operator!=( const idVec3 &a ) const {
 }
 
 ID_INLINE float idVec3::NormalizeFast() {
-	float sqrLength, invLength;
-
-	sqrLength = x * x + y * y + z * z;
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = x * x + y * y + z * z;
+	float invLength = idMath::InvSqrt(sqrLength);
 	x *= invLength;
 	y *= invLength;
 	z *= invLength;
@@ -608,15 +602,15 @@ ID_INLINE bool idVec3::FixDegenerateNormal() {
 
 ID_INLINE bool idVec3::FixDenormals() {
 	bool denormal = false;
-	if ( fabs( x ) < 1e-30f ) {
+	if (std::fabs( x ) < 1e-30f ) {
 		x = 0.0f;
 		denormal = true;
 	}
-	if ( fabs( y ) < 1e-30f ) {
+	if (std::fabs( y ) < 1e-30f ) {
 		y = 0.0f;
 		denormal = true;
 	}
-	if ( fabs( z ) < 1e-30f ) {
+	if (std::fabs( z ) < 1e-30f ) {
 		z = 0.0f;
 		denormal = true;
 	}
@@ -644,17 +638,13 @@ ID_INLINE float idVec3::LengthSqr() const {
 }
 
 ID_INLINE float idVec3::LengthFast() const {
-	float sqrLength;
-
-	sqrLength = x * x + y * y + z * z;
+	float sqrLength = x * x + y * y + z * z;
 	return sqrLength * idMath::InvSqrt( sqrLength );
 }
 
 ID_INLINE float idVec3::Normalize() {
-	float sqrLength, invLength;
-
-	sqrLength = x * x + y * y + z * z;
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = x * x + y * y + z * z;
+	float invLength = idMath::InvSqrt(sqrLength);
 	x *= invLength;
 	y *= invLength;
 	z *= invLength;
@@ -665,9 +655,9 @@ ID_INLINE idVec3 idVec3::Truncate(const float length ) const {
 	if ( length < idMath::FLT_SMALLEST_NON_DENORMAL ) {
 		return vec3_zero;
 	} else {
-		float length2 = LengthSqr();
+		const float length2 = LengthSqr();
 		if ( length2 > length * length ) {
-			float ilength = length * idMath::InvSqrt( length2 );
+			const float ilength = length * idMath::InvSqrt( length2 );
 			return *this * ilength;
 		}
 	}
@@ -693,15 +683,15 @@ ID_INLINE void idVec3::Clamp( const idVec3 &min, const idVec3 &max ) {
 }
 
 ID_INLINE void idVec3::Snap() {
-	x = floor( x + 0.5f );
-	y = floor( y + 0.5f );
-	z = floor( z + 0.5f );
+	x = std::floor( x + 0.5f );
+	y = std::floor( y + 0.5f );
+	z = std::floor( z + 0.5f );
 }
 
 ID_INLINE void idVec3::SnapInt() {
-	x = float( int( x ) );
-	y = float( int( y ) );
-	z = float( int( z ) );
+	x = static_cast<float>(static_cast<int>(x));
+	y = static_cast<float>(static_cast<int>(y));
+	z = static_cast<float>(static_cast<int>(z));
 }
 
 ID_INLINE int idVec3::GetDimension() const {
@@ -725,9 +715,7 @@ ID_INLINE float *idVec3::ToFloatPtr() {
 }
 
 ID_INLINE void idVec3::NormalVectors( idVec3 &left, idVec3 &down ) const {
-	float d;
-
-	d = x * x + y * y;
+	float d = x * x + y * y;
 	if ( !d ) {
 		left[0] = 1;
 		left[1] = 0;
@@ -767,9 +755,7 @@ ID_INLINE void idVec3::OrthogonalBasis( idVec3 &left, idVec3 &up ) const {
 }
 
 ID_INLINE void idVec3::ProjectOntoPlane( const idVec3 &normal, const float overBounce ) {
-	float backoff;
-	
-	backoff = *this * normal;
+	float backoff = *this * normal;
 	
 	if ( overBounce != 1.0 ) {
 		if ( backoff < 0 ) {
@@ -783,13 +769,10 @@ ID_INLINE void idVec3::ProjectOntoPlane( const idVec3 &normal, const float overB
 }
 
 ID_INLINE bool idVec3::ProjectAlongPlane( const idVec3 &normal, const float epsilon, const float overBounce ) {
-	idVec3 cross;
-	float len;
-
-	cross = this->Cross( normal ).Cross( (*this) );
+	idVec3 cross = this->Cross(normal).Cross((*this));
 	// normalize so a fixed epsilon can be used
 	cross.Normalize();
-	len = normal * cross;
+	float len = normal * cross;
 	if ( idMath::Fabs( len ) < epsilon ) {
 		return false;
 	}
@@ -910,7 +893,7 @@ ID_INLINE idVec4 idVec4::operator*( const float a ) const {
 }
 
 ID_INLINE idVec4 idVec4::operator/( const float a ) const {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	return idVec4( x * inva, y * inva, z * inva, w * inva );
 }
 
@@ -941,7 +924,7 @@ ID_INLINE idVec4 &idVec4::operator/=( const idVec4 &a ) {
 }
 
 ID_INLINE idVec4 &idVec4::operator/=( const float a ) {
-	float inva = 1.0f / a;
+	const float inva = 1.0f / a;
 	x *= inva;
 	y *= inva;
 	z *= inva;
@@ -1013,10 +996,8 @@ ID_INLINE float idVec4::LengthSqr() const {
 }
 
 ID_INLINE float idVec4::Normalize() {
-	float sqrLength, invLength;
-
-	sqrLength = x * x + y * y + z * z + w * w;
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = x * x + y * y + z * z + w * w;
+	float invLength = idMath::InvSqrt(sqrLength);
 	x *= invLength;
 	y *= invLength;
 	z *= invLength;
@@ -1025,10 +1006,8 @@ ID_INLINE float idVec4::Normalize() {
 }
 
 ID_INLINE float idVec4::NormalizeFast() {
-	float sqrLength, invLength;
-
-	sqrLength = x * x + y * y + z * z + w * w;
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = x * x + y * y + z * z + w * w;
+	float invLength = idMath::InvSqrt(sqrLength);
 	x *= invLength;
 	y *= invLength;
 	z *= invLength;
@@ -1250,10 +1229,8 @@ ID_INLINE float idVec6::operator*( const idVec6 &a ) const {
 }
 
 ID_INLINE idVec6 idVec6::operator/( const float a ) const {
-	float inva;
-
 	assert( a != 0.0f );
-	inva = 1.0f / a;
+	float inva = 1.0f / a;
 	return idVec6( p[0]*inva, p[1]*inva, p[2]*inva, p[3]*inva, p[4]*inva, p[5]*inva );
 }
 
@@ -1276,10 +1253,8 @@ ID_INLINE idVec6 &idVec6::operator*=( const float a ) {
 }
 
 ID_INLINE idVec6 &idVec6::operator/=( const float a ) {
-	float inva;
-
 	assert( a != 0.0f );
-	inva = 1.0f / a;
+	float inva = 1.0f / a;
 	p[0] *= inva;
 	p[1] *= inva;
 	p[2] *= inva;
@@ -1376,10 +1351,8 @@ ID_INLINE float idVec6::LengthSqr() const {
 }
 
 ID_INLINE float idVec6::Normalize() {
-	float sqrLength, invLength;
-
-	sqrLength = p[0] * p[0] + p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + p[4] * p[4] + p[5] * p[5];
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = p[0] * p[0] + p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + p[4] * p[4] + p[5] * p[5];
+	float invLength = idMath::InvSqrt(sqrLength);
 	p[0] *= invLength;
 	p[1] *= invLength;
 	p[2] *= invLength;
@@ -1390,10 +1363,8 @@ ID_INLINE float idVec6::Normalize() {
 }
 
 ID_INLINE float idVec6::NormalizeFast() {
-	float sqrLength, invLength;
-
-	sqrLength = p[0] * p[0] + p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + p[4] * p[4] + p[5] * p[5];
-	invLength = idMath::InvSqrt( sqrLength );
+	float sqrLength = p[0] * p[0] + p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + p[4] * p[4] + p[5] * p[5];
+	float invLength = idMath::InvSqrt(sqrLength);
 	p[0] *= invLength;
 	p[1] *= invLength;
 	p[2] *= invLength;

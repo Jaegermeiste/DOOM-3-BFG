@@ -210,7 +210,7 @@ Get a stream buffer from the free pool, returns NULL if none are available
 ========================
 */
 idSoundSystemLocal::bufferContext_t * idSoundSystemLocal::ObtainStreamBufferContext() {
-	bufferContext_t * bufferContext = NULL;
+	bufferContext_t * bufferContext = nullptr;
 	streamBufferMutex.Lock();
 	if ( freeStreamBufferContexts.Num() != 0 ) {
 		bufferContext = freeStreamBufferContexts[ freeStreamBufferContexts.Num() - 1 ];
@@ -274,7 +274,7 @@ void idSoundSystemLocal::SetPlayingSoundWorld( idSoundWorld *soundWorld ) {
 
 	currentSoundWorld = static_cast<idSoundWorldLocal *>( soundWorld );
 
-	if ( oldSoundWorld != NULL ) {
+	if ( oldSoundWorld != nullptr) {
 		oldSoundWorld->Update();
 	}
 }
@@ -306,7 +306,7 @@ void idSoundSystemLocal::Render() {
 
 	SCOPED_PROFILE_EVENT( "SoundSystem::Render" );
 
-	if ( currentSoundWorld != NULL ) {
+	if ( currentSoundWorld != nullptr) {
 		currentSoundWorld->Update();
 	}
 
@@ -423,12 +423,12 @@ A sample is about to be freed, make sure the hardware isn't mixing from it.
 void idSoundSystemLocal::StopVoicesWithSample( const idSoundSample * const sample ) {
 	for ( int w = 0; w < soundWorlds.Num(); w++ ) {
 		idSoundWorldLocal * sw = soundWorlds[w];
-		if ( sw == NULL ) {
+		if ( sw == nullptr) {
 			continue;
 		}
 		for ( int e = 0; e < sw->emitters.Num(); e++ ) {
 			idSoundEmitterLocal * emitter = sw->emitters[e];
-			if ( emitter == NULL ) {
+			if ( emitter == nullptr) {
 				continue;
 			}
 			for ( int i = 0; i < emitter->channels.Num(); i++ ) {
@@ -447,9 +447,9 @@ idSoundSystemLocal::FreeVoice
 */
 cinData_t idSoundSystemLocal::ImageForTime( const int milliseconds, const bool waveform ) {
 	cinData_t cd;
-	cd.imageY = NULL;
-	cd.imageCr = NULL;
-	cd.imageCb = NULL;
+	cd.imageY = nullptr;
+	cd.imageCr = nullptr;
+	cd.imageCb = nullptr;
 	cd.imageWidth = 0;
 	cd.imageHeight = 0;
 	cd.status = FMV_IDLE;
@@ -517,7 +517,7 @@ void idSoundSystemLocal::Preload( idPreloadManifest & manifest ) {
 		filename.Replace( "generated/", "" );
 		numLoaded++;
 		idSoundSample *sample = LoadSample( filename );
-		if ( sample != NULL && !sample->IsLoaded() ) {
+		if ( sample != nullptr && !sample->IsLoaded() ) {
 			sample->LoadResource();
 			sample->SetLevelLoadReferenced();
 		}

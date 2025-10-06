@@ -37,11 +37,11 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static const int MAX_PARTICLE_STAGES	= 32;
+static constexpr int MAX_PARTICLE_STAGES	= 32;
 
 class idParticleParm {
 public:
-							idParticleParm() { table = NULL; from = to = 0.0f; }
+							idParticleParm() { table = nullptr; from = to = 0.0f; }
 
 	const idDeclTable *		table;
 	float					from;
@@ -201,7 +201,7 @@ public:
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 
-	bool					Save( const char *fileName = NULL );
+	bool					Save( const char *fileName = nullptr);
 
 	// Loaded instead of re-parsing, written if MD5 hash different
 	bool					LoadBinary( idFile * file, unsigned int checksum );

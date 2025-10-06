@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Window.h"
 
-const int MAX_EDITFIELD = 4096;
+constexpr int MAX_EDITFIELD = 4096;
 
 class idUserInterfaceLocal;
 class idSliderWindow;
@@ -47,7 +47,7 @@ public:
 	virtual void		GainFocus();
 	virtual size_t		Allocated(){return idWindow::Allocated();};
 	
-	virtual idWinVar *	GetWinVarByName(const char *_name, bool winLookup = false, drawWin_t** owner = NULL );
+	virtual idWinVar *	GetWinVarByName(const char *_name, bool winLookup = false, drawWin_t** owner = nullptr);
 	
 	virtual void 		HandleBuddyUpdate(idWindow *buddy);
 	virtual void		Activate(bool activate, idStr &act);

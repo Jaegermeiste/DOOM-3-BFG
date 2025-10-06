@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define	__SWF_PARMLIST_H__
 
 // static list for script parameters
-static const int SWF_MAX_PARMS = 16;
+static constexpr int SWF_MAX_PARMS = 16;
 
 /*
 ================================================

@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __COMMON_DIALOG_H__
 #define __COMMON_DIALOG_H__
 
-static const int	MAX_DIALOGS			= 4;		// maximum dialogs that can be open at one time
-static const int	PC_KEYBOARD_WAIT	= 20000;
+static constexpr int	MAX_DIALOGS			= 4;		// maximum dialogs that can be open at one time
+static constexpr int	PC_KEYBOARD_WAIT	= 20000;
 
 /*
 ================================================
@@ -210,22 +210,24 @@ idDialogInfo
 */
 class idDialogInfo {
 public:
-	idDialogInfo() {
-		msg					= GDM_INVALID;
-		type				= DIALOG_ACCEPT;
-		acceptCB			= NULL;
-		cancelCB			= NULL;
-		altCBOne			= NULL;
-		altCBTwo			= NULL;
-		showing				= false;
-		clear				= false;
-		waitClear			= false;
-		pause				= false;
-		startTime			= 0;
-		killTime			= 0;
-		leaveOnClear		= false;
-		renderDuringLoad	= false;
+	idDialogInfo() noexcept : forcePause(false)
+	{
+		msg = GDM_INVALID;
+		type = DIALOG_ACCEPT;
+		acceptCB = nullptr;
+		cancelCB = nullptr;
+		altCBOne = nullptr;
+		altCBTwo = nullptr;
+		showing = false;
+		clear = false;
+		waitClear = false;
+		pause = false;
+		startTime = 0;
+		killTime = 0;
+		leaveOnClear = false;
+		renderDuringLoad = false;
 	}
+
 	gameDialogMessages_t	msg;
 	dialogType_t			type;
 	idSWFScriptFunction *	acceptCB;
@@ -278,11 +280,11 @@ public:
 	bool	IsDialogPausing() { return dialogPause; }
 	void	ClearDialogs( bool forceClear = false );
 	bool	HasDialogMsg( gameDialogMessages_t msg, bool * isNowActive );
-	void	AddDialog( gameDialogMessages_t msg, dialogType_t type, idSWFScriptFunction * acceptCallback, idSWFScriptFunction * cancelCallback, bool pause, const char * location = NULL, int lineNumber = 0, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
+	void	AddDialog( gameDialogMessages_t msg, dialogType_t type, idSWFScriptFunction * acceptCallback, idSWFScriptFunction * cancelCallback, bool pause, const char * location = nullptr, int lineNumber = 0, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
 	void	AddDynamicDialog( gameDialogMessages_t msg, const idStaticList< idSWFScriptFunction *, 4 > & callbacks, const idStaticList< idStrId, 4 > & optionText, bool pause, idStrStatic< 256 > overrideMsg, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
 	void	AddDialogIntVal( const char * name, int val );
 	bool	IsDialogActive();
-	void	ClearDialog( gameDialogMessages_t msg, const char * location = NULL, int lineNumber = 0 );
+	void	ClearDialog( gameDialogMessages_t msg, const char * location = nullptr, int lineNumber = 0 );
 	void	ShowSaveIndicator( bool show );
 	bool	HasAnyActiveDialog() const { return ( messageList.Num() > 0 ) && ( !messageList[0].clear ); }
 

@@ -263,7 +263,7 @@ idDeclManager *		declManager = &declManagerLocal;
 ====================================================================================
 */
 
-const int MAX_HUFFMAN_SYMBOLS	= 256;
+constexpr int MAX_HUFFMAN_SYMBOLS	= 256;
 
 typedef struct huffmanNode_s {
 	int						symbol;
@@ -315,7 +315,7 @@ static int huffmanFrequencies[] = {
 };
 
 static huffmanCode_t huffmanCodes[MAX_HUFFMAN_SYMBOLS];
-static huffmanNode_t *huffmanTree = NULL;
+static huffmanNode_t *huffmanTree = nullptr;
 static int totalUncompressedLength = 0;
 static int totalCompressedLength = 0;
 static int maxHuffmanBits = 0;
@@ -342,7 +342,7 @@ InsertHuffmanNode
 huffmanNode_t *InsertHuffmanNode( huffmanNode_t *firstNode, huffmanNode_t *node ) {
 	huffmanNode_t *n, *lastNode;
 
-	lastNode = NULL;
+	lastNode = nullptr;
 	for ( n = firstNode; n; n = n->next ) {
 		if ( node->frequency <= n->frequency ) {
 			break;
@@ -400,7 +400,7 @@ HuffmanHeight_r
 ================
 */
 int HuffmanHeight_r( huffmanNode_t *node ) {
-	if ( node == NULL ) {
+	if ( node == nullptr) {
 		return -1;
 	}
 	int left = HuffmanHeight_r( node->children[0] );
@@ -421,14 +421,14 @@ void SetupHuffman() {
 	huffmanNode_t *firstNode, *node;
 	huffmanCode_t code;
 
-	firstNode = NULL;
+	firstNode = nullptr;
 	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i++ ) {
 		node = new (TAG_DECL) huffmanNode_t;
 		node->symbol = i;
 		node->frequency = huffmanFrequencies[i];
-		node->next = NULL;
-		node->children[0] = NULL;
-		node->children[1] = NULL;
+		node->next = nullptr;
+		node->children[0] = nullptr;
+		node->children[1] = nullptr;
 		firstNode = InsertHuffmanNode( firstNode, node );
 	}
 
@@ -436,7 +436,7 @@ void SetupHuffman() {
 		node = new (TAG_DECL) huffmanNode_t;
 		node->symbol = -1;
 		node->frequency = firstNode->frequency + firstNode->next->frequency;
-		node->next = NULL;
+		node->next = nullptr;
 		node->children[0] = firstNode;
 		node->children[1] = firstNode->next;
 		firstNode = InsertHuffmanNode( firstNode->next->next, node );
@@ -561,7 +561,7 @@ idDeclFile::idDeclFile( const char *fileName, declType_t defaultType ) {
 	this->checksum = 0;
 	this->fileSize = 0;
 	this->numLines = 0;
-	this->decls = NULL;
+	this->decls = nullptr;
 }
 
 /*
@@ -576,7 +576,7 @@ idDeclFile::idDeclFile() {
 	this->checksum = 0;
 	this->fileSize = 0;
 	this->numLines = 0;
-	this->decls = NULL;
+	this->decls = nullptr;
 }
 
 /*
@@ -590,7 +590,7 @@ void idDeclFile::Reload( bool force ) {
 	// check for an unchanged timestamp
 	if ( !force && timestamp != 0 ) {
 		ID_TIME_T	testTimeStamp;
-		fileSystem->ReadFile( fileName, NULL, &testTimeStamp );
+		fileSystem->ReadFile( fileName, nullptr, &testTimeStamp );
 
 		if ( testTimeStamp == timestamp ) {
 			return;
@@ -664,7 +664,7 @@ int idDeclFile::LoadAndParse() {
 		numTypes = declManagerLocal.GetNumDeclTypes();
 		for ( i = 0; i < numTypes; i++ ) {
 			idDeclType *typeInfo = declManagerLocal.GetDeclType( i );
-			if ( typeInfo != NULL && typeInfo->typeName.Icmp( token ) == 0 ) {
+			if ( typeInfo != nullptr && typeInfo->typeName.Icmp( token ) == 0 ) {
 				identifiedType = (declType_t) typeInfo->type;
 				break;
 			}
@@ -751,7 +751,7 @@ int idDeclFile::LoadAndParse() {
 
 		if ( newDecl->textSource ) {
 			Mem_Free( newDecl->textSource );
-			newDecl->textSource = NULL;
+			newDecl->textSource = nullptr;
 		}
 
 		newDecl->SetTextLocal( buffer + startMarker, size );
@@ -792,7 +792,7 @@ int idDeclFile::LoadAndParse() {
 ====================================================================================
 */
 
-const char *listDeclStrings[] = { "current", "all", "ever", NULL };
+const char *listDeclStrings[] = { "current", "all", "ever", nullptr};
 
 /*
 ===================
@@ -892,13 +892,13 @@ void idDeclManagerLocal::Shutdown() {
 	for ( i = 0; i < DECL_MAX_TYPES; i++ ) {
 		for ( j = 0; j < linearLists[i].Num(); j++ ) {
 			decl = linearLists[i][j];
-			if ( decl->self != NULL ) {
+			if ( decl->self != nullptr) {
 				decl->self->FreeData();
 				delete decl->self;
 			}
 			if ( decl->textSource ) {
 				Mem_Free( decl->textSource );
-				decl->textSource = NULL;
+				decl->textSource = nullptr;
 			}
 			delete decl;
 		}
@@ -979,7 +979,7 @@ void idDeclManagerLocal::RegisterDeclType( const char *typeName, declType_t type
 	declType->allocator = allocator;
 
 	if ( (int)type + 1 > declTypes.Num() ) {
-		declTypes.AssureSize( (int)type + 1, NULL );
+		declTypes.AssureSize( (int)type + 1, nullptr);
 	}
 	declTypes[type] = declType;
 }
@@ -1098,7 +1098,7 @@ idDeclManagerLocal::GetDeclNameFromType
 const char * idDeclManagerLocal::GetDeclNameFromType( declType_t type ) const {
 	int typeIndex = (int)type;
 
-	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == NULL ) {
+	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
 		common->FatalError( "idDeclManager::GetDeclNameFromType: bad type: %i", typeIndex );
 	}
 	return declTypes[typeIndex]->typeName;
@@ -1139,7 +1139,7 @@ const idDecl *idDeclManagerLocal::FindType( declType_t type, const char *name, b
 
 	decl = FindTypeWithoutParsing( type, name, makeDefault );
 	if ( !decl ) {
-		return NULL;
+		return nullptr;
 	}	
 
 	decl->AllocateSelf();
@@ -1175,7 +1175,7 @@ const idDecl* idDeclManagerLocal::FindDeclWithoutParsing( declType_t type, const
 	if(decl) {
 		return decl->self;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1201,7 +1201,7 @@ idDeclManagerLocal::GetNumDecls
 int idDeclManagerLocal::GetNumDecls( declType_t type ) {
 	int typeIndex = (int)type;
 
-	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == NULL ) {
+	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
 		common->FatalError( "idDeclManager::GetNumDecls: bad type: %i", typeIndex );
 		return 0;
 	}
@@ -1216,9 +1216,9 @@ idDeclManagerLocal::DeclByIndex
 const idDecl *idDeclManagerLocal::DeclByIndex( declType_t type, int index, bool forceParse ) {
 	int typeIndex = (int)type;
 
-	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == NULL ) {
+	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
 		common->FatalError( "idDeclManager::DeclByIndex: bad type: %i", typeIndex );
-		return NULL;
+		return nullptr;
 	}
 	if ( index < 0 || index >= linearLists[ typeIndex ].Num() ) {
 		common->Error( "idDeclManager::DeclByIndex: out of range" );
@@ -1327,7 +1327,7 @@ void idDeclManagerLocal::PrintType( const idCmdArgs &args, declType_t type ) {
 	common->Printf( "%s %s:\n", declTypes[ type ]->typeName.c_str(), decl->name.c_str() );
 	common->Printf( "source: %s:%i\n", decl->sourceFile->fileName.c_str(), decl->sourceLine );
 	common->Printf( "----------\n" );
-	if ( decl->textSource != NULL ) {
+	if ( decl->textSource != nullptr) {
 		char *declText = (char *)_alloca( decl->textLength + 1 );
 		decl->GetText( declText );
 		common->Printf( "%s\n", declText );
@@ -1356,7 +1356,7 @@ void idDeclManagerLocal::PrintType( const idCmdArgs &args, declType_t type ) {
 	}
 
 	// allow type-specific data to be printed
-	if ( decl->self != NULL ) {
+	if ( decl->self != nullptr) {
 		decl->self->Print();
 	}
 }
@@ -1370,9 +1370,9 @@ idDecl *idDeclManagerLocal::CreateNewDecl( declType_t type, const char *name, co
 	int typeIndex = (int)type;
 	int i, hash;
 
-	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == NULL || typeIndex >= DECL_MAX_TYPES ) {
+	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr || typeIndex >= DECL_MAX_TYPES ) {
 		common->FatalError( "idDeclManager::CreateNewDecl: bad type: %i", typeIndex );
-		return NULL;
+		return nullptr;
 	}
 
 	char  canonicalName[MAX_STRING_CHARS];
@@ -1456,7 +1456,7 @@ bool idDeclManagerLocal::RenameDecl( declType_t type, const char* oldName, const
 	char canonicalNewName[MAX_STRING_CHARS];
 	MakeNameCanonical( newName, canonicalNewName, sizeof( canonicalNewName ) );
 
-	idDeclLocal	*decl = NULL;
+	idDeclLocal	*decl = nullptr;
 
 	// make sure it already exists
 	int typeIndex = (int)type;
@@ -1524,7 +1524,7 @@ void idDeclManagerLocal::WritePrecacheCommands( idFile *f ) {
 	for ( int i = 0; i < declTypes.Num(); i++ ) {
 		int num;
 
-		if ( declTypes[i] == NULL ) {
+		if ( declTypes[i] == nullptr) {
 			continue;
 		}
 
@@ -1629,7 +1629,7 @@ void idDeclManagerLocal::ListDecls_f( const idCmdArgs &args ) {
 	for ( i = 0; i < declManagerLocal.declTypes.Num(); i++ ) {
 		int size, num;
 
-		if ( declManagerLocal.declTypes[i] == NULL ) {
+		if ( declManagerLocal.declTypes[i] == nullptr) {
 			continue;
 		}
 
@@ -1639,7 +1639,7 @@ void idDeclManagerLocal::ListDecls_f( const idCmdArgs &args ) {
 		size = 0;
 		for ( j = 0; j < num; j++ ) {
 			size += declManagerLocal.linearLists[i][j]->Size();
-			if ( declManagerLocal.linearLists[i][j]->self != NULL ) {
+			if ( declManagerLocal.linearLists[i][j]->self != nullptr) {
 				size += declManagerLocal.linearLists[i][j]->self->Size();
 			}
 		}
@@ -1728,9 +1728,9 @@ idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing( declType_t type, const 
 	int typeIndex = (int)type;
 	int i, hash;
 
-	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == NULL || typeIndex >= DECL_MAX_TYPES ) {
+	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr || typeIndex >= DECL_MAX_TYPES ) {
 		common->FatalError( "idDeclManager::FindTypeWithoutParsing: bad type: %i", typeIndex );
-		return NULL;
+		return nullptr;
 	}
 
 	char canonicalName[MAX_STRING_CHARS];
@@ -1750,15 +1750,15 @@ idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing( declType_t type, const 
 	}
 
 	if ( !makeDefault ) {
-		return NULL;
+		return nullptr;
 	}
 
 	idDeclLocal *decl = new (TAG_DECL) idDeclLocal;
-	decl->self = NULL;
+	decl->self = nullptr;
 	decl->name = canonicalName;
 	decl->type = type;
 	decl->declState = DS_UNPARSED;
-	decl->textSource = NULL;
+	decl->textSource = nullptr;
 	decl->textLength = 0;
 	decl->sourceFile = &implicitDecls;
 	decl->referencedThisLevel = false;
@@ -1782,7 +1782,7 @@ void idDeclManagerLocal::ConvertPDAsToStrings( const idCmdArgs &args ) {
 	idStr pdaStringsFileName = "temppdas/pdas.lang";
 	idFileLocal file( fileSystem->OpenFileWrite( pdaStringsFileName ) );
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		idLib::Printf( "Failed to Convert PDA data to Strings.\n" );
 	}
 
@@ -1962,10 +1962,10 @@ idDeclLocal::idDeclLocal
 */
 idDeclLocal::idDeclLocal() {
 	name = "unnamed";
-	textSource = NULL;
+	textSource = nullptr;
 	textLength = 0;
 	compressedLength = 0;
-	sourceFile = NULL;
+	sourceFile = nullptr;
 	sourceTextOffset = 0;
 	sourceTextLength = 0;
 	sourceLine = 0;
@@ -1977,7 +1977,7 @@ idDeclLocal::idDeclLocal() {
 	referencedThisLevel = false;
 	everReferenced = false;
 	redefinedInReload = false;
-	nextInFile = NULL;
+	nextInFile = nullptr;
 }
 
 /*
@@ -2207,7 +2207,7 @@ bool idDeclLocal::ReplaceSourceFileText() {
 	// set new file size, checksum and timestamp
 	sourceFile->fileSize = newFileLength;
 	sourceFile->checksum = MD5_BlockChecksum( buffer.Ptr(), newFileLength );
-	fileSystem->ReadFile( GetFileName(), NULL, &sourceFile->timestamp );
+	fileSystem->ReadFile( GetFileName(), nullptr, &sourceFile->timestamp );
 
 	// move all decls in the same file
 	for ( idDeclLocal *decl = sourceFile->decls; decl; decl = decl->nextInFile ) {
@@ -2235,7 +2235,7 @@ bool idDeclLocal::SourceFileChanged() const {
 		return false;
 	}
 
-	newLength = fileSystem->ReadFile( GetFileName(), NULL, &newTimestamp );
+	newLength = fileSystem->ReadFile( GetFileName(), nullptr, &newTimestamp );
 
 	if ( newLength != sourceFile->fileSize || newTimestamp != sourceFile->timestamp ) {
 		return true;
@@ -2351,7 +2351,7 @@ idDeclLocal::AllocateSelf
 =================
 */
 void idDeclLocal::AllocateSelf() {
-	if ( self == NULL ) {
+	if ( self == nullptr) {
 		self = declManagerLocal.GetDeclType( (int)type )->allocator();
 		self->base = this;
 	}
@@ -2373,7 +2373,7 @@ void idDeclLocal::ParseLocal() {
 	declManagerLocal.MediaPrint( "parsing %s %s\n", declManagerLocal.declTypes[type]->typeName.c_str(), name.c_str() );
 
 	// if no text source try to generate default text
-	if ( textSource == NULL ) {
+	if ( textSource == nullptr) {
 		generatedDefaultText = self->SetDefaultText();
 	}
 
@@ -2381,7 +2381,7 @@ void idDeclLocal::ParseLocal() {
 	declManagerLocal.indent++;
 
 	// no text immediately causes a MakeDefault()
-	if ( textSource == NULL ) {
+	if ( textSource == nullptr) {
 		MakeDefault();
 		declManagerLocal.indent--;
 		return;
@@ -2397,7 +2397,7 @@ void idDeclLocal::ParseLocal() {
 	// free generated text
 	if ( generatedDefaultText ) {
 		Mem_Free( textSource );
-		textSource = NULL;
+		textSource = nullptr;
 		textLength = 0;
 	}
 

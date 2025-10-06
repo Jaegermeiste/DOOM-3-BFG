@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
 ===========================================================================
 
@@ -43,7 +45,7 @@ NOTE: due to the temporary memory pool idVecX cannot be used by multiple threads
 
 #define VECX_MAX_TEMP		1024
 #define VECX_QUAD( x )		( ( ( ( x ) + 3 ) & ~3 ) * sizeof( float ) )
-#define VECX_CLEAREND()		int s = size; while( s < ( ( s + 3) & ~3 ) ) { p[s++] = 0.0f; }
+#define VECX_CLEAREND()		size_t s = size; while( s < ( ( s + 3) & ~3 ) ) { p[s++] = 0.0f; }
 #define VECX_ALLOCA( n )	( (float *) _alloca16( VECX_QUAD( n ) ) )
 #define VECX_SIMD
 
@@ -80,24 +82,24 @@ public:
 	ID_INLINE	bool			operator==(	const idVecX &a ) const;						// exact compare, no epsilon
 	ID_INLINE	bool			operator!=(	const idVecX &a ) const;						// exact compare, no epsilon
 
-	ID_INLINE	void			SetSize( int size );
-	ID_INLINE	void			ChangeSize( int size, bool makeZero = false );
-	ID_INLINE	int				GetSize() const { return size; }
-	ID_INLINE	void			SetData( int length, float *data );
-	ID_INLINE	void			Zero();
+	ID_INLINE	void			SetSize(size_t size);
+	ID_INLINE	void			ChangeSize(size_t size, bool makeZero = false);
+	ID_INLINE	size_t			GetSize() const { return size; }
+	ID_INLINE	void			SetData(size_t length, float *data);
+	ID_INLINE	void			Zero() const;
 	ID_INLINE	void			Zero( int length );
-	ID_INLINE	void			Random( int seed, float l = 0.0f, float u = 1.0f );
+	ID_INLINE	void			Random( int seed, float l = 0.0f, float u = 1.0f ) const;
 	ID_INLINE	void			Random( int length, int seed, float l = 0.0f, float u = 1.0f );
 	ID_INLINE	void			Negate();
-	ID_INLINE	void			Clamp( float min, float max );
+	ID_INLINE	void			Clamp( float min, float max ) const;
 	ID_INLINE	idVecX &		SwapElements( int e1, int e2 );
 
 	ID_INLINE	float			Length() const;
 	ID_INLINE	float			LengthSqr() const;
 	ID_INLINE	idVecX			Normalize() const;
-	ID_INLINE	float			NormalizeSelf();
+	ID_INLINE	float			NormalizeSelf() const;
 
-	ID_INLINE	int				GetDimension() const;
+	ID_INLINE size_t GetDimension() const;
 
 	ID_INLINE	void			AddScaleAdd( const float scale, const idVecX & v0, const idVecX & v1 );
 
@@ -110,15 +112,15 @@ public:
 	const char *	ToString( int precision = 2 ) const;
 
 private:
-	int				size;					// size of the vector
-	int				alloced;				// if -1 p points to data set with SetData
+	size_t			size;					// size of the vector
+	int64			alloced;				// if -1 p points to data set with SetData
 	float *			p;						// memory the vector is stored
 
 	static float	temp[VECX_MAX_TEMP+4];	// used to store intermediate results
 	static float *	tempPtr;				// pointer to 16 byte aligned temporary memory
 	static int		tempIndex;				// index into memory pool, wraps around
 
-	ID_INLINE void	SetTempSize( int size );
+	ID_INLINE void	SetTempSize(size_t size);
 };
 
 
@@ -129,7 +131,7 @@ idVecX::idVecX
 */
 ID_INLINE idVecX::idVecX() {
 	size = alloced = 0;
-	p = NULL;
+	p = nullptr;
 }
 
 /*
@@ -139,7 +141,7 @@ idVecX::idVecX
 */
 ID_INLINE idVecX::idVecX(const int length ) {
 	size = alloced = 0;
-	p = NULL;
+	p = nullptr;
 	SetSize( length );
 }
 
@@ -150,7 +152,7 @@ idVecX::idVecX
 */
 ID_INLINE idVecX::idVecX(const int length, float *data ) {
 	size = alloced = 0;
-	p = NULL;
+	p = nullptr;
 	SetData( length, data );
 }
 
@@ -172,7 +174,7 @@ idVecX::Get
 ========================
 */
 ID_INLINE float idVecX::Get(const int index ) const {
-	assert( index >= 0 && index < size );
+	assert( index >= 0 && std::cmp_less(index, size ) );
 	return p[index];
 }
 
@@ -182,7 +184,7 @@ idVecX::Get
 ========================
 */
 ID_INLINE float & idVecX::Get(const int index ) {
-	assert( index >= 0 && index < size );
+	assert( index >= 0 && std::cmp_less(index, size ) );
 	return p[index];
 }
 
@@ -219,7 +221,7 @@ ID_INLINE idVecX idVecX::operator-() const {
 		_mm_store_ps( m.p + i, _mm_xor_ps( _mm_load_ps( p + i ), (__m128 &) signBit[0] ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		m.p[i] = -p[i];
 	}
 #endif
@@ -259,7 +261,7 @@ ID_INLINE idVecX idVecX::operator+( const idVecX &a ) const {
 		_mm_store_ps( m.p + i, _mm_add_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		m.p[i] = p[i] + a.p[i];
 	}
 #endif
@@ -281,7 +283,7 @@ ID_INLINE idVecX idVecX::operator-( const idVecX &a ) const {
 		_mm_store_ps( m.p + i, _mm_sub_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		m.p[i] = p[i] - a.p[i];
 	}
 #endif
@@ -300,7 +302,7 @@ ID_INLINE idVecX &idVecX::operator+=( const idVecX &a ) {
 		_mm_store_ps( p + i, _mm_add_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] += a.p[i];
 	}
 #endif
@@ -320,7 +322,7 @@ ID_INLINE idVecX &idVecX::operator-=( const idVecX &a ) {
 		_mm_store_ps( p + i, _mm_sub_ps( _mm_load_ps( p + i ), _mm_load_ps( a.p + i ) ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] -= a.p[i];
 	}
 #endif
@@ -343,7 +345,7 @@ ID_INLINE idVecX idVecX::operator*( const float a ) const {
 		_mm_store_ps( m.p + i, _mm_mul_ps( _mm_load_ps( p + i ), va ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		m.p[i] = p[i] * a;
 	}
 #endif
@@ -362,7 +364,7 @@ ID_INLINE idVecX &idVecX::operator*=( const float a ) {
 		_mm_store_ps( p + i, _mm_mul_ps( _mm_load_ps( p + i ), va ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] *= a;
 	}
 #endif
@@ -407,7 +409,7 @@ idVecX::operator*
 ID_INLINE float idVecX::operator*( const idVecX &a ) const {
 	assert( size == a.size );
 	float sum = 0.0f;
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		sum += p[i] * a.p[i];
 	}
 	return sum;
@@ -420,7 +422,7 @@ idVecX::Compare
 */
 ID_INLINE bool idVecX::Compare( const idVecX &a ) const {
 	assert( size == a.size );
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		if ( p[i] != a.p[i] ) {
 			return false;
 		}
@@ -435,7 +437,7 @@ idVecX::Compare
 */
 ID_INLINE bool idVecX::Compare( const idVecX &a, const float epsilon ) const {
 	assert( size == a.size );
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		if ( idMath::Fabs( p[i] - a.p[i] ) > epsilon ) {
 			return false;
 		}
@@ -466,15 +468,15 @@ ID_INLINE bool idVecX::operator!=( const idVecX &a ) const {
 idVecX::SetSize
 ========================
 */
-ID_INLINE void idVecX::SetSize(const int newSize ) {
+ID_INLINE void idVecX::SetSize(const size_t newSize) {
 	//assert( p < idVecX::tempPtr || p > idVecX::tempPtr + VECX_MAX_TEMP );
-	if ( newSize != size || p == NULL ) {
-		int alloc = ( newSize + 3 ) & ~3;
+	if ( newSize != size || p == nullptr) {
+		const int alloc = ( newSize + 3 ) & ~3;
 		if ( alloc > alloced && alloced != -1 ) {
 			if ( p ) {
 				Mem_Free16( p );
 			}
-			p = (float *) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
+			p = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
 			alloced = alloc;
 		}
 		size = newSize;
@@ -487,22 +489,22 @@ ID_INLINE void idVecX::SetSize(const int newSize ) {
 idVecX::ChangeSize
 ========================
 */
-ID_INLINE void idVecX::ChangeSize(const int newSize, const bool makeZero ) {
+ID_INLINE void idVecX::ChangeSize(const size_t newSize, const bool makeZero) {
 	if ( newSize != size ) {
-		int alloc = ( newSize + 3 ) & ~3;
+		const int alloc = ( newSize + 3 ) & ~3;
 		if ( alloc > alloced && alloced != -1 ) {
 			float *oldVec = p;
-			p = (float *) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
+			p = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
 			alloced = alloc;
 			if ( oldVec ) {
-				for ( int i = 0; i < size; i++ ) {
+				for ( int i = 0; std::cmp_less(i, size); i++ ) {
 					p[i] = oldVec[i];
 				}
 				Mem_Free16( oldVec );
 			}
 			if ( makeZero ) {
 				// zero any new elements
-				for ( int i = size; i < newSize; i++ ) {
+				for (size_t i = size; i < newSize; i++ ) {
 					p[i] = 0.0f;
 				}
 			}
@@ -517,7 +519,7 @@ ID_INLINE void idVecX::ChangeSize(const int newSize, const bool makeZero ) {
 idVecX::SetTempSize
 ========================
 */
-ID_INLINE void idVecX::SetTempSize(const int newSize ) {
+ID_INLINE void idVecX::SetTempSize(size_t newSize) {
 	size = newSize;
 	alloced = ( newSize + 3 ) & ~3;
 	assert( alloced < VECX_MAX_TEMP );
@@ -534,8 +536,8 @@ ID_INLINE void idVecX::SetTempSize(const int newSize ) {
 idVecX::SetData
 ========================
 */
-ID_INLINE void idVecX::SetData(const int length, float *data ) {
-	if ( p != NULL && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 ) {
+ID_INLINE void idVecX::SetData(const size_t length, float *data) {
+	if ( p != nullptr && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 ) {
 		Mem_Free16( p );
 	}
 	assert_16_byte_aligned( data ); // data must be 16 byte aligned
@@ -550,7 +552,8 @@ ID_INLINE void idVecX::SetData(const int length, float *data ) {
 idVecX::Zero
 ========================
 */
-ID_INLINE void idVecX::Zero() {
+ID_INLINE void idVecX::Zero() const
+{
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(VECX_SIMD)
 	for ( int i = 0; i < size; i += 4 ) {
 		_mm_store_ps( p + i, _mm_setzero_ps() );
@@ -581,11 +584,12 @@ ID_INLINE void idVecX::Zero(const int length ) {
 idVecX::Random
 ========================
 */
-ID_INLINE void idVecX::Random(const int seed, const float l, const float u ) {
+ID_INLINE void idVecX::Random(const int seed, const float l, const float u ) const
+{
 	idRandom rnd( seed );
 
-	float c = u - l;
-	for ( int i = 0; i < size; i++ ) {
+	const float c = u - l;
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] = l + rnd.RandomFloat() * c;
 	}
 }
@@ -599,8 +603,8 @@ ID_INLINE void idVecX::Random(const int length, const int seed, const float l, c
 	idRandom rnd( seed );
 
 	SetSize( length );
-	float c = u - l;
-	for ( int i = 0; i < size; i++ ) {
+	const float c = u - l;
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] = l + rnd.RandomFloat() * c;
 	}
 }
@@ -617,7 +621,7 @@ ID_INLINE void idVecX::Negate() {
 		_mm_store_ps( p + i, _mm_xor_ps( _mm_load_ps( p + i ), (__m128 &) signBit[0] ) );
 	}
 #else
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] = -p[i];
 	}
 #endif
@@ -628,8 +632,9 @@ ID_INLINE void idVecX::Negate() {
 idVecX::Clamp
 ========================
 */
-ID_INLINE void idVecX::Clamp(const float min, const float max ) {
-	for ( int i = 0; i < size; i++ ) {
+ID_INLINE void idVecX::Clamp(const float min, const float max ) const
+{
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		if ( p[i] < min ) {
 			p[i] = min;
 		} else if ( p[i] > max ) {
@@ -644,8 +649,7 @@ idVecX::SwapElements
 ========================
 */
 ID_INLINE idVecX &idVecX::SwapElements(const int e1, const int e2 ) {
-	float tmp;
-	tmp = p[e1];
+	float tmp = p[e1];
 	p[e1] = p[e2];
 	p[e2] = tmp;
 	return *this;
@@ -658,7 +662,7 @@ idVecX::Length
 */
 ID_INLINE float idVecX::Length() const {
 	float sum = 0.0f;
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		sum += p[i] * p[i];
 	}
 	return idMath::Sqrt( sum );
@@ -671,7 +675,7 @@ idVecX::LengthSqr
 */
 ID_INLINE float idVecX::LengthSqr() const {
 	float sum = 0.0f;
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		sum += p[i] * p[i];
 	}
 	return sum;
@@ -687,11 +691,11 @@ ID_INLINE idVecX idVecX::Normalize() const {
 
 	m.SetTempSize( size );
 	float sum = 0.0f;
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		sum += p[i] * p[i];
 	}
-	float invSqrt = idMath::InvSqrt( sum );
-	for ( int i = 0; i < size; i++ ) {
+	const float invSqrt = idMath::InvSqrt( sum );
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		m.p[i] = p[i] * invSqrt;
 	}
 	return m;
@@ -702,13 +706,14 @@ ID_INLINE idVecX idVecX::Normalize() const {
 idVecX::NormalizeSelf
 ========================
 */
-ID_INLINE float idVecX::NormalizeSelf() {
+ID_INLINE float idVecX::NormalizeSelf() const
+{
 	float sum = 0.0f;
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		sum += p[i] * p[i];
 	}
-	float invSqrt = idMath::InvSqrt( sum );
-	for ( int i = 0; i < size; i++ ) {
+	const float invSqrt = idMath::InvSqrt( sum );
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		p[i] *= invSqrt;
 	}
 	return invSqrt * sum;
@@ -719,7 +724,7 @@ ID_INLINE float idVecX::NormalizeSelf() {
 idVecX::GetDimension
 ========================
 */
-ID_INLINE int idVecX::GetDimension() const {
+ID_INLINE size_t idVecX::GetDimension() const {
 	return size;
 }
 
@@ -729,7 +734,7 @@ idVecX::SubVec3
 ========================
 */
 ID_INLINE idVec3 &idVecX::SubVec3(const int index ) {
-	assert( index >= 0 && index * 3 + 3 <= size );
+	assert( index >= 0 && std::cmp_less_equal(index * 3 + 3, size ) );
 	return *reinterpret_cast<idVec3 *>(p + index * 3);
 }
 
@@ -739,7 +744,7 @@ idVecX::SubVec3
 ========================
 */
 ID_INLINE const idVec3 &idVecX::SubVec3(const int index ) const {
-	assert( index >= 0 && index * 3 + 3 <= size );
+	assert( index >= 0 && std::cmp_less_equal(index * 3 + 3, size ) );
 	return *reinterpret_cast<const idVec3 *>(p + index * 3);
 }
 
@@ -749,7 +754,7 @@ idVecX::SubVec6
 ========================
 */
 ID_INLINE idVec6 &idVecX::SubVec6(const int index ) {
-	assert( index >= 0 && index * 6 + 6 <= size );
+	assert( index >= 0 && std::cmp_less_equal(index * 6 + 6, size ) );
 	return *reinterpret_cast<idVec6 *>(p + index * 6);
 }
 
@@ -759,7 +764,7 @@ idVecX::SubVec6
 ========================
 */
 ID_INLINE const idVec6 &idVecX::SubVec6(const int index ) const {
-	assert( index >= 0 && index * 6 + 6 <= size );
+	assert( index >= 0 && std::cmp_less_equal(index * 6 + 6, size ) );
 	return *reinterpret_cast<const idVec6 *>(p + index * 6);
 }
 
@@ -794,7 +799,7 @@ ID_INLINE void idVecX::AddScaleAdd( const float scale, const idVecX &v0, const i
 	const float * v1Ptr = v1.ToFloatPtr();
 	float * dstPtr = ToFloatPtr();
 
-	for ( int i = 0; i < size; i++ ) {
+	for ( int i = 0; std::cmp_less(i, size); i++ ) {
 		dstPtr[i] += scale * ( v0Ptr[i] + v1Ptr[i] );
 	}
 }

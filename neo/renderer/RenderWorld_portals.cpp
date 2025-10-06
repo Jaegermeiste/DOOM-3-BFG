@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // if we hit this many planes, we will just stop cropping the
 // view down, which is still correct, just conservative
-const int MAX_PORTAL_PLANES	= 20;
+constexpr int MAX_PORTAL_PLANES	= 20;
 
 struct portalStack_t {
 	const portal_t *		p;
@@ -402,7 +402,7 @@ idRenderWorldLocal::PortalIsFoggedOut
 */
 bool idRenderWorldLocal::PortalIsFoggedOut( const portal_t *p ) {
 	idRenderLightLocal * ldef = p->doublePortal->fogLight;
-	if ( ldef == NULL ) {
+	if ( ldef == nullptr) {
 		return false;
 	}
 
@@ -462,7 +462,7 @@ void idRenderWorldLocal::FloodViewThroughArea_r( const idVec3 & origin, int area
 	}
 
 	// go through all the portals
-	for ( const portal_t * p = area->portals; p != NULL; p = p->next ) {
+	for ( const portal_t * p = area->portals; p != nullptr; p = p->next ) {
 		// an enclosing door may have sealed the portal off
 		if ( p->doublePortal->blockingBits & PS_BLOCK_VIEW ) {
 			continue;
@@ -477,7 +477,7 @@ void idRenderWorldLocal::FloodViewThroughArea_r( const idVec3 & origin, int area
 		// make sure the portal isn't in our stack trace,
 		// which would cause an infinite loop
 		const portalStack_t * check = ps;
-		for ( ; check != NULL; check = check->next ) {
+		for ( ; check != nullptr; check = check->next ) {
 			if ( check->p == p ) {
 				break;		// don't recursively enter a stack
 			}
@@ -576,8 +576,8 @@ the planes pointing outside the volume. Zero planes assumes an unbounded volume.
 */
 void idRenderWorldLocal::FlowViewThroughPortals( const idVec3 & origin, int numPlanes, const idPlane *planes ) {
 	portalStack_t ps;
-	ps.next = NULL;
-	ps.p = NULL;
+	ps.next = nullptr;
+	ps.p = nullptr;
 
 	assert( numPlanes <= MAX_PORTAL_PLANES );
 	for ( int i = 0; i < numPlanes; i++ ) {
@@ -666,8 +666,8 @@ void idRenderWorldLocal::FindViewLightsAndEntities() {
 	tr.viewCount++;
 
 	// clear the visible lightDef and entityDef lists
-	tr.viewDef->viewLights = NULL;
-	tr.viewDef->viewEntitys = NULL;
+	tr.viewDef->viewLights = nullptr;
+	tr.viewDef->viewEntitys = nullptr;
 
 	// all areas are initially not visible, but each portal
 	// chain that leads to them will expand the visible rectangle
@@ -731,10 +731,10 @@ idRenderWorldLocal::FloodLightThroughArea_r
 void idRenderWorldLocal::FloodLightThroughArea_r( idRenderLightLocal *light, int areaNum, 
 								 const portalStack_t *ps ) {
 	assert( ps != NULL ); // compiler warning
-	portal_t*		p = NULL;
+	portal_t*		p = nullptr;
 	float			d;
-	portalArea_t *	area = NULL;
-	const portalStack_t	*check = NULL, *firstPortalStack = NULL;
+	portalArea_t *	area = nullptr;
+	const portalStack_t	*check = nullptr, *firstPortalStack = nullptr;
 	portalStack_t	newStack;
 	int				i, j;
 	idVec3			v1, v2;
@@ -922,7 +922,7 @@ void idRenderWorldLocal::FloodConnectedAreas( portalArea_t *area, int portalAttr
 	}
 	area->connectedAreaNum[portalAttributeIndex] = connectedAreaNum;
 
-	for ( portal_t *p = area->portals; p != NULL; p = p->next ) {
+	for ( portal_t *p = area->portals; p != nullptr; p = p->next ) {
 		if ( !(p->doublePortal->blockingBits & (1<<portalAttributeIndex) ) ) {
 			FloodConnectedAreas( &portalAreas[p->intoArea], portalAttributeIndex );
 		}

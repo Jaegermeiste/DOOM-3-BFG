@@ -208,7 +208,7 @@ static void R_AddNormalMaps( byte *data1, int width1, int height1, byte *data2, 
 		newMap = R_Dropsample( data2, width2, height2, width1, height1 );
 		data2 = newMap;
 	} else {
-		newMap = NULL;
+		newMap = nullptr;
 	}
 
 	// add the normal change from the second and renormalize
@@ -317,7 +317,7 @@ static void R_ImageAdd( byte *data1, int width1, int height1, byte *data2, int w
 		newMap = R_Dropsample( data2, width2, height2, width1, height1 );
 		data2 = newMap;
 	} else {
-		newMap = NULL;
+		newMap = nullptr;
 	}
 
 
@@ -424,7 +424,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 	}
 
 	if ( !token.Icmp( "addnormals" ) ) {
-		byte	*pic2 = NULL;
+		byte	*pic2 = nullptr;
 		int		width2, height2;
 
 		MatchAndAppendToken( src, "(" );
@@ -435,10 +435,10 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 
 		MatchAndAppendToken( src, "," );
 
-		if ( !R_ParseImageProgram_r( src, pic ? &pic2 : NULL, &width2, &height2, timestamps, usage ) ) {
+		if ( !R_ParseImageProgram_r( src, pic ? &pic2 : nullptr, &width2, &height2, timestamps, usage ) ) {
 			if ( pic ) {
 				R_StaticFree( *pic );
-				*pic = NULL;
+				*pic = nullptr;
 			}
 			return false;
 		}
@@ -475,7 +475,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 	}
 
 	if ( !token.Icmp( "add" ) ) {
-		byte	*pic2 = NULL;
+		byte	*pic2 = nullptr;
 		int		width2, height2;
 
 		MatchAndAppendToken( src, "(" );
@@ -486,10 +486,10 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 
 		MatchAndAppendToken( src, "," );
 
-		if ( !R_ParseImageProgram_r( src, pic ? &pic2 : NULL, &width2, &height2, timestamps, usage ) ) {
+		if ( !R_ParseImageProgram_r( src, pic ? &pic2 : nullptr, &width2, &height2, timestamps, usage ) ) {
 			if ( pic ) {
 				R_StaticFree( *pic );
-				*pic = NULL;
+				*pic = nullptr;
 			}
 			return false;
 		}
@@ -653,7 +653,7 @@ R_ParsePastImageProgram
 */
 const char *R_ParsePastImageProgram( idLexer &src ) {
 	parseBuffer[0] = 0;
-	R_ParseImageProgram_r( src, NULL, NULL, NULL, NULL, NULL );
+	R_ParseImageProgram_r( src, nullptr, nullptr, nullptr, nullptr, nullptr);
 	return parseBuffer;
 }
 

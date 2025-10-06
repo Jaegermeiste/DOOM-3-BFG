@@ -519,8 +519,8 @@ CLASS_DECLARATION( idAnimatedEntity, idAFEntity_Base )
 	EVENT( EV_SetConstraintPosition,	idAFEntity_Base::Event_SetConstraintPosition )
 END_CLASS
 
-static const float BOUNCE_SOUND_MIN_VELOCITY	= 80.0f;
-static const float BOUNCE_SOUND_MAX_VELOCITY	= 200.0f;
+static constexpr float BOUNCE_SOUND_MIN_VELOCITY	= 80.0f;
+static constexpr float BOUNCE_SOUND_MAX_VELOCITY	= 200.0f;
 
 /*
 ================

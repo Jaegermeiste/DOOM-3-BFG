@@ -74,10 +74,10 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-#define INT8_SIGN_BIT		7
-#define INT16_SIGN_BIT		15
-#define INT32_SIGN_BIT		31
-#define INT64_SIGN_BIT		63
+constexpr auto INT8_SIGN_BIT = 7;
+constexpr auto INT16_SIGN_BIT = 15;
+constexpr auto INT32_SIGN_BIT = 31;
+constexpr auto INT64_SIGN_BIT = 63;
 
 #define INT8_SIGN_MASK		( 1 << INT8_SIGN_BIT )
 #define INT16_SIGN_MASK		( 1 << INT16_SIGN_BIT )
@@ -104,13 +104,13 @@ compile_time_assert( sizeof( unsigned int ) == 4 );
 // alaysis warning.
 
 ID_INLINE_EXTERN int INT32_SIGNBITSET(const int i ) {
-	int	r = OLD_INT32_SIGNBITSET( i );
+	const int	r = OLD_INT32_SIGNBITSET( i );
 	assert( r == 0 || r == 1 );
 	return r;
 }
 
 ID_INLINE_EXTERN int INT32_SIGNBITNOTSET(const int i ) {
-	int	r = OLD_INT32_SIGNBITNOTSET( i );
+	const int	r = OLD_INT32_SIGNBITNOTSET( i );
 	assert( r == 0 || r == 1 );
 	return r;
 }
@@ -123,28 +123,28 @@ ID_INLINE_EXTERN int INT32_SIGNBITNOTSET(const int i ) {
 ================================================================================================
 */
 
-#define IEEE_FLT16_MANTISSA_BITS	10
-#define IEEE_FLT16_EXPONENT_BITS	5
-#define IEEE_FLT16_EXPONENT_BIAS	15
-#define IEEE_FLT16_SIGN_BIT			15
+constexpr auto IEEE_FLT16_MANTISSA_BITS = 10;
+constexpr auto IEEE_FLT16_EXPONENT_BITS = 5;
+constexpr auto IEEE_FLT16_EXPONENT_BIAS = 15;
+constexpr auto IEEE_FLT16_SIGN_BIT = 15;
 #define IEEE_FLT16_SIGN_MASK		( 1U << IEEE_FLT16_SIGN_BIT )
 
-#define IEEE_FLT_MANTISSA_BITS		23
-#define IEEE_FLT_EXPONENT_BITS		8
-#define IEEE_FLT_EXPONENT_BIAS		127
-#define IEEE_FLT_SIGN_BIT			31
+constexpr auto IEEE_FLT_MANTISSA_BITS = 23;
+constexpr auto IEEE_FLT_EXPONENT_BITS = 8;
+constexpr auto IEEE_FLT_EXPONENT_BIAS = 127;
+constexpr auto IEEE_FLT_SIGN_BIT = 31;
 #define IEEE_FLT_SIGN_MASK			( 1UL << IEEE_FLT_SIGN_BIT )
 
-#define IEEE_DBL_MANTISSA_BITS		52
-#define IEEE_DBL_EXPONENT_BITS		11
-#define IEEE_DBL_EXPONENT_BIAS		1023
-#define IEEE_DBL_SIGN_BIT			63
+constexpr auto IEEE_DBL_MANTISSA_BITS = 52;
+constexpr auto IEEE_DBL_EXPONENT_BITS = 11;
+constexpr auto IEEE_DBL_EXPONENT_BIAS = 1023;
+constexpr auto IEEE_DBL_SIGN_BIT = 63;
 #define IEEE_DBL_SIGN_MASK			( 1ULL << IEEE_DBL_SIGN_BIT )
 
-#define IEEE_DBLE_MANTISSA_BITS		63
-#define IEEE_DBLE_EXPONENT_BITS		15
-#define IEEE_DBLE_EXPONENT_BIAS		0
-#define IEEE_DBLE_SIGN_BIT			79
+constexpr auto IEEE_DBLE_MANTISSA_BITS = 63;
+constexpr auto IEEE_DBLE_EXPONENT_BITS = 15;
+constexpr auto IEEE_DBLE_EXPONENT_BIAS = 0;
+constexpr auto IEEE_DBLE_SIGN_BIT = 79;
 
 /*
 ================================================================================================
@@ -249,7 +249,7 @@ ID_INLINE_EXTERN bool IsValid( const type &v ) {
 IsValid
 ========================
 */
-template<>
+//template<>
 ID_INLINE_EXTERN bool IsValid( const float & f ) {	// these parameter must be a reference for the function to be considered a specialization
 	return !( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) || IEEE_FLT_IS_DENORMAL( f ) );
 }
@@ -259,7 +259,7 @@ ID_INLINE_EXTERN bool IsValid( const float & f ) {	// these parameter must be a 
 IsNAN
 ========================
 */
-template<>
+//template<>
 ID_INLINE_EXTERN bool IsNAN( const float & f ) {	// these parameter must be a reference for the function to be considered a specialization
 	if ( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) ) {
 		return true;
@@ -453,7 +453,7 @@ private:
 };
 
 ID_INLINE byte CLAMP_BYTE(const int x )	{ 
-	return ( (x) < 0 ? (0) : ( (x) > 255 ? 255 : (byte)(x) ) ); 
+	return ( (x) < 0 ? (0) : ( (x) > 255 ? 255 : static_cast<byte>(x) ) ); 
 }
 
 /*
@@ -912,9 +912,9 @@ ID_INLINE float idMath::Exp16(const float f ) {
 	float x = f * 1.44269504088896340f;		// multiply with ( 1 / log( 2 ) )
 #if 1
 	int i = *reinterpret_cast<int *>(&x);
-	int s = ( i >> IEEE_FLT_SIGN_BIT );
-	int e = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
-	int m = ( i & ( ( 1 << IEEE_FLT_MANTISSA_BITS ) - 1 ) ) | ( 1 << IEEE_FLT_MANTISSA_BITS );
+	const int s = ( i >> IEEE_FLT_SIGN_BIT );
+	const int e = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
+	const int m = ( i & ( ( 1 << IEEE_FLT_MANTISSA_BITS ) - 1 ) ) | ( 1 << IEEE_FLT_MANTISSA_BITS );
 	i = ( ( m >> ( IEEE_FLT_MANTISSA_BITS - e ) ) & ~( e >> INT32_SIGN_BIT ) ) ^ s;
 #else
 	int i = (int) x;
@@ -924,14 +924,14 @@ ID_INLINE float idMath::Exp16(const float f ) {
 #endif
 	int exponent = ( i + IEEE_FLT_EXPONENT_BIAS ) << IEEE_FLT_MANTISSA_BITS;
 	float y = *reinterpret_cast<float *>(&exponent);
-	x -= (float) i;
+	x -= static_cast<float>(i);
 	if ( x >= 0.5f ) {
 		x -= 0.5f;
 		y *= 1.4142135623730950488f;	// multiply with sqrt( 2 )
 	}
-	float x2 = x * x;
-	float p = x * ( 7.2152891511493f + x2 * 0.0576900723731f );
-	float q = 20.8189237930062f + x2;
+	const float x2 = x * x;
+	const float p = x * ( 7.2152891511493f + x2 * 0.0576900723731f );
+	const float q = 20.8189237930062f + x2;
 	x = y * ( q + p ) / ( q - p );
 	return x;
 }
@@ -952,14 +952,14 @@ idMath::Log16
 */
 ID_INLINE float idMath::Log16( float f ) {
 	int i = *reinterpret_cast<int *>(&f);
-	int exponent = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
+	const int exponent = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
 	i -= ( exponent + 1 ) << IEEE_FLT_MANTISSA_BITS;	// get value in the range [.5, 1>
 	float y = *reinterpret_cast<float *>(&i);
 	y *= 1.4142135623730950488f;						// multiply with sqrt( 2 )
 	y = ( y - 1.0f ) / ( y + 1.0f );
-	float y2 = y * y;
+	const float y2 = y * y;
 	y = y * ( 2.000000000046727f + y2 * ( 0.666666635059382f + y2 * ( 0.4000059794795f + y2 * ( 0.28525381498f + y2 * 0.2376245609f ) ) ) );
-	y += 0.693147180559945f * ( (float)exponent + 0.5f );
+	y += 0.693147180559945f * ( static_cast<float>(exponent) + 0.5f );
 	return y;
 }
 
@@ -987,7 +987,7 @@ idMath::ILog2
 ========================
 */
 ID_INLINE int idMath::ILog2(const int i ) {
-	return ILog2( (float)i );
+	return ILog2( static_cast<float>(i) );
 }
 
 /*
@@ -1005,7 +1005,7 @@ idMath::BitsForInteger
 ========================
 */
 ID_INLINE int idMath::BitsForInteger(const int i ) {
-	return ILog2( (float)i ) + 1;
+	return ILog2( static_cast<float>(i) ) + 1;
 }
 
 /*
@@ -1188,7 +1188,7 @@ ID_INLINE char idMath::Ftoi8(const float f ) {
 	return static_cast<char>( _mm_cvttss_si32( x ) );
 #else
 	// The converted result is clamped to the range [-128,127].
-	int i = C_FLOAT_TO_INT( f );
+	const int i = C_FLOAT_TO_INT( f );
 	if ( i < -128 ) {
 		return -128;
 	} else if ( i > 127 ) {
@@ -1211,7 +1211,7 @@ ID_INLINE short idMath::Ftoi16(const float f ) {
 	return static_cast<short>( _mm_cvttss_si32( x ) );
 #else
 	// The converted result is clamped to the range [-32768,32767].
-	int i = C_FLOAT_TO_INT( f );
+	const int i = C_FLOAT_TO_INT( f );
 	if ( i < -32768 ) {
 		return -32768;
 	} else if ( i > 32767 ) {
@@ -1230,7 +1230,7 @@ ID_INLINE unsigned short idMath::Ftoui16(const float f ) {
 	// TO DO - SSE ??
 
 	// The converted result is clamped to the range [-32768,32767].
-	int i = C_FLOAT_TO_INT( f );
+	const int i = C_FLOAT_TO_INT( f );
 	if ( i < 0 ) {
 		return 0;
 	} else if ( i > 65535 ) {
@@ -1254,7 +1254,7 @@ ID_INLINE byte idMath::Ftob(const float f ) {
 	return static_cast<byte>( _mm_cvttss_si32( x ) );
 #else
 	// The converted result is clamped to the range [0,255].
-	int i = C_FLOAT_TO_INT( f );
+	const int i = C_FLOAT_TO_INT( f );
 	if ( i < 0 ) {
 		return 0;
 	} else if ( i > 255 ) {
@@ -1358,11 +1358,10 @@ idMath::FloatHash
 ========================
 */
 ID_INLINE int idMath::FloatHash( const float *array, const int numFloats ) {
-	int i, hash = 0;
-	const int *ptr;
+	int hash = 0;
 
-	ptr = reinterpret_cast<const int *>( array );
-	for ( i = 0; i < numFloats; i++ ) {
+	const int* ptr = reinterpret_cast<const int*>(array);
+	for ( int i = 0; i < numFloats; i++ ) {
 		hash ^= ptr[i];
 	}
 	return hash;
@@ -1373,9 +1372,9 @@ ID_INLINE_EXTERN T Lerp( const T from, const T to, float f ) {
 	return from + ( ( to - from ) * f );
 }
 
-template<>
+//template<>
 ID_INLINE_EXTERN int Lerp( const int from, const int to, const float f ) { 
-	return idMath::Ftoi( (float) from + ( ( (float) to - (float) from ) * f ) );
+	return idMath::Ftoi( static_cast<float>(from) + ( ( static_cast<float>(to) - static_cast<float>(from) ) * f ) );
 }
 
 
@@ -1388,7 +1387,7 @@ If the delta between "cur" and "dest" is very small, dest is returned to prevent
 ========================
 */
 inline float idMath::LerpToWithScale( const float cur, const float dest, const float scale ) {
-	float delta = dest - cur;
+	const float delta = dest - cur;
 	if ( delta > -1.0e-6f && delta < 1.0e-6f ) {
 		return dest;
 	}

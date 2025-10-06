@@ -655,7 +655,7 @@ void	idRenderWorldLocal::ReadRenderEntity() {
 	common->ReadDemo()->ReadBool( ent.noDynamicInteractions );
 	common->ReadDemo()->ReadBool( ent.weaponDepthHack );
 	common->ReadDemo()->ReadInt( ent.forceUpdate );
-	ent.callback = NULL;
+	ent.callback = nullptr;
 	if ( ent.customShader ) {
 		ent.customShader = declManager->FindMaterial( common->ReadDemo()->ReadHashString() );
 	}
@@ -684,7 +684,7 @@ void	idRenderWorldLocal::ReadRenderEntity() {
 		SIMD_INIT_LAST_JOINT( ent.joints, ent.numJoints );
 	}
 
-	ent.callbackData = NULL;
+	ent.callbackData = nullptr;
 
 	/*
 	if ( ent.decals ) {

@@ -96,13 +96,13 @@ uintptr_t Sys_CreateThread(const xthread_t function, void *parms, const xthreadP
 	flags |= STACK_SIZE_PARAM_IS_A_RESERVATION;
 
 	DWORD threadId;
-	HANDLE handle = CreateThread(	NULL,	// LPSECURITY_ATTRIBUTES lpsa, //-V513
-									stackSize,
-									(LPTHREAD_START_ROUTINE)function,
-									parms,
-									flags,
-									&threadId);
-	if ( handle == 0 ) {
+	HANDLE handle = CreateThread(nullptr,	// LPSECURITY_ATTRIBUTES lpsa, //-V513
+	                             stackSize,
+	                             (LPTHREAD_START_ROUTINE)function,
+	                             parms,
+	                             flags,
+	                             &threadId);
+	if ( handle == nullptr ) {
 		idLib::common->FatalError( "CreateThread error: %i", GetLastError() );
 		return (uintptr_t)0;
 	}
@@ -177,7 +177,7 @@ Sys_SignalCreate
 ========================
 */
 void Sys_SignalCreate( signalHandle_t & handle, const bool manualReset ) {
-	handle = CreateEvent( NULL, manualReset, FALSE, NULL );
+	handle = CreateEvent(nullptr, manualReset, FALSE, nullptr);
 }
 
 /*
@@ -214,7 +214,7 @@ Sys_SignalWait
 ========================
 */
 bool Sys_SignalWait( signalHandle_t & handle, const int timeout ) {
-	DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
+	const DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
 	assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
 	return ( result == WAIT_OBJECT_0 );
 }

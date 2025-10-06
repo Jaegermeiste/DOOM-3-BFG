@@ -67,7 +67,7 @@ idCompressor_None::idCompressor_None
 ================
 */
 idCompressor_None::idCompressor_None() {
-	file = NULL;
+	file = nullptr;
 	compress = true;
 }
 
@@ -283,13 +283,13 @@ void idCompressor_BitStream::Init( idFile *f, bool compress, int wordLength ) {
 	readLength = 0;
 	readByte = 0;
 	readBit = 0;
-	readData = NULL;
+	readData = nullptr;
 
 	writeTotalBytes = 0;
 	writeLength = 0;
 	writeByte = 0;
 	writeBit = 0;
-	writeData = NULL;
+	writeData = nullptr;
 }
 
 /*
@@ -804,9 +804,9 @@ int idCompressor_RunLength_ZeroBased::Read( void *outData, int outLength ) {
 =================================================================================
 */
 
-const int HMAX			= 256;				// Maximum symbol
-const int NYT			= HMAX;				// NYT = Not Yet Transmitted
-const int INTERNAL_NODE	= HMAX + 1;			// internal node
+constexpr int HMAX			= 256;				// Maximum symbol
+constexpr int NYT			= HMAX;				// NYT = Not Yet Transmitted
+constexpr int INTERNAL_NODE	= HMAX + 1;			// internal node
 
 typedef struct nodetype {
 	struct nodetype *left, *right, *parent; // tree structure
@@ -882,17 +882,17 @@ void idCompressor_Huffman::Init( idFile *f, bool compress, int wordLength ) {
 	compressedSize = 0;
 	unCompressedSize = 0;
 
-	tree = NULL;
-	lhead = NULL;
-	ltail = NULL;
+	tree = nullptr;
+	lhead = nullptr;
+	ltail = nullptr;
 	for( i = 0; i < (HMAX+1); i++ ) {
-		loc[i] = NULL;
+		loc[i] = nullptr;
 	}
-	freelist = NULL;
+	freelist = nullptr;
 
 	for( i = 0; i < 768; i++ ) {
 		memset( &nodeList[i], 0, sizeof(huffmanNode_t) );
-		nodePtrs[i] = NULL;
+		nodePtrs[i] = nullptr;
 	}
 
 	if ( compress ) {
@@ -900,15 +900,15 @@ void idCompressor_Huffman::Init( idFile *f, bool compress, int wordLength ) {
 		tree = lhead = loc[NYT] = &nodeList[blocNode++];
 		tree->symbol = NYT;
 		tree->weight = 0;
-		lhead->next = lhead->prev = NULL;
-		tree->parent = tree->left = tree->right = NULL;
+		lhead->next = lhead->prev = nullptr;
+		tree->parent = tree->left = tree->right = nullptr;
 	} else {
 		// Initialize the tree & list with the NYT node 
 		tree = lhead = ltail = loc[NYT] = &nodeList[blocNode++];
 		tree->symbol = NYT;
 		tree->weight = 0;
-		lhead->next = lhead->prev = NULL;
-		tree->parent = tree->left = tree->right = NULL;
+		lhead->next = lhead->prev = nullptr;
+		tree->parent = tree->left = tree->right = nullptr;
 	}
 }
 
@@ -1090,7 +1090,7 @@ void idCompressor_Huffman::Increment( huffmanNode_t *node ) {
 		return;
 	}
 
-	if ( node->next != NULL && node->next->weight == node->weight ) {
+	if ( node->next != nullptr && node->next->weight == node->weight ) {
 	    lnode = *node->head;
 		if ( lnode != node->parent ) {
 			Swap( lnode, node );
@@ -1100,7 +1100,7 @@ void idCompressor_Huffman::Increment( huffmanNode_t *node ) {
 	if ( node->prev && node->prev->weight == node->weight ) {
 		*node->head = node->prev;
 	} else {
-	    *node->head = NULL;
+	    *node->head = nullptr;
 		Free_ppnode( node->head );
 	}
 	node->weight++;
@@ -1128,7 +1128,7 @@ idCompressor_Huffman::AddRef
 */
 void idCompressor_Huffman::AddRef( byte ch ) {
 	huffmanNode_t *tnode, *tnode2;
-	if ( loc[ch] == NULL ) { /* if this is the first transmission of this node */
+	if ( loc[ch] == nullptr) { /* if this is the first transmission of this node */
 		tnode = &nodeList[blocNode++];
 		tnode2 = &nodeList[blocNode++];
 
@@ -1169,7 +1169,7 @@ void idCompressor_Huffman::AddRef( byte ch ) {
 		}
 		lhead->next = tnode;
 		tnode->prev = lhead;
-		tnode->left = tnode->right = NULL;
+		tnode->left = tnode->right = nullptr;
  
 		if ( lhead->parent ) {
 			if ( lhead->parent->left == lhead ) { /* lhead is guaranteed to by the NYT */
@@ -1245,14 +1245,14 @@ idCompressor_Huffman::Transmit
 */
 void idCompressor_Huffman::Transmit( int ch, byte *fout ) {
 	int i;
-	if ( loc[ch] == NULL ) { 
+	if ( loc[ch] == nullptr) { 
 		/* huffmanNode_t hasn't been transmitted, send a NYT, then the symbol */
 		Transmit( NYT, fout );
 		for ( i = 7; i >= 0; i-- ) {
 			Add_bit( (char)((ch >> i) & 0x1), fout );
 		}
 	} else {
-		Send( loc[ch], NULL, fout );
+		Send( loc[ch], nullptr, fout );
 	}
 }
 
@@ -1365,14 +1365,14 @@ float idCompressor_Huffman::GetCompressionRatio() const {
 =================================================================================
 */
 
-const int AC_WORD_LENGTH	= 8;
-const int AC_NUM_BITS		= 16;
-const int AC_MSB_SHIFT		= 15;
-const int AC_MSB2_SHIFT		= 14;
-const int AC_MSB_MASK		= 0x8000;
-const int AC_MSB2_MASK		= 0x4000;
-const int AC_HIGH_INIT		= 0xffff;
-const int AC_LOW_INIT		= 0x0000;
+constexpr int AC_WORD_LENGTH	= 8;
+constexpr int AC_NUM_BITS		= 16;
+constexpr int AC_MSB_SHIFT		= 15;
+constexpr int AC_MSB2_SHIFT		= 14;
+constexpr int AC_MSB_MASK		= 0x8000;
+constexpr int AC_MSB2_MASK		= 0x4000;
+constexpr int AC_HIGH_INIT		= 0xffff;
+constexpr int AC_LOW_INIT		= 0x0000;
 
 class idCompressor_Arithmetic : public idCompressor_BitStream {
 public:
@@ -1795,12 +1795,12 @@ int idCompressor_Arithmetic::Read( void *outData, int outLength ) {
 =================================================================================
 */
 
-const int LZSS_BLOCK_SIZE		= 65535;
-const int LZSS_HASH_BITS		= 10;
-const int LZSS_HASH_SIZE		= ( 1 << LZSS_HASH_BITS );
-const int LZSS_HASH_MASK		= ( 1 << LZSS_HASH_BITS ) - 1;
-const int LZSS_OFFSET_BITS		= 11;
-const int LZSS_LENGTH_BITS		= 5;
+constexpr int LZSS_BLOCK_SIZE		= 65535;
+constexpr int LZSS_HASH_BITS		= 10;
+constexpr int LZSS_HASH_SIZE		= ( 1 << LZSS_HASH_BITS );
+constexpr int LZSS_HASH_MASK		= ( 1 << LZSS_HASH_BITS ) - 1;
+constexpr int LZSS_OFFSET_BITS		= 11;
+constexpr int LZSS_LENGTH_BITS		= 5;
 
 class idCompressor_LZSS : public idCompressor_BitStream {
 public:
@@ -2239,11 +2239,11 @@ protected:
 	int				WriteChain( int code );
 	void			DecompressBlock();
 
-	static const int LZW_BLOCK_SIZE = 32767;
-	static const int LZW_START_BITS = 9;
-	static const int LZW_FIRST_CODE = (1 << (LZW_START_BITS-1));
-	static const int LZW_DICT_BITS = 12;
-	static const int LZW_DICT_SIZE = 1 << LZW_DICT_BITS;
+	static constexpr int LZW_BLOCK_SIZE = 32767;
+	static constexpr int LZW_START_BITS = 9;
+	static constexpr int LZW_FIRST_CODE = (1 << (LZW_START_BITS-1));
+	static constexpr int LZW_DICT_BITS = 12;
+	static constexpr int LZW_DICT_SIZE = 1 << LZW_DICT_BITS;
 
 	// Dictionary data
 	struct {

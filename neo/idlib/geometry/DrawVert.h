@@ -63,9 +63,9 @@ F16toF32
 ========================
 */
 ID_INLINE float F16toF32(const halfFloat_t x ) {
-	int e = HF_EXP( x );
-	int m = HF_MANTISSA( x );
-	int s = HF_SIGN( x );
+	const int e = HF_EXP( x );
+	const int m = HF_MANTISSA( x );
+	const int s = HF_SIGN( x );
 
 	if ( 0 < e && e < 31 ) {
 		return s * powf( 2.0f, ( e - 15.0f ) ) * ( 1 + m / 1024.0f );
@@ -81,19 +81,19 @@ F32toF16
 ========================
 */
 ID_INLINE halfFloat_t F32toF16( float a ) {
-	unsigned int f = *(unsigned *)( &a );
-	unsigned int signbit  = ( f & 0x80000000 ) >> 16;
-	int exponent = ( ( f & 0x7F800000 ) >> 23 ) - 112;
-	unsigned int mantissa = ( f & 0x007FFFFF );
+	const unsigned int f = *(unsigned *)( &a );
+	const unsigned int signbit  = ( f & 0x80000000 ) >> 16;
+	const int exponent = ( ( f & 0x7F800000 ) >> 23 ) - 112;
+	const unsigned int mantissa = ( f & 0x007FFFFF );
 
 	if ( exponent <= 0 ) {
 		return 0;
 	}
 	if ( exponent > 30 ) {
-		return (halfFloat_t)( signbit | 0x7BFF );
+		return static_cast<halfFloat_t>(signbit | 0x7BFF);
 	}
 
-	return (halfFloat_t)( signbit | ( exponent << 10 ) | ( mantissa >> 13 ) );
+	return static_cast<halfFloat_t>(signbit | (exponent << 10) | (mantissa >> 13));
 }
 
 /*
@@ -171,13 +171,13 @@ public:
 	static idVec3		GetSkinnedDrawVertPosition( const idDrawVert & vert, const idJointMat * joints );
 };
 
-#define DRAWVERT_SIZE				32
-#define DRAWVERT_XYZ_OFFSET			(0*4)
-#define DRAWVERT_ST_OFFSET			(3*4)
-#define DRAWVERT_NORMAL_OFFSET		(4*4)
-#define DRAWVERT_TANGENT_OFFSET		(5*4)
-#define DRAWVERT_COLOR_OFFSET		(6*4)
-#define DRAWVERT_COLOR2_OFFSET		(7*4)
+constexpr auto DRAWVERT_SIZE               = 32;
+constexpr auto DRAWVERT_XYZ_OFFSET     = (0*4);
+constexpr auto DRAWVERT_ST_OFFSET      = (3*4);
+constexpr auto DRAWVERT_NORMAL_OFFSET  = (4*4);
+constexpr auto DRAWVERT_TANGENT_OFFSET = (5*4);
+constexpr auto DRAWVERT_COLOR_OFFSET   = (6*4);
+constexpr auto DRAWVERT_COLOR2_OFFSET  = (7*4);
 
 assert_offsetof( idDrawVert, xyz,		DRAWVERT_XYZ_OFFSET );
 assert_offsetof( idDrawVert, normal,	DRAWVERT_NORMAL_OFFSET );
@@ -456,15 +456,15 @@ ID_INLINE void idDrawVert::LerpAll( const idDrawVert &a, const idDrawVert &b, co
 	SetTangent( tangent );
 	SetBiTangent( bitangent );
 
-	color[0] = (byte)( a.color[0] + f * ( b.color[0] - a.color[0] ) );
-	color[1] = (byte)( a.color[1] + f * ( b.color[1] - a.color[1] ) );
-	color[2] = (byte)( a.color[2] + f * ( b.color[2] - a.color[2] ) );
-	color[3] = (byte)( a.color[3] + f * ( b.color[3] - a.color[3] ) );
+	color[0] = static_cast<byte>(a.color[0] + f * (b.color[0] - a.color[0]));
+	color[1] = static_cast<byte>(a.color[1] + f * (b.color[1] - a.color[1]));
+	color[2] = static_cast<byte>(a.color[2] + f * (b.color[2] - a.color[2]));
+	color[3] = static_cast<byte>(a.color[3] + f * (b.color[3] - a.color[3]));
 
-	color2[0] = (byte)( a.color2[0] + f * ( b.color2[0] - a.color2[0] ) );
-	color2[1] = (byte)( a.color2[1] + f * ( b.color2[1] - a.color2[1] ) );
-	color2[2] = (byte)( a.color2[2] + f * ( b.color2[2] - a.color2[2] ) );
-	color2[3] = (byte)( a.color2[3] + f * ( b.color2[3] - a.color2[3] ) );
+	color2[0] = static_cast<byte>(a.color2[0] + f * (b.color2[0] - a.color2[0]));
+	color2[1] = static_cast<byte>(a.color2[1] + f * (b.color2[1] - a.color2[1]));
+	color2[2] = static_cast<byte>(a.color2[2] + f * (b.color2[2] - a.color2[2]));
+	color2[3] = static_cast<byte>(a.color2[3] + f * (b.color2[3] - a.color2[3]));
 }
 
 /*
@@ -472,8 +472,9 @@ ID_INLINE void idDrawVert::LerpAll( const idDrawVert &a, const idDrawVert &b, co
 idDrawVert::SetNativeOrderColor
 ========================
 */
-ID_INLINE void idDrawVert::SetNativeOrderColor(const dword color ) {
-	*reinterpret_cast<dword *>(this->color) = color;
+ID_INLINE void idDrawVert::SetNativeOrderColor(const dword color )
+{
+	*reinterpret_cast<dword*>(this->color) = color;
 }
 
 /*
@@ -481,7 +482,8 @@ ID_INLINE void idDrawVert::SetNativeOrderColor(const dword color ) {
 idDrawVert::SetColor
 ========================
 */
-ID_INLINE void idDrawVert::SetColor(const dword color ) {
+ID_INLINE void idDrawVert::SetColor(const dword color )
+{
 	*reinterpret_cast<dword *>(this->color) = color;
 }
 
@@ -574,7 +576,8 @@ ID_INLINE const halfFloat_t idDrawVert::GetTexCoordNativeT() const {
 idDrawVert::SetNativeOrderColor2
 ========================
 */
-ID_INLINE void idDrawVert::SetNativeOrderColor2(const dword color2 ) {
+ID_INLINE void idDrawVert::SetNativeOrderColor2(const dword color2 )
+{
 	*reinterpret_cast<dword *>(this->color2) = color2;
 }
 
@@ -583,7 +586,8 @@ ID_INLINE void idDrawVert::SetNativeOrderColor2(const dword color2 ) {
 idDrawVert::SetColor
 ========================
 */
-ID_INLINE void idDrawVert::SetColor2(const dword color2 ) {
+ID_INLINE void idDrawVert::SetColor2(const dword color2 )
+{
 	*reinterpret_cast<dword *>(this->color2) = color2;
 }
 
@@ -592,7 +596,8 @@ ID_INLINE void idDrawVert::SetColor2(const dword color2 ) {
 idDrawVert::ClearColor2
 ========================
 */
-ID_INLINE void idDrawVert::ClearColor2() {
+ID_INLINE void idDrawVert::ClearColor2()
+{
 	*reinterpret_cast<dword *>(this->color2) = 0x80808080;
 }
 
@@ -639,7 +644,7 @@ idDrawVert::GetSkinnedDrawVert
 =====================
 */
 ID_INLINE idDrawVert idDrawVert::GetSkinnedDrawVert( const idDrawVert & vert, const idJointMat * joints ) {
-	if ( joints == NULL ) {
+	if ( joints == nullptr) {
 		return vert;
 	}
 
@@ -678,7 +683,7 @@ idDrawVert::GetSkinnedDrawVertPosition
 =====================
 */
 ID_INLINE idVec3 idDrawVert::GetSkinnedDrawVertPosition( const idDrawVert & vert, const idJointMat * joints ) {
-	if ( joints == NULL ) {
+	if ( joints == nullptr) {
 		return vert.xyz;
 	}
 

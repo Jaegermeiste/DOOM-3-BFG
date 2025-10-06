@@ -49,8 +49,8 @@ Reachability_Write
 */
 bool Reachability_Write( idFile *fp, idReachability *reach ) {
 	fp->WriteFloatString( "\t\t%d %d (%f %f %f) (%f %f %f) %d %d",
-				(int) reach->travelType, (int) reach->toAreaNum, reach->start.x, reach->start.y, reach->start.z,
-				reach->end.x, reach->end.y, reach->end.z, reach->edgeNum, (int) reach->travelTime );
+				static_cast<int>(reach->travelType), static_cast<int>(reach->toAreaNum), reach->start.x, reach->start.y, reach->start.z,
+				reach->end.x, reach->end.y, reach->end.z, reach->edgeNum, static_cast<int>(reach->travelTime) );
 	return true;
 }
 
@@ -124,7 +124,7 @@ bool Reachability_Special_Read( idLexer &src, idReachability_Special *reach ) {
 		if ( key == "}" ) {
 			return true;
 		}
-		src.ExpectTokenType( TT_STRING, 0, &value );
+		src.ExpectTokenType(TT_STRING, 0, &value );
 		reach->dict.Set( key, value );
 	}
 	return false;
@@ -293,7 +293,7 @@ bool idAASSettings::FromParser( idLexer &src ) {
 		}
 		else if ( token == "fileExtension" ) {
 			src.ExpectTokenString( "=" );
-			src.ExpectTokenType( TT_STRING, 0, &token );
+			src.ExpectTokenType(TT_STRING, 0, &token );
 			fileExtension = token;
 		}
 		else if ( token == "gravity" ) {
@@ -532,10 +532,10 @@ bool idAASSettings::ValidEntity( const char *classname ) const {
 	}
 
 	const idDeclEntityDef *decl = static_cast<const idDeclEntityDef *>( declManager->FindType( DECL_ENTITYDEF, classname, false ) );
-	if ( ( decl != NULL ) && decl->dict.GetString( "use_aas", NULL, use_aas ) && !fileExtension.Icmp( use_aas ) ) {
-		if ( decl->dict.GetVector( "mins", NULL, bounds[0] ) ) {
-			decl->dict.GetVector( "maxs", NULL, bounds[1] );
-		} else if ( decl->dict.GetVector( "size", NULL, size ) ) {
+	if ( ( decl != nullptr) && decl->dict.GetString( "use_aas", nullptr, use_aas ) && !fileExtension.Icmp( use_aas ) ) {
+		if ( decl->dict.GetVector( "mins", nullptr, bounds[0] ) ) {
+			decl->dict.GetVector( "maxs", nullptr, bounds[1] );
+		} else if ( decl->dict.GetVector( "size", nullptr, size ) ) {
 			bounds[ 0 ].Set( size.x * -0.5f, size.y * -0.5f, 0.0f );
 			bounds[ 1 ].Set( size.x * 0.5f, size.y * 0.5f, size.z );
 		}
@@ -911,8 +911,8 @@ bool idAASFileLocal::ParseReachabilities( idLexer &src, int areaNum ) {
 
 	num = src.ParseInt();
 	src.ExpectTokenString( "{" );
-	area->reach = NULL;
-	area->rev_reach = NULL;
+	area->reach = nullptr;
+	area->rev_reach = nullptr;
 	area->travelFlags = AreaContentsTravelFlags( areaNum );
 	for ( j = 0; j < num; j++ ) {
 		Reachability_Read( src, &reach );
@@ -1123,7 +1123,7 @@ bool idAASFileLocal::Load( const idStr &fileName, unsigned int mapFileCRC ) {
 		return false;
 	}
 
-	if ( !src.ExpectTokenType( TT_NUMBER, TT_INTEGER, &token ) ) {
+	if ( !src.ExpectTokenType(TT_NUMBER, TT_INTEGER, &token ) ) {
 		common->Warning( "AAS file '%s' has no map file CRC", name.c_str() );
 		return false;
 	}
@@ -1289,8 +1289,8 @@ void idAASFileLocal::DeleteReachabilities() {
 			nextReach = reach->next;
 			delete reach;
 		}
-		areas[i].reach = NULL;
-		areas[i].rev_reach = NULL;
+		areas[i].reach = nullptr;
+		areas[i].rev_reach = nullptr;
 	}
 }
 

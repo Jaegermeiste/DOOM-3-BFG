@@ -606,6 +606,7 @@
     <ClCompile Include="ui\Winvar.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="sys\win32\rc\res\doom.ico" />
     <None Include="sys\win32\rc\res\doom3bfg.bin" />
   </ItemGroup>

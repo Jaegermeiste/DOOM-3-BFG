@@ -61,9 +61,9 @@ idSWFScriptObject::swfNamedVar_t & idSWFScriptObject::swfNamedVar_t::operator=( 
 idSWFScriptObject::idSWFScriptObject
 ========================
 */
-idSWFScriptObject::idSWFScriptObject() : prototype( NULL ), refCount( 1 ), noAutoDelete( false ), objectType( SWF_OBJECT_OBJECT ) {
-	data.sprite = NULL;
-	data.text = NULL;
+idSWFScriptObject::idSWFScriptObject() : prototype(nullptr), refCount( 1 ), noAutoDelete( false ), objectType( SWF_OBJECT_OBJECT ) {
+	data.sprite = nullptr;
+	data.text = nullptr;
 	Clear();
 	refCount = 1;
 }
@@ -74,7 +74,7 @@ idSWFScriptObject::~idSWFScriptObject
 ========================
 */
 idSWFScriptObject::~idSWFScriptObject() {
-	if ( prototype != NULL ) {
+	if ( prototype != nullptr) {
 		prototype->Release();
 	}
 }
@@ -126,7 +126,7 @@ idSWFScriptObject::HasProperty
 ========================
 */
 bool idSWFScriptObject::HasProperty( const char * name ) {
-	return ( GetVariable( name, false ) != NULL );
+	return ( GetVariable( name, false ) != nullptr);
 }
 
 /*
@@ -136,10 +136,10 @@ idSWFScriptObject::HasValidProperty
 */
 bool idSWFScriptObject::HasValidProperty( const char * name ) {
 	idSWFScriptObject::swfNamedVar_t * const variable = GetVariable( name, false );
-	if ( variable == NULL ) {
+	if ( variable == nullptr) {
 		return false;
 	}
-	if ( variable->native != NULL ) {
+	if ( variable->native != nullptr) {
 		idSWFScriptVar nv = variable->native->Get( this );
 		if ( nv.IsNULL() || nv.IsUndefined() ) {
 			return false;
@@ -159,7 +159,7 @@ idSWFScriptObject::Get
 */
 idSWFScriptVar idSWFScriptObject::Get( const char * name ) {
 	swfNamedVar_t * variable = GetVariable( name, false );
-	if ( variable == NULL ) {
+	if ( variable == nullptr) {
 		return idSWFScriptVar();
 	} else {
 		if ( variable->native ) {
@@ -177,7 +177,7 @@ idSWFScriptObject::Get
 */
 idSWFScriptVar idSWFScriptObject::Get( int index ) {
 	swfNamedVar_t * variable = GetVariable( index, false );
-	if ( variable == NULL ) {
+	if ( variable == nullptr) {
 		return idSWFScriptVar();
 	} else {
 		if ( variable->native ) {
@@ -218,7 +218,7 @@ idSWFScriptObject * idSWFScriptObject::GetObject( int index ) {
 	if ( var.IsObject() ) {
 		return var.GetObject();
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -231,7 +231,7 @@ idSWFScriptObject * idSWFScriptObject::GetObject( const char * name ) {
 	if ( var.IsObject() ) {
 		return var.GetObject();
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -244,7 +244,7 @@ idSWFTextInstance * idSWFScriptObject::GetText( int index ) {
 	if ( var.IsObject() ) {
 		return var.GetObject()->GetText();
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -257,7 +257,7 @@ idSWFTextInstance * idSWFScriptObject::GetText( const char * name ) {
 	if ( var.IsObject() ) {
 		return var.GetObject()->GetText();
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -378,8 +378,8 @@ idSWFScriptVar idSWFScriptObject::DefaultValue( bool stringHint ) {
 			return idSWFScriptVar( "[array]" );
 		}
 	case SWF_OBJECT_SPRITE:
-		if ( data.sprite != NULL ) {
-			if ( data.sprite->parent == NULL ) {
+		if ( data.sprite != nullptr) {
+			if ( data.sprite->parent == nullptr) {
 				return idSWFScriptVar( "[_root]" );
 			} else {
 				return idSWFScriptVar( va( "[%s]", data.sprite->GetName() ) );
@@ -413,13 +413,13 @@ idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( int index, bo
 		variable->flags = SWF_VAR_FLAG_NONE;
 		variable->index = index;
 		variable->name = va( "%d", index );
-		variable->native = NULL;
+		variable->native = nullptr;
 		int hash = idStr::Hash( variable->name ) & ( VARIABLE_HASH_BUCKETS - 1 );
 		variable->hashNext = variablesHash[hash];
 		variablesHash[hash] = variables.Num() - 1;
 		return variable;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -435,9 +435,9 @@ idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( const char * 
 		}
 	}
 
-	if ( prototype != NULL ) {
+	if ( prototype != nullptr) {
 		swfNamedVar_t * variable = prototype->GetVariable( name, false );
-		if ( ( variable != NULL ) && ( variable->native || !create ) ) {
+		if ( ( variable != nullptr) && ( variable->native || !create ) ) {
 			// If the variable is native, we want to pull it from the prototype even if we're going to set it
 			return variable;
 		}
@@ -451,12 +451,12 @@ idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( const char * 
 			variable->index = -1;
 		}
 		variable->name = name;
-		variable->native = NULL;
+		variable->native = nullptr;
 		variable->hashNext = variablesHash[hash];
 		variablesHash[hash] = variables.Num() - 1;
 		return variable;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -478,10 +478,10 @@ idSWFScriptObject::GetNestedVar
 */
 idSWFScriptVar idSWFScriptObject::GetNestedVar( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
 	const char * const args[] = { arg1, arg2, arg3, arg4, arg5, arg6 };
-	const int numArgs = sizeof( args ) / sizeof( const char * );
+	constexpr int numArgs = sizeof( args ) / sizeof( const char * );
 
 	idStaticList< const char *, numArgs > vars;	
-	for ( int i = 0; i < numArgs && args[ i ] != NULL; ++i ) {
+	for ( int i = 0; i < numArgs && args[ i ] != nullptr; ++i ) {
 		vars.Append( args[ i ] );
 	}
 
@@ -518,7 +518,7 @@ idSWFScriptObject * idSWFScriptObject::GetNestedObj( const char * arg1, const ch
 	idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
 
 	if ( !var.IsObject() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return var.GetObject();

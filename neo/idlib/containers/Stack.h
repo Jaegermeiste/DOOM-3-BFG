@@ -70,9 +70,7 @@ void idStackTemplate<type,nextOffset>::Add( type *element ) {
 
 template< class type, int nextOffset >
 type *idStackTemplate<type,nextOffset>::Get() {
-	type *element;
-
-	element = top;
+	type* element = top;
 	if ( element ) {
 		top = STACK_NEXT_PTR(top);
 		if ( bottom == element ) {

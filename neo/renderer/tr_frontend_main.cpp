@@ -39,9 +39,9 @@ FRAME MEMORY ALLOCATION
 ==========================================================================================
 */
 
-static const unsigned int NUM_FRAME_DATA = 2;
-static const unsigned int FRAME_ALLOC_ALIGNMENT = 128;
-static const unsigned int MAX_FRAME_MEMORY = 64 * 1024 * 1024;	// larger so that we can noclip on PC for dev purposes
+static constexpr unsigned int NUM_FRAME_DATA = 2;
+static constexpr unsigned int FRAME_ALLOC_ALIGNMENT = 128;
+static constexpr unsigned int MAX_FRAME_MEMORY = 64 * 1024 * 1024;	// larger so that we can noclip on PC for dev purposes
 
 idFrameData		smpFrameData[NUM_FRAME_DATA];
 idFrameData *	frameData;
@@ -89,7 +89,7 @@ void R_ToggleSmpFrame() {
 	// clear the command chain and make a RC_NOP command the only thing on the list
 	frameData->cmdHead = frameData->cmdTail = (emptyCommand_t *)R_FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
 	frameData->cmdHead->commandId = RC_NOP;
-	frameData->cmdHead->next = NULL;
+	frameData->cmdHead->next = nullptr;
 }
 
 /*
@@ -98,10 +98,10 @@ R_ShutdownFrameData
 =====================
 */
 void R_ShutdownFrameData() {
-	frameData = NULL;
+	frameData = nullptr;
 	for ( int i = 0; i < NUM_FRAME_DATA; i++ ) {
 		Mem_Free16( smpFrameData[i].frameMemory );
-		smpFrameData[i].frameMemory = NULL;
+		smpFrameData[i].frameMemory = nullptr;
 	}
 }
 
@@ -192,7 +192,7 @@ void *R_StaticAlloc( int bytes, const memTag_t tag ) {
     void * buf = Mem_Alloc( bytes, tag );
 
 	// don't exit on failure on zero length allocations since the old code didn't
-	if ( buf == NULL && bytes != 0 ) {
+	if ( buf == nullptr && bytes != 0 ) {
 		common->FatalError( "R_StaticAlloc failed on %i bytes", bytes );
 	}
 	return buf;
@@ -247,7 +247,7 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 		assert( sort >= 0.0f );
 
 		uint64 dist = 0;
-		if ( drawSurfs[i]->frontEndGeo != NULL ) {
+		if ( drawSurfs[i]->frontEndGeo != nullptr) {
 			float min = 0.0f;
 			float max = 1.0f;
 			idRenderMatrix::DepthBoundsForBounds( min, max, drawSurfs[i]->space->mvp, drawSurfs[i]->frontEndGeo->bounds );
@@ -257,7 +257,7 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( (uint64) ( *(uint32 *)&sort ) << 32 );
 	}
 
-	const int64 MAX_LEVELS = 128;
+	constexpr int64 MAX_LEVELS = 128;
 	int64 lo[MAX_LEVELS];
 	int64 hi[MAX_LEVELS];
 

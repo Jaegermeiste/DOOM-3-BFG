@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "BoundsTrack.h"
 
 // assume any lightDef or entityDef index above this is an internal error
-const int LUDICROUS_INDEX	= 10000;
+constexpr int LUDICROUS_INDEX	= 10000;
 
 
 typedef struct portal_s {
@@ -67,8 +67,8 @@ typedef struct portalArea_s {
 } portalArea_t;
 
 
-static const int	CHILDREN_HAVE_MULTIPLE_AREAS = -2;
-static const int	AREANUM_SOLID = -1;
+static constexpr int	CHILDREN_HAVE_MULTIPLE_AREAS = -2;
+static constexpr int	AREANUM_SOLID = -1;
 typedef struct {
 	idPlane			plane;
 	int				children[2];		// negative numbers are (-1 - areaNumber), 0 = solid
@@ -175,7 +175,7 @@ public:
 	idBlockAlloc<idInteraction, 256>	interactionAllocator;
 
 #ifdef ID_PC
-	static const int MAX_DECAL_SURFACES = 32;
+	static constexpr int MAX_DECAL_SURFACES = 32;
 #else
 	static const int MAX_DECAL_SURFACES = 16;
 #endif

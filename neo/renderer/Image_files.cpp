@@ -154,11 +154,11 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 	byte		*targa_rgba;
 
 	if ( !pic ) {
-		fileSystem->ReadFile( name, NULL, timestamp );
+		fileSystem->ReadFile( name, nullptr, timestamp );
 		return;	// just getting timestamp
 	}
 
-	*pic = NULL;
+	*pic = nullptr;
 
 	//
 	// load the file
@@ -370,7 +370,7 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 	}
 
 	if ( (targa_header.attributes & (1<<5)) ) {			// image flp bit
-		if ( width != NULL && height != NULL ) {
+		if ( width != nullptr && height != nullptr) {
 			R_VerticalFlip( *pic, *width, *height );
 		}
 	}
@@ -426,7 +426,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	// JDC: because fill_input_buffer() blindly copies INPUT_BUF_SIZE bytes,
 	// we need to make sure the file buffer is padded or it may crash
   if ( pic ) {
-	*pic = NULL;		// until proven otherwise
+	*pic = nullptr;		// until proven otherwise
   }
   {
 		int		len;
@@ -592,7 +592,7 @@ void R_LoadImage( const char *cname, byte **pic, int *width, int *height, ID_TIM
 	idStr name = cname;
 
 	if ( pic ) {
-		*pic = NULL;
+		*pic = nullptr;
 	}
 	if ( timestamp ) {
 		*timestamp = FILE_NOT_FOUND_TIMESTAMP;
@@ -616,7 +616,7 @@ void R_LoadImage( const char *cname, byte **pic, int *width, int *height, ID_TIM
 
 	if ( ext == "tga" ) {
 		LoadTGA( name.c_str(), pic, width, height, timestamp );            // try tga first
-		if ( ( pic && *pic == 0 ) || ( timestamp && *timestamp == -1 ) ) { //-V595
+		if ( ( pic && *pic == nullptr ) || ( timestamp && *timestamp == -1 ) ) { //-V595
 			name.StripFileExtension();
 			name.DefaultFileExtension( ".jpg" );
 			LoadJPG( name.c_str(), pic, width, height, timestamp );
@@ -628,7 +628,7 @@ void R_LoadImage( const char *cname, byte **pic, int *width, int *height, ID_TIM
 	if ( ( width && *width < 1 ) || ( height && *height < 1 ) ) {
 		if ( pic && *pic ) {
 			R_StaticFree( *pic );
-			*pic = 0;
+			*pic = nullptr;
 		}
 	}
 
@@ -698,7 +698,7 @@ bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6
 		ID_TIME_T thisTime;
 		if ( !pics ) {
 			// just checking timestamps
-			R_LoadImageProgram( fullName, NULL, &width, &height, &thisTime );
+			R_LoadImageProgram( fullName, nullptr, &width, &height, &thisTime );
 		} else {
 			R_LoadImageProgram( fullName, &pics[i], &width, &height, &thisTime );
 		}

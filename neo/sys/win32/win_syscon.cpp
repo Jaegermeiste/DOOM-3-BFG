@@ -153,7 +153,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		case WM_CREATE:
 			s_wcd.hbrEditBackground = CreateSolidBrush( RGB( 0x00, 0x00, 0x80 ) );
 			s_wcd.hbrErrorBackground = CreateSolidBrush( RGB( 0x80, 0x80, 0x80 ) );
-			SetTimer( hWnd, 1, 1000, NULL );
+			SetTimer( hWnd, 1, 1000, nullptr);
 			break;
 /*
 		case WM_ERASEBKGND:
@@ -179,7 +179,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			if ( wParam == 1 ) {
 				s_timePolarity = (bool)!s_timePolarity;
 				if ( s_wcd.hwndErrorBox ) {
-					InvalidateRect( s_wcd.hwndErrorBox, NULL, FALSE );
+					InvalidateRect( s_wcd.hwndErrorBox, nullptr, FALSE );
 				}
 			}
 			break;
@@ -294,9 +294,9 @@ void Sys_CreateConsole() {
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = win32.hInstance;
 	wc.hIcon         = LoadIcon( win32.hInstance, MAKEINTRESOURCE(IDI_ICON1));
-	wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
+	wc.hCursor       = LoadCursor (nullptr,IDC_ARROW);
 	wc.hbrBackground = (struct HBRUSH__ *)COLOR_WINDOW;
-	wc.lpszMenuName  = 0;
+	wc.lpszMenuName  = nullptr;
 	wc.lpszClassName = DEDCLASS;
 
 	if ( !RegisterClass (&wc) ) {
@@ -324,12 +324,12 @@ void Sys_CreateConsole() {
 							   GAME_NAME,
 							   DEDSTYLE,
 							   ( swidth - 600 ) / 2, ( sheight - 450 ) / 2 , rect.right - rect.left + 1, rect.bottom - rect.top + 1,
-							   NULL,
-							   NULL,
+							   nullptr,
+							   nullptr,
 							   win32.hInstance,
-							   NULL );
+	nullptr);
 
-	if ( s_wcd.hWnd == NULL ) {
+	if ( s_wcd.hWnd == nullptr) {
 		return;
 	}
 
@@ -417,7 +417,7 @@ void Sys_DestroyConsole() {
 		ShowWindow( s_wcd.hWnd, SW_HIDE );
 		CloseWindow( s_wcd.hWnd );
 		DestroyWindow( s_wcd.hWnd );
-		s_wcd.hWnd = 0;
+		s_wcd.hWnd = nullptr;
 	}
 }
 
@@ -455,7 +455,7 @@ void Sys_ShowConsole( int visLevel, bool quitOnClose ) {
 char *Sys_ConsoleInput() {
 	
 	if ( s_wcd.consoleText[0] == 0 ) {
-		return NULL;
+		return nullptr;
 	}
 		
 	strcpy( s_wcd.returnedText, s_wcd.consoleText );
@@ -548,6 +548,6 @@ void Win_SetErrorText( const char *buf ) {
 		SetWindowText( s_wcd.hwndErrorBox, s_wcd.errorString );
 
 		DestroyWindow( s_wcd.hwndInputLine );
-		s_wcd.hwndInputLine = NULL;
+		s_wcd.hwndInputLine = nullptr;
 	}
 }

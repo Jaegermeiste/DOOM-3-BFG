@@ -245,7 +245,7 @@ float idConsoleLocal::DrawFPS( float y ) {
 	const int rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
 	const int rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds();
 	const int rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
-	const int maxTime = 16;
+	constexpr int maxTime = 16;
 
 	y += SMALLCHAR_HEIGHT + 4;
 	idStr timeStr;
@@ -566,7 +566,7 @@ void idConsoleLocal::KeyDownEvent( int key ) {
 		consoleField.Clear();
 		consoleField.SetWidthInChars( LINE_WIDTH );
 
-		const bool captureToImage = false;
+		constexpr bool captureToImage = false;
 		common->UpdateScreen( captureToImage );// force an update, because the command
 								// may take some time
 		return;
@@ -1183,7 +1183,7 @@ void idConsoleLocal::DrawOverlayText( float & leftY, float & rightY, float & cen
 
 		const float width = maxWidth * SMALLCHAR_WIDTH;
 		const float height = numLines * ( SMALLCHAR_HEIGHT + 4 );
-		const float bgAdjust = - 0.5f * SMALLCHAR_WIDTH;
+		constexpr float bgAdjust = - 0.5f * SMALLCHAR_WIDTH;
 		if ( overlayText[i].justify == JUSTIFY_LEFT ) {
 			renderSystem->DrawFilled( bgColor, LOCALSAFE_LEFT + bgAdjust, leftY, width, height );
 		} else if ( overlayText[i].justify == JUSTIFY_RIGHT ) {

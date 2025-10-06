@@ -37,15 +37,15 @@ to use the CONSOLE_COMMAND() macro inside idlib, so these must be here.
 ========================
 */
 idCommandLink *CommandLinks( idCommandLink *cl ) {
-	static idCommandLink *commandLinks = NULL;
-	if ( cl != NULL ) {
+	static idCommandLink *commandLinks = nullptr;
+	if ( cl != nullptr) {
 		commandLinks = cl;
 	}
 	return commandLinks;
 }
 
 
-idCommandLink *commandLinks = NULL;
+idCommandLink *commandLinks = nullptr;
 
 idCommandLink::idCommandLink( const char *cmdName, const cmdFunction_t function, 
 	const char *description, const argCompletion_t argCompletion ) {

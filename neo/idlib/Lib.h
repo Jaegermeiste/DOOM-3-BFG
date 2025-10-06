@@ -96,13 +96,19 @@ class idVec4;
 #define BIT( num )				( 1ULL << ( num ) )
 #endif
 
-#define	MAX_STRING_CHARS		1024		// max length of a string
-#define MAX_PRINT_MSG			16384		// buffer size for our various printf routines
+#ifndef STRING_LIMITS
+#define STRING_LIMITS
+constexpr auto MAX_STRING_CHARS = 1024U;		// max length of a string;
+constexpr auto MAX_PRINT_MSG = 16384U;		// buffer size for our various printf routines;
+#endif
 
+#ifndef WORLD_LIMITS
+#define WORLD_LIMITS
 // maximum world size
-#define MAX_WORLD_COORD			( 128 * 1024 )
-#define MIN_WORLD_COORD			( -128 * 1024 )
+constexpr auto MAX_WORLD_COORD = ( 128 * 1024 );
+constexpr auto MIN_WORLD_COORD = ( -128 * 1024 );
 #define MAX_WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+#endif
 
 #define SIZE_KB( x )						( ( (x) + 1023 ) / 1024 )
 #define SIZE_MB( x )						( ( ( SIZE_KB( x ) ) + 1023 ) / 1024 )
@@ -156,7 +162,7 @@ idException
 */
 class idException {
 public:
-	static const int MAX_ERROR_LEN = 2048;
+	static constexpr int MAX_ERROR_LEN = 2048;
 
 					idException( const char *text = "" ) { 
 						strncpy( error, text, MAX_ERROR_LEN ); 
@@ -188,7 +194,7 @@ idFatalException
 */
 class idFatalException {
 public:
-	static const int MAX_ERROR_LEN = 2048;
+	static constexpr int MAX_ERROR_LEN = 2048;
 
 	idFatalException( const char *text = "" ) { 
 		strncpy( idException::error, text, MAX_ERROR_LEN ); 

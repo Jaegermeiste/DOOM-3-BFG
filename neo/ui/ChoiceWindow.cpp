@@ -63,7 +63,7 @@ idChoiceWindow::CommonInit
 void idChoiceWindow::CommonInit() {
 	currentChoice = 0;
 	choiceType = 0;
-	cvar = NULL;
+	cvar = nullptr;
 	liveUpdate = true;
 	choices.Clear();
 }

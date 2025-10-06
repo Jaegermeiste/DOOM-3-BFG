@@ -35,22 +35,22 @@ idRenderEntityLocal::idRenderEntityLocal() {
 	memset( &parms, 0, sizeof( parms ) );
 	memset( modelMatrix, 0, sizeof( modelMatrix ) );
 
-	world					= NULL;
+	world					= nullptr;
 	index					= 0;
 	lastModifiedFrameNum	= 0;
 	archived				= false;
-	dynamicModel			= NULL;
+	dynamicModel			= nullptr;
 	dynamicModelFrameCount	= 0;
-	cachedDynamicModel		= NULL;
+	cachedDynamicModel		= nullptr;
 	localReferenceBounds	= bounds_zero;
 	globalReferenceBounds	= bounds_zero;
 	viewCount				= 0;
-	viewEntity				= NULL;
-	decals					= NULL;
-	overlays				= NULL;
-	entityRefs				= NULL;
-	firstInteraction		= NULL;
-	lastInteraction			= NULL;
+	viewEntity				= nullptr;
+	decals					= nullptr;
+	overlays				= nullptr;
+	entityRefs				= nullptr;
+	firstInteraction		= nullptr;
+	lastInteraction			= nullptr;
 	needsPortalSky			= false;
 }
 
@@ -82,20 +82,20 @@ idRenderLightLocal::idRenderLightLocal() {
 	memset( lightProject, 0, sizeof( lightProject ) );
 
 	lightHasMoved			= false;
-	world					= NULL;
+	world					= nullptr;
 	index					= 0;
 	areaNum					= 0;
 	lastModifiedFrameNum	= 0;
 	archived				= false;
-	lightShader				= NULL;
-	falloffImage			= NULL;
+	lightShader				= nullptr;
+	falloffImage			= nullptr;
 	globalLightOrigin		= vec3_zero;
 	viewCount				= 0;
-	viewLight				= NULL;
-	references				= NULL;
-	foggedPortals			= NULL;
-	firstInteraction		= NULL;
-	lastInteraction			= NULL;
+	viewLight				= nullptr;
+	references				= nullptr;
+	foggedPortals			= nullptr;
+	firstInteraction		= nullptr;
+	lastInteraction			= nullptr;
 
 	baseLightProject.Zero();
 	inverseBaseLightProject.Zero();

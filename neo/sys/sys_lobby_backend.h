@@ -85,9 +85,9 @@ private:
 };
 
 struct lobbyUser_t {
-	static const int INVALID_PING = 9999;
+	static constexpr int INVALID_PING = 9999;
 	// gamertags can be up to 16 4-byte characters + \0
-	static const int MAX_GAMERTAG	= 64 + 1; 
+	static constexpr int MAX_GAMERTAG	= 64 + 1; 
 
 	lobbyUser_t() {
 		isBot				= false;

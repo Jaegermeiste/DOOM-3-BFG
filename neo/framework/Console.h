@@ -39,7 +39,7 @@ enum justify_t {
 class idOverlayHandle {
 friend class idConsoleLocal;
 public:
-			idOverlayHandle() : index( -1 ), time( 0 ) {}
+	idOverlayHandle() noexcept : index( -1 ), time( 0 ) {}
 private:
 	int		index;
 	int		time;

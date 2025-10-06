@@ -36,16 +36,12 @@ idJointMat::ToJointQuat
 */
 idJointQuat idJointMat::ToJointQuat() const {
 	idJointQuat	jq;
-	float		trace;
 	float		s;
 	float		t;
-	int     	i;
-	int			j;
-	int			k;
 
 	static int 	next[3] = { 1, 2, 0 };
 
-	trace = mat[0 * 4 + 0] + mat[1 * 4 + 1] + mat[2 * 4 + 2];
+	float trace = mat[0 * 4 + 0] + mat[1 * 4 + 1] + mat[2 * 4 + 2];
 
 	if ( trace > 0.0f ) {
 
@@ -59,15 +55,15 @@ idJointQuat idJointMat::ToJointQuat() const {
 
 	} else {
 
-		i = 0;
+		int i = 0;
 		if ( mat[1 * 4 + 1] > mat[0 * 4 + 0] ) {
 			i = 1;
 		}
 		if ( mat[2 * 4 + 2] > mat[i * 4 + i] ) {
 			i = 2;
 		}
-		j = next[i];
-		k = next[j];
+		int j = next[i];
+		int k = next[j];
 
 		t = ( mat[i * 4 + i] - ( mat[j * 4 + j] + mat[k * 4 + k] ) ) + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;

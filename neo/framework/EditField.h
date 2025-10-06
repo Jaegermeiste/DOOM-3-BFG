@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-const int MAX_EDIT_LINE = 256;
+constexpr int MAX_EDIT_LINE = 256;
 
 typedef struct autoComplete_s {
 	bool			valid;

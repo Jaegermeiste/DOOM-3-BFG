@@ -142,7 +142,7 @@ idSIMD_Generic::BlendJoints
 */
 void VPCALL idSIMD_Generic::BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) {
 	for ( int i = 0; i < numJoints; i++ ) {
-		int j = index[i];
+		const int j = index[i];
 		joints[j].q.Slerp( joints[j].q, blendJoints[j].q, lerp );
 		joints[j].t.Lerp( joints[j].t, blendJoints[j].t, lerp );
 		joints[j].w = 0.0f;
@@ -156,7 +156,7 @@ idSIMD_Generic::BlendJointsFast
 */
 void VPCALL idSIMD_Generic::BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) {
 	for ( int i = 0; i < numJoints; i++ ) {
-		int j = index[i];
+		const int j = index[i];
 		joints[j].q.Lerp( joints[j].q, blendJoints[j].q, lerp );
 		joints[j].t.Lerp( joints[j].t, blendJoints[j].t, lerp );
 		joints[j].w = 0.0f;

@@ -62,12 +62,9 @@ idODE_Euler::Evaluate
 =============
 */
 float idODE_Euler::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	float delta;
-	int i;
-
 	derive( t0, userData, state, derivatives );
-	delta = t1 - t0;
-	for ( i = 0; i < dimension; i++ ) {
+	float delta = t1 - t0;
+	for ( int i = 0; i < dimension; i++ ) {
 		newState[i] = state[i] + delta * derivatives[i];
 	}
 	return delta;
@@ -108,11 +105,10 @@ idODE_Midpoint::~Evaluate
 =============
 */
 float idODE_Midpoint::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	double delta, halfDelta;
-    int i;
+	int i;
 
-	delta = t1 - t0;
-	halfDelta = delta * 0.5;
+	double delta = t1 - t0;
+	double halfDelta = delta * 0.5;
     // first step
 	derive( t0, userData, state, derivatives );
 	for ( i = 0; i < dimension; i++ ) {
@@ -168,11 +164,10 @@ idODE_RK4::Evaluate
 =============
 */
 float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	double delta, halfDelta, sixthDelta;
 	int i;
 
-	delta = t1 - t0;
-	halfDelta = delta * 0.5;
+	double delta = t1 - t0;
+	double halfDelta = delta * 0.5;
 	// first step
 	derive( t0, userData, state, d1 );
 	for ( i = 0; i < dimension; i++ ) {
@@ -191,7 +186,7 @@ float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, 
 	// fourth step
 	derive( t0 + delta, userData, tmpState, d4 );
 
-	sixthDelta = delta * (1.0/6.0);
+	double sixthDelta = delta * (1.0 / 6.0);
 	for ( i = 0; i < dimension; i++ ) {
 		newState[i] = state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]);
 	}
@@ -253,16 +248,15 @@ idODE_RK4Adaptive::Evaluate
 =============
 */
 float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	double delta, halfDelta, fourthDelta, sixthDelta;
-	double error, max;
-	int i, n;
+	double error;
+	int i;
 
-	delta = t1 - t0;
+	double delta = t1 - t0;
 
-	for ( n = 0; n < 4; n++ ) {
+	for ( int n = 0; n < 4; n++ ) {
 
-		halfDelta = delta * 0.5;
-		fourthDelta = delta * 0.25;
+		double halfDelta = delta * 0.5;
+		double fourthDelta = delta * 0.25;
 
 		// first step of first half delta
 		derive( t0, userData, state, d1 );
@@ -282,7 +276,7 @@ float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const fl
 		// fourth step of first half delta
 		derive( t0 + halfDelta, userData, tmpState, d4 );
 
-		sixthDelta = halfDelta * (1.0/6.0);
+		double sixthDelta = halfDelta * (1.0 / 6.0);
 		for ( i = 0; i < dimension; i++ ) {
 			tmpState[i] = state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]);
 		}
@@ -333,7 +327,7 @@ float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const fl
 		}
 
 		// get max estimated error
-        max = 0.0;
+        double max = 0.0;
 		for ( i = 0; i < dimension; i++ ) {
 			error = idMath::Fabs( (newState[i] - tmpState[i]) / (delta * d1[i] + 1e-10) );
 			if ( error > max ) {

@@ -495,7 +495,7 @@ protected:
 	idMenuWidgetList											children;
 	idMenuWidgetList											observers;
 
-	static const int INVALID_ACTION_INDEX = -1;
+	static constexpr int INVALID_ACTION_INDEX = -1;
 	idList< idList< idWidgetAction, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU >		eventActions;
 	idStaticList< int, MAX_WIDGET_EVENT >	eventActionLookup;
 

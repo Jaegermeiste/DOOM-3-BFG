@@ -85,7 +85,7 @@ float com_engineHz_latched = 60.0f; // Latched version of cvar, updated between 
 int64 com_engineHz_numerator = 100LL * 1000LL;
 int64 com_engineHz_denominator = 100LL * 60LL;
 
-HWND com_hwndMsg = NULL;
+HWND com_hwndMsg = nullptr;
 
 #ifdef __DOOM_DLL__
 idGame *		game = NULL;
@@ -118,7 +118,7 @@ idCommonLocal::idCommonLocal() :
 	showShellRequested( false ),
 	currentGame( DOOM3_BFG ),
 	idealCurrentGame( DOOM3_BFG ),
-	doomClassicMaterial( NULL )
+	doomClassicMaterial(nullptr)
 	{
 
 	snapCurrent.localTime = -1;
@@ -136,37 +136,37 @@ idCommonLocal::idCommonLocal() :
 	com_shuttingDown = false;
 	com_isJapaneseSKU = false;
 
-	logFile = NULL;
+	logFile = nullptr;
 
 	strcpy( errorMessage, "" );
 
-	rd_buffer = NULL;
+	rd_buffer = nullptr;
 	rd_buffersize = 0;
-	rd_flush = NULL;
+	rd_flush = nullptr;
 
 	gameDLL = 0;
 
-	loadGUI = NULL;
+	loadGUI = nullptr;
 	nextLoadTip = 0;
 	isHellMap = false;
 	wipeForced = false;
 	defaultLoadscreen = false;
 
-	menuSoundWorld = NULL;
+	menuSoundWorld = nullptr;
 
 	insideUpdateScreen = false;
 	insideExecuteMapChange = false;
 
-	mapSpawnData.savegameFile = NULL;
+	mapSpawnData.savegameFile = nullptr;
 
 	currentMapName.Clear();
 	aviDemoShortName.Clear();
 
-	renderWorld = NULL;
-	soundWorld = NULL;
-	menuSoundWorld = NULL;
-	readDemo = NULL;
-	writeDemo = NULL;
+	renderWorld = nullptr;
+	soundWorld = nullptr;
+	menuSoundWorld = nullptr;
+	readDemo = nullptr;
+	writeDemo = nullptr;
 
 	gameFrame = 0;
 	gameTimeResidual = 0;
@@ -180,8 +180,8 @@ idCommonLocal::idCommonLocal() :
 
 	clientPrediction = 0;
 
-	saveFile = NULL;
-	stringsFile = NULL;
+	saveFile = nullptr;
+	stringsFile = nullptr;
 
 	ClearWipe();
 }
@@ -357,7 +357,7 @@ void idCommonLocal::WriteConfiguration() {
 
 	// save to the profile
 	idLocalUser * user = session->GetSignInManager().GetMasterLocalUser();
-	if ( user != NULL ) {
+	if ( user != nullptr) {
 		user->SaveProfileSettings();
 	}
 
@@ -519,7 +519,7 @@ CONSOLE_COMMAND( crash, "causes a crash", NULL ) {
 		return;
 	}
 
-	* ( int * ) 0 = 0x12345678;
+	* ( int * ) nullptr = 0x12345678;
 }
 
 /*
@@ -593,8 +593,8 @@ void idCommonLocal::CheckStartupStorageRequirements() {
 		}
 	}
 
-	const int MIN_SAVE_STORAGE_PROFILE		= 1024 * 1024;
-	const int MIN_SAVE_STORAGE_SAVEGAME		= MIN_SAVEGAME_SIZE_BYTES;
+	constexpr int MIN_SAVE_STORAGE_PROFILE		= 1024 * 1024;
+	constexpr int MIN_SAVE_STORAGE_SAVEGAME		= MIN_SAVEGAME_SIZE_BYTES;
 
 	uint64 requiredSizeBytes = MIN_SAVE_STORAGE_SAVEGAME + MIN_SAVE_STORAGE_PROFILE;
 
@@ -694,7 +694,7 @@ void idCommonLocal::InitLanguageDict() {
 	idLocalization::ClearDictionary();
 	for( int i = 0; i < currentLangList.Num(); i++ ) {
 		//common->Printf("%s\n", currentLangList[i].c_str());
-		const byte * buffer = NULL;
+		const byte * buffer = nullptr;
 		int len = fileSystem->ReadFile( currentLangList[i], (void**)&buffer );
 		if ( len <= 0 ) {
 			assert( false && "couldn't read the language dict file" );
@@ -734,7 +734,7 @@ Com_FinishBuild_f
 */
 CONSOLE_COMMAND( finishBuild, "finishes the build process", NULL ) {
 	if ( game ) {
-		game->CacheDictionaryMedia( NULL );
+		game->CacheDictionaryMedia(nullptr);
 	}
 	globalImages->FinishBuild( ( args.Argc() > 1 ) );
 }
@@ -748,7 +748,7 @@ void idCommonLocal::RenderSplash() {
 	const float sysWidth = renderSystem->GetWidth() * renderSystem->GetPixelAspect();
 	const float sysHeight = renderSystem->GetHeight();
 	const float sysAspect = sysWidth / sysHeight;
-	const float splashAspect = 16.0f / 9.0f;
+	constexpr float splashAspect = 16.0f / 9.0f;
 	const float adjustment = sysAspect / splashAspect;
 	const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * (float)SCREEN_HEIGHT * 0.25f;
 	const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * (float)SCREEN_WIDTH * 0.25f;
@@ -778,7 +778,7 @@ void idCommonLocal::RenderBink( const char * path ) {
 	const float sysWidth = renderSystem->GetWidth() * renderSystem->GetPixelAspect();
 	const float sysHeight = renderSystem->GetHeight();
 	const float sysAspect = sysWidth / sysHeight;
-	const float movieAspect = ( 16.0f / 9.0f );
+	constexpr float movieAspect = ( 16.0f / 9.0f );
 	const float imageWidth = SCREEN_WIDTH * movieAspect / sysAspect;
 	const float chop = 0.5f * ( SCREEN_WIDTH - imageWidth );
 
@@ -875,7 +875,7 @@ void idCommonLocal::LoadGameDLL() {
 #endif
 
 	// initialize the game object
-	if ( game != NULL ) {
+	if ( game != nullptr) {
 		game->Init();
 	}
 }
@@ -886,7 +886,7 @@ idCommonLocal::UnloadGameDLL
 =================
 */
 void idCommonLocal::CleanupShell() {
-	if ( game != NULL ) {
+	if ( game != nullptr) {
 		game->Shell_Cleanup();
 	}
 }
@@ -899,7 +899,7 @@ idCommonLocal::UnloadGameDLL
 void idCommonLocal::UnloadGameDLL() {
 
 	// shut down the game object
-	if ( game != NULL ) {
+	if ( game != nullptr) {
 		game->Shutdown();
 	}
 
@@ -985,7 +985,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		Sys_InitNetworking();
 
 		// override cvars from command line
-		StartupVariable( NULL );
+		StartupVariable(nullptr);
 
 		consoleUsed = com_allowConsole.GetBool();
 
@@ -1040,7 +1040,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		cmdSystem->ExecuteCommandBuffer();
 
 		// re-override anything from the config files with command line args
-		StartupVariable( NULL );
+		StartupVariable(nullptr);
 
 		// if any archived cvars are modified after this, we will trigger a writing of the config file
 		cvarSystem->ClearModifiedFlags( CVAR_ARCHIVE );
@@ -1071,7 +1071,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 			splashScreen = declManager->FindMaterial( "guis/assets/splash/legal_english" );
 		}
 
-		const int legalMinTime = 4000;
+		constexpr int legalMinTime = 4000;
 		const bool showVideo = ( !com_skipIntroVideos.GetBool () && fileSystem->UsingResourceFiles() );
 		if ( showVideo ) {
 			RenderBink( "video\\loadvideo.bik" );
@@ -1134,7 +1134,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		renderWorld = renderSystem->AllocRenderWorld();
 		soundWorld = soundSystem->AllocSoundWorld( renderWorld );
 
-		menuSoundWorld = soundSystem->AllocSoundWorld( NULL );
+		menuSoundWorld = soundSystem->AllocSoundWorld(nullptr);
 		menuSoundWorld->PlaceListener( vec3_origin, mat3_identity, 0 );
 
 		// init the session
@@ -1144,7 +1144,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		InitializeMPMapsModes();
 
 		// leaderboards need to be initialized after InitializeMPMapsModes, which populates the MP Map list.
-		if( game != NULL ) {
+		if( game != nullptr) {
 			game->Leaderboards_Init();
 		}
 
@@ -1186,7 +1186,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		// Initialize support for Doom classic.
 		doomClassicMaterial = declManager->FindMaterial( "_doomClassic" );
 		idImage *image = globalImages->GetImage( "_doomClassic" );
-		if ( image != NULL ) {
+		if ( image != nullptr) {
 			idImageOpts opts;
 			opts.format = FMT_RGBA8;
 			opts.colorFormat = CFM_DEFAULT;
@@ -1200,10 +1200,10 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 
 
 		// No longer need the splash screen
-		if ( splashScreen != NULL ) {
+		if ( splashScreen != nullptr) {
 			for ( int i = 0; i < splashScreen->GetNumStages(); i++ ) {
 				idImage * image = splashScreen->GetStage( i )->texture.image;
-				if ( image != NULL ) {
+				if ( image != nullptr) {
 					image->PurgeImage();
 				}
 			}
@@ -1254,19 +1254,19 @@ void idCommonLocal::Shutdown() {
 
 	printf( "delete loadGUI;\n" );
 	delete loadGUI;
-	loadGUI = NULL;
+	loadGUI = nullptr;
 
 	printf( "delete renderWorld;\n" );
 	delete renderWorld;
-	renderWorld = NULL;
+	renderWorld = nullptr;
 
 	printf( "delete soundWorld;\n" );
 	delete soundWorld;
-	soundWorld = NULL;
+	soundWorld = nullptr;
 
 	printf( "delete menuSoundWorld;\n" );
 	delete menuSoundWorld;
-	menuSoundWorld = NULL;
+	menuSoundWorld = nullptr;
 
 	// shut down the session
 	printf( "session->ShutdownSoundRelatedSystems();\n" );
@@ -1275,7 +1275,7 @@ void idCommonLocal::Shutdown() {
 	session->Shutdown();
 
 	// shutdown, deallocate leaderboard definitions.
-	if( game != NULL ) {
+	if( game != nullptr) {
 		printf( "game->Leaderboards_Shutdown();\n" );
 		game->Leaderboards_Shutdown();
 	}
@@ -1363,7 +1363,7 @@ idCommonLocal::CreateMainMenu
 ========================
 */
 void idCommonLocal::CreateMainMenu() {
-	if ( game != NULL ) {
+	if ( game != nullptr) {
 		// note which media we are going to need to load
 		declManager->BeginLevelLoad();
 		renderSystem->BeginLevelLoad();
@@ -1418,7 +1418,7 @@ idCommonLocal::BusyWait
 void idCommonLocal::BusyWait() {
 	Sys_GenerateEvents();
 
-	const bool captureToImage = false;
+	constexpr bool captureToImage = false;
 	UpdateScreen( captureToImage );
 
 	session->UpdateSignInManager();
@@ -1460,8 +1460,7 @@ idCommonLocal::LeaveGame
 ========================
 */
 void idCommonLocal::LeaveGame() {
-
-	const bool captureToImage = false;
+	constexpr bool captureToImage = false;
 	UpdateScreen( captureToImage );
 
 	ResetNetworkingState();
@@ -1537,7 +1536,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t *event ) {
 			DoomLib::SetPlayer( 0 );
 			
 			extern Globals * g;
-			if ( g != NULL ) {
+			if ( g != nullptr) {
 				classicEvent.data1 =  DoomLib::RemapControl( event->GetKey() );
 											
 				D_PostEvent( &classicEvent );
@@ -1604,11 +1603,11 @@ void idCommonLocal::PerformGameSwitch() {
 		return;
 	}
 
-	const int DOOM_CLASSIC_HZ = 35;
+	constexpr int DOOM_CLASSIC_HZ = 35;
 
 	if ( idealCurrentGame == DOOM_CLASSIC || idealCurrentGame == DOOM2_CLASSIC ) {
 		// Pause Doom 3 sound.
-		if ( menuSoundWorld != NULL ) {
+		if ( menuSoundWorld != nullptr) {
 			menuSoundWorld->Pause();
 		}
 
@@ -1642,7 +1641,7 @@ void idCommonLocal::PerformGameSwitch() {
 		}
 
 		// Unpause Doom 3 sound.
-		if ( menuSoundWorld != NULL ) {
+		if ( menuSoundWorld != nullptr) {
 			menuSoundWorld->UnPause();
 		}
 	}

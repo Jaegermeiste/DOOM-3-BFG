@@ -112,7 +112,7 @@ bool R_PreciseCullSurface( const drawSurf_t *drawSurf, idBounds &ndcBounds ) {
 	// get an exact bounds of the triangles for scissor cropping
 	ndcBounds.Clear();
 
-	const idJointMat * joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( tri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : nullptr;
 
 	for ( int i = 0; i < tri->numVerts; i++ ) {
 		const idVec3 vXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[i], joints );
@@ -311,7 +311,7 @@ static void R_RemoteRender( const drawSurf_t *surf, textureStage_t *stage ) {
 
 	// copy this rendering to the image
 	stage->dynamicFrameCount = tr.frameCount;
-	if ( stage->image == NULL ) {
+	if ( stage->image == nullptr) {
 		stage->image = globalImages->scratchImage;
 	}
 
@@ -332,7 +332,7 @@ void R_MirrorRender( const drawSurf_t *surf, textureStage_t *stage, idScreenRect
 
 	// issue a new view command
 	viewDef_t * parms = R_MirrorViewBySurface( surf );
-	if ( parms == NULL ) {
+	if ( parms == nullptr) {
 		return;
 	}
 
@@ -375,7 +375,7 @@ void R_XrayRender( const drawSurf_t *surf, textureStage_t *stage, idScreenRect s
 
 	// issue a new view command
 	viewDef_t * parms = R_XrayViewBySurface( surf );
-	if ( parms == NULL ) {
+	if ( parms == nullptr) {
 		return;
 	}
 
@@ -428,9 +428,9 @@ bool R_GenerateSurfaceSubview( const drawSurf_t *drawSurf ) {
 
 	// never recurse through a subview surface that we are
 	// already seeing through
-	viewDef_t * parms = NULL;
-	for ( parms = tr.viewDef; parms != NULL; parms = parms->superView ) {
-		if ( parms->subviewSurface != NULL
+	viewDef_t * parms = nullptr;
+	for ( parms = tr.viewDef; parms != nullptr; parms = parms->superView ) {
+		if ( parms->subviewSurface != nullptr
 			&& parms->subviewSurface->frontEndGeo == drawSurf->frontEndGeo
 			&& parms->subviewSurface->space->entityDef == drawSurf->space->entityDef ) {
 			break;
@@ -480,7 +480,7 @@ bool R_GenerateSurfaceSubview( const drawSurf_t *drawSurf ) {
 
 	// issue a new view command
 	parms = R_MirrorViewBySurface( drawSurf );
-	if ( parms == NULL ) {
+	if ( parms == nullptr) {
 		return false;
 	}
 

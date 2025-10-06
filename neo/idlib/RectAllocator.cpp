@@ -49,7 +49,7 @@ or scale the input sizes down by that alignment and scale the outputPositions ba
 */
 
 float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i totalSize ) {
-	int	totalArea = totalSize.Area();
+	const int	totalArea = totalSize.Area();
 	if ( totalArea == 0 ) {
 		return 0;
 	}
@@ -57,7 +57,7 @@ float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i tota
 	for ( int i = 0 ; i < inputSizes.Num() ; i++ ) {
 		inputArea += inputSizes[i].Area();
 	}
-	return (float)inputArea / totalArea;
+	return static_cast<float>(inputArea) / totalArea;
 }
 
 class idSortrects : public idSort_Quick< int, idSortrects > {
@@ -100,7 +100,7 @@ void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPo
 	// Somewhat better allocation could be had by checking all the combinations of x and y edges
 	// in the allocated rectangles, rather than just the corners of each rectangle, but it
 	// still does a pretty good job.
-	static const int START_MAX = 1<<14;
+	static constexpr int START_MAX = 1<<14;
 	for ( int i = 1; i < inputSizes.Num(); i++ ) {
 		idVec2i	best( 0, 0 );
 		idVec2i	bestMax( START_MAX, START_MAX );
@@ -130,8 +130,8 @@ void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPo
 				// if we have already found a spot that keeps the image smaller, don't bother checking here
 				// This calculation biases the rect towards more square shapes instead of
 				// allowing it to extend in one dimension for a long time.
-				int	newSize = newMax.x * newMax.x + newMax.y * newMax.y;
-				int	bestSize = bestMax.x * bestMax.x + bestMax.y * bestMax.y;
+				const int	newSize = newMax.x * newMax.x + newMax.y * newMax.y;
+				const int	bestSize = bestMax.x * bestMax.x + bestMax.y * bestMax.y;
 				if ( newSize > bestSize ) {
 					continue;
 				}

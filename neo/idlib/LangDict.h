@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idLangKeyValue {
 public:
-	idLangKeyValue() : key( NULL ), value( NULL ) { }
+	idLangKeyValue() : key(nullptr), value(nullptr) { }
 	idLangKeyValue( char * k, char * v ) : key ( k ), value( v ) { }
 	char * key;
 	char * value;
@@ -47,14 +47,14 @@ LocalizedStringTables.
 class idLangDict {
 public:
 	static const char *		KEY_PREFIX;
-	static const int		KEY_PREFIX_LEN;
-	static const int		MAX_REDIRECTION_DEPTH = 2;
+	static const size_t		KEY_PREFIX_LEN;
+	static constexpr int		MAX_REDIRECTION_DEPTH = 2;
 
 	idLangDict();
 	~idLangDict();
 
 	void					Clear();
-	bool					Load( const byte * buffer, const int bufferLen, const char * name );
+	bool					Load( const byte * buffer, const size_t bufferLen, const char * name );
 	bool					Save( const char * fileName );
 
 	const char *			GetString( const char * str ) const;		// returns str if string not found
@@ -104,7 +104,7 @@ public:
 	// This is only here for tools, normal code should only ever call GetString
 	static idLangDict &		GetDictionary() { return languageDict; }
 
-	static utf8Encoding_t	VerifyUTF8( const uint8 * buffer, const int bufferLen, const char * name );
+	static utf8Encoding_t	VerifyUTF8(const uint8 * buffer, size_t bufferLen, const char * name);
 
 private:
 	static idLangDict					languageDict;

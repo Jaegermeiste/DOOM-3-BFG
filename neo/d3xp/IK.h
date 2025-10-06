@@ -93,7 +93,7 @@ public:
 	void					DisableLeg( int num );
 
 private:
-	static const int		MAX_LEGS		= 8;
+	static constexpr int		MAX_LEGS		= 8;
 
 	idClipModel *			footModel;
 
@@ -160,7 +160,7 @@ public:
 
 private:
 
-	static const int		MAX_ARMS	= 2;
+	static constexpr int		MAX_ARMS	= 2;
 
 	int						numArms;
 	int						enabledArms;

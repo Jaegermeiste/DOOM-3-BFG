@@ -123,10 +123,10 @@ enum menuSounds_t {
 	NUM_GUI_SOUNDS,
 };
 
-static const int MAX_SCREEN_AREAS = 32;
-static const int DEFAULT_REPEAT_TIME = 150;
-static const int WAIT_START_TIME_LONG = 30000;
-static const int WAIT_START_TIME_SHORT = 5000;
+static constexpr int MAX_SCREEN_AREAS = 32;
+static constexpr int DEFAULT_REPEAT_TIME = 150;
+static constexpr int WAIT_START_TIME_LONG = 30000;
+static constexpr int WAIT_START_TIME_SHORT = 5000;
 
 struct actionRepeater_t {
 	actionRepeater_t() :

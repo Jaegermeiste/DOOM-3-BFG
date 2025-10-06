@@ -128,7 +128,7 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t * const cmd
 	}
 
 	// pass in null for now - we may need to do some map specific hackery in the future
-	resolutionScale.InitForMap( NULL );
+	resolutionScale.InitForMap(nullptr);
 }
 
 /*
@@ -144,7 +144,7 @@ void *R_GetCommandBuffer( int bytes ) {
 	emptyCommand_t	*cmd;
 
 	cmd = (emptyCommand_t *)R_FrameAlloc( bytes, FRAME_ALLOC_DRAW_COMMAND );
-	cmd->next = NULL;
+	cmd->next = nullptr;
 	frameData->cmdTail->next = &cmd->commandId;
 	frameData->cmdTail = cmd;
 
@@ -276,9 +276,9 @@ idRenderSystemLocal::idRenderSystemLocal
 =============
 */
 idRenderSystemLocal::idRenderSystemLocal() :
-	unitSquareTriangles( NULL ),
-	zeroOneCubeTriangles( NULL ),
-	testImageTriangles( NULL ) {
+	unitSquareTriangles(nullptr),
+	zeroOneCubeTriangles(nullptr),
+	testImageTriangles(nullptr) {
 	Clear();
 }
 
@@ -346,12 +346,12 @@ void idRenderSystemLocal::DrawStretchPic( const idVec4 & topLeft, const idVec4 &
 	if ( !R_IsInitialized() ) {
 		return;
 	}
-	if ( material == NULL ) {
+	if ( material == nullptr) {
 		return;
 	}
 
 	idDrawVert * verts = guiModel->AllocTris( 4, quadPicIndexes, 6, material, currentGLState, STEREO_DEPTH_TYPE_NONE );
-	if ( verts == NULL ) {
+	if ( verts == nullptr) {
 		return;
 	}
 
@@ -397,14 +397,14 @@ void idRenderSystemLocal::DrawStretchTri( const idVec2 & p1, const idVec2 & p2, 
 	if ( !R_IsInitialized() ) {
 		return;
 	}
-	if ( material == NULL ) {
+	if ( material == nullptr) {
 		return;
 	}
 
 	triIndex_t tempIndexes[3] = { 1, 0, 2 };
 
 	idDrawVert * verts = guiModel->AllocTris( 3, tempIndexes, 3, material, currentGLState, STEREO_DEPTH_TYPE_NONE );
-	if ( verts == NULL ) {
+	if ( verts == nullptr) {
 		return;
 	}
 
@@ -632,7 +632,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 												uint64 * gpuMicroSec )  {
 	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
 
-	if ( gpuMicroSec != NULL ) {
+	if ( gpuMicroSec != nullptr) {
 		*gpuMicroSec = 0;		// until shown otherwise
 	}
 
@@ -642,7 +642,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 
 	// After coming back from an autoswap, we won't have anything to render
-	if ( frameData->cmdHead->next != NULL ) {
+	if ( frameData->cmdHead->next != nullptr) {
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
 		void GL_BlockingSwapBuffers();
@@ -655,7 +655,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		if ( tr.timerQueryId != 0 ) {
 			qglGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
 		}
-		if ( gpuMicroSec != NULL ) {
+		if ( gpuMicroSec != nullptr) {
 			*gpuMicroSec = drawingTimeNanoseconds / 1000;
 		}
 	}
@@ -663,13 +663,13 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	//------------------------------
 
 	// save out timing information
-	if ( frontEndMicroSec != NULL ) {
+	if ( frontEndMicroSec != nullptr) {
 		*frontEndMicroSec = pc.frontEndMicroSec;
 	}
-	if ( backEndMicroSec != NULL ) {
+	if ( backEndMicroSec != nullptr) {
 		*backEndMicroSec = backEnd.pc.totalMicroSec;
 	}
-	if ( shadowMicroSec != NULL ) {
+	if ( shadowMicroSec != nullptr) {
 		*shadowMicroSec = backEnd.pc.shadowMicroSec;
 	}
 
@@ -690,7 +690,7 @@ idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 */
 const emptyCommand_t * idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers() {
 	if ( !R_IsInitialized() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// close any gui drawing
@@ -910,7 +910,7 @@ void idRenderSystemLocal::CaptureRenderToImage( const char *imageName, bool clea
 		}
 	}
 	idImage	* image = globalImages->GetImage( imageName );
-	if ( image == NULL ) {
+	if ( image == nullptr) {
 		image = globalImages->AllocImage( imageName );
 	}
 
@@ -987,7 +987,7 @@ idRenderSystemLocal::FreeRenderWorld
 */
 void idRenderSystemLocal::FreeRenderWorld( idRenderWorld *rw ) {
 	if ( primaryWorld == rw ) {
-		primaryWorld = NULL;
+		primaryWorld = nullptr;
 	}
 	worlds.Remove( static_cast<idRenderWorldLocal *>(rw) );
 	delete rw;

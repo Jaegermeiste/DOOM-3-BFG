@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idHashIndex {
 public:
-	static const int NULL_INDEX = -1;
+	static constexpr int NULL_INDEX = -1;
 					idHashIndex();
 					idHashIndex( const int initialHashSize, const int initialIndexSize );
 					~idHashIndex();
@@ -57,7 +57,7 @@ public:
 					// add an index to the hash, assumes the index has not yet been added to the hash
 	void			Add( const int key, const int index );
 					// remove an index from the hash
-	void			Remove( const int key, const int index );
+	void			Remove( const int key, const int index ) const;
 					// get the first index from the hash, returns -1 if empty hash entry
 	int				First( const int key ) const;
 					// get the next index from the hash, returns -1 if at the end of the hash chain
@@ -72,7 +72,7 @@ public:
 					// remove an entry from the index and remove it from the hash, decreasing all indexes >= index
 	void			RemoveIndex( const int key, const int index );
 					// clear the hash
-	void			Clear();
+	void			Clear() const;
 					// clear and resize
 	void			Clear( const int newHashSize, const int newIndexSize );
 					// free allocated memory
@@ -199,8 +199,6 @@ idHashIndex::Add
 ================
 */
 ID_INLINE void idHashIndex::Add( const int key, const int index ) {
-	int h;
-
 	assert( index >= 0 );
 	if ( hash == INVALID_INDEX ) {
 		Allocate( hashSize, index >= indexSize ? index + 1 : indexSize );
@@ -208,7 +206,7 @@ ID_INLINE void idHashIndex::Add( const int key, const int index ) {
 	else if ( index >= indexSize ) {
 		ResizeIndex( index + 1 );
 	}
-	h = key & hashMask;
+	int h = key & hashMask;
 	indexChain[index] = hash[h];
 	hash[h] = index;
 }
@@ -218,8 +216,9 @@ ID_INLINE void idHashIndex::Add( const int key, const int index ) {
 idHashIndex::Remove
 ================
 */
-ID_INLINE void idHashIndex::Remove( const int key, const int index ) {
-	int k = key & hashMask;
+ID_INLINE void idHashIndex::Remove( const int key, const int index ) const
+{
+	const int k = key & hashMask;
 
 	if ( hash == INVALID_INDEX ) {
 		return;
@@ -263,10 +262,10 @@ idHashIndex::InsertIndex
 ================
 */
 ID_INLINE void idHashIndex::InsertIndex( const int key, const int index ) {
-	int i, max;
+	int i;
 
 	if ( hash != INVALID_INDEX ) {
-		max = index;
+		int max = index;
 		for ( i = 0; i < hashSize; i++ ) {
 			if ( hash[i] >= index ) {
 				hash[i]++;
@@ -300,11 +299,11 @@ idHashIndex::RemoveIndex
 ================
 */
 ID_INLINE void idHashIndex::RemoveIndex( const int key, const int index ) {
-	int i, max;
+	int i;
 
 	Remove( key, index );
 	if ( hash != INVALID_INDEX ) {
-		max = index;
+		int max = index;
 		for ( i = 0; i < hashSize; i++ ) {
 			if ( hash[i] >= index ) {
 				if ( hash[i] > max ) {
@@ -333,7 +332,8 @@ ID_INLINE void idHashIndex::RemoveIndex( const int key, const int index ) {
 idHashIndex::Clear
 ================
 */
-ID_INLINE void idHashIndex::Clear() {
+ID_INLINE void idHashIndex::Clear() const
+{
 	// only clear the hash table because clearing the indexChain is not really needed
 	if ( hash != INVALID_INDEX ) {
 		memset( hash, 0xff, hashSize * sizeof( hash[0] ) );
@@ -398,7 +398,7 @@ idHashIndex::GenerateKey
 ================
 */
 ID_INLINE int idHashIndex::GenerateKey( const idVec3 &v ) const {
-	return ( (((int) v[0]) + ((int) v[1]) + ((int) v[2])) & hashMask );
+	return ( (static_cast<int>(v[0]) + static_cast<int>(v[1]) + static_cast<int>(v[2])) & hashMask );
 }
 
 /*

@@ -79,14 +79,14 @@ public:
 
 			if ( sizeof( type ) == 1 ) {
 			} else if ( sizeof( type ) == 2 ) {
-				byte *b = (byte *)&c;
+				byte *b = reinterpret_cast<byte*>(&c);
 				SwapBytes( b[0], b[1] );
 			} else if ( sizeof( type ) == 4 ) {
-				byte *b = (byte *)&c;
+				byte *b = reinterpret_cast<byte*>(&c);
 				SwapBytes( b[0], b[3] );
 				SwapBytes( b[1], b[2] );
 			} else if ( sizeof( type ) == 8 ) {
-				byte * b = (byte *)&c;
+				byte * b = reinterpret_cast<byte*>(&c);
 				SwapBytes( b[0], b[7] );
 				SwapBytes( b[1], b[6]);
 				SwapBytes( b[2], b[5] );
@@ -96,17 +96,17 @@ public:
 			}
 	}
 
-	template<class type> static void LittleArray( type *c, int count ) {
+	template<class type> static void LittleArray( type *c, size_t count ) {
 	}
 
-	template<class type> static void BigArray( type *c, const int count ) {
-		for ( int i = 0; i < count; i++ ) {
+	template<class type> static void BigArray( type *c, const size_t count ) {
+		for ( size_t i = 0; i < count; i++ ) {
 			Big( c[i] );
 		}
 	}
 
 	static void SixtetsForInt( byte *out, int src ) {
-			byte *b = (byte *)&src;
+			const byte *b = (byte *)&src;
 			out[0] = ( b[0] & 0xfc ) >> 2;
 			out[1] = ( ( b[0] & 0x3 ) << 4 ) + ( ( b[1] & 0xf0 ) >> 4 );
 			out[2] = ( ( b[1] & 0xf ) << 2 ) + ( ( b[2] & 0xc0 ) >> 6 );

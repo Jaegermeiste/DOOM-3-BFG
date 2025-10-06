@@ -139,18 +139,18 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby & lobby ) {
 
 			if ( lobby.GetNumLobbyUsers() <= 1 ) {
 				if ( MatchTypeHasStats( lobby.parms.matchFlags ) ) {
-					common->Dialog().AddDialog( GDM_MIGRATING_FAILED_DISBANDED_STATS, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );		// Game has disbanded
+					common->Dialog().AddDialog( GDM_MIGRATING_FAILED_DISBANDED_STATS, DIALOG_ACCEPT, nullptr, nullptr, false, "", 0, true );		// Game has disbanded
 				} else {
-					common->Dialog().AddDialog( GDM_MIGRATING_FAILED_DISBANDED, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );		// Game has disbanded
+					common->Dialog().AddDialog( GDM_MIGRATING_FAILED_DISBANDED, DIALOG_ACCEPT, nullptr, nullptr, false, "", 0, true );		// Game has disbanded
 				}
 			} else {
 				//common->Dialog().AddDialog( GDM_MIGRATING_FAILED_CONNECTION, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );		// Lost connection to game
 				if ( lobby.lobbyType == idLobby::TYPE_GAME && MatchTypeHasStats( lobby.parms.matchFlags ) ) {
 					// This means we came from a public match, so tell them they didn't lose stats
-					common->Dialog().AddDialog( GDM_HOST_CONNECTION_LOST_STATS, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );		// The connection to the host has been lost. This game will not count towards your ranking.
+					common->Dialog().AddDialog( GDM_HOST_CONNECTION_LOST_STATS, DIALOG_ACCEPT, nullptr, nullptr, false, "", 0, true );		// The connection to the host has been lost. This game will not count towards your ranking.
 				} else {
 					// This means we came from a private match, just say host quit
-					common->Dialog().AddDialog( GDM_HOST_CONNECTION_LOST, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );			// The connection to the host has been lost.
+					common->Dialog().AddDialog( GDM_HOST_CONNECTION_LOST, DIALOG_ACCEPT, nullptr, nullptr, false, "", 0, true );			// The connection to the host has been lost.
 				}
 			}
 
@@ -205,7 +205,7 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby & lobby ) {
 #endif
 	} else if ( lobby.GetNumLobbyUsers() <= 1 && session->GetState() == idSession::PARTY_LOBBY ) {
 		// If they didn't come from a game, and are by themselves, just show the lobby disband msg
-		common->Dialog().AddDialog( GDM_LOBBY_DISBANDED, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );				// The lobby you were previously in has disbanded
+		common->Dialog().AddDialog( GDM_LOBBY_DISBANDED, DIALOG_ACCEPT, nullptr, nullptr, false, "", 0, true );				// The lobby you were previously in has disbanded
 
 		// Make sure the sessions are joinable again
 		sessionLocal->EndSessions();
@@ -312,12 +312,12 @@ void idSessionLocalCallbacks::ConnectAndMoveToLobby( idLobby::lobbyType_t destLo
 	// See if we are already in the game lobby
 	idLobby * lobby = sessionLocal->GetLobbyFromType( destLobbyType );
 
-	if ( lobby == NULL ) {
+	if ( lobby == nullptr) {
 		idLib::Printf( "RELIABLE_CONNECT_AND_MOVE_TO_LOBBY: Invalid lobby type.\n" ); 
 		return;
 	}
 
-	if ( lobby->lobbyBackend != NULL && lobby->lobbyBackend->IsOwnerOfConnectInfo( connectInfo ) ) {
+	if ( lobby->lobbyBackend != nullptr && lobby->lobbyBackend->IsOwnerOfConnectInfo( connectInfo ) ) {
 		idLib::Printf( "RELIABLE_CONNECT_AND_MOVE_TO_LOBBY: Already in lobby.\n" ); 
 		return;
 	}

@@ -46,7 +46,7 @@ idProfileMgr
 idProfileMgr::idProfileMgr() : 
 	profileSaveProcessor( new (TAG_SAVEGAMES) idSaveGameProcessorSaveProfile ),
 	profileLoadProcessor( new (TAG_SAVEGAMES) idSaveGameProcessorLoadProfile ),
-	profile( NULL ),
+	profile(nullptr),
 	handle( 0 ) {
 }
 
@@ -76,7 +76,7 @@ idProfileMgr::Pump
 */
 void idProfileMgr::Pump() {
 	// profile can be NULL if we forced the user to register as in the case of map-ing into a level from the press start screen
-	if ( profile == NULL ) {
+	if ( profile == nullptr) {
 		return;
 	}
 
@@ -95,7 +95,7 @@ void idProfileMgr::Pump() {
 				profile->SaveSettings( true );
 			} else if ( parms.GetError() == SAVEGAME_E_CORRUPTED ) {
 				idLib::Warning( "Profile corrupt, creating a new one..." );
-				common->Dialog().AddDialog( GDM_CORRUPT_PROFILE, DIALOG_CONTINUE, NULL, NULL, false );
+				common->Dialog().AddDialog( GDM_CORRUPT_PROFILE, DIALOG_CONTINUE, nullptr, nullptr, false );
 				profile->SetDefaults();
 				profile->SaveSettings( true );
 			} else if ( parms.GetError() != SAVEGAME_E_NONE ) {
@@ -128,18 +128,18 @@ idProfileMgr::GetProfile
 */
 idPlayerProfile * idProfileMgr::GetProfile() {
 	assert( user != NULL );
-	if ( profile == NULL ) {
+	if ( profile == nullptr) {
 		// Lazy instantiation
 		// Create a new profile
 		profile = idPlayerProfile::CreatePlayerProfile( user->GetInputDevice() );
-		if ( profile == NULL ) {
-			return NULL;
+		if ( profile == nullptr) {
+			return nullptr;
 		}
 	}
 
 	bool loading = ( profile->GetState() == idPlayerProfile::LOADING ) || ( profile->GetRequestedState() == idPlayerProfile::LOAD_REQUESTED );
 	if ( loading ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return profile;
@@ -155,7 +155,7 @@ void idProfileMgr::SaveSettingsAsync() {
 		idLib::Warning( "Skipping profile save because saveGame_enable = 0" );
 	}
 
-	if ( GetProfile() != NULL ) {
+	if ( GetProfile() != nullptr) {
 		// Issue the async save...
 		if ( profileSaveProcessor->InitSaveProfile( profile, "" ) ) {
 
@@ -176,7 +176,7 @@ idProfileMgr::LoadSettingsAsync
 ========================
 */
 void idProfileMgr::LoadSettingsAsync() {
- 	if ( profile != NULL && saveGame_enable.GetBool() ) {
+ 	if ( profile != nullptr && saveGame_enable.GetBool() ) {
 		if ( profileLoadProcessor->InitLoadProfile( profile, "" ) ) {
 			// Skip the not found error because this might be the first time to play the game!
 			profileLoadProcessor->SetSkipSystemErrorDialogMask( SAVEGAME_E_FOLDER_NOT_FOUND | SAVEGAME_E_FILE_NOT_FOUND );
@@ -189,7 +189,7 @@ void idProfileMgr::LoadSettingsAsync() {
 		}
 	} else {
 		// If not able to save the profile, just change the state and leave
-		if ( profile == NULL ) {
+		if ( profile == nullptr) {
 			idLib::Warning( "Not loading profile, profile is NULL." );
 		}
 		if ( !saveGame_enable.GetBool() ) {
@@ -216,9 +216,9 @@ void idProfileMgr::OnLoadSettingsCompleted( idSaveLoadParms * parms ) {
 
 	// Serialize the loaded profile
 	idFile_SaveGame ** profileFileContainer = FindFromGenericPtr( parms->files, SAVEGAME_PROFILE_FILENAME );
-	idFile_SaveGame * profileFile = profileFileContainer == NULL ? NULL : *profileFileContainer;
+	idFile_SaveGame * profileFile = profileFileContainer == nullptr ? nullptr : *profileFileContainer;
 
-	bool foundProfile = profileFile != NULL && profileFile->Length() > 0;
+	bool foundProfile = profileFile != nullptr && profileFile->Length() > 0;
 
 	if ( foundProfile ) {
 		idTempArray< byte > buffer( MAX_PROFILE_SIZE );
@@ -259,7 +259,7 @@ void idProfileMgr::OnSaveSettingsCompleted( idSaveLoadParms * parms ) {
 	common->Dialog().ShowSaveIndicator( false );
 
 	if ( parms->GetError() != SAVEGAME_E_NONE ) {
-		common->Dialog().AddDialog( GDM_PROFILE_SAVE_ERROR, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_PROFILE_SAVE_ERROR, DIALOG_CONTINUE, nullptr, nullptr, false );
 	}
 	if ( game ) {
 		game->Shell_UpdateSavedGames();
@@ -278,8 +278,8 @@ idSaveGameProcessorSaveProfile::idSaveGameProcessorSaveProfile
 ========================
 */
 idSaveGameProcessorSaveProfile::idSaveGameProcessorSaveProfile() {
-	profileFile = NULL;
-	profile = NULL;
+	profileFile = nullptr;
+	profile = nullptr;
 
 }
 
@@ -295,7 +295,7 @@ bool idSaveGameProcessorSaveProfile::InitSaveProfile( idPlayerProfile * profile_
 	profileFile->SetMaxLength( MAX_PROFILE_SIZE );
 
 	// Create a serialization object and let the game serialize the settings into the buffer
-	const int serializeSize = MAX_PROFILE_SIZE - 8;	// -8 for checksum (all platforms) and length (on 360)
+	constexpr int serializeSize = MAX_PROFILE_SIZE - 8;	// -8 for checksum (all platforms) and length (on 360)
 	idTempArray< byte > buffer( serializeSize );
 	idBitMsg msg;
 	msg.InitWrite( buffer.Ptr(), serializeSize );
@@ -353,8 +353,8 @@ idSaveGameProcessorLoadProfile::idSaveGameProcessorLoadProfile
 ========================
 */
 idSaveGameProcessorLoadProfile::idSaveGameProcessorLoadProfile() {
-	profileFile = NULL;
-	profile = NULL;
+	profileFile = nullptr;
+	profile = nullptr;
 
 }
 

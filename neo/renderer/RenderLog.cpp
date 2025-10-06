@@ -38,8 +38,8 @@ TODO:	Emit statistics to the logfile at the end of views and frames.
 
 idCVar r_logLevel( "r_logLevel", "2", CVAR_INTEGER, "1 = blocks only, 2 = everything", 1, 2 );
 
-static const int LOG_LEVEL_BLOCKS_ONLY	= 1;
-static const int LOG_LEVEL_EVERYTHING	= 2;
+static constexpr int LOG_LEVEL_BLOCKS_ONLY	= 1;
+static constexpr int LOG_LEVEL_EVERYTHING	= 2;
 
 const char * renderLogMainBlockLabels[] = {
 	ASSERT_ENUM_STRING( MRB_NONE,							0 ),
@@ -83,7 +83,7 @@ struct pixEvent_t {
 
 idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
 
-static const int	MAX_PIX_EVENTS = 256;
+static constexpr int	MAX_PIX_EVENTS = 256;
 // defer allocation of this until needed, so we don't waste lots of memory
 pixEvent_t *		pixEvents;	// [MAX_PIX_EVENTS]
 int					numPixEvents;
@@ -216,7 +216,7 @@ idRenderLog::idRenderLog() {
 	activeLevel = 0;
 	indentString[0] = '\0';
 	indentLevel = 0;
-	logFile = NULL;
+	logFile = nullptr;
 
 	frameStartTime = 0;
 	closeBlockTime = 0;
@@ -261,13 +261,13 @@ void idRenderLog::StartFrame() {
 
 	common->SetRefreshOnPrint( false );	// problems are caused if this print causes a refresh...
 
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 		fileSystem->CloseFile( logFile );
-		logFile = NULL;
+		logFile = nullptr;
 	}
 
 	logFile = fileSystem->OpenFileWrite( ospath );	
-	if ( logFile == NULL ) {
+	if ( logFile == nullptr) {
 		idLib::Warning( "Failed to open logfile %s", ospath );
 		return;
 	}
@@ -293,7 +293,7 @@ idRenderLog::EndFrame
 void idRenderLog::EndFrame() {
 	PC_EndFrame();
 
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 		if ( r_logFile.GetInteger() == 1 ) {
 			Close();
 		}
@@ -310,11 +310,11 @@ idRenderLog::Close
 ========================
 */
 void idRenderLog::Close() {
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 		CloseBlock();
 		idLib::Printf( "Closing logfile\n" );
 		fileSystem->CloseFile( logFile );
-		logFile = NULL;
+		logFile = nullptr;
 		activeLevel = 0;
 	}
 }
@@ -344,8 +344,8 @@ void idRenderLog::OpenBlock( const char *label ) {
 	// Allow the PIX functionality even when logFile is not running.
 	PC_BeginNamedEvent( label );
 
-	if ( logFile != NULL ) {
-		LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, label, NULL );
+	if ( logFile != nullptr) {
+		LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, label, nullptr);
 	}
 }
 
@@ -357,7 +357,7 @@ idRenderLog::CloseBlock
 void idRenderLog::CloseBlock() {
 	PC_EndNamedEvent();
 
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 		LogCloseBlock( RENDER_LOG_INDENT_MAIN_BLOCK );
 	}
 }
@@ -372,7 +372,7 @@ void idRenderLog::Printf( const char *fmt, ... ) {
 		return;
 	}
 
-	if ( logFile == NULL ) {
+	if ( logFile == nullptr) {
 		return;
 	}
 
@@ -393,7 +393,7 @@ void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char * fmt, 
 
 	uint64 now = Sys_Microseconds();
 
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 		if ( now - closeBlockTime >= 1000 ) {
 			logFile->Printf( "%s%1.1f msec gap from last closeblock\n", indentString, ( now - closeBlockTime ) * ( 1.0f / 1000.0f ) );
 		}
@@ -425,7 +425,7 @@ void idRenderLog::LogCloseBlock( renderLogIndentLabel_t label ) {
 
 	Outdent( label );
 
-	if ( logFile != NULL ) {
+	if ( logFile != nullptr) {
 	}
 }
 

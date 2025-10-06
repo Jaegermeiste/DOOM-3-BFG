@@ -190,7 +190,7 @@ idSWF::RenderSprite
 */
 void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, int time, bool isSplitscreen ) {
 
-	if ( spriteInstance == NULL ) {
+	if ( spriteInstance == nullptr) {
 		idLib::Warning( "%s: RenderSprite: spriteInstance == NULL", filename.c_str() );
 		return;
 	}
@@ -219,7 +219,7 @@ void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInst
 			continue;
 		}
 		idSWFDictionaryEntry * entry = FindDictionaryEntry( display.characterID );
-		if ( entry == NULL ) {
+		if ( entry == nullptr) {
 			continue;
 		}
 
@@ -241,7 +241,7 @@ void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInst
 		}
 		renderState2.activeMasks = renderState.activeMasks + activeMasks.Num();
 
-		if ( spriteInstance->materialOverride != NULL ) {
+		if ( spriteInstance->materialOverride != nullptr) {
 			renderState2.material = spriteInstance->materialOverride;
 			renderState2.materialWidth = spriteInstance->materialWidth;
 			renderState2.materialHeight = spriteInstance->materialHeight;
@@ -424,17 +424,17 @@ idSWF::RenderMorphShape
 ========================
 */
 void idSWF::RenderMorphShape( idRenderSystem * gui, const idSWFShape * shape, const swfRenderState_t & renderState ) {
-	if ( shape == NULL ) {
+	if ( shape == nullptr) {
 		idLib::Warning( "%s: RenderMorphShape: shape == NULL", filename.c_str() );
 		return;
 	}
 
 	for ( int i = 0; i < shape->fillDraws.Num(); i++ ) {
 		const idSWFShapeDrawFill & fill = shape->fillDraws[i];
-		const idMaterial * material = NULL;
+		const idMaterial * material = nullptr;
 		swfColorXform_t color;
 
-		if ( renderState.material != NULL ) {
+		if ( renderState.material != nullptr) {
 			material = renderState.material;
 		} else if ( fill.style.type == 0 ) {
 			material = guiSolid;
@@ -482,7 +482,7 @@ void idSWF::RenderMorphShape( idRenderSystem * gui, const idSWFShape * shape, co
 		gui->SetGLState( GLStateForRenderState( renderState ) );
 
 		idDrawVert * verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );	
-		if ( verts == NULL ) {
+		if ( verts == nullptr) {
 			continue;
 		}
 
@@ -514,14 +514,14 @@ idSWF::RenderShape
 ========================
 */
 void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const swfRenderState_t & renderState ) {
-	if ( shape == NULL ) {
+	if ( shape == nullptr) {
 		idLib::Warning( "%s: RenderShape: shape == NULL", filename.c_str() );
 		return;
 	}
 
 	for ( int i = 0; i < shape->fillDraws.Num(); i++ ) {
 		const idSWFShapeDrawFill & fill = shape->fillDraws[i];
-		const idMaterial * material = NULL;
+		const idMaterial * material = nullptr;
 		swfColorXform_t color;
 
 		swfMatrix_t invMatrix;
@@ -531,7 +531,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 
 		idVec2 size( 1.0f, 1.0f );
 
-		if ( renderState.material != NULL ) {
+		if ( renderState.material != nullptr) {
 			material = renderState.material;
 			invMatrix.xx = invMatrix.yy = ( 1.0f / 20.0f );
 		} else if ( fill.style.type == 0 ) {
@@ -580,7 +580,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 		gui->SetGLState( GLStateForRenderState( renderState ) );
 
 		idDrawVert * verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );	
-		if ( verts == NULL ) {
+		if ( verts == nullptr) {
 			continue;
 		}
 
@@ -644,7 +644,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 		gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
 
 		idDrawVert * verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );	
-		if ( verts == NULL ) {
+		if ( verts == nullptr) {
 			continue;
 		}
 
@@ -684,7 +684,7 @@ idSWF::RenderEditText
 ========================
 */
 void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstance, const swfRenderState_t & renderState, int time, bool isSplitscreen ) {
-	if ( textInstance == NULL ) {
+	if ( textInstance == nullptr) {
 		idLib::Warning( "%s: RenderEditText: textInstance == NULL", filename.c_str() );
 		return;
 	}
@@ -778,7 +778,7 @@ void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstan
 	matrix.yx *= invYScale;
 
 	idSWFDictionaryEntry * fontEntry = FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
-	if ( fontEntry == NULL ) {
+	if ( fontEntry == nullptr) {
 		idLib::Warning( "idSWF::RenderEditText: NULL Font" );
 		return;
 	}

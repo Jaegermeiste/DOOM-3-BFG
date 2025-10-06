@@ -43,7 +43,7 @@ Sys_ExecuteSavegameCommandAsync
 ========================
 */
 void Sys_ExecuteSavegameCommandAsync( idSaveLoadParms * savegameParms ) {
-	if ( savegameParms == NULL ) {
+	if ( savegameParms == nullptr) {
 		idLib::Error( "Programming Error with [%s]", __FUNCTION__ );
 		return;
 	}
@@ -303,15 +303,15 @@ void idSaveLoadParms::SetDefaults( int newInputDevice ) {
 	Init();	
 
 	// fill in the user information (inputDeviceId & userId) from the master user
-	idLocalUser * user = NULL;
+	idLocalUser * user = nullptr;
 
 	if ( newInputDevice != -1 ) {
 		user = session->GetSignInManager().GetLocalUserByInputDevice( newInputDevice );
-	} else if ( session != NULL ) {
+	} else if ( session != nullptr) {
 		user = session->GetSignInManager().GetMasterLocalUser();
 	}
 
-	if ( user != NULL ) {
+	if ( user != nullptr) {
 		idLocalUserWin * userWin = static_cast< idLocalUserWin * >( user );
 		userId = idStr::Hash( userWin->GetGamerTag() );
 		idLib::PrintfIf( saveGame_verbose.GetBool(), "profile userId/gamertag: %s (%d)\n", userWin->GetGamerTag(), userId );
@@ -333,11 +333,11 @@ void idSaveLoadParms::CancelSaveGameFilePipelines() {
 			if ( file->GetMode() == idFile_SaveGamePipelined::WRITE ) {
 				// Notify the save game file that all writes failed which will cause all
 				// writes on the other end of the pipeline to drop on the floor.
-				file->NextWriteBlock( NULL );
+				file->NextWriteBlock(nullptr);
 			} else if ( file->GetMode() == idFile_SaveGamePipelined::READ ) {
 				// Notify end-of-file to the save game file which will cause all
 				// reads on the other end of the pipeline to return zero bytes.
-				file->NextReadBlock( NULL, 0 );
+				file->NextReadBlock(nullptr, 0 );
 			}
 		}
 	}
@@ -423,7 +423,7 @@ idSaveGameManager::idSaveGameManager
 ========================
 */
 idSaveGameManager::idSaveGameManager() :
-	processor( NULL ),
+	processor(nullptr),
 	cancel( false ),
 	startTime( 0 ),
 	continueProcessing( false ),
@@ -431,7 +431,7 @@ idSaveGameManager::idSaveGameManager() :
 	executingProcessorHandle( 0 ),
 	lastExecutedProcessorHandle( 0 ),
 	storageAvailable( true ),
-	retryFolder( NULL ) {
+	retryFolder(nullptr) {
 }
 
 /*
@@ -440,7 +440,7 @@ idSaveGameManager::~idSaveGameManager
 ========================
 */
 idSaveGameManager::~idSaveGameManager() {	
-	processor = NULL;
+	processor = nullptr;
 	enumeratedSaveGames.Clear();
 }
 
@@ -457,7 +457,7 @@ saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessor * proc
 	// the next frame after they've executed the processor.
 	processor->working = true;
 
-	if ( this->processor != NULL ) {
+	if ( this->processor != nullptr) {
 		if ( !verify( this->processor != processor ) ) {
 			idLib::Warning( "[idSaveGameManager::ExecuteProcessor]:1 Someone is trying to execute this processor twice, this is really bad, learn patience padawan!" );
 			return processor->GetHandle();
@@ -524,7 +524,7 @@ void idSaveGameManager::WaitForAllProcessors( bool overrideSimpleProcessorCheck 
 			// BEFORE WE WAIT, and potentially hang everything, make sure processors about to be executed won't sit and
 			// wait for themselves to complete.
 			// Since we pull off simple processors first, we can stop waiting when the processor being executed is not simple
-			if ( processor != NULL ) {
+			if ( processor != nullptr) {
 				if ( !processor->IsSimpleProcessor() ) {
 					break;
 				}
@@ -549,7 +549,7 @@ void idSaveGameManager::CancelAllProcessors( const bool forceCancelInFlightProce
 	cancel = true;
 	
 	if ( forceCancelInFlightProcessor ) {
-		if ( processor != NULL ) {
+		if ( processor != nullptr) {
 			processor->GetSignal().Raise();
 		}
 	}
@@ -565,7 +565,7 @@ idSaveGameManager::CancelToTerminate
 ========================
 */
 void idSaveGameManager::CancelToTerminate() {
-	if ( processor != NULL ) {
+	if ( processor != nullptr) {
 		processor->parms.cancelled = true;
 		processor->GetSignal().Raise();
 		saveThread.WaitForThread();
@@ -579,7 +579,7 @@ idSaveGameManager::DeviceSelectorWaitingOnSaveRetry
 */
 bool idSaveGameManager::DeviceSelectorWaitingOnSaveRetry() {
 
-	if ( retryFolder == NULL ) {
+	if ( retryFolder == nullptr) {
 		return false;
 	}
 
@@ -602,7 +602,7 @@ idSaveGameManager::ClearRetryInfo
 ========================
 */
 void idSaveGameManager::ClearRetryInfo() {
-	retryFolder = NULL;
+	retryFolder = nullptr;
 	retryBytes = 0;
 }
 
@@ -612,7 +612,7 @@ idSaveGameManager::RetrySave
 ========================
 */
 void idSaveGameManager::RetrySave() {
-	if ( DeviceSelectorWaitingOnSaveRetry() && !common->Dialog().HasDialogMsg( GDM_WARNING_FOR_NEW_DEVICE_ABOUT_TO_LOSE_PROGRESS, false ) ) {
+	if ( DeviceSelectorWaitingOnSaveRetry() && !common->Dialog().HasDialogMsg( GDM_WARNING_FOR_NEW_DEVICE_ABOUT_TO_LOSE_PROGRESS, nullptr ) ) {
 		cmdSystem->AppendCommandText( "savegame autosave\n" );
 	}
 }
@@ -655,10 +655,10 @@ void idSaveGameManager::ShowRetySaveDialog( const char * folder, const int64 byt
 	idStr format = idStrId( "#str_dlg_space_required" ).GetLocalizedString();
 	idStr size;
 	if ( bytes > ( 1024 * 1024 ) ) {
-		const float roundUp = ( ( 1024.0f * 1024.0f / 10.0f )- 1.0f );
+		constexpr float roundUp = ( ( 1024.0f * 1024.0f / 10.0f )- 1.0f );
 		size = va( "%.1f MB", ( roundUp + (float) bytes ) / ( 1024.0f * 1024.0f ) );
 	} else {
-		const float roundUp = 1024.0f - 1.0f;
+		constexpr float roundUp = 1024.0f - 1.0f;
 		size = va( "%.0f KB", ( roundUp + (float) bytes ) / 1024.0f );
 	}
 	idStr msg = va( format.c_str(), size.c_str() );
@@ -677,7 +677,7 @@ void idSaveGameManager::CancelWithHandle( const saveGameHandle_t & handle ) {
 	}
 
 	// check processor in flight first
-	if ( processor != NULL ) {
+	if ( processor != nullptr) {
 		if ( processor->GetHandle() == handle ) {
 			processor->Cancel();
 			return;
@@ -705,7 +705,7 @@ void idSaveGameManager::StartNextProcessor() {
 		return;
 	}
 
-	idSaveGameProcessor * nextProcessor = NULL;
+	idSaveGameProcessor * nextProcessor = nullptr;
 	int index = 0;
 
 	// pick off the first simple processor
@@ -749,7 +749,7 @@ void idSaveGameManager::FinishProcessor( idSaveGameProcessor * localProcessor ) 
 	}
 
 	localProcessor->init = false;
-	localProcessor = NULL;
+	localProcessor = nullptr;
 }
 
 /*
@@ -767,7 +767,7 @@ idSaveGameManager::IsWorking
 ========================
 */
 bool idSaveGameManager::IsWorking() const {
-	return processor != NULL;
+	return processor != nullptr;
 }
 
 /*
@@ -807,7 +807,7 @@ void idSaveGameManager::Pump() {
 
 		if ( !cancel && continueProcessing ) {
 			// Check for available storage unit
-			if ( session->GetSignInManager().GetMasterLocalUser() != NULL ) {
+			if ( session->GetSignInManager().GetMasterLocalUser() != nullptr) {
 				if ( !session->GetSignInManager().GetMasterLocalUser()->IsStorageDeviceAvailable() ) {
 					// this will not allow further processing
 					processor->parms.errorCode = SAVEGAME_E_UNABLE_TO_SELECT_STORAGE_DEVICE;
@@ -852,7 +852,7 @@ void idSaveGameManager::Pump() {
 			// We flush the heap and wait for all background processes to finish.  After all this is called, we will 
 			// cleanup the old processor within FinishProcessor()
 			idSaveGameProcessor * localProcessor = processor;
-			processor = NULL;
+			processor = nullptr;
 
 			// ------------------------------------
 			// COMPLETEDCALLBACK

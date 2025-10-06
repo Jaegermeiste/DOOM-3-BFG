@@ -199,7 +199,7 @@ static bool Net_ExtractPort( const char *src, char *buf, int bufsize, int *port 
 		return false;
 	}
 	*p = '\0';
-	*port = strtol( p+1, NULL, 10 );
+	*port = strtol( p+1, nullptr, 10 );
 	if ( errno == ERANGE ) {
 		return false;
 	}
@@ -244,7 +244,7 @@ static bool Net_StringToSockaddr( const char *s, sockaddr_in *sadr, bool doDNSRe
 			sadr->sin_port = htons( port );			
 		}
 		h = gethostbyname( buf );
-		if ( h == 0 ) {
+		if ( h == nullptr ) {
 			return false;
 		}
 		*(int *)&sadr->sin_addr = *(int *)h->h_addr_list[0];
@@ -350,7 +350,7 @@ void NET_OpenSocks( int port ) {
 	}
 
 	h = gethostbyname( net_socksServer.GetString() );
-	if ( h == NULL ) {
+	if ( h == nullptr) {
 		idLib::Printf( "WARNING: NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString() );
 		return;
 	}
@@ -518,7 +518,7 @@ bool Net_WaitForData( int netSocket, int timeout ) {
 	tv.tv_sec = 0;
 	tv.tv_usec = timeout * 1000;
 
-	ret = select( netSocket + 1, &set, NULL, NULL, &tv );
+	ret = select( netSocket + 1, &set, nullptr, nullptr, &tv );
 
 	if ( ret == -1 ) {
 		idLib::Printf( "Net_WaitForData select(): %s\n", strerror( errno ) );
@@ -655,7 +655,7 @@ void Sys_InitNetworking() {
 	idLib::Printf( "Winsock Initialized\n" );
 
 	PIP_ADAPTER_INFO pAdapterInfo;
-	PIP_ADAPTER_INFO pAdapter = NULL;
+	PIP_ADAPTER_INFO pAdapter = nullptr;
 	DWORD dwRetVal = 0;
 	PIP_ADDR_STRING pIPAddrString;
 	ULONG ulOutBufLen;
@@ -857,7 +857,7 @@ Sys_GetLocalIP
 */
 const char * Sys_GetLocalIP( int i ) {
 	if ( ( i < 0 ) || ( i >= num_interfaces ) ) {
-		return NULL;
+		return nullptr;
 	}
 	return netint[i].addr;
 }

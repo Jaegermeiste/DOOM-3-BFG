@@ -218,7 +218,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t * const allCmds
 	// create the stereoRenderImage if we haven't already
 	static idImage * stereoRenderImages[2];
 	for ( int i = 0; i < 2; i++ ) {
-		if ( stereoRenderImages[i] == NULL ) {
+		if ( stereoRenderImages[i] == nullptr) {
 			stereoRenderImages[i] = globalImages->ImageFromFunction( va("_stereoRender%i",i), R_MakeStereoRenderImage );
 		}
 
@@ -248,7 +248,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t * const allCmds
 		renderProgManager.Unbind();
 		renderProgManager.ZeroUniforms();
 
-		for ( const emptyCommand_t * cmds = allCmds; cmds != NULL; cmds = (const emptyCommand_t *)cmds->next ) {
+		for ( const emptyCommand_t * cmds = allCmds; cmds != nullptr; cmds = (const emptyCommand_t *)cmds->next ) {
 			switch ( cmds->commandId ) {
 			case RC_NOP:
 				break;
@@ -315,13 +315,13 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t * const allCmds
 	// We just want to do a quad pass - so make sure we disable any texgen and
 	// set the texture matrix to the identity so we don't get anomalies from 
 	// any stale uniform data being present from a previous draw call
-	const float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
-	const float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+	constexpr float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+	constexpr float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
 	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
 
 	// disable any texgen
-	const float texGenEnabled[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	constexpr float texGenEnabled[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 
 	renderProgManager.BindShader_Texture();
@@ -531,7 +531,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t *cmds ) {
 	// performance penalty.
 	qglDrawBuffer( GL_BACK );
 
-	for ( ; cmds != NULL; cmds = (const emptyCommand_t *)cmds->next ) {
+	for ( ; cmds != nullptr; cmds = (const emptyCommand_t *)cmds->next ) {
 		switch ( cmds->commandId ) {
 		case RC_NOP:
 			break;

@@ -35,21 +35,21 @@ idPacketProcessor
 */
 class idPacketProcessor {
 public:
-	static const int RETURN_TYPE_NONE			= 0;
-	static const int RETURN_TYPE_OOB			= 1;
-	static const int RETURN_TYPE_INBAND			= 2;
+	static constexpr int RETURN_TYPE_NONE			= 0;
+	static constexpr int RETURN_TYPE_OOB			= 1;
+	static constexpr int RETURN_TYPE_INBAND			= 2;
 	
 	typedef uint16				sessionId_t;
 
-	static const int NUM_LOBBY_TYPE_BITS		= 2;
-	static const int LOBBY_TYPE_MASK			= ( 1 << NUM_LOBBY_TYPE_BITS ) - 1;
+	static constexpr int NUM_LOBBY_TYPE_BITS		= 2;
+	static constexpr int LOBBY_TYPE_MASK			= ( 1 << NUM_LOBBY_TYPE_BITS ) - 1;
 
-	static const sessionId_t SESSION_ID_INVALID						= 0;
-	static const sessionId_t SESSION_ID_CONNECTIONLESS_PARTY		= 1;
-	static const sessionId_t SESSION_ID_CONNECTIONLESS_GAME			= 2;
-	static const sessionId_t SESSION_ID_CONNECTIONLESS_GAME_STATE	= 3;
+	static constexpr sessionId_t SESSION_ID_INVALID						= 0;
+	static constexpr sessionId_t SESSION_ID_CONNECTIONLESS_PARTY		= 1;
+	static constexpr sessionId_t SESSION_ID_CONNECTIONLESS_GAME			= 2;
+	static constexpr sessionId_t SESSION_ID_CONNECTIONLESS_GAME_STATE	= 3;
 	
-	static const int BANDWIDTH_AVERAGE_PERIOD						= 250;
+	static constexpr int BANDWIDTH_AVERAGE_PERIOD						= 250;
 
 	idPacketProcessor() {
 		Reset();
@@ -94,14 +94,14 @@ public:
 		
 	}
 
-	static const int MAX_MSG_SIZE			= 8000;							// This is the max size you can pass into ProcessOutgoing
-	static const int MAX_FINAL_PACKET_SIZE	= 1200;							// Lowest/safe MTU across all our platforms to avoid fragmentation at the transport layer (which is poorly supported by consumer hardware and may cause nasty latency side effects)
-	static const int MAX_RELIABLE_QUEUE		= 64;
+	static constexpr int MAX_MSG_SIZE			= 8000;							// This is the max size you can pass into ProcessOutgoing
+	static constexpr int MAX_FINAL_PACKET_SIZE	= 1200;							// Lowest/safe MTU across all our platforms to avoid fragmentation at the transport layer (which is poorly supported by consumer hardware and may cause nasty latency side effects)
+	static constexpr int MAX_RELIABLE_QUEUE		= 64;
 
 	// TypeInfo doesn't like sizeof( sessionId_t )?? and then fails to understand the #ifdef/#else/#endif
 	//static const int MAX_PACKET_SIZE		= MAX_FINAL_PACKET_SIZE - 6 - sizeof( sessionId_t );	// Largest possible packet before headers and such applied (subtract some for various internal header data, and session id)
-	static const int MAX_PACKET_SIZE		= MAX_FINAL_PACKET_SIZE - 6 - 2;			// Largest possible packet before headers and such applied (subtract some for various internal header data, and session id)
-	static const int MAX_OOB_MSG_SIZE		= MAX_PACKET_SIZE - 1;			// We don't allow fragmentation for out-of-band msg's, and we need a byte for the header
+	static constexpr int MAX_PACKET_SIZE		= MAX_FINAL_PACKET_SIZE - 6 - 2;			// Largest possible packet before headers and such applied (subtract some for various internal header data, and session id)
+	static constexpr int MAX_OOB_MSG_SIZE		= MAX_PACKET_SIZE - 1;			// We don't allow fragmentation for out-of-band msg's, and we need a byte for the header
 	
 private:
 	void QueueReliableAck( int lastReliable );
@@ -164,15 +164,15 @@ public:
 private:
 	
 	// Packet header types
-	static const int PACKET_TYPE_INBAND			= 0;	// In-band. Number of reliable msg's stored in userData portion of header
-	static const int PACKET_TYPE_OOB			= 1;	// Out-of-band. userData free to use by the caller. Cannot fragment.
-	static const int PACKET_TYPE_RELIABLE_ACK   = 2;	// Header type used to piggy-back on top of msgs to ack reliable msg's
-	static const int PACKET_TYPE_FRAGMENTED		= 3;	// The msg is fragmented, fragment type stored in the userData portion of header
+	static constexpr int PACKET_TYPE_INBAND			= 0;	// In-band. Number of reliable msg's stored in userData portion of header
+	static constexpr int PACKET_TYPE_OOB			= 1;	// Out-of-band. userData free to use by the caller. Cannot fragment.
+	static constexpr int PACKET_TYPE_RELIABLE_ACK   = 2;	// Header type used to piggy-back on top of msgs to ack reliable msg's
+	static constexpr int PACKET_TYPE_FRAGMENTED		= 3;	// The msg is fragmented, fragment type stored in the userData portion of header
 
 	// PACKET_TYPE_FRAGMENTED userData values
-	static const int FRAGMENT_START				= 0;
-	static const int FRAGMENT_MIDDLE			= 1;
-	static const int FRAGMENT_END				= 2;
+	static constexpr int FRAGMENT_START				= 0;
+	static constexpr int FRAGMENT_MIDDLE			= 1;
+	static constexpr int FRAGMENT_END				= 2;
 	
 	class idOuterPacketHeader {
 	public:

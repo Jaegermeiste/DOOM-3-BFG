@@ -161,8 +161,7 @@ ID_INLINE idBounds &idBounds::operator*=( const idMat3 &r ) {
 }
 
 ID_INLINE idBounds idBounds::operator+( const idBounds &a ) const {
-	idBounds newBounds;
-	newBounds = *this;
+	idBounds newBounds = *this;
 	newBounds.AddBounds( a );
 	return newBounds;
 }
@@ -381,33 +380,27 @@ ID_INLINE idSphere idBounds::ToSphere() const {
 }
 
 ID_INLINE void idBounds::AxisProjection( const idVec3 &dir, float &min, float &max ) const {
-	float d1, d2;
-	idVec3 center, extents;
+	idVec3 center = (b[0] + b[1]) * 0.5f;
+	idVec3 extents = b[1] - center;
 
-	center = ( b[0] + b[1] ) * 0.5f;
-	extents = b[1] - center;
-
-	d1 = dir * center;
-	d2 = idMath::Fabs( extents[0] * dir[0] ) +
-			idMath::Fabs( extents[1] * dir[1] ) +
-				idMath::Fabs( extents[2] * dir[2] );
+	float d1 = dir * center;
+	float d2 = idMath::Fabs(extents[0] * dir[0]) +
+		idMath::Fabs(extents[1] * dir[1]) +
+		idMath::Fabs(extents[2] * dir[2]);
 
 	min = d1 - d2;
 	max = d1 + d2;
 }
 
 ID_INLINE void idBounds::AxisProjection( const idVec3 &origin, const idMat3 &axis, const idVec3 &dir, float &min, float &max ) const {
-	float d1, d2;
-	idVec3 center, extents;
-
-	center = ( b[0] + b[1] ) * 0.5f;
-	extents = b[1] - center;
+	idVec3 center = (b[0] + b[1]) * 0.5f;
+	idVec3 extents = b[1] - center;
 	center = origin + center * axis;
 
-	d1 = dir * center;
-	d2 = idMath::Fabs( extents[0] * ( dir * axis[0] ) ) +
-			idMath::Fabs( extents[1] * ( dir * axis[1] ) ) +
-				idMath::Fabs( extents[2] * ( dir * axis[2] ) );
+	float d1 = dir * center;
+	float d2 = idMath::Fabs(extents[0] * (dir * axis[0])) +
+		idMath::Fabs(extents[1] * (dir * axis[1])) +
+		idMath::Fabs(extents[2] * (dir * axis[2]));
 
 	min = d1 - d2;
 	max = d1 + d2;

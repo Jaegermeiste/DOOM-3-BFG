@@ -2330,7 +2330,7 @@ bool idWeapon::GetMuzzlePositionWithHacks( idVec3 & origin, idMat3 & axis ) {
 		} else if ( idStr::Icmp( "weapon_grabber", weaponDef->GetName() ) == 0 ) {
 			idVec3 forward = axis[0];
 			forward.Normalize();
-			const float scaleOffset = 4.0f;
+			constexpr float scaleOffset = 4.0f;
 			forward *= scaleOffset;
 			origin += forward;
 		}

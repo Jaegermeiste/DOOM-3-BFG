@@ -37,13 +37,13 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-const float	SQUARE_ROOT_OF_2			= 1.414213562f;
-const float	AI_TURN_PREDICTION			= 0.2f;
-const float	AI_TURN_SCALE				= 60.0f;
-const float	AI_SEEK_PREDICTION			= 0.3f;
-const float	AI_FLY_DAMPENING			= 0.15f;
-const float	AI_HEARING_RANGE			= 2048.0f;
-const int	DEFAULT_FLY_OFFSET			= 68;
+constexpr float	SQUARE_ROOT_OF_2			= 1.414213562f;
+constexpr float	AI_TURN_PREDICTION			= 0.2f;
+constexpr float	AI_TURN_SCALE				= 60.0f;
+constexpr float	AI_SEEK_PREDICTION			= 0.3f;
+constexpr float	AI_FLY_DAMPENING			= 0.15f;
+constexpr float	AI_HEARING_RANGE			= 2048.0f;
+constexpr int	DEFAULT_FLY_OFFSET			= 68;
 
 #define ATTACK_IGNORE			0
 #define ATTACK_ON_DAMAGE		1

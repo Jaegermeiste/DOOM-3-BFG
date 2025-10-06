@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 const char * DEFAULT_FONT = "Arial_Narrow";
 
-static const float old_scale2 = 0.6f;
-static const float old_scale1 = 0.3f;
+static constexpr float old_scale2 = 0.6f;
+static constexpr float old_scale1 = 0.3f;
 
 /*
 ==============================
@@ -52,16 +52,16 @@ idFont * idFont::RemapFont( const char * baseName ) {
 	idStr cleanName = baseName;
 
 	if ( cleanName == DEFAULT_FONT ) {
-		return NULL;
+		return nullptr;
 	}
 
 	const char * remapped = idLocalization::FindString( "#font_" + cleanName );
-	if ( remapped != NULL ) {
+	if ( remapped != nullptr) {
 		return renderSystem->RegisterFont( remapped );
 	}
 
 	const char * wildcard = idLocalization::FindString( "#font_*" );
-	if ( wildcard != NULL && cleanName.Icmp( wildcard ) != 0 ) {
+	if ( wildcard != nullptr && cleanName.Icmp( wildcard ) != 0 ) {
 		return renderSystem->RegisterFont( wildcard );
 	}
 
@@ -70,7 +70,7 @@ idFont * idFont::RemapFont( const char * baseName ) {
 		return renderSystem->RegisterFont( cleanName );
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -88,12 +88,12 @@ idFont::idFont
 ==============================
 */
 idFont::idFont( const char * n ) : name( n ) {
-	fontInfo = NULL;
+	fontInfo = nullptr;
 	alias = RemapFont( n );
 
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		// Make sure we don't have a circular reference
-		for ( idFont * f = alias; f != NULL; f = f->alias ) {
+		for ( idFont * f = alias; f != nullptr; f = f->alias ) {
 			if ( f == this ) {
 				idLib::FatalError( "Font alias \"%s\" is a circular reference!", n );
 			}
@@ -126,7 +126,7 @@ struct oldGlyphInfo_t {
 	int					junk;
 	char				materialName[32];
 };
-static const int GLYPHS_PER_FONT = 256;
+static constexpr int GLYPHS_PER_FONT = 256;
 
 /*
 ==============================
@@ -135,7 +135,7 @@ LoadOldGlyphData
 */
 bool LoadOldGlyphData( const char * filename, oldGlyphInfo_t glyphInfo[GLYPHS_PER_FONT] ) {
 	idFile * fd = fileSystem->OpenFileRead( filename );
-	if ( fd == NULL ) {
+	if ( fd == nullptr) {
 		return false;
 	}
 	fd->Read( glyphInfo, GLYPHS_PER_FONT * sizeof( oldGlyphInfo_t ) );
@@ -169,12 +169,12 @@ idFont::LoadFont
 bool idFont::LoadFont() {
 	idStr fontName = va( "newfonts/%s/48.dat", GetName() );
 	idFile * fd = fileSystem->OpenFileRead( fontName );
-	if ( fd == NULL ) {
+	if ( fd == nullptr) {
 		return false;
 	}
 
-	const int FONT_INFO_VERSION = 42;
-	const int FONT_INFO_MAGIC = ( FONT_INFO_VERSION | ( 'i' << 24 ) | ( 'd' << 16 ) | ( 'f' << 8 ) );
+	constexpr int FONT_INFO_VERSION = 42;
+	constexpr int FONT_INFO_MAGIC = ( FONT_INFO_VERSION | ( 'i' << 24 ) | ( 'd' << 16 ) | ( 'f' << 8 ) );
 
 	uint32 version = 0;
 	fd->ReadBig( version );
@@ -280,7 +280,7 @@ int	idFont::GetGlyphIndex( uint32 idx ) const {
 	if ( fontInfo->numGlyphs == 0 ) {
 		return -1;
 	}
-	if ( fontInfo->charIndex == NULL ) {
+	if ( fontInfo->charIndex == nullptr) {
 		return idx;
 	}
 	int len = fontInfo->numGlyphs;
@@ -302,10 +302,10 @@ idFont::GetLineHeight
 ==============================
 */
 float idFont::GetLineHeight( float scale ) const {
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		return alias->GetLineHeight( scale );
 	}
-	if ( fontInfo != NULL ) {
+	if ( fontInfo != nullptr) {
 		return scale * Old_SelectValueForScale( scale, fontInfo->oldInfo[0].maxHeight, fontInfo->oldInfo[1].maxHeight, fontInfo->oldInfo[2].maxHeight );
 	}
 	return 0.0f;
@@ -317,10 +317,10 @@ idFont::GetAscender
 ==============================
 */
 float idFont::GetAscender( float scale ) const {
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		return alias->GetAscender( scale );
 	}
-	if ( fontInfo != NULL ) {
+	if ( fontInfo != nullptr) {
 		return scale * fontInfo->ascender;
 	}
 	return 0.0f;
@@ -332,10 +332,10 @@ idFont::GetMaxCharWidth
 ==============================
 */
 float idFont::GetMaxCharWidth( float scale ) const {
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		return alias->GetMaxCharWidth( scale );
 	}
-	if ( fontInfo != NULL ) {
+	if ( fontInfo != nullptr) {
 		return scale * Old_SelectValueForScale( scale, fontInfo->oldInfo[0].maxWidth, fontInfo->oldInfo[1].maxWidth, fontInfo->oldInfo[2].maxWidth );
 	}
 	return 0.0f;
@@ -347,12 +347,12 @@ idFont::GetGlyphWidth
 ==============================
 */
 float idFont::GetGlyphWidth( float scale, uint32 idx ) const {
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		return alias->GetGlyphWidth( scale, idx );
 	}
-	if ( fontInfo != NULL ) {
+	if ( fontInfo != nullptr) {
 		int i = GetGlyphIndex( idx );
-		const int asterisk = 42;
+		constexpr int asterisk = 42;
 		if ( i == -1 && idx != asterisk ) {
 			i = GetGlyphIndex( asterisk );
 		}
@@ -369,12 +369,12 @@ idFont::GetScaledGlyph
 ==============================
 */
 void idFont::GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t & glyphInfo ) const {
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		return alias->GetScaledGlyph( scale, idx, glyphInfo );
 	}
-	if ( fontInfo != NULL ) {
+	if ( fontInfo != nullptr) {
 		int i = GetGlyphIndex( idx );
-		const int asterisk = 42;
+		constexpr int asterisk = 42;
 		if ( i == -1 && idx != asterisk ) {
 			i = GetGlyphIndex( asterisk );
 		}
@@ -404,10 +404,10 @@ idFont::Touch
 ==============================
 */
 void idFont::Touch() {
-	if ( alias != NULL ) {
+	if ( alias != nullptr) {
 		alias->Touch();
 	}
-	if ( fontInfo != NULL ) {
+	if ( fontInfo != nullptr) {
 		const_cast<idMaterial *>( fontInfo->material )->EnsureNotPurged();
 		fontInfo->material->SetSort( SS_GUI );
 	}

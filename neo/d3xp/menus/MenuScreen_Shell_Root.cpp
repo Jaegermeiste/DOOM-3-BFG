@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../Game_local.h"
 
 extern idCVar g_demoMode;
-const static int NUM_MAIN_OPTIONS = 6;
+static constexpr int NUM_MAIN_OPTIONS = 6;
 /*
 ========================
 idMenuScreen_Shell_Root::Initialize

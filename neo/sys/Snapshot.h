@@ -63,14 +63,14 @@ public:
 
 	// Writes an object state packet which is delta compressed against the old snapshot
 	struct objectBuffer_t {
-		objectBuffer_t() : data( NULL ), size( 0 ) { }
-		objectBuffer_t( int s ) : data( NULL ), size( s ) { Alloc( s ); }
-		objectBuffer_t( const objectBuffer_t & o ) : data( NULL ), size( 0 ) { *this = o; }
+		objectBuffer_t() : data(nullptr), size( 0 ) { }
+		objectBuffer_t( int s ) : data(nullptr), size( s ) { Alloc( s ); }
+		objectBuffer_t( const objectBuffer_t & o ) : data(nullptr), size( 0 ) { *this = o; }
 		~objectBuffer_t() { _Release(); }
 		void Alloc( int size );
-		int NumRefs() { return data == NULL ? 0 : data[size]; }
+		int NumRefs() { return data == nullptr ? 0 : data[size]; }
 		objectSize_t Size() const { return size; }
-		byte * Ptr() { return data == NULL ? NULL : data ; }
+		byte * Ptr() { return data == nullptr ? nullptr : data ; }
 		byte & operator[]( int i ) { return data[i]; }
 		void operator=( const objectBuffer_t & other );
 
@@ -129,9 +129,9 @@ public:
 	bool WriteDelta( idSnapShot & old, int visIndex, idFile * file, int maxLength, int optimalLength = 0 );
 
 	// Adds an object to the state, overwrites any existing object with the same number
-	objectState_t * S_AddObject( int objectNum, uint32 visMask, const idBitMsg & msg, const char * tag = NULL ) { return S_AddObject( objectNum, visMask, msg.GetReadData(), msg.GetSize(), tag ); }
-	objectState_t * S_AddObject( int objectNum, uint32 visMask, const byte * buffer, int size, const char * tag = NULL ) { return S_AddObject( objectNum, visMask, (const char *)buffer, size, tag ); }
-	objectState_t * S_AddObject( int objectNum, uint32 visMask, const char * buffer, int size, const char * tag = NULL );
+	objectState_t * S_AddObject( int objectNum, uint32 visMask, const idBitMsg & msg, const char * tag = nullptr) { return S_AddObject( objectNum, visMask, msg.GetReadData(), msg.GetSize(), tag ); }
+	objectState_t * S_AddObject( int objectNum, uint32 visMask, const byte * buffer, size_t size, const char * tag = nullptr) { return S_AddObject( objectNum, visMask, reinterpret_cast<const char*>(buffer), size, tag ); }
+	objectState_t * S_AddObject( int objectNum, uint32 visMask, const char * buffer, size_t size, const char * tag = nullptr);
 	bool CopyObject( const idSnapShot & oldss, int objectNum, bool forceStale = false );
 	int CompareObject( const idSnapShot * oldss, int objectNum, int start=0, int end=0, int oldStart=0 );
 
@@ -163,7 +163,7 @@ public:
 	void UpdateExpectedSeq( int newSeq );
 
 	void			ApplyToExistingState( int objId, idBitMsg & msg );
-	objectState_t *	GetTemplateState( int objNum, idSnapShot * templateStates, objectState_t * newState = NULL );
+	objectState_t *	GetTemplateState( int objNum, idSnapShot * templateStates, objectState_t * newState = nullptr);
 
 	void	RemoveObject( int objId );
 

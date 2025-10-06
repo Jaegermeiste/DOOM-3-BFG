@@ -65,9 +65,9 @@ void idCommonLocal::EndRedirect() {
 		rd_flush( rd_buffer );
 	}
 
-	rd_buffer = NULL;
+	rd_buffer = nullptr;
 	rd_buffersize = 0;
-	rd_flush = NULL;
+	rd_flush = nullptr;
 }
 
 /*
@@ -79,7 +79,7 @@ void idCommonLocal::CloseLogFile() {
 	if ( logFile ) {
 		com_logFile.SetBool( false ); // make sure no further VPrintf attempts to open the log file again
 		fileSystem->CloseFile( logFile );
-		logFile = NULL;
+		logFile = nullptr;
 	}
 }
 
@@ -135,19 +135,19 @@ void idCommonLocal::VPrintf( const char *fmt, va_list args ) {
 		return;
 	}
 #ifndef ID_RETAIL
-	if ( com_printFilter.GetString() != NULL && com_printFilter.GetString()[ 0 ] != '\0' ) {
+	if ( com_printFilter.GetString() != nullptr && com_printFilter.GetString()[ 0 ] != '\0' ) {
 		idStrStatic< 4096 > filterBuf = com_printFilter.GetString();
 		idStrStatic< 4096 > msgBuf = msg;
 		filterBuf.ToLower();
 		msgBuf.ToLower();
 		char *sp = strtok( &filterBuf[ 0 ], ";" );
 		bool p = false;
-		for( ; sp != NULL ; ) {
-			if ( strstr( msgBuf, sp ) != NULL ) {
+		for( ; sp != nullptr; ) {
+			if ( strstr( msgBuf, sp ) != nullptr) {
 				p = true;
 				break;
 			}
-			sp = strtok( NULL, ";" );
+			sp = strtok(nullptr, ";" );
 		}
 		if ( !p ) {
 			return;
@@ -218,7 +218,7 @@ void idCommonLocal::VPrintf( const char *fmt, va_list args ) {
 	if ( com_errorEntered != ERP_FATAL ) {
 		// update the console if we are in a long-running command, like dmap
 		if ( com_refreshOnPrint ) {
-			const bool captureToImage = false;
+			constexpr bool captureToImage = false;
 			UpdateScreen( captureToImage );
 		}
 	}

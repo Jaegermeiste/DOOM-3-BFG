@@ -49,7 +49,7 @@ public:
 	float				RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float				CRandomFloat();		// random number in the range [-1.0f, 1.0f]
 
-	static const int	MAX_RAND = 0x7fff;
+	static constexpr int	MAX_RAND = 0x7fff;
 
 private:
 	int					seed;
@@ -80,7 +80,7 @@ ID_INLINE int idRandom::RandomInt(const int max ) {
 }
 
 ID_INLINE float idRandom::RandomFloat() {
-	return ( RandomInt() / ( float )( idRandom::MAX_RAND + 1 ) );
+	return ( RandomInt() / static_cast<float>(idRandom::MAX_RAND + 1) );
 }
 
 ID_INLINE float idRandom::CRandomFloat() {
@@ -108,13 +108,13 @@ public:
 	float					RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float					CRandomFloat();		// random number in the range [-1.0f, 1.0f]
 
-	static const int		MAX_RAND = 0x7fff;
+	static constexpr int		MAX_RAND = 0x7fff;
 
 private:
 	unsigned long			seed;
 
-	static const unsigned long	IEEE_ONE = 0x3f800000;
-	static const unsigned long	IEEE_MASK = 0x007fffff;
+	static constexpr unsigned long	IEEE_ONE = 0x3f800000;
+	static constexpr unsigned long	IEEE_MASK = 0x007fffff;
 };
 
 ID_INLINE idRandom2::idRandom2(const unsigned long seed ) {
@@ -131,7 +131,7 @@ ID_INLINE unsigned long idRandom2::GetSeed() const {
 
 ID_INLINE int idRandom2::RandomInt() {
 	seed = 1664525L * seed + 1013904223L;
-	return ( (int) seed & idRandom2::MAX_RAND );
+	return ( static_cast<int>(seed) & idRandom2::MAX_RAND );
 }
 
 ID_INLINE int idRandom2::RandomInt(const int max ) {

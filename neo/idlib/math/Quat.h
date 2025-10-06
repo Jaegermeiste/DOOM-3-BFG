@@ -177,15 +177,15 @@ ID_INLINE idVec3 idQuat::operator*( const idVec3 &a ) const {
 	return ( ToMat3() * a );
 #else
 	// result = this->Inverse() * idQuat( a.x, a.y, a.z, 0.0f ) * (*this)
-	float xxzz = x*x - z*z;
-	float wwyy = w*w - y*y;
+	const float xxzz = x*x - z*z;
+	const float wwyy = w*w - y*y;
 
-	float xw2 = x*w*2.0f;
-	float xy2 = x*y*2.0f;
-	float xz2 = x*z*2.0f;
-	float yw2 = y*w*2.0f;
-	float yz2 = y*z*2.0f;
-	float zw2 = z*w*2.0f;
+	const float xw2 = x*w*2.0f;
+	const float xy2 = x*y*2.0f;
+	const float xz2 = x*z*2.0f;
+	const float yw2 = y*w*2.0f;
+	const float yz2 = y*z*2.0f;
+	const float zw2 = z*w*2.0f;
 
 	return idVec3(
 		(xxzz + wwyy)*a.x		+ (xy2 + zw2)*a.y		+ (xz2 - yw2)*a.z,
@@ -262,19 +262,14 @@ ID_INLINE idQuat idQuat::Inverse() const {
 }
 
 ID_INLINE float idQuat::Length() const {
-	float len;
-
-	len = x * x + y * y + z * z + w * w;
+	float len = x * x + y * y + z * z + w * w;
 	return idMath::Sqrt( len );
 }
 
 ID_INLINE idQuat& idQuat::Normalize() {
-	float len;
-	float ilength;
-
-	len = this->Length();
+	float len = this->Length();
 	if ( len ) {
-		ilength = 1 / len;
+		float ilength = 1 / len;
 		x *= ilength;
 		y *= ilength;
 		z *= ilength;

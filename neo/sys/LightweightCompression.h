@@ -30,8 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 
 		
 struct lzwCompressionData_t {
-	static const int	LZW_DICT_BITS	= 12;
-	static const int	LZW_DICT_SIZE	= 1 << LZW_DICT_BITS;
+	static constexpr int	LZW_DICT_BITS	= 12;
+	static constexpr int	LZW_DICT_SIZE	= 1 << LZW_DICT_BITS;
 	
 	uint8					dictionaryK[LZW_DICT_SIZE];
 	uint16					dictionaryW[LZW_DICT_SIZE];
@@ -56,9 +56,9 @@ class idLZWCompressor {
 public:
 	idLZWCompressor( lzwCompressionData_t * lzwData_ ) : lzwData( lzwData_ ) {}
 
-	static const int	LZW_BLOCK_SIZE	= ( 1 << 15 );
-	static const int	LZW_START_BITS	= 9;
-	static const int	LZW_FIRST_CODE	= ( 1 << ( LZW_START_BITS - 1 ) );
+	static constexpr int	LZW_BLOCK_SIZE	= ( 1 << 15 );
+	static constexpr int	LZW_START_BITS	= 9;
+	static constexpr int	LZW_FIRST_CODE	= ( 1 << ( LZW_START_BITS - 1 ) );
 
 	void	Start( uint8 * data_, int maxSize, bool append = false );
 	int		ReadBits( int bits );
@@ -141,9 +141,9 @@ public:
 		return r;
 	}
 
-	static const int DICTIONARY_HASH_BITS	= 10;
-	static const int MAX_DICTIONARY_HASH	= 1 << DICTIONARY_HASH_BITS;
-	static const int HASH_MASK				= MAX_DICTIONARY_HASH - 1;
+	static constexpr int DICTIONARY_HASH_BITS	= 10;
+	static constexpr int MAX_DICTIONARY_HASH	= 1 << DICTIONARY_HASH_BITS;
+	static constexpr int HASH_MASK				= MAX_DICTIONARY_HASH - 1;
 	
 private:
 	void ClearHash();
@@ -182,7 +182,7 @@ Simple zero based run length encoder/decoder
 */
 class idZeroRunLengthCompressor {
 public:
-	idZeroRunLengthCompressor() : zeroCount( 0 ), destStart( NULL ) {
+	idZeroRunLengthCompressor() : zeroCount( 0 ), destStart(nullptr) {
 	}
 	
 	void Start( uint8 * dest_, idLZWCompressor * comp_, int maxSize_ );

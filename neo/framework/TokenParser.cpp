@@ -43,7 +43,7 @@ void idTokenParser::LoadFromParser( idParser &parser, const char *guiName ) {
 void idTokenParser::LoadFromFile( const char *filename ) {
 	Clear();
 	idFile *inFile = fileSystem->OpenFileReadMemory( filename );
-	if ( inFile != NULL ) {
+	if ( inFile != nullptr) {
 		int num;
 		inFile->ReadBig( num );
 		guiTokenIndexes.SetNum( num );
@@ -65,7 +65,7 @@ void idTokenParser::WriteToFile ( const char *filename ) {
 		return;
 	}
 	idFile *outFile = fileSystem->OpenFileWrite( filename, "fs_basepath" );
-	if ( outFile != NULL ) {
+	if ( outFile != nullptr) {
 		outFile->WriteBig( ( int )guiTokenIndexes.Num() );
 		for ( int i = 0; i < guiTokenIndexes.Num(); i++ ) {
 			guiTokenIndexes[ i ].Write( outFile );

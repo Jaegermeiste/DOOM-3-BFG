@@ -2627,7 +2627,7 @@ void idGameLocal::RunAllUserCmdsForPlayer( idUserCmdMgr & cmdMgr, const int play
 	// For remote players on the server, run enough commands
 	// to leave only a buffer that will hold us over for a
 	// number of milliseconds equal to the net_ucmdRate + one frame.
-	const int MaxExtraCommandsPerFrame = 15;
+constexpr int MaxExtraCommandsPerFrame = 15;
 	int numPasses = 0;
 
 	for ( ; numPasses < MaxExtraCommandsPerFrame; numPasses++ ) {
@@ -2688,8 +2688,8 @@ void idGameLocal::CalcFov( float base_fov, float &fov_x, float &fov_y ) const {
 	}
 
 	// Calculate the fov_y based on an ideal aspect ratio
-	const float ideal_ratio_x = 16.0f;
-	const float ideal_ratio_y = 9.0f;
+	constexpr float ideal_ratio_x = 16.0f;
+	constexpr float ideal_ratio_y = 9.0f;
 	const float tanHalfX = idMath::Tan( DEG2RAD( base_fov * 0.5f ) );
 	fov_y = 2.0f * RAD2DEG( idMath::ATan( ideal_ratio_y * tanHalfX, ideal_ratio_x ) );
 

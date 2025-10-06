@@ -117,7 +117,7 @@ public:
 					// parse a braced section into a string
 	const char*		ParseBracedSection( idStr& out, int tabs, bool parseFirstBrace, char intro, char outro );
 					// parse a braced section into a string, maintaining indents and newlines
-	const char *	ParseBracedSectionExact( idStr &out, int tabs = -1 );
+	const char *	ParseBracedSectionExact( idStr &out, int tabs = -1 ) const;
 					// parse the rest of the line
 	const char *	ParseRestOfLine( idStr &out );
 					// unread the given token
@@ -149,9 +149,9 @@ public:
 					// set the punctuation set
 	void			SetPunctuations( const punctuation_t *p );
 					// returns a pointer to the punctuation with the given id
-	const char *	GetPunctuationFromId( int id );
+	const char *	GetPunctuationFromId( int id ) const;
 					// get the id for the given punctuation
-	int				GetPunctuationId( const char *p );
+	int				GetPunctuationId( const char *p ) const;
 					// set lexer flags
 	void			SetFlags( int flags );
 					// get lexer flags
@@ -169,7 +169,7 @@ public:
 					// print a warning message
 	void			Warning( VERIFY_FORMAT_STRING const char *str, ... ) const;
 	// returns true if at the end of the file
-	bool			EndOfFile();
+	bool			EndOfFile() const;
 					// add a global define that will be added to all opened sources
 	static int		AddGlobalDefine( const char *string );
 					// remove the given global define
@@ -206,7 +206,7 @@ private:
 	int				ReadDefineParms( define_t *define, idToken **parms, int maxparms );
 	int				StringizeTokens( idToken *tokens, idToken *token );
 	int				MergeTokens( idToken *t1, idToken *t2 );
-	int				ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken );
+	int				ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken ) const;
 	int				ExpandDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken );
 	int				ExpandDefineIntoSource( idToken *deftoken, define_t *define );
 	void			AddGlobalDefinesToSource();

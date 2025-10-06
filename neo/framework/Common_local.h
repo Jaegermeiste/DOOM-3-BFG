@@ -26,16 +26,16 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-static const int MAX_USERCMD_BACKUP = 256;
-static const int NUM_USERCMD_RELAY = 10;
-static const int NUM_USERCMD_SEND = 8;
+static constexpr int MAX_USERCMD_BACKUP = 256;
+static constexpr int NUM_USERCMD_RELAY = 10;
+static constexpr int NUM_USERCMD_SEND = 8;
 
-static const int initialHz = 60;
-static const int initialBaseTicks = 1000 / initialHz;
-static const int initialBaseTicksPerSec = initialHz * initialBaseTicks;
+static constexpr int initialHz = 60;
+static constexpr int initialBaseTicks = 1000 / initialHz;
+static constexpr int initialBaseTicksPerSec = initialHz * initialBaseTicks;
 
-static const int LOAD_TIP_CHANGE_INTERVAL = 12000;
-static const int LOAD_TIP_COUNT = 26;
+static constexpr int LOAD_TIP_CHANGE_INTERVAL = 12000;
+static constexpr int LOAD_TIP_COUNT = 26;
 
 class idGameThread : public idSysThread {
 public:
@@ -45,7 +45,7 @@ public:
 		threadTime(),
 		threadGameTime(),
 		threadRenderTime(),
-		userCmdMgr( NULL ),
+		userCmdMgr(nullptr),
 		ret(),
 		numGameFrames(),
 		isClient()
@@ -325,7 +325,7 @@ private:
 										// used for comparisons with the new snapshot for com_drawSnapshot
 
 	// This is ultimately controlled by net_maxBufferedSnapshots by running double speed, but this is the hard max before seeing visual popping
-	static const int RECEIVE_SNAPSHOT_BUFFER_SIZE = 16;			
+	static constexpr int RECEIVE_SNAPSHOT_BUFFER_SIZE = 16;			
 
 	int				readSnapshotIndex;
 	int				writeSnapshotIndex;
@@ -418,10 +418,10 @@ private:
 	currentGame_t		idealCurrentGame;		// Defer game switching so that bad things don't happen in the middle of the frame.
 	const idMaterial *	doomClassicMaterial;
 
-	static const int			DOOMCLASSIC_RENDERWIDTH = 320 * 3;
-	static const int			DOOMCLASSIC_RENDERHEIGHT = 200 * 3;
-	static const int			DOOMCLASSIC_BYTES_PER_PIXEL = 4;
-	static const int			DOOMCLASSIC_IMAGE_SIZE_IN_BYTES = DOOMCLASSIC_RENDERWIDTH * DOOMCLASSIC_RENDERHEIGHT * DOOMCLASSIC_BYTES_PER_PIXEL;
+	static constexpr int			DOOMCLASSIC_RENDERWIDTH = 320 * 3;
+	static constexpr int			DOOMCLASSIC_RENDERHEIGHT = 200 * 3;
+	static constexpr int			DOOMCLASSIC_BYTES_PER_PIXEL = 4;
+	static constexpr int			DOOMCLASSIC_IMAGE_SIZE_IN_BYTES = DOOMCLASSIC_RENDERWIDTH * DOOMCLASSIC_RENDERHEIGHT * DOOMCLASSIC_BYTES_PER_PIXEL;
 	
 	idArray< byte, DOOMCLASSIC_IMAGE_SIZE_IN_BYTES >	doomClassicImageData;
 

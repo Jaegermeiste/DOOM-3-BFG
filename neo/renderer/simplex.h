@@ -25,7 +25,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-const int NUM_SIMPLEX_CHARS = 95;
+constexpr int NUM_SIMPLEX_CHARS = 95;
 const static int simplex[NUM_SIMPLEX_CHARS][112] = {
    {  0,16, /* Ascii 32 */
    -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,

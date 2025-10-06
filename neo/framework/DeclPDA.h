@@ -66,7 +66,7 @@ private:
 
 class idDeclVideo : public idDecl {
 public:
-							idDeclVideo() : preview( NULL ), video( NULL ), audio( NULL ) {};
+							idDeclVideo() : preview(nullptr), video(nullptr), audio(nullptr) {};
 
 	virtual size_t			Size() const;
 	virtual const char *	DefaultDefinition() const;
@@ -92,7 +92,7 @@ private:
 
 class idDeclAudio : public idDecl {
 public:
-							idDeclAudio() : audio( NULL ) {};
+							idDeclAudio() : audio(nullptr) {};
 
 	virtual size_t			Size() const;
 	virtual const char *	DefaultDefinition() const;
@@ -130,9 +130,9 @@ public:
 	virtual const int		GetNumVideos() const { return videos.Num(); }
 	virtual const int		GetNumAudios() const { return audios.Num(); }
 	virtual const int		GetNumEmails() const { return emails.Num(); }
-	virtual const idDeclVideo *GetVideoByIndex( int index ) const { return ( index < 0 || index > videos.Num() ? NULL : videos[index] ); }
-	virtual const idDeclAudio *GetAudioByIndex( int index ) const { return ( index < 0 || index > audios.Num() ? NULL : audios[index] ); }
-	virtual const idDeclEmail *GetEmailByIndex( int index ) const { return ( index < 0 || index > emails.Num() ? NULL : emails[index] ); }
+	virtual const idDeclVideo *GetVideoByIndex( int index ) const { return ( index < 0 || index > videos.Num() ? nullptr : videos[index] ); }
+	virtual const idDeclAudio *GetAudioByIndex( int index ) const { return ( index < 0 || index > audios.Num() ? nullptr : audios[index] ); }
+	virtual const idDeclEmail *GetEmailByIndex( int index ) const { return ( index < 0 || index > emails.Num() ? nullptr : emails[index] ); }
 
 	virtual void			SetSecurity( const char *sec ) const;
 

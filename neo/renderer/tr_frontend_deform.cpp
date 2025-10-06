@@ -55,7 +55,7 @@ static drawSurf_t * R_FinishDeform( drawSurf_t * surf, srfTriangles_t * newTri, 
 	surf->indexCache = newTri->indexCache;
 	surf->shadowCache = 0;
 	surf->jointCache = 0;
-	surf->nextOnLight = NULL;
+	surf->nextOnLight = nullptr;
 
 	return surf;
 }
@@ -73,14 +73,14 @@ static drawSurf_t * R_AutospriteDeform( drawSurf_t *surf ) {
 
 	if ( srcTri->numVerts & 3 ) {
 		common->Warning( "R_AutospriteDeform: shader had odd vertex count" );
-		return NULL;
+		return nullptr;
 	}
 	if ( srcTri->numIndexes != ( srcTri->numVerts >> 2 ) * 6 ) {
 		common->Warning( "R_AutospriteDeform: autosprite had odd index count" );
-		return NULL;
+		return nullptr;
 	}
 
-	const idJointMat * joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( srcTri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : nullptr;
 
 	idVec3 leftDir;
 	idVec3 upDir;
@@ -169,7 +169,7 @@ static drawSurf_t * R_TubeDeform( drawSurf_t * surf ) {
 		common->Error( "R_TubeDeform: autosprite had odd index count" );
 	}
 
-	const idJointMat * joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( srcTri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : nullptr;
 
 	// we need the view direction to project the minor axis of the tube
 	// as the view changes
@@ -350,7 +350,7 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 	if ( srcTri->numVerts != 4 || srcTri->numIndexes != 6 ) {
 		// FIXME: temp hack for flares on tripleted models
 		common->Warning( "R_FlareDeform: not a single quad" );
-		return NULL;
+		return nullptr;
 	}
 
 	// find the plane
@@ -362,7 +362,7 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 	R_GlobalPointToLocal( surf->space->modelMatrix, tr.viewDef->renderView.vieworg, localViewer );
 	float distFromPlane = localViewer * plane.Normal() + plane[3];
 	if ( distFromPlane <= 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	idVec3 center = srcTri->verts[0].xyz;
@@ -387,11 +387,11 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 
 	// only deal with quads
 	if ( numIndexes != 4 ) {
-		return NULL;
+		return nullptr;
 	}
 
-	const int maxVerts = 16;
-	const int maxIndexes = 18 * 3;
+	constexpr int maxVerts = 16;
+	constexpr int maxIndexes = 18 * 3;
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
 	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
@@ -542,7 +542,7 @@ static drawSurf_t * R_TurbulentDeform( drawSurf_t * surf ) {
 	const float range = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ];
 	const float timeOfs = surf->shaderRegisters[ surf->material->GetDeformRegister(1) ];
 	const float domain = surf->shaderRegisters[ surf->material->GetDeformRegister(2) ];
-	const float tOfs = 0.5f;
+	constexpr float tOfs = 0.5f;
 
 	for ( int i = 0; i < srcTri->numVerts; i++ ) {
 		float f = srcTri->verts[i].xyz[0] * 0.003f + srcTri->verts[i].xyz[1] * 0.007f + srcTri->verts[i].xyz[2] * 0.011f;
@@ -587,7 +587,7 @@ static void AddTriangleToIsland_r( const srfTriangles_t *tri, int triangleNum, b
 	island->tris[island->numTris] = triangleNum;
 	island->numTris++;
 
-	const idJointMat * joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( tri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : nullptr;
 
 	// recurse into all neighbors
 	const int a = tri->indexes[triangleNum*3+0];
@@ -636,7 +636,7 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 	const int numTri = srcTri->numIndexes / 3;
 	if ( numTri > MAX_EYEBALL_ISLANDS * MAX_EYEBALL_TRIS ) {
 		common->Printf( "R_EyeballDeform: too many triangles in surface" );
-		return NULL;
+		return nullptr;
 	}
 
 	eyeIsland_t islands[MAX_EYEBALL_ISLANDS];
@@ -662,10 +662,10 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 	// assume we always have two eyes, two origins, and two targets
 	if ( numIslands != 3 ) {
 		common->Printf( "R_EyeballDeform: %i triangle islands\n", numIslands );
-		return NULL;
+		return nullptr;
 	}
 
-	const idJointMat * joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( srcTri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : nullptr;
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
 	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
@@ -775,7 +775,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	const srfTriangles_t * srcTri = surf->frontEndGeo;
 
 	if ( r_skipParticles.GetBool() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	//
@@ -783,9 +783,9 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	//
 	int numSourceTris = surf->frontEndGeo->numIndexes / 3;
 	float totalArea = 0.0f;
-	float * sourceTriAreas = NULL;
+	float * sourceTriAreas = nullptr;
 
-	const idJointMat * joints = ( ( srcTri->staticModelWithJoints != NULL ) && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat * joints = ( ( srcTri->staticModelWithJoints != nullptr) && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : nullptr;
 
 	if ( useArea ) {
 		sourceTriAreas = (float *)_alloca( sizeof( *sourceTriAreas ) * numSourceTris );
@@ -816,7 +816,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	for ( int stageNum = 0; stageNum < particleSystem->stages.Num(); stageNum++ ) {
 		idParticleStage *stage = particleSystem->stages[stageNum];
 
-		if ( stage->material == NULL ) {
+		if ( stage->material == nullptr) {
 			continue;
 		}
 		if ( stage->cycleMsec == 0 ) {
@@ -837,7 +837,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	}
 
 	if ( maxQuads == 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	idTempArray<byte> tempVerts( ALIGN( maxQuads * 4 * sizeof( idDrawVert ), 16 ) );
@@ -845,7 +845,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	idTempArray<byte> tempIndex( ALIGN( maxQuads * 6 * sizeof( triIndex_t ), 16 ) );
 	triIndex_t *newIndexes = (triIndex_t *) tempIndex.Ptr();
 
-	drawSurf_t * drawSurfList = NULL;
+	drawSurf_t * drawSurfList = nullptr;
 
 	for ( int stageNum = 0; stageNum < particleSystem->stages.Num(); stageNum++ ) {
 		if ( maxStageQuads[stageNum] == 0 ) {
@@ -993,7 +993,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 
 		R_SetupDrawSurfShader( drawSurf, stage->material, renderEntity );
 
-		drawSurf->linkChain = NULL;
+		drawSurf->linkChain = nullptr;
 		drawSurf->nextOnLight = drawSurfList;
 		drawSurfList = drawSurf;
 	}
@@ -1007,8 +1007,8 @@ R_DeformDrawSurf
 =================
 */
 drawSurf_t * R_DeformDrawSurf( drawSurf_t * drawSurf ) {
-	if ( drawSurf->material == NULL ) {
-		return NULL;
+	if ( drawSurf->material == nullptr) {
+		return nullptr;
 	}
 
 	if ( r_skipDeforms.GetBool() ) {
@@ -1024,6 +1024,6 @@ drawSurf_t * R_DeformDrawSurf( drawSurf_t * drawSurf ) {
 		case DFRM_EYEBALL:		return R_EyeballDeform( drawSurf );
 		case DFRM_PARTICLE:		return R_ParticleDeform( drawSurf, true );
 		case DFRM_PARTICLE2:	return R_ParticleDeform( drawSurf, false );
-		default:				return NULL;
+		default:				return nullptr;
 	}
 }

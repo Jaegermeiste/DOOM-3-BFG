@@ -32,12 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys_localuser.h"
 
 typedef uint8 peerMask_t;
-static const int MAX_PLAYERS			= 8;
+static constexpr int MAX_PLAYERS			= 8;
 
-static const int MAX_REDUNDANT_CMDS	= 3;
+static constexpr int MAX_REDUNDANT_CMDS	= 3;
 
-static const int MAX_LOCAL_PLAYERS		= 2;
-static const int MAX_INPUT_DEVICES		= 4;
+static constexpr int MAX_LOCAL_PLAYERS		= 2;
+static constexpr int MAX_INPUT_DEVICES		= 4;
 enum matchFlags_t {
 	MATCH_STATS						= BIT( 0 ),		// Match will upload leaderboard/achievement scores
 	MATCH_ONLINE					= BIT( 1 ),		// Match will require users to be online
@@ -75,18 +75,18 @@ class idLeaderboardCallback;
 struct leaderboardDefinition_t;
 struct column_t;
 
-const int8 GAME_MODE_RANDOM = -1;
-const int8 GAME_MODE_SINGLEPLAYER = -2;
+constexpr int8 GAME_MODE_RANDOM = -1;
+constexpr int8 GAME_MODE_SINGLEPLAYER = -2;
 
-const int8 GAME_MAP_RANDOM = -1;
-const int8 GAME_MAP_SINGLEPLAYER = -2;
+constexpr int8 GAME_MAP_RANDOM = -1;
+constexpr int8 GAME_MAP_SINGLEPLAYER = -2;
 
-const int8 GAME_EPISODE_UNKNOWN = -1;
-const int8 GAME_SKILL_DEFAULT = -1;
+constexpr int8 GAME_EPISODE_UNKNOWN = -1;
+constexpr int8 GAME_SKILL_DEFAULT = -1;
 
-const int DefaultPartyFlags			= MATCH_JOIN_IN_PROGRESS | MATCH_ONLINE;
-const int DefaultPublicGameFlags	= MATCH_JOIN_IN_PROGRESS | MATCH_REQUIRE_PARTY_LOBBY | MATCH_RANKED |  MATCH_STATS;
-const int DefaultPrivateGameFlags	= MATCH_JOIN_IN_PROGRESS | MATCH_REQUIRE_PARTY_LOBBY | MATCH_PRIVATE;
+constexpr int DefaultPartyFlags			= MATCH_JOIN_IN_PROGRESS | MATCH_ONLINE;
+constexpr int DefaultPublicGameFlags	= MATCH_JOIN_IN_PROGRESS | MATCH_REQUIRE_PARTY_LOBBY | MATCH_RANKED |  MATCH_STATS;
+constexpr int DefaultPrivateGameFlags	= MATCH_JOIN_IN_PROGRESS | MATCH_REQUIRE_PARTY_LOBBY | MATCH_PRIVATE;
 
 /*
 ================================================
@@ -191,10 +191,10 @@ enum voiceStateDisplay_t {
 	VOICECHAT_DISPLAY_MAX
 };
 
-static const int QOS_RESULT_CRAPPY	= 200;
-static const int QOS_RESULT_WEAK	= 100;
-static const int QOS_RESULT_GOOD	= 50;
-static const int QOS_RESULT_GREAT	= 0;
+static constexpr int QOS_RESULT_CRAPPY	= 200;
+static constexpr int QOS_RESULT_WEAK	= 100;
+static constexpr int QOS_RESULT_GOOD	= 50;
+static constexpr int QOS_RESULT_GREAT	= 0;
 
 //------------------------
 // qosState_t
@@ -374,10 +374,10 @@ public:
 	};
 
 					idSession() :
-						signInManager( NULL ),
-						saveGameManager( NULL ),
-						achievementSystem( NULL ),
-						dedicatedServerSearch( NULL ) { }
+						signInManager(nullptr),
+						saveGameManager(nullptr),
+						achievementSystem(nullptr),
+						dedicatedServerSearch(nullptr) { }
 	virtual 		~idSession();
 
 	virtual void			Initialize() = 0;
@@ -496,14 +496,14 @@ public:
 	virtual bool			GetTitleStorageFloat( const char * name, float defaultFloat, float & out ) const { out = defaultFloat; return false; }
 	virtual bool			GetTitleStorageInt( const char * name, int defaultInt, int & out ) const { out = defaultInt; return false; }
 	virtual bool			GetTitleStorageBool( const char * name, bool defaultBool, bool & out ) const { out = defaultBool; return false; }
-	virtual bool			GetTitleStorageString( const char * name, const char * defaultString, const char ** out ) const { if ( out != NULL ) { *out = defaultString; } return false; }
+	virtual bool			GetTitleStorageString( const char * name, const char * defaultString, const char ** out ) const { if ( out != nullptr) { *out = defaultString; } return false; }
 
 	virtual bool			IsTitleStorageLoaded() = 0;
 
 	//=====================================================================================================
 	// Leaderboard
 	//=====================================================================================================
-	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment = NULL ) = 0;
+	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment = nullptr) = 0;
 	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback ) = 0;
 	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID ) = 0;
 	virtual void			LeaderboardFlush() = 0;
@@ -568,8 +568,8 @@ public:
 	idSaveGameManager &			GetSaveGameManager() { return *saveGameManager; }
 	idAchievementSystem &		GetAchievementSystem() { return *achievementSystem; }
 
-	bool						HasSignInManager() const { return ( signInManager != NULL ); }
-	bool						HasAchievementSystem() const { return ( achievementSystem != NULL ); }
+	bool						HasSignInManager() const { return ( signInManager != nullptr); }
+	bool						HasAchievementSystem() const { return ( achievementSystem != nullptr); }
 
 	virtual bool				IsSystemUIShowing() const = 0;
 	virtual void				SetSystemUIShowing( bool show ) = 0;

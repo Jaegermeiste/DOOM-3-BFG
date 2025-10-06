@@ -65,12 +65,12 @@ void idSWFSpriteInstance::PlaceObject2( idSWFBitStream & bitstream ) {
 		characterID = bitstream.ReadU16();
 	}
 
-	swfDisplayEntry_t * display = NULL;
+	swfDisplayEntry_t * display = nullptr;
 
 	if ( ( flags & PlaceFlagMove ) != 0 ) {
 		// modify an existing entry
 		display = FindDisplayEntry( depth );
-		if ( display == NULL ) {
+		if ( display == nullptr) {
 			idLib::Warning( "PlaceObject2: trying to modify entry %d, which doesn't exist", depth );
 			return;
 		}
@@ -82,7 +82,7 @@ void idSWFSpriteInstance::PlaceObject2( idSWFBitStream & bitstream ) {
 				return;
 			}
 			idSWFDictionaryEntry * dictEntry = sprite->swf->FindDictionaryEntry( characterID );
-			if ( dictEntry != NULL ) {
+			if ( dictEntry != nullptr) {
 				if ( dictEntry->type == SWF_DICT_SPRITE || dictEntry->type == SWF_DICT_EDITTEXT ) {
 					idLib::Warning( "PlaceObject2: Trying to change the character of a shape to a sprite" );
 					return;
@@ -97,7 +97,7 @@ void idSWFSpriteInstance::PlaceObject2( idSWFBitStream & bitstream ) {
 		}
 		// create a new entry
 		display = AddDisplayEntry( depth, characterID );
-		if ( display == NULL ) {
+		if ( display == nullptr) {
 			idLib::Warning( "PlaceObject2: trying to create a new entry at %d, but an item already exists there", depth );
 			return;
 		}
@@ -149,12 +149,12 @@ void idSWFSpriteInstance::PlaceObject3( idSWFBitStream & bitstream ) {
 		characterID = bitstream.ReadU16();
 	}
 
-	swfDisplayEntry_t * display = NULL;
+	swfDisplayEntry_t * display = nullptr;
 
 	if ( ( flags1 & PlaceFlagMove ) != 0 ) {
 		// modify an existing entry
 		display = FindDisplayEntry( depth );
-		if ( display == NULL ) {
+		if ( display == nullptr) {
 			idLib::Warning( "PlaceObject3: trying to modify entry %d, which doesn't exist", depth );
 			return;
 		}
@@ -166,7 +166,7 @@ void idSWFSpriteInstance::PlaceObject3( idSWFBitStream & bitstream ) {
 				return;
 			}
 			idSWFDictionaryEntry * dictEntry = sprite->swf->FindDictionaryEntry( characterID );
-			if ( dictEntry != NULL ) {
+			if ( dictEntry != nullptr) {
 				if ( dictEntry->type == SWF_DICT_SPRITE || dictEntry->type == SWF_DICT_EDITTEXT ) {
 					idLib::Warning( "PlaceObject3: Trying to change the character of a shape to a sprite" );
 					return;
@@ -181,7 +181,7 @@ void idSWFSpriteInstance::PlaceObject3( idSWFBitStream & bitstream ) {
 		}
 		// create a new entry
 		display = AddDisplayEntry( depth, characterID );
-		if ( display == NULL ) {
+		if ( display == nullptr) {
 			idLib::Warning( "PlaceObject3: trying to create a new entry at %d, but an item already exists there", depth );
 			return;
 		}

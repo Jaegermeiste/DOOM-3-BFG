@@ -866,7 +866,7 @@ void idCollisionModelManagerLocal::Translation( trace_t *results, const idVec3 &
 		results->endpos = start;
 		results->endAxis = trmAxis;
 		results->c.normal = vec3_origin;
-		results->c.material = NULL;
+		results->c.material = nullptr;
 		results->c.point = start;
 		if ( common->RW() ) {
 			common->RW()->DebugArrow( colorRed, start, end, 1 );

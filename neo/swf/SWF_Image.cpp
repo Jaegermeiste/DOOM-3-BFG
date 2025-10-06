@@ -122,7 +122,7 @@ byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & w
 		} while ( result == JPEG_HEADER_TABLES_ONLY );
 
 		if ( result == JPEG_SUSPENDED ) {
-			return NULL;
+			return nullptr;
 		}
 
 		jpeg_start_decompress( cinfo );
@@ -130,8 +130,8 @@ byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & w
 			// This shouldn't really be possible, unless the source image is some kind of strange grayscale format or something
 			idLib::Warning( "JPEG output is not 4 components" );
 			jpeg_abort_decompress( cinfo );
-			cinfo->src = NULL;	// value goes out of scope
-			return NULL;
+			cinfo->src = nullptr;	// value goes out of scope
+			return nullptr;
 		}
 		int outputSize = cinfo->output_width * cinfo->output_height * cinfo->output_components;
 		byte * output = (byte *)Mem_Alloc( outputSize, TAG_SWF );
@@ -145,12 +145,12 @@ byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & w
 		width = cinfo->output_width;
 		height = cinfo->output_height;
 
-		cinfo->src = NULL;	// value goes out of scope
+		cinfo->src = nullptr;	// value goes out of scope
 		return output;
 
 	} catch ( idException & ) {
 		swf_jpeg_output_message( (jpeg_common_struct *)cinfo );
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -290,7 +290,7 @@ void idSWF::WriteSwfImageAtlas( const char *filename ) {
 		}
 
 		Mem_Free( pack.imageData );
-		pack.imageData = NULL;
+		pack.imageData = nullptr;
 	}
 
 	// the TGA is only for examination during development
@@ -305,7 +305,7 @@ Loads RGBA data into an image at the specificied character id in the dictionary
 */
 void idSWF::LoadImage( int characterID, const byte * imageData, int width, int height ) {
 	idSWFDictionaryEntry * entry = AddDictionaryEntry( characterID, SWF_DICT_IMAGE );
-	if ( entry == NULL ) {
+	if ( entry == nullptr) {
 		return;
 	}
 
@@ -333,7 +333,7 @@ void idSWF::LoadImage( int characterID, const byte * imageData, int width, int h
 	}
 	packImages.Append( pack );
 
-	entry->material = NULL;
+	entry->material = nullptr;
 }
 
 /*
@@ -365,7 +365,7 @@ void idSWF::DefineBits( idSWFBitStream & bitstream ) {
 
 	int width, height;
 	byte * imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
-	if ( imageData == NULL ) {
+	if ( imageData == nullptr) {
 		return;
 	}
 
@@ -389,7 +389,7 @@ void idSWF::DefineBitsJPEG2( idSWFBitStream & bitstream ) {
 
 	int width, height;
 	byte * imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
-	if ( imageData == NULL ) {
+	if ( imageData == nullptr) {
 		return;
 	}
 
@@ -412,7 +412,7 @@ void idSWF::DefineBitsJPEG3( idSWFBitStream & bitstream ) {
 
 	int width, height;
 	byte * imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
-	if ( imageData == NULL ) {
+	if ( imageData == nullptr) {
 		return;
 	}
 

@@ -37,7 +37,7 @@ idDedicatedServerSearch::idDedicatedServerSearch
 ========================
 */
 idDedicatedServerSearch::idDedicatedServerSearch() :
-	callback( NULL ) {
+	callback(nullptr) {
 }
 
 /*
@@ -46,7 +46,7 @@ idDedicatedServerSearch::~idDedicatedServerSearch
 ========================
 */
 idDedicatedServerSearch::~idDedicatedServerSearch() {
-	if ( callback != NULL ) {
+	if ( callback != nullptr) {
 		delete callback;
 	}
 }
@@ -69,9 +69,9 @@ idDedicatedServerSearch::Clear
 ========================
 */
 void idDedicatedServerSearch::Clear() {
-	if ( callback != NULL ) {
+	if ( callback != nullptr) {
 		delete callback;
-		callback = NULL;
+		callback = nullptr;
 	}
 	list.Clear();
 }
@@ -131,7 +131,7 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 	}
 
 
-	if ( callback != NULL ) {
+	if ( callback != nullptr) {
 		callback->Call();
 	}
 }
@@ -158,7 +158,7 @@ const serverInfo_t * idDedicatedServerSearch::DescribeServerAtIndex( int i ) con
 	if ( i >= 0 && i < list.Num() ) {
 		return &list[i].serverInfo;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -170,7 +170,7 @@ const idList< idStr > * idDedicatedServerSearch::GetServerPlayersAtIndex( int i 
 	if ( i >= 0 && i < list.Num() ) {
 		return &list[i].connectedPlayers;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*

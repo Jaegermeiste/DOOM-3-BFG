@@ -162,8 +162,7 @@ ID_INLINE idBox &idBox::operator*=( const idMat3 &r ) {
 }
 
 ID_INLINE idBox idBox::operator+( const idBox &a ) const {
-	idBox newBox;
-	newBox = *this;
+	idBox newBox = *this;
 	newBox.AddBox( a );
 	return newBox;
 }
@@ -261,7 +260,7 @@ ID_INLINE idBox &idBox::RotateSelf( const idMat3 &rotation ) {
 }
 
 ID_INLINE bool idBox::ContainsPoint( const idVec3 &p ) const {
-	idVec3 lp = p - center;
+	const idVec3 lp = p - center;
 	if ( idMath::Fabs( lp * axis[0] ) > extents[0] ||
 			idMath::Fabs( lp * axis[1] ) > extents[1] ||
 				idMath::Fabs( lp * axis[2] ) > extents[2] ) {
@@ -275,8 +274,8 @@ ID_INLINE idSphere idBox::ToSphere() const {
 }
 
 ID_INLINE void idBox::AxisProjection( const idVec3 &dir, float &min, float &max ) const {
-	float d1 = dir * center;
-	float d2 = idMath::Fabs( extents[0] * ( dir * axis[0] ) ) +
+	const float d1 = dir * center;
+	const float d2 = idMath::Fabs( extents[0] * ( dir * axis[0] ) ) +
 				idMath::Fabs( extents[1] * ( dir * axis[1] ) ) +
 				idMath::Fabs( extents[2] * ( dir * axis[2] ) );
 	min = d1 - d2;
@@ -285,8 +284,8 @@ ID_INLINE void idBox::AxisProjection( const idVec3 &dir, float &min, float &max 
 
 ID_INLINE void idBox::AxisProjection( const idMat3 &ax, idBounds &bounds ) const {
 	for ( int i = 0; i < 3; i++ ) {
-		float d1 = ax[i] * center;
-		float d2 = idMath::Fabs( extents[0] * ( ax[i] * axis[0] ) ) +
+		const float d1 = ax[i] * center;
+		const float d2 = idMath::Fabs( extents[0] * ( ax[i] * axis[0] ) ) +
 					idMath::Fabs( extents[1] * ( ax[i] * axis[1] ) ) +
 					idMath::Fabs( extents[2] * ( ax[i] * axis[2] ) );
 		bounds[0][i] = d1 - d2;

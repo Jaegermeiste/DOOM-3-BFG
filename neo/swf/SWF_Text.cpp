@@ -38,7 +38,7 @@ idSWF::DefineFont2
 void idSWF::DefineFont2( idSWFBitStream & bitstream ) {
 	uint16 characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry * entry = AddDictionaryEntry( characterID, SWF_DICT_FONT );
-	if ( entry == NULL ) {
+	if ( entry == nullptr) {
 		return;
 	}
 	uint8 flags = bitstream.ReadU8();
@@ -145,7 +145,7 @@ idSWF::DefineTextX
 void idSWF::DefineTextX( idSWFBitStream & bitstream, bool rgba ) {
 	uint16 characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry * entry = AddDictionaryEntry( characterID, SWF_DICT_TEXT );
-	if ( entry == NULL ) {
+	if ( entry == nullptr) {
 		return;
 	}
 	idSWFText * text = entry->text;
@@ -218,7 +218,7 @@ idSWF::DefineEditText
 void idSWF::DefineEditText( idSWFBitStream & bitstream ) {
 	uint16 characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry * entry = AddDictionaryEntry( characterID, SWF_DICT_EDITTEXT );
-	if ( entry == NULL ) {
+	if ( entry == nullptr) {
 		return;
 	}
 	idSWFEditText * edittext = entry->edittext;

@@ -153,14 +153,14 @@ enum sys_jEvents {
 	J_ACTION_MAX = J_ACTION32,
 
 	J_AXIS_MIN,
-	J_AXIS_LEFT_X = J_AXIS_MIN + AXIS_LEFT_X,
-	J_AXIS_LEFT_Y = J_AXIS_MIN + AXIS_LEFT_Y,
-	J_AXIS_RIGHT_X = J_AXIS_MIN + AXIS_RIGHT_X,
-	J_AXIS_RIGHT_Y = J_AXIS_MIN + AXIS_RIGHT_Y,
-	J_AXIS_LEFT_TRIG = J_AXIS_MIN + AXIS_LEFT_TRIG,
-	J_AXIS_RIGHT_TRIG = J_AXIS_MIN + AXIS_RIGHT_TRIG,
+	J_AXIS_LEFT_X = J_AXIS_MIN + static_cast<int>(AXIS_LEFT_X),
+	J_AXIS_LEFT_Y = J_AXIS_MIN + static_cast<int>(AXIS_LEFT_Y),
+	J_AXIS_RIGHT_X = J_AXIS_MIN + static_cast<int>(AXIS_RIGHT_X),
+	J_AXIS_RIGHT_Y = J_AXIS_MIN + static_cast<int>(AXIS_RIGHT_Y),
+	J_AXIS_LEFT_TRIG = J_AXIS_MIN + static_cast<int>(AXIS_LEFT_TRIG),
+	J_AXIS_RIGHT_TRIG = J_AXIS_MIN + static_cast<int>(AXIS_RIGHT_TRIG),
 
-	J_AXIS_MAX = J_AXIS_MIN + MAX_JOYSTICK_AXIS - 1,
+	J_AXIS_MAX = J_AXIS_MIN + static_cast<int>(MAX_JOYSTICK_AXIS) - 1,
 
 	J_DPAD_UP,
 	J_DPAD_DOWN,
@@ -511,7 +511,7 @@ int				Sys_ReturnKeyboardInputEvent( const int n, int &ch, bool &state );
 void			Sys_EndKeyboardInputEvents();
 
 // mouse input polling
-static const int MAX_MOUSE_EVENTS = 256;
+static constexpr int MAX_MOUSE_EVENTS = 256;
 int				Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] );
 
 // joystick input polling

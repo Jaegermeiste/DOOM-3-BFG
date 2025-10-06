@@ -39,7 +39,7 @@ template< typename _key_, class _value_ >
 class idHashNodeT {
 public:
 	idHashNodeT() 
-		:	next( NULL ) {
+		:	next(nullptr) {
 	}
 
 	idHashNodeT( const _key_ & key, const _value_ & value, idHashNodeT * next )
@@ -150,8 +150,8 @@ public:
 
 	_value_ &		Set( const _key_ & key, const _value_ & value );
 
-	bool			Get( const _key_ & key, _value_ ** value = NULL );
-	bool			Get( const _key_ & key, const _value_ ** value = NULL ) const;
+	bool			Get( const _key_ & key, _value_ ** value = nullptr);
+	bool			Get( const _key_ & key, const _value_ ** value = nullptr) const;
 
 	bool			Remove( const _key_ & key );
 
@@ -254,9 +254,9 @@ ID_INLINE _value_ & idHashTableT<_key_,_value_>::Set( const _key_ & key, const _
 	hashnode_t ** nextPtr = &(heads[ hash ] );
 	hashnode_t * node = * nextPtr;
 	for ( ; 
-		node != NULL;
+		node != nullptr;
 		nextPtr = &(node->next), node = *nextPtr ) {
-			int s = node->Compare( node->key, key );
+			const int s = node->Compare( node->key, key );
 			if ( s == 0 ) {
 				// return existing hashed item
 				node->value = value;
@@ -283,8 +283,8 @@ template< typename _key_, class _value_ >
 ID_INLINE bool idHashTableT<_key_,_value_>::Get( const _key_ & key, _value_ ** value ) {
 	int hash = hashnode_t::GetHash( key, tableSizeMask );
 	hashnode_t * node = heads[ hash ];
-	for ( ; node != NULL; node = node->next ) {
-		int s = node->Compare( node->key, key );
+	for ( ; node != nullptr; node = node->next ) {
+		const int s = node->Compare( node->key, key );
 		if ( s == 0 ) {
 			if ( value ) {
 				*value = &node->value;
@@ -310,8 +310,8 @@ template< typename _key_, class _value_ >
 ID_INLINE bool idHashTableT<_key_,_value_>::Get( const _key_ & key, const _value_ ** value ) const {
 	int hash = hashnode_t::GetHash( key, tableSizeMask );
 	hashnode_t * node = heads[ hash ];
-	for ( ; node != NULL; node = node->next ) {
-		int s = node->Compare( node->key, key );
+	for ( ; node != nullptr; node = node->next ) {
+		const int s = node->Compare( node->key, key );
 		if ( s == 0 ) {
 			if ( value ) {
 				*value = &node->value;
@@ -337,19 +337,19 @@ template< typename _key_, class _value_ >
 ID_INLINE _value_ * idHashTableT<_key_,_value_>::GetIndex( const int index ) const {
 	if ( index < 0 || index > numEntries ) {
 		assert( 0 );
-		return NULL;
+		return nullptr;
 	}
 
 	int count = 0;
 	for ( int i = 0; i < tableSize; i++ ) {
-		for ( hashnode_t * node = heads[ i ]; node != NULL; node = node->next ) {
+		for ( hashnode_t * node = heads[ i ]; node != nullptr; node = node->next ) {
 			if ( count == index ) {
 				return &node->value;
 			}
 			count++;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -366,7 +366,7 @@ ID_INLINE bool idHashTableT<_key_,_value_>::GetIndexKey( const int index, _key_ 
 
 	int count = 0;
 	for ( int i = 0; i < tableSize; i++ ) {
-		for ( hashnode_t * node = heads[ i ]; node != NULL; node = node->next ) {
+		for ( hashnode_t * node = heads[ i ]; node != nullptr; node = node->next ) {
 			if ( count == index ) {
 				key = node->key;
 				return true;
@@ -387,9 +387,9 @@ ID_INLINE bool idHashTableT<_key_,_value_>::Remove( const _key_ & key ) {
 	int hash = hashnode_t::GetHash( key, tableSizeMask );
 	hashnode_t ** head = &heads[ hash ];
 	if ( *head ) {
-		hashnode_t * prev = NULL;
+		hashnode_t * prev = nullptr;
 		hashnode_t * node = *head;
-		for ( ; node != NULL; prev = node, node = node->next ) {
+		for ( ; node != nullptr; prev = node, node = node->next ) {
 			if ( node->key == key ) {
 				if ( prev ) {
 					prev->next = node->next;
@@ -415,8 +415,8 @@ template< typename _key_, class _value_ >
 ID_INLINE void idHashTableT<_key_,_value_>::Clear() {
 	for ( int i = 0; i < tableSize; i++ ) {
 		hashnode_t * next = heads[ i ];
-		while ( next != NULL ) {
-			hashnode_t * node = next;
+		while ( next != nullptr) {
+			const hashnode_t * node = next;
 			next = next->next;
 			delete node;
 		}
@@ -434,7 +434,7 @@ template< typename _key_, class _value_ >
 ID_INLINE void idHashTableT<_key_,_value_>::DeleteContents() {
 	for ( int i = 0; i < tableSize; i++ ) {
 		hashnode_t * next = heads[ i ];
-		while ( next != NULL ) {
+		while ( next != nullptr) {
 			hashnode_t * node = next;
 			next = next->next;
 			delete node->value;
@@ -466,14 +466,14 @@ ID_INLINE int idHashTableT<_key_,_value_>::GetSpread() const {
 		return 100;
 	}
 
-	int average = numEntries / tableSize;
+	const int average = numEntries / tableSize;
 	int error = 0;
 	for ( int i = 0; i < tableSize; i++ ) {
 		int numItems = 0;
-		for ( hashnode_t * node = heads[ i ]; node != NULL; node = node->next ) {
+		for ( hashnode_t * node = heads[ i ]; node != nullptr; node = node->next ) {
 			numItems++;
 		}
-		int e = abs( numItems - average );
+		const int e = abs( numItems - average );
 		if ( e > 1 ) {
 			error += e - 1;
 		}
@@ -515,7 +515,7 @@ ID_INLINE void idHashTableT<_key_,_value_>::Copy( const idHashTableT & other ) {
 			continue;
 		}
 		hashnode_t ** prev = & heads[ i ];
-		for ( hashnode_t * node = other.heads[ i ]; node != NULL; node = node->next ) {
+		for ( hashnode_t * node = other.heads[ i ]; node != nullptr; node = node->next ) {
 			*prev = new (TAG_IDLIB_HASH) hashnode_t( node->key, node->value, NULL );
 			prev = &( *prev )->next;
 		}
@@ -544,7 +544,7 @@ public:
 	size_t			Size() const;
 
 	void			Set( const char *key, Type &value );
-	bool			Get( const char *key, Type **value = NULL ) const;
+	bool			Get( const char *key, Type **value = nullptr) const;
 	bool			Remove( const char *key );
 
 	void			Clear();
@@ -604,10 +604,6 @@ idHashTable<Type>::idHashTable
 */
 template< class Type >
 ID_INLINE idHashTable<Type>::idHashTable( const idHashTable<Type> &map ) {
-	int			i;
-	hashnode_s	*node;
-	hashnode_s	**prev;
-
 	assert( map.tablesize > 0 );
 
 	tablesize		= map.tablesize;
@@ -615,14 +611,14 @@ ID_INLINE idHashTable<Type>::idHashTable( const idHashTable<Type> &map ) {
 	numentries		= map.numentries;
 	tablesizemask	= map.tablesizemask;
 
-	for( i = 0; i < tablesize; i++ ) {
+	for( int i = 0; i < tablesize; i++ ) {
 		if ( !map.heads[ i ] ) {
 			heads[ i ] = NULL;
 			continue;
 		}
 
-		prev = &heads[ i ];
-		for( node = map.heads[ i ]; node != NULL; node = node->next ) {
+		hashnode_s** prev = &heads[i];
+		for( hashnode_s* node = map.heads[i]; node != nullptr; node = node->next ) {
 			*prev = new (TAG_IDLIB_HASH) hashnode_s( node->key, node->value, NULL );
 			prev = &( *prev )->next;
 		}
@@ -678,11 +674,10 @@ idHashTable<Type>::Set
 template< class Type >
 ID_INLINE void idHashTable<Type>::Set( const char *key, Type &value ) {
 	hashnode_s *node, **nextPtr;
-	int hash, s;
 
-	hash = GetHash( key );
-	for( nextPtr = &(heads[hash]), node = *nextPtr; node != NULL; nextPtr = &(node->next), node = *nextPtr ) {
-		s = node->key.Cmp( key );
+	int hash = GetHash(key);
+	for( nextPtr = &(heads[hash]), node = *nextPtr; node != nullptr; nextPtr = &(node->next), node = *nextPtr ) {
+		int s = node->key.Cmp(key);
 		if ( s == 0 ) {
 			node->value = value;
 			return;
@@ -705,12 +700,9 @@ idHashTable<Type>::Get
 */
 template< class Type >
 ID_INLINE bool idHashTable<Type>::Get( const char *key, Type **value ) const {
-	hashnode_s *node;
-	int hash, s;
-
-	hash = GetHash( key );
-	for( node = heads[ hash ]; node != NULL; node = node->next ) {
-		s = node->key.Cmp( key );
+	int hash = GetHash(key);
+	for( hashnode_s* node = heads[hash]; node != nullptr; node = node->next ) {
+		int s = node->key.Cmp(key);
 		if ( s == 0 ) {
 			if ( value ) {
 				*value = &node->value;
@@ -739,18 +731,14 @@ exact index for a given element may change when new elements are added
 */
 template< class Type >
 ID_INLINE Type *idHashTable<Type>::GetIndex(const int index ) const {
-	hashnode_s	*node;
-	int			count;
-	int			i;
-
 	if ( ( index < 0 ) || ( index > numentries ) ) {
 		assert( 0 );
-		return NULL;
+		return nullptr;
 	}
 
-	count = 0;
-	for( i = 0; i < tablesize; i++ ) {
-		for( node = heads[ i ]; node != NULL; node = node->next ) {
+	int count = 0;
+	for( int i = 0; i < tablesize; i++ ) {
+		for( hashnode_s* node = heads[i]; node != nullptr; node = node->next ) {
 			if ( count == index ) {
 				return &node->value;
 			}
@@ -758,7 +746,7 @@ ID_INLINE Type *idHashTable<Type>::GetIndex(const int index ) const {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -768,15 +756,13 @@ idHashTable<Type>::Remove
 */
 template< class Type >
 ID_INLINE bool idHashTable<Type>::Remove( const char *key ) {
-	hashnode_s	**head;
 	hashnode_s	*node;
 	hashnode_s	*prev;
-	int			hash;
 
-	hash = GetHash( key );
-	head = &heads[ hash ];
+	int hash = GetHash(key);
+	hashnode_s** head = &heads[hash];
 	if ( *head ) {
-		for( prev = NULL, node = *head; node != NULL; prev = node, node = node->next ) {
+		for( prev = NULL, node = *head; node != nullptr; prev = node, node = node->next ) {
 			if ( node->key == key ) {
 				if ( prev ) {
 					prev->next = node->next;
@@ -801,14 +787,10 @@ idHashTable<Type>::Clear
 */
 template< class Type >
 ID_INLINE void idHashTable<Type>::Clear() {
-	int			i;
-	hashnode_s	*node;
-	hashnode_s	*next;
-
-	for( i = 0; i < tablesize; i++ ) {
-		next = heads[ i ];
-		while( next != NULL ) {
-			node = next;
+	for( int i = 0; i < tablesize; i++ ) {
+		hashnode_s* next = heads[i];
+		while( next != nullptr) {
+			hashnode_s* node = next;
 			next = next->next;
 			delete node;
 		}
@@ -826,14 +808,10 @@ idHashTable<Type>::DeleteContents
 */
 template< class Type >
 ID_INLINE void idHashTable<Type>::DeleteContents() {
-	int			i;
-	hashnode_s	*node;
-	hashnode_s	*next;
-
-	for( i = 0; i < tablesize; i++ ) {
-		next = heads[ i ];
-		while( next != NULL ) {
-			node = next;
+	for( int i = 0; i < tablesize; i++ ) {
+		hashnode_s* next = heads[i];
+		while( next != nullptr) {
+			hashnode_s* node = next;
 			next = next->next;
 			delete node->value;
 			delete node;
@@ -867,21 +845,18 @@ idHashTable<Type>::GetSpread
 */
 template< class Type >
 int idHashTable<Type>::GetSpread() const {
-	int i, average, error, e;
-	hashnode_s	*node;
-
 	// if no items in hash
 	if ( !numentries ) {
 		return 100;
 	}
-	average = numentries / tablesize;
-	error = 0;
-	for ( i = 0; i < tablesize; i++ ) {
-		numItems = 0;
-		for( node = heads[ i ]; node != NULL; node = node->next ) {
+	int average = numentries / tablesize;
+	int error = 0;
+	for ( int i = 0; i < tablesize; i++ ) {
+		int numItems = 0;
+		for( hashnode_s* node = heads[i]; node != nullptr; node = node->next ) {
 			numItems++;
 		}
-		e = abs( numItems - average );
+		int e = abs(numItems - average);
 		if ( e > 1 ) {
 			error += e - 1;
 		}

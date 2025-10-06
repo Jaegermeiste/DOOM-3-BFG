@@ -90,9 +90,9 @@ void idSWFScriptVar::Free() {
 	} else if ( type == SWF_VAR_FUNCTION ) {
 		value.function->Release();
 	}
-	value.string = NULL;
-	value.function = NULL;
-	value.object = NULL;
+	value.string = nullptr;
+	value.function = nullptr;
+	value.object = nullptr;
 	type = SWF_VAR_UNDEF;
 }
 
@@ -103,7 +103,7 @@ idSWFScriptVar::SetObject
 */
 void idSWFScriptVar::SetObject( idSWFScriptObject * o ) {
 	Free();
-	if ( o == NULL ) {
+	if ( o == nullptr) {
 		type = SWF_VAR_NULL;
 	} else {
 		type = SWF_VAR_OBJECT;
@@ -119,7 +119,7 @@ idSWFScriptVar::SetFunction
 */
 void idSWFScriptVar::SetFunction( idSWFScriptFunction * f ) {
 	Free();
-	if ( f == NULL ) {
+	if ( f == nullptr) {
 		type = SWF_VAR_NULL;
 	} else {
 		type = SWF_VAR_FUNCTION;
@@ -300,11 +300,11 @@ idSWFScriptVar::ToSprite
 ========================
 */
 idSWFSpriteInstance * idSWFScriptVar::ToSprite() {
-	if ( IsObject() && value.object != NULL ) {
+	if ( IsObject() && value.object != nullptr) {
 		return value.object->GetSprite();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -313,11 +313,11 @@ idSWFScriptVar::ToText
 ========================
 */
 idSWFTextInstance * idSWFScriptVar::ToText() {
-	if ( IsObject() && value.object != NULL ) {
+	if ( IsObject() && value.object != nullptr) {
 		return value.object->GetText();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -340,7 +340,7 @@ idSWFScriptVar::GetNestedObj
 */
 idSWFScriptObject * idSWFScriptVar::GetNestedObj( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
 	if ( !IsObject() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return GetObject()->GetNestedObj( arg1, arg2, arg3, arg4, arg5, arg6 );
@@ -353,7 +353,7 @@ idSWFScriptVar::GetNestedSprite
 */
 idSWFSpriteInstance * idSWFScriptVar::GetNestedSprite( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
 	if ( !IsObject() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return GetObject()->GetNestedSprite( arg1, arg2, arg3, arg4, arg5, arg6 );
@@ -366,7 +366,7 @@ idSWFScriptVar::GetNestedSprite
 */
 idSWFTextInstance * idSWFScriptVar::GetNestedText( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
 	if ( !IsObject() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return GetObject()->GetNestedText( arg1, arg2, arg3, arg4, arg5, arg6 );
@@ -387,9 +387,9 @@ const char * idSWFScriptVar::TypeOf() const {
 	case SWF_VAR_INTEGER:	return "number";
 
 	case SWF_VAR_OBJECT:	
-		if ( value.object->GetSprite() != NULL ) {
+		if ( value.object->GetSprite() != nullptr) {
 			return "movieclip";
-		} else if ( value.object->GetText() != NULL ) {
+		} else if ( value.object->GetText() != nullptr) {
 			return "text";
 		} else {
 			return "object";

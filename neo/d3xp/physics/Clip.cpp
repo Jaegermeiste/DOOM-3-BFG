@@ -75,7 +75,7 @@ static idList<trmCache_s*>		traceModelCache;
 static idList<trmCache_s*>		traceModelCache_Unsaved;
 static idHashIndex				traceModelHash;
 static idHashIndex				traceModelHash_Unsaved;
-const static int				TRACE_MODEL_SAVED = BIT( 16 );
+static constexpr int				TRACE_MODEL_SAVED = BIT( 16 );
 
 
 /*

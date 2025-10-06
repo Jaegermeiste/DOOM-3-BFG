@@ -106,7 +106,7 @@ bool usercmd_t::operator==( const usercmd_t &rhs ) const {
 }
 
 
-const int KEY_MOVESPEED	= 127;
+constexpr int KEY_MOVESPEED	= 127;
 
 userCmdString_t	userCmdStrings[] = {
 	{ "_moveUp",		UB_MOVEUP },
@@ -159,7 +159,7 @@ userCmdString_t	userCmdStrings[] = {
 	{ "_impulse30",		UB_IMPULSE30 },
 	{ "_impulse31",		UB_IMPULSE31 },
 
-	{ NULL,				UB_NONE },
+	{nullptr,				UB_NONE },
 };
 
  class buttonState_t {
@@ -200,9 +200,9 @@ void buttonState_t::SetKeyState( int keystate, bool toggle ) {
 }
 
 
-const int NUM_USER_COMMANDS = sizeof(userCmdStrings) / sizeof(userCmdString_t);
+constexpr int NUM_USER_COMMANDS = sizeof(userCmdStrings) / sizeof(userCmdString_t);
 
-const int MAX_CHAT_BUFFER = 127;
+constexpr int MAX_CHAT_BUFFER = 127;
 
 class idUsercmdGenLocal : public idUsercmdGen {
 public:
@@ -583,7 +583,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 	}
 
 	idGame * game = common->Game();
-	if ( game != NULL ) {
+	if ( game != nullptr) {
 		lookValue *= game->GetAimAssistSensitivity();
 	}
 
@@ -748,7 +748,7 @@ idVec2 JoypadFunction(
 	if ( shape == FUNC_EXPONENTIAL ) {
 		accelerated = idMath::Pow( 1.04712854805f, rescaledLen * 100.0f ) * 0.01f;
 	} else if ( shape == FUNC_LOGARITHMIC ) {
-		const float power = 2.0f;
+		constexpr float power = 2.0f;
 		accelerated = idMath::Pow( rescaledLen, power );
 	} else {	// FUNC_LINEAR
 		accelerated = rescaledLen;
@@ -790,7 +790,7 @@ void	DrawJoypadTexture(
 
 	// find the offsets that will give certain values for
 	// the rings
-	static const int NUM_RINGS = 5;
+	static constexpr int NUM_RINGS = 5;
 	float	ringSizes[NUM_RINGS] = {};
 	float	ringValue[NUM_RINGS] = { 0.0f, 0.25f, 0.5f, 0.75f, 0.99f };
 	int		ringNum = 0;
@@ -904,7 +904,7 @@ void idUsercmdGenLocal::JoystickMove2() {
 	const float yawSpeed =			joy_yawSpeed.GetFloat();
 
 	idGame * game = common->Game();
-	const float aimAssist = game != NULL ? game->GetAimAssistSensitivity() : 1.0f;
+	const float aimAssist = game != nullptr ? game->GetAimAssistSensitivity() : 1.0f;
 
 	idVec2 leftRaw( joystickAxis[ AXIS_LEFT_X ], joystickAxis[ AXIS_LEFT_Y ] );
 	idVec2 rightRaw( joystickAxis[ AXIS_RIGHT_X ], joystickAxis[ AXIS_RIGHT_Y ] );
@@ -1065,7 +1065,7 @@ void idUsercmdGenLocal::AimAssist() {
 	idAngles aimAssistAngles( 0.0f, 0.0f, 0.0f );
 
 	idGame * game = common->Game();
-	if ( game != NULL ) {
+	if ( game != nullptr) {
 		game->GetAimAssistAngles( aimAssistAngles );
 	}
 

@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef SYS_DEFINES_H
 #define SYS_DEFINES_H
 
+#pragma once
+
 /*
 ================================================================================================
 
@@ -45,7 +47,12 @@ If you have questions concerning this license or the applicable additional terms
 #undef ID_WIN32
 #undef ID_LITTLE_ENDIAN
 
-#if defined(_WIN32)
+#if defined(_WIN64)
+#define ID_PC
+#define ID_PC_WIN
+#define ID_WIN64
+#define ID_LITTLE_ENDIAN
+#elif defined(_WIN32)
 	// _WIN32 always defined
 	// _WIN64 also defined for x64 target
 /*
@@ -90,19 +97,25 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef ID_PC_WIN
 
-#define	CPUSTRING						"x86"
+#ifdef _M_AMD64
+constexpr auto CPUSTRING = "x64";
+#elif _M_IA64
+constexpr auto CPUSTRING = "IA64";
+#elif _M_IX86
+constexpr auto CPUSTRING = "x86";
+#endif
 
-#define	BUILD_STRING					"win-" CPUSTRING
-#define BUILD_OS_ID						0
+#define BUILD_STRING "win-" CPUSTRING;
+constexpr auto BUILD_OS_ID = 0;
 
 #define ALIGN16( x )					__declspec(align(16)) x
 #define ALIGNTYPE16						__declspec(align(16))
 #define ALIGNTYPE128					__declspec(align(128))
 #define FORMAT_PRINTF( x )
 
-#define PATHSEPARATOR_STR				"\\"
-#define PATHSEPARATOR_CHAR				'\\'
-#define NEWLINE							"\r\n"
+constexpr auto PATHSEPARATOR_STR = "\\";
+constexpr auto PATHSEPARATOR_CHAR = '\\';
+constexpr auto NEWLINE = "\r\n";
 
 #define ID_INLINE						inline
 #define ID_FORCE_INLINE					__forceinline
@@ -118,8 +131,10 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 // we should never rely on this define in our code. this is here so dodgy external libraries don't get confused
+#ifdef ID_WIN32
 #ifndef WIN32
 	#define WIN32
+#endif
 #endif
 
 #endif
@@ -163,7 +178,10 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 ================================================================================================
 */
 
-#if defined( ID_WIN32 )
+#if defined( ID_WIN32 ) || defined ( ID_WIN64 )
+
+// hide annoyances
+#pragma warning( disable: 4458 )	// warning C4458: declaration of <parameter> hides class member
 
 // disable some /analyze warnings here
 #pragma warning( disable: 6255 )	// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead. (Note: _malloca requires _freea.)
@@ -183,8 +201,8 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 
 
 // checking format strings catches a LOT of errors
-#include <CodeAnalysis\SourceAnnotations.h>
-#define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
+//#include <CodeAnalysis\SourceAnnotations.h>
+#define	VERIFY_FORMAT_STRING	//[SA_FormatString(Style="printf")]
 
 
 // We need to inform the compiler that Error() and FatalError() will

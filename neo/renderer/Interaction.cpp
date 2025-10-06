@@ -53,7 +53,7 @@ edge silhouettes.
 void R_CalcInteractionFacing( const idRenderEntityLocal *ent, const srfTriangles_t *tri, const idRenderLightLocal *light, srfCullInfo_t &cullInfo ) {
 	SCOPED_PROFILE_EVENT( "R_CalcInteractionFacing" );
 
-	if ( cullInfo.facing != NULL ) {
+	if ( cullInfo.facing != nullptr) {
 		return;
 	}
 
@@ -90,7 +90,7 @@ vertex is clearly inside, the entire triangle will be accepted.
 void R_CalcInteractionCullBits( const idRenderEntityLocal *ent, const srfTriangles_t *tri, const idRenderLightLocal *light, srfCullInfo_t &cullInfo ) {
 	SCOPED_PROFILE_EVENT( "R_CalcInteractionCullBits" );
 
-	if ( cullInfo.cullBits != NULL ) {
+	if ( cullInfo.cullBits != nullptr) {
 		return;
 	}
 
@@ -136,15 +136,15 @@ R_FreeInteractionCullInfo
 ================
 */
 void R_FreeInteractionCullInfo( srfCullInfo_t &cullInfo ) {
-	if ( cullInfo.facing != NULL ) {
+	if ( cullInfo.facing != nullptr) {
 		R_StaticFree( cullInfo.facing );
-		cullInfo.facing = NULL;
+		cullInfo.facing = nullptr;
 	}
-	if ( cullInfo.cullBits != NULL ) {
+	if ( cullInfo.cullBits != nullptr) {
 		if ( cullInfo.cullBits != LIGHT_CULL_ALL_FRONT ) {
 			R_StaticFree( cullInfo.cullBits );
 		}
-		cullInfo.cullBits = NULL;
+		cullInfo.cullBits = nullptr;
 	}
 }
 
@@ -179,7 +179,7 @@ static srfTriangles_t *R_CreateInteractionLightTris( const idRenderEntityLocal *
 	c_distance = 0;
 
 	numIndexes = 0;
-	indexes = NULL;
+	indexes = nullptr;
 
 	// it is debatable if non-shadowing lights should light back faces. we aren't at the moment
 	if ( r_lightAllBackFaces.GetBool() || light->lightShader->LightEffectsBackSides()
@@ -304,7 +304,7 @@ static srfTriangles_t *R_CreateInteractionLightTris( const idRenderEntityLocal *
 
 	if ( !numIndexes ) {
 		R_FreeStaticTriSurf( newTri );
-		return NULL;
+		return nullptr;
 	}
 
 	newTri->numIndexes = numIndexes;
@@ -368,7 +368,7 @@ static srfTriangles_t *R_CreateInteractionShadowVolume( const idRenderEntityLoca
 	if ( !numShadowingFaces ) {
 		// no faces are inside the light frustum and still facing the right way
 		R_FreeInteractionCullInfo( cullInfo );
-		return NULL;
+		return nullptr;
 	}
 
 	// shadowVerts will be NULL on these surfaces, so the shadowVerts will be taken from the ambient surface
@@ -455,13 +455,13 @@ idInteraction::idInteraction
 */
 idInteraction::idInteraction() {
 	numSurfaces				= 0;
-	surfaces				= NULL;
-	entityDef				= NULL;
-	lightDef				= NULL;
-	lightNext				= NULL;
-	lightPrev				= NULL;
-	entityNext				= NULL;
-	entityPrev				= NULL;
+	surfaces				= nullptr;
+	entityDef				= nullptr;
+	lightDef				= nullptr;
+	lightNext				= nullptr;
+	lightPrev				= nullptr;
+	entityNext				= nullptr;
+	entityPrev				= nullptr;
 	staticInteraction		= false;
 }
 
@@ -471,9 +471,9 @@ idInteraction::AllocAndLink
 ===============
 */
 idInteraction *idInteraction::AllocAndLink( idRenderEntityLocal *edef, idRenderLightLocal *ldef ) {
-	if ( edef == NULL || ldef == NULL ) {
+	if ( edef == nullptr || ldef == nullptr) {
 		common->Error( "idInteraction::AllocAndLink: NULL parm" );
-		return NULL;
+		return nullptr;
 	}
 
 	idRenderWorldLocal *renderWorld = edef->world;
@@ -485,13 +485,13 @@ idInteraction *idInteraction::AllocAndLink( idRenderEntityLocal *edef, idRenderL
 	interaction->entityDef = edef;
 
 	interaction->numSurfaces = -1;		// not checked yet
-	interaction->surfaces = NULL;
+	interaction->surfaces = nullptr;
 
 	// link at the start of the entity's list
 	interaction->lightNext = ldef->firstInteraction;
-	interaction->lightPrev = NULL;
+	interaction->lightPrev = nullptr;
 	ldef->firstInteraction = interaction;
-	if ( interaction->lightNext != NULL ) {
+	if ( interaction->lightNext != nullptr) {
 		interaction->lightNext->lightPrev = interaction;
 	} else {
 		ldef->lastInteraction = interaction;
@@ -499,18 +499,18 @@ idInteraction *idInteraction::AllocAndLink( idRenderEntityLocal *edef, idRenderL
 
 	// link at the start of the light's list
 	interaction->entityNext = edef->firstInteraction;
-	interaction->entityPrev = NULL;
+	interaction->entityPrev = nullptr;
 	edef->firstInteraction = interaction;
-	if ( interaction->entityNext != NULL ) {
+	if ( interaction->entityNext != nullptr) {
 		interaction->entityNext->entityPrev = interaction;
 	} else {
 		edef->lastInteraction = interaction;
 	}
 
 	// update the interaction table
-	if ( renderWorld->interactionTable != NULL ) {
+	if ( renderWorld->interactionTable != nullptr) {
 		int index = ldef->index * renderWorld->interactionTableWidth + edef->index;
-		if ( renderWorld->interactionTable[index] != NULL ) {
+		if ( renderWorld->interactionTable[index] != nullptr) {
 			common->Error( "idInteraction::AllocAndLink: non NULL table entry" );
 		}
 		renderWorld->interactionTable[ index ] = interaction;
@@ -531,14 +531,14 @@ void idInteraction::FreeSurfaces() {
 	// anything regenerated is no longer an optimized static version
 	this->staticInteraction = false;
 
-	if ( this->surfaces != NULL ) {
+	if ( this->surfaces != nullptr) {
 		for ( int i = 0; i < this->numSurfaces; i++ ) {
 			surfaceInteraction_t &srf = this->surfaces[i];
 			Mem_Free( srf.shadowIndexes );
-			srf.shadowIndexes = NULL;
+			srf.shadowIndexes = nullptr;
 		}
 		R_StaticFree( this->surfaces );
-		this->surfaces = NULL;
+		this->surfaces = nullptr;
 	}
 	this->numSurfaces = -1;
 }
@@ -561,7 +561,7 @@ void idInteraction::Unlink() {
 	} else {
 		this->entityDef->lastInteraction = this->entityPrev;
 	}
-	this->entityNext = this->entityPrev = NULL;
+	this->entityNext = this->entityPrev = nullptr;
 
 	// unlink from the light's list
 	if ( this->lightPrev ) {
@@ -574,7 +574,7 @@ void idInteraction::Unlink() {
 	} else {
 		this->lightDef->lastInteraction = this->lightPrev;
 	}
-	this->lightNext = this->lightPrev = NULL;
+	this->lightNext = this->lightPrev = nullptr;
 }
 
 /*
@@ -591,7 +591,7 @@ void idInteraction::UnlinkAndFree() {
 	if ( renderWorld->interactionTable[index] != this && renderWorld->interactionTable[index] != INTERACTION_EMPTY ) {
 		common->Error( "idInteraction::UnlinkAndFree: interactionTable wasn't set" );
 	}
-	renderWorld->interactionTable[index] = NULL;
+	renderWorld->interactionTable[index] = nullptr;
 
 	Unlink();
 
@@ -619,7 +619,7 @@ void idInteraction::MakeEmpty() {
 	Unlink();
 
 	// relink at the end of the entity's list
-	this->entityNext = NULL;
+	this->entityNext = nullptr;
 	this->entityPrev = this->entityDef->lastInteraction;
 	this->entityDef->lastInteraction = this;
 	if ( this->entityPrev ) {
@@ -629,7 +629,7 @@ void idInteraction::MakeEmpty() {
 	}
 
 	// relink at the end of the light's list
-	this->lightNext = NULL;
+	this->lightNext = nullptr;
 	this->lightPrev = this->lightDef->lastInteraction;
 	this->lightDef->lastInteraction = this;
 	if ( this->lightPrev ) {
@@ -664,7 +664,7 @@ void idInteraction::CreateStaticInteraction() {
 	// note that it is a static interaction
 	staticInteraction = true;
 	const idRenderModel *model = entityDef->parms.hModel;
-	if ( model == NULL || model->NumSurfaces() <= 0 || model->IsDynamicModel() != DM_STATIC ) {
+	if ( model == nullptr || model->NumSurfaces() <= 0 || model->IsDynamicModel() != DM_STATIC ) {
 		MakeEmpty();
 		return;
 	}
@@ -689,7 +689,7 @@ void idInteraction::CreateStaticInteraction() {
 	for ( int c = 0 ; c < model->NumSurfaces() ; c++ ) {
 		const modelSurface_t * surf = model->Surface( c );
 		const srfTriangles_t * tri = surf->geometry;
-		if ( tri == NULL ) {
+		if ( tri == nullptr) {
 			continue;
 		}
 
@@ -698,7 +698,7 @@ void idInteraction::CreateStaticInteraction() {
 		// changed after map load time without invalidating the interaction!
 		const idMaterial * const shader = R_RemapShaderBySkin( surf->shader, 
 												entityDef->parms.customSkin, entityDef->parms.customShader );
-		if ( shader == NULL ) {
+		if ( shader == nullptr) {
 			continue;
 		}
 
@@ -713,7 +713,7 @@ void idInteraction::CreateStaticInteraction() {
 		// not at least partially inside the light
 		if ( shader->ReceivesLighting() ) {
 			srfTriangles_t * lightTris = R_CreateInteractionLightTris( entityDef, tri, lightDef, shader );
-			if ( lightTris != NULL ) {
+			if ( lightTris != nullptr) {
 				// make a static index cache
 				sint->numLightTrisIndexes = lightTris->numIndexes;
 				sint->lightTrisIndexCache = vertexCache.AllocStaticIndex( lightTris->indexes, ALIGN( lightTris->numIndexes * sizeof( lightTris->indexes[0] ), INDEX_CACHE_ALIGN ) );
@@ -724,18 +724,18 @@ void idInteraction::CreateStaticInteraction() {
 		}
 
 		// if the interaction has shadows and this surface casts a shadow
-		if ( HasShadows() && shader->SurfaceCastsShadow() && tri->silEdges != NULL ) {
+		if ( HasShadows() && shader->SurfaceCastsShadow() && tri->silEdges != nullptr) {
 
 			// if the light has an optimized shadow volume, don't create shadows for any models that are part of the base areas
-			if ( lightDef->parms.prelightModel == NULL || !model->IsStaticWorldModel() || r_skipPrelightShadows.GetBool() ) {
+			if ( lightDef->parms.prelightModel == nullptr || !model->IsStaticWorldModel() || r_skipPrelightShadows.GetBool() ) {
 				srfTriangles_t * shadowTris = R_CreateInteractionShadowVolume( entityDef, tri, lightDef );
-				if ( shadowTris != NULL ) {
+				if ( shadowTris != nullptr) {
 					// make a static index cache
 					sint->shadowIndexCache = vertexCache.AllocStaticIndex( shadowTris->indexes, ALIGN( shadowTris->numIndexes * sizeof( shadowTris->indexes[0] ), INDEX_CACHE_ALIGN ) );
 					sint->numShadowIndexes = shadowTris->numIndexes;
 #if defined( KEEP_INTERACTION_CPU_DATA )
 					sint->shadowIndexes = shadowTris->indexes;
-					shadowTris->indexes = NULL;
+					shadowTris->indexes = nullptr;
 #endif
 					if ( shader->Coverage() != MC_OPAQUE ) {
 						// if any surface is a shadow-casting perforated or translucent surface, or the
@@ -777,11 +777,11 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 
 	for ( int i = 0; i < tr.primaryWorld->lightDefs.Num(); i++ ) {
 		idRenderLightLocal * light = tr.primaryWorld->lightDefs[i];
-		if ( light == NULL ) {
+		if ( light == nullptr) {
 			continue;
 		}
 		int numInteractionsForLight = 0;
-		for ( idInteraction *inter = light->firstInteraction; inter != NULL; inter = inter->lightNext ) {
+		for ( idInteraction *inter = light->firstInteraction; inter != nullptr; inter = inter->lightNext ) {
 			if ( !inter->IsEmpty() ) {
 				numInteractionsForLight++;
 			}
@@ -793,16 +793,16 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 
 	for ( int i = 0; i < tr.primaryWorld->entityDefs.Num(); i++ ) {
 		idRenderEntityLocal	*def = tr.primaryWorld->entityDefs[i];
-		if ( def == NULL ) {
+		if ( def == nullptr) {
 			continue;
 		}
-		if ( def->firstInteraction == NULL ) {
+		if ( def->firstInteraction == nullptr) {
 			continue;
 		}
 		entities++;
 
 		int numInteractionsForEntity = 0;
-		for ( idInteraction *inter = def->firstInteraction; inter != NULL; inter = inter->entityNext ) {
+		for ( idInteraction *inter = def->firstInteraction; inter != nullptr; inter = inter->entityNext ) {
 			interactions++;
 
 			if ( !inter->IsEmpty() ) {

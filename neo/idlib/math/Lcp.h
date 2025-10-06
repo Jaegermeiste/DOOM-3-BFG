@@ -65,7 +65,7 @@ public:
 	virtual			~idLCP();
 
 	virtual bool	Solve( const idMatX &A, idVecX &x, const idVecX &b, const idVecX &lo, 
-						   const idVecX &hi, const int *boxIndex = NULL ) = 0;
+						   const idVecX &hi, const int *boxIndex = nullptr) = 0;
 
 	virtual void	SetMaxIterations( int max );
 	virtual int		GetMaxIterations();

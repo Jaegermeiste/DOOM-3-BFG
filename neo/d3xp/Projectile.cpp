@@ -48,9 +48,9 @@ idCVar g_projectileDebug( "g_projectileDebug", "0", CVAR_BOOL, "Debug projectile
 // This is used in MP to simulate frames to catchup a projectile's state. Similiar to how players work much lighter weight.
 idArray< idProjectile::simulatedProjectile_t, idProjectile::MAX_SIMULATED_PROJECTILES >	idProjectile::projectilesToSimulate;
 
-static const int BFG_DAMAGE_FREQUENCY			= 333;
-static const float BOUNCE_SOUND_MIN_VELOCITY	= 200.0f;
-static const float BOUNCE_SOUND_MAX_VELOCITY	= 400.0f;
+static constexpr int BFG_DAMAGE_FREQUENCY			= 333;
+static constexpr float BOUNCE_SOUND_MIN_VELOCITY	= 200.0f;
+static constexpr float BOUNCE_SOUND_MAX_VELOCITY	= 400.0f;
 
 const idEventDef EV_Explode( "<explode>", NULL );
 const idEventDef EV_Fizzle( "<fizzle>", NULL );

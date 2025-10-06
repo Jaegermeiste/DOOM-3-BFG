@@ -32,8 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 extern idCVar g_demoMode;
 
-static const int PEER_UPDATE_INTERVAL = 500;
-static const int MAX_MENU_OPTIONS = 6;
+static constexpr int PEER_UPDATE_INTERVAL = 500;
+static constexpr int MAX_MENU_OPTIONS = 6;
 
 void idMenuHandler_Shell::Update() {
 
@@ -1175,7 +1175,7 @@ void idMenuHandler_Shell::StartGame( int index ) {
 	}
 }
 
-static const int NUM_DOOM_INTRO_LINES = 7;
+static constexpr int NUM_DOOM_INTRO_LINES = 7;
 /*
 ========================
 idMenuHandler_Shell::ShowIntroVideo
@@ -1330,7 +1330,7 @@ idMenuHandler_Shell::ShowIntroVideo
 	}
 }
 
-static const int NUM_ROE_INTRO_LINES = 6;
+static constexpr int NUM_ROE_INTRO_LINES = 6;
 /*
 ========================
 idMenuHandler_Shell::ShowROEIntro
@@ -1479,7 +1479,7 @@ void idMenuHandler_Shell::ShowROEIntro() {
 	}
 }
 
-static const int NUM_LE_INTRO_LINES = 1;
+static constexpr int NUM_LE_INTRO_LINES = 1;
 /*
 ========================
 idMenuHandler_Shell::ShowLEIntro

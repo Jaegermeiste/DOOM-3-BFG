@@ -48,7 +48,7 @@ COMMANDBAR
 ================================================================================================
 */
 
-static const char * const BUTTON_NAMES[] = {
+static constexpr char * const BUTTON_NAMES[] = {
 	"joy1",
 	"joy2",
 	"joy3",
@@ -87,8 +87,8 @@ void idMenuWidget_CommandBar::Update() {
 		return;
 	}
 
-	const int BASE_PADDING			= 35;
-	const int PER_BUTTON_PADDING	= 65;
+	constexpr int BASE_PADDING			= 35;
+	constexpr int PER_BUTTON_PADDING	= 65;
 	const int ALIGNMENT_SCALE		= ( GetAlignment() == LEFT ) ? 1 : -1;
 
 	int xPos = ALIGNMENT_SCALE * BASE_PADDING;

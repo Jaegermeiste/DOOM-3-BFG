@@ -52,7 +52,7 @@ public:
 	}
 	void SetName(const char *_name) { 
 		delete []name; 
-		name = NULL;
+		name = nullptr;
 		if (_name) {
 			name = new (TAG_OLD_UI) char[strlen(_name)+1]; 
 			strcpy(name, _name); 
@@ -66,7 +66,7 @@ public:
 	}
 
 	idDict *GetDict() const { return guiDict; }
-	bool NeedsUpdate() { return (guiDict != NULL); }
+	bool NeedsUpdate() { return (guiDict != nullptr); }
 
 	virtual void Init(const char *_name, idWindow* win) = 0;
 	virtual void Set(const char *val) = 0;
@@ -717,7 +717,7 @@ protected:
 class idWinBackground : public idWinStr {
 public:
 	idWinBackground() : idWinStr() {
-		mat = NULL;
+		mat = nullptr;
 	};
 	~idWinBackground() {};
 	virtual void Init(const char *_name, idWindow *win) {
@@ -739,7 +739,7 @@ public:
 		}
 		if (mat) {
 			if ( data == "" ) {
-				(*mat) = NULL;
+				(*mat) = nullptr;
 			} else {
 				(*mat) = declManager->FindMaterial(data);
 			}
@@ -752,7 +752,7 @@ public:
 		mat = other.mat;
 		if (mat) {
 			if ( data == "" ) {
-				(*mat) = NULL;
+				(*mat) = nullptr;
 			} else {
 				(*mat) = declManager->FindMaterial(data);
 			}
@@ -782,7 +782,7 @@ public:
 		}
 		if (mat) {
 			if ( data == "" ) {
-				(*mat) = NULL;
+				(*mat) = nullptr;
 			} else {
 				(*mat) = declManager->FindMaterial(data);
 			}
@@ -795,7 +795,7 @@ public:
 			data = guiDict->GetString( s );
 			if (mat) {
 				if ( data == "" ) {
-					(*mat) = NULL;
+					(*mat) = nullptr;
 				} else {
 					(*mat) = declManager->FindMaterial(data);
 				}
@@ -834,7 +834,7 @@ public:
 			if ( len > 0 ) {
 				(*mat) = declManager->FindMaterial( data );
 			} else {
-				(*mat) = NULL;
+				(*mat) = nullptr;
 			}
 		}
 	}

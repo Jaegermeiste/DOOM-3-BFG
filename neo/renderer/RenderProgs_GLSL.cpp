@@ -38,10 +38,10 @@ idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
 
-static const int AT_VS_IN  = BIT( 1 );
-static const int AT_VS_OUT = BIT( 2 );
-static const int AT_PS_IN  = BIT( 3 );
-static const int AT_PS_OUT = BIT( 4 );
+static constexpr int AT_VS_IN  = BIT( 1 );
+static constexpr int AT_VS_OUT = BIT( 2 );
+static constexpr int AT_PS_IN  = BIT( 3 );
+static constexpr int AT_PS_OUT = BIT( 4 );
 
 struct idCGBlock {
 	idStr prefix;	// tokens that comes before the name
@@ -169,7 +169,7 @@ attribInfo_t attribsPC[] = {
 	{ "half4",		"htexcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_PS_IN,		0 },
 	{ "float",		"fog",			"FOG",			"gl_FogFragCoord",		0,	AT_VS_OUT,		0 },
 	{ "float4",		"fog",			"FOG",			"gl_FogFragCoord",		0,	AT_PS_IN,		0 },
-	{ NULL,			NULL,			NULL,			NULL,					0,	0,				0 }
+	{nullptr, nullptr, nullptr, nullptr,					0,	0,				0 }
 };
 
 const char * types[] = {
@@ -182,7 +182,7 @@ const char * types[] = {
 	"cfloat",
 	"void"
 };
-static const int numTypes = sizeof( types ) / sizeof( types[0] );
+static constexpr int numTypes = sizeof( types ) / sizeof( types[0] );
 
 const char * typePosts[] = {
 	"1", "2", "3", "4",
@@ -191,7 +191,7 @@ const char * typePosts[] = {
 	"3x1", "3x2", "3x3", "3x4",
 	"4x1", "4x2", "4x3", "4x4"
 };
-static const int numTypePosts = sizeof( typePosts ) / sizeof( typePosts[0] );
+static constexpr int numTypePosts = sizeof( typePosts ) / sizeof( typePosts[0] );
 
 const char * prefixes[] = {
 	"static",
@@ -213,7 +213,7 @@ const char * prefixes[] = {
 
 	"sampler2DMS",			// GLSL
 };
-static const int numPrefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
+static constexpr int numPrefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
 
 // For GLSL we need to have the names for the renderparms so we can look up their run time indices within the renderprograms
 static const char * GLSLParmNames[] = {
@@ -493,7 +493,7 @@ struct typeConversion_t {
 
 	{ "sampler2DMS",		"sampler2DMS" },
 
-	{ NULL, NULL }
+	{nullptr, nullptr}
 };
 
 const char * vertexInsert = {
@@ -557,7 +557,7 @@ struct builtinConversion_t {
 	{ "ddx",		"dFdx" },
 	{ "ddy",		"dFdy" },
 
-	{ NULL, NULL }
+	{nullptr, nullptr}
 };
 
 struct inOutVariable_t {
@@ -594,7 +594,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 		src.ExpectTokenString( ";" );
 
 		// convert the type
-		for ( int i = 0; typeConversion[i].typeCG != NULL; i++ ) {
+		for ( int i = 0; typeConversion[i].typeCG != nullptr; i++ ) {
 			if ( var.type.Cmp( typeConversion[i].typeCG ) == 0 ) {
 				var.type = typeConversion[i].typeGLSL;
 				break;
@@ -602,7 +602,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 		}
 
 		// convert the semantic to a GLSL name
-		for ( int i = 0; attribsPC[i].semantic != NULL; i++ ) {
+		for ( int i = 0; attribsPC[i].semantic != nullptr; i++ ) {
 			if ( ( attribsPC[i].flags & attribType ) != 0 ) {
 				if ( var.nameGLSL.Cmp( attribsPC[i].semantic ) == 0 ) {
 					var.nameGLSL = attribsPC[i].glsl;
@@ -768,7 +768,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 
 		// check for a type conversion
 		bool foundType = false;
-		for ( int i = 0; typeConversion[i].typeCG != NULL; i++ ) {
+		for ( int i = 0; typeConversion[i].typeCG != nullptr; i++ ) {
 			if ( token.Cmp( typeConversion[i].typeCG ) == 0 ) {
 				program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 				program += typeConversion[i].typeGLSL;
@@ -853,7 +853,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 
 		// check for a function conversion
 		bool foundFunction = false;
-		for ( int i = 0; builtinConversion[i].nameCG != NULL; i++ ) {
+		for ( int i = 0; builtinConversion[i].nameCG != nullptr; i++ ) {
 			if ( token.Cmp( builtinConversion[i].nameCG ) == 0 ) {
 				program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 				program += builtinConversion[i].nameGLSL;
@@ -936,10 +936,10 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 
 	// first check whether we already have a valid GLSL file and compare it to the hlsl timestamp;
 	ID_TIME_T hlslTimeStamp;
-	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), NULL, &hlslTimeStamp );
+	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), nullptr, &hlslTimeStamp );
 
 	ID_TIME_T glslTimeStamp;
-	int glslFileLength = fileSystem->ReadFile( outFileGLSL.c_str(), NULL, &glslTimeStamp );
+	int glslFileLength = fileSystem->ReadFile( outFileGLSL.c_str(), nullptr, &glslTimeStamp );
 
 	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
 	idStr programGLSL;
@@ -950,7 +950,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 			return false;
 		}
 
-		void * hlslFileBuffer = NULL;
+		void * hlslFileBuffer = nullptr;
 		int len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
 		if ( len <= 0 ) {
 			return false;
@@ -966,7 +966,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		}
 	} else {
 		// read in the glsl file
-		void * fileBufferGLSL = NULL;
+		void * fileBufferGLSL = nullptr;
 		int lengthGLSL = fileSystem->ReadFile( outFileGLSL.c_str(), &fileBufferGLSL );
 		if ( lengthGLSL <= 0 ) {
 			idLib::Error( "GLSL file %s could not be loaded and may be corrupt", outFileGLSL.c_str() );
@@ -976,7 +976,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 
 		if ( r_useUniformArrays.GetBool() ) {
 			// read in the uniform file
-			void * fileBufferUniforms = NULL;
+			void * fileBufferUniforms = nullptr;
 			int lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
 			if ( lengthUniforms <= 0 ) {
 				idLib::Error( "uniform file %s could not be loaded and may be corrupt", outFileUniforms.c_str() );
@@ -1018,7 +1018,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 	if ( shader ) {
 		const char * source[1] = { programGLSL.c_str() };
 
-		qglShaderSource( shader, 1, source, NULL );
+		qglShaderSource( shader, 1, source, nullptr);
 		qglCompileShader( shader );
 
 		int infologLength = 0;
@@ -1029,13 +1029,13 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 			qglGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
 
 			// catch the strings the ATI and Intel drivers output on success
-			if ( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL || 
-					strstr( infoLog.Ptr(), "No errors." ) != NULL ) {
+			if ( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != nullptr || 
+					strstr( infoLog.Ptr(), "No errors." ) != nullptr) {
 				//idLib::Printf( "%s program %s from %s compiled to run on hardware\n", typeName, GetName(), GetFileName() );
 			} else {
 				idLib::Printf( "While compiling %s program %s\n", ( target == GL_FRAGMENT_SHADER ) ? "fragment" : "vertex" , inFile.c_str() );
 
-				const char separator = '\n';
+				constexpr char separator = '\n';
 				idList<idStr> lines;
 				lines.Clear();
 				idStr source( programGLSL );
@@ -1182,7 +1182,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		}
 
 		// bind vertex attribute locations
-		for ( int i = 0; attribsPC[i].glsl != NULL; i++ ) {
+		for ( int i = 0; attribsPC[i].glsl != nullptr; i++ ) {
 			if ( ( attribsPC[i].flags & AT_VS_IN ) != 0 ) {
 				qglBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
 			}
@@ -1198,7 +1198,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 			qglGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
 
 			// catch the strings the ATI and Intel drivers output on success
-			if ( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != NULL || strstr( infoLog, "No errors." ) != NULL ) {
+			if ( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != nullptr || strstr( infoLog, "No errors." ) != nullptr) {
 				//idLib::Printf( "render prog %s from %s linked\n", GetName(), GetFileName() );
 			} else {
 				idLib::Printf( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n", 

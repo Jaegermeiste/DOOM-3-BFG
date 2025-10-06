@@ -43,10 +43,10 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-idSys *			idLib::sys			= NULL;
-idCommon *		idLib::common		= NULL;
-idCVarSystem *	idLib::cvarSystem	= NULL;
-idFileSystem *	idLib::fileSystem	= NULL;
+idSys *			idLib::sys			= nullptr;
+idCommon *		idLib::common		= nullptr;
+idCVarSystem *	idLib::cvarSystem	= nullptr;
+idFileSystem *	idLib::fileSystem	= nullptr;
 int				idLib::frameNumber	= 0;
 bool			idLib::mainThreadInitialized = 0;
 ID_TLS			idLib::isMainThread = 0;
@@ -63,7 +63,7 @@ void idLib::Init() {
 	assert( sizeof( bool ) == 1 );
 
 	isMainThread = 1;
-	mainThreadInitialized = 1;	// note that the thread-local isMainThread is now valid
+	mainThreadInitialized = true;	// note that the thread-local isMainThread is now valid
 
 	// initialize little/big endian conversion
 	Swap_Init();
@@ -137,10 +137,10 @@ PackColor
 ================
 */
 dword PackColor( const idVec4 &color ) {
-	byte dx = idMath::Ftob( color.x * 255.0f );
-	byte dy = idMath::Ftob( color.y * 255.0f );
-	byte dz = idMath::Ftob( color.z * 255.0f );
-	byte dw = idMath::Ftob( color.w * 255.0f );
+	const byte dx = idMath::Ftob( color.x * 255.0f );
+	const byte dy = idMath::Ftob( color.y * 255.0f );
+	const byte dz = idMath::Ftob( color.z * 255.0f );
+	const byte dw = idMath::Ftob( color.w * 255.0f );
 	return ( dx << 0 ) | ( dy << 8 ) | ( dz << 16 ) | ( dw << 24 );
 }
 
@@ -162,9 +162,9 @@ PackColor
 ================
 */
 dword PackColor( const idVec3 &color ) {
-	byte dx = idMath::Ftob( color.x * 255.0f );
-	byte dy = idMath::Ftob( color.y * 255.0f );
-	byte dz = idMath::Ftob( color.z * 255.0f );
+	const byte dx = idMath::Ftob( color.x * 255.0f );
+	const byte dy = idMath::Ftob( color.y * 255.0f );
+	const byte dz = idMath::Ftob( color.z * 255.0f );
 	return ( dx << 0 ) | ( dy << 8 ) | ( dz << 16 );
 }
 
@@ -317,10 +317,8 @@ ShortSwap
 ================
 */
 short ShortSwap(const short l ) {
-	byte    b1,b2;
-
-	b1 = l&255;
-	b2 = (l>>8)&255;
+	byte b1 = l & 255;
+	byte b2 = (l >> 8) & 255;
 
 	return (b1<<8) + b2;
 }
@@ -340,14 +338,12 @@ LongSwap
 ================
 */
 int LongSwap (const int l ) {
-	byte    b1,b2,b3,b4;
+	byte b1 = l & 255;
+	byte b2 = (l >> 8) & 255;
+	byte b3 = (l >> 16) & 255;
+	byte b4 = (l >> 24) & 255;
 
-	b1 = l&255;
-	b2 = (l>>8)&255;
-	b3 = (l>>16)&255;
-	b4 = (l>>24)&255;
-
-	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
+	return (static_cast<int>(b1)<<24) + (static_cast<int>(b2)<<16) + (static_cast<int>(b3)<<8) + b4;
 }
 
 /*
@@ -403,9 +399,9 @@ RESULTS
    Reverses the byte order in each of elcount elements.
 ===================================================================== */
 void RevBytesSwap( void *bp, const int elsize, int elcount ) {
-	register unsigned char *p, *q;
+	unsigned char*q;
 
-	p = ( unsigned char * ) bp;
+	unsigned char* p = static_cast<unsigned char*>(bp);
 
 	if ( elsize == 2 ) {
 		q = p + 1;
@@ -446,16 +442,13 @@ void RevBytesSwap( void *bp, const int elsize, int elcount ) {
  Reverses the bitfield of size elsize.
  ===================================================================== */
 void RevBitFieldSwap( void *bp, int elsize) {
-	int i;
-	unsigned char *p, t, v;
-	
 	LittleRevBytes( bp, elsize, 1 );
 	
-	p = (unsigned char *) bp;
+	unsigned char* p = static_cast<unsigned char*>(bp);
 	while ( elsize-- ) {
-		v = *p;
-		t = 0;
-		for (i = 7; i>=0; i--) {
+		unsigned char v = *p;
+		unsigned char t = 0;
+		for (int i = 7; i>=0; i--) {
 			t <<= 1;
 			v >>= 1;
 			t |= v & 1;
@@ -488,7 +481,7 @@ SixtetsForIntLittle
 ================
 */
 void SixtetsForIntLittle( byte *out, int src) {
-	byte *b = (byte *)&src;
+	const byte *b = (byte *)&src;
 	out[0] = ( b[0] & 0xfc ) >> 2;
 	out[1] = ( ( b[0] & 0x3 ) << 4 ) + ( ( b[1] & 0xf0 ) >> 4 );
 	out[2] = ( ( b[1] & 0xf ) << 2 ) + ( ( b[2] & 0xc0 ) >> 6 );
@@ -546,7 +539,7 @@ Swap_Init
 ================
 */
 void Swap_Init() {
-	byte	swaptest[2] = {1,0};
+	constexpr byte	swaptest[2] = {1,0};
 
 	// set the byte swapping variables in a portable manner	
 	if ( *(short *)swaptest == 1) {
@@ -584,7 +577,7 @@ Swap_IsBigEndian
 ==========
 */
 bool Swap_IsBigEndian() {
-	byte	swaptest[2] = {1,0};
+	constexpr byte	swaptest[2] = {1,0};
 	return *(short *)swaptest != 1;
 }
 

@@ -40,7 +40,7 @@ articulated figure. Only used for debugging!
 
 ===============================================================================
 */
-const int GIB_DELAY = 200;  // only gib this often to keep performace hits when blowing up several mobs
+constexpr int GIB_DELAY = 200;  // only gib this often to keep performace hits when blowing up several mobs
 
 class idMultiModelAF : public idEntity {
 public:

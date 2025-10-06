@@ -65,7 +65,7 @@ private:
 	public:
 		byte * data;
 
-		idBinaryImageData() : data( NULL ) { }
+		idBinaryImageData() : data(nullptr) { }
 		~idBinaryImageData() { Free(); }
 		idBinaryImageData & operator=( idBinaryImageData & other ) {
 			if ( this == &other ) {
@@ -77,9 +77,9 @@ private:
 			return *this;
 		}
 		void Free() {
-			if ( data != NULL ) {
+			if ( data != nullptr) {
 				Mem_Free( data );
-				data = NULL;
+				data = nullptr;
 				dataSize = 0;
 			}
 		}

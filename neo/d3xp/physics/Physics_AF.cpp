@@ -34,23 +34,23 @@ If you have questions concerning this license or the applicable additional terms
 CLASS_DECLARATION( idPhysics_Base, idPhysics_AF )
 END_CLASS
 
-const float ERROR_REDUCTION					= 0.5f;
-const float ERROR_REDUCTION_MAX				= 256.0f;
-const float LIMIT_ERROR_REDUCTION			= 0.3f;
-const float LCP_EPSILON						= 1e-7f;
-const float LIMIT_LCP_EPSILON				= 1e-4f;
-const float CONTACT_LCP_EPSILON				= 1e-6f;
-const float CENTER_OF_MASS_EPSILON			= 1e-4f;
-const float NO_MOVE_TIME					= 1.0f;
-const float NO_MOVE_TRANSLATION_TOLERANCE	= 10.0f;
-const float NO_MOVE_ROTATION_TOLERANCE		= 10.0f;
-const float MIN_MOVE_TIME					= -1.0f;
-const float MAX_MOVE_TIME					= -1.0f;
-const float IMPULSE_THRESHOLD				= 500.0f;
-const float SUSPEND_LINEAR_VELOCITY			= 10.0f;
-const float SUSPEND_ANGULAR_VELOCITY		= 15.0f;
-const float SUSPEND_LINEAR_ACCELERATION		= 20.0f;
-const float SUSPEND_ANGULAR_ACCELERATION	= 30.0f;
+constexpr float ERROR_REDUCTION					= 0.5f;
+constexpr float ERROR_REDUCTION_MAX				= 256.0f;
+constexpr float LIMIT_ERROR_REDUCTION			= 0.3f;
+constexpr float LCP_EPSILON						= 1e-7f;
+constexpr float LIMIT_LCP_EPSILON				= 1e-4f;
+constexpr float CONTACT_LCP_EPSILON				= 1e-6f;
+constexpr float CENTER_OF_MASS_EPSILON			= 1e-4f;
+constexpr float NO_MOVE_TIME					= 1.0f;
+constexpr float NO_MOVE_TRANSLATION_TOLERANCE	= 10.0f;
+constexpr float NO_MOVE_ROTATION_TOLERANCE		= 10.0f;
+constexpr float MIN_MOVE_TIME					= -1.0f;
+constexpr float MAX_MOVE_TIME					= -1.0f;
+constexpr float IMPULSE_THRESHOLD				= 500.0f;
+constexpr float SUSPEND_LINEAR_VELOCITY			= 10.0f;
+constexpr float SUSPEND_ANGULAR_VELOCITY		= 15.0f;
+constexpr float SUSPEND_LINEAR_ACCELERATION		= 20.0f;
+constexpr float SUSPEND_ANGULAR_ACCELERATION	= 30.0f;
 const idVec6 vec6_lcp_epsilon				= idVec6( LCP_EPSILON, LCP_EPSILON, LCP_EPSILON,
 													 LCP_EPSILON, LCP_EPSILON, LCP_EPSILON );
 
@@ -172,7 +172,7 @@ idAFConstraint::GetForce
 void idAFConstraint::GetForce( idAFBody *body, idVec6 &force ) {
 	idVecX v;
 
-	v.SetData( 6, VECX_ALLOCA( 6 ) );
+	v.SetData( 6, VECX_ALLOCA(6));
 	if ( body == body1 ) {
 		J1.TransposeMultiply( v, lm );
 	}
@@ -3074,8 +3074,8 @@ void idAFConstraint_Contact::ApplyFriction( float invTimeStep ) {
 	// seperate friction per contact is silly but it's fast and often looks close enough
 	if ( af_useImpulseFriction.GetBool() ) {
 
-		impulse.SetData( 6, VECX_ALLOCA( 6 ) );
-		dv.SetData( 6, VECX_ALLOCA( 6 ) );
+		impulse.SetData( 6, VECX_ALLOCA(6));
+		dv.SetData( 6, VECX_ALLOCA(6));
 
 		// calculate velocity in the contact plane
 		r = contact.point - body1->GetWorldOrigin();
@@ -4487,7 +4487,7 @@ void idAFTree::Factor() const {
 	idAFConstraint *child = NULL;
 	idMatX childI;
 
-	childI.SetData( 6, 6, MATX_ALLOCA( 6 * 6 ) );
+	childI.SetData( 6, 6, MATX_ALLOCA(6 * 6));
 
 	// from the leaves up towards the root
 	for ( i = sortedBodies.Num() - 1; i >= 0; i-- ) {
@@ -4624,7 +4624,7 @@ void idAFTree::Response( const idAFConstraint *constraint, int row, int auxiliar
 		return;
 	}
 
-	v.SetData( 6, VECX_ALLOCA( 6 ) );
+	v.SetData( 6, VECX_ALLOCA(6));
 
 	// initialize right hand side to zero
 	for ( i = 0; i < sortedBodies.Num(); i++ ) {
@@ -5112,8 +5112,8 @@ void idPhysics_AF::AuxiliaryForces( float timeStep ) {
 	}
 
 	// NOTE: the rows are 16 byte padded
-	jmk.SetData( numAuxConstraints, ((numAuxConstraints+3)&~3), MATX_ALLOCA( numAuxConstraints * ((numAuxConstraints+3)&~3) ) );
-	tmp.SetData( 6, VECX_ALLOCA( 6 ) );
+	jmk.SetData( numAuxConstraints, ((numAuxConstraints+3)&~3), MATX_ALLOCA(numAuxConstraints * ((numAuxConstraints+3)&~3)));
+	tmp.SetData( 6, VECX_ALLOCA(6));
 
 	// create constraint matrix for auxiliary constraints using a mass matrix adjusted for the primary constraints
 	for ( k = 0, i = 0; i < auxiliaryConstraints.Num(); i++ ) {
@@ -5174,10 +5174,10 @@ void idPhysics_AF::AuxiliaryForces( float timeStep ) {
 		body->acceleration.SubVec6(0) += body->current->spatialVelocity * invStep;
 	}
 
-	rhs.SetData( numAuxConstraints, VECX_ALLOCA( numAuxConstraints ) );
-	lo.SetData( numAuxConstraints, VECX_ALLOCA( numAuxConstraints ) );
-	hi.SetData( numAuxConstraints, VECX_ALLOCA( numAuxConstraints ) );
-	lm.SetData( numAuxConstraints, VECX_ALLOCA( numAuxConstraints ) );
+	rhs.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
+	lo.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
+	hi.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
+	lm.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
 	boxIndex = (int *) _alloca16( numAuxConstraints * sizeof( int ) );
 
 	// set first index for special box constrained variables
@@ -7415,8 +7415,8 @@ void idPhysics_AF::ApplyImpulse( const int id, const idVec3 &point, const idVec3
 	if ( noImpact || impulse.LengthSqr() < Square( impulseThreshold ) ) {
 		return;
 	}
-	const float maxImpulse =  100000.0f;
-	const float maxRotation = 100000.0f;
+	constexpr float maxImpulse =  100000.0f;
+	constexpr float maxRotation = 100000.0f;
 	idMat3 invWorldInertiaTensor = bodies[id]->current->worldAxis.Transpose() * bodies[id]->inverseInertiaTensor * bodies[id]->current->worldAxis;
 	bodies[id]->current->spatialVelocity.SubVec3(0) += bodies[id]->invMass * impulse.Truncate( maxImpulse );
 	bodies[id]->current->spatialVelocity.SubVec3(1) += invWorldInertiaTensor * (point - bodies[id]->current->worldOrigin).Cross( impulse ).Truncate( maxRotation );
@@ -7906,12 +7906,12 @@ void idPhysics_AF::SetMaster( idEntity *master, const bool orientated ) {
 }
 
 
-const float	AF_VELOCITY_MAX				= 16000;
-const int	AF_VELOCITY_TOTAL_BITS		= 16;
+constexpr float	AF_VELOCITY_MAX				= 16000;
+constexpr int	AF_VELOCITY_TOTAL_BITS		= 16;
 const int	AF_VELOCITY_EXPONENT_BITS	= idMath::BitsForInteger( idMath::BitsForFloat( AF_VELOCITY_MAX ) ) + 1;
 const int	AF_VELOCITY_MANTISSA_BITS	= AF_VELOCITY_TOTAL_BITS - 1 - AF_VELOCITY_EXPONENT_BITS;
-const float	AF_FORCE_MAX				= 1e20f;
-const int	AF_FORCE_TOTAL_BITS			= 16;
+constexpr float	AF_FORCE_MAX				= 1e20f;
+constexpr int	AF_FORCE_TOTAL_BITS			= 16;
 const int	AF_FORCE_EXPONENT_BITS		= idMath::BitsForInteger( idMath::BitsForFloat( AF_FORCE_MAX ) ) + 1;
 const int	AF_FORCE_MANTISSA_BITS		= AF_FORCE_TOTAL_BITS - 1 - AF_FORCE_EXPONENT_BITS;
 

@@ -49,13 +49,11 @@ private:
 };
 
 ID_INLINE int idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
-	int i, border, hashKey;
-
 	assert( distEps <= 0.125f );
 
-	hashKey = (int)( idMath::Fabs( plane.Dist() ) * 0.125f );
-	for ( border = -1; border <= 1; border++ ) {
-		for ( i = hash.First( hashKey + border ); i >= 0; i = hash.Next( i ) ) {
+	int hashKey = static_cast<int>(idMath::Fabs(plane.Dist()) * 0.125f);
+	for ( int border = -1; border <= 1; border++ ) {
+		for ( int i = hash.First(hashKey + border); i >= 0; i = hash.Next( i ) ) {
 			if ( (*this)[i].Compare( plane, normalEps, distEps ) ) {
 				return i;
 			}

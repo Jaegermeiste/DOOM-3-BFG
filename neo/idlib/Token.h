@@ -75,7 +75,7 @@ class idToken : public idStr {
 
 public:
 	int				type;								// token type
-	int				subtype;							// token sub type
+	size_t			subtype;							// token sub type
 	int				line;								// line in script the token was on
 	int				linesCrossed;						// number of lines crossed in white space before token
 	int				flags;								// token flags, used for recursive defines
@@ -136,7 +136,7 @@ ID_INLINE double idToken::GetDoubleValue() {
 }
 
 ID_INLINE float idToken::GetFloatValue() {
-	return (float) GetDoubleValue();
+	return static_cast<float>(GetDoubleValue());
 }
 
 ID_INLINE unsigned long	idToken::GetUnsignedLongValue() {
@@ -150,7 +150,7 @@ ID_INLINE unsigned long	idToken::GetUnsignedLongValue() {
 }
 
 ID_INLINE int idToken::GetIntValue() {
-	return (int) GetUnsignedLongValue();
+	return static_cast<int>(GetUnsignedLongValue());
 }
 
 ID_INLINE int idToken::WhiteSpaceBeforeToken() const {

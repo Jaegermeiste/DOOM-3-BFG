@@ -54,7 +54,7 @@ class idPlayerProfile {
 
 public: 
 	// Only have room to squeeze ~450 in doom3 right now
-	static const int MAX_PLAYER_PROFILE_STATS = 200;
+	static constexpr int MAX_PLAYER_PROFILE_STATS = 200;
 
 	enum state_t {
 		IDLE = 0,

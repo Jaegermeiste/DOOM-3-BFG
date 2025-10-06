@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idListGUILocal : protected idList<idStr, TAG_OLD_UI>, public idListGUI {
 public:
-						idListGUILocal() { m_pGUI = NULL; m_water = 0; m_stateUpdates = true; }
+						idListGUILocal() { m_pGUI = nullptr; m_water = 0; m_stateUpdates = true; }
 
 	// idListGUI interface
 	void				Config( idUserInterface *pGUI, const char *name ) { m_pGUI = pGUI; m_name = name; }

@@ -64,24 +64,92 @@ If you have questions concerning this license or the applicable additional terms
 
 	class idSysThreadLocalStorage {
 	public:
+		DWORD	tlsIndex;
+
 		idSysThreadLocalStorage() { 
 			tlsIndex = TlsAlloc();
 		}
-		idSysThreadLocalStorage( const ptrdiff_t &val ) {
+
+		explicit idSysThreadLocalStorage( const ptrdiff_t &val ) {
 			tlsIndex = TlsAlloc();
-			TlsSetValue( tlsIndex, (LPVOID)val );
+			TlsSetValue( tlsIndex, reinterpret_cast<LPVOID>(val) );
 		}
 		~idSysThreadLocalStorage() {
 			TlsFree( tlsIndex );
 		}
-		operator ptrdiff_t() {
-			return (ptrdiff_t)TlsGetValue( tlsIndex );
+		operator ptrdiff_t() const
+		{
+			return reinterpret_cast<ptrdiff_t>(TlsGetValue(tlsIndex));
 		}
-		const ptrdiff_t & operator = ( const ptrdiff_t &val ) {
-			TlsSetValue( tlsIndex, (LPVOID)val );
+		const ptrdiff_t & operator = ( const ptrdiff_t &val ) const
+		{
+			TlsSetValue( tlsIndex, reinterpret_cast<LPVOID>(val) );
 			return val;
-		}	
-		DWORD	tlsIndex;
+		}
+
+		template <std::integral T>
+		constexpr const T& operator=(const T& val)
+		{
+			AssignInteger(val);
+			return val;
+		}
+
+		template <std::integral T>
+		constexpr idSysThreadLocalStorage(const T val)
+		{
+			AssignInteger(val);
+		}
+		bool operator==(const idSysThreadLocalStorage& other) const
+		{
+			return tlsIndex == other.tlsIndex;
+		}
+
+		template <std::integral T>
+		constexpr bool operator==(const T val) const noexcept
+		{
+			if constexpr (std::is_signed_v<T>)
+			{
+				if (val < 0)
+				{
+					return false;
+				}
+			}
+
+			const auto stored_value = reinterpret_cast<unsigned long long>(TlsGetValue(tlsIndex));
+			const auto val_wide = static_cast<unsigned long long>(static_cast<std::make_unsigned_t<T>>(val));
+
+			// If T is narrower than a pointer (e.g., 32-bit T on 64-bit),
+			// assert that no high bits would be lost (faithful to reinterpret_cast equality).
+			if constexpr (sizeof(T) < sizeof(LPVOID)) {
+				const unsigned bit_diff = static_cast<unsigned>(sizeof(LPVOID) * 8 - sizeof(T) * 8);
+				assert((stored_value >> bit_diff) == 0 &&
+					"Pointer doesn't fit in T (would truncate on 64-bit)");
+			}
+
+			return stored_value == val_wide;
+		}
+
+		template <std::integral T>
+		friend constexpr bool operator==(const T val, const idSysThreadLocalStorage& rhs) noexcept
+		{
+			return rhs == val;
+		}
+
+	private:
+		template <std::integral T>
+		constexpr void AssignInteger(const T& val)
+		{
+			if constexpr (std::is_signed_v<T>) {
+				assert(val >= 0); // Value must be non-negative
+			}
+
+			auto val_wide = static_cast<unsigned long long>(val);
+
+			assert(val_wide <= static_cast<unsigned long long>((std::numeric_limits<DWORD>::max)())); // Value exceeds DWORD max
+
+			tlsIndex = TlsAlloc();
+			TlsSetValue(tlsIndex, reinterpret_cast<LPVOID>(val_wide));
+		}
 	};
 
 #define ID_TLS idSysThreadLocalStorage
@@ -156,7 +224,7 @@ void *				Sys_InterlockedCompareExchangePointer( void * & ptr, void * comparand,
 
 void				Sys_Yield();
 
-const int MAX_CRITICAL_SECTIONS		= 4;
+constexpr int MAX_CRITICAL_SECTIONS		= 4;
 
 enum {
 	CRITICAL_SECTION_ZERO = 0,

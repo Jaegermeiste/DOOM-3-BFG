@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static const int DELAY_DORMANT_TIME = 3000;
+static constexpr int DELAY_DORMANT_TIME = 3000;
 
 extern const idEventDef EV_PostSpawn;
 extern const idEventDef EV_FindTargets;
@@ -162,8 +162,8 @@ inline void	ReadFromBitMsg( netBoolEvent_t & netEvent, const idBitMsg & msg ) {
 
 class idEntity : public idClass {
 public:
-	static const int		MAX_PVS_AREAS = 4;
-	static const uint32		INVALID_PREDICTION_KEY = 0xFFFFFFFF;
+	static constexpr int		MAX_PVS_AREAS = 4;
+	static constexpr uint32		INVALID_PREDICTION_KEY = 0xFFFFFFFF;
 
 	int						entityNumber;			// index into the entity list
 	int						entityDefNumber;		// index into the entity def list

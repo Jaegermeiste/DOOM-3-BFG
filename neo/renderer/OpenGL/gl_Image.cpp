@@ -426,11 +426,11 @@ void idImage::AllocImage() {
 				// may fail on Vista 32-bit.
 				void * data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
 				qglCompressedTexImage2DARB( uploadTarget+side, level, internalFormat, w, h, 0, compressedSize, data );
-				if ( data != NULL ) {
+				if ( data != nullptr) {
 					HeapFree( GetProcessHeap(), 0, data );
 				}
 			} else {
-				qglTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL );
+				qglTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, nullptr);
 			}
 
 			GL_CheckErrors();

@@ -78,9 +78,9 @@ static bindInfo_t keyboardBinds[] = {
 	//{ "#str_04071",	"clientDropWeapon"						}	// DROP WEAPON
 };
 
-static const int numBinds = sizeof( keyboardBinds ) / sizeof( keyboardBinds[0] );
+static constexpr int numBinds = sizeof( keyboardBinds ) / sizeof( keyboardBinds[0] );
 
-static const int NUM_BIND_LISTINGS = 14;
+static constexpr int NUM_BIND_LISTINGS = 14;
 /*
 ========================
 idMenuScreen_Shell_Bindings::Initialize

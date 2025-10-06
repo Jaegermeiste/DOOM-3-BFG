@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../precompiled.h"
 
-const float EPSILON		= 1e-6f;
+constexpr float EPSILON		= 1e-6f;
 
 /*
 =============
@@ -37,19 +37,18 @@ idPolynomial::Laguer
 =============
 */
 int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x ) const {
-	const int MT = 10, MAX_ITERATIONS = MT * 8;
-	static const float frac[] = { 0.0f, 0.5f, 0.25f, 0.75f, 0.13f, 0.38f, 0.62f, 0.88f, 1.0f };
-	int i, j;
-	float abx, abp, abm, err;
-	idComplex dx, cx, b, d, f, g, s, gps, gms, g2;
+	constexpr int MT = 10, MAX_ITERATIONS = MT * 8;
+	static constexpr float frac[] = { 0.0f, 0.5f, 0.25f, 0.75f, 0.13f, 0.38f, 0.62f, 0.88f, 1.0f };
+	int i;
+	idComplex dx, d, f;
 
 	for ( i = 1; i <= MAX_ITERATIONS; i++ ) {
-		b = coef[degree];
-		err = b.Abs();
+		idComplex b = coef[degree];
+		float err = b.Abs();
 		d.Zero();
 		f.Zero();
-		abx = x.Abs();
-		for ( j = degree - 1; j >= 0; j-- ) {
+		float abx = x.Abs();
+		for ( int j = degree - 1; j >= 0; j-- ) {
 			f = x * f + d;
 			d = x * d + b;
 			b = x * b + coef[j];
@@ -58,13 +57,13 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		if ( b.Abs() < err * EPSILON ) {
 			return i;
 		}
-		g = d / b;
-		g2 = g * g;
-		s = ( ( degree - 1 ) * ( degree * ( g2 - 2.0f * f / b ) - g2 ) ).Sqrt();
-		gps = g + s;
-		gms = g - s;
-		abp = gps.Abs();
-		abm = gms.Abs();
+		idComplex g = d / b;
+		idComplex g2 = g * g;
+		idComplex s = ((degree - 1) * (degree * (g2 - 2.0f * f / b) - g2)).Sqrt();
+		idComplex gps = g + s;
+		idComplex gms = g - s;
+		float abp = gps.Abs();
+		float abm = gms.Abs();
 		if ( abp < abm ) {
 			gps = gms;
 		}
@@ -73,7 +72,7 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		} else {
 			dx = idMath::Exp( idMath::Log( 1.0f + abx ) ) * idComplex( idMath::Cos( i ), idMath::Sin( i ) );
 		}
-		cx = x - dx;
+		idComplex cx = x - dx;
 		if ( x == cx ) {
 			return i;
 		}
@@ -93,9 +92,9 @@ idPolynomial::GetRoots
 */
 int idPolynomial::GetRoots( idComplex *roots ) const {
 	int i, j;
-	idComplex x, b, c, *coef;
+	idComplex x;
 
-	coef = (idComplex *) _alloca16( ( degree + 1 ) * sizeof( idComplex ) );
+	idComplex* coef = static_cast<idComplex*>(_alloca16(( degree + 1 ) * sizeof( idComplex )));
 	for ( i = 0; i <= degree; i++ ) {
 		coef[i].Set( coefficient[i], 0.0f );
 	}
@@ -107,9 +106,9 @@ int idPolynomial::GetRoots( idComplex *roots ) const {
 			x.i = 0.0f;
 		}
 		roots[i] = x;
-		b = coef[i+1];
+		idComplex b = coef[i + 1];
 		for ( j = i; j >= 0; j-- ) {
-			c = coef[j];
+			idComplex c = coef[j];
 			coef[j] = b;
 			b = x * b + c;
 		}
@@ -143,7 +142,6 @@ idPolynomial::GetRoots
 */
 int idPolynomial::GetRoots( float *roots ) const {
 	int i, num;
-	idComplex *complexRoots;
 
 	switch( degree ) {
 		case 0: return 0;
@@ -158,7 +156,7 @@ int idPolynomial::GetRoots( float *roots ) const {
 	// A polynomial equation can be solved by radicals if and only if
 	// its Galois group is a solvable group.
 
-	complexRoots = (idComplex *) _alloca16( degree * sizeof( idComplex ) );
+	idComplex* complexRoots = static_cast<idComplex*>(_alloca16(degree * sizeof( idComplex )));
 
 	GetRoots( complexRoots );
 
@@ -186,13 +184,12 @@ idPolynomial::Test
 =============
 */
 void idPolynomial::Test() {
-	int i, num;
+	int i;
 	float roots[4], value;
 	idComplex complexRoots[4], complexValue;
-	idPolynomial p;
 
-	p = idPolynomial( -5.0f, 4.0f );
-	num = p.GetRoots( roots );
+	idPolynomial p = idPolynomial(-5.0f, 4.0f);
+	int num = p.GetRoots(roots);
 	for ( i = 0; i < num; i++ ) {
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );

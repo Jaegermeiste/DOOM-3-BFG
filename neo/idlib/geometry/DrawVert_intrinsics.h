@@ -83,23 +83,23 @@ ID_INLINE_EXTERN __m128i FastF32toF16( __m128i f32_bits ) {
 #endif
 
 ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
-	const int f32_sign_mask				= 1U << IEEE_FLT_SIGN_BIT;
-	const int f32_exponent_mask			= ( ( 1U << IEEE_FLT_EXPONENT_BITS ) - 1 ) << IEEE_FLT_MANTISSA_BITS;
-	const int f32_mantissa_mask			= ( 1U << IEEE_FLT_MANTISSA_BITS ) - 1;
-	const int f16_min_exponent			= 0;
-	const int f16_max_exponent			= ( 30 << IEEE_FLT16_MANTISSA_BITS );
-	const int f16_min_mantissa			= 0;
-	const int f16_max_mantissa			= ( ( 1 << IEEE_FLT16_MANTISSA_BITS ) - 1 );
-	const int f32_to_f16_sign_shift		= IEEE_FLT_SIGN_BIT - IEEE_FLT16_SIGN_BIT;
-	const int f32_to_f16_exponent_shift	= IEEE_FLT_MANTISSA_BITS - IEEE_FLT16_MANTISSA_BITS;
-	const int f32_to_f16_mantissa_shift	= IEEE_FLT_MANTISSA_BITS - IEEE_FLT16_MANTISSA_BITS;
-	const int f32_to_f16_exponent_bias	= ( IEEE_FLT_EXPONENT_BIAS - IEEE_FLT16_EXPONENT_BIAS ) << IEEE_FLT16_MANTISSA_BITS;
+	constexpr int f32_sign_mask				= 1U << IEEE_FLT_SIGN_BIT;
+	constexpr int f32_exponent_mask			= ( ( 1U << IEEE_FLT_EXPONENT_BITS ) - 1 ) << IEEE_FLT_MANTISSA_BITS;
+	constexpr int f32_mantissa_mask			= ( 1U << IEEE_FLT_MANTISSA_BITS ) - 1;
+	constexpr int f16_min_exponent			= 0;
+	constexpr int f16_max_exponent			= ( 30 << IEEE_FLT16_MANTISSA_BITS );
+	constexpr int f16_min_mantissa			= 0;
+	constexpr int f16_max_mantissa			= ( ( 1 << IEEE_FLT16_MANTISSA_BITS ) - 1 );
+	constexpr int f32_to_f16_sign_shift		= IEEE_FLT_SIGN_BIT - IEEE_FLT16_SIGN_BIT;
+	constexpr int f32_to_f16_exponent_shift	= IEEE_FLT_MANTISSA_BITS - IEEE_FLT16_MANTISSA_BITS;
+	constexpr int f32_to_f16_mantissa_shift	= IEEE_FLT_MANTISSA_BITS - IEEE_FLT16_MANTISSA_BITS;
+	constexpr int f32_to_f16_exponent_bias	= ( IEEE_FLT_EXPONENT_BIAS - IEEE_FLT16_EXPONENT_BIAS ) << IEEE_FLT16_MANTISSA_BITS;
 
-	int f32_bits = *(unsigned int *)&f32;
+	const int f32_bits = *(unsigned int *)&f32;
 
-	int f16_sign     = ( (unsigned int )( f32_bits & f32_sign_mask     ) >> f32_to_f16_sign_shift );
-	int f16_exponent = ( (unsigned int )( f32_bits & f32_exponent_mask ) >> f32_to_f16_exponent_shift );
-	int f16_mantissa = ( (unsigned int )( f32_bits & f32_mantissa_mask ) >> f32_to_f16_mantissa_shift );
+	const int f16_sign     = ( static_cast<unsigned int>(f32_bits & f32_sign_mask) >> f32_to_f16_sign_shift );
+	int f16_exponent = ( static_cast<unsigned int>(f32_bits & f32_exponent_mask) >> f32_to_f16_exponent_shift );
+	int f16_mantissa = ( static_cast<unsigned int>(f32_bits & f32_mantissa_mask) >> f32_to_f16_mantissa_shift );
 
 	f16_exponent -= f32_to_f16_exponent_bias;
 
@@ -111,7 +111,7 @@ ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
 	f16_mantissa = underflow ? f16_min_mantissa : f16_mantissa;
 	f16_mantissa = overflow  ? f16_max_mantissa : f16_mantissa;
 
-	return (halfFloat_t)( f16_sign | f16_exponent | f16_mantissa );
+	return static_cast<halfFloat_t>(f16_sign | f16_exponent | f16_mantissa);
 }
 
 /*

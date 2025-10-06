@@ -29,9 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-const static int NUM_LAYOUT_OPTIONS = 1;
+static constexpr int NUM_LAYOUT_OPTIONS = 1;
 
-const static int MAX_CONTROLLER_CONFIGS = 2;
+static constexpr int MAX_CONTROLLER_CONFIGS = 2;
 
 typedef struct {
 	const char * textField;
@@ -56,7 +56,7 @@ static gamepadBindInfo_t gamepadBinds[] = {
 	{ "txtRTrigger",	K_JOY_TRIGGER2	}
 };
 
-static const int numGamepadBinds = sizeof( gamepadBinds ) / sizeof( gamepadBinds[0] );
+static constexpr int numGamepadBinds = sizeof( gamepadBinds ) / sizeof( gamepadBinds[0] );
 
 /*
 ========================

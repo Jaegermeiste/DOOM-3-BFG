@@ -121,18 +121,19 @@ quick-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Quick : public idSort< _type_ > {
 public:
-	virtual void Sort( _type_ * base, const unsigned int num ) const {
+	void Sort( _type_ * base, const unsigned int num ) const override
+	{
 		if ( num <= 0 ) {
 			return;
 		}
 
-		const int64 MAX_LEVELS = 128;
+		constexpr int64 MAX_LEVELS = 128;
 		int64 lo[MAX_LEVELS], hi[MAX_LEVELS];
 
 		// 'lo' is the lower index, 'hi' is the upper index
 		// of the region of the array that is being sorted.
 		lo[0] = 0;
-		hi[0] = num - 1;
+		hi[0] = static_cast<int64>(num) - 1;
 
 		for ( int64 level = 0; level >= 0; ) {
 			int64 i = lo[level];
@@ -235,7 +236,8 @@ heap-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Heap : public idSort< _type_ > {
 public:
-	virtual void Sort( _type_ * base, const unsigned int num ) const {
+	void Sort( _type_ * base, const unsigned int num ) const override
+	{
 		// get all elements in heap order
 #if 1
 		// O( n )
@@ -307,7 +309,8 @@ insertion-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Insertion : public idSort< _type_ > {
 public:
-	virtual void Sort( _type_ * base, const unsigned int num ) const {
+	void Sort( _type_ * base, const unsigned int num ) const override
+	{
 		_type_ * lo = base;
 		_type_ * hi = base + ( num - 1 );
 		while( hi > lo ) {
