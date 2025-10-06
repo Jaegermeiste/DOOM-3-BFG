@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+#pragma once
+
 /*
 ===============================================================================
 

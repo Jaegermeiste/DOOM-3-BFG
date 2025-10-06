@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __BV_SPHERE_H__
 #define __BV_SPHERE_H__
 
+#pragma once
+
 /*
 ===============================================================================
 

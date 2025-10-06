@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __STACK_H__
 #define __STACK_H__
 
+#pragma once
+
 /*
 ===============================================================================
 

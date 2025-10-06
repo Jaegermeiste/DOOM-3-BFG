@@ -33,3 +33,10 @@ If you have questions concerning this license or the applicable additional terms
 
 ===============================================================================
 */
+
+#ifndef __SYS_BUILDDEFINES_H__
+#define __SYS_BUILDDEFINES_H__
+
+#pragma once
+
+#endif // __SYS_BUILDDEFINES_H__ 

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __HASHTABLE_H__
 #define __HASHTABLE_H__
 
+#pragma once
+
 /*
 ================================================================================================
 idHashNodeT is a generic node for a HashTable. It is specialized by the 

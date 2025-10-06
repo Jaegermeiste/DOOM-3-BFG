@@ -25,6 +25,12 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+
+#ifndef __SYS_ALLOC_TAGS_H__
+#define __SYS_ALLOC_TAGS_H__
+
+#pragma once
+
 MEM_TAG( UNSET )		// This should never be used
 MEM_TAG( STATIC_EXE	)	// The static exe, generally how much memory we are using before our main() function ever runs
 MEM_TAG( DEBUG )		// Crap we don't care about, because it won't be in a retail build
@@ -144,3 +150,5 @@ MEM_TAG( PHYSICS_BRITTLE )
 MEM_TAG( PHYSICS_AF )
 MEM_TAG( RENDERPROG )
 #undef MEM_TAG
+
+#endif /* !__SYS_ALLOC_TAGS_H__ */

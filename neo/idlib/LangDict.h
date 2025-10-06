@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LANGDICT_H__
 #define __LANGDICT_H__
 
+#pragma once
+
 class idLangKeyValue {
 public:
 	idLangKeyValue() : key(nullptr), value(nullptr) { }

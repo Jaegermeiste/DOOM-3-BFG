@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SURFACE_SWEPTSPLINE_H__
 #define __SURFACE_SWEPTSPLINE_H__
 
+#pragma once
+
 /*
 ===============================================================================
 

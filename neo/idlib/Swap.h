@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWAP_H__
 #define __SWAP_H__
 
+#pragma once
+
 /*
 ================================================================================================
 Contains the Swap class, for CrossPlatform endian conversion.

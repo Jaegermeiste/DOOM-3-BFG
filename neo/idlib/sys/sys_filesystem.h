@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef SYS_FILESYSTEM_H
 #define SYS_FILESYSTEM_H
 
+#pragma once
+
 void			Sys_Mkdir( const char *path );
 bool			Sys_Rmdir( const char *path );
 bool			Sys_IsFileWritable( const char *path );

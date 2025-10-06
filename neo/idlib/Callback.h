@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __CALLBACK_H__
 #define __CALLBACK_H__
 
+#pragma once
+
 /*
 ================================================================================================
 This file defines a set of template functors for generating callbacks, specifically

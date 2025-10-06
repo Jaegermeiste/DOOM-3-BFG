@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __STATICLIST_H__
 #define __STATICLIST_H__
 
+#pragma once
+
 #include "List.h"
 
 /*

@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PARALLELJOBLIST_JOBHEADERS_H__
 #define __PARALLELJOBLIST_JOBHEADERS_H__
 
+#pragma once
+
 /*
 ================================================================================================
 

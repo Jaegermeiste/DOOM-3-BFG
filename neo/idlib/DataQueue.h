@@ -1,6 +1,8 @@
 #ifndef DATAQUEUE_H
 #define DATAQUEUE_H
 
+#pragma once
+
 template< int maxItems, int maxBuffer >
 class idDataQueue {
 public:

@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PARALLELJOBLIST_H__
 #define __PARALLELJOBLIST_H__
 
+#pragma once
+
 struct CellSpursJob128;
 class idColor;
 

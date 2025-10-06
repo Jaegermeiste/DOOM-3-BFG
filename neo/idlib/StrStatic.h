@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef	__STRSTATIC_H__
 #define	__STRSTATIC_H__
 
+#pragma once
+
 /*
 ================================================
 idStrStatic 

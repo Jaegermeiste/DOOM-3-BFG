@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __TRACEMODEL_H__
 #define __TRACEMODEL_H__
 
+#pragma once
+
 /*
 ===============================================================================
 

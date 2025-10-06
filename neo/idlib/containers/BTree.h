@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __BTREE_H__
 #define __BTREE_H__
 
+#pragma once
+
 /*
 ===============================================================================
 

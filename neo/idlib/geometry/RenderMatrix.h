@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERMATRIX_H__
 #define __RENDERMATRIX_H__
 
+#pragma once
+
 static constexpr int NUM_FRUSTUM_CORNERS	= 8;
 
 struct frustumCorners_t {

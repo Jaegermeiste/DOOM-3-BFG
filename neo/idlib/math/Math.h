@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MATH_MATH_H__
 #define __MATH_MATH_H__
 
+#pragma once
+
 #ifdef MACOS_X
 // for square root estimate instruction
 #include <ppc_intrinsics.h>

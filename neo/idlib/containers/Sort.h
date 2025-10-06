@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SORT_H__
 #define __SORT_H__
 
+#pragma once
+
 /*
 ================================================================================================
 Contains the generic templated sort algorithms for quick-sort, heap-sort and insertion-sort.

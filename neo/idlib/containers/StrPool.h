@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __STRPOOL_H__
 #define __STRPOOL_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
