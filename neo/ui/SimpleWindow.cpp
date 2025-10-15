@@ -122,7 +122,8 @@ idSimpleWindow::~idSimpleWindow() {
 void idSimpleWindow::StateChanged( bool redraw ) {
 }
 
-void idSimpleWindow::SetupTransforms(float x, float y) {
+void idSimpleWindow::SetupTransforms(float x, float y) const
+{
 	static idMat3 trans;
 	static idVec3 org;
 
@@ -148,7 +149,8 @@ void idSimpleWindow::SetupTransforms(float x, float y) {
 	}
 }
 
-void idSimpleWindow::DrawBackground(const idRectangle &drawRect) {
+void idSimpleWindow::DrawBackground(const idRectangle &drawRect) const
+{
 	if (backColor.w() > 0) {
 		dc->DrawFilledRect(drawRect.x, drawRect.y, drawRect.w, drawRect.h, backColor);
 	}
@@ -168,7 +170,8 @@ void idSimpleWindow::DrawBackground(const idRectangle &drawRect) {
 	}
 }
 
-void idSimpleWindow::DrawBorderAndCaption(const idRectangle &drawRect) {
+void idSimpleWindow::DrawBorderAndCaption(const idRectangle &drawRect) const
+{
 	if (flags & WIN_BORDER) {
 		if (borderSize) {
 			dc->DrawRect(drawRect.x, drawRect.y, drawRect.w, drawRect.h, borderSize, borderColor);
@@ -253,31 +256,31 @@ int idSimpleWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
 	int ret = -1;
 
 	if ( wv == &rect ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->rect;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->rect;
 	}
 
 	if ( wv == &backColor ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->backColor;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->backColor;
 	}
 
 	if ( wv == &matColor ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->matColor;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->matColor;
 	}
 
 	if ( wv == &foreColor ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->foreColor;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->foreColor;
 	}
 
 	if ( wv == &borderColor ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->borderColor;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->borderColor;
 	}
 
 	if ( wv == &textScale ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->textScale;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->textScale;
 	}
 
 	if ( wv == &rotate ) {
-		ret = (int)&( ( idSimpleWindow * ) nullptr )->rotate;
+		ret = (int)&static_cast<idSimpleWindow*>(nullptr)->rotate;
 	}
 
 	if ( ret != -1 ) {

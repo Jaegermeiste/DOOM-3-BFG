@@ -48,13 +48,13 @@ public:
 	unsigned short		regs[4];
 	idWinVar *			var;
 
-	void				SetToRegs( float *registers );
-	void				GetFromRegs( float *registers );
+	void				SetToRegs( float *registers ) const;
+	void				GetFromRegs( float *registers ) const;
 	void				CopyRegs( idRegister *src );
 	void				Enable( bool b ) { enabled = b; }
 	void				ReadFromDemoFile( idDemoFile *f );
 	void				WriteToDemoFile( idDemoFile *f );
-	void				WriteToSaveGame( idFile *savefile );
+	void				WriteToSaveGame( idFile *savefile ) const;
 	void				ReadFromSaveGame( idFile *savefile );
 };
 

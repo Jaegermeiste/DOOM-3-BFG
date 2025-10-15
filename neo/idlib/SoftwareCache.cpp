@@ -36,9 +36,9 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-uint32 globalDmaTag;
+static uint32 globalDmaTag;
 
-bool SpursEmulationAssertFailed( const char *filename, int line, const char *expression ) {
+static bool SpursEmulationAssertFailed( const char *filename, int line, const char *expression ) {
 	static bool halt = true;
 	if ( halt ) {
 		__debugbreak();

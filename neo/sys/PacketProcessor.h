@@ -51,7 +51,7 @@ public:
 	
 	static constexpr int BANDWIDTH_AVERAGE_PERIOD						= 250;
 
-	idPacketProcessor() {
+	idPacketProcessor() noexcept {
 		Reset();
 	}
 
@@ -127,9 +127,9 @@ public:
 	bool HasMoreFragments() const { return ( unsentMsg.GetRemainingData() > 0 ); }
 		
 	// Num reliables not ack'd
-	int NumQueuedReliables() { return reliable.Num(); }
+	size_t NumQueuedReliables() const { return reliable.Num(); }
 	// True if we need to send a reliable ack
-	int NeedToSendReliableAck() { return queuedReliableAck >= 0 ? true : false; }
+	int NeedToSendReliableAck() const { return queuedReliableAck >= 0 ? true : false; }
 
 	// Used for out-of-band non connected peers
 	// This doesn't actually support fragmentation, it is just simply here to hide the
@@ -157,7 +157,7 @@ public:
 					// decrease a fragmentation counter, so we reflect how much we're maxing the MTU
 	bool			TickFragmentAccumulator()		{ if ( fragmentAccumulator > 0 ) { fragmentAccumulator--; return true; } return false; }
 
-	int				GetReliableDataSize() const		{ return reliable.GetDataLength(); }
+	size_t			GetReliableDataSize() const		{ return reliable.GetDataLength(); }
 
 	void			VerifyEmptyReliableQueue( byte keepMsgBelowThis, byte replaceWithThisMsg );
 
@@ -176,10 +176,11 @@ private:
 	
 	class idOuterPacketHeader {
 	public:
-		idOuterPacketHeader() : sessionID( SESSION_ID_INVALID ) {}
+		idOuterPacketHeader() noexcept : sessionID( SESSION_ID_INVALID ) {}
 		idOuterPacketHeader( sessionId_t sessionID_ ) : sessionID( sessionID_ ) {}
 
-		void WriteToMsg( idBitMsg & msg ) {
+		void WriteToMsg( idBitMsg & msg ) const
+		{
 			msg.WriteUShort( sessionID );	
 		}
 
@@ -187,17 +188,18 @@ private:
 			sessionID = msg.ReadUShort();	
 		}
 
-		sessionId_t GetSessionID() { return sessionID; }
+		[[nodiscard]] sessionId_t GetSessionID() const { return sessionID; }
 	private:
 		sessionId_t	sessionID;
 	};
 
 	class idInnerPacketHeader {
 	public:
-	    idInnerPacketHeader() : type( 0 ), userData( 0 ) {}
+	    idInnerPacketHeader() noexcept : type( 0 ), userData( 0 ) {}
 		idInnerPacketHeader( int inType, int inData ) : type( inType ), userData( inData ) {}
 
-		void WriteToMsg( idBitMsg & msg ) {
+		void WriteToMsg( idBitMsg & msg ) const
+		{
 			msg.WriteBits( type, 2 );
 			msg.WriteBits( userData, 6 );
 		}
@@ -207,8 +209,8 @@ private:
 			userData = msg.ReadBits( 6 );
 		}
 
-		int Type()	{ return type; }
-		int Value() { return userData; }
+	    [[nodiscard]] int Type() const { return type; }
+	    [[nodiscard]] int Value() const { return userData; }
 		
 	private:
 		int			type;

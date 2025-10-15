@@ -214,7 +214,7 @@ void RB_ScanStencilBuffer() {
 
 	memset( counts, 0, sizeof( counts ) );
 
-	stencilReadback = (byte *)R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS );
+	stencilReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS));
 	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -246,7 +246,7 @@ static void RB_CountStencilBuffer() {
 	byte	*stencilReadback;
 
 
-	stencilReadback = (byte *)R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS );
+	stencilReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS));
 	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	count = 0;
@@ -257,7 +257,7 @@ static void RB_CountStencilBuffer() {
 	R_StaticFree( stencilReadback );
 
 	// print some stats (not supposed to do from back end in SMP...)
-	common->Printf( "overdraw: %5.1f\n", (float)count/(renderSystem->GetWidth() * renderSystem->GetHeight())  );
+	common->Printf( "overdraw: %5.1f\n", static_cast<float>(count)/(renderSystem->GetWidth() * renderSystem->GetHeight())  );
 }
 
 /*
@@ -335,7 +335,8 @@ void RB_ShowOverdraw() {
 	}
 
 	// FIXME: can't frame alloc from the renderer back-end
-	drawSurf_t **newDrawSurfs = (drawSurf_t **)R_FrameAlloc( numDrawSurfs + interactions * sizeof( newDrawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
+	drawSurf_t **newDrawSurfs = static_cast<drawSurf_t**>(R_FrameAlloc(numDrawSurfs + interactions * sizeof(newDrawSurfs[0]),
+	                                                                   FRAME_ALLOC_DRAW_SURFACE_POINTER));
 
 	for ( i = 0; i < numDrawSurfs; i++ ) {
 		surf = drawSurfs[i];
@@ -391,7 +392,7 @@ static void RB_ShowIntensity() {
 		return;
 	}
 
-	colorReadback = (byte *)R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS );
+	colorReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS));
 	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
 
 	c = renderSystem->GetWidth() * renderSystem->GetHeight() * 4;
@@ -512,7 +513,7 @@ static void RB_ShowLightCount() {
 
 	for ( vLight = backEnd.viewDef->viewLights; vLight; vLight = vLight->next ) {
 		for ( i = 0; i < 2; i++ ) {
-			for ( surf = i ? vLight->localInteractions: vLight->globalInteractions; surf; surf = (drawSurf_t *)surf->nextOnLight ) {
+			for ( surf = i ? vLight->localInteractions: vLight->globalInteractions; surf; surf = static_cast<drawSurf_t*>(surf->nextOnLight) ) {
 				RB_SimpleSurfaceSetup( surf );
 				RB_DrawElementsWithCounters( surf );
 			}
@@ -711,7 +712,7 @@ static void RB_ShowSilhouette() {
 	for ( vLight = backEnd.viewDef->viewLights; vLight; vLight = vLight->next ) {
 		for ( i = 0; i < 2; i++ ) {
 			for ( surf = i ? vLight->localShadows : vLight->globalShadows
-				; surf; surf = (drawSurf_t *)surf->nextOnLight ) {
+				; surf; surf = static_cast<drawSurf_t*>(surf->nextOnLight) ) {
 				RB_SimpleSurfaceSetup( surf );
 
 				const srfTriangles_t * tri = surf->frontEndGeo;
@@ -2230,7 +2231,7 @@ void RB_TestGamma() {
 	y = 0 * BAR_HEIGHT;
 	float	scale = 1;
 	for ( c = 0; c < 4; c++ ) {
-		v = (int)(64 * scale);
+		v = static_cast<int>(64 * scale);
 		if ( v < 0 ) {
 			v = 0;
 		} else if ( v > 255 ) {
@@ -2279,7 +2280,7 @@ static void RB_TestGammaBias() {
 	for ( int bias = -40; bias < 40; bias+=10, y += BAR_HEIGHT ) {
 		float	scale = 1;
 		for ( int c = 0; c < 4; c++ ) {
-			int v = (int)(64 * scale + bias);
+			int v = static_cast<int>(64 * scale + bias);
 			scale = scale * 1.5;
 			if ( v < 0 ) {
 				v = 0;
@@ -2350,7 +2351,7 @@ void RB_TestImage() {
 		w = 0.25 * image->GetUploadWidth() / max;
 		h = 0.25 * image->GetUploadHeight() / max;
 
-		w *= (float)renderSystem->GetHeight() / renderSystem->GetWidth();
+		w *= static_cast<float>(renderSystem->GetHeight()) / renderSystem->GetWidth();
 	}
 
 	// Set State

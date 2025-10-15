@@ -274,7 +274,7 @@ void R_SetupDrawSurfShader( drawSurf_t * drawSurf, const idMaterial * shader, co
 		}
 
 		// allocte frame memory for the shader register values
-		float * regs = (float *)R_FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
+		float * regs = static_cast<float*>(R_FrameAlloc(shader->GetNumRegisters() * sizeof(float), FRAME_ALLOC_SHADER_REGISTER));
 		drawSurf->shaderRegisters = regs;
 
 		// process the shader expressions for conditionals / color / texcoords
@@ -599,7 +599,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 
 			// add the surface for drawing
 			// we can re-use some of the values for light interaction surfaces			
-			baseDrawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *baseDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+			baseDrawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*baseDrawSurf), FRAME_ALLOC_DRAW_SURFACE));
 			baseDrawSurf->frontEndGeo = tri;
 			baseDrawSurf->space = vEntity;
 			baseDrawSurf->scissorRect = vEntity->scissorRect;
@@ -690,7 +690,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 				// contact the light, even when the total model does
 				if ( surfInter == nullptr || surfInter->lightTrisIndexCache > 0 ) {
 					// create a drawSurf for this interaction
-					drawSurf_t * lightDrawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *lightDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+					drawSurf_t * lightDrawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*lightDrawSurf), FRAME_ALLOC_DRAW_SURFACE));
 
 					if ( surfInter != nullptr) {
 						// optimized static interaction
@@ -708,7 +708,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 							if ( vertexCache.CacheIsCurrent( lightIndexCache ) ) {
 								lightDrawSurf->indexCache = lightIndexCache;
 
-								dynamicShadowParms = (dynamicShadowVolumeParms_t *)R_FrameAlloc( sizeof( dynamicShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+								dynamicShadowParms = static_cast<dynamicShadowVolumeParms_t*>(R_FrameAlloc(sizeof(dynamicShadowParms[0]), FRAME_ALLOC_SHADOW_VOLUME_PARMS));
 
 								dynamicShadowParms->verts = tri->verts;
 								dynamicShadowParms->numVerts = tri->numVerts;
@@ -821,7 +821,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 			// This happens for the player world weapon and possibly some animations in multiplayer.
 			const bool forceShadowCaps = !addInteractions || r_forceShadowCaps.GetBool();
 
-			drawSurf_t * shadowDrawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+			drawSurf_t * shadowDrawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*shadowDrawSurf), FRAME_ALLOC_DRAW_SURFACE));
 
 			if ( surfInter != nullptr) {
 				shadowDrawSurf->numIndexes = 0;
@@ -831,7 +831,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 				shadowDrawSurf->shadowVolumeState = SHADOWVOLUME_DONE;	// assume the shadow volume is done in case r_skipStaticShadows is set
 
 				if ( !r_skipStaticShadows.GetBool() ) {
-					staticShadowVolumeParms_t * staticShadowParms = (staticShadowVolumeParms_t *)R_FrameAlloc( sizeof( staticShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+					staticShadowVolumeParms_t * staticShadowParms = static_cast<staticShadowVolumeParms_t*>(R_FrameAlloc(sizeof(staticShadowParms[0]), FRAME_ALLOC_SHADOW_VOLUME_PARMS));
 
 					staticShadowParms->verts = tri->staticShadowVertexes;
 					staticShadowParms->numVerts = tri->numVerts * 2;
@@ -887,7 +887,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 
 					// if the parms were not already allocated for culling interaction triangles to the light frustum
 					if ( dynamicShadowParms == nullptr) {
-						dynamicShadowParms = (dynamicShadowVolumeParms_t *)R_FrameAlloc( sizeof( dynamicShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+						dynamicShadowParms = static_cast<dynamicShadowVolumeParms_t*>(R_FrameAlloc(sizeof(dynamicShadowParms[0]), FRAME_ALLOC_SHADOW_VOLUME_PARMS));
 					} else {
 						// the shadow volume will be rendered first so when the interaction surface is drawn the triangles have been culled for sure
 						*dynamicShadowParms->shadowVolumeState = SHADOWVOLUME_DONE;
@@ -983,7 +983,8 @@ void R_LinkDrawSurfToView( drawSurf_t * drawSurf, viewDef_t * viewDef ) {
 			count = viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] );
 			viewDef->maxDrawSurfs *= 2;
 		}
-		viewDef->drawSurfs = (drawSurf_t **)R_FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
+		viewDef->drawSurfs = static_cast<drawSurf_t**>(R_FrameAlloc(viewDef->maxDrawSurfs * sizeof(viewDef->drawSurfs[0]),
+		                                                            FRAME_ALLOC_DRAW_SURFACE_POINTER));
 		memcpy( viewDef->drawSurfs, old, count );
 	}
 	

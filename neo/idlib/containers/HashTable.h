@@ -160,9 +160,11 @@ public:
 	void			Clear();
 	void			DeleteContents();
 
-	int				Num() const;
-	_value_ *		GetIndex( const int index ) const;
-	bool			GetIndexKey( const int index, _key_ & key ) const;
+	size_t			Num() const;
+	
+	_value_ *		GetIndex( const Ordinal auto index ) const;
+	
+	bool			GetIndexKey( const Ordinal auto index, _key_ & key ) const;
 
 	int				GetSpread() const;
 
@@ -176,8 +178,8 @@ private:
 
 	hashnode_t	**	heads;
 
-	int				tableSize;
-	int				numEntries;
+	size_t			tableSize;
+	size_t			numEntries;
 	int				tableSizeMask;
 };
 
@@ -336,7 +338,8 @@ idHashTableT<_key_,_value_>::GetIndex
 ========================
 */
 template< typename _key_, class _value_ >
-ID_INLINE _value_ * idHashTableT<_key_,_value_>::GetIndex( const int index ) const {
+
+ID_INLINE _value_ * idHashTableT<_key_,_value_>::GetIndex( const Ordinal auto index ) const {
 	if ( index < 0 || index > numEntries ) {
 		assert( 0 );
 		return nullptr;
@@ -360,7 +363,8 @@ idHashTableT<_key_,_value_>::GetIndexKey
 ========================
 */
 template< typename _key_, class _value_ >
-ID_INLINE bool idHashTableT<_key_,_value_>::GetIndexKey( const int index, _key_ & key ) const {
+
+ID_INLINE bool idHashTableT<_key_,_value_>::GetIndexKey( const Ordinal auto index, _key_ & key ) const {
 	if ( index < 0 || index > numEntries ) {
 		assert( 0 );
 		return false;
@@ -453,7 +457,7 @@ idHashTableT<_key_,_value_>::Num
 ========================
 */
 template< typename _key_, class _value_ >
-ID_INLINE int idHashTableT<_key_,_value_>::Num() const {
+ID_INLINE size_t idHashTableT<_key_,_value_>::Num() const {
 	return numEntries;
 }
 
@@ -470,7 +474,7 @@ ID_INLINE int idHashTableT<_key_,_value_>::GetSpread() const {
 
 	const int average = numEntries / tableSize;
 	int error = 0;
-	for ( int i = 0; i < tableSize; i++ ) {
+	for ( size_t i = 0; i < tableSize; i++ ) {
 		int numItems = 0;
 		for ( hashnode_t * node = heads[ i ]; node != nullptr; node = node->next ) {
 			numItems++;
@@ -480,7 +484,7 @@ ID_INLINE int idHashTableT<_key_,_value_>::GetSpread() const {
 			error += e - 1;
 		}
 	}
-	return 100 - ( error * 100 / numEntries );
+	return idMath::integer_cast<int>(100 - ( idMath::integer_cast<size_t>(error) * 100 / numEntries ));
 }
 
 /*
@@ -554,8 +558,9 @@ public:
 
 					// the entire contents can be itterated over, but note that the
 					// exact index for a given element may change when new elements are added
-	int				Num() const;
-	Type *			GetIndex( int index ) const;
+	size_t			Num() const;
+	
+	Type *			GetIndex( Ordinal auto index ) const;
 
 	int				GetSpread() const;
 
@@ -571,8 +576,8 @@ private:
 
 	hashnode_s **	heads;
 
-	int				tablesize;
-	int				numentries;
+	size_t			tablesize;
+	size_t			numentries;
 	int				tablesizemask;
 
 	int				GetHash( const char *key ) const;
@@ -679,7 +684,7 @@ ID_INLINE void idHashTable<Type>::Set( const char *key, Type &value ) {
 
 	int hash = GetHash(key);
 	for( nextPtr = &(heads[hash]), node = *nextPtr; node != nullptr; nextPtr = &(node->next), node = *nextPtr ) {
-		int s = node->key.Cmp(key);
+		const int s = node->key.Cmp(key);
 		if ( s == 0 ) {
 			node->value = value;
 			return;
@@ -704,7 +709,7 @@ template< class Type >
 ID_INLINE bool idHashTable<Type>::Get( const char *key, Type **value ) const {
 	int hash = GetHash(key);
 	for( hashnode_s* node = heads[hash]; node != nullptr; node = node->next ) {
-		int s = node->key.Cmp(key);
+		const int s = node->key.Cmp(key);
 		if ( s == 0 ) {
 			if ( value ) {
 				*value = &node->value;
@@ -732,7 +737,8 @@ exact index for a given element may change when new elements are added
 ================
 */
 template< class Type >
-ID_INLINE Type *idHashTable<Type>::GetIndex(const int index ) const {
+
+ID_INLINE Type *idHashTable<Type>::GetIndex(const Ordinal auto index ) const {
 	if ( ( index < 0 ) || ( index > numentries ) ) {
 		assert( 0 );
 		return nullptr;
@@ -792,7 +798,7 @@ ID_INLINE void idHashTable<Type>::Clear() {
 	for( int i = 0; i < tablesize; i++ ) {
 		hashnode_s* next = heads[i];
 		while( next != nullptr) {
-			hashnode_s* node = next;
+			const hashnode_s* node = next;
 			next = next->next;
 			delete node;
 		}
@@ -831,7 +837,7 @@ idHashTable<Type>::Num
 ================
 */
 template< class Type >
-ID_INLINE int idHashTable<Type>::Num() const {
+ID_INLINE size_t idHashTable<Type>::Num() const {
 	return numentries;
 }
 
@@ -851,19 +857,19 @@ int idHashTable<Type>::GetSpread() const {
 	if ( !numentries ) {
 		return 100;
 	}
-	int average = numentries / tablesize;
+	const int average = numentries / tablesize;
 	int error = 0;
-	for ( int i = 0; i < tablesize; i++ ) {
+	for ( size_t i = 0; i < tablesize; i++ ) {
 		int numItems = 0;
 		for( hashnode_s* node = heads[i]; node != nullptr; node = node->next ) {
 			numItems++;
 		}
-		int e = abs(numItems - average);
+		const int e = abs(numItems - average);
 		if ( e > 1 ) {
 			error += e - 1;
 		}
 	}
-	return 100 - (error * 100 / numentries);
+	return idMath::integer_cast<int>(100 - (idMath::integer_cast<size_t>(error) * 100 / numentries));
 }
 #endif
 

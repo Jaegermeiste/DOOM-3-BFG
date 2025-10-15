@@ -100,8 +100,8 @@ longwords of new data. MD5Update blocks the data and converts bytes into longwor
 routine.
 ========================
 */
-void MD5_Transform(UINT4 state[4], const unsigned char block[64] ) {
-	UINT4 a, b, c, d, x[16];
+static void MD5_Transform(UINT4 state[4], const unsigned char block[64] ) {
+	UINT4 a = 0, b = 0, c = 0, d = 0, x[16] = {};
 
 	a = state[0];
 	b = state[1];
@@ -225,11 +225,11 @@ void MD5_Update( MD5_CTX *context, unsigned char const *input, const size_t inpu
 
 	context->bits[1] += (static_cast<UINT4>(inputLen) >> 29);
 
-	size_t partLen = 64 - static_cast<size_t>(index);
+	const size_t partLen = 64 - static_cast<size_t>(index);
 
 	// Transform as many times as possible.
 	if ( inputLen >= partLen ) {
- 		memcpy( (POINTER)&context->in[index], (POINTER)input, partLen );
+ 		memcpy( &context->in[index], input, partLen );
  		MD5_Transform( context->state, context->in );
 
 		for ( i = partLen; i + 63 < inputLen; i += 64 ) {
@@ -242,7 +242,7 @@ void MD5_Update( MD5_CTX *context, unsigned char const *input, const size_t inpu
 	}
 
 	// Buffer remaining input
-	memcpy( (POINTER)&context->in[index], (POINTER)&input[i], inputLen-i );
+	memcpy( &context->in[index], &input[i], inputLen-i );
 }
 
 /*
@@ -260,8 +260,8 @@ void MD5_Final( MD5_CTX *context, unsigned char digest[16] ) {
 	MD5_Encode( bits, context->bits, 8 );
 
 	// Pad out to 56 mod 64.
-	unsigned int index = static_cast<unsigned int>((context->bits[0] >> 3) & 0x3f);
-	unsigned int padLen = (index < 56) ? (56 - index) : (120 - index);
+	const unsigned int index = static_cast<unsigned int>((context->bits[0] >> 3) & 0x3f);
+	const unsigned int padLen = (index < 56) ? (56 - index) : (120 - index);
 	MD5_Update( context, PADDING, padLen );
 
 	// Append length (before padding)
@@ -270,8 +270,8 @@ void MD5_Final( MD5_CTX *context, unsigned char digest[16] ) {
 	// Store state in digest
 	MD5_Encode( digest, context->state, 16 );
 
-	// Zeroize sensitive information.
-	memset( (POINTER)context, 0, sizeof( *context ) );
+	// Zero sensitive information.
+	memset( context, 0, sizeof( *context ) );
 }
 
 /*
@@ -281,15 +281,15 @@ MD5_BlockChecksum
 */
 
 unsigned int MD5_BlockChecksum( const void *data, const size_t length ) {
-	unsigned char	digest[16];
-	MD5_CTX			ctx;
+	unsigned char	digest[16] = {};
+	MD5_CTX			ctx = {};
 
 	MD5_Init( &ctx );
-	MD5_Update( &ctx, (unsigned char *)data, length );
-	MD5_Final( &ctx, (unsigned char *)digest );
+	MD5_Update( &ctx, static_cast<const unsigned char *>(data), length );
+	MD5_Final( &ctx, digest );
 
 	// Handle it manually to be endian-safe since we don't have access to idSwap.
-	unsigned int val = (digest[3] << 24 | digest[2] << 16 | digest[1] << 8 | digest[0]) ^
+	const unsigned int val = (digest[3] << 24 | digest[2] << 16 | digest[1] << 8 | digest[0]) ^
 		(digest[7] << 24 | digest[6] << 16 | digest[5] << 8 | digest[4]) ^
 		(digest[11] << 24 | digest[10] << 16 | digest[9] << 8 | digest[8]) ^
 		(digest[15] << 24 | digest[14] << 16 | digest[13] << 8 | digest[12]);

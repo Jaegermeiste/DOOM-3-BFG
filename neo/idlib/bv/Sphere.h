@@ -41,12 +41,14 @@ If you have questions concerning this license or the applicable additional terms
 
 class idSphere {
 public:
-					idSphere();
+					idSphere() noexcept;
 					explicit idSphere( const idVec3 &point );
 					explicit idSphere( const idVec3 &point, const float r );
 
-	float			operator[]( const int index ) const;
-	float &			operator[]( const int index );
+	
+	float			operator[]( const Ordinal auto index ) const;
+	
+	float &			operator[]( const Ordinal auto index );
 	idSphere		operator+( const idVec3 &t ) const;				// returns tranlated sphere
 	idSphere &		operator+=( const idVec3 &t );					// translate the sphere
 	idSphere		operator+( const idSphere &s ) const;
@@ -100,8 +102,7 @@ private:
 
 extern idSphere	sphere_zero;
 
-ID_INLINE idSphere::idSphere() {
-}
+ID_INLINE idSphere::idSphere() noexcept = default;
 
 ID_INLINE idSphere::idSphere( const idVec3 &point ) {
 	origin = point;
@@ -113,12 +114,16 @@ ID_INLINE idSphere::idSphere( const idVec3 &point, const float r ) {
 	radius = r;
 }
 
-ID_INLINE float idSphere::operator[]( const int index ) const {
-	return ((float *) &origin)[index];
+
+ID_INLINE float idSphere::operator[]( const Ordinal auto index ) const {
+	ORDINAL_CHECK(index, 3);
+	return (reinterpret_cast<const float*>(&origin))[index];
 }
 
-ID_INLINE float &idSphere::operator[]( const int index ) {
-	return ((float *) &origin)[index];
+
+ID_INLINE float &idSphere::operator[]( const Ordinal auto index ) {
+	ORDINAL_CHECK(index, 3);
+	return reinterpret_cast<float*>(&origin)[index];
 }
 
 ID_INLINE idSphere idSphere::operator+( const idVec3 &t ) const {
@@ -268,7 +273,7 @@ ID_INLINE void idSphere::FromSphereRotation( const idSphere &sphere, const idVec
 }
 
 ID_INLINE void idSphere::AxisProjection( const idVec3 &dir, float &min, float &max ) const {
-	float d = dir * origin;
+	const float d = dir * origin;
 	min = d - radius;
 	max = d + radius;
 }

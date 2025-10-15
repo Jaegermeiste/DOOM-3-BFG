@@ -50,7 +50,7 @@ public:
 	virtual void	ReadFromSaveGame( idFile *savefile );
 
 	void		InitCrosshairs();
-	void		Draw(const idVec2& cursor);
+	void		Draw(const idVec2& cursor) const;
 };
 
 enum {
@@ -560,7 +560,7 @@ private:
 	
 	void				RefreshGuiData();
 
-	idVec2				GetCursorWorld();
+	[[nodiscard]] idVec2				GetCursorWorld() const;
 
 	//Astronaut Methods
 	void				SpawnAstronaut();

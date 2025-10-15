@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
 ===========================================================================
 
@@ -199,7 +201,7 @@ public:
 		return arrayPtr[index];
 	}
 	const _type_ * Ptr() const { return arrayPtr; }
-	const int Num() const { return arrayNum; }
+	int Num() const { return arrayNum; }
 
 private:
 	const _type_ * arrayPtr;
@@ -242,7 +244,7 @@ private:
 idODSStreamedOutputArray
 ================================================
 */
-template< typename _type_, int _bufferSize_ >
+template< typename _type_, size_t _bufferSize_ >
 class ALIGNTYPE16 idODSStreamedOutputArray {
 public:
 				idODSStreamedOutputArray( _type_ * array, int * numElements, const int maxElements ) :
@@ -275,7 +277,7 @@ private:
 idODSStreamedArray
 ================================================
 */
-template< typename _type_, int _bufferSize_, streamBufferType_t _sbt_ = SBT_DOUBLE, int _roundUpToMultiple_ = 1 >
+template< typename _type_, size_t _bufferSize_, streamBufferType_t _sbt_ = SBT_DOUBLE, int _roundUpToMultiple_ = 1 >
 class ALIGNTYPE16 idODSStreamedArray {
 public:
 					idODSStreamedArray( const _type_ * array, const int numElements ) :
@@ -314,7 +316,7 @@ public:
 		// If not everything has been streamed already.
 		if ( cachedArrayEnd < inArrayNum ) {
 			cachedArrayEnd = streamArrayEnd;
-			cachedArrayStart = Max( cachedArrayEnd - _bufferSize_ * ( _sbt_ - 1 ), 0 );
+			cachedArrayStart = Max( cachedArrayEnd - _bufferSize_ * ( _sbt_ - 1 ), 0ULL );
 
 			// Flush the last batch of elements that is no longer accessible.
 			FlushArray( inArray, ( cachedArrayStart - _bufferSize_ ) * sizeof( _type_ ), cachedArrayStart * sizeof( _type_ ) );
@@ -336,7 +338,8 @@ public:
 	// at the index returned by the second-from-last call to FetchNextBatch() can still be accessed.
 	// This is useful when the algorithm needs to successively access an odd number of elements
 	// at the same time that may cross a single buffer boundary.
-	const _type_ &	operator[]( int index ) const {
+	
+	const _type_ &	operator[]( Ordinal auto index ) const {
 		assert( ( index >= cachedArrayStart && index < cachedArrayEnd ) || ( cachedArrayEnd == inArrayNum && index >= inArrayNum && index < inArrayNumRoundedUp ) );
 		if ( _roundUpToMultiple_ > 1 ) {
 			index &= ( index - inArrayNum ) >> 31;
@@ -345,12 +348,12 @@ public:
 	}
 
 private:
-	int				cachedArrayStart;
-	int				cachedArrayEnd;
-	int				streamArrayEnd;
+	size_t			cachedArrayStart;
+	size_t			cachedArrayEnd;
+	size_t			streamArrayEnd;
 	const _type_ *	inArray;
-	int				inArrayNum;
-	int				inArrayNumRoundedUp;
+	size_t			inArrayNum;
+	size_t			inArrayNumRoundedUp;
 
 	static void FlushArray( const void * flushArray, int flushStart, int flushEnd ) {
 #if 0
@@ -382,7 +385,7 @@ NOTE: currently the size of array elements must be a multiple of 16 bytes.
 An index with offsets and more complex logic is needed to support other sizes.
 ================================================
 */
-template< typename _elemType_, typename _indexType_, int _bufferSize_, streamBufferType_t _sbt_ = SBT_DOUBLE, int _roundUpToMultiple_ = 1 >
+template< typename _elemType_, typename _indexType_, size_t _bufferSize_, streamBufferType_t _sbt_ = SBT_DOUBLE, int _roundUpToMultiple_ = 1 >
 class ALIGNTYPE16 idODSStreamedIndexedArray {
 public:
 					idODSStreamedIndexedArray( const _elemType_ * array, const int numElements, const _indexType_ * index, const int numIndices ) :
@@ -435,9 +438,9 @@ public:
 		if ( cachedArrayEnd < inIndexNum ) {
 			if ( streamIndexEnd > 0 ) {
 				cachedArrayEnd = streamArrayEnd;
-				cachedArrayStart = Max( cachedArrayEnd - _bufferSize_ * ( _sbt_ - 1 ), 0 );
+				cachedArrayStart = Max( cachedArrayEnd - _bufferSize_ * ( _sbt_ - 1 ), 0ULL );
 				cachedIndexEnd = streamIndexEnd;
-				cachedIndexStart = Max( cachedIndexEnd - _bufferSize_ * ( _sbt_ - 1 ), 0 );
+				cachedIndexStart = Max( cachedIndexEnd - _bufferSize_ * ( _sbt_ - 1 ), 0ULL );
 
 				// Flush the last batch of indices that are no longer accessible.
 				FlushArray( inIndex, ( cachedIndexStart - _bufferSize_ ) * sizeof( _indexType_ ), cachedIndexStart * sizeof( _indexType_ ) );
@@ -447,8 +450,8 @@ public:
 				// Prefetch the next batch of elements.
 				if ( streamArrayEnd < inIndexNum ) {
 					streamArrayEnd = cachedIndexEnd;
-					for ( int i = cachedArrayEnd; i < streamArrayEnd; i++ ) {
-						assert( i >= cachedIndexStart && i < cachedIndexEnd );
+					for ( int i = cachedArrayEnd; std::cmp_less(i, streamArrayEnd); i++ ) {
+						assert(std::cmp_greater_equal(i, cachedIndexStart) && std::cmp_less(i, cachedIndexEnd ));
 						assert( inIndex[i] >= 0 && inIndex[i] < inArrayNum );
 
 						Prefetch( inArray, inIndex[i] * sizeof( _elemType_ ) );
@@ -473,7 +476,8 @@ public:
 	// at the index returned by the second-from-last call to FetchNextBatch() can still be accessed.
 	// This is useful when the algorithm needs to successively access an odd number of elements
 	// at the same time that may cross a single buffer boundary.
-	const _elemType_ & operator[]( int index ) const {
+	
+	const _elemType_ & operator[]( Ordinal auto index ) const {
 		assert( ( index >= cachedArrayStart && index < cachedArrayEnd ) || ( cachedArrayEnd == inIndexNum && index >= inIndexNum && index < inIndexNumRoundedUp ) );
 		if ( _roundUpToMultiple_ > 1 ) {
 			index &= ( index - inIndexNum ) >> 31;
@@ -482,17 +486,17 @@ public:
 	}
 
 private:
-	int					cachedArrayStart;
-	int					cachedArrayEnd;
-	int					streamArrayEnd;
-	int					cachedIndexStart;
-	int					cachedIndexEnd;
-	int					streamIndexEnd;
+	size_t				cachedArrayStart;
+	size_t				cachedArrayEnd;
+	size_t				streamArrayEnd;
+	size_t				cachedIndexStart;
+	size_t				cachedIndexEnd;
+	size_t				streamIndexEnd;
 	const _elemType_ *	inArray;
-	int					inArrayNum;
+	size_t				inArrayNum;
 	const _indexType_ *	inIndex;
-	int					inIndexNum;
-	int					inIndexNumRoundedUp;
+	size_t				inIndexNum;
+	size_t				inIndexNumRoundedUp;
 
 	static void FlushArray( const void * flushArray, int flushStart, int flushEnd ) {
 #if 0

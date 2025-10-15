@@ -91,7 +91,7 @@ void idCollisionModelManagerLocal::ParseProcNodes( idLexer *src ) {
 	if ( numProcNodes < 0 ) {
 		src->Error( "ParseProcNodes: bad numProcNodes" );
 	}
-	procNodes = (cm_procNode_t *)Mem_ClearedAlloc( numProcNodes * sizeof( cm_procNode_t ), TAG_COLLISION );
+	procNodes = static_cast<cm_procNode_t*>(Mem_ClearedAlloc(numProcNodes * sizeof(cm_procNode_t), TAG_COLLISION));
 
 	for ( i = 0; i < numProcNodes; i++ ) {
 		cm_procNode_t *node;
@@ -578,7 +578,7 @@ cm_node_t *idCollisionModelManagerLocal::AllocNode( cm_model_t *model, int block
 	cm_nodeBlock_t *nodeBlock;
 
 	if ( !model->nodeBlocks || !model->nodeBlocks->nextNode ) {
-		nodeBlock = (cm_nodeBlock_t *) Mem_ClearedAlloc( sizeof( cm_nodeBlock_t ) + blockSize * sizeof(cm_node_t), TAG_COLLISION );
+		nodeBlock = static_cast<cm_nodeBlock_t*>(Mem_ClearedAlloc(sizeof(cm_nodeBlock_t) + blockSize * sizeof(cm_node_t), TAG_COLLISION));
 		nodeBlock->nextNode = (cm_node_t *) ( ( (byte *) nodeBlock ) + sizeof( cm_nodeBlock_t ) );
 		nodeBlock->next = model->nodeBlocks;
 		model->nodeBlocks = nodeBlock;
@@ -608,7 +608,8 @@ cm_polygonRef_t *idCollisionModelManagerLocal::AllocPolygonReference( cm_model_t
 	cm_polygonRefBlock_t *prefBlock;
 
 	if ( !model->polygonRefBlocks || !model->polygonRefBlocks->nextRef ) {
-		prefBlock = (cm_polygonRefBlock_t *) Mem_ClearedAlloc( sizeof( cm_polygonRefBlock_t ) + blockSize * sizeof(cm_polygonRef_t), TAG_COLLISION );
+		prefBlock = static_cast<cm_polygonRefBlock_t*>(Mem_ClearedAlloc(sizeof(cm_polygonRefBlock_t) + blockSize * sizeof(cm_polygonRef_t),
+		                                                                TAG_COLLISION));
 		prefBlock->nextRef = (cm_polygonRef_t *) ( ( (byte *) prefBlock ) + sizeof( cm_polygonRefBlock_t ) );
 		prefBlock->next = model->polygonRefBlocks;
 		model->polygonRefBlocks = prefBlock;
@@ -637,7 +638,8 @@ cm_brushRef_t *idCollisionModelManagerLocal::AllocBrushReference( cm_model_t *mo
 	cm_brushRefBlock_t *brefBlock;
 
 	if ( !model->brushRefBlocks || !model->brushRefBlocks->nextRef ) {
-		brefBlock = (cm_brushRefBlock_t *) Mem_ClearedAlloc( sizeof(cm_brushRefBlock_t) + blockSize * sizeof(cm_brushRef_t), TAG_COLLISION );
+		brefBlock = static_cast<cm_brushRefBlock_t*>(Mem_ClearedAlloc(sizeof(cm_brushRefBlock_t) + blockSize * sizeof(cm_brushRef_t),
+		                                                              TAG_COLLISION));
 		brefBlock->nextRef = (cm_brushRef_t *) ( ( (byte *) brefBlock ) + sizeof(cm_brushRefBlock_t) );
 		brefBlock->next = model->brushRefBlocks;
 		model->brushRefBlocks = brefBlock;
@@ -672,7 +674,7 @@ cm_polygon_t *idCollisionModelManagerLocal::AllocPolygon( cm_model_t *model, int
 		model->polygonBlock->next += size;
 		model->polygonBlock->bytesRemaining -= size;
 	} else {
-		poly = (cm_polygon_t *) Mem_ClearedAlloc( size, TAG_COLLISION );
+		poly = static_cast<cm_polygon_t*>(Mem_ClearedAlloc(size, TAG_COLLISION));
 	}
 	return poly;
 }
@@ -694,7 +696,7 @@ cm_brush_t *idCollisionModelManagerLocal::AllocBrush( cm_model_t *model, int num
 		model->brushBlock->next += size;
 		model->brushBlock->bytesRemaining -= size;
 	} else {
-		brush = (cm_brush_t *) Mem_ClearedAlloc( size, TAG_COLLISION );
+		brush = static_cast<cm_brush_t*>(Mem_ClearedAlloc(size, TAG_COLLISION));
 	}
 	return brush;
 }
@@ -751,10 +753,10 @@ void idCollisionModelManagerLocal::SetupTrmModelStructure() {
 	// allocate vertex and edge arrays
 	model->numVertices = 0;
 	model->maxVertices = MAX_TRACEMODEL_VERTS;
-	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION );
+	model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION));
 	model->numEdges = 0;
 	model->maxEdges = MAX_TRACEMODEL_EDGES+1;
-	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION );
+	model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION));
 	// create a material for the trace model polygons
 	trmMaterial = declManager->FindMaterial( "_tracemodel", false );
 	if ( !trmMaterial ) {
@@ -2268,9 +2270,9 @@ ID_INLINE int idCollisionModelManagerLocal::HashVec(const idVec3 &vec) {
 	*/
 	int x, y, z;
 
-	x = (((int) (vec[0] - cm_modelBounds[0].x + 0.5)) + 2) >> 2;
-	y = (((int) (vec[1] - cm_modelBounds[0].y + 0.5)) + 2) >> 2;
-	z = (((int) (vec[2] - cm_modelBounds[0].z + 0.5)) + 2) >> 2;
+	x = (static_cast<int>(vec[0] - cm_modelBounds[0].x + 0.5) + 2) >> 2;
+	y = (static_cast<int>(vec[1] - cm_modelBounds[0].y + 0.5) + 2) >> 2;
+	z = (static_cast<int>(vec[2] - cm_modelBounds[0].z + 0.5) + 2) >> 2;
 	return (x + y * VERTEX_HASH_BOXSIZE + z) & (VERTEX_HASH_SIZE-1);
 }
 
@@ -2308,9 +2310,9 @@ int idCollisionModelManagerLocal::GetVertex( cm_model_t *model, const idVec3 &v,
 		cm_vertex_t *oldVertices;
 
 		// resize vertex array
-		model->maxVertices = (float) model->maxVertices * 1.5f + 1;
+		model->maxVertices = static_cast<float>(model->maxVertices) * 1.5f + 1;
 		oldVertices = model->vertices;
-		model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION );
+		model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION));
 		memcpy( model->vertices, oldVertices, model->numVertices * sizeof(cm_vertex_t) );
 		Mem_Free( oldVertices );
 
@@ -2389,9 +2391,9 @@ int idCollisionModelManagerLocal::GetEdge( cm_model_t *model, const idVec3 &v1, 
 		cm_edge_t *oldEdges;
 
 		// resize edge array
-		model->maxEdges = (float) model->maxEdges * 1.5f + 1;
+		model->maxEdges = static_cast<float>(model->maxEdges) * 1.5f + 1;
 		oldEdges = model->edges;
-		model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION );
+		model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION));
 		memcpy( model->edges, oldEdges, model->numEdges * sizeof(cm_edge_t) );
 		Mem_Free( oldEdges );
 
@@ -2655,7 +2657,7 @@ void idCollisionModelManagerLocal::ConvertBrushSides( cm_model_t *model, const i
 	const idMaterial *material;
 
 	// fix degenerate planes
-	planes = (idPlane *) _alloca16( mapBrush->GetNumSides() * sizeof( planes[0] ) );
+	planes = static_cast<idPlane*>(_alloca16(mapBrush->GetNumSides() * sizeof( planes[0] )));
 	for ( i = 0; i < mapBrush->GetNumSides(); i++ ) {
 		planes[i] = mapBrush->GetSide(i)->GetPlane();
 		planes[i].FixDegeneracies( DEGENERATE_DIST_EPSILON );
@@ -2700,7 +2702,7 @@ void idCollisionModelManagerLocal::ConvertBrush( cm_model_t *model, const idMapB
 	bounds.Clear();
 
 	// fix degenerate planes
-	planes = (idPlane *) _alloca16( mapBrush->GetNumSides() * sizeof( planes[0] ) );
+	planes = static_cast<idPlane*>(_alloca16(mapBrush->GetNumSides() * sizeof( planes[0] )));
 	for ( i = 0; i < mapBrush->GetNumSides(); i++ ) {
 		planes[i] = mapBrush->GetSide(i)->GetPlane();
 		planes[i].FixDegeneracies( DEGENERATE_DIST_EPSILON );
@@ -2873,7 +2875,7 @@ void idCollisionModelManagerLocal::OptimizeArrays( cm_model_t *model ) {
 	cm_edge_t *oldEdges;
 	cm_vertex_t *oldVertices;
 
-	remap = (int *) Mem_ClearedAlloc( Max( model->numVertices, model->numEdges ) * sizeof( int ), TAG_COLLISION );
+	remap = static_cast<int*>(Mem_ClearedAlloc(Max(model->numVertices, model->numEdges) * sizeof(int), TAG_COLLISION));
 	// get all used vertices
 	for ( i = 0; i < model->numEdges; i++ ) {
 		remap[ model->edges[i].vertexNum[0] ] = true;
@@ -2916,7 +2918,7 @@ void idCollisionModelManagerLocal::OptimizeArrays( cm_model_t *model ) {
 	// realloc vertices
 	oldVertices = model->vertices;
 	model->maxVertices = model->numVertices;
-	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->numVertices * sizeof(cm_vertex_t), TAG_COLLISION );
+	model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->numVertices * sizeof(cm_vertex_t), TAG_COLLISION));
 	if ( oldVertices ) {
 		memcpy( model->vertices, oldVertices, model->numVertices * sizeof(cm_vertex_t) );
 		Mem_Free( oldVertices );
@@ -2925,7 +2927,7 @@ void idCollisionModelManagerLocal::OptimizeArrays( cm_model_t *model ) {
 	// realloc edges
 	oldEdges = model->edges;
 	model->maxEdges = model->numEdges;
-	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->numEdges * sizeof(cm_edge_t), TAG_COLLISION );
+	model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->numEdges * sizeof(cm_edge_t), TAG_COLLISION));
 	if ( oldEdges ) {
 		memcpy( model->edges, oldEdges, model->numEdges * sizeof(cm_edge_t) );
 		Mem_Free( oldEdges );
@@ -3005,7 +3007,7 @@ cm_model_t * idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile *file
 	file->ReadBig( model->numMergedPolys );
 
 	model->maxVertices = model->numVertices;
-	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION );
+	model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION));
 	for ( int i = 0; i < model->numVertices; i++ ) {
 		file->ReadBig( model->vertices[i].p );
 		file->ReadBig( model->vertices[i].checkcount );
@@ -3014,7 +3016,7 @@ cm_model_t * idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile *file
 	}
 
 	model->maxEdges = model->numEdges;
-	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION );
+	model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION));
 	for ( int i = 0; i < model->numEdges; i++ ) {
 		file->ReadBig( model->edges[i].checkcount );
 		file->ReadBig( model->edges[i].internal );
@@ -3027,12 +3029,12 @@ cm_model_t * idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile *file
 	}
 
 	file->ReadBig( model->polygonMemory );
-	model->polygonBlock = (cm_polygonBlock_t *) Mem_ClearedAlloc( sizeof( cm_polygonBlock_t ) + model->polygonMemory, TAG_COLLISION );
+	model->polygonBlock = static_cast<cm_polygonBlock_t*>(Mem_ClearedAlloc(sizeof(cm_polygonBlock_t) + model->polygonMemory, TAG_COLLISION));
 	model->polygonBlock->bytesRemaining = model->polygonMemory;
 	model->polygonBlock->next = ( (byte *) model->polygonBlock ) + sizeof( cm_polygonBlock_t );
 
 	file->ReadBig( model->brushMemory );
-	model->brushBlock = (cm_brushBlock_t *) Mem_ClearedAlloc( sizeof( cm_brushBlock_t ) + model->brushMemory, TAG_COLLISION );
+	model->brushBlock = static_cast<cm_brushBlock_t*>(Mem_ClearedAlloc(sizeof(cm_brushBlock_t) + model->brushMemory, TAG_COLLISION));
 	model->brushBlock->bytesRemaining = model->brushMemory;
 	model->brushBlock->next = ( (byte *) model->brushBlock ) + sizeof( cm_brushBlock_t );
 
@@ -3345,8 +3347,8 @@ cm_model_t *idCollisionModelManagerLocal::LoadRenderModel( const char *fileName 
 		model->maxEdges += surf->geometry->numIndexes;
 	}
 
-	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION );
-	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION );
+	model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION));
+	model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION));
 
 	// setup hash to speed up finding shared vertices and edges
 	SetupHash();
@@ -3431,8 +3433,8 @@ cm_model_t *idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 	CM_EstimateVertsAndEdges( mapEnt, &model->maxVertices, &model->maxEdges );
 	model->numVertices = 0;
 	model->numEdges = 0;
-	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION );
-	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION );
+	model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION));
+	model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION));
 
 	cm_vertexHash->ResizeIndex( model->maxVertices );
 	cm_edgeHash->ResizeIndex( model->maxEdges );
@@ -3495,7 +3497,8 @@ cm_model_t *idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 idCollisionModelManagerLocal::FindModel
 ================
 */
-cmHandle_t idCollisionModelManagerLocal::FindModel( const char *name ) {
+cmHandle_t idCollisionModelManagerLocal::FindModel( const char *name ) const
+{
 	int i;
 
 	// check if this model is already loaded
@@ -3536,7 +3539,8 @@ void idCollisionModelManagerLocal::PrintModelInfo( const cm_model_t *model ) {
 idCollisionModelManagerLocal::AccumulateModelInfo
 ================
 */
-void idCollisionModelManagerLocal::AccumulateModelInfo( cm_model_t *model ) {
+void idCollisionModelManagerLocal::AccumulateModelInfo( cm_model_t *model ) const
+{
 	int i;
 
 	memset( model, 0, sizeof( *model ) );
@@ -3718,7 +3722,7 @@ void idCollisionModelManagerLocal::LoadMap( const idMapFile *mapFile ) {
 	// models
 	maxModels = MAX_SUBMODELS;
 	numModels = 0;
-	models = (cm_model_t **) Mem_ClearedAlloc( (maxModels+1) * sizeof(cm_model_t *), TAG_COLLISION );
+	models = static_cast<cm_model_t**>(Mem_ClearedAlloc((maxModels + 1) * sizeof(cm_model_t*), TAG_COLLISION));
 
 	// setup hash to speed up finding shared vertices and edges
 	SetupHash();

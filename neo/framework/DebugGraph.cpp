@@ -56,11 +56,11 @@ idDebugGraph::idDebugGraph( int numItems ) :
 idDebugGraph::Init
 ========================
 */
-void idDebugGraph::Init( int numBars ) {
+void idDebugGraph::Init( size_t numBars ) {
 	bars.SetNum( numBars );
 	labels.Clear();
 
-	for ( int i = 0; i < numBars; i++ ) {
+	for ( size_t i = 0; i < numBars; i++ ) {
 		bars[i].value = 0.0f;
 	}
 }
@@ -81,7 +81,8 @@ void idDebugGraph::AddGridLine( float value, const idVec4 & color ) {
 idDebugGraph::SetValue
 ========================
 */
-void idDebugGraph::SetValue( int b, float value, const idVec4 & color ) {
+void idDebugGraph::SetValue( Ordinal auto b, float value, const idVec4 & color ) {
+	ORDINAL_CHECK(b, bars.Num());
 	if ( !enable ) {
 		return;
 	}
@@ -101,7 +102,8 @@ void idDebugGraph::SetValue( int b, float value, const idVec4 & color ) {
 idDebugGraph::SetLabel
 ========================
 */
-void idDebugGraph::SetLabel( int b, const char * text ) {
+void idDebugGraph::SetLabel( Ordinal auto b, const char * text ) {
+	ORDINAL_CHECK(b, bars.Num());
 	if ( labels.Num() != bars.Num() ) {
 		labels.SetNum( bars.Num() );
 	}
@@ -126,11 +128,11 @@ void idDebugGraph::Render( idRenderSystem * gui ) {
 
 	if ( sideways ) {
 		float barWidth = position.z - border * 2.0f;
-		float barHeight = ( ( position.w - border ) / (float)bars.Num() );
+		float barHeight = ( ( position.w - border ) / static_cast<float>(bars.Num()) );
 		float barLeft = position.x + border;
 		float barTop = position.y + border;
 
-		for ( int i = 0; i < bars.Num(); i++ ) {
+		for ( size_t i = 0; i < bars.Num(); i++ ) {
 			idVec4 rect( vec4_zero );
 			if ( mode == GRAPH_LINE ) {
 				rect.Set( barLeft + barWidth * bars[i].value, barTop + i * barHeight, 1.0f, barHeight - border );
@@ -142,32 +144,32 @@ void idDebugGraph::Render( idRenderSystem * gui ) {
 			gui->DrawFilled( bars[i].color, rect.x, rect.y, rect.z, rect.w );
 		}
 		if ( labels.Num() > 0 ) {
-			int maxLen = 0;
-			for ( int i = 0; i < labels.Num(); i++ ) {
+			size_t maxLen = 0;
+			for ( size_t i = 0; i < labels.Num(); i++ ) {
 				maxLen = Max( maxLen, labels[i].Length() );
 			}
 			idVec4 rect( position );
 			rect.x -= SMALLCHAR_WIDTH * maxLen;
 			rect.z = SMALLCHAR_WIDTH * maxLen;
 			gui->DrawFilled( bgColor, rect.x, rect.y, rect.z, rect.w );
-			for ( int i = 0; i < labels.Num(); i++ ) {
+			for ( size_t i = 0; i < labels.Num(); i++ ) {
 				idVec2 pos( barLeft - SMALLCHAR_WIDTH * maxLen, barTop + i * barHeight );
 				gui->DrawSmallStringExt( idMath::Ftoi( pos.x ), idMath::Ftoi( pos.y ), labels[i], fontColor, true );
 			}
 		}
 	} else {
-		float barWidth = ( ( position.z - border ) / (float)bars.Num() );
+		float barWidth = ( ( position.z - border ) / static_cast<float>(bars.Num()) );
 		float barHeight = position.w - border * 2.0f;
 		float barLeft = position.x + border;
 		float barTop = position.y + border;
 		float barBottom = barTop + barHeight;
 
-		for ( int i = 0; i < grid.Num(); i++ ) {
+		for ( size_t i = 0; i < grid.Num(); i++ ) {
 			idVec4 rect( position.x, barBottom - barHeight * grid[i].value, position.z, 1.0f );
 			gui->DrawFilled( grid[i].color, rect.x, rect.y, rect.z, rect.w );
 		}
-		for ( int i = 0; i < bars.Num(); i++ ) {
-			idVec4 rect;
+		for ( size_t i = 0; i < bars.Num(); i++ ) {
+			idVec4 rect = {};
 			if ( mode == GRAPH_LINE ) {
 				rect.Set( barLeft + i * barWidth, barBottom - barHeight * bars[i].value, barWidth - border, 1.0f );
 			} else if ( mode == GRAPH_FILL ) {
@@ -182,7 +184,7 @@ void idDebugGraph::Render( idRenderSystem * gui ) {
 			rect.y += barHeight;
 			rect.w = SMALLCHAR_HEIGHT;
 			gui->DrawFilled( bgColor, rect.x, rect.y, rect.z, rect.w );
-			for ( int i = 0; i < labels.Num(); i++ ) {
+			for ( size_t i = 0; i < labels.Num(); i++ ) {
 				idVec2 pos( barLeft + i * barWidth, barBottom + border );
 				gui->DrawSmallStringExt( idMath::Ftoi( pos.x ), idMath::Ftoi( pos.y ), labels[i], fontColor, true );
 			}

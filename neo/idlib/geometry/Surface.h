@@ -36,34 +36,36 @@ If you have questions concerning this license or the applicable additional terms
 
 	Surface base class.
 
-	A surface is tesselated to a triangle mesh with each edge shared by
+	A surface is tessellated to a triangle mesh with each edge shared by
 	at most two triangles.
 
 ===============================================================================
 */
 
 typedef struct surfaceEdge_s {
-	int						verts[2];	// edge vertices always with ( verts[0] < verts[1] )
-	int						tris[2];	// edge triangles
+	size_t					verts[2];	// edge vertices always with ( verts[0] < verts[1] )
+	int64					tris[2];	// edge triangles
 } surfaceEdge_t;
 
 
 class idSurface {
 public:
-							idSurface();
+							idSurface() noexcept;
 							explicit idSurface( const idSurface &surf );
-							explicit idSurface( const idDrawVert *verts, const int numVerts, const int *indexes, const int numIndexes );
+							explicit idSurface( const idDrawVert *verts, const size_t numVerts, const size_t*indexes, const size_t numIndexes );
 							~idSurface();
 
-	const idDrawVert &		operator[]( const int index ) const;
-	idDrawVert &			operator[]( const int index );
+	
+	const idDrawVert &		operator[]( const Ordinal auto index ) const;
+	
+	idDrawVert &			operator[]( const Ordinal auto index );
 	idSurface &				operator+=( const idSurface &surf );
 
-	int						GetNumIndexes() const { return indexes.Num(); }
-	const int *				GetIndexes() const { return indexes.Ptr(); }
-	int						GetNumVertices() const { return verts.Num(); }
+	size_t					GetNumIndexes() const { return indexes.Num(); }
+	const size_t*			GetIndexes() const { return indexes.Ptr(); }
+	size_t					GetNumVertices() const { return verts.Num(); }
 	const idDrawVert *		GetVertices() const { return verts.Ptr(); }
-	const int *				GetEdgeIndexes() const { return edgeIndexes.Ptr(); }
+	const int64*			GetEdgeIndexes() const { return edgeIndexes.Ptr(); }
 	const surfaceEdge_t *	GetEdges() const { return edges.Ptr(); }
 
 	void					Clear();
@@ -73,7 +75,7 @@ public:
 							// splits the surface into a front and back surface, the surface itself stays unchanged
 							// frontOnPlaneEdges and backOnPlaneEdges optionally store the indexes to the edges that lay on the split plane
 							// returns a SIDE_?
-	int						Split( const idPlane &plane, const float epsilon, idSurface **front, idSurface **back, int *frontOnPlaneEdges = nullptr, int *backOnPlaneEdges = nullptr) const;
+	int						Split( const idPlane &plane, const float epsilon, idSurface **front, idSurface **back, size_t *frontOnPlaneEdges = nullptr, size_t *backOnPlaneEdges = nullptr) const;
 							// cuts off the part at the back side of the plane, returns true if some part was at the front
 							// if there is nothing at the front the number of points is set to zero
 	bool					ClipInPlace( const idPlane &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
@@ -86,7 +88,7 @@ public:
 	bool					IsPolytope( const float epsilon = 0.1f ) const;
 
 	float					PlaneDistance( const idPlane &plane ) const;
-	int						PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+	sides_e					PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
 							// returns true if the line intersects one of the surface triangles
 	bool					LineIntersection( const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
@@ -95,13 +97,13 @@ public:
 
 protected:
 	idList<idDrawVert, TAG_IDLIB_LIST_SURFACE>		verts;			// vertices
-	idList<int, TAG_IDLIB_LIST_SURFACE>				indexes;		// 3 references to vertices for each triangle
+	idList<size_t, TAG_IDLIB_LIST_SURFACE>			indexes;		// 3 references to vertices for each triangle
 	idList<surfaceEdge_t, TAG_IDLIB_LIST_SURFACE>	edges;			// edges
-	idList<int, TAG_IDLIB_LIST_SURFACE>				edgeIndexes;	// 3 references to edges for each triangle, may be negative for reversed edge
+	idList<int64, TAG_IDLIB_LIST_SURFACE>			edgeIndexes;	// 3 references to edges for each triangle, may be negative for reversed edge
 
 protected:
 	void					GenerateEdgeIndexes();
-	int						FindEdge( int v1, int v2 ) const;
+	int64					FindEdge( size_t v1, size_t v2 ) const;
 };
 
 /*
@@ -109,16 +111,15 @@ protected:
 idSurface::idSurface
 ====================
 */
-ID_INLINE idSurface::idSurface() {
-}
+ID_INLINE idSurface::idSurface() noexcept = default;
 
 /*
 =================
 idSurface::idSurface
 =================
 */
-ID_INLINE idSurface::idSurface( const idDrawVert *verts, const int numVerts, const int *indexes, const int numIndexes ) {
-	assert( verts != NULL && indexes != NULL && numVerts > 0 && numIndexes > 0 );
+ID_INLINE idSurface::idSurface( const idDrawVert *verts, const size_t numVerts, const size_t*indexes, const size_t numIndexes ) {
+	assert( verts != nullptr && indexes != NULL && numVerts > 0 && numIndexes > 0 );
 	this->verts.SetNum( numVerts );
 	memcpy( this->verts.Ptr(), verts, numVerts * sizeof( verts[0] ) );
 	this->indexes.SetNum( numIndexes );
@@ -143,15 +144,16 @@ ID_INLINE idSurface::idSurface( const idSurface &surf ) {
 idSurface::~idSurface
 ====================
 */
-ID_INLINE idSurface::~idSurface() {
-}
+ID_INLINE idSurface::~idSurface() = default;
 
 /*
 =================
 idSurface::operator[]
 =================
 */
-ID_INLINE const idDrawVert &idSurface::operator[]( const int index ) const {
+
+ID_INLINE const idDrawVert &idSurface::operator[]( const Ordinal auto index ) const {
+	ORDINAL_CHECK(index, verts.Num());
 	return verts[ index ];
 };
 
@@ -160,7 +162,9 @@ ID_INLINE const idDrawVert &idSurface::operator[]( const int index ) const {
 idSurface::operator[]
 =================
 */
-ID_INLINE idDrawVert &idSurface::operator[]( const int index ) {
+
+ID_INLINE idDrawVert &idSurface::operator[]( const Ordinal auto index ) {
+	ORDINAL_CHECK(index, verts.Num());
 	return verts[ index ];
 };
 
@@ -170,11 +174,11 @@ idSurface::operator+=
 =================
 */
 ID_INLINE idSurface &idSurface::operator+=( const idSurface &surf ) {
-	int n = verts.Num();
-	int m = indexes.Num();
+	const size_t n = verts.Num();
+	const size_t m = indexes.Num();
 	verts.Append( surf.verts );			// merge verts where possible ?
 	indexes.Append( surf.indexes );
-	for ( int i = m; i < indexes.Num(); i++ ) {
+	for (size_t i = m; i < indexes.Num(); i++ ) {
 		indexes[i] += n;
 	}
 	GenerateEdgeIndexes();
@@ -199,7 +203,7 @@ idSurface::TranslateSelf
 =================
 */
 ID_INLINE void idSurface::TranslateSelf( const idVec3 &translation ) {
-	for ( int i = 0; i < verts.Num(); i++ ) {
+	for (size_t i = 0; i < verts.Num(); i++ ) {
 		verts[i].xyz += translation;
 	}
 }
@@ -210,7 +214,7 @@ idSurface::RotateSelf
 =================
 */
 ID_INLINE void idSurface::RotateSelf( const idMat3 &rotation ) {
-	for ( int i = 0; i < verts.Num(); i++ ) {
+	for (size_t i = 0; i < verts.Num(); i++ ) {
 		verts[i].xyz *= rotation;
 		verts[i].SetNormal( verts[i].GetNormal() * rotation );
 		verts[i].SetTangent( verts[i].GetTangent() * rotation );

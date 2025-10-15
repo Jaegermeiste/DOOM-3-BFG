@@ -277,20 +277,20 @@ public:
 	void	Shutdown();
 	void	Restart();
 
-	bool	IsDialogPausing() { return dialogPause; }
+	[[nodiscard]] bool	IsDialogPausing() const noexcept { return dialogPause; }
 	void	ClearDialogs( bool forceClear = false );
 	bool	HasDialogMsg( gameDialogMessages_t msg, bool * isNowActive );
 	void	AddDialog( gameDialogMessages_t msg, dialogType_t type, idSWFScriptFunction * acceptCallback, idSWFScriptFunction * cancelCallback, bool pause, const char * location = nullptr, int lineNumber = 0, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
 	void	AddDynamicDialog( gameDialogMessages_t msg, const idStaticList< idSWFScriptFunction *, 4 > & callbacks, const idStaticList< idStrId, 4 > & optionText, bool pause, idStrStatic< 256 > overrideMsg, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
-	void	AddDialogIntVal( const char * name, int val );
-	bool	IsDialogActive();
+	void	AddDialogIntVal( const char * name, int val ) const;
+	[[nodiscard]] bool	IsDialogActive() const;
 	void	ClearDialog( gameDialogMessages_t msg, const char * location = nullptr, int lineNumber = 0 );
 	void	ShowSaveIndicator( bool show );
-	bool	HasAnyActiveDialog() const { return ( messageList.Num() > 0 ) && ( !messageList[0].clear ); }
+	[[nodiscard]] bool	HasAnyActiveDialog() const { return ( messageList.Num() > 0 ) && ( !messageList[0].clear ); }
 
 	void	ClearAllDialogHack();
 	idStr	GetDialogMsg( gameDialogMessages_t msg, idStr & message, idStr & title );
-	bool	HandleDialogEvent( const sysEvent_t * sev );
+	bool	HandleDialogEvent( const sysEvent_t * sev ) const;
 
 protected:
 	void	RemoveWaitDialogs();

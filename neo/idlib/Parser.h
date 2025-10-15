@@ -82,14 +82,14 @@ public:
 					idParser();
 					idParser( int flags );
 					idParser( const char *filename, int flags = 0, bool OSPath = false );
-					idParser( const char *ptr, int length, const char *name, int flags = 0 );
+					idParser( const char *ptr, size_t length, const char *name, int flags = 0 );
 					// destructor
 					~idParser();
 					// load a source file
 	int				LoadFile( const char *filename, bool OSPath = false );
 					// load a source from the given memory with the given length
 					// NOTE: the ptr is expected to point at a valid C string: ptr[length] == '\0'
-	int				LoadMemory( const char *ptr, int length, const char *name );
+	int				LoadMemory( const char *ptr, size_t length, const char *name );
 					// free the current source
 	void			FreeSource( bool keepDefines = false );
 					// returns true if a source is loaded
@@ -99,17 +99,17 @@ public:
 					// expect a certain token, reads the token when available
 	int				ExpectTokenString( const char *string );
 					// expect a certain token type
-	int				ExpectTokenType( int type, int subtype, idToken *token );
+	int				ExpectTokenType( int type, uint64 subtype, idToken *token );
 					// expect a token
 	int				ExpectAnyToken( idToken *token );
 					// returns true if the next token equals the given string and removes the token from the source
 	int				CheckTokenString( const char *string );
 					// returns true if the next token equals the given type and removes the token from the source
-	int				CheckTokenType( int type, int subtype, idToken *token );
+	int				CheckTokenType( int type, uint64 subtype, idToken *token );
 					// returns true if the next token equals the given string but does not remove the token from the source
 	int				PeekTokenString( const char *string );
 					// returns true if the next token equals the given type but does not remove the token from the source
-	int				PeekTokenType( int type, int subtype, idToken *token );
+	int				PeekTokenType( int type, uint64 subtype, idToken *token );
 					// skip tokens until the given token string is read
 	int				SkipUntilString( const char *string );
 					// skip the rest of the current line
@@ -137,7 +137,7 @@ public:
 	int				Parse2DMatrix( int y, int x, float *m );
 	int				Parse3DMatrix( int z, int y, int x, float *m );
 					// get the white space before the last read token
-	int				GetLastWhiteSpace( idStr &whiteSpace ) const;
+					size_t GetLastWhiteSpace(idStr& whiteSpace) const;
 					// Set a marker in the source file (there is only one marker)
 	void			SetMarker();
 					// Get the string from the marker to the current position
@@ -161,11 +161,11 @@ public:
 					// returns the current filename
 	const char *	GetFileName() const;
 					// get current offset in current script
-	const int		GetFileOffset() const;
+					int64 GetFileOffset() const;
 					// get file time for current script
-	const ID_TIME_T	GetFileTime() const;
+					ID_TIME_T GetFileTime() const;
 					// returns the current line number
-	const int		GetLineNum() const;
+					int		GetLineNum() const;
 					// print an error message
 	void			Error( VERIFY_FORMAT_STRING const char *str, ... ) const;
 					// print a warning message
@@ -256,7 +256,7 @@ ID_INLINE const char *idParser::GetFileName() const {
 	}
 }
 
-ID_INLINE const int idParser::GetFileOffset() const {
+ID_INLINE int64 idParser::GetFileOffset() const {
 	if ( idParser::scriptstack ) {
 		return idParser::scriptstack->GetFileOffset();
 	}
@@ -265,7 +265,7 @@ ID_INLINE const int idParser::GetFileOffset() const {
 	}
 }
 
-ID_INLINE const ID_TIME_T idParser::GetFileTime() const {
+ID_INLINE ID_TIME_T idParser::GetFileTime() const {
 	if ( idParser::scriptstack ) {
 		return idParser::scriptstack->GetFileTime();
 	}
@@ -274,7 +274,7 @@ ID_INLINE const ID_TIME_T idParser::GetFileTime() const {
 	}
 }
 
-ID_INLINE const int idParser::GetLineNum() const {
+ID_INLINE int idParser::GetLineNum() const {
 	if ( idParser::scriptstack ) {
 		return idParser::scriptstack->GetLineNum();
 	}

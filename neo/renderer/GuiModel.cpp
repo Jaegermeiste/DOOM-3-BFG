@@ -101,7 +101,7 @@ For full screen GUIs, we can add in per-surface stereoscopic depth effects
 void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], 
 	bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity ) {
 
-	viewEntity_t * guiSpace = (viewEntity_t *)R_ClearedFrameAlloc( sizeof( *guiSpace ), FRAME_ALLOC_VIEW_ENTITY );
+	viewEntity_t * guiSpace = static_cast<viewEntity_t*>(R_ClearedFrameAlloc(sizeof(*guiSpace), FRAME_ALLOC_VIEW_ENTITY));
 	memcpy( guiSpace->modelMatrix, modelMatrix, sizeof( guiSpace->modelMatrix ) );
 	memcpy( guiSpace->modelViewMatrix, modelViewMatrix, sizeof( guiSpace->modelViewMatrix ) );
 	guiSpace->weaponDepthHack = depthHack;
@@ -139,12 +139,12 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 		}
 
 		const idMaterial * shader = guiSurf.material;
-		drawSurf_t * drawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+		drawSurf_t * drawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*drawSurf), FRAME_ALLOC_DRAW_SURFACE));
 
 		drawSurf->numIndexes = guiSurf.numIndexes;
 		drawSurf->ambientCache = vertexBlock;
 		// build a vertCacheHandle_t that points inside the allocated block
-		drawSurf->indexCache = indexBlock + ( (int64)(guiSurf.firstIndex*sizeof(triIndex_t)) << VERTCACHE_OFFSET_SHIFT );
+		drawSurf->indexCache = indexBlock + ( static_cast<int64>(guiSurf.firstIndex * sizeof(triIndex_t)) << VERTCACHE_OFFSET_SHIFT );
  		drawSurf->shadowCache = 0;
 		drawSurf->jointCache = 0;
 		drawSurf->frontEndGeo = nullptr;
@@ -160,7 +160,7 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 			// shader only uses constant values
 			drawSurf->shaderRegisters = constRegs;
 		} else {
-			float *regs = (float *)R_FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
+			float *regs = static_cast<float*>(R_FrameAlloc(shader->GetNumRegisters() * sizeof(float), FRAME_ALLOC_SHADER_REGISTER));
 			drawSurf->shaderRegisters = regs;
 			shader->EvaluateRegisters( regs, shaderParms, tr.viewDef->renderView.shaderParms, tr.viewDef->renderView.time[1] * 0.001f, nullptr);
 		}
@@ -211,7 +211,7 @@ void idGuiModel::EmitFullScreen() {
 
 	SCOPED_PROFILE_EVENT( "Gui::EmitFullScreen" );
 
-	viewDef_t * viewDef = (viewDef_t *)R_ClearedFrameAlloc( sizeof( *viewDef ), FRAME_ALLOC_VIEW_DEF );
+	viewDef_t * viewDef = static_cast<viewDef_t*>(R_ClearedFrameAlloc(sizeof(*viewDef), FRAME_ALLOC_VIEW_DEF));
 	viewDef->is2Dgui = true;
 	tr.GetCroppedViewport( &viewDef->viewport );
 
@@ -269,7 +269,8 @@ void idGuiModel::EmitFullScreen() {
 	viewDef->worldSpace.modelViewMatrix[3*4+3] = 1.0f;
 
 	viewDef->maxDrawSurfs = surfaces.Num();
-	viewDef->drawSurfs = (drawSurf_t **)R_FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
+	viewDef->drawSurfs = static_cast<drawSurf_t**>(R_FrameAlloc(viewDef->maxDrawSurfs * sizeof(viewDef->drawSurfs[0]),
+	                                                            FRAME_ALLOC_DRAW_SURFACE_POINTER));
 	viewDef->numDrawSurfs = 0;
 
 	viewDef_t * oldViewDef = tr.viewDef;

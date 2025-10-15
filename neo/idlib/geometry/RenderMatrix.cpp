@@ -48,9 +48,9 @@ If you have questions concerning this license or the applicable additional terms
 //lint -e438	// the non-SSE code isn't lint friendly, either
 //lint -e550
 
-#define RENDER_MATRIX_INVERSE_EPSILON		1e-16f	// JDC: changed from 1e-14f to allow full wasteland parallel light projections to invert
-#define RENDER_MATRIX_INFINITY				1e30f	// NOTE: cannot initiaize a vec_float4 with idMath::INFINITY on the SPU
-#define RENDER_MATRIX_PROJECTION_EPSILON	0.1f
+constexpr auto RENDER_MATRIX_INVERSE_EPSILON = 1e-16f;	// JDC: changed from 1e-14f to allow full wasteland parallel light projections to invert
+constexpr auto RENDER_MATRIX_INFINITY = 1e30f;	// NOTE: cannot initialize a vec_float4 with idMath::INFINITY on the SPU
+constexpr auto RENDER_MATRIX_PROJECTION_EPSILON = 0.1f;
 
 #define CLIP_SPACE_OGL		// the OpenGL clip space Z is in the range [-1, 1]
 
@@ -1338,7 +1338,7 @@ DeterminantIsNegative
 */
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
-void DeterminantIsNegative( bool & negativeDeterminant, const __m128 & r0, const __m128 & r1, const __m128 & r2, const __m128 & r3 ) {
+static void DeterminantIsNegative( bool & negativeDeterminant, const __m128 & r0, const __m128 & r1, const __m128 & r2, const __m128 & r3 ) {
 
 	const __m128 r1u1 = _mm_perm_ps( r1, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r1u2 = _mm_perm_ps( r1, _MM_SHUFFLE( 1, 0, 3, 2 ) );
@@ -1383,7 +1383,7 @@ void DeterminantIsNegative( bool & negativeDeterminant, const __m128 & r0, const
 
 #else
 
-void DeterminantIsNegative( bool & negativeDeterminant, const float * row0, const float * row1, const float * row2, const float * row3 ) {
+static void DeterminantIsNegative( bool & negativeDeterminant, const float * row0, const float * row1, const float * row2, const float * row3 ) {
 
 	// 2x2 sub-determinants required to calculate 4x4 determinant
 	const float det2_01_01 = row0[0] * row1[1] - row0[1] * row1[0];
@@ -1656,7 +1656,7 @@ to true, the clip space will extend from 0.0 to 1.0 on each axis for a light pro
 */
 bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix & mvp, const idVec3 & p, byte * outBits, const bool zeroToOne ) {
 
-	idVec4 c;
+	idVec4 c = {};
 	for ( int i = 0; i < 4; i++ ) {
 		c[i] = p[0] * mvp[i][0] + p[1] * mvp[i][1] + p[2] * mvp[i][2] + mvp[i][3];
 	}
@@ -1805,16 +1805,16 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix & mvp, const idBo
 
 	int bits = 0;
 
-	idVec3 v;
-	for ( int x = 0; x < 2; x++ ) {
+	idVec3 v = {};
+	for ( size_t x = 0; x < 2; x++ ) {
 		v[0] = bounds[x][0];
-		for ( int y = 0; y < 2; y++ ) {
+		for ( size_t y = 0; y < 2; y++ ) {
 			v[1] = bounds[y][1];
-			for ( int z = 0; z < 2; z++ ) {
+			for ( size_t z = 0; z < 2; z++ ) {
 				v[2] = bounds[z][2];
 
-				idVec4 c;
-				for ( int i = 0; i < 4; i++ ) {
+				idVec4 c = {};
+				for ( size_t i = 0; i < 4; i++ ) {
 					c[i] = v[0] * mvp[i][0] + v[1] * mvp[i][1] + v[2] * mvp[i][2] + mvp[i][3];
 				}
 
@@ -2090,17 +2090,17 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix & mvp, co
 	const float closing = extrudeDirection * clipPlane.Normal();
 	const float invClosing = -1.0f / closing;
 
-	idVec3 v;
-	for ( int x = 0; x < 2; x++ ) {
+	idVec3 v = {};
+	for ( size_t x = 0; x < 2; x++ ) {
 		v[0] = bounds[x][0];
-		for ( int y = 0; y < 2; y++ ) {
+		for ( size_t y = 0; y < 2; y++ ) {
 			v[1] = bounds[y][1];
-			for ( int z = 0; z < 2; z++ ) {
+			for ( size_t z = 0; z < 2; z++ ) {
 				v[2] = bounds[z][2];
 
-				for ( int extrude = 0; extrude <= 1; extrude++ ) {
+				for ( size_t extrude = 0; extrude <= 1; extrude++ ) {
 
-					idVec3 test;
+					idVec3 test = {};
 					if ( extrude ) {
 						const float extrudeDist = clipPlane.Distance( v ) * invClosing;
 						test = v + extrudeDirection * extrudeDist;
@@ -2108,7 +2108,7 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix & mvp, co
 						test = v;
 					}
 
-					idVec4 c;
+					idVec4 c = {};
 					for ( int i = 0; i < 4; i++ ) {
 						c[i] = test[0] * mvp[i][0] + test[1] * mvp[i][1] + test[2] * mvp[i][2] + mvp[i][3];
 					}
@@ -2291,17 +2291,17 @@ void idRenderMatrix::ProjectedBounds( idBounds & projected, const idRenderMatrix
 
 #else
 
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		projected[0][i] = RENDER_MATRIX_INFINITY;
 		projected[1][i] = - RENDER_MATRIX_INFINITY;
 	}
 
-	idVec3 v;
-	for ( int x = 0; x < 2; x++ ) {
+	idVec3 v = {};
+	for ( size_t x = 0; x < 2; x++ ) {
 		v[0] = bounds[x][0];
-		for ( int y = 0; y < 2; y++ ) {
+		for ( size_t y = 0; y < 2; y++ ) {
 			v[1] = bounds[y][1];
-			for ( int z = 0; z < 2; z++ ) {
+			for ( size_t z = 0; z < 2; z++ ) {
 				v[2] = bounds[z][2];
 
 				float tx = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
@@ -2672,8 +2672,8 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds & projected, const idR
 		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
 	};
 
-	idVec4 projectedPoints[8];
-	for ( int i = 0; i < 8; i++ ) {
+	idVec4 projectedPoints[8] = {};
+	for ( size_t i = 0; i < 8; i++ ) {
 		const idVec3 & v = points[i];
 		projectedPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
 		projectedPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
@@ -2770,7 +2770,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds & projected, const idR
 	const idVec4 intersectionK = p2 + fractionK * ( p6 - p2 );
 	const idVec4 intersectionL = p3 + fractionL * ( p7 - p3 );
 
-	idVec4 edgeVerts[24];
+	idVec4 edgeVerts[24] = {};
 
 	edgeVerts[ 0] = ( clipA && d0 < 0.0f ) ? intersectionA : p0;
 	edgeVerts[ 2] = ( clipB && d1 < 0.0f ) ? intersectionB : p1;
@@ -3025,7 +3025,7 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4 * __restrict newPoints, id
 
 	const __m128 side = _mm_mul_ps( sign, offset );
 	__m128i mask = _mm_sub_epi32( vector_int_0123, _mm_shuffle_epi32( _mm_cvtsi32_si128( numPoints ), 0 ) );
-	__m128i index = _mm_setzero_si128();
+	__m128Ordinal auto index = _mm_setzero_si128();
 
 	ALIGNTYPE16 unsigned short indices[16 * 2];
 	ALIGNTYPE16 float clipFractions[16];
@@ -3186,17 +3186,17 @@ ClipHomogeneousPolygonToSide
 Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = sign * offset.
 ========================
 */
-static int ClipHomogeneousPolygonToSide_Generic( idVec4 * __restrict newPoints, idVec4 * __restrict points, const int numPoints, const int axis, const float sign, const float offset ) {
+static int ClipHomogeneousPolygonToSide_Generic( idVec4 * __restrict newPoints, idVec4 * __restrict points, const size_t numPoints, const int axis, const float sign, const float offset ) {
 	assert( newPoints != points );
 
 	assert( numPoints < 16 );
-	int sides[16];
+	int sides[16] = {};
 
 	const float side = sign * offset;
 
 	// calculate the plane side for each original point and calculate all potential new points
-	for ( int i = 0; i < numPoints; i++ ) {
-		const int j = ( i + 1 ) & ( ( i + 1 - numPoints ) >> 31 );
+	for ( size_t i = 0; i < numPoints; i++ ) {
+		const size_t j = ( i + 1 ) & ( ( i + 1 - numPoints ) >> 31 );
 		sides[i] = sign * points[i][axis] < offset * points[i].w;
 		newPoints[i * 2 + 0] = points[i];
 		newPoints[i * 2 + 1] = ClipHomogeneousLineToSide( points[i], points[j], axis, side );
@@ -3207,7 +3207,7 @@ static int ClipHomogeneousPolygonToSide_Generic( idVec4 * __restrict newPoints, 
 
 	// compact the array of points
 	int numNewPoints = 0;
-	for ( int i = 0; i < numPoints; i++ ) {
+	for ( size_t i = 0; i < numPoints; i++ ) {
 		if ( sides[i + 0] != 0 ) {
 			newPoints[numNewPoints++] = newPoints[i * 2 + 0];
 		}
@@ -3427,8 +3427,8 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds & projected, const id
 		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
 	};
 
-	idVec4 projectedPoints[8];
-	for ( int i = 0; i < 8; i++ ) {
+	idVec4 projectedPoints[8] = {};
+	for ( size_t i = 0; i < 8; i++ ) {
 		const idVec3 & v = points[i];
 		projectedPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
 		projectedPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
@@ -3436,9 +3436,9 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds & projected, const id
 		projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 	}
 
-	idVec4 clippedPoints[6 * 16];
-	int numClippedPoints = 0;
-	for ( int i = 0; i < 6; i++ ) {
+	idVec4 clippedPoints[6 * 16] = {};
+	size_t numClippedPoints = 0;
+	for ( size_t i = 0; i < 6; i++ ) {
 		clippedPoints[numClippedPoints + 0] = projectedPoints[boxPolygonVertices[i][0]];
 		clippedPoints[numClippedPoints + 1] = projectedPoints[boxPolygonVertices[i][1]];
 		clippedPoints[numClippedPoints + 2] = projectedPoints[boxPolygonVertices[i][2]];
@@ -3588,12 +3588,12 @@ void idRenderMatrix::DepthBoundsForBounds( float & min, float & max, const idRen
 	float localMin = RENDER_MATRIX_INFINITY;
 	float localMax = - RENDER_MATRIX_INFINITY;
 
-	idVec3 v;
-	for ( int x = 0; x < 2; x++ ) {
+	idVec3 v = {};
+	for ( size_t x = 0; x < 2; x++ ) {
 		v[0] = bounds[x][0];
-		for ( int y = 0; y < 2; y++ ) {
+		for ( size_t y = 0; y < 2; y++ ) {
 			v[1] = bounds[y][1];
-			for ( int z = 0; z < 2; z++ ) {
+			for ( size_t z = 0; z < 2; z++ ) {
 				v[2] = bounds[z][2];
 
 				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
@@ -3802,17 +3802,17 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float & min, float & max, con
 	float localMin = RENDER_MATRIX_INFINITY;
 	float localMax = - RENDER_MATRIX_INFINITY;
 
-	idVec3 v;
-	for ( int x = 0; x < 2; x++ ) {
+	idVec3 v = {};
+	for ( size_t x = 0; x < 2; x++ ) {
 		v[0] = bounds[x][0];
-		for ( int y = 0; y < 2; y++ ) {
+		for ( size_t y = 0; y < 2; y++ ) {
 			v[1] = bounds[y][1];
-			for ( int z = 0; z < 2; z++ ) {
+			for ( size_t z = 0; z < 2; z++ ) {
 				v[2] = bounds[z][2];
 
-				for ( int extrude = 0; extrude <= 1; extrude++ ) {
+				for ( size_t extrude = 0; extrude <= 1; extrude++ ) {
 
-					idVec3 test;
+					idVec3 test = {};
 					if ( extrude ) {
 						const float extrudeDist = clipPlane.Distance( v ) * invClosing;
 						test = v + extrudeDirection * extrudeDist;
@@ -4095,7 +4095,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const
 	const int frontBits = GetBoxFrontBits_Generic( bounds, localLightOrigin );
 
 	// bounding box corners
-	ALIGNTYPE16 idVec4 projectedNearPoints[8];
+	ALIGNTYPE16 idVec4 projectedNearPoints[8] = {};
 	for ( int i = 0; i < 8; i++ ) {
 		const idVec3 & v = points[i];
 		projectedNearPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
@@ -4105,7 +4105,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const
 	}
 
 	// bounding box corners projected to infinity from the light position
-	ALIGNTYPE16 idVec4 projectedFarPoints[8];
+	ALIGNTYPE16 idVec4 projectedFarPoints[8] = {};
 	for ( int i = 0; i < 8; i++ ) {
 		const idVec3 v = points[i] - localLightOrigin;
 		projectedFarPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2];
@@ -4114,7 +4114,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float & min, float & max, const
 		projectedFarPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2];
 	}
 
-	ALIGNTYPE16 idVec4 clippedPoints[( 6 + 12 ) * 16];
+	ALIGNTYPE16 idVec4 clippedPoints[( 6 + 12 ) * 16] = {};
 	int numClippedPoints = 0;
 
 	// clip the front facing bounding box polygons at the near cap
@@ -4348,12 +4348,12 @@ void idRenderMatrix::GetFrustumCorners( frustumCorners_t & corners, const idRend
 
 #else
 
-	idVec3 v;
-	for ( int x = 0; x < 2; x++ ) {
+	idVec3 v = {};
+	for ( size_t x = 0; x < 2; x++ ) {
 		v[0] = frustumBounds[x][0];
-		for ( int y = 0; y < 2; y++ ) {
+		for ( size_t y = 0; y < 2; y++ ) {
 			v[1] = frustumBounds[y][1];
-			for ( int z = 0; z < 2; z++ ) {
+			for ( size_t z = 0; z < 2; z++ ) {
 				v[2] = frustumBounds[z][2];
 
 				const float tx = v[0] * frustumTransform[0][0] + v[1] * frustumTransform[0][1] + v[2] * frustumTransform[0][2] + frustumTransform[0][3];

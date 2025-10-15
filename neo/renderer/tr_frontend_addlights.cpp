@@ -122,7 +122,7 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 	}
 
 	// evaluate the light shader registers
-	float * lightRegs = (float *)R_FrameAlloc( lightShader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
+	float * lightRegs = static_cast<float*>(R_FrameAlloc(lightShader->GetNumRegisters() * sizeof(float), FRAME_ALLOC_SHADER_REGISTER));
 	lightShader->EvaluateRegisters( lightRegs, light->parms.shaderParms, viewDef->renderView.shaderParms, 
 		tr.viewDef->renderView.time[0] * 0.001f, light->parms.referenceSound );
 		
@@ -214,8 +214,8 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 			return;
 		}
 
-		float screenWidth = (float)viewDef->viewport.x2 - (float)viewDef->viewport.x1;
-		float screenHeight = (float)viewDef->viewport.y2 - (float)viewDef->viewport.y1;
+		float screenWidth = static_cast<float>(viewDef->viewport.x2) - static_cast<float>(viewDef->viewport.x1);
+		float screenHeight = static_cast<float>(viewDef->viewport.y2) - static_cast<float>(viewDef->viewport.y1);
 
 		idScreenRect lightScissorRect;
 		lightScissorRect.x1 = idMath::Ftoi( projected[0][0] * screenWidth );
@@ -240,7 +240,8 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 	const int renderViewID = viewDef->renderView.viewID;
 
 	// this bool array will be set true whenever the entity will visibly interact with the light
-	vLight->entityInteractionState = (byte *)R_ClearedFrameAlloc( light->world->entityDefs.Num() * sizeof( vLight->entityInteractionState[0] ), FRAME_ALLOC_INTERACTION_STATE );
+	vLight->entityInteractionState = static_cast<byte*>(R_ClearedFrameAlloc(light->world->entityDefs.Num() * sizeof(vLight->entityInteractionState[0]),
+	                                                                        FRAME_ALLOC_INTERACTION_STATE));
 
 	const bool lightCastsShadows = light->LightCastsShadows();
 	idInteraction * * const interactionTableRow = light->world->interactionTable + light->index * light->world->interactionTableWidth;
@@ -366,7 +367,7 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 			vLight->entityInteractionState[ edef->index ] = viewLight_t::INTERACTION_YES;
 
 			// we will need to create a viewEntity_t for it in the serial code section
-			shadowOnlyEntity_t * shadEnt = (shadowOnlyEntity_t *)R_FrameAlloc( sizeof( shadowOnlyEntity_t ), FRAME_ALLOC_SHADOW_ONLY_ENTITY );
+			shadowOnlyEntity_t * shadEnt = static_cast<shadowOnlyEntity_t*>(R_FrameAlloc(sizeof(shadowOnlyEntity_t), FRAME_ALLOC_SHADOW_ONLY_ENTITY));
 			shadEnt->next = vLight->shadowOnlyViewEntities;
 			shadEnt->edef = edef;
 			vLight->shadowOnlyViewEntities = shadEnt;
@@ -389,7 +390,7 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 		assert( vertexCache.CacheIsCurrent( tri->shadowCache ) );
 		assert( vertexCache.CacheIsCurrent( tri->indexCache ) );
 
-		drawSurf_t * shadowDrawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+		drawSurf_t * shadowDrawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*shadowDrawSurf), FRAME_ALLOC_DRAW_SURFACE));
 
 		shadowDrawSurf->frontEndGeo = tri;
 		shadowDrawSurf->ambientCache = 0;
@@ -405,7 +406,7 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 		shadowDrawSurf->shadowVolumeState = SHADOWVOLUME_DONE;	// assume the shadow volume is done in case r_skipPrelightShadows is set
 
 		if ( !r_skipPrelightShadows.GetBool() ) {
-			preLightShadowVolumeParms_t * shadowParms = (preLightShadowVolumeParms_t *)R_FrameAlloc( sizeof( shadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+			preLightShadowVolumeParms_t * shadowParms = static_cast<preLightShadowVolumeParms_t*>(R_FrameAlloc(sizeof(shadowParms[0]), FRAME_ALLOC_SHADOW_VOLUME_PARMS));
 
 			shadowParms->verts = tri->preLightShadowVertexes;
 			shadowParms->numVerts = tri->numVerts * 2;
@@ -589,7 +590,7 @@ void R_OptimizeViewLightsList() {
 			return ((sortLight_t *)a)->screenArea - ((sortLight_t *)b)->screenArea;
 		}
 	};
-	sortLight_t * sortLights = (sortLight_t *)_alloca( sizeof( sortLight_t ) * numViewLights );
+	sortLight_t * sortLights = static_cast<sortLight_t*>(_alloca(sizeof(sortLight_t) * numViewLights));
 	int	numSortLightsFilled = 0;
 	for ( viewLight_t * vLight = tr.viewDef->viewLights; vLight != nullptr; vLight = vLight->next ) {
 		sortLights[ numSortLightsFilled ].vLight = vLight;

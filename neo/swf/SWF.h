@@ -62,7 +62,7 @@ public:
 };
 
 struct purgableSwfImage_t {
-	purgableSwfImage_t() { image = nullptr; swfFrameNum = 0; }
+	purgableSwfImage_t() noexcept { image = nullptr; swfFrameNum = 0; }
 	idImage * image;
 	unsigned swfFrameNum;
 };
@@ -77,37 +77,39 @@ public:
 	idSWF( const char * filename, idSoundWorld * soundWorld = nullptr);
 	~idSWF();
 
-	bool	IsLoaded() { return ( frameRate > 0 ); }
-	bool	IsActive() { return isActive; }
+	[[nodiscard]] bool	IsLoaded() const { return ( frameRate > 0 ); }
+	[[nodiscard]] bool	IsActive() const { return isActive; }
 	void	Activate( bool b );
 	
 	const char * GetName() { return filename; }
 
 	void Pause() { mainspriteInstance->Stop(); paused = true; }
 	void Resume() { mainspriteInstance->Play(); paused = false; }
-	bool IsPaused() { return paused; }
+	[[nodiscard]] bool IsPaused() const { return paused; }
 	void SetPausedRender( bool valid ) { pausedRender = valid; }
-	bool GetPausedRender() { return pausedRender; } 
+	[[nodiscard]] bool GetPausedRender() const { return pausedRender; } 
 
 	void Render( idRenderSystem * gui, int time = 0, bool isSplitscreen = false );
 	bool HandleEvent( const sysEvent_t * event );
-	bool InhibitControl();
+	[[nodiscard]] bool InhibitControl() const;
 	void ForceInhibitControl( bool val ) { inhibitControl = val; }
 
-	void SetGlobal( const char * name, const idSWFScriptVar & value ) { globals->Set( name, value ); }
-	void SetGlobalNative( const char * name, idSWFScriptNativeVariable * native ) { globals->SetNative( name, native ); }
-	idSWFScriptVar GetGlobal( const char * name ) { return globals->Get( name ); }
-	idSWFScriptObject & GetRootObject() { assert( mainspriteInstance->GetScriptObject() != NULL ); return *( mainspriteInstance->GetScriptObject() ); }
+	void SetGlobal( const char * name, const idSWFScriptVar & value ) const { globals->Set( name, value ); }
+	void SetGlobalNative( const char * name, idSWFScriptNativeVariable * native ) const { globals->SetNative( name, native ); }
+	idSWFScriptVar GetGlobal( const char * name ) const { return globals->Get( name ); }
+
+	[[nodiscard]] idSWFScriptObject & GetRootObject() const
+	{ assert( mainspriteInstance->GetScriptObject() != NULL ); return *( mainspriteInstance->GetScriptObject() ); }
 
 	void Invoke( const char *  functionName, const idSWFParmList & parms );
-	void Invoke( const char *  functionName, const idSWFParmList & parms, idSWFScriptVar & scriptVar );
+	void Invoke( const char *  functionName, const idSWFParmList & parms, idSWFScriptVar & scriptVar ) const;
 	void Invoke( const char *  functionName, const idSWFParmList & parms, bool & functionExists );
 
-	int PlaySound( const char * sound, int channel = SCHANNEL_ANY, bool blocking = false );
-	void StopSound( int channel = SCHANNEL_ANY );
+	int PlaySound( const char * sound, int channel = SCHANNEL_ANY, bool blocking = false ) const;
+	void StopSound( int channel = SCHANNEL_ANY ) const;
 
-	float GetFrameWidth() const { return frameWidth; }
-	float GetFrameHeight() const { return frameHeight; }
+	[[nodiscard]] float GetFrameWidth() const { return frameWidth; }
+	[[nodiscard]] float GetFrameHeight() const { return frameHeight; }
 
 	int GetMouseX() { return mouseX; }
 	int GetMouseY() { return mouseY; }
@@ -129,8 +131,8 @@ public:
 	idSWFDictionaryEntry *	FindDictionaryEntry( int characterID, swfDictType_t type );
 	idSWFDictionaryEntry *	FindDictionaryEntry( int characterID );
 
-	idSWFDictionaryEntry *	GetDictionaryEntry( int index ) { return &dictionary[ index ];  }
-	int	GetNumDictionaryEntry() { return dictionary.Num(); }
+	idSWFDictionaryEntry *	GetDictionaryEntry(size_t index ) { return &dictionary[ index ];  }
+	[[nodiscard]] size_t	GetNumDictionaryEntry() const { return dictionary.Num(); }
 
 	idSWFScriptObject * HitTest( idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, int x, int y, idSWFScriptObject * parentObject );
 
@@ -240,7 +242,7 @@ private:
 
 	struct keyButtonImages_t {
 
-		keyButtonImages_t() {
+		keyButtonImages_t() noexcept {
 			key = "";
 			xbImage = "";
 			psImage = "";
@@ -268,7 +270,7 @@ private:
 	idList< keyButtonImages_t, TAG_SWF > tooltipButtonImage;
 
 	struct tooltipIcon_t {
-		tooltipIcon_t() {
+		tooltipIcon_t() noexcept {
 			startIndex = -1;
 			endIndex = -1;
 			material = nullptr;
@@ -321,14 +323,14 @@ private:
 	//----------------------------------
 	// SWF_Render.cpp
 	//----------------------------------
-	void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material );
-	void			DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material );
+	void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) const;
+	void			DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material ) const;
 	void			RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * sprite, const swfRenderState_t & renderState, int time, bool isSplitscreen = false );
 	void			RenderMask( idRenderSystem * gui, const swfDisplayEntry_t * mask, const swfRenderState_t & renderState, const int stencilMode );
 	void			RenderShape( idRenderSystem * gui, const idSWFShape * shape, const swfRenderState_t & renderState );
 	void			RenderMorphShape( idRenderSystem * gui, const idSWFShape* shape, const swfRenderState_t & renderState );
 	void			DrawEditCursor( idRenderSystem * gui, float x, float y, float w, float h, const swfMatrix_t & matrix );
-	void			DrawLine( idRenderSystem * gui, const idVec2 & p1, const idVec2 & p2, float width, const swfMatrix_t & matrix );
+//	void			DrawLine( idRenderSystem * gui, const idVec2 & p1, const idVec2 & p2, float width, const swfMatrix_t & matrix );
 	void			RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstance, const swfRenderState_t & renderState, int time, bool isSplitscreen = false );
 	uint64			GLStateForRenderState( const swfRenderState_t & renderState );
 	void			FindTooltipIcons( idStr * text );
@@ -342,7 +344,7 @@ private:
 		idDecompressJPEG();
 		~idDecompressJPEG();
 
-		byte * Load( const byte * input, int inputSize, int & width, int & height );
+		byte * Load( const byte * input, int inputSize, int & width, int & height ) const;
 
 	private:
 		void * vinfo;
@@ -370,7 +372,7 @@ private:
 
  	class idSortBlocks : public idSort_Quick< imageToPack_t, idSortBlocks > {
  	public:
- 		int Compare( const imageToPack_t & a, const imageToPack_t & b ) const {
+	    [[nodiscard]] int Compare( const imageToPack_t & a, const imageToPack_t & b ) const {
  			return ( b.allocSize.x * b.allocSize.y ) - ( a.allocSize.x * a.allocSize.y );
  		}
  	};

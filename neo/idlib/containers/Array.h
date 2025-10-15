@@ -65,8 +65,8 @@ public:
 	void			Memset( const char fill ) { memset( ptr, fill, numElements * sizeof( *ptr ) ); }
 
 	// array operators
-	const T_ &		operator[]( int index ) const { assert( (unsigned)index < (unsigned)numElements ); return ptr[index]; }
-	T_ &			operator[]( int index ) { assert( (unsigned)index < (unsigned)numElements ); return ptr[index]; }
+	const T_ &		operator[]( Ordinal auto index ) const { ORDINAL_CHECK(index, numElements); return ptr[index]; }
+	T_ &			operator[]( Ordinal auto index ) { ORDINAL_CHECK(index, numElements); return ptr[index]; }
 
 	// returns a pointer to the list
 	const T_ *		Ptr() const { return ptr; }

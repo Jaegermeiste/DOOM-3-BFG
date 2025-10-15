@@ -44,18 +44,18 @@ public:
 
 	void					Clear() { idList<idPlane>::Clear(); hash.Free(); }
 
-	int						FindPlane( const idPlane &plane, const float normalEps, const float distEps );
+	size_t					FindPlane( const idPlane &plane, const float normalEps, const float distEps );
 
 private:
 	idHashIndex				hash;
 };
 
-ID_INLINE int idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
+ID_INLINE size_t idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
 	assert( distEps <= 0.125f );
 
-	int hashKey = static_cast<int>(idMath::Fabs(plane.Dist()) * 0.125f);
+	const int64 hashKey = idMath::Ftoi64(idMath::Fabs(plane.Dist()) * 0.125f);
 	for ( int border = -1; border <= 1; border++ ) {
-		for ( int i = hash.First(hashKey + border); i >= 0; i = hash.Next( i ) ) {
+		for ( int64 i = hash.First(hashKey + border); i >= 0; i = hash.Next( i ) ) {
 			if ( (*this)[i].Compare( plane, normalEps, distEps ) ) {
 				return i;
 			}

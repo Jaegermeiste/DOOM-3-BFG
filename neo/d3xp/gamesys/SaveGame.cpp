@@ -32,8 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../Game_local.h"
 
-#include "TypeInfo.h"
-
 /*
 Save game related helper classes.
 
@@ -53,7 +51,7 @@ The savegame header will have the Game Name, Version, Map Name, and Player Persi
 Changes in version make savegames incompatible, and the game will start from the beginning of the level with
 the player's persistent info.
 
-Changes to classes that don't need to break compatibilty can use the build number as the savegame version.
+Changes to classes that don't need to break compatibility can use the build number as the savegame version.
 Later versions are responsible for restoring from previous versions by ignoring any unused data and initializing
 variables that weren't in previous versions with safe information.
 
@@ -990,13 +988,19 @@ void idRestoreGame::ReadInt( int &value ) {
 	file->ReadBig( value );
 }
 
+void idRestoreGame::ReadInt( std::integral auto& value ) {
+	int temp = 0;
+	file->ReadInt(temp);
+	value = idMath::integer_cast<decltype(value)>(temp);
+}
+
 /*
 ================
 idRestoreGame::ReadJoint
 ================
 */
 void idRestoreGame::ReadJoint( jointHandle_t &value ) {
-	file->ReadBig( (int&)value );
+	file->ReadBig( reinterpret_cast<int&>(value) );
 }
 
 /*
@@ -1006,6 +1010,12 @@ idRestoreGame::ReadShort
 */
 void idRestoreGame::ReadShort( short &value ) {
 	file->ReadBig( value );
+}
+
+void idRestoreGame::ReadShort(std::integral auto& value) {
+	short temp = 0;
+	file->ReadShort(temp);
+	value = idMath::integer_cast<decltype(value)>(temp);
 }
 
 /*

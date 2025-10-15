@@ -81,7 +81,8 @@ int idListWindow::GetCurrentSel() {
 	return ( currentSel.Num() ) ? currentSel[0] : 0;
 }
 
-bool idListWindow::IsSelected( int index ) {
+bool idListWindow::IsSelected( int index ) const
+{
 	return ( currentSel.FindIndex( index ) >= 0 );
 }
 
@@ -120,7 +121,7 @@ const char *idListWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 
 		if ( key == K_MOUSE1) {
 			if (Contains(gui->CursorX(), gui->CursorY())) {
-				int cur = ( int )( ( gui->CursorY() - actualY - pixelOffset ) / vert ) + top;
+				int cur = static_cast<int>((gui->CursorY() - actualY - pixelOffset) / vert) + top;
 				if ( cur >= 0 && cur < listItems.Num() ) {
 					if ( multipleSel && ( idKeyInput::IsDown( K_LCTRL ) || idKeyInput::IsDown( K_RCTRL ) ) ) {
 						if ( IsSelected( cur ) ) {
@@ -448,7 +449,7 @@ void idListWindow::InitScroller( bool horizontal )
 void idListWindow::Draw(int time, float x, float y) {
 	idVec4 color;
 	idStr work;
-	int count = listItems.Num();
+	size_t count = listItems.Num();
 	idRectangle rect = textRect;
 	float scale = textScale;
 	float lineHeight = GetMaxCharHeight();
@@ -469,7 +470,7 @@ void idListWindow::Draw(int time, float x, float y) {
 		hover = false;
 	}
 
-	for (int i = top; i < count; i++) {
+	for (size_t i = top; i < count; i++) {
 		if ( IsSelected( i ) ) {
 			rect.h = lineHeight;
 			dc->DrawFilledRect(rect.x, rect.y + pixelOffset, rect.w, rect.h, borderColor);
@@ -490,9 +491,9 @@ void idListWindow::Draw(int time, float x, float y) {
 		rect.y --;
 
 		if ( tabInfo.Num() > 0 ) {
-			int start = 0;
+			size_t start = 0;
 			int tab = 0;
-			int stop = listItems[i].Find('\t', 0);
+			auto stop = listItems[i].Find('\t', 0);
 			while ( start < listItems[i].Length() ) {
 				if ( tab >= tabInfo.Num() ) {
 					common->Warning( "idListWindow::Draw: gui '%s' window '%s' tabInfo.Num() exceeded", gui->GetSourceFile(), name.c_str() );

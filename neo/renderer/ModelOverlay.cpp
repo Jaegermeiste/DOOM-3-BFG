@@ -426,7 +426,7 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel *model, const idPl
 				// keep this triangle
 				for ( int j = 0; j < 3; j++ ) {
 					int index = tri->indexes[i + j];
-					if ( vertexRemap[index] == (triIndex_t) -1 ) {
+					if ( vertexRemap[index] == static_cast<triIndex_t>(-1) ) {
 						vertexRemap[index] = numVerts;
 
 						overlayVerts[numVerts].vertexNum = index;
@@ -460,10 +460,10 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel *model, const idPl
 		overlay.surfaceNum = surfNum;
 		overlay.surfaceId = surf->id;
 		overlay.numIndexes = numIndexes;
-		overlay.indexes = (triIndex_t *)Mem_Alloc( numIndexes * sizeof( overlay.indexes[0] ), TAG_MODEL );
+		overlay.indexes = static_cast<triIndex_t*>(Mem_Alloc(numIndexes * sizeof(overlay.indexes[0]), TAG_MODEL));
 		memcpy( overlay.indexes, overlayIndexes.Ptr(), numIndexes * sizeof( overlay.indexes[0] ) );
 		overlay.numVerts = numVerts;
-		overlay.verts = (overlayVertex_t *)Mem_Alloc( numVerts * sizeof( overlay.verts[0] ), TAG_MODEL );
+		overlay.verts = static_cast<overlayVertex_t*>(Mem_Alloc(numVerts * sizeof(overlay.verts[0]), TAG_MODEL));
 		memcpy( overlay.verts, overlayVerts.Ptr(), numVerts * sizeof( overlay.verts[0] ) );
 		overlay.maxReferencedVertex = maxReferencedVertex;
 
@@ -633,7 +633,7 @@ drawSurf_t * idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t *sp
 	}
 
 	// create a new triangle surface in frame memory so it gets automatically disposed of
-	srfTriangles_t *newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t *newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->staticModelWithJoints = ( staticModel->jointsInverted != nullptr) ? const_cast< idRenderModelStatic * >( staticModel ) : nullptr;	// allow GPU skinning
 
 	newTri->ambientCache = vertexCache.AllocVertex(nullptr, ALIGN( maxVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
@@ -700,7 +700,7 @@ drawSurf_t * idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t *sp
 	newTri->numIndexes = numIndexes;
 	
 	// create the drawsurf
-	drawSurf_t * drawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+	drawSurf_t * drawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*drawSurf), FRAME_ALLOC_DRAW_SURFACE));
 	drawSurf->frontEndGeo = newTri;
 	drawSurf->numIndexes = newTri->numIndexes;
 	drawSurf->ambientCache = newTri->ambientCache;

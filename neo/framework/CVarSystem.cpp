@@ -49,7 +49,7 @@ public:
 							idInternalCVar( const idCVar *cvar );
 	virtual					~idInternalCVar();
 
-	const char **			CopyValueStrings( const char **strings );
+	static const char **			CopyValueStrings( const char **strings );
 	void					Update( const idCVar *cvar );
 	void					UpdateValue();
 	void					UpdateCheat();
@@ -62,13 +62,13 @@ private:
 	idStr					valueString;			// value
 	idStr					descriptionString;		// description
 
-	virtual const char *	InternalGetResetString() const;
+	[[nodiscard]] virtual const char *	InternalGetResetString() const noexcept;
 
-	virtual void			InternalSetString( const char *newValue );
+	virtual void			InternalSetString( const char *newValue ) noexcept;
 	virtual void			InternalServerSetString( const char *newValue );
-	virtual void			InternalSetBool( const bool newValue );
-	virtual void			InternalSetInteger( const int newValue );
-	virtual void			InternalSetFloat( const float newValue );
+	virtual void			InternalSetBool( const bool newValue ) noexcept;
+	virtual void			InternalSetInteger( const int newValue ) noexcept;
+	virtual void			InternalSetFloat( const float newValue ) noexcept;
 };
 
 /*
@@ -93,8 +93,8 @@ idInternalCVar::idInternalCVar( const char *newName, const char *newValue, int n
 	descriptionString = "";
 	description = descriptionString.c_str();
 	flags = ( newFlags & ~CVAR_STATIC ) | CVAR_MODIFIED;
-	valueMin = 1;
-	valueMax = -1;
+	valueMin = 1.0f;
+	valueMax = -1.0f;
 	valueStrings = nullptr;
 	valueCompletion = nullptr;
 	UpdateValue();
@@ -142,7 +142,7 @@ idInternalCVar::CopyValueStrings
 ============
 */
 const char **idInternalCVar::CopyValueStrings( const char **strings ) {
-	int i, totalLength;
+	size_t i;
 	const char **ptr;
 	char *str;
 
@@ -150,13 +150,13 @@ const char **idInternalCVar::CopyValueStrings( const char **strings ) {
 		return nullptr;
 	}
 
-	totalLength = 0;
+	size_t totalLength = 0;
 	for ( i = 0; strings[i] != nullptr; i++ ) {
 		totalLength += idStr::Length( strings[i] ) + 1;
 	}
 
-	ptr = (const char **) Mem_Alloc( ( i + 1 ) * sizeof( char * ) + totalLength, TAG_CVAR );
-	str = (char *) (((byte *)ptr) + ( i + 1 ) * sizeof( char * ) );
+	ptr = static_cast<const char**>(Mem_Alloc((i + 1) * sizeof(char*) + totalLength, TAG_CVAR));
+	str = reinterpret_cast<char*>(reinterpret_cast<byte*>(ptr) + (i + 1) * sizeof(char*));
 
 	for ( i = 0; strings[i] != nullptr; i++ ) {
 		ptr[i] = str;
@@ -237,10 +237,10 @@ void idInternalCVar::UpdateValue() {
 		integerValue = (int)atoi( value );
 		if ( valueMin < valueMax ) {
 			if ( integerValue < valueMin ) {
-				integerValue = (int)valueMin;
+				integerValue = static_cast<int>(valueMin);
 				clamped = true;
 			} else if ( integerValue > valueMax ) {
-				integerValue = (int)valueMax;
+				integerValue = static_cast<int>(valueMax);
 				clamped = true;
 			}
 		}
@@ -248,9 +248,9 @@ void idInternalCVar::UpdateValue() {
 			valueString = idStr( integerValue );
 			value = valueString.c_str();
 		}
-		floatValue = (float)integerValue;
+		floatValue = static_cast<float>(integerValue);
 	} else if ( flags & CVAR_FLOAT ) {
-		floatValue = (float)atof( value );
+		floatValue = static_cast<float>(atof(value));
 		if ( valueMin < valueMax ) {
 			if ( floatValue < valueMin ) {
 				floatValue = valueMin;
@@ -264,7 +264,7 @@ void idInternalCVar::UpdateValue() {
 			valueString = idStr( floatValue );
 			value = valueString.c_str();
 		}
-		integerValue = (int)floatValue;
+		integerValue = static_cast<int>(floatValue);
 	} else {
 		if ( valueStrings && valueStrings[0] ) {
 			integerValue = 0;
@@ -276,10 +276,10 @@ void idInternalCVar::UpdateValue() {
 			}
 			valueString = valueStrings[integerValue];
 			value = valueString.c_str();
-			floatValue = (float)integerValue;
+			floatValue = static_cast<float>(integerValue);
 		} else if ( valueString.Length() < 32 ) {
-			floatValue = (float)atof( value );
-			integerValue = (int)floatValue;
+			floatValue = static_cast<float>(atof(value));
+			integerValue = static_cast<int>(floatValue);
 		} else {
 			floatValue = 0.0f;
 			integerValue = 0;
@@ -430,7 +430,7 @@ public:
 
 	virtual void			Init();
 	virtual void			Shutdown();
-	virtual bool			IsInitialized() const;
+							[[nodiscard]] virtual bool			IsInitialized() const;
 
 	virtual void			Register( idCVar *cvar );
 
@@ -452,7 +452,7 @@ public:
 	virtual void			ArgCompletion( const char *cmdString, void(*callback)( const char *s ) );
 
 	virtual void			SetModifiedFlags( int flags );
-	virtual int				GetModifiedFlags() const;
+							[[nodiscard]] virtual int				GetModifiedFlags() const;
 	virtual void			ClearModifiedFlags( int flags );
 
 	virtual void			ResetFlaggedVariables( int flags );
@@ -485,12 +485,12 @@ private:
 idCVarSystemLocal			localCVarSystem;
 idCVarSystem *				cvarSystem = &localCVarSystem;
 
-#define NUM_COLUMNS				77		// 78 - 1
-#define NUM_NAME_CHARS			33
+constexpr auto NUM_COLUMNS = 77;		// 78 - 1
+constexpr auto NUM_NAME_CHARS = 33;
 #define NUM_DESCRIPTION_CHARS	( NUM_COLUMNS - NUM_NAME_CHARS )
-#define FORMAT_STRING			"%-32s "
+#define FORMAT_STRING "%-32s "
 
-const char *CreateColumn( const char *text, int columnWidth, const char *indent, idStr &string ) {
+static const char *CreateColumn( const char *text, int columnWidth, const char *indent, idStr &string ) {
 	int i, lastLine;
 
 	string.Clear();
@@ -1089,7 +1089,7 @@ void idCVarSystemLocal::ListByFlags( const idCmdArgs &args, cvarFlags_t flags ) 
 					common->Printf( FORMAT_STRING S_COLOR_CYAN "bool\n", cvar->GetName() );
 				} else if ( cvar->GetFlags() & CVAR_INTEGER ) {
 					if ( cvar->GetMinValue() < cvar->GetMaxValue() ) {
-						common->Printf( FORMAT_STRING S_COLOR_GREEN "int " S_COLOR_WHITE "[%d, %d]\n", cvar->GetName(), (int) cvar->GetMinValue(), (int) cvar->GetMaxValue() );
+						common->Printf( FORMAT_STRING S_COLOR_GREEN "int " S_COLOR_WHITE "[%d, %d]\n", cvar->GetName(), static_cast<int>(cvar->GetMinValue()), static_cast<int>(cvar->GetMaxValue()) );
 					} else {
 						common->Printf( FORMAT_STRING S_COLOR_GREEN "int\n", cvar->GetName() );
 					}

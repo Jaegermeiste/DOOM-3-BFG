@@ -103,7 +103,7 @@ public:
 	virtual bool			TrmFromModel( const char *modelName, idTraceModel &trm ) = 0;
 
 	// Gets the name of a model.
-	virtual const char *	GetModelName( cmHandle_t model ) const = 0;
+	[[nodiscard]] virtual const char *	GetModelName( cmHandle_t model ) const = 0;
 	// Gets the bounds of a model.
 	virtual bool			GetModelBounds( cmHandle_t model, idBounds &bounds ) const = 0;
 	// Gets all contents flags of brushes and polygons of a model ored together.

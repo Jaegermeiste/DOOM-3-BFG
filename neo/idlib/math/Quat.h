@@ -55,13 +55,13 @@ public:
 	float			z;
 	float			w;
 
-					idQuat();
+					idQuat() noexcept = default;
 					idQuat( float x, float y, float z, float w );
 
 	void 			Set( float x, float y, float z, float w );
 
-	float			operator[]( int index ) const;
-	float &			operator[]( int index );
+	float			operator[]( Ordinal auto index ) const;
+	float &			operator[]( Ordinal auto index );
 	idQuat			operator-() const;
 	idQuat &		operator=( const idQuat &a );
 	idQuat			operator+( const idQuat &a ) const;
@@ -107,9 +107,6 @@ public:
 // but without having to explicity create a temporary idQuat object.
 idQuat Slerp( const idQuat & from, const idQuat & to, const float t );
 
-ID_INLINE idQuat::idQuat() {
-}
-
 ID_INLINE idQuat::idQuat(const float x, const float y, const float z, const float w ) {
 	this->x = x;
 	this->y = y;
@@ -117,12 +114,14 @@ ID_INLINE idQuat::idQuat(const float x, const float y, const float z, const floa
 	this->w = w;
 }
 
-ID_INLINE float idQuat::operator[](const int index ) const {
+
+ID_INLINE float idQuat::operator[](const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index < 4 ) );
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idQuat::operator[](const int index ) {
+
+ID_INLINE float& idQuat::operator[](const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index < 4 ) );
 	return ( &x )[ index ];
 }
@@ -131,14 +130,7 @@ ID_INLINE idQuat idQuat::operator-() const {
 	return idQuat( -x, -y, -z, -w );
 }
 
-ID_INLINE idQuat &idQuat::operator=( const idQuat &a ) {
-	x = a.x;
-	y = a.y;
-	z = a.z;
-	w = a.w;
-
-	return *this;
-}
+ID_INLINE idQuat &idQuat::operator=( const idQuat &a ) = default;
 
 ID_INLINE idQuat idQuat::operator+( const idQuat &a ) const {
 	return idQuat( x + a.x, y + a.y, z + a.z, w + a.w );
@@ -264,14 +256,14 @@ ID_INLINE idQuat idQuat::Inverse() const {
 }
 
 ID_INLINE float idQuat::Length() const {
-	float len = x * x + y * y + z * z + w * w;
+	const float len = x * x + y * y + z * z + w * w;
 	return idMath::Sqrt( len );
 }
 
 ID_INLINE idQuat& idQuat::Normalize() {
-	float len = this->Length();
+	const float len = this->Length();
 	if ( len ) {
-		float ilength = 1 / len;
+		const float ilength = 1 / len;
 		x *= ilength;
 		y *= ilength;
 		z *= ilength;
@@ -323,13 +315,15 @@ public:
 	float			y;
 	float			z;
 
-					idCQuat();
+					idCQuat() noexcept;
 					idCQuat( float x, float y, float z );
 
 	void 			Set( float x, float y, float z );
 
-	float			operator[]( int index ) const;
-	float &			operator[]( int index );
+	
+	float			operator[]( Ordinal auto index ) const;
+	
+	float &			operator[]( Ordinal auto index );
 
 	bool			Compare( const idCQuat &a ) const;						// exact compare, no epsilon
 	bool			Compare( const idCQuat &a, const float epsilon ) const;	// compare with epsilon
@@ -348,8 +342,7 @@ public:
 	const char *	ToString( int precision = 2 ) const;
 };
 
-ID_INLINE idCQuat::idCQuat() {
-}
+ID_INLINE idCQuat::idCQuat() noexcept = default;
 
 ID_INLINE idCQuat::idCQuat(const float x, const float y, const float z ) {
 	this->x = x;
@@ -363,12 +356,14 @@ ID_INLINE void idCQuat::Set(const float x, const float y, const float z ) {
 	this->z = z;
 }
 
-ID_INLINE float idCQuat::operator[](const int index ) const {
+
+ID_INLINE float idCQuat::operator[](const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idCQuat::operator[](const int index ) {
+
+ID_INLINE float& idCQuat::operator[](const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &x )[ index ];
 }

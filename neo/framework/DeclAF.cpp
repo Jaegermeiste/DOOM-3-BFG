@@ -210,7 +210,8 @@ bool idAFVector::Write( idFile *f ) const {
 idAFVector::ToString
 ================
 */
-const char *idAFVector::ToString( idStr &str, const int precision ) {
+const char *idAFVector::ToString( idStr &str, const int precision ) const
+{
 
 	switch( type ) {
 		case idAFVector::VEC_COORDS: {

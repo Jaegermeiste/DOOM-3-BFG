@@ -139,7 +139,7 @@ void idRenderModelManagerLocal::ListModels_f( const idCmdArgs &args ) {
 	common->Printf( " mem   srf verts tris\n" );
 
 	common->Printf( "%i loaded models\n", inUse );
-	common->Printf( "total memory: %4.1fM\n", (float)totalMem / (1024*1024) );
+	common->Printf( "total memory: %4.1fM\n", static_cast<float>(totalMem) / (1024*1024) );
 }
 
 /*

@@ -40,20 +40,20 @@ If you have questions concerning this license or the applicable additional terms
 
 class idDeclEmail : public idDecl {
 public:
-							idDeclEmail() {}
+							idDeclEmail() noexcept {}
 
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+							[[nodiscard]] virtual size_t			Size() const;
+							[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	const char *			GetFrom() const { return from; }
-	const char *			GetBody() const { return text; }
-	const char *			GetSubject() const { return subject; }
-	const char *			GetDate() const { return date; }
-	const char *			GetTo() const { return to; }
+							[[nodiscard]] const char *			GetFrom() const { return from; }
+							[[nodiscard]] const char *			GetBody() const { return text; }
+							[[nodiscard]] const char *			GetSubject() const { return subject; }
+							[[nodiscard]] const char *			GetDate() const { return date; }
+							[[nodiscard]] const char *			GetTo() const { return to; }
 
 private:
 	idStr					text;
@@ -66,20 +66,20 @@ private:
 
 class idDeclVideo : public idDecl {
 public:
-							idDeclVideo() : preview(nullptr), video(nullptr), audio(nullptr) {};
+							idDeclVideo() noexcept : preview(nullptr), video(nullptr), audio(nullptr) {};
 
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+							[[nodiscard]] virtual size_t			Size() const;
+							[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	const idMaterial *		GetRoq() const { return video; }
-	const idSoundShader *	GetWave() const { return audio; }
-	const char *			GetVideoName() const { return videoName; }
-	const char *			GetInfo() const { return info; }
-	const idMaterial *		GetPreview() const { return preview; }
+							[[nodiscard]] const idMaterial *		GetRoq() const noexcept { return video; }
+							[[nodiscard]] const idSoundShader *	GetWave() const noexcept { return audio; }
+							[[nodiscard]] const char *			GetVideoName() const { return videoName; }
+							[[nodiscard]] const char *			GetInfo() const { return info; }
+							[[nodiscard]] const idMaterial *		GetPreview() const noexcept { return preview; }
 
 private:
 	const idMaterial *		preview;
@@ -92,18 +92,18 @@ private:
 
 class idDeclAudio : public idDecl {
 public:
-							idDeclAudio() : audio(nullptr) {};
+							idDeclAudio() noexcept : audio(nullptr) {};
 
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+							[[nodiscard]] virtual size_t			Size() const;
+							[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	const char *			GetAudioName() const { return audioName; }
-	const idSoundShader *	GetWave() const { return audio; }
-	const char *			GetInfo() const { return info; }
+							[[nodiscard]] const char *			GetAudioName() const { return audioName; }
+							[[nodiscard]] const idSoundShader *	GetWave() const noexcept { return audio; }
+							[[nodiscard]] const char *			GetInfo() const { return info; }
 
 private:
 	const idSoundShader *	audio;
@@ -113,7 +113,7 @@ private:
 
 class idDeclPDA : public idDecl {
 public:
-							idDeclPDA() { originalEmails = originalVideos = 0; };
+							idDeclPDA() noexcept { originalEmails = originalVideos = 0; };
 
 	virtual size_t			Size() const;
 	virtual const char *	DefaultDefinition() const;
@@ -127,9 +127,9 @@ public:
 	virtual void			AddEmail( const idDeclEmail * email, bool unique = true ) const { if ( unique ) { emails.AddUnique( email ); } else { emails.Append( email ); } }
 	virtual void			RemoveAddedEmailsAndVideos() const;
 
-	virtual const int		GetNumVideos() const { return videos.Num(); }
-	virtual const int		GetNumAudios() const { return audios.Num(); }
-	virtual const int		GetNumEmails() const { return emails.Num(); }
+	virtual const size_t	GetNumVideos() const { return videos.Num(); }
+	virtual const size_t	GetNumAudios() const { return audios.Num(); }
+	virtual const size_t	GetNumEmails() const { return emails.Num(); }
 	virtual const idDeclVideo *GetVideoByIndex( int index ) const { return ( index < 0 || index > videos.Num() ? nullptr : videos[index] ); }
 	virtual const idDeclAudio *GetAudioByIndex( int index ) const { return ( index < 0 || index > audios.Num() ? nullptr : audios[index] ); }
 	virtual const idDeclEmail *GetEmailByIndex( int index ) const { return ( index < 0 || index > emails.Num() ? nullptr : emails[index] ); }

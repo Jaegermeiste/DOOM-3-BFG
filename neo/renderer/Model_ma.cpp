@@ -144,7 +144,7 @@ bool MA_ParseTransform(idParser& parser) {
 	memset(&header, 0, sizeof(header));
 
 	//Allocate room for the transform
-	transform = (maTransform_t *)Mem_Alloc( sizeof( maTransform_t ), TAG_MODEL );
+	transform = static_cast<maTransform_t*>(Mem_Alloc(sizeof(maTransform_t), TAG_MODEL));
 	memset(transform, 0, sizeof(maTransform_t));
 	transform->scale.x = transform->scale.y = transform->scale.z = 1;
 
@@ -201,7 +201,7 @@ bool MA_ParseVertex(idParser& parser, maAttribHeader_t* header) {
 	//Allocate enough space for all the verts if this is the first attribute for verticies
 	if(!pMesh->vertexes) {
 		pMesh->numVertexes = header->size;
-		pMesh->vertexes = (idVec3 *)Mem_Alloc( sizeof( idVec3 ) * pMesh->numVertexes, TAG_MODEL );
+		pMesh->vertexes = static_cast<idVec3*>(Mem_Alloc(sizeof(idVec3) * pMesh->numVertexes, TAG_MODEL));
 	}
 
 	//Get the start and end index for this attribute
@@ -233,7 +233,7 @@ bool MA_ParseVertexTransforms(idParser& parser, maAttribHeader_t* header) {
 		}
 
 		pMesh->numVertTransforms = header->size;
-		pMesh->vertTransforms = (idVec4 *)Mem_Alloc( sizeof( idVec4 ) * pMesh->numVertTransforms, TAG_MODEL );
+		pMesh->vertTransforms = static_cast<idVec4*>(Mem_Alloc(sizeof(idVec4) * pMesh->numVertTransforms, TAG_MODEL));
 		pMesh->nextVertTransformIndex = 0;
 	}
 
@@ -281,7 +281,7 @@ bool MA_ParseEdge(idParser& parser, maAttribHeader_t* header) {
 	//Allocate enough space for all the verts if this is the first attribute for verticies
 	if(!pMesh->edges) {
 		pMesh->numEdges = header->size;
-		pMesh->edges = (idVec3 *)Mem_Alloc( sizeof( idVec3 ) * pMesh->numEdges, TAG_MODEL );
+		pMesh->edges = static_cast<idVec3*>(Mem_Alloc(sizeof(idVec3) * pMesh->numEdges, TAG_MODEL));
 	}
 
 	//Get the start and end index for this attribute
@@ -309,7 +309,7 @@ bool MA_ParseNormal(idParser& parser, maAttribHeader_t* header) {
 	//Allocate enough space for all the verts if this is the first attribute for verticies
 	if(!pMesh->normals) {
 		pMesh->numNormals = header->size;
-		pMesh->normals = (idVec3 *)Mem_Alloc( sizeof( idVec3 ) * pMesh->numNormals, TAG_MODEL );
+		pMesh->normals = static_cast<idVec3*>(Mem_Alloc(sizeof(idVec3) * pMesh->numNormals, TAG_MODEL));
 	}
 
 	//Get the start and end index for this attribute
@@ -363,7 +363,7 @@ bool MA_ParseFace(idParser& parser, maAttribHeader_t* header) {
 	//Allocate enough space for all the verts if this is the first attribute for verticies
 	if(!pMesh->faces) {
 		pMesh->numFaces = header->size;
-		pMesh->faces = (maFace_t *)Mem_Alloc( sizeof( maFace_t ) * pMesh->numFaces, TAG_MODEL );
+		pMesh->faces = static_cast<maFace_t*>(Mem_Alloc(sizeof(maFace_t) * pMesh->numFaces, TAG_MODEL));
 	}
 
 	//Get the start and end index for this attribute
@@ -441,7 +441,7 @@ bool MA_ParseColor(idParser& parser, maAttribHeader_t* header) {
 	//Allocate enough space for all the verts if this is the first attribute for verticies
 	if(!pMesh->colors) {
 		pMesh->numColors = header->size;
-		pMesh->colors = (byte *)Mem_Alloc( sizeof( byte ) * pMesh->numColors * 4, TAG_MODEL );
+		pMesh->colors = static_cast<byte*>(Mem_Alloc(sizeof(byte) * pMesh->numColors * 4, TAG_MODEL));
 	}
 
 	//Get the start and end index for this attribute
@@ -475,7 +475,7 @@ bool MA_ParseTVert(idParser& parser, maAttribHeader_t* header) {
 	//Allocate enough space for all the data
 	if(!pMesh->tvertexes) {
 		pMesh->numTVertexes = header->size;
-		pMesh->tvertexes = (idVec2 *)Mem_Alloc( sizeof( idVec2 ) * pMesh->numTVertexes, TAG_MODEL );
+		pMesh->tvertexes = static_cast<idVec2*>(Mem_Alloc(sizeof(idVec2) * pMesh->numTVertexes, TAG_MODEL));
 	}
 
 	//Get the start and end index for this attribute
@@ -568,7 +568,7 @@ void MA_GetSharedFace(int faceIndex, int vertIndex, int& sharedFace, int& shared
 void MA_ParseMesh(idParser& parser) {
 
 	maObject_t	*object;
-	object = (maObject_t *)Mem_Alloc( sizeof( maObject_t ), TAG_MODEL );
+	object = static_cast<maObject_t*>(Mem_Alloc(sizeof(maObject_t), TAG_MODEL));
 	memset( object, 0, sizeof( maObject_t ) );
 	maGlobal.model->objects.Append( object );
 	maGlobal.currentObject = object;
@@ -689,7 +689,7 @@ void MA_ParseMesh(idParser& parser) {
 
 	//Now apply the pt transformations
 	for(int i = 0; i < pMesh->numVertTransforms; i++) {
-		pMesh->vertexes[(int)pMesh->vertTransforms[i].w] +=  pMesh->vertTransforms[i].ToVec3();
+		pMesh->vertexes[static_cast<int>(pMesh->vertTransforms[i].w)] +=  pMesh->vertTransforms[i].ToVec3();
 	}
 	
 	MA_VERBOSE((va("MESH %s - parent %s\n", header.name, header.parent)));
@@ -722,7 +722,7 @@ void MA_ParseFileNode(idParser& parser) {
 				}
 
 				maFileNode_t* fileNode;
-				fileNode = (maFileNode_t*)Mem_Alloc( sizeof( maFileNode_t ), TAG_MODEL );
+				fileNode = static_cast<maFileNode_t*>(Mem_Alloc(sizeof(maFileNode_t), TAG_MODEL));
 				strcpy(fileNode->name, header.name);
 				strcpy(fileNode->path, token.c_str());
 
@@ -741,7 +741,7 @@ void MA_ParseMaterialNode(idParser& parser) {
 	MA_ParseNodeHeader(parser, &header);
 
 	maMaterialNode_t* matNode;
-	matNode = (maMaterialNode_t*)Mem_Alloc( sizeof( maMaterialNode_t ), TAG_MODEL );
+	matNode = static_cast<maMaterialNode_t*>(Mem_Alloc(sizeof(maMaterialNode_t), TAG_MODEL));
 	memset(matNode, 0, sizeof(maMaterialNode_t));
 
 	strcpy(matNode->name, header.name);
@@ -782,7 +782,7 @@ int MA_AddMaterial(const char* materialName) {
 			
 			//Got the file
 			maMaterial_t	*material;
-			material = (maMaterial_t *)Mem_Alloc( sizeof( maMaterial_t ), TAG_MODEL );
+			material = static_cast<maMaterial_t*>(Mem_Alloc(sizeof(maMaterial_t), TAG_MODEL));
 			memset( material, 0, sizeof( maMaterial_t ) );
 			
 			//Remove the OS stuff

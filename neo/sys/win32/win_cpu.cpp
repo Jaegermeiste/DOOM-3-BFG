@@ -31,6 +31,15 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "win_local.h"
 
+#if defined(_MSC_VER)
+#include <intrin.h>       // __cpuidex, _xgetbv
+#include <immintrin.h>    // _xgetbv on MSVC
+#elif defined(__GNUC__) || defined(__clang__)
+#include <cpuid.h>        // __cpuid_count
+#include <immintrin.h>    // may define _xgetbv on recent GCC/Clang
+#include <x86intrin.h>
+#endif
+
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
 #pragma warning(disable:4731)	// warning C4731: 'XXX' : frame pointer register 'ebx' modified by inline assembly code
 
@@ -48,12 +57,13 @@ Sys_GetClockTicks
 ================
 */
 double Sys_GetClockTicks() {
-#if 0
+#if defined(ID_WIN64)
 
-	LARGE_INTEGER li;
+	LARGE_INTEGER li = {};
 
 	QueryPerformanceCounter( &li );
-	return = (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
+	//return (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
+	return static_cast<double>(li.QuadPart);
 
 #else
 
@@ -68,7 +78,7 @@ double Sys_GetClockTicks() {
 		mov hi, edx
 		pop ebx
 	}
-	return (double ) lo + (double) 0xFFFFFFFF * hi;
+	return static_cast<double>(lo) + static_cast<double>(0xFFFFFFFF) * hi;
 
 #endif
 }
@@ -91,24 +101,24 @@ double Sys_ClockTicksPerSecond() {
 #else
 
 	if ( !ticks ) {
-		HKEY hKey;
-		LPBYTE ProcSpeed;
-		DWORD buflen, ret;
+		HKEY hKey = {};
+		DWORD ProcSpeed = 0;
+		DWORD buflen = 0;
+		LSTATUS ret = 0;
 
 		if ( !RegOpenKeyEx( HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &hKey ) ) {
-			ProcSpeed = nullptr;
 			buflen = sizeof( ProcSpeed );
-			ret = RegQueryValueEx( hKey, "~MHz", nullptr, nullptr, (LPBYTE) &ProcSpeed, &buflen );
+			ret = RegQueryValueEx( hKey, "~MHz", nullptr, nullptr, reinterpret_cast<LPBYTE>(&ProcSpeed), &buflen );
 			// If we don't succeed, try some other spellings.
 			if ( ret != ERROR_SUCCESS ) {
-				ret = RegQueryValueEx( hKey, "~Mhz", nullptr, nullptr, (LPBYTE) &ProcSpeed, &buflen );
+				ret = RegQueryValueEx( hKey, "~Mhz", nullptr, nullptr, reinterpret_cast<LPBYTE>(&ProcSpeed), &buflen );
 			}
 			if ( ret != ERROR_SUCCESS ) {
-				ret = RegQueryValueEx( hKey, "~mhz", nullptr, nullptr, (LPBYTE) &ProcSpeed, &buflen );
+				ret = RegQueryValueEx( hKey, "~mhz", nullptr, nullptr, reinterpret_cast<LPBYTE>(&ProcSpeed), &buflen );
 			}
 			RegCloseKey( hKey );
 			if ( ret == ERROR_SUCCESS ) {
-				ticks = (double) ((unsigned long)ProcSpeed) * 1000000;
+				ticks = static_cast<double>(ProcSpeed) * 1000000.0;
 			}
 		}
 	}
@@ -132,6 +142,11 @@ HasCPUID
 ================
 */
 static bool HasCPUID() {
+#if defined(__x86_64__) || defined(_M_X64)
+	return true;
+#else
+#if defined(_MSC_VER) && defined(_M_IX86)
+	// MSVC 32-bit: inline asm is available
 	__asm 
 	{
 		pushfd						// save eflags
@@ -161,19 +176,44 @@ err:
 	return false;
 good:
 	return true;
+#elif (defined(__GNUC__) || defined(__clang__)) && defined(__i386__)
+	uint32 eflags_before, eflags_after;
+	__asm__ volatile(
+		"pushfl\n\t"
+		"popl %0\n\t"
+		"movl %0, %1\n\t"
+		"xorl $0x200000, %0\n\t"  // toggle ID
+		"pushl %0\n\t"
+		"popfl\n\t"
+		"pushfl\n\t"
+		"popl %0\n\t"
+		: "=&r"(eflags_after), "=&r"(eflags_before)
+		:
+		: "cc"
+		);
+	return ((eflags_after ^ eflags_before) & 0x200000u) != 0;
+#else
+	// Unknown 32-bit target—assume true on modern compilers/CPUs
+	return true;
+#endif
+#endif
+
 }
 
-#define _REG_EAX		0
-#define _REG_EBX		1
-#define _REG_ECX		2
-#define _REG_EDX		3
+enum registers_e {
+	_REG_EAX = 0,
+	_REG_ECX = 1,
+	_REG_EDX = 2,
+	_REG_EBX = 3
+};
 
 /*
 ================
 CPUID
 ================
 */
-static void CPUID( int func, unsigned regs[4] ) {
+static void CPUID( const uint32 leaf, const uint32 subleaf, uint32 regs[4] ) {
+#if 0
 	unsigned regEAX, regEBX, regECX, regEDX;
 
 	__asm pusha
@@ -190,20 +230,177 @@ static void CPUID( int func, unsigned regs[4] ) {
 	regs[_REG_EBX] = regEBX;
 	regs[_REG_ECX] = regECX;
 	regs[_REG_EDX] = regEDX;
+#else
+#if defined(_MSC_VER)
+	__cpuidex(reinterpret_cast<int*>(regs), static_cast<int>(leaf), static_cast<int>(subleaf));
+#elif defined(__GNUC__) || defined(__clang__)
+	uint32 regEAX, regEBX, regECX, regEDX;
+	__cpuid_count(leaf, subleaf, regEAX, regEBX, regECX, regEDX);
+	regs[_REG_EAX] = regEAX;
+	regs[_REG_EBX] = regEBX;
+	regs[_REG_ECX] = regECX;
+	regs[_REG_EDX] = regEDX;
+#else
+#  error "cpuid: unsupported compiler"
+#endif
+#endif
 }
 
+static inline uint64 xgetbv0() noexcept {
+#if defined(_MSC_VER)
+	return _xgetbv(0);
+#elif defined(__GNUC__) || defined(__clang__)
+	// Many libstdc++/libclang setups expose _xgetbv via immintrin/xsaveintrin,
+	// but if not, fallback to builtin/asm is fine.
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+#if defined(__GNUC__) && !defined(_xgetbv)
+	uint32 eax, edx;
+	__asm__ volatile(".byte 0x0f, 0x01, 0xd0"      // xgetbv
+		: "=a"(eax), "=d"(edx)
+		: "c"(0));
+	return (static_cast<uint64>(edx) << 32) | eax;
+#else
+	return _xgetbv(0);
+#endif
+#else
+	return 0;
+#endif
+#else
+	return 0;
+#endif
+}
+
+#pragma pack(push,1)
+struct SMBIOSHeader { uint8 Type, Length; uint16 Handle; };
+#pragma pack(pop)
+
+static inline const char* Sys_GetCpuManufacturerSMBIOS() noexcept {
+	static char out[512] = {}; // static storage
+	out[0] = '\0';
+
+	DWORD size = GetSystemFirmwareTable('RSMB', 0, nullptr, 0);
+	if (!size)
+	{
+		return nullptr;
+	}
+
+	byte* buf = static_cast<byte*>(malloc(size));
+	if (!buf)
+	{
+		return nullptr;
+	}
+
+	const char* result = nullptr;
+	if (GetSystemFirmwareTable('RSMB', 0, buf, size) == size) {
+		byte* p = buf;
+		const byte* e = buf + size;
+		while (p + sizeof(SMBIOSHeader) <= e) {
+			auto* h = reinterpret_cast<const SMBIOSHeader*>(p);
+			if (h->Length == 0)
+			{
+				break;
+			}
+
+			// Find end of string-set (double NUL)
+			byte* structStart = p;
+			byte* next = p + h->Length;
+			while (next + 1 < e && (next[0] != 0 || next[1] != 0))
+			{
+				++next;
+			}
+			if (next + 1 < e)
+			{
+				next += 2; // skip double NUL
+			}
+
+			if (h->Type == 4 && h->Length >= 0x1A) {
+				// Type 4 offset 0x10 = Manufacturer (string index)
+				const uint8 idx = structStart[0x10];
+				if (idx != 0) {
+					const char* s = reinterpret_cast<const char*>(structStart + h->Length);
+					// Walk string list (1-based)
+					for (uint8 i = 1; *s; ) {
+						const size_t L = std::strlen(s);
+						if (i == idx) {
+							size_t n = (L < sizeof(out) - 1) ? L : sizeof(out) - 1;
+							memcpy(out, s, n);
+							out[n] = '\0';
+							result = out;
+							break;
+						}
+						s += L + 1; ++i;
+					}
+				}
+				if (result)
+				{
+					break;
+				}
+			}
+			p = next;
+		}
+	}
+	free(buf);
+	return result && out[0] ? out : nullptr;
+}
+
+static inline const char* GetVendorString() noexcept {
+#if defined(ID_CPU_ARCH_X86) || defined(ID_CPU_ARCH_X64)
+	static char vendor[13] = {};
+	static bool initialized = false;
+
+	if (!initialized) {
+		uint32 eax = 0, ebx = 0, ecx = 0, edx = 0;
+
+#if defined(_MSC_VER)
+		uint32 regs[4] = {};
+		__cpuidex(reinterpret_cast<int*>(regs), 0, 0);
+		eax = regs[0]; ebx = regs[1]; ecx = regs[2]; edx = regs[3];
+#elif defined(__GNUC__) || defined(__clang__)
+		__cpuid_count(0, 0, eax, ebx, ecx, edx);
+#endif
+
+		memcpy(&vendor[0], &ebx, 4);
+		memcpy(&vendor[4], &edx, 4);
+		memcpy(&vendor[8], &ecx, 4);
+		vendor[12] = '\0';
+		initialized = true;
+	}
+
+	return vendor;
+#else
+	// Non-x86 architecture — CPUID not supported.
+	return Sys_GetCpuManufacturerSMBIOS();
+#endif
+}
+
+/*
+================
+IsIntel
+================
+*/
+static inline bool IsIntel() noexcept {
+#if defined(ID_CPU_ARCH_X86) || defined(ID_CPU_ARCH_X64)
+	const char* vendor = GetVendorString();
+	return vendor && strcmp(vendor, "GenuineIntel") == 0;
+#elif defined(ID_CPU_ARCH_ARM32) || defined(ID_CPU_ARCH_ARM64)
+	return false;
+#else
+	return false;
+#endif
+}
 
 /*
 ================
 IsAMD
 ================
 */
-static bool IsAMD() {
-	char pstring[16];
-	char processorString[13];
+static inline bool IsAMD() {
+#if 0
+	char pstring[16] = {};
+	char processorString[13] = {};
 
 	// get name of processor
-	CPUID( 0, ( unsigned int * ) pstring );
+	CPUID( 0, 0, reinterpret_cast<uint32*>(pstring) );
 	processorString[0] = pstring[4];
 	processorString[1] = pstring[5];
 	processorString[2] = pstring[6];
@@ -222,6 +419,29 @@ static bool IsAMD() {
 		return true;
 	}
 	return false;
+#else
+#if defined(ID_CPU_ARCH_X86) || defined(ID_CPU_ARCH_X64)
+	const char* vendor = GetVendorString();
+	return vendor && (strcmp(vendor, "AuthenticAMD") == 0 || strcmp(vendor, "HygonGenuine") == 0);
+#elif defined(ID_CPU_ARCH_ARM32) || defined(ID_CPU_ARCH_ARM64)
+	return false;
+#else
+	return false;
+#endif
+#endif
+}
+
+/*
+================
+IsARM
+================
+*/
+static inline bool IsARM() noexcept {
+#if defined(ID_CPU_ARCH_ARM32) || defined(ID_CPU_ARCH_ARM64)
+	return true;
+#else
+	return false;
+#endif
 }
 
 /*
@@ -230,10 +450,10 @@ HasCMOV
 ================
 */
 static bool HasCMOV() {
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// get CPU feature bits
-	CPUID( 1, regs );
+	CPUID( 1, 0, regs );
 
 	// bit 15 of EDX denotes CMOV existence
 	if ( regs[_REG_EDX] & ( 1 << 15 ) ) {
@@ -248,16 +468,16 @@ Has3DNow
 ================
 */
 static bool Has3DNow() {
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// check AMD-specific functions
-	CPUID( 0x80000000, regs );
+	CPUID( 0x80000000, 0, regs );
 	if ( regs[_REG_EAX] < 0x80000000 ) {
 		return false;
 	}
 
 	// bit 31 of EDX denotes 3DNow! support
-	CPUID( 0x80000001, regs );
+	CPUID( 0x80000001, 0, regs );
 	if ( regs[_REG_EDX] & ( 1 << 31 ) ) {
 		return true;
 	}
@@ -271,10 +491,10 @@ HasMMX
 ================
 */
 static bool HasMMX() {
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// get CPU feature bits
-	CPUID( 1, regs );
+	CPUID( 1, 0, regs );
 
 	// bit 23 of EDX denotes MMX existence
 	if ( regs[_REG_EDX] & ( 1 << 23 ) ) {
@@ -289,10 +509,10 @@ HasSSE
 ================
 */
 static bool HasSSE() {
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// get CPU feature bits
-	CPUID( 1, regs );
+	CPUID( 1, 0, regs );
 
 	// bit 25 of EDX denotes SSE existence
 	if ( regs[_REG_EDX] & ( 1 << 25 ) ) {
@@ -307,10 +527,10 @@ HasSSE2
 ================
 */
 static bool HasSSE2() {
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// get CPU feature bits
-	CPUID( 1, regs );
+	CPUID( 1, 0, regs );
 
 	// bit 26 of EDX denotes SSE2 existence
 	if ( regs[_REG_EDX] & ( 1 << 26 ) ) {
@@ -325,10 +545,10 @@ HasSSE3
 ================
 */
 static bool HasSSE3() {
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// get CPU feature bits
-	CPUID( 1, regs );
+	CPUID( 1, 0, regs );
 
 	// bit 0 of ECX denotes SSE3 existence
 	if ( regs[_REG_ECX] & ( 1 << 0 ) ) {
@@ -339,20 +559,312 @@ static bool HasSSE3() {
 
 /*
 ================
+HasSSSE3
+================
+*/
+static bool HasSSSE3() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// bit 9 of ECX denotes SSSE3 existence
+	if (regs[_REG_ECX] & (1 << 9)) {
+		return true;
+	}
+	return false;
+}
+
+/*
+================
+HasSSE41
+================
+*/
+static bool HasSSE41() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// bit 19 of ECX denotes SSE4.1 existence
+	if (regs[_REG_ECX] & (1 << 19)) {
+		return true;
+	}
+	return false;
+}
+
+/*
+================
+HasSSE42
+================
+*/
+static bool HasSSE42() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// bit 20 of ECX denotes SSE4.1 existence
+	if (regs[_REG_ECX] & (1 << 20)) {
+		return true;
+	}
+	return false;
+}
+
+/*
+================
+HasAVX
+================
+*/
+static bool HasAVX() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// bit 28 of ECX denotes AVX existence, xsave (bit 26) and osxsave (bit 27) also required
+	const bool has_xsave   = (regs[_REG_ECX] & (1u << 26)) != 0;
+	const bool has_osxsave = (regs[_REG_ECX] & (1u << 27)) != 0;
+	const bool has_avx_hw  = (regs[_REG_ECX] & (1u << 28)) != 0;
+
+	// OS must enable XMM (bit1) and YMM (bit2) in XCR0 for AVX/AVX2
+	uint64 xcr0 = 0;
+	if (has_xsave && has_osxsave)
+	{
+		xcr0 = xgetbv0();
+	}
+
+	const bool os_avx_ok = ((xcr0 & 0x6u) == 0x6u); // SSE(1) + YMM(2)
+
+	if (has_avx_hw && os_avx_ok) {
+		return true;
+	}
+	return false;
+}
+
+/*
+================
+HasAVX2
+================
+*/
+static bool HasAVX2() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// xsave (bit 26) and osxsave (bit 27) required
+	const bool has_xsave = (regs[_REG_ECX] & (1u << 26)) != 0;
+	const bool has_osxsave = (regs[_REG_ECX] & (1u << 27)) != 0;
+
+	memset(&regs, 0, sizeof(regs));
+
+	// AVX2 on page 7
+	CPUID(7, 0, regs);
+
+	const bool has_avx2_hw = (regs[_REG_EBX] & (1u << 5)) != 0;
+
+	// OS must enable XMM (bit1) and YMM (bit2) in XCR0 for AVX/AVX2
+	uint64 xcr0 = 0;
+	if (has_xsave && has_osxsave)
+	{
+		xcr0 = xgetbv0();
+	}
+
+	const bool os_avx_ok = ((xcr0 & 0x6u) == 0x6u); // SSE(1) + YMM(2)
+
+	if (has_avx2_hw && os_avx_ok) {
+		return true;
+	}
+	return false;
+}
+
+/*
+================
+HasFMA3
+================
+*/
+static bool HasFMA3() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// FMA3 = ECX bit 12
+	const bool has_fma3_hw = (regs[_REG_ECX] & (1u << 12)) != 0;
+
+	const bool os_avx_ok = HasAVX();
+
+	if (has_fma3_hw && os_avx_ok) {
+		return true;
+	}
+	return false;
+}
+
+/*
+================
+HasAVX512F
+================
+*/
+static bool HasAVX512F() {
+	uint32 regs[4] = {};
+
+	// get CPU feature bits
+	CPUID(1, 0, regs);
+
+	// xsave (bit 26) and osxsave (bit 27) required
+	const bool has_xsave = (regs[_REG_ECX] & (1u << 26)) != 0;
+	const bool has_osxsave = (regs[_REG_ECX] & (1u << 27)) != 0;
+
+	// OS must enable XMM (bit1) and YMM (bit2) in XCR0 for AVX/AVX2
+	uint64 xcr0 = 0;
+	if (has_xsave && has_osxsave)
+	{
+		xcr0 = xgetbv0();
+	}
+
+	const bool os_avx_ok = ((xcr0 & 0x6u) == 0x6u); // SSE(1) + YMM(2)
+	const bool os_avx512_ok = ((xcr0 & 0xE0u) == 0xE0u) && os_avx_ok; // AVX-512 requires XCR0 enabling of opmask(5), ZMM_hi256(6), hi16_ZMM(7)
+
+	memset(&regs, 0, sizeof(regs));
+
+	// AVX2 on page 7
+	CPUID(7, 0, regs);
+
+	if (os_avx512_ok && os_avx_ok) {
+		const bool avx512f = (regs[_REG_EBX] & (1u << 16)) != 0;
+		return avx512f;
+	}
+	return false;
+}
+
+/*
+================
+HasNEON
+================
+*/
+
+#ifndef PF_MAXIMUM_PROCESSORS
+#define PF_MAXIMUM_PROCESSORS 0
+#endif // PF_MAXIMUM_PROCESSORS
+
+static inline bool HasNEON()
+{
+	// These PF_* constants exist in recent Windows SDKs; guard with ifdefs.
+#ifdef PF_ARM_NEON_INSTRUCTIONS_AVAILABLE
+	return IsProcessorFeaturePresent(PF_ARM_NEON_INSTRUCTIONS_AVAILABLE) != 0;
+#else
+	return false;
+#endif // PF_ARM_NEON_INSTRUCTIONS_AVAILABLE
+}
+
+/*
+================
+HasSVE
+================
+*/
+static inline bool HasSVE()
+{
+	// These PF_* constants exist in recent Windows SDKs; guard with ifdefs.
+#ifdef PF_ARM_SVE_INSTRUCTIONS_AVAILABLE
+	return IsProcessorFeaturePresent(PF_ARM_SVE_INSTRUCTIONS_AVAILABLE) != 0;
+#else
+	return false;
+#endif // PF_ARM_SVE_INSTRUCTIONS_AVAILABLE
+}
+
+/*
+================
+HasSVE2
+================
+*/
+static inline bool HasSVE2()
+{
+	// These PF_* constants exist in recent Windows SDKs; guard with ifdefs.
+#ifdef PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE
+	return IsProcessorFeaturePresent(PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE) != 0;
+#else
+	return false;
+#endif // PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE
+}
+
+/*
+================
+HasSVE21
+================
+*/
+static inline bool HasSVE21()
+{
+	// These PF_* constants exist in recent Windows SDKs; guard with ifdefs.
+#ifdef PF_ARM_SVE2_1_INSTRUCTIONS_AVAILABLE
+	return IsProcessorFeaturePresent(PF_ARM_SVE2_1_INSTRUCTIONS_AVAILABLE) != 0;
+#else
+	return false;
+#endif // PF_ARM_SVE2_1_INSTRUCTIONS_AVAILABLE
+}
+
+/*
+================
 LogicalProcPerPhysicalProc
 ================
 */
+
+static size_t LogicalProcPerPhysicalProc() {
+#if 0
 #define NUM_LOGICAL_BITS   0x00FF0000     // EBX[23:16] Bit 16-23 in ebx contains the number of logical
-                                          // processors per physical processor when execute cpuid with 
-                                          // eax set to 1
-static unsigned char LogicalProcPerPhysicalProc() {
-	unsigned int regebx = 0;
+	// processors per physical processor when execute cpuid with 
+	// eax set to 1
+
+	uint32 regebx = 0;
 	__asm {
 		mov eax, 1
 		cpuid
 		mov regebx, ebx
 	}
-	return (unsigned char) ((regebx & NUM_LOGICAL_BITS) >> 16);
+	return static_cast<size_t>((regebx & NUM_LOGICAL_BITS) >> 16);
+#else
+	DWORD bytes = 0;
+	if (GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &bytes) ||
+		GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+		return 0;
+	}
+
+	byte* buf = static_cast<byte*>(malloc(bytes));
+	if (!buf)
+	{
+		return 0;
+	}
+	memset(buf, 0, bytes * sizeof(byte));
+
+	size_t result = 0;
+
+	if (GetLogicalProcessorInformationEx(
+		RelationProcessorCore,
+		reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buf), &bytes)) {
+
+		auto* ex = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buf);
+		if (ex && ex->Relationship == RelationProcessorCore) {
+			const PROCESSOR_RELATIONSHIP& pr = ex->Processor;
+
+			auto popmask = [](KAFFINITY m) -> size_t {
+				// KAFFINITY is ULONG_PTR; popcount the (up to) 64-bit mask per group
+				return static_cast<size_t>(std::popcount(static_cast<unsigned long long>(m)));
+				};
+
+			size_t threadsPerCore = 0;
+			for (WORD i = 0; i < pr.GroupCount; ++i)
+			{
+				threadsPerCore += popmask(pr.GroupMask[i].Mask);
+			}
+
+			result = threadsPerCore; // 1 (no SMT), 2 (HT), etc.
+		}
+	}
+
+	free(buf);
+
+	return result; // 0 on failure
+#endif
 }
 
 /*
@@ -360,17 +872,47 @@ static unsigned char LogicalProcPerPhysicalProc() {
 GetAPIC_ID
 ================
 */
-#define INITIAL_APIC_ID_BITS  0xFF000000  // EBX[31:24] Bits 24-31 (8 bits) return the 8-bit unique 
+constexpr auto INITIAL_APIC_ID_BITS = 0xFF000000;  // EBX[31:24] Bits 24-31 (8 bits) return the 8-bit unique
                                           // initial APIC ID for the processor this code is running on.
                                           // Default value = 0xff if HT is not supported
-static unsigned char GetAPIC_ID() {
+static uint32 GetAPIC_ID() {
+#if 0
 	unsigned int regebx = 0;
 	__asm {
 		mov eax, 1
 		cpuid
 		mov regebx, ebx
 	}
-	return (unsigned char) ((regebx & INITIAL_APIC_ID_BITS) >> 24);
+	return static_cast<uint32>((regebx & INITIAL_APIC_ID_BITS) >> 24);
+#else
+	uint32 regs[4] = {};
+
+	// Check highest basic leaf
+	CPUID(0, 0, regs);
+	const uint32 maxBasic = regs[_REG_EAX];
+
+	memset(&regs, 0, sizeof(regs));
+
+	// Prefer CPUID.1F (Intel/AMD new topology), then CPUID.0B (older Intel)
+	if (maxBasic >= 0x1F) {
+		CPUID(0x1F, 0, regs);                 // subleaf 0 = SMT level
+		if ((regs[_REG_EBX] & 0xFFFF) != 0)
+		{
+			return regs[_REG_EDX]; // EDX = x2APIC ID
+		}
+	}
+	if (maxBasic >= 0x0B) {
+		CPUID(0x0B, 0, regs);
+		if ((regs[_REG_EBX] & 0xFFFF) != 0)
+		{
+			return regs[_REG_EDX]; // EDX = x2APIC ID
+		}
+	}
+
+	// Legacy initial APIC ID (8-bit) in CPUID.01h:EBX[31:24]
+	CPUID(1, 0, regs);
+	return (regs[_REG_EBX] >> 24) & 0xFFu;
+#endif
 }
 
 /*
@@ -382,19 +924,21 @@ CPUCount
 	returns one of the HT_* flags
 ================
 */
-#define HT_NOT_CAPABLE				0
-#define HT_ENABLED					1
-#define HT_DISABLED					2
-#define HT_SUPPORTED_NOT_ENABLED	3
-#define HT_CANNOT_DETECT			4
+enum smtStatus_e : uint8 {
+	SMT_NOT_CAPABLE = 0,
+	SMT_ENABLED = 1,
+	SMT_DISABLED = 2,
+	SMT_SUPPORTED_NOT_ENABLED = 3,
+	SMT_CANNOT_DETECT = 4,
+	MAX_SMT_STATUS
+};
 
-int CPUCount( int &logicalNum, int &physicalNum ) {
-	int statusFlag;
-	SYSTEM_INFO info;
+static smtStatus_e CPUCount( size_t &logicalNum, size_t &physicalNum ) {
+	smtStatus_e statusFlag = SMT_NOT_CAPABLE;
+	SYSTEM_INFO info = {};
 
 	physicalNum = 1;
 	logicalNum = 1;
-	statusFlag = HT_NOT_CAPABLE;
 
 	info.dwNumberOfProcessors = 0;
 	GetSystemInfo (&info);
@@ -403,20 +947,19 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 	// or in a 32-bit Intel system with Hyper-Threading technology disabled
 	physicalNum = info.dwNumberOfProcessors;  
 
-	unsigned char HT_Enabled = 0;
+	bool SMT_Enabled = false;
 
 	logicalNum = LogicalProcPerPhysicalProc();
 
 	if ( logicalNum >= 1 ) {	// > 1 doesn't mean HT is enabled in the BIOS
-		HANDLE hCurrentProcessHandle;
-		DWORD  dwProcessAffinity;
-		DWORD  dwSystemAffinity;
-		DWORD  dwAffinityMask;
+		DWORD  dwProcessAffinity = 0;
+		DWORD  dwSystemAffinity = 0;
 
-		// Calculate the appropriate  shifts and mask based on the 
+		// Calculate the appropriate shifts and mask based on the 
 		// number of logical processors.
 
-		unsigned char i = 1, PHY_ID_MASK  = 0xFF, PHY_ID_SHIFT = 0;
+		size_t  i = 1;
+		unsigned char PHY_ID_MASK  = 0xFF, PHY_ID_SHIFT = 0;
 
 		while( i < logicalNum ) {
 			i *= 2;
@@ -424,33 +967,39 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 			PHY_ID_SHIFT++;
 		}
 		
-		hCurrentProcessHandle = GetCurrentProcess();
-		GetProcessAffinityMask( hCurrentProcessHandle, &dwProcessAffinity, &dwSystemAffinity );
+		HANDLE hCurrentProcessHandle = GetCurrentProcess();
+		GetProcessAffinityMask( hCurrentProcessHandle, reinterpret_cast<PDWORD_PTR>(&dwProcessAffinity), reinterpret_cast<PDWORD_PTR>(&dwSystemAffinity) );
 
 		// Check if available process affinity mask is equal to the
 		// available system affinity mask
 		if ( dwProcessAffinity != dwSystemAffinity ) {
-			statusFlag = HT_CANNOT_DETECT;
+			statusFlag = SMT_CANNOT_DETECT;
 			physicalNum = -1;
 			return statusFlag;
 		}
 
-		dwAffinityMask = 1;
+		DWORD dwAffinityMask = 1;
 		while ( dwAffinityMask != 0 && dwAffinityMask <= dwProcessAffinity ) {
 			// Check if this CPU is available
 			if ( dwAffinityMask & dwProcessAffinity ) {
 				if ( SetProcessAffinityMask( hCurrentProcessHandle, dwAffinityMask ) ) {
-					unsigned char APIC_ID, LOG_ID, PHY_ID;
-
 					Sleep( 0 ); // Give OS time to switch CPU
 
-					APIC_ID = GetAPIC_ID();
-					LOG_ID  = APIC_ID & ~PHY_ID_MASK;
-					PHY_ID  = APIC_ID >> PHY_ID_SHIFT;
+#if defined(ID_CPU_ARCH_X86) || defined(ID_CPU_ARCH_X64)
+					auto APIC_ID = GetAPIC_ID();
+					auto LOG_ID  = APIC_ID & ~PHY_ID_MASK;
+					auto PHY_ID  = APIC_ID >> PHY_ID_SHIFT;
 
 					if ( LOG_ID != 0 ) {
+						SMT_Enabled = true;
+					}
+#elif defined(ID_CPU_ARCH_ARM) || defined(ID_CPU_ARCH_ARM64)
+					// On ARM, we cannot detect per-core IDs easily.
+					// Assume HT is enabled if logical > physical.
+					if (logicalNum > 1) {
 						HT_Enabled = 1;
 					}
+#endif
 				}
 			}
 			dwAffinityMask = dwAffinityMask << 1;
@@ -460,14 +1009,14 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 		SetProcessAffinityMask( hCurrentProcessHandle, dwProcessAffinity );
 	    
 		if ( logicalNum == 1 ) {  // Normal P4 : HT is disabled in hardware
-			statusFlag = HT_DISABLED;
+			statusFlag = SMT_DISABLED;
 		} else {
-			if ( HT_Enabled ) {
+			if ( SMT_Enabled ) {
 				// Total physical processors in a Hyper-Threading enabled system.
 				physicalNum /= logicalNum;
-				statusFlag = HT_ENABLED;
+				statusFlag = SMT_ENABLED;
 			} else {
-				statusFlag = HT_SUPPORTED_NOT_ENABLED;
+				statusFlag = SMT_SUPPORTED_NOT_ENABLED;
 			}
 		}
 	}
@@ -476,41 +1025,81 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 
 /*
 ================
-HasHTT
+HasSMT
 ================
 */
-static bool HasHTT() {
-	unsigned regs[4];
-	int logicalNum, physicalNum, HTStatusFlag;
+static bool HasSMT() {
+	uint32 regs[4] = {};
+	bool smt_capable = false;
+	bool smt_enabled = false;
 
-	// get CPU feature bits
-	CPUID( 1, regs );
+#if defined(ID_CPU_ARCH_X86) || defined(ID_CPU_ARCH_X64)
+	CPUID(0, 0, regs);
+	const auto maxBasic = regs[_REG_EAX];
 
-	// bit 28 of EDX denotes HTT existence
-	if ( !( regs[_REG_EDX] & ( 1 << 28 ) ) ) {
-		return false;
+	auto smt_from_topology = [&](uint32 leaf)->bool {
+		memset(&regs, 0, sizeof(regs));
+		CPUID(leaf, 0, regs);
+		const uint32 levelType = (regs[_REG_ECX] >> 8) & 0xFF;   // 1 = SMT, 2 = Core
+		const uint32 lpAtLevel = regs[_REG_EBX] & 0xFFFF;
+		return (levelType == 1) && (lpAtLevel > 1);
+		};
+
+	if (maxBasic >= 0x1F && smt_from_topology(0x1F))
+	{
+		smt_capable = true;
+	}
+	if (maxBasic >= 0x0B && smt_from_topology(0x0B))
+	{
+		smt_capable = true;
 	}
 
-	HTStatusFlag = CPUCount( logicalNum, physicalNum );
-	if ( HTStatusFlag != HT_ENABLED ) {
-		return false;
+	if (!smt_capable)
+	{
+		// get CPU feature bits
+		CPUID(1, 0, regs);
+
+		// Legacy fallback: HTT bit + LP-per-package vs cores-per-package
+		// CPUID.1: EDX[28] = HTT “Hyper-Threading Technology”
+		if (regs[_REG_EDX] & (1 << 28)) {
+			smt_capable = true;
+		}
 	}
-	return true;
+#elif defined(ID_CPU_ARCH_ARM) || defined(ID_CPU_ARCH_ARM64)
+	// Assume capable
+	smt_capable = true;
+#endif
+
+	if (smt_capable)
+	{
+		size_t logicalNum = 0;
+		size_t physicalNum = 0;
+		auto HTStatusFlag = CPUCount(logicalNum, physicalNum);
+		if (HTStatusFlag != SMT_ENABLED) {
+			smt_enabled = false;
+		}
+	}
+
+	if ( smt_enabled ) {
+		return true;
+	}
+
+	return false;
 }
 
 /*
 ================
-HasHTT
+HasSMT
 ================
 */
 static bool HasDAZ() {
-	__declspec(align(16)) unsigned char FXSaveArea[512];
+	__declspec(align(16)) unsigned char FXSaveArea[512] = {};
 	unsigned char *FXArea = FXSaveArea;
 	DWORD dwMask = 0;
-	unsigned regs[4];
+	uint32 regs[4] = {};
 
 	// get CPU feature bits
-	CPUID( 1, regs );
+	CPUID( 1, 0, regs );
 
 	// bit 24 of EDX denotes support for FXSAVE
 	if ( !( regs[_REG_EDX] & ( 1 << 24 ) ) ) {
@@ -524,7 +1113,7 @@ static bool HasDAZ() {
 		FXSAVE	[eax]
 	}
 
-	dwMask = *(DWORD *)&FXArea[28];						// Read the MXCSR Mask
+	dwMask = *reinterpret_cast<DWORD*>(&FXArea[28]);						// Read the MXCSR Mask
 	return ( ( dwMask & ( 1 << 6 ) ) == ( 1 << 6 ) );	// Return if the DAZ bit is set
 }
 
@@ -542,10 +1131,10 @@ CountSetBits
 Helper function to count set bits in the processor mask.
 ========================
 */
-DWORD CountSetBits( ULONG_PTR bitMask ) {
+static DWORD CountSetBits( ULONG_PTR bitMask ) {
 	DWORD LSHIFT = sizeof( ULONG_PTR ) * 8 - 1;
 	DWORD bitSetCount = 0;
-	ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT;    
+	ULONG_PTR bitTest = static_cast<ULONG_PTR>(1) << LSHIFT;    
 
 	for ( DWORD i = 0; i <= LSHIFT; i++ ) {
 		bitSetCount += ( ( bitMask & bitTest ) ? 1 : 0 );
@@ -565,10 +1154,10 @@ enum LOGICAL_PROCESSOR_RELATIONSHIP_LOCAL {
 };
 
 struct cpuInfo_t {
-	int processorPackageCount;
-	int processorCoreCount;
-	int logicalProcessorCount;
-	int numaNodeCount;
+	size_t processorPackageCount;
+	size_t processorCoreCount;
+	size_t logicalProcessorCount;
+	size_t numaNodeCount;
 	struct cacheInfo_t {
 		int count;
 		int associativity;
@@ -582,7 +1171,7 @@ struct cpuInfo_t {
 GetCPUInfo
 ========================
 */
-bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
+static bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = nullptr;
 	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptr = nullptr;
 	PCACHE_DESCRIPTOR Cache;
@@ -593,7 +1182,7 @@ bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 
 	memset( & cpuInfo, 0, sizeof( cpuInfo ) );
 
-	glpi = (LPFN_GLPI)GetProcAddress( GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation" );
+	glpi = reinterpret_cast<LPFN_GLPI>(GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation"));
 	if (nullptr == glpi ) {
 		idLib::Printf( "\nGetLogicalProcessorInformation is not supported.\n" );
 		return 0;
@@ -608,7 +1197,7 @@ bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 					free( buffer );
 				}
 
-				buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc( returnLength );
+				buffer = static_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION>(malloc(returnLength));
 			} else {
 				idLib::Printf( "Sys_CPUCount error: %d\n", GetLastError() );
 				return false;
@@ -621,7 +1210,7 @@ bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 	ptr = buffer;
 
 	while ( byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= returnLength ) {
-		switch ( (LOGICAL_PROCESSOR_RELATIONSHIP_LOCAL) ptr->Relationship ) {
+		switch ( static_cast<LOGICAL_PROCESSOR_RELATIONSHIP_LOCAL>(ptr->Relationship) ) {
 			case localRelationProcessorCore:
 				cpuInfo.processorCoreCount++;
 
@@ -672,7 +1261,7 @@ bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 Sys_GetCPUCacheSize
 ========================
 */
-void Sys_GetCPUCacheSize( int level, int & count, int & size, int & lineSize ) {
+static void Sys_GetCPUCacheSize( int level, int & count, int & size, int & lineSize ) {
 	assert( level >= 1 && level <= 3 );
 	cpuInfo_t cpuInfo;
 
@@ -692,7 +1281,7 @@ numPhysicalCPUCores	- the total number of cores per package
 numCPUPackages		- the total number of packages (physical processors)
 ========================
 */
-void Sys_CPUCount( int & numLogicalCPUCores, int & numPhysicalCPUCores, int & numCPUPackages ) {
+static void Sys_CPUCount(size_t& numLogicalCPUCores, size_t& numPhysicalCPUCores, size_t& numCPUPackages ) {
 	cpuInfo_t cpuInfo;
 	GetCPUInfo( cpuInfo );
 
@@ -701,67 +1290,215 @@ void Sys_CPUCount( int & numLogicalCPUCores, int & numPhysicalCPUCores, int & nu
 	numCPUPackages = cpuInfo.processorPackageCount;
 }
 
+// ====== ARM / cross-platform: CPU 64-bit capability ======
+//
+// NOTE: Detecting "64-bit capable CPU" from a 32-bit ARM process is not
+// standardized. We provide best-effort OS queries where available.
+
+static inline bool Sys_ProcessIs64bit() noexcept {
+	return sizeof(void*) == 8;
+}
+
+// Long mode (x64) capability via CPUID (not process bitness)
+static inline bool Sys_X86is64bitCapable() {
+	if (!HasCPUID())
+	{
+		return false;
+	}
+	uint32 regs[4] = {};
+	CPUID(0x80000000u, 0u, regs);
+	if (regs[_REG_EAX] < 0x80000001u)
+	{
+		return false;
+	}
+	CPUID(0x80000001u, 0u, regs);
+	return (regs[_REG_EDX] & (1u << 29)) != 0; // Long Mode
+}
+
+static inline bool Sys_CPU64bitCapable() {
+#if defined(ID_CPU_ARCH_X64)
+	return true;                        // by definition
+#elif defined(ID_CPU_ARCH_ARM64)
+	return true;                        // by definition (AArch64 build)
+#elif defined(ID_CPU_ARCH_X86)
+	return Sys_X86is64bitCapable();   // CPUID long mode
+#elif defined(ID_CPU_ARCH_ARM32)
+#if defined(_WIN32)
+	// Windows: ask the OS for native architecture if available
+	typedef BOOL(WINAPI* IsWow64Process2Fn)(HANDLE, USHORT*, USHORT*);
+	HMODULE h = GetModuleHandleW(L"kernel32.dll");
+	if (h) {
+		auto fn = reinterpret_cast<IsWow64Process2Fn>(GetProcAddress(h, "IsWow64Process2"));
+		if (fn) {
+			USHORT p = 0, n = 0;
+			if (fn(GetCurrentProcess(), &p, &n)) {
+				// PROCESSOR_ARCHITECTURE_ARM64 == 12, AMD64 == 9
+				return (n == 12 /*ARM64*/ || n == 9 /*AMD64*/);
+			}
+		}
+	}
+	// Fallback: on old Windows, we can't reliably know from a 32-bit ARM proc.
+	return false;
+#elif defined(__APPLE__)
+	// macOS/iOS: sysctl hw.optional.arm64 tells if the CPU/OS support arm64
+	int val = 0; size_t sz = sizeof(val);
+	if (0 == sysctlbyname("hw.optional.arm64", &val, &sz, nullptr, 0))
+	{
+		return val != 0;
+	}
+	// Older/intel Macs won't have this key in a 32-bit ARM build anyway.
+	return false;
+#elif defined(__linux__)
+	// Best-effort: check /proc/cpuinfo for "AArch64" (heuristic)
+	if (FILE* f = fopen("/proc/cpuinfo", "r")) {
+		char buf[512] = {};
+		while (fgets(buf, sizeof(buf), f)) {
+			if (strstr(buf, "AArch64") || strstr(buf, "aarch64")) {
+				fclose(f);
+				return true;
+			}
+		}
+		fclose(f);
+	}
+	// No reliable generic way from a 32-bit ARM userland; assume not.
+	return false;
+#else
+	return false;
+#endif
+#else
+	// Unknown arch: fall back to process bitness
+	return Sys_ProcessIs64bit();
+#endif
+}
+
 /*
 ================
-Sys_GetCPUId
+Sys_GetCPUCapabilities
 ================
 */
-cpuid_t Sys_GetCPUId() {
-	int flags;
+cpuid_t Sys_GetCPUCapabilities() {
+	int64 flags = 0;
 
-	// verify we're at least a Pentium or 486 with CPUID support
-	if ( !HasCPUID() ) {
-		return CPUID_UNSUPPORTED;
-	}
-
-	// check for an AMD
+	// Vendor
 	if ( IsAMD() ) {
 		flags = CPUID_AMD;
-	} else {
+	} else if ( IsARM() ) {
+		flags = CPUID_ARM;
+	} else if ( IsIntel() ) {
 		flags = CPUID_INTEL;
+	} else {
+		flags = CPUID_GENERIC;
 	}
 
-	// check for Multi Media Extensions
-	if ( HasMMX() ) {
-		flags |= CPUID_MMX;
-	}
-
-	// check for 3DNow!
-	if ( Has3DNow() ) {
-		flags |= CPUID_3DNOW;
-	}
-
-	// check for Streaming SIMD Extensions
-	if ( HasSSE() ) {
-		flags |= CPUID_SSE | CPUID_FTZ;
-	}
-
-	// check for Streaming SIMD Extensions 2
-	if ( HasSSE2() ) {
-		flags |= CPUID_SSE2;
-	}
-
-	// check for Streaming SIMD Extensions 3 aka Prescott's New Instructions
-	if ( HasSSE3() ) {
-		flags |= CPUID_SSE3;
+	// Bits
+	if (Sys_CPU64bitCapable()) {
+		flags |= CPUID_64BIT;
+	} else {
+		flags |= CPUID_32BIT;
 	}
 
 	// check for Hyper-Threading Technology
-	if ( HasHTT() ) {
-		flags |= CPUID_HTT;
+	if (HasSMT()) {
+		flags |= CPUID_SMT;
 	}
 
-	// check for Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
-	if ( HasCMOV() ) {
-		flags |= CPUID_CMOV;
+	// verify we're at least a Pentium or 486 with CPUID support
+	if (((flags & CPUID_AMD) || (flags & CPUID_INTEL) || (flags & CPUID_GENERIC)) && HasCPUID())
+	{
+		// x86/x64 specific feature checks
+		// check for Multi Media Extensions
+		if (HasMMX()) {
+			flags |= CPUID_MMX;
+		}
+
+		// check for 3DNow!
+		if (Has3DNow()) {
+			flags |= CPUID_3DNOW;
+		}
+
+		// check for Streaming SIMD Extensions
+		if (HasSSE()) {
+			flags |= CPUID_SSE | CPUID_FTZ;
+		}
+
+		// check for Streaming SIMD Extensions 2
+		if (HasSSE2()) {
+			flags |= CPUID_SSE2;
+		}
+
+		// check for Streaming SIMD Extensions 3 aka Prescott's New Instructions
+		if (HasSSE3()) {
+			flags |= CPUID_SSE3;
+		}
+
+		// check for Supplemental Streaming SIMD Extensions 3
+		if (HasSSSE3()) {
+			flags |= CPUID_SSSE3;
+		}
+
+		// check for Streaming SIMD Extensions 4.1
+		if (HasSSE41()) {
+			flags |= CPUID_SSE4_1;
+		}
+
+		// check for Streaming SIMD Extensions 4.2
+		if (HasSSE42()) {
+			flags |= CPUID_SSE4_2;
+		}
+
+		// check for Advanced Vector Extensions
+		if (HasAVX()) {
+			flags |= CPUID_AVX;
+		}
+
+		// check for Fused Multiply Add 3
+		if (HasFMA3()) {
+			flags |= CPUID_FMA3;
+		}
+
+		// check for Advanced Vector Extensions 2
+		if (HasAVX2()) {
+			flags |= CPUID_AVX2;
+		}
+
+		// check for Advanced Vector Extensions 512
+		if (HasAVX512F()) {
+			flags |= CPUID_AVX512F;
+		}
+
+		// check for Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
+		if (HasCMOV()) {
+			flags |= CPUID_CMOV;
+		}
+
+		// check for Denormals-Are-Zero mode
+		if (HasDAZ()) {
+			flags |= CPUID_DAZ;
+		}
+	} else if (flags & CPUID_ARM) {
+		// ARM-specific feature checks
+		// check for NEON support
+		if (HasNEON()) {
+			flags |= CPUID_NEON;
+		}
+
+		// check for SVE support
+		if (HasSVE()) {
+			flags |= CPUID_SVE;
+		}
+
+		// check for SVE2 support
+		if (HasSVE2()) {
+			flags |= CPUID_SVE2;
+		}
+
+		// check for SVE2.1 support
+		if (HasSVE21()) {
+			flags |= CPUID_SVE2_1;
+		}
 	}
 
-	// check for Denormals-Are-Zero mode
-	if ( HasDAZ() ) {
-		flags |= CPUID_DAZ;
-	}
-
-	return (cpuid_t)flags;
+	return static_cast<cpuid_t>(flags);
 }
 
 
@@ -774,8 +1511,8 @@ cpuid_t Sys_GetCPUId() {
 */
 
 typedef struct bitFlag_s {
-	char *		name;
-	int			bit;
+	const char *	name;
+	int		    	bit;
 } bitFlag_t;
 
 static byte fpuState[128], *statePtr = fpuState;
@@ -790,13 +1527,13 @@ static bitFlag_t controlWordFlags[] = {
 	{ "Infinity control", 12 },
 	{ "", 0 }
 };
-static char *precisionControlField[] = {
+static const char *precisionControlField[] = {
 	"Single Precision (24-bits)",
 	"Reserved",
 	"Double Precision (53-bits)",
 	"Double Extended Precision (64-bits)"
 };
-static char *roundingControlField[] = {
+static const char *roundingControlField[] = {
 	"Round to nearest",
 	"Round down",
 	"Round up",
@@ -820,15 +1557,16 @@ static bitFlag_t statusWordFlags[] = {
 Sys_FPU_PrintStateFlags
 ===============
 */
-int Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse ) {
-	int i, length = 0;
+static size_t Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, DWORD inof, int inse, DWORD opof, int opse ) {
+	size_t i = 0;
+	int length = 0;
 
 	length += sprintf( ptr+length,	"CTRL = %08x\n"
 									"STAT = %08x\n"
 									"TAGS = %08x\n"
-									"INOF = %08x\n"
+									"INOF = %08lx\n"
 									"INSE = %08x\n"
-									"OPOF = %08x\n"
+									"OPOF = %08lx\n"
 									"OPSE = %08x\n"
 									"\n",
 									ctrl, stat, tags, inof, inse, opof, opse );
@@ -847,7 +1585,7 @@ int Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, int inof, 
 	length += sprintf( ptr+length, "  %-30s = %d%d%d%d\n", "Condition code", (stat>>8)&1, (stat>>9)&1, (stat>>10)&1, (stat>>14)&1 );
 	length += sprintf( ptr+length, "  %-30s = %d\n", "Top of stack pointer", (stat>>11)&7 );
 
-	return length;
+	return idMath::integer_cast<size_t>(length);
 }
 
 /*
@@ -902,7 +1640,7 @@ Sys_FPU_GetState
 const char *Sys_FPU_GetState() {
 	double fpuStack[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	double *fpuStackPtr = fpuStack;
-	int i, numValues;
+	int i = 0, numValues = 0;
 	char *ptr;
 
 	__asm {
@@ -978,13 +1716,13 @@ const char *Sys_FPU_GetState() {
 		mov			numValues, eax
 	}
 
-	int ctrl = *(int *)&fpuState[0];
-	int stat = *(int *)&fpuState[4];
-	int tags = *(int *)&fpuState[8];
-	int inof = *(int *)&fpuState[12];
-	int inse = *(int *)&fpuState[16];
-	int opof = *(int *)&fpuState[20];
-	int opse = *(int *)&fpuState[24];
+	int ctrl = *reinterpret_cast<int*>(&fpuState[0]);
+	int stat = *reinterpret_cast<int*>(&fpuState[4]);
+	int tags = *reinterpret_cast<int*>(&fpuState[8]);
+	int inof = *reinterpret_cast<int*>(&fpuState[12]);
+	int inse = *reinterpret_cast<int*>(&fpuState[16]);
+	int opof = *reinterpret_cast<int*>(&fpuState[20]);
+	int opse = *reinterpret_cast<int*>(&fpuState[24]);
 
 	ptr = fpuString;
 	ptr += sprintf( ptr,"FPU State:\n"
@@ -1045,9 +1783,9 @@ void Sys_FPU_SetPrecision( int precision ) {
 Sys_FPU_SetRounding
 ================
 */
-void Sys_FPU_SetRounding( int rounding ) {
+void Sys_FPU_SetRounding( uint8 rounding ) {
 	short roundingBitTable[4] = { 0, 1, 2, 3 };
-	short roundingBits = roundingBitTable[rounding & 3] << 10;
+	short roundingBits = static_cast<short>(roundingBitTable[rounding & 3] << 10);
 	short roundingMask = ~( ( 1 << 11 ) | ( 1 << 10 ) );
 
 	__asm {
@@ -1068,7 +1806,7 @@ Sys_FPU_SetDAZ
 ================
 */
 void Sys_FPU_SetDAZ( bool enable ) {
-	DWORD dwData;
+	DWORD dwData = 0;
 
 	_asm {
 		movzx	ecx, byte ptr enable
@@ -1089,7 +1827,7 @@ Sys_FPU_SetFTZ
 ================
 */
 void Sys_FPU_SetFTZ( bool enable ) {
-	DWORD dwData;
+	DWORD dwData = 0;
 
 	_asm {
 		movzx	ecx, byte ptr enable

@@ -57,9 +57,9 @@ public:
 	void			Clear();
 	void			SetWidthInChars( int w );
 	void			SetCursor( int c );
-	int				GetCursor() const;
+					[[nodiscard]] int				GetCursor() const;
 	void			ClearAutoComplete();
-	int				GetAutoCompleteLength() const;
+					[[nodiscard]] int				GetAutoCompleteLength() const;
 	void			AutoComplete();
 	void			CharEvent( int c );
 	void			KeyDownEvent( int key );

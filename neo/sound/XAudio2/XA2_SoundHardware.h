@@ -71,10 +71,10 @@ public:
 	void			FreeVoice( idSoundVoice * voice );
 
 	// video playback needs this
-	IXAudio2 *		GetIXAudio2() const { return pXAudio2; };
+					[[nodiscard]] IXAudio2 *		GetIXAudio2() const { return pXAudio2; };
 
-	int				GetNumZombieVoices() const { return zombieVoices.Num(); }
-	int				GetNumFreeVoices() const { return freeVoices.Num(); }
+					[[nodiscard]] int				GetNumZombieVoices() const { return zombieVoices.Num(); }
+					[[nodiscard]] int				GetNumFreeVoices() const { return freeVoices.Num(); }
 
 protected:
 	friend class idSoundSample_XAudio2;

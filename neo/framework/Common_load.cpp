@@ -756,7 +756,7 @@ void idCommonLocal::ScrubSaveGameFileName( idStr &saveFileName ) const {
 		if ( strchr( "',.~!@#$%^&*()[]{}<>\\|/=?+;:-\'\"", inFileName[i] ) ) {
 			// random junk
 			saveFileName += '_';
-		} else if ( (const unsigned char)inFileName[i] >= 128 ) {
+		} else if ( static_cast<const unsigned char>(inFileName[i]) >= 128 ) {
 			// high ascii chars
 			saveFileName += '_';
 		} else if ( inFileName[i] == ' ' ) {

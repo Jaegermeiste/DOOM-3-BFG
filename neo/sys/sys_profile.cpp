@@ -203,7 +203,8 @@ void idProfileMgr::LoadSettingsAsync() {
 idProfileMgr::OnLoadSettingsCompleted
 ========================
 */
-void idProfileMgr::OnLoadSettingsCompleted( idSaveLoadParms * parms ) {
+void idProfileMgr::OnLoadSettingsCompleted( idSaveLoadParms * parms ) const
+{
 
 
 
@@ -228,7 +229,7 @@ void idProfileMgr::OnLoadSettingsCompleted( idSaveLoadParms * parms ) {
 		unsigned int originalChecksum;
 		profileFile->ReadBig( originalChecksum );
 
-		int dataLength = profileFile->Length() - (int)sizeof( originalChecksum );
+		int dataLength = profileFile->Length() - static_cast<int>(sizeof(originalChecksum));
 		profileFile->ReadBigArray( buffer.Ptr(), dataLength );
 
 		// Validate the checksum before we let the game serialize the settings
@@ -238,7 +239,7 @@ void idProfileMgr::OnLoadSettingsCompleted( idSaveLoadParms * parms ) {
 			parms->errorCode = SAVEGAME_E_CORRUPTED;
 		} else {
 			idBitMsg msg;
-			msg.InitRead( buffer.Ptr(), (int)buffer.Size() );
+			msg.InitRead( buffer.Ptr(), static_cast<int>(buffer.Size()) );
 			idSerializer ser( msg, false );
 			if ( !profile->Serialize( ser ) ) {
 				parms->errorCode = SAVEGAME_E_CORRUPTED;

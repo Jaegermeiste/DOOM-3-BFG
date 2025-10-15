@@ -464,8 +464,8 @@ static void R_CheckPortableExtensions() {
 		qglProgramEnvParameter4fvARB = (PFNGLPROGRAMENVPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramEnvParameter4fvARB" );
 		qglProgramLocalParameter4fvARB = (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramLocalParameter4fvARB" );
 
-		qglGetIntegerv( GL_MAX_TEXTURE_COORDS_ARB, (GLint *)&glConfig.maxTextureCoords );
-		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, (GLint *)&glConfig.maxTextureImageUnits );
+		qglGetIntegerv( GL_MAX_TEXTURE_COORDS_ARB, static_cast<GLint*>(&glConfig.maxTextureCoords) );
+		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, static_cast<GLint*>(&glConfig.maxTextureImageUnits) );
 	}
 
 	// GLSL, core in OpenGL > 2.0
@@ -497,7 +497,7 @@ static void R_CheckPortableExtensions() {
 		qglGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)GLimp_ExtensionPointer( "glGetUniformBlockIndex" );
 		qglUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)GLimp_ExtensionPointer( "glUniformBlockBinding" );
 
-		qglGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint *)&glConfig.uniformBufferOffsetAlignment );
+		qglGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, static_cast<GLint*>(&glConfig.uniformBufferOffsetAlignment) );
 		if ( glConfig.uniformBufferOffsetAlignment < 256 ) {
 			glConfig.uniformBufferOffsetAlignment = 256;
 		}
@@ -1073,7 +1073,7 @@ void R_ReportSurfaceAreas_f( const idCmdArgs &args ) {
 		return;
 	}
 
-	list = (idMaterial **)_alloca( count * sizeof( *list ) );
+	list = static_cast<idMaterial**>(_alloca(count * sizeof(*list)));
 
 	for ( i = 0 ; i < count ; i++ ) {
 		list[i] = (idMaterial *)declManager->DeclByIndex( DECL_MATERIAL, i, false );
@@ -1121,7 +1121,7 @@ void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref =
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
-	byte * temp = (byte *)R_StaticAlloc( (sysWidth+3) * sysHeight * 3 );
+	byte * temp = static_cast<byte*>(R_StaticAlloc((sysWidth + 3) * sysHeight * 3));
 
 	// disable scissor, so we don't need to adjust all those rects
 	r_useScissor.SetBool( false );
@@ -1191,13 +1191,13 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char *fil
 	const int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
 
-	buffer = (byte *)R_StaticAlloc( bufferSize );
+	buffer = static_cast<byte*>(R_StaticAlloc(bufferSize));
 	memset( buffer, 0, bufferSize );
 
 	if ( blends <= 1 ) {
 		R_ReadTiledPixels( width, height, buffer + 18, ref );
 	} else {
-		unsigned short *shortBuffer = (unsigned short *)R_StaticAlloc(pix*2*3);
+		unsigned short *shortBuffer = static_cast<unsigned short*>(R_StaticAlloc(pix * 2 * 3));
 		memset (shortBuffer, 0, pix*2*3);
 
 		// enable anti-aliasing jitter
@@ -1528,7 +1528,7 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 	// resample with hemispherical blending
 	int	samples = 1000;
 
-	byte	*outBuffer = (byte *)_alloca( outSize * outSize * 4 );
+	byte	*outBuffer = static_cast<byte*>(_alloca(outSize * outSize * 4));
 
 	for ( int map = 0 ; map < 2 ; map++ ) {
 		for ( i = 0 ; i < 6 ; i++ ) {
@@ -1549,7 +1549,7 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 						idVec3	test;
 						while( 1 ) {
 							for ( int j = 0 ; j < 3 ; j++ ) {
-								test[j] = -1 + 2 * (rand()&0x7fff)/(float)0x7fff;
+								test[j] = -1 + 2 * (rand()&0x7fff)/static_cast<float>(0x7fff);
 							}
 							if ( test.Length() > 1.0 ) {
 								continue;
@@ -1686,12 +1686,12 @@ void GfxInfo_f( const idCmdArgs &args ) {
 
 	common->Printf( "%5.1f cm screen width (%4.1f\" diagonal)\n",
 		glConfig.physicalScreenWidthInCentimeters, glConfig.physicalScreenWidthInCentimeters / 2.54f
-			* sqrt( (float)(16*16 + 9*9) ) / 16.0f );
+			* sqrt( static_cast<float>(16 * 16 + 9 * 9) ) / 16.0f );
 	extern idCVar r_forceScreenWidthCentimeters;
 	if ( r_forceScreenWidthCentimeters.GetFloat() ) {
 		common->Printf( "screen size manually forced to %5.1f cm width (%4.1f\" diagonal)\n",
 			renderSystem->GetPhysicalScreenWidthInCentimeters(), renderSystem->GetPhysicalScreenWidthInCentimeters() / 2.54f
-				* sqrt( (float)(16*16 + 9*9) ) / 16.0f );
+				* sqrt( static_cast<float>(16 * 16 + 9 * 9) ) / 16.0f );
 	}
 }
 
@@ -1945,18 +1945,18 @@ R_MakeFullScreenTris
 */
 static srfTriangles_t * R_MakeFullScreenTris() {
 	// copy verts and indexes
-	srfTriangles_t * tri = (srfTriangles_t *)Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+	srfTriangles_t * tri = static_cast<srfTriangles_t*>(Mem_ClearedAlloc(sizeof(*tri), TAG_RENDER_TOOLS));
 
 	tri->numIndexes = 6;
 	tri->numVerts = 4;
 
 	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = (triIndex_t *)Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc(allocatedIndexBytes, TAG_RENDER_TOOLS));
 
 	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = (idDrawVert *)Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->verts = static_cast<idDrawVert*>(Mem_ClearedAlloc(allocatedVertexBytes, TAG_RENDER_TOOLS));
 
 	idDrawVert * verts = tri->verts;
 
@@ -1993,18 +1993,18 @@ R_MakeZeroOneCubeTris
 =============
 */
 static srfTriangles_t * R_MakeZeroOneCubeTris() {
-	srfTriangles_t * tri = (srfTriangles_t *)Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+	srfTriangles_t * tri = static_cast<srfTriangles_t*>(Mem_ClearedAlloc(sizeof(*tri), TAG_RENDER_TOOLS));
 
 	tri->numVerts = 8;
 	tri->numIndexes = 36;
 
 	const int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	const int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = (triIndex_t *)Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc(allocatedIndexBytes, TAG_RENDER_TOOLS));
 
 	const int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	const int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = (idDrawVert *)Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->verts = static_cast<idDrawVert*>(Mem_ClearedAlloc(allocatedVertexBytes, TAG_RENDER_TOOLS));
 
 	idDrawVert * verts = tri->verts;
 
@@ -2086,18 +2086,18 @@ Initializes the Test Image Triangles
 ================
 */
 srfTriangles_t* R_MakeTestImageTriangles() {
-	srfTriangles_t * tri = (srfTriangles_t *)Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+	srfTriangles_t * tri = static_cast<srfTriangles_t*>(Mem_ClearedAlloc(sizeof(*tri), TAG_RENDER_TOOLS));
 
 	tri->numIndexes = 6;
 	tri->numVerts = 4;
 
 	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = (triIndex_t *)Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc(allocatedIndexBytes, TAG_RENDER_TOOLS));
 
 	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = (idDrawVert *)Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->verts = static_cast<idDrawVert*>(Mem_ClearedAlloc(allocatedVertexBytes, TAG_RENDER_TOOLS));
 
 	ALIGNTYPE16 triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
 	memcpy( tri->indexes, tempIndexes, indexSize );
@@ -2459,7 +2459,7 @@ idRenderSystemLocal::GetStereoScopicRenderingMode
 ========================
 */
 stereo3DMode_t idRenderSystemLocal::GetStereoScopicRenderingMode() const {
-	return ( !IsStereoScopicRenderingSupported() ) ? STEREO3D_OFF : (stereo3DMode_t)stereoRender_enable.GetInteger();
+	return ( !IsStereoScopicRenderingSupported() ) ? STEREO3D_OFF : static_cast<stereo3DMode_t>(stereoRender_enable.GetInteger());
 }
 
 /*

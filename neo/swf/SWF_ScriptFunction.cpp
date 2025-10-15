@@ -403,7 +403,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 	callstackLevel++;
 
 	while ( bitstream.Tell() < bitstream.Length() ) {
-		swfAction_t code = (swfAction_t)bitstream.ReadU8();
+		swfAction_t code = static_cast<swfAction_t>(bitstream.ReadU8());
 		uint16 recordLength = 0;
 		if ( code >= 0x80 ) {
 			recordLength = bitstream.ReadU16();
@@ -413,7 +413,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 			// stack[0] is always 0 so don't read it
 			if ( swf_debug.GetInteger() >= 4 ) {
 				for ( int i = stack.Num()-1; i >= 0 ; i-- ) {
-					idLib::Printf("  %c: %s (%s)\n", (char)(64 + stack.Num() - i), stack[i].ToString().c_str(), stack[i].TypeOf());
+					idLib::Printf("  %c: %s (%s)\n", static_cast<char>(64 + stack.Num() - i), stack[i].ToString().c_str(), stack[i].TypeOf());
 				}
 
 				for ( int i = 0; i < registers.Num(); i++ ) {
@@ -502,7 +502,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 					case 3: stack.Alloc().SetUndefined(); break;
 					case 4: stack.Alloc() = registers[ pushstream.ReadU8() ]; break;
 					case 5: stack.Alloc().SetBool( pushstream.ReadU8() != 0 ); break;
-					case 6: stack.Alloc().SetFloat( (float)pushstream.ReadDouble() ); break;
+					case 6: stack.Alloc().SetFloat( static_cast<float>(pushstream.ReadDouble()) ); break;
 					case 7: stack.Alloc().SetInteger( pushstream.ReadS32() ); break;
 					case 8: stack.Alloc().SetString( constants.Get( pushstream.ReadU8() ) ); break;
 					case 9: stack.Alloc().SetString( constants.Get( pushstream.ReadU16() ) ); break;
@@ -632,7 +632,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 					if ( stack.A().IsString() ) {
 						frameNum += thisSprite->FindFrame( stack.A().ToString() );
 					} else {
-						frameNum += (uint32)stack.A().ToInteger();
+						frameNum += static_cast<uint32>(stack.A().ToInteger());
 					}
 					if ( ( flags & 1 ) != 0 ){
 						thisSprite->Play();
@@ -1123,7 +1123,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				stack.Pop( 1 );
 				break;
 			case Action_BitURShift:
-				stack.B().SetInteger( (uint32)stack.B().ToInteger() >> stack.A().ToInteger() );
+				stack.B().SetInteger( static_cast<uint32>(stack.B().ToInteger()) >> stack.A().ToInteger() );
 				stack.Pop( 1 );
 				break;
 			case Action_BitXor:
@@ -1219,7 +1219,8 @@ void idSWF::Invoke( const char * functionName, const idSWFParmList & parms ) {
 idSWF::Invoke
 ========================
 */
-void idSWF::Invoke( const char * functionName, const idSWFParmList & parms, idSWFScriptVar & scriptVar ) {
+void idSWF::Invoke( const char * functionName, const idSWFParmList & parms, idSWFScriptVar & scriptVar ) const
+{
 
 	if ( scriptVar.IsFunction() ) {
 		scriptVar.GetFunction()->Call(nullptr, parms );

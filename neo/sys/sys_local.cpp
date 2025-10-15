@@ -30,19 +30,19 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 #include "sys_local.h"
 
-const char * sysLanguageNames[] = {
+static const char * sysLanguageNames[] = {
 	ID_LANG_ENGLISH, ID_LANG_FRENCH, ID_LANG_ITALIAN, ID_LANG_GERMAN, ID_LANG_SPANISH, ID_LANG_JAPANESE, nullptr
 };
 
-constexpr int numLanguages = sizeof( sysLanguageNames ) / sizeof sysLanguageNames[ 0 ] - 1;
+constexpr size_t numLanguages = std::size(sysLanguageNames) - 1;
 
-idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
+static idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
 
-idSysLocal			sysLocal;
+static idSysLocal			sysLocal;
 idSys *				sys = &sysLocal;
 
 void idSysLocal::DebugPrintf( const char *fmt, ... ) {
-	va_list argptr;
+	va_list argptr = nullptr;
 
 	va_start( argptr, fmt );
 	Sys_DebugVPrintf( fmt, argptr );
@@ -85,23 +85,23 @@ void idSysLocal::FPU_SetDAZ( bool enable ) {
 	Sys_FPU_SetDAZ( enable );
 }
 
-bool idSysLocal::LockMemory( void *ptr, int bytes ) {
+bool idSysLocal::LockMemory( void *ptr, size_t bytes ) {
 	return Sys_LockMemory( ptr, bytes );
 }
 
-bool idSysLocal::UnlockMemory( void *ptr, int bytes ) {
+bool idSysLocal::UnlockMemory( void *ptr, size_t bytes ) {
 	return Sys_UnlockMemory( ptr, bytes );
 }
 
-void idSysLocal::GetCallStack( address_t *callStack, const int callStackSize ) {
-	Sys_GetCallStack( callStack, callStackSize );
+void idSysLocal::GetCallStack( address_t *callStack, const size_t callStackSize ) {
+	Sys_GetCallStack( callStack, callStackSize, 0 );
 }
 
-const char * idSysLocal::GetCallStackStr( const address_t *callStack, const int callStackSize ) {
+const char * idSysLocal::GetCallStackStr( const address_t *callStack, const size_t callStackSize ) {
 	return Sys_GetCallStackStr( callStack, callStackSize );
 }
 
-const char * idSysLocal::GetCallStackCurStr( int depth ) {
+const char * idSysLocal::GetCallStackCurStr( size_t depth ) {
 	return Sys_GetCallStackCurStr( depth );
 }
 
@@ -109,24 +109,24 @@ void idSysLocal::ShutdownSymbols() {
 	Sys_ShutdownSymbols();
 }
 
-int idSysLocal::DLL_Load( const char *dllName ) {
+dllHandle_t idSysLocal::DLL_Load( const char *dllName ) {
 	return Sys_DLL_Load( dllName );
 }
 
-void *idSysLocal::DLL_GetProcAddress( int dllHandle, const char *procName ) {
+address_t idSysLocal::DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName ) {
 	return Sys_DLL_GetProcAddress( dllHandle, procName );
 }
 
-void idSysLocal::DLL_Unload( int dllHandle ) {
+void idSysLocal::DLL_Unload( dllHandle_t dllHandle ) {
 	Sys_DLL_Unload( dllHandle );
 }
 
-void idSysLocal::DLL_GetFileName( const char *baseName, char *dllName, int maxLength ) {
-	idStr::snPrintf( dllName, maxLength, "%s" CPUSTRING ".dll", baseName );
+void idSysLocal::DLL_GetFileName( const char *baseName, char *dllName, size_t maxLength ) {
+	idStr::snPrintf( dllName, maxLength, "%s%s.dll", baseName, CPUSTRING );
 }
 
 sysEvent_t idSysLocal::GenerateMouseButtonEvent( int button, bool down ) {
-	sysEvent_t ev;
+	sysEvent_t ev = {};
 	ev.evType = SE_KEY;
 	ev.evValue = K_MOUSE1 + button - 1;
 	ev.evValue2 = down;
@@ -136,7 +136,7 @@ sysEvent_t idSysLocal::GenerateMouseButtonEvent( int button, bool down ) {
 }
 
 sysEvent_t idSysLocal::GenerateMouseMoveEvent( int deltax, int deltay ) {
-	sysEvent_t ev;
+	sysEvent_t ev = {};
 	ev.evType = SE_MOUSE;
 	ev.evValue = deltax;
 	ev.evValue2 = deltay;
@@ -238,7 +238,7 @@ const char * Sys_SecToStr( int sec ) {
 }
 
 // return number of supported languages
-int Sys_NumLangs() {
+size_t Sys_NumLangs() {
 	return numLanguages;
 }
 

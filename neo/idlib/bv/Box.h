@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idBox {
 public:
-					idBox();
+					idBox() noexcept;
 					explicit idBox( const idVec3 &center, const idVec3 &extents, const idMat3 &axis );
 					explicit idBox( const idVec3 &point );
 					explicit idBox( const idBounds &bounds );
@@ -116,8 +116,7 @@ private:
 
 extern idBox	box_zero;
 
-ID_INLINE idBox::idBox() {
-}
+ID_INLINE idBox::idBox() noexcept = default;
 
 ID_INLINE idBox::idBox( const idVec3 &center, const idVec3 &extents, const idMat3 &axis ) {
 	this->center = center;

@@ -165,11 +165,11 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] ) {
 	state[3] += d;
 
 	/* Zeroize sensitive information.*/
-	memset ((POINTER)x, 0, sizeof (x));
+	memset (x, 0, sizeof (x));
 }
 
 /* MD4 initialization. Begins an MD4 operation, writing a new context. */
-static void MD4_Init( MD4_CTX *context ) {
+static void MD4_Init( MD4_CTX *context ) noexcept {
 	context->count[0] = context->count[1] = 0;
 
 	/* Load magic initialization constants.*/
@@ -193,11 +193,11 @@ static void MD4_Update( MD4_CTX *context, const unsigned char *input, const size
 
 	context->count[1] += (static_cast<UINT4>(inputLen) >> 29);
 
-	size_t partLen = 64 - static_cast<size_t>(index);
+	const size_t partLen = 64 - static_cast<size_t>(index);
 
 	/* Transform as many times as possible.*/
 	if ( inputLen >= partLen ) {
- 		memcpy((POINTER)&context->buffer[index], (POINTER)input, partLen);
+ 		memcpy(&context->buffer[index], input, partLen);
  		MD4_Transform (context->state, context->buffer);
 
 		for ( i = partLen; i + 63 < inputLen; i += 64 ) {
@@ -210,7 +210,7 @@ static void MD4_Update( MD4_CTX *context, const unsigned char *input, const size
 	}
 
 	/* Buffer remaining input */
-	memcpy ((POINTER)&context->buffer[index], (POINTER)&input[i], inputLen-i);
+	memcpy (&context->buffer[index], &input[i], inputLen-i);
 }
 
 /* MD4 finalization. Ends an MD4 message-digest operation, writing the message digest and zeroizing the context. */
@@ -221,8 +221,8 @@ static void MD4_Final( MD4_CTX *context, unsigned char digest[16] ) {
 	MD4_Encode( bits, context->count, 8 );
 
 	/* Pad out to 56 mod 64.*/
-	unsigned int index = static_cast<unsigned int>((context->count[0] >> 3) & 0x3f);
-	unsigned int padLen = (index < 56) ? (56 - index) : (120 - index);
+	const unsigned int index = static_cast<unsigned int>((context->count[0] >> 3) & 0x3f);
+	const unsigned int padLen = (index < 56) ? (56 - index) : (120 - index);
 	MD4_Update (context, PADDING, padLen);
 
 	/* Append length (before padding) */
@@ -231,8 +231,8 @@ static void MD4_Final( MD4_CTX *context, unsigned char digest[16] ) {
 	/* Store state in digest */
 	MD4_Encode( digest, context->state, 16 );
 
-	/* Zeroize sensitive information.*/
-	memset ((POINTER)context, 0, sizeof (*context));
+	/* Zero sensitive information.*/
+	memset (context, 0, sizeof (*context));
 }
 
 /*
@@ -241,14 +241,14 @@ MD4_BlockChecksum
 ===============
 */
 unsigned long MD4_BlockChecksum( const void *data, const size_t length ) {
-	unsigned long	digest[4];
-	MD4_CTX			ctx;
+	unsigned long	digest[4] = {};
+	MD4_CTX			ctx = {};
 
 	MD4_Init( &ctx );
 	MD4_Update( &ctx, static_cast<const unsigned char*>(data), length );
 	MD4_Final( &ctx, reinterpret_cast<unsigned char*>(digest) );
 
-	unsigned long val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
+	const unsigned long val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
 
 	return val;
 }

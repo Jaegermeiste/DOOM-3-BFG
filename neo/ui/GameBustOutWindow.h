@@ -100,8 +100,8 @@ public:
 	virtual void	WriteToSaveGame( idFile *savefile );
 	virtual void	ReadFromSaveGame( idFile *savefile, idGameBustOutWindow *game );
 
-	void			SetColor( idVec4 bcolor );
-	collideDir_t	checkCollision( idVec2 pos, idVec2 vel );
+	void			SetColor( idVec4 bcolor ) const;
+	[[nodiscard]] collideDir_t	checkCollision( idVec2 pos, idVec2 vel ) const;
 
 private:
 };

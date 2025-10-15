@@ -94,7 +94,7 @@ bool idDemoFile::OpenForReading( const char *fileName ) {
 	fileLength = f->Length();
 
 	if ( com_preloadDemos.GetBool() ) {
-		fileImage = (byte *)Mem_Alloc( fileLength, TAG_CRAP );
+		fileImage = static_cast<byte*>(Mem_Alloc(fileLength, TAG_CRAP));
 		f->Read( fileImage, fileLength );
 		fileSystem->CloseFile( f );
 		f = new (TAG_SYSTEM) idFile_Memory( va( "preloaded(%s)", fileName ), (const char *)fileImage, fileLength );
@@ -139,7 +139,8 @@ void idDemoFile::SetLog(bool b, const char *p) {
 idDemoFile::Log
 ================
 */
-void idDemoFile::Log(const char *p) {
+void idDemoFile::Log(const char *p) const
+{
 	if ( fLog && p && *p ) {
 		fLog->Write( p, strlen(p) );
 	}
@@ -306,10 +307,11 @@ void idDemoFile::WriteDict( const idDict &dict ) {
  idDemoFile::Read
  ================
  */
-int idDemoFile::Read( void *buffer, int len ) {
+int idDemoFile::Read( void *buffer, int len ) const
+{
 	int read = compressor->Read( buffer, len );
 	if ( read == 0 && len >= 4 ) {
-		*(demoSystem_t *)buffer = DS_FINISHED;
+		*static_cast<demoSystem_t*>(buffer) = DS_FINISHED;
 	}
 	return read;
 }
@@ -319,7 +321,8 @@ int idDemoFile::Read( void *buffer, int len ) {
  idDemoFile::Write
  ================
  */
-int idDemoFile::Write( const void *buffer, int len ) {
+int idDemoFile::Write( const void *buffer, int len ) const
+{
 	return compressor->Write( buffer, len );
 }
 

@@ -46,9 +46,9 @@ public:
 	//==========================================================================================
 	virtual void					Pump();
 	virtual void					Shutdown();
-	virtual int						GetNumLocalUsers() const { return localUsers.Num(); }
+			[[nodiscard]] virtual int						GetNumLocalUsers() const { return localUsers.Num(); }
 	virtual idLocalUser *			GetLocalUserByIndex( int index ) { return &localUsers[index]; }
-	virtual const idLocalUser *		GetLocalUserByIndex( int index ) const { return &localUsers[index]; }
+			[[nodiscard]] virtual const idLocalUser *		GetLocalUserByIndex( int index ) const { return &localUsers[index]; }
 	virtual void					RemoveLocalUserByIndex( int index );
 	virtual void					RegisterLocalUser( int inputDevice );		// Register a local user to the passed in controller
 

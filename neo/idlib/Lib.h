@@ -140,18 +140,26 @@ dword	PackColor( const idVec4 &color );
 void	UnpackColor( const dword color, idVec4 &unpackedColor );
 
 // little/big endian conversion
-short	BigShort( short l );
-short	LittleShort( short l );
-int		BigLong( int l );
-int		LittleLong( int l );
-float	BigFloat( float l );
-float	LittleFloat( float l );
-void	BigRevBytes( void *bp, int elsize, int elcount );
-void	LittleRevBytes( void *bp, int elsize, int elcount );
-void	LittleBitField( void *bp, int elsize );
-void	Swap_Init();
+short	        BigShort( short l );
+short	        LittleShort( short l );
+unsigned short	BigUShort( unsigned short l );
+unsigned short	LittleUShort( unsigned short l );
+int		        BigLong( int l );
+int		        LittleLong( int l );
+unsigned int	BigULong( unsigned int l );
+unsigned int	LittleULong( unsigned int l );
+int64	        BigLongLong( int64 l );
+int64	        LittleLongLong( int64 l );
+uint64	        BigULongLong( uint64 l );
+uint64	        LittleULongLong( uint64 l );
+float	        BigFloat( float l );
+float	        LittleFloat( float l );
+void	        BigRevBytes( void *bp, int elsize, int elcount );
+void	        LittleRevBytes( void *bp, int elsize, int elcount );
+void	        LittleBitField( void *bp, int elsize );
+void	        Swap_Init();
 
-bool	Swap_IsBigEndian();
+bool	        Swap_IsBigEndian();
 
 // for base64
 void	SixtetsForInt( byte *out, int src);
@@ -166,7 +174,7 @@ class idException {
 public:
 	static constexpr int MAX_ERROR_LEN = 2048;
 
-					idException( const char *text = "" ) { 
+					idException( const char *text = "" ) noexcept {
 						strncpy( error, text, MAX_ERROR_LEN ); 
 					}
 
@@ -198,7 +206,7 @@ class idFatalException {
 public:
 	static constexpr int MAX_ERROR_LEN = 2048;
 
-	idFatalException( const char *text = "" ) { 
+	idFatalException( const char *text = "" ) noexcept {
 		strncpy( idException::error, text, MAX_ERROR_LEN ); 
 	}
 
@@ -224,7 +232,7 @@ idNetworkLoadException
 */
 class idNetworkLoadException : public idException {
 public:
-	idNetworkLoadException( const char * text = "" ) : idException( text ) { }
+	idNetworkLoadException( const char * text = "" ) noexcept : idException( text ) { }
 };
 
 /*

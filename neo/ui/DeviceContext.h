@@ -46,10 +46,10 @@ public:
 	
 	void				Init();
 	void				Shutdown();
-	bool				Initialized() { return initialized; }
+	[[nodiscard]] bool				Initialized() const { return initialized; }
 	void				EnableLocalization();
 
-	void				GetTransformInfo(idVec3& origin, idMat3& mat );
+	void				GetTransformInfo(idVec3& origin, idMat3& mat ) const;
 
 	void				SetTransformInfo(const idVec3 &origin, const idMat3 &mat);
 	void				DrawMaterial(float x, float y, float w, float h, const idMaterial *mat, const idVec4 &color, float scalex = 1.0, float scaley = 1.0);
@@ -60,20 +60,20 @@ public:
 	void				DrawStretchPic(float x, float y, float w, float h, float s0, float t0, float s1, float t1, const idMaterial *mat);
 	void				DrawMaterialRotated(float x, float y, float w, float h, const idMaterial *mat, const idVec4 &color, float scalex = 1.0, float scaley = 1.0, float angle = 0.0f);
 	void				DrawStretchPicRotated(float x, float y, float w, float h, float s0, float t0, float s1, float t1, const idMaterial *mat, float angle = 0.0f);
-	void				DrawWinding( idWinding & w, const idMaterial * mat );
+	void				DrawWinding( idWinding & w, const idMaterial * mat ) const;
 
-	int					CharWidth( const char c, float scale );
-	int					TextWidth(const char *text, float scale, int limit);
-	int					TextHeight(const char *text, float scale, int limit);
-	int					MaxCharHeight(float scale);
-	int					MaxCharWidth(float scale);
+	[[nodiscard]] int					CharWidth( const char c, float scale ) const;
+	int					TextWidth(const char *text, float scale, int limit) const;
+	int					TextHeight(const char *text, float scale, int limit) const;
+	[[nodiscard]] int					MaxCharHeight(float scale) const;
+	[[nodiscard]] int					MaxCharWidth(float scale) const;
 
 	idRegion *			GetTextRegion(const char *text, float textScale, idRectangle rectDraw, float xStart, float yStart);
 
 	void				SetSize( float width, float height );
 	void				SetOffset( float x, float y );
 
-	const idMaterial *	GetScrollBarImage(int index);
+	[[nodiscard]] const idMaterial *	GetScrollBarImage(int index) const;
 
 	void				DrawCursor(float *x, float *y, float size);
 	void				SetCursor(int n);
@@ -88,7 +88,7 @@ public:
 
 	void				SetOverStrike(bool b) { overStrikeMode = b; }
 
-	bool				GetOverStrike() { return overStrikeMode; }
+	[[nodiscard]] bool				GetOverStrike() const { return overStrikeMode; }
 
 	void				DrawEditCursor(float x, float y, float scale);
 

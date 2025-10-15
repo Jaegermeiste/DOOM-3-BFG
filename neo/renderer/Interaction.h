@@ -126,13 +126,13 @@ public:
 	void					MakeEmpty();
 
 	// returns true if the interaction is empty
-	bool					IsEmpty() const { return ( numSurfaces == 0 ); }
+	[[nodiscard]] bool					IsEmpty() const { return ( numSurfaces == 0 ); }
 
 	// returns true if the interaction is not yet completely created
-	bool					IsDeferred() const { return ( numSurfaces == -1 ); }
+	[[nodiscard]] bool					IsDeferred() const { return ( numSurfaces == -1 ); }
 
 	// returns true if the interaction has shadows
-	bool					HasShadows() const;
+	[[nodiscard]] bool					HasShadows() const;
 
 	// called by GenerateAllInteractions
 	void					CreateStaticInteraction();

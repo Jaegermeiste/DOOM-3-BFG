@@ -1735,12 +1735,12 @@ bool QGL_Init( const char *dllname )
 	qglFogiv                     = 	dllFogiv                     = glFogiv;
 	qglFrontFace                 = 	dllFrontFace                 = glFrontFace;
 	qglFrustum                   = 	dllFrustum                   = glFrustum;
-	qglGenLists                  = 	dllGenLists                  = ( GLuint (__stdcall * )(int) ) glGenLists;
+	qglGenLists                  = 	dllGenLists                  = static_cast<GLuint (__stdcall *)(int)>(glGenLists);
 	qglGenTextures               = 	dllGenTextures               = glGenTextures;
 	qglGetBooleanv               = 	dllGetBooleanv               = glGetBooleanv;
 	qglGetClipPlane              = 	dllGetClipPlane              = glGetClipPlane;
 	qglGetDoublev                = 	dllGetDoublev                = glGetDoublev;
-	qglGetError                  = 	dllGetError                  = ( GLenum (__stdcall * )(void) ) glGetError;
+	qglGetError                  = 	dllGetError                  = static_cast<GLenum (__stdcall *)(void)>(glGetError);
 	qglGetFloatv                 = 	dllGetFloatv                 = glGetFloatv;
 	qglGetIntegerv               = 	dllGetIntegerv               = glGetIntegerv;
 	qglGetLightfv                = 	dllGetLightfv                = glGetLightfv;

@@ -74,11 +74,11 @@ public:
 	void			ResolveTargetDepth( idImage* image, int srcMinX, int srcMinY, int srcMaxX, int srcMaxY, int dstX, int dstY );
 
 	void			SetDepthHackValue( float depth ) { depthHackValue = depth; }
-	float			GetDepthHackValue() const { return depthHackValue; }
+					[[nodiscard]] float			GetDepthHackValue() const { return depthHackValue; }
 	void			SetWeaponDepthHackValue( float depth ) { weaponDepthHackValue = depth; }
-	float			GetWeaponDepthHackValue() const { return weaponDepthHackValue; }
+					[[nodiscard]] float			GetWeaponDepthHackValue() const { return weaponDepthHackValue; }
 
-	uint64			GetGPUFrameMicroSec() const { return GPUFrameMicroSec; }
+					[[nodiscard]] uint64			GetGPUFrameMicroSec() const { return GPUFrameMicroSec; }
 	
 private:
 	float			depthHackValue;

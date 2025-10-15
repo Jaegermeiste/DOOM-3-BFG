@@ -71,7 +71,7 @@ class idImage {
 public:
 				idImage( const char * name );
 
-	const char *	GetName() const { return imgName; }
+				[[nodiscard]] const char *	GetName() const { return imgName; }
 
 	// Makes this image active on the current GL texture unit.
 	// automatically enables or disables cube mapping
@@ -96,7 +96,7 @@ public:
 	void		UploadScratch( const byte *pic, int width, int height );
 
 	// estimates size of the GL image based on dimensions and storage type
-	int			StorageSize() const;
+				[[nodiscard]] int			StorageSize() const;
 
 	// print a one line summary of the image
 	void		Print() const;
@@ -108,9 +108,9 @@ public:
 
 	void		MakeDefault();	// fill with a grid pattern
 
-	const idImageOpts &	GetOpts() const { return opts; }
-	int			GetUploadWidth() const { return opts.width; }
-	int			GetUploadHeight() const { return opts.height; }
+				[[nodiscard]] const idImageOpts &	GetOpts() const { return opts; }
+				[[nodiscard]] int			GetUploadWidth() const { return opts.width; }
+				[[nodiscard]] int			GetUploadHeight() const { return opts.height; }
 
 	void		SetReferencedOutsideLevelLoad() { referencedOutsideLevelLoad = true; }
 	void		SetReferencedInsideLevelLoad() { levelLoadReferenced = true; }
@@ -139,18 +139,18 @@ public:
 	// SubImageUpload on PCs.  Used to update the page mapping images.
 	// We could remove this now, because the consoles don't use the intermediate page mapping
 	// textures now that they can pack everything into the virtual page table images.
-	void		SetPixel( int mipLevel, int x, int y, const void * data, int dataSize );
+	void		SetPixel( int mipLevel, int x, int y, const void * data, int dataSize ) const;
 
 	// some scratch images are dynamically resized based on the display window size.  This 
 	// simply purges the image and recreates it if the sizes are different, so it should not be 
 	// done under any normal circumstances, and probably not at all on consoles.
 	void		Resize( int width, int height );
 
-	bool		IsCompressed() const { return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 ); }
+				[[nodiscard]] bool		IsCompressed() const { return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 ); }
 
 	void		SetTexParameters();	// update aniso and trilinear
 
-	bool		IsLoaded() const { return texnum != TEXTURE_NOT_LOADED; }
+				[[nodiscard]] bool		IsLoaded() const { return texnum != TEXTURE_NOT_LOADED; }
 
 	static void			GetGeneratedName( idStr &_name, const textureUsage_t &_usage, const cubeFiles_t &_cube );
 

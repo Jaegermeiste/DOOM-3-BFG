@@ -268,7 +268,8 @@ void idSWF::Activate( bool b ) {
 idSWF::InhibitControl
 ===================
 */
-bool idSWF::InhibitControl() {
+bool idSWF::InhibitControl() const
+{
 	if ( !IsLoaded() || !IsActive() ) {
 		return false;
 	}
@@ -280,7 +281,8 @@ bool idSWF::InhibitControl() {
 idSWF::PlaySound
 ===================
 */
-int idSWF::PlaySound( const char * sound, int channel, bool blocking ) {
+int idSWF::PlaySound( const char * sound, int channel, bool blocking ) const
+{
 	if ( !IsActive() ) {
 		return -1;
 	}
@@ -297,7 +299,8 @@ int idSWF::PlaySound( const char * sound, int channel, bool blocking ) {
 idSWF::PlaySound
 ===================
 */
-void idSWF::StopSound( int channel ) {
+void idSWF::StopSound( int channel ) const
+{
 	if ( soundWorld != nullptr) {
 		soundWorld->PlayShaderDirectly(nullptr, channel );
 	} else {

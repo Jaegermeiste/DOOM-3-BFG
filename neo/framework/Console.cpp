@@ -88,7 +88,7 @@ private:
 	void				DrawTextLeftAlign( float x, float &y, const char *text, ... );
 	void				DrawTextRightAlign( float x, float &y, const char *text, ... );
 
-	float				DrawFPS( float y );
+	[[nodiscard]] float				DrawFPS( float y ) const;
 	float				DrawMemoryUsage( float y );
 
 	void				DrawOverlayText( float & leftY, float & rightY, float & centerY );
@@ -199,7 +199,8 @@ idConsoleLocal::DrawFPS
 ==================
 */
 #define	FPS_FRAMES	6
-float idConsoleLocal::DrawFPS( float y ) {
+float idConsoleLocal::DrawFPS( float y ) const
+{
 	static int previousTimes[FPS_FRAMES];
 	static int index;
 	static int previous;
@@ -432,7 +433,7 @@ void idConsoleLocal::Dump( const char *fileName ) {
 	int		l, x, i;
 	short *	line;
 	idFile *f;
-	char	* buffer = (char *)alloca( LINE_WIDTH + 3 );
+	char	* buffer = static_cast<char*>(alloca(LINE_WIDTH + 3));
 
 	f = fileSystem->OpenFileWrite( fileName );
 	if ( !f ) {
@@ -795,7 +796,7 @@ void idConsoleLocal::Linefeed() {
 	}
 	current++;
 	for ( i = 0; i < LINE_WIDTH; i++ ) {
-		int offset = ( (unsigned int)current % TOTAL_LINES ) * LINE_WIDTH + i;
+		int offset = ( static_cast<unsigned int>(current) % TOTAL_LINES ) * LINE_WIDTH + i;
 		text[offset] = (idStr::ColorIndex(C_COLOR_CYAN)<<8) | ' ';
 	}
 }

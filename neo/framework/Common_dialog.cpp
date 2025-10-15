@@ -228,7 +228,8 @@ void idCommonDialog::ClearDialogs( bool forceClear ) {
 idCommonDialog::AddDialogIntVal
 ================================================
 */
-void idCommonDialog::AddDialogIntVal( const char * name, int val ) {
+void idCommonDialog::AddDialogIntVal( const char * name, int val ) const
+{
 	if ( dialog != nullptr) {
 		dialog->SetGlobal( name, val );
 	}
@@ -1319,7 +1320,8 @@ idStr idCommonDialog::GetDialogMsg( gameDialogMessages_t msg, idStr & message, i
 idCommonDialog::HandleDialogEvent
 ================================================
 */
-bool idCommonDialog::HandleDialogEvent( const sysEvent_t * sev ) {
+bool idCommonDialog::HandleDialogEvent( const sysEvent_t * sev ) const
+{
 
 	if ( dialog != nullptr && dialog->IsLoaded() && dialog->IsActive() ) {
 		if ( saveIndicator->IsActive() ) {
@@ -1343,7 +1345,8 @@ bool idCommonDialog::HandleDialogEvent( const sysEvent_t * sev ) {
 idCommonDialog::IsDialogActive
 ================================================
 */
-bool idCommonDialog::IsDialogActive() {
+bool idCommonDialog::IsDialogActive() const
+{
 	if ( dialog != nullptr) {
 		return dialog->IsActive();
 	}
@@ -1357,7 +1360,7 @@ CONSOLE_COMMAND( commonDialogClear, "clears all dialogs that may be hung", 0 ) {
 
 CONSOLE_COMMAND( testShowDialog, "show a dialog", 0 ) {
 	int dialogId = atoi( args.Argv( 1 ) );
-	common->Dialog().AddDialog( (gameDialogMessages_t)dialogId, DIALOG_ACCEPT, nullptr, nullptr, false );
+	common->Dialog().AddDialog( static_cast<gameDialogMessages_t>(dialogId), DIALOG_ACCEPT, nullptr, nullptr, false );
 }
 
 CONSOLE_COMMAND( testShowDynamicDialog, "show a dynamic dialog", 0 ) {
@@ -1380,9 +1383,9 @@ CONSOLE_COMMAND( testShowDynamicDialog, "show a dynamic dialog", 0 ) {
 	idStr size;
 	int requiredSpaceInBytes = 150000;
 	if ( requiredSpaceInBytes > ( 1024 * 1024 ) ) {
-		size = va( "%.1f MB", (float) requiredSpaceInBytes / ( 1024.0f * 1024.0f ) );
+		size = va( "%.1f MB", static_cast<float>(requiredSpaceInBytes) / ( 1024.0f * 1024.0f ) );
 	} else {
-		size = va( "%.0f KB", (float) requiredSpaceInBytes / 1024.0f );
+		size = va( "%.0f KB", static_cast<float>(requiredSpaceInBytes) / 1024.0f );
 	}
 	idStr msg = va( format.c_str(), size.c_str() );
 
@@ -1396,5 +1399,5 @@ CONSOLE_COMMAND( testShowDialogBug, "show a dynamic dialog", 0 ) {
 	// This locks the game because it thinks it's paused because we're passing in pause = true but the 
 	// dialog isn't ever added because of the abuse of dialog->isActive when the save indicator is shown.
 	int dialogId = atoi( args.Argv( 1 ) );
-	common->Dialog().AddDialog( (gameDialogMessages_t)dialogId, DIALOG_ACCEPT, nullptr, nullptr, true );
+	common->Dialog().AddDialog( static_cast<gameDialogMessages_t>(dialogId), DIALOG_ACCEPT, nullptr, nullptr, true );
 }

@@ -46,7 +46,7 @@ idRotation::ToQuat
 idQuat idRotation::ToQuat() const {
 	float s, c;
 
-	float a = angle * (idMath::M_DEG2RAD * 0.5f);
+	const float a = angle * (idMath::M_DEG2RAD * 0.5f);
 	idMath::SinCos( a, s, c );
 	return idQuat( vec.x * s, vec.y * s, vec.z * s, c );
 }
@@ -63,28 +63,28 @@ const idMat3 &idRotation::ToMat3() const {
 		return axis;
 	}
 
-	float a = angle * (idMath::M_DEG2RAD * 0.5f);
+	const float a = angle * (idMath::M_DEG2RAD * 0.5f);
 	idMath::SinCos( a, s, c );
 
-	float x = vec[0] * s;
-	float y = vec[1] * s;
-	float z = vec[2] * s;
+	const float x = vec[0] * s;
+	const float y = vec[1] * s;
+	const float z = vec[2] * s;
 
-	float x2 = x + x;
-	float y2 = y + y;
-	float z2 = z + z;
+	const float x2 = x + x;
+	const float y2 = y + y;
+	const float z2 = z + z;
 
-	float xx = x * x2;
-	float xy = x * y2;
-	float xz = x * z2;
+	const float xx = x * x2;
+	const float xy = x * y2;
+	const float xz = x * z2;
 
-	float yy = y * y2;
-	float yz = y * z2;
-	float zz = z * z2;
+	const float yy = y * y2;
+	const float yz = y * z2;
+	const float zz = z * z2;
 
-	float wx = c * x2;
-	float wy = c * y2;
-	float wz = c * z2;
+	const float wx = c * x2;
+	const float wy = c * y2;
+	const float wz = c * z2;
 
 	axis[ 0 ][ 0 ] = 1.0f - ( yy + zz );
 	axis[ 0 ][ 1 ] = xy - wz;

@@ -40,7 +40,7 @@ A static list for script parameters that reduces the number of SWF allocations d
 */
 class idSWFParmList : public idStaticList< idSWFScriptVar, SWF_MAX_PARMS > {
 public:
-					idSWFParmList() {
+					idSWFParmList() noexcept {
 					}
 	explicit		idSWFParmList( const int num_ ) {
 						SetNum( num_ );

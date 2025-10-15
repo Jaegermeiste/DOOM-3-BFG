@@ -235,7 +235,7 @@ private:
 	void			MakeCurrent();
 	void			InitCurrent();
 
-	bool			Inhibited();
+					[[nodiscard]] bool			Inhibited() const;
 	void			AdjustAngles();
 	void			KeyMove();
 	void			CircleToSquare( float & axis_x, float & axis_y ) const;
@@ -387,7 +387,8 @@ idUsercmdGenLocal::Inhibited
 is user cmd generation inhibited
 ================
 */
-bool idUsercmdGenLocal::Inhibited() {
+bool idUsercmdGenLocal::Inhibited() const
+{
 	return ( inhibitCommands != 0);
 }
 
@@ -589,22 +590,22 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 
 	switch ( action ) {
 		case UB_MOVEFORWARD: {
-			float move = (float)cmd.forwardmove + ( KEY_MOVESPEED * value );
+			float move = static_cast<float>(cmd.forwardmove) + ( KEY_MOVESPEED * value );
 			cmd.forwardmove = idMath::ClampChar( idMath::Ftoi( move ) );
 			break;
 		}
 		case UB_MOVEBACK: {
-			float move = (float)cmd.forwardmove - ( KEY_MOVESPEED * value );
+			float move = static_cast<float>(cmd.forwardmove) - ( KEY_MOVESPEED * value );
 			cmd.forwardmove = idMath::ClampChar( idMath::Ftoi( move ) );
 			break;
 		}
 		case UB_MOVELEFT: {
-			float move = (float)cmd.rightmove - ( KEY_MOVESPEED * value );
+			float move = static_cast<float>(cmd.rightmove) - ( KEY_MOVESPEED * value );
 			cmd.rightmove = idMath::ClampChar( idMath::Ftoi( move ) );
 			break;
 		}
 		case UB_MOVERIGHT: {
-			float move = (float)cmd.rightmove + ( KEY_MOVESPEED * value );
+			float move = static_cast<float>(cmd.rightmove) + ( KEY_MOVESPEED * value );
 			cmd.rightmove = idMath::ClampChar( idMath::Ftoi( move ) );
 			break;
 		}
@@ -795,7 +796,7 @@ void	DrawJoypadTexture(
 	float	ringValue[NUM_RINGS] = { 0.0f, 0.25f, 0.5f, 0.75f, 0.99f };
 	int		ringNum = 0;
 	for ( int i = 1 ; i < size ; i++ ) {
-		const float	v = (float)i / (size-1);
+		const float	v = static_cast<float>(i) / (size-1);
 
 		const idVec2 mapped = JoypadFunction(
 			idVec2( v, 0.0f ), 1.0f, threshold, range, shape, mergedThreshold );
@@ -812,8 +813,8 @@ void	DrawJoypadTexture(
 #define PLOT(x,y) ((int *)image)[(int)(y)*size+(int)(x)]=0xffffffff
 #define CPLOT(x,y) ((int *)image)[(int)(halfSize+y)*size+(int)(halfSize+x)]=0xffffffff
 
-	int	clampedX = halfSize + Min( halfSize-1, (int)(halfSize * clamped.x) );
-	int	clampedY = halfSize + Min( halfSize-1, (int)(halfSize * clamped.y) );
+	int	clampedX = halfSize + Min( halfSize-1, static_cast<int>(halfSize * clamped.x) );
+	int	clampedY = halfSize + Min( halfSize-1, static_cast<int>(halfSize * clamped.y) );
 
 	// draw the box edge outline and center lines
 	for ( int i = 0 ; i < size ; i++ ) {
@@ -883,7 +884,7 @@ void DrawJoypadTexture( const int size, byte image[] ) {
 	const float threshold =			joy_deadZone.GetFloat();
 	const float range =				joy_range.GetFloat();
 	const bool mergedThreshold =	joy_mergedThreshold.GetBool();
-	const transferFunction_t shape =(transferFunction_t)joy_gammaLook.GetInteger();
+	const transferFunction_t shape =static_cast<transferFunction_t>(joy_gammaLook.GetInteger());
 
 	DrawJoypadTexture( size, image, lastLookJoypad, threshold, range, shape, mergedThreshold );
 }
@@ -898,7 +899,7 @@ void idUsercmdGenLocal::JoystickMove2() {
 	const bool invertLook =			in_invertLook.GetBool();
 	const float threshold =			joy_deadZone.GetFloat();
 	const float range =				joy_range.GetFloat();
-	const transferFunction_t shape =(transferFunction_t)joy_gammaLook.GetInteger();
+	const transferFunction_t shape =static_cast<transferFunction_t>(joy_gammaLook.GetInteger());
 	const bool mergedThreshold =	joy_mergedThreshold.GetBool();
 	const float pitchSpeed =		joy_pitchSpeed.GetFloat();
 	const float yawSpeed =			joy_yawSpeed.GetFloat();

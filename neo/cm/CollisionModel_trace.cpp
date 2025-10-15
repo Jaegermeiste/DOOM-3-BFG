@@ -231,13 +231,13 @@ void idCollisionModelManagerLocal::TraceThroughModel( cm_traceWork_t *tw ) {
 		// if more than one step
 		if ( d > CIRCLE_APPROXIMATION_LENGTH ) {
 			// number of steps for the approximation
-			numSteps = (int) (CIRCLE_APPROXIMATION_LENGTH / d);
+			numSteps = static_cast<int>((CIRCLE_APPROXIMATION_LENGTH / d));
 			// start of approximation
 			start = tw->start;
 			// trace circle approximation steps through the BSP tree
 			for ( i = 0; i < numSteps; i++ ) {
 				// calculate next point on approximated circle
-				rot.Set( tw->origin, tw->axis, tw->angle * ((float) (i+1) / numSteps) );
+				rot.Set( tw->origin, tw->axis, tw->angle * (static_cast<float>(i + 1) / numSteps) );
 				end = start * rot;
 				// trace through spatial subdivision and then through leafs
 				idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, tw->model->node, 0, 1, start, end );

@@ -40,9 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // angle indexes
-#define	PITCH				0		// up / down
-#define	YAW					1		// left / right
-#define	ROLL				2		// fall over
+enum angle_indices_e : byte
+{
+	PITCH = 0,		// up / down
+	YAW = 1,		// left / right
+	ROLL = 2		// fall over
+};
 
 class idVec3;
 class idQuat;
@@ -56,15 +59,17 @@ public:
 	float			yaw;
 	float			roll;
 
-					idAngles();
+					idAngles() noexcept = default;
 					idAngles( float pitch, float yaw, float roll );
 					explicit idAngles( const idVec3 &v );
 
 	void 			Set( float pitch, float yaw, float roll );
 	idAngles &		Zero();
 
-	float			operator[]( int index ) const;
-	float &			operator[]( int index );
+	
+	float			operator[]( Ordinal auto index ) const;
+	
+	float &			operator[]( Ordinal auto index );
 	idAngles		operator-() const;			// negate angles, in general not the inverse rotation
 	idAngles &		operator=( const idAngles &a );
 	idAngles		operator+( const idAngles &a ) const;
@@ -104,9 +109,6 @@ public:
 
 extern idAngles ang_zero;
 
-ID_INLINE idAngles::idAngles() {
-}
-
 ID_INLINE idAngles::idAngles(const float pitch, const float yaw, const float roll ) {
 	this->pitch = pitch;
 	this->yaw	= yaw;
@@ -130,12 +132,14 @@ ID_INLINE idAngles &idAngles::Zero() {
 	return *this;
 }
 
-ID_INLINE float idAngles::operator[](const int index ) const {
+
+ID_INLINE float idAngles::operator[](const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &pitch )[ index ];
 }
 
-ID_INLINE float &idAngles::operator[](const int index ) {
+
+ID_INLINE float &idAngles::operator[](const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &pitch )[ index ];
 }
@@ -144,12 +148,7 @@ ID_INLINE idAngles idAngles::operator-() const {
 	return idAngles( -pitch, -yaw, -roll );
 }
 
-ID_INLINE idAngles &idAngles::operator=( const idAngles &a ) {
-	pitch	= a.pitch;
-	yaw		= a.yaw;
-	roll	= a.roll;
-	return *this;
-}
+ID_INLINE idAngles &idAngles::operator=( const idAngles &a ) = default;
 
 ID_INLINE idAngles idAngles::operator+( const idAngles &a ) const {
 	return idAngles( pitch + a.pitch, yaw + a.yaw, roll + a.roll );

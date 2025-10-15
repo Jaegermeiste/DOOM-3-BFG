@@ -48,13 +48,13 @@ public:
 	//==========================================================================================
 	// idLocalUser interface
 	//==========================================================================================
-	virtual bool				IsProfileReady() const;
-	virtual bool				IsOnline() const;
-	virtual bool				IsInParty() const;
-	virtual int					GetPartyCount() const;
-	virtual uint32				GetOnlineCaps() const { return ( IsPersistent() && IsOnline() ) ? ( CAP_IS_ONLINE | CAP_CAN_PLAY_ONLINE ) : 0; }
-	virtual int					GetInputDevice() const { return inputDevice; }
-	virtual const char *		GetGamerTag() const { return gamertag.c_str(); }
+	[[nodiscard]] virtual bool				IsProfileReady() const;
+	[[nodiscard]] virtual bool				IsOnline() const;
+	[[nodiscard]] virtual bool				IsInParty() const;
+	[[nodiscard]] virtual int					GetPartyCount() const;
+	[[nodiscard]] virtual uint32				GetOnlineCaps() const { return ( IsPersistent() && IsOnline() ) ? ( CAP_IS_ONLINE | CAP_CAN_PLAY_ONLINE ) : 0; }
+	[[nodiscard]] virtual int					GetInputDevice() const { return inputDevice; }
+	[[nodiscard]] virtual const char *		GetGamerTag() const { return gamertag.c_str(); }
 	virtual void				PumpPlatform() {}
 
 	//==========================================================================================
@@ -62,8 +62,10 @@ public:
 	//==========================================================================================
 	void						SetInputDevice( int inputDevice_ ) { inputDevice = inputDevice_; }
 	void						SetGamerTag( const char * gamerTag_ ) { gamertag = gamerTag_; }
-	winUserState_t				GetUserState() { winUserState_t a = { inputDevice }; return a; }
-	bool						VerifyUserState( winUserState_t & state );
+
+	[[nodiscard]] winUserState_t				GetUserState() const
+	{ winUserState_t a = { inputDevice }; return a; }
+	bool						VerifyUserState( winUserState_t & state ) const;
 
 	void						Init( int inputDevice_, const char * gamertag_, int numLocalUsers );
 

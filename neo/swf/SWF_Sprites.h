@@ -44,8 +44,8 @@ public:
 
 	void	Read( idFile * f );
 	void	Write( idFile * f );
-	
-	class idSWF * GetSWF() { return swf; }
+
+	[[nodiscard]] class idSWF * GetSWF() const { return swf; }
 
 private:
 	friend class idSWFSpriteInstance;

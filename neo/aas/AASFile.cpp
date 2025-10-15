@@ -590,8 +590,8 @@ idAASFileLocal::~idAASFileLocal
 ================
 */
 idAASFileLocal::~idAASFileLocal() {
-	int i;
-	idReachability *reach, *next;
+	int i = 0;
+	idReachability *reach = nullptr, *next = nullptr;
 
 	for ( i = 0; i < areas.Num(); i++ ) {
 		for ( reach = areas[i].reach; reach; reach = next ) {
@@ -842,8 +842,8 @@ idAASFileLocal::ParseEdges
 ================
 */
 bool idAASFileLocal::ParseEdges( idLexer &src ) {
-	int numEdges, i;
-	aasEdge_t edge;
+	int numEdges = 0, i = 0;
+	aasEdge_t edge = {};
 
 	numEdges = src.ParseInt();
 	edges.Resize( numEdges );
@@ -870,8 +870,8 @@ idAASFileLocal::ParseFaces
 ================
 */
 bool idAASFileLocal::ParseFaces( idLexer &src ) {
-	int numFaces, i;
-	aasFace_t face;
+	int numFaces = 0, i = 0;
+	aasFace_t face = {};
 
 	numFaces = src.ParseInt();
 	faces.Resize( numFaces );
@@ -994,8 +994,8 @@ idAASFileLocal::ParseNodes
 ================
 */
 bool idAASFileLocal::ParseNodes( idLexer &src ) {
-	int numNodes, i;
-	aasNode_t node;
+	int numNodes = 0, i = 0;
+	aasNode_t node = {};
 
 	numNodes = src.ParseInt();
 	nodes.Resize( numNodes );
@@ -1023,8 +1023,8 @@ idAASFileLocal::ParsePortals
 ================
 */
 bool idAASFileLocal::ParsePortals( idLexer &src ) {
-	int numPortals, i;
-	aasPortal_t portal;
+	int numPortals = 0, i = 0;
+	aasPortal_t portal = {};
 
 	numPortals = src.ParseInt();
 	portals.Resize( numPortals );
@@ -1054,8 +1054,8 @@ idAASFileLocal::ParseClusters
 ================
 */
 bool idAASFileLocal::ParseClusters( idLexer &src ) {
-	int numClusters, i;
-	aasCluster_t cluster;
+	int numClusters = 0, i = 0;
+	aasCluster_t cluster = {};
 
 	numClusters = src.ParseInt();
 	clusters.Resize( numClusters );
@@ -1281,8 +1281,8 @@ idAASFileLocal::DeleteReachabilities
 ================
 */
 void idAASFileLocal::DeleteReachabilities() {
-	int i;
-	idReachability *reach, *nextReach;
+	int i = 0;
+	idReachability *reach = nullptr, *nextReach = nullptr;
 
 	for ( i = 0; i < areas.Num(); i++ ) {
 		for ( reach = areas[i].reach; reach; reach = nextReach ) {

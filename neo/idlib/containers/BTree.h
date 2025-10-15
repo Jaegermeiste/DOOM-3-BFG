@@ -118,7 +118,7 @@ ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::Shutdown() {
 
 template< class objType, class keyType, int maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::Add( objType *object, keyType key ) {
-	idBTreeNode<objType,keyType> *child, *newNode;
+	idBTreeNode<objType,keyType> *child = nullptr, *newNode = nullptr;
 
 	if ( root == nullptr) {
 		root = AllocNode();

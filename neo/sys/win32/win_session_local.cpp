@@ -83,8 +83,8 @@ public:
 
 	virtual void					ListServers( const idCallback & callback );
 	virtual void					CancelListServers();
-	virtual int						NumServers() const;
-	virtual const serverInfo_t *	ServerInfo( int i ) const;
+[[nodiscard]] virtual int						NumServers() const;
+[[nodiscard]] virtual const serverInfo_t *	ServerInfo( int i ) const;
 	virtual void					ConnectToServer( int i );
 	virtual void					ShowServerGamerCardUI( int i );
 
@@ -97,7 +97,7 @@ public:
 	virtual bool			ProcessInputEvent( const sysEvent_t * ev );
 
 	// System UI
-	virtual bool			IsSystemUIShowing() const;
+[[nodiscard]] virtual bool			IsSystemUIShowing() const;
 	virtual void			SetSystemUIShowing( bool show );
 
 	// Invites
@@ -163,8 +163,8 @@ class idLobbyToSessionCBLocal : public idLobbyToSessionCB {
 public:
 	idLobbyToSessionCBLocal( idSessionLocalWin * sessionLocalWin_ ) : sessionLocalWin( sessionLocalWin_ ) { }
 
-	virtual bool CanJoinLocalHost() const { sessionLocalWin->EnsurePort(); return sessionLocalWin->canJoinLocalHost; }
-	virtual class idLobbyBackend * GetLobbyBackend( idLobbyBackend::lobbyBackendType_t type ) const { return sessionLocalWin->lobbyBackends[ type ]; }
+	[[nodiscard]] virtual bool CanJoinLocalHost() const { sessionLocalWin->EnsurePort(); return sessionLocalWin->canJoinLocalHost; }
+	[[nodiscard]] virtual class idLobbyBackend * GetLobbyBackend( idLobbyBackend::lobbyBackendType_t type ) const { return sessionLocalWin->lobbyBackends[ type ]; }
 
 private:
 	idSessionLocalWin *			sessionLocalWin;

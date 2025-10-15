@@ -32,10 +32,10 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define SNAPSHOT_CHECKSUMS
 
-typedef int32 objectSize_t;
+typedef size_t objectSize_t;
 
-static constexpr objectSize_t SIZE_STALE		= MAX_TYPE( objectSize_t );				// Special size to indicate object went stale
-static constexpr objectSize_t SIZE_NOT_STALE	= MAX_TYPE( objectSize_t ) - 1;			// Special size to indicate object is no longer stale
+static constexpr objectSize_t SIZE_STALE     = MAX_UNSIGNED_TYPE( objectSize_t );				// Special size to indicate object went stale
+static constexpr objectSize_t SIZE_NOT_STALE = MAX_UNSIGNED_TYPE( objectSize_t ) - 1;			// Special size to indicate object is no longer stale
 
 static constexpr int RLE_COMPRESSION_PADDING				= 16;			// Padding to accommodate possible enlargement due to zlre compression
 
@@ -52,8 +52,8 @@ static constexpr uint32 OBJ_SAME			= ( 1 << 5 );			// Objects are in both snaps,
 // This struct is used to communicate data from the obj jobs to the lzw job
 struct ALIGNTYPE16 objHeader_t {
 	int32	objID;					// Id of object. 
-	int32	size;					// Size data object holds (will be 0 if the obj is being deleted)
-	int32	csize;					// Size after zrle compression
+	size_t	size;					// Size data object holds (will be 0 if the obj is being deleted)
+	size_t	csize;					// Size after zrle compression
 	uint32	flags;					// Flags used to communicate state from obj job to lzw delta job
 	uint8 * data;					// Data ptr to obj memory
 #ifdef SNAPSHOT_CHECKSUMS
@@ -64,8 +64,8 @@ struct ALIGNTYPE16 objHeader_t {
 struct objJobState_t {
 	uint8				valid;
 	uint8 *				data;
-	uint16				size;
-	uint16				objectNum;
+	size_t				size;
+	size_t				objectNum;
 	uint32				visMask;
 };
 

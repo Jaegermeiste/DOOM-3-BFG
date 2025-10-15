@@ -478,7 +478,7 @@ void idGuiScript::FixupParms(idWindow *win) {
 			} else if ((*str[0]) == '$') {
 				// 
 				//  dont include the $ when asking for variable
-				dest = win->GetGui()->GetDesktop()->GetWinVarByName((const char*)(*str) + 1, true);
+				dest = win->GetGui()->GetDesktop()->GetWinVarByName(static_cast<const char*>(*str) + 1, true);
 				// 					
 				if (dest) {
 					delete parms[i].var;
@@ -538,7 +538,7 @@ void idGuiScript::FixupParms(idWindow *win) {
 			drawWin_t* owner = nullptr;
 
 			if ( (*str[0]) == '$' ) {
-				dest = win->GetWinVarByName ( (const char*)(*str) + 1, true, &owner );
+				dest = win->GetWinVarByName ( static_cast<const char*>(*str) + 1, true, &owner );
 			} else {
 				dest = nullptr;
 			}

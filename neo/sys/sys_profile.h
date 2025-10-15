@@ -57,7 +57,7 @@ private:
 	void				LoadSettingsAsync();
 	void				SaveSettingsAsync();
 	
-	void				OnLoadSettingsCompleted( idSaveLoadParms * parms );
+	void				OnLoadSettingsCompleted( idSaveLoadParms * parms ) const;
 	void				OnSaveSettingsCompleted( idSaveLoadParms * parms );
 
 private:

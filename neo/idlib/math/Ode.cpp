@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../precompiled.h"
 
 //===============================================================
@@ -63,7 +65,7 @@ idODE_Euler::Evaluate
 */
 float idODE_Euler::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	derive( t0, userData, state, derivatives );
-	float delta = t1 - t0;
+	const float delta = t1 - t0;
 	for ( int i = 0; i < dimension; i++ ) {
 		newState[i] = state[i] + delta * derivatives[i];
 	}
@@ -105,10 +107,10 @@ idODE_Midpoint::~Evaluate
 =============
 */
 float idODE_Midpoint::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	int i;
+	int i = 0;
 
-	double delta = t1 - t0;
-	double halfDelta = delta * 0.5;
+	const double delta = static_cast<double>(t1) - t0;
+	const float halfDelta = idMath::Dtof(delta * 0.5);
     // first step
 	derive( t0, userData, state, derivatives );
 	for ( i = 0; i < dimension; i++ ) {
@@ -118,9 +120,9 @@ float idODE_Midpoint::Evaluate( const float *state, float *newState, const float
 	derive( t0 + halfDelta, userData, tmpState, derivatives );
 
 	for ( i = 0; i < dimension; i++ ) {
-		newState[i] = state[i] + delta * derivatives[i];
+		newState[i] = idMath::Dtof(state[i] + delta * derivatives[i]);
 	}
-	return delta;
+	return idMath::Dtof(delta);
 }
 
 //===============================================================
@@ -164,10 +166,10 @@ idODE_RK4::Evaluate
 =============
 */
 float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	int i;
+	int i = 0;
 
-	double delta = t1 - t0;
-	double halfDelta = delta * 0.5;
+	const double delta = t1 - t0;
+	const float halfDelta = idMath::Dtof(delta * 0.5);
 	// first step
 	derive( t0, userData, state, d1 );
 	for ( i = 0; i < dimension; i++ ) {
@@ -181,16 +183,16 @@ float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, 
 	// third step
 	derive( t0 + halfDelta, userData, tmpState, d3 );
 	for ( i = 0; i < dimension; i++ ) {
-		tmpState[i] = state[i] + delta * d3[i];
+		tmpState[i] = idMath::Dtof(state[i] + delta * d3[i]);
 	}
 	// fourth step
-	derive( t0 + delta, userData, tmpState, d4 );
+	derive(idMath::Dtof(t0 + delta), userData, tmpState, d4 );
 
-	double sixthDelta = delta * (1.0 / 6.0);
+	const double sixthDelta = delta * (1.0 / 6.0);
 	for ( i = 0; i < dimension; i++ ) {
-		newState[i] = state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]);
+		newState[i] = idMath::Dtof(state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]));
 	}
-	return delta;
+	return idMath::Dtof(delta);
 }
 
 //===============================================================
@@ -248,16 +250,16 @@ idODE_RK4Adaptive::Evaluate
 =============
 */
 float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	double error;
-	int i;
+	double error = 0.0;
+	int i = 0;
 
 	double delta = t1 - t0;
+	const double d_halfDelta = delta * 0.5;
+	const float f_halfDelta = idMath::Dtof(d_halfDelta);
+	const float fourthDelta = idMath::Dtof(delta * 0.25);
 
-	for ( int n = 0; n < 4; n++ ) {
-
-		double halfDelta = delta * 0.5;
-		double fourthDelta = delta * 0.25;
-
+	for ( int n = 0; n < 4; n++ )
+	{
 		// first step of first half delta
 		derive( t0, userData, state, d1 );
 		for ( i = 0; i < dimension; i++ ) {
@@ -271,79 +273,77 @@ float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const fl
 		// third step of first half delta
 		derive( t0 + fourthDelta, userData, tmpState, d3 );
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + halfDelta * d3[i];
+			tmpState[i] = state[i] + f_halfDelta * d3[i];
 		}
 		// fourth step of first half delta
-		derive( t0 + halfDelta, userData, tmpState, d4 );
+		derive( t0 + f_halfDelta, userData, tmpState, d4 );
 
-		double sixthDelta = halfDelta * (1.0 / 6.0);
+		double sixthDelta = d_halfDelta * (1.0 / 6.0);
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]);
+			tmpState[i] = idMath::Dtof(state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]));
 		}
 
 		// first step of second half delta
-		derive( t0 + halfDelta, userData, tmpState, d1half );
+		derive( t0 + f_halfDelta, userData, tmpState, d1half );
 		for ( i = 0; i < dimension; i++ ) {
 			tmpState[i] = state[i] + fourthDelta * d1half[i];
 		}
 		// second step of second half delta
-		derive( t0 + halfDelta + fourthDelta, userData, tmpState, d2 );
+		derive( t0 + f_halfDelta + fourthDelta, userData, tmpState, d2 );
 		for ( i = 0; i < dimension; i++ ) {
 			tmpState[i] = state[i] + fourthDelta * d2[i];
 		}
 		// third step of second half delta
-		derive( t0 + halfDelta + fourthDelta, userData, tmpState, d3 );
+		derive( t0 + f_halfDelta + fourthDelta, userData, tmpState, d3 );
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + halfDelta * d3[i];
+			tmpState[i] = state[i] + f_halfDelta * d3[i];
 		}
 		// fourth step of second half delta
-		derive( t0 + delta, userData, tmpState, d4 );
+		derive(idMath::Dtof(t0 + delta), userData, tmpState, d4 );
 
-		sixthDelta = halfDelta * (1.0/6.0);
+		sixthDelta = d_halfDelta * (1.0/6.0);
 		for ( i = 0; i < dimension; i++ ) {
-			newState[i] = state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]);
+			newState[i] = idMath::Dtof(state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]));
 		}
 
 		// first step of full delta
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + halfDelta * d1[i];
+			tmpState[i] = state[i] + f_halfDelta * d1[i];
 		}
 		// second step of full delta
-		derive( t0 + halfDelta, userData, tmpState, d2 );
+		derive( t0 + f_halfDelta, userData, tmpState, d2 );
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + halfDelta * d2[i];
+			tmpState[i] = state[i] + f_halfDelta * d2[i];
 		}
 		// third step of full delta
-		derive( t0 + halfDelta, userData, tmpState, d3 );
+		derive( t0 + f_halfDelta, userData, tmpState, d3 );
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + delta * d3[i];
+			tmpState[i] = idMath::Dtof(state[i] + delta * d3[i]);
 		}
 		// fourth step of full delta
-		derive( t0 + delta, userData, tmpState, d4 );
+		derive(idMath::Dtof(t0 + delta), userData, tmpState, d4 );
 
 		sixthDelta = delta * (1.0/6.0);
 		for ( i = 0; i < dimension; i++ ) {
-			tmpState[i] = state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]);
+			tmpState[i] = idMath::Dtof(state[i] + sixthDelta * (d1[i] + 2.0 * (d2[i] + d3[i]) + d4[i]));
 		}
 
 		// get max estimated error
         double max = 0.0;
 		for ( i = 0; i < dimension; i++ ) {
 			error = idMath::Fabs( (newState[i] - tmpState[i]) / (delta * d1[i] + 1e-10) );
-			if ( error > max ) {
-				max = error;
-			}
-        }
+			max = std::max(error, max);
+		}
 		error = max / maxError;
 
         if ( error <= 1.0f ) {
-			return delta * 4.0;
+			return idMath::Dtof(delta * 4.0);
 		}
 		if ( delta <= 1e-7 ) {
-			return delta;
+			return idMath::Dtof(delta);
 		}
 		delta *= 0.25;
 	}
-	return delta;
+	return idMath::Dtof(delta);
 }
 

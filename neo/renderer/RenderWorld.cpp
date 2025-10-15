@@ -197,7 +197,7 @@ void idRenderWorldLocal::ResizeInteractionTable() {
 	interactionTableWidth = entityDefs.Num() + 100;
 	interactionTableHeight = lightDefs.Num() + 100;
 	const int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
-	interactionTable = (idInteraction **)R_ClearedStaticAlloc( size );
+	interactionTable = static_cast<idInteraction**>(R_ClearedStaticAlloc(size));
 	for ( int l = 0; l < oldIinteractionTableHeight; l++ ) {
 		for ( int e = 0; e < oldInteractionTableWidth; e++ ) {
 			interactionTable[ l * interactionTableWidth + e ] = oldInteractionTable[ l * oldInteractionTableWidth + e ];
@@ -805,7 +805,7 @@ void idRenderWorldLocal::RenderScene( const renderView_t *renderView ) {
 	int startTime = Sys_Microseconds();
 
 	// setup view parms for the initial view
-	viewDef_t * parms = (viewDef_t *)R_ClearedFrameAlloc( sizeof( *parms ), FRAME_ALLOC_VIEW_DEF );
+	viewDef_t * parms = static_cast<viewDef_t*>(R_ClearedFrameAlloc(sizeof(*parms), FRAME_ALLOC_VIEW_DEF));
 	parms->renderView = *renderView;
 
 	if ( tr.takingScreenshot ) {
@@ -1545,7 +1545,7 @@ void idRenderWorldLocal::GenerateAllInteractions() {
 	interactionTableWidth = entityDefs.Num() + 100;
 	interactionTableHeight = lightDefs.Num() + 100;
 	int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
-	interactionTable = (idInteraction **)R_ClearedStaticAlloc( size );
+	interactionTable = static_cast<idInteraction**>(R_ClearedStaticAlloc(size));
 
 	// itterate through all lights
 	int	count = 0;
@@ -1834,7 +1834,7 @@ void idRenderWorldLocal::DebugSphere( const idVec4 &color, const idSphere &spher
 	idVec3 p, lastp, *lastArray;
 
 	num = 360 / 15;
-	lastArray = (idVec3 *) _alloca16( num * sizeof( idVec3 ) );
+	lastArray = static_cast<idVec3*>(_alloca16(num * sizeof( idVec3 )));
 	lastArray[0] = sphere.GetOrigin() + idVec3( 0, 0, sphere.GetRadius() );
 	for ( n = 1; n < num; n++ ) {
 		lastArray[n] = lastArray[0];

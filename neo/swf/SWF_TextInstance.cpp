@@ -269,7 +269,8 @@ idStr idSWFTextInstance::GetParagraphText( int time ) {
 idSWFTextInstance::StartRandomText
 ========================
 */
-bool idSWFTextInstance::NeedsSoundPlayed() {
+bool idSWFTextInstance::NeedsSoundPlayed() const
+{
 	if ( soundClip.IsEmpty() ) {
 		return false;
 	}
@@ -964,11 +965,11 @@ SWF_TEXT_NATIVE_VAR_DEFINE_SET( mode ) {
 
 	int mode = value.ToInteger();
 
-	if ( mode >= (int)SWF_TEXT_RENDER_MODE_COUNT || mode < 0 ) {
+	if ( mode >= static_cast<int>(SWF_TEXT_RENDER_MODE_COUNT) || mode < 0 ) {
 		mode = SWF_TEXT_RENDER_NORMAL;
 	}
 
-	pThis->renderMode = swfTextRenderMode_t(mode);
+	pThis->renderMode = static_cast<swfTextRenderMode_t>(mode);
 }
 
 SWF_TEXT_NATIVE_VAR_DEFINE_SET( scroll ) { 
@@ -1113,7 +1114,7 @@ SWF_TEXT_FUNCTION_DEFINE( onChar ) {
 			return false;
 	}
 
-	char letter = ( char )keyCode;
+	char letter = static_cast<char>(keyCode);
 	// assume ` is meant for the console
 	if ( letter == '`' ) {
 		return false;

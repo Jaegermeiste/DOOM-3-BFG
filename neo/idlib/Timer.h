@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idTimer {
 public:
-					idTimer();
+					idTimer() noexcept;
 					idTimer( double clockTicks );
 					~idTimer();
 
@@ -58,14 +58,14 @@ public:
 
 private:
 	static double	base;
-	enum			{
+	enum : uint8	{
 						TS_STARTED,
 						TS_STOPPED
 					} state;
 	double			start;
 	double			clockTicks;
 
-	void			InitBaseClockTicks() const;
+	static void		InitBaseClockTicks();
 };
 
 /*
@@ -73,9 +73,10 @@ private:
 idTimer::idTimer
 =================
 */
-ID_INLINE idTimer::idTimer() {
+ID_INLINE idTimer::idTimer() noexcept {
 	state = TS_STOPPED;
 	clockTicks = 0.0;
+	start = 0.0;
 }
 
 /*
@@ -86,6 +87,7 @@ idTimer::idTimer
 ID_INLINE idTimer::idTimer(const double _clockTicks ) {
 	state = TS_STOPPED;
 	clockTicks = _clockTicks;
+	start = 0.0;
 }
 
 /*
@@ -93,8 +95,7 @@ ID_INLINE idTimer::idTimer(const double _clockTicks ) {
 idTimer::~idTimer
 =================
 */
-ID_INLINE idTimer::~idTimer() {
-}
+ID_INLINE idTimer::~idTimer() = default;
 
 /*
 =================
@@ -210,11 +211,11 @@ public:
 					~idTimerReport();
 
 	void			SetReportName( const char *name );
-	int				AddReport( const char *name );
+	int64			AddReport( const char *name );
 	void			Clear();
 	void			Reset();
 	void			PrintReport();
-	void			AddTime( const char *name, idTimer *time );
+	void			AddTime( const char *name, const idTimer *time );
 
 private:
 	idList<idTimer*>timers;

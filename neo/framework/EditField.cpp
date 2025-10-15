@@ -164,7 +164,7 @@ idEditField::ClearAutoComplete
 ===============
 */
 void idEditField::ClearAutoComplete() {
-	if ( autoComplete.length > 0 && autoComplete.length <= (int) strlen( buffer ) ) {
+	if ( autoComplete.length > 0 && autoComplete.length <= static_cast<int>(strlen(buffer)) ) {
 		buffer[autoComplete.length] = '\0';
 		if ( cursor > autoComplete.length ) {
 			cursor = autoComplete.length;
@@ -283,7 +283,7 @@ void idEditField::AutoComplete() {
 
 		// and print it
 		idStr::snPrintf( buffer, sizeof( buffer ), autoComplete.currentMatch );
-		if ( autoComplete.length > (int)strlen( buffer ) ) {
+		if ( autoComplete.length > static_cast<int>(strlen(buffer)) ) {
 			autoComplete.length = strlen( buffer );
 		}
 		SetCursor( autoComplete.length );

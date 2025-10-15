@@ -159,7 +159,7 @@ void R_ListImages_f( const idCmdArgs &args ) {
 
 	totalSize = 0;
 
-	sortedImage_t	*sortedArray = (sortedImage_t *)alloca( sizeof( sortedImage_t ) * globalImages->images.Num() );
+	sortedImage_t	*sortedArray = static_cast<sortedImage_t*>(alloca(sizeof(sortedImage_t) * globalImages->images.Num()));
 
 	for ( i = 0 ; i < globalImages->images.Num() ; i++ ) {
 		image = globalImages->images[ i ];
@@ -756,7 +756,7 @@ void idImageManager::Preload( const idPreloadManifest &manifest, const bool & ma
 		for ( int i = 0; i < manifest.NumResources(); i++ ) {
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( i );
 			if ( p.resType == PRELOAD_IMAGE && !ExcludePreloadImage( p.resourceName ) ) {
-				globalImages->ImageFromFile( p.resourceName, ( textureFilter_t )p.imgData.filter, ( textureRepeat_t )p.imgData.repeat, ( textureUsage_t )p.imgData.usage, ( cubeFiles_t )p.imgData.cubeMap );
+				globalImages->ImageFromFile( p.resourceName, static_cast<textureFilter_t>(p.imgData.filter), static_cast<textureRepeat_t>(p.imgData.repeat), static_cast<textureUsage_t>(p.imgData.usage), static_cast<cubeFiles_t>(p.imgData.cubeMap) );
 				numLoaded++;
 			}
 		}

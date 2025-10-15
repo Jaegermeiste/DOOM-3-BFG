@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __AASFILE_H__
 #define __AASFILE_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -204,7 +206,8 @@ typedef struct aasTrace_s {
 	int							numAreas;			// number of areas the trace went through
 	int *						areas;				// array to store areas the trace went through
 	idVec3 *					points;				// points where the trace entered each new area
-	         					aasTrace_s() noexcept : fraction(0), planeNum(0), lastAreaNum(0), blockingAreaNum(0), numAreas(0)
+	         					aasTrace_s() noexcept : fraction(0), endpos({}), planeNum(0), lastAreaNum(0),
+					                                    blockingAreaNum(0), numAreas(0)
 								{
 									areas = nullptr;
 									points = nullptr;
@@ -249,7 +252,7 @@ public:
 	bool						FromParser( idLexer &src );
 	bool						FromDict( const char *name, const idDict *dict );
 	bool						WriteToFile( idFile *fp ) const;
-	bool						ValidForBounds( const idBounds &bounds ) const;
+								[[nodiscard]] bool						ValidForBounds( const idBounds &bounds ) const;
 	bool						ValidEntity( const char *classname ) const;
 
 private:
@@ -289,49 +292,49 @@ class idAASFile {
 public:
 	virtual 					~idAASFile() {}
 
-	const char *				GetName() const { return name.c_str(); }
-	unsigned int				GetCRC() const { return crc; }
+	[[nodiscard]] const char *				GetName() const { return name.c_str(); }
+	[[nodiscard]] unsigned int				GetCRC() const noexcept { return crc; }
 
-	int							GetNumPlanes() const { return planeList.Num(); }
-	const idPlane &				GetPlane( int index ) const { return planeList[index]; }
-	int							GetNumVertices() const { return vertices.Num(); }
-	const aasVertex_t &			GetVertex( int index ) const { return vertices[index]; }
-	int							GetNumEdges() const { return edges.Num(); }
-	const aasEdge_t &			GetEdge( int index ) const { return edges[index]; }
-	int							GetNumEdgeIndexes() const { return edgeIndex.Num(); }
-	const aasIndex_t &			GetEdgeIndex( int index ) const { return edgeIndex[index]; }
-	int							GetNumFaces() const { return faces.Num(); }
-	const aasFace_t &			GetFace( int index ) const { return faces[index]; }
-	int							GetNumFaceIndexes() const { return faceIndex.Num(); }
-	const aasIndex_t &			GetFaceIndex( int index ) const { return faceIndex[index]; }
-	int							GetNumAreas() const { return areas.Num(); }
+	[[nodiscard]] size_t						GetNumPlanes() const { return planeList.Num(); }
+	[[nodiscard]] const idPlane &				GetPlane( int index ) const { return planeList[index]; }
+	[[nodiscard]] size_t						GetNumVertices() const { return vertices.Num(); }
+	[[nodiscard]] const aasVertex_t &			GetVertex( int index ) const { return vertices[index]; }
+	[[nodiscard]] size_t						GetNumEdges() const { return edges.Num(); }
+	[[nodiscard]] const aasEdge_t &			GetEdge( int index ) const { return edges[index]; }
+	[[nodiscard]] size_t						GetNumEdgeIndexes() const { return edgeIndex.Num(); }
+	[[nodiscard]] const aasIndex_t &			GetEdgeIndex( int index ) const { return edgeIndex[index]; }
+	[[nodiscard]] size_t						GetNumFaces() const { return faces.Num(); }
+	[[nodiscard]] const aasFace_t &			GetFace( int index ) const { return faces[index]; }
+	[[nodiscard]] size_t						GetNumFaceIndexes() const { return faceIndex.Num(); }
+	[[nodiscard]] const aasIndex_t &			GetFaceIndex( int index ) const { return faceIndex[index]; }
+	[[nodiscard]] size_t						GetNumAreas() const { return areas.Num(); }
 	const aasArea_t &			GetArea( int index ) { return areas[index]; }
-	int							GetNumNodes() const { return nodes.Num(); }
-	const aasNode_t &			GetNode( int index ) const { return nodes[index]; }
-	int							GetNumPortals() const { return portals.Num(); }
+	[[nodiscard]] size_t						GetNumNodes() const { return nodes.Num(); }
+	[[nodiscard]] const aasNode_t &			GetNode( int index ) const { return nodes[index]; }
+	[[nodiscard]] size_t						GetNumPortals() const { return portals.Num(); }
 	const aasPortal_t &			GetPortal( int index ) { return portals[index]; }
-	int							GetNumPortalIndexes() const { return portalIndex.Num(); }
-	const aasIndex_t &			GetPortalIndex( int index ) const { return portalIndex[index]; }
-	int							GetNumClusters() const { return clusters.Num(); }
-	const aasCluster_t &		GetCluster( int index ) const { return clusters[index]; }
+	[[nodiscard]] size_t						GetNumPortalIndexes() const { return portalIndex.Num(); }
+	[[nodiscard]] const aasIndex_t &			GetPortalIndex( int index ) const { return portalIndex[index]; }
+	[[nodiscard]] size_t						GetNumClusters() const { return clusters.Num(); }
+	[[nodiscard]] const aasCluster_t &		GetCluster( int index ) const { return clusters[index]; }
 
-	const idAASSettings &		GetSettings() const { return settings; }
+	[[nodiscard]] const idAASSettings &		GetSettings() const noexcept { return settings; }
 
 	void						SetPortalMaxTravelTime( int index, int time ) { portals[index].maxAreaTravelTime = time; }
 	void						SetAreaTravelFlag( int index, int flag ) { areas[index].travelFlags |= flag; }
 	void						RemoveAreaTravelFlag( int index, int flag ) { areas[index].travelFlags &= ~flag; }
 
-	virtual idVec3				EdgeCenter( int edgeNum ) const = 0;
-	virtual idVec3				FaceCenter( int faceNum ) const = 0;
-	virtual idVec3				AreaCenter( int areaNum ) const = 0;
+	[[nodiscard]] virtual idVec3				EdgeCenter( int edgeNum ) const = 0;
+	[[nodiscard]] virtual idVec3				FaceCenter( int faceNum ) const = 0;
+	[[nodiscard]] virtual idVec3				AreaCenter( int areaNum ) const = 0;
 
-	virtual idBounds			EdgeBounds( int edgeNum ) const = 0;
-	virtual idBounds			FaceBounds( int faceNum ) const = 0;
-	virtual idBounds			AreaBounds( int areaNum ) const = 0;
+	[[nodiscard]] virtual idBounds			EdgeBounds( int edgeNum ) const = 0;
+	[[nodiscard]] virtual idBounds			FaceBounds( int faceNum ) const = 0;
+	[[nodiscard]] virtual idBounds			AreaBounds( int areaNum ) const = 0;
 
-	virtual int					PointAreaNum( const idVec3 &origin ) const = 0;
-	virtual int					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
-	virtual int					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
+	[[nodiscard]] virtual int					PointAreaNum( const idVec3 &origin ) const = 0;
+	[[nodiscard]] virtual int					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
+	[[nodiscard]] virtual int					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
 	virtual void				PushPointIntoAreaNum( int areaNum, idVec3 &point ) const = 0;
 	virtual bool				Trace( aasTrace_t &trace, const idVec3 &start, const idVec3 &end ) const = 0;
 	virtual void				PrintInfo() const = 0;
@@ -341,14 +344,14 @@ protected:
 	unsigned int				crc;
 
 	idPlaneSet					planeList;
-	idList<aasVertex_t, TAG_AAS>			vertices;
+	idList<aasVertex_t, TAG_AAS>		vertices;
 	idList<aasEdge_t, TAG_AAS>			edges;
 	idList<aasIndex_t, TAG_AAS>			edgeIndex;
 	idList<aasFace_t, TAG_AAS>			faces;
 	idList<aasIndex_t, TAG_AAS>			faceIndex;
 	idList<aasArea_t, TAG_AAS>			areas;
 	idList<aasNode_t, TAG_AAS>			nodes;
-	idList<aasPortal_t, TAG_AAS>			portals;
+	idList<aasPortal_t, TAG_AAS>		portals;
 	idList<aasIndex_t, TAG_AAS>			portalIndex;
 	idList<aasCluster_t, TAG_AAS>		clusters;
 	idAASSettings				settings;

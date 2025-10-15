@@ -112,7 +112,7 @@ class idImageOpts {
 public:
 	idImageOpts();
 
-	bool	operator==( const idImageOpts & opts );
+	bool	operator==( const idImageOpts & opts ) const;
 
 	//---------------------------------------------------
 	// these determine the physical memory size and layout
@@ -150,7 +150,8 @@ ID_INLINE idImageOpts::idImageOpts() {
 idImageOpts::operator==
 ========================
 */
-ID_INLINE bool idImageOpts::operator==( const idImageOpts & opts ) {
+ID_INLINE bool idImageOpts::operator==( const idImageOpts & opts ) const
+{
 	return ( memcmp( this, &opts, sizeof( *this ) ) == 0 );
 }
 

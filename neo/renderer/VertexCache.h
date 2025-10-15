@@ -106,18 +106,20 @@ public:
 		return ActuallyAlloc( staticData, data, bytes, CACHE_INDEX );
 	}
 
-	byte *			MappedVertexBuffer( vertCacheHandle_t handle ) {
+	[[nodiscard]] byte *			MappedVertexBuffer( vertCacheHandle_t handle ) const
+	{
 		release_assert( !CacheIsStatic( handle ) );
-		const uint64 offset = (int)( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-		const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 offset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
+		const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 		release_assert( frameNum == ( currentFrame & VERTCACHE_FRAME_MASK ) );
 		return frameData[ listNum ].mappedVertexBase + offset;
 	}
 
-	byte *			MappedIndexBuffer( vertCacheHandle_t handle ) {
+	[[nodiscard]] byte *			MappedIndexBuffer( vertCacheHandle_t handle ) const
+	{
 		release_assert( !CacheIsStatic( handle ) );
-		const uint64 offset = (int)( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-		const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 offset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
+		const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 		release_assert( frameNum == ( currentFrame & VERTCACHE_FRAME_MASK ) );
 		return frameData[ listNum ].mappedIndexBase + offset;
 	}
@@ -125,12 +127,13 @@ public:
 	// Returns false if it's been purged
 	// This can only be called by the front end, the back end should only be looking at
 	// vertCacheHandle_t that are already validated.
-	bool			CacheIsCurrent( const vertCacheHandle_t handle ) {
+	[[nodiscard]] bool			CacheIsCurrent( const vertCacheHandle_t handle ) const
+	{
 		const int isStatic = handle & VERTCACHE_STATIC;
 		if ( isStatic ) {
 			return true;
 		}
-		const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 		if ( frameNum != ( currentFrame & VERTCACHE_FRAME_MASK ) ) {
 			return false;
 		}
@@ -142,9 +145,9 @@ public:
 	}
 
 	// vb/ib is a temporary reference -- don't store it
-	bool			GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer * vb );
-	bool			GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer * ib );
-	bool			GetJointBuffer( vertCacheHandle_t handle, idJointBuffer * jb );
+	bool			GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer * vb ) const;
+	bool			GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer * ib ) const;
+	bool			GetJointBuffer( vertCacheHandle_t handle, idJointBuffer * jb ) const;
 
 	void			BeginBackEnd();
 
@@ -162,7 +165,7 @@ public:
 	int				mostUsedJoint;
 
 	// Try to make room for <bytes> bytes
-	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t & vcs, const void * data, int bytes, cacheType_t type );
+	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t & vcs, const void * data, int bytes, cacheType_t type ) const;
 };
 
 // platform specific code to memcpy into vertex buffers efficiently

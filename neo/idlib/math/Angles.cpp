@@ -133,10 +133,10 @@ idQuat idAngles::ToQuat() const {
 	idMath::SinCos( DEG2RAD( pitch ) * 0.5f, sy, cy );
 	idMath::SinCos( DEG2RAD( roll ) * 0.5f, sx, cx );
 
-	float sxcy = sx * cy;
-	float cxcy = cx * cy;
-	float sxsy = sx * sy;
-	float cxsy = cx * sy;
+	const float sxcy = sx * cy;
+	const float cxcy = cx * cy;
+	const float sxsy = sx * sy;
+	const float cxsy = cx * sy;
 
 	return idQuat( cxsy*sz - sxcy*cz, -cxsy*cz - sxcy*sz, sxsy*cz - cxcy*sz, cxcy*cz + sxsy*sz );
 }
@@ -165,15 +165,15 @@ idRotation idAngles::ToRotation() const {
 	idMath::SinCos( DEG2RAD( pitch ) * 0.5f, sy, cy );
 	idMath::SinCos( DEG2RAD( roll ) * 0.5f, sx, cx );
 
-	float sxcy = sx * cy;
-	float cxcy = cx * cy;
-	float sxsy = sx * sy;
-	float cxsy = cx * sy;
+	const float sxcy = sx * cy;
+	const float cxcy = cx * cy;
+	const float sxsy = sx * sy;
+	const float cxsy = cx * sy;
 
 	vec.x =  cxsy * sz - sxcy * cz;
 	vec.y = -cxsy * cz - sxcy * sz;
 	vec.z =  sxsy * cz - cxcy * sz;
-	float w = cxcy * cz + sxsy * sz;
+	const float w = cxcy * cz + sxsy * sz;
 	float angle = idMath::ACos(w);
 	if ( angle == 0.0f ) {
 		vec.Set( 0.0f, 0.0f, 1.0f );

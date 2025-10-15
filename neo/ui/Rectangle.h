@@ -39,13 +39,15 @@ public:
 	float h;    // height;
 	idRectangle() { x = y = w= h = 0.0; }
 	idRectangle(float ix, float iy, float iw, float ih) { x = ix; y = iy; w = iw; h = ih; }
-	float Bottom() const { return y + h; }
-	float Right() const { return x + w; }
+	[[nodiscard]] float Bottom() const { return y + h; }
+	[[nodiscard]] float Right() const { return x + w; }
 	void Offset (float x, float y) { 
 		this->x += x;
 		this->y += y;
 	}
-	bool Contains(float xt, float yt) {
+
+	[[nodiscard]] bool Contains(float xt, float yt) const
+	{
 		if (w == 0.0 && h == 0.0) {
 			return false;
 		}
@@ -77,7 +79,8 @@ public:
 
 
 
-	void Rotate(float a, idRectangle &out) {
+	void Rotate(float a, idRectangle &out) const
+	{
 		idVec3 p1, p2, p3, p4, p5;
 		float c, s;
 		idVec3 center;
@@ -109,8 +112,8 @@ public:
 	idRectangle & operator=( const idVec4 v );
 	int operator==(const idRectangle &a) const;
 	float &	operator[]( const int index );
-	char * String() const;
-	const idVec4& ToVec4() const;
+	[[nodiscard]] char * String() const;
+	[[nodiscard]] const idVec4& ToVec4() const;
 
 };
 
@@ -204,7 +207,8 @@ public:
 		rects.Append(idRectangle(x, y, w, h));
 	}
 
-	int GetRectCount() {
+	[[nodiscard]] int GetRectCount() const
+	{
 		return rects.Num();
 	}
 

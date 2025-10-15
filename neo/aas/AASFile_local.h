@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __AASFILELOCAL_H__
 #define __AASFILELOCAL_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -46,17 +48,17 @@ public:
 	virtual 					~idAASFileLocal();
 
 public:
-	virtual idVec3				EdgeCenter( int edgeNum ) const;
-	virtual idVec3				FaceCenter( int faceNum ) const;
-	virtual idVec3				AreaCenter( int areaNum ) const;
+	[[nodiscard]] virtual idVec3				EdgeCenter( int edgeNum ) const;
+	[[nodiscard]] virtual idVec3				FaceCenter( int faceNum ) const;
+	[[nodiscard]] virtual idVec3				AreaCenter( int areaNum ) const;
 
-	virtual idBounds			EdgeBounds( int edgeNum ) const;
-	virtual idBounds			FaceBounds( int faceNum ) const;
-	virtual idBounds			AreaBounds( int areaNum ) const;
+	[[nodiscard]] virtual idBounds			EdgeBounds( int edgeNum ) const;
+	[[nodiscard]] virtual idBounds			FaceBounds( int faceNum ) const;
+	[[nodiscard]] virtual idBounds			AreaBounds( int areaNum ) const;
 
-	virtual int					PointAreaNum( const idVec3 &origin ) const;
-	virtual int					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const;
-	virtual int					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const;
+	[[nodiscard]] virtual int					PointAreaNum( const idVec3 &origin ) const;
+	[[nodiscard]] virtual int					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const;
+	[[nodiscard]] virtual int					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const;
 	virtual void				PushPointIntoAreaNum( int areaNum, idVec3 &point ) const;
 	virtual bool				Trace( aasTrace_t &trace, const idVec3 &start, const idVec3 &end ) const;
 	virtual void				PrintInfo() const;
@@ -65,7 +67,7 @@ public:
 	bool						Load( const idStr &fileName, unsigned int mapFileCRC );
 	bool						Write( const idStr &fileName, unsigned int mapFileCRC );
 
-	int							MemorySize() const;
+	[[nodiscard]] int							MemorySize() const;
 	void						ReportRoutingEfficiency() const;
 	void						Optimize();
 	void						LinkReversedReachability();
@@ -88,12 +90,12 @@ private:
 	bool						ParseClusters( idLexer &src );
 
 private:
-	int							BoundsReachableAreaNum_r( int nodeNum, const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const;
+	[[nodiscard]] int							BoundsReachableAreaNum_r( int nodeNum, const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const;
 	void						MaxTreeDepth_r( int nodeNum, int &depth, int &maxDepth ) const;
-	int							MaxTreeDepth() const;
-	int							AreaContentsTravelFlags( int areaNum ) const;
-	idVec3						AreaReachableGoal( int areaNum ) const;
-	int							NumReachabilities() const;
+	[[nodiscard]] int							MaxTreeDepth() const;
+	[[nodiscard]] int							AreaContentsTravelFlags( int areaNum ) const;
+	[[nodiscard]] idVec3						AreaReachableGoal( int areaNum ) const;
+	[[nodiscard]] int							NumReachabilities() const;
 };
 
 #endif /* !__AASFILELOCAL_H__ */

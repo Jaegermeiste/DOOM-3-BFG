@@ -47,11 +47,11 @@ public:
 	bool		Open( const char * filename );
 	void		Close();
 	uint32		SeekToChunk( uint32 id );
-	size_t		Read( void * buffer, size_t len ) { return file->Read( buffer, len ); }
+	size_t		Read( void * buffer, size_t len ) const { return file->Read( buffer, len ); }
 	uint32		GetChunkOffset( uint32 id );
 
-	ID_TIME_T	Timestamp() { return file->Timestamp(); }
-	const char * Name() { return ( file == nullptr ? "" : file->GetName() ); }
+	ID_TIME_T	Timestamp() const { return file->Timestamp(); }
+	[[nodiscard]] const char * Name() const { return ( file == nullptr ? "" : file->GetName() ); }
 
 	// This maps to the channel mask in waveFmtExtensible_t
 	enum {

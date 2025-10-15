@@ -42,25 +42,25 @@ If you have questions concerning this license or the applicable additional terms
 class idSurface_Patch : public idSurface {
 
 public:
-						idSurface_Patch();
-						idSurface_Patch( int maxPatchWidth, int maxPatchHeight );
+						idSurface_Patch() noexcept;
+						idSurface_Patch(size_t maxPatchWidth, size_t maxPatchHeight );
 						idSurface_Patch( const idSurface_Patch &patch );
 						~idSurface_Patch();
 
-	void				SetSize( int patchWidth, int patchHeight );
-	int					GetWidth() const;
-	int					GetHeight() const;
+	void				SetSize(size_t patchWidth, size_t patchHeight );
+	size_t				GetWidth() const;
+	size_t				GetHeight() const;
 
 						// subdivide the patch mesh based on error
 	void				Subdivide( float maxHorizontalError, float maxVerticalError, float maxLength, bool genNormals = false );
 						// subdivide the patch up to an explicit number of horizontal and vertical subdivisions
-	void				SubdivideExplicit( int horzSubdivisions, int vertSubdivisions, bool genNormals, bool removeLinear = false );
+	void				SubdivideExplicit(size_t horzSubdivisions, size_t vertSubdivisions, bool genNormals, bool removeLinear = false );
 
 protected:
-	int					width;			// width of patch
-	int					height;			// height of patch
-	int					maxWidth;		// maximum width allocated for
-	int					maxHeight;		// maximum height allocated for
+	size_t				width;			// width of patch
+	size_t				height;			// height of patch
+	size_t				maxWidth;		// maximum width allocated for
+	size_t				maxHeight;		// maximum height allocated for
 	bool				expanded;		// true if vertices are spaced out
 
 private:
@@ -69,7 +69,7 @@ private:
 						// remove columns and rows with all points on one line
 	void				RemoveLinearColumnsRows();
 						// resize verts buffer
-	void				ResizeExpanded( int height, int width );
+	void				ResizeExpanded(size_t height, size_t width );
 						// space points out over maxWidth * maxHeight buffer
 	void				Expand();
 						// move all points to the start of the verts buffer
@@ -83,8 +83,8 @@ private:
 						// lerp point from two patch point
 	void				LerpVert( const idDrawVert &a, const idDrawVert &b, idDrawVert &out ) const;
 						// sample a single 3x3 patch
-	void				SampleSinglePatchPoint( const idDrawVert ctrl[3][3], float u, float v, idDrawVert *out ) const;
-	void				SampleSinglePatch( const idDrawVert ctrl[3][3], int baseCol, int baseRow, int width, int horzSub, int vertSub, idDrawVert *outVerts ) const;
+	static void			SampleSinglePatchPoint( const idDrawVert ctrl[3][3], float u, float v, idDrawVert *out );
+	void				SampleSinglePatch( const idDrawVert ctrl[3][3], size_t baseCol, size_t baseRow, size_t width, size_t horzSub, size_t vertSub, idDrawVert *outVerts ) const;
 };
 
 /*
@@ -92,7 +92,7 @@ private:
 idSurface_Patch::idSurface_Patch
 =================
 */
-ID_INLINE idSurface_Patch::idSurface_Patch() {
+ID_INLINE idSurface_Patch::idSurface_Patch() noexcept {
 	height = width = maxHeight = maxWidth = 0;
 	expanded = false;
 }
@@ -102,7 +102,7 @@ ID_INLINE idSurface_Patch::idSurface_Patch() {
 idSurface_Patch::idSurface_Patch
 =================
 */
-ID_INLINE idSurface_Patch::idSurface_Patch(const int maxPatchWidth, const int maxPatchHeight ) {
+ID_INLINE idSurface_Patch::idSurface_Patch(const size_t maxPatchWidth, const size_t maxPatchHeight ) {
 	width = height = 0;
 	maxWidth = maxPatchWidth;
 	maxHeight = maxPatchHeight;
@@ -124,15 +124,14 @@ ID_INLINE idSurface_Patch::idSurface_Patch( const idSurface_Patch &patch ) {
 idSurface_Patch::~idSurface_Patch
 =================
 */
-ID_INLINE idSurface_Patch::~idSurface_Patch() {
-}
+ID_INLINE idSurface_Patch::~idSurface_Patch() = default;
 
 /*
 =================
 idSurface_Patch::GetWidth
 =================
 */
-ID_INLINE int idSurface_Patch::GetWidth() const {
+ID_INLINE size_t idSurface_Patch::GetWidth() const {
 	return width;
 }
 
@@ -141,7 +140,7 @@ ID_INLINE int idSurface_Patch::GetWidth() const {
 idSurface_Patch::GetHeight
 =================
 */
-ID_INLINE int idSurface_Patch::GetHeight() const {
+ID_INLINE size_t idSurface_Patch::GetHeight() const {
 	return height;
 }
 

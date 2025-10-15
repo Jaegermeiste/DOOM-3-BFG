@@ -45,7 +45,7 @@ NOTE: due to the temporary memory pool idMatX cannot be used by multiple threads
 ===============================================================================
 */
 
-#define MATX_MAX_TEMP		1024
+constexpr auto MATX_MAX_TEMP = 1024;
 #define MATX_QUAD( x )		( ( ( ( x ) + 3 ) & ~3 ) * sizeof( float ) )
 #define MATX_CLEAREND()		size_t s = numRows * numColumns; while( s < ( ( s + 3 ) & ~3 ) ) { mat[s++] = 0.0f; }
 #define MATX_ALLOCA( n )	( (float *) _alloca16( MATX_QUAD( n ) ) )
@@ -54,18 +54,20 @@ NOTE: due to the temporary memory pool idMatX cannot be used by multiple threads
 
 class idMatX {
 public:
-								idMatX();
+								idMatX() noexcept;
 								idMatX( const idMatX & other );
-								explicit idMatX( int rows, int columns );
-								explicit idMatX( int rows, int columns, float *src );
+								explicit idMatX( size_t rows, size_t columns );
+								explicit idMatX( size_t rows, size_t columns, float *src );
 	ID_INLINE					~idMatX();
 
 	ID_INLINE	void			Set(size_t rows, size_t columns, const float *src);
 	ID_INLINE	void			Set( const idMat3 &m1, const idMat3 &m2 );
 	ID_INLINE	void			Set( const idMat3 &m1, const idMat3 &m2, const idMat3 &m3, const idMat3 &m4 );
 
-	ID_INLINE	const float *	operator[]( int index ) const;
-	ID_INLINE	float *			operator[]( int index );
+	
+	ID_INLINE	const float *	operator[]( const auto index ) const;
+	
+	ID_INLINE	float *			operator[]( const auto index );
 	ID_INLINE	idMatX &		operator=( const idMatX &a );
 	ID_INLINE	idMatX			operator*( const float a ) const;
 	ID_INLINE	idVecX			operator*( const idVecX &vec ) const;
@@ -88,30 +90,34 @@ public:
 
 	ID_INLINE	void			SetSize(size_t rows, size_t columns);									// set the number of rows/columns
 	void			ChangeSize(size_t rows, size_t columns, bool makeZero = false);		// change the size keeping data intact where possible
-	ID_INLINE	void			ChangeNumRows(const int rows ) { ChangeSize( rows, numColumns );	}		// set the number of rows/columns
+	ID_INLINE	void			ChangeNumRows(const size_t rows ) { ChangeSize( rows, numColumns );	}		// set the number of rows/columns
 	size_t				GetNumRows() const { return numRows; }					// get the number of rows
 	size_t				GetNumColumns() const { return numColumns; }				// get the number of columns
 	ID_INLINE	void			SetData(size_t rows, size_t columns, float *data);						// set float array pointer
-	ID_INLINE	void			SetDataCacheLines( int rows, int columns, float *data, bool clear );// set float array pointer
+	ID_INLINE	void			SetDataCacheLines( size_t rows, size_t columns, float *data, bool clear );// set float array pointer
 	ID_INLINE	void			Zero() const;																// clear matrix
-	ID_INLINE	void			Zero( int rows, int columns );										// set size and clear matrix
+	ID_INLINE	void			Zero( size_t rows, size_t columns );										// set size and clear matrix
 	ID_INLINE	void			Identity();															// clear to identity matrix
-	ID_INLINE	void			Identity( int rows, int columns );									// set size and clear to identity matrix
+	ID_INLINE	void			Identity( size_t rows, size_t columns );									// set size and clear to identity matrix
 	ID_INLINE	void			Diag( const idVecX &v );											// create diagonal matrix from vector
 	ID_INLINE	void			Random( int seed, float l = 0.0f, float u = 1.0f ) const;					// fill matrix with random values
-	ID_INLINE	void			Random( int rows, int columns, int seed, float l = 0.0f, float u = 1.0f );
+	ID_INLINE	void			Random( size_t rows, size_t columns, int seed, float l = 0.0f, float u = 1.0f );
 	ID_INLINE	void			Negate();															// (*this) = - (*this)
 	ID_INLINE	void			Clamp( float min, float max ) const;										// clamp all values
-	ID_INLINE	idMatX &		SwapRows( int r1, int r2 );											// swap rows
-	ID_INLINE	idMatX &		SwapColumns( int r1, int r2 );										// swap columns
-	ID_INLINE	idMatX &		SwapRowsColumns( int r1, int r2 );									// swap rows and columns
-	idMatX &		RemoveRow(size_t r);												// remove a row
-	idMatX &		RemoveColumn(size_t r);											// remove a column
-	idMatX &		RemoveRowColumn(size_t r);										// remove a row and column
+
+	ID_INLINE	idMatX &		SwapRows(Ordinal auto r1, Ordinal auto r2);											// swap rows
+	ID_INLINE	idMatX &		SwapColumns(Ordinal auto r1, Ordinal auto r2);										// swap columns
+	ID_INLINE	idMatX &		SwapRowsColumns(Ordinal auto r1, Ordinal auto r2);									// swap rows and columns
+	
+	idMatX &		RemoveRow(Ordinal auto r);												// remove a row
+	
+	idMatX &		RemoveColumn(Ordinal auto r);											// remove a column
+	
+	idMatX &		RemoveRowColumn(Ordinal auto r);										// remove a row and column
 	ID_INLINE	void			ClearUpperTriangle() const;												// clear the upper triangle
 	ID_INLINE	void			ClearLowerTriangle() const;												// clear the lower triangle
 	void			CopyLowerToUpperTriangle();											// copy the lower triangle to the upper triangle
-	ID_INLINE	void			SquareSubMatrix( const idMatX &m, int size );						// get square sub-matrix from 0,0 to size,size
+	ID_INLINE	void			SquareSubMatrix(const idMatX &m, size_t size);						// get square sub-matrix from 0,0 to size,size
 	ID_INLINE	float			MaxDifference( const idMatX &m ) const;								// return maximum element difference between this and m
 
 	ID_INLINE	bool			IsSquare() const { return ( numRows == numColumns ); }
@@ -161,36 +167,45 @@ public:
 	ID_INLINE	void			Multiply( idMatX &dst, const idMatX &a ) const;					// dst = (*this) * a
 	ID_INLINE	void			TransposeMultiply( idMatX &dst, const idMatX &a ) const;		// dst = this->Transpose() * a
 
-	ID_INLINE	int				GetDimension() const;											// returns total number of values in matrix
+	ID_INLINE	size_t			GetDimension() const;											// returns total number of values in matrix
 
-	ID_INLINE	const idVec6 &	SubVec6( int row ) const;										// interpret beginning of row as a const idVec6
-	ID_INLINE	idVec6 &		SubVec6( int row );												// interpret beginning of row as an idVec6
-	ID_INLINE	const idVecX	SubVecX(size_t row) const;										// interpret complete row as a const idVecX
-	ID_INLINE	idVecX			SubVecX(size_t row);												// interpret complete row as an idVecX
+	
+	ID_INLINE	const idVec6 &	SubVec6(Ordinal auto row) const;										// interpret beginning of row as a const idVec6
+	
+	ID_INLINE	idVec6 &		SubVec6(Ordinal auto row);												// interpret beginning of row as an idVec6
+	
+	ID_INLINE	const idVecX	SubVecX(Ordinal auto row) const;										// interpret complete row as a const idVecX
+	
+	ID_INLINE	idVecX			SubVecX(Ordinal auto row);												// interpret complete row as an idVecX
 	ID_INLINE	const float *	ToFloatPtr() const;												// pointer to const matrix float array
 	ID_INLINE	float *			ToFloatPtr();													// pointer to matrix float array
 	const char *	ToString( int precision = 2 ) const;
 
 	void			Update_RankOne( const idVecX &v, const idVecX &w, float alpha );
 	void			Update_RankOneSymmetric( const idVecX &v, float alpha );
-	void			Update_RowColumn( const idVecX &v, const idVecX &w, int r );
-	void			Update_RowColumnSymmetric( const idVecX &v, int r );
+	
+	void			Update_RowColumn(const idVecX &v, const idVecX &w, Ordinal auto r);
+	
+	void			Update_RowColumnSymmetric(const idVecX &v, Ordinal auto r);
 	void			Update_Increment( const idVecX &v, const idVecX &w );
 	void			Update_IncrementSymmetric( const idVecX &v );
-	void			Update_Decrement( int r );
+	
+	void			Update_Decrement(Ordinal auto r);
 
 	bool			Inverse_GaussJordan();					// invert in-place with Gauss-Jordan elimination
 	bool			Inverse_UpdateRankOne( const idVecX &v, const idVecX &w, float alpha );
-	bool			Inverse_UpdateRowColumn( const idVecX &v, const idVecX &w, int r );
+	
+	bool			Inverse_UpdateRowColumn(const idVecX &v, const idVecX &w, Ordinal auto r);
 	bool			Inverse_UpdateIncrement( const idVecX &v, const idVecX &w );
-	bool			Inverse_UpdateDecrement( const idVecX &v, const idVecX &w, int r );
+	
+	bool			Inverse_UpdateDecrement( const idVecX &v, const idVecX &w, Ordinal auto r );
 	void			Inverse_Solve( idVecX &x, const idVecX &b ) const;
 
 	bool			LU_Factor(size_t* index, float *det = nullptr);		// factor in-place: L * U
 	bool			LU_UpdateRankOne(const idVecX &v, const idVecX &w, float alpha, size_t* index);
-	bool			LU_UpdateRowColumn(const idVecX &v, const idVecX &w, int r, size_t* index);
+	bool			LU_UpdateRowColumn(const idVecX &v, const idVecX &w, Ordinal auto r, size_t* index);
 	bool			LU_UpdateIncrement(const idVecX &v, const idVecX &w, size_t* index);
-	bool			LU_UpdateDecrement(const idVecX &v, const idVecX &w, const idVecX &u, int r, size_t* index);
+	bool			LU_UpdateDecrement(const idVecX &v, const idVecX &w, const idVecX &u, Ordinal auto r, size_t* index);
 	void			LU_Solve(idVecX &x, const idVecX &b, const size_t* index) const;
 	void			LU_Inverse(idMatX &inv, const size_t* index) const;
 	void			LU_UnpackFactors( idMatX &L, idMatX &U ) const;
@@ -198,9 +213,11 @@ public:
 
 	bool			QR_Factor( idVecX &c, idVecX &d );				// factor in-place: Q * R
 	bool			QR_UpdateRankOne( idMatX &R, const idVecX &v, const idVecX &w, float alpha );
-	bool			QR_UpdateRowColumn( idMatX &R, const idVecX &v, const idVecX &w, int r );
+	
+	bool			QR_UpdateRowColumn(idMatX &R, const idVecX &v, const idVecX &w, Ordinal auto r);
 	bool			QR_UpdateIncrement( idMatX &R, const idVecX &v, const idVecX &w );
-	bool			QR_UpdateDecrement( idMatX &R, const idVecX &v, const idVecX &w, int r );
+	
+	bool			QR_UpdateDecrement( idMatX &R, const idVecX &v, const idVecX &w, Ordinal auto r );
 	void			QR_Solve( idVecX &x, const idVecX &b, const idVecX &c, const idVecX &d ) const;
 	void			QR_Solve( idVecX &x, const idVecX &b, const idMatX &R ) const;
 	void			QR_Inverse( idMatX &inv, const idVecX &c, const idVecX &d ) const;
@@ -213,19 +230,21 @@ public:
 	void			SVD_MultiplyFactors( idMatX &m, const idVecX &w, const idMatX &V ) const;
 
 	bool			Cholesky_Factor();						// factor in-place: L * L.Transpose()
-	bool			Cholesky_UpdateRankOne( const idVecX &v, float alpha, int offset = 0 );
-	bool			Cholesky_UpdateRowColumn( const idVecX &v, int r );
+	bool			Cholesky_UpdateRankOne( const idVecX &v, float alpha, size_t offset = 0 );
+	
+	bool			Cholesky_UpdateRowColumn( const idVecX &v, Ordinal auto r );
 	bool			Cholesky_UpdateIncrement( const idVecX &v );
-	bool			Cholesky_UpdateDecrement( const idVecX &v, int r );
+	
+	bool			Cholesky_UpdateDecrement( const idVecX &v, Ordinal auto r );
 	void			Cholesky_Solve( idVecX &x, const idVecX &b ) const;
 	void			Cholesky_Inverse( idMatX &inv ) const;
 	void			Cholesky_MultiplyFactors( idMatX &m ) const;
 
 	bool			LDLT_Factor();							// factor in-place: L * D * L.Transpose()
-	bool			LDLT_UpdateRankOne( const idVecX &v, float alpha, int offset = 0 );
-	bool			LDLT_UpdateRowColumn( const idVecX &v, int r );
+	bool			LDLT_UpdateRankOne( const idVecX &v, float alpha, size_t offset = 0 );
+	bool			LDLT_UpdateRowColumn(const idVecX &v, Ordinal auto r);
 	bool			LDLT_UpdateIncrement( const idVecX &v );
-	bool			LDLT_UpdateDecrement( const idVecX &v, int r );
+	bool			LDLT_UpdateDecrement(const idVecX &v, Ordinal auto r);
 	void			LDLT_Solve( idVecX &x, const idVecX &b ) const;
 	void			LDLT_Inverse( idMatX &inv ) const;
 	void			LDLT_UnpackFactors( idMatX &L, idMatX &D ) const;
@@ -254,11 +273,12 @@ private:
 	static size_t	tempIndex;				// index into memory pool, wraps around
 
 private:
-	void			SetTempSize( int rows, int columns );
+	void			SetTempSize( size_t rows, size_t columns );
 	float			DeterminantGeneric() const;
 	bool			InverseSelfGeneric();
-	void			QR_Rotate( idMatX &R, int i, float a, float b );
+	void			QR_Rotate(idMatX &R, Ordinal auto i, float a, float b);
 	float			Pythag( float a, float b ) const;
+	double			Pythag(double a, double b) const;
 	void			SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm );
 	void			SVD_InitialWV( idVecX &w, idMatX &V, idVecX &rv1 );
 	void			HouseholderReduction( idVecX &diag, idVecX &subd );
@@ -273,7 +293,7 @@ private:
 idMatX::idMatX
 ========================
 */
-ID_INLINE idMatX::idMatX() {
+ID_INLINE idMatX::idMatX() noexcept {
 	numRows = numColumns = alloced = 0;
 	mat = nullptr;
 }
@@ -295,7 +315,7 @@ ID_INLINE idMatX::~idMatX() {
 idMatX::idMatX
 ========================
 */
-ID_INLINE idMatX::idMatX(const int rows, const int columns ) {
+ID_INLINE idMatX::idMatX(const size_t rows, const size_t columns ) {
 	numRows = numColumns = alloced = 0;
 	mat = nullptr;
 	SetSize( rows, columns );
@@ -317,7 +337,7 @@ ID_INLINE idMatX::idMatX( const idMatX & other ) {
 idMatX::idMatX
 ========================
 */
-ID_INLINE idMatX::idMatX(const int rows, const int columns, float *src ) {
+ID_INLINE idMatX::idMatX(const size_t rows, const size_t columns, float *src ) {
 	numRows = numColumns = alloced = 0;
 	mat = nullptr;
 	SetData( rows, columns, src );
@@ -370,7 +390,8 @@ ID_INLINE void idMatX::Set( const idMat3 &m1, const idMat3 &m2, const idMat3 &m3
 idMatX::operator[]
 ========================
 */
-ID_INLINE const float *idMatX::operator[](const int index ) const {
+
+ID_INLINE const float *idMatX::operator[](const auto index ) const {
 	assert( ( index >= 0 ) && (std::cmp_less(index, numRows ) ) );
 	return mat + index * numColumns;
 }
@@ -380,7 +401,8 @@ ID_INLINE const float *idMatX::operator[](const int index ) const {
 idMatX::operator[]
 ========================
 */
-ID_INLINE float *idMatX::operator[](const int index ) {
+
+ID_INLINE float *idMatX::operator[](const auto index ) {
 	assert( ( index >= 0 ) && (std::cmp_less(index, numRows ) ) );
 	return mat + index * numColumns;
 }
@@ -392,9 +414,9 @@ idMatX::operator=
 */
 ID_INLINE idMatX &idMatX::operator=( const idMatX &a ) {
 	SetSize( a.numRows, a.numColumns );
-	const int s = a.numRows * a.numColumns;
+	const size_t s = a.numRows * a.numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
-	for ( int i = 0; i < s; i += 4 ) {
+	for ( size_t i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_load_ps( a.mat + i ) );
 	}
 #else
@@ -413,14 +435,14 @@ ID_INLINE idMatX idMatX::operator*( const float a ) const {
 	idMatX m;
 
 	m.SetTempSize( numRows, numColumns );
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	__m128 va = _mm_load1_ps( & a );
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( m.mat + i, _mm_mul_ps( _mm_load_ps( mat + i ), va ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		m.mat[i] = mat[i] * a;
 	}
 #endif
@@ -465,13 +487,13 @@ ID_INLINE idMatX idMatX::operator+( const idMatX &a ) const {
 
 	assert( numRows == a.numRows && numColumns == a.numColumns );
 	m.SetTempSize( numRows, numColumns );
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( m.mat + i, _mm_add_ps( _mm_load_ps( mat + i ), _mm_load_ps( a.mat + i ) ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		m.mat[i] = mat[i] + a.mat[i];
 	}
 #endif
@@ -488,13 +510,13 @@ ID_INLINE idMatX idMatX::operator-( const idMatX &a ) const {
 
 	assert( numRows == a.numRows && numColumns == a.numColumns );
 	m.SetTempSize( numRows, numColumns );
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( m.mat + i, _mm_sub_ps( _mm_load_ps( mat + i ), _mm_load_ps( a.mat + i ) ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		m.mat[i] = mat[i] - a.mat[i];
 	}
 #endif
@@ -507,14 +529,14 @@ idMatX::operator*=
 ========================
 */
 ID_INLINE idMatX &idMatX::operator*=( const float a ) {
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	__m128 va = _mm_load1_ps( & a );
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_mul_ps( _mm_load_ps( mat + i ), va ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		mat[i] *= a;
 	}
 #endif
@@ -540,13 +562,13 @@ idMatX::operator+=
 */
 ID_INLINE idMatX &idMatX::operator+=( const idMatX &a ) {
 	assert( numRows == a.numRows && numColumns == a.numColumns );
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_add_ps( _mm_load_ps( mat + i ), _mm_load_ps( a.mat + i ) ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		mat[i] += a.mat[i];
 	}
 #endif
@@ -561,13 +583,13 @@ idMatX::operator-=
 */
 ID_INLINE idMatX &idMatX::operator-=( const idMatX &a ) {
 	assert( numRows == a.numRows && numColumns == a.numColumns );
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_sub_ps( _mm_load_ps( mat + i ), _mm_load_ps( a.mat + i ) ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		mat[i] -= a.mat[i];
 	}
 #endif
@@ -611,8 +633,8 @@ idMatX::Compare
 ID_INLINE bool idMatX::Compare( const idMatX &a ) const {
 	assert( numRows == a.numRows && numColumns == a.numColumns );
 
-	const int s = numRows * numColumns;
-	for ( int i = 0; i < s; i++ ) {
+	const size_t s = numRows * numColumns;
+	for (size_t i = 0; i < s; i++ ) {
 		if ( mat[i] != a.mat[i] ) {
 			return false;
 		}
@@ -628,8 +650,8 @@ idMatX::Compare
 ID_INLINE bool idMatX::Compare( const idMatX &a, const float epsilon ) const {
 	assert( numRows == a.numRows && numColumns == a.numColumns );
 
-	const int s = numRows * numColumns;
-	for ( int i = 0; i < s; i++ ) {
+	const size_t s = numRows * numColumns;
+	for (size_t i = 0; i < s; i++ ) {
 		if ( idMath::Fabs( mat[i] - a.mat[i] ) > epsilon ) {
 			return false;
 		}
@@ -669,11 +691,15 @@ ID_INLINE void idMatX::SetSize(const size_t rows, const size_t columns) {
 				Mem_Free16( mat );
 			}
 			mat = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
-			alloced = alloc;
+			alloced = idMath::integer_cast<int64>(alloc);
 		}
-		numRows = rows;
-		numColumns = columns;
-		MATX_CLEAREND();
+
+		if (mat)
+		{
+			numRows = rows;
+			numColumns = columns;
+			MATX_CLEAREND()
+		}
 	}
 }
 
@@ -682,8 +708,8 @@ ID_INLINE void idMatX::SetSize(const size_t rows, const size_t columns) {
 idMatX::SetTempSize
 ========================
 */
-ID_INLINE void idMatX::SetTempSize(const int rows, const int columns ) {
-	int newSize = (rows * columns + 3) & ~3;
+ID_INLINE void idMatX::SetTempSize(const size_t rows, const size_t columns ) {
+	const int newSize = (rows * columns + 3) & ~3;
 	assert( newSize < MATX_MAX_TEMP );
 	if ( idMatX::tempIndex + newSize > MATX_MAX_TEMP ) {
 		idMatX::tempIndex = 0;
@@ -719,7 +745,7 @@ ID_INLINE void idMatX::SetData(const size_t rows, const size_t columns, float *d
 idMatX::SetDataCacheLines
 ========================
 */
-ID_INLINE void idMatX::SetDataCacheLines(const int rows, const int columns, float *data, const bool clear ) {
+ID_INLINE void idMatX::SetDataCacheLines(const size_t rows, const size_t columns, float *data, const bool clear ) {
 	if ( mat != nullptr && alloced != -1 ) {
 		Mem_Free( mat );
 	}
@@ -730,8 +756,8 @@ ID_INLINE void idMatX::SetDataCacheLines(const int rows, const int columns, floa
 	numColumns = columns;
 
 	if ( clear ) {
-		const int size = numRows * numColumns * sizeof( float );
-		for ( int i = 0; i < size; i += CACHE_LINE_SIZE ) {
+		const size_t size = numRows * numColumns * sizeof( float );
+		for (size_t i = 0; i < size; i += CACHE_LINE_SIZE ) {
 			ZeroCacheLine( mat, i );
 		}
 	} else {
@@ -746,13 +772,12 @@ idMatX::Zero
 */
 ID_INLINE void idMatX::Zero() const
 {
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_setzero_ps() );
 	}
 #else
-	s;
 	memset( mat, 0, numRows * numColumns * sizeof( float ) );
 #endif
 }
@@ -762,7 +787,7 @@ ID_INLINE void idMatX::Zero() const
 idMatX::Zero
 ========================
 */
-ID_INLINE void idMatX::Zero(const int rows, const int columns ) {
+ID_INLINE void idMatX::Zero(const size_t rows, const size_t columns ) {
 	SetSize( rows, columns );
 	Zero();
 }
@@ -785,7 +810,7 @@ ID_INLINE void idMatX::Identity() {
 idMatX::Identity
 ========================
 */
-ID_INLINE void idMatX::Identity(const int rows, const int columns ) {
+ID_INLINE void idMatX::Identity(const size_t rows, const size_t columns ) {
 	assert( rows == columns );
 	SetSize( rows, columns );
 	idMatX::Identity();
@@ -813,8 +838,8 @@ ID_INLINE void idMatX::Random(const int seed, const float l, const float u ) con
 	idRandom rnd(seed);
 
 	const float c = u - l;
-	const int s = numRows * numColumns;
-	for ( int i = 0; i < s; i++ ) {
+	const size_t s = numRows * numColumns;
+	for (size_t i = 0; i < s; i++ ) {
 		mat[i] = l + rnd.RandomFloat() * c;
 	}
 }
@@ -824,13 +849,13 @@ ID_INLINE void idMatX::Random(const int seed, const float l, const float u ) con
 idMatX::Random
 ========================
 */
-ID_INLINE void idMatX::Random(const int rows, const int columns, const int seed, const float l, const float u ) {
+ID_INLINE void idMatX::Random(const size_t rows, const size_t columns, const int seed, const float l, const float u ) {
 	idRandom rnd(seed);
 
 	SetSize( rows, columns );
 	const float c = u - l;
-	const int s = numRows * numColumns;
-	for ( int i = 0; i < s; i++ ) {
+	const size_t s = numRows * numColumns;
+	for (size_t i = 0; i < s; i++ ) {
 		mat[i] = l + rnd.RandomFloat() * c;
 	}
 }
@@ -841,14 +866,14 @@ idMatX::Negate
 ========================
 */
 ID_INLINE void idMatX::Negate() {
-	const int s = numRows * numColumns;
+	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
 	ALIGN16( const unsigned int signBit[4] ) = { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
 	for ( int i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_xor_ps( _mm_load_ps( mat + i ), (__m128 &) signBit[0] ) );
 	}
 #else
-	for ( int i = 0; i < s; i++ ) {
+	for (size_t i = 0; i < s; i++ ) {
 		mat[i] = -mat[i];
 	}
 #endif
@@ -861,8 +886,8 @@ idMatX::Clamp
 */
 ID_INLINE void idMatX::Clamp(const float min, const float max ) const
 {
-	const int s = numRows * numColumns;
-	for ( int i = 0; i < s; i++ ) {
+	const size_t s = numRows * numColumns;
+	for (size_t i = 0; i < s; i++ ) {
 		if ( mat[i] < min ) {
 			mat[i] = min;
 		} else if ( mat[i] > max ) {
@@ -876,10 +901,13 @@ ID_INLINE void idMatX::Clamp(const float min, const float max ) const
 idMatX::SwapRows
 ========================
 */
-ID_INLINE idMatX &idMatX::SwapRows(const int r1, const int r2 ) {
+template <Ordinal I1, Ordinal I2>
+ID_INLINE idMatX &idMatX::SwapRows(const I1 r1, const I2 r2) {
+	ORDINAL_CHECK(r1, numColumns);
+	ORDINAL_CHECK(r2, numColumns);
 	float * ptr1 = mat + r1 * numColumns;
 	float * ptr2 = mat + r2 * numColumns;
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		SwapValues( ptr1[i], ptr2[i] );
 	}
 	return *this;
@@ -890,9 +918,12 @@ ID_INLINE idMatX &idMatX::SwapRows(const int r1, const int r2 ) {
 idMatX::SwapColumns
 ========================
 */
-ID_INLINE idMatX &idMatX::SwapColumns(const int r1, const int r2 ) {
+template <Ordinal I1, Ordinal I2>
+ID_INLINE idMatX &idMatX::SwapColumns(const I1 r1, const I2 r2) {
+	ORDINAL_CHECK(r1, numRows);
+	ORDINAL_CHECK(r2, numRows);
 	float * ptr = mat;
-	for ( int i = 0; std::cmp_less(i, numRows); i++, ptr += numColumns ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++, ptr += numColumns ) {
 		SwapValues( ptr[r1], ptr[r2] );
 	}
 	return *this;
@@ -903,7 +934,8 @@ ID_INLINE idMatX &idMatX::SwapColumns(const int r1, const int r2 ) {
 idMatX::SwapRowsColumns
 ========================
 */
-ID_INLINE idMatX &idMatX::SwapRowsColumns(const int r1, const int r2 ) {
+template <Ordinal I1, Ordinal I2>
+ID_INLINE idMatX &idMatX::SwapRowsColumns(const I1 r1, const I2 r2) {
 	SwapRows( r1, r2 );
 	SwapColumns( r1, r2 );
 	return *this;
@@ -917,7 +949,7 @@ idMatX::ClearUpperTriangle
 ID_INLINE void idMatX::ClearUpperTriangle() const
 {
 	assert( numRows == numColumns );
-	for ( int i = numRows-2; i >= 0; i-- ) {
+	for (int64 i = idMath::integer_cast<int64>(numRows)-2; i >= 0; i-- ) {
 		memset( mat + i * numColumns + i + 1, 0, (numColumns - 1 - i) * sizeof(float) );
 	}
 }
@@ -940,10 +972,10 @@ ID_INLINE void idMatX::ClearLowerTriangle() const
 idMatX::SquareSubMatrix
 ========================
 */
-ID_INLINE void idMatX::SquareSubMatrix( const idMatX &m, const int size ) {
+ID_INLINE void idMatX::SquareSubMatrix(const idMatX &m, const size_t size) {
 	assert(std::cmp_less_equal(size, m.numRows ) && std::cmp_less_equal(size, m.numColumns ) );
 	SetSize( size, size );
-	for ( int i = 0; i < size; i++ ) {
+	for (size_t i = 0; i < size; i++ ) {
 		memcpy( mat + i * numColumns, m.mat + i * m.numColumns, size * sizeof( float ) );
 	}
 }
@@ -957,8 +989,8 @@ ID_INLINE float idMatX::MaxDifference( const idMatX &m ) const {
 	assert( numRows == m.numRows && numColumns == m.numColumns );
 
 	float maxDiff = -1.0f;
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			const float diff = idMath::Fabs( mat[ i * numColumns + j ] - m[i][j] );
 			if ( maxDiff < 0.0f || diff > maxDiff ) {
 				maxDiff = diff;
@@ -975,8 +1007,8 @@ idMatX::IsZero
 */
 ID_INLINE bool idMatX::IsZero( const float epsilon ) const {
 	// returns true if (*this) == Zero
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			if ( idMath::Fabs( mat[i * numColumns + j] ) > epsilon ) {
 				return false;
 			}
@@ -993,8 +1025,8 @@ idMatX::IsIdentity
 ID_INLINE bool idMatX::IsIdentity( const float epsilon ) const {
 	// returns true if (*this) == Identity
 	assert( numRows == numColumns );
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			if ( idMath::Fabs( mat[i * numColumns + j] - static_cast<float>(i == j) ) > epsilon ) {
 				return false;
 			}
@@ -1011,8 +1043,8 @@ idMatX::IsDiagonal
 ID_INLINE bool idMatX::IsDiagonal( const float epsilon ) const {
 	// returns true if all elements are zero except for the elements on the diagonal
 	assert( numRows == numColumns );
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			if ( i != j && idMath::Fabs( mat[i * numColumns + j] ) > epsilon ) {
 				return false;
 			}
@@ -1032,8 +1064,8 @@ ID_INLINE bool idMatX::IsTriDiagonal( const float epsilon ) const {
 	if ( numRows != numColumns ) {
 		return false;
 	}
-	for ( int i = 0; i < numRows-2; i++ ) {
-		for ( int j = i+2; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; i < numRows-2; i++ ) {
+		for (size_t j = i+2; std::cmp_less(j, numColumns); j++ ) {
 			if ( idMath::Fabs( (*this)[i][j] ) > epsilon ) {
 				return false;
 			}
@@ -1055,8 +1087,8 @@ ID_INLINE bool idMatX::IsSymmetric( const float epsilon ) const {
 	if ( numRows != numColumns ) {
 		return false;
 	}
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			if ( idMath::Fabs( mat[ i * numColumns + j ] - mat[ j * numColumns + i ] ) > epsilon ) {
 				return false;
 			}
@@ -1076,7 +1108,7 @@ ID_INLINE float idMatX::Trace() const {
 	assert( numRows == numColumns );
 
 	// sum of elements on the diagonal
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		trace += mat[i * numRows + i];
 	}
 	return trace;
@@ -1112,8 +1144,8 @@ ID_INLINE idMatX idMatX::Transpose() const {
 
 	transpose.SetTempSize( numColumns, numRows );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			transpose.mat[j * transpose.numColumns + i] = mat[i * numColumns + j];
 		}
 	}
@@ -1315,15 +1347,15 @@ ID_INLINE void idMatX::Multiply( idVecX &dst, const idVecX &vec ) const {
 	const float * vPtr = vec.ToFloatPtr();
 	float * dstPtr = dst.ToFloatPtr();
 	float * temp = static_cast<float*>(_alloca16(numRows * sizeof( float )));
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		float sum = mPtr[0] * vPtr[0];
-		for ( int j = 1; std::cmp_less(j, numColumns); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numColumns); j++ ) {
 			sum += mPtr[j] * vPtr[j];
 		}
 		temp[i] = sum;
 		mPtr += numColumns;
 	}
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		dstPtr[i] = temp[i];
 	}
 }
@@ -1339,15 +1371,15 @@ ID_INLINE void idMatX::MultiplyAdd( idVecX &dst, const idVecX &vec ) const {
 	const float * vPtr = vec.ToFloatPtr();
 	float * dstPtr = dst.ToFloatPtr();
 	float * temp = static_cast<float*>(_alloca16(numRows * sizeof( float )));
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		float sum = mPtr[0] * vPtr[0];
-		for ( int j = 1; std::cmp_less(j, numColumns); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numColumns); j++ ) {
 			sum += mPtr[j] * vPtr[j];
 		}
 		temp[i] = dstPtr[i] + sum;
 		mPtr += numColumns;
 	}
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		dstPtr[i] = temp[i];
 	}
 }
@@ -1363,15 +1395,15 @@ ID_INLINE void idMatX::MultiplySub( idVecX &dst, const idVecX &vec ) const {
 	const float * vPtr = vec.ToFloatPtr();
 	float * dstPtr = dst.ToFloatPtr();
 	float * temp = static_cast<float*>(_alloca16(numRows * sizeof( float )));
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		float sum = mPtr[0] * vPtr[0];
-		for ( int j = 1; std::cmp_less(j, numColumns); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numColumns); j++ ) {
 			sum += mPtr[j] * vPtr[j];
 		}
 		temp[i] = dstPtr[i] - sum;
 		mPtr += numColumns;
 	}
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		dstPtr[i] = temp[i];
 	}
 }
@@ -1386,16 +1418,16 @@ ID_INLINE void idMatX::TransposeMultiply( idVecX &dst, const idVecX &vec ) const
 	const float * vPtr = vec.ToFloatPtr();
 	float * dstPtr = dst.ToFloatPtr();
 	float * temp = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		const float * mPtr = mat + i;
 		float sum = mPtr[0] * vPtr[0];
-		for ( int j = 1; std::cmp_less(j, numRows); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numRows); j++ ) {
 			mPtr += numColumns;
 			sum += mPtr[0] * vPtr[j];
 		}
 		temp[i] = sum;
 	}
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		dstPtr[i] = temp[i];
 	}
 }
@@ -1410,16 +1442,16 @@ ID_INLINE void idMatX::TransposeMultiplyAdd( idVecX &dst, const idVecX &vec ) co
 	const float * vPtr = vec.ToFloatPtr();
 	float * dstPtr = dst.ToFloatPtr();
 	float * temp = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		const float * mPtr = mat + i;
 		float sum = mPtr[0] * vPtr[0];
-		for ( int j = 1; std::cmp_less(j, numRows); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numRows); j++ ) {
 			mPtr += numColumns;
 			sum += mPtr[0] * vPtr[j];
 		}
 		temp[i] = dstPtr[i] + sum;
 	}
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		dstPtr[i] = temp[i];
 	}
 }
@@ -1434,16 +1466,16 @@ ID_INLINE void idMatX::TransposeMultiplySub( idVecX &dst, const idVecX &vec ) co
 	const float * vPtr = vec.ToFloatPtr();
 	float * dstPtr = dst.ToFloatPtr();
 	float * temp = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		const float * mPtr = mat + i;
 		float sum = mPtr[0] * vPtr[0];
-		for ( int j = 1; std::cmp_less(j, numRows); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numRows); j++ ) {
 			mPtr += numColumns;
 			sum += mPtr[0] * vPtr[j];
 		}
 		temp[i] = dstPtr[i] - sum;
 	}
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 		dstPtr[i] = temp[i];
 	}
 }
@@ -1460,13 +1492,13 @@ ID_INLINE void idMatX::Multiply( idMatX &dst, const idMatX &a ) const {
 	dst.SetSize( numRows, a.numColumns );
 	float * dstPtr = dst.ToFloatPtr();
 	const float * m1Ptr = ToFloatPtr();
-	const int k = numRows;
-	const int l = a.GetNumColumns();
-	for ( int i = 0; i < k; i++ ) {
-		for ( int j = 0; j < l; j++ ) {
+	const size_t k = numRows;
+	const size_t l = a.GetNumColumns();
+	for (size_t i = 0; i < k; i++ ) {
+		for (size_t j = 0; j < l; j++ ) {
 			const float * m2Ptr = a.ToFloatPtr() + j;
 			float sum = m1Ptr[0] * m2Ptr[0];
-			for ( int n = 1; std::cmp_less(n, numColumns); n++ ) {
+			for (size_t n = 1; std::cmp_less(n, numColumns); n++ ) {
 				m2Ptr += l;
 				sum += m1Ptr[n] * m2Ptr[0];
 			}
@@ -1487,14 +1519,14 @@ ID_INLINE void idMatX::TransposeMultiply( idMatX &dst, const idMatX &a ) const {
 
 	dst.SetSize( numColumns, a.numColumns );
 	float * dstPtr = dst.ToFloatPtr();
-	const int k = numColumns;
-	const int l = a.numColumns;
-	for ( int i = 0; i < k; i++ ) {
-		for ( int j = 0; j < l; j++ ) {
+	const size_t k = numColumns;
+	const size_t l = a.numColumns;
+	for (size_t i = 0; i < k; i++ ) {
+		for (size_t j = 0; j < l; j++ ) {
 			const float * m1Ptr = ToFloatPtr() + i;
 			const float * m2Ptr = a.ToFloatPtr() + j;
 			float sum = m1Ptr[0] * m2Ptr[0];
-			for ( int n = 1; std::cmp_less(n, numRows); n++ ) {
+			for (size_t n = 1; std::cmp_less(n, numRows); n++ ) {
 				m1Ptr += numColumns;
 				m2Ptr += a.numColumns;
 				sum += m1Ptr[0] * m2Ptr[0];
@@ -1509,7 +1541,7 @@ ID_INLINE void idMatX::TransposeMultiply( idMatX &dst, const idMatX &a ) const {
 idMatX::GetDimension
 ========================
 */
-ID_INLINE int idMatX::GetDimension() const {
+ID_INLINE size_t idMatX::GetDimension() const {
 	return numRows * numColumns;
 }
 
@@ -1518,7 +1550,8 @@ ID_INLINE int idMatX::GetDimension() const {
 idMatX::SubVec6
 ========================
 */
-ID_INLINE const idVec6 &idMatX::SubVec6(const int row ) const {
+
+ID_INLINE const idVec6 &idMatX::SubVec6(const Ordinal auto row) const {
 	assert( numColumns >= 6 && row >= 0 && std::cmp_less(row, numRows ) );
 	return *reinterpret_cast<const idVec6 *>(mat + row * numColumns);
 }
@@ -1528,7 +1561,8 @@ ID_INLINE const idVec6 &idMatX::SubVec6(const int row ) const {
 idMatX::SubVec6
 ========================
 */
-ID_INLINE idVec6 &idMatX::SubVec6(const int row ) {
+
+ID_INLINE idVec6 &idMatX::SubVec6(const Ordinal auto row) {
 	assert( numColumns >= 6 && row >= 0 && std::cmp_less(row, numRows ) );
 	return *reinterpret_cast<idVec6 *>(mat + row * numColumns);
 }
@@ -1538,7 +1572,8 @@ ID_INLINE idVec6 &idMatX::SubVec6(const int row ) {
 idMatX::SubVecX
 ========================
 */
-ID_INLINE const idVecX idMatX::SubVecX(const size_t row) const {
+
+ID_INLINE const idVecX idMatX::SubVecX(const Ordinal auto row) const {
 	idVecX v;
 	assert( row >= 0 && row < numRows );
 	v.SetData( numColumns, mat + row * numColumns );
@@ -1550,7 +1585,8 @@ ID_INLINE const idVecX idMatX::SubVecX(const size_t row) const {
 idMatX::SubVecX
 ========================
 */
-ID_INLINE idVecX idMatX::SubVecX(const size_t row) {
+
+ID_INLINE idVecX idMatX::SubVecX(const Ordinal auto row) {
 	idVecX v;
 	assert( row >= 0 && row < numRows );
 	v.SetData( numColumns, mat + row * numColumns );

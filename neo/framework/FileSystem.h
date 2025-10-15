@@ -50,8 +50,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static constexpr ID_TIME_T FILE_NOT_FOUND_TIMESTAMP	= (ID_TIME_T)-1;
-static constexpr int		MAX_OSPATH					= 256;
+static constexpr ID_TIME_T FILE_NOT_FOUND_TIMESTAMP	= -1;
+static constexpr size_t	   MAX_OSPATH				= 256;
 
 // modes for OpenFileByMode
 typedef enum {
@@ -69,10 +69,10 @@ typedef enum {
 class idFileList {
 	friend class idFileSystemLocal;
 public:
-	const char *			GetBasePath() const { return basePath; }
-	int						GetNumFiles() const { return list.Num(); }
-	const char *			GetFile( int index ) const { return list[index]; }
-	const idStrList &		GetList() const { return list; }
+	[[nodiscard]] const char *			GetBasePath() const { return basePath; }
+	[[nodiscard]] size_t					GetNumFiles() const { return list.Num(); }
+	[[nodiscard]] const char *			GetFile( size_t index ) const { return list[index]; }
+	[[nodiscard]] const idStrList &		GetList() const noexcept { return list; }
 
 private:
 	idStr					basePath;
@@ -89,7 +89,7 @@ public:
 							// Shutdown the file system.
 	virtual void			Shutdown( bool reloading ) = 0;
 							// Returns true if the file system is initialized.
-	virtual bool			IsInitialized() const = 0;
+	[[nodiscard]] virtual bool			IsInitialized() const = 0;
 							// Lists files with the given extension in the given directory.
 							// Directory should not have either a leading or trailing '/'
 							// The returned files will not include any directories or '/' unless fullRelativePath is set.
@@ -116,15 +116,15 @@ public:
 							// Returns the length of the file, or -1 on failure.
 							// A null buffer will just return the file length without loading.
 							// A null timestamp will be ignored.
-							// As a quick check for existance. -1 length == not present.
+							// As a quick check for existence. -1 length == not present.
 							// A 0 byte will always be appended at the end, so string ops are safe.
 							// The buffer should be considered read-only, because it may be cached for other uses.
-	virtual int				ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp = nullptr) = 0;
+	virtual int64			ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp = nullptr) = 0;
 							// Frees the memory allocated by ReadFile.
 	virtual void			FreeFile( void *buffer ) = 0;
 							// Writes a complete file, will create any needed subdirectories.
 							// Returns the length of the file, or -1 on failure.
-	virtual int				WriteFile( const char *relativePath, const void *buffer, int size, const char *basePath = "fs_savepath" ) = 0;
+	virtual size_t			WriteFile( const char *relativePath, const void *buffer, size_t size, const char *basePath = "fs_savepath" ) = 0;
 							// Removes the given file.
 	virtual void			RemoveFile( const char *relativePath ) = 0;
 							// Removes the specified directory.
@@ -159,7 +159,7 @@ public:
 							// if the file is found in addons, FS's internal structures are ready for a reloadEngine
 	virtual findFile_t		FindFile( const char *path ) = 0;
 
-							// ignore case and seperator char distinctions
+							// ignore case and separator char distinctions
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const = 0;
 
 	// This is just handy
@@ -173,7 +173,7 @@ public:
 	}
 	
 	// Returns length of file, -1 if no file exists
-	virtual int				GetFileLength( const char * relativePath ) = 0;
+	virtual int64			GetFileLength( const char * relativePath ) = 0;
 
 	virtual sysFolder_t		IsFolder( const char * relativePath, const char *basePath = "fs_basepath" ) = 0;
 
@@ -188,8 +188,8 @@ public:
 	virtual void			StartPreload( const idStrList &_preload ) = 0;
 	virtual void			StopPreload() = 0;
 	virtual int				ReadFromBGL( idFile *_resourceFile, void * _buffer, int _offset, int _len ) = 0;
-	virtual bool			IsBinaryModel( const idStr & resName ) const = 0;
-	virtual bool			IsSoundSample( const idStr & resName ) const = 0;
+	[[nodiscard]] virtual bool			IsBinaryModel( const idStr & resName ) const = 0;
+	[[nodiscard]] virtual bool			IsSoundSample( const idStr & resName ) const = 0;
 	virtual bool			GetResourceCacheEntry( const char *fileName, idResourceCacheEntry &rc ) = 0;
 	virtual void			FreeResourceBuffer() = 0;
 	virtual void			AddImagePreload( const char *resName, int filter, int repeat, int usage, int cube ) = 0;

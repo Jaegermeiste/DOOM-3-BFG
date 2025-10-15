@@ -38,10 +38,10 @@ public:
 
 	void			Load( const byte * data, uint32 len, bool copy );
 	void			Free();
-	const byte *	Ptr() { return startp; }
+					[[nodiscard]] const byte *	Ptr() const { return startp; }
 
-	uint32			Length() const { return (uint32)( endp - startp ); }
-	uint32			Tell() const { return (uint32)( readp - startp ); }
+					[[nodiscard]] uint32			Length() const { return static_cast<uint32>(endp - startp); }
+					[[nodiscard]] uint32			Tell() const { return static_cast<uint32>(readp - startp); }
 	void			Seek( int32 offset ) { readp += offset; }
 	void			Rewind() { readp = startp; }
 
@@ -107,7 +107,7 @@ idSWFBitStream::ReadLittle
 */
 template< typename T >
 void idSWFBitStream::ReadLittle( T & val ) {
-	val = *(T *)ReadData( sizeof( val ) );
+	val = *static_cast<T*>(ReadData(sizeof(val)));
 	idSwap::Little( val );
 }
 
@@ -124,11 +124,11 @@ ID_INLINE int16  idSWFBitStream::ReadS16() { ResetBits(); readp += 2; return ( r
 ID_INLINE int32  idSWFBitStream::ReadS32() { ResetBits(); readp += 4; return ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) ); }
 ID_INLINE float  idSWFBitStream::ReadFixed8() { ResetBits(); readp += 2; return SWFFIXED8( ( readp[-2] | ( readp[-1] << 8 ) ) ); }
 ID_INLINE float  idSWFBitStream::ReadFixed16() { ResetBits(); readp += 4; return SWFFIXED16( ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) ) ); }
-ID_INLINE float  idSWFBitStream::ReadFloat() { ResetBits(); readp += 4; uint32 i = ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) ); return (float &)i; }
+ID_INLINE float  idSWFBitStream::ReadFloat() { ResetBits(); readp += 4; uint32 i = ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) ); return static_cast<float>(i); }
 
 ID_INLINE double idSWFBitStream::ReadDouble() {
 	const byte * swfIsRetarded = ReadData( 8 );
-	byte buffer[8];
+	byte buffer[8] = {};
 	buffer[0] = swfIsRetarded[4];
 	buffer[1] = swfIsRetarded[5];
 	buffer[2] = swfIsRetarded[6];

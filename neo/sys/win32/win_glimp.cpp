@@ -102,7 +102,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs &args ) {
 
 		idLib::Printf( "\nswapinterval %i\n", swapInterval );
 		for ( int i = 1 ; i < MAX_FRAMES ; i++ ) {
-			idLib::Printf( "%i microseconds\n", (int)(timestamps[i] - timestamps[i-1]) );
+			idLib::Printf( "%i microseconds\n", static_cast<int>(timestamps[i] - timestamps[i - 1]) );
 		}
 	}
 }
@@ -884,7 +884,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 
 			class idSort_VidMode : public idSort_Quick< vidMode_t, idSort_VidMode > {
 			public:
-				int Compare( const vidMode_t & a, const vidMode_t & b ) const {
+				[[nodiscard]] int Compare( const vidMode_t & a, const vidMode_t & b ) const {
 					int wd = a.width - b.width;
 					int hd = a.height - b.height;
 					int fd = a.displayHz - b.displayHz;

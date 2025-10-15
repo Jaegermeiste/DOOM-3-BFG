@@ -284,11 +284,11 @@ void idPlayerProfile::SetAchievement( const int id ) {
 	uint64 mask = 0;
 	if ( id < 64 ) {
 		mask = achievementBits;
-		achievementBits |= (int64)1 << id;
+		achievementBits |= static_cast<int64>(1) << id;
 		mask = ~mask & achievementBits;
 	} else {
 		mask = achievementBits2;
-		achievementBits2 |= (int64)1 << ( id - 64 );
+		achievementBits2 |= static_cast<int64>(1) << ( id - 64 );
 		mask = ~mask & achievementBits2;
 	}
 
@@ -310,9 +310,9 @@ void idPlayerProfile::ClearAchievement( const int id ) {
 	}
 
 	if ( id < 64 ) {
-		achievementBits &= ~( (int64)1 << id );
+		achievementBits &= ~( static_cast<int64>(1) << id );
 	} else {
-		achievementBits2 &= ~( (int64)1 << ( id - 64 ) );
+		achievementBits2 &= ~( static_cast<int64>(1) << ( id - 64 ) );
 	}
 
 	MarkDirty( true );
@@ -330,9 +330,9 @@ bool idPlayerProfile::GetAchievement( const int id ) const {
 	}
 
 	if ( id < 64 ) {
-		return ( achievementBits & (int64)1 << id ) != 0;
+		return ( achievementBits & static_cast<int64>(1) << id ) != 0;
 	} else {
-		return ( achievementBits2 & (int64)1 << ( id - 64 ) ) != 0;
+		return ( achievementBits2 & static_cast<int64>(1) << ( id - 64 ) ) != 0;
 	}
 }
 
@@ -370,7 +370,8 @@ void idPlayerProfile::SetLeftyFlip( bool lf ) {
 idPlayerProfile::ExecConfig
 ========================
 */
-void idPlayerProfile::ExecConfig( bool save, bool forceDefault ) {
+void idPlayerProfile::ExecConfig( bool save, bool forceDefault ) const
+{
 
 	int flags = 0;
 	if ( !save ) {

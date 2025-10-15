@@ -111,7 +111,7 @@ float idVec3::ToPitch() const {
 			pitch = 270.0f;
 		}
 	} else {
-		float forward = (float)idMath::Sqrt(x * x + y * y);
+		const float forward = idMath::Sqrt(x * x + y * y);
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if ( pitch < 0.0f ) {
 			pitch += 360.0f;
@@ -143,7 +143,7 @@ idAngles idVec3::ToAngles() const {
 			yaw += 360.0f;
 		}
 
-		float forward = (float)idMath::Sqrt(x * x + y * y);
+		const float forward = idMath::Sqrt(x * x + y * y);
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if ( pitch < 0.0f ) {
 			pitch += 360.0f;
@@ -175,7 +175,7 @@ idPolar3 idVec3::ToPolar() const {
 			yaw += 360.0f;
 		}
 
-		float forward = (float)idMath::Sqrt(x * x + y * y);
+		const float forward = idMath::Sqrt(x * x + y * y);
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if ( pitch < 0.0f ) {
 			pitch += 360.0f;
@@ -256,10 +256,10 @@ void idVec3::SLerp( const idVec3 &v1, const idVec3 &v2, const float t ) {
 		return;
 	}
 
-	float cosom = v1 * v2;
+	const float cosom = v1 * v2;
 	if ( ( 1.0f - cosom ) > LERP_DELTA ) {
-		float omega = acos(cosom);
-		float sinom = sin(omega);
+		const float omega = acos(cosom);
+		const float sinom = sin(omega);
 		scale0 = sin( ( 1.0f - t ) * omega ) / sinom;
 		scale1 = sin( t * omega ) / sinom;
 	} else {

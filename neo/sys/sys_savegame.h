@@ -123,7 +123,7 @@ saveGameCheck_t
 ================================================
 */
 struct saveGameCheck_t {
-	saveGameCheck_t() { 
+	saveGameCheck_t() noexcept {
 		exists = false;
 		autosaveExists = false;
 		autosaveFolder = nullptr;
@@ -154,15 +154,15 @@ public:
 		return *this;
 	}
 	// for std::sort, sort newer (larger date) towards start of list
-	bool	operator<( const idSaveGameDetails & other ) { return date > other.date; }
+	bool	operator<( const idSaveGameDetails & other ) const { return date > other.date; }
 
-	idStr	GetMapName() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP, "" ); }
-	idStr	GetLocation() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP_LOCATE, "" ); }
-	idStr	GetLanguage() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_LANGUAGE, "" ); }
-	int		GetPlaytime() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_PLAYTIME, 0 ); }
-	int		GetExpansion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_EXPANSION, 0 ); }
-	int		GetDifficulty() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_DIFFICULTY, -1 ); }
-	int		GetSaveVersion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_SAVE_VERSION, 0 ); }
+	[[nodiscard]] idStr	GetMapName() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP, "" ); }
+	[[nodiscard]] idStr	GetLocation() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP_LOCATE, "" ); }
+	[[nodiscard]] idStr	GetLanguage() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_LANGUAGE, "" ); }
+	[[nodiscard]] int		GetPlaytime() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_PLAYTIME, 0 ); }
+	[[nodiscard]] int		GetExpansion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_EXPANSION, 0 ); }
+	[[nodiscard]] int		GetDifficulty() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_DIFFICULTY, -1 ); }
+	[[nodiscard]] int		GetSaveVersion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_SAVE_VERSION, 0 ); }
 
 public:
 	idDict				descriptors;						// [in] Descriptors available to be shown on the save/load screen.  Each game can define their own, e.g. Difficulty, level, map, score, time.
@@ -191,9 +191,9 @@ public:
 	void						SetDefaults( int inputDevice = -1 );	// doesn't clear out things that should be persistent across entire processor
 	void						CancelSaveGameFilePipelines();
 	void						AbortSaveGameFilePipeline();
-	const int &					GetError() const { return errorCode; }
-	const int &					GetHandledErrors() const { return handledErrorCodes; }
-	const saveGameHandle_t &	GetHandle() const { return handle; }
+								[[nodiscard]] const int &					GetError() const { return errorCode; }
+								[[nodiscard]] const int &					GetHandledErrors() const { return handledErrorCodes; }
+								[[nodiscard]] const saveGameHandle_t &	GetHandle() const { return handle; }
 
 public:
 	idStrStatic< MAX_FOLDER_NAME_LENGTH >		directory;			// [in] real directory of the savegame package
@@ -221,8 +221,16 @@ public:
 
 private:
 	// Don't allow copies
-						idSaveLoadParms( const idSaveLoadParms & s ) {}
-	void				operator=( const idSaveLoadParms & s ) {}
+						idSaveLoadParms( const idSaveLoadParms & s ) : mode(0), errorCode(0), handledErrorCodes(0),
+						                                               requiredSpaceInBytes(0),
+						                                               skipErrorDialogMask(0),
+						                                               cancelled(false),
+						                                               userId(0), inputDeviceId(0),
+						                                               handle(0)
+								{
+								}
+
+								void				operator=( const idSaveLoadParms & s ) const {}
 };
 
 // Using function pointers because:
@@ -240,7 +248,7 @@ saveGameThreadArgs_t
 ================================================
 */
 struct saveGameThreadArgs_t {
-	saveGameThreadArgs_t() :
+	saveGameThreadArgs_t() noexcept :
 		saveLoadParms(nullptr) {
 	}
 	
@@ -255,19 +263,19 @@ idSaveGameThread
 */
 class idSaveGameThread : public idSysThread {
 public:
-			idSaveGameThread() : cancel( false ) {}
+			idSaveGameThread() noexcept : cancel( false ) {}
 
 	int		Run();
 	void	CancelOperations() { cancel = true; }
 
 private:
-	int		Save();
-	int		Load();
-	int		Enumerate();
-	int		Delete();
-	int		DeleteAll();
-	int		DeleteFiles();
-	int		EnumerateFiles();
+	int		Save() const;
+	int		Load() const;
+	int		Enumerate() const;
+	int		Delete() const;
+	int		DeleteAll() const;
+	int		DeleteFiles() const;
+	int		EnumerateFiles() const;
 
 public:
 	saveGameThreadArgs_t	data;
@@ -309,10 +317,10 @@ public:
 	// Processors need to override this if they will eventually reset the map.
 	// If it could possibly reset the map through any of its stages, including kicking off another processor in completed callback, return false.
 	// We will force non-simple processors to execute last and won't block the map heap reset due if non-simple processors are still executing.
-	virtual bool			IsSimpleProcessor() const { return true; }
+	[[nodiscard]] virtual bool			IsSimpleProcessor() const { return true; }
 
 	// This is a fail-safe to catch a timing issue on the PS3 where the nextmap processor could sometimes hang during a level transition
-	virtual bool			ShouldTimeout() const { return false; }
+	[[nodiscard]] virtual bool			ShouldTimeout() const { return false; }
 
 	//------------------------
 	// Commands
@@ -327,23 +335,23 @@ public:
 	idSysSignal &			GetSignal() { return parms.callbackSignal; }
 
 	// Returns error status
-	const int &				GetError() const { return parms.errorCode; }
+	[[nodiscard]] const int &				GetError() const { return parms.errorCode; }
 
 	// Returns the processor's save/load parms
-	const idSaveLoadParms & GetParms() const { return parms; }
+	[[nodiscard]] const idSaveLoadParms & GetParms() const { return parms; }
 
 	// Returns the processor's save/load parms
 	idSaveLoadParms &		GetParmsNonConst() { return parms; }
 
 	// Returns if this processor is currently working
-	bool					IsWorking() const { return working; }
+	[[nodiscard]] bool					IsWorking() const { return working; }
 	
 	// This is a way to tell the processor which errors shouldn't be handled by the processor or system.
 	void					SetSkipSystemErrorDialogMask( const int errorMask ) { parms.skipErrorDialogMask = errorMask; }
-	int						GetSkipSystemErrorDialogMask() const { return parms.skipErrorDialogMask; }
+	[[nodiscard]] int						GetSkipSystemErrorDialogMask() const { return parms.skipErrorDialogMask; }
 
 	// Returns the handle given by execution
-	saveGameHandle_t		GetHandle() const { return parms.GetHandle(); }
+	[[nodiscard]] saveGameHandle_t		GetHandle() const { return parms.GetHandle(); }
 
 	// These can be overridden by game code, like the GUI, when the processor is done executing.
 	// Game classes like the GUI can create a processor derived from a game's Save processor impl and simply use
@@ -425,7 +433,7 @@ public:
 
 	bool					IsSaveGameCompletedFromHandle( const saveGameHandle_t & handle ) const { return handle <= lastExecutedProcessorHandle || handle == 0; }	// last case should never be reached since it would be also be true in first case, this is just to show intent
 	void					Set360RetrySaveAfterDeviceSelected( const char * folder, const int64 bytes );
-	bool					DeviceSelectorWaitingOnSaveRetry();
+	bool					DeviceSelectorWaitingOnSaveRetry() const;
 	void					ShowRetySaveDialog( const char * folder, const int64 bytes );
 	void					ShowRetySaveDialog();
 	void					ClearRetryInfo();
@@ -440,7 +448,7 @@ private:
 	// These are to make sure that all processors start and finish in the same way without a lot of code duplication.
 	// We need to make sure that we adhere to PS3 system combination initialization issues.
 	void					StartNextProcessor();
-	void					FinishProcessor( idSaveGameProcessor * processor );
+	void					FinishProcessor( idSaveGameProcessor * processor ) const;
 
 	// Calls start on the processor after it's been assigned
 	void					Start();

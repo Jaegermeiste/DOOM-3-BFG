@@ -136,7 +136,7 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 	assert( ( dstLFE == -1 ) || ( ( dstMask & idWaveFile::CHANNEL_MASK_LOW_FREQUENCY ) != 0 ) );
 	assert( ( dstCenter == -1 ) || ( ( dstMask & idWaveFile::CHANNEL_MASK_FRONT_CENTER ) != 0 ) );
 
-	float omniChannels = (float)dstChannels;
+	float omniChannels = static_cast<float>(dstChannels);
 	if ( dstMask & idWaveFile::CHANNEL_MASK_LOW_FREQUENCY ) {
 		omniChannels -= 1.0f;
 	}

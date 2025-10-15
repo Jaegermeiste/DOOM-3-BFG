@@ -42,7 +42,7 @@ class idBinaryImage {
 public:
 	idBinaryImage( const char * name ) : imgName( name ) { }
 
-	const char *		GetName() const { return imgName.c_str(); }
+	[[nodiscard]] const char *		GetName() const { return imgName.c_str(); }
 	void				SetName( const char *_name ) { imgName = _name; }
 
 	void				Load2DFromMemory( int width, int height, const byte * pic_const, int numLevels, textureFormat_t & textureFormat, textureColor_t & colorFormat, bool gammaMips );
@@ -51,11 +51,11 @@ public:
 	ID_TIME_T			LoadFromGeneratedFile( ID_TIME_T sourceFileTime );
 	ID_TIME_T			WriteGeneratedFile( ID_TIME_T sourceFileTime );
 
-	const bimageFile_t &	GetFileHeader() { return fileData; }
+	[[nodiscard]] const bimageFile_t &	GetFileHeader() const { return fileData; }
 
-	int					NumImages() { return images.Num(); }
-	const bimageImage_t &	GetImageHeader( int i ) const { return images[i]; }
-	const byte *			GetImageData( int i ) const { return images[i].data; }
+	[[nodiscard]] int					NumImages() const { return images.Num(); }
+	[[nodiscard]] const bimageImage_t &	GetImageHeader( int i ) const { return images[i]; }
+	[[nodiscard]] const byte *			GetImageData( int i ) const { return images[i].data; }
 	static void			GetGeneratedFileName( idStr & gfn, const char *imageName );
 private:
 	idStr				imgName;			// game path, including extension (except for cube maps), may be an image program
@@ -86,14 +86,14 @@ private:
 		void Alloc( int size ) {
 			Free();
 			dataSize = size;
-			data = (byte *)Mem_Alloc( size, TAG_CRAP );
+			data = static_cast<byte*>(Mem_Alloc(size, TAG_CRAP));
 		}
 	};
 
 	idList< idBinaryImageData, TAG_IDLIB_LIST_IMAGE > images;
 
 private:
-	void				MakeGeneratedFileName( idStr & gfn );
+	void				MakeGeneratedFileName( idStr & gfn ) const;
 	bool				LoadFromGeneratedFile( idFile * f, ID_TIME_T sourceFileTime );
 };
 

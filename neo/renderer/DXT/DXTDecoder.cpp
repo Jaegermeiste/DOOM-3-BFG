@@ -40,7 +40,8 @@ Contains the DxtDecoder implementation.
 idDxtDecoder::EmitBlock
 ========================
 */
-void idDxtDecoder::EmitBlock( byte *outPtr, int x, int y, const byte *colorBlock ) {
+void idDxtDecoder::EmitBlock( byte *outPtr, int x, int y, const byte *colorBlock ) const
+{
 	outPtr += ( y * width + x ) * 4;
 	for ( int j = 0; j < 4; j++ ) {
 		memcpy( outPtr, &colorBlock[j*4*4], 4*4 );
@@ -79,13 +80,13 @@ void idDxtDecoder::DecodeAlphaValues( byte *colorBlock, const int offset ) {
 
 	colorBlock += offset;
 
-	indexes = (int)ReadByte() | ( (int)ReadByte() << 8 ) | ( (int)ReadByte() << 16 );
+	indexes = static_cast<int>(ReadByte()) | ( static_cast<int>(ReadByte()) << 8 ) | ( static_cast<int>(ReadByte()) << 16 );
 	for ( i = 0; i < 8; i++ ) {
 		colorBlock[i*4] = alphas[indexes & 7];
 		indexes >>= 3;
 	}
 
-	indexes = (int)ReadByte() | ( (int)ReadByte() << 8 ) | ( (int)ReadByte() << 16 );
+	indexes = static_cast<int>(ReadByte()) | ( static_cast<int>(ReadByte()) << 8 ) | ( static_cast<int>(ReadByte()) << 16 );
 	for ( i = 8; i < 16; i++ ) {
 		colorBlock[i*4] = alphas[indexes & 7];
 		indexes >>= 3;
@@ -241,8 +242,8 @@ void idDxtDecoder::DecompressYCoCgDXT5( const byte *inBuf, byte *outBuf, int wid
 	// descale the CoCg values and set the scale factor effectively to 1
 	for ( int i = 0; i < width * height; i++ ) {
 		int scale = ( outBuf[i*4+2] >> 3 ) + 1;
-		outBuf[i*4+0] = byte( ( outBuf[i*4+0] - 128 ) / scale + 128 );
-		outBuf[i*4+1] = byte( ( outBuf[i*4+1] - 128 ) / scale + 128 );
+		outBuf[i*4+0] = static_cast<byte>((outBuf[i * 4 + 0] - 128) / scale + 128);
+		outBuf[i*4+1] = static_cast<byte>((outBuf[i * 4 + 1] - 128) / scale + 128);
 		outBuf[i*4+2] = 0;	// this translates to a scale factor of 1 for uncompressed
 	}
 }
@@ -316,10 +317,10 @@ byte UShortSqrt( unsigned short s ) {
 		t = r + b;
 		r >>= 1;
 		x = -( t <= s );
-		s = s - (unsigned short)( t & x );
+		s = s - static_cast<unsigned short>(t & x);
 		r += b & x;
 	}
-	return byte( r );
+	return static_cast<byte>(r);
 #else
 	int t, b, r;
 
@@ -347,7 +348,7 @@ void idDxtDecoder::DeriveNormalZValues( byte *normalBlock ) {
 	for ( i = 0; i < 16; i++ ) {
 		int x = normalBlock[i*4+0] - 127;
 		int y = normalBlock[i*4+1] - 127;
-		normalBlock[i*4+2] = 128 + UShortSqrt( (unsigned short)( 16383 - x * x - y * y ) );
+		normalBlock[i*4+2] = 128 + UShortSqrt( static_cast<unsigned short>(16383 - x * x - y * y) );
 	}
 }
 
@@ -503,7 +504,7 @@ void BiasScaleNormalY( byte *normals, const int offsetY, const byte c0, const by
 	int bias = c0 - 4;
 	int scale = ( c1 >> 3 ) + 1;
 	for ( int i = 0; i < 16; i++ ) {
-		normals[i*4+offsetY] = byte( ( normals[i*4+offsetY] - 128 ) / scale + bias );
+		normals[i*4+offsetY] = static_cast<byte>((normals[i * 4 + offsetY] - 128) / scale + bias);
 	}
 }
 
@@ -633,7 +634,7 @@ void idDxtDecoder::DecomposeColorBlock( byte colors[2][4], byte colorIndices[16]
 
 	indices = ReadUInt();
 	for ( i = 0; i < 16; i++ ) {
-		colorIndices[i] = (byte)crm[ indices & 3 ];
+		colorIndices[i] = static_cast<byte>(crm[indices & 3]);
 		indices >>= 2;
 	}
 }
@@ -663,15 +664,15 @@ void idDxtDecoder::DecomposeAlphaBlock( byte colors[2][4], byte alphaIndices[16]
 		arm = alphaRemap2;
 	}
 
-	indices = (int)ReadByte() | ( (int)ReadByte() << 8 ) | ( (int)ReadByte() << 16 );
+	indices = static_cast<int>(ReadByte()) | ( static_cast<int>(ReadByte()) << 8 ) | ( static_cast<int>(ReadByte()) << 16 );
 	for ( i = 0; i < 8; i++ ) {
-		alphaIndices[i] = (byte)arm[ indices & 7 ];
+		alphaIndices[i] = static_cast<byte>(arm[indices & 7]);
 		indices >>= 3;
 	}
 
-	indices = (int)ReadByte() | ( (int)ReadByte() << 8 ) | ( (int)ReadByte() << 16 );
+	indices = static_cast<int>(ReadByte()) | ( static_cast<int>(ReadByte()) << 8 ) | ( static_cast<int>(ReadByte()) << 16 );
 	for ( i = 8; i < 16; i++ ) {
-		alphaIndices[i] = (byte)arm[ indices & 7 ];
+		alphaIndices[i] = static_cast<byte>(arm[indices & 7]);
 		indices >>= 3;
 	}
 }

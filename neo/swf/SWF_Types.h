@@ -40,52 +40,52 @@ struct swfHeader_t {
 	uint32 fileLength;
 };
 struct swfRect_t {
-	swfRect_t();
+	swfRect_t() noexcept;
 	idVec2 tl;
 	idVec2 br;
 };
 struct swfMatrix_t {
-	swfMatrix_t();
+	swfMatrix_t() noexcept;
 	float xx, yy;
 	float xy, yx;
 	float tx, ty;
-	idVec2		Scale( const idVec2 & in ) const;
-	idVec2		Transform( const idVec2 & in ) const;
-	swfMatrix_t Multiply( const swfMatrix_t & a ) const;
-	swfMatrix_t	Inverse() const;
+	[[nodiscard]] idVec2		Scale( const idVec2 & in ) const;
+	[[nodiscard]] idVec2		Transform( const idVec2 & in ) const;
+	[[nodiscard]] swfMatrix_t Multiply( const swfMatrix_t & a ) const;
+	[[nodiscard]] swfMatrix_t	Inverse() const;
 	swfMatrix_t & operator=( const swfMatrix_t & a ) { xx = a.xx; yy = a.yy; xy = a.xy; yx = a.yx; tx = a.tx; ty = a.ty; return *this; }
 };
 struct swfColorRGB_t {
-	swfColorRGB_t();
-	idVec4 ToVec4() const;
+	swfColorRGB_t() noexcept;
+	[[nodiscard]] idVec4 ToVec4() const;
 	uint8 r, g, b;
 };
 struct swfColorRGBA_t : public swfColorRGB_t {
-	swfColorRGBA_t();
-	idVec4 ToVec4() const;
+	swfColorRGBA_t() noexcept;
+	[[nodiscard]] idVec4 ToVec4() const;
 	uint8 a;
 };
 struct swfLineStyle_t {
-	swfLineStyle_t();
+	swfLineStyle_t() noexcept;
 	uint16 startWidth;
 	uint16 endWidth;
 	swfColorRGBA_t startColor;
 	swfColorRGBA_t endColor;
 };
 struct swfGradientRecord_t {
-	swfGradientRecord_t();
+	swfGradientRecord_t() noexcept;
 	uint8 startRatio;
 	uint8 endRatio;
 	swfColorRGBA_t startColor;
 	swfColorRGBA_t endColor;
 };
 struct swfGradient_t {
-	swfGradient_t();
+	swfGradient_t() noexcept;
 	uint8 numGradients;
 	swfGradientRecord_t gradientRecords[ 16 ];
 };
 struct swfFillStyle_t {
-	swfFillStyle_t();
+	swfFillStyle_t() noexcept;
 	uint8 type;			// 0 = solid, 1 = gradient, 4 = bitmap
 	uint8 subType;		// 0 = linear, 2 = radial, 3 = focal; 0 = repeat, 1 = clamp, 2 = near repeat, 3 = near clamp
 	swfColorRGBA_t startColor;	// if type = 0
@@ -123,7 +123,7 @@ public:
 };
 class idSWFFontGlyph {
 public:
-	idSWFFontGlyph();
+	idSWFFontGlyph() noexcept;
 	uint16 code;
 	int16 advance;
 	idList< idVec2, TAG_SWF > verts;
@@ -131,7 +131,7 @@ public:
 };
 class idSWFFont {
 public:
-	idSWFFont();
+	idSWFFont() noexcept;
 	class idFont * fontID;
 	int16 ascent;
 	int16 descent;
@@ -140,7 +140,7 @@ public:
 };
 class idSWFTextRecord {
 public:
-	idSWFTextRecord();
+	idSWFTextRecord() noexcept;
 	uint16 fontID;
 	swfColorRGBA_t color;
 	int16 xOffset;
@@ -150,7 +150,7 @@ public:
 	uint8 numGlyphs;
 };
 struct swfGlyphEntry_t {
-	swfGlyphEntry_t();
+	swfGlyphEntry_t() noexcept;
 	uint32 index;
 	int32 advance;
 };
@@ -187,7 +187,7 @@ enum swfTextRenderMode_t {
 
 class idSWFEditText {
 public:
-	idSWFEditText();
+	idSWFEditText() noexcept;
 	swfRect_t bounds;
 	uint32 flags;
 	uint16 fontID;
@@ -203,14 +203,14 @@ public:
 	idStr initialText;
 };
 struct swfColorXform_t {
-	swfColorXform_t();
+	swfColorXform_t() noexcept;
 	idVec4 mul;
 	idVec4 add;
-	swfColorXform_t Multiply( const swfColorXform_t & a ) const;
+	[[nodiscard]] swfColorXform_t Multiply( const swfColorXform_t & a ) const;
 	swfColorXform_t & operator=( const swfColorXform_t & a ) { mul = a.mul; add = a.add; return *this; }
 };
 struct swfDisplayEntry_t {
-	swfDisplayEntry_t();
+	swfDisplayEntry_t() noexcept;
 	uint16 characterID;
 	uint16 depth;
 	uint16 clipDepth;
@@ -224,7 +224,7 @@ struct swfDisplayEntry_t {
 	class idSWFTextInstance * textInstance;
 };
 struct swfRenderState_t {
-	swfRenderState_t();
+	swfRenderState_t() noexcept;
 	swfMatrix_t matrix;
 	swfColorXform_t cxf;
 	const idMaterial * material;
@@ -236,13 +236,13 @@ struct swfRenderState_t {
 	stereoDepthType_t stereoDepth;
 };
 
-ID_INLINE swfRect_t::swfRect_t() :
+ID_INLINE swfRect_t::swfRect_t() noexcept :
 tl( 0.0f, 0.0f ),
 br( 0.0f, 0.0f )
 {
 }
 
-ID_INLINE swfMatrix_t::swfMatrix_t() :
+ID_INLINE swfMatrix_t::swfMatrix_t() noexcept :
 xx( 1.0f ), yy( 1.0f ),
 yx( 0.0f ), xy( 0.0f ),
 tx( 0.0f ), ty( 0.0f )
@@ -286,7 +286,7 @@ ID_INLINE swfMatrix_t swfMatrix_t::Multiply( const swfMatrix_t & a ) const {
 	return result;
 }
 
-ID_INLINE swfColorRGB_t::swfColorRGB_t() :
+ID_INLINE swfColorRGB_t::swfColorRGB_t() noexcept :
 r( 255 ), g( 255 ), b( 255 )
 {
 }
@@ -295,7 +295,7 @@ ID_INLINE idVec4 swfColorRGB_t::ToVec4() const {
 	return idVec4( r * ( 1.0f / 255.0f ), g * ( 1.0f / 255.0f ), b * ( 1.0f / 255.0f ), 1.0f );
 }
 
-ID_INLINE swfColorRGBA_t::swfColorRGBA_t() :
+ID_INLINE swfColorRGBA_t::swfColorRGBA_t() noexcept :
 a( 255 )
 {
 }
@@ -304,24 +304,24 @@ ID_INLINE idVec4 swfColorRGBA_t::ToVec4() const {
 	return idVec4( r * ( 1.0f / 255.0f ), g * ( 1.0f / 255.0f ), b * ( 1.0f / 255.0f ), a * ( 1.0f / 255.0f ) );
 }
 
-ID_INLINE swfLineStyle_t::swfLineStyle_t() :
+ID_INLINE swfLineStyle_t::swfLineStyle_t() noexcept :
 startWidth( 20 ),
 endWidth( 20 )
 {
 }
 
-ID_INLINE swfGradientRecord_t::swfGradientRecord_t() :
+ID_INLINE swfGradientRecord_t::swfGradientRecord_t() noexcept :
 startRatio( 0 ),
 endRatio( 0 )
 {
 }
 
-ID_INLINE swfGradient_t::swfGradient_t() :
+ID_INLINE swfGradient_t::swfGradient_t() noexcept :
 numGradients( 0 )
 {
 }
 
-ID_INLINE swfFillStyle_t::swfFillStyle_t() :
+ID_INLINE swfFillStyle_t::swfFillStyle_t() noexcept :
 type( 0 ),
 subType( 0 ),
 focalPoint( 0.0f ),
@@ -329,7 +329,7 @@ bitmapID( 0 )
 {
 }
 
-ID_INLINE swfColorXform_t::swfColorXform_t() :
+ID_INLINE swfColorXform_t::swfColorXform_t() noexcept :
 mul( 1.0f, 1.0f, 1.0f, 1.0f ),
 add( 0.0f, 0.0f, 0.0f, 0.0f )
 {
@@ -342,7 +342,7 @@ ID_INLINE swfColorXform_t swfColorXform_t::Multiply( const swfColorXform_t & a )
 	return result;
 }
 
-ID_INLINE swfDisplayEntry_t::swfDisplayEntry_t() :
+ID_INLINE swfDisplayEntry_t::swfDisplayEntry_t() noexcept :
 characterID( 0 ),
 ratio( 0.0f ),
 depth( 0 ),
@@ -353,7 +353,7 @@ textInstance(nullptr)
 {
 }
 
-ID_INLINE swfRenderState_t::swfRenderState_t() :
+ID_INLINE swfRenderState_t::swfRenderState_t() noexcept :
 material(nullptr),
 materialWidth( 0 ),
 materialHeight( 0 ),
@@ -364,13 +364,13 @@ stereoDepth( STEREO_DEPTH_TYPE_NONE )
 {
 }
 
-ID_INLINE idSWFFontGlyph::idSWFFontGlyph() :
+ID_INLINE idSWFFontGlyph::idSWFFontGlyph() noexcept :
 code( 0 ),
 advance( 0 )
 {
 }
 
-ID_INLINE idSWFFont::idSWFFont() :
+ID_INLINE idSWFFont::idSWFFont() noexcept :
 fontID( nullptr ),
 ascent( 0 ),
 descent( 0 ),
@@ -378,7 +378,7 @@ leading( 0 )
 {
 }
 
-ID_INLINE idSWFTextRecord::idSWFTextRecord() :
+ID_INLINE idSWFTextRecord::idSWFTextRecord() noexcept :
 fontID( 0 ),
 xOffset( 0 ),
 yOffset( 0 ),
@@ -388,7 +388,7 @@ numGlyphs( 0 )
 {
 }
 
-ID_INLINE idSWFEditText::idSWFEditText() :
+ID_INLINE idSWFEditText::idSWFEditText() noexcept :
 flags( SWF_ET_NONE ),
 fontID( 0 ),
 fontHeight( 24 ),
@@ -401,7 +401,7 @@ leading( 0 )
 {
 }
 
-ID_INLINE swfGlyphEntry_t::swfGlyphEntry_t() :
+ID_INLINE swfGlyphEntry_t::swfGlyphEntry_t() noexcept :
 index( 0 ),
 advance( 0 )
 {

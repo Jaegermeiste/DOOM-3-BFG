@@ -26,12 +26,14 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <utility>
+
 #include "precompiled.h"
 
 // This is the default language dict that the entire system uses, but you can instantiate your own idLangDict classes to manipulate a language dictionary in a tool
 idLangDict	idLocalization::languageDict;
 
-idCVar lang_maskLocalizedStrings( "lang_maskLocalizedStrings", "0", CVAR_BOOL, "Masks all localized strings to help debugging.  When set will replace strings with an equal length of W's and ending in an X.  Note: The masking occurs at string table load time." );
+static idCVar lang_maskLocalizedStrings( "lang_maskLocalizedStrings", "0", CVAR_BOOL, "Masks all localized strings to help debugging.  When set will replace strings with an equal length of W's and ending in an X.  Note: The masking occurs at string table load time." );
 
 /*
 ========================
@@ -91,8 +93,8 @@ utf8Encoding_t idLocalization::VerifyUTF8(const uint8 * buffer, const size_t buf
 
 // string entries can refer to other string entries, 
 // recursing up to this many times before we decided someone did something stupid
-const char * idLangDict::KEY_PREFIX = "#str_";	// all keys should be prefixed with this for redirection to work
-const size_t idLangDict::KEY_PREFIX_LEN = idStr::Length( KEY_PREFIX );
+//constexpr const char * idLangDict::KEY_PREFIX = "#str_";	// all keys should be prefixed with this for redirection to work
+size_t idLangDict::KEY_PREFIX_LEN = idStr::Length( KEY_PREFIX );
 
 /*
 ========================
@@ -192,31 +194,31 @@ bool idLangDict::Load( const byte * buffer, const size_t bufferLen, const char *
 			line++;
 		} else if ( c == '\"' ) {
 			const size_t keyStart = i;
-			int keyEnd = -1;
+			int64 keyEnd = -1;
 			while ( i < bufferLen ) {
 				c = buffer[i++];
 				if ( c == '\"' ) {
-					keyEnd = i - 1;
+					keyEnd = idMath::integer_cast<int64>(i) - 1;
 					break;
 				}
 			}
-			if ( keyEnd < keyStart ) {
+			if (std::cmp_less(keyEnd, keyStart)) {
 				idLib::FatalError( "%s File ended while reading key at line %d", name, line );
 			}
 			tempKey.CopyRange( reinterpret_cast<const char *>(buffer), keyStart, keyEnd );
 
-			int valStart = -1;
+			int64 valStart = -1;
 			while ( i < bufferLen ) {
 				c = buffer[i++];
 				if ( c == '\"' ) {
-					valStart = i;
+					valStart = idMath::integer_cast<int64>(i);
 					break;
 				}
 			}
 			if ( valStart < 0 ) {
 				idLib::FatalError( "%s File ended while reading value at line %d", name, line );
 			}
-			int valEnd = -1;
+			int64 valEnd = -1;
 			tempVal.CapLength( 0 );
 			while ( i < bufferLen ) {
 				c = utf8 ? idStr::UTF8Char( buffer, i ) : buffer[i++];
@@ -225,7 +227,7 @@ bool idLangDict::Load( const byte * buffer, const size_t bufferLen, const char *
 					idLib::FatalError( "Language file %s is supposed to be plain ASCII, but has byte values > 127!", name );
 				}
 				if ( c == '\"' ) {
-					valEnd = i - 1;
+					valEnd = idMath::integer_cast<int64>(i) - 1;
 					continue;
 				}
 				if ( c == '\n' ) {
@@ -337,12 +339,12 @@ const char * idLangDict::GetString( const char * str ) const {
 idLangDict::FindStringIndex
 ========================
 */
-int idLangDict::FindStringIndex( const char * str ) const {
+int64 idLangDict::FindStringIndex( const char * str ) const {
 	if ( str == nullptr) {
 		return -1;
 	}
 	const int hash = idStr::IHash( str );
-	for ( int i = keyIndex.GetFirst( hash ); i >= 0; i = keyIndex.GetNext( i ) ) {
+	for ( int64 i = keyIndex.GetFirst( hash ); i >= 0; i = keyIndex.GetNext( i ) ) {
 		if ( idStr::Icmp( str, keyVals[i].key ) == 0 ) {
 			return i;
 		}
@@ -368,7 +370,7 @@ const char * idLangDict::FindString_r( const char * str, int & depth ) const {
 		return nullptr;
 	}
 
-	const int index = FindStringIndex( str );
+	const size_t index = FindStringIndex( str );
 	if ( index < 0 ) {
 		return nullptr;
 	}
@@ -407,7 +409,7 @@ bool idLangDict::DeleteString( const char * key ) {
 idLangDict::DeleteString
 ========================
 */
-bool idLangDict::DeleteString( const int idx ) {
+bool idLangDict::DeleteString( const size_t idx ) {
 	if ( idx < 0 || idx >= keyVals.Num() ) {
 		return false;
 	}
@@ -426,7 +428,7 @@ idLangDict::RenameStringKey
 ========================
 */
 bool idLangDict::RenameStringKey( const char * oldKey, const char * newKey ) {
-	const int index = FindStringIndex( oldKey );
+	const auto index = FindStringIndex( oldKey );
 	if ( index < 0 ) {
 		return false;
 	}
@@ -452,7 +454,7 @@ idLangDict::SetString
 ========================
 */
 bool idLangDict::SetString( const char * key, const char * val ) {
-	const int index = FindStringIndex( key );
+	const auto index = FindStringIndex( key );
 	if ( index < 0 ) {
 		return false;
 	}
@@ -486,7 +488,7 @@ void idLangDict::AddKeyVal( const char * key, const char * val ) {
 		v = blockAlloc.Alloc( valLen + 1 );
 		idStr::Copynz( v, val, valLen + 1 );
 	}
-	const int index = keyVals.Append( idLangKeyValue( k, v ) );
+	const auto index = keyVals.Append( idLangKeyValue( k, v ) );
 	const int hash = idStr::IHash( key );
 	keyIndex.Add( hash, index );
 	//mem.PopHeap();
@@ -497,15 +499,15 @@ void idLangDict::AddKeyVal( const char * key, const char * val ) {
 idLangDict::AddString
 ========================
 */
-const char * idLangDict::AddString( const char * val ) {
-	int i = Sys_Milliseconds();
+const char * idLangDict::AddString( const char * str ) {
+	ID_TIME_T i = Sys_Milliseconds();
 	idStr key;
-	sprintf( key, "#str_%06d", ( i++ % 1000000 ) );
+	sprintf( key, "#str_%06lld", ( i++ % 1000000 ) );
 	while ( FindStringIndex( key ) > 0 ) {
-		sprintf( key, "#str_%06d", ( i++ % 1000000 ) );
+		sprintf( key, "#str_%06lld", ( i++ % 1000000 ) );
 	}
-	AddKeyVal( key, val );
-	const int index = FindStringIndex( key );
+	AddKeyVal( key, str );
+	const auto index = FindStringIndex( key );
 	return keyVals[index].key;
 }
 
@@ -514,7 +516,7 @@ const char * idLangDict::AddString( const char * val ) {
 idLangDict::GetNumKeyVals
 ========================
 */
-int idLangDict::GetNumKeyVals() const {
+size_t idLangDict::GetNumKeyVals() const {
 	return keyVals.Num();
 }
 
@@ -523,7 +525,7 @@ int idLangDict::GetNumKeyVals() const {
 idLangDict::GetKeyVal
 ========================
 */
-const idLangKeyValue * idLangDict::GetKeyVal(const int i ) const {
+const idLangKeyValue * idLangDict::GetKeyVal(const size_t i ) const {
 	return &keyVals[i];
 }
 
@@ -583,7 +585,7 @@ idStrId::GetKey
 ========================
 */
 const char * idStrId::GetKey() const {
-	if ( index >= 0 && index < idLocalization::languageDict.keyVals.Num() ) {
+	if ( index >= 0 && std::cmp_less(index, idLocalization::languageDict.keyVals.Num() )) {
 		return idLocalization::languageDict.keyVals[index].key;
 	}
 	return "";

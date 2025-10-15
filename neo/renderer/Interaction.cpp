@@ -61,7 +61,7 @@ void R_CalcInteractionFacing( const idRenderEntityLocal *ent, const srfTriangles
 	R_GlobalPointToLocal( ent->modelMatrix, light->globalLightOrigin, localLightOrigin );
 
 	const int numFaces = tri->numIndexes / 3;
-	cullInfo.facing = (byte *) R_StaticAlloc( ( numFaces + 1 ) * sizeof( cullInfo.facing[0] ), TAG_RENDER_INTERACTION );
+	cullInfo.facing = static_cast<byte*>(R_StaticAlloc((numFaces + 1) * sizeof(cullInfo.facing[0]), TAG_RENDER_INTERACTION));
 
 	// exact geometric cull against face
 	for ( int i = 0, face = 0; i < tri->numIndexes; i += 3, face++ ) {
@@ -115,7 +115,7 @@ void R_CalcInteractionCullBits( const idRenderEntityLocal *ent, const srfTriangl
 		return;
 	}
 
-	cullInfo.cullBits = (byte *) R_StaticAlloc( tri->numVerts * sizeof( cullInfo.cullBits[0] ), TAG_RENDER_INTERACTION );
+	cullInfo.cullBits = static_cast<byte*>(R_StaticAlloc(tri->numVerts * sizeof(cullInfo.cullBits[0]), TAG_RENDER_INTERACTION));
 	memset( cullInfo.cullBits, 0, tri->numVerts * sizeof( cullInfo.cullBits[0] ) );
 
 	for ( int i = 0; i < 6; i++ ) {
@@ -681,7 +681,7 @@ void idInteraction::CreateStaticInteraction() {
 	// create slots for each of the model's surfaces
 	//
 	numSurfaces = model->NumSurfaces();
-	surfaces = (surfaceInteraction_t *)R_ClearedStaticAlloc( sizeof( *surfaces ) * numSurfaces );
+	surfaces = static_cast<surfaceInteraction_t*>(R_ClearedStaticAlloc(sizeof(*surfaces) * numSurfaces));
 
 	bool interactionGenerated = false;
 

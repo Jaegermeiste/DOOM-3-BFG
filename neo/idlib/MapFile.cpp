@@ -35,8 +35,8 @@ If you have questions concerning this license or the applicable additional terms
 FloatCRC
 ===============
 */
-ID_INLINE unsigned int FloatCRC( float f ) {
-	return *(unsigned int *)&f;
+static ID_INLINE unsigned int FloatCRC( float f ) {
+	return *reinterpret_cast<unsigned int*>(&f);
 }
 
 /*
@@ -44,7 +44,7 @@ ID_INLINE unsigned int FloatCRC( float f ) {
 StringCRC
 ===============
 */
-ID_INLINE unsigned int StringCRC( const char *str ) {
+static ID_INLINE unsigned int StringCRC( const char *str ) {
 	unsigned int crc = 0;
 	//const unsigned char* ptr = reinterpret_cast<const unsigned char*>(str);
 	for ( unsigned int i = 0; str[i]; i++ ) {
@@ -62,15 +62,15 @@ rotation by (0,RotY,RotZ) assigns X to normal
 =================
 */
 static void ComputeAxisBase( const idVec3 &normal, idVec3 &texS, idVec3 &texT ) {
-	idVec3 n;
+	idVec3 n = {};
 
 	// do some cleaning
 	n[0] = ( idMath::Fabs( normal[0] ) < 1e-6f ) ? 0.0f : normal[0];
 	n[1] = ( idMath::Fabs( normal[1] ) < 1e-6f ) ? 0.0f : normal[1];
 	n[2] = ( idMath::Fabs( normal[2] ) < 1e-6f ) ? 0.0f : normal[2];
 
-	float RotY = -atan2(n[2], idMath::Sqrt(n[1] * n[1] + n[0] * n[0]));
-	float RotZ = atan2(n[1], n[0]);
+	const float RotY = -atan2(n[2], idMath::Sqrt(n[1] * n[1] + n[0] * n[0]));
+	const float RotZ = atan2(n[1], n[0]);
 	// rotate (0,1,0) and (0,0,1) to compute texS and texT
 	texS[0] = -sin(RotZ);
 	texS[1] = cos(RotZ);
@@ -90,7 +90,7 @@ void idMapBrushSide::GetTextureVectors( idVec4 v[2] ) const {
 	idVec3 texX, texY;
 
 	ComputeAxisBase( plane.Normal(), texX, texY );
-	for ( int i = 0; i < 2; i++ ) {
+	for ( size_t i = 0; i < 2; i++ ) {
 		v[i][0] = texX[0] * texMat[i][0] + texY[0] * texMat[i][1];
 		v[i][1] = texX[1] * texMat[i][0] + texY[1] * texMat[i][1];
 		v[i][2] = texX[2] * texMat[i][0] + texY[2] * texMat[i][1];
@@ -130,9 +130,9 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool pa
 		}
 	}
 
-	idMapPatch *patch = new (TAG_IDLIB) idMapPatch( info[0], info[1] );
+	idMapPatch *patch = new (TAG_IDLIB) idMapPatch(idMath::Ftoi(info[0]), idMath::Ftoi(info[1]) );
 
-	patch->SetSize( info[0], info[1] );
+	patch->SetSize(idMath::Ftoi(info[0]), idMath::Ftoi(info[1]));
 	if ( version < 2.0f ) {
 		patch->SetMaterial( "textures/" + token );
 	} else {
@@ -140,8 +140,8 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool pa
 	}
 
 	if ( patchDef3 ) {
-		patch->SetHorzSubdivisions( info[2] );
-		patch->SetVertSubdivisions( info[3] );
+		patch->SetHorzSubdivisions(idMath::Ftoi(info[2]) );
+		patch->SetVertSubdivisions(idMath::Ftoi(info[3]) );
 		patch->SetExplicitlySubdivided( true );
 	}
 
@@ -159,13 +159,13 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool pa
 	}
 
 
-	for ( int j = 0; j < patch->GetWidth(); j++ ) {
+	for ( size_t j = 0; j < patch->GetWidth(); j++ ) {
 		if ( !src.ExpectTokenString( "(" ) ) {
 			src.Error( "idMapPatch::Parse: bad vertex row data" );
 			delete patch;
 			return nullptr;
 		}
-		for ( int i = 0; i < patch->GetHeight(); i++ ) {
+		for (size_t i = 0; i < patch->GetHeight(); i++ ) {
 			float v[5];
 
 			if ( !src.Parse1DMatrix( 5, v ) ) {
@@ -214,7 +214,9 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool pa
 idMapPatch::Write
 ============
 */
-bool idMapPatch::Write( idFile *fp, const int primitiveNum, const idVec3 &origin ) const {
+
+bool idMapPatch::Write( idFile *fp, const Ordinal auto primitiveNum, const idVec3 &origin ) const {
+	ORDINAL_CHECK(primitiveNum, UINT64_MAX);
 	if ( GetExplicitlySubdivided() ) {
 		fp->WriteFloatString( "// primitive %d\n{\n patchDef3\n {\n", primitiveNum );
 		fp->WriteFloatString( "  \"%s\"\n  ( %d %d %d %d 0 0 0 )\n", GetMaterial(), GetWidth(), GetHeight(), GetHorzSubdivisions(), GetVertSubdivisions());
@@ -224,9 +226,9 @@ bool idMapPatch::Write( idFile *fp, const int primitiveNum, const idVec3 &origin
 	}
 
 	fp->WriteFloatString( "  (\n" );
-	for ( int i = 0; i < GetWidth(); i++ ) {
+	for (size_t i = 0; i < GetWidth(); i++ ) {
 		fp->WriteFloatString( "   ( " );
-		for ( int j = 0; j < GetHeight(); j++ ) {
+		for (size_t j = 0; j < GetHeight(); j++ ) {
 			const idDrawVert* v = &verts[j * GetWidth() + i];
 			idVec2 st = v->GetTexCoord();
 			fp->WriteFloatString( " ( %f %f %f %f %f )", v->xyz[0] + origin[0],
@@ -246,8 +248,8 @@ idMapPatch::GetGeometryCRC
 */
 unsigned int idMapPatch::GetGeometryCRC() const {
 	unsigned int crc = GetHorzSubdivisions() ^ GetVertSubdivisions();
-	for ( int i = 0; i < GetWidth(); i++ ) {
-		for ( int j = 0; j < GetHeight(); j++ ) {
+	for (size_t i = 0; i < GetWidth(); i++ ) {
+		for (size_t j = 0; j < GetHeight(); j++ ) {
 			crc ^= FloatCRC( verts[j * GetWidth() + i].xyz.x );
 			crc ^= FloatCRC( verts[j * GetWidth() + i].xyz.y );
 			crc ^= FloatCRC( verts[j * GetWidth() + i].xyz.z );
@@ -265,7 +267,7 @@ idMapBrush::Parse
 =================
 */
 idMapBrush *idMapBrush::Parse( idLexer &src, const idVec3 &origin, const bool newFormat, const float version ) {
-	idVec3 planepts[3];
+	idVec3 planepts[3] = {{}, {}, {}};
 	idToken token;
 	idList<idMapBrushSide*> sides;
 	idDict epairs;
@@ -381,7 +383,7 @@ idMapBrush *idMapBrush::Parse( idLexer &src, const idVec3 &origin, const bool ne
 	}
 
 	idMapBrush *brush = new (TAG_IDLIB) idMapBrush();
-	for ( int i = 0; i < sides.Num(); i++ ) {
+	for (size_t i = 0; i < sides.Num(); i++ ) {
 		brush->AddSide( sides[i] );
 	}
 
@@ -396,9 +398,9 @@ idMapBrush::ParseQ3
 =================
 */
 idMapBrush *idMapBrush::ParseQ3( idLexer &src, const idVec3 &origin ) {
-	int shift[2];
-	float scale[2];
-	idVec3 planepts[3];
+	int shift[2] = {};
+	float scale[2] = {};
+	idVec3 planepts[3] = {};
 	idToken token;
 	idList<idMapBrushSide*> sides;
 	const idDict epairs;
@@ -439,7 +441,7 @@ idMapBrush *idMapBrush::ParseQ3( idLexer &src, const idVec3 &origin ) {
 		// read the texture shift, rotate and scale
 		shift[0] = src.ParseInt();
 		shift[1] = src.ParseInt();
-		int rotate = src.ParseInt();
+		std::ignore = src.ParseInt();
 		scale[0] = src.ParseFloat();
 		scale[1] = src.ParseFloat();
 		side->texMat[0] = idVec3( 0.03125f, 0.0f, 0.0f );
@@ -456,7 +458,7 @@ idMapBrush *idMapBrush::ParseQ3( idLexer &src, const idVec3 &origin ) {
 	} while( 1 );
 
 	idMapBrush *brush = new (TAG_IDLIB) idMapBrush();
-	for ( int i = 0; i < sides.Num(); i++ ) {
+	for (size_t i = 0; i < sides.Num(); i++ ) {
 		brush->AddSide( sides[i] );
 	}
 
@@ -470,8 +472,9 @@ idMapBrush *idMapBrush::ParseQ3( idLexer &src, const idVec3 &origin ) {
 idMapBrush::Write
 ============
 */
-bool idMapBrush::Write( idFile *fp, const int primitiveNum, const idVec3 &origin ) const {
-	int i;
+
+bool idMapBrush::Write( idFile *fp, const Ordinal auto primitiveNum, const idVec3 &origin ) const {
+	size_t i = 0;
 
 	fp->WriteFloatString( "// primitive %d\n{\n brushDef3\n {\n", primitiveNum );
 
@@ -502,9 +505,9 @@ idMapBrush::GetGeometryCRC
 */
 unsigned int idMapBrush::GetGeometryCRC() const {
 	unsigned int crc = 0;
-	for ( int i = 0; i < GetNumSides(); i++ ) {
-		idMapBrushSide* mapSide = GetSide(i);
-		for ( int j = 0; j < 4; j++ ) {
+	for (size_t i = 0; i < GetNumSides(); i++ ) {
+		const idMapBrushSide* mapSide = GetSide(i);
+		for (size_t j = 0; j < 4; j++ ) {
 			crc ^= FloatCRC( mapSide->GetPlane()[j] );
 		}
 		crc ^= StringCRC( mapSide->GetMaterial() );
@@ -521,8 +524,8 @@ idMapEntity::Parse
 idMapEntity *idMapEntity::Parse( idLexer &src, const bool worldSpawn, const float version ) {
 	idToken	token;
 	idMapBrush *mapBrush;
-	idVec3 origin;
-	double v1, v2, v3;
+	idVec3 origin = {};
+	double v1 = 0.0, v2 = 0.0, v3 = 0.0;
 
 	if ( !src.ReadToken(&token) ) {
 		return nullptr;
@@ -605,9 +608,9 @@ idMapEntity *idMapEntity::Parse( idLexer &src, const bool worldSpawn, const floa
 				// scanf into doubles, then assign, so it is idVec size independent
 				v1 = v2 = v3 = 0;
 				sscanf( value, "%lf %lf %lf", &v1, &v2, &v3 );
-				origin.x = v1;
-				origin.y = v2;
-				origin.z = v3;
+				origin.x = idMath::Dtof(v1);
+				origin.y = idMath::Dtof(v2);
+				origin.z = idMath::Dtof(v3);
 			}
 			else if ( !idStr::Icmp( key, "classname" ) && !idStr::Icmp( value, "worldspawn" ) ) {
 				worldent = true;
@@ -623,8 +626,10 @@ idMapEntity *idMapEntity::Parse( idLexer &src, const bool worldSpawn, const floa
 idMapEntity::Write
 ============
 */
-bool idMapEntity::Write( idFile *fp, const int entityNum ) const {
-	int i;
+
+bool idMapEntity::Write( idFile *fp, const Ordinal auto entityNum ) const {
+	ORDINAL_CHECK(entityNum, UINT64_MAX);
+	size_t i = 0;
 	idVec3 origin;
 
 	fp->WriteFloatString( "// entity %d\n{\n", entityNum );
@@ -636,16 +641,16 @@ bool idMapEntity::Write( idFile *fp, const int entityNum ) const {
 
 	epairs.GetVector( "origin", "0 0 0", origin );
 
-	// write pritimives
+	// write primitives
 	for ( i = 0; i < GetNumPrimitives(); i++ ) {
 		idMapPrimitive* mapPrim = GetPrimitive(i);
 
 		switch( mapPrim->GetType() ) {
 			case idMapPrimitive::TYPE_BRUSH:
-				static_cast<idMapBrush*>(mapPrim)->Write( fp, i, origin );
+				dynamic_cast<idMapBrush*>(mapPrim)->Write( fp, i, origin );
 				break;
 			case idMapPrimitive::TYPE_PATCH:
-				static_cast<idMapPatch*>(mapPrim)->Write( fp, i, origin );
+				dynamic_cast<idMapPatch*>(mapPrim)->Write( fp, i, origin );
 				break;
 		}
 	}
@@ -671,7 +676,7 @@ idMapEntity::GetGeometryCRC
 */
 unsigned int idMapEntity::GetGeometryCRC() const {
 	unsigned int crc = 0;
-	for ( int i = 0; i < GetNumPrimitives(); i++ ) {
+	for (size_t i = 0; i < GetNumPrimitives(); i++ ) {
 		idMapPrimitive* mapPrim = GetPrimitive(i);
 
 		switch( mapPrim->GetType() ) {
@@ -696,8 +701,8 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 	// no string concatenation for epairs and allow path names for materials
 	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
 	idToken token;
-	idMapEntity *mapEnt;
-	int i;
+	idMapEntity *mapEnt = nullptr;
+	size_t i = 0;
 
 	name = filename;
 	name.StripFileExtension();
@@ -729,7 +734,7 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		version = token.GetFloatValue();
 	}
 
-	while( 1 ) {
+	while( true ) {
 		mapEnt = idMapEntity::Parse( src, ( entities.Num() == 0 ), version );
 		if ( !mapEnt ) {
 			break;
@@ -754,18 +759,18 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		if ( entities[0]->epairs.GetString( "overrideMaterial", "", material ) ) {
 			for ( i = 0; i < entities.Num(); i++ ) {
 				mapEnt = entities[i];
-				for ( int j = 0; j < mapEnt->GetNumPrimitives(); j++ ) {
+				for (size_t j = 0; j < mapEnt->GetNumPrimitives(); j++ ) {
 					idMapPrimitive *mapPrimitive = mapEnt->GetPrimitive( j );
 					switch( mapPrimitive->GetType() ) {
 						case idMapPrimitive::TYPE_BRUSH: {
 							const idMapBrush *mapBrush = static_cast<idMapBrush *>(mapPrimitive);
-							for ( int k = 0; k < mapBrush->GetNumSides(); k++ ) {
+							for (size_t k = 0; k < mapBrush->GetNumSides(); k++ ) {
 								mapBrush->GetSide( k )->SetMaterial( material );
 							}
 							break;
 						}
 						case idMapPrimitive::TYPE_PATCH: {
-							static_cast<idMapPatch *>(mapPrimitive)->SetMaterial( material );
+							dynamic_cast<idMapPatch *>(mapPrimitive)->SetMaterial( material );
 							break;
 						}
 					}
@@ -806,7 +811,7 @@ idMapFile::Write
 */
 bool idMapFile::Write( const char *fileName, const char *ext, const bool fromBasePath ) {
 	idStr qpath;
-	idFile *fp;
+	idFile *fp = nullptr;
 
 	qpath = fileName;
 	qpath.SetFileExtension( ext );
@@ -827,7 +832,7 @@ bool idMapFile::Write( const char *fileName, const char *ext, const bool fromBas
 
 	fp->WriteFloatString( "Version %f\n", static_cast<float>(CURRENT_MAP_VERSION) );
 
-	for ( int i = 0; i < entities.Num(); i++ ) {
+	for ( size_t i = 0; i < entities.Num(); i++ ) {
 		entities[i]->Write( fp, i );
 	}
 
@@ -843,7 +848,7 @@ idMapFile::SetGeometryCRC
 */
 void idMapFile::SetGeometryCRC() {
 	geometryCRC = 0;
-	for ( int i = 0; i < entities.Num(); i++ ) {
+	for ( size_t i = 0; i < entities.Num(); i++ ) {
 		geometryCRC ^= entities[i]->GetGeometryCRC();
 	}
 }
@@ -853,8 +858,8 @@ void idMapFile::SetGeometryCRC() {
 idMapFile::AddEntity
 ===============
 */
-int idMapFile::AddEntity( idMapEntity *mapEnt ) {
-	const int ret = entities.Append( mapEnt );
+size_t idMapFile::AddEntity( idMapEntity *mapEnt ) {
+	const size_t ret = entities.Append( mapEnt );
 	return ret;
 }
 
@@ -864,7 +869,7 @@ idMapFile::FindEntity
 ===============
 */
 idMapEntity *idMapFile::FindEntity( const char *name ) {
-	for ( int i = 0; i < entities.Num(); i++ ) {
+	for ( size_t i = 0; i < entities.Num(); i++ ) {
 		idMapEntity *ent = entities[i];
 		if ( idStr::Icmp( ent->epairs.GetString( "name" ), name ) == 0 ) {
 			return ent;
@@ -889,7 +894,7 @@ idMapFile::RemoveEntity
 ===============
 */
 void idMapFile::RemoveEntities( const char *classname ) {
-	for ( int i = 0; i < entities.Num(); i++ ) {
+	for ( size_t i = 0; i < entities.Num(); i++ ) {
 		const idMapEntity *ent = entities[i];
 		if ( idStr::Icmp( ent->epairs.GetString( "classname" ), classname ) == 0 ) {
 			delete entities[i];
@@ -915,7 +920,7 @@ idMapFile::RemovePrimitiveData
 ===============
 */
 void idMapFile::RemovePrimitiveData() {
-	for ( int i = 0; i < entities.Num(); i++ ) {
+	for ( size_t i = 0; i < entities.Num(); i++ ) {
 		idMapEntity *ent = entities[i];
 		ent->RemovePrimitiveData();
 	}

@@ -44,7 +44,7 @@ idCallback
 */
 class idCallback {
 public:
-	virtual ~idCallback() {}
+	virtual ~idCallback() = default;
 	virtual void Call() = 0;
 	virtual idCallback * Clone() const = 0;
 };

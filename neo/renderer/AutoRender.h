@@ -37,7 +37,7 @@ public:
 		void		StartBackgroundAutoSwaps( autoRenderIconType_t iconType );
 		void		EndBackgroundAutoSwaps();
 
-		autoRenderIconType_t	GetCurrentIcon() { return autoRenderIcon; }
+		autoRenderIconType_t	GetCurrentIcon() const { return autoRenderIcon; }
 		
 private:
 		void		RenderFrame();

@@ -85,7 +85,7 @@ idSWF::idDecompressJPEG::~idDecompressJPEG
 ========================
 */
 idSWF::idDecompressJPEG::~idDecompressJPEG() {
-	jpeg_decompress_struct * cinfo = (jpeg_decompress_struct *)vinfo;
+	jpeg_decompress_struct * cinfo = static_cast<jpeg_decompress_struct*>(vinfo);
 
 	jpeg_destroy_decompress( cinfo );
 	delete cinfo->err;
@@ -97,8 +97,9 @@ idSWF::idDecompressJPEG::~idDecompressJPEG() {
 idSWF::idDecompressJPEG::Load
 ========================
 */
-byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & width, int & height ) {
-	jpeg_decompress_struct * cinfo = (jpeg_decompress_struct *)vinfo;
+byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & width, int & height ) const
+{
+	jpeg_decompress_struct * cinfo = static_cast<jpeg_decompress_struct*>(vinfo);
 
 	try {
 
@@ -134,7 +135,7 @@ byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & w
 			return nullptr;
 		}
 		int outputSize = cinfo->output_width * cinfo->output_height * cinfo->output_components;
-		byte * output = (byte *)Mem_Alloc( outputSize, TAG_SWF );
+		byte * output = static_cast<byte*>(Mem_Alloc(outputSize, TAG_SWF));
 		memset( output, 255, outputSize );
 		while ( cinfo->output_scanline < cinfo->output_height ) {
 			JSAMPROW scanlines = output + cinfo->output_scanline * cinfo->output_width * cinfo->output_components;
@@ -313,7 +314,7 @@ void idSWF::LoadImage( int characterID, const byte * imageData, int width, int h
 	// all the images that are used by the entire swf
 	imageToPack_t	pack;
 	pack.characterID = characterID;
-	pack.imageData = (byte *)Mem_Alloc( width*height*4, TAG_SWF );
+	pack.imageData = static_cast<byte*>(Mem_Alloc(width * height * 4, TAG_SWF));
 	memcpy( pack.imageData, imageData, width*height*4 );
 	pack.trueSize.x = width;
 	pack.trueSize.y = height;
@@ -420,7 +421,7 @@ void idSWF::DefineBitsJPEG3( idSWFBitStream & bitstream ) {
 		idTempArray<byte> alphaMap( width * height );
 
 		int alphaSize = bitstream.Length() - jpegSize - sizeof( characterID ) - sizeof( jpegSize );
-		if ( !Inflate( bitstream.ReadData( alphaSize ), alphaSize, alphaMap.Ptr(), (int)alphaMap.Size() ) ) {
+		if ( !Inflate( bitstream.ReadData( alphaSize ), alphaSize, alphaMap.Ptr(), static_cast<int>(alphaMap.Size()) ) ) {
 			idLib::Warning( "DefineBitsJPEG3: Failed to inflate alpha data" );
 			Mem_Free( imageData );
 			return;
@@ -454,7 +455,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream & bitstream ) {
 		uint32 colorTableSize = ( bitstream.ReadU8() + 1 ) * 3;
 		idTempArray<byte> colorMapData( colorTableSize + ( paddedWidth * height ) );
 		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
-		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, colorMapData.Ptr(), (int)colorMapData.Size() ) ) {
+		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, colorMapData.Ptr(), static_cast<int>(colorMapData.Size()) ) ) {
 			idLib::Warning( "DefineBitsLossless: Failed to inflate color map data" );
 			return;
 		}
@@ -473,7 +474,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream & bitstream ) {
 		uint32 paddedWidth = ( width + 1 ) & 1;
 		idTempArray<uint16> bitmapData( paddedWidth * height * 2 );
 		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
-		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, (byte *)bitmapData.Ptr(), (int)bitmapData.Size() ) ) {
+		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, (byte *)bitmapData.Ptr(), static_cast<int>(bitmapData.Size()) ) ) {
 			idLib::Warning( "DefineBitsLossless: Failed to inflate bitmap data" );
 			return;
 		}
@@ -491,7 +492,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream & bitstream ) {
 	} else if ( format == 5 ) {
 		idTempArray<uint32> bitmapData( width * height );
 		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
-		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, (byte *)bitmapData.Ptr(), (int)bitmapData.Size() ) ) {
+		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, (byte *)bitmapData.Ptr(), static_cast<int>(bitmapData.Size()) ) ) {
 			idLib::Warning( "DefineBitsLossless: Failed to inflate bitmap data" );
 			return;
 		}
@@ -533,7 +534,7 @@ void idSWF::DefineBitsLossless2( idSWFBitStream & bitstream ) {
 		uint32 colorTableSize = ( bitstream.ReadU8() + 1 ) * 4;
 		idTempArray<byte> colorMapData( colorTableSize + ( paddedWidth * height ) );
 		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
-		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, colorMapData.Ptr(), (int)colorMapData.Size() ) ) {
+		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, colorMapData.Ptr(), static_cast<int>(colorMapData.Size()) ) ) {
 			idLib::Warning( "DefineBitsLossless2: Failed to inflate color map data" );
 			return;
 		}
@@ -551,7 +552,7 @@ void idSWF::DefineBitsLossless2( idSWFBitStream & bitstream ) {
 	} else if ( format == 5 ) {
 		idTempArray<uint32> bitmapData( width * height );
 		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
-		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, (byte *)bitmapData.Ptr(), (int)bitmapData.Size() ) ) {
+		if ( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, (byte *)bitmapData.Ptr(), static_cast<int>(bitmapData.Size()) ) ) {
 			idLib::Warning( "DefineBitsLossless2: Failed to inflate bitmap data" );
 			return;
 		}

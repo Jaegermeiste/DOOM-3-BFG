@@ -99,7 +99,7 @@ lwClip *lwGetClip( idFile *fp, int cksize )
 
    /* allocate the Clip structure */
 
-   clip = (lwClip*)Mem_ClearedAlloc( sizeof( lwClip ), TAG_MODEL );
+   clip = static_cast<lwClip*>(Mem_ClearedAlloc(sizeof(lwClip), TAG_MODEL));
    if ( !clip ) goto Fail;
 
    clip->contrast.val = 1.0f;
@@ -227,7 +227,7 @@ lwClip *lwGetClip( idFile *fp, int cksize )
 
          case ID_IFLT:
          case ID_PFLT:
-            filt = (lwPlugin*)Mem_ClearedAlloc( sizeof( lwPlugin ), TAG_MODEL );
+            filt = static_cast<lwPlugin*>(Mem_ClearedAlloc(sizeof(lwPlugin), TAG_MODEL));
             if ( !filt ) goto Fail;
 
             filt->name = getS0( fp );
@@ -349,7 +349,7 @@ lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
 
    /* allocate the Envelope structure */
 
-   env = (lwEnvelope*)Mem_ClearedAlloc( sizeof( lwEnvelope ), TAG_MODEL );
+   env = static_cast<lwEnvelope*>(Mem_ClearedAlloc(sizeof(lwEnvelope), TAG_MODEL));
    if ( !env ) goto Fail;
 
    /* remember where we started */
@@ -391,7 +391,7 @@ lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
             break;
 
          case ID_KEY:
-            key = (lwKey*)Mem_ClearedAlloc( sizeof( lwKey ), TAG_MODEL );
+            key = static_cast<lwKey*>(Mem_ClearedAlloc(sizeof(lwKey), TAG_MODEL));
             if ( !key ) goto Fail;
             key->time = getF4( fp );
             key->value = getF4( fp );
@@ -425,7 +425,7 @@ lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
             break;
 
          case ID_CHAN:
-            plug = (lwPlugin*)Mem_ClearedAlloc( sizeof( lwPlugin ), TAG_MODEL );
+            plug = static_cast<lwPlugin*>(Mem_ClearedAlloc(sizeof(lwPlugin), TAG_MODEL));
             if ( !plug ) goto Fail;
 
             plug->name = getS0( fp );
@@ -514,8 +514,8 @@ static float range( float v, float lo, float hi, int *i )
       return lo;
    }
 
-   v2 = lo + v - r * ( float ) floor(( double ) v / r );
-   if ( i ) *i = -( int )(( v2 - v ) / r + ( v2 > v ? 0.5 : -0.5 ));
+   v2 = lo + v - r * static_cast<float>(floor((double)v / r));
+   if ( i ) *i = -static_cast<int>((v2 - v) / r + (v2 > v ? 0.5 : -0.5));
 
    return v2;
 }
@@ -918,7 +918,7 @@ void lwListFree( void *list, void ( *freeNode )( void * ))
 {
    lwNode *node, *next;
 
-   node = ( lwNode * ) list;
+   node = static_cast<lwNode*>(list);
    while ( node ) {
       next = node->next;
       freeNode( node );
@@ -947,8 +947,8 @@ void lwListAdd( void **list, void *node )
       tail = head;
       head = head->next;
    }
-   tail->next = ( lwNode * ) node;
-   (( lwNode * ) node )->prev = tail;
+   tail->next = static_cast<lwNode*>(node);
+   static_cast<lwNode*>(node)->prev = tail;
 }
 
 
@@ -969,7 +969,7 @@ void lwListInsert( void **vlist, void *vitem, int ( *compare )( void *, void * )
    }
 
    list = ( lwNode ** ) vlist;
-   item = ( lwNode * ) vitem;
+   item = static_cast<lwNode*>(vitem);
    node = *list;
    prev = nullptr;
 
@@ -1232,7 +1232,7 @@ char *getS0( idFile *fp )
    }
 
    len = i + ( i & 1 );
-   s = (char*)Mem_ClearedAlloc( len, TAG_MODEL );
+   s = static_cast<char*>(Mem_ClearedAlloc(len, TAG_MODEL));
    if ( !s ) {
       flen = FLEN_ERROR;
       return nullptr;
@@ -1385,7 +1385,7 @@ char *sgetS0( unsigned char **bp )
       return nullptr;
    }
    len += len & 1;
-   s = (char*)Mem_ClearedAlloc( len, TAG_MODEL );
+   s = static_cast<char*>(Mem_ClearedAlloc(len, TAG_MODEL));
    if ( !s ) {
       flen = FLEN_ERROR;
       return nullptr;
@@ -1502,10 +1502,10 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
 
    /* allocate an object and a default layer */
 
-   object = (lwObject*)Mem_ClearedAlloc( sizeof( lwObject ), TAG_MODEL );
+   object = static_cast<lwObject*>(Mem_ClearedAlloc(sizeof(lwObject), TAG_MODEL));
    if ( !object ) goto Fail;
 
-   layer = (lwLayer*)Mem_ClearedAlloc( sizeof( lwLayer ), TAG_MODEL );
+   layer = static_cast<lwLayer*>(Mem_ClearedAlloc(sizeof(lwLayer), TAG_MODEL));
    if ( !layer ) goto Fail;
    object->layer = layer;
 
@@ -1526,7 +1526,7 @@ lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos 
       {
          case ID_LAYR:
             if ( object->nlayers > 0 ) {
-               layer = (lwLayer*)Mem_ClearedAlloc( sizeof( lwLayer ), TAG_MODEL );
+               layer = static_cast<lwLayer*>(Mem_ClearedAlloc(sizeof(lwLayer), TAG_MODEL));
                if ( !layer ) goto Fail;
                lwListAdd( (void**)&object->layer, layer );
             }
@@ -1710,7 +1710,7 @@ static int add_clip( char *s, lwClip **clist, int *nclips )
    lwClip *clip;
    char *p;
 
-   clip = (lwClip*)Mem_ClearedAlloc( sizeof( lwClip ), TAG_MODEL );
+   clip = static_cast<lwClip*>(Mem_ClearedAlloc(sizeof(lwClip), TAG_MODEL));
    if ( clip == nullptr) return 0;
 
    clip->contrast.val = 1.0f;
@@ -1753,9 +1753,9 @@ static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs )
    int i;
 
    for ( i = 0; i < 3; i++ ) {
-      env = (lwEnvelope*)Mem_ClearedAlloc( sizeof( lwEnvelope ), TAG_MODEL );
-      key0 = (lwKey*)Mem_ClearedAlloc( sizeof( lwKey ), TAG_MODEL );
-      key1 = (lwKey*)Mem_ClearedAlloc( sizeof( lwKey ), TAG_MODEL );
+      env = static_cast<lwEnvelope*>(Mem_ClearedAlloc(sizeof(lwEnvelope), TAG_MODEL));
+      key0 = static_cast<lwKey*>(Mem_ClearedAlloc(sizeof(lwKey), TAG_MODEL));
+      key1 = static_cast<lwKey*>(Mem_ClearedAlloc(sizeof(lwKey), TAG_MODEL));
       if ( !env || !key0 || !key1 ) return 0;
 
       key0->next = key1;
@@ -1768,7 +1768,7 @@ static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs )
 
       env->index = *nenvs + i + 1;
       env->type = 0x0301 + i;
-      env->name = (char*)Mem_ClearedAlloc( 11, TAG_MODEL );
+      env->name = static_cast<char*>(Mem_ClearedAlloc(11, TAG_MODEL));
       if ( env->name ) {
          strcpy( env->name, "Position.X" );
          env->name[ 9 ] += i;
@@ -1798,7 +1798,7 @@ static lwTexture *get_texture( char *s )
 {
    lwTexture *tex;
 
-   tex = (lwTexture*)Mem_ClearedAlloc( sizeof( lwTexture ), TAG_MODEL );
+   tex = static_cast<lwTexture*>(Mem_ClearedAlloc(sizeof(lwTexture), TAG_MODEL));
    if ( !tex ) return nullptr;
 
    tex->tmap.size.val[ 0 ] =
@@ -1848,7 +1848,7 @@ lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
 
    /* allocate the Surface structure */
 
-   surf = (lwSurface*)Mem_ClearedAlloc( sizeof( lwSurface ), TAG_MODEL );
+   surf = static_cast<lwSurface*>(Mem_ClearedAlloc(sizeof(lwSurface), TAG_MODEL));
    if ( !surf ) goto Fail;
 
    /* non-zero defaults */
@@ -1959,43 +1959,43 @@ lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
             break;
 
          case ID_BTEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->bump.tex, tex );
             break;
 
          case ID_CTEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->color.tex, tex );
             break;
 
          case ID_DTEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->diffuse.tex, tex );
             break;
 
          case ID_LTEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->luminosity.tex, tex );
             break;
 
          case ID_RTEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->reflection.val.tex, tex );
             break;
 
          case ID_STEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->specularity.tex, tex );
             break;
 
          case ID_TTEX:
-            s = (char*)getbytes( fp, sz );
+            s = static_cast<char*>(getbytes(fp, sz));
             tex = get_texture( s );
             lwListAdd( (void**)&surf->transparency.val.tex, tex );
             break;
@@ -2080,7 +2080,7 @@ lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
 
          case ID_TREF:
 			 assert( tex != NULL );
-            tex->tmap.ref_object = (char*)getbytes( fp, sz );
+            tex->tmap.ref_object = static_cast<char*>(getbytes(fp, sz));
             break;
 
          case ID_TOPC:
@@ -2101,9 +2101,9 @@ lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
             break;
 
          case ID_SHDR:
-            shdr = (lwPlugin*)Mem_ClearedAlloc( sizeof( lwPlugin ), TAG_MODEL );
+            shdr = static_cast<lwPlugin*>(Mem_ClearedAlloc(sizeof(lwPlugin), TAG_MODEL));
             if ( !shdr ) goto Fail;
-            shdr->name = (char*)getbytes( fp, sz );
+            shdr->name = static_cast<char*>(getbytes(fp, sz));
             lwListAdd( (void**)&surf->shader, shdr );
             surf->nshaders++;
             break;
@@ -2169,7 +2169,7 @@ int lwGetPolygons5( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset )
    /* read the whole chunk */
 
    set_flen( 0 );
-   buf = (unsigned char*)getbytes( fp, cksize );
+   buf = static_cast<unsigned char*>(getbytes(fp, cksize));
    if ( !buf ) goto Fail;
 
    /* count the polygons and vertices */
@@ -2286,10 +2286,10 @@ lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos
 
    /* allocate an object and a default layer */
 
-   object = (lwObject*)Mem_ClearedAlloc( sizeof( lwObject ), TAG_MODEL );
+   object = static_cast<lwObject*>(Mem_ClearedAlloc(sizeof(lwObject), TAG_MODEL));
    if ( !object ) goto Fail2;
 
-   layer = (lwLayer*)Mem_ClearedAlloc( sizeof( lwLayer ), TAG_MODEL );
+   layer = static_cast<lwLayer*>(Mem_ClearedAlloc(sizeof(lwLayer), TAG_MODEL));
    if ( !layer ) goto Fail2;
    object->layer = layer;
    object->nlayers = 1;
@@ -2443,7 +2443,7 @@ int lwGetPoints( idFile *fp, int cksize, lwPointList *point )
 	point->offset = point->count;
 	point->count += np;
 	lwPoint *oldpt = point->pt;
-	point->pt = (lwPoint*)Mem_Alloc( point->count * sizeof( lwPoint ), TAG_MODEL );
+	point->pt = static_cast<lwPoint*>(Mem_Alloc(point->count * sizeof(lwPoint), TAG_MODEL));
 	if ( !point->pt ) return 0;
 	if ( oldpt ) {
 		memcpy( point->pt, oldpt, point->offset * sizeof( lwPoint ) );
@@ -2453,7 +2453,7 @@ int lwGetPoints( idFile *fp, int cksize, lwPointList *point )
 
 	/* read the whole chunk */
 
-	f = ( float * ) getbytes( fp, cksize );
+	f = static_cast<float*>(getbytes(fp, cksize));
 	if ( !f ) return 0;
 	BigRevBytes( f, 4, np * 3 );
 
@@ -2514,7 +2514,7 @@ int lwAllocPolygons( lwPolygonList *plist, int npols, int nverts )
 	plist->offset = plist->count;
 	plist->count += npols;
 	lwPolygon *oldpol = plist->pol;
-	plist->pol = (lwPolygon*)Mem_Alloc( plist->count * sizeof( lwPolygon ), TAG_MODEL );
+	plist->pol = static_cast<lwPolygon*>(Mem_Alloc(plist->count * sizeof(lwPolygon), TAG_MODEL));
 	if ( !plist->pol ) return 0;
 	if ( oldpol ) {
 		memcpy( plist->pol, oldpol, plist->offset * sizeof( lwPolygon ) );
@@ -2525,7 +2525,7 @@ int lwAllocPolygons( lwPolygonList *plist, int npols, int nverts )
 	plist->voffset = plist->vcount;
 	plist->vcount += nverts;
 	lwPolVert *oldpolv = plist->pol[0].v;
-	plist->pol[0].v = (lwPolVert*)Mem_Alloc( plist->vcount * sizeof( lwPolVert ), TAG_MODEL );
+	plist->pol[0].v = static_cast<lwPolVert*>(Mem_Alloc(plist->vcount * sizeof(lwPolVert), TAG_MODEL));
 	if ( !plist->pol[ 0 ].v ) return 0;
 	if ( oldpolv ) {
 		memcpy( plist->pol[0].v, oldpolv, plist->voffset * sizeof( lwPolVert ) );
@@ -2565,7 +2565,7 @@ int lwGetPolygons( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset )
 
    set_flen( 0 );
    type = getU4( fp );
-   buf = (unsigned char*)getbytes( fp, cksize - 4 );
+   buf = static_cast<unsigned char*>(getbytes(fp, cksize - 4));
    if ( cksize != get_flen() ) goto Fail;
 
    /* count the polygons and vertices */
@@ -2676,7 +2676,7 @@ int lwGetPointPolygons( lwPointList *point, lwPolygonList *polygon )
 
    for ( i = 0; i < point->count; i++ ) {
       if ( point->pt[ i ].npols == 0 ) continue;
-      point->pt[ i ].pol = (int*)Mem_ClearedAlloc( point->pt[ i ].npols * sizeof( int ), TAG_MODEL );
+      point->pt[ i ].pol = static_cast<int*>(Mem_ClearedAlloc(point->pt[i].npols * sizeof(int), TAG_MODEL));
       if ( !point->pt[ i ].pol ) return 0;
       point->pt[ i ].npols = 0;
    }
@@ -2712,7 +2712,7 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
 
    if ( tlist->count == 0 ) return 1;
 
-   s = (lwSurface**)Mem_ClearedAlloc( tlist->count * sizeof( lwSurface * ), TAG_MODEL );
+   s = static_cast<lwSurface**>(Mem_ClearedAlloc(tlist->count * sizeof(lwSurface*), TAG_MODEL));
    if ( !s ) return 0;
 
    for ( i = 0; i < tlist->count; i++ ) {
@@ -2732,7 +2732,7 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
       if ( !s[ index ] ) {
          s[ index ] = lwDefaultSurface();
          if ( !s[ index ] ) return 0;
-         s[ index ]->name = (char*)Mem_ClearedAlloc( strlen( tlist->tag[ index ] ) + 1, TAG_MODEL );
+         s[ index ]->name = static_cast<char*>(Mem_ClearedAlloc(strlen(tlist->tag[index]) + 1, TAG_MODEL));
          if ( !s[ index ]->name ) return 0;
          strcpy( s[ index ]->name, tlist->tag[ index ] );
          lwListAdd( (void**)surf, s[ index ] );
@@ -2836,7 +2836,7 @@ int lwGetTags( idFile *fp, int cksize, lwTagList *tlist )
 	/* read the whole chunk */
 
 	set_flen( 0 );
-	buf = (char*)getbytes( fp, cksize );
+	buf = static_cast<char*>(getbytes(fp, cksize));
 	if ( !buf ) return 0;
 
 	/* count the strings */
@@ -2855,7 +2855,7 @@ int lwGetTags( idFile *fp, int cksize, lwTagList *tlist )
 	tlist->offset = tlist->count;
 	tlist->count += ntags;
 	char **oldtag = tlist->tag;
-	tlist->tag = (char**)Mem_Alloc( tlist->count * sizeof( char * ), TAG_MODEL );
+	tlist->tag = static_cast<char**>(Mem_Alloc(tlist->count * sizeof(char*), TAG_MODEL));
 	if ( !tlist->tag ) goto Fail;
 	if ( oldtag ) {
 		memcpy( tlist->tag, oldtag, tlist->offset * sizeof( char * ) );
@@ -3410,7 +3410,7 @@ int lwGetGradient( idFile *fp, int rsz, lwTexture *tex )
 
          case ID_FKEY:
             nkeys = sz / sizeof( lwGradKey );
-            tex->param.grad.key = (lwGradKey*)Mem_ClearedAlloc( nkeys * sizeof( lwGradKey ), TAG_MODEL );
+            tex->param.grad.key = static_cast<lwGradKey*>(Mem_ClearedAlloc(nkeys * sizeof(lwGradKey), TAG_MODEL));
             if ( !tex->param.grad.key ) return 0;
             for ( i = 0; i < nkeys; i++ ) {
                tex->param.grad.key[ i ].value = getF4( fp );
@@ -3421,7 +3421,7 @@ int lwGetGradient( idFile *fp, int rsz, lwTexture *tex )
 
          case ID_IKEY:
             nkeys = sz / 2;
-            tex->param.grad.ikey = (short*)Mem_ClearedAlloc( nkeys * sizeof( short ), TAG_MODEL );
+            tex->param.grad.ikey = static_cast<short*>(Mem_ClearedAlloc(nkeys * sizeof(short), TAG_MODEL));
             if ( !tex->param.grad.ikey ) return 0;
             for ( i = 0; i < nkeys; i++ )
                tex->param.grad.ikey[ i ] = getU2( fp );
@@ -3472,7 +3472,7 @@ lwTexture *lwGetTexture( idFile *fp, int bloksz, unsigned int type )
    unsigned short sz;
    int ok;
 
-   tex = (lwTexture*)Mem_ClearedAlloc( sizeof( lwTexture ), TAG_MODEL );
+   tex = static_cast<lwTexture*>(Mem_ClearedAlloc(sizeof(lwTexture), TAG_MODEL));
    if ( !tex ) return nullptr;
 
    tex->type = type;
@@ -3521,7 +3521,7 @@ lwPlugin *lwGetShader( idFile *fp, int bloksz )
    unsigned short sz;
    int hsz, rlen, pos;
 
-   shdr = (lwPlugin*)Mem_ClearedAlloc( sizeof( lwPlugin ), TAG_MODEL );
+   shdr = static_cast<lwPlugin*>(Mem_ClearedAlloc(sizeof(lwPlugin), TAG_MODEL));
    if ( !shdr ) return nullptr;
 
    pos = fp->Tell();
@@ -3660,7 +3660,7 @@ lwSurface *lwDefaultSurface()
 {
    lwSurface *surf;
 
-   surf = (lwSurface*)Mem_ClearedAlloc( sizeof( lwSurface ), TAG_MODEL );
+   surf = static_cast<lwSurface*>(Mem_ClearedAlloc(sizeof(lwSurface), TAG_MODEL));
    if ( !surf ) return nullptr;
 
    surf->color.rgb[ 0 ] = 0.78431f;
@@ -3695,7 +3695,7 @@ lwSurface *lwGetSurface( idFile *fp, int cksize )
 
    /* allocate the Surface structure */
 
-   surf = (lwSurface*)Mem_ClearedAlloc( sizeof( lwSurface ), TAG_MODEL );
+   surf = static_cast<lwSurface*>(Mem_ClearedAlloc(sizeof(lwSurface), TAG_MODEL));
    if ( !surf ) goto Fail;
 
    /* non-zero defaults */
@@ -3978,10 +3978,10 @@ lwVMap *lwGetVMap( idFile *fp, int cksize, int ptoffset, int poloffset,
    /* read the whole chunk */
 
    set_flen( 0 );
-   buf = (unsigned char*)getbytes( fp, cksize );
+   buf = static_cast<unsigned char*>(getbytes(fp, cksize));
    if ( !buf ) return nullptr;
 
-   vmap = (lwVMap*)Mem_ClearedAlloc( sizeof( lwVMap ), TAG_MODEL );
+   vmap = static_cast<lwVMap*>(Mem_ClearedAlloc(sizeof(lwVMap), TAG_MODEL));
    if ( !vmap ) {
       Mem_Free( buf );
       return nullptr;
@@ -4012,17 +4012,17 @@ lwVMap *lwGetVMap( idFile *fp, int cksize, int ptoffset, int poloffset,
    /* allocate the vmap */
 
    vmap->nverts = npts;
-   vmap->vindex = (int*)Mem_ClearedAlloc( npts * sizeof( int ), TAG_MODEL );
+   vmap->vindex = static_cast<int*>(Mem_ClearedAlloc(npts * sizeof(int), TAG_MODEL));
    if ( !vmap->vindex ) goto Fail;
    if ( perpoly ) {
-      vmap->pindex = (int*)Mem_ClearedAlloc( npts * sizeof( int ), TAG_MODEL );
+      vmap->pindex = static_cast<int*>(Mem_ClearedAlloc(npts * sizeof(int), TAG_MODEL));
       if ( !vmap->pindex ) goto Fail;
    }
 
    if ( vmap->dim > 0 ) {
-      vmap->val = (float**)Mem_ClearedAlloc( npts * sizeof( float * ), TAG_MODEL );
+      vmap->val = static_cast<float**>(Mem_ClearedAlloc(npts * sizeof(float*), TAG_MODEL));
       if ( !vmap->val ) goto Fail;
-      f = (float*)Mem_ClearedAlloc( npts * vmap->dim * sizeof( float ), TAG_MODEL );
+      f = static_cast<float*>(Mem_ClearedAlloc(npts * vmap->dim * sizeof(float), TAG_MODEL));
       if ( !f ) goto Fail;
       for ( i = 0; i < npts; i++ )
          vmap->val[ i ] = f + i * vmap->dim;
@@ -4075,7 +4075,7 @@ int lwGetPointVMaps( lwPointList *point, lwVMap *vmap )
 
    for ( i = 0; i < point->count; i++ ) {
       if ( point->pt[ i ].nvmaps ) {
-         point->pt[ i ].vm = (lwVMapPt*)Mem_ClearedAlloc( point->pt[ i ].nvmaps * sizeof( lwVMapPt ), TAG_MODEL );
+         point->pt[ i ].vm = static_cast<lwVMapPt*>(Mem_ClearedAlloc(point->pt[i].nvmaps * sizeof(lwVMapPt), TAG_MODEL));
          if ( !point->pt[ i ].vm ) return 0;
          point->pt[ i ].nvmaps = 0;
       }
@@ -4138,7 +4138,7 @@ int lwGetPolyVMaps( lwPolygonList *polygon, lwVMap *vmap )
       for ( j = 0; j < polygon->pol[ i ].nverts; j++ ) {
          pv = &polygon->pol[ i ].v[ j ];
          if ( pv->nvmaps ) {
-            pv->vm = (lwVMapPt*)Mem_ClearedAlloc( pv->nvmaps * sizeof( lwVMapPt ), TAG_MODEL );
+            pv->vm = static_cast<lwVMapPt*>(Mem_ClearedAlloc(pv->nvmaps * sizeof(lwVMapPt), TAG_MODEL));
             if ( !pv->vm ) return 0;
             pv->nvmaps = 0;
          }

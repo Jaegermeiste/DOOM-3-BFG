@@ -653,9 +653,9 @@ void idGameBearShootWindow::UpdateBear() {
 
 	if ( bearIsShrinking ) {
 		if ( bearHitTarget ) {
-			bearScale = 1 - ( (float)(time - bearShrinkStartTime) / BEAR_SHRINK_TIME );
+			bearScale = 1 - ( static_cast<float>(time - bearShrinkStartTime) / BEAR_SHRINK_TIME );
 		} else {
-			bearScale = 1 - ( (float)(time - bearShrinkStartTime) / 750 );
+			bearScale = 1 - ( static_cast<float>(time - bearShrinkStartTime) / 750 );
 		}
 		bearScale *= BEAR_SIZE;
 		bear->SetSize( bearScale, bearScale );
@@ -694,7 +694,8 @@ void idGameBearShootWindow::UpdateBear() {
 idGameBearShootWindow::UpdateHelicopter
 =============================
 */
-void idGameBearShootWindow::UpdateHelicopter() {
+void idGameBearShootWindow::UpdateHelicopter() const
+{
 
 	if ( bearHitTarget && bearIsShrinking ) {
 		if ( helicopter->velocity.y != 0 && helicopter->position.y > 264 ) {

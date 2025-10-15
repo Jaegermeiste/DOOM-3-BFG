@@ -30,6 +30,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#include <limits>
+#include <type_traits>
+#include <span>
+#include <cstddef> // for std::size_t; ensures size_t is known
+#include <concepts>
+#include <utility>
+
 /*
 ================================================================================================
 Contains types and defines used throughout the engine.
@@ -70,10 +77,192 @@ assert_sizeof( uint32,	4 );
 assert_sizeof( int64,	8 );
 assert_sizeof( uint64,	8 );
 
+/*
 #define MAX_TYPE( x )			( ( ( ( 1 << ( ( sizeof( x ) - 1 ) * 8 - 1 ) ) - 1 ) << 8 ) | 255 )
 #define MIN_TYPE( x )			( - MAX_TYPE( x ) - 1 )
 #define MAX_UNSIGNED_TYPE( x )	( ( ( ( 1U << ( ( sizeof( x ) - 1 ) * 8 ) ) - 1 ) << 8 ) | 255U )
 #define MIN_UNSIGNED_TYPE( x )	0
+*/
+
+#ifndef POSITIVE_INTEGRAL_CONCEPT
+#define POSITIVE_INTEGRAL_CONCEPT
+
+namespace idIndex
+{
+	// ============================================================================
+	// INTERNAL IMPLEMENTATION (hidden from end users)
+	// ============================================================================
+
+	// -------------------- Ordinal and OrdinalPtr concepts -----------------------
+	template <class T>
+	concept Ordinal_ =
+		(!std::same_as<std::remove_cvref_t<T>, bool>) &&
+		(std::integral<std::remove_cvref_t<T>>
+			|| std::same_as<std::remove_cvref_t<T>, long long>
+			|| std::same_as<std::remove_cvref_t<T>, unsigned long long>
+			|| std::same_as<std::remove_cvref_t<T>, __int64>
+			|| std::same_as<std::remove_cvref_t<T>, unsigned __int64>
+			|| std::same_as<std::remove_cvref_t<T>, std::size_t>);
+
+	template <class P>
+	concept OrdinalPtr_ =
+		std::is_pointer_v<std::remove_cvref_t<P>> &&
+		Ordinal_< std::remove_cv_t<std::remove_pointer_t<std::remove_cvref_t<P>>>>;
+
+	// -------------------- as_span_auto (type-deducing helper) -------------------
+	// typed pointers → span<I>
+	template <Ordinal_ I>
+	constexpr std::span<I> as_span_auto(I* ptr, std::size_t n) noexcept {
+		return ptr ? std::span<I>(ptr, n) : std::span<I>();
+	}
+	template <Ordinal_ I>
+	constexpr std::span<const I> as_span_auto(const I* ptr, std::size_t n) noexcept {
+		return ptr ? std::span<const I>(ptr, n) : std::span<const I>();
+	}
+
+	// arrays → span<I> (count ignored)
+	template <Ordinal_ I, std::size_t N>
+	constexpr std::span<I> as_span_auto(I(&arr)[N], std::size_t) noexcept {
+		return std::span<I>(arr, N);
+	}
+	template <Ordinal_ I, std::size_t N>
+	constexpr std::span<const I> as_span_auto(const I(&arr)[N], std::size_t) noexcept {
+		return std::span<const I>(arr, N);
+	}
+
+	// void* → span<std::byte>
+	constexpr std::span<std::byte> as_span_auto(void* p, std::size_t n) noexcept {
+		return p ? std::span<std::byte>(static_cast<std::byte*>(p), n) : std::span<std::byte>();
+	}
+	constexpr std::span<const std::byte> as_span_auto(const void* p, std::size_t n) noexcept {
+		return p ? std::span<const std::byte>(static_cast<const std::byte*>(p), n)
+			: std::span<const std::byte>();
+	}
+
+	// nullptr literal → empty byte span
+	constexpr std::span<std::byte> as_span_auto(std::nullptr_t, std::size_t) noexcept {
+		return std::span<std::byte>();
+	}
+
+	// passthrough for spans
+	template <class T, std::size_t Extent>
+	constexpr std::span<T, Extent> as_span_auto(std::span<T, Extent> s) noexcept {
+		return s;
+	}
+
+	// -------------------- pointer validity helper -------------------------------
+	template <typename T>
+	constexpr bool ptr_valid(const T& p) noexcept {
+		if constexpr (std::is_pointer_v<std::remove_cvref_t<T>>)
+		{
+			return static_cast<const void*>(p) != nullptr;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	// -------------------- ordinal range checker ---------------------------------
+	template <Ordinal_ V, Ordinal_ U>
+	constexpr bool ordinal_check(V value, U upperBound) noexcept {
+		using V0 = std::remove_cvref_t<V>;
+		using U0 = std::remove_cvref_t<U>;
+
+		// Negative indices are always invalid
+		if constexpr (std::is_signed_v<V0>) {
+			if (value < 0)
+			{
+				return false;
+			}
+		}
+		// Non-positive upper bounds mean no valid indices
+		if constexpr (std::is_signed_v<U0>) {
+			if (upperBound <= 0)
+			{
+				return false;
+			}
+		}
+
+		using UV = std::make_unsigned_t<V0>;
+		using UU = std::make_unsigned_t<U0>;
+		return static_cast<UV>(value) < static_cast<UU>(upperBound);
+	}
+
+} // namespace idIndex
+
+
+// ============================================================================
+// PUBLIC SURFACE (only these symbols are visible)
+// ============================================================================
+template <class T>
+concept Ordinal = idIndex::Ordinal_<T>;
+
+template <class P>
+concept OrdinalPtr = idIndex::OrdinalPtr_<P>;
+
+// auto-deducing span generator (handles nullptr, arrays, pointers, void*)
+#define AS_SPAN(expr, count) (idIndex::as_span_auto((expr), (count)))
+
+// quick pointer validity check → bool
+#define SPAN_VALID(p) (idIndex::ptr_valid(p))
+
+// simple numeric bounds check (exclusive upper bound)
+#define ORDINAL_CHECK(val, upper) assert(idIndex::ordinal_check((val), (upper)) == true)
+
+#endif
+
+namespace sys_types {
+	// Strip cv from the type token you pass
+	template<class T>
+	using decay_t = std::remove_cv_t<T>;
+
+	// Map integral (except bool) to its unsigned counterpart; pass others through
+	template<class T>
+	struct unsigned_like {
+		using D = decay_t<T>;
+		using type = std::conditional_t<
+			std::is_integral_v<D> && !std::is_same_v<D, bool>,
+			std::make_unsigned_t<D>,
+			D>;
+	};
+	template<class T>
+	using unsigned_like_t = typename unsigned_like<T>::type;
+
+	// Type-only helpers (no variables/expressions involved)
+	template<class T>
+	constexpr auto max_of_type() {
+		return (std::numeric_limits<decay_t<T>>::max)();
+	}
+	template<class T>
+	constexpr auto min_of_type() {
+		return (std::numeric_limits<decay_t<T>>::min)();
+	}
+	template<class T>
+	constexpr auto max_unsigned_of_type() {
+		return (std::numeric_limits<unsigned_like_t<T>>::max)();
+	}
+	template<class T>
+	constexpr auto min_unsigned_of_type() {
+		return unsigned_like_t<T>{0};
+	}
+}
+
+// --- Macros (TYPE token only). Parentheses defeat min/max macros elsewhere.
+#define MAX_TYPE(T)            ( ::sys_types::max_of_type< T >() )
+#define MIN_TYPE(T)            ( ::sys_types::min_of_type< T >() )
+#define MAX_UNSIGNED_TYPE(T)   ( ::sys_types::max_unsigned_of_type< T >() )
+#define MIN_UNSIGNED_TYPE(T)   ( ::sys_types::min_unsigned_of_type< T >() )
+
+static_assert(MAX_TYPE(size_t) == (std::numeric_limits<size_t>::max)());
+static_assert(MIN_TYPE(size_t) == size_t{ 0 }); // unsigned min is 0
+static_assert(MAX_UNSIGNED_TYPE(size_t) == (std::numeric_limits<size_t>::max)());
+static_assert(MIN_UNSIGNED_TYPE(size_t) == size_t{ 0 });
+
+using ULL = unsigned long long;
+static_assert(MAX_TYPE(ULL) == (std::numeric_limits<ULL>::max)());
+static_assert(MIN_TYPE(ULL) == ULL{ 0 });
+
 
 template< typename _type_ >
 bool IsSignedType( const _type_ t ) {
@@ -88,7 +277,7 @@ class idFile;
 
 struct idNullPtr {
 	// one pointer member initialized to zero so you can pass NULL as a vararg
-	void *value; idNullPtr() : value( nullptr ) { }
+	void *value; idNullPtr() noexcept : value( nullptr ) { }
 
 	// implicit conversion to all pointer types
 	template<typename T1> operator T1 * () const { return nullptr; }
@@ -121,8 +310,8 @@ struct idNullPtr {
 
 #ifndef STRING_LIMITS
 #define STRING_LIMITS
-constexpr auto MAX_STRING_CHARS = 1024U;		// max length of a static string;
-constexpr auto MAX_PRINT_MSG = 16384U;		// buffer size for our various printf routines;
+constexpr size_t MAX_STRING_CHARS = 1024U;		// max length of a static string;
+constexpr size_t MAX_PRINT_MSG = 16384U;		// buffer size for our various printf routines;
 #endif
 
 #ifndef WORLD_LIMITS
@@ -149,7 +338,7 @@ typedef unsigned int triIndex_t;
 
 // if writing to write-combined memroy, always write indexes as pairs for 32 bit writes
 ID_INLINE void WriteIndexPair( triIndex_t * dest, const triIndex_t a, const triIndex_t b ) {
-	*(unsigned *)dest = static_cast<unsigned>(a) | ( static_cast<unsigned>(b)<<16 );
+	*reinterpret_cast<unsigned*>(dest) = static_cast<unsigned>(a) | ( static_cast<unsigned>(b)<<16 );
 }
 
 #if defined(_DEBUG) || defined(_lint)
@@ -260,7 +449,7 @@ literals or sizeof(). NEVER use an actual variable as a parameter to one of thes
 #define CONST_MAX( x, y )			( (x) > (y) ? (x) : (y) )
 #define CONST_MAX3( x, y, z )		( (x) > (y) ? ( (x) > (z) ? (x) : (z) ) : ( (y) > (z) ? (y) : (z) ) )
 
-#define CONST_PI					3.14159265358979323846f
+constexpr auto CONST_PI = 3.14159265358979323846f;
 #define CONST_SINE_POLY( a )		( (a) * ( ( ( ( ( -2.39e-08f * ((a)*(a)) + 2.7526e-06f ) * ((a)*(a)) - 1.98409e-04f ) * ((a)*(a)) + 8.3333315e-03f ) * ((a)*(a)) - 1.666666664e-01f ) * ((a)*(a)) + 1.0f ) )
 #define CONST_COSINE_POLY( a )		( ( ( ( ( -2.605e-07f * ((a)*(a)) + 2.47609e-05f ) * ((a)*(a)) - 1.3888397e-03f ) * ((a)*(a)) + 4.16666418e-02f ) * ((a)*(a)) - 4.999999963e-01f ) * ((a)*(a)) + 1.0f )
 

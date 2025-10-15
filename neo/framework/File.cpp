@@ -97,7 +97,7 @@ int FS_WriteFloatString( char *buf, const char *fmt, va_list argPtr ) {
 						break;
 					case 'c':
 						i = va_arg( argPtr, long );
-						index += sprintf( buf+index, format.c_str(), (char) i );
+						index += sprintf( buf+index, format.c_str(), static_cast<char>(i) );
 						break;
 					case 's':
 						str = va_arg( argPtr, char * );
@@ -724,8 +724,8 @@ size_t idFile_Memory::Read( void *buffer, size_t len ) {
 
 idCVar memcpyImpl( "memcpyImpl", "0", 0, "Which implementation of memcpy to use for idFile_Memory::Write() [0/1 - standard (1 eliminates branch misprediction), 2 - auto-vectorized]" );
 void * memcpy2( void * __restrict b, const void * __restrict a, size_t n ) {
-	auto s1 = (char *)b;
-	auto s2 = (const char *)a;
+	auto s1 = static_cast<char*>(b);
+	auto s2 = static_cast<const char*>(a);
 	for ( ; 0 < n; --n ) {
 		*s1++ = *s2++;
 	}
@@ -770,7 +770,7 @@ size_t idFile_Memory::Write( const void *buffer, const size_t len ) {
 			return 0;
 		}
 		const int extra = granularity * ( 1 + alloc / granularity );
-		auto newPtr = (char *) Mem_Alloc( allocated + extra, TAG_IDFILE );
+		auto newPtr = static_cast<char*>(Mem_Alloc(allocated + extra, TAG_IDFILE));
 		if ( allocated ) {
 			memcpy( newPtr, filePtr, allocated );
 		}
@@ -839,7 +839,7 @@ void idFile_Memory::PreAllocate(const size_t len ) {
 		if ( maxSize != 0 ) {
 			idLib::Error( "idFile_Memory::SetLength: exceeded maximum size %d", maxSize );
 		}
-		auto newPtr = (char *)Mem_Alloc( len, TAG_IDFILE );
+		auto newPtr = static_cast<char*>(Mem_Alloc(len, TAG_IDFILE));
 		if ( allocated > 0 ) {
 			memcpy( newPtr, filePtr, allocated );
 		}
@@ -1369,7 +1369,7 @@ void idFile_Cached::CacheData(const uint64 offset, const uint64 length ) {
 	Mem_Free( buffered );
 	bufferedStartOffset = offset;
 	bufferedEndOffset = offset + length;
-	buffered = ( byte* )Mem_Alloc( length, TAG_RESOURCE );
+	buffered = static_cast<byte*>(Mem_Alloc(length, TAG_RESOURCE));
 	if ( buffered == nullptr) {
 		return;
 	}

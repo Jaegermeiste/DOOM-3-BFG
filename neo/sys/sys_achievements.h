@@ -111,11 +111,11 @@ public:
 
 	// You want to get the server's cached achievement status into the user because the profile may not have been
 	// saved with the achievement bits after an achievement was granted.
-	void			SyncAchievementBits( idLocalUser * user );
+	void			SyncAchievementBits( idLocalUser * user ) const;
 
 protected:
 	// Retrieves the index from the local user list
-	int				GetLocalUserIndex( idLocalUser * user ) const { return users.FindIndex( user ); }
+	int64			GetLocalUserIndex( idLocalUser * user ) const { return users.FindIndex( user ); }
 
 	idStaticList< idLocalUser *, MAX_LOCAL_PLAYERS > users;
 };

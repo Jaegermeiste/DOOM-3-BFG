@@ -336,7 +336,7 @@ bool idFile_SaveGamePipelined::OpenForWriting( const char * const filename, bool
 
 	// initial buffer setup
 	zStream.avail_out = COMPRESSED_BLOCK_SIZE;
-	zStream.next_out = (Bytef * )compressed;
+	zStream.next_out = static_cast<Bytef*>(compressed);
 
 	if ( sgf_checksums.GetBool() ) {
 		zStream.avail_out -= sizeof( uint32 );
@@ -387,7 +387,7 @@ bool idFile_SaveGamePipelined::OpenForWriting( idFile * file )  {
 
 	// initial buffer setup
 	zStream.avail_out = COMPRESSED_BLOCK_SIZE;
-	zStream.next_out = (Bytef * )compressed;
+	zStream.next_out = static_cast<Bytef*>(compressed);
 
 	if ( sgf_checksums.GetBool() ) {
 		zStream.avail_out -= sizeof( uint32 );
@@ -528,7 +528,7 @@ Modifies:
 */
 void idFile_SaveGamePipelined::CompressBlock() {
 	zStream.next_in = (Bytef * )dataZlib;
-	zStream.avail_in = (uInt) bytesZlib;
+	zStream.avail_in = static_cast<uInt>(bytesZlib);
 
 	dataZlib = nullptr;
 	bytesZlib = 0;
@@ -639,7 +639,7 @@ int idFile_SaveGamePipelined::Write( const void * buffer, int length ) {
 
 	assert( mode == WRITE );
 	size_t lengthRemaining = length;
-	const byte * buffer_p = (const byte *)buffer;
+	const byte * buffer_p = static_cast<const byte*>(buffer);
 	while ( lengthRemaining > 0 ) {
 		const size_t ofsInBuffer = uncompressedProducedBytes & ( UNCOMPRESSED_BUFFER_SIZE - 1 );
 		const size_t ofsInBlock = uncompressedProducedBytes & ( UNCOMPRESSED_BLOCK_SIZE - 1 );
@@ -911,7 +911,7 @@ void idFile_SaveGamePipelined::DecompressBlock() {
 			} while ( bytesIO == 0 );
 
 			zStream.next_in = (Bytef *) dataIO;
-			zStream.avail_in = (uInt) bytesIO;
+			zStream.avail_in = static_cast<uInt>(bytesIO);
 
 			dataIO = nullptr;
 			bytesIO = 0;
@@ -1007,7 +1007,7 @@ int idFile_SaveGamePipelined::Read( void * buffer, int length ) {
 
 	size_t ioCount = 0;
 	size_t lengthRemaining = length;
-	byte * buffer_p = (byte *)buffer;
+	byte * buffer_p = static_cast<byte*>(buffer);
 	while ( lengthRemaining > 0 ) {
 		while ( bytesZlib == 0 ) {
 			PumpUncompressedBlock();
@@ -1062,7 +1062,7 @@ static void TestProcessFile( const char * const filename ) {
 	const uint64 writeMicroseconds = endWriteMicroseconds - startWriteMicroseconds;
 
 	idLib::Printf( "%lld microseconds to compress %i bytes to %i written bytes = %4.1f MB/s\n", 
-		writeMicroseconds, testDataLength, readDataLength, (float)readDataLength / writeMicroseconds );
+		writeMicroseconds, testDataLength, readDataLength, static_cast<float>(readDataLength) / writeMicroseconds );
 
 	void * readData = (void *)Mem_Alloc( testDataLength, TAG_SAVEGAMES );
 
@@ -1076,11 +1076,11 @@ static void TestProcessFile( const char * const filename ) {
 	const uint64 endReadMicroseconds = Sys_Microseconds();
 	const uint64 readMicroseconds = endReadMicroseconds - startReadMicroseconds;
 
-	idLib::Printf( "%lld microseconds to decompress = %4.1f MB/s\n", readMicroseconds, (float)testDataLength / readMicroseconds );
+	idLib::Printf( "%lld microseconds to decompress = %4.1f MB/s\n", readMicroseconds, static_cast<float>(testDataLength) / readMicroseconds );
 
 	int comparePoint;
 	for ( comparePoint = 0; comparePoint < testDataLength; comparePoint++ ) {
-		if ( ((byte *)readData)[comparePoint] != ((byte *)testData)[comparePoint] ) {
+		if ( static_cast<byte*>(readData)[comparePoint] != static_cast<byte*>(testData)[comparePoint] ) {
 			break;
 		}
 	}
@@ -1144,7 +1144,7 @@ CONSOLE_COMMAND( TestCompressionSpeeds, "Compares zlib and our code", 0 ) {
 	const int writeMicroseconds = endWriteMicroseconds - startWriteMicroseconds;
 
 	idLib::Printf( "%i microseconds to compress %i bytes to %i written bytes = %4.1f MB/s\n", 
-		writeMicroseconds, testDataLength, readDataLength, (float)readDataLength / writeMicroseconds );
+		writeMicroseconds, testDataLength, readDataLength, static_cast<float>(readDataLength) / writeMicroseconds );
 
 }
 

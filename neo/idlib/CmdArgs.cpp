@@ -47,8 +47,11 @@ void idCmdArgs::operator=( const idCmdArgs &args ) {
 idCmdArgs::Args
 ============
 */
-const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) const {
-	static char cmd_args[MAX_COMMAND_STRING];
+const char* idCmdArgs::Args() const {
+	return Args(1, -1, false);
+}
+const char *idCmdArgs::Args(const Ordinal auto start, Ordinal auto end, const bool escapeArgs ) const {
+	static char cmd_args[MAX_COMMAND_STRING] = {};
 
 	assert( argc < MAX_COMMAND_ARGS );
 	if ( end < 0 ) {
@@ -58,21 +61,21 @@ const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) co
 	}
 	cmd_args[0] = '\0';
 	if ( escapeArgs ) {
-		strcat( cmd_args, "\"" );
+		strcat_s( cmd_args, "\"" );
 	}
 	for ( int i = start; i <= end; i++ ) {
 		if ( i > start ) {
 			if ( escapeArgs ) {
-				strcat( cmd_args, "\" \"" );
+				strcat_s( cmd_args, "\" \"" );
 			} else {
-				strcat( cmd_args, " " );
+				strcat_s( cmd_args, " " );
 			}
 		}
 		if ( escapeArgs && strchr( argv[i], '\\' ) ) {
 			const char *p = argv[i];
 			while ( *p != '\0' ) {
 				if ( *p == '\\' ) {
-					strcat( cmd_args, "\\\\" );
+					strcat_s( cmd_args, "\\\\" );
 				} else {
 					const size_t l = strlen( cmd_args );
 					cmd_args[ l ] = *p;
@@ -81,11 +84,11 @@ const char *idCmdArgs::Args(const int start, int end, const bool escapeArgs ) co
 				p++;
 			}
 		} else {
-			strcat( cmd_args, argv[i] );
+			strcat_s( cmd_args, argv[i] );
 		}
 	}
 	if ( escapeArgs ) {
-		strcat( cmd_args, "\"" );
+		strcat_s( cmd_args, "\"" );
 	}
 
 	return cmd_args;
@@ -194,6 +197,6 @@ idCmdArgs::GetArgs
 */
 const char * const * idCmdArgs::GetArgs( int *_argc ) {
 	*_argc = argc;
-	return (const char **)&argv[0];
+	return const_cast<const char**>(&argv[0]);
 }
 

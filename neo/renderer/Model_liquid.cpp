@@ -124,7 +124,7 @@ void idRenderModelLiquid::WaterDrop( int x, int y, float *page ) {
 	int		left,top,right,bottom;
 	int		square;
 	int		radsquare = drop_radius * drop_radius;
-	float	invlength = 1.0f / ( float )radsquare;
+	float	invlength = 1.0f / static_cast<float>(radsquare);
 	float	dist;
 
 	if ( x < 0 ) {
@@ -155,7 +155,7 @@ void idRenderModelLiquid::WaterDrop( int x, int y, float *page ) {
 		for ( cx = left; cx < right; cx++ ) {
 			square = cy*cy + cx*cx;
 			if ( square < radsquare ) {
-				dist = idMath::Sqrt( (float)square * invlength );
+				dist = idMath::Sqrt( static_cast<float>(square) * invlength );
 				page[verts_x*(cy+y) + cx+x] += idMath::Cos16( dist * idMath::PI * 0.5f ) * drop_height;
 			}
 		}
@@ -167,16 +167,17 @@ void idRenderModelLiquid::WaterDrop( int x, int y, float *page ) {
 idRenderModelLiquid::IntersectBounds
 ====================
 */
-void idRenderModelLiquid::IntersectBounds( const idBounds &bounds, float displacement ) {
+void idRenderModelLiquid::IntersectBounds( const idBounds &bounds, float displacement ) const
+{
 	int		cx, cy;
 	int		left,top,right,bottom;
 	float	up, down;
 	float	*pos;
 
-	left	= ( int )( bounds[ 0 ].x / scale_x );
-	right	= ( int )( bounds[ 1 ].x / scale_x );
-	top		= ( int )( bounds[ 0 ].y / scale_y );
-	bottom	= ( int )( bounds[ 1 ].y / scale_y );
+	left	= static_cast<int>(bounds[0].x / scale_x);
+	right	= static_cast<int>(bounds[1].x / scale_x);
+	top		= static_cast<int>(bounds[0].y / scale_y);
+	bottom	= static_cast<int>(bounds[1].y / scale_y);
 	down	= bounds[ 0 ].z;
 	up		= bounds[ 1 ].z;
 
@@ -419,7 +420,7 @@ void idRenderModelLiquid::InitFromFile( const char *fileName ) {
 			page2[ i ] = 0.0f;
 			verts[ i ].Clear();
 			verts[ i ].xyz.Set( x * scale_x, y * scale_y, 0.0f );
-			verts[ i ].SetTexCoord( (float) x / (float)( verts_x - 1 ), (float) -y / (float)( verts_y - 1 ) );
+			verts[ i ].SetTexCoord( static_cast<float>(x) / static_cast<float>(verts_x - 1), static_cast<float>(-y) / static_cast<float>(verts_y - 1) );
 		}
 	}
 
@@ -491,7 +492,7 @@ idRenderModel *idRenderModelLiquid::InstantiateDynamicModel( const struct render
 	}
 
 	// create the surface
-	lerp = ( float )( t - time ) / ( float )update_tics;
+	lerp = static_cast<float>(t - time) / static_cast<float>(update_tics);
 	modelSurface_t surf = GenerateSurface( lerp );
 
 	staticModel = new (TAG_MODEL) idRenderModelStatic;

@@ -33,7 +33,8 @@ If you have questions concerning this license or the applicable additional terms
 idAchievementSystem::SyncAchievementBits
 ========================
 */
-void idAchievementSystem::SyncAchievementBits( idLocalUser * user ) {
+void idAchievementSystem::SyncAchievementBits( idLocalUser * user ) const
+{
 	if ( user != nullptr) {
 		idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > achievements;
 

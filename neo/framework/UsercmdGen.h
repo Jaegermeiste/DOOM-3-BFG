@@ -79,7 +79,7 @@ constexpr int IMPULSE_31			= 31;			// quick 3
 
 class usercmd_t {
 public:
-	usercmd_t() :
+	usercmd_t() noexcept :
 		forwardmove(),
 		rightmove(),
 		buttons(),
@@ -242,7 +242,7 @@ idUserCmdMgr
 */
 class idUserCmdMgr {
 public:
-	idUserCmdMgr() {
+	idUserCmdMgr() noexcept {
 		SetDefaults();
 	}
 	
@@ -280,7 +280,7 @@ public:
 		readFrame[ playerIndex ] = -1;
 	}
 
-	bool HasUserCmdForPlayer( int playerIndex, int buffer=0 ) const {
+	[[nodiscard]] bool HasUserCmdForPlayer( int playerIndex, int buffer=0 ) const {
 		// return true if the last frame we read from (+ buffer) is < the last frame we wrote to
 		// (remember writeFrame is where we write to *next*. readFrame is where we last read from last)		
 		bool hasCmd = ( readFrame[ playerIndex ] + buffer < writeFrame[playerIndex] - 1 );
@@ -332,8 +332,8 @@ public:
 		usercmd_t & result = cmdBuffer[ index % USERCMD_BUFFER_SIZE ][ playerIndex ];		
 		return result;
 	}
-	
-	int GetNextUserCmdClientTime( int playerIndex ) const {
+
+	[[nodiscard]] int GetNextUserCmdClientTime( int playerIndex ) const {
 		if ( !HasUserCmdForPlayer( playerIndex ) ) {
 			return 0;
 		}

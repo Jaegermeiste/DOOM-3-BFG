@@ -129,7 +129,9 @@ struct idTimeLineEvent {
 	int time;
 	idGuiScriptList *event;
 	bool pending;
-	size_t Size() {
+
+	[[nodiscard]] size_t Size() const
+	{
 		return sizeof(*this) + event->Size();
 	}
 };
@@ -147,7 +149,8 @@ public:
 	{
 		delete mEvent;
 	}
-	size_t Size() 
+
+	[[nodiscard]] size_t Size() const
 	{
 		return sizeof(*this) + mEvent->Size();
 	}
@@ -201,13 +204,13 @@ public:
 	static const idRegEntry RegisterVars[];
 	static const int		NumRegisterVars;
 
-	idWindow *SetFocus(idWindow *w, bool scripts = true);
+	idWindow *SetFocus(idWindow *w, bool scripts = true) const;
 
 	idWindow *SetCapture(idWindow *w);
 	void SetParent(idWindow *w);
 	void SetFlag(unsigned int f);
 	void ClearFlag(unsigned int f);
-	unsigned GetFlags() {return flags;};
+	[[nodiscard]] unsigned GetFlags() const {return flags;};
 	void Move(float x, float y);
 	void BringToTop(idWindow *w);
 	void Adjust(float xd, float yd);
@@ -217,9 +220,9 @@ public:
 	void SetupBackground();
 	drawWin_t *FindChildByName(const char *name);
 	idSimpleWindow *FindSimpleWinByName(const char *_name);
-	idWindow *GetParent() { return parent; }
-	idUserInterfaceLocal *GetGui() {return gui;};
-	bool Contains(float x, float y);
+	[[nodiscard]] idWindow *GetParent() const { return parent; }
+	[[nodiscard]] idUserInterfaceLocal *GetGui() const {return gui;};
+	[[nodiscard]] bool Contains(float x, float y) const;
 	size_t Size();
 	virtual size_t Allocated();
 	idStr* GetStrPtrByName(const char *_name);
@@ -229,17 +232,17 @@ public:
 	int  GetWinVarOffset( idWinVar *wv, drawWin_t *dw );
 	float GetMaxCharHeight();
 	float GetMaxCharWidth();
-	void SetFont();
+	void SetFont() const;
 	void SetInitialState(const char *_name);
 	void AddChild(idWindow *win);
-	void DebugDraw(int time, float x, float y);
+	void DebugDraw(int time, float x, float y) const;
 	void CalcClientRect(float xofs, float yofs);
 	void CommonInit();
 	void CleanUp();
-	void DrawBorderAndCaption(const idRectangle &drawRect);
+	void DrawBorderAndCaption(const idRectangle &drawRect) const;
 	void DrawCaption(int time, float x, float y);
-	void SetupTransforms(float x, float y);
-	bool Contains(const idRectangle &sr, float x, float y);
+	void SetupTransforms(float x, float y) const;
+	[[nodiscard]] bool Contains(const idRectangle &sr, float x, float y) const;
 	const char *GetName() { return name; };
 
 	virtual bool Parse( idTokenParser *src, bool rebuild = true);
@@ -284,12 +287,12 @@ public:
 	void FixupParms();
 	void GetScriptString(const char *name, idStr &out);
 	void SetScriptParams();
-	bool HasOps() {	return (ops.Num() > 0); };
+	[[nodiscard]] bool HasOps() const {	return (ops.Num() > 0); };
 	float EvalRegs(int test = -1, bool force = false);
 	void StartTransition();
 	void AddTransition(idWinVar *dest, idVec4 from, idVec4 to, int time, float accelTime, float decelTime);
 	void ResetTime(int time);
-	void ResetCinematics();
+	void ResetCinematics() const;
 
 	int NumTransitions();
 
@@ -305,8 +308,8 @@ public:
 	bool Interactive();
 	bool ContainsStateVars();
 	void SetChildWinVarVal(const char *name, const char *var, const char *val);
-	idWindow *GetFocusedChild();
-	idWindow *GetCaptureChild();
+	[[nodiscard]] idWindow *GetFocusedChild() const;
+	[[nodiscard]] idWindow *GetCaptureChild() const;
 	const char *GetComment() { return comment;  }
 	void SetComment( const char * p) { comment = p; }
 
@@ -318,7 +321,7 @@ public:
 
 	idWindow*	FindChildByPoint	( float x, float y, idWindow* below = nullptr);
 	int			GetChildIndex		( idWindow* window );
-	int			GetChildCount		();
+	[[nodiscard]] int			GetChildCount		() const;
 	idWindow*	GetChild			( int index );
 	void		RemoveChild			( idWindow *win );
 	bool		InsertChild			( idWindow *win, idWindow* before );
@@ -337,7 +340,7 @@ protected:
 
 	friend class idSimpleWindow;
 	friend class idUserInterfaceLocal;
-	bool IsSimple();
+	[[nodiscard]] bool IsSimple() const;
 	void UpdateWinVars();
 	void DisableRegister(const char *_name);
 	void Transition();
@@ -353,7 +356,7 @@ protected:
 	int ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var = nullptr, int component = 0 );
 	void EvaluateRegisters(float *registers);
 	void SaveExpressionParseState();
-	void RestoreExpressionParseState();
+	void RestoreExpressionParseState() const;
 	void ParseBracedExpression(idTokenParser *src);
 	bool ParseScriptEntry(const char *name, idTokenParser *src);
 	bool ParseRegEntry(const char *name, idTokenParser *src);

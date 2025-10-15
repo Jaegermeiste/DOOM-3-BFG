@@ -752,7 +752,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 			program += "{";
 
-			int len = Min( idStr::Length( newline ) + 1, (int)sizeof( newline ) - 1 );
+			int len = Min( idStr::Length( newline ) + 1, static_cast<int>(sizeof(newline)) - 1 );
 			newline[len - 1] = '\t';
 			newline[len - 0] = '\0';
 			continue;
@@ -908,7 +908,8 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 idRenderProgManager::LoadGLSLShader
 ================================================================================================
 */
-GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, idList<int> & uniforms ) {
+GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, idList<int> & uniforms ) const
+{
 
 	idStr inFile;
 	idStr outFileHLSL;
@@ -955,7 +956,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		if ( len <= 0 ) {
 			return false;
 		}
-		idStr hlslCode( ( const char* ) hlslFileBuffer );
+		idStr hlslCode( static_cast<const char*>(hlslFileBuffer) );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
 
@@ -971,7 +972,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		if ( lengthGLSL <= 0 ) {
 			idLib::Error( "GLSL file %s could not be loaded and may be corrupt", outFileGLSL.c_str() );
 		}
-		programGLSL = ( const char * ) fileBufferGLSL;
+		programGLSL = static_cast<const char*>(fileBufferGLSL);
 		Mem_Free( fileBufferGLSL );
 
 		if ( r_useUniformArrays.GetBool() ) {
@@ -981,7 +982,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 			if ( lengthUniforms <= 0 ) {
 				idLib::Error( "uniform file %s could not be loaded and may be corrupt", outFileUniforms.c_str() );
 			}
-			programUniforms = ( const char* ) fileBufferUniforms;
+			programUniforms = static_cast<const char*>(fileBufferUniforms);
 			Mem_Free( fileBufferUniforms );
 		}
 	}
@@ -1152,7 +1153,7 @@ void idRenderProgManager::CommitUniforms() {
 
 class idSort_QuickUniforms : public idSort_Quick< glslUniformLocation_t, idSort_QuickUniforms > {
 public:
-	int Compare( const glslUniformLocation_t & a, const glslUniformLocation_t & b ) const { return a.uniformIndex - b.uniformIndex; }
+	[[nodiscard]] int Compare( const glslUniformLocation_t & a, const glslUniformLocation_t & b ) const { return a.uniformIndex - b.uniformIndex; }
 };
 
 /*
@@ -1193,7 +1194,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		int infologLength = 0;
 		qglGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
 		if ( infologLength > 1 ) {
-			char * infoLog = (char *)malloc( infologLength );
+			char * infoLog = static_cast<char*>(malloc(infologLength));
 			int charsWritten = 0;
 			qglGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
 

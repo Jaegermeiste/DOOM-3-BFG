@@ -107,7 +107,7 @@ bool R_PreciseCullSurface( const drawSurf_t *drawSurf, idBounds &ndcBounds ) {
 	const srfTriangles_t * tri = drawSurf->frontEndGeo;
 
 	unsigned int pointOr = 0;
-	unsigned int pointAnd = (unsigned int)~0;
+	unsigned int pointAnd = static_cast<unsigned int>(~0);
 
 	// get an exact bounds of the triangles for scissor cropping
 	ndcBounds.Clear();
@@ -201,7 +201,7 @@ R_MirrorViewBySurface
 */
 static viewDef_t *R_MirrorViewBySurface( const drawSurf_t *drawSurf ) {
 	// copy the viewport size from the original
-	viewDef_t * parms = (viewDef_t *)R_FrameAlloc( sizeof( *parms ) );
+	viewDef_t * parms = static_cast<viewDef_t*>(R_FrameAlloc(sizeof(*parms)));
 	*parms = *tr.viewDef;
 	parms->renderView.viewID = 0;	// clear to allow player bodies to show up, and suppress view weapons
 
@@ -254,7 +254,7 @@ R_XrayViewBySurface
 */
 static viewDef_t *R_XrayViewBySurface( const drawSurf_t *drawSurf ) {
 	// copy the viewport size from the original
-	viewDef_t * parms = (viewDef_t *)R_FrameAlloc( sizeof( *parms ) );
+	viewDef_t * parms = static_cast<viewDef_t*>(R_FrameAlloc(sizeof(*parms)));
 	*parms = *tr.viewDef;
 	parms->renderView.viewID = 0;	// clear to allow player bodies to show up, and suppress view weapons
 
@@ -284,7 +284,7 @@ static void R_RemoteRender( const drawSurf_t *surf, textureStage_t *stage ) {
 	int stageHeight = stage->height;
 
 	// copy the viewport size from the original
-	viewDef_t * parms = (viewDef_t *)R_FrameAlloc( sizeof( *parms ) );
+	viewDef_t * parms = static_cast<viewDef_t*>(R_FrameAlloc(sizeof(*parms)));
 	*parms = *tr.viewDef;
 
 	parms->renderView = *surf->space->entityDef->parms.remoteRenderView;
@@ -349,7 +349,7 @@ void R_MirrorRender( const drawSurf_t *surf, textureStage_t *stage, idScreenRect
 	parms->subviewSurface = surf;
 
 	// triangle culling order changes with mirroring
-	parms->isMirror = ( ( (int)parms->isMirror ^ (int)tr.viewDef->isMirror ) != 0 );
+	parms->isMirror = ( ( static_cast<int>(parms->isMirror) ^ static_cast<int>(tr.viewDef->isMirror) ) != 0 );
 
 	// generate render commands for it
 	R_RenderView( parms );
@@ -395,7 +395,7 @@ void R_XrayRender( const drawSurf_t *surf, textureStage_t *stage, idScreenRect s
 	parms->subviewSurface = surf;
 
 	// triangle culling order changes with mirroring
-	parms->isMirror = ( ( (int)parms->isMirror ^ (int)tr.viewDef->isMirror ) != 0 );
+	parms->isMirror = ( ( static_cast<int>(parms->isMirror) ^ static_cast<int>(tr.viewDef->isMirror) ) != 0 );
 
 	// generate render commands for it
 	R_RenderView( parms );
@@ -489,7 +489,7 @@ bool R_GenerateSurfaceSubview( const drawSurf_t *drawSurf ) {
 	parms->subviewSurface = drawSurf;
 
 	// triangle culling order changes with mirroring
-	parms->isMirror = ( ( (int)parms->isMirror ^ (int)tr.viewDef->isMirror ) != 0 );
+	parms->isMirror = ( ( static_cast<int>(parms->isMirror) ^ static_cast<int>(tr.viewDef->isMirror) ) != 0 );
 
 	// generate render commands for it
 	R_RenderView( parms );

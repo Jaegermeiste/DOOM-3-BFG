@@ -138,7 +138,7 @@ void CRC32_InitChecksum( unsigned long &crcvalue ) {
 	crcvalue = CRC32_INIT_VALUE;
 }
 
-void CRC32_Update( unsigned long &crcvalue, const byte data ) {
+static void CRC32_Update( unsigned long &crcvalue, const byte data ) {
 	crcvalue = crctable[ ( crcvalue ^ data ) & 0xff ] ^ ( crcvalue >> 8 );
 }
 

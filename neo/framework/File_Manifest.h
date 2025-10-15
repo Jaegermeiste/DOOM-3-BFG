@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idFileManifest {
 public:
-	idFileManifest() {
+	idFileManifest() noexcept {
 		cacheTable.SetGranularity( 4096 );
 		cacheHash.SetGranularity( 4096 );
 	}
@@ -49,13 +49,15 @@ public:
 	bool LoadManifestFromFile( idFile *file );
 	void WriteManifestFile( const char *fileName );
 
-	int NumFiles() {
+	[[nodiscard]] size_t NumFiles() const
+	{
 		return cacheTable.Num();
 	}
 
 	int FindFile( const char *fileName );
 
-	const idStr & GetFileNameByIndex( int idx ) const;
+	template <Ordinal I>
+	[[nodiscard]] const idStr & GetFileNameByIndex( I idx ) const;
 
 
 	const char * GetManifestName() {
@@ -75,7 +77,7 @@ public:
 	void Print() {
 		idLib::Printf( "dump for manifest %s\n", GetManifestName() );
 		idLib::Printf( "---------------------------------------\n" );
-		for ( int i = 0; i < NumFiles(); i++ ) {
+		for ( size_t i = 0; i < NumFiles(); i++ ) {
 			const idStr & name = GetFileNameByIndex( i );
 			if ( name.Find( ".idwav", false ) >= 0 ) {
 				idLib::Printf( "%s\n", GetFileNameByIndex( i ).c_str() );
@@ -91,13 +93,14 @@ private:
 
 // image preload 
 struct imagePreload_s {
-	imagePreload_s() {
+	imagePreload_s() noexcept {
 		filter = 0;
 		repeat = 0;
 		usage = 0;
 		cubeMap = 0;
 	}
-	void Write( idFile *f ) {
+	void Write( idFile *f ) const
+	{
 		f->WriteBig( filter );
 		f->WriteBig( repeat );
 		f->WriteBig( usage );
@@ -129,7 +132,7 @@ enum preloadType_t {
 
 // preload
 struct preloadEntry_s {
-	preloadEntry_s() {
+	preloadEntry_s() noexcept {
 		resType = 0;
 	}
 	bool operator==( const preloadEntry_s &b ) const { 
@@ -163,12 +166,12 @@ struct preloadSort_t {
 };
 class idSort_Preload : public idSort_Quick< preloadSort_t, idSort_Preload > {
 public:
-	int Compare( const preloadSort_t & a, const preloadSort_t & b ) const { return a.ofs - b.ofs; }
+	[[nodiscard]] int Compare( const preloadSort_t & a, const preloadSort_t & b ) const { return a.ofs - b.ofs; }
 };
 
 class idPreloadManifest {
 public:
-	idPreloadManifest() {
+	idPreloadManifest() noexcept {
 		entries.SetGranularity( 2048 );
 	}
 	~idPreloadManifest(){}
@@ -189,19 +192,19 @@ public:
 		}
 	}
 
-	int NumResources() const {
+	[[nodiscard]] size_t NumResources() const {
 		return entries.Num();
 	}
 
-	const preloadEntry_s & GetPreloadByIndex( int idx ) const {
+	[[nodiscard]] const preloadEntry_s & GetPreloadByIndex( int idx ) const {
 		return entries[ idx ];
 	}
 
-	const idStr & GetResourceNameByIndex( int idx ) const {
+	[[nodiscard]] const idStr & GetResourceNameByIndex( int idx ) const {
 		return entries[ idx ].resourceName;
 	}
 
-	const char * GetManifestName() const {
+	[[nodiscard]] const char * GetManifestName() const {
 		return filename;
 	}
 
@@ -263,7 +266,8 @@ public:
 		return -1;
 	}
 
-	void Print() {
+	void Print() const
+	{
 		idLib::Printf( "dump for preload manifest %s\n", GetManifestName() );
 		idLib::Printf( "---------------------------------------\n" );
 		for ( int i = 0; i < NumResources(); i++ ) {

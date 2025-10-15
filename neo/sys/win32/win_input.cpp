@@ -559,7 +559,7 @@ int Sys_ReturnKeyboardInputEvent( const int n, int &ch, bool &state ) {
 		// windows doesn't send keydown events to the WndProc for this key.
 		// ctrl and alt are handled here to get around windows sending ctrl and
 		// alt messages when the right-alt is pressed on non-US 102 keyboards.
-		Sys_QueEvent( SE_KEY, ch, state, 0, nullptr, 0 );
+		Sys_QueueEvent( SE_KEY, ch, state, 0, nullptr, 0 );
 	}
 	return ch;
 }
@@ -607,29 +607,29 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 			const bool mouseDown = (polled_didod[i].dwData & 0x80) == 0x80;
 			mouseEvents[i][0] = M_ACTION1 + mouseButton;
 			mouseEvents[i][1] = mouseDown;
-			Sys_QueEvent( SE_KEY, K_MOUSE1 + mouseButton, mouseDown, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE1 + mouseButton, mouseDown, 0, nullptr, 0 );
 		} else {
 			switch (polled_didod[i].dwOfs) {
 			case DIMOFS_X:
 				mouseEvents[i][0] = M_DELTAX;
 				mouseEvents[i][1] = polled_didod[i].dwData;
-				Sys_QueEvent( SE_MOUSE, polled_didod[i].dwData, 0, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_MOUSE, polled_didod[i].dwData, 0, 0, nullptr, 0 );
 				break;
 			case DIMOFS_Y:
 				mouseEvents[i][0] = M_DELTAY;
 				mouseEvents[i][1] = polled_didod[i].dwData;
-				Sys_QueEvent( SE_MOUSE, 0, polled_didod[i].dwData, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_MOUSE, 0, polled_didod[i].dwData, 0, nullptr, 0 );
 				break;
 			case DIMOFS_Z:
 				mouseEvents[i][0] = M_DELTAZ;
-				mouseEvents[i][1] = (int)polled_didod[i].dwData / WHEEL_DELTA;
+				mouseEvents[i][1] = static_cast<int>(polled_didod[i].dwData) / WHEEL_DELTA;
 				{
-					const int value = (int)polled_didod[i].dwData / WHEEL_DELTA;
+					const int value = static_cast<int>(polled_didod[i].dwData) / WHEEL_DELTA;
 					const int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
 					const int iterations = abs( value );
 					for ( int i = 0; i < iterations; i++ ) {
-						Sys_QueEvent( SE_KEY, key, true, 0, nullptr, 0 );
-						Sys_QueEvent( SE_KEY, key, false, 0, nullptr, 0 );
+						Sys_QueueEvent( SE_KEY, key, true, 0, nullptr, 0 );
+						Sys_QueueEvent( SE_KEY, key, false, 0, nullptr, 0 );
 					}
 				}
 				break;
@@ -831,7 +831,7 @@ void idJoystickWin32::PostInputEvent( int inputDeviceNum, int event, int value, 
 		int percent = ( value * 16 ) / range;
 		if ( joyAxis[inputDeviceNum][axis] != percent ) {
 			joyAxis[inputDeviceNum][axis] = percent;
-			Sys_QueEvent( SE_JOYSTICK, axis, percent, 0, nullptr, inputDeviceNum );
+			Sys_QueueEvent( SE_JOYSTICK, axis, percent, 0, nullptr, inputDeviceNum );
 		}
 	}
 
@@ -962,6 +962,6 @@ void idJoystickWin32::PushButton( int inputDeviceNum, int key, bool value ) {
 	// So we don't keep sending the same SE_KEY message over and over again
 	if ( buttonStates[inputDeviceNum][key] != value ) {
 		buttonStates[inputDeviceNum][key] = value;
-		Sys_QueEvent( SE_KEY, key, value, 0, nullptr, inputDeviceNum );
+		Sys_QueueEvent( SE_KEY, key, value, 0, nullptr, inputDeviceNum );
 	}
 }

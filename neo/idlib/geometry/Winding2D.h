@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
 ===========================================================================
 
@@ -44,15 +46,17 @@ If you have questions concerning this license or the applicable additional terms
 
 class idWinding2D {
 public:
-					idWinding2D();
+					idWinding2D() noexcept;
 
 	idWinding2D &	operator=( const idWinding2D &winding );
-	const idVec2 &	operator[]( const int index ) const;
-	idVec2 &		operator[]( const int index );
+	
+	const idVec2 &	operator[]( const Ordinal auto index ) const;
+	
+	idVec2 &		operator[]( const Ordinal auto index );
 
 	void			Clear();
 	void			AddPoint( const idVec2 &point );
-	int				GetNumPoints() const;
+	size_t          GetNumPoints() const;
 
 	void			Expand( const float d );
 	void			ExpandForAxialBox( const idVec2 bounds[2] );
@@ -81,34 +85,36 @@ public:
 
 	bool			PointInside( const idVec2 &point, const float epsilon ) const;
 	bool			LineIntersection( const idVec2 &start, const idVec2 &end ) const;
-	bool			RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, int *edgeNums = nullptr) const;
+	bool			RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, size_t *edgeNums = nullptr) const;
 
 	static idVec3	Plane2DFromPoints( const idVec2 &start, const idVec2 &end, const bool normalize = false );
 	static idVec3	Plane2DFromVecs( const idVec2 &start, const idVec2 &dir, const bool normalize = false );
 	static bool		Plane2DIntersection( const idVec3 &plane1, const idVec3 &plane2, idVec2 &point );
 
 private:
-	int				numPoints;
+	size_t			numPoints;
 	idVec2			p[MAX_POINTS_ON_WINDING_2D];
 };
 
-ID_INLINE idWinding2D::idWinding2D() {
+ID_INLINE idWinding2D::idWinding2D() noexcept {
 	numPoints = 0;
 }
 
 ID_INLINE idWinding2D &idWinding2D::operator=( const idWinding2D &winding ) {
-	for ( int i = 0; i < winding.numPoints; i++ ) {
+	for ( int i = 0; std::cmp_less(i, winding.numPoints); i++ ) {
 		p[i] = winding.p[i];
 	}
 	numPoints = winding.numPoints;
 	return *this;
 }
 
-ID_INLINE const idVec2 &idWinding2D::operator[]( const int index ) const {
+
+ID_INLINE const idVec2 &idWinding2D::operator[]( const Ordinal auto index ) const {
 	return p[ index ];
 }
 
-ID_INLINE idVec2 &idWinding2D::operator[]( const int index ) {
+
+ID_INLINE idVec2 &idWinding2D::operator[]( const Ordinal auto index ) {
 	return p[ index ];
 }
 
@@ -120,7 +126,7 @@ ID_INLINE void idWinding2D::AddPoint( const idVec2 &point ) {
 	p[numPoints++] = point;
 }
 
-ID_INLINE int idWinding2D::GetNumPoints() const {
+ID_INLINE size_t idWinding2D::GetNumPoints() const {
 	return numPoints;
 }
 
@@ -147,18 +153,18 @@ ID_INLINE idVec3 idWinding2D::Plane2DFromVecs( const idVec2 &start, const idVec2
 }
 
 ID_INLINE bool idWinding2D::Plane2DIntersection( const idVec3 &plane1, const idVec3 &plane2, idVec2 &point ) {
-	float n00 = plane1.x * plane1.x + plane1.y * plane1.y;
-	float n01 = plane1.x * plane2.x + plane1.y * plane2.y;
-	float n11 = plane2.x * plane2.x + plane2.y * plane2.y;
-	float det = n00 * n11 - n01 * n01;
+	const float n00 = plane1.x * plane1.x + plane1.y * plane1.y;
+	const float n01 = plane1.x * plane2.x + plane1.y * plane2.y;
+	const float n11 = plane2.x * plane2.x + plane2.y * plane2.y;
+	const float det = n00 * n11 - n01 * n01;
 
 	if ( idMath::Fabs(det) < 1e-6f ) {
 		return false;
 	}
 
-	float invDet = 1.0f / det;
-	float f0 = (n01 * plane2.z - n11 * plane1.z) * invDet;
-	float f1 = (n01 * plane1.z - n00 * plane2.z) * invDet;
+	const float invDet = 1.0f / det;
+	const float f0 = (n01 * plane2.z - n11 * plane1.z) * invDet;
+	const float f1 = (n01 * plane1.z - n00 * plane2.z) * invDet;
 	point.x = f0 * plane1.x + f1 * plane2.x;
 	point.y = f0 * plane1.y + f1 * plane2.y;
 	return true;

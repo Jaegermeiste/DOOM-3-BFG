@@ -62,56 +62,56 @@ struct viewDef_t;
 
 // our only drawing geometry type
 struct srfTriangles_t {
-	srfTriangles_t() {}
+	srfTriangles_t() noexcept = default;
 
-	idBounds					bounds;					// for culling
+	idBounds					bounds;         					// for culling
 
-	bool						generateNormals;		// create normals from geometry, instead of using explicit ones
-	bool						tangentsCalculated;		// set when the vertex tangents have been calculated
-	bool						perfectHull;			// true if there aren't any dangling edges
-	bool						referencedVerts;		// if true the 'verts' are referenced and should not be freed
-	bool						referencedIndexes;		// if true, indexes, silIndexes, mirrorVerts, and silEdges are
-														// pointers into the original surface, and should not be freed
+	bool						generateNormals = false;		    // create normals from geometry, instead of using explicit ones
+	bool						tangentsCalculated = false;   		// set when the vertex tangents have been calculated
+	bool						perfectHull = false;          		// true if there aren't any dangling edges
+	bool						referencedVerts = false;       		// if true the 'verts' are referenced and should not be freed
+	bool						referencedIndexes = false;     		// if true, indexes, silIndexes, mirrorVerts, and silEdges are
+													            	// pointers into the original surface, and should not be freed
 
-	int							numVerts;				// number of vertices
-	idDrawVert *				verts;					// vertices, allocated with special allocator
+	size_t						numVerts = 0;		        		// number of vertices
+	idDrawVert *				verts = nullptr;					// vertices, allocated with special allocator
 
-	int							numIndexes;				// for shadows, this has both front and rear end caps and silhouette planes
-	triIndex_t *				indexes;				// indexes, allocated with special allocator
+	size_t						numIndexes = 0;		        		// for shadows, this has both front and rear end caps and silhouette planes
+	triIndex_t *				indexes = nullptr;		     		// indexes, allocated with special allocator
 
-	triIndex_t *				silIndexes;				// indexes changed to be the first vertex with same XYZ, ignoring normal and texcoords
+	triIndex_t *				silIndexes = nullptr;				// indexes changed to be the first vertex with same XYZ, ignoring normal and texcoords
 
-	int							numMirroredVerts;		// this many verts at the end of the vert list are tangent mirrors
-	int *						mirroredVerts;			// tri->mirroredVerts[0] is the mirror of tri->numVerts - tri->numMirroredVerts + 0
+	size_t						numMirroredVerts = 0;            	// this many verts at the end of the vert list are tangent mirrors
+	int *						mirroredVerts = nullptr;			// tri->mirroredVerts[0] is the mirror of tri->numVerts - tri->numMirroredVerts + 0
 
-	int							numDupVerts;			// number of duplicate vertexes
-	int *						dupVerts;				// pairs of the number of the first vertex and the number of the duplicate vertex
+	size_t						numDupVerts = 0;	            	// number of duplicate vertexes
+	int *						dupVerts = nullptr;	      			// pairs of the number of the first vertex and the number of the duplicate vertex
 
-	int							numSilEdges;			// number of silhouette edges
-	silEdge_t *					silEdges;				// silhouette edges
+	size_t						numSilEdges = 0;	            	// number of silhouette edges
+	silEdge_t *					silEdges = nullptr;	    			// silhouette edges
 
-	dominantTri_t *				dominantTris;			// [numVerts] for deformed surface fast tangent calculation
+	dominantTri_t *				dominantTris = nullptr;	    		// [numVerts] for deformed surface fast tangent calculation
 
-	int							numShadowIndexesNoFrontCaps;	// shadow volumes with front caps omitted
-	int							numShadowIndexesNoCaps;			// shadow volumes with the front and rear caps omitted
+	size_t						numShadowIndexesNoFrontCaps = 0;	// shadow volumes with front caps omitted
+	size_t						numShadowIndexesNoCaps = 0;			// shadow volumes with the front and rear caps omitted
 
-	int							shadowCapPlaneBits;		// bits 0-5 are set when that plane of the interacting light has triangles
-														// projected on it, which means that if the view is on the outside of that
-														// plane, we need to draw the rear caps of the shadow volume
-														// dynamic shadows will have SHADOW_CAP_INFINITE
+	int							shadowCapPlaneBits = 0;		        // bits 0-5 are set when that plane of the interacting light has triangles
+										             				// projected on it, which means that if the view is on the outside of that
+										            				// plane, we need to draw the rear caps of the shadow volume
+										            				// dynamic shadows will have SHADOW_CAP_INFINITE
 
-	idShadowVert *				preLightShadowVertexes;	// shadow vertices in CPU memory for pre-light shadow volumes
-	idShadowVert *				staticShadowVertexes;	// shadow vertices in CPU memory for static shadow volumes
+	idShadowVert *				preLightShadowVertexes = nullptr;	// shadow vertices in CPU memory for pre-light shadow volumes
+	idShadowVert *				staticShadowVertexes = nullptr; 	// shadow vertices in CPU memory for static shadow volumes
 
-	srfTriangles_t *			ambientSurface;			// for light interactions, point back at the original surface that generated
-														// the interaction, which we will get the ambientCache from
+	srfTriangles_t *			ambientSurface = nullptr;			// for light interactions, point back at the original surface that generated
+												            		// the interaction, which we will get the ambientCache from
 
-	srfTriangles_t *			nextDeferredFree;		// chain of tris to free next frame
+	srfTriangles_t *			nextDeferredFree = nullptr;	    	// chain of tris to free next frame
 
 	// for deferred normal / tangent transformations by joints
 	// the jointsInverted list / buffer object on md5WithJoints may be
 	// shared by multiple srfTriangles_t
-	idRenderModelStatic *		staticModelWithJoints;
+	idRenderModelStatic *		staticModelWithJoints = nullptr;
 
 	// data in vertex object space, not directly readable by the CPU
 	vertCacheHandle_t			indexCache;				// GL_INDEX_TYPE
@@ -124,9 +124,9 @@ struct srfTriangles_t {
 typedef idList<srfTriangles_t *, TAG_IDLIB_LIST_TRIANGLES> idTriList;
 
 struct modelSurface_t {
-	int							id;
-	const idMaterial *			shader;
-	srfTriangles_t *			geometry;
+	int							id = 0;
+	const idMaterial *			shader = nullptr;
+	srfTriangles_t *			geometry = nullptr;
 };
 
 enum dynamicModel_t {
@@ -135,13 +135,12 @@ enum dynamicModel_t {
 	DM_CONTINUOUS	// must be recreated for every single view (time dependent things like particles)
 };
 
-enum jointHandle_t {
-	INVALID_JOINT				= -1
-};
+typedef int64 jointHandle_t;
+constexpr jointHandle_t INVALID_JOINT = -1;
 
 class idMD5Joint {
 public:
-								idMD5Joint() { parent = nullptr; }
+								idMD5Joint() noexcept { parent = nullptr; }
 	idStr						name;
 	const idMD5Joint *			parent;
 };
@@ -208,7 +207,7 @@ public:
 	virtual void				FreeVertexCache() = 0;
 
 	// returns the name of the model
-	virtual const char	*		Name() const = 0;
+	[[nodiscard]] virtual const char	*		Name() const = 0;
 
 	// prints a detailed report on the model for printModel
 	virtual void				Print() const = 0;
@@ -217,48 +216,48 @@ public:
 	virtual void				List() const = 0;
 
 	// reports the amount of memory (roughly) consumed by the model
-	virtual int					Memory() const = 0;
+	[[nodiscard]] virtual int					Memory() const = 0;
 
 	// for reloadModels
-	virtual ID_TIME_T			Timestamp() const = 0;
+	[[nodiscard]] virtual ID_TIME_T			Timestamp() const = 0;
 
 	// returns the number of surfaces
-	virtual int					NumSurfaces() const = 0;
+	[[nodiscard]] virtual size_t				NumSurfaces() const = 0;
 
 	// NumBaseSurfaces will not count any overlays added to dynamic models
-	virtual int					NumBaseSurfaces() const = 0;
+	[[nodiscard]] virtual size_t				NumBaseSurfaces() const = 0;
 
 	// get a pointer to a surface
-	virtual const modelSurface_t *Surface( int surfaceNum ) const = 0;
+	[[nodiscard]] virtual const modelSurface_t *Surface( size_t surfaceNum ) const = 0;
 
 	// Allocates surface triangles.
 	// Allocates memory for srfTriangles_t::verts and srfTriangles_t::indexes
 	// The allocated memory is not initialized.
 	// srfTriangles_t::numVerts and srfTriangles_t::numIndexes are set to zero.
-	virtual srfTriangles_t *	AllocSurfaceTriangles( int numVerts, int numIndexes ) const = 0;
+	[[nodiscard]] virtual srfTriangles_t *	AllocSurfaceTriangles(size_t numVerts, size_t numIndexes ) const = 0;
 
 	// Frees surfaces triangles.
 	virtual void				FreeSurfaceTriangles( srfTriangles_t *tris ) const = 0;
 
 	// models of the form "_area*" may have a prelight shadow model associated with it
-	virtual bool				IsStaticWorldModel() const = 0;
+	[[nodiscard]] virtual bool				IsStaticWorldModel() const = 0;
 
 	// models parsed from inside map files or dynamically created cannot be reloaded by
 	// reloadmodels
-	virtual bool				IsReloadable() const = 0;
+	[[nodiscard]] virtual bool				IsReloadable() const = 0;
 
 	// md3, md5, particles, etc
-	virtual dynamicModel_t		IsDynamicModel() const = 0;
+	[[nodiscard]] virtual dynamicModel_t		IsDynamicModel() const = 0;
 
 	// if the load failed for any reason, this will return true
-	virtual bool				IsDefaultModel() const = 0;
+	[[nodiscard]] virtual bool				IsDefaultModel() const = 0;
 
 	// dynamic models should return a fast, conservative approximation
 	// static models should usually return the exact value
 	virtual idBounds			Bounds( const struct renderEntity_s *ent = nullptr) const = 0;
 
 	// returns value != 0.0f if the model requires the depth hack
-	virtual float				DepthHack() const = 0;
+	[[nodiscard]] virtual float				DepthHack() const = 0;
 
 	// returns a static model based on the definition and view
 	// currently, this will be regenerated for every view, even though
@@ -270,22 +269,22 @@ public:
 	virtual idRenderModel *		InstantiateDynamicModel( const struct renderEntity_s *ent, const viewDef_t *view, idRenderModel *cachedModel ) = 0;
 
 	// Returns the number of joints or 0 if the model is not an MD5
-	virtual int					NumJoints() const = 0;
+	[[nodiscard]] virtual size_t				NumJoints() const = 0;
 
 	// Returns the MD5 joints or NULL if the model is not an MD5
-	virtual const idMD5Joint *	GetJoints() const = 0;
+	[[nodiscard]] virtual const idMD5Joint *	GetJoints() const = 0;
 
 	// Returns the handle for the joint with the given name.
 	virtual jointHandle_t		GetJointHandle( const char *name ) const = 0;
 
 	// Returns the name for the joint with the given handle.
-	virtual const char *		GetJointName( jointHandle_t handle ) const = 0;
+	[[nodiscard]] virtual const char *		GetJointName( jointHandle_t handle ) const = 0;
 
 	// Returns the default animation pose or NULL if the model is not an MD5.
-	virtual const idJointQuat *	GetDefaultPose() const = 0;
+	[[nodiscard]] virtual const idJointQuat *	GetDefaultPose() const = 0;
 
 	// Returns number of the joint nearest to the given triangle.
-	virtual int					NearestJoint( int surfaceNum, int a, int c, int b ) const = 0;
+	[[nodiscard]] virtual size_t				NearestJoint(size_t surfaceNum, int a, int c, int b ) const = 0;
 
 	// Writing to and reading from a demo file.
 	virtual void				ReadFromDemoFile( class idDemoFile *f ) = 0;
@@ -293,14 +292,14 @@ public:
 
 	// if false, the model doesn't need to be linked into the world, because it
 	// can't contribute visually -- triggers, etc
-	virtual bool				ModelHasDrawingSurfaces() const { return true; };
+	[[nodiscard]] virtual bool				ModelHasDrawingSurfaces() const { return true; };
 
 	// if false, the model doesn't generate interactions with lights
- 	virtual bool				ModelHasInteractingSurfaces() const { return true; };
+	[[nodiscard]] virtual bool				ModelHasInteractingSurfaces() const { return true; };
 
 	// if false, the model doesn't need to be added to the view unless it is
 	// directly visible, because it can't cast shadows into the view
-	virtual bool				ModelHasShadowCastingSurfaces() const { return true; };
+	[[nodiscard]] virtual bool				ModelHasShadowCastingSurfaces() const { return true; };
 };
 
 #endif /* !__MODEL_H__ */

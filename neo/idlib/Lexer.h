@@ -148,7 +148,7 @@ public:
 					idLexer();
 					idLexer( int flags );
 					idLexer( const char *filename, int flags = 0, bool OSPath = false );
-					idLexer( const char *ptr, int length, const char *name, int flags = 0 );
+					idLexer( const char *ptr, size_t length, const char *name, int flags = 0 );
 					// destructor
 					~idLexer();
 					// load a script from the given file at the given offset with the given length
@@ -213,15 +213,15 @@ public:
 					// pulls the entire line, including the \n at the end
 	const char *	ParseCompleteLine( idStr &out );
 					// retrieves the white space characters before the last read token
-	int				GetLastWhiteSpace( idStr &whiteSpace ) const;
+	size_t GetLastWhiteSpace(idStr& whiteSpace) const;
 					// returns start index into text buffer of last white space
-	int				GetLastWhiteSpaceStart() const;
+	int64 GetLastWhiteSpaceStart() const;
 					// returns end index into text buffer of last white space
-	int				GetLastWhiteSpaceEnd() const;
+	int64 GetLastWhiteSpaceEnd() const;
 					// set an array with punctuations, NULL restores default C/C++ set, see default_punctuations for an example
 	void			SetPunctuations( const punctuation_t *p );
 					// returns a pointer to the punctuation with the given id
-	const char *	GetPunctuationFromId( int id ) const;
+	const char *	GetPunctuationFromId(size_t id) const;
 					// get the id for the given punctuation
 	int				GetPunctuationId( const char *p ) const;
 					// set lexer flags
@@ -235,11 +235,11 @@ public:
 					// returns the current filename
 	const char *	GetFileName();
 					// get offset in script
-	const int		GetFileOffset() const;
+	int64		GetFileOffset() const;
 					// get file time
-	const ID_TIME_T	GetFileTime() const;
+	ID_TIME_T GetFileTime() const;
 					// returns the current line number
-	const int		GetLineNum() const;
+	int		GetLineNum() const;
 					// print an error message
 	void			Error( VERIFY_FORMAT_STRING const char *str, ... );
 					// print a warning message
@@ -292,17 +292,17 @@ ID_INLINE const char *idLexer::GetFileName() {
 	return idLexer::filename;
 }
 
-ID_INLINE const int idLexer::GetFileOffset() const
+ID_INLINE int64 idLexer::GetFileOffset() const
 {
 	return idLexer::script_p - idLexer::buffer;
 }
 
-ID_INLINE const ID_TIME_T idLexer::GetFileTime() const
+ID_INLINE ID_TIME_T idLexer::GetFileTime() const
 {
 	return idLexer::fileTime;
 }
 
-ID_INLINE const int idLexer::GetLineNum() const
+ID_INLINE int idLexer::GetLineNum() const
 {
 	return idLexer::line;
 }

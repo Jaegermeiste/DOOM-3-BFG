@@ -41,21 +41,21 @@ public:
 	idFont( const char * n );
 	~idFont();
 
-	void Touch();
+	void Touch() const;
 
-	const char * GetName() const { return name; }
+	[[nodiscard]] const char * GetName() const { return name; }
 
-	float GetLineHeight( float scale ) const;
-	float GetAscender( float scale ) const;
-	float GetMaxCharWidth( float scale ) const;
+	[[nodiscard]] float GetLineHeight( float scale ) const;
+	[[nodiscard]] float GetAscender( float scale ) const;
+	[[nodiscard]] float GetMaxCharWidth( float scale ) const;
 
-	float GetGlyphWidth( float scale, uint32 idx ) const;
+	[[nodiscard]] float GetGlyphWidth( float scale, uint32 idx ) const;
 	void GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t & glyphInfo ) const;
 
 private:
 	static idFont * RemapFont( const char * baseName );
 
-	int	GetGlyphIndex( uint32 idx ) const;
+	[[nodiscard]] int	GetGlyphIndex( uint32 idx ) const;
 
 	bool LoadFont();
 

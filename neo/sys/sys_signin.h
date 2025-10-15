@@ -36,16 +36,16 @@ idSignInManagerBase
 class idSignInManagerBase {
 public:
 
-	idSignInManagerBase() :
+	idSignInManagerBase() noexcept :
 		  minDesiredLocalUsers( 0 ),
 		  maxDesiredLocalUsers( 0 ),
 		  defaultProfile(nullptr) {}
 	  virtual							~idSignInManagerBase() {}
 
 	  virtual void					Pump() = 0;
-	  virtual int					GetNumLocalUsers() const = 0;
+	[[nodiscard]] virtual int					GetNumLocalUsers() const = 0;
 	  virtual idLocalUser *			GetLocalUserByIndex( int index ) = 0;
-	  virtual const idLocalUser *	GetLocalUserByIndex( int index ) const = 0;
+	[[nodiscard]] virtual const idLocalUser *	GetLocalUserByIndex( int index ) const = 0;
 	  virtual void					RemoveLocalUserByIndex( int index ) = 0;
 	  virtual void					RegisterLocalUser( int inputDevice ) = 0;								// Register a local controller user to the passed in input device
 	  virtual idLocalUser *			GetRegisteringUser() { return nullptr; }									// This is a user that has started the registration process but is not yet a local user.
@@ -68,12 +68,12 @@ public:
 
 	  // Master user always index 0
 	  idLocalUser *			GetMasterLocalUser() { return ( GetNumLocalUsers() > 0 ) ? GetLocalUserByIndex( 0 ) : nullptr; }
-	  const idLocalUser *	GetMasterLocalUser() const { return ( GetNumLocalUsers() > 0 ) ? GetLocalUserByIndex( 0 ) : nullptr; }
+	[[nodiscard]] const idLocalUser *	GetMasterLocalUser() const { return ( GetNumLocalUsers() > 0 ) ? GetLocalUserByIndex( 0 ) : nullptr; }
 
-	  bool 					IsMasterLocalUserPersistent() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->IsPersistent() : false; }
-	  bool 					IsMasterLocalUserOnline() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->IsOnline() : false; }
-	  int					GetMasterInputDevice() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->GetInputDevice() : -1; }
-	  localUserHandle_t		GetMasterLocalUserHandle() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->GetLocalUserHandle() : localUserHandle_t(); }
+	[[nodiscard]] bool 					IsMasterLocalUserPersistent() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->IsPersistent() : false; }
+	[[nodiscard]] bool 					IsMasterLocalUserOnline() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->IsOnline() : false; }
+	[[nodiscard]] int					GetMasterInputDevice() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->GetInputDevice() : -1; }
+	[[nodiscard]] localUserHandle_t		GetMasterLocalUserHandle() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->GetLocalUserHandle() : localUserHandle_t(); }
 	  idLocalUser *			GetLocalUserByInputDevice( int index );
 	  idLocalUser *			GetLocalUserByHandle( localUserHandle_t handle );
 	  idPlayerProfile *		GetPlayerProfileByInputDevice( int index );

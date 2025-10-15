@@ -67,21 +67,21 @@ public:
 	void	WriteBits( uint32 value, int bits );
 	int		ReadByte( bool ignoreOverflow = false );
 	void	WriteByte( uint8 value );
-	int		Lookup( int w, int k );
+	[[nodiscard]] int		Lookup( int w, int k ) const;
 	int		AddToDict( int w, int k );
 	bool	BumpBits();
 	int		End();
-	
-	int		Length() const { return lzwData->bytesWritten; }
-	int		GetReadCount() const { return bytesRead; }
+
+	[[nodiscard]] int		Length() const { return lzwData->bytesWritten; }
+	[[nodiscard]] int		GetReadCount() const { return bytesRead; }
 
 	void	Save();
-	void	Restore();
+	void	Restore() const;
 
-	bool	IsOverflowed() { return overflowed; }
+	[[nodiscard]] bool	IsOverflowed() const { return overflowed; }
 	
 	int		Write( const void * data, int length ) {
-		uint8 * src = (uint8*)data;
+		const auto src = static_cast<const uint8*>(data);
 		
 		for ( int i = 0; i < length && !IsOverflowed(); i++ ) {
 			WriteByte( src[i] );
@@ -91,7 +91,7 @@ public:
 	}
 
 	int		Read( void * data, int length, bool ignoreOverflow = false ) {
-		uint8 * src = (uint8*)data;
+		uint8 * src = static_cast<uint8*>(data);
 		
 		for ( int i = 0; i < length; i++ ) {
 			int byte = ReadByte( ignoreOverflow );
@@ -100,14 +100,14 @@ public:
 				return i;
 			}
 			
-			src[i] = (uint8)byte;
+			src[i] = static_cast<uint8>(byte);
 		}
 		
 		return length;
 	}
 
 	int		WriteR( const void * data, int length ) {
-		uint8 * src = (uint8*)data;
+		const auto src = static_cast<const uint8*>(data);
 		
 		for ( int i = 0; i < length && !IsOverflowed(); i++ ) {
 			WriteByte( src[length - i - 1] );
@@ -117,7 +117,7 @@ public:
 	}
 
 	int		ReadR( void * data, int length, bool ignoreOverflow = false ) {
-		uint8 * src = (uint8*)data;
+		uint8 * src = static_cast<uint8*>(data);
 		
 		for ( int i = 0; i < length; i++ ) {
 			int byte = ReadByte( ignoreOverflow );
@@ -126,7 +126,7 @@ public:
 				return i;
 			}
 			
-			src[length - i - 1] = (uint8)byte;
+			src[length - i - 1] = static_cast<uint8>(byte);
 		}
 		
 		return length;
@@ -182,7 +182,7 @@ Simple zero based run length encoder/decoder
 */
 class idZeroRunLengthCompressor {
 public:
-	idZeroRunLengthCompressor() : zeroCount( 0 ), destStart(nullptr) {
+	idZeroRunLengthCompressor() noexcept : zeroCount( 0 ), destStart(nullptr) {
 	}
 	
 	void Start( uint8 * dest_, idLZWCompressor * comp_, int maxSize_ );
@@ -193,7 +193,7 @@ public:
 	void WriteBytes( uint8 * src, int count );
 	int End();
 
-	int CompressedSize() const { return compressed; }
+	[[nodiscard]] int CompressedSize() const { return compressed; }
 
 private:
 	int ReadInternal();

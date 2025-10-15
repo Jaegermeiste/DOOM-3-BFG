@@ -718,7 +718,7 @@ drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space,
 	}
 
 	// create a new triangle surface in frame memory so it gets automatically disposed of
-	srfTriangles_t *newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t *newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = maxVerts;
 	newTri->numIndexes = maxIndexes;
 
@@ -754,7 +754,7 @@ drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space,
 			continue;	// already completely faded away, but not yet removed
 		}
 
-		const float f = ( deltaTime > decalInfo.stayTime ) ? ( (float) fadeTime / decalInfo.fadeTime ) : 0.0f;
+		const float f = ( deltaTime > decalInfo.stayTime ) ? ( static_cast<float>(fadeTime) / decalInfo.fadeTime ) : 0.0f;
 
 		ALIGNTYPE16 float fadeColor[4];
 		for ( int j = 0; j < 4; j++ ) {
@@ -772,7 +772,7 @@ drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space,
 	newTri->numIndexes = numIndexes;
 
 	// create the drawsurf
-	drawSurf_t * drawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+	drawSurf_t * drawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*drawSurf), FRAME_ALLOC_DRAW_SURFACE));
 	drawSurf->frontEndGeo = newTri;
 	drawSurf->numIndexes = newTri->numIndexes;
 	drawSurf->ambientCache = newTri->ambientCache;

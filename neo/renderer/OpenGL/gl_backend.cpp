@@ -85,7 +85,7 @@ RB_SetBuffer
 static void	RB_SetBuffer( const void *data ) {
 	// see which draw buffer we want to render the frame to
 
-	const setBufferCommand_t * cmd = (const setBufferCommand_t *)data;
+	const setBufferCommand_t * cmd = static_cast<const setBufferCommand_t*>(data);
 
 	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
 
@@ -176,7 +176,7 @@ const void GL_BlockingSwapBuffers() {
 
 	static int64 prevBlockTime;
 	if ( r_showSwapBuffers.GetBool() && prevBlockTime ) {
-		const int delta = (int) ( exitBlockTime - prevBlockTime );
+		const int delta = static_cast<int>(exitBlockTime - prevBlockTime);
 		common->Printf( "blockToBlock: %i\n", delta );
 	}
 	prevBlockTime = exitBlockTime;

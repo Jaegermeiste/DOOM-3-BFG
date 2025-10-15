@@ -43,21 +43,21 @@ class idSIMD_Generic : public idSIMDProcessor {
 public:
 	const char * VPCALL GetName() const override;
 
-	void VPCALL MinMax( float &min,			float &max,				const float *src,		const int count ) override;
-	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const int count ) override;
-	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idVec3 *src,		const int count ) override;
-	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const int count ) override;
-	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const triIndex_t *indexes,		const int count ) override;
+	void VPCALL MinMax( float &min,			float &max,				const float *src,		const size_t count ) override;
+	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const size_t count ) override;
+	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idVec3 *src,		const size_t count ) override;
+	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const size_t count ) override;
+	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const triIndex_t *indexes,		const size_t count ) override;
 
-	void VPCALL Memcpy( void *dst,			const void *src,		const int count ) override;
-	void VPCALL Memset( void *dst,			const int val,			const int count ) override;
+	void VPCALL Memcpy( void *dst,			const void *src,		const size_t count ) override;
+	void VPCALL Memset( void *dst,			const int val,			const size_t count ) override;
 
-	void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) override;
-	void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) override;
-	void VPCALL ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const int numJoints ) override;
-	void VPCALL ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const int numJoints ) override;
-	void VPCALL TransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) override;
-	void VPCALL UntransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) override;
+	void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) override;
+	void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) override;
+	void VPCALL ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const size_t numJoints ) override;
+	void VPCALL ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const size_t numJoints ) override;
+	void VPCALL TransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) override;
+	void VPCALL UntransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) override;
 };
 
 #endif /* !__MATH_SIMD_GENERIC_H__ */

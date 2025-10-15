@@ -29,27 +29,32 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../precompiled.h"
 
-constexpr int SMALLEST_NON_DENORMAL					= 1<<IEEE_FLT_MANTISSA_BITS;
+
+/*
+constexpr int SMALLEST_NON_DENORMAL_FLT					= 1 << IEEE_FLT_MANTISSA_BITS;
+constexpr auto SMALLEST_NON_DENORMAL_DBL           = 1ULL << IEEE_DBL_MANTISSA_BITS;
 constexpr int NAN_VALUE								= 0x7f800000;
 
-const float	idMath::PI				= 3.14159265358979323846f;
-const float	idMath::TWO_PI			= 2.0f * PI;
-const float	idMath::HALF_PI			= 0.5f * PI;
-const float	idMath::ONEFOURTH_PI	= 0.25f * PI;
-const float idMath::ONEOVER_PI		= 1.0f / idMath::PI;
-const float idMath::ONEOVER_TWOPI	= 1.0f / idMath::TWO_PI;
-const float idMath::E				= 2.71828182845904523536f;
-const float idMath::SQRT_TWO		= 1.41421356237309504880f;
-const float idMath::SQRT_THREE		= 1.73205080756887729352f;
-const float	idMath::SQRT_1OVER2		= 0.70710678118654752440f;
-const float	idMath::SQRT_1OVER3		= 0.57735026918962576450f;
-const float	idMath::M_DEG2RAD		= PI / 180.0f;
-const float	idMath::M_RAD2DEG		= 180.0f / PI;
-const float	idMath::M_SEC2MS		= 1000.0f;
-const float	idMath::M_MS2SEC		= 0.001f;
-const float	idMath::INFINITY		= 1e30f;
-const float idMath::FLT_EPSILON		= 1.192092896e-07f;
-const float idMath::FLT_SMALLEST_NON_DENORMAL	= * reinterpret_cast< const float * >( & SMALLEST_NON_DENORMAL );	// 1.1754944e-038f
+constexpr float	idMath::PI				= 3.14159265358979323846f;
+constexpr float	idMath::TWO_PI			= 2.0f * PI;
+constexpr float	idMath::HALF_PI			= 0.5f * PI;
+constexpr float	idMath::ONEFOURTH_PI	= 0.25f * PI;
+constexpr float idMath::ONEOVER_PI		= 1.0f / idMath::PI;
+constexpr float idMath::ONEOVER_TWOPI	= 1.0f / idMath::TWO_PI;
+constexpr float idMath::E				= 2.71828182845904523536f;
+constexpr float idMath::SQRT_TWO		= 1.41421356237309504880f;
+constexpr float idMath::SQRT_THREE		= 1.73205080756887729352f;
+constexpr float	idMath::SQRT_1OVER2		= 0.70710678118654752440f;
+constexpr float	idMath::SQRT_1OVER3		= 0.57735026918962576450f;
+constexpr float	idMath::M_DEG2RAD		= PI / 180.0f;
+constexpr float	idMath::M_RAD2DEG		= 180.0f / PI;
+constexpr float	idMath::M_SEC2MS		= 1000.0f;
+constexpr float	idMath::M_MS2SEC		= 0.001f;
+constexpr float	idMath::INFINITY		= 1e30f;
+constexpr float idMath::FLT_EPSILON		= 1.192092896e-07f;
+consteval float idMath::FLT_SMALLEST_NON_DENORMAL	= * reinterpret_cast< const float * >( & SMALLEST_NON_DENORMAL_FLT );	// 1.1754944e-038f
+constexpr double idMath::DBL_SMALLEST_NON_DENORMAL   = * reinterpret_cast< const double* >( & SMALLEST_NON_DENORMAL_DBL );
+*/
 
 #if defined( ID_WIN_X86_SSE_INTRIN )
 const __m128 idMath::SIMD_SP_zero				= { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -73,12 +78,12 @@ idMath::Init
 ===============
 */
 void idMath::Init() {
-    union _flint fi, fo;
+    union _flint fi = {}, fo = {};
 
     for ( int i = 0; i < SQRT_TABLE_SIZE; i++ ) {
         fi.i	 = ((EXP_BIAS-1) << EXP_POS) | (i << LOOKUP_POS);
         fo.f	 = static_cast<float>(1.0 / sqrt(fi.f));
-        iSqrt[i] = ((dword)(((fo.i + (1<<(SEED_POS-2))) >> SEED_POS) & 0xFF))<<SEED_POS;
+        iSqrt[i] = ((((fo.i + (1<<(SEED_POS-2))) >> SEED_POS) & 0xFF))<<SEED_POS;
     }
     
 	iSqrt[SQRT_TABLE_SIZE / 2] = static_cast<dword>(0xFF)<<(SEED_POS); 
@@ -116,10 +121,10 @@ int idMath::FloatToBits( float f, int exponentBits, const int mantissaBits ) {
 	}
 
 	exponentBits--;
-	int i = *reinterpret_cast<int*>(&f);
-	int sign = (i >> IEEE_FLT_SIGN_BIT) & 1;
-	int exponent = ((i >> IEEE_FLT_MANTISSA_BITS) & ((1 << IEEE_FLT_EXPONENT_BITS) - 1)) - IEEE_FLT_EXPONENT_BIAS;
-	int mantissa = i & ((1 << IEEE_FLT_MANTISSA_BITS) - 1);
+	const int i = *reinterpret_cast<int*>(&f);
+	const int sign = (i >> IEEE_FLT_SIGN_BIT) & 1;
+	const int exponent = ((i >> IEEE_FLT_MANTISSA_BITS) & ((1 << IEEE_FLT_EXPONENT_BITS) - 1)) - IEEE_FLT_EXPONENT_BIAS;
+	const int mantissa = i & ((1 << IEEE_FLT_MANTISSA_BITS) - 1);
 	int value = sign << (1 + exponentBits + mantissaBits);
 	value |= ( ( INT32_SIGNBITSET( exponent ) << exponentBits ) | ( abs( exponent ) & ( ( 1 << exponentBits ) - 1 ) ) ) << mantissaBits;
 	value |= mantissa >> ( IEEE_FLT_MANTISSA_BITS - mantissaBits );
@@ -139,10 +144,10 @@ float idMath::BitsToFloat(const int i, int exponentBits, const int mantissaBits 
 	assert( mantissaBits >= 2 && mantissaBits <= 23 );
 
 	exponentBits--;
-	int sign = i >> (1 + exponentBits + mantissaBits);
-	int exponent = ((i >> mantissaBits) & ((1 << exponentBits) - 1)) * exponentSign[(i >> (exponentBits + mantissaBits))
+	const int sign = i >> (1 + exponentBits + mantissaBits);
+	const int exponent = ((i >> mantissaBits) & ((1 << exponentBits) - 1)) * exponentSign[(i >> (exponentBits + mantissaBits))
 		& 1];
-	int mantissa = (i & ((1 << mantissaBits) - 1)) << (IEEE_FLT_MANTISSA_BITS - mantissaBits);
+	const int mantissa = (i & ((1 << mantissaBits) - 1)) << (IEEE_FLT_MANTISSA_BITS - mantissaBits);
 	value = sign << IEEE_FLT_SIGN_BIT | ( exponent + IEEE_FLT_EXPONENT_BIAS ) << IEEE_FLT_MANTISSA_BITS | mantissa;
 	return *reinterpret_cast<float *>(&value);
 }

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-#define MS_VC_EXCEPTION 0x406D1388
+constexpr auto MS_VC_EXCEPTION = 0x406D1388;
 
 typedef struct tagTHREADNAME_INFO {
 	DWORD dwType;		// Must be 0x1000.
@@ -46,15 +46,15 @@ typedef struct tagTHREADNAME_INFO {
 Sys_SetThreadName
 ========================
 */
-void Sys_SetThreadName(const DWORD threadID, const char * name ) {
-	THREADNAME_INFO info;
+static void Sys_SetThreadName(const DWORD threadID, const char * name ) {
+	THREADNAME_INFO info = {};
 	info.dwType = 0x1000;
 	info.szName = name;
 	info.dwThreadID = threadID;
 	info.dwFlags = 0;
 
 	__try {
-		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(DWORD), (const ULONG_PTR *)&info );
+		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(DWORD), reinterpret_cast<const ULONG_PTR*>(&info) );
 	}
 	// this much is just to keep /analyze quiet
 	__except( GetExceptionCode() == MS_VC_EXCEPTION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH ) {
@@ -73,10 +73,10 @@ void Sys_SetCurrentThreadName( const char * name ) {
 
 /*
 ========================
-Sys_Createthread
+Sys_CreateThread
 ========================
 */
-uintptr_t Sys_CreateThread(const xthread_t function, void *parms, const xthreadPriority priority, const char *name, core_t core, const int stackSize, const bool suspended ) {
+uintptr_t Sys_CreateThread(const xthread_t function, void *parms, const xthreadPriority priority, const char *name, core_t core, const size_t stackSize, const bool suspended ) {
 
 	DWORD flags = ( suspended ? CREATE_SUSPENDED : 0 );
 	// Without this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Commit Size"
@@ -98,28 +98,28 @@ uintptr_t Sys_CreateThread(const xthread_t function, void *parms, const xthreadP
 	DWORD threadId;
 	HANDLE handle = CreateThread(nullptr,	// LPSECURITY_ATTRIBUTES lpsa, //-V513
 	                             stackSize,
-	                             (LPTHREAD_START_ROUTINE)function,
+	                             reinterpret_cast<LPTHREAD_START_ROUTINE>(function),
 	                             parms,
 	                             flags,
 	                             &threadId);
 	if ( handle == nullptr ) {
 		idLib::common->FatalError( "CreateThread error: %i", GetLastError() );
-		return (uintptr_t)0;
+		return static_cast<uintptr_t>(0);
 	}
 	Sys_SetThreadName( threadId, name );
 	if ( priority == THREAD_HIGHEST ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_HIGHEST );		//  we better sleep enough to do this
+		SetThreadPriority( handle, THREAD_PRIORITY_HIGHEST );		//  we better sleep enough to do this
 	} else if ( priority == THREAD_ABOVE_NORMAL ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_ABOVE_NORMAL );
+		SetThreadPriority( handle, THREAD_PRIORITY_ABOVE_NORMAL );
 	} else if ( priority == THREAD_BELOW_NORMAL ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_BELOW_NORMAL );
+		SetThreadPriority( handle, THREAD_PRIORITY_BELOW_NORMAL );
 	} else if ( priority == THREAD_LOWEST ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_LOWEST );
+		SetThreadPriority( handle, THREAD_PRIORITY_LOWEST );
 	}
 
 	// Under Windows, we don't set the thread affinity and let the OS deal with scheduling
 
-	return (uintptr_t)handle;
+	return reinterpret_cast<uintptr_t>(handle);
 }
 
 
@@ -138,7 +138,7 @@ Sys_WaitForThread
 ========================
 */
 void Sys_WaitForThread(const uintptr_t threadHandle ) {
-	WaitForSingleObject( (HANDLE)threadHandle, INFINITE );
+	WaitForSingleObject( reinterpret_cast<HANDLE>(threadHandle), INFINITE );
 }
 
 /*
@@ -150,8 +150,8 @@ void Sys_DestroyThread(const uintptr_t threadHandle ) {
 	if ( threadHandle == 0 ) {
 		return;
 	}
-	WaitForSingleObject( (HANDLE)threadHandle, INFINITE );
-	CloseHandle( (HANDLE)threadHandle );
+	WaitForSingleObject( reinterpret_cast<HANDLE>(threadHandle), INFINITE );
+	CloseHandle( reinterpret_cast<HANDLE>(threadHandle) );
 }
 
 /*
@@ -233,7 +233,9 @@ Sys_MutexCreate
 ========================
 */
 void Sys_MutexCreate( mutexHandle_t & handle ) {
+#ifndef USE_STL_MUTEX
 	InitializeCriticalSection( &handle );
+#endif
 }
 
 /*
@@ -242,7 +244,9 @@ Sys_MutexDestroy
 ========================
 */
 void Sys_MutexDestroy( mutexHandle_t & handle ) {
+#ifndef USE_STL_MUTEX
 	DeleteCriticalSection( &handle );
+#endif
 }
 
 /*
@@ -250,14 +254,31 @@ void Sys_MutexDestroy( mutexHandle_t & handle ) {
 Sys_MutexLock
 ========================
 */
+_Success_(return != 0)
 bool Sys_MutexLock( mutexHandle_t & handle, const bool blocking ) {
-	if ( TryEnterCriticalSection( &handle ) == 0 ) {
+#ifdef USE_STL_MUTEX
+	//_Acquires_lock_(handle)
+	auto result = handle.try_lock();
+	if (result == 0) {
+		if (!blocking) {
+			return false;
+		}
+		//_Acquires_lock_(handle)
+		handle.lock();
+	}
+	return true;
+#else
+	_Acquires_lock_(handle)
+	auto result = TryEnterCriticalSection(&handle);
+	if ( result == 0 ) {
 		if ( !blocking ) {
 			return false;
 		}
+		_Acquires_lock_(handle)
 		EnterCriticalSection( &handle );
 	}
 	return true;
+#endif
 }
 
 /*
@@ -266,7 +287,13 @@ Sys_MutexUnlock
 ========================
 */
 void Sys_MutexUnlock( mutexHandle_t & handle ) {
-	LeaveCriticalSection( & handle );
+#ifdef USE_STL_MUTEX
+	//_Releases_lock_(handle)
+	handle.unlock();
+#else
+	_Releases_lock_(handle)
+	LeaveCriticalSection( &handle );
+#endif
 }
 
 /*
@@ -283,7 +310,11 @@ Sys_InterlockedIncrement
 ========================
 */
 interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t & value ) {
+#if defined(ID_WIN32)
 	return InterlockedIncrementAcquire( & value );
+#elif defined (ID_WIN64)
+	return InterlockedIncrementAcquire64(&value);
+#endif
 }
 
 /*
@@ -292,7 +323,11 @@ Sys_InterlockedDecrement
 ========================
 */
 interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t & value ) {
-	return InterlockedDecrementRelease( & value );
+#if defined(ID_WIN32)
+	return InterlockedDecrementRelease(&value);
+#elif defined (ID_WIN64)
+	return InterlockedDecrementRelease64(&value);
+#endif
 }
 
 /*
@@ -301,7 +336,11 @@ Sys_InterlockedAdd
 ========================
 */
 interlockedInt_t Sys_InterlockedAdd( interlockedInt_t & value, const interlockedInt_t i ) {
+#if defined(ID_WIN32)
 	return InterlockedExchangeAdd( & value, i ) + i;
+#elif defined (ID_WIN64)
+	return InterlockedExchangeAdd64(&value, i) + i;
+#endif
 }
 
 /*
@@ -310,7 +349,11 @@ Sys_InterlockedSub
 ========================
 */
 interlockedInt_t Sys_InterlockedSub( interlockedInt_t & value, const interlockedInt_t i ) {
+#if defined(ID_WIN32)
 	return InterlockedExchangeAdd( & value, - i ) - i;
+#elif defined (ID_WIN64)
+	return InterlockedExchangeAdd64(&value, -i) - i;
+#endif
 }
 
 /*
@@ -319,7 +362,11 @@ Sys_InterlockedExchange
 ========================
 */
 interlockedInt_t Sys_InterlockedExchange( interlockedInt_t & value, const interlockedInt_t exchange ) {
+#if defined(ID_WIN32)
 	return InterlockedExchange( & value, exchange );
+#elif defined (ID_WIN64)
+	return InterlockedExchange64(&value, exchange);
+#endif
 }
 
 /*
@@ -328,7 +375,11 @@ Sys_InterlockedCompareExchange
 ========================
 */
 interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t & value, const interlockedInt_t comparand, const interlockedInt_t exchange ) {
+#if defined(ID_WIN32)
 	return InterlockedCompareExchange( & value, exchange, comparand );
+#elif defined (ID_WIN64)
+	return InterlockedCompareExchange64(&value, exchange, comparand);
+#endif
 }
 
 /*

@@ -378,7 +378,7 @@ void idCollisionModelManagerLocal::DebugOutput( const idVec3 &origin ) {
 		return;
 	}
 
-	testend = (idVec3 *) Mem_Alloc( cm_testTimes.GetInteger() * sizeof(idVec3), TAG_COLLISION );
+	testend = static_cast<idVec3*>(Mem_Alloc(cm_testTimes.GetInteger() * sizeof(idVec3), TAG_COLLISION));
 
 	if ( cm_testReset.GetBool() || ( cm_testWalk.GetBool() && !start.Compare( start ) ) ) {
 		total_translation = total_rotation = 0;
@@ -435,11 +435,11 @@ void idCollisionModelManagerLocal::DebugOutput( const idVec3 &origin ) {
 	num_translation++;
 	total_translation += t;
 	if ( cm_testTimes.GetInteger() > 9999 ) {
-		sprintf( buf, "%3dK", (int ) ( cm_testTimes.GetInteger() / 1000 ) );
+		sprintf( buf, "%3dK", static_cast<int>(cm_testTimes.GetInteger() / 1000) );
 	} else {
 		sprintf( buf, "%4d", cm_testTimes.GetInteger() );
 	}
-	common->Printf("%s translations: %4d milliseconds, (min = %d, max = %d, av = %1.1f)\n", buf, t, min_translation, max_translation, (float) total_translation / num_translation );
+	common->Printf("%s translations: %4d milliseconds, (min = %d, max = %d, av = %1.1f)\n", buf, t, min_translation, max_translation, static_cast<float>(total_translation) / num_translation );
 
 	if ( cm_testRandomMany.GetBool() ) {
 		// if many traces in one random direction
@@ -477,11 +477,11 @@ void idCollisionModelManagerLocal::DebugOutput( const idVec3 &origin ) {
 		num_rotation++;
 		total_rotation += t;
 		if ( cm_testTimes.GetInteger() > 9999 ) {
-			sprintf( buf, "%3dK", (int ) ( cm_testTimes.GetInteger() / 1000 ) );
+			sprintf( buf, "%3dK", static_cast<int>(cm_testTimes.GetInteger() / 1000) );
 		} else {
 			sprintf( buf, "%4d", cm_testTimes.GetInteger() );
 		}
-		common->Printf("%s rotation: %4d milliseconds, (min = %d, max = %d, av = %1.1f)\n", buf, t, min_rotation, max_rotation, (float) total_rotation / num_rotation );
+		common->Printf("%s rotation: %4d milliseconds, (min = %d, max = %d, av = %1.1f)\n", buf, t, min_rotation, max_rotation, static_cast<float>(total_rotation) / num_rotation );
 	}
 
 	Mem_Free( testend );

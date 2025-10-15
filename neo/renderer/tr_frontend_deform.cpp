@@ -92,12 +92,12 @@ static drawSurf_t * R_AutospriteDeform( drawSurf_t *surf ) {
 	}
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = srcTri->numVerts;
 	newTri->numIndexes = srcTri->numIndexes;
 
-	idDrawVert * newVerts = (idDrawVert *)_alloca16( ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 ) );
-	triIndex_t * newIndexes = (triIndex_t *)_alloca16( ALIGN( srcTri->numIndexes * sizeof( triIndex_t ), 16 ) );
+	idDrawVert * newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 )));
+	triIndex_t * newIndexes = static_cast<triIndex_t*>(_alloca16(ALIGN( srcTri->numIndexes * sizeof( triIndex_t ), 16 )));
 
 	for ( int i = 0; i < srcTri->numVerts; i += 4 ) {
 		// find the midpoint
@@ -177,11 +177,11 @@ static drawSurf_t * R_TubeDeform( drawSurf_t * surf ) {
 	R_GlobalPointToLocal( surf->space->modelMatrix, tr.viewDef->renderView.vieworg, localView );
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = srcTri->numVerts;
 	newTri->numIndexes = srcTri->numIndexes;
 
-	idDrawVert * newVerts = (idDrawVert *)_alloca16( ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 ) );
+	idDrawVert * newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 )));
 	for ( int i = 0; i < srcTri->numVerts; i++ ) {
 		newVerts[i].Clear();
 	}
@@ -394,11 +394,11 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 	constexpr int maxIndexes = 18 * 3;
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = maxVerts;
 	newTri->numIndexes = maxIndexes;
 
-	idDrawVert *newVerts = (idDrawVert *)_alloca16( ALIGN( maxVerts * sizeof( idDrawVert ), 16 ) );
+	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( maxVerts * sizeof( idDrawVert ), 16 )));
 
 	idVec3 edgeDir[4][3];
 
@@ -476,11 +476,11 @@ static drawSurf_t * R_ExpandDeform( drawSurf_t * surf ) {
 	assert( srcTri->staticModelWithJoints == NULL );
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = srcTri->numVerts;
 	newTri->numIndexes = srcTri->numIndexes;
 
-	idDrawVert *newVerts = (idDrawVert *)_alloca16( ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 ) );
+	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 )));
 
 	const float dist = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ];
 	for ( int i = 0; i < srcTri->numVerts; i++ ) {
@@ -504,11 +504,11 @@ static drawSurf_t * R_MoveDeform( drawSurf_t * surf ) {
 	assert( srcTri->staticModelWithJoints == NULL );
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = srcTri->numVerts;
 	newTri->numIndexes = srcTri->numIndexes;
 
-	idDrawVert *newVerts = (idDrawVert *)_alloca16( ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 ) );
+	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 )));
 
 	const float dist = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ];
 	for ( int i = 0; i < srcTri->numVerts; i++ ) {
@@ -532,13 +532,13 @@ static drawSurf_t * R_TurbulentDeform( drawSurf_t * surf ) {
 	assert( srcTri->staticModelWithJoints == NULL );
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = srcTri->numVerts;
 	newTri->numIndexes = srcTri->numIndexes;
 
-	idDrawVert *newVerts = (idDrawVert *)_alloca16( ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 ) );
+	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 )));
 
-	const idDeclTable * table = (const idDeclTable *)surf->material->GetDeformDecl();
+	const idDeclTable * table = static_cast<const idDeclTable*>(surf->material->GetDeformDecl());
 	const float range = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ];
 	const float timeOfs = surf->shaderRegisters[ surf->material->GetDeformRegister(1) ];
 	const float domain = surf->shaderRegisters[ surf->material->GetDeformRegister(2) ];
@@ -668,12 +668,12 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 	const idJointMat * joints = ( srcTri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : nullptr;
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
-	srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 	newTri->numVerts = srcTri->numVerts;
 	newTri->numIndexes = srcTri->numIndexes;
 
-	idDrawVert *newVerts = (idDrawVert *)_alloca16( ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 ) );
-	triIndex_t *newIndexes = (triIndex_t *)_alloca16( ALIGN( srcTri->numIndexes * sizeof( triIndex_t ), 16 ) );
+	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 )));
+	triIndex_t *newIndexes = static_cast<triIndex_t*>(_alloca16(ALIGN( srcTri->numIndexes * sizeof( triIndex_t ), 16 )));
 
 	// decide which islands are the eyes and points
 	for ( int i = 0; i < numIslands; i++ ) {
@@ -771,7 +771,7 @@ Emit particles from the surface.
 static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	const renderEntity_t * renderEntity = &surf->space->entityDef->parms;
 	const viewDef_t * viewDef = tr.viewDef;
-	const idDeclParticle * particleSystem = (const idDeclParticle *)surf->material->GetDeformDecl();
+	const idDeclParticle * particleSystem = static_cast<const idDeclParticle*>(surf->material->GetDeformDecl());
 	const srfTriangles_t * srcTri = surf->frontEndGeo;
 
 	if ( r_skipParticles.GetBool() ) {
@@ -788,7 +788,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	const idJointMat * joints = ( ( srcTri->staticModelWithJoints != nullptr) && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : nullptr;
 
 	if ( useArea ) {
-		sourceTriAreas = (float *)_alloca( sizeof( *sourceTriAreas ) * numSourceTris );
+		sourceTriAreas = static_cast<float*>(_alloca(sizeof(*sourceTriAreas) * numSourceTris));
 		int	triNum = 0;
 		for ( int i = 0; i < srcTri->numIndexes; i += 3, triNum++ ) {
 			float area = idWinding::TriangleArea(	idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[ srcTri->indexes[ i+0 ] ], joints ),
@@ -897,7 +897,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 				}
 
 				// supress particles before or after the age clamp
-				g.frac = (float)inCycleTime / ( stage->particleLife * 1000.0f );
+				g.frac = static_cast<float>(inCycleTime) / ( stage->particleLife * 1000.0f );
 				if ( g.frac < 0.0f ) {
 					// yet to be spawned
 					continue;
@@ -972,14 +972,14 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 		}
 
 		// allocate a srfTriangles in temp memory that can hold all the particles
-		srfTriangles_t * newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+		srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
 		newTri->bounds = stage->bounds;		// just always draw the particles
 		newTri->numVerts = numVerts;
 		newTri->numIndexes = numIndexes;
 		newTri->ambientCache = vertexCache.AllocVertex( newVerts, ALIGN( numVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
 		newTri->indexCache = vertexCache.AllocIndex( newIndexes, ALIGN( numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
 
-		drawSurf_t * drawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+		drawSurf_t * drawSurf = static_cast<drawSurf_t*>(R_FrameAlloc(sizeof(*drawSurf), FRAME_ALLOC_DRAW_SURFACE));
 		drawSurf->frontEndGeo = newTri;
 		drawSurf->numIndexes = newTri->numIndexes;
 		drawSurf->ambientCache = newTri->ambientCache;

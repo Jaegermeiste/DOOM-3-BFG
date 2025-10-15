@@ -150,7 +150,8 @@ bool idLobby::SendCompletedSnaps() {
 idLobby::SendResources
 ========================
 */
-bool idLobby::SendResources( int p ) {
+bool idLobby::SendResources( int p ) const
+{
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	return false;
@@ -255,7 +256,7 @@ void idLobby::SendCompletedPendingSnap( int p ) {
 	int timeFromLastSend = time - peer.lastSnapTime;
 
 	if ( timeFromLastSend > 0 ) {
-		peer.snapHz = 1000.0f / (float)timeFromLastSend;
+		peer.snapHz = 1000.0f / static_cast<float>(timeFromLastSend);
 	} else {
 		peer.snapHz = 0.0f;
 	}
@@ -378,7 +379,7 @@ void idLobby::CheckPeerThrottle( int p ) {
 
 				// Increase throttle time if peer is < % of what we are sending him
 				if ( pct < session->GetTitleStorageFloat( "net_peer_throttle_bps_peer_threshold_pct", net_peer_throttle_bps_peer_threshold_pct.GetFloat() ) ) {
-					peer.receivedThrottle += (float)deltaT;
+					peer.receivedThrottle += static_cast<float>(deltaT);
 					throttled = true;
 					NET_VERBOSE_PRINT("NET: throttled... %.2f ....pct %.2f  receivedBps %.2f outgoingBps %.2f, peer %i, seq %i\n", peer.receivedThrottle, pct, peer.receivedBps, sentBps, p, peer.snapProc->GetFullSnapBaseSequence() );
 				}
@@ -387,7 +388,7 @@ void idLobby::CheckPeerThrottle( int p ) {
 			if ( !throttled ) {
 				float decayRate = session->GetTitleStorageFloat( "net_peer_throttle_bps_decay", net_peer_throttle_bps_decay.GetFloat() );
 
-				peer.receivedThrottle = Max<float>( 0.0f, peer.receivedThrottle - ( ( (float)deltaT ) * decayRate ) );
+				peer.receivedThrottle = Max<float>( 0.0f, peer.receivedThrottle - ( static_cast<float>(deltaT) * decayRate ) );
 				//NET_VERBOSE_PRINT("NET: !throttled... %.2f ....receivedBps %.2f outgoingBps %.2f\n", peer.receivedThrottle, peer.receivedBps, sentBps );
 			}
 

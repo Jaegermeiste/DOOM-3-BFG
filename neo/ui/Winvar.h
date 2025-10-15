@@ -41,7 +41,8 @@ public:
 	virtual ~idWinVar();
 
 	void SetGuiInfo(idDict *gd, const char *_name);
-	const char *GetName() const { 
+
+	[[nodiscard]] const char *GetName() const { 
 		if (name) {
 			if (guiDict && *name == '*') {
 				return guiDict->GetString(&name[1]);
@@ -65,24 +66,26 @@ public:
 		return *this;
 	}
 
-	idDict *GetDict() const { return guiDict; }
-	bool NeedsUpdate() { return (guiDict != nullptr); }
+	[[nodiscard]] idDict *GetDict() const { return guiDict; }
+	[[nodiscard]] bool NeedsUpdate() const { return (guiDict != nullptr); }
 
 	virtual void Init(const char *_name, idWindow* win) = 0;
 	virtual void Set(const char *val) = 0;
 	virtual void Update() = 0;
-	virtual const char *c_str() const = 0;
+	[[nodiscard]] virtual const char *c_str() const = 0;
 	virtual size_t Size() {	size_t sz = (name) ? strlen(name) : 0; return sz + sizeof(*this); }
 
 	virtual void WriteToSaveGame( idFile *savefile ) = 0;
 	virtual void ReadFromSaveGame( idFile *savefile ) = 0;
 
-	virtual float x() const = 0;
+	[[nodiscard]] virtual float x() const = 0;
 
 	void SetEval(bool b) {
 		eval = b;
 	}
-	bool GetEval() {
+
+	[[nodiscard]] bool GetEval() const
+	{
 		return eval;
 	}
 	
@@ -101,7 +104,7 @@ public:
 			data = guiDict->GetBool(GetName());
 		}
 	}
-	int	operator==(	const bool &other ) { return (other == data); }
+	int	operator==(	const bool &other ) const { return (other == data); }
 	bool &operator=(	const bool &other ) {
 		data = other;
 		if (guiDict) {
@@ -131,7 +134,7 @@ public:
 		}
 	}
 
-	virtual const char *c_str() const {return va("%i", data); }
+	[[nodiscard]] virtual const char *c_str() const {return va("%i", data); }
 
 	// SaveGames
 	virtual void WriteToSaveGame( idFile *savefile ) {
@@ -143,7 +146,7 @@ public:
 		savefile->Read( &data, sizeof( data ) );
 	}
 
-	virtual float x() const { return data ? 1.0f : 0.0f; };
+	[[nodiscard]] virtual float x() const { return data ? 1.0f : 0.0f; };
 
 protected:
 	bool data;
@@ -206,7 +209,8 @@ public:
 		}
 		data.RemoveColors();
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return data.c_str();
 	}
 
@@ -251,7 +255,7 @@ public:
 	}
 
 	// return wether string is emtpy
-	virtual float x() const { return data[0] ? 1.0f : 0.0f; };
+	[[nodiscard]] virtual float x() const { return data[0] ? 1.0f : 0.0f; };
 
 protected:
 	idStr data;
@@ -295,7 +299,8 @@ public:
 			data = guiDict->GetInt( s );
 		}
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return va("%i", data);
 	}
 
@@ -310,7 +315,7 @@ public:
 	}
 
 	// no suitable conversion
-	virtual float x() const { assert( false ); return 0.0f; };
+	[[nodiscard]] virtual float x() const { assert( false ); return 0.0f; };
 
 protected:
 	int data;
@@ -353,7 +358,8 @@ public:
 			data = guiDict->GetFloat( s );
 		}
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return va("%f", data);
 	}
 
@@ -366,7 +372,7 @@ public:
 		savefile->Read( &data, sizeof( data ) );
 	}
 
-	virtual float x() const { return data; };
+	[[nodiscard]] virtual float x() const { return data; };
 protected:
 	float data;
 };
@@ -416,25 +422,32 @@ public:
 		return data;
 	}
 
-	float x() const {
+	[[nodiscard]] float x() const {
 		return data.x;
 	}
-	float y() const {
+
+	[[nodiscard]] float y() const {
 		return data.y;
 	}
-	float w() const {
+
+	[[nodiscard]] float w() const {
 		return data.w;
 	}
-	float h() const {
+
+	[[nodiscard]] float h() const {
 		return data.h;
 	}
-	float Right() const {
+
+	[[nodiscard]] float Right() const {
 		return data.Right();
 	}
-	float Bottom() const {
+
+	[[nodiscard]] float Bottom() const {
 		return data.Bottom();
 	}
-	idVec4 &ToVec4() {
+
+	[[nodiscard]] idVec4 &ToVec4() const
+	{
 		static idVec4 ret;
 		ret = data.ToVec4();
 		return ret;
@@ -461,7 +474,7 @@ public:
 		}
 	}
 
-	virtual const char *c_str() const {
+	[[nodiscard]] virtual const char *c_str() const {
 		return data.ToVec4().ToString();
 	}
 
@@ -504,10 +517,12 @@ public:
 		}
 		return data;
 	}
-	float x() const {
+
+	[[nodiscard]] float x() const {
 		return data.x;
 	}
-	float y() const {
+
+	[[nodiscard]] float y() const {
 		return data.y;
 	}
 	virtual void Set(const char *val) {
@@ -529,7 +544,8 @@ public:
 			data = guiDict->GetVec2( s );
 		}
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return data.ToString();
 	}
 	void Zero() {
@@ -578,19 +594,19 @@ public:
 		return data;
 	}
 
-	float x() const {
+	[[nodiscard]] float x() const {
 		return data.x;
 	}
 
-	float y() const {
+	[[nodiscard]] float y() const {
 		return data.y;
 	}
 
-	float z() const {
+	[[nodiscard]] float z() const {
 		return data.z;
 	}
 
-	float w() const {
+	[[nodiscard]] float w() const {
 		return data.w;
 	}
 	virtual void Set(const char *val) {
@@ -609,7 +625,8 @@ public:
 			data = guiDict->GetVec4( s );
 		}
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return data.ToString();
 	}
 
@@ -620,7 +637,7 @@ public:
 		}
 	}
 
-	const idVec3 &ToVec3() const {
+	[[nodiscard]] const idVec3 &ToVec3() const {
 		return data.ToVec3();
 	}
 
@@ -666,15 +683,15 @@ public:
 		return data;
 	}
 
-	float x() const {
+	[[nodiscard]] float x() const {
 		return data.x;
 	}
 
-	float y() const {
+	[[nodiscard]] float y() const {
 		return data.y;
 	}
 
-	float z() const {
+	[[nodiscard]] float z() const {
 		return data.z;
 	}
 
@@ -690,7 +707,8 @@ public:
 			data = guiDict->GetVector( s );
 		}
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return data.ToString();
 	}
 
@@ -771,7 +789,8 @@ public:
 		}
 		return data.Length();
 	}
-	virtual const char *c_str() const {
+
+	[[nodiscard]] virtual const char *c_str() const {
 		return data.c_str();
 	}
 

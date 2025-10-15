@@ -43,19 +43,19 @@ extern int64 com_engineHz_numerator;
 extern int64 com_engineHz_denominator;
 
 // Returns the msec the frame starts on
-ID_INLINE int FRAME_TO_MSEC( int64 frame ) {
+ID_INLINE int FRAME_TO_MSEC( int64 frame ) noexcept {
 	return static_cast<int>((frame * com_engineHz_numerator) / com_engineHz_denominator);
 }
 // Rounds DOWN to the nearest frame
-ID_INLINE int MSEC_TO_FRAME_FLOOR( int msec ) {
+ID_INLINE int MSEC_TO_FRAME_FLOOR( int msec ) noexcept {
 	return static_cast<int>(((static_cast<int64>(msec) * com_engineHz_denominator) + (com_engineHz_denominator - 1)) / com_engineHz_numerator);
 }
 // Rounds UP to the nearest frame
-ID_INLINE int MSEC_TO_FRAME_CEIL( int msec ) {
+ID_INLINE int MSEC_TO_FRAME_CEIL( int msec ) noexcept {
 	return static_cast<int>(((static_cast<int64>(msec) * com_engineHz_denominator) + (com_engineHz_numerator - 1)) / com_engineHz_numerator);
 }
 // Aligns msec so it starts on a frame boundary
-ID_INLINE int MSEC_ALIGN_TO_FRAME( int msec ) {
+ID_INLINE int MSEC_ALIGN_TO_FRAME( int msec ) noexcept {
 	return FRAME_TO_MSEC( MSEC_TO_FRAME_CEIL( msec ) );
 }
 
@@ -71,9 +71,9 @@ class idMatchParameters;
 
 struct lobbyConnectInfo_t;
 
-ID_INLINE void BeginProfileNamedEventColor( uint32 color, VERIFY_FORMAT_STRING const char * szName ) {
+ID_INLINE void BeginProfileNamedEventColor( uint32 color, VERIFY_FORMAT_STRING const char * szName ) noexcept {
 }
-ID_INLINE void EndProfileNamedEvent() {
+ID_INLINE void EndProfileNamedEvent() noexcept {
 }
 
 ID_INLINE void BeginProfileNamedEvent( VERIFY_FORMAT_STRING const char * szName ) {
@@ -88,11 +88,11 @@ public:
 
 #define SCOPED_PROFILE_EVENT( x ) idScopedProfileEvent scopedProfileEvent_##__LINE__( x )
 
-ID_INLINE bool BeginTraceRecording( char * szName ) {
+ID_INLINE bool BeginTraceRecording( char * szName ) noexcept {
 	return false;
 }
 
-ID_INLINE bool EndTraceRecording() {
+ID_INLINE bool EndTraceRecording() noexcept {
 	return false;
 }
 
@@ -175,7 +175,7 @@ public:
 
 								// Shuts down everything.
 	virtual void				Shutdown() = 0;
-	virtual bool				IsShuttingDown() const = 0;
+	[[nodiscard]] virtual bool				IsShuttingDown() const = 0;
 
 	virtual	void				CreateMainMenu() = 0;
 
@@ -183,7 +183,7 @@ public:
 	virtual void				Quit() = 0;
 
 								// Returns true if common initialization is complete.
-	virtual bool				IsInitialized() const = 0;
+	[[nodiscard]] virtual bool				IsInitialized() const = 0;
 
 								// Called repeatedly as the foreground thread for rendering and game logic.
 	virtual void				Frame() = 0;
@@ -297,17 +297,17 @@ public:
 	virtual void				LaunchExternalTitle( int titleIndex, int device, const lobbyConnectInfo_t * const connectInfo ) = 0;
 
 	virtual void				InitializeMPMapsModes() = 0;
-	virtual const idStrList &			GetModeList() const = 0;
-	virtual const idStrList &			GetModeDisplayList() const = 0;
-	virtual const idList<mpMap_t> &		GetMapList() const = 0;
+	[[nodiscard]] virtual const idStrList &			GetModeList() const = 0;
+	[[nodiscard]] virtual const idStrList &			GetModeDisplayList() const = 0;
+	[[nodiscard]] virtual const idList<mpMap_t> &		GetMapList() const = 0;
 
 	virtual void				ResetPlayerInput( int playerIndex ) = 0;
 
-	virtual bool				JapaneseCensorship() const = 0;
+	[[nodiscard]] virtual bool				JapaneseCensorship() const = 0;
 
 	virtual void				QueueShowShell() = 0;		// Will activate the shell on the next frame.
 
-	virtual currentGame_t		GetCurrentGame() const = 0;
+	[[nodiscard]] virtual currentGame_t		GetCurrentGame() const = 0;
 	virtual void				SwitchToGame( currentGame_t newGame ) = 0;
 };
 

@@ -536,7 +536,7 @@ void idKeyInput::WriteBindings( idFile *f ) {
 
 	for ( int i = 0; i < K_LAST_KEY; i++ ) {
 		if ( keys[i].binding.Length() ) {
-			const char *name = KeyNumToString( (keyNum_t)i );
+			const char *name = KeyNumToString( static_cast<keyNum_t>(i) );
 			f->Printf( "bind \"%s\" \"%s\"\n", name, keys[i].binding.c_str() );
 		}
 	}
@@ -550,7 +550,7 @@ Key_ListBinds_f
 void Key_ListBinds_f( const idCmdArgs &args ) {
 	for ( int i = 0; i < K_LAST_KEY; i++ ) {
 		if ( keys[i].binding.Length() ) {
-			common->Printf( "%s \"%s\"\n", idKeyInput::KeyNumToString( (keyNum_t)i ), keys[i].binding.c_str() );
+			common->Printf( "%s \"%s\"\n", idKeyInput::KeyNumToString( static_cast<keyNum_t>(i) ), keys[i].binding.c_str() );
 		}
 	}
 }
@@ -571,7 +571,7 @@ const char *idKeyInput::KeysFromBinding( const char *bind ) {
 				if ( keyName[0] != '\0' ) {
 					idStr::Append( keyName, sizeof( keyName ), idLocalization::GetString( "#str_07183" ) );
 				} 
-				idStr::Append( keyName, sizeof( keyName ), LocalizedKeyName( (keyNum_t)i ) );
+				idStr::Append( keyName, sizeof( keyName ), LocalizedKeyName( static_cast<keyNum_t>(i) ) );
 			}
 		}
 	}
@@ -600,9 +600,9 @@ keyBindings_t idKeyInput::KeyBindingsFromBinding( const char * bind, bool firstO
 				if ( i >= K_JOY1 && i <= K_JOY_DPAD_RIGHT ) {
 					const char * gamepadKey = ""; 
 					if ( localized ) {
-						gamepadKey = LocalizedKeyName( (keyNum_t)i );
+						gamepadKey = LocalizedKeyName( static_cast<keyNum_t>(i) );
 					} else {
-						gamepadKey = KeyNumToString( (keyNum_t)i );
+						gamepadKey = KeyNumToString( static_cast<keyNum_t>(i) );
 					}
 					if ( idStr::Icmp( gamepadKey, "" ) != 0 ) {
 						if ( !gamepad.IsEmpty() ) {
@@ -616,9 +616,9 @@ keyBindings_t idKeyInput::KeyBindingsFromBinding( const char * bind, bool firstO
 				} else if ( i >= K_MOUSE1 && i <= K_MWHEELUP ) {
 					const char * mouseKey = ""; 
 					if ( localized ) {
-						mouseKey = LocalizedKeyName( (keyNum_t)i );
+						mouseKey = LocalizedKeyName( static_cast<keyNum_t>(i) );
 					} else {
-						mouseKey = KeyNumToString( (keyNum_t)i );
+						mouseKey = KeyNumToString( static_cast<keyNum_t>(i) );
 					}
 					if ( idStr::Icmp( mouseKey, "" ) != 0 ) {
 						if ( !mouse.IsEmpty() ) {
@@ -632,9 +632,9 @@ keyBindings_t idKeyInput::KeyBindingsFromBinding( const char * bind, bool firstO
 				} else {
 					const char * tmp = ""; 
 					if ( localized ) {
-						tmp = LocalizedKeyName( (keyNum_t)i );
+						tmp = LocalizedKeyName( static_cast<keyNum_t>(i) );
 					} else {
-						tmp = KeyNumToString( (keyNum_t)i );
+						tmp = KeyNumToString( static_cast<keyNum_t>(i) );
 					}
 					if ( idStr::Icmp( tmp, "" ) != 0 && idStr::Icmp( tmp, keyboard ) != 0 ) {
 						if ( !keyboard.IsEmpty() ) {

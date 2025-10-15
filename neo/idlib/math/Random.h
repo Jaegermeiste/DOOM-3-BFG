@@ -41,13 +41,14 @@ If you have questions concerning this license or the applicable additional terms
 
 class idRandom {
 public:
-						idRandom( int seed = 0 );
+						idRandom( int seed = 0 ) noexcept;
 
-	void				SetSeed( int seed );
+	void				SetSeed( int seed ) noexcept;
 	int					GetSeed() const;
 
 	int					RandomInt();			// random integer in the range [0, MAX_RAND]
 	int					RandomInt( int max );		// random integer in the range [0, max[
+	int					RandomInt( const std::integral auto max);		// random integer in the range [0, max[
 	float				RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float				CRandomFloat();		// random number in the range [-1.0f, 1.0f]
 
@@ -57,11 +58,11 @@ private:
 	int					seed;
 };
 
-ID_INLINE idRandom::idRandom(const int seed ) {
+ID_INLINE idRandom::idRandom(const int seed ) noexcept {
 	this->seed = seed;
 }
 
-ID_INLINE void idRandom::SetSeed(const int seed ) {
+ID_INLINE void idRandom::SetSeed(const int seed ) noexcept {
 	this->seed = seed;
 }
 
@@ -79,6 +80,13 @@ ID_INLINE int idRandom::RandomInt(const int max ) {
 		return 0;			// avoid divide by zero error
 	}
 	return RandomInt() % max;
+}
+
+ID_INLINE int idRandom::RandomInt(const std::integral auto max) {
+	if (max == 0) {
+		return 0;			// avoid divide by zero error
+	}
+	return RandomInt() % idMath::integer_cast<int>(max);
 }
 
 ID_INLINE float idRandom::RandomFloat() {
@@ -100,9 +108,9 @@ ID_INLINE float idRandom::CRandomFloat() {
 
 class idRandom2 {
 public:
-							idRandom2( unsigned long seed = 0 );
+							idRandom2( unsigned long seed = 0 ) noexcept;
 
-	void					SetSeed( unsigned long seed );
+	void					SetSeed( unsigned long seed ) noexcept;
 	unsigned long			GetSeed() const;
 
 	int						RandomInt();			// random integer in the range [0, MAX_RAND]
@@ -119,11 +127,11 @@ private:
 	static constexpr unsigned long	IEEE_MASK = 0x007fffff;
 };
 
-ID_INLINE idRandom2::idRandom2(const unsigned long seed ) {
+ID_INLINE idRandom2::idRandom2(const unsigned long seed ) noexcept {
 	this->seed = seed;
 }
 
-ID_INLINE void idRandom2::SetSeed(const unsigned long seed ) {
+ID_INLINE void idRandom2::SetSeed(const unsigned long seed ) noexcept {
 	this->seed = seed;
 }
 
@@ -144,17 +152,17 @@ ID_INLINE int idRandom2::RandomInt(const int max ) {
 }
 
 ID_INLINE float idRandom2::RandomFloat() {
-	unsigned long i;
+	unsigned long i = 0;
 	seed = 1664525L * seed + 1013904223L;
 	i = idRandom2::IEEE_ONE | ( seed & idRandom2::IEEE_MASK );
-	return ( ( *(float *)&i ) - 1.0f );
+	return ( ( *reinterpret_cast<float*>(&i) ) - 1.0f );
 }
 
 ID_INLINE float idRandom2::CRandomFloat() {
-	unsigned long i;
+	unsigned long i = 0;
 	seed = 1664525L * seed + 1013904223L;
 	i = idRandom2::IEEE_ONE | ( seed & idRandom2::IEEE_MASK );
-	return ( 2.0f * ( *(float *)&i ) - 3.0f );
+	return ( 2.0f * ( *reinterpret_cast<float*>(&i) ) - 3.0f );
 }
 
 #endif /* !__MATH_RANDOM_H__ */

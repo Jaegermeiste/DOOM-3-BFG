@@ -131,7 +131,7 @@ allocate_new_datablock
 */
 linkedlist_datablock_internal* allocate_new_datablock() {
     linkedlist_datablock_internal* ldi = nullptr;
-    ldi = (linkedlist_datablock_internal*) ALLOC( sizeof( linkedlist_datablock_internal ) );
+    ldi = static_cast<linkedlist_datablock_internal*>(ALLOC(sizeof( linkedlist_datablock_internal )));
     if ( ldi != nullptr) {
         ldi->next_datablock = nullptr;
         ldi->filled_in_this_block = 0;
@@ -209,9 +209,9 @@ int add_data_in_datablock( linkedlist_data* ll, const void* buf, unsigned long l
         }
 
 		if ( ldi->avail_in_this_block < len ) {
-            copy_this = (unsigned int)ldi->avail_in_this_block;
+            copy_this = static_cast<unsigned int>(ldi->avail_in_this_block);
 		} else {
-            copy_this = (unsigned int)len;
+            copy_this = static_cast<unsigned int>(len);
 		}
 
         to_copy = &( ldi->data[ ldi->filled_in_this_block ] );
@@ -242,7 +242,7 @@ nbByte == 1, 2 or 4 (byte, short or long)
 int ziplocal_putValue( idFile* filestream, unsigned long x, int nbByte ) {
     unsigned char buf[4];
     for ( int n = 0; n < nbByte; n++ ) {
-        buf[n] = (unsigned char)( x & 0xff );
+        buf[n] = static_cast<unsigned char>(x & 0xff);
         x >>= 8;
     }
     if ( x != 0 ) {     
@@ -264,9 +264,9 @@ ziplocal_putValue_inmemory
 ========================
 */
 void ziplocal_putValue_inmemory( void* dest, unsigned long x, int nbByte ){
-    unsigned char* buf = (unsigned char*)dest;
+    unsigned char* buf = static_cast<unsigned char*>(dest);
     for ( int n = 0; n < nbByte; n++ ) {
-        buf[n] = (unsigned char)( x & 0xff );
+        buf[n] = static_cast<unsigned char>(x & 0xff);
         x >>= 8;
     }
 
@@ -291,7 +291,7 @@ unsigned long ziplocal_TmzDateToDosDate( const tm_zip* ptm, unsigned long dosDat
         year -= 80;
 	}
     return (unsigned long)( ( ( ptm->tm_mday ) + ( 32 * ( ptm->tm_mon + 1 ) ) + ( 512 * year ) ) << 16 ) |
-			( ( ptm->tm_sec / 2 ) + ( 32 * ptm->tm_min ) + ( 2048 * (unsigned long)ptm->tm_hour ) );
+			( ( ptm->tm_sec / 2 ) + ( 32 * ptm->tm_min ) + ( 2048 * static_cast<unsigned long>(ptm->tm_hour) ) );
 }
 
 /*
@@ -301,9 +301,9 @@ ziplocal_getByte
 */
 int ziplocal_getByte( idFile* filestream, int *pi ) {
 	unsigned char c;
-	int err = (int)filestream->Read( &c, 1 );
+	int err = static_cast<int>(filestream->Read(&c, 1));
 	if ( err == 1 )	{
-		*pi = (int)c;
+		*pi = static_cast<int>(c);
 		return ZIP_OK;
 	} else {
 		return ZIP_ERRNO;
@@ -432,13 +432,13 @@ unsigned long ziplocal_SearchCentralDir( idFile* filestream ) {
         return 0;
 	}
 
-    uSizeFile = (unsigned long)filestream->Tell();
+    uSizeFile = static_cast<unsigned long>(filestream->Tell());
 
 	if ( uMaxBack > uSizeFile ) {
         uMaxBack = uSizeFile;
 	}
 
-    buf = (unsigned char*)ALLOC( BUFREADCOMMENT + 4 );
+    buf = static_cast<unsigned char*>(ALLOC(BUFREADCOMMENT + 4));
 	if ( buf == nullptr) {
         return 0;
 	}
@@ -458,11 +458,11 @@ unsigned long ziplocal_SearchCentralDir( idFile* filestream ) {
             break;
 		}
 
-		if ( filestream->Read( buf, uReadSize ) != ( int )uReadSize ) {
+		if ( filestream->Read( buf, uReadSize ) != static_cast<int>(uReadSize) ) {
             break;
 		}
 
-		for ( int i = (int)uReadSize - 3; ( i -- ) > 0; ) {
+		for ( int i = static_cast<int>(uReadSize) - 3; ( i -- ) > 0; ) {
             if ( ( ( *( buf + i ) ) == 0x50 ) && ( ( *( buf + i + 1 ) ) == 0x4b ) && ( ( *( buf + i + 2 ) ) == 0x05 ) && ( ( *( buf + i + 3 ) ) == 0x06 ) ) {
                 uPosFound = uReadPos + i;
                 break;
@@ -497,14 +497,14 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
 	if ( ziinit.filestream == nullptr) {
         return nullptr;
 	}
-	ziinit.begin_pos = (unsigned long)ziinit.filestream->Tell();
+	ziinit.begin_pos = static_cast<unsigned long>(ziinit.filestream->Tell());
     ziinit.in_opened_file_inzip = 0;
     ziinit.ci.stream_initialised = 0;
     ziinit.number_entry = 0;
     ziinit.add_position_when_writting_offset = 0;
     init_linkedlist( &(ziinit.central_dir) );
 
-    zi = (zip_internal*)ALLOC( sizeof( zip_internal ) );
+    zi = static_cast<zip_internal*>(ALLOC(sizeof( zip_internal )));
     if ( zi == nullptr) {
 		delete ziinit.filestream;
 		ziinit.filestream = nullptr;
@@ -589,9 +589,9 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
         }
 
         if ( size_comment > 0 ) {
-            ziinit.globalcomment = (char*)ALLOC( size_comment + 1 );
+            ziinit.globalcomment = static_cast<char*>(ALLOC(size_comment + 1));
             if ( ziinit.globalcomment ) {
-               size_comment = (unsigned long)ziinit.filestream->Read( ziinit.globalcomment, size_comment );
+               size_comment = static_cast<unsigned long>(ziinit.filestream->Read(ziinit.globalcomment, size_comment));
                ziinit.globalcomment[size_comment] = 0;
             }
         }
@@ -611,7 +611,7 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
 				if ( read_this > size_central_dir_to_read ) {
                     read_this = size_central_dir_to_read;
 				}
-				if ( ziinit.filestream->Read( buf_read, read_this ) != ( int )read_this ) {
+				if ( ziinit.filestream->Read( buf_read, read_this ) != static_cast<int>(read_this) ) {
                     err = ZIP_ERRNO;
 				}
 				if ( err == ZIP_OK ) {
@@ -680,7 +680,7 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
         return ZIP_PARAMERROR;
 	}
 
-    zip_internal* zi = (zip_internal*)file;
+    zip_internal* zi = static_cast<zip_internal*>(file);
 
     if ( zi->in_opened_file_inzip == 1 ) {
         err = zipCloseFileInZip( file );
@@ -696,10 +696,10 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 	if ( comment == nullptr) {
         size_comment = 0;
 	} else {
-        size_comment = (unsigned int)idStr::Length( comment );
+        size_comment = static_cast<unsigned int>(idStr::Length(comment));
 	}
 
-    size_filename = (unsigned int)idStr::Length( filename );
+    size_filename = static_cast<unsigned int>(idStr::Length(filename));
 
 	if ( zipfi == nullptr) {
         zi->ci.dosDate = 0;
@@ -731,16 +731,16 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
     zi->ci.stream_initialised = 0;
     zi->ci.pos_in_buffered_data = 0;
     zi->ci.raw = raw;
-    zi->ci.pos_local_header = (unsigned long)zi->filestream->Tell();
+    zi->ci.pos_local_header = static_cast<unsigned long>(zi->filestream->Tell());
     zi->ci.size_centralheader = SIZECENTRALHEADER + size_filename +	size_extrafield_global + size_comment;
-    zi->ci.central_header = (char*)ALLOC( (unsigned int)zi->ci.size_centralheader );
+    zi->ci.central_header = static_cast<char*>(ALLOC((unsigned int)zi->ci.size_centralheader));
 
     ziplocal_putValue_inmemory( zi->ci.central_header, (unsigned long)CENTRALHEADERMAGIC, 4 );
     /* version info */
     ziplocal_putValue_inmemory( zi->ci.central_header + 4, (unsigned long)0, 2 );
     ziplocal_putValue_inmemory( zi->ci.central_header + 6, (unsigned long)20, 2 );
     ziplocal_putValue_inmemory( zi->ci.central_header + 8, (unsigned long)zi->ci.flag, 2 );
-    ziplocal_putValue_inmemory( zi->ci.central_header + 10, (unsigned long)zi->ci.method, 2 );
+    ziplocal_putValue_inmemory( zi->ci.central_header + 10, static_cast<unsigned long>(zi->ci.method), 2 );
     ziplocal_putValue_inmemory( zi->ci.central_header + 12, (unsigned long)zi->ci.dosDate, 4 );
     ziplocal_putValue_inmemory( zi->ci.central_header + 16, (unsigned long)0, 4 ); /*crc*/
     ziplocal_putValue_inmemory( zi->ci.central_header + 20, (unsigned long)0, 4 ); /*compr size*/
@@ -769,7 +769,7 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 	}
 
 	for ( unsigned int i = 0; i < size_extrafield_global; i++ ) {
-        *( zi->ci.central_header + SIZECENTRALHEADER + size_filename + i ) = *( ( ( const char* )extrafield_global ) + i );
+        *( zi->ci.central_header + SIZECENTRALHEADER + size_filename + i ) = *( static_cast<const char*>(extrafield_global) + i );
 	}
 
 	for ( unsigned int i = 0; i < size_comment; i++ ) {
@@ -791,7 +791,7 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 	}
 
 	if ( err == ZIP_OK ) {
-        err = ziplocal_putValue( zi->filestream, (unsigned long)zi->ci.method, 2 );
+        err = ziplocal_putValue( zi->filestream, static_cast<unsigned long>(zi->ci.method), 2 );
 	}
 
 	if ( err == ZIP_OK ) {
@@ -819,27 +819,27 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 	}
 
 	if ( ( err == ZIP_OK ) && ( size_filename > 0 ) ) {
-		if ( zi->filestream->Write( filename, size_filename ) != ( int )size_filename ) {
+		if ( zi->filestream->Write( filename, size_filename ) != static_cast<int>(size_filename) ) {
 			err = ZIP_ERRNO;
 		}
 	}
 
 	if ( ( err == ZIP_OK ) && ( size_extrafield_local > 0 ) ) {
-		if ( zi->filestream->Write( extrafield_local, size_extrafield_local ) != ( int )size_extrafield_local ) {
+		if ( zi->filestream->Write( extrafield_local, size_extrafield_local ) != static_cast<int>(size_extrafield_local) ) {
 			err = ZIP_ERRNO;
 		}
 	}
 
-    zi->ci.stream.avail_in = (unsigned int)0;
-    zi->ci.stream.avail_out = (unsigned int)Z_BUFSIZE;
+    zi->ci.stream.avail_in = static_cast<unsigned int>(0);
+    zi->ci.stream.avail_out = static_cast<unsigned int>(Z_BUFSIZE);
     zi->ci.stream.next_out = zi->ci.buffered_data;
     zi->ci.stream.total_in = 0;
     zi->ci.stream.total_out = 0;
 
     if ( ( err == ZIP_OK ) && ( zi->ci.method == Z_DEFLATED ) && ( !zi->ci.raw ) ) {
-        zi->ci.stream.zalloc = (alloc_func)nullptr;
-        zi->ci.stream.zfree = (free_func)nullptr;
-        zi->ci.stream.opaque = (voidpf)nullptr;
+        zi->ci.stream.zalloc = static_cast<alloc_func>(nullptr);
+        zi->ci.stream.zfree = static_cast<free_func>(nullptr);
+        zi->ci.stream.opaque = static_cast<voidpf>(nullptr);
 
 		if ( windowBits > 0 ) {
             windowBits = -windowBits;
@@ -910,7 +910,7 @@ int zipFlushWriteBuffer( zip_internal* zi ) {
 		}
 #endif
     }
-	if ( zi->filestream->Write( zi->ci.buffered_data, zi->ci.pos_in_buffered_data ) != (int)zi->ci.pos_in_buffered_data ) {
+	if ( zi->filestream->Write( zi->ci.buffered_data, zi->ci.pos_in_buffered_data ) != static_cast<int>(zi->ci.pos_in_buffered_data) ) {
 		err = ZIP_ERRNO;
 	}
     zi->ci.pos_in_buffered_data = 0;
@@ -929,7 +929,7 @@ int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len ) {
 	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
-    zi = (zip_internal*)file;
+    zi = static_cast<zip_internal*>(file);
 
 	if ( zi->in_opened_file_inzip == 0 ) {
         return ZIP_PARAMERROR;
@@ -943,7 +943,7 @@ int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len ) {
 			if ( zipFlushWriteBuffer( zi ) == ZIP_ERRNO ) {
                 err = ZIP_ERRNO;
 			}
-            zi->ci.stream.avail_out = (unsigned int)Z_BUFSIZE;
+            zi->ci.stream.avail_out = static_cast<unsigned int>(Z_BUFSIZE);
             zi->ci.stream.next_out = zi->ci.buffered_data;
         }
 
@@ -954,7 +954,7 @@ int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len ) {
         if ( ( zi->ci.method == Z_DEFLATED ) && ( !zi->ci.raw ) ) {
             unsigned long uTotalOutBefore = zi->ci.stream.total_out;
             err = deflate( &zi->ci.stream,  Z_NO_FLUSH );
-            zi->ci.pos_in_buffered_data += (unsigned int)( zi->ci.stream.total_out - uTotalOutBefore );
+            zi->ci.pos_in_buffered_data += static_cast<unsigned int>(zi->ci.stream.total_out - uTotalOutBefore);
         } else {
             unsigned int copy_this;
 			if ( zi->ci.stream.avail_in < zi->ci.stream.avail_out ) {
@@ -992,7 +992,7 @@ int zipCloseFileInZipRaw( zipFile file, unsigned long uncompressed_size, unsigne
 	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
-    zi = (zip_internal*)file;
+    zi = static_cast<zip_internal*>(file);
 
 	if ( zi->in_opened_file_inzip == 0 ) {
         return ZIP_PARAMERROR;
@@ -1006,12 +1006,12 @@ int zipCloseFileInZipRaw( zipFile file, unsigned long uncompressed_size, unsigne
 				if ( zipFlushWriteBuffer( zi ) == ZIP_ERRNO ) {
 					err = ZIP_ERRNO;
 				}
-				zi->ci.stream.avail_out = (unsigned int)Z_BUFSIZE;
+				zi->ci.stream.avail_out = static_cast<unsigned int>(Z_BUFSIZE);
 				zi->ci.stream.next_out = zi->ci.buffered_data;
 			}
 			uTotalOutBefore = zi->ci.stream.total_out;
 			err = deflate( &zi->ci.stream, Z_FINISH );
-			zi->ci.pos_in_buffered_data += (unsigned int)( zi->ci.stream.total_out - uTotalOutBefore );
+			zi->ci.pos_in_buffered_data += static_cast<unsigned int>(zi->ci.stream.total_out - uTotalOutBefore);
 		}
 	}
 
@@ -1052,7 +1052,7 @@ int zipCloseFileInZipRaw( zipFile file, unsigned long uncompressed_size, unsigne
     TRYFREE( zi->ci.central_header );
 
     if ( err == ZIP_OK ) {
-        long cur_pos_inzip = (long)zi->filestream->Tell();
+        long cur_pos_inzip = static_cast<long>(zi->filestream->Tell());
 		if ( zi->filestream->Seek( zi->ci.pos_local_header + 14, FS_SEEK_SET ) != 0 ) {
             err = ZIP_ERRNO;
 		}
@@ -1102,7 +1102,7 @@ int zipClose( zipFile file, const char* global_comment ) {
 	if ( file == nullptr) {
         return ZIP_PARAMERROR;
 	}
-    zi = (zip_internal*)file;
+    zi = static_cast<zip_internal*>(file);
 
     if ( zi->in_opened_file_inzip == 1 ) {
         err = zipCloseFileInZip( file );
@@ -1116,15 +1116,15 @@ int zipClose( zipFile file, const char* global_comment ) {
 	if ( global_comment == nullptr) {
         size_global_comment = 0;
 	} else {
-        size_global_comment = (unsigned int)idStr::Length( global_comment );
+        size_global_comment = static_cast<unsigned int>(idStr::Length(global_comment));
 	}
 
-    centraldir_pos_inzip = (unsigned long)zi->filestream->Tell();
+    centraldir_pos_inzip = static_cast<unsigned long>(zi->filestream->Tell());
 	if ( err == ZIP_OK ) {
         linkedlist_datablock_internal* ldi = zi->central_dir.first_block;
         while ( ldi != nullptr) {
 			if ( ( err == ZIP_OK ) && ( ldi->filled_in_this_block > 0 ) ) {
-				if ( zi->filestream->Write( ldi->data, ldi->filled_in_this_block ) != (int)ldi->filled_in_this_block ) {
+				if ( zi->filestream->Write( ldi->data, ldi->filled_in_this_block ) != static_cast<int>(ldi->filled_in_this_block) ) {
 					err = ZIP_ERRNO;
 				}
 			}
@@ -1167,7 +1167,7 @@ int zipClose( zipFile file, const char* global_comment ) {
 	}
 
 	if ( ( err == ZIP_OK ) && ( size_global_comment > 0 ) ) {
-		if ( zi->filestream->Write( global_comment, size_global_comment ) != (int)size_global_comment ) {
+		if ( zi->filestream->Write( global_comment, size_global_comment ) != static_cast<int>(size_global_comment) ) {
 			err = ZIP_ERRNO;
 		}
 	}
@@ -1557,7 +1557,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory * > & src
 			size_t total = 0;
 			while ( size_t bytesRead = src->Read( buffer.Ptr(), buffer.Size() ) ) {
 				if ( bytesRead > 0 ) {
-					errcode = zipWriteInFileInZip( zf, buffer.Ptr(), (unsigned int)bytesRead );
+					errcode = zipWriteInFileInZip( zf, buffer.Ptr(), static_cast<unsigned int>(bytesRead) );
 					if ( errcode != ZIP_OK ) {
 						idLib::Warning( "Error writing to zipfile (%i bytes)!", bytesRead );
 						continue;
@@ -1619,7 +1619,8 @@ idZipBuilder::CleanSourceFolder
 this folder is assumed to be a path under FSPATH_BASE
 ========================
 */
-bool idZipBuilder::AddFile( zipFile zf, idFile_Memory *src, bool deleteFile ) {
+bool idZipBuilder::AddFile( zipFile zf, idFile_Memory *src, bool deleteFile ) const
+{
 	// add each file to the zip file
 	zip_fileinfo zi;
 	memset( &zi, 0, sizeof( zip_fileinfo ) );
@@ -1651,7 +1652,7 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory *src, bool deleteFile ) {
 		size_t total = 0;
 		while ( size_t bytesRead = src->Read( buffer.Ptr(), buffer.Size() ) ) {
 			if ( bytesRead > 0 ) {
-				errcode = zipWriteInFileInZip( zf, buffer.Ptr(), (unsigned int)bytesRead );
+				errcode = zipWriteInFileInZip( zf, buffer.Ptr(), static_cast<unsigned int>(bytesRead) );
 				if ( errcode != ZIP_OK ) {
 					idLib::Warning( "Error writing to zipfile (%i bytes)!", bytesRead );
 					continue;

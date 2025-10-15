@@ -166,7 +166,7 @@ public:
 	virtual void			ForceUpdate();
 	virtual int				GetIndex();
 
-	bool					LightCastsShadows() const { return parms.forceShadows || ( !parms.noShadows && lightShader->LightCastsShadows() ); }
+							[[nodiscard]] bool					LightCastsShadows() const { return parms.forceShadows || ( !parms.noShadows && lightShader->LightCastsShadows() ); }
 
 	renderLight_t			parms;					// specification
 
@@ -220,7 +220,7 @@ public:
 	virtual void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material );
 	virtual void			RemoveDecals();
 
-	bool					IsDirectlyVisible() const;
+							[[nodiscard]] bool					IsDirectlyVisible() const;
 
 	renderEntity_t			parms;
 
@@ -685,17 +685,17 @@ public:
 	virtual void			ResetGuiModels();
 	virtual void			InitOpenGL();
 	virtual void			ShutdownOpenGL();
-	virtual bool			IsOpenGLRunning() const;
-	virtual bool			IsFullScreen() const;
-	virtual stereo3DMode_t	GetStereo3DMode() const;
-	virtual bool			HasQuadBufferSupport() const;
-	virtual bool			IsStereoScopicRenderingSupported() const;
-	virtual stereo3DMode_t	GetStereoScopicRenderingMode() const;
+	[[nodiscard]] virtual bool			IsOpenGLRunning() const;
+	[[nodiscard]] virtual bool			IsFullScreen() const;
+	[[nodiscard]] virtual stereo3DMode_t	GetStereo3DMode() const;
+	[[nodiscard]] virtual bool			HasQuadBufferSupport() const;
+	[[nodiscard]] virtual bool			IsStereoScopicRenderingSupported() const;
+	[[nodiscard]] virtual stereo3DMode_t	GetStereoScopicRenderingMode() const;
 	virtual void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const;
-	virtual int				GetWidth() const;
-	virtual int				GetHeight() const;
-	virtual float			GetPixelAspect() const;
-	virtual float			GetPhysicalScreenWidthInCentimeters() const;
+	[[nodiscard]] virtual int				GetWidth() const;
+	[[nodiscard]] virtual int				GetHeight() const;
+	[[nodiscard]] virtual float			GetPixelAspect() const;
+	[[nodiscard]] virtual float			GetPhysicalScreenWidthInCentimeters() const;
 	virtual idRenderWorld *	AllocRenderWorld();
 	virtual void			FreeRenderWorld( idRenderWorld *rw );
 	virtual void			BeginLevelLoad();
@@ -746,9 +746,9 @@ public:
 							~idRenderSystemLocal();
 
 	void					Clear();
-	void					GetCroppedViewport( idScreenRect * viewport );
-	void					PerformResolutionScaling( int& newWidth, int& newHeight );
-	int						GetFrameCount() const { return frameCount; };
+	void					GetCroppedViewport( idScreenRect * viewport ) const;
+	void					PerformResolutionScaling( int& newWidth, int& newHeight ) const;
+	[[nodiscard]] int						GetFrameCount() const { return frameCount; };
 
 public:
 	// renderer globals
@@ -990,7 +990,8 @@ struct vidMode_t {
 	int height;
 	int displayHz;
 
-	bool operator==( const vidMode_t & a ) {
+	bool operator==( const vidMode_t & a ) const
+	{
 		return a.width == width && a.height == height && a.displayHz == displayHz;
 	}
 };
@@ -1101,11 +1102,11 @@ TR_FRONTEND_MAIN
 void R_InitFrameData();
 void R_ShutdownFrameData();
 void R_ToggleSmpFrame();
-void *R_FrameAlloc( int bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
-void *R_ClearedFrameAlloc( int bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
+void *R_FrameAlloc(size_t bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
+void *R_ClearedFrameAlloc(size_t bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
 
-void *R_StaticAlloc( int bytes, const memTag_t tag = TAG_RENDER_STATIC );		// just malloc with error checking
-void *R_ClearedStaticAlloc( int bytes );	// with memset
+void *R_StaticAlloc(size_t bytes, const memTag_t tag = TAG_RENDER_STATIC );		// just malloc with error checking
+void *R_ClearedStaticAlloc(size_t bytes );	// with memset
 void R_StaticFree( void *data );
 
 void R_RenderView( viewDef_t *parms );
@@ -1189,19 +1190,19 @@ TR_TRISURF
 */
 
 srfTriangles_t *	R_AllocStaticTriSurf();
-void				R_AllocStaticTriSurfVerts( srfTriangles_t *tri, int numVerts );
-void				R_AllocStaticTriSurfIndexes( srfTriangles_t *tri, int numIndexes );
-void				R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t *tri, int numVerts );
-void				R_AllocStaticTriSurfSilIndexes( srfTriangles_t *tri, int numIndexes );
-void				R_AllocStaticTriSurfDominantTris( srfTriangles_t *tri, int numVerts );
-void				R_AllocStaticTriSurfSilEdges( srfTriangles_t *tri, int numSilEdges );
-void				R_AllocStaticTriSurfMirroredVerts( srfTriangles_t *tri, int numMirroredVerts );
-void				R_AllocStaticTriSurfDupVerts( srfTriangles_t *tri, int numDupVerts );
+void				R_AllocStaticTriSurfVerts( srfTriangles_t *tri, size_t numVerts );
+void				R_AllocStaticTriSurfIndexes( srfTriangles_t *tri, size_t numIndexes );
+void				R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t *tri, size_t numVerts );
+void				R_AllocStaticTriSurfSilIndexes( srfTriangles_t *tri, size_t numIndexes );
+void				R_AllocStaticTriSurfDominantTris( srfTriangles_t *tri, size_t numVerts );
+void				R_AllocStaticTriSurfSilEdges( srfTriangles_t *tri, size_t numSilEdges );
+void				R_AllocStaticTriSurfMirroredVerts( srfTriangles_t *tri, size_t numMirroredVerts );
+void				R_AllocStaticTriSurfDupVerts( srfTriangles_t *tri, size_t numDupVerts );
 
 srfTriangles_t *	R_CopyStaticTriSurf( const srfTriangles_t *tri );
 
-void				R_ResizeStaticTriSurfVerts( srfTriangles_t *tri, int numVerts );
-void				R_ResizeStaticTriSurfIndexes( srfTriangles_t *tri, int numIndexes );
+void				R_ResizeStaticTriSurfVerts( srfTriangles_t *tri, size_t numVerts );
+void				R_ResizeStaticTriSurfIndexes( srfTriangles_t *tri, size_t numIndexes );
 void				R_ReferenceStaticTriSurfVerts( srfTriangles_t *tri, const srfTriangles_t *reference );
 void				R_ReferenceStaticTriSurfIndexes( srfTriangles_t *tri, const srfTriangles_t *reference );
 
@@ -1209,7 +1210,7 @@ void				R_FreeStaticTriSurfSilIndexes( srfTriangles_t *tri );
 void				R_FreeStaticTriSurf( srfTriangles_t *tri );
 void				R_FreeStaticTriSurfVerts( srfTriangles_t *tri );
 void				R_FreeStaticTriSurfVertexCaches( srfTriangles_t *tri );
-int					R_TriSurfMemory( const srfTriangles_t *tri );
+size_t				R_TriSurfMemory( const srfTriangles_t *tri );
 
 void				R_BoundTriSurf( srfTriangles_t *tri );
 void				R_RemoveDuplicatedTriangles( srfTriangles_t *tri );
@@ -1223,7 +1224,7 @@ void				R_ReverseTriangles( srfTriangles_t *tri );
 
 // Only deals with vertexes and indexes, not silhouettes, planes, etc.
 // Does NOT perform a cleanup triangles, so there may be duplicated verts in the result.
-srfTriangles_t *	R_MergeSurfaceList( const srfTriangles_t **surfaces, int numSurfaces );
+srfTriangles_t *	R_MergeSurfaceList( const srfTriangles_t **surfaces, size_t numSurfaces );
 srfTriangles_t *	R_MergeTriangles( const srfTriangles_t *tri1, const srfTriangles_t *tri2 );
 
 // if the deformed verts have significant enough texture coordinate changes to reverse the texture
@@ -1240,26 +1241,26 @@ void				R_CreateStaticBuffersForTri( srfTriangles_t & tri );
 // deformable meshes precalculate as much as possible from a base frame, then generate
 // complete srfTriangles_t from just a new set of vertexes
 struct deformInfo_t {
-	int					numSourceVerts;
+	size_t				numSourceVerts;
 
 	// numOutputVerts may be smaller if the input had duplicated or degenerate triangles
 	// it will often be larger if the input had mirrored texture seams that needed
 	// to be busted for proper tangent spaces
-	int					numOutputVerts;
+	size_t				numOutputVerts;
 	idDrawVert *		verts;
 
-	int					numIndexes;
+	size_t				numIndexes;
 	triIndex_t *		indexes;
 
 	triIndex_t *		silIndexes;				// indexes changed to be the first vertex with same XYZ, ignoring normal and texcoords
 
-	int					numMirroredVerts;		// this many verts at the end of the vert list are tangent mirrors
+	size_t				numMirroredVerts;		// this many verts at the end of the vert list are tangent mirrors
 	int *				mirroredVerts;			// tri->mirroredVerts[0] is the mirror of tri->numVerts - tri->numMirroredVerts + 0
 
-	int					numDupVerts;			// number of duplicate vertexes
+	size_t				numDupVerts;			// number of duplicate vertexes
 	int *				dupVerts;				// pairs of the number of the first vertex and the number of the duplicate vertex
 
-	int					numSilEdges;			// number of silhouette edges
+	size_t				numSilEdges;			// number of silhouette edges
 	silEdge_t *			silEdges;				// silhouette edges
 
 	vertCacheHandle_t	staticIndexCache;		// GL_INDEX_TYPE
@@ -1269,7 +1270,7 @@ struct deformInfo_t {
 
 
 // if outputVertexes is not NULL, it will point to a newly allocated set of verts that includes the mirrored ones
-deformInfo_t *		R_BuildDeformInfo( int numVerts, const idDrawVert *verts, int numIndexes, const int *indexes, 
+deformInfo_t *		R_BuildDeformInfo(size_t numVerts, const idDrawVert *verts, size_t numIndexes, const size_t*indexes,
 										bool useUnsmoothedTangents );
 void				R_FreeDeformInfo( deformInfo_t *deformInfo );
 int					R_DeformInfoMemoryUsed( deformInfo_t *deformInfo );
@@ -1291,7 +1292,7 @@ struct localTrace_t {
 };
 
 localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float radius, const srfTriangles_t *tri );
-void RB_ShowTrace( drawSurf_t **drawSurfs, int numDrawSurfs );
+void RB_ShowTrace( drawSurf_t **drawSurfs, size_t numDrawSurfs );
 
 /*
 =============================================================
@@ -1325,7 +1326,7 @@ TR_BACKEND_RENDERTOOLS
 =============================================================
 */
 
-float RB_DrawTextLength( const char *text, float scale, int len );
+float RB_DrawTextLength( const char *text, float scale, size_t len );
 void RB_AddDebugText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align, const int lifetime, const bool depthTest );
 void RB_ClearDebugText( int time );
 void RB_AddDebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const int lifeTime, const bool depthTest );
@@ -1333,13 +1334,13 @@ void RB_ClearDebugLines( int time );
 void RB_AddDebugPolygon( const idVec4 &color, const idWinding &winding, const int lifeTime, const bool depthTest );
 void RB_ClearDebugPolygons( int time );
 void RB_DrawBounds( const idBounds &bounds );
-void RB_ShowLights( drawSurf_t **drawSurfs, int numDrawSurfs );
-void RB_ShowLightCount( drawSurf_t **drawSurfs, int numDrawSurfs );
+void RB_ShowLights( drawSurf_t **drawSurfs, size_t numDrawSurfs );
+void RB_ShowLightCount( drawSurf_t **drawSurfs, size_t numDrawSurfs );
 void RB_PolygonClear();
 void RB_ScanStencilBuffer();
 void RB_ShowDestinationAlpha();
 void RB_ShowOverdraw();
-void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs );
+void RB_RenderDebugTools( drawSurf_t **drawSurfs, size_t numDrawSurfs );
 void RB_ShutdownDebugTools();
 
 //=============================================

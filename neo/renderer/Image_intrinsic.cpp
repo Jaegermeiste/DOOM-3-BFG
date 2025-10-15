@@ -223,13 +223,13 @@ void R_FogImage( idImage *image ) {
 				+ (y - FOG_SIZE/2) * (y - FOG_SIZE / 2) );
 			d /= FOG_SIZE/2-1;
 
-			b = (byte)(d * 255);
+			b = static_cast<byte>(d * 255);
 			if ( b <= 0 ) {
 				b = 0;
 			} else if ( b > 255 ) {
 				b = 255;
 			}
-			b = (byte)(255 * ( 1.0 - step[b] ));
+			b = static_cast<byte>(255 * (1.0 - step[b]));
 			if ( x == 0 || x == FOG_SIZE-1 || y == 0 || y == FOG_SIZE-1 ) {
 				b = 255;		// avoid clamping issues
 			}
@@ -333,7 +333,7 @@ void R_FogEnterImage( idImage *image ) {
 
 			d = FogFraction( x - (FOG_ENTER_SIZE / 2), y - (FOG_ENTER_SIZE / 2) );
 
-			b = (byte)(d * 255);
+			b = static_cast<byte>(d * 255);
 			if ( b <= 0 ) {
 				b = 0;
 			} else if ( b > 255 ) {
@@ -378,7 +378,7 @@ void R_QuadraticImage( idImage *image ) {
 			d = 1.0 - d;
 			d = d * d;
 
-			b = (byte)(d * 255);
+			b = static_cast<byte>(d * 255);
 			if ( b <= 0 ) {
 				b = 0;
 			} else if ( b > 255 ) {

@@ -55,7 +55,7 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 	fileData.height = height;
 	fileData.numLevels = numLevels;
 
-	byte * pic = (byte *)Mem_Alloc( width * height * 4, TAG_TEMP );
+	byte * pic = static_cast<byte*>(Mem_Alloc(width * height * 4, TAG_TEMP));
 	memcpy( pic, pic_const, width * height * 4 );
 
 	if ( colorFormat == CFM_YCOCG_DXT5 ) {
@@ -94,7 +94,7 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 			if ( ( scaledWidth & 3 ) || ( scaledHeight & 3 ) ) {
 				dxtWidth = ( scaledWidth + 3 ) & ~3;
 				dxtHeight = ( scaledHeight + 3 ) & ~3;
-				dxtPic = (byte *)Mem_ClearedAlloc( dxtWidth*4*dxtHeight, TAG_IMAGE );
+				dxtPic = static_cast<byte*>(Mem_ClearedAlloc(dxtWidth * 4 * dxtHeight, TAG_IMAGE));
 				for ( int i = 0; i < scaledHeight; i++ ) {
 					memcpy( dxtPic + i*dxtWidth*4, pic + i*scaledWidth*4, scaledWidth*4 );
 				}
@@ -430,7 +430,8 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile * bFile, ID_TIME_T sourceFileT
 idBinaryImage::MakeGeneratedFileName
 ==========================
 */
-void idBinaryImage::MakeGeneratedFileName( idStr & gfn ) {
+void idBinaryImage::MakeGeneratedFileName( idStr & gfn ) const
+{
 	GetGeneratedFileName( gfn, GetName() );
 }
 /*

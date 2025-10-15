@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 static idDynamicBlockAlloc<char, 1<<18, 128, TAG_STRING>	stringDataAllocator;
 #endif
 
-idVec4	g_color_table[16] =
+static idVec4	g_color_table[16] =
 {
 	idVec4(0.0f, 0.0f, 0.0f, 1.0f),
 	idVec4(1.0f, 0.0f, 0.0f, 1.0f), // S_COLOR_RED
@@ -55,7 +55,7 @@ idVec4	g_color_table[16] =
 	idVec4(0.0f, 0.0f, 0.0f, 1.0f),
 };
 
-const char *units[2][4] =
+static const char *units[2][4] =
 {
 	{ "B", "KB", "MB", "GB" },
 	{ "B/s", "KB/s", "MB/s", "GB/s" }
@@ -169,7 +169,7 @@ void idStr::operator=( const char *text ) {
 		return;
 	}
 
-	size_t l = strlen(text);
+	const size_t l = strlen(text);
 	EnsureAlloced( l + 1, false );
 	strcpy( data, text );
 	len = l;
@@ -182,13 +182,23 @@ idStr::FindChar
 returns -1 if not found otherwise the index of the char
 ============
 */
-int64 idStr::FindChar(const char* str, const char c, const size_t start, int64 end) {
-	if ( end == -1 ) {
-		end = strlen( str ) - 1;
+template <Ordinal StartI, Ordinal EndI>
+int64 idStr::FindChar(const char* str, const char c, const StartI start, EndI end) {
+	size_t calculated_end = 0;
+
+	if (end < 0 ) 
+	{
+		calculated_end = strlen(str) - 1;
 	}
-	for ( size_t i = start; std::cmp_less_equal(i, end); i++ ) {
-		if ( str[i] == c ) {
-			return i;
+	else 
+	{
+		calculated_end = idMath::integer_cast<size_t>(end);
+	}
+
+	for ( size_t i = idMath::integer_cast<size_t>(start); std::cmp_less_equal(i, calculated_end); i++ ) {
+		if ( str[i] == c ) 
+		{
+			return idMath::integer_cast<int64>(i);
 		}
 	}
 	return -1;
@@ -201,14 +211,22 @@ idStr::FindText
 returns -1 if not found otherwise the index of the text
 ============
 */
-int idStr::FindText( const char *str, const char *text, const bool casesensitive, const size_t start, int64 end ) {
+template <Ordinal StartI, Ordinal EndI>
+int64 idStr::FindText(const char* str, const char* text, const bool casesensitive, const StartI start, EndI end) {
 	int j;
+	size_t calculated_end = 0;
 
-	if ( end == -1 ) {
-		end = strlen( str );
+	if (end < 0)
+	{
+		calculated_end = strlen(str) - 1;
 	}
-	size_t l = end - strlen(text);
-	for (size_t i = start; i <= l; i++ ) {
+	else 
+	{
+		calculated_end = idMath::integer_cast<size_t>(end);
+	}
+
+	const size_t l = calculated_end - strlen(text);
+	for (size_t i = idMath::integer_cast<size_t>(start); i <= l; i++ ) {
 		if ( casesensitive ) {
 			for ( j = 0; text[j]; j++ ) {
 				if ( str[i+j] != text[j] ) {
@@ -223,7 +241,7 @@ int idStr::FindText( const char *str, const char *text, const bool casesensitive
 			}
 		}
 		if ( !text[j] ) {
-			return i;
+			return idMath::integer_cast<int64>(i);
 		}
 	}
 	return -1;
@@ -261,7 +279,7 @@ bool idStr::Filter( const char *filter, const char *name, const bool casesensiti
 				filter++;
 			}
 			if ( buf.Length() ) {
-				int index = idStr(name).Find(buf.c_str(), casesensitive);
+				const int64 index = idStr(name).Find(buf.c_str(), casesensitive);
 				if ( index == -1 ) {
 					return false;
 				}
@@ -379,8 +397,8 @@ bool idStr::CheckExtension( const char *name, const char *ext ) {
 	const char *s2 = ext + Length( ext ) - 1;
 
 	do {
-		int c1 = *s1--;
-		int c2 = *s2--;
+		const int c1 = *s1--;
+		const int c2 = *s2--;
 
 		int d = c1 - c2;
 		while( d ) {
@@ -409,7 +427,7 @@ idStr::FloatArrayToString
 =============
 */
 const char *idStr::FloatArrayToString( const float *array, const size_t length, const int precision ) {
-	static int index = 0;
+	static size_t index = 0;
 	static char str[4][16384];	// in case called by nested functions
 	char format[16];
 
@@ -418,17 +436,29 @@ const char *idStr::FloatArrayToString( const float *array, const size_t length, 
 	index = (index + 1) & 3;
 
 	idStr::snPrintf( format, sizeof( format ), "%%.%df", precision );
-	int n = idStr::snPrintf(s, sizeof(str[0]), format, array[0]);
+	int64 n = idStr::snPrintf(s, sizeof(str[0]), format, array[0]);
 	if ( precision > 0 ) {
-		while( n > 0 && s[n-1] == '0' ) s[--n] = '\0';
-		while( n > 0 && s[n-1] == '.' ) s[--n] = '\0';
+		while( n > 0 && s[n-1] == '0' )
+		{
+			s[--n] = '\0';
+		}
+		while( n > 0 && s[n-1] == '.' )
+		{
+			s[--n] = '\0';
+		}
 	}
 	idStr::snPrintf( format, sizeof( format ), " %%.%df", precision );
 	for ( size_t i = 1; i < length; i++ ) {
 		n += idStr::snPrintf( s + n, sizeof( str[0] ) - n, format, array[i] );
 		if ( precision > 0 ) {
-			while( n > 0 && s[n-1] == '0' ) s[--n] = '\0';
-			while( n > 0 && s[n-1] == '.' ) s[--n] = '\0';
+			while( n > 0 && s[n-1] == '0' )
+			{
+				s[--n] = '\0';
+			}
+			while( n > 0 && s[n-1] == '.' )
+			{
+				s[--n] = '\0';
+			}
 		}
 	}
 	return s;
@@ -527,7 +557,7 @@ returns -1 if not found otherwise the index of the char
 int idStr::Last( const char c ) const {
 	for(size_t i = Length(); i > 0; i-- ) {
 		if ( data[ i - 1 ] == c ) {
-			return i - 1;
+			return idMath::integer_cast<int>(i) - 1;
 		}
 	}
 
@@ -598,7 +628,7 @@ idStr::StripLeading
 ============
 */
 void idStr::StripLeading( const char *string ) {
-	size_t l = strlen(string);
+	const size_t l = strlen(string);
 	if ( l > 0 ) {
 		while ( !Cmpn( string, l ) ) {
 			memmove( data, data + l, len - l + 1 );
@@ -613,7 +643,7 @@ idStr::StripLeadingOnce
 ============
 */
 bool idStr::StripLeadingOnce( const char *string ) {
-	size_t l = strlen(string);
+	const size_t l = strlen(string);
 	if ( ( l > 0 ) && !Cmpn( string, l ) ) {
 		memmove( data, data + l, len - l + 1 );
 		len -= l;
@@ -640,7 +670,7 @@ idStr::StripLeading
 ============
 */
 void idStr::StripTrailing( const char *string ) {
-	size_t l = strlen(string);
+	const size_t l = strlen(string);
 	if ( l > 0 ) {
 		while ( ( len >= l ) && !Cmpn( string, data + len - l, l ) ) {
 			len -= l;
@@ -655,7 +685,7 @@ idStr::StripTrailingOnce
 ============
 */
 bool idStr::StripTrailingOnce( const char *string ) {
-	size_t l = strlen(string);
+	const size_t l = strlen(string);
 	if ( ( l > 0 ) && ( len >= l ) && !Cmpn( string, data + len - l, l ) ) {
 		len -= l;
 		data[len] = '\0';
@@ -844,7 +874,7 @@ idStr::BackSlashesToSlashes
 ============
 */
 idStr &idStr::BackSlashesToSlashes() {
-	for ( int i = 0; i < len; i++ ) {
+	for ( int i = 0; std::cmp_less(i, len); i++ ) {
 		if ( data[ i ] == '\\' ) {
 			data[ i ] = '/';
 		}
@@ -858,7 +888,7 @@ idStr::SlashesToBackSlashes
 ============
 */
 idStr &idStr::SlashesToBackSlashes() {
-	for ( int i = 0; i < len; i++ ) {
+	for ( int i = 0; std::cmp_less(i, len); i++ ) {
 		if ( data[ i ] == '/' ) {
 			data[ i ] = '\\';
 		}
@@ -902,7 +932,7 @@ idStr::StripAbsoluteFileExtension
 ============
 */
 idStr &idStr::StripAbsoluteFileExtension() {
-	for ( int i = 0; i < len; i++ ) {
+	for ( int i = 0; std::cmp_less(i, len); i++ ) {
 		if ( data[i] == '.' ) {
 			data[i] = '\0';
 			len = i;
@@ -1101,6 +1131,176 @@ void idStr::ExtractFileExtension( idStr &dest ) const {
 =====================================================================
 */
 
+template <std::floating_point T>
+T idStr::AtoF(const char* str) noexcept {
+	if (!str)
+	{
+		return T(0);
+	}
+
+	// Skip leading whitespace
+	const char* p = str;
+	while (*p && std::isspace(static_cast<unsigned char>(*p)))
+	{
+		++p;
+	}
+
+	// Capture optional sign (don't advance past it for the actual parse)
+	bool neg_sign = false;
+	if (*p == '+' || *p == '-')
+	{
+		neg_sign = (*p == '-');
+	}
+
+	// Check for special tokens after the sign
+	const char* t = (*p == '+' || *p == '-') ? p + 1 : p;
+	auto ci_eq = [](char a, char b) {
+		return std::tolower(static_cast<unsigned char>(a)) ==
+			std::tolower(static_cast<unsigned char>(b));
+		};
+	// "inf"
+	if (t[0] && t[1] && t[2] && ci_eq(t[0], 'i') && ci_eq(t[1], 'n') && ci_eq(t[2], 'f')) {
+		return neg_sign ? -std::numeric_limits<T>::infinity()
+			: std::numeric_limits<T>::infinity();
+	}
+	// "infinity"
+	if (t[0] && t[1] && t[2] && t[3] && t[4] && t[5] && t[6] && t[7] &&
+		ci_eq(t[0], 'i') && ci_eq(t[1], 'n') && ci_eq(t[2], 'f') &&
+		ci_eq(t[3], 'i') && ci_eq(t[4], 'n') && ci_eq(t[5], 'i') &&
+		ci_eq(t[6], 't') && ci_eq(t[7], 'y')) {
+		return neg_sign ? -std::numeric_limits<T>::infinity()
+			: std::numeric_limits<T>::infinity();
+	}
+	// "nan" (payloads like nan(foo) are accepted by checking only the prefix)
+	if (t[0] && t[1] && t[2] && ci_eq(t[0], 'n') && ci_eq(t[1], 'a') && ci_eq(t[2], 'n')) {
+		T qn = std::numeric_limits<T>::quiet_NaN();
+		return neg_sign ? -qn : qn;
+	}
+
+	// Try std::from_chars first (locale-independent, fast)
+	{
+		T parsed = 0;
+		const char* endp = p + std::strlen(p);
+		auto res = std::from_chars(p, endp, parsed, std::chars_format::general);
+		if (res.ec == std::errc{})
+		{
+			return parsed; // success
+		}
+		if (res.ec == std::errc::result_out_of_range) {
+			// Overflow: clamp using observed leading sign
+			return neg_sign ? -(std::numeric_limits<T>::max)() : (std::numeric_limits<T>::max)();
+		}
+		// else fall through to strtod for exotic formats (e.g., hex-floats)
+	}
+
+	// Fallback: strtod, then cast/clamp to T
+	errno = 0;
+	char* tail = nullptr;
+	double d = std::strtod(p, &tail);
+	if (tail == p)
+	{
+		return T(0); // no conversion
+	}
+	if (std::isnan(d)) {
+		T qn = std::numeric_limits<T>::quiet_NaN();
+		return std::signbit(d) ? -qn : qn;      // preserve sign if present
+	}
+	if (std::isinf(d)) {
+		T inf = std::numeric_limits<T>::infinity();
+		return std::signbit(d) ? -inf : inf;
+	}
+
+	// Clamp on ERANGE overflow; tiny underflow will round toward 0 on cast
+	if (errno == ERANGE) {
+		constexpr double tmax = static_cast<double>((std::numeric_limits<T>::max)());
+		if (std::fabs(d) > tmax)
+		{
+			return static_cast<T>(d < 0 ? -tmax : tmax);
+		}
+	}
+
+	// Final safety clamp to T's range
+	constexpr double tmax = static_cast<double>((std::numeric_limits<T>::max)());
+	if (d > tmax)
+	{
+		return static_cast<T>(tmax);
+	}
+	if (d < -tmax)
+	{
+		return static_cast<T>(-tmax);
+	}
+	return static_cast<T>(d);
+}
+
+template <std::integral T>
+T idStr::AtoI(const char* str) noexcept {
+	if (!str)
+	{
+		return T(0);
+	}
+
+	// Skip leading whitespace (atoi behavior)
+	const char* p = str;
+	while (*p && std::isspace(static_cast<unsigned char>(*p)))
+	{
+		++p;
+	}
+
+	// Optional sign
+	bool neg = false;
+	if (*p == '+' || *p == '-') { neg = (*p == '-'); ++p; }
+
+	// Parse digits using from_chars into the widest unsigned accumulator
+	// (we'll apply the sign and clamp to T below).
+	unsigned long long u = 0;
+	const char* end = p + std::strlen(p);
+	auto [ptr, ec] = std::from_chars(p, end, u, 10);
+
+	// No digits parsed → return 0 (like atoi)
+	if (ptr == p)
+	{
+		return T(0);
+	}
+
+	// Now clamp to T's range.
+	if constexpr (std::is_unsigned_v<T>) {
+		// For unsigned targets: negative input clamps to 0; positive overflow clamps to max().
+		if (neg)
+		{
+			return T(0);
+		}
+		constexpr unsigned long long umax =
+			static_cast<unsigned long long>((std::numeric_limits<T>::max)());
+		return (u > umax) ? (std::numeric_limits<T>::max)() : static_cast<T>(u);
+	}
+	else {
+		// Signed targets:
+		// Let Tmax = max(T), TminAbs = |min(T)| = Tmax + 1 (two's complement).
+		constexpr unsigned long long tmax_u64 =
+			static_cast<unsigned long long>((std::numeric_limits<T>::max)());
+		constexpr unsigned long long tmin_abs_u64 = tmax_u64 + 1ULL; // |min|
+
+		if (neg) {
+			// If |value| >= |min|, clamp to min (avoid overflow on casting).
+			if (u >= tmin_abs_u64)
+			{
+				return (std::numeric_limits<T>::min)();
+			}
+			// Safe to negate within signed 64-bit range.
+			long long s64 = -static_cast<long long>(u);
+			return static_cast<T>(s64);
+		}
+		else {
+			if (u > tmax_u64)
+			{
+				return (std::numeric_limits<T>::max)();
+			}
+			long long s64 = static_cast<long long>(u);
+			return static_cast<T>(s64);
+		}
+	}
+}
+
 /*
 ============
 idStr::IsNumeric
@@ -1181,9 +1381,9 @@ int idStr::Cmp( const char *s1, const char *s2 ) {
 
 	do {
 		c1 = *s1++;
-		int c2 = *s2++;
+		const int c2 = *s2++;
 
-		int d = c1 - c2;
+		const int d = c1 - c2;
 		if ( d ) {
 			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
 		}
@@ -1229,7 +1429,7 @@ int idStr::Icmp( const char *s1, const char *s2 ) {
 
 	do {
 		c1 = *s1++;
-		int c2 = *s2++;
+		const int c2 = *s2++;
 
 		int d = c1 - c2;
 		while( d ) {
@@ -1307,7 +1507,7 @@ int idStr::IcmpNoColor( const char *s1, const char *s2 ) {
 			s2 += 2;
 		}
 		c1 = *s1++;
-		int c2 = *s2++;
+		const int c2 = *s2++;
 
 		int d = c1 - c2;
 		while( d ) {
@@ -1503,7 +1703,7 @@ idStr::Append
 ================
 */
 void idStr::Append( char *dest, const size_t size, const char *src ) {
-	size_t l1 = strlen(dest);
+	const size_t l1 = strlen(dest);
 	if ( l1 >= size ) {
 		idLib::common->Error( "idStr::Append: already overflowed" );
 	}
@@ -1533,11 +1733,11 @@ bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & 
 			// this isnt' a valid UTF-8 precursor character
 			return 0;
 		}
-		static bool RemainingCharsAreUTF8FollowingBytes( const uint8 * s, const int curChar, const int maxLen, const int num ) {
+		static bool RemainingCharsAreUTF8FollowingBytes(const uint8 * s, const size_t curChar, const size_t maxLen, const size_t num) {
 			if ( maxLen - curChar < num ) {
 				return false;
 			}
-			for ( int i = curChar + 1; i <= curChar + num; i++ ) {
+			for (size_t i = curChar + 1; i <= curChar + num; i++ ) {
 				if ( s[ i ] == '\0' ) {
 					return false;
 				}
@@ -1556,7 +1756,7 @@ bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & 
 		utf8Type = UTF8_ENCODED_BOM;
 	}
 
-	for ( int i = 0; s[ i ] != '\0' && i < maxLen; i++ ) {
+	for ( int i = 0; s[ i ] != '\0' && std::cmp_less(i, maxLen); i++ ) {
 		const int numBytes = local_t::GetNumEncodedUTF8Bytes( s[ i ] );
 		if ( numBytes == 1 ) {
 			continue;	// just low ASCII
@@ -1658,7 +1858,7 @@ void idStr::AppendUTF8Char(const uint32 c ) {
 idStr::UTF8Char
 ========================
 */
-uint32 idStr::UTF8Char( const byte * s, size_t& idx ) {
+uint32 idStr::UTF8Char( const byte * s, Ordinal auto& idx ) {
 	if ( idx >= 0 ) {
 		while ( s[ idx ] != '\0' ) {
 			uint32 cindex = s[ idx ];
@@ -1720,7 +1920,7 @@ idStr::RemoveColors
 char *idStr::RemoveColors( char *string ) {
 	int c;
 
-	char* s = string;
+	const char* s = string;
 	char* d = string;
 	while( (c = *s) != 0 ) {
 		if ( idStr::IsColor( s ) ) {
@@ -1741,19 +1941,19 @@ char *idStr::RemoveColors( char *string ) {
 idStr::snPrintf
 ================
 */
-int idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
+int64 idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
 	va_list argptr;
 	char buffer[32000] = {};	// big, but small enough to fit in PPC stack
 
 	va_start( argptr, fmt );
-	size_t len = vsprintf(buffer, fmt, argptr);
+	int64 len = vsprintf(buffer, fmt, argptr);
 	va_end( argptr );
-	if ( len >= sizeof( buffer ) ) {
+	if ( idMath::integer_cast<size_t>(len) >= sizeof( buffer ) ) {
 		idLib::common->Error( "idStr::snPrintf: overflowed buffer" );
 	}
-	if ( len >= size ) {
+	if ( len >= idMath::integer_cast<int64>(size) ) {
 		idLib::common->Warning( "idStr::snPrintf: overflow of %i in %i\n", len, size );
-		len = size;
+		len = idMath::integer_cast<int64>(size);
 	}
 	idStr::Copynz( dest, buffer, size );
 	return len;
@@ -1806,7 +2006,7 @@ int sprintf( idStr &string, const char *fmt, ... ) {
 	char buffer[32000];
 	
 	va_start( argptr, fmt );
-	int l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
+	const int l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
 	va_end( argptr );
 	buffer[sizeof(buffer)-1] = '\0';
 
@@ -1823,8 +2023,8 @@ Sets the value of the string using a vprintf interface.
 */
 int vsprintf( idStr &string, const char *fmt, const va_list argptr ) {
 	char buffer[32000];
-	
-	int l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
+
+	const int l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
 	buffer[sizeof(buffer)-1] = '\0';
 	
 	string = buffer;
@@ -1943,13 +2143,13 @@ struct formatList_t {
 };
 
 // elements of list need to decend in size
-formatList_t formatList[] = {
+static formatList_t formatList[] = {
 	{ 1000000000, 0 },
 	{ 1000000, 0 },
 	{ 1000, 0 }
 };
 
-int numFormatList = sizeof(formatList) / sizeof( formatList[0] );
+static int numFormatList = sizeof(formatList) / sizeof( formatList[0] );
 
 
 idStr idStr::FormatNumber( int number ) {

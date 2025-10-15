@@ -36,12 +36,12 @@ TODO:	Emit statistics to the logfile at the end of views and frames.
 ================================================================================================
 */
 
-idCVar r_logLevel( "r_logLevel", "2", CVAR_INTEGER, "1 = blocks only, 2 = everything", 1, 2 );
+static idCVar r_logLevel( "r_logLevel", "2", CVAR_INTEGER, "1 = blocks only, 2 = everything", 1, 2 );
 
 static constexpr int LOG_LEVEL_BLOCKS_ONLY	= 1;
 static constexpr int LOG_LEVEL_EVERYTHING	= 2;
 
-const char * renderLogMainBlockLabels[] = {
+static const char * renderLogMainBlockLabels[] = {
 	ASSERT_ENUM_STRING( MRB_NONE,							0 ),
 	ASSERT_ENUM_STRING( MRB_BEGIN_DRAWING_VIEW,				1 ),
 	ASSERT_ENUM_STRING( MRB_FILL_DEPTH_BUFFER,				2 ),
@@ -60,7 +60,7 @@ const char * renderLogMainBlockLabels[] = {
 	ASSERT_ENUM_STRING( MRB_MAX,							15 )
 };
 
-extern uint64 Sys_Microseconds();
+extern ID_TIME_T Sys_Microseconds();
 /*
 ================================================================================================
 
@@ -81,13 +81,13 @@ struct pixEvent_t {
 	uint64		gpuTime;
 };
 
-idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
+static idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
 
 static constexpr int	MAX_PIX_EVENTS = 256;
 // defer allocation of this until needed, so we don't waste lots of memory
-pixEvent_t *		pixEvents;	// [MAX_PIX_EVENTS]
-int					numPixEvents;
-int					numPixLevels;
+static pixEvent_t *		pixEvents;	// [MAX_PIX_EVENTS]
+static int					numPixEvents;
+static int					numPixLevels;
 static GLuint		timeQueryIds[MAX_PIX_EVENTS];
 
 /*
@@ -97,7 +97,7 @@ PC_BeginNamedEvent
 FIXME: this is not thread safe on the PC
 ========================
 */
-void PC_BeginNamedEvent( const char *szName, ... ) {
+static void PC_BeginNamedEvent( const char *szName, ... ) {
 #if 0
 	if ( !r_pix.GetBool() ) {
 		return;
@@ -135,7 +135,7 @@ void PC_BeginNamedEvent( const char *szName, ... ) {
 PC_EndNamedEvent
 ========================
 */
-void PC_EndNamedEvent() {
+static void PC_EndNamedEvent() {
 #if 0
 	if ( !r_pix.GetBool() ) {
 		return;
@@ -165,7 +165,7 @@ void PC_EndNamedEvent() {
 PC_EndFrame
 ========================
 */
-void PC_EndFrame() {
+static void PC_EndFrame() {
 #if 0
 	if ( !r_pix.GetBool() ) {
 		return;

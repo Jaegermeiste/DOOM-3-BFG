@@ -85,7 +85,7 @@ static void R_HeightmapToNormalMap( byte *data, int width, int height, float sca
 
 	// copy and convert to grey scale
 	j = width * height;
-	depth = (byte *)R_StaticAlloc( j, TAG_IMAGE );
+	depth = static_cast<byte*>(R_StaticAlloc(j, TAG_IMAGE));
 	for ( i = 0 ; i < j ; i++ ) {
 		depth[i] = ( data[i*4] + data[i*4+1] + data[i*4+2] ) / 3;
 	}
@@ -124,9 +124,9 @@ static void R_HeightmapToNormalMap( byte *data, int width, int height, float sca
 			dir.NormalizeFast();
 
 			a1 = ( i * width + j ) * 4;
-			data[ a1 + 0 ] = (byte)(dir[0] * 127 + 128);
-			data[ a1 + 1 ] = (byte)(dir[1] * 127 + 128);
-			data[ a1 + 2 ] = (byte)(dir[2] * 127 + 128);
+			data[ a1 + 0 ] = static_cast<byte>(dir[0] * 127 + 128);
+			data[ a1 + 1 ] = static_cast<byte>(dir[1] * 127 + 128);
+			data[ a1 + 2 ] = static_cast<byte>(dir[2] * 127 + 128);
 			data[ a1 + 3 ] = 255;
 		}
 	}
@@ -148,7 +148,7 @@ static void R_ImageScale( byte *data, int width, int height, float scale[4] ) {
 	c = width * height * 4;
 
 	for ( i = 0 ; i < c ; i++ ) {
-		j = (byte)(data[i] * scale[i&3]);
+		j = static_cast<byte>(data[i] * scale[i & 3]);
 		if ( j < 0 ) {
 			j = 0;
 		} else if ( j > 255 ) {
@@ -236,9 +236,9 @@ static void R_AddNormalMaps( byte *data1, int width1, int height1, byte *data2, 
 			n[1] += ( d2[1] - 128 ) / 127.0;
 			n.Normalize();
 
-			d1[0] = (byte)(n[0] * 127 + 128);
-			d1[1] = (byte)(n[1] * 127 + 128);
-			d1[2] = (byte)(n[2] * 127 + 128);
+			d1[0] = static_cast<byte>(n[0] * 127 + 128);
+			d1[1] = static_cast<byte>(n[1] * 127 + 128);
+			d1[2] = static_cast<byte>(n[2] * 127 + 128);
 			d1[3] = 255;
 		}
 	}
@@ -264,7 +264,7 @@ static void R_SmoothNormalMap( byte *data, int width, int height ) {
 		{ 1, 1, 1 }
 	};
 
-	orig = (byte *)R_StaticAlloc( width * height * 4, TAG_IMAGE );
+	orig = static_cast<byte*>(R_StaticAlloc(width * height * 4, TAG_IMAGE));
 	memcpy( orig, data, width * height * 4 );
 
 	for ( i = 0 ; i < width ; i++ ) {
@@ -291,9 +291,9 @@ static void R_SmoothNormalMap( byte *data, int width, int height ) {
 			}
 			normal.Normalize();
 			out = data + ( j * width + i ) * 4;
-			out[0] = (byte)(128 + 127 * normal[0]);
-			out[1] = (byte)(128 + 127 * normal[1]);
-			out[2] = (byte)(128 + 127 * normal[2]);
+			out[0] = static_cast<byte>(128 + 127 * normal[0]);
+			out[1] = static_cast<byte>(128 + 127 * normal[1]);
+			out[2] = static_cast<byte>(128 + 127 * normal[2]);
 		}
 	}
 

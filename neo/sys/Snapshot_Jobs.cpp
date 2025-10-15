@@ -346,8 +346,8 @@ void LZWJobInternal( lzwParm_t * parm, unsigned int dmaTag ) {
 		numChangedObjProcessed++;
 
 		// Write obj id as delta into stream
-		lzwCompressor.WriteAgnostic<uint16>( (uint16)( header->objID - parm->ioData->lastObjId ) );
-		parm->ioData->lastObjId = (uint16)header->objID;
+		lzwCompressor.WriteAgnostic<uint16>( static_cast<uint16>(header->objID - parm->ioData->lastObjId) );
+		parm->ioData->lastObjId = static_cast<uint16>(header->objID);
 
 		// Check special stale/notstale flags
 		if ( header->flags & ( OBJ_VIS_STALE | OBJ_VIS_NOT_STALE ) ) {
@@ -367,7 +367,7 @@ void LZWJobInternal( lzwParm_t * parm, unsigned int dmaTag ) {
 		}
 
 		// Write size
-		lzwCompressor.WriteAgnostic<objectSize_t>( (objectSize_t)header->size );
+		lzwCompressor.WriteAgnostic<objectSize_t>( static_cast<objectSize_t>(header->size) );
 
 		// Get compressed data area
 		uint8 * compressedData = header->data;

@@ -47,7 +47,7 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		float err = b.Abs();
 		d.Zero();
 		f.Zero();
-		float abx = x.Abs();
+		const float abx = x.Abs();
 		for ( int j = degree - 1; j >= 0; j-- ) {
 			f = x * f + d;
 			d = x * d + b;
@@ -59,18 +59,18 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		}
 		idComplex g = d / b;
 		idComplex g2 = g * g;
-		idComplex s = ((degree - 1) * (degree * (g2 - 2.0f * f / b) - g2)).Sqrt();
+		idComplex s = (static_cast<float>(degree - 1) * (static_cast<float>(degree) * (g2 - 2.0f * f / b) - g2)).Sqrt();
 		idComplex gps = g + s;
 		idComplex gms = g - s;
-		float abp = gps.Abs();
-		float abm = gms.Abs();
+		const float abp = gps.Abs();
+		const float abm = gms.Abs();
 		if ( abp < abm ) {
 			gps = gms;
 		}
 		if ( Max( abp, abm ) > 0.0f ) {
-			dx = degree / gps;
+			dx = static_cast<float>(degree) / gps;
 		} else {
-			dx = idMath::Exp( idMath::Log( 1.0f + abx ) ) * idComplex( idMath::Cos( i ), idMath::Sin( i ) );
+			dx = idMath::Exp( idMath::Log( 1.0f + abx ) ) * idComplex( idMath::Cos(static_cast<float>(i) ), idMath::Sin(static_cast<float>(i) ) );
 		}
 		idComplex cx = x - dx;
 		if ( x == cx ) {

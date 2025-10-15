@@ -51,7 +51,7 @@ Interface for calling functions from script, implemented statically
 */
 class idSWFScriptFunction_Static : public idSWFScriptFunction {
 public:
-							idSWFScriptFunction_Static() { }
+							idSWFScriptFunction_Static() noexcept { }
 	virtual void			AddRef() { }
 	virtual void			Release() { }
 };
@@ -84,7 +84,7 @@ object->Set( "myFunction", new idSWFScriptFunction_MyFunction() );
 */
 class idSWFScriptFunction_RefCounted : public idSWFScriptFunction {
 public:
-	idSWFScriptFunction_RefCounted() : refCount( 0 ) { }
+	idSWFScriptFunction_RefCounted() noexcept : refCount( 0 ) { }
 	void AddRef() { refCount++; }
 	void Release() { if ( --refCount <= 0 ) { delete this; } }
 private:
@@ -134,7 +134,7 @@ idSWFScriptFunction_Script is a script function that's implemented in action scr
 */
 class idSWFScriptFunction_Script : public idSWFScriptFunction {
 public:
-				idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), prototype(nullptr), data(nullptr), length( 0 ), defaultSprite(nullptr) { registers.SetNum( 4 ); }
+				idSWFScriptFunction_Script() noexcept : refCount( 1 ), flags( 0 ), prototype(nullptr), data(nullptr), length( 0 ), defaultSprite(nullptr) { registers.SetNum( 4 ); }
 	virtual		~idSWFScriptFunction_Script();
 
 	static idSWFScriptFunction_Script *	Alloc() { return new (TAG_SWF) idSWFScriptFunction_Script; }

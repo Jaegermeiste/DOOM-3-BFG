@@ -133,7 +133,8 @@ void idSWFScriptVar::SetFunction( idSWFScriptFunction * f ) {
 idSWFScriptVar::StrictEquals
 ========================
 */
-bool idSWFScriptVar::StrictEquals( const idSWFScriptVar & other ) {
+bool idSWFScriptVar::StrictEquals( const idSWFScriptVar & other ) const
+{
 	if ( type != other.type ) {
 		return false;
 	}
@@ -156,7 +157,8 @@ bool idSWFScriptVar::StrictEquals( const idSWFScriptVar & other ) {
 idSWFScriptVar::AbstractEquals
 ========================
 */
-bool idSWFScriptVar::AbstractEquals( const idSWFScriptVar & other ) {
+bool idSWFScriptVar::AbstractEquals( const idSWFScriptVar & other ) const
+{
 	if ( type == other.type ) {
 		switch ( type ) {
 		case SWF_VAR_STRINGID:	return ( value.i == other.value.i );
@@ -238,7 +240,7 @@ float idSWFScriptVar::ToFloat() const {
 
 		case SWF_VAR_FLOAT:		return value.f;
 		case SWF_VAR_BOOL:		return (float)value.b;
-		case SWF_VAR_INTEGER:	return (float)value.i;
+		case SWF_VAR_INTEGER:	return static_cast<float>(value.i);
 
 		case SWF_VAR_OBJECT:	return value.object->DefaultValue( false ).ToFloat();
 
@@ -290,8 +292,32 @@ int32 idSWFScriptVar::ToInteger() const {
 		case SWF_VAR_FUNCTION:
 		case SWF_VAR_NULL:
 		case SWF_VAR_UNDEF:		return 0;
-		default:				assert( false ); return 0;
+		case SWF_VAR_STRINGID:
+		default:				assert(false); return 0;
 	}
+}
+
+template <Ordinal Dest>
+Dest	idSWFScriptVar::ToInteger() const {
+	Dest retVal = 0;
+	switch (type) {
+	case SWF_VAR_STRING:	retVal = idStr::AtoI<Dest>(*value.string);
+
+	case SWF_VAR_FLOAT:		retVal = retVal = idMath::integer_Cast<Dest>(idMath::Ftoi(value.f));
+
+	case SWF_VAR_BOOL:		retVal = value.b ? 1 : 0;
+	case SWF_VAR_INTEGER:	retVal = idMath::integer_cast<Dest>(value.i);
+
+	case SWF_VAR_OBJECT:	retVal = idMath::integer_cast<Dest>(value.object->DefaultValue(false).ToInteger());
+
+	case SWF_VAR_FUNCTION:
+	case SWF_VAR_NULL:
+	case SWF_VAR_UNDEF:		retVal = 0;
+	case SWF_VAR_STRINGID:
+	default:				assert(false); retVal = 0;
+	}
+
+	return retVal;
 }
 
 /*
@@ -299,7 +325,8 @@ int32 idSWFScriptVar::ToInteger() const {
 idSWFScriptVar::ToSprite
 ========================
 */
-idSWFSpriteInstance * idSWFScriptVar::ToSprite() {
+idSWFSpriteInstance * idSWFScriptVar::ToSprite() const
+{
 	if ( IsObject() && value.object != nullptr) {
 		return value.object->GetSprite();
 	}
@@ -312,7 +339,8 @@ idSWFSpriteInstance * idSWFScriptVar::ToSprite() {
 idSWFScriptVar::ToText
 ========================
 */
-idSWFTextInstance * idSWFScriptVar::ToText() {
+idSWFTextInstance * idSWFScriptVar::ToText() const
+{
 	if ( IsObject() && value.object != nullptr) {
 		return value.object->GetText();
 	}

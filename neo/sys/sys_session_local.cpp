@@ -2332,7 +2332,7 @@ bool idSessionLocal::HandlePackets() {
 			continue;
 		}
 
-		idLobby::lobbyType_t lobbyType = (idLobby::lobbyType_t)( maskedType - 1 );
+		idLobby::lobbyType_t lobbyType = static_cast<idLobby::lobbyType_t>(maskedType - 1);
 
 		switch ( lobbyType ) {
 			case idLobby::TYPE_PARTY:		GetPartyLobby().HandlePacket( remoteAddress, fragMsg, sessionID );		break;
@@ -2446,7 +2446,7 @@ idLobbyBase & idSessionLocal::GetLobbyFromLobbyUserID( lobbyUserID_t lobbyUserID
 		return stubLobby;	// So we can return at least something
 	}
 
-	idLobby * lobby = GetLobbyFromType( (idLobby::lobbyType_t)lobbyUserID.GetLobbyType() );
+	idLobby * lobby = GetLobbyFromType( static_cast<idLobby::lobbyType_t>(lobbyUserID.GetLobbyType()) );
 
 	if ( lobby != nullptr) {
 		return *lobby;
@@ -2478,7 +2478,7 @@ void idSessionLocal::TickSendQueue() {
 			// we can't piggyback on upstreamDropRate because of the way it's computed and clamped to zero
 			int time = Sys_Milliseconds();
 			if ( time > upstreamQueueRateTime ) {
-				upstreamQueueRate -= upstreamQueueRate * ( float )( time - upstreamQueueRateTime ) / 1000.0f;
+				upstreamQueueRate -= upstreamQueueRate * static_cast<float>(time - upstreamQueueRateTime) / 1000.0f;
 				if ( upstreamQueueRate < 0.0f ) {
 					upstreamQueueRate = 0.0f;
 				}
@@ -2555,12 +2555,12 @@ void idSessionLocal::SendRawPacket( const lobbyAddress_t & to, const void * data
 	if ( net_forceUpstream.GetFloat() != 0 ) {
 
 		// the total bandwidth rate at which the networking systems are trying to push data through
-		float totalOutgoingRate = (float)GetActingGameStateLobby().GetTotalOutgoingRate(); // B/s
+		float totalOutgoingRate = static_cast<float>(GetActingGameStateLobby().GetTotalOutgoingRate()); // B/s
 
 		// update the rate at which we have been taking data out by dropping it
 		int time = Sys_Milliseconds();
 		if ( time > upstreamDropRateTime ) {
-			upstreamDropRate -= upstreamDropRate * ( float )( time - upstreamDropRateTime ) / 1000.0f;
+			upstreamDropRate -= upstreamDropRate * static_cast<float>(time - upstreamDropRateTime) / 1000.0f;
 			if ( upstreamDropRate < 0.0f ) {
 				upstreamDropRate = 0.0f;
 			}
@@ -2581,7 +2581,7 @@ void idSessionLocal::SendRawPacket( const lobbyAddress_t & to, const void * data
 			// simulate a network device with a send queue
 			// do we have room in the queue?
 			assert( net_forceUpstreamQueue.GetFloat() > 0.0f );
-			if ( (float)( queuedBytes + size ) > net_forceUpstreamQueue.GetFloat() * 1024.0f ) { // net_forceUpstreamQueue is in kB/s
+			if ( static_cast<float>(queuedBytes + size) > net_forceUpstreamQueue.GetFloat() * 1024.0f ) { // net_forceUpstreamQueue is in kB/s
 				// too much queued, this is still a drop
 				// FIXME: factorize
 				// just drop the packet - not representative, but simple
@@ -2595,7 +2595,7 @@ void idSessionLocal::SendRawPacket( const lobbyAddress_t & to, const void * data
 			// there is room to buffer up in the queue
 			queuedBytes += size;
 			// with queuedBytes and the current upstream, when should this packet be sent?
-			int queuedPacketSendDelay = 1000.0f * ( (float)queuedBytes / ( net_forceUpstream.GetFloat() * 1024.0f ) ); // in ms
+			int queuedPacketSendDelay = 1000.0f * ( static_cast<float>(queuedBytes) / ( net_forceUpstream.GetFloat() * 1024.0f ) ); // in ms
 			// queue for sending
 			if ( net_verboseSimulatedTraffic.GetBool() ) {
 				idLib::Printf( "queuing packet: %d bytes delayed %d ms\n", size, queuedPacketSendDelay );
@@ -2778,7 +2778,7 @@ const leaderboardDefinition_t * idSessionLocal::ReadLeaderboardFromMsg( idBitMsg
 		uint64 value = 0;
 
 		for ( int j = 0; j < leaderboard->columnDefs[i].bits; j++ ) {
-			value |= (uint64)( msg.ReadBits( 1 ) & 1 ) << j;
+			value |= static_cast<uint64>(msg.ReadBits(1) & 1) << j;
 		}
 
 		stats[i].value = value;
@@ -2863,7 +2863,8 @@ void idSessionLocal::RecvLeaderboardStatsForPlayer( idBitMsg & msg ) {
 idSessionLocal::RequirePersistentMaster
 ========================
 */
-bool idSessionLocal::RequirePersistentMaster() {
+bool idSessionLocal::RequirePersistentMaster() const
+{
 	return signInManager->RequirePersistentMaster();
 }
 
@@ -3498,7 +3499,7 @@ void idSessionLocal::ReadTitleStorage( void * buffer, int bufferLen ) {
 	//idScopedGlobalHeap	everythingHereGoesInTheGlobalHeap;
 
 	idParser parser( LEXFL_NOERRORS | LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT );
-	parser.LoadMemory( ( const char* )buffer, bufferLen, "default.tss" );
+	parser.LoadMemory( static_cast<const char*>(buffer), bufferLen, "default.tss" );
 
 	bool valid = true;
 
@@ -3538,7 +3539,7 @@ idSessionLocal::ReadDLCInfo
 */
 bool idSessionLocal::ReadDLCInfo( idDict & dlcInfo, void * buffer, int bufferLen ) {
 	idParser parser( LEXFL_NOERRORS | LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT );
-	parser.LoadMemory( ( const char* )buffer, bufferLen, "info.txt" );
+	parser.LoadMemory( static_cast<const char*>(buffer), bufferLen, "info.txt" );
 
 	bool valid = true;
 
@@ -3852,7 +3853,8 @@ void idNetSessionPort::SendRawPacket( const lobbyAddress_t & to, const void * da
 idNetSessionPort::IsOpen
 ========================
 */
-bool idNetSessionPort::IsOpen() {
+bool idNetSessionPort::IsOpen() const
+{
 	return UDP.IsOpen();
 }
 
@@ -4067,7 +4069,8 @@ void idSessionLocal::HandleDedicatedServerQueryRequest( lobbyAddress_t & remoteA
 idSessionLocal::HandleDedicatedServerQueryAck
 ========================
 */
-void idSessionLocal::HandleDedicatedServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) {
+void idSessionLocal::HandleDedicatedServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) const
+{
 	NET_VERBOSE_PRINT( "HandleDedicatedServerQueryAck from %s\n", remoteAddr.ToString() );
 	dedicatedServerSearch->HandleQueryAck( remoteAddr, msg );
 }

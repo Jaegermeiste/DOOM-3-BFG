@@ -46,10 +46,10 @@ public:
 
 
 	bool			GetAddrAtIndex( netadr_t & addr, int i );
-	const serverInfo_t *	DescribeServerAtIndex( int i ) const;
-	const idList< idStr > *	GetServerPlayersAtIndex( int i ) const;
+					[[nodiscard]] const serverInfo_t *	DescribeServerAtIndex( int i ) const;
+					[[nodiscard]] const idList< idStr > *	GetServerPlayersAtIndex( int i ) const;
 
-	int				NumServers() const;
+					[[nodiscard]] int				NumServers() const;
 
 private:
 	struct serverInfoDedicated_t {

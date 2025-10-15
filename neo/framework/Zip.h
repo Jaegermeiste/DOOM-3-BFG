@@ -286,14 +286,14 @@ public:
 	bool				CreateZipFileFromFileList( const char *name, const idList< idFile_Memory * > & srcFiles );
 
 	zipFile				CreateZipFile( const char *name );
-	bool				AddFile( zipFile zf, idFile_Memory *fm, bool deleteFile );
+	bool				AddFile( zipFile zf, idFile_Memory *fm, bool deleteFile ) const;
 	void				CloseZipFile( zipFile zf );
 private:
 	bool				CreateZipFile( bool appendFiles );
 	bool				CreateZipFileFromFiles( const idList< idFile_Memory * > & srcFiles );
 	bool				GetFileTime( const idStr &filename, unsigned long *dostime ) const;
-	bool				IsFiltered( const idStr &filename ) const;
-	bool				IsUncompressed( const idStr &filename ) const;
+						[[nodiscard]] bool				IsFiltered( const idStr &filename ) const;
+						[[nodiscard]] bool				IsUncompressed( const idStr &filename ) const;
 
 private:
 	idStr				zipFileName;				// os path to the zip file

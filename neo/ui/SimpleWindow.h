@@ -52,16 +52,16 @@ public:
 	int				GetWinVarOffset( idWinVar *wv, drawWin_t* owner);
 	size_t			Size();
 
-	idWindow*		GetParent () { return mParent; }
+	[[nodiscard]] idWindow*		GetParent () const { return mParent; }
 
 	virtual void	WriteToSaveGame( idFile *savefile );
 	virtual void	ReadFromSaveGame( idFile *savefile );
 
 protected:
 	void 			CalcClientRect(float xofs, float yofs);
-	void 			SetupTransforms(float x, float y);
-	void 			DrawBackground(const idRectangle &drawRect);
-	void 			DrawBorderAndCaption(const idRectangle &drawRect);
+	void 			SetupTransforms(float x, float y) const;
+	void 			DrawBackground(const idRectangle &drawRect) const;
+	void 			DrawBorderAndCaption(const idRectangle &drawRect) const;
 
 	idUserInterfaceLocal *gui;
 	int 			flags;

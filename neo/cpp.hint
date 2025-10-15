@@ -11,3 +11,8 @@
 // For more information see https://go.microsoft.com/fwlink/?linkid=865984
 #define _CONST_CALL_OPERATOR
 #define ID_INLINE_EXTERN
+#define I2F_RESTRICT
+#define I2F_FORCEINLINE
+#define I2F_FORCEINLINE __attribute__((always_inline)) inline
+#define NO_RETURN __declspec(noreturn)
+#define CONSOLE_COMMAND

@@ -325,7 +325,8 @@ idMaterial::MatchToken
 Sets defaultShader and returns false if the next token doesn't match
 ===============
 */
-bool idMaterial::MatchToken( idLexer &src, const char *match ) {
+bool idMaterial::MatchToken( idLexer &src, const char *match ) const
+{
 	if ( !src.ExpectTokenString( match ) ) {
 		SetMaterialFlag( MF_DEFAULTED );
 		return false;
@@ -338,7 +339,8 @@ bool idMaterial::MatchToken( idLexer &src, const char *match ) {
 idMaterial::ParseSort
 =================
 */
-void idMaterial::ParseSort( idLexer &src ) {
+void idMaterial::ParseSort( idLexer &src ) const
+{
 	idToken token;
 
 	if ( !src.ReadTokenOnLine( &token ) ) {
@@ -781,7 +783,8 @@ void idMaterial::ClearStage( shaderStage_t *ss ) {
 idMaterial::NameToSrcBlendMode
 ===============
 */
-int idMaterial::NameToSrcBlendMode( const idStr &name ) {
+int idMaterial::NameToSrcBlendMode( const idStr &name ) const
+{
 	if ( !name.Icmp( "GL_ONE" ) ) {
 		return GLS_SRCBLEND_ONE;
 	} else if ( !name.Icmp( "GL_ZERO" ) ) {
@@ -814,7 +817,8 @@ int idMaterial::NameToSrcBlendMode( const idStr &name ) {
 idMaterial::NameToDstBlendMode
 ===============
 */
-int idMaterial::NameToDstBlendMode( const idStr &name ) {
+int idMaterial::NameToDstBlendMode( const idStr &name ) const
+{
 	if ( !name.Icmp( "GL_ONE" ) ) {
 		return GLS_DSTBLEND_ONE;
 	} else if ( !name.Icmp( "GL_ZERO" ) ) {
@@ -981,7 +985,8 @@ void idMaterial::ParseVertexParm2( idLexer &src, newShaderStage_t *newStage ) {
 idMaterial::ParseFragmentMap
 ================
 */
-void idMaterial::ParseFragmentMap( idLexer &src, newShaderStage_t *newStage ) {
+void idMaterial::ParseFragmentMap( idLexer &src, newShaderStage_t *newStage ) const
+{
 	const char			*str;
 	textureFilter_t		tf;
 	textureRepeat_t		trp;
@@ -1584,7 +1589,7 @@ void idMaterial::ParseStage( idLexer &src, const textureRepeat_t trpDefault ) {
 	// if we are using newStage, allocate a copy of it
 	if ( newStage.fragmentProgram || newStage.vertexProgram ) {
 		newStage.glslProgram = renderProgManager.FindGLSLProgram( GetName(), newStage.vertexProgram, newStage.fragmentProgram );
-		ss->newStage = (newShaderStage_t *)Mem_Alloc( sizeof( newStage ), TAG_MATERIAL );
+		ss->newStage = static_cast<newShaderStage_t*>(Mem_Alloc(sizeof(newStage), TAG_MATERIAL));
 		*(ss->newStage) = newStage;
 	}
 
@@ -1809,7 +1814,8 @@ ignored during interactions, and all the interaction
 stages are ignored during ambient drawing.
 ===============
 */
-void idMaterial::SortInteractionStages() {
+void idMaterial::SortInteractionStages() const
+{
 	int		j;
 
 	for ( int i = 0 ; i < numStages ; i = j ) {
@@ -2366,17 +2372,17 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 */
 
 	if (numStages) {
-		stages = (shaderStage_t *)R_StaticAlloc( numStages * sizeof( stages[0] ), TAG_MATERIAL );
+		stages = static_cast<shaderStage_t*>(R_StaticAlloc(numStages * sizeof(stages[0]), TAG_MATERIAL));
 		memcpy( stages, pd->parseStages, numStages * sizeof( stages[0] ) );
 	}
 
 	if ( numOps ) {
-		ops = (expOp_t *)R_StaticAlloc( numOps * sizeof( ops[0] ), TAG_MATERIAL );
+		ops = static_cast<expOp_t*>(R_StaticAlloc(numOps * sizeof(ops[0]), TAG_MATERIAL));
 		memcpy( ops, pd->shaderOps, numOps * sizeof( ops[0] ) );
 	}
 
 	if ( numRegisters ) {
-		expressionRegisters = (float *)R_StaticAlloc( numRegisters * sizeof( expressionRegisters[0] ), TAG_MATERIAL );
+		expressionRegisters = static_cast<float*>(R_StaticAlloc(numRegisters * sizeof(expressionRegisters[0]), TAG_MATERIAL));
 		memcpy( expressionRegisters, pd->shaderRegisters, numRegisters * sizeof( expressionRegisters[0] ) );
 	}
 
@@ -2441,7 +2447,8 @@ void idMaterial::Print() const {
 idMaterial::Save
 ===============
 */
-bool idMaterial::Save( const char *fileName ) {
+bool idMaterial::Save( const char *fileName ) const
+{
 	return ReplaceSourceFileText();
 }
 
@@ -2525,9 +2532,9 @@ void idMaterial::EvaluateRegisters(
 			registers[op->c] = registers[op->a] / registers[op->b];
 			break;
 		case OP_TYPE_MOD:
-			b = (int)registers[op->b];
+			b = static_cast<int>(registers[op->b]);
 			b = b != 0 ? b : 1;
-			registers[op->c] = (int)registers[op->a] % b;
+			registers[op->c] = static_cast<int>(registers[op->a]) % b;
 			break;
 		case OP_TYPE_TABLE:
 			{
@@ -2693,7 +2700,7 @@ void idMaterial::CheckForConstantRegisters() {
 	}
 
 	// evaluate the registers once, and save them 
-	constantRegisters = (float *)R_ClearedStaticAlloc( GetNumRegisters() * sizeof( float ) );
+	constantRegisters = static_cast<float*>(R_ClearedStaticAlloc(GetNumRegisters() * sizeof(float)));
 
 	float shaderParms[MAX_ENTITY_SHADER_PARMS];
 	memset( shaderParms, 0, sizeof( shaderParms ) );

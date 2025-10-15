@@ -283,7 +283,7 @@ Returns NULL if no parent, or if it is the first child.
 */
 template< class type >
 type *idHierarchy<type>::GetPriorSibling() const {
-	idHierarchy<type>* prior = GetPriorSiblingNode();
+	const idHierarchy<type>* prior = GetPriorSiblingNode();
 	if ( prior ) {
 		return prior->owner;
 	}

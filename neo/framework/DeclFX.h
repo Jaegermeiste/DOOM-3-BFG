@@ -96,8 +96,8 @@ typedef struct {
 //
 class idDeclFX : public idDecl {
 public:
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+	[[nodiscard]] virtual size_t			Size() const;
+	[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;

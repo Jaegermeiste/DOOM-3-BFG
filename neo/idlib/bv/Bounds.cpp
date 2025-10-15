@@ -41,8 +41,8 @@ idBounds::GetRadius
 float idBounds::GetRadius() const {
 	float total = 0.0f;
 	for ( int i = 0; i < 3; i++ ) {
-		float b0 = (float)idMath::Fabs(b[0][i]);
-		float b1 = (float)idMath::Fabs(b[1][i]);
+		const float b0 = idMath::Fabs(b[0][i]);
+		const float b1 = idMath::Fabs(b[1][i]);
 		if ( b0 > b1 ) {
 			total += b0 * b0;
 		} else {
@@ -60,8 +60,8 @@ idBounds::GetRadius
 float idBounds::GetRadius( const idVec3 &center ) const {
 	float total = 0.0f;
 	for ( int i = 0; i < 3; i++ ) {
-		float b0 = (float)idMath::Fabs(center[i] - b[0][i]);
-		float b1 = (float)idMath::Fabs(b[1][i] - center[i]);
+		const float b0 = idMath::Fabs(center[i] - b[0][i]);
+		const float b1 = idMath::Fabs(b[1][i] - center[i]);
 		if ( b0 > b1 ) {
 			total += b0 * b0;
 		} else {
@@ -79,8 +79,8 @@ idBounds::PlaneDistance
 float idBounds::PlaneDistance( const idPlane &plane ) const {
 	idVec3 center = (b[0] + b[1]) * 0.5f;
 
-	float d1 = plane.Distance(center);
-	float d2 = idMath::Fabs((b[1][0] - center[0]) * plane.Normal()[0]) +
+	const float d1 = plane.Distance(center);
+	const float d2 = idMath::Fabs((b[1][0] - center[0]) * plane.Normal()[0]) +
 		idMath::Fabs((b[1][1] - center[1]) * plane.Normal()[1]) +
 		idMath::Fabs((b[1][2] - center[2]) * plane.Normal()[2]);
 
@@ -101,8 +101,8 @@ idBounds::PlaneSide
 int idBounds::PlaneSide( const idPlane &plane, const float epsilon ) const {
 	idVec3 center = (b[0] + b[1]) * 0.5f;
 
-	float d1 = plane.Distance(center);
-	float d2 = idMath::Fabs((b[1][0] - center[0]) * plane.Normal()[0]) +
+	const float d1 = plane.Distance(center);
+	const float d2 = idMath::Fabs((b[1][0] - center[0]) * plane.Normal()[0]) +
 		idMath::Fabs((b[1][1] - center[1]) * plane.Normal()[1]) +
 		idMath::Fabs((b[1][2] - center[2]) * plane.Normal()[2]);
 
@@ -190,7 +190,7 @@ bool idBounds::RayIntersection( const idVec3 &start, const idVec3 &dir, float &s
 		if ( dir[i] == 0.0f ) {
 			continue;
 		}
-		float f = (start[i] - b[side][i]);
+		const float f = (start[i] - b[side][i]);
 		if ( ax0 < 0 || idMath::Fabs( f ) > idMath::Fabs( scale * dir[i] ) ) {
 			scale = - ( f / dir[i] );
 			ax0 = i;
@@ -203,8 +203,8 @@ bool idBounds::RayIntersection( const idVec3 &start, const idVec3 &dir, float &s
 		return ( inside == 3 );
 	}
 
-	int ax1 = (ax0 + 1) % 3;
-	int ax2 = (ax0 + 2) % 3;
+	const int ax1 = (ax0 + 1) % 3;
+	const int ax2 = (ax0 + 2) % 3;
 	hit[ax1] = start[ax1] + scale * dir[ax1];
 	hit[ax2] = start[ax2] + scale * dir[ax2];
 
@@ -297,13 +297,13 @@ BoundsForPointRotation
   only for rotations < 180 degrees
 ================
 */
-idBounds BoundsForPointRotation( const idVec3 &start, const idRotation &rotation ) {
+static idBounds BoundsForPointRotation( const idVec3 &start, const idRotation &rotation ) {
 	idBounds bounds;
 
 	idVec3 end = start * rotation;
 	idVec3 axis = rotation.GetVec();
 	idVec3 origin = rotation.GetOrigin() + axis * (axis * (start - rotation.GetOrigin()));
-	float radiusSqr = (start - origin).LengthSqr();
+	const float radiusSqr = (start - origin).LengthSqr();
 	idVec3 v1 = (start - origin).Cross(axis);
 	idVec3 v2 = (end - origin).Cross(axis);
 
@@ -345,7 +345,7 @@ void idBounds::FromPointRotation( const idVec3 &point, const idRotation &rotatio
 	}
 	else {
 
-		float radius = (point - rotation.GetOrigin()).Length();
+		const float radius = (point - rotation.GetOrigin()).Length();
 
 		// FIXME: these bounds are usually way larger
 		b[0].Set( -radius, -radius, -radius );
@@ -377,7 +377,7 @@ void idBounds::FromBoundsRotation( const idBounds &bounds, const idVec3 &origin,
 	else {
 
 		point = (bounds[1] - bounds[0]) * 0.5f;
-		float radius = (bounds[1] - point).Length() + (point - rotation.GetOrigin()).Length();
+		const float radius = (bounds[1] - point).Length() + (point - rotation.GetOrigin()).Length();
 
 		// FIXME: these bounds are usually way larger
 		b[0].Set( -radius, -radius, -radius );

@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #define __WIN_LOCAL_H__
 
 #include <windows.h>
+#include <VersionHelpers.h>
+#include <WinUser.h>
 #include "../../renderer/OpenGL/wglext.h"		// windows OpenGL extensions
 #include "win_input.h"
 
@@ -58,7 +60,7 @@ extern	PFNWGLSETPBUFFERATTRIBARBPROC	wglSetPbufferAttribARB;
 
 #define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE | WS_THICKFRAME)
 
-void	Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void *ptr, int inputDeviceNum );
+void	Sys_QueueEvent( sysEventType_t type, int value, int value2, size_t ptrLength, void *ptr, int inputDeviceNum );
 
 void	Sys_CreateConsole();
 void	Sys_DestroyConsole();
@@ -68,7 +70,7 @@ char	*Sys_GetCurrentUser();
 
 void	Win_SetErrorText( const char *text );
 
-cpuid_t	Sys_GetCPUId();
+cpuid_t	Sys_GetCPUCapabilities();
 
 // Input subsystem
 
@@ -84,7 +86,7 @@ void	IN_Frame();
 
 void	DisableTaskKeys( BOOL bDisable, BOOL bBeep, BOOL bTaskMgr );
 
-uint64 Sys_Microseconds();
+ID_TIME_T Sys_Microseconds();
 
 // window procedure
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -130,6 +132,7 @@ typedef struct {
 	// desktop gamma is saved here for restoration at exit
 
 	static idCVar	sys_arch;
+	static idCVar	win_edition;
 	static idCVar	sys_cpustring;
 	static idCVar	in_mouse;
 	static idCVar	win_allowAltTab;
@@ -140,7 +143,9 @@ typedef struct {
 	static idCVar	win_timerUpdate;
 	static idCVar	win_allowMultipleInstances;
 
+#ifndef USE_STL_MUTEX
 	CRITICAL_SECTION criticalSections[MAX_CRITICAL_SECTIONS];
+#endif
 
 	HINSTANCE		hInstDI;			// direct input
 

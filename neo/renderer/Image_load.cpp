@@ -248,7 +248,7 @@ name contains GetName() upon entry
 	_name.ExtractFileExtension( extension );
 	_name.StripFileExtension();
 
-	_name += va( "#__%02d%02d", (int)_usage, (int)_cube );
+	_name += va( "#__%02d%02d", static_cast<int>(_usage), static_cast<int>(_cube) );
 	if ( extension.Length() > 0 ) {
 		_name.SetFileExtension( extension );
 	}
@@ -348,9 +348,9 @@ void idImage::ActuallyLoadImage( bool fromBackEnd ) {
 		opts.width = header.width;
 		opts.height = header.height;
 		opts.numLevels = header.numLevels;
-		opts.colorFormat = (textureColor_t)header.colorFormat;
-		opts.format = (textureFormat_t)header.format;
-		opts.textureType = (textureType_t)header.textureType;
+		opts.colorFormat = static_cast<textureColor_t>(header.colorFormat);
+		opts.format = static_cast<textureFormat_t>(header.format);
+		opts.textureType = static_cast<textureType_t>(header.textureType);
 		if ( cvarSystem->GetCVarBool( "fs_buildresources" ) ) {
 			// for resource gathering write this image to the preload file for this map
 			fileSystem->AddImagePreload( GetName(), filter, repeat, usage, cubeFiles );

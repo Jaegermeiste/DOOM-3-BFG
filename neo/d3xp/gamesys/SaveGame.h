@@ -129,8 +129,10 @@ public:
 
 	void					Read( void *buffer, int len );
 	void					ReadInt( int &value );
+	void					ReadInt( std::integral auto& value );
 	void					ReadJoint( jointHandle_t &value );
 	void					ReadShort( short &value );
+	void					ReadShort( std::integral auto& value );
 	void					ReadByte( byte &value );
 	void					ReadSignedChar( signed char &value );
 	void					ReadFloat( float &value );

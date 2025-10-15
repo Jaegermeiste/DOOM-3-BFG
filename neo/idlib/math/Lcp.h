@@ -66,16 +66,16 @@ public:
 
 	virtual			~idLCP();
 
-	virtual bool	Solve( const idMatX &A, idVecX &x, const idVecX &b, const idVecX &lo, 
-						   const idVecX &hi, const int *boxIndex = nullptr) = 0;
+	virtual bool	Solve(const idMatX &A, idVecX &x, const idVecX &b, const idVecX &lo,
+		                  const idVecX &hi, const size_t* boxIndex = nullptr) = 0;
 
-	virtual void	SetMaxIterations( int max );
-	virtual int		GetMaxIterations();
+	virtual void	SetMaxIterations( size_t max );
+	virtual size_t	GetMaxIterations();
 
 	static void		Test_f( const idCmdArgs &args );
 
 protected:
-	int				maxIterations;
+	size_t			maxIterations = 1;
 };
 
 #endif // !__MATH_LCP_H__

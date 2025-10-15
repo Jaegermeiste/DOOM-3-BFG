@@ -37,16 +37,17 @@ double idTimer::base = -1.0;
 idTimer::InitBaseClockTicks
 =================
 */
-void idTimer::InitBaseClockTicks() const {
+void idTimer::InitBaseClockTicks()
+{
 	idTimer timer;
 
 	base = 0.0;
 	double b = -1.0;
-	for ( int i = 0; i < 1000; i++ ) {
+	for ( size_t i = 0; i < 1000; i++ ) {
 		timer.Clear();
 		timer.Start();
 		timer.Stop();
-		double ct = timer.ClockTicks();
+		const double ct = timer.ClockTicks();
 		if ( b < 0.0 || ct < b ) {
 			b = ct;
 		}
@@ -60,8 +61,7 @@ void idTimer::InitBaseClockTicks() const {
 idTimerReport::idTimerReport
 =================
 */
-idTimerReport::idTimerReport() {
-}
+idTimerReport::idTimerReport() = default;
 
 /*
 =================
@@ -86,10 +86,10 @@ idTimerReport::~idTimerReport() {
 idTimerReport::AddReport
 =================
 */
-int idTimerReport::AddReport( const char *name ) {
+int64 idTimerReport::AddReport( const char *name ) {
 	if ( name && *name ) {
 		names.Append( name );
-		return timers.Append( new (TAG_IDLIB) idTimer() );
+		return idMath::integer_cast<int64>(timers.Append( new (TAG_IDLIB) idTimer() ));
 	}
 	return -1;
 }
@@ -122,9 +122,9 @@ void idTimerReport::Reset() {
 idTimerReport::AddTime
 =================
 */
-void idTimerReport::AddTime( const char *name, idTimer *time ) {
+void idTimerReport::AddTime( const char *name, const idTimer *time ) {
 	assert ( timers.Num() == names.Num() );
-	int i;
+	size_t i = 0;
 	for ( i = 0; i < names.Num(); i++ ) {
 		if ( names[i].Icmp( name ) == 0 ) {
 			*timers[i] += *time;
@@ -132,7 +132,7 @@ void idTimerReport::AddTime( const char *name, idTimer *time ) {
 		}
 	}
 	if ( i == names.Num() ) {
-		const int index = AddReport( name );
+		const auto index = AddReport( name );
 		if ( index >= 0 ) {
 			timers[index]->Clear();
 			*timers[index] += *time;
@@ -149,7 +149,7 @@ void idTimerReport::PrintReport() {
 	assert( timers.Num() == names.Num() );
 	idLib::common->Printf( "Timing Report for %s\n", reportName.c_str() );
 	idLib::common->Printf( "-------------------------------\n" );
-	float total = 0.0f;
+	double total = 0.0f;
 	for ( int i = 0; i < names.Num(); i++ ) {
 		idLib::common->Printf( "%s consumed %5.2f seconds\n", names[i].c_str(), timers[i]->Milliseconds() * 0.001f );
 		total += timers[i]->Milliseconds();

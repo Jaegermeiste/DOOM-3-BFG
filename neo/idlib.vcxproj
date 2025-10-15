@@ -165,11 +165,12 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <UseDynamicDebugging>false</UseDynamicDebugging>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <WarningLevel>Level2</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Lib>
       <SubSystem>Windows</SubSystem>
-      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
       <Verbose>true</Verbose>
     </Lib>
   </ItemDefinitionGroup>

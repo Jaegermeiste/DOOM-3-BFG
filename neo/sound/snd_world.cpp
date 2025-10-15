@@ -1035,7 +1035,7 @@ void idSoundWorldLocal::ReadFromSaveGame( idFile * savefile ) {
 	idStr shaderName;
 	// Start at 1 because the local sound emitter is not saved
 	for ( int e = 1; e < numEmitters; e++ ) {
-		idSoundEmitterLocal * emitter = (idSoundEmitterLocal *)AllocSoundEmitter();
+		idSoundEmitterLocal * emitter = static_cast<idSoundEmitterLocal*>(AllocSoundEmitter());
 		assert( emitter == emitters[e] );
 		assert( emitter->index == e );
 		assert( emitter->soundWorld == this );

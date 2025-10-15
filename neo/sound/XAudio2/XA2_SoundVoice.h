@@ -57,12 +57,12 @@ public:
 	bool					Update();
 
 	// returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
-	float					GetAmplitude();
+							[[nodiscard]] float					GetAmplitude() const;
 
 	// returns true if we can re-use this voice
-	bool					CompatibleFormat( idSoundSample_XAudio2 * s );
+	bool					CompatibleFormat( idSoundSample_XAudio2 * s ) const;
 
-	uint32					GetSampleRate() const { return sampleRate; }
+							[[nodiscard]] uint32					GetSampleRate() const { return sampleRate; }
 
 	// callback function
 	void					OnBufferStart( idSoundSample_XAudio2 * sample, int bufferNumber );
@@ -71,10 +71,10 @@ private:
 	friend class idSoundHardware_XAudio2;
 
 	// Returns true when all the buffers are finished processing
-	bool					IsPlaying();
+							[[nodiscard]] bool					IsPlaying() const;
 
 	// Called after the voice has been stopped
-	void					FlushSourceBuffers();
+	void					FlushSourceBuffers() const;
 
 	// Destroy the internal hardware resource
 	void					DestroyInternal();

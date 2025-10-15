@@ -196,8 +196,8 @@ bool idFont::LoadFont() {
 
 	fd->ReadBig( fontInfo->numGlyphs );
 
-	fontInfo->glyphData = (glyphInfo_t *)Mem_Alloc( sizeof( glyphInfo_t ) * fontInfo->numGlyphs, TAG_FONT );
-	fontInfo->charIndex = (uint32 *)Mem_Alloc( sizeof( uint32 ) * fontInfo->numGlyphs, TAG_FONT );
+	fontInfo->glyphData = static_cast<glyphInfo_t*>(Mem_Alloc(sizeof(glyphInfo_t) * fontInfo->numGlyphs, TAG_FONT));
+	fontInfo->charIndex = static_cast<uint32*>(Mem_Alloc(sizeof(uint32) * fontInfo->numGlyphs, TAG_FONT));
 
 	fd->Read( fontInfo->glyphData, fontInfo->numGlyphs * sizeof( glyphInfo_t ) );
 
@@ -403,7 +403,8 @@ void idFont::GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t & glyphI
 idFont::Touch
 ==============================
 */
-void idFont::Touch() {
+void idFont::Touch() const
+{
 	if ( alias != nullptr) {
 		alias->Touch();
 	}

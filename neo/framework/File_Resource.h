@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idResourceCacheEntry {
 public:
-	idResourceCacheEntry() {
+	idResourceCacheEntry() noexcept {
 		Clear();
 	}
 	void Clear() {
@@ -62,8 +62,8 @@ public:
 		return sz;
 	}
 	idStrStatic< 256 >	filename;
-	int					offset;							// into the resource file
-	int 				length;
+	size_t				offset;							// into the resource file
+	size_t 				length;
 	uint8				containerIndex;
 };
 
@@ -72,7 +72,7 @@ class idResourceContainer {
 	friend class	idFileSystemLocal;
 	//friend class	idReadSpawnThread;
 public:
-	idResourceContainer() {
+	idResourceContainer() noexcept {
 		resourceFile = nullptr;
 		tableOffset = 0;
 		tableLength = 0;
@@ -90,18 +90,18 @@ public:
 	static void ExtractResourceFile ( const char * fileName, const char * outPath, bool copyWavs );
 	static void UpdateResourceFile( const char *filename, const idStrList &filesToAdd );
 	idFile *OpenFile( const char *fileName );
-	const char * GetFileName() const { return fileName.c_str(); }
+	[[nodiscard]] const char * GetFileName() const { return fileName.c_str(); }
 	void SetContainerIndex( const int & _idx );
 	void ReOpen();
 private:
 	idStrStatic< 256 > fileName;
 	idFile *	resourceFile;			// open file handle
 	// offset should probably be a 64 bit value for development, but 4 gigs won't fit on
-	// a DVD layer, so it isn't a retail limitation.
-	int		tableOffset;			// table offset
-	int		tableLength;			// table length
+	// a DVD layer, so it isn't a retail limitation.  // FIXED!
+	size_t	tableOffset;			// table offset
+	size_t	tableLength;			// table length
 	int		resourceMagic;			// magic
-	int		numFileResources;		// number of file resources in this container
+	size_t	numFileResources;		// number of file resources in this container
 	idList< idResourceCacheEntry, TAG_RESOURCE>	cacheTable;
 	idHashIndex	cacheHash;
 };

@@ -63,7 +63,7 @@ public:
 	int				Milliseconds();
 
 					// Returns the journal level, 1 = record, 2 = play back.
-	int				JournalLevel() const;
+					[[nodiscard]] int				JournalLevel() const;
 
 					// Journal file.
 	idFile *		com_journalFile;
@@ -78,7 +78,7 @@ private:
 
 	static idCVar	com_journal;
 
-	sysEvent_t		GetRealEvent();
+					[[nodiscard]] sysEvent_t		GetRealEvent() const;
 	void			ProcessEvent( sysEvent_t ev );
 	void			PushEvent( sysEvent_t *event );
 };

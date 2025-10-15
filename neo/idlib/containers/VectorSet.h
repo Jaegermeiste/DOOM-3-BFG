@@ -92,7 +92,7 @@ ID_INLINE void idVectorSet<type,dimension>::Init( const type &mins, const type &
 	this->boxHashSize = boxHashSize;
 
 	for ( int i = 0; i < dimension; i++ ) {
-		float boxSize = (maxs[i] - mins[i]) / static_cast<float>(boxHashSize);
+		const float boxSize = (maxs[i] - mins[i]) / static_cast<float>(boxHashSize);
 		boxInvSize[i] = 1.0f / boxSize;
 		boxHalfSize[i] = boxSize * 0.5f;
 	}
@@ -210,7 +210,7 @@ ID_INLINE void idVectorSubset<type,dimension>::Init( const type &mins, const typ
 	this->boxHashSize = boxHashSize;
 
 	for ( int i = 0; i < dimension; i++ ) {
-		float boxSize = (maxs[i] - mins[i]) / static_cast<float>(boxHashSize);
+		const float boxSize = (maxs[i] - mins[i]) / static_cast<float>(boxHashSize);
 		boxInvSize[i] = 1.0f / boxSize;
 		boxHalfSize[i] = boxSize * 0.5f;
 	}

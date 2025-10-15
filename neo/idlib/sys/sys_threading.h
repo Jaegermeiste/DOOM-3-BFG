@@ -32,6 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifndef __TYPEINFOGEN__
 
+#define USE_STL_MUTEX
+
+#ifdef USE_STL_MUTEX
+#include <mutex>
+#endif
+
 /*
 ================================================================================================
 
@@ -40,9 +46,17 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
+#ifdef USE_STL_MUTEX
+	typedef std::recursive_mutex	mutexHandle_t;
+#else
 	typedef CRITICAL_SECTION		mutexHandle_t;
+#endif
 	typedef HANDLE					signalHandle_t;
+#if defined( ID_WIN32 )
 	typedef LONG					interlockedInt_t;
+#elif defined ( ID_WIN64 )
+	typedef LONG64					interlockedInt_t;
+#endif
 
 	// _ReadWriteBarrier() does not translate to any instructions but keeps the compiler
 	// from reordering read and write instructions across the barrier.
@@ -68,7 +82,7 @@ If you have questions concerning this license or the applicable additional terms
 	public:
 		DWORD	tlsIndex;
 
-		idSysThreadLocalStorage() { 
+		idSysThreadLocalStorage() noexcept {
 			tlsIndex = TlsAlloc();
 		}
 
@@ -123,7 +137,7 @@ If you have questions concerning this license or the applicable additional terms
 			// If T is narrower than a pointer (e.g., 32-bit T on 64-bit),
 			// assert that no high bits would be lost (faithful to reinterpret_cast equality).
 			if constexpr (sizeof(T) < sizeof(LPVOID)) {
-				const unsigned bit_diff = static_cast<unsigned>(sizeof(LPVOID) * 8 - sizeof(T) * 8);
+				constexpr unsigned bit_diff = static_cast<unsigned>(sizeof(LPVOID) * 8 - sizeof(T) * 8);
 				assert((stored_value >> bit_diff) == 0 &&
 					"Pointer doesn't fit in T (would truncate on 64-bit)");
 			}
@@ -145,9 +159,11 @@ If you have questions concerning this license or the applicable additional terms
 				assert(val >= 0); // Value must be non-negative
 			}
 
-			auto val_wide = static_cast<unsigned long long>(val);
+			const auto val_wide = static_cast<unsigned long long>(val);
 
+#if defined(ID_WIN32)
 			assert(val_wide <= static_cast<unsigned long long>((std::numeric_limits<DWORD>::max)())); // Value exceeds DWORD max
+#endif
 
 			tlsIndex = TlsAlloc();
 			TlsSetValue(tlsIndex, reinterpret_cast<LPVOID>(val_wide));
@@ -187,7 +203,7 @@ enum xthreadPriority {
 	THREAD_HIGHEST
 };
 
-#define DEFAULT_THREAD_STACK_SIZE		( 256 * 1024 )
+constexpr size_t DEFAULT_THREAD_STACK_SIZE = ( 256ULL * 1024ULL );
 
 // on win32, the threadID is NOT the same as the threadHandle
 uintptr_t			Sys_GetCurrentThreadID();
@@ -226,13 +242,14 @@ void *				Sys_InterlockedCompareExchangePointer( void * & ptr, void * comparand,
 
 void				Sys_Yield();
 
-constexpr int MAX_CRITICAL_SECTIONS		= 4;
-
-enum {
+#ifndef USE_STL_MUTEX
+enum criticalSections_e{
 	CRITICAL_SECTION_ZERO = 0,
 	CRITICAL_SECTION_ONE,
 	CRITICAL_SECTION_TWO,
-	CRITICAL_SECTION_THREE
+	CRITICAL_SECTION_THREE,
+	MAX_CRITICAL_SECTIONS
 };
+#endif
 
 #endif	// !__SYS_THREADING_H__

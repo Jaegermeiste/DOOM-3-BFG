@@ -67,7 +67,7 @@ private:
 	void				SetCurrentSel( int sel );
 	void				AddCurrentSel( int sel );
 	int					GetCurrentSel();
-	bool				IsSelected( int index );
+	[[nodiscard]] bool				IsSelected( int index ) const;
 	void				ClearSelection( int sel );
 
 	idList<idTabRect, TAG_OLD_UI>	tabInfo;

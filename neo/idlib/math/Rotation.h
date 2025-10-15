@@ -52,7 +52,7 @@ class idRotation {
 	friend class idMat3;
 
 public:
-						idRotation();
+						idRotation() noexcept = default;
 						idRotation( const idVec3 &rotationOrigin, const idVec3 &rotationVec, const float rotationAngle );
 
 	void				Set( const idVec3 &rotationOrigin, const idVec3 &rotationVec, const float rotationAngle );
@@ -96,9 +96,6 @@ private:
 	mutable bool		axisValid;		// true if rotation axis is valid
 };
 
-
-ID_INLINE idRotation::idRotation() {
-}
 
 ID_INLINE idRotation::idRotation( const idVec3 &rotationOrigin, const idVec3 &rotationVec, const float rotationAngle ) {
 	origin = rotationOrigin;

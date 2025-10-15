@@ -39,8 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#define MATRIX_INVERSE_EPSILON		1e-14
-#define MATRIX_EPSILON				1e-6
+constexpr auto MATRIX_INVERSE_EPSILON = 1e-14;
+constexpr auto MATRIX_EPSILON = 1e-6;
 
 class idAngles;
 class idQuat;
@@ -56,13 +56,13 @@ class idMat4;
 
 class idMat2 {
 public:
-					idMat2();
+					idMat2() noexcept;
 					explicit idMat2( const idVec2 &x, const idVec2 &y );
 					explicit idMat2( const float xx, const float xy, const float yx, const float yy );
 					explicit idMat2( const float src[ 2 ][ 2 ] );
 
-	const idVec2 &	operator[]( int index ) const;
-	idVec2 &		operator[]( int index );
+	const idVec2 &	operator[]( Ordinal auto index ) const;
+	idVec2 &		operator[]( Ordinal auto index );
 	idMat2			operator-() const;
 	idMat2			operator*( const float a ) const;
 	idVec2			operator*( const idVec2 &vec ) const;
@@ -112,8 +112,7 @@ extern idMat2 mat2_zero;
 extern idMat2 mat2_identity;
 #define mat2_default	mat2_identity
 
-ID_INLINE idMat2::idMat2() {
-}
+ID_INLINE idMat2::idMat2() noexcept = default;
 
 ID_INLINE idMat2::idMat2( const idVec2 &x, const idVec2 &y ) {
 	mat[ 0 ].x = x.x; mat[ 0 ].y = x.y;
@@ -129,13 +128,15 @@ ID_INLINE idMat2::idMat2( const float src[ 2 ][ 2 ] ) {
 	memcpy(mat, src, static_cast<unsigned long long>(2) * 2 * sizeof(float));
 }
 
-ID_INLINE const idVec2 &idMat2::operator[](const int index ) const {
-	//assert( ( index >= 0 ) && ( index < 2 ) );
+
+ID_INLINE const idVec2 &idMat2::operator[](const Ordinal auto index ) const {
+	assert( ( index >= 0 ) && ( index < 2 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec2 &idMat2::operator[](const int index ) {
-	//assert( ( index >= 0 ) && ( index < 2 ) );
+
+ID_INLINE idVec2 &idMat2::operator[](const Ordinal auto index ) {
+	assert( ( index >= 0 ) && ( index < 2 ) );
 	return mat[ index ];
 }
 
@@ -283,7 +284,7 @@ ID_INLINE idMat2 idMat2::Transpose() const {
 }
 
 ID_INLINE idMat2 &idMat2::TransposeSelf() {
-	float tmp = mat[0][1];
+	const float tmp = mat[0][1];
 	mat[0][1] = mat[1][0];
 	mat[1][0] = tmp;
 
@@ -325,13 +326,15 @@ ID_INLINE float *idMat2::ToFloatPtr() {
 
 class idMat3 {
 public:
-					idMat3();
+					idMat3() noexcept;
 					explicit idMat3( const idVec3 &x, const idVec3 &y, const idVec3 &z );
 					explicit idMat3( const float xx, const float xy, const float xz, const float yx, const float yy, const float yz, const float zx, const float zy, const float zz );
 					explicit idMat3( const float src[ 3 ][ 3 ] );
 
-	const idVec3 &	operator[]( int index ) const;
-	idVec3 &		operator[]( int index );
+	
+	const idVec3 &	operator[]( Ordinal auto index ) const;
+	
+	idVec3 &		operator[]( Ordinal auto index );
 	idMat3			operator-() const;
 	idMat3			operator*( const float a ) const;
 	idVec3			operator*( const idVec3 &vec ) const;
@@ -405,8 +408,7 @@ extern idMat3 mat3_zero;
 extern idMat3 mat3_identity;
 #define mat3_default	mat3_identity
 
-ID_INLINE idMat3::idMat3() {
-}
+ID_INLINE idMat3::idMat3() noexcept = default;
 
 ID_INLINE idMat3::idMat3( const idVec3 &x, const idVec3 &y, const idVec3 &z ) {
 	mat[ 0 ].x = x.x; mat[ 0 ].y = x.y; mat[ 0 ].z = x.z;
@@ -424,13 +426,15 @@ ID_INLINE idMat3::idMat3( const float src[ 3 ][ 3 ] ) {
 	memcpy(mat, src, static_cast<unsigned long long>(3) * 3 * sizeof(float));
 }
 
-ID_INLINE const idVec3 &idMat3::operator[](const int index ) const {
-	//assert( ( index >= 0 ) && ( index < 3 ) );
+
+ID_INLINE const idVec3 &idMat3::operator[](const Ordinal auto index ) const {
+	assert( ( index >= 0 ) && ( index < 3 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec3 &idMat3::operator[](const int index ) {
-	//assert( ( index >= 0 ) && ( index < 3 ) );
+
+ID_INLINE idVec3 &idMat3::operator[](const Ordinal auto index ) {
+	assert( ( index >= 0 ) && ( index < 3 ) );
 	return mat[ index ];
 }
 
@@ -496,7 +500,7 @@ ID_INLINE idMat3 &idMat3::operator*=( const float a ) {
 }
 
 ID_INLINE idMat3 &idMat3::operator*=( const idMat3 &a ) {
-	float dst[3];
+	float dst[3] = {};
 
 	float* m1Ptr = reinterpret_cast<float*>(this);
 	const float* m2Ptr = reinterpret_cast<const float*>(&a);
@@ -667,13 +671,13 @@ ID_INLINE idMat3 idMat3::Transpose() const {
 }
 
 ID_INLINE idMat3 &idMat3::TransposeSelf() {
-	float tmp0 = mat[0][1];
+	const float tmp0 = mat[0][1];
 	mat[0][1] = mat[1][0];
 	mat[1][0] = tmp0;
-	float tmp1 = mat[0][2];
+	const float tmp1 = mat[0][2];
 	mat[0][2] = mat[2][0];
 	mat[2][0] = tmp1;
-	float tmp2 = mat[1][2];
+	const float tmp2 = mat[1][2];
 	mat[1][2] = mat[2][1];
 	mat[2][1] = tmp2;
 
@@ -741,7 +745,7 @@ ID_INLINE float *idMat3::ToFloatPtr() {
 
 class idMat4 {
 public:
-					idMat4();
+					idMat4() noexcept;
 					explicit idMat4( const idVec4 &x, const idVec4 &y, const idVec4 &z, const idVec4 &w );
 					explicit idMat4(const float xx, const float xy, const float xz, const float xw,
 									const float yx, const float yy, const float yz, const float yw,
@@ -750,8 +754,10 @@ public:
 					explicit idMat4( const idMat3 &rotation, const idVec3 &translation );
 					explicit idMat4( const float src[ 4 ][ 4 ] );
 
-	const idVec4 &	operator[]( int index ) const;
-	idVec4 &		operator[]( int index );
+	
+	const idVec4 &	operator[]( Ordinal auto index ) const;
+	
+	idVec4 &		operator[]( Ordinal auto index );
 	idMat4			operator*( const float a ) const;
 	idVec4			operator*( const idVec4 &vec ) const;
 	idVec3			operator*( const idVec3 &vec ) const;
@@ -808,8 +814,7 @@ extern idMat4 mat4_zero;
 extern idMat4 mat4_identity;
 #define mat4_default	mat4_identity
 
-ID_INLINE idMat4::idMat4() {
-}
+ID_INLINE idMat4::idMat4() noexcept = default;
 
 ID_INLINE idMat4::idMat4( const idVec4 &x, const idVec4 &y, const idVec4 &z, const idVec4 &w ) {
 	mat[ 0 ] = x;
@@ -852,13 +857,15 @@ ID_INLINE idMat4::idMat4( const float src[ 4 ][ 4 ] ) {
 	memcpy(mat, src, static_cast<unsigned long long>(4) * 4 * sizeof(float));
 }
 
-ID_INLINE const idVec4 &idMat4::operator[](const int index ) const {
-	//assert( ( index >= 0 ) && ( index < 4 ) );
+
+ID_INLINE const idVec4 &idMat4::operator[](const Ordinal auto index ) const {
+	assert( ( index >= 0 ) && ( index < 4 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec4 &idMat4::operator[](const int index ) {
-	//assert( ( index >= 0 ) && ( index < 4 ) );
+
+ID_INLINE idVec4 &idMat4::operator[](const Ordinal auto index ) {
+	assert( ( index >= 0 ) && ( index < 4 ) );
 	return mat[ index ];
 }
 
@@ -1114,12 +1121,14 @@ ID_INLINE float *idMat4::ToFloatPtr() {
 
 class idMat5 {
 public:
-					idMat5();
+					idMat5() noexcept;
 					explicit idMat5( const idVec5 &v0, const idVec5 &v1, const idVec5 &v2, const idVec5 &v3, const idVec5 &v4 );
 					explicit idMat5( const float src[ 5 ][ 5 ] );
 
-	const idVec5 &	operator[]( int index ) const;
-	idVec5 &		operator[]( int index );
+	
+	const idVec5 &	operator[]( Ordinal auto index ) const;
+	
+	idVec5 &		operator[]( Ordinal auto index );
 	idMat5			operator*( const float a ) const;
 	idVec5			operator*( const idVec5 &vec ) const;
 	idMat5			operator*( const idMat5 &a ) const;
@@ -1168,8 +1177,7 @@ extern idMat5 mat5_zero;
 extern idMat5 mat5_identity;
 #define mat5_default	mat5_identity
 
-ID_INLINE idMat5::idMat5() {
-}
+ID_INLINE idMat5::idMat5() noexcept = default;
 
 ID_INLINE idMat5::idMat5( const float src[ 5 ][ 5 ] ) {
 	memcpy(mat, src, static_cast<unsigned long long>(5) * 5 * sizeof(float));
@@ -1183,13 +1191,15 @@ ID_INLINE idMat5::idMat5( const idVec5 &v0, const idVec5 &v1, const idVec5 &v2, 
 	mat[4] = v4;
 }
 
-ID_INLINE const idVec5 &idMat5::operator[](const int index ) const {
-	//assert( ( index >= 0 ) && ( index < 5 ) );
+
+ID_INLINE const idVec5 &idMat5::operator[](const Ordinal auto index ) const {
+	assert( ( index >= 0 ) && ( index < 5 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec5 &idMat5::operator[](const int index ) {
-	//assert( ( index >= 0 ) && ( index < 5 ) );
+
+ID_INLINE idVec5 &idMat5::operator[](const Ordinal auto index ) {
+	assert( ( index >= 0 ) && ( index < 5 ) );
 	return mat[ index ];
 }
 
@@ -1396,13 +1406,15 @@ ID_INLINE float *idMat5::ToFloatPtr() {
 
 class idMat6 {
 public:
-					idMat6();
+					idMat6() noexcept;
 					explicit idMat6( const idVec6 &v0, const idVec6 &v1, const idVec6 &v2, const idVec6 &v3, const idVec6 &v4, const idVec6 &v5 );
 					explicit idMat6( const idMat3 &m0, const idMat3 &m1, const idMat3 &m2, const idMat3 &m3 );
 					explicit idMat6( const float src[ 6 ][ 6 ] );
 
-	const idVec6 &	operator[]( int index ) const;
-	idVec6 &		operator[]( int index );
+	
+	const idVec6 &	operator[]( Ordinal auto index ) const;
+	
+	idVec6 &		operator[]( Ordinal auto index );
 	idMat6			operator*( const float a ) const;
 	idVec6			operator*( const idVec6 &vec ) const;
 	idMat6			operator*( const idMat6 &a ) const;
@@ -1452,8 +1464,7 @@ extern idMat6 mat6_zero;
 extern idMat6 mat6_identity;
 #define mat6_default	mat6_identity
 
-ID_INLINE idMat6::idMat6() {
-}
+ID_INLINE idMat6::idMat6() noexcept = default;
 
 ID_INLINE idMat6::idMat6( const idMat3 &m0, const idMat3 &m1, const idMat3 &m2, const idMat3 &m3 ) {
 	mat[0] = idVec6( m0[0][0], m0[0][1], m0[0][2], m1[0][0], m1[0][1], m1[0][2] );
@@ -1477,13 +1488,15 @@ ID_INLINE idMat6::idMat6( const float src[ 6 ][ 6 ] ) {
 	memcpy(mat, src, static_cast<unsigned long long>(6) * 6 * sizeof(float));
 }
 
-ID_INLINE const idVec6 &idMat6::operator[](const int index ) const {
-	//assert( ( index >= 0 ) && ( index < 6 ) );
+
+ID_INLINE const idVec6 &idMat6::operator[](const Ordinal auto index ) const {
+	assert( ( index >= 0 ) && ( index < 6 ) );
 	return mat[ index ];
 }
 
-ID_INLINE idVec6 &idMat6::operator[](const int index ) {
-	//assert( ( index >= 0 ) && ( index < 6 ) );
+
+ID_INLINE idVec6 &idMat6::operator[](const Ordinal auto index ) {
+	assert( ( index >= 0 ) && ( index < 6 ) );
 	return mat[ index ];
 }
 

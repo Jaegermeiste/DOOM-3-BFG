@@ -43,14 +43,14 @@ public:
 	bool	Run();
 	bool	RunActions();
 
-	const char * GetName() const { return name.c_str(); }
+	[[nodiscard]] const char * GetName() const { return name.c_str(); }
 
-	idSWFScriptObject * GetScriptObject() { return scriptObject; }
+	[[nodiscard]] idSWFScriptObject * GetScriptObject() const { return scriptObject; }
 	void SetAlignment( float x, float y ) { xOffset = x; yOffset = y; }
 
 	void SetMaterial( const idMaterial * material, int width = -1, int height = -1 );
 	void SetVisible( bool visible );
-	bool IsVisible() { return isVisible; }
+	[[nodiscard]] bool IsVisible() const { return isVisible; }
 	void PlayFrame( const idSWFParmList & parms );
 	void PlayFrame( const char * frameName ) {
 		idSWFParmList parms;
@@ -76,19 +76,19 @@ public:
 	// FIXME: Why do all the Set functions have defaults of -1.0f?  This seems arbitrar.
 	// Probably better to not have a default at all, so any non-parametized calls throw a
 	// compilation error.
-	float GetXPos() const;
-	float GetYPos( bool overallPos = false ) const;
-	void SetXPos( float xPos = -1.0f );
-	void SetYPos( float yPos = -1.0f );
-	void SetPos( float xPos = -1.0f, float yPos = -1.0f );
-	void SetAlpha( float val );
-	void SetScale( float x = -1.0f, float y = -1.0f );
+	[[nodiscard]] float GetXPos() const;
+	[[nodiscard]] float GetYPos( bool overallPos = false ) const;
+	void SetXPos( float xPos = -1.0f ) const;
+	void SetYPos( float yPos = -1.0f ) const;
+	void SetPos( float xPos = -1.0f, float yPos = -1.0f ) const;
+	void SetAlpha( float val ) const;
+	void SetScale( float x = -1.0f, float y = -1.0f ) const;
 	void SetMoveToScale( float x = -1.0f, float y = -1.0f );
 	bool UpdateMoveToScale( float speed );	// returns true if the update was successful
-	void SetRotation( float rot );
-	uint16 GetCurrentFrame() { return currentFrame; }
-	bool IsPlaying() const { return isPlaying; }
-	int GetStereoDepth() { return stereoDepth; }
+	void SetRotation( float rot ) const;
+	[[nodiscard]] uint16 GetCurrentFrame() const { return currentFrame; }
+	[[nodiscard]] bool IsPlaying() const { return isPlaying; }
+	[[nodiscard]] int GetStereoDepth() const { return stereoDepth; }
 
 	// Removing the private access control statement due to cl 214702
 	// Apparently MS's C++ compiler supports the newer C++ standard, and GCC supports C++03

@@ -83,7 +83,7 @@ public:
 	void		StartFrame();
 	void		EndFrame();
 	void		Close();
-	int			Active() { return activeLevel; }	// returns greater than 1 for more detailed logging
+				[[nodiscard]] int			Active() const { return activeLevel; }	// returns greater than 1 for more detailed logging
 
 	// The label must be a constant string literal and may not point to a temporary.
 	void		OpenMainBlock( renderLogMainBlock_t block );

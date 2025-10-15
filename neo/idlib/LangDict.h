@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idLangKeyValue {
 public:
-	idLangKeyValue() : key(nullptr), value(nullptr) { }
+	idLangKeyValue() noexcept : key(nullptr), value(nullptr) { }
 	idLangKeyValue( char * k, char * v ) : key ( k ), value( v ) { }
 	char * key;
 	char * value;
@@ -48,8 +48,8 @@ LocalizedStringTables.
 */
 class idLangDict {
 public:
-	static const char *		KEY_PREFIX;
-	static const size_t		KEY_PREFIX_LEN;
+	static constexpr const char * KEY_PREFIX = "#str_"; // all keys should be prefixed with this for redirection to work
+	static size_t KEY_PREFIX_LEN;
 	static constexpr int		MAX_REDIRECTION_DEPTH = 2;
 
 	idLangDict();
@@ -69,9 +69,9 @@ public:
 	bool					SetString( const char * key, const char * val );	// Returns false if the key doesn't exist
 	void					AddKeyVal( const char * key, const char * val );	// Like SetString, but adds it if it doesn't already exist
 
-	int						GetNumKeyVals() const;
-	const idLangKeyValue *	GetKeyVal( int i ) const;
-	bool					DeleteString( const int idx );
+	size_t					GetNumKeyVals() const;
+	const idLangKeyValue *	GetKeyVal( size_t i ) const;
+	bool					DeleteString( const size_t idx );
 
 	const char *			GetLocalizedString( const idStrId & strId ) const;
 
@@ -84,7 +84,7 @@ private:
 	idHashIndex keyIndex;
 
 private:
-	int						FindStringIndex( const char * str ) const;
+	int64					FindStringIndex( const char * str ) const;
 	const char *			FindString_r( const char * str, int & depth ) const;
 
 	friend class idStrId;
@@ -120,10 +120,11 @@ idStrId represents a localized String as a String ID.
 */
 class idStrId {
 public:
-	idStrId() : index( -1 ) { }
-	idStrId( const idStrId & other ) : index( other.index ) { }
+	idStrId() noexcept : index( -1 ) { }
+	idStrId( const idStrId & other ) = default;
 
-	explicit idStrId(const int i ) : index( i ) { }
+	
+	explicit idStrId(const Ordinal auto i ) : index(idMath::integer_cast<int64>(i)) { }
 	explicit idStrId( const char * key ) { Set( key ); }
 	explicit idStrId( const idStr & key ) { Set( key ); }
 
@@ -142,11 +143,12 @@ public:
 	const char *	GetKey() const;
 	const char *	GetLocalizedString() const;
 
-	int				GetIndex() const { return index; }
-	void			SetIndex(const int i ) { index = i; }
+	size_t			GetIndex() const { return idMath::integer_cast<size_t>(index); }
+	
+	void			SetIndex(const Ordinal auto i) { ORDINAL_CHECK(i, INT64_MAX); index = idMath::integer_cast<int64>(i); }
 
 private:
-	int index;	// Index into the language dictionary
+	int64 index;	// Index into the language dictionary
 };
 
 #endif // !__LANGDICT_H__

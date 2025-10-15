@@ -172,8 +172,8 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 			// save the window origin in cvars if we aren't fullscreen
 			int style = GetWindowLong( hWnd, GWL_STYLE );
 			if ( ( style & WS_POPUP ) == 0 ) {
-				xPos = (short) LOWORD(lParam);    // horizontal position 
-				yPos = (short) HIWORD(lParam);    // vertical position 
+				xPos = static_cast<short>(LOWORD(lParam));    // horizontal position 
+				yPos = static_cast<short>(HIWORD(lParam));    // vertical position 
 
 				r.left   = 0;
 				r.top    = 0;
@@ -225,7 +225,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 				int	fActive, fMinimized;
 
 				fActive = LOWORD(wParam);
-				fMinimized = (BOOL) HIWORD(wParam);
+				fMinimized = static_cast<BOOL>(HIWORD(wParam));
 
 				win32.activeApp = (fActive != WA_INACTIVE);
 				if ( win32.activeApp ) {
@@ -282,7 +282,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 			} else if ( key == K_PAUSE ) {
 				key = K_NUMLOCK;
 			}
-			Sys_QueEvent( SE_KEY, key, true, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, key, true, 0, nullptr, 0 );
 			break;
 
 		case WM_SYSKEYUP:
@@ -297,11 +297,11 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 				// as two events (ctrl then alt)
 				break;
 			}
-			Sys_QueEvent( SE_KEY, key, false, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, key, false, 0, nullptr, 0 );
 			break;
 
 		case WM_CHAR:
-			Sys_QueEvent( SE_CHAR, wParam, 0, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_CHAR, wParam, 0, 0, nullptr, 0 );
 			break;
 
 		case WM_NCLBUTTONDOWN:
@@ -353,7 +353,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 			const int y = GET_Y_LPARAM( lParam );
 
 			// Generate an event
-			Sys_QueEvent( SE_MOUSE_ABSOLUTE, x, y, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_MOUSE_ABSOLUTE, x, y, 0, nullptr, 0 );
 			
 			// Get a mouse leave message
 			TRACKMOUSEEVENT tme = {
@@ -368,48 +368,48 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 			return 0;
 		}
 		case WM_MOUSELEAVE: {
-			Sys_QueEvent( SE_MOUSE_LEAVE, 0, 0, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_MOUSE_LEAVE, 0, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_LBUTTONDOWN: {
-			Sys_QueEvent( SE_KEY, K_MOUSE1, 1, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE1, 1, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_LBUTTONUP: {
-			Sys_QueEvent( SE_KEY, K_MOUSE1, 0, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE1, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_RBUTTONDOWN: {
-			Sys_QueEvent( SE_KEY, K_MOUSE2, 1, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE2, 1, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_RBUTTONUP: {
-			Sys_QueEvent( SE_KEY, K_MOUSE2, 0, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE2, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_MBUTTONDOWN: {
-			Sys_QueEvent( SE_KEY, K_MOUSE3, 1, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE3, 1, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_MBUTTONUP: {
-			Sys_QueEvent( SE_KEY, K_MOUSE3, 0, 0, nullptr, 0 );
+			Sys_QueueEvent( SE_KEY, K_MOUSE3, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_XBUTTONDOWN: {
 			int button = GET_XBUTTON_WPARAM( wParam );
 			if ( button == 1 ) {
-				Sys_QueEvent( SE_KEY, K_MOUSE4, 1, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_KEY, K_MOUSE4, 1, 0, nullptr, 0 );
 			} else if ( button == 2 ) {
-				Sys_QueEvent( SE_KEY, K_MOUSE5, 1, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_KEY, K_MOUSE5, 1, 0, nullptr, 0 );
 			}
 			return 0;
 		}
 		case WM_XBUTTONUP: {
 			int button = GET_XBUTTON_WPARAM( wParam );
 			if ( button == 1 ) {
-				Sys_QueEvent( SE_KEY, K_MOUSE4, 0, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_KEY, K_MOUSE4, 0, 0, nullptr, 0 );
 			} else if ( button == 2 ) {
-				Sys_QueEvent( SE_KEY, K_MOUSE5, 0, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_KEY, K_MOUSE5, 0, 0, nullptr, 0 );
 			}
 			return 0;
 		}
@@ -418,8 +418,8 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 			int key = delta < 0 ? K_MWHEELDOWN : K_MWHEELUP;
 			delta = abs( delta );
 			while( delta-- > 0 ) {
-				Sys_QueEvent( SE_KEY, key, true, 0, nullptr, 0 );
-				Sys_QueEvent( SE_KEY, key, false, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_KEY, key, true, 0, nullptr, 0 );
+				Sys_QueueEvent( SE_KEY, key, false, 0, nullptr, 0 );
 			}
 			break;
 		}

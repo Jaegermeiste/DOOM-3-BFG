@@ -184,7 +184,7 @@ void UnpackColor( const dword color, idVec3 &unpackedColor ) {
 idLib::FatalError
 ===============
 */
-void idLib::FatalError( const char *fmt, ... ) {
+NO_RETURN void idLib::FatalError( const char *fmt, ... ) {
 	va_list		argptr;
 	char		text[MAX_STRING_CHARS];
 
@@ -200,9 +200,9 @@ void idLib::FatalError( const char *fmt, ... ) {
 idLib::Error
 ===============
 */
-void idLib::Error( const char *fmt, ... ) {
+NO_RETURN void idLib::Error( const char *fmt, ... ) {
 	va_list		argptr;
-	char		text[MAX_STRING_CHARS];
+	char		text[MAX_STRING_CHARS] = {};
 
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( text, sizeof( text ), fmt, argptr );
@@ -286,41 +286,57 @@ void idLib::PrintfIf( const bool test, const char *fmt, ... ) {
 */
 
 // can't just use function pointers, or dll linkage can mess up
-static short	(*_BigShort)( short l );
-static short	(*_LittleShort)( short l );
-static int		(*_BigLong)( int l );
-static int		(*_LittleLong)( int l );
-static float	(*_BigFloat)( float l );
-static float	(*_LittleFloat)( float l );
-static void		(*_BigRevBytes)( void *bp, int elsize, int elcount );
-static void		(*_LittleRevBytes)( void *bp, int elsize, int elcount );
-static void     (*_LittleBitField)( void *bp, int elsize );
-static void		(*_SixtetsForInt)( byte *out, int src );
-static int		(*_IntForSixtets)( byte *in );
+static short        	(*_BigShort)( short l );
+static short        	(*_LittleShort)( short l );
+static unsigned short	(*_BigUShort)(unsigned short l);
+static unsigned short	(*_LittleUShort)(unsigned short l);
+static int      		(*_BigLong)( int l );
+static int       		(*_LittleLong)( int l );
+static unsigned int		(*_BigULong)( unsigned int l );
+static unsigned int		(*_LittleULong)( unsigned int l );
+static int64        	(*_BigLongLong)( int64 l );
+static int64        	(*_LittleLongLong)( int64 l );
+static uint64           (*_BigULongLong)( uint64 l );
+static uint64           (*_LittleULongLong)( uint64 l );
+static float	        (*_BigFloat)( float l );
+static float	        (*_LittleFloat)( float l );
+static void		        (*_BigRevBytes)( void *bp, int elsize, int elcount );
+static void		        (*_LittleRevBytes)( void *bp, int elsize, int elcount );
+static void             (*_LittleBitField)( void *bp, int elsize );
+static void		        (*_SixtetsForInt)( byte *out, int src );
+static int		        (*_IntForSixtets)( byte *in );
 
-short	BigShort(const short l ) { return _BigShort( l ); }
-short	LittleShort(const short l ) { return _LittleShort( l ); }
-int		BigLong(const int l ) { return _BigLong( l ); }
-int		LittleLong(const int l ) { return _LittleLong( l ); }
-float	BigFloat(const float l ) { return _BigFloat( l ); }
-float	LittleFloat(const float l ) { return _LittleFloat( l ); }
-void	BigRevBytes( void *bp, const int elsize, const int elcount ) { _BigRevBytes( bp, elsize, elcount ); }
-void	LittleRevBytes( void *bp, const int elsize, const int elcount ){ _LittleRevBytes( bp, elsize, elcount ); }
-void	LittleBitField( void *bp, const int elsize ){ _LittleBitField( bp, elsize ); }
+short               	BigShort(const short l ) { return _BigShort( l ); }
+short               	LittleShort(const short l ) { return _LittleShort( l ); }
+unsigned short      	BigUShort(const unsigned short l) { return _BigUShort(l); }
+unsigned short      	LittleUShort(const unsigned short l) { return _LittleUShort(l); }
+int             		BigLong(const int l ) { return _BigLong( l ); }
+int             		LittleLong(const int l ) { return _LittleLong( l ); }
+unsigned int    		BigULong(const unsigned int l) { return _BigULong(l); }
+unsigned int    		LittleULong(const unsigned int l) { return _LittleULong(l); }
+int64                	BigLongLong(const int64 l) { return _BigLongLong(l); }
+int64               	LittleLongLong(const int64 l) { return _LittleLongLong(l); }
+uint64              	BigULongLong(const uint64 l) { return _BigULongLong(l); }
+uint64              	LittleULongLong(const uint64 l) { return _LittleULongLong(l); }
+float               	BigFloat(const float l ) { return _BigFloat( l ); }
+float                 	LittleFloat(const float l ) { return _LittleFloat( l ); }
+void                	BigRevBytes( void *bp, const int elsize, const int elcount ) { _BigRevBytes( bp, elsize, elcount ); }
+void                	LittleRevBytes( void *bp, const int elsize, const int elcount ){ _LittleRevBytes( bp, elsize, elcount ); }
+void                	LittleBitField( void *bp, const int elsize ){ _LittleBitField( bp, elsize ); }
 
-void	SixtetsForInt( byte *out, const int src) { _SixtetsForInt( out, src ); }
-int		IntForSixtets( byte *in ) { return _IntForSixtets( in ); }
+void                 	SixtetsForInt( byte *out, const int src) { _SixtetsForInt( out, src ); }
+int              		IntForSixtets( byte *in ) { return _IntForSixtets( in ); }
 
 /*
 ================
 ShortSwap
 ================
 */
-short ShortSwap(const short l ) {
-	byte b1 = l & 255;
-	byte b2 = (l >> 8) & 255;
+static short ShortSwap(const short l ) {
+	const byte b1 = l & 255;
+	const byte b2 = (l >> 8) & 255;
 
-	return (b1<<8) + b2;
+	return static_cast<short>(b1<<8) + b2;
 }
 
 /*
@@ -328,7 +344,28 @@ short ShortSwap(const short l ) {
 ShortNoSwap
 ================
 */
-short ShortNoSwap(const short l ) {
+static short ShortNoSwap(const short l ) {
+	return l;
+}
+
+/*
+================
+UShortSwap
+================
+*/
+static unsigned short UShortSwap(const unsigned short l) {
+	const byte b1 = l & 255;
+	const byte b2 = (l >> 8) & 255;
+
+	return static_cast<unsigned short>(b1 << 8) + b2;
+}
+
+/*
+================
+UShortNoSwap
+================
+*/
+static unsigned short UShortNoSwap(const unsigned short l) {
 	return l;
 }
 
@@ -337,11 +374,11 @@ short ShortNoSwap(const short l ) {
 LongSwap
 ================
 */
-int LongSwap (const int l ) {
-	byte b1 = l & 255;
-	byte b2 = (l >> 8) & 255;
-	byte b3 = (l >> 16) & 255;
-	byte b4 = (l >> 24) & 255;
+static int LongSwap (const int l ) {
+	const byte b1 =  l        & 255;
+	const byte b2 = (l >> 8)  & 255;
+	const byte b3 = (l >> 16) & 255;
+	const byte b4 = (l >> 24) & 255;
 
 	return (static_cast<int>(b1)<<24) + (static_cast<int>(b2)<<16) + (static_cast<int>(b3)<<8) + b4;
 }
@@ -351,7 +388,85 @@ int LongSwap (const int l ) {
 LongNoSwap
 ================
 */
-int	LongNoSwap(const int l ) {
+static int	LongNoSwap(const int l ) {
+	return l;
+}
+
+/*
+================
+ULongSwap
+================
+*/
+static unsigned int ULongSwap(const unsigned int l) {
+	const byte b1 = l & 255;
+	const byte b2 = (l >> 8) & 255;
+	const byte b3 = (l >> 16) & 255;
+	const byte b4 = (l >> 24) & 255;
+
+	return (static_cast<unsigned int>(b1) << 24) + (static_cast<unsigned int>(b2) << 16) + (static_cast<unsigned int>(b3) << 8) + b4;
+}
+
+/*
+================
+ULongNoSwap
+================
+*/
+static unsigned int	ULongNoSwap(const unsigned int l) {
+	return l;
+}
+
+/*
+================
+LongLongSwap
+================
+*/
+static int64 LongLongSwap(const int64 l) {
+	const byte b1 =  l        & 255;
+	const byte b2 = (l >> 8)  & 255;
+	const byte b3 = (l >> 16) & 255;
+	const byte b4 = (l >> 24) & 255;
+	const byte b5 = (l >> 32) & 255;
+	const byte b6 = (l >> 40) & 255;
+	const byte b7 = (l >> 48) & 255;
+	const byte b8 = (l >> 56) & 255;
+
+	return (static_cast<int64>(b1) << 56) + (static_cast<int64>(b2) << 48) + (static_cast<int64>(b3) << 40) + (static_cast<int64>(b4) << 32) + (static_cast<int64>(b5) << 24) + (static_cast<int64>(b6) << 16) + (static_cast<int64>(b7) << 8) + b8;
+}
+
+/*
+================
+LongLongNoSwap
+================
+*/
+static int64	LongLongNoSwap(const int64 l) {
+	return l;
+}
+
+
+/*
+================
+ULongLongSwap
+================
+*/
+static uint64 ULongLongSwap(const uint64 l) {
+	const byte b1 = l & 255;
+	const byte b2 = (l >> 8) & 255;
+	const byte b3 = (l >> 16) & 255;
+	const byte b4 = (l >> 24) & 255;
+	const byte b5 = (l >> 32) & 255;
+	const byte b6 = (l >> 40) & 255;
+	const byte b7 = (l >> 48) & 255;
+	const byte b8 = (l >> 56) & 255;
+
+	return (static_cast<uint64>(b1) << 56) + (static_cast<uint64>(b2) << 48) + (static_cast<uint64>(b3) << 40) + (static_cast<uint64>(b4) << 32) + (static_cast<uint64>(b5) << 24) + (static_cast<uint64>(b6) << 16) + (static_cast<uint64>(b7) << 8) + b8;
+}
+
+/*
+================
+ULongNoSwap
+================
+*/
+static uint64	ULongLongNoSwap(const uint64 l) {
 	return l;
 }
 
@@ -360,11 +475,11 @@ int	LongNoSwap(const int l ) {
 FloatSwap
 ================
 */
-float FloatSwap(const float f ) {
+static float FloatSwap(const float f ) {
 	union {
 		float	f;
 		byte	b[4];
-	} dat1, dat2;
+	} dat1 = {}, dat2 = {};
 	
 	
 	dat1.f = f;
@@ -380,7 +495,7 @@ float FloatSwap(const float f ) {
 FloatNoSwap
 ================
 */
-float FloatNoSwap(const float f ) {
+static float FloatNoSwap(const float f ) {
 	return f;
 }
 
@@ -398,7 +513,7 @@ INPUTS
 RESULTS
    Reverses the byte order in each of elcount elements.
 ===================================================================== */
-void RevBytesSwap( void *bp, const int elsize, int elcount ) {
+static void RevBytesSwap( void *bp, const int elsize, int elcount ) {
 	unsigned char*q;
 
 	unsigned char* p = static_cast<unsigned char*>(bp);
@@ -441,7 +556,7 @@ void RevBytesSwap( void *bp, const int elsize, int elcount ) {
  RESULTS
  Reverses the bitfield of size elsize.
  ===================================================================== */
-void RevBitFieldSwap( void *bp, int elsize) {
+static void RevBitFieldSwap( void *bp, int elsize) {
 	LittleRevBytes( bp, elsize, 1 );
 	
 	unsigned char* p = static_cast<unsigned char*>(bp);
@@ -462,7 +577,7 @@ void RevBitFieldSwap( void *bp, int elsize) {
 RevBytesNoSwap
 ================
 */
-void RevBytesNoSwap( void *bp, int elsize, int elcount ) {
+static void RevBytesNoSwap( void *bp, int elsize, int elcount ) {
 	return;
 }
 
@@ -471,7 +586,7 @@ void RevBytesNoSwap( void *bp, int elsize, int elcount ) {
  RevBytesNoSwap
  ================
  */
-void RevBitFieldNoSwap( void *bp, int elsize ) {
+static void RevBitFieldNoSwap( void *bp, int elsize ) {
 	return;
 }
 
@@ -480,8 +595,8 @@ void RevBitFieldNoSwap( void *bp, int elsize ) {
 SixtetsForIntLittle
 ================
 */
-void SixtetsForIntLittle( byte *out, int src) {
-	const byte *b = (byte *)&src;
+static void SixtetsForIntLittle( byte *out, int src) {
+	const byte *b = reinterpret_cast<byte*>(&src);
 	out[0] = ( b[0] & 0xfc ) >> 2;
 	out[1] = ( ( b[0] & 0x3 ) << 4 ) + ( ( b[1] & 0xf0 ) >> 4 );
 	out[2] = ( ( b[1] & 0xf ) << 2 ) + ( ( b[2] & 0xc0 ) >> 6 );
@@ -494,7 +609,7 @@ SixtetsForIntBig
 TTimo: untested - that's the version from initial base64 encode
 ================
 */
-void SixtetsForIntBig( byte *out, int src) {
+static void SixtetsForIntBig( byte *out, int src) {
 	for( int i = 0 ; i < 4 ; i++ ) {
 		out[i] = src & 0x3f;
 		src >>= 6;
@@ -506,9 +621,9 @@ void SixtetsForIntBig( byte *out, int src) {
 IntForSixtetsLittle
 ================
 */
-int IntForSixtetsLittle( byte *in ) {
+static int IntForSixtetsLittle( byte *in ) {
 	int ret = 0;
-	byte *b = (byte *)&ret;
+	byte *b = reinterpret_cast<byte*>(&ret);
 	b[0] |= in[0] << 2;
 	b[0] |= ( in[1] & 0x30 ) >> 4;
 	b[1] |= ( in[1] & 0xf ) << 4;
@@ -524,7 +639,7 @@ IntForSixtetsBig
 TTimo: untested - that's the version from initial base64 decode
 ================
 */
-int IntForSixtetsBig( byte *in ) {
+static int IntForSixtetsBig( byte *in ) {
 	int ret = 0;
 	ret |= in[0];
 	ret |= in[1] << 6;
@@ -542,12 +657,20 @@ void Swap_Init() {
 	constexpr byte	swaptest[2] = {1,0};
 
 	// set the byte swapping variables in a portable manner	
-	if ( *(short *)swaptest == 1) {
-		// little endian ex: x86
+	if ( *reinterpret_cast<const short *>(swaptest) == 1) {
+		// little endian ex: x86, x64
 		_BigShort = ShortSwap;
 		_LittleShort = ShortNoSwap;
+		_BigUShort = UShortSwap;
+		_LittleUShort = UShortNoSwap;
 		_BigLong = LongSwap;
 		_LittleLong = LongNoSwap;
+		_BigULong = ULongSwap;
+		_LittleULong = ULongNoSwap;
+		_BigLongLong = LongLongSwap;
+		_LittleLongLong = LongLongNoSwap;
+		_BigULongLong = ULongLongSwap;
+		_LittleULongLong = ULongLongNoSwap;
 		_BigFloat = FloatSwap;
 		_LittleFloat = FloatNoSwap;
 		_BigRevBytes = RevBytesSwap;
@@ -559,8 +682,16 @@ void Swap_Init() {
 		// big endian ex: ppc
 		_BigShort = ShortNoSwap;
 		_LittleShort = ShortSwap;
+		_BigUShort = UShortNoSwap;
+		_LittleUShort = UShortSwap;
 		_BigLong = LongNoSwap;
 		_LittleLong = LongSwap;
+		_BigULong = ULongNoSwap;
+		_LittleULong = ULongSwap;
+		_BigLongLong = LongLongNoSwap;
+		_LittleLongLong = LongLongSwap;
+		_BigULongLong = ULongLongNoSwap;
+		_LittleULongLong = ULongLongSwap;
 		_BigFloat = FloatNoSwap;
 		_LittleFloat = FloatSwap;
 		_BigRevBytes = RevBytesNoSwap;
@@ -578,7 +709,7 @@ Swap_IsBigEndian
 */
 bool Swap_IsBigEndian() {
 	constexpr byte	swaptest[2] = {1,0};
-	return *(short *)swaptest != 1;
+	return *reinterpret_cast<const short *>(swaptest) != 1;
 }
 
 

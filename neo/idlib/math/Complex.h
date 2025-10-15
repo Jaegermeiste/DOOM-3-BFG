@@ -44,14 +44,16 @@ public:
 	float				r;		// real part
 	float				i;		// imaginary part
 
-						idComplex();
+						idComplex() noexcept = default;
 						idComplex( const float r, const float i );
 
 	void 				Set( const float r, const float i );
 	void				Zero();
 
-	float				operator[]( int index ) const;
-	float &				operator[]( int index );
+	
+	float				operator[]( Ordinal auto index ) const;
+	
+	float &				operator[]( Ordinal auto index );
 
 	idComplex			operator-() const;
 	idComplex &			operator=( const idComplex &a );
@@ -100,9 +102,6 @@ public:
 extern idComplex complex_origin;
 #define complex_zero complex_origin
 
-ID_INLINE idComplex::idComplex() {
-}
-
 ID_INLINE idComplex::idComplex( const float r, const float i ) {
 	this->r = r;
 	this->i = i;
@@ -117,12 +116,14 @@ ID_INLINE void idComplex::Zero() {
 	r = i = 0.0f;
 }
 
-ID_INLINE float idComplex::operator[](const int index ) const {
+
+ID_INLINE float idComplex::operator[](const Ordinal auto index ) const {
 	assert( index >= 0 && index < 2 );
 	return ( &r )[ index ];
 }
 
-ID_INLINE float& idComplex::operator[](const int index ) {
+
+ID_INLINE float& idComplex::operator[](const Ordinal auto index ) {
 	assert( index >= 0 && index < 2 );
 	return ( &r )[ index ];
 }
@@ -131,18 +132,14 @@ ID_INLINE idComplex idComplex::operator-() const {
 	return idComplex( -r, -i );
 }
 
-ID_INLINE idComplex &idComplex::operator=( const idComplex &a ) {
-	r = a.r;
-	i = a.i;
-	return *this;
-}
+ID_INLINE idComplex &idComplex::operator=( const idComplex &a ) = default;
 
 ID_INLINE idComplex idComplex::operator*( const idComplex &a ) const {
 	return idComplex( r * a.r - i * a.i, i * a.r + r * a.i );
 }
 
 ID_INLINE idComplex idComplex::operator/( const idComplex &a ) const {
-	float s, t;
+	float s = 0.0f, t = 0.0f;
 	if ( idMath::Fabs( a.r ) >= idMath::Fabs( a.i ) ) {
 		s = a.i / a.r;
 		t = 1.0f / ( a.r + s * a.i );
@@ -259,7 +256,7 @@ ID_INLINE idComplex operator-( const float a, const idComplex &b ) {
 }
 
 ID_INLINE idComplex idComplex::Reciprocal() const {
-	float s, t;
+	float s = 0.0f, t = 0.0f;
 	if ( idMath::Fabs( r ) >= idMath::Fabs( i ) ) {
 		s = i / r;
 		t = 1.0f / ( r + s * i );
@@ -272,13 +269,13 @@ ID_INLINE idComplex idComplex::Reciprocal() const {
 }
 
 ID_INLINE idComplex idComplex::Sqrt() const {
-	float w;
+	float w = 0.0f;
 
 	if ( r == 0.0f && i == 0.0f ) {
 		return idComplex( 0.0f, 0.0f );
 	}
-	float x = idMath::Fabs(r);
-	float y = idMath::Fabs(i);
+	const float x = idMath::Fabs(r);
+	const float y = idMath::Fabs(i);
 	if ( x >= y ) {
 		w = y / x;
 		w = idMath::Sqrt( x ) * idMath::Sqrt( 0.5f * ( 1.0f + idMath::Sqrt( 1.0f + w * w ) ) );
@@ -298,8 +295,8 @@ ID_INLINE idComplex idComplex::Sqrt() const {
 
 ID_INLINE float idComplex::Abs() const {
 	float t;
-	float x = idMath::Fabs(r);
-	float y = idMath::Fabs(i);
+	const float x = idMath::Fabs(r);
+	const float y = idMath::Fabs(i);
 	if ( x == 0.0f ) {
 		return y;
 	} else if ( y == 0.0f ) {

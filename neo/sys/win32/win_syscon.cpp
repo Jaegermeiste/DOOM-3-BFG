@@ -40,17 +40,20 @@ If you have questions concerning this license or the applicable additional terms
 #include "win_local.h"
 #include "rc/doom_resource.h"
 
-#define COPY_ID			1
-#define QUIT_ID			2
-#define CLEAR_ID		3
+enum windowParams_e : WPARAM
+{
+	COPY_ID = 1,
+	QUIT_ID = 2,
+	CLEAR_ID = 3,
 
-#define ERRORBOX_ID		10
-#define ERRORTEXT_ID	11
+	ERRORBOX_ID = 10,
+	ERRORTEXT_ID = 11,
 
-#define EDIT_ID			100
-#define INPUT_ID		101
+	EDIT_ID = 100,
+	INPUT_ID = 101
+};
 
-#define	COMMAND_HISTORY	64
+constexpr auto COMMAND_HISTORY = 64;
 
 typedef struct {
 	HWND		hWnd;
@@ -79,8 +82,8 @@ typedef struct {
 	char		consoleText[512], returnedText[512];
 	bool		quitOnClose;
 	int			windowWidth, windowHeight;
-	 
-	WNDPROC		SysInputLineWndProc;
+
+	LONG_PTR	SysInputLinePtr;
 
 	idEditField	historyEditLines[COMMAND_HISTORY];
 
@@ -113,19 +116,19 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			}
 			return 0;
 		case WM_CTLCOLORSTATIC:
-			if ( ( HWND ) lParam == s_wcd.hwndBuffer ) {
-				SetBkColor( ( HDC ) wParam, RGB( 0x00, 0x00, 0x80 ) );
-				SetTextColor( ( HDC ) wParam, RGB( 0xff, 0xff, 0x00 ) );
-				return ( long ) s_wcd.hbrEditBackground;
-			} else if ( ( HWND ) lParam == s_wcd.hwndErrorBox ) {
+			if ( reinterpret_cast<HWND>(lParam) == s_wcd.hwndBuffer ) {
+				SetBkColor( reinterpret_cast<HDC>(wParam), RGB( 0x00, 0x00, 0x80 ) );
+				SetTextColor( reinterpret_cast<HDC>(wParam), RGB( 0xff, 0xff, 0x00 ) );
+				return reinterpret_cast<long>(s_wcd.hbrEditBackground);
+			} else if ( reinterpret_cast<HWND>(lParam) == s_wcd.hwndErrorBox ) {
 				if ( s_timePolarity & 1 ) {
-					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
-					SetTextColor( ( HDC ) wParam, RGB( 0xff, 0x0, 0x00 ) );
+					SetBkColor( reinterpret_cast<HDC>(wParam), RGB( 0x80, 0x80, 0x80 ) );
+					SetTextColor( reinterpret_cast<HDC>(wParam), RGB( 0xff, 0x0, 0x00 ) );
 				} else {
-					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
-					SetTextColor( ( HDC ) wParam, RGB( 0x00, 0x0, 0x00 ) );
+					SetBkColor( reinterpret_cast<HDC>(wParam), RGB( 0x80, 0x80, 0x80 ) );
+					SetTextColor( reinterpret_cast<HDC>(wParam), RGB( 0x00, 0x0, 0x00 ) );
 				}
-				return ( long ) s_wcd.hbrErrorBackground;
+				return reinterpret_cast<long>(s_wcd.hbrErrorBackground);
 			}
 			break;
 		case WM_SYSCOMMAND:
@@ -142,11 +145,11 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 					PostQuitMessage( 0 );
 				} else {
 					cmdString = Mem_CopyString( "quit" );
-					Sys_QueEvent( SE_CONSOLE, 0, 0, strlen( cmdString ) + 1, cmdString, 0 );
+					Sys_QueueEvent( SE_CONSOLE, 0, 0, strlen( cmdString ) + 1, cmdString, 0 );
 				}
 			} else if ( wParam == CLEAR_ID ) {
 				SendMessage( s_wcd.hwndBuffer, EM_SETSEL, 0, -1 );
-				SendMessage( s_wcd.hwndBuffer, EM_REPLACESEL, FALSE, ( LPARAM ) "" );
+				SendMessage( s_wcd.hwndBuffer, EM_REPLACESEL, FALSE, reinterpret_cast<LPARAM>("") );
 				UpdateWindow( s_wcd.hwndBuffer );
 			}
 			break;
@@ -188,11 +191,11 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
-LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	int key, cursor;
+static LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	int key = 0, cursor = 0;
 	switch ( uMsg ) {
 	case WM_KILLFOCUS:
-		if ( ( HWND ) wParam == s_wcd.hWnd || ( HWND ) wParam == s_wcd.hwndErrorBox ) {
+		if ( reinterpret_cast<HWND>(wParam) == s_wcd.hWnd || reinterpret_cast<HWND>(wParam) == s_wcd.hwndErrorBox ) {
 			SetFocus( hWnd );
 			return 0;
 		}
@@ -230,7 +233,7 @@ LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		key = ( ( lParam >> 16 ) & 0xFF ) | ( ( ( lParam >> 24 ) & 1 ) << 7 );
 
 		GetWindowText( s_wcd.hwndInputLine, s_wcd.consoleField.GetBuffer(), MAX_EDIT_LINE );
-		SendMessage( s_wcd.hwndInputLine, EM_GETSEL, (WPARAM) NULL, (LPARAM) &cursor );
+		SendMessage( s_wcd.hwndInputLine, EM_GETSEL, static_cast<WPARAM>(0), reinterpret_cast<LPARAM>(&cursor) );
 		s_wcd.consoleField.SetCursor( cursor );
 
 		// enter the line
@@ -270,7 +273,7 @@ LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		break;
 	}
 
-	return CallWindowProc( s_wcd.SysInputLineWndProc, hWnd, uMsg, wParam, lParam );
+	return CallWindowProc(reinterpret_cast<WNDPROC>(s_wcd.SysInputLinePtr), hWnd, uMsg, wParam, lParam );
 }
 
 /*
@@ -279,23 +282,23 @@ LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 void Sys_CreateConsole() {
 	HDC hDC;
 	WNDCLASS wc;
-	RECT rect;
+	RECT rect = {};
 	const char *DEDCLASS = WIN32_CONSOLE_CLASS;
-	int nHeight;
-	int swidth, sheight;
+	int nHeight = 0;
+	int swidth = 0, sheight = 0;
 	int DEDSTYLE = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
-	int i;
+	int i = 0;
 
 	memset( &wc, 0, sizeof( wc ) );
 
 	wc.style         = 0;
-	wc.lpfnWndProc   = (WNDPROC) ConWndProc;
+	wc.lpfnWndProc   = reinterpret_cast<WNDPROC>(ConWndProc);
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = win32.hInstance;
 	wc.hIcon         = LoadIcon( win32.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.hCursor       = LoadCursor (nullptr,IDC_ARROW);
-	wc.hbrBackground = (struct HBRUSH__ *)COLOR_WINDOW;
+	wc.hbrBackground = reinterpret_cast<struct HBRUSH__*>(COLOR_WINDOW);
 	wc.lpszMenuName  = nullptr;
 	wc.lpszClassName = DEDCLASS;
 
@@ -350,7 +353,7 @@ void Sys_CreateConsole() {
 												ES_LEFT | ES_AUTOHSCROLL,
 												6, 400, 528, 20,
 												s_wcd.hWnd, 
-												( HMENU ) INPUT_ID,	// child window ID
+												reinterpret_cast<HMENU>(INPUT_ID),	// child window ID
 												win32.hInstance, NULL );
 
 	//
@@ -359,23 +362,23 @@ void Sys_CreateConsole() {
 	s_wcd.hwndButtonCopy = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												5, 425, 72, 24,
 												s_wcd.hWnd, 
-												( HMENU ) COPY_ID,	// child window ID
+												reinterpret_cast<HMENU>(COPY_ID),	// child window ID
 												win32.hInstance, NULL );
-	SendMessage( s_wcd.hwndButtonCopy, WM_SETTEXT, 0, ( LPARAM ) "copy" );
+	SendMessage( s_wcd.hwndButtonCopy, WM_SETTEXT, 0, reinterpret_cast<LPARAM>("copy") );
 
 	s_wcd.hwndButtonClear = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												82, 425, 72, 24,
 												s_wcd.hWnd, 
-												( HMENU ) CLEAR_ID,	// child window ID
+												reinterpret_cast<HMENU>(CLEAR_ID),	// child window ID
 												win32.hInstance, NULL );
-	SendMessage( s_wcd.hwndButtonClear, WM_SETTEXT, 0, ( LPARAM ) "clear" );
+	SendMessage( s_wcd.hwndButtonClear, WM_SETTEXT, 0, reinterpret_cast<LPARAM>("clear") );
 
 	s_wcd.hwndButtonQuit = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												462, 425, 72, 24,
 												s_wcd.hWnd, 
-												( HMENU ) QUIT_ID,	// child window ID
+												reinterpret_cast<HMENU>(QUIT_ID),	// child window ID
 												win32.hInstance, NULL );
-	SendMessage( s_wcd.hwndButtonQuit, WM_SETTEXT, 0, ( LPARAM ) "quit" );
+	SendMessage( s_wcd.hwndButtonQuit, WM_SETTEXT, 0, reinterpret_cast<LPARAM>("quit") );
 
 
 	//
@@ -385,12 +388,13 @@ void Sys_CreateConsole() {
 												ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
 												6, 40, 526, 354,
 												s_wcd.hWnd, 
-												( HMENU ) EDIT_ID,	// child window ID
+												reinterpret_cast<HMENU>(EDIT_ID),	// child window ID
 												win32.hInstance, NULL );
-	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
+	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, reinterpret_cast<WPARAM>(s_wcd.hfBufferFont), 0 );
 
-	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( long ) InputLineWndProc );
-	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
+	s_wcd.SysInputLinePtr = SetWindowLongPtr(s_wcd.hwndInputLine, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(InputLineWndProc));
+
+	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, reinterpret_cast<WPARAM>(s_wcd.hfBufferFont), 0 );
 
 // don't show it now that we have a splash screen up
 	if ( win32.win_viewlog.GetBool() ) {
@@ -469,14 +473,14 @@ char *Sys_ConsoleInput() {
 */
 void Conbuf_AppendText( const char *pMsg )
 {
-#define CONSOLE_BUFFER_SIZE		16384
+constexpr size_t CONSOLE_BUFFER_SIZE = 16384;
 
-	char buffer[CONSOLE_BUFFER_SIZE*2];
+	char buffer[CONSOLE_BUFFER_SIZE*2] = {};
 	char *b = buffer;
-	const char *msg;
-	int bufLen;
-	int i = 0;
-	static unsigned long s_totalChars;
+	const char *msg = nullptr;
+	size_t bufLen = 0;
+	size_t i = 0;
+	static size_t s_totalChars = 0;
 
 	//
 	// if the message is REALLY long, use just the last portion of it

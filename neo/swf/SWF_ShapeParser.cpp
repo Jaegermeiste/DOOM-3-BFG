@@ -75,7 +75,7 @@ void idSWFShapeParser::Parse( idSWFBitStream & bitstream, idSWFShape & shape, in
 				float length2 = ( verts[ spld.edges[e].end.v0 ] - verts[ spld.edges[e].end.v1 ] ).Length();
 				int numPoints = 1 + idMath::Ftoi( Max( length1, length2 ) / 10.0f );
 				for ( int ti = 0; ti < numPoints; ti++ ) {
-					float t0 = ( ti + 1 ) / ( (float) numPoints + 1.0f );
+					float t0 = ( ti + 1 ) / ( static_cast<float>(numPoints) + 1.0f );
 					float t1 = ( 1.0f - t0 );
 					float c1 = t1 * t1;
 					float c2 = t0 * t1 * 2.0f;
@@ -383,7 +383,7 @@ void idSWFShapeParser::MakeLoops() {
 					float length2 = ( verts[ fill.edges[e1].end.v0 ] - verts[ fill.edges[e1].end.v1 ] ).Length();
 					int numPoints = 1 + idMath::Ftoi( Max( length1, length2 ) / 10.0f );
 					for ( int ti = 0; ti < numPoints; ti++ ) {
-						float t0 = ( ti + 1 ) / ( (float) numPoints + 1.0f );
+						float t0 = ( ti + 1 ) / ( static_cast<float>(numPoints) + 1.0f );
 						float t1 = ( 1.0f - t0 );
 						float c1 = t1 * t1;
 						float c2 = t0 * t1 * 2.0f;
@@ -662,7 +662,7 @@ struct earVert_t {
 };
 class idSort_Ears : public idSort_Quick< earVert_t, idSort_Ears > {
 public:
-	int Compare( const earVert_t & a, const earVert_t & b ) const { 
+	[[nodiscard]] int Compare( const earVert_t & a, const earVert_t & b ) const { 
 		if ( a.cross < b.cross ) {
 			return -1;
 		} else if ( a.cross > b.cross ) {
@@ -778,7 +778,8 @@ int idSWFShapeParser::FindEarVert( const swfSPLineLoop_t & loop ) {
 idSWFShapeParser::AddUniqueVert
 ========================
 */
-void idSWFShapeParser::AddUniqueVert( idSWFShapeDrawFill & drawFill, const idVec2 & start, const idVec2 & end ) {
+void idSWFShapeParser::AddUniqueVert( idSWFShapeDrawFill & drawFill, const idVec2 & start, const idVec2 & end ) const
+{
 	if ( morph ) {
 		for ( int i = 0; i < drawFill.startVerts.Num(); i++ ) {
 			if ( drawFill.startVerts[i] == start && drawFill.endVerts[i] == end ) {

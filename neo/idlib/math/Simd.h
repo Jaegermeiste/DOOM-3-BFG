@@ -81,28 +81,28 @@ struct dominantTri_t;
 
 class idSIMDProcessor {
 public:
-									idSIMDProcessor() { cpuid = CPUID_NONE; }
+									idSIMDProcessor() noexcept { cpuid = CPUID_NONE; }
 
 	cpuid_t							cpuid;
 
 	virtual const char * VPCALL		GetName() const = 0;
 
-	virtual	void VPCALL MinMax( float &min,			float &max,				const float *src,		const int count ) = 0;
-	virtual	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const int count ) = 0;
-	virtual	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idVec3 *src,		const int count ) = 0;
-	virtual	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const int count ) = 0;
-	virtual	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const triIndex_t *indexes,		const int count ) = 0;
+	virtual	void VPCALL MinMax( float &min,			float &max,				const float *src,		const size_t count ) = 0;
+	virtual	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const size_t count ) = 0;
+	virtual	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idVec3 *src,		const size_t count ) = 0;
+	virtual	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const size_t count ) = 0;
+	virtual	void VPCALL MinMax( idVec3 &min,		idVec3 &max,			const idDrawVert *src,	const triIndex_t *indexes,		const size_t count ) = 0;
 
-	virtual void VPCALL Memcpy( void *dst,			const void *src,		const int count ) = 0;
-	virtual void VPCALL Memset( void *dst,			const int val,			const int count ) = 0;
+	virtual void VPCALL Memcpy( void *dst,			const void *src,		const size_t count ) = 0;
+	virtual void VPCALL Memset( void *dst,			const int val,			const size_t count ) = 0;
 
 	// animation
-	virtual void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) = 0;
-	virtual void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) = 0;
-	virtual void VPCALL ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const int numJoints ) = 0;
-	virtual void VPCALL ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const int numJoints ) = 0;
-	virtual void VPCALL TransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) = 0;
-	virtual void VPCALL UntransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) = 0;
+	virtual void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) = 0;
+	virtual void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) = 0;
+	virtual void VPCALL ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const size_t numJoints ) = 0;
+	virtual void VPCALL ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const size_t numJoints ) = 0;
+	virtual void VPCALL TransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) = 0;
+	virtual void VPCALL UntransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) = 0;
 };
 
 // pointer to SIMD processor

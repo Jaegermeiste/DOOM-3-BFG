@@ -178,7 +178,8 @@ bool idSoundChannel::IsLooping() const {
 idSoundChannel::CheckForCompletion
 ========================
 */
-bool idSoundChannel::CheckForCompletion( int currentTime ) {
+bool idSoundChannel::CheckForCompletion( int currentTime ) const
+{
 	if ( leadinSample == nullptr) {
 		return true;
 	}
@@ -738,13 +739,13 @@ int idSoundEmitterLocal::StartSound( const idSoundShader * shader, const s_chann
 						mostRecent = i;
 					}
 				}
-				choice = (int)( diversity * ( shader->entries.Num() - 1 ) );
+				choice = static_cast<int>(diversity * (shader->entries.Num() - 1));
 				if ( choice >= mostRecent ) {
 					choice++;
 				}
 			} else {
 				// pick a sound from the list based on the passed diversity
-				choice = (int)( diversity * shader->entries.Num() );
+				choice = static_cast<int>(diversity * shader->entries.Num());
 			}
 			choice = idMath::ClampInt( 0, shader->entries.Num() - 1, choice );
 			leadinSample = shader->entries[choice];

@@ -267,7 +267,8 @@ void BOBrick::ReadFromSaveGame( idFile *savefile, idGameBustOutWindow *game ) {
 BOBrick::SetColor
 ======================
 */
-void BOBrick::SetColor( idVec4 bcolor ) {
+void BOBrick::SetColor( idVec4 bcolor ) const
+{
 	ent->SetColor( bcolor.x, bcolor.y, bcolor.z, bcolor.w );
 }
 
@@ -276,7 +277,8 @@ void BOBrick::SetColor( idVec4 bcolor ) {
 BOBrick::checkCollision
 ======================
 */
-collideDir_t BOBrick::checkCollision( idVec2 pos, idVec2 vel ) {
+collideDir_t BOBrick::checkCollision( idVec2 pos, idVec2 vel ) const
+{
 	idVec2	ptA, ptB;
 	float	dist;
 
@@ -876,7 +878,7 @@ void idGameBustOutWindow::LoadBoardFiles() {
 	}
 
 	boardSize = 9 * 12 * 4;
-	levelBoardData = (byte*)Mem_Alloc( boardSize * numLevels, TAG_CRAP );
+	levelBoardData = static_cast<byte*>(Mem_Alloc(boardSize * numLevels, TAG_CRAP));
 
 	currentBoard = levelBoardData;
 
@@ -1300,7 +1302,7 @@ void idGameBustOutWindow::UpdateGame() {
 		ClearBoard();
 		SetCurrentBoard();
 
-		ballSpeed = BALL_SPEED * ( 1.f + ((float)currentLevel/5.f) );
+		ballSpeed = BALL_SPEED * ( 1.f + (static_cast<float>(currentLevel)/5.f) );
 		if ( ballSpeed > BALL_MAXSPEED ) {
 			ballSpeed = BALL_MAXSPEED;
 		}

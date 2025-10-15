@@ -74,9 +74,9 @@ public:
 	bool					Parse( idLexer &src );
 	bool					Finish( const char *fileName, const getJointTransform_t GetJointTransform, const idJointMat *frame, void *model ) const;
 	bool					Write( idFile *f ) const;
-	const char *			ToString( idStr &str, const int precision = 8 );
-	const idVec3 &			ToVec3() const { return vec; }
-	idVec3 &				ToVec3() { return vec; }
+	const char *			ToString( idStr &str, const int precision = 8 ) const;
+	const idVec3 &			ToVec3() const noexcept { return vec; }
+	idVec3 &				ToVec3() noexcept { return vec; }
 
 private:
 	mutable idVec3			vec;
@@ -144,8 +144,8 @@ public:
 							idDeclAF();
 	virtual					~idDeclAF();
 
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+	[[nodiscard]] virtual size_t			Size() const;
+	[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 

@@ -649,7 +649,8 @@ bool idUserInterfaceLocal::ReadFromSaveGame( idFile * savefile ) {
 	return true;
 }
 
-size_t idUserInterfaceLocal::Size() {
+size_t idUserInterfaceLocal::Size() const
+{
 	size_t sz = sizeof(*this) + state.Size() + source.Allocated();
 	if ( desktop ) {
 		sz += desktop->Size();

@@ -455,8 +455,8 @@ int idBitMsg::DirToBits( const idVec3 &dir, size_t numBits ) {
 	assert( dir.LengthSqr() - 1.0f < 0.01f );
 
 	numBits /= 3;
-	int max = (1 << (numBits - 1)) - 1;
-	float bias = 0.5f / max;
+	const int max = (1 << (numBits - 1)) - 1;
+	const float bias = 0.5f / max;
 
 	int bits = IEEE_FLT_SIGNBITSET(dir.x) << (numBits * 3 - 1);
 	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.x ) + bias ) * max ) ) << ( numBits * 2 );
@@ -479,8 +479,8 @@ idVec3 idBitMsg::BitsToDir(const int bits, size_t numBits ) {
 	assert( numBits >= 6 && numBits <= 32 );
 
 	numBits /= 3;
-	int max = (1 << (numBits - 1)) - 1;
-	float invMax = 1.0f / max;
+	const int max = (1 << (numBits - 1)) - 1;
+	const float invMax = 1.0f / max;
 
 	dir.x = sign[( bits >> ( numBits * 3 - 1 ) ) & 1] * ( ( bits >> ( numBits * 2 ) ) & max ) 
 					* invMax;

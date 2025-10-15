@@ -54,8 +54,8 @@ public:
 	// Controls the low pass filter, where 0.0f = no filtering, 1.0f = full filter
 	void		SetOcclusion( float f ) { occlusion = f; }
 
-	float		GetGain() { return gain; }
-	float		GetPitch() { return pitch; }
+				[[nodiscard]] float		GetGain() const { return gain; }
+				[[nodiscard]] float		GetPitch() const { return pitch; }
 
 protected:
 	idVec3		position;			// Position of the sound relative to listener

@@ -50,7 +50,7 @@ idFile_SaveGame
 */
 class idFile_SaveGame : public idFile_Memory {
 public:
-	idFile_SaveGame() : type( SAVEGAMEFILE_NONE ), error( false ) {}
+	idFile_SaveGame() noexcept : type( SAVEGAMEFILE_NONE ), error( false ) {}
 	idFile_SaveGame( const char * _name ) : idFile_Memory( _name ), type( SAVEGAMEFILE_NONE ), error( false ) {}
 	idFile_SaveGame( const char * _name, int type_ ) : idFile_Memory( _name ), type( type_ ), error( false ) {}
 
@@ -116,28 +116,28 @@ public:
 	static void				CancelToTerminate() { cancelToTerminate = true; }
 
 	bool					ReadBuildVersion();
-	const char *			GetBuildVersion() const { return buildVersion; }
+	[[nodiscard]] const char *			GetBuildVersion() const { return buildVersion; }
 	
 	bool					ReadSaveFormatVersion();
-	int						GetSaveFormatVersion() const { return saveFormatVersion; }
-	int						GetPointerSize() const;
+	[[nodiscard]] int						GetSaveFormatVersion() const { return saveFormatVersion; }
+	[[nodiscard]] int						GetPointerSize() const;
 
 	//------------------------
 	// idFile Interface
 	//------------------------
 
-	virtual const char *	GetName() const { return name.c_str(); }
-	virtual const char *	GetFullPath() const	{ return name.c_str(); }
+	[[nodiscard]] virtual const char *	GetName() const { return name.c_str(); }
+	[[nodiscard]] virtual const char *	GetFullPath() const	{ return name.c_str(); }
 	virtual int				Read( void * buffer, int len );
 	virtual int				Write( const void * buffer, int len );
 
 	// this file is strictly streaming, you can't seek at all
-	virtual size_t			Length() const  { return compressedLength; }
+	[[nodiscard]] virtual size_t			Length() const  { return compressedLength; }
 	virtual void			SetLength( size_t len ) { compressedLength = len; }
-	virtual size_t			Tell() const { assert( 0 ); return 0; }
+	[[nodiscard]] virtual size_t			Tell() const { assert( 0 ); return 0; }
 	virtual int				Seek( long offset, fsOrigin_t origin ) { assert( 0 ); return 0; }
 
-	virtual ID_TIME_T		Timestamp()	const { return 0; }
+	[[nodiscard]] virtual ID_TIME_T		Timestamp()	const { return 0; }
 
 	//------------------------
 	// These can be used by a background thread to read/write data
@@ -151,7 +151,7 @@ public:
 	};
 
 	// Get the file mode: read/write.
-	mode_t					GetMode() const { return mode; }
+	[[nodiscard]] mode_t					GetMode() const { return mode; }
 
 	// Called by a background thread to get the next block to be written out.
 	// This may block until a block has been made available through the pipeline.

@@ -519,7 +519,7 @@ CONSOLE_COMMAND( crash, "causes a crash", NULL ) {
 		return;
 	}
 
-	* ( int * ) nullptr = 0x12345678;
+	* static_cast<int*>(nullptr) = 0x12345678;
 }
 
 /*
@@ -600,7 +600,7 @@ void idCommonLocal::CheckStartupStorageRequirements() {
 
 	idLib::Printf( "requiredSizeBytes: %lld\n", requiredSizeBytes );
 
-	if ( (int64)( requiredSizeBytes - availableSpace ) > 0 ) {
+	if ( static_cast<int64>(requiredSizeBytes - availableSpace) > 0 ) {
 		class idSWFScriptFunction_Continue : public idSWFScriptFunction_RefCounted {
 		public:
 			virtual ~idSWFScriptFunction_Continue() {}
@@ -621,9 +621,9 @@ void idCommonLocal::CheckStartupStorageRequirements() {
 		idStr format = idStrId( "#str_dlg_startup_insufficient_storage" ).GetLocalizedString();
 		idStr size;
 		if ( requiredSizeBytes > ( 1024 * 1024 ) ) {
-			size = va( "%.1f MB", (float)requiredSizeBytes / ( 1024.0f * 1024.0f ) + 0.1f );	// +0.1 to avoid truncation
+			size = va( "%.1f MB", static_cast<float>(requiredSizeBytes) / ( 1024.0f * 1024.0f ) + 0.1f );	// +0.1 to avoid truncation
 		} else {
-			size = va( "%.1f KB", (float)requiredSizeBytes / 1024.0f + 0.1f );
+			size = va( "%.1f KB", static_cast<float>(requiredSizeBytes) / 1024.0f + 0.1f );
 		}
 		idStr msg = va( format.c_str(), size.c_str() );
 
@@ -750,8 +750,8 @@ void idCommonLocal::RenderSplash() {
 	const float sysAspect = sysWidth / sysHeight;
 	constexpr float splashAspect = 16.0f / 9.0f;
 	const float adjustment = sysAspect / splashAspect;
-	const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * (float)SCREEN_HEIGHT * 0.25f;
-	const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * (float)SCREEN_WIDTH * 0.25f;
+	const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * static_cast<float>(SCREEN_HEIGHT) * 0.25f;
+	const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * static_cast<float>(SCREEN_WIDTH) * 0.25f;
 	if ( barHeight > 0.0f ) {
 		renderSystem->SetColor( colorBlack );
 		renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, barHeight, 0, 0, 1, 1, whiteMaterial );

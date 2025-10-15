@@ -69,7 +69,7 @@ viewLight_t *R_SetLightDefViewLight( idRenderLightLocal *light ) {
 	light->viewCount = tr.viewCount;
 
 	// add to the view light chain
-	viewLight_t * vLight = (viewLight_t *)R_ClearedFrameAlloc( sizeof( *vLight ), FRAME_ALLOC_VIEW_LIGHT );
+	viewLight_t * vLight = static_cast<viewLight_t*>(R_ClearedFrameAlloc(sizeof(*vLight), FRAME_ALLOC_VIEW_LIGHT));
 	vLight->lightDef = light;
 
 	// the scissorRect will be expanded as the light bounds is accepted into visible portal chains
@@ -100,7 +100,7 @@ viewEntity_t *R_SetEntityDefViewEntity( idRenderEntityLocal *def ) {
 	}
 	def->viewCount = tr.viewCount;
 
-	viewEntity_t * vModel = (viewEntity_t *)R_ClearedFrameAlloc( sizeof( *vModel ), FRAME_ALLOC_VIEW_ENTITY );
+	viewEntity_t * vModel = static_cast<viewEntity_t*>(R_ClearedFrameAlloc(sizeof(*vModel), FRAME_ALLOC_VIEW_ENTITY));
 	vModel->entityDef = def;
 
 	// the scissorRect will be expanded as the model bounds is accepted into visible portal chains
@@ -373,8 +373,8 @@ idRenderWorldLocal::ScreenRectForWinding
 ===================
 */
 idScreenRect idRenderWorldLocal::ScreenRectFromWinding( const idWinding * w, const viewEntity_t * space ) {
-	const float viewWidth = (float) tr.viewDef->viewport.x2 - (float) tr.viewDef->viewport.x1;
-	const float viewHeight = (float) tr.viewDef->viewport.y2 - (float) tr.viewDef->viewport.y1;
+	const float viewWidth = static_cast<float>(tr.viewDef->viewport.x2) - static_cast<float>(tr.viewDef->viewport.x1);
+	const float viewHeight = static_cast<float>(tr.viewDef->viewport.y2) - static_cast<float>(tr.viewDef->viewport.y1);
 
 	idScreenRect r;
 	r.Clear();
@@ -409,7 +409,7 @@ bool idRenderWorldLocal::PortalIsFoggedOut( const portal_t *p ) {
 	// find the current density of the fog
 	const idMaterial * lightShader = ldef->lightShader;
 	const int size = lightShader->GetNumRegisters() * sizeof( float );
-	float * regs = (float *)_alloca( size );
+	float * regs = static_cast<float*>(_alloca(size));
 
 	lightShader->EvaluateRegisters( regs, ldef->parms.shaderParms, 
 		tr.viewDef->renderView.shaderParms, tr.viewDef->renderView.time[0] * 0.001f, ldef->parms.referenceSound );
@@ -628,7 +628,7 @@ This is only valid for a given view, not all views in a frame
 ===================
 */
 void idRenderWorldLocal::BuildConnectedAreas() {
-	tr.viewDef->connectedAreas = (bool *)R_FrameAlloc( numPortalAreas * sizeof( tr.viewDef->connectedAreas[0] ) );
+	tr.viewDef->connectedAreas = static_cast<bool*>(R_FrameAlloc(numPortalAreas * sizeof(tr.viewDef->connectedAreas[0])));
 
 	// if we are outside the world, we can see all areas
 	if ( tr.viewDef->areaNum == -1 ) {
@@ -950,8 +950,8 @@ bool idRenderWorldLocal::AreasAreConnected( int areaNum1, int areaNum2, portalCo
 		attribute++;
 		intConnection >>= 1;
 	}
-	if ( attribute >= NUM_PORTAL_ATTRIBUTES || ( 1 << attribute ) != (int)connection ) {
-		common->Error( "idRenderWorldLocal::AreasAreConnected: bad connection number: %i\n", (int)connection );
+	if ( attribute >= NUM_PORTAL_ATTRIBUTES || ( 1 << attribute ) != static_cast<int>(connection) ) {
+		common->Error( "idRenderWorldLocal::AreasAreConnected: bad connection number: %i\n", static_cast<int>(connection) );
 	}
 
 	return portalAreas[areaNum1].connectedAreaNum[attribute] == portalAreas[areaNum2].connectedAreaNum[attribute];
@@ -1019,7 +1019,8 @@ idRenderWorldLocal::ShowPortals
 Debugging tool, won't work correctly with SMP or when mirrors are present
 =====================
 */
-void idRenderWorldLocal::ShowPortals() {
+void idRenderWorldLocal::ShowPortals() const
+{
 	int			i, j;
 	portalArea_t	*area;
 	portal_t	*p;

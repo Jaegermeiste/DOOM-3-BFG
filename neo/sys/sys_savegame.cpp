@@ -577,7 +577,8 @@ void idSaveGameManager::CancelToTerminate() {
 idSaveGameManager::DeviceSelectorWaitingOnSaveRetry
 ========================
 */
-bool idSaveGameManager::DeviceSelectorWaitingOnSaveRetry() {
+bool idSaveGameManager::DeviceSelectorWaitingOnSaveRetry() const
+{
 
 	if ( retryFolder == nullptr) {
 		return false;
@@ -656,10 +657,10 @@ void idSaveGameManager::ShowRetySaveDialog( const char * folder, const int64 byt
 	idStr size;
 	if ( bytes > ( 1024 * 1024 ) ) {
 		constexpr float roundUp = ( ( 1024.0f * 1024.0f / 10.0f )- 1.0f );
-		size = va( "%.1f MB", ( roundUp + (float) bytes ) / ( 1024.0f * 1024.0f ) );
+		size = va( "%.1f MB", ( roundUp + static_cast<float>(bytes) ) / ( 1024.0f * 1024.0f ) );
 	} else {
 		constexpr float roundUp = 1024.0f - 1.0f;
-		size = va( "%.0f KB", ( roundUp + (float) bytes ) / 1024.0f );
+		size = va( "%.0f KB", ( roundUp + static_cast<float>(bytes) ) / 1024.0f );
 	}
 	idStr msg = va( format.c_str(), size.c_str() );
 
@@ -734,7 +735,8 @@ void idSaveGameManager::StartNextProcessor() {
 idSaveGameManager::FinishProcessor
 ========================
 */
-void idSaveGameManager::FinishProcessor( idSaveGameProcessor * localProcessor ) {
+void idSaveGameManager::FinishProcessor( idSaveGameProcessor * localProcessor ) const
+{
 
 	assert( localProcessor != NULL );
 	idLib::PrintfIf( saveGame_verbose.GetBool(), "[%s] : %s, %d ms\n", __FUNCTION__, localProcessor->Name(), Sys_Milliseconds() - startTime );

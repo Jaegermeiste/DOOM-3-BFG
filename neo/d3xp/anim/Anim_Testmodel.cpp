@@ -65,8 +65,8 @@ idTestModel::idTestModel
 ================
 */
 idTestModel::idTestModel() {
-	head = NULL;
-	headAnimator = NULL;
+	head = nullptr;
+	headAnimator = nullptr;
 	anim = 0;
 	headAnim = 0;
 	starttime = 0;
@@ -122,11 +122,11 @@ void idTestModel::Spawn() {
 	physicsObj.SetOrigin( GetPhysics()->GetOrigin() );
 	physicsObj.SetAxis( GetPhysics()->GetAxis() );
 	
-	if ( spawnArgs.GetVector( "mins", NULL, bounds[0] ) ) {
-		spawnArgs.GetVector( "maxs", NULL, bounds[1] );
+	if ( spawnArgs.GetVector( "mins", nullptr, bounds[0] ) ) {
+		spawnArgs.GetVector( "maxs", nullptr, bounds[1] );
 		physicsObj.SetClipBox( bounds, 1.0f );
 		physicsObj.SetContents( 0 );
-	} else if ( spawnArgs.GetVector( "size", NULL, size ) ) {
+	} else if ( spawnArgs.GetVector( "size", nullptr, size ) ) {
 		bounds[ 0 ].Set( size.x * -0.5f, size.y * -0.5f, 0.0f );
 		bounds[ 1 ].Set( size.x * 0.5f, size.y * 0.5f, size.z );
 		physicsObj.SetClipBox( bounds, 1.0f );
@@ -145,7 +145,7 @@ void idTestModel::Spawn() {
 		} else {
 			// copy any sounds in case we have frame commands on the head
 			idDict				args;
-			const idKeyValue	*sndKV = spawnArgs.MatchPrefix( "snd_", NULL );
+			const idKeyValue	*sndKV = spawnArgs.MatchPrefix( "snd_", nullptr);
 			while( sndKV ) {
 				args.Set( sndKV->GetKey(), sndKV->GetValue() );
 				sndKV = spawnArgs.MatchPrefix( "snd_", sndKV );
@@ -162,7 +162,7 @@ void idTestModel::Spawn() {
 			headAnimator = head.GetEntity()->GetAnimator();
 
 			// set up the list of joints to copy to the head
-			for( kv = spawnArgs.MatchPrefix( "copy_joint", NULL ); kv != NULL; kv = spawnArgs.MatchPrefix( "copy_joint", kv ) ) {
+			for( kv = spawnArgs.MatchPrefix( "copy_joint", nullptr); kv != nullptr; kv = spawnArgs.MatchPrefix( "copy_joint", kv ) ) {
 				jointName = kv->GetKey();
 
 				if ( jointName.StripLeadingOnce( "copy_joint_world " ) ) {
@@ -211,7 +211,7 @@ idTestModel::~idTestModel() {
 		gameLocal.Printf( "Removing testmodel\n" );
 	}
 	if ( gameLocal.testmodel == this ) {
-		gameLocal.testmodel = NULL;
+		gameLocal.testmodel = nullptr;
 	}
 	if ( head.GetEntity() ) {
 		head.GetEntity()->StopSound( SND_CHANNEL_ANY, false );
@@ -225,7 +225,7 @@ idTestModel::Event_Footstep
 ===============
 */
 void idTestModel::Event_Footstep() {
-	StartSound( "snd_footstep", SND_CHANNEL_BODY, 0, false, NULL );
+	StartSound( "snd_footstep", SND_CHANNEL_BODY, 0, false, nullptr);
 }
 
 /*
@@ -366,7 +366,7 @@ void idTestModel::Think() {
 		physicsObj.SetAngularExtrapolation( extrapolation_t(EXTRAPOLATION_LINEAR|EXTRAPOLATION_NOSTOP), gameLocal.time, 0, ang, idAngles( 0, g_testModelRotate.GetFloat() * 360.0f / 60.0f, 0 ), ang_zero );
 
 		idClipModel *clip = physicsObj.GetClipModel();
-		if ( clip != NULL && animator.ModelDef() ) {
+		if ( clip != nullptr && animator.ModelDef() ) {
 			idVec3 neworigin;
 			idMat3 axis;
 			jointHandle_t joint;
@@ -533,7 +533,7 @@ void idTestModel::TestAnim( const idCmdArgs &args ) {
 		return;
 	}
 
-	newanim = NULL;
+	newanim = nullptr;
 
 	name = args.Argv( 1 );
 	animNum = animator.GetAnim( name );
@@ -625,7 +625,7 @@ void idTestModel::KeepTestModel_f( const idCmdArgs &args ) {
 
 	gameLocal.Printf( "modelDef %p kept\n", gameLocal.testmodel->renderEntity.hModel );
 
-	gameLocal.testmodel = NULL;
+	gameLocal.testmodel = nullptr;
 }
 
 /*
@@ -654,7 +654,7 @@ void idTestModel::TestSkin_f( const idCmdArgs &args ) {
 
 	if ( args.Argc() < 2 ) {
 		common->Printf( "removing testSkin.\n" );
-		gameLocal.testmodel->SetSkin( NULL );
+		gameLocal.testmodel->SetSkin(nullptr);
 		return;
 	}
 
@@ -730,7 +730,7 @@ void idTestModel::TestModel_f( const idCmdArgs &args ) {
 	// delete the testModel if active
 	if ( gameLocal.testmodel ) {
 		delete gameLocal.testmodel;
-		gameLocal.testmodel = NULL;
+		gameLocal.testmodel = nullptr;
 	}
 
 	if ( args.Argc() < 2 ) {

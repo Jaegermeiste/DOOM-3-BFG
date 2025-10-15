@@ -143,7 +143,7 @@ current command chain.
 void *R_GetCommandBuffer( int bytes ) {
 	emptyCommand_t	*cmd;
 
-	cmd = (emptyCommand_t *)R_FrameAlloc( bytes, FRAME_ALLOC_DRAW_COMMAND );
+	cmd = static_cast<emptyCommand_t*>(R_FrameAlloc(bytes, FRAME_ALLOC_DRAW_COMMAND));
 	cmd->next = nullptr;
 	frameData->cmdTail->next = &cmd->commandId;
 	frameData->cmdTail = cmd;
@@ -175,7 +175,7 @@ have multiple views if a mirror, portal, or dynamic texture is present.
 void	R_AddDrawViewCmd( viewDef_t *parms, bool guiOnly ) {
 	drawSurfsCommand_t	*cmd;
 
-	cmd = (drawSurfsCommand_t *)R_GetCommandBuffer( sizeof( *cmd ) );
+	cmd = static_cast<drawSurfsCommand_t*>(R_GetCommandBuffer(sizeof(*cmd)));
 	cmd->commandId = ( guiOnly ) ? RC_DRAW_VIEW_GUI : RC_DRAW_VIEW_3D;
 
 	cmd->viewDef = parms;
@@ -194,7 +194,7 @@ been rendered.
 =============
 */
 void	R_AddDrawPostProcess( viewDef_t * parms ) {
-	postProcessCommand_t * cmd = (postProcessCommand_t *)R_GetCommandBuffer( sizeof( *cmd ) );
+	postProcessCommand_t * cmd = static_cast<postProcessCommand_t*>(R_GetCommandBuffer(sizeof(*cmd)));
 	cmd->commandId = RC_POST_PROCESS;
 	cmd->viewDef = parms;
 }
@@ -759,7 +759,7 @@ const emptyCommand_t * idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuff
 	// set the time for shader effects in 2D rendering
 	frameShaderTime = Sys_Milliseconds() * 0.001;
 
-	setBufferCommand_t * cmd2 = (setBufferCommand_t *)R_GetCommandBuffer( sizeof( *cmd2 ) );
+	setBufferCommand_t * cmd2 = static_cast<setBufferCommand_t*>(R_GetCommandBuffer(sizeof(*cmd2)));
 	cmd2->commandId = RC_SET_BUFFER;
 	cmd2->buffer = (int)GL_BACK;
 
@@ -793,7 +793,8 @@ idRenderSystemLocal::GetCroppedViewport
 Returns the current cropped pixel coordinates
 =====================
 */
-void idRenderSystemLocal::GetCroppedViewport( idScreenRect * viewport ) {
+void idRenderSystemLocal::GetCroppedViewport( idScreenRect * viewport ) const
+{
 	*viewport = renderCrops[currentRenderCrop];
 }
 
@@ -806,7 +807,8 @@ fill rate requirements while still allowing the GUIs to be full resolution.
 In split screen mode the rendering size is also smaller.
 ========================
 */
-void idRenderSystemLocal::PerformResolutionScaling( int& newWidth, int& newHeight ) {
+void idRenderSystemLocal::PerformResolutionScaling( int& newWidth, int& newHeight ) const
+{
 
 	float xScale = 1.0f;
 	float yScale = 1.0f;
@@ -916,7 +918,7 @@ void idRenderSystemLocal::CaptureRenderToImage( const char *imageName, bool clea
 
 	idScreenRect & rc = renderCrops[currentRenderCrop];
 
-	copyRenderCommand_t *cmd = (copyRenderCommand_t *)R_GetCommandBuffer( sizeof( *cmd ) );
+	copyRenderCommand_t *cmd = static_cast<copyRenderCommand_t*>(R_GetCommandBuffer(sizeof(*cmd)));
 	cmd->commandId = RC_COPY_RENDER;
 	cmd->x = rc.x1;
 	cmd->y = rc.y1;
@@ -948,11 +950,11 @@ void idRenderSystemLocal::CaptureRenderToFile( const char *fileName, bool fixAlp
 
 	// include extra space for OpenGL padding to word boundaries
 	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
-	byte *data = (byte *)R_StaticAlloc( c * 3 );
+	byte *data = static_cast<byte*>(R_StaticAlloc(c * 3));
 	
 	qglReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data ); 
 
-	byte *data2 = (byte *)R_StaticAlloc( c * 4 );
+	byte *data2 = static_cast<byte*>(R_StaticAlloc(c * 4));
 
 	for ( int i = 0 ; i < c ; i++ ) {
 		data2[ i * 4 ] = data[ i * 3 ];

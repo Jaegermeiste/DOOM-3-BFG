@@ -75,10 +75,10 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 	resourceFile->ReadBig( tableOffset );
 	resourceFile->ReadBig( tableLength );
 	// read this into a memory buffer with a single read
-	char * const buf = (char *)Mem_Alloc( tableLength, TAG_RESOURCE );
+	char * const buf = static_cast<char*>(Mem_Alloc(tableLength, TAG_RESOURCE));
 	resourceFile->Seek( tableOffset, FS_SEEK_SET );
 	resourceFile->Read( buf, tableLength );
-	idFile_Memory memFile( "resourceHeader", (const char *)buf, tableLength );
+	idFile_Memory memFile( "resourceHeader", static_cast<const char*>(buf), tableLength );
 
 	// Parse the resourceFile header, which includes every resource used
 	// by the game.
@@ -192,10 +192,10 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 		inFile->ReadBig( _tableOffset );
 		inFile->ReadBig( _tableLength );
 		// read this into a memory buffer with a single read
-		char * const buf = (char *)Mem_Alloc( _tableLength, TAG_RESOURCE );
+		char * const buf = static_cast<char*>(Mem_Alloc(_tableLength, TAG_RESOURCE));
 		inFile->Seek( _tableOffset, FS_SEEK_SET );
 		inFile->Read( buf, _tableLength );
-		idFile_Memory memFile( "resourceHeader", (const char *)buf, _tableLength );
+		idFile_Memory memFile( "resourceHeader", static_cast<const char*>(buf), _tableLength );
 
 		int _numFileResources = 0;
 		memFile.ReadBig( _numFileResources );
@@ -219,7 +219,7 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 					if ( newFile != nullptr) {
 						idLib::Printf( "Updating %s\n", filesToUpdate[ j ].c_str() );
 						entries[ i ].length = newFile->Length();
-						fileData = (byte *)Mem_Alloc( entries[ i ].length, TAG_TEMP );
+						fileData = static_cast<byte*>(Mem_Alloc(entries[i].length, TAG_TEMP));
 						newFile->Read( fileData, newFile->Length() );
 						delete newFile;
 					}
@@ -229,7 +229,7 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 
 			if ( fileData == nullptr) {
 				inFile->Seek( entries[ i ].offset, FS_SEEK_SET );
-				fileData = (byte *)Mem_Alloc( entries[ i ].length, TAG_TEMP );
+				fileData = static_cast<byte*>(Mem_Alloc(entries[i].length, TAG_TEMP));
 				inFile->Read( fileData, entries[ i ].length );
 			}
 
@@ -249,7 +249,7 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 			idResourceCacheEntry rt;
 			rt.filename = filesToUpdate[ 0 ];
 			rt.length = newFile->Length();
-			byte * fileData = (byte *)Mem_Alloc( rt.length, TAG_TEMP );
+			byte * fileData = static_cast<byte*>(Mem_Alloc(rt.length, TAG_TEMP));
 			newFile->Read( fileData, rt.length );
 			int idx = entries.Append( rt );
 			if ( idx >= 0 ) {
@@ -318,10 +318,10 @@ void idResourceContainer::ExtractResourceFile ( const char * _fileName, const ch
 	inFile->ReadBig( _tableOffset );
 	inFile->ReadBig( _tableLength );
 	// read this into a memory buffer with a single read
-	char * const buf = (char *)Mem_Alloc( _tableLength, TAG_RESOURCE );
+	char * const buf = static_cast<char*>(Mem_Alloc(_tableLength, TAG_RESOURCE));
 	inFile->Seek( _tableOffset, FS_SEEK_SET );
 	inFile->Read( buf, _tableLength );
-	idFile_Memory memFile( "resourceHeader", (const char *)buf, _tableLength );
+	idFile_Memory memFile( "resourceHeader", static_cast<const char*>(buf), _tableLength );
 
 	int _numFileResources;
 	memFile.ReadBig( _numFileResources );
@@ -336,11 +336,11 @@ void idResourceContainer::ExtractResourceFile ( const char * _fileName, const ch
 			rt.filename.SetFileExtension( "wav" );
 			rt.filename.Replace( "generated/", "" );
 			int len = fileSystem->GetFileLength( rt.filename );
-			fbuf =  (byte *)Mem_Alloc( len, TAG_RESOURCE );
+			fbuf =  static_cast<byte*>(Mem_Alloc(len, TAG_RESOURCE));
 			fileSystem->ReadFile( rt.filename, (void**)&fbuf, nullptr);
 		} else {
 			inFile->Seek( rt.offset, FS_SEEK_SET );
-			fbuf =  (byte *)Mem_Alloc( rt.length, TAG_RESOURCE );
+			fbuf =  static_cast<byte*>(Mem_Alloc(rt.length, TAG_RESOURCE));
 			inFile->Read( fbuf, rt.length );
 		}
 		idStr outName = _outPath;

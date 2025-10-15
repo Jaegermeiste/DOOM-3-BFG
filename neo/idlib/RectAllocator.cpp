@@ -48,7 +48,7 @@ or scale the input sizes down by that alignment and scale the outputPositions ba
 
 */
 
-float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i totalSize ) {
+static float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i totalSize ) {
 	const int	totalArea = totalSize.Area();
 	if ( totalArea == 0 ) {
 		return 0;
@@ -73,7 +73,7 @@ public:
 	const idList<idVec2i> *inputSizes;
 };
 
-void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPositions, idVec2i &totalSize ) {
+static void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPositions, idVec2i &totalSize ) {
 	outputPositions.SetNum( inputSizes.Num() );
 	if ( inputSizes.Num() == 0 ) {
 		totalSize.Set( 0, 0 );

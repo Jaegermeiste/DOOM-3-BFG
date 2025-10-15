@@ -48,7 +48,7 @@ ID_INLINE_EXTERN float __frsqrts(const float x )						{	return ( 1.0f / sqrtf( x
 ID_INLINE_EXTERN float __frcps16(const float x )						{	return ( 1.0f / x ); }
 ID_INLINE_EXTERN float __fdivs16(const float x, const float y )			{	return ( x / y ); }
 ID_INLINE_EXTERN float __frsqrts16(const float x )					{	return ( 1.0f / sqrtf( x ) ); }
-ID_INLINE_EXTERN float __frndz(const float x )						{	return static_cast<float>((int)(x)); }
+ID_INLINE_EXTERN float __frndz(const float x )						{	return static_cast<float>(static_cast<int>(x)); }
 
 /*
 ================================================================================================
@@ -95,11 +95,11 @@ ID_FORCE_INLINE void FlushCacheLine( const void * ptr, int offset ) {
 */
 #else
 
-#define CACHE_LINE_SIZE						128
+constexpr auto CACHE_LINE_SIZE = 128;
 
 ID_INLINE void Prefetch( const void * ptr, int offset ) {}
-ID_INLINE void ZeroCacheLine( void * ptr, const int offset ) {
-	byte * bytePtr = (byte *)( ( ( (UINT_PTR) ( ptr ) ) + ( offset ) ) & ~( CACHE_LINE_SIZE - 1 ) );
+ID_INLINE void ZeroCacheLine( void * ptr, const size_t offset ) {
+	byte * bytePtr = reinterpret_cast<byte*>((reinterpret_cast<UINT_PTR>(ptr) + (offset)) & ~(CACHE_LINE_SIZE - 1));
 	memset( bytePtr, 0, CACHE_LINE_SIZE );
 }
 ID_INLINE void FlushCacheLine( const void * ptr, int offset ) {}

@@ -35,14 +35,14 @@ class idColor;
 
 typedef void ( * jobRun_t )( void * );
 
-enum jobSyncType_t {
+enum jobSyncType_t : uint8 {
 	SYNC_NONE,
 	SYNC_SIGNAL,
 	SYNC_SYNCHRONIZE
 };
 
 // NOTE: keep in sync with jobNames[]
-enum jobListId_t {
+enum jobListId_t : uint8 {
 	JOBLIST_RENDERER_FRONTEND	= 0,
 	JOBLIST_RENDERER_BACKEND	= 1,
 	JOBLIST_UTILITY				= 9,			// won't print over-time warnings
@@ -52,14 +52,14 @@ enum jobListId_t {
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_JOBLISTS ) );
 
-enum jobListPriority_t {
+enum jobListPriority_t : uint8 {
 	JOBLIST_PRIORITY_NONE,
 	JOBLIST_PRIORITY_LOW,
 	JOBLIST_PRIORITY_MEDIUM,
 	JOBLIST_PRIORITY_HIGH
 };
 
-enum jobListParallelism_t {
+enum jobListParallelism_t : int8 {
 	JOBLIST_PARALLELISM_DEFAULT			= -1,	// use "jobs_numThreads" number of threads
 	JOBLIST_PARALLELISM_MAX_CORES		= -2,	// use a thread for each logical core (includes hyperthreads)
 	JOBLIST_PARALLELISM_MAX_THREADS		= -3	// use the maximum number of job threads, which can help if there is IO to overlap
@@ -88,7 +88,7 @@ public:
 	void					InsertSyncPoint( jobSyncType_t syncType ) const;
 
 	// Submit the jobs in this list.
-	void					Submit( idParallelJobList * waitForJobList = nullptr, int parallelism = JOBLIST_PARALLELISM_DEFAULT ) const;
+	void					Submit( idParallelJobList * waitForJobList = nullptr, jobListParallelism_t parallelism = JOBLIST_PARALLELISM_DEFAULT ) const;
 	// Wait for the jobs in this list to finish. Will spin in place if any jobs are not done.
 	void					Wait() const;
 	// Try to wait for the jobs in this list to finish but either way return immediately. Returns true if all jobs are done.
@@ -97,9 +97,9 @@ public:
 	bool					IsSubmitted() const;
 
 	// Get the number of jobs executed in this job list.
-	unsigned int			GetNumExecutedJobs() const;
+	size_t		        	GetNumExecutedJobs() const;
 	// Get the number of sync points.
-	unsigned int			GetNumSyncs() const;
+	size_t      			GetNumSyncs() const;
 	// Time at which the job list was submitted.
 	uint64					GetSubmitTimeMicroSec() const;
 	// Time at which execution of this job list started.
@@ -126,7 +126,7 @@ private:
 	class idParallelJobList_Threads *	jobListThreads;
 	const idColor *						color;
 
-	idParallelJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor * color );
+	idParallelJobList( jobListId_t id, jobListPriority_t priority, size_t maxJobs, size_t maxSyncs, const idColor * color );
 	~idParallelJobList();
 };
 
@@ -140,19 +140,20 @@ should be allocated or freed.
 */
 class idParallelJobManager {
 public:
-	virtual						~idParallelJobManager() {}
+	virtual						~idParallelJobManager() = default;
 
 	virtual void				Init() = 0;
 	virtual void				Shutdown() = 0;
 
-	virtual idParallelJobList *	AllocJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor * color ) = 0;
+	virtual idParallelJobList *	AllocJobList( jobListId_t id, jobListPriority_t priority, size_t maxJobs, size_t maxSyncs, const idColor * color ) = 0;
 	virtual void				FreeJobList( idParallelJobList * jobList ) = 0;
 
-	virtual int					GetNumJobLists() const = 0;
-	virtual int					GetNumFreeJobLists() const = 0;
-	virtual idParallelJobList *	GetJobList( int index ) = 0;
+	virtual size_t				GetNumJobLists() const = 0;
+	virtual size_t				GetNumFreeJobLists() const = 0;
+	
+	static  idParallelJobList*  GetJobList(Ordinal auto index) { return nullptr; };
 
-	virtual int					GetNumProcessingUnits() = 0;
+	virtual size_t				GetNumProcessingUnits() = 0;
 
 	virtual void				WaitForAllJobLists() = 0;
 };
@@ -174,6 +175,6 @@ public:
 	idParallelJobRegistration( jobRun_t function, const char * name );
 };
 
-#define REGISTER_PARALLEL_JOB( function, name )		static idParallelJobRegistration register_##function( (jobRun_t) function, name )
+#define REGISTER_PARALLEL_JOB( function, name )		static idParallelJobRegistration register_##function( (jobRun_t) (function), name )
 
 #endif // !__PARALLELJOBLIST_H__

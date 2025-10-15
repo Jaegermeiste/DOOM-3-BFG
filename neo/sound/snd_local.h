@@ -132,7 +132,7 @@ public:
 	bool	CanMute() const;
 
 	void	Mute();
-	bool	CheckForCompletion( int currentTime );
+	bool	CheckForCompletion( int currentTime ) const;
 
 	void	UpdateVolume( int currentTime );
 	void	UpdateHardware( float volumeAdd, int currentTime );

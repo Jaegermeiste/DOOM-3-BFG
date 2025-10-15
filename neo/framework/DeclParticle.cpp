@@ -119,7 +119,7 @@ void idDeclParticle::GetStageBounds( idParticleStage *stage ) {
 				inCycleTime = maxMsec - 1;
 			}
 
-			g.frac = (float)inCycleTime / ( stage->particleLife * 1000 );
+			g.frac = static_cast<float>(inCycleTime) / ( stage->particleLife * 1000 );
 			g.age = inCycleTime * 0.001f;
 
 			// if the particle doesn't get drawn because it is faded out or beyond a kill region,
@@ -1414,7 +1414,7 @@ void idParticleStage::ParticleTexCoords( particleGen_t *g, idDrawVert *verts ) c
 			// single animation cycle over the life of the particle
 			floatFrame = g->frac * animationFrames;
 		}
-		int	intFrame = (int)floatFrame;
+		int	intFrame = static_cast<int>(floatFrame);
 		g->animationFrameFrac = floatFrame - intFrame;
 		s = width * intFrame;
 	} else {
@@ -1450,7 +1450,7 @@ void idParticleStage::ParticleColors( particleGen_t *g, idDrawVert *verts ) cons
 	// individual gun smoke particles get more and more faded as the
 	// cycle goes on (note that totalParticles won't be correct for a surface-particle deform)
 	if ( fadeIndexFraction ) {
-		float	indexFrac = ( totalParticles - g->index ) / (float)totalParticles;
+		float	indexFrac = ( totalParticles - g->index ) / static_cast<float>(totalParticles);
 		if ( indexFrac < fadeIndexFraction ) {
 			fadeFraction *= indexFrac / fadeIndexFraction;
 		}
@@ -1541,7 +1541,8 @@ int idParticleStage::CreateParticle( particleGen_t *g, idDrawVert *verts ) const
 idParticleStage::GetCustomPathName
 ==================
 */
-const char* idParticleStage::GetCustomPathName() {
+const char* idParticleStage::GetCustomPathName() const
+{
 	int index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
 	return ParticleCustomDesc[index].name;
 }
@@ -1551,7 +1552,8 @@ const char* idParticleStage::GetCustomPathName() {
 idParticleStage::GetCustomPathDesc
 ==================
 */
-const char* idParticleStage::GetCustomPathDesc() {
+const char* idParticleStage::GetCustomPathDesc() const
+{
 	int index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
 	return ParticleCustomDesc[index].desc;
 }
@@ -1561,7 +1563,8 @@ const char* idParticleStage::GetCustomPathDesc() {
 idParticleStage::NumCustomPathParms
 ==================
 */
-int idParticleStage::NumCustomPathParms() {
+int idParticleStage::NumCustomPathParms() const
+{
 	int index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
 	return ParticleCustomDesc[index].count;
 }

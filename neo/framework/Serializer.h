@@ -89,8 +89,8 @@ public:
 #endif
 	{ }
 
-	bool	IsReading() { return !writing; }
-	bool	IsWriting() { return writing; }
+	[[nodiscard]] bool	IsReading() const { return !writing; }
+	[[nodiscard]] bool	IsWriting() const { return writing; }
 
 	// SerializeRange - minSize through maxSize inclusive of all possible values
 	void	SerializeRange( int & value, int minSize, int maxSize ) {	// Supports signed types
@@ -129,7 +129,7 @@ public:
 	//void SerializeBitMsg( idBitMsg & inOutMsg, int numBytes ) { SanityCheck(); if ( writing ) { msg->WriteBitMsg( inOutMsg, numBytes ); } else { msg->ReadBitMsg( inOutMsg, numBytes ); } }
 
 	// this is still needed to compile Rage code
-	void	SerializeBytes( void * bytes, int numBytes ) { SanityCheck(); for ( int i = 0 ; i < numBytes ; i++ ) { Serialize( ((uint8 *)bytes)[i] ); } };
+	void	SerializeBytes( void * bytes, int numBytes ) { SanityCheck(); for ( int i = 0 ; i < numBytes ; i++ ) { Serialize( static_cast<uint8*>(bytes)[i] ); } };
 
 	bool	SerializeBoolNonRef( bool value )	{ SanityCheck(); if ( writing ) { msg->WriteBool(value); }		else { value = msg->ReadBool(); } return value; }		// We return a value so we can support bit fields (can't pass by reference)
 	
@@ -200,11 +200,11 @@ public:
 				if ( writing ) {
 					float nAngle = idMath::AngleNormalize360( value );
 					assert( nAngle >= 0.0f ); // should never get a negative angle
-					uint16 sAngle = nAngle * ( 65536.0f / 360.0f );
+					uint16 sAngle = static_cast<uint16>(nAngle * ( 65536.0f / 360.0f ));
 					msg->WriteUShort( sAngle );
 				} else {
 					uint16 sAngle = msg->ReadUShort();
-					value = sAngle * ( 360.0f / 65536.0f );
+					value = static_cast<float>(sAngle) * ( 360.0f / 65536.0f );
 				}
 
 			}
@@ -283,7 +283,7 @@ public:
 #endif
 	}
 
-	idBitMsg &	GetMsg() { return *msg; }
+	[[nodiscard]] idBitMsg &	GetMsg() const { return *msg; }
 
 private:
 	bool		writing;
@@ -349,7 +349,7 @@ idSerializer::SerializeQ
 ID_INLINE void idSerializer::SerializeQ( idMat3 &axis, int bits ) {
 	SanityCheck();
 
-	const float scale = ( ( 1 << ( bits - 1 ) ) - 1 );
+	const float scale = static_cast<float>(( ( 1 << ( bits - 1 ) ) - 1 ));
 	if ( IsWriting() ) {
 		idQuat quat = axis.ToQuat();
 
@@ -383,9 +383,9 @@ ID_INLINE void idSerializer::SerializeQ( idMat3 &axis, int bits ) {
 
 		int maxIndex = msg->ReadBits(2);
 
-		in.x = (float)msg->ReadBits(-bits) / scale;
-		in.y = (float)msg->ReadBits(-bits) / scale;
-		in.z = (float)msg->ReadBits(-bits) / scale;
+		in.x = static_cast<float>(msg->ReadBits(-bits)) / scale;
+		in.y = static_cast<float>(msg->ReadBits(-bits)) / scale;
+		in.z = static_cast<float>(msg->ReadBits(-bits)) / scale;
 
 		quat[( maxIndex + 1 ) & 3] = in.x;
 		quat[( maxIndex + 2 ) & 3] = in.y;
@@ -538,7 +538,7 @@ ID_INLINE void idSerializer::SerializeSPacked(int & value) {
 			shift += 7;
 		}
 
-		value = sgn ? -((int)uvalue) : uvalue;
+		value = sgn ? -static_cast<int>(uvalue) : uvalue;
 	}
 }
 

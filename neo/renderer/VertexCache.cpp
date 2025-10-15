@@ -56,10 +56,10 @@ MapGeoBufferSet
 */
 static void MapGeoBufferSet( geoBufferSet_t &gbs ) {
 	if ( gbs.mappedVertexBase == nullptr) {
-		gbs.mappedVertexBase = (byte *)gbs.vertexBuffer.MapBuffer( BM_WRITE );
+		gbs.mappedVertexBase = static_cast<byte*>(gbs.vertexBuffer.MapBuffer(BM_WRITE));
 	}
 	if ( gbs.mappedIndexBase == nullptr) {
-		gbs.mappedIndexBase = (byte *)gbs.indexBuffer.MapBuffer( BM_WRITE );
+		gbs.mappedIndexBase = static_cast<byte*>(gbs.indexBuffer.MapBuffer(BM_WRITE));
 	}
 	if ( gbs.mappedJointBase == nullptr && gbs.jointBuffer.GetAllocedSize() != 0 ) {
 		gbs.mappedJointBase = (byte *)gbs.jointBuffer.MapBuffer( BM_WRITE );
@@ -163,7 +163,8 @@ void idVertexCache::FreeStaticData() {
 idVertexCache::ActuallyAlloc
 ==============
 */
-vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t & vcs, const void * data, int bytes, cacheType_t type ) {
+vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t & vcs, const void * data, int bytes, cacheType_t type ) const
+{
 	if ( bytes == 0 ) {
 		return (vertCacheHandle_t)0;
 	}
@@ -203,12 +204,12 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t & vcs, const void
 	// Actually perform the data transfer
 	if ( data != nullptr) {
 		MapGeoBufferSet( vcs );
-		CopyBuffer( *base + offset, (const byte *)data, bytes );
+		CopyBuffer( *base + offset, static_cast<const byte*>(data), bytes );
 	}
 
-	vertCacheHandle_t handle =	( (uint64)(currentFrame & VERTCACHE_FRAME_MASK ) << VERTCACHE_FRAME_SHIFT ) |
-								( (uint64)(offset & VERTCACHE_OFFSET_MASK ) << VERTCACHE_OFFSET_SHIFT ) |
-								( (uint64)(bytes & VERTCACHE_SIZE_MASK ) << VERTCACHE_SIZE_SHIFT );
+	vertCacheHandle_t handle =	( static_cast<uint64>(currentFrame & VERTCACHE_FRAME_MASK) << VERTCACHE_FRAME_SHIFT ) |
+								( static_cast<uint64>(offset & VERTCACHE_OFFSET_MASK) << VERTCACHE_OFFSET_SHIFT ) |
+								( static_cast<uint64>(bytes & VERTCACHE_SIZE_MASK) << VERTCACHE_SIZE_SHIFT );
 	if ( &vcs == &staticData ) {
 		handle |= VERTCACHE_STATIC;
 	}
@@ -220,11 +221,12 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t & vcs, const void
 idVertexCache::GetVertexBuffer
 ==============
 */
-bool idVertexCache::GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer * vb ) {
+bool idVertexCache::GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer * vb ) const
+{
 	const int isStatic = handle & VERTCACHE_STATIC;
-	const uint64 size = (int)( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
-	const uint64 offset = (int)( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+	const uint64 size = static_cast<int>(handle >> VERTCACHE_SIZE_SHIFT) & VERTCACHE_SIZE_MASK;
+	const uint64 offset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
+	const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 	if ( isStatic ) {
 		vb->Reference( staticData.vertexBuffer, offset, size );
 		return true;
@@ -241,11 +243,12 @@ bool idVertexCache::GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer * 
 idVertexCache::GetIndexBuffer
 ==============
 */
-bool idVertexCache::GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer * ib ) {
+bool idVertexCache::GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer * ib ) const
+{
 	const int isStatic = handle & VERTCACHE_STATIC;
-	const uint64 size = (int)( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
-	const uint64 offset = (int)( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+	const uint64 size = static_cast<int>(handle >> VERTCACHE_SIZE_SHIFT) & VERTCACHE_SIZE_MASK;
+	const uint64 offset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
+	const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 	if ( isStatic ) {
 		ib->Reference( staticData.indexBuffer, offset, size );
 		return true;
@@ -262,11 +265,12 @@ bool idVertexCache::GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer * ib
 idVertexCache::GetJointBuffer
 ==============
 */
-bool idVertexCache::GetJointBuffer( vertCacheHandle_t handle, idJointBuffer * jb ) {
+bool idVertexCache::GetJointBuffer( vertCacheHandle_t handle, idJointBuffer * jb ) const
+{
 	const int isStatic = handle & VERTCACHE_STATIC;
-	const uint64 numBytes = (int)( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
-	const uint64 jointOffset = (int)( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+	const uint64 numBytes = static_cast<int>(handle >> VERTCACHE_SIZE_SHIFT) & VERTCACHE_SIZE_MASK;
+	const uint64 jointOffset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
+	const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 	const uint64 numJoints = numBytes / sizeof( idJointMat );
 	if ( isStatic ) {
 		jb->Reference( staticData.jointBuffer, jointOffset, numJoints );

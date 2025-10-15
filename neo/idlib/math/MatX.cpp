@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
 #include <utility>
 
 #include "../precompiled.h"
@@ -57,10 +58,10 @@ void idMatX::ChangeSize(const size_t rows, const size_t columns, const bool make
 		}
 		alloced = alloc;
 		if ( oldMat ) {
-			const int minRow = Min( numRows, rows );
-			const int minColumn = Min( numColumns, columns );
-			for ( int i = 0; i < minRow; i++ ) {
-				for ( int j = 0; j < minColumn; j++ ) {
+			const size_t minRow = Min( numRows, rows );
+			const size_t minColumn = Min( numColumns, columns );
+			for (size_t i = 0; i < minRow; i++ ) {
+				for (size_t j = 0; j < minColumn; j++ ) {
 					mat[ i * columns + j ] = oldMat[ i * numColumns + j ];
 				}
 			}
@@ -68,20 +69,20 @@ void idMatX::ChangeSize(const size_t rows, const size_t columns, const bool make
 		}
 	} else {
 		if ( columns < numColumns ) {
-			const int minRow = Min( numRows, rows );
-			for ( int i = 0; i < minRow; i++ ) {
-				for ( int j = 0; std::cmp_less(j, columns); j++ ) {
+			const size_t minRow = Min( numRows, rows );
+			for (size_t i = 0; i < minRow; i++ ) {
+				for (size_t j = 0; std::cmp_less(j, columns); j++ ) {
 					mat[ i * columns + j ] = mat[ i * numColumns + j ];
 				}
 			}
 		} else if ( columns > numColumns ) {
-			for ( int i = Min( numRows, rows ) - 1; i >= 0; i-- ) {
+			for (size_t i = Min( numRows, rows ) - 1; i >= 0; i-- ) {
 				if ( makeZero ) {
-					for ( int j = columns - 1; std::cmp_greater_equal(j, numColumns); j-- ) {
+					for (size_t j = columns - 1; std::cmp_greater_equal(j, numColumns); j-- ) {
 						mat[ i * columns + j ] = 0.0f;
 					}
 				}
-				for ( int j = numColumns - 1; j >= 0; j-- ) {
+				for (size_t j = numColumns - 1; j >= 0; j-- ) {
 					mat[ i * columns + j ] = mat[ i * numColumns + j ];
 				}
 			}
@@ -100,7 +101,9 @@ void idMatX::ChangeSize(const size_t rows, const size_t columns, const bool make
 idMatX::RemoveRow
 ============
 */
-idMatX &idMatX::RemoveRow(const size_t r) {
+
+idMatX &idMatX::RemoveRow(const Ordinal auto r) {
+	ORDINAL_CHECK(r, numRows);
 	assert( r < numRows );
 
 	numRows--;
@@ -117,8 +120,10 @@ idMatX &idMatX::RemoveRow(const size_t r) {
 idMatX::RemoveColumn
 ============
 */
-idMatX &idMatX::RemoveColumn(const size_t r) {
-	size_t i;
+
+idMatX &idMatX::RemoveColumn(const Ordinal auto r) {
+	ORDINAL_CHECK(r, numColumns);
+	size_t i = 0;
 
 	assert( r < numColumns );
 
@@ -137,8 +142,11 @@ idMatX &idMatX::RemoveColumn(const size_t r) {
 idMatX::RemoveRowColumn
 ============
 */
-idMatX &idMatX::RemoveRowColumn(const size_t r) {
-	size_t i;
+
+idMatX &idMatX::RemoveRowColumn(const Ordinal auto r) {
+	ORDINAL_CHECK(r, numRows);
+	ORDINAL_CHECK(r, numColumns);
+	size_t i = 0;
 
 	assert( r < numRows && r < numColumns );
 
@@ -197,7 +205,7 @@ void idMatX::CopyLowerToUpperTriangle() {
 
 	float * __restrict basePtr = ToFloatPtr();
 
-	for ( int i = 0; i < m - 3; i += 4 ) {
+	for (size_t i = 0; i < m - 3; i += 4 ) {
 
 		// copy top left diagonal 4x4 block elements
 		__m128 r0 = _mm_and_ps( _mm_load_ps( basePtr + n0 ), mask0 );
@@ -229,7 +237,7 @@ void idMatX::CopyLowerToUpperTriangle() {
 		const float * __restrict srcPtr = basePtr;
 		float * __restrict dstPtr = basePtr;
 
-		for ( int j = i + 4; j < m - 3; j += 4 ) {
+		for (size_t j = i + 4; j < m - 3; j += 4 ) {
 			srcPtr += n4;
 			dstPtr += 4;
 
@@ -310,12 +318,12 @@ void idMatX::CopyLowerToUpperTriangle() {
 
 #else
 
-	const int n = GetNumColumns();
-	const int m = GetNumRows();
-	for ( int i = 0; i < m; i++ ) {
+	const size_t n = GetNumColumns();
+	const size_t m = GetNumRows();
+	for (size_t i = 0; i < m; i++ ) {
 		const float * __restrict ptr = ToFloatPtr() + ( i + 1 ) * n + i;
 		float * __restrict dstPtr = ToFloatPtr() + i * n;
-		for ( int j = i + 1; j < m; j++ ) {
+		for (size_t j = i + 1; j < m; j++ ) {
 			dstPtr[j] = ptr[0];
 			ptr += n;
 		}
@@ -324,9 +332,9 @@ void idMatX::CopyLowerToUpperTriangle() {
 #endif
 
 #ifdef _DEBUG
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
-			assert( mat[ i * numColumns + j ] == mat[ j * numColumns + i ] );
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for ( size_t j = 0; std::cmp_less(j, numRows); j++ ) {
+			assert( std::equal_to<>()(mat[ i * numColumns + j ], mat[ j * numColumns + i ] ));
 		}
 	}
 #endif
@@ -343,12 +351,12 @@ bool idMatX::IsOrthogonal( const float epsilon ) const {
 		return false;
 	}
 
-	float* ptr1 = mat;
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
-			float* ptr2 = mat + j;
+	const float* ptr1 = mat;
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
+			const float* ptr2 = mat + j;
 			float sum = ptr1[0] * ptr2[0] - static_cast<float>(i == j);
-			for ( int n = 1; std::cmp_less(n, numColumns); n++ ) {
+			for (size_t n = 1; std::cmp_less(n, numColumns); n++ ) {
 				ptr2 += numColumns;
 				sum += ptr1[n] * ptr2[0];
 			}
@@ -375,12 +383,12 @@ bool idMatX::IsOrthonormal( const float epsilon ) const {
 		return false;
 	}
 
-	float* ptr1 = mat;
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	const float* ptr1 = mat;
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			ptr2 = mat + j;
 			sum = ptr1[0] * ptr2[0] - static_cast<float>(i == j);
-			for ( int n = 1; std::cmp_less(n, numColumns); n++ ) {
+			for (size_t n = 1; std::cmp_less(n, numColumns); n++ ) {
 				ptr2 += numColumns;
 				sum += ptr1[n] * ptr2[0];
 			}
@@ -392,7 +400,7 @@ bool idMatX::IsOrthonormal( const float epsilon ) const {
 
 		ptr2 = mat + i;
 		sum = ptr2[0] * ptr2[0] - 1.0f;
-		for ( int j = 1; std::cmp_less(j, numRows); j++ ) {
+		for (size_t j = 1; std::cmp_less(j, numRows); j++ ) {
 			ptr2 += numColumns;
 			sum += ptr2[j] * ptr2[j];
 		}
@@ -412,7 +420,7 @@ idMatX::IsPMatrix
 ============
 */
 bool idMatX::IsPMatrix( const float epsilon ) const {
-	int i, j;
+	size_t i = 0, j = 0;
 	idMatX m;
 
 	if ( !IsSquare() ) {
@@ -444,7 +452,7 @@ bool idMatX::IsPMatrix( const float epsilon ) const {
 	}
 
 	for ( i = 1; std::cmp_less(i, numRows); i++ ) {
-		float d = (*this)[i][0] / (*this)[0][0];
+		const float d = (*this)[i][0] / (*this)[0][0];
 		for ( j = 1; std::cmp_less(j, numColumns); j++ ) {
 			m[i-1][j-1] = (*this)[i][j] - d * (*this)[0][j];
 		}
@@ -470,8 +478,8 @@ bool idMatX::IsZMatrix( const float epsilon ) const {
 		return false;
 	}
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			if ( (*this)[i][j] > epsilon && i != j ) {
 				return false;
 			}
@@ -489,7 +497,7 @@ idMatX::IsPositiveDefinite
 ============
 */
 bool idMatX::IsPositiveDefinite( const float epsilon ) const {
-	int i, j;
+	size_t i = 0, j = 0;
 	idMatX m;
 
 	// the matrix must be square
@@ -517,11 +525,11 @@ bool idMatX::IsPositiveDefinite( const float epsilon ) const {
 			}
 		}
 
-		float d = 1.0f / m[i][i];
+		const float d = 1.0f / m[i][i];
 		for ( j = i + 1; std::cmp_less(j, numColumns); j++ ) {
-			float s = d * m[j][i];
+			const float s = d * m[j][i];
 			m[j][i] = 0.0f;
-			for ( int k = i + 1; std::cmp_less(k, numRows); k++ ) {
+			for (size_t k = i + 1; std::cmp_less(k, numRows); k++ ) {
 				m[j][k] -= s * m[i][k];
 			}
 		}
@@ -605,9 +613,9 @@ bool idMatX::IsPositiveSemiDefinite( const float epsilon ) const {
 			continue;
 		}
 
-		float d = 1.0f / m[i][i];
+		const float d = 1.0f / m[i][i];
 		for ( j = i + 1; std::cmp_less(j, numColumns); j++ ) {
-			float s = d * m[j][i];
+			const float s = d * m[j][i];
 			m[j][i] = 0.0f;
 			for ( k = i + 1; std::cmp_less(k, numRows); k++ ) {
 				m[j][k] -= s * m[i][k];
@@ -643,19 +651,22 @@ idMatX::LowerTriangularInverse
 ============
 */
 bool idMatX::LowerTriangularInverse() {
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		double d = (*this)[i][i];
-		if ( d == 0.0f ) {
+		if ( d == 0.0 ) {
 			return false;
 		}
-		(*this)[i][i] = d = 1.0f / d;
 
-		for ( int j = 0; j < i; j++ ) {
+		d = 1.0f / d;
+
+		(*this)[i][i] = idMath::Dtof(d);
+
+		for (size_t j = 0; j < i; j++ ) {
 			double sum = 0.0f;
-			for ( int k = j; k < i; k++ ) {
+			for (size_t k = j; k < i; k++ ) {
 				sum -= (*this)[i][k] * (*this)[k][j];
 			}
-			(*this)[i][j] = sum * d;
+			(*this)[i][j] = idMath::Dtof(sum * d);
 		}
 	}
 	return true;
@@ -669,19 +680,22 @@ idMatX::UpperTriangularInverse
 ============
 */
 bool idMatX::UpperTriangularInverse() {
-	for ( int i = numRows - 1; i >= 0; i-- ) {
+	for (int64 i = idMath::integer_cast<int64>(numRows) - 1; i >= 0; i-- ) {
 		double d = (*this)[i][i];
-		if ( d == 0.0f ) {
+		if ( d == 0.0 ) {
 			return false;
 		}
-		(*this)[i][i] = d = 1.0f / d;
 
-		for ( int j = numRows - 1; j > i; j-- ) {
+		d = 1.0f / d;
+
+		(*this)[i][i] = idMath::Dtof(d);
+
+		for (size_t j = numRows - 1; std::cmp_greater(j, i); j-- ) {
 			double sum = 0.0f;
-			for ( int k = j; k > i; k-- ) {
+			for (size_t k = j; std::cmp_greater(k, i); k-- ) {
 				sum -= (*this)[i][k] * (*this)[k][j];
 			}
-			(*this)[i][j] = sum * d;
+			(*this)[i][j] = idMath::Dtof(sum * d);
 		}
 	}
 	return true;
@@ -707,9 +721,9 @@ void idMatX::Update_RankOne( const idVecX &v, const idVecX &w, const float alpha
 	assert( v.GetSize() >= numRows );
 	assert( w.GetSize() >= numColumns );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		float s = alpha * v[i];
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		const float s = alpha * v[i];
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			(*this)[i][j] += s * w[j];
 		}
 	}
@@ -726,9 +740,9 @@ void idMatX::Update_RankOneSymmetric( const idVecX &v, const float alpha ) {
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		float s = alpha * v[i];
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		const float s = alpha * v[i];
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			(*this)[i][j] += s * v[j];
 		}
 	}
@@ -747,8 +761,11 @@ idMatX::Update_RowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-void idMatX::Update_RowColumn( const idVecX &v, const idVecX &w, const int r ) {
-	int i;
+
+void idMatX::Update_RowColumn(const idVecX &v, const idVecX &w, const Ordinal auto r) {
+	ORDINAL_CHECK(r, numRows);
+	ORDINAL_CHECK(r, numColumns);
+	size_t i = 0;
 
 	assert( w[r] == 0.0f );
 	assert( v.GetSize() >= numColumns );
@@ -775,8 +792,10 @@ idMatX::Update_RowColumnSymmetric
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1]
 ============
 */
-void idMatX::Update_RowColumnSymmetric( const idVecX &v, const int r ) {
-	int i;
+
+void idMatX::Update_RowColumnSymmetric(const idVecX &v, const Ordinal auto r) {
+	ORDINAL_CHECK(r, numRows);
+	size_t i = 0;
 
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows );
@@ -856,7 +875,10 @@ idMatX::Update_Decrement
   Updates the matrix to obtain a matrix with row r and column r removed.
 ============
 */
-void idMatX::Update_Decrement(const int r ) {
+
+void idMatX::Update_Decrement(const Ordinal auto r) {
+	ORDINAL_CHECK(r, numRows);
+	ORDINAL_CHECK(r, numColumns);
 	RemoveRowColumn( r );
 }
 
@@ -868,23 +890,24 @@ idMatX::Inverse_GaussJordan
 ============
 */
 bool idMatX::Inverse_GaussJordan() {
-	int j, k, c;
-	float d;
+	int64 j = 0;
+	size_t k = 0, c = 0;
+	float d = 0.0f;
 
 	assert( numRows == numColumns );
 
-	int *columnIndex = static_cast<int*>(_alloca16(numRows * sizeof( int )));
-	int *rowIndex = static_cast<int*>(_alloca16(numRows * sizeof( int )));
+	size_t*columnIndex = static_cast<size_t*>(_alloca16(numRows * sizeof(size_t)));
+	size_t*rowIndex = static_cast<size_t*>(_alloca16(numRows * sizeof(size_t)));
 	bool *pivot = static_cast<bool*>(_alloca16(numRows * sizeof( bool )));
 
 	memset( pivot, 0, numRows * sizeof( bool ) );
 
 	// elimination with full pivoting
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		// search the whole matrix except for pivoted rows for the maximum absolute value
 		float max = 0.0f;
-		int r = c = 0;
+		size_t r = c = 0;
 		for ( j = 0; std::cmp_less(j, numRows); j++ ) {
 			if ( !pivot[j] ) {
 				for ( k = 0; std::cmp_less(k, numRows); k++ ) {
@@ -925,7 +948,7 @@ bool idMatX::Inverse_GaussJordan() {
 
 		// zero out the pivot column entries in the other rows
 		for ( j = 0; std::cmp_less(j, numRows); j++ ) {
-			if ( j != c ) {
+			if (std::cmp_not_equal(j, c)) {
 				d = (*this)[j][c];
 				(*this)[j][c] = 0.0f;
 				for ( k = 0; std::cmp_less(k, numRows); k++ ) {
@@ -936,7 +959,7 @@ bool idMatX::Inverse_GaussJordan() {
 	}
 
 	// reorder rows to store the inverse of the original matrix
-	for ( j = numRows - 1; j >= 0; j-- ) {
+	for ( j = idMath::integer_cast<int64>(numRows) - 1; j >= 0; j-- ) {
 		if ( rowIndex[j] != columnIndex[j] ) {
 			for ( k = 0; std::cmp_less(k, numRows); k++ ) {
 				d = (*this)[k][rowIndex[j]];
@@ -968,7 +991,7 @@ bool idMatX::Inverse_UpdateRankOne( const idVecX &v, const idVecX &w, float alph
 
 	Multiply( y, v );
 	TransposeMultiply( z, w );
-	float beta = 1.0f + (w * y);
+	const float beta = 1.0f + (w * y);
 
 	if ( beta == 0.0f ) {
 		return false;
@@ -976,9 +999,9 @@ bool idMatX::Inverse_UpdateRankOne( const idVecX &v, const idVecX &w, float alph
 
 	alpha /= beta;
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		float s = y[i] * alpha;
-		for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		const float s = y[i] * alpha;
+		for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 			(*this)[i][j] -= s * z[j];
 		}
 	}
@@ -998,7 +1021,10 @@ idMatX::Inverse_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-bool idMatX::Inverse_UpdateRowColumn( const idVecX &v, const idVecX &w, const int r ) {
+
+bool idMatX::Inverse_UpdateRowColumn(const idVecX &v, const idVecX &w, const Ordinal auto r) {
+	ORDINAL_CHECK(r, numRows);
+	ORDINAL_CHECK(r, numColumns);
 	idVecX s;
 
 	assert( numRows == numColumns );
@@ -1057,7 +1083,8 @@ idMatX::Inverse_UpdateDecrement
   v and w should store the column and row of the original matrix respectively.
 ============
 */
-bool idMatX::Inverse_UpdateDecrement( const idVecX &v, const idVecX &w, const int r ) {
+
+bool idMatX::Inverse_UpdateDecrement( const idVecX &v, const idVecX &w, const Ordinal auto r ) {
 	idVecX v1, w1;
 
 	assert( numRows == numColumns );
@@ -1109,24 +1136,24 @@ idMatX::LU_Factor
 ============
 */
 bool idMatX::LU_Factor(size_t* index, float *det) {
-	int i, j, k;
-	double t, d;
+	size_t i = 0, j = 0, k = 0;
+	double t = 0.0, d = 0.0;
 
 	// if partial pivoting should be used
-	if ( index ) {
+	if ( index != nullptr ) {
 		for ( i = 0; std::cmp_less(i, numRows); i++ ) {
 			index[i] = i;
 		}
 	}
 
 	double w = 1.0f;
-	int min = Min(numRows, numColumns);
+	const size_t min = Min(numRows, numColumns);
 	for ( i = 0; i < min; i++ ) {
 
-		int newi = i;
+		size_t newi = i;
 		double s = idMath::Fabs((*this)[i][i]);
 
-		if ( index ) {
+		if (index != nullptr) {
 			// find the largest absolute pivot
 			for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 				t = idMath::Fabs( (*this)[j][i] );
@@ -1141,7 +1168,7 @@ bool idMatX::LU_Factor(size_t* index, float *det) {
 			return false;
 		}
 
-		if ( newi != i && index ) {
+		if ( newi != i && (index != nullptr)) {
 
 			w = -w;
 
@@ -1154,14 +1181,14 @@ bool idMatX::LU_Factor(size_t* index, float *det) {
 			for ( j = 0; std::cmp_less(j, numColumns); j++ ) {
 				t = (*this)[newi][j];
 				(*this)[newi][j] = (*this)[i][j];
-				(*this)[i][j] = t;
+				(*this)[i][j] = idMath::Dtof(t);
 			}
 		}
 
 		if (std::cmp_less(i, numRows)) {
 			d = 1.0f / (*this)[i][i];
 			for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
-				(*this)[j][i] *= d;
+				(*this)[j][i] *= idMath::Dtof(d);
 			}
 		}
 
@@ -1169,7 +1196,7 @@ bool idMatX::LU_Factor(size_t* index, float *det) {
 			for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 				d = (*this)[j][i];
 				for ( k = i + 1; std::cmp_less(k, numColumns); k++ ) {
-					(*this)[j][k] -= d * (*this)[i][k];
+					(*this)[j][k] -= idMath::Dtof(d) * (*this)[i][k];
 				}
 			}
 		}
@@ -1179,7 +1206,7 @@ bool idMatX::LU_Factor(size_t* index, float *det) {
 		for ( i = 0; std::cmp_less(i, numRows); i++ ) {
 			w *= (*this)[i][i];
 		}
-		*det = w;
+		*det = idMath::Dtof(w);
 	}
 
 	return true;
@@ -1193,8 +1220,8 @@ idMatX::LU_UpdateRankOne
 ============
 */
 bool idMatX::LU_UpdateRankOne(const idVecX &v, const idVecX &w, const float alpha, size_t* index) {
-	int i, j;
-	double d;
+	size_t i = 0, j = 0;
+	double d = 0.0;
 
 	assert( v.GetSize() >= numColumns );
 	assert( w.GetSize() >= numRows );
@@ -1202,7 +1229,7 @@ bool idMatX::LU_UpdateRankOne(const idVecX &v, const idVecX &w, const float alph
 	float* y = static_cast<float*>(_alloca16(v.GetSize() * sizeof( float )));
 	float* z = static_cast<float*>(_alloca16(w.GetSize() * sizeof( float )));
 
-	if ( index != nullptr) {
+	if (std::not_equal_to<>()(index, nullptr)) {
 		for ( i = 0; std::cmp_less(i, numRows); i++ ) {
 			y[i] = alpha * v[index[i]];
 		}
@@ -1214,40 +1241,40 @@ bool idMatX::LU_UpdateRankOne(const idVecX &v, const idVecX &w, const float alph
 
 	memcpy( z, w.ToFloatPtr(), w.GetSize() * sizeof( float ) );
 
-	int max = Min(numRows, numColumns);
+	const size_t max = Min(numRows, numColumns);
 	for ( i = 0; i < max; i++ ) {
 		double diag = (*this)[i][i];
 
-		double p0 = y[i];
-		double p1 = z[i];
+		const double p0 = y[i];
+		const double p1 = z[i];
 		diag += p0 * p1;
 
-		if ( diag == 0.0f ) {
+		if ( diag == 0.0 ) {
 			return false;
 		}
 
-		double beta = p1 / diag;
+		const double beta = p1 / diag;
 
-		(*this)[i][i] = diag;
+		(*this)[i][i] = idMath::Dtof(diag);
 
 		for ( j = i+1; std::cmp_less(j, numColumns); j++ ) {
 
 			d = (*this)[i][j];
 
 			d += p0 * z[j];
-			z[j] -= beta * d;
+			z[j] -= idMath::Dtof(beta * d);
 
-			(*this)[i][j] = d;
+			(*this)[i][j] = idMath::Dtof(d);
 		}
 
 		for ( j = i+1; std::cmp_less(j, numRows); j++ ) {
 
 			d = (*this)[j][i];
 
-			y[j] -= p0 * d;
+			y[j] -= idMath::Dtof(p0 * d);
 			d += beta * y[j];
 
-			(*this)[j][i] = d;
+			(*this)[j][i] = idMath::Dtof(d);
 		}
 	}
 	return true;
@@ -1266,7 +1293,7 @@ idMatX::LU_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-bool idMatX::LU_UpdateRowColumn(const idVecX &v, const idVecX &w, const int r, size_t* index) {
+bool idMatX::LU_UpdateRowColumn(const idVecX &v, const idVecX &w, const Ordinal auto r, size_t* index) {
 #if 0
 
 	idVecX s;
@@ -1290,8 +1317,8 @@ bool idMatX::LU_UpdateRowColumn(const idVecX &v, const idVecX &w, const int r, s
 
 #else
 
-	int i, j, rp;
-	double beta1, p0, d;
+	size_t i = 0, j = 0, rp = 0;
+	double beta1 = 0.0, p0 = 0.0, d = 0.0;
 
 	assert( v.GetSize() >= numColumns );
 	assert( w.GetSize() >= numRows );
@@ -1303,7 +1330,7 @@ bool idMatX::LU_UpdateRowColumn(const idVecX &v, const idVecX &w, const int r, s
 	float* y1 = static_cast<float*>(_alloca16(v.GetSize() * sizeof( float )));
 	float* z1 = static_cast<float*>(_alloca16(w.GetSize() * sizeof( float )));
 
-	if ( index != nullptr) {
+	if (std::not_equal_to<>()(index, nullptr)) {
 		for ( i = 0; std::cmp_less(i, numRows); i++ ) {
 			y0[i] = v[index[i]];
 		}
@@ -1328,38 +1355,38 @@ bool idMatX::LU_UpdateRowColumn(const idVecX &v, const idVecX &w, const int r, s
 	memcpy( z1, w.ToFloatPtr(), w.GetSize() * sizeof( float ) );
 
 	// update the beginning of the to be updated row and column
-	int min = Min(r, rp);
+	const size_t min = Min(r, rp);
 	for ( i = 0; i < min; i++ ) {
 		p0 = y0[i];
 		beta1 = z1[i] / (*this)[i][i];
 
-		(*this)[i][r] += p0;
+		(*this)[i][r] += idMath::Dtof(p0);
 		for ( j = i+1; std::cmp_less(j, numColumns); j++ ) {
-			z1[j] -= beta1 * (*this)[i][j];
+			z1[j] -= idMath::Dtof(beta1) * (*this)[i][j];
 		}
 		for ( j = i+1; std::cmp_less(j, numRows); j++ ) {
-			y0[j] -= p0 * (*this)[j][i];
+			y0[j] -= idMath::Dtof(p0) * (*this)[j][i];
 		}
-		(*this)[rp][i] += beta1;
+		(*this)[rp][i] += idMath::Dtof(beta1);
 	}
 
 	// update the lower right corner starting at r,r
-	int max = Min(numRows, numColumns);
+	const size_t max = Min(numRows, numColumns);
 	for ( i = min; i < max; i++ ) {
 		double diag = (*this)[i][i];
 
 		p0 = y0[i];
-		double p1 = z0[i];
+		const double p1 = z0[i];
 		diag += p0 * p1;
 
 		if ( diag == 0.0f ) {
 			return false;
 		}
 
-		double beta0 = p1 / diag;
+		const double beta0 = p1 / diag;
 
-		double q0 = y1[i];
-		double q1 = z1[i];
+		const double q0 = y1[i];
+		const double q1 = z1[i];
 		diag += q0 * q1;
 
 		if ( diag == 0.0f ) {
@@ -1368,32 +1395,32 @@ bool idMatX::LU_UpdateRowColumn(const idVecX &v, const idVecX &w, const int r, s
 
 		beta1 = q1 / diag;
 
-		(*this)[i][i] = diag;
+		(*this)[i][i] = idMath::Dtof(diag);
 
 		for ( j = i+1; std::cmp_less(j, numColumns); j++ ) {
 
 			d = (*this)[i][j];
 
 			d += p0 * z0[j];
-			z0[j] -= beta0 * d;
+			z0[j] -= idMath::Dtof(beta0 * d);
 
 			d += q0 * z1[j];
-			z1[j] -= beta1 * d;
+			z1[j] -= idMath::Dtof(beta1 * d);
 
-			(*this)[i][j] = d;
+			(*this)[i][j] = idMath::Dtof(d);
 		}
 
 		for ( j = i+1; std::cmp_less(j, numRows); j++ ) {
 
 			d = (*this)[j][i];
 
-			y0[j] -= p0 * d;
+			y0[j] -= idMath::Dtof(p0 * d);
 			d += beta0 * y0[j];
 
-			y1[j] -= q0 * d;
+			y1[j] -= idMath::Dtof(q0 * d);
 			d += beta1 * y1[j];
 
-			(*this)[j][i] = d;
+			(*this)[j][i] = idMath::Dtof(d);
 		}
 	}
 	return true;
@@ -1414,8 +1441,8 @@ idMatX::LU_UpdateIncrement
 ============
 */
 bool idMatX::LU_UpdateIncrement(const idVecX &v, const idVecX &w, size_t* index) {
-	int i, j;
-	float sum;
+	size_t i = 0, j = 0;
+	float sum = 0.0f;
 
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows+1 );
@@ -1433,13 +1460,13 @@ bool idMatX::LU_UpdateIncrement(const idVecX &v, const idVecX &w, size_t* index)
 	}
 
 	// add row to the permutation index
-	if ( index != nullptr) {
+	if (std::not_equal_to<>()(index, nullptr)) {
 		index[numRows - 1] = numRows - 1;
 	}
 
 	// add column to U
 	for ( i = 0; std::cmp_less(i, numRows); i++ ) {
-		if ( index != nullptr) {
+		if (std::not_equal_to<>()(index, nullptr)) {
 			sum = v[index[i]];
 		} else {
 			sum = v[i];
@@ -1462,8 +1489,7 @@ idMatX::LU_UpdateDecrement
   If index != NULL then u should store row index[r] of the original matrix. If index == NULL then u = w.
 ============
 */
-bool idMatX::LU_UpdateDecrement(const idVecX &v, const idVecX &w, const idVecX &u, const int r, size_t* index) {
-	int i, p;
+bool idMatX::LU_UpdateDecrement(const idVecX &v, const idVecX &w, const idVecX &u, const Ordinal auto r, size_t* index) {
 	idVecX v1, w1;
 
 	assert( numRows == numColumns );
@@ -1474,7 +1500,9 @@ bool idMatX::LU_UpdateDecrement(const idVecX &v, const idVecX &w, const idVecX &
 	v1.SetData( numRows, VECX_ALLOCA(numRows));
 	w1.SetData( numRows, VECX_ALLOCA(numRows));
 
-	if ( index != nullptr) {
+	if (std::not_equal_to<>()(index, nullptr)) {
+		size_t p = 0;
+		size_t i = 0;
 
 		// find the pivot row
 		for ( p = i = 0; std::cmp_less(i, numRows); i++ ) {
@@ -1552,14 +1580,14 @@ idMatX::LU_Solve
 ============
 */
 void idMatX::LU_Solve(idVecX &x, const idVecX &b, const size_t* index) const {
-	int i, j;
-	double sum;
+	int64 i = 0, j = 0;
+	double sum = 0.0;
 
 	assert( x.GetSize() == numColumns && b.GetSize() == numRows );
 
 	// solve L
 	for ( i = 0; std::cmp_less(i, numRows); i++ ) {
-		if ( index != nullptr) {
+		if (std::not_equal_to<>()(index, nullptr)) {
 			sum = b[index[i]];
 		} else {
 			sum = b[i];
@@ -1567,16 +1595,16 @@ void idMatX::LU_Solve(idVecX &x, const idVecX &b, const size_t* index) const {
 		for ( j = 0; j < i; j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
-		x[i] = sum;
+		x[i] = idMath::Dtof(sum);
 	}
 
 	// solve U
-	for ( i = numRows - 1; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(numRows) - 1; i >= 0; i-- ) {
 		sum = x[i];
 		for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
-		x[i] = sum / (*this)[i][i];
+		x[i] = idMath::Dtof(sum / (*this)[i][i]);
 	}
 }
 
@@ -1597,11 +1625,11 @@ void idMatX::LU_Inverse(idMatX &inv, const size_t* index) const {
 	b.Zero();
 	inv.SetSize( numRows, numColumns );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		b[i] = 1.0f;
 		LU_Solve( x, b, index );
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
+		for (size_t j = 0; std::cmp_less(j, numRows); j++ ) {
 			inv[j][i] = x[j];
 		}
 		b[i] = 0.0f;
@@ -1616,11 +1644,11 @@ idMatX::LU_UnpackFactors
 ============
 */
 void idMatX::LU_UnpackFactors( idMatX &L, idMatX &U ) const {
-	int j;
+	size_t j = 0;
 
 	L.Zero( numRows, numColumns );
 	U.Zero( numRows, numColumns );
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 		for ( j = 0; j < i; j++ ) {
 			L[i][j] = (*this)[i][j];
 		}
@@ -1639,30 +1667,30 @@ idMatX::LU_MultiplyFactors
 ============
 */
 void idMatX::LU_MultiplyFactors(idMatX &m, const size_t* index) const {
-	int rp;
-	double sum;
+	size_t rp = 0;
+	double sum = 0.0;
 
 	m.SetSize( numRows, numColumns );
 
-	for ( int r = 0; std::cmp_less(r, numRows); r++ ) {
+	for ( size_t r = 0; std::cmp_less(r, numRows); r++ ) {
 
-		if ( index != nullptr) {
+		if (std::not_equal_to<>()(index, nullptr)) {
 			rp = index[r];
 		} else {
 			rp = r;
 		}
 
 		// calculate row of matrix
-		for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
+		for ( size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
 			if ( i >= r ) {
 				sum = (*this)[r][i];
 			} else {
 				sum = 0.0f;
 			}
-			for ( int j = 0; j <= i && j < r; j++ ) {
+			for ( size_t j = 0; j <= i && j < r; j++ ) {
 				sum += (*this)[r][j] * (*this)[j][i];
 			}
-			m[rp][i] = sum;
+			m[rp][i] = idMath::Dtof(sum);
 		}
 	}
 }
@@ -1678,21 +1706,19 @@ idMatX::QR_Factor
 ============
 */
 bool idMatX::QR_Factor( idVecX &c, idVecX &d ) {
-	int i;
-	double s;
+	size_t i = 0;
+	double s = 0.0;
 	bool singular = false;
 
 	assert( numRows == numColumns );
 	assert( c.GetSize() >= numRows && d.GetSize() >= numRows );
 
-	for ( int k = 0; k < numRows-1; k++ ) {
+	for ( size_t k = 0; k < numRows-1; k++ ) {
 
 		double scale = 0.0f;
 		for ( i = k; std::cmp_less(i, numRows); i++ ) {
 			s = idMath::Fabs( (*this)[i][k] );
-			if ( s > scale ) {
-				scale = s;
-			}
+			scale = std::max(s, scale);
 		}
 		if ( scale == 0.0f ) {
 			singular = true;
@@ -1701,7 +1727,7 @@ bool idMatX::QR_Factor( idVecX &c, idVecX &d ) {
 
 			s = 1.0f / scale;
 			for ( i = k; std::cmp_less(i, numRows); i++ ) {
-				(*this)[i][k] *= s;
+				(*this)[i][k] *= idMath::Dtof(s);
 			}
 
 			double sum = 0.0f;
@@ -1714,19 +1740,19 @@ bool idMatX::QR_Factor( idVecX &c, idVecX &d ) {
 			if ( (*this)[k][k] < 0.0f ) {
 				s = -s;
 			}
-			(*this)[k][k] += s;
-			c[k] = s * (*this)[k][k];
-			d[k] = -scale * s;
+			(*this)[k][k] += idMath::Dtof(s);
+			c[k] = idMath::Dtof(s * (*this)[k][k]);
+			d[k] = idMath::Dtof(-scale * s);
 
-			for ( int j = k + 1; std::cmp_less(j, numRows); j++ ) {
+			for ( size_t j = k + 1; std::cmp_less(j, numRows); j++ ) {
 
 				sum = 0.0f;
 				for ( i = k; std::cmp_less(i, numRows); i++ ) {
 					sum += (*this)[i][k] * (*this)[i][j];
 				}
-				double t = sum / c[k];
+				const double t = sum / c[k];
 				for ( i = k; std::cmp_less(i, numRows); i++ ) {
-					(*this)[i][j] -= t * (*this)[i][k];
+					(*this)[i][j] -= idMath::Dtof(t * (*this)[i][k]);
 				}
 			}
 		}
@@ -1743,12 +1769,12 @@ bool idMatX::QR_Factor( idVecX &c, idVecX &d ) {
 ============
 idMatX::QR_Rotate
 
-  Performs a Jacobi rotation on the rows i and i+1 of the unpacked QR factors.
+  Performs a JacobOrdinal auto rotation on the rows i and i+1 of the unpacked QR factors.
 ============
 */
-void idMatX::QR_Rotate( idMatX &R, const int i, const float a, const float b ) {
-	int j;
-	float f, c, s, w, y;
+void idMatX::QR_Rotate(idMatX &R, const Ordinal auto i, const float a, const float b) {
+	size_t j = 0;
+	float f = 0.0f, c = 0.0f, s = 0.0f, w = 0.0f, y = 0.0f;
 
 	if ( a == 0.0f ) {
 		c = 0.0f;
@@ -1790,8 +1816,8 @@ idMatX::QR_UpdateRankOne
 ============
 */
 bool idMatX::QR_UpdateRankOne( idMatX &R, const idVecX &v, const idVecX &w, const float alpha ) {
-	int i, k;
-	float f;
+	size_t i = 0, k = 0;
+	float f = 0.0f;
 	idVecX u;
 
 	assert( v.GetSize() >= numColumns );
@@ -1840,7 +1866,8 @@ idMatX::QR_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1], d = w[0,r-1], w[r] = 0.0f, e = w[r+1,numColumns-1]
 ============
 */
-bool idMatX::QR_UpdateRowColumn( idMatX &R, const idVecX &v, const idVecX &w, const int r ) {
+
+bool idMatX::QR_UpdateRowColumn(idMatX &R, const idVecX &v, const idVecX &w, const Ordinal auto r) {
 	idVecX s;
 
 	assert( v.GetSize() >= numColumns );
@@ -1901,7 +1928,8 @@ idMatX::QR_UpdateDecrement
   v and w should store the column and row of the original matrix respectively.
 ============
 */
-bool idMatX::QR_UpdateDecrement( idMatX &R, const idVecX &v, const idVecX &w, const int r ) {
+
+bool idMatX::QR_UpdateDecrement( idMatX &R, const idVecX &v, const idVecX &w, const Ordinal auto r ) {
 	idVecX v1, w1;
 
 	assert( numRows == numColumns );
@@ -1937,8 +1965,9 @@ idMatX::QR_Solve
 ============
 */
 void idMatX::QR_Solve( idVecX &x, const idVecX &b, const idVecX &c, const idVecX &d ) const {
-	int i, j;
-	double sum;
+	int64 i = 0;
+	size_t j = 0;
+	double sum = 0.0;
 
 	assert( numRows == numColumns );
 	assert( x.GetSize() >= numRows && b.GetSize() >= numRows );
@@ -1949,26 +1978,26 @@ void idMatX::QR_Solve( idVecX &x, const idVecX &b, const idVecX &c, const idVecX
 	}
 
 	// multiply b with transpose of Q
-	for ( i = 0; i < numRows-1; i++ ) {
+	for ( i = 0; std::cmp_less(i, numRows-1); i++ ) {
 
 		sum = 0.0f;
 		for ( j = i; std::cmp_less(j, numRows); j++ ) {
 			sum += (*this)[j][i] * x[j];
 		}
-		double t = sum / c[i];
+		const double t = sum / c[i];
 		for ( j = i; std::cmp_less(j, numRows); j++ ) {
-			x[j] -= t * (*this)[j][i];
+			x[j] -= idMath::Dtof(t * (*this)[j][i]);
 		}
 	}
 
 	// backsubstitution with R
-	for ( i = numRows-1; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(numRows)-1; i >= 0; i-- ) {
 
 		sum = x[i];
 		for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
-		x[i] = sum / d[i];
+		x[i] = idMath::Dtof(sum / d[i]);
 	}
 }
 
@@ -1986,13 +2015,13 @@ void idMatX::QR_Solve( idVecX &x, const idVecX &b, const idMatX &R ) const {
 	TransposeMultiply( x, b );
 
 	// backsubstitution with R
-	for ( int i = numRows - 1; i >= 0; i-- ) {
+	for ( int64 i = idMath::integer_cast<int64>(numRows) - 1; i >= 0; i-- ) {
 
 		double sum = x[i];
-		for ( int j = i + 1; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = i + 1; std::cmp_less(j, numRows); j++ ) {
 			sum -= R[i][j] * x[j];
 		}
-		x[i] = sum / R[i][i];
+		x[i] = idMath::Dtof(sum / R[i][i]);
 	}
 }
 
@@ -2013,11 +2042,11 @@ void idMatX::QR_Inverse( idMatX &inv, const idVecX &c, const idVecX &d ) const {
 	b.Zero();
 	inv.SetSize( numRows, numColumns );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		b[i] = 1.0f;
 		QR_Solve( x, b, c, d );
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
+		for (size_t j = 0; std::cmp_less(j, numRows); j++ ) {
 			inv[j][i] = x[j];
 		}
 		b[i] = 0.0f;
@@ -2032,7 +2061,7 @@ idMatX::QR_UnpackFactors
 ============
 */
 void idMatX::QR_UnpackFactors( idMatX &Q, idMatX &R, const idVecX &c, const idVecX &d ) const {
-	int i, j, k;
+	size_t i = 0, j = 0, k = 0;
 
 	Q.Identity( numRows, numColumns );
 	for ( i = 0; i < numColumns-1; i++ ) {
@@ -2046,7 +2075,7 @@ void idMatX::QR_UnpackFactors( idMatX &Q, idMatX &R, const idVecX &c, const idVe
 			}
 			sum /= c[i];
 			for ( k = i; std::cmp_less(k, numColumns); k++ ) {
-				Q[j][k] -= sum * (*this)[k][i];
+				Q[j][k] -= idMath::Dtof(sum * (*this)[k][i]);
 			}
 		}
 	}
@@ -2068,8 +2097,8 @@ idMatX::QR_MultiplyFactors
 ============
 */
 void idMatX::QR_MultiplyFactors( idMatX &m, const idVecX &c, const idVecX &d ) const {
-	int i, j, k;
-	double sum;
+	size_t i = 0, j = 0, k = 0;
+	double sum = 0.0;
 	idMatX Q;
 
 	Q.Identity( numRows, numColumns );
@@ -2084,7 +2113,7 @@ void idMatX::QR_MultiplyFactors( idMatX &m, const idVecX &c, const idVecX &d ) c
 			}
 			sum /= c[i];
 			for ( k = i; std::cmp_less(k, numColumns); k++ ) {
-				Q[j][k] -= sum * (*this)[k][i];
+				Q[j][k] -= idMath::Dtof(sum * (*this)[k][i]);
 			}
 		}
 	}
@@ -2095,7 +2124,7 @@ void idMatX::QR_MultiplyFactors( idMatX &m, const idVecX &c, const idVecX &d ) c
 			for ( k = 0; k < i; k++ ) {
 				sum += Q[i][k] * (*this)[j][k];
 			}
-			m[i][j] = sum;
+			m[i][j] = idMath::Dtof(sum);
 		}
 	}
 }
@@ -2108,19 +2137,43 @@ idMatX::Pythag
 ============
 */
 float idMatX::Pythag(const float a, const float b ) const {
-	double ct;
+	double ct = 0.0;
 
-	double at = idMath::Fabs(a);
-	double bt = idMath::Fabs(b);
-	if ( at > bt ) {
+	const double at = idMath::Fabs(a);
+	const double bt = idMath::Fabs(b);
+
+	if ( (at > bt) && (at != 0.0) )
+	{
 		ct = bt / at;
-		return at * idMath::Sqrt( 1.0f + ct * ct );
+		return idMath::Dtof(at * idMath::Sqrt( 1.0f + ct * ct ));
 	} else {
-		if ( bt ) {
+		if ( bt != 0.0 ) {
 			ct = at / bt;
-			return bt * idMath::Sqrt( 1.0f + ct * ct );
+			return idMath::Dtof(bt * idMath::Sqrt( 1.0f + ct * ct ));
 		} else {
 			return 0.0f;
+		}
+	}
+}
+
+double idMatX::Pythag(const double a, const double b) const {
+	double ct = 0.0;
+
+	const double at = idMath::Fabs(a);
+	const double bt = idMath::Fabs(b);
+
+	if ((at > bt) && (at != 0.0))
+	{
+		ct = bt / at;
+		return at * idMath::Sqrt(1.0 + ct * ct);
+	}
+	else {
+		if (bt != 0.0) {
+			ct = at / bt;
+			return bt * idMath::Sqrt(1.0 + ct * ct);
+		}
+		else {
+			return 0.0;
 		}
 	}
 }
@@ -2131,22 +2184,22 @@ idMatX::SVD_BiDiag
 ============
 */
 void idMatX::SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm ) {
-	int j, k;
-	double f, h, s, scale;
+	size_t j = 0, k = 0;
+	double f = 0.0, h = 0.0, s = 0.0, scale = 0.0;
 
 	anorm = 0.0f;
 	double g = s = scale = 0.0f;
-	for ( int i = 0; std::cmp_less(i, numColumns); i++ ) {
-		int l = i + 1;
-		rv1[i] = scale * g;
-		g = s = scale = 0.0f;
+	for ( size_t i = 0; std::cmp_less(i, numColumns); i++ ) {
+		const size_t l = i + 1;
+		rv1[i] = idMath::Dtof(scale * g);
+		g = s = scale = 0.0;
 		if (std::cmp_less(i, numRows)) {
 			for ( k = i; std::cmp_less(k, numRows); k++ ) {
 				scale += idMath::Fabs( (*this)[k][i] );
 			}
-			if ( scale ) {
+			if ( scale != 0.0 ) {
 				for ( k = i; std::cmp_less(k, numRows); k++ ) {
-					(*this)[k][i] /= scale;
+					(*this)[k][i] = idMath::Dtof((*this)[k][i] / scale);
 					s += (*this)[k][i] * (*this)[k][i];
 				}
 				f = (*this)[i][i];
@@ -2155,7 +2208,7 @@ void idMatX::SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm ) {
 					g = -g;
 				}
 				h = f * g - s;
-				(*this)[i][i] = f - g;
+				(*this)[i][i] = idMath::Dtof(f - g);
 				if ( i != (numColumns-1) ) {
 					for ( j = l; std::cmp_less(j, numColumns); j++ ) {
 						for ( s = 0.0f, k = i; std::cmp_less(k, numRows); k++ ) {
@@ -2163,24 +2216,24 @@ void idMatX::SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm ) {
 						}
 						f = s / h;
 						for ( k = i; std::cmp_less(k, numRows); k++ ) {
-							(*this)[k][j] += f * (*this)[k][i];
+							(*this)[k][j] += idMath::Dtof(f * (*this)[k][i]);
 						}
 					}
 				}
 				for ( k = i; std::cmp_less(k, numRows); k++ ) {
-					(*this)[k][i] *= scale;
+					(*this)[k][i] *= idMath::Dtof(scale);
 				}
 			}
 		}
-		w[i] = scale * g;
+		w[i] = idMath::Dtof(scale * g);
 		g = s = scale = 0.0f;
 		if (std::cmp_less(i, numRows) && i != (numColumns-1) ) {
 			for ( k = l; std::cmp_less(k, numColumns); k++ ) {
 				scale += idMath::Fabs( (*this)[i][k] );
 			}
-			if ( scale ) {
+			if ( scale != 0.0 ) {
 				for ( k = l; std::cmp_less(k, numColumns); k++ ) {
-					(*this)[i][k] /= scale;
+					(*this)[i][k] = idMath::Dtof((*this)[i][k] / scale);
 					s += (*this)[i][k] * (*this)[i][k];
 				}
 				f = (*this)[i][l];
@@ -2189,9 +2242,9 @@ void idMatX::SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm ) {
 					g = -g;
 				}
 				h = 1.0f / ( f * g - s );
-				(*this)[i][l] = f - g;
+				(*this)[i][l] = idMath::Dtof(f - g);
 				for ( k = l; std::cmp_less(k, numColumns); k++ ) {
-					rv1[k] = (*this)[i][k] * h;
+					rv1[k] = idMath::Dtof((*this)[i][k] * h);
 				}
 				if ( i != (numRows-1) ) {
 					for ( j = l; std::cmp_less(j, numRows); j++ ) {
@@ -2199,19 +2252,17 @@ void idMatX::SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm ) {
 							s += (*this)[j][k] * (*this)[i][k];
 						}
 						for ( k = l; std::cmp_less(k, numColumns); k++ ) {
-							(*this)[j][k] += s * rv1[k];
+							(*this)[j][k] += idMath::Dtof(s * rv1[k]);
 						}
 					}
 				}
 				for ( k = l; std::cmp_less(k, numColumns); k++ ) {
-					(*this)[i][k] *= scale;
+					(*this)[i][k] *= idMath::Dtof(scale);
 				}
 			}
 		}
-		double r = idMath::Fabs(w[i]) + idMath::Fabs(rv1[i]);
-		if ( r > anorm ) {
-			anorm = r;
-		}
+		const double r = idMath::Fabs(w[i]) + idMath::Fabs(rv1[i]);
+		anorm = idMath::Dtof(std::max<double>(r, anorm));
 	}
 }
 
@@ -2221,16 +2272,17 @@ idMatX::SVD_InitialWV
 ============
 */
 void idMatX::SVD_InitialWV( idVecX &w, idMatX &V, idVecX &rv1 ) {
-	int i, j, k, l;
-	double s;
+	int64 i = 0;
+	size_t j = 0, k = 0, l = 0;
+	double s = 0.0;
 
-	double g = 0.0f;
-	for ( i = (numColumns-1); i >= 0; i-- ) {
+	double g = 0.0;
+	for ( i = idMath::integer_cast<int64>(numColumns) - 1; i >= 0; i-- ) {
 		l = i + 1;
-		if ( i < ( numColumns - 1 ) ) {
-			if ( g ) {
+		if ( i < (idMath::integer_cast<int64>(numColumns) - 1)) {
+			if ( g != 0.0 ) {
 				for ( j = l; std::cmp_less(j, numColumns); j++ ) {
-					V[j][i] = ((*this)[i][j] / (*this)[i][l]) / g;
+					V[j][i] = idMath::Dtof(((*this)[i][j] / (*this)[i][l]) / g);
 				}
 				// double division to reduce underflow
 				for ( j = l; std::cmp_less(j, numColumns); j++ ) {
@@ -2238,7 +2290,7 @@ void idMatX::SVD_InitialWV( idVecX &w, idMatX &V, idVecX &rv1 ) {
 						s += (*this)[i][k] * V[k][j];
 					}
 					for ( k = l; std::cmp_less(k, numColumns); k++ ) {
-						V[k][j] += s * V[k][i];
+						V[k][j] += idMath::Dtof(s * V[k][i]);
 					}
 				}
 			}
@@ -2249,29 +2301,29 @@ void idMatX::SVD_InitialWV( idVecX &w, idMatX &V, idVecX &rv1 ) {
 		V[i][i] = 1.0f;
 		g = rv1[i];
 	}
-	for ( i = numColumns - 1 ; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(numColumns) - 1; i >= 0; i-- ) {
 		l = i + 1;
 		g = w[i];
-		if ( i < (numColumns-1) ) {
+		if ( i < (idMath::integer_cast<int64>(numColumns) - 1) ) {
 			for ( j = l; std::cmp_less(j, numColumns); j++ ) {
 				(*this)[i][j] = 0.0f;
 			}
 		}
-		if ( g ) {
-			g = 1.0f / g;
-			if ( i != (numColumns-1) ) {
+		if ( g != 0.0 ) {
+			g = 1.0 / g;
+			if ( i != (idMath::integer_cast<int64>(numColumns) - 1) ) {
 				for ( j = l; std::cmp_less(j, numColumns); j++ ) {
 					for ( s = 0.0f, k = l; std::cmp_less(k, numRows); k++ ) {
 						s += (*this)[k][i] * (*this)[k][j];
 					}
-					double f = (s / (*this)[i][i]) * g;
+					const double f = (s / (*this)[i][i]) * g;
 					for ( k = i; std::cmp_less(k, numRows); k++ ) {
-						(*this)[k][j] += f * (*this)[k][i];
+						(*this)[k][j] += idMath::Dtof(f * (*this)[k][i]);
 					}
 				}
 			}
 			for ( j = i; std::cmp_less(j, numRows); j++ ) {
-				(*this)[j][i] *= g;
+				(*this)[j][i] *= idMath::Dtof(g);
 			}
 		}
 		else {
@@ -2295,8 +2347,9 @@ idMatX::SVD_Factor
 ============
 */
 bool idMatX::SVD_Factor( idVecX &w, idMatX &V ) {
-	int i, j, jj, l;
-	double c, f, h, s, y, z, g = 0.0f;
+	int64 i = 0, l = 0;
+	size_t j = 0, jj = 0;
+	double c = 0.0, f = 0.0, h = 0.0, s = 0.0, y = 0.0, z = 0.0, g = 0.0;
 	float anorm = 0.0f;
 	idVecX rv1;
 
@@ -2312,46 +2365,46 @@ bool idMatX::SVD_Factor( idVecX &w, idMatX &V ) {
 	SVD_BiDiag( w, rv1, anorm );
 	SVD_InitialWV( w, V, rv1 );
 
-	for ( int k = numColumns - 1; k >= 0; k-- ) {
-		for ( int its = 1; its <= 30; its++ ) {
+	for ( int64 k = idMath::integer_cast<int64>(numColumns) - 1; k >= 0; k-- ) {
+		for (size_t its = 1; its <= 30; its++ ) {
 			int flag = 1;
-			int nm = 0;
+			size_t nm = 0;
 			for ( l = k; l >= 0; l-- ) {
 				nm = l - 1;
-				if ( ( idMath::Fabs( rv1[l] ) + anorm ) == anorm /* idMath::Fabs( rv1[l] ) < idMath::FLT_EPSILON */ ) {
+				if ( std::equal_to<>()(idMath::Fabs( rv1[l] ) + anorm, anorm) /* idMath::Fabs( rv1[l] ) < idMath::FLT_EPSILON */ ) {
 					flag = 0;
 					break;
 				}
-				if ( ( idMath::Fabs( w[nm] ) + anorm ) == anorm /* idMath::Fabs( w[nm] ) < idMath::FLT_EPSILON */ ) {
+				if ( std::equal_to<>()(idMath::Fabs( w[nm] ) + anorm, anorm ) /* idMath::Fabs( w[nm] ) < idMath::FLT_EPSILON */ ) {
 					break;
 				}
 			}
 			if ( flag ) {
-				c = 0.0f;
-				s = 1.0f;
+				c = 0.0;
+				s = 1.0;
 				for ( i = l; i <= k; i++ ) {
 					f = s * rv1[i];
 
-					if ( ( idMath::Fabs( f ) + anorm ) != anorm /* idMath::Fabs( f ) > idMath::FLT_EPSILON */ ) {
+					if (std::not_equal_to<>()(idMath::Fabs( f ) + anorm, anorm) /* idMath::Fabs( f ) > idMath::FLT_EPSILON */ ) {
 						g = w[i];
 						h = Pythag( f, g );
-						w[i] = h;
-						h = 1.0f / h;
+						w[i] = idMath::Dtof(h);
+						h = 1.0 / h;
 						c = g * h;
 						s = -f * h;
 						for ( j = 0; std::cmp_less(j, numRows); j++ ) {
 							y = (*this)[j][nm];
 							z = (*this)[j][i];
-							(*this)[j][nm] = y * c + z * s;
-							(*this)[j][i] = z * c - y * s;
+							(*this)[j][nm] = idMath::Dtof(y * c + z * s);
+							(*this)[j][i] = idMath::Dtof(z * c - y * s);
 						}
 					}
 				}
 			}
 			z = w[k];
 			if ( l == k ) {
-				if ( z < 0.0f ) {
-					w[k] = -z;
+				if ( z < 0.0 ) {
+					w[k] = idMath::Dtof(-z);
 					for ( j = 0; std::cmp_less(j, numColumns); j++ ) {
 						V[j][k] = -V[j][k];
 					}
@@ -2367,18 +2420,18 @@ bool idMatX::SVD_Factor( idVecX &w, idMatX &V ) {
 			g = rv1[nm];
 			h = rv1[k];
 			f = ( ( y - z ) * ( y + z ) + ( g - h ) * ( g + h ) ) / ( 2.0f * h * y );
-			g = Pythag( f, 1.0f );
-			double r = (f >= 0.0f ? g : -g);
+			g = Pythag( f, 1.0 );
+			const double r = (f >= 0.0 ? g : -g);
 			f= ( ( x - z ) * ( x + z ) + h * ( ( y / ( f + r ) ) - h ) ) / x;
-			c = s = 1.0f;
+			c = s = 1.0;
 			for ( j = l; j <= nm; j++ ) {
-				i = j + 1;
+				i = idMath::integer_cast<int64>(j + 1);
 				g = rv1[i];
 				y = w[i];
 				h = s * g;
 				g = c * g;
 				z = Pythag( f, h );
-				rv1[j] = z;
+				rv1[j] = idMath::Dtof(z);
 				c = f / z;
 				s = h / z;
 				f = x * c + g * s;
@@ -2388,13 +2441,13 @@ bool idMatX::SVD_Factor( idVecX &w, idMatX &V ) {
 				for ( jj = 0; std::cmp_less(jj, numColumns); jj++ ) {
 					x = V[jj][j];
 					z = V[jj][i];
-					V[jj][j] = x * c + z * s;
-					V[jj][i] = z * c - x * s;
+					V[jj][j] = idMath::Dtof(x * c + z * s);
+					V[jj][i] = idMath::Dtof(z * c - x * s);
 				}
 				z = Pythag( f, h );
-				w[j] = z;
-				if ( z ) {
-					z = 1.0f / z;
+				w[j] = idMath::Dtof(z);
+				if ( z != 0.0 ) {
+					z = 1.0 / z;
 					c = f * z;
 					s = h * z;
 				}
@@ -2403,13 +2456,13 @@ bool idMatX::SVD_Factor( idVecX &w, idMatX &V ) {
 				for ( jj = 0; std::cmp_less(jj, numRows); jj++ ) {
 					y = (*this)[jj][j];
 					z = (*this)[jj][i];
-					(*this)[jj][j] = y * c + z * s;
-					(*this)[jj][i] = z * c - y * s;
+					(*this)[jj][j] = idMath::Dtof(y * c + z * s);
+					(*this)[jj][i] = idMath::Dtof(z * c - y * s);
 				}
 			}
 			rv1[l] = 0.0f;
-			rv1[k] = f;
-			w[k] = x;
+			rv1[k] = idMath::Dtof(f);
+			w[k] = idMath::Dtof(x);
 		}
 	}
 	return true;
@@ -2442,14 +2495,14 @@ void idMatX::SVD_Solve( idVecX &x, const idVecX &b, const idVecX &w, const idMat
 			}
 			sum /= w[i];
 		}
-		tmp[i] = sum;
+		tmp[i] = idMath::Dtof(sum);
 	}
 	for ( i = 0; std::cmp_less(i, numColumns); i++ ) {
 		sum = 0.0f;
 		for ( j = 0; std::cmp_less(j, numColumns); j++ ) {
 			sum += V[i][j] * tmp[j];
 		}
-		x[i] = sum;
+		x[i] = idMath::Dtof(sum);
 	}
 }
 
@@ -2461,7 +2514,7 @@ idMatX::SVD_Inverse
 ============
 */
 void idMatX::SVD_Inverse( idMatX &inv, const idVecX &w, const idMatX &V ) const {
-	int i, j;
+	size_t i = 0, j = 0;
 
 	assert( numRows == numColumns );
 
@@ -2472,7 +2525,7 @@ void idMatX::SVD_Inverse( idMatX &inv, const idVecX &w, const idMatX &V ) const 
 		double wi = w[i];
 		wi = ( wi < idMath::FLT_EPSILON ) ? 0.0f : 1.0f / wi;
 		for ( j = 0; std::cmp_less(j, numColumns); j++ ) {
-			V2[j][i] *= wi;
+			V2[j][i] *= idMath::Dtof(wi);
 		}
 	}
 
@@ -2480,10 +2533,10 @@ void idMatX::SVD_Inverse( idMatX &inv, const idVecX &w, const idMatX &V ) const 
 	for ( i = 0; std::cmp_less(i, numRows); i++ ) {
 		for ( j = 0; std::cmp_less(j, numColumns); j++ ) {
 			double sum = V2[i][0] * (*this)[j][0];
-			for ( int k = 1; std::cmp_less(k, numColumns); k++ ) {
+			for (size_t k = 1; std::cmp_less(k, numColumns); k++ ) {
 				sum += V2[i][k] * (*this)[j][k];
 			}
-			inv[i][j] = sum;
+			inv[i][j] = idMath::Dtof(sum);
 		}
 	}
 }
@@ -2496,19 +2549,19 @@ idMatX::SVD_MultiplyFactors
 ============
 */
 void idMatX::SVD_MultiplyFactors( idMatX &m, const idVecX &w, const idMatX &V ) const {
-	int i;
+	size_t i = 0;
 
 	m.SetSize( numRows, V.GetNumRows() );
 
-	for ( int r = 0; std::cmp_less(r, numRows); r++ ) {
+	for (size_t r = 0; std::cmp_less(r, numRows); r++ ) {
 		// calculate row of matrix
 		if ( w[r] >= idMath::FLT_EPSILON ) {
 			for ( i = 0; i < V.GetNumRows(); i++ ) {
 				double sum = 0.0f;
-				for ( int j = 0; std::cmp_less(j, numColumns); j++ ) {
+				for (size_t j = 0; std::cmp_less(j, numColumns); j++ ) {
 					sum += (*this)[r][j] * V[i][j];
 				}
-				m[r][i] = sum * w[r];
+				m[r][i] = idMath::Dtof(sum * w[r]);
 			}
 		} else {
 			for ( i = 0; i < V.GetNumRows(); i++ ) {
@@ -2529,22 +2582,22 @@ idMatX::Cholesky_Factor
 ============
 */
 bool idMatX::Cholesky_Factor() {
-	int k;
-	double sum;
+	size_t k = 0;
+	double sum = 0;
 
 	assert( numRows == numColumns );
 
-	float* invSqrt = static_cast<float*>(_alloca16(numRows * sizeof( float )));
+	double* invSqrt = static_cast<double*>(_alloca16(numRows * sizeof( double )));
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
-		for ( int j = 0; j < i; j++ ) {
+		for ( size_t j = 0; j < i; j++ ) {
 
 			sum = (*this)[i][j];
 			for ( k = 0; k < j; k++ ) {
 				sum -= (*this)[i][k] * (*this)[j][k];
 			}
-			(*this)[i][j] = sum * invSqrt[j];
+			(*this)[i][j] = idMath::Dtof(sum * invSqrt[j]);
 		}
 
 		sum = (*this)[i][i];
@@ -2557,7 +2610,7 @@ bool idMatX::Cholesky_Factor() {
 		}
 
 		invSqrt[i] = idMath::InvSqrt( sum );
-		(*this)[i][i] = invSqrt[i] * sum;
+		(*this)[i][i] = idMath::Dtof(invSqrt[i] * sum);
 	}
 	return true;
 }
@@ -2570,8 +2623,8 @@ idMatX::Cholesky_UpdateRankOne
   If offset > 0 only the lower right corner starting at (offset, offset) is updated.
 ============
 */
-bool idMatX::Cholesky_UpdateRankOne( const idVecX &v, float alpha, const int offset ) {
-	double newDiag;
+bool idMatX::Cholesky_UpdateRankOne( const idVecX &v, float alpha, const size_t offset ) {
+	double newDiag = 0.0;
 
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows );
@@ -2580,31 +2633,32 @@ bool idMatX::Cholesky_UpdateRankOne( const idVecX &v, float alpha, const int off
 	float* y = static_cast<float*>(_alloca16(v.GetSize() * sizeof( float )));
 	memcpy( y, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
 
-	for ( int i = offset; std::cmp_less(i, numColumns); i++ ) {
-		double p = y[i];
-		double diag = (*this)[i][i];
-		double invDiag = 1.0f / diag;
-		double diagSqr = diag * diag;
-		double newDiagSqr = diagSqr + alpha * p * p;
+	for ( size_t i = offset; std::cmp_less(i, numColumns); i++ ) {
+		const double p = y[i];
+		const double diag = (*this)[i][i];
+		const double invDiag = 1.0f / diag;
+		const double diagSqr = diag * diag;
+		const double newDiagSqr = diagSqr + alpha * p * p;
 
 		if ( newDiagSqr <= 0.0f ) {
 			return false;
 		}
 
-		(*this)[i][i] = newDiag = idMath::Sqrt( newDiagSqr );
+		newDiag = idMath::Sqrt(newDiagSqr);
+		(*this)[i][i] = idMath::Dtof(newDiag);
 
-		alpha /= newDiagSqr;
-		double beta = p * alpha;
-		alpha *= diagSqr;
+		alpha = idMath::Dtof(alpha / newDiagSqr);
+		const double beta = p * alpha;
+		alpha = idMath::Dtof(alpha * diagSqr);
 
-		for ( int j = i + 1; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = i + 1; std::cmp_less(j, numRows); j++ ) {
 
 			double d = (*this)[j][i] * invDiag;
 
-			y[j] -= p * d;
+			y[j] -= idMath::Dtof(p * d);
 			d += beta * y[j];
 
-			(*this)[j][i] = d * newDiag;
+			(*this)[j][i] = idMath::Dtof(d * newDiag);
 		}
 	}
 	return true;
@@ -2623,9 +2677,10 @@ idMatX::Cholesky_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1]
 ============
 */
-bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
-	int i, j;
-	double sum;
+
+bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const Ordinal auto r ) {
+	size_t i = 0, j = 0;
+	double sum = 0.0;
 	idVecX addSub;
 
 	assert( numRows == numColumns );
@@ -2644,7 +2699,7 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 			if ( sum <= 0.0f ) {
 				return false;
 			}
-			(*this)[0][0] = idMath::Sqrt( sum );
+			(*this)[0][0] = idMath::Dtof(idMath::Sqrt( sum ));
 			return true;
 		}
 		for ( i = 0; std::cmp_less(i, numColumns); i++ ) {
@@ -2653,8 +2708,7 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 
 	} else {
 
-		float* original = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
-		float* y = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
+		double* original = static_cast<double*>(_alloca16(numColumns * sizeof( double )));
 
 		// calculate original row/column of matrix
 		for ( i = 0; std::cmp_less(i, numRows); i++ ) {
@@ -2671,7 +2725,7 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 			for ( j = 0; j < i; j++ ) {
 				sum -= (*this)[r][j] * (*this)[i][j];
 			}
-			(*this)[r][i] = sum / (*this)[i][i];
+			(*this)[r][i] = idMath::Dtof(sum / (*this)[i][i]);
 		}
 
 		// if the last row/column of the matrix is updated
@@ -2684,7 +2738,7 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 			if ( sum <= 0.0f ) {
 				return false;
 			}
-			(*this)[r][r] = idMath::Sqrt( sum );
+			(*this)[r][r] = idMath::Dtof(idMath::Sqrt( sum ));
 			return true;
 		}
 
@@ -2694,7 +2748,7 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 			for ( j = 0; j <= r; j++ ) {
 				sum += (*this)[r][j] * (*this)[i][j];
 			}
-			addSub[i] = v[i] - ( sum - original[i] );
+			addSub[i] = v[i] - idMath::Dtof( sum - original[i] );
 		}
 	}
 
@@ -2726,10 +2780,10 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 
 #else
 
-	double newDiag;
+	double newDiag = 0.0;
 
-	float* v1 = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
-	float* v2 = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
+	double* v1 = static_cast<double*>(_alloca16(numColumns * sizeof(double)));
+	double* v2 = static_cast<double*>(_alloca16(numColumns * sizeof(double)));
 
 	double d = idMath::SQRT_1OVER2;
 	v1[r] = ( 0.5f * addSub[r] + 1.0f ) * d;
@@ -2743,9 +2797,9 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 
 	// simultaneous update/downdate of the sub matrix starting at (r, r)
 	for ( i = r; std::cmp_less(i, numColumns); i++ ) {
-		double p1 = v1[i];
-		double diag = (*this)[i][i];
-		double invDiag = 1.0f / diag;
+		const double p1 = v1[i];
+		const double diag = (*this)[i][i];
+		const double invDiag = 1.0f / diag;
 		double diagSqr = diag * diag;
 		double newDiagSqr = diagSqr + alpha1 * p1 * p1;
 
@@ -2754,10 +2808,10 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 		}
 
 		alpha1 /= newDiagSqr;
-		double beta1 = p1 * alpha1;
+		const double beta1 = p1 * alpha1;
 		alpha1 *= diagSqr;
 
-		double p2 = v2[i];
+		const double p2 = v2[i];
 		diagSqr = newDiagSqr;
 		newDiagSqr = diagSqr + alpha2 * p2 * p2;
 
@@ -2765,10 +2819,11 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 			return false;
 		}
 
-		(*this)[i][i] = newDiag = idMath::Sqrt( newDiagSqr );
+		newDiag = idMath::Sqrt(newDiagSqr);
+		(*this)[i][i] = idMath::Dtof(newDiag);
 
 		alpha2 /= newDiagSqr;
-		double beta2 = p2 * alpha2;
+		const double beta2 = p2 * alpha2;
 		alpha2 *= diagSqr;
 
 		for ( j = i+1; std::cmp_less(j, numRows); j++ ) {
@@ -2781,7 +2836,7 @@ bool idMatX::Cholesky_UpdateRowColumn( const idVecX &v, const int r ) {
 			v2[j] -= p2 * d;
 			d += beta2 * v2[j];
 
-			(*this)[j][i] = d * newDiag;
+			(*this)[j][i] = idMath::Dtof(d * newDiag);
 		}
 	}
 
@@ -2803,20 +2858,20 @@ idMatX::Cholesky_UpdateIncrement
 ============
 */
 bool idMatX::Cholesky_UpdateIncrement( const idVecX &v ) {
-	int i;
-	double sum;
+	size_t i = 0;
+	double sum = 0.0;
 
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows+1 );
 
 	ChangeSize( numRows+1, numColumns+1, false );
 
-	float* x = static_cast<float*>(_alloca16(numRows * sizeof( float )));
+	double* x = static_cast<double*>(_alloca16(numRows * sizeof( double )));
 
 	// solve for x in L * x = v
 	for ( i = 0; i < numRows - 1; i++ ) {
 		sum = v[i];
-		for ( int j = 0; j < i; j++ ) {
+		for (size_t j = 0; std::cmp_less(j, i); j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
 		x[i] = sum / (*this)[i][i];
@@ -2825,7 +2880,7 @@ bool idMatX::Cholesky_UpdateIncrement( const idVecX &v ) {
 	// calculate new row of L and calculate the square of the diagonal entry
 	sum = v[numRows - 1];
 	for ( i = 0; i < numRows - 1; i++ ) {
-		(*this)[numRows - 1][i] = x[i];
+		(*this)[numRows - 1][i] = idMath::Dtof(x[i]);
 		sum -= x[i] * x[i];
 	}
 
@@ -2834,7 +2889,7 @@ bool idMatX::Cholesky_UpdateIncrement( const idVecX &v ) {
 	}
 
 	// store the diagonal entry
-	(*this)[numRows - 1][numRows - 1] = idMath::Sqrt( sum );
+	(*this)[numRows - 1][numRows - 1] = idMath::Dtof(idMath::Sqrt( sum ));
 
 	return true;
 }
@@ -2847,7 +2902,8 @@ idMatX::Cholesky_UpdateDecrement
   v should store the row of the original matrix.
 ============
 */
-bool idMatX::Cholesky_UpdateDecrement( const idVecX &v, const int r ) {
+
+bool idMatX::Cholesky_UpdateDecrement( const idVecX &v, const Ordinal auto r ) {
 	idVecX v1;
 
 	assert( numRows == numColumns );
@@ -2885,8 +2941,8 @@ idMatX::Cholesky_Solve
 ============
 */
 void idMatX::Cholesky_Solve( idVecX &x, const idVecX &b ) const {
-	int i, j;
-	double sum;
+	int64 i = 0, j = 0;
+	double sum = 0.0;
 
 	assert( numRows == numColumns );
 	assert( x.GetSize() >= numRows && b.GetSize() >= numRows );
@@ -2897,16 +2953,16 @@ void idMatX::Cholesky_Solve( idVecX &x, const idVecX &b ) const {
 		for ( j = 0; j < i; j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
-		x[i] = sum / (*this)[i][i];
+		x[i] = idMath::Dtof(sum / (*this)[i][i]);
 	}
 
 	// solve Lt
-	for ( i = numRows - 1; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(numRows) - 1; i >= 0; i-- ) {
 		sum = x[i];
 		for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 			sum -= (*this)[j][i] * x[j];
 		}
-		x[i] = sum / (*this)[i][i];
+		x[i] = idMath::Dtof(sum / (*this)[i][i]);
 	}
 }
 
@@ -2927,11 +2983,11 @@ void idMatX::Cholesky_Inverse( idMatX &inv ) const {
 	b.Zero();
 	inv.SetSize( numRows, numColumns );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		b[i] = 1.0f;
 		Cholesky_Solve( x, b );
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, numRows); j++ ) {
 			inv[j][i] = x[j];
 		}
 		b[i] = 0.0f;
@@ -2948,15 +3004,15 @@ idMatX::Cholesky_MultiplyFactors
 void idMatX::Cholesky_MultiplyFactors( idMatX &m ) const {
 	m.SetSize( numRows, numColumns );
 
-	for ( int r = 0; std::cmp_less(r, numRows); r++ ) {
+	for ( size_t r = 0; std::cmp_less(r, numRows); r++ ) {
 
 		// calculate row of matrix
-		for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+		for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 			double sum = 0.0f;
-			for ( int j = 0; j <= i && j <= r; j++ ) {
+			for ( size_t j = 0; j <= i && j <= r; j++ ) {
 				sum += (*this)[r][j] * (*this)[i][j];
 			}
-			m[r][i] = sum;
+			m[r][i] = idMath::Dtof(sum);
 		}
 	}
 }
@@ -2974,14 +3030,14 @@ idMatX::LDLT_Factor
 ============
 */
 bool idMatX::LDLT_Factor() {
-	int j;
-	double d;
+	size_t j = 0;
+	double d = 0.0;
 
 	assert( numRows == numColumns );
 
-	float* v = static_cast<float*>(_alloca16(numRows * sizeof( float )));
+	double* v = static_cast<double*>(_alloca16(numRows * sizeof( double )));
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		double sum = (*this)[i][i];
 		for ( j = 0; j < i; j++ ) {
@@ -2994,15 +3050,15 @@ bool idMatX::LDLT_Factor() {
 			return false;
 		}
 
-		(*this)[i][i] = sum;
+		(*this)[i][i] = idMath::Dtof(sum);
 		d = 1.0f / sum;
 
 		for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 		    sum = (*this)[j][i];
-			for ( int k = 0; k < i; k++ ) {
+			for ( size_t k = 0; k < i; k++ ) {
 				sum -= (*this)[j][k] * v[k];
 			}
-		    (*this)[j][i] = sum * d;
+		    (*this)[j][i] = idMath::Dtof(sum * d);
 		}
 	}
 
@@ -3017,8 +3073,8 @@ idMatX::LDLT_UpdateRankOne
   If offset > 0 only the lower right corner starting at (offset, offset) is updated.
 ============
 */
-bool idMatX::LDLT_UpdateRankOne( const idVecX &v, float alpha, const int offset ) {
-	double newDiag;
+bool idMatX::LDLT_UpdateRankOne( const idVecX &v, float alpha, const size_t offset ) {
+	double newDiag = 0.0;
 
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows );
@@ -3027,27 +3083,28 @@ bool idMatX::LDLT_UpdateRankOne( const idVecX &v, float alpha, const int offset 
 	float* y = static_cast<float*>(_alloca16(v.GetSize() * sizeof( float )));
 	memcpy( y, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
 
-	for ( int i = offset; std::cmp_less(i, numColumns); i++ ) {
-		double p = y[i];
-		double diag = (*this)[i][i];
-		(*this)[i][i] = newDiag = diag + alpha * p * p;
+	for ( size_t i = offset; std::cmp_less(i, numColumns); i++ ) {
+		const double p = y[i];
+		const double diag = (*this)[i][i];
+		newDiag = diag + alpha * p * p;
+		(*this)[i][i] = idMath::Dtof(newDiag);
 
 		if ( newDiag == 0.0f ) {
 			return false;
 		}
 
-		alpha /= newDiag;
-		double beta = p * alpha;
-		alpha *= diag;
+		alpha = idMath::Dtof(alpha / newDiag);
+		const double beta = p * alpha;
+		alpha = idMath::Dtof(alpha * diag);
 
-		for ( int j = i + 1; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = i + 1; std::cmp_less(j, numRows); j++ ) {
 
 			double d = (*this)[j][i];
 
-			y[j] -= p * d;
+			y[j] -= idMath::Dtof(p * d);
 			d += beta * y[j];
 
-			(*this)[j][i] = d;
+			(*this)[j][i] = idMath::Dtof(d);
 		}
 	}
 
@@ -3067,9 +3124,9 @@ idMatX::LDLT_UpdateRowColumn
   where: a = v[0,r-1], b = v[r], c = v[r+1,numRows-1]
 ============
 */
-bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
-	int i, j;
-	double sum;
+
+bool idMatX::LDLT_UpdateRowColumn(const idVecX &v, const Ordinal auto r) {
+	size_t i = 0, j = 0;
 	idVecX addSub;
 
 	assert( numRows == numColumns );
@@ -3089,8 +3146,9 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 		}
 
 	} else {
+		double sum = 0.0;
 
-		float* original = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
+		double* original = static_cast<double*>(_alloca16(numColumns * sizeof( double )));
 		float* y = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
 
 		// calculate original row/column of matrix
@@ -3117,7 +3175,7 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 			for ( j = 0; j < i; j++ ) {
 				sum -= (*this)[i][j] * y[j];
 			}
-			y[i] = sum;
+			y[i] = idMath::Dtof(sum);
 		}
 
 		// calculate new row of L
@@ -3135,7 +3193,7 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 			if ( sum == 0.0f ) {
 				return false;
 			}
-			(*this)[r][r] = sum;
+			(*this)[r][r] = idMath::Dtof(sum);
 			return true;
 		}
 
@@ -3152,7 +3210,7 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 			for ( j = 0; j < r; j++ ) {
 				sum += (*this)[i][j] * y[j];
 			}
-			addSub[i] = v[i] - ( sum - original[i] );
+			addSub[i] = v[i] - idMath::Dtof( sum - original[i] );
 		}
 	}
 
@@ -3184,8 +3242,8 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 
 #else
 
-	float* v1 = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
-	float* v2 = static_cast<float*>(_alloca16(numColumns * sizeof( float )));
+	double* v1 = static_cast<double*>(_alloca16(numColumns * sizeof( double )));
+	double* v2 = static_cast<double*>(_alloca16(numColumns * sizeof( double )));
 
 	double d = idMath::SQRT_1OVER2;
 	v1[r] = ( 0.5f * addSub[r] + 1.0f ) * d;
@@ -3201,7 +3259,7 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 	for ( i = r; std::cmp_less(i, numColumns); i++ ) {
 
 		double diag = (*this)[i][i];
-		double p1 = v1[i];
+		const double p1 = v1[i];
 		double newDiag = diag + alpha1 * p1 * p1;
 
 		if ( newDiag == 0.0f ) {
@@ -3209,11 +3267,11 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 		}
 
 		alpha1 /= newDiag;
-		double beta1 = p1 * alpha1;
+		const double beta1 = p1 * alpha1;
 		alpha1 *= diag;
 
 		diag = newDiag;
-		double p2 = v2[i];
+		const double p2 = v2[i];
 		newDiag = diag + alpha2 * p2 * p2;
 
 		if ( newDiag == 0.0f ) {
@@ -3221,10 +3279,10 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 		}
 
 		alpha2 /= newDiag;
-		double beta2 = p2 * alpha2;
+		const double beta2 = p2 * alpha2;
 		alpha2 *= diag;
 
-		(*this)[i][i] = newDiag;
+		(*this)[i][i] = idMath::Dtof(newDiag);
 
 		for ( j = i+1; std::cmp_less(j, numRows); j++ ) {
 
@@ -3236,7 +3294,7 @@ bool idMatX::LDLT_UpdateRowColumn( const idVecX &v, const int r ) {
 			v2[j] -= p2 * d;
 			d += beta2 * v2[j];
 
-			(*this)[j][i] = d;
+			(*this)[j][i] = idMath::Dtof(d);
 		}
 	}
 
@@ -3258,20 +3316,20 @@ idMatX::LDLT_UpdateIncrement
 ============
 */
 bool idMatX::LDLT_UpdateIncrement( const idVecX &v ) {
-	int i;
-	double sum, d;
+	size_t i = 0;
+	double sum = 0.0, d = 0.0;
 
 	assert( numRows == numColumns );
 	assert( v.GetSize() >= numRows+1 );
 
 	ChangeSize( numRows+1, numColumns+1, false );
 
-	float* x = static_cast<float*>(_alloca16(numRows * sizeof( float )));
+	double* x = static_cast<double*>(_alloca16(numRows * sizeof( double )));
 
 	// solve for x in L * x = v
 	for ( i = 0; i < numRows - 1; i++ ) {
 		sum = v[i];
-		for ( int j = 0; j < i; j++ ) {
+		for (size_t j = 0; std::cmp_less(j, i); j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
 		x[i] = sum;
@@ -3280,7 +3338,7 @@ bool idMatX::LDLT_UpdateIncrement( const idVecX &v ) {
 	// calculate new row of L and calculate the diagonal entry
 	sum = v[numRows - 1];
 	for ( i = 0; i < numRows - 1; i++ ) {
-		(*this)[numRows - 1][i] = d = x[i] / (*this)[i][i];
+		(*this)[numRows - 1][i] = idMath::Dtof(d = x[i] / (*this)[i][i]);
 		sum -= d * x[i];
 	}
 
@@ -3289,7 +3347,7 @@ bool idMatX::LDLT_UpdateIncrement( const idVecX &v ) {
 	}
 
 	// store the diagonal entry
-	(*this)[numRows - 1][numRows - 1] = sum;
+	(*this)[numRows - 1][numRows - 1] = idMath::Dtof(sum);
 
 	return true;
 }
@@ -3302,7 +3360,8 @@ idMatX::LDLT_UpdateDecrement
   v should store the row of the original matrix.
 ============
 */
-bool idMatX::LDLT_UpdateDecrement( const idVecX &v, const int r ) {
+
+bool idMatX::LDLT_UpdateDecrement(const idVecX &v, const Ordinal auto r) {
 	idVecX v1;
 
 	assert( numRows == numColumns );
@@ -3340,8 +3399,8 @@ idMatX::LDLT_Solve
 ============
 */
 void idMatX::LDLT_Solve( idVecX &x, const idVecX &b ) const {
-	int i, j;
-	double sum;
+	int64 i = 0, j = 0;
+	double sum = 0.0;
 
 	assert( numRows == numColumns );
 	assert( x.GetSize() >= numRows && b.GetSize() >= numRows );
@@ -3352,7 +3411,7 @@ void idMatX::LDLT_Solve( idVecX &x, const idVecX &b ) const {
 		for ( j = 0; j < i; j++ ) {
 			sum -= (*this)[i][j] * x[j];
 		}
-		x[i] = sum;
+		x[i] = idMath::Dtof(sum);
 	}
 
 	// solve D
@@ -3361,12 +3420,12 @@ void idMatX::LDLT_Solve( idVecX &x, const idVecX &b ) const {
 	}
 
 	// solve Lt
-	for ( i = numRows - 2; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(numRows) - 2; i >= 0; i-- ) {
 		sum = x[i];
 		for ( j = i + 1; std::cmp_less(j, numRows); j++ ) {
 			sum -= (*this)[j][i] * x[j];
 		}
-		x[i] = sum;
+		x[i] = idMath::Dtof(sum);
 	}
 }
 
@@ -3387,11 +3446,11 @@ void idMatX::LDLT_Inverse( idMatX &inv ) const {
 	b.Zero();
 	inv.SetSize( numRows, numColumns );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for (size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		b[i] = 1.0f;
 		LDLT_Solve( x, b );
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, numRows); j++ ) {
 			inv[j][i] = x[j];
 		}
 		b[i] = 0.0f;
@@ -3408,8 +3467,8 @@ idMatX::LDLT_UnpackFactors
 void idMatX::LDLT_UnpackFactors( idMatX &L, idMatX &D ) const {
 	L.Zero( numRows, numColumns );
 	D.Zero( numRows, numColumns );
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
-		for ( int j = 0; j < i; j++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
+		for ( size_t j = 0; j < i; j++ ) {
 			L[i][j] = (*this)[i][j];
 		}
 		L[i][i] = 1.0f;
@@ -3425,13 +3484,13 @@ idMatX::LDLT_MultiplyFactors
 ============
 */
 void idMatX::LDLT_MultiplyFactors( idMatX &m ) const {
-	int i;
-	double sum;
+	size_t i = 0;
+	double sum = 0.0;
 
 	float* v = static_cast<float*>(_alloca16(numRows * sizeof( float )));
 	m.SetSize( numRows, numColumns );
 
-	for ( int r = 0; std::cmp_less(r, numRows); r++ ) {
+	for ( size_t r = 0; std::cmp_less(r, numRows); r++ ) {
 
 		// calculate row of matrix
 		for ( i = 0; i < r; i++ ) {
@@ -3445,10 +3504,10 @@ void idMatX::LDLT_MultiplyFactors( idMatX &m ) const {
 			} else {
 				sum = (*this)[r][r] * (*this)[i][r];
 			}
-			for ( int j = 0; j < i && j < r; j++ ) {
+			for ( size_t j = 0; j < i && j < r; j++ ) {
 				sum += (*this)[i][j] * v[j];
 			}
-			m[r][i] = sum;
+			m[r][i] = idMath::Dtof(sum);
 		}
 	}
 }
@@ -3460,8 +3519,8 @@ idMatX::TriDiagonal_ClearTriangles
 */
 void idMatX::TriDiagonal_ClearTriangles() {
 	assert( numRows == numColumns );
-	for ( int i = 0; i < numRows-2; i++ ) {
-		for ( int j = i + 2; std::cmp_less(j, numColumns); j++ ) {
+	for ( size_t i = 0; i < numRows-2; i++ ) {
+		for ( size_t j = i + 2; std::cmp_less(j, numColumns); j++ ) {
 			(*this)[i][j] = 0.0f;
 			(*this)[j][i] = 0.0f;
 		}
@@ -3476,7 +3535,7 @@ idMatX::TriDiagonal_Solve
 ============
 */
 bool idMatX::TriDiagonal_Solve( idVecX &x, const idVecX &b ) const {
-	int i;
+	int64 i = 0;
 	idVecX tmp;
 
 	assert( numRows == numColumns );
@@ -3499,7 +3558,7 @@ bool idMatX::TriDiagonal_Solve( idVecX &x, const idVecX &b ) const {
 		d = 1.0f / d;
 		x[i] = ( b[i] - (*this)[i][i-1] * x[i-1] ) * d;
 	}
-	for ( i = numRows - 2; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(numRows) - 2; i >= 0; i-- ) {
 		x[i] -= tmp[i+1] * x[i+1];
 	}
 	return true;
@@ -3522,11 +3581,11 @@ void idMatX::TriDiagonal_Inverse( idMatX &inv ) const {
 	b.Zero();
 	inv.SetSize( numRows, numColumns );
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		b[i] = 1.0f;
 		TriDiagonal_Solve( x, b );
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, numRows); j++ ) {
 			inv[j][i] = x[j];
 		}
 		b[i] = 0.0f;
@@ -3545,25 +3604,25 @@ idMatX::HouseholderReduction
 ============
 */
 void idMatX::HouseholderReduction( idVecX &diag, idVecX &subd ) {
-	int i0, i1, i2, i3;
+	int64 i0 = 0, i1 = 0, i2 = 0, i3 = 0;
 
 	assert( numRows == numColumns );
 
 	diag.SetSize( numRows );
 	subd.SetSize( numRows );
 
-	for ( i0 = numRows-1, i3 = numRows-2; i0 >= 1; i0--, i3-- ) {
+	for ( i0 = idMath::integer_cast<int64>(numRows)-1, i3 = idMath::integer_cast<int64>(numRows)-2; i0 >= 1; i0--, i3-- ) {
 		float h = 0.0f;
-		float scale = 0.0f;
 
 		if ( i3 > 0 ) {
+			float scale = 0.0f;
 			for ( i2 = 0; i2 <= i3; i2++ ) {
 				scale += idMath::Fabs( (*this)[i0][i2] );
 			}
-			if ( scale == 0 ) {
+			if ( std::equal_to<>()(scale, 0.0f) ) {
 				subd[i0] = (*this)[i0][i3];
 			} else {
-				float invScale = 1.0f / scale;
+				const float invScale = 1.0f / scale;
 				for (i2 = 0; i2 <= i3; i2++)
 				{
 					(*this)[i0][i2] *= invScale;
@@ -3578,7 +3637,7 @@ void idMatX::HouseholderReduction( idVecX &diag, idVecX &subd ) {
 				h -= f * g;
 				(*this)[i0][i3] = f - g;
 				f = 0.0f;
-				float invH = 1.0f / h;
+				const float invH = 1.0f / h;
 				for (i1 = 0; i1 <= i3; i1++) {
 					(*this)[i1][i0] = (*this)[i0][i1] * invH;
 					g = 0.0f;
@@ -3591,7 +3650,7 @@ void idMatX::HouseholderReduction( idVecX &diag, idVecX &subd ) {
 					subd[i1] = g * invH;
 					f += subd[i1] * (*this)[i0][i1];
 				}
-				float halfFdivH = 0.5f * f * invH;
+				const float halfFdivH = 0.5f * f * invH;
 				for ( i1 = 0; i1 <= i3; i1++ ) {
 					f = (*this)[i0][i1];
 					g = subd[i1] - halfFdivH * f;
@@ -3610,8 +3669,8 @@ void idMatX::HouseholderReduction( idVecX &diag, idVecX &subd ) {
 
 	diag[0] = 0.0f;
 	subd[0] = 0.0f;
-	for ( i0 = 0, i3 = -1; i0 <= numRows-1; i0++, i3++ ) {
-		if ( diag[i0] ) {
+	for ( i0 = 0, i3 = -1; i0 <= idMath::integer_cast<int64>(numRows)-1; i0++, i3++ ) {
+		if ( std::not_equal_to<>()(diag[i0], 0.0) ) {
 			for ( i1 = 0; i1 <= i3; i1++ ) {
 				float sum = 0.0f;
 				for (i2 = 0; i2 <= i3; i2++) {
@@ -3649,16 +3708,16 @@ idMatX::QL
 ============
 */
 bool idMatX::QL( idVecX &diag, idVecX &subd ) {
-	constexpr int maxIter = 32;
-	int i1, i2;
+	constexpr size_t maxIter = 32;
+	size_t i1 = 0, i2 = 0;
 
 	assert( numRows == numColumns );
 
-	for ( int i0 = 0; std::cmp_less(i0, numRows); i0++ ) {
+	for (size_t i0 = 0; std::cmp_less(i0, numRows); i0++ ) {
 		for ( i1 = 0; i1 < maxIter; i1++ ) {
 			for ( i2 = i0; i2 <= numRows - 2; i2++ ) {
-				float a = idMath::Fabs(diag[i2]) + idMath::Fabs(diag[i2 + 1]);
-				if ( idMath::Fabs( subd[i2] ) + a == a ) {
+				const float a = idMath::Fabs(diag[i2]) + idMath::Fabs(diag[i2 + 1]);
+				if ( std::equal_to<>()(idMath::Fabs( subd[i2] ) + a,a) ) {
 					break;
 				}
 			}
@@ -3676,9 +3735,9 @@ bool idMatX::QL( idVecX &diag, idVecX &subd ) {
 			float s = 1.0f;
 			float c = 1.0f;
 			float p = 0.0f;
-			for ( int i3 = i2 - 1; i3 >= i0; i3-- ) {
+			for (size_t i3 = i2 - 1; i3 >= i0; i3-- ) {
 				float f = s * subd[i3];
-				float b = c * subd[i3];
+				const float b = c * subd[i3];
 				if ( idMath::Fabs( f ) >= idMath::Fabs( g ) ) {
 					c = g / f;
 					r = idMath::Sqrt( c * c + 1.0f );
@@ -3698,7 +3757,7 @@ bool idMatX::QL( idVecX &diag, idVecX &subd ) {
 				diag[i3+1] = g + p;
 				g = c * r - b;
 
-				for ( int i4 = 0; std::cmp_less(i4, numRows); i4++ ) {
+				for (size_t i4 = 0; std::cmp_less(i4, numRows); i4++ ) {
 					f = (*this)[i4][i3+1];
 					(*this)[i4][i3+1] = s * (*this)[i4][i3] + c * f;
 					(*this)[i4][i3] = c * (*this)[i4][i3] - s * f;
@@ -3733,7 +3792,7 @@ bool idMatX::Eigen_SolveSymmetricTriDiagonal( idVecX &eigenValues ) {
 	subd.SetData( numRows, VECX_ALLOCA(numRows));
 	eigenValues.SetSize( numRows );
 
-	for ( int i = 0; i < numRows-1; i++ ) {
+	for (size_t i = 0; i < numRows-1; i++ ) {
 		eigenValues[i] = (*this)[i][i];
 		subd[i] = (*this)[i+1][i];
 	}
@@ -3774,21 +3833,21 @@ idMatX::HessenbergReduction
 ============
 */
 void idMatX::HessenbergReduction( idMatX &H ) {
-	int i, j;
-	constexpr int low = 0;
-	const int high = numRows - 1;
-	float f, g;
+	size_t i = 0, j = 0;
+	constexpr size_t low = 0;
+	const size_t high = numRows - 1;
+	float f = 0.0f, g = 0.0f;
 	idVecX v;
 
 	v.SetData( numRows, VECX_ALLOCA(numRows));
 
-	for ( int m = low + 1; m <= high - 1; m++ ) {
-
+	for ( size_t m = low + 1; m <= high - 1; m++ ) 
+	{
 		float scale = 0.0f;
 		for ( i = m; i <= high; i++ ) {
 			scale = scale + idMath::Fabs( H[i][m-1] );
 		}
-		if ( scale != 0.0f ) {
+		if ( std::not_equal_to<>()(scale, 0.0f) ) {
 
 			// compute Householder transformation.
 			float h = 0.0f;
@@ -3833,7 +3892,7 @@ void idMatX::HessenbergReduction( idMatX &H ) {
 
 	// accumulate transformations
 	Identity();
-	for ( int m = high - 1; m >= low + 1; m-- ) {
+	for ( int64 m = idMath::integer_cast<int64>(high) - 1; std::cmp_greater_equal(m, low) + 1; m-- ) {
 		if ( H[m][m-1] != 0.0f ) {
 			for ( i = m + 1; i <= high; i++ ) {
 				v[i] = H[i][m-1];
@@ -3861,7 +3920,7 @@ idMatX::ComplexDivision
 ============
 */
 void idMatX::ComplexDivision(const float xr, const float xi, const float yr, const float yi, float &cdivr, float &cdivi ) {
-	float r, d;
+	float r = 0.0f, d = 0.0f;
 	if ( idMath::Fabs( yr ) > idMath::Fabs( yi ) ) {
 		r = yi / yr;
 		d = yr + r * yi;
@@ -3883,31 +3942,33 @@ idMatX::HessenbergToRealSchur
 ============
 */
 bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &imaginaryEigenValues ) {
-	int i, j, k;
-	int n = numRows - 1;
-	int low = 0;
-	int high = numRows - 1;
+	size_t i = 0;
+	int64 j = 0;
+	size_t k = 0;
+	int64 n = idMath::integer_cast<int64>(numRows) - 1;
+	int64 low = 0;
+	int64 high = idMath::integer_cast<int64>(numRows) - 1;
 	float eps = 2e-16f, exshift = 0.0f;
 	float p = 0.0f, q = 0.0f, r = 0.0f, s = 0.0f, z = 0.0f, t, w, x, y;
 
 	// store roots isolated by balanc and compute matrix norm
 	float norm = 0.0f;
 	for ( i = 0; std::cmp_less(i, numRows); i++ ) {
-		if ( i < low || i > high ) {
+		if (std::cmp_less(i, low) || std::cmp_greater(i, high)) {
 			realEigenValues[i] = H[i][i];
 			imaginaryEigenValues[i] = 0.0f;
 		}
-		for ( j = Max( i - 1, 0 ); std::cmp_less(j, numRows); j++ ) {
+		for ( j = Max( i - 1, 0ULL ); std::cmp_less(j, numRows); j++ ) {
 			norm = norm + idMath::Fabs( H[i][j] );
 		}
 	}
 
-	int iter = 0;
-	while( n >= low ) {
+	size_t iter = 0;
+	while(std::cmp_greater_equal(n, low)) {
 
 		// look for single small sub-diagonal element
-		int l = n;
-		while ( l > low ) {
+		size_t l = n;
+		while (std::cmp_greater(l, low)) {
 			s = idMath::Fabs( H[l-1][l-1] ) + idMath::Fabs( H[l][l] );
 			if ( s == 0.0f ) {
 				s = norm;
@@ -3919,13 +3980,13 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 		}
 	   
 		// check for convergence
-		if ( l == n ) {			// one root found
+		if (std::cmp_equal(l, n)) {			// one root found
 			H[n][n] = H[n][n] + exshift;
 			realEigenValues[n] = H[n][n];
 			imaginaryEigenValues[n] = 0.0f;
 			n--;
 			iter = 0;
-		} else if ( l == n-1 ) {	// two roots found
+		} else if (std::cmp_equal(l, n-1)) {	// two roots found
 			w = H[n][n-1] * H[n-1][n];
 			p = ( H[n-1][n-1] - H[n][n] ) / 2.0f;
 			q = p * p + w;
@@ -3963,14 +4024,14 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 				}
 
 				// modify column
-				for ( i = 0; i <= n; i++ ) {
+				for ( i = 0; std::cmp_less_equal(i, n); i++ ) {
 					z = H[i][n-1];
 					H[i][n-1] = q * z + p * H[i][n];
 					H[i][n] = q * H[i][n] - p * z;
 				}
 
 				// accumulate transformations
-				for ( i = low; i <= high; i++ ) {
+				for ( i = low; std::cmp_less_equal(i, high); i++ ) {
 					z = (*this)[i][n-1];
 					(*this)[i][n-1] = q * z + p * (*this)[i][n];
 					(*this)[i][n] = q * (*this)[i][n] - p * z;
@@ -3990,7 +4051,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 			x = H[n][n];
 			y = 0.0f;
 			w = 0.0f;
-			if ( l < n ) {
+			if (std::cmp_less(l, n)) {
 				y = H[n-1][n-1];
 				w = H[n][n-1] * H[n-1][n];
 			}
@@ -3998,7 +4059,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 			// Wilkinson's original ad hoc shift
 			if ( iter == 10 ) {
 				exshift += x;
-				for ( i = low; i <= n; i++ ) {
+				for ( i = low; std::cmp_less_equal(i, n); i++ ) {
 					H[i][i] -= x;
 				}
 				s = idMath::Fabs( H[n][n-1] ) + idMath::Fabs( H[n-1][n-2] );
@@ -4016,7 +4077,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 						s = -s;
 					}
 					s = x - w / ( ( y - x ) / 2.0f + s );
-					for ( i = low; i <= n; i++ ) {
+					for ( i = low; std::cmp_less_equal(i, n); i++ ) {
 						H[i][i] -= s;
 					}
 					exshift += s;
@@ -4027,7 +4088,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 			iter = iter + 1;
 
 			// look for two consecutive small sub-diagonal elements
-			int m;
+			size_t m = 0;
 			for( m = n-2; m >= l; m-- ) {
 				z = H[m][m];
 				r = x - z;
@@ -4048,7 +4109,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 				}
 			}
 
-			for ( i = m+2; i <= n; i++ ) {
+			for ( i = m+2; std::cmp_less_equal(i, n); i++ ) {
 				H[i][i-2] = 0.0f;
 				if ( i > m+2 ) {
 					H[i][i-3] = 0.0f;
@@ -4056,8 +4117,8 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 			}
 
 			// double QR step involving rows l:n and columns m:n
-			for ( k = m; k <= n-1; k++ ) {
-				bool notlast = ( k != n-1 );
+			for ( k = m; std::cmp_less_equal(k, n-1); k++ ) {
+				bool notlast = (std::cmp_not_equal(k, n-1));
 				if ( k != m ) {
 					p = H[k][k-1];
 					q = H[k+1][k-1];
@@ -4101,7 +4162,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 					}
 
 					// modify column
-					for ( i = 0; i <= Min( n, k + 3 ); i++ ) {
+					for ( i = 0; std::cmp_less_equal(i, std::min<int64>( n, k + 3 )); i++ ) {
 						p = x * H[i][k] + y * H[i][k+1];
 						if ( notlast ) {
 							p = p + z * H[i][k+2];
@@ -4112,7 +4173,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 					}
 
 					// accumulate transformations
-					for ( i = low; i <= high; i++ ) {
+					for ( i = low; std::cmp_less_equal(i, high); i++ ) {
 						p = x * (*this)[i][k] + y * (*this)[i][k+1];
 						if ( notlast ) {
 							p = p + z * (*this)[i][k+2];
@@ -4127,21 +4188,21 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 	}
 	
 	// backsubstitute to find vectors of upper triangular form
-	if ( norm == 0.0f ) {
+	if ( std::not_equal_to<>()(norm, 0.0f) ) {
 		return false;
 	}
 
-	for ( n = numRows-1; n >= 0; n-- ) {
+	for ( n = idMath::integer_cast<int64>(numRows) - 1; n >= 0; n-- ) {
 		p = realEigenValues[n];
 		q = imaginaryEigenValues[n];
 
 		if ( q == 0.0f ) {		// real vector
-			int l = n;
+			size_t l = n;
 			H[n][n] = 1.0f;
-			for ( i = n-1; i >= 0; i-- ) {
+			for ( i = n-1; std::cmp_greater_equal(i, 0); i-- ) {
 				w = H[i][i] - p;
 				r = 0.0f;
-				for ( j = l; j <= n; j++ ) {
+				for ( j = l; std::cmp_less_equal(j, n); j++ ) {
 					r = r + H[i][j] * H[j][n];
 				}
 				if ( imaginaryEigenValues[i] < 0.0f ) {
@@ -4171,14 +4232,14 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 					// overflow control
 					t = idMath::Fabs(H[i][n]);
 					if ( ( eps * t ) * t > 1 ) {
-						for ( j = i; j <= n; j++ ) {
+						for ( j = i; std::cmp_less_equal(j, n); j++ ) {
 							H[j][n] = H[j][n] / t;
 						}
 					}
 				}
 			}
 		} else if ( q < 0.0f ) {	// complex vector
-			int l = n-1;
+			size_t l = n-1;
 
 			// last vector component imaginary so matrix is triangular
 			if ( idMath::Fabs( H[n][n-1] ) > idMath::Fabs( H[n-1][n] ) ) {
@@ -4190,10 +4251,9 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 			H[n][n-1] = 0.0f;
 			H[n][n] = 1.0f;
 			for ( i = n-2; i >= 0; i-- ) {
-				float ra, sa, vr, vi;
-				ra = 0.0f;
-				sa = 0.0f;
-				for ( j = l; j <= n; j++ ) {
+				float ra = 0.0f, sa = 0.0f;
+
+				for ( j = l; std::cmp_less_equal(j, n); j++ ) {
 					ra = ra + H[i][j] * H[j][n-1];
 					sa = sa + H[i][j] * H[j][n];
 				}
@@ -4205,9 +4265,11 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 					s = sa;
 				} else {
 					l = i;
-					if ( imaginaryEigenValues[i] == 0.0f ) {
+					if ( std::equal_to<>()(imaginaryEigenValues[i], 0.0f) ) {
 						ComplexDivision( -ra, -sa, w, q, H[i][n-1], H[i][n] );
 					} else {
+						float vi = 0.0f;
+						float vr = 0.0f;
 						// solve complex equations
 						x = H[i][i+1];
 						y = H[i+1][i];
@@ -4228,7 +4290,7 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 					// overflow control
 					t = Max( idMath::Fabs( H[i][n-1] ), idMath::Fabs( H[i][n] ) );
 					if ( ( eps * t ) * t > 1 ) {
-						for ( j = i; j <= n; j++ ) {
+						for ( j = i; std::cmp_less_equal(j, n); j++ ) {
 							H[j][n-1] = H[j][n-1] / t;
 							H[j][n] = H[j][n] / t;
 						}
@@ -4240,18 +4302,18 @@ bool idMatX::HessenbergToRealSchur( idMatX &H, idVecX &realEigenValues, idVecX &
 
 	// vectors of isolated roots
 	for ( i = 0; std::cmp_less(i, numRows); i++ ) {
-		if ( i < low || i > high ) {
-			for ( j = i; std::cmp_less(j, numRows); j++ ) {
+		if (std::cmp_less(i, low) || std::cmp_greater(i, high)) {
+			for ( j = idMath::integer_cast<int64>(i); std::cmp_less(j, numRows); j++ ) {
 				(*this)[i][j] = H[i][j];
 			}
 		}
 	}
 
 	// back transformation to get eigenvectors of original matrix
-	for ( j = numRows - 1; j >= low; j-- ) {
-		for ( i = low; i <= high; i++ ) {
+	for ( j = idMath::integer_cast<int64>(numRows) - 1; std::cmp_greater_equal(j, low); j-- ) {
+		for ( i = low; std::cmp_less_equal(i, high); i++ ) {
 			z = 0.0f;
-			for ( k = low; k <= Min( j, high ); k++ ) {
+			for ( k = low; std::cmp_less_equal(k, std::min<int64>( j, high )); k++ ) {
 				z = z + (*this)[i][k] * H[k][j];
 			}
 			(*this)[i][j] = z;
@@ -4291,10 +4353,10 @@ idMatX::Eigen_SortIncreasing
 ============
 */
 void idMatX::Eigen_SortIncreasing( idVecX &eigenValues ) {
-	for ( int i = 0, j = 0; i <= numRows - 2; i++ ) {
+	for ( size_t i = 0, j = 0; i <= numRows - 2; i++ ) {
 		j = i;
 		float min = eigenValues[j];
-		for ( int k = i + 1; std::cmp_less(k, numRows); k++ ) {
+		for ( size_t k = i + 1; std::cmp_less(k, numRows); k++ ) {
 			if ( eigenValues[k] < min ) {
 				j = k;
 				min = eigenValues[j];
@@ -4313,10 +4375,10 @@ idMatX::Eigen_SortDecreasing
 ============
 */
 void idMatX::Eigen_SortDecreasing( idVecX &eigenValues ) {
-	for ( int i = 0, j = 0; i <= numRows - 2; i++ ) {
+	for ( size_t i = 0, j = 0; i <= numRows - 2; i++ ) {
 		j = i;
 		float max = eigenValues[j];
-		for ( int k = i + 1; std::cmp_less(k, numRows); k++ ) {
+		for ( size_t k = i + 1; std::cmp_less(k, numRows); k++ ) {
 			if ( eigenValues[k] > max ) {
 				j = k;
 				max = eigenValues[j];
@@ -4335,7 +4397,7 @@ idMatX::DeterminantGeneric
 ============
 */
 float idMatX::DeterminantGeneric() const {
-	float det;
+	float det = 0.0f;
 	idMatX tmp;
 
 	size_t* index = static_cast<size_t*>(_alloca16(numRows * sizeof(size_t)));
@@ -4370,11 +4432,11 @@ bool idMatX::InverseSelfGeneric() {
 	b.SetData( numRows, VECX_ALLOCA(numRows));
 	b.Zero();
 
-	for ( int i = 0; std::cmp_less(i, numRows); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numRows); i++ ) {
 
 		b[i] = 1.0f;
 		tmp.LU_Solve( x, b, index );
-		for ( int j = 0; std::cmp_less(j, numRows); j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, numRows); j++ ) {
 			(*this)[j][i] = x[j];
 		}
 		b[i] = 0.0f;
@@ -4390,7 +4452,7 @@ idMatX::Test
 void idMatX::Test() {
 	idMatX original, m1, m2, m3, q1, q2, r1, r2;
 	idVecX v, w, u, c, d;
-	size_t offset, size, *index1, *index2;
+	size_t offset = 0, size = 0, *index1 = nullptr, *index2 = nullptr;
 
 	size = 6;
 	original.Random( size, size, 0 );
@@ -4674,7 +4736,7 @@ void idMatX::Test() {
 
 		v.SetSize( 6 );
 		w.SetSize( 6 );
-		for ( int i = 0; i < size; i++ ) {
+		for (size_t i = 0; std::cmp_less(i, size); i++ ) {
 			v[i] = original[i][offset];
 			w[i] = original[offset][i];
 		}
@@ -4691,7 +4753,7 @@ void idMatX::Test() {
 		m2 = m3;
 
 		u.SetSize( 6 );
-		for ( int i = 0; i < size; i++ ) {
+		for (size_t i = 0; std::cmp_less(i, size); i++ ) {
 			u[i] = original[index1[offset]][i];
 		}
 
@@ -4852,7 +4914,7 @@ void idMatX::Test() {
 
 		v.SetSize( 6 );
 		w.SetSize( 6 );
-		for ( int i = 0; i < size; i++ ) {
+		for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
 			v[i] = original[i][offset];
 			w[i] = original[offset][i];
 		}
@@ -5005,7 +5067,7 @@ void idMatX::Test() {
 	m2 = m1;
 
 	w.SetSize( size + 1 );
-	for ( int i = 0; i < size + 1; i++ ) {
+	for ( size_t i = 0; i < size + 1; i++ ) {
 		w[i] = m3[size][i];
 	}
 
@@ -5037,7 +5099,7 @@ void idMatX::Test() {
 		m2 = original;
 
 		v.SetSize( 6 );
-		for ( int i = 0; i < size; i++ ) {
+		for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
 			v[i] = original[i][offset];
 		}
 
@@ -5159,7 +5221,7 @@ void idMatX::Test() {
 	m2 = m1;
 
 	w.SetSize( size + 1 );
-	for ( int i = 0; i < size + 1; i++ ) {
+	for ( size_t i = 0; i < size + 1; i++ ) {
 		w[i] = m3[size][i];
 	}
 
@@ -5191,7 +5253,7 @@ void idMatX::Test() {
 		m2 = original;
 
 		v.SetSize( 6 );
-		for ( int i = 0; i < size; i++ ) {
+		for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
 			v[i] = original[i][offset];
 		}
 
@@ -5240,8 +5302,8 @@ void idMatX::Test() {
 
 	m3.TransposeMultiply( m2, m1 );
 
-	for ( int i = 0; i < size; i++ ) {
-		for ( int j = 0; j < size; j++ ) {
+	for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
+		for ( size_t j = 0; std::cmp_less(j, size); j++ ) {
 			m1[i][j] *= v[j];
 		}
 	}
@@ -5263,8 +5325,8 @@ void idMatX::Test() {
 
 	m3.TransposeMultiply( m2, m1 );
 
-	for ( int i = 0; i < size; i++ ) {
-		for ( int j = 0; j < size; j++ ) {
+	for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
+		for ( size_t j = 0; std::cmp_less(j, size); j++ ) {
 			m1[i][j] *= v[j];
 		}
 	}
@@ -5287,8 +5349,8 @@ void idMatX::Test() {
 
 	m3.TransposeMultiply( m2, m1 );
 
-	for ( int i = 0; i < size; i++ ) {
-		for ( int j = 0; j < size; j++ ) {
+	for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
+		for ( size_t j = 0; std::cmp_less(j, size); j++ ) {
 			m1[i][j] *= v[j];
 		}
 	}

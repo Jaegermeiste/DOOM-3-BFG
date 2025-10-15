@@ -40,7 +40,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <xmmintrin.h>
 
-#define M_PI	3.14159265358979323846f
+#include <utility>
+
+#ifndef M_PI
+constexpr auto M_PI = 3.14159265358979323846f;
+#endif
 
 /*
 ============
@@ -56,48 +60,49 @@ const char * idSIMD_SSE::GetName() const {
 idSIMD_SSE::BlendJoints
 ============
 */
-void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) {
+void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) {
 
 	if ( lerp <= 0.0f ) {
 		return;
 	} else if ( lerp >= 1.0f ) {
-		for ( int i = 0; i < numJoints; i++ ) {
-			int j = index[i];
+		for (size_t i = 0; i < numJoints; i++ ) {
+			size_t j = index[i];
 			joints[j] = blendJoints[j];
 		}
 		return;
 	}
 
-	const __m128 vlerp = { lerp, lerp, lerp, lerp };
+	const __m128 vlerp = {{lerp, lerp, lerp, lerp}};
 
-	constexpr __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };
+	constexpr __m128 vector_float_one		= {{1.0f, 1.0f, 1.0f, 1.0f}};
 	const __m128 vector_float_sign_bit	= __m128c( _mm_set_epi32( 0x80000000, 0x80000000, 0x80000000, 0x80000000 ) );
-	constexpr __m128 vector_float_rsqrt_c0	= {  -3.0f,  -3.0f,  -3.0f,  -3.0f };
-	constexpr __m128 vector_float_rsqrt_c1	= {  -0.5f,  -0.5f,  -0.5f,  -0.5f };
-	constexpr __m128 vector_float_tiny		= {    1e-10f,    1e-10f,    1e-10f,    1e-10f };
+	constexpr __m128 vector_float_rsqrt_c0	= {{-3.0f,  -3.0f,  -3.0f,  -3.0f}};
+	constexpr __m128 vector_float_rsqrt_c1	= {{-0.5f,  -0.5f,  -0.5f,  -0.5f}};
+	constexpr __m128 vector_float_tiny		= {{1e-10f,    1e-10f,    1e-10f,    1e-10f}};
 	constexpr __m128 vector_float_half_pi	= { M_PI*0.5f, M_PI*0.5f, M_PI*0.5f, M_PI*0.5f };
 
-	constexpr __m128 vector_float_sin_c0	= { -2.39e-08f, -2.39e-08f, -2.39e-08f, -2.39e-08f };
-	constexpr __m128 vector_float_sin_c1	= {  2.7526e-06f, 2.7526e-06f, 2.7526e-06f, 2.7526e-06f };
-	constexpr __m128 vector_float_sin_c2	= { -1.98409e-04f, -1.98409e-04f, -1.98409e-04f, -1.98409e-04f };
-	constexpr __m128 vector_float_sin_c3	= {  8.3333315e-03f, 8.3333315e-03f, 8.3333315e-03f, 8.3333315e-03f };
-	constexpr __m128 vector_float_sin_c4	= { -1.666666664e-01f, -1.666666664e-01f, -1.666666664e-01f, -1.666666664e-01f };
+	constexpr __m128 vector_float_sin_c0	= {{-2.39e-08f, -2.39e-08f, -2.39e-08f, -2.39e-08f}};
+	constexpr __m128 vector_float_sin_c1	= {{2.7526e-06f, 2.7526e-06f, 2.7526e-06f, 2.7526e-06f}};
+	constexpr __m128 vector_float_sin_c2	= {{-1.98409e-04f, -1.98409e-04f, -1.98409e-04f, -1.98409e-04f}};
+	constexpr __m128 vector_float_sin_c3	= {{8.3333315e-03f, 8.3333315e-03f, 8.3333315e-03f, 8.3333315e-03f}};
+	constexpr __m128 vector_float_sin_c4	= {{-1.666666664e-01f, -1.666666664e-01f, -1.666666664e-01f, -1.666666664e-01f}
+	};
 
-	constexpr __m128 vector_float_atan_c0	= {  0.0028662257f,  0.0028662257f,  0.0028662257f,  0.0028662257f };
-	constexpr __m128 vector_float_atan_c1	= { -0.0161657367f, -0.0161657367f, -0.0161657367f, -0.0161657367f };
-	constexpr __m128 vector_float_atan_c2	= {  0.0429096138f,  0.0429096138f,  0.0429096138f,  0.0429096138f };
-	constexpr __m128 vector_float_atan_c3	= { -0.0752896400f, -0.0752896400f, -0.0752896400f, -0.0752896400f };
-	constexpr __m128 vector_float_atan_c4	= {  0.1065626393f,  0.1065626393f,  0.1065626393f,  0.1065626393f };
-	constexpr __m128 vector_float_atan_c5	= { -0.1420889944f, -0.1420889944f, -0.1420889944f, -0.1420889944f };
-	constexpr __m128 vector_float_atan_c6	= {  0.1999355085f,  0.1999355085f,  0.1999355085f,  0.1999355085f };
-	constexpr __m128 vector_float_atan_c7	= { -0.3333314528f, -0.3333314528f, -0.3333314528f, -0.3333314528f };
+	constexpr __m128 vector_float_atan_c0	= {{0.0028662257f,  0.0028662257f,  0.0028662257f,  0.0028662257f}};
+	constexpr __m128 vector_float_atan_c1	= {{-0.0161657367f, -0.0161657367f, -0.0161657367f, -0.0161657367f}};
+	constexpr __m128 vector_float_atan_c2	= {{0.0429096138f,  0.0429096138f,  0.0429096138f,  0.0429096138f}};
+	constexpr __m128 vector_float_atan_c3	= {{-0.0752896400f, -0.0752896400f, -0.0752896400f, -0.0752896400f}};
+	constexpr __m128 vector_float_atan_c4	= {{0.1065626393f,  0.1065626393f,  0.1065626393f,  0.1065626393f}};
+	constexpr __m128 vector_float_atan_c5	= {{-0.1420889944f, -0.1420889944f, -0.1420889944f, -0.1420889944f}};
+	constexpr __m128 vector_float_atan_c6	= {{0.1999355085f,  0.1999355085f,  0.1999355085f,  0.1999355085f}};
+	constexpr __m128 vector_float_atan_c7	= {{-0.3333314528f, -0.3333314528f, -0.3333314528f, -0.3333314528f}};
 
-	int i = 0;
+	size_t i = 0;
 	for ( ; i < numJoints - 3; i += 4 ) {
-		const int n0 = index[i+0];
-		const int n1 = index[i+1];
-		const int n2 = index[i+2];
-		const int n3 = index[i+3];
+		const size_t n0 = index[i+0];
+		const size_t n1 = index[i+1];
+		const size_t n2 = index[i+2];
+		const size_t n3 = index[i+3];
 
 		__m128 jqa_0 = _mm_load_ps( joints[n0].q.ToFloatPtr() );
 		__m128 jqb_0 = _mm_load_ps( joints[n1].q.ToFloatPtr() );
@@ -251,7 +256,7 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 	}
 
 	for ( ; i < numJoints; i++ ) {
-		int n = index[i];
+		size_t n = index[i];
 
 		idVec3 &jointVert = joints[n].t;
 		const idVec3 &blendVert = blendJoints[n].t;
@@ -264,18 +269,18 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 		idQuat &jointQuat = joints[n].q;
 		const idQuat &blendQuat = blendJoints[n].q;
 
-		float cosom;
-		float sinom;
-		float omega;
-		float scale0;
-		float scale1;
-		unsigned long signBit;
+		float cosom = 0.0f;
+		float sinom = 0.0f;
+		float omega = 0.0f;
+		float scale0 = 0.0f;
+		float scale1 = 0.0f;
+		unsigned long signBit = 0;
 
 		cosom = jointQuat.x * blendQuat.x + jointQuat.y * blendQuat.y + jointQuat.z * blendQuat.z + jointQuat.w * blendQuat.w;
 
-		signBit = (*(unsigned long *)&cosom) & ( 1 << 31 );
+		signBit = (*reinterpret_cast<unsigned long*>(&cosom)) & ( 1 << 31 );
 
-		(*(unsigned long *)&cosom) ^= signBit;
+		(*reinterpret_cast<unsigned long*>(&cosom)) ^= signBit;
 
 		scale0 = 1.0f - cosom * cosom;
 		scale0 = ( scale0 <= 0.0f ) ? 1e-10f : scale0;
@@ -284,7 +289,7 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 		scale0 = idMath::Sin16( ( 1.0f - lerp ) * omega ) * sinom;
 		scale1 = idMath::Sin16( lerp * omega ) * sinom;
 
-		(*(unsigned long *)&scale1) ^= signBit;
+		(*reinterpret_cast<unsigned long*>(&scale1)) ^= signBit;
 
 		jointQuat.x = scale0 * jointQuat.x + scale1 * blendQuat.x;
 		jointQuat.y = scale0 * jointQuat.y + scale1 * blendQuat.y;
@@ -298,7 +303,7 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 idSIMD_SSE::BlendJointsFast
 ============
 */
-void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) {
+void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t* index, const size_t numJoints ) {
 	assert_16_byte_aligned( joints );
 	assert_16_byte_aligned( blendJoints );
 	assert_16_byte_aligned( JOINTQUAT_Q_OFFSET );
@@ -308,27 +313,27 @@ void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat 
 	if ( lerp <= 0.0f ) {
 		return;
 	} else if ( lerp >= 1.0f ) {
-		for ( int i = 0; i < numJoints; i++ ) {
-			int j = index[i];
+		for (size_t i = 0; i < numJoints; i++ ) {
+			size_t j = index[i];
 			joints[j] = blendJoints[j];
 		}
 		return;
 	}
 
 	const __m128 vector_float_sign_bit	= __m128c( _mm_set_epi32( 0x80000000, 0x80000000, 0x80000000, 0x80000000 ) );
-	constexpr __m128 vector_float_rsqrt_c0	= {  -3.0f,  -3.0f,  -3.0f,  -3.0f };
-	constexpr __m128 vector_float_rsqrt_c1	= {  -0.5f,  -0.5f,  -0.5f,  -0.5f };
+	constexpr __m128 vector_float_rsqrt_c0	= {{-3.0f,  -3.0f,  -3.0f,  -3.0f}};
+	constexpr __m128 vector_float_rsqrt_c1	= {{-0.5f,  -0.5f,  -0.5f,  -0.5f}};
 
 	const float scaledLerp = lerp / ( 1.0f - lerp );
-	const __m128 vlerp = { lerp, lerp, lerp, lerp };
-	const __m128 vscaledLerp = { scaledLerp, scaledLerp, scaledLerp, scaledLerp };
+	const __m128 vlerp = {{lerp, lerp, lerp, lerp}};
+	const __m128 vscaledLerp = {{scaledLerp, scaledLerp, scaledLerp, scaledLerp}};
 
-	int i = 0;
+	size_t i = 0;
 	for ( ; i < numJoints - 3; i += 4 ) {
-		const int n0 = index[i+0];
-		const int n1 = index[i+1];
-		const int n2 = index[i+2];
-		const int n3 = index[i+3];
+		const size_t n0 = index[i+0];
+		const size_t n1 = index[i+1];
+		const size_t n2 = index[i+2];
+		const size_t n3 = index[i+3];
 
 		__m128 jqa_0 = _mm_load_ps( joints[n0].q.ToFloatPtr() );
 		__m128 jqb_0 = _mm_load_ps( joints[n1].q.ToFloatPtr() );
@@ -440,7 +445,7 @@ void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat 
 	}
 
 	for ( ; i < numJoints; i++ ) {
-		const int n = index[i];
+		const size_t n = index[i];
 
 		idVec3 &jointVert = joints[n].t;
 		const idVec3 &blendVert = blendJoints[n].t;
@@ -480,30 +485,30 @@ void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat 
 idSIMD_SSE::ConvertJointQuatsToJointMats
 ============
 */
-void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const int numJoints ) {
+void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const size_t numJoints ) {
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
 	assert( (UINT_PTR)(&((idJointQuat *)0)->t) == (UINT_PTR)(&((idJointQuat *)0)->q) + (UINT_PTR)sizeof( ((idJointQuat *)0)->q ) );
 
-	const float * jointQuatPtr = (float *)jointQuats;
-	float * jointMatPtr = (float *)jointMats;
+	const float * jointQuatPtr = reinterpret_cast<const float*>(jointQuats);
+	float * jointMatPtr = reinterpret_cast<float*>(jointMats);
 
 	const __m128 vector_float_first_sign_bit		= __m128c( _mm_set_epi32( 0x00000000, 0x00000000, 0x00000000, 0x80000000 ) );
 	const __m128 vector_float_last_three_sign_bits	= __m128c( _mm_set_epi32( 0x80000000, 0x80000000, 0x80000000, 0x00000000 ) );
-	constexpr __m128 vector_float_first_pos_half		= {   0.5f,   0.0f,   0.0f,   0.0f };	// +.5 0 0 0
-	constexpr __m128 vector_float_first_neg_half		= {  -0.5f,   0.0f,   0.0f,   0.0f };	// -.5 0 0 0
-	constexpr __m128 vector_float_quat2mat_mad1			= {  -1.0f,  -1.0f,  +1.0f,  -1.0f };	//  - - + -
-	constexpr __m128 vector_float_quat2mat_mad2			= {  -1.0f,  +1.0f,  -1.0f,  -1.0f };	//  - + - -
-	constexpr __m128 vector_float_quat2mat_mad3			= {  +1.0f,  -1.0f,  -1.0f,  +1.0f };	//  + - - +
+	constexpr __m128 vector_float_first_pos_half		= {{0.5f,   0.0f,   0.0f,   0.0f}};	// +.5 0 0 0
+	constexpr __m128 vector_float_first_neg_half		= {{-0.5f,   0.0f,   0.0f,   0.0f}};	// -.5 0 0 0
+	constexpr __m128 vector_float_quat2mat_mad1			= {{-1.0f,  -1.0f,  +1.0f,  -1.0f}};	//  - - + -
+	constexpr __m128 vector_float_quat2mat_mad2			= {{-1.0f,  +1.0f,  -1.0f,  -1.0f}};	//  - + - -
+	constexpr __m128 vector_float_quat2mat_mad3			= {{+1.0f,  -1.0f,  -1.0f,  +1.0f}};	//  + - - +
 
-	int i = 0;
+	size_t i = 0;
 	for ( ; i + 1 < numJoints; i += 2 ) {
 
-		__m128 q0 = _mm_load_ps( &jointQuatPtr[i*8+0*8+0] );
-		__m128 q1 = _mm_load_ps( &jointQuatPtr[i*8+1*8+0] );
+		__m128 q0 = _mm_load_ps( &jointQuatPtr[i*8+0ULL *8+0] );
+		__m128 q1 = _mm_load_ps( &jointQuatPtr[i*8+1ULL *8+0] );
 
-		__m128 t0 = _mm_load_ps( &jointQuatPtr[i*8+0*8+4] );
-		__m128 t1 = _mm_load_ps( &jointQuatPtr[i*8+1*8+4] );
+		__m128 t0 = _mm_load_ps( &jointQuatPtr[i*8+0ULL *8+4] );
+		__m128 t1 = _mm_load_ps( &jointQuatPtr[i*8+1ULL *8+4] );
 
 		__m128 d0 = _mm_add_ps( q0, q0 );
 		__m128 d1 = _mm_add_ps( q1, q1 );
@@ -558,18 +563,18 @@ void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, con
 		rb1 = _mm_shuffle_ps( rb1, tb1, _MM_SHUFFLE( 2, 0, 0, 1 ) );						// 01 00 03 11
 		rc1 = _mm_shuffle_ps( rc1, tc1, _MM_SHUFFLE( 2, 0, 3, 2 ) );						// 02 03 00 12
 
-		_mm_store_ps( &jointMatPtr[i*12+0*12+0], ra0 );
-		_mm_store_ps( &jointMatPtr[i*12+0*12+4], rb0 );
-		_mm_store_ps( &jointMatPtr[i*12+0*12+8], rc0 );
-		_mm_store_ps( &jointMatPtr[i*12+1*12+0], ra1 );
-		_mm_store_ps( &jointMatPtr[i*12+1*12+4], rb1 );
-		_mm_store_ps( &jointMatPtr[i*12+1*12+8], rc1 );
+		_mm_store_ps( &jointMatPtr[i*12+0ULL *12+0], ra0 );
+		_mm_store_ps( &jointMatPtr[i*12+0ULL *12+4], rb0 );
+		_mm_store_ps( &jointMatPtr[i*12+0ULL *12+8], rc0 );
+		_mm_store_ps( &jointMatPtr[i*12+1ULL *12+0], ra1 );
+		_mm_store_ps( &jointMatPtr[i*12+1ULL *12+4], rb1 );
+		_mm_store_ps( &jointMatPtr[i*12+1ULL *12+8], rc1 );
 	}
 
 	for ( ; i < numJoints; i++ ) {
 
-		__m128 q0 = _mm_load_ps( &jointQuatPtr[i*8+0*8+0] );
-		__m128 t0 = _mm_load_ps( &jointQuatPtr[i*8+0*8+4] );
+		__m128 q0 = _mm_load_ps( &jointQuatPtr[i*8+0ULL *8+0] );
+		__m128 t0 = _mm_load_ps( &jointQuatPtr[i*8+0ULL *8+4] );
 
 		__m128 d0 = _mm_add_ps( q0, q0 );
 
@@ -601,9 +606,9 @@ void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, con
 		rb0 = _mm_shuffle_ps( rb0, tb0, _MM_SHUFFLE( 2, 0, 0, 1 ) );						// 01 00 03 11
 		rc0 = _mm_shuffle_ps( rc0, tc0, _MM_SHUFFLE( 2, 0, 3, 2 ) );						// 02 03 00 12
 
-		_mm_store_ps( &jointMatPtr[i*12+0*12+0], ra0 );
-		_mm_store_ps( &jointMatPtr[i*12+0*12+4], rb0 );
-		_mm_store_ps( &jointMatPtr[i*12+0*12+8], rc0 );
+		_mm_store_ps( &jointMatPtr[i*12+0ULL*12+0], ra0 );
+		_mm_store_ps( &jointMatPtr[i*12+0ULL *12+4], rb0 );
+		_mm_store_ps( &jointMatPtr[i*12+0ULL*12+8], rc0 );
 	}
 }
 
@@ -612,23 +617,23 @@ void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, con
 idSIMD_SSE::ConvertJointMatsToJointQuats
 ============
 */
-void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const int numJoints ) {
+void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const size_t numJoints ) {
 
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
 	assert( (UINT_PTR)(&((idJointQuat *)0)->t) == (UINT_PTR)(&((idJointQuat *)0)->q) + (UINT_PTR)sizeof( ((idJointQuat *)0)->q ) );
 
 	const __m128 vector_float_zero		= _mm_setzero_ps();
-	constexpr __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };
+	constexpr __m128 vector_float_one		= {{1.0f, 1.0f, 1.0f, 1.0f}};
 	const __m128 vector_float_not		= __m128c( _mm_set_epi32( -1, -1, -1, -1 ) );
 	const __m128 vector_float_sign_bit	= __m128c( _mm_set_epi32( 0x80000000, 0x80000000, 0x80000000, 0x80000000 ) );
-	constexpr __m128 vector_float_rsqrt_c0	= {  -3.0f,  -3.0f,  -3.0f,  -3.0f };
-	constexpr __m128 vector_float_rsqrt_c2	= { -0.25f, -0.25f, -0.25f, -0.25f };
+	constexpr __m128 vector_float_rsqrt_c0	= {{-3.0f,  -3.0f,  -3.0f,  -3.0f}};
+	constexpr __m128 vector_float_rsqrt_c2	= {{-0.25f, -0.25f, -0.25f, -0.25f}};
 
-	int i = 0;
+	size_t i = 0;
 	for ( ; i < numJoints - 3; i += 4 ) {
-		const float *__restrict m = (float *)&jointMats[i];
-		float *__restrict q = (float *)&jointQuats[i];
+		const float *__restrict m = reinterpret_cast<const float*>(&jointMats[i]);
+		float *__restrict q = reinterpret_cast<float*>(&jointQuats[i]);
 
 		__m128 ma0 = _mm_load_ps( &m[0*12+0] );
 		__m128 ma1 = _mm_load_ps( &m[0*12+4] );
@@ -770,8 +775,8 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, c
 	float sign[2] = { 1.0f, -1.0f };
 
 	for ( ; i < numJoints; i++ ) {
-		const float *__restrict m = (float *)&jointMats[i];
-		float *__restrict q = (float *)&jointQuats[i];
+		const float *__restrict m = reinterpret_cast<const float*>(&jointMats[i]);
+		float *__restrict q = reinterpret_cast<float*>(&jointQuats[i]);
 
 		int b0 = m[0 * 4 + 0] + m[1 * 4 + 1] + m[2 * 4 + 2] > 0.0f;
 		int b1 = m[0 * 4 + 0] > m[1 * 4 + 1] && m[0 * 4 + 0] > m[2 * 4 + 2];
@@ -822,7 +827,7 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, c
 idSIMD_SSE::TransformJoints
 ============
 */
-void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) {
+void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const size_t* parents, const size_t firstJoint, const size_t lastJoint ) {
 	const __m128 vector_float_mask_keep_last	= __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 
 	const float *__restrict firstMatrix = jointMats->ToFloatPtr() + ( firstJoint + firstJoint + firstJoint - 3 ) * 4;
@@ -831,8 +836,8 @@ void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const int *paren
 	__m128 pmb = _mm_load_ps( firstMatrix + 4 );
 	__m128 pmc = _mm_load_ps( firstMatrix + 8 );
 
-	for ( int joint = firstJoint; joint <= lastJoint; joint++ ) {
-		const int parent = parents[joint];
+	for (size_t joint = firstJoint; joint <= lastJoint; joint++ ) {
+		const size_t parent = parents[joint];
 		const float *__restrict parentMatrix = jointMats->ToFloatPtr() + ( parent + parent + parent ) * 4;
 		float *__restrict childMatrix = jointMats->ToFloatPtr() + ( joint + joint + joint ) * 4;
 
@@ -881,12 +886,12 @@ void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const int *paren
 idSIMD_SSE::UntransformJoints
 ============
 */
-void VPCALL idSIMD_SSE::UntransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) {
+void VPCALL idSIMD_SSE::UntransformJoints( idJointMat *jointMats, const size_t* parents, const size_t firstJoint, const size_t lastJoint ) {
 	const __m128 vector_float_mask_keep_last	= __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 
-	for ( int joint = lastJoint; joint >= firstJoint; joint-- ) {
-		assert( parents[joint] < joint );
-		const int parent = parents[joint];
+	for ( size_t joint = lastJoint; std::cmp_greater_equal(joint, firstJoint); joint-- ) {
+		assert(std::cmp_less(parents[joint], joint ));
+		const size_t parent = parents[joint];
 		const float *__restrict parentMatrix = jointMats->ToFloatPtr() + ( parent + parent + parent ) * 4;
 		float *__restrict childMatrix = jointMats->ToFloatPtr() + ( joint + joint + joint ) * 4;
 

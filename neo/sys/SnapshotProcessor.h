@@ -56,7 +56,7 @@ public:
 	// GetPendingSnapDelta
 	int GetPendingSnapDelta( byte * outBuffer, int maxLength );
 	// If PendingSnapReadyToSend is true, then GetPendingSnapDelta will return something to send
-	bool PendingSnapReadyToSend() const { return jobMemory->lzwInOutData.numlzwDeltas > 0; }
+	[[nodiscard]] bool PendingSnapReadyToSend() const { return jobMemory->lzwInOutData.numlzwDeltas > 0; }
 	// When you call WritePendingSnapshot, and then send the resulting buffer as a unreliable msg, you will eventually
 	// receive this on the client.  Call this function to receive and apply it to the base state, and possibly return a fully received snap
 	// to then apply to the client game state
@@ -68,24 +68,24 @@ public:
 	// the basestate needed to generate a full snap from these deltas is gone.
 	void RemoveDeltasForOldBaseSequence();
 	// Make sure delta sequence and basesequence values are valid, and in order, etc
-	void SanityCheckDeltas();
+	void SanityCheckDeltas() const;
 	// HasPendingSnap will return true if there is more of the last TrySetPendingSnapshot to be sent
-	bool HasPendingSnap() const { return hasPendingSnap; }
+	[[nodiscard]] bool HasPendingSnap() const { return hasPendingSnap; }
 			
 	idSnapShot * GetBaseState() { return &baseState; }
 	idSnapShot * GetPendingSnap(){ return &pendingSnap; }
-	
-	int GetSnapSequence() { return snapSequence; }
-	int GetBaseSequence() { return baseSequence; }
-	int GetFullSnapBaseSequence() { return lastFullSnapBaseSequence; }
+
+	[[nodiscard]] int GetSnapSequence() const { return snapSequence; }
+	[[nodiscard]] int GetBaseSequence() const { return baseSequence; }
+	[[nodiscard]] int GetFullSnapBaseSequence() const { return lastFullSnapBaseSequence; }
 
 	// This is used to ack the latest delta we have.  If we have no deltas, we sent -1 to make sure
 	// Server knows we don't want to ack, since we are as up to date as we can be
-	int GetLastAppendedSequence() { return deltas.Num() == 0 ? -1 : deltas.ItemSequence( deltas.Num() - 1 ); }
+	[[nodiscard]] int GetLastAppendedSequence() const { return deltas.Num() == 0 ? -1 : deltas.ItemSequence( deltas.Num() - 1 ); }
 
-	int	GetSnapQueueSize() { return deltas.Num(); }
+	[[nodiscard]] size_t	GetSnapQueueSize() const { return deltas.Num(); }
 
-	bool IsBusyConfirmingPartialSnap();
+	[[nodiscard]] bool IsBusyConfirmingPartialSnap() const;
 
 	void AddSnapObjTemplate( int objID, idBitMsg & msg );
 

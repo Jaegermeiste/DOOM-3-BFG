@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __TOKENPARSER_H__
 class idBinaryToken {
 public:
-	idBinaryToken() {
+	idBinaryToken() noexcept {
 		tokenType = 0;
 		tokenSubType = 0;
 	}
@@ -54,41 +54,45 @@ public:
 	}
 	idStr token;
 	int8  tokenType;
-	size_t tokenSubType;
+	uint64 tokenSubType;
 };
 
 class idTokenIndexes {
 public:
-	idTokenIndexes() {}
+	idTokenIndexes() noexcept {}
 	void Clear() {
 		tokenIndexes.Clear();
 	}
-	int Append( short sdx ) {
+	size_t Append( short sdx ) {
 		return tokenIndexes.Append( sdx );
 	}
-	int Num() {
+
+	[[nodiscard]] size_t Num() const
+	{
 		return tokenIndexes.Num();
 	}
 	void SetNum( int num ) {
 		tokenIndexes.SetNum( num );
 	}
-	short &	operator[]( const int index ) {
+	short &	operator[]( const size_t index ) {
 		return tokenIndexes[ index ];
 	}
 	void SetName( const char *name ) {
 		fileName = name;
 	}
-	const char *GetName() {
+
+	[[nodiscard]] const char *GetName() const
+	{
 		return fileName.c_str();
 	}
 	void Write( idFile *outFile ) {
 		outFile->WriteString( fileName );
-		outFile->WriteBig( ( int )tokenIndexes.Num() );
+		outFile->WriteBig( idMath::integer_cast<int>(tokenIndexes.Num()) );
 		outFile->WriteBigArray( tokenIndexes.Ptr(), tokenIndexes.Num() );
 	}
 	void Read( idFile *inFile ) {
 		inFile->ReadString( fileName );
-		int num;
+		int num = 0;
 		inFile->ReadBig( num );
 		tokenIndexes.SetNum( num );
 		inFile->ReadBigArray( tokenIndexes.Ptr(), num );
@@ -100,7 +104,7 @@ private:
 
 class idTokenParser {
 public:
-	idTokenParser() {
+	idTokenParser() noexcept {
 		timeStamp = FILE_NOT_FOUND_TIMESTAMP;
 		preloaded = false;
 		currentToken = 0;
@@ -123,7 +127,7 @@ public:
 	bool StartParsing( const char *fileName );
 	void DoneParsing() { currentTokenList = -1; }
 
-	bool IsLoaded() { return tokens.Num() > 0; }
+	[[nodiscard]] bool IsLoaded() const { return tokens.Num() > 0; }
 	bool ReadToken( idToken * tok );
 	int	ExpectTokenString( const char *string );
 	int	ExpectTokenType( int type, int subtype, idToken *token );

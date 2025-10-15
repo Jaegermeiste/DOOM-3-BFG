@@ -81,27 +81,27 @@ public:
 							idSoundShader();
 	virtual					~idSoundShader();
 
-	virtual size_t			Size() const;
+							[[nodiscard]] virtual size_t			Size() const;
 	virtual bool			SetDefaultText();
-	virtual const char *	DefaultDefinition() const;
+							[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			List() const;
 
 	// so the editor can draw correct default sound spheres
 	// this is currently defined as meters, which sucks, IMHO.
-	virtual float			GetMinDistance() const;		// FIXME: replace this with a GetSoundShaderParms()
-	virtual float			GetMaxDistance() const;
+							[[nodiscard]] virtual float			GetMinDistance() const;		// FIXME: replace this with a GetSoundShaderParms()
+							[[nodiscard]] virtual float			GetMaxDistance() const;
 
 	// returns NULL if an AltSound isn't defined in the shader.
 	// we use this for pairing a specific broken light sound with a normal light sound
-	virtual const idSoundShader *GetAltSound() const;
+							[[nodiscard]] virtual const idSoundShader *GetAltSound() const;
 
-	virtual bool			HasDefaultSound() const;
+							[[nodiscard]] virtual bool			HasDefaultSound() const;
 
-	virtual const soundShaderParms_t *GetParms() const;
-	virtual int				GetNumSounds() const;
-	virtual const char *	GetSound( int index ) const;
+							[[nodiscard]] virtual const soundShaderParms_t *GetParms() const;
+							[[nodiscard]] virtual int				GetNumSounds() const;
+							[[nodiscard]] virtual const char *	GetSound( int index ) const;
 
 private:
 	friend class idSoundWorldLocal;
@@ -164,7 +164,7 @@ public:
 	// returns true if there are any sounds playing from this emitter.  There is some conservative
 	// slop at the end to remove inconsistent race conditions with the sound thread updates.
 	// FIXME: network game: on a dedicated server, this will always be false
-	virtual bool			CurrentlyPlaying( const s_channelType channel = SCHANNEL_ANY ) const = 0;
+	[[nodiscard]] virtual bool			CurrentlyPlaying( const s_channelType channel = SCHANNEL_ANY ) const = 0;
 
 	// returns a 0.0 to 1.0 value based on the current sound amplitude, allowing
 	// graphic effects to be modified in time with the audio.
@@ -172,7 +172,7 @@ public:
 	virtual	float			CurrentAmplitude() = 0;
 
 	// for save games.  Index will always be > 0
-	virtual	int				Index() const = 0;
+	[[nodiscard]] virtual	int				Index() const = 0;
 };
 
 /*
@@ -313,7 +313,7 @@ public:
 	virtual void			FreeStreamBuffers() = 0;
 
 	// video playback needs to get this
-	virtual void *			GetIXAudio2() const = 0;
+	[[nodiscard]] virtual void *			GetIXAudio2() const = 0;
 
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform ) = 0;

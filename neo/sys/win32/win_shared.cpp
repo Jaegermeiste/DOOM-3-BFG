@@ -51,14 +51,73 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
 
+#if defined(ID_WIN64)
+
+constexpr auto EPOCH_DIFF_100NS = 116444736000000000ULL;
+
+// Convert FILETIME (100ns ticks since 1601-01-01) to Unix epoch milliseconds.
+[[nodiscard]] static inline uint64 Sys_FiletimeToUnixMs(uint64 filetime100ns) noexcept {
+	// Guard against dates before 1970 if ever needed; clamp to 0.
+	if (filetime100ns <= EPOCH_DIFF_100NS)
+	{
+		return 0ULL;
+	}
+	const uint64 unix100ns = filetime100ns - EPOCH_DIFF_100NS;
+	return unix100ns / 10000ULL; // 100 ns -> ms
+}
+
+// High-precision, wall-clock UTC in milliseconds since Unix epoch.
+// Uses GetSystemTimePreciseAsFileTime (Win8+). Falls back to GetSystemTimeAsFileTime if needed.
+[[nodiscard]] static inline uint64 Sys_RealtimeMsUTC() noexcept {
+	FILETIME ft = {};
+	// On Windows 11 this is always available, but keep a tiny fallback for robustness.
+	// If you prefer to avoid the (very small) indirect call below, call the API directly.
+	static auto pGetPrecise = []() -> void (WINAPI*)(LPFILETIME) {
+		const HMODULE k = GetModuleHandleW(L"kernel32.dll");
+		if (!k)
+		{
+			return nullptr;
+		}
+		return reinterpret_cast<void (WINAPI*)(LPFILETIME)>(GetProcAddress(k, "GetSystemTimePreciseAsFileTime"));
+	}();
+
+	if (pGetPrecise) {
+		pGetPrecise(&ft);
+	}
+	else {
+		GetSystemTimeAsFileTime(&ft);
+	}
+
+	ULARGE_INTEGER uli = {};
+	uli.LowPart = ft.dwLowDateTime;
+	uli.HighPart = ft.dwHighDateTime;
+
+	return Sys_FiletimeToUnixMs(uli.QuadPart);
+}
+
+#endif // #if defined(ID_WIN64)
+
 /*
 ================
 Sys_Milliseconds
 ================
 */
-int Sys_Milliseconds() {
-	static DWORD sys_timeBase = timeGetTime();
-	return timeGetTime() - sys_timeBase;
+ID_TIME_T Sys_Milliseconds() {
+#if defined(ID_WIN64)
+	static const double sys_perfFreqInv = [] {
+		LARGE_INTEGER perfFreq = {};
+		QueryPerformanceFrequency(&perfFreq);
+		return 1000.0 / static_cast<double>(perfFreq.QuadPart);
+		}();
+
+	LARGE_INTEGER tickCount = {};
+	QueryPerformanceCounter(&tickCount);
+
+	return static_cast<ID_TIME_T>(static_cast<double>(tickCount.QuadPart) * sys_perfFreqInv);
+#else
+	static auto sys_timeBase = timeGetTime();
+	return static_cast<ID_TIME_T>(timeGetTime()) - sys_timeBase;
+#endif // #if defined(ID_WIN64)
 }
 
 /*
@@ -66,15 +125,15 @@ int Sys_Milliseconds() {
 Sys_Microseconds
 ========================
 */
-uint64 Sys_Microseconds() {
-	static uint64 ticksPerMicrosecondTimes1024 = 0;
+ID_TIME_T Sys_Microseconds() {
+	static ID_TIME_T ticksPerMicrosecondTimes1024 = 0;
 
 	if ( ticksPerMicrosecondTimes1024 == 0 ) {
-		ticksPerMicrosecondTimes1024 = ( (uint64)Sys_ClockTicksPerSecond() << 10 ) / 1000000;
+		ticksPerMicrosecondTimes1024 = ( static_cast<ID_TIME_T>(Sys_ClockTicksPerSecond()) << 10 ) / 1000000;
 		assert( ticksPerMicrosecondTimes1024 > 0 );
 	}
 
-	return ((uint64)( (int64)Sys_GetClockTicks() << 10 )) / ticksPerMicrosecondTimes1024;
+	return (static_cast<ID_TIME_T>(Sys_GetClockTicks()) << 10) / ticksPerMicrosecondTimes1024;
 }
 
 /*
@@ -84,14 +143,14 @@ Sys_GetSystemRam
 	returns amount of physical memory in MB
 ================
 */
-int Sys_GetSystemRam() {
-	MEMORYSTATUSEX statex;
+size_t Sys_GetSystemRam() {
+	MEMORYSTATUSEX statex = {};
 	statex.dwLength = sizeof ( statex );
 	GlobalMemoryStatusEx (&statex);
-	int physRam = statex.ullTotalPhys / ( 1024 * 1024 );
+	auto physRam = statex.ullTotalPhys / ( 1024ULL * 1024ULL );
 	// HACK: For some reason, ullTotalPhys is sometimes off by a meg or two, so we round up to the nearest 16 megs
 	physRam = ( physRam + 8 ) & ~15;
-	return physRam;
+	return idMath::integer_cast<size_t>(physRam);
 }
 
 
@@ -101,15 +160,9 @@ Sys_GetDriveFreeSpace
 returns in megabytes
 ================
 */
-int Sys_GetDriveFreeSpace( const char *path ) {
-	DWORDLONG lpFreeBytesAvailable;
-	DWORDLONG lpTotalNumberOfBytes;
-	DWORDLONG lpTotalNumberOfFreeBytes;
-	int ret = 26;
-	//FIXME: see why this is failing on some machines
-	if ( ::GetDiskFreeSpaceEx( path, (PULARGE_INTEGER)&lpFreeBytesAvailable, (PULARGE_INTEGER)&lpTotalNumberOfBytes, (PULARGE_INTEGER)&lpTotalNumberOfFreeBytes ) ) {
-		ret = ( double )( lpFreeBytesAvailable ) / ( 1024.0 * 1024.0 );
-	}
+size_t Sys_GetDriveFreeSpace( const char *path ) {
+	size_t ret = Sys_GetDriveFreeSpaceInBytes(path);
+	ret = ret / (1024ULL * 1024ULL);
 	return ret;
 }
 
@@ -118,13 +171,13 @@ int Sys_GetDriveFreeSpace( const char *path ) {
 Sys_GetDriveFreeSpaceInBytes
 ========================
 */
-int64 Sys_GetDriveFreeSpaceInBytes( const char * path ) {
-	DWORDLONG lpFreeBytesAvailable;
-	DWORDLONG lpTotalNumberOfBytes;
-	DWORDLONG lpTotalNumberOfFreeBytes;
-	int64 ret = 1;
+size_t Sys_GetDriveFreeSpaceInBytes( const char * path ) {
+	DWORDLONG lpFreeBytesAvailable = 0;
+	DWORDLONG lpTotalNumberOfBytes = 0;
+	DWORDLONG lpTotalNumberOfFreeBytes = 0;
+	size_t ret = 1;
 	//FIXME: see why this is failing on some machines
-	if ( ::GetDiskFreeSpaceEx( path, (PULARGE_INTEGER)&lpFreeBytesAvailable, (PULARGE_INTEGER)&lpTotalNumberOfBytes, (PULARGE_INTEGER)&lpTotalNumberOfFreeBytes ) ) {
+	if ( ::GetDiskFreeSpaceEx( path, reinterpret_cast<PULARGE_INTEGER>(&lpFreeBytesAvailable), reinterpret_cast<PULARGE_INTEGER>(&lpTotalNumberOfBytes), reinterpret_cast<PULARGE_INTEGER>(&lpTotalNumberOfFreeBytes) ) ) {
 		ret = lpFreeBytesAvailable;
 	}
 	return ret;
@@ -136,8 +189,8 @@ Sys_GetVideoRam
 returns in megabytes
 ================
 */
-int Sys_GetVideoRam() {
-	unsigned int retSize = 64;
+size_t Sys_GetVideoRam() {
+	size_t retSize = 64;
 
 	CComPtr<IWbemLocator> spLoc = nullptr;
 	HRESULT hr = CoCreateInstance( CLSID_WbemLocator, nullptr, CLSCTX_SERVER, IID_IWbemLocator, ( LPVOID * ) &spLoc );
@@ -195,7 +248,6 @@ Sys_GetCurrentMemoryStatus
 */
 void Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats ) {
 	MEMORYSTATUSEX statex = {};
-	unsigned __int64 work;
 
 	statex.dwLength = sizeof( statex );
 	GlobalMemoryStatusEx( &statex );
@@ -204,26 +256,13 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats ) {
 
 	stats.memoryLoad = statex.dwMemoryLoad;
 
-	work = statex.ullTotalPhys >> 20;
-	stats.totalPhysical = *(int*)&work;
-
-	work = statex.ullAvailPhys >> 20;
-	stats.availPhysical = *(int*)&work;
-
-	work = statex.ullAvailPageFile >> 20;
-	stats.availPageFile = *(int*)&work;
-
-	work = statex.ullTotalPageFile >> 20;
-	stats.totalPageFile = *(int*)&work;
-
-	work = statex.ullTotalVirtual >> 20;
-	stats.totalVirtual = *(int*)&work;
-
-	work = statex.ullAvailVirtual >> 20;
-	stats.availVirtual = *(int*)&work;
-
-	work = statex.ullAvailExtendedVirtual >> 20;
-	stats.availExtendedVirtual = *(int*)&work;
+	stats.totalPhysical = statex.ullTotalPhys >> 20;
+	stats.availPhysical = statex.ullAvailPhys >> 20;
+	stats.availPageFile = statex.ullAvailPageFile >> 20;
+	stats.totalPageFile = statex.ullTotalPageFile >> 20;
+	stats.totalVirtual = statex.ullTotalVirtual >> 20;
+	stats.availVirtual = statex.ullAvailVirtual >> 20;
+	stats.availExtendedVirtual = statex.ullAvailExtendedVirtual >> 20;
 }
 
 /*
@@ -231,8 +270,8 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats ) {
 Sys_LockMemory
 ================
 */
-bool Sys_LockMemory( void *ptr, int bytes ) {
-	return ( VirtualLock( ptr, (SIZE_T)bytes ) != FALSE );
+bool Sys_LockMemory( void *ptr, size_t bytes ) {
+	return ( VirtualLock( ptr, static_cast<SIZE_T>(bytes) ) != FALSE );
 }
 
 /*
@@ -240,8 +279,8 @@ bool Sys_LockMemory( void *ptr, int bytes ) {
 Sys_UnlockMemory
 ================
 */
-bool Sys_UnlockMemory( void *ptr, int bytes ) {
-	return ( VirtualUnlock( ptr, (SIZE_T)bytes ) != FALSE );
+bool Sys_UnlockMemory( void *ptr, size_t bytes ) {
+	return ( VirtualUnlock( ptr, static_cast<SIZE_T>(bytes) ) != FALSE );
 }
 
 /*
@@ -249,7 +288,7 @@ bool Sys_UnlockMemory( void *ptr, int bytes ) {
 Sys_SetPhysicalWorkMemory
 ================
 */
-void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes ) {
+void Sys_SetPhysicalWorkMemory( size_t minBytes, size_t maxBytes ) {
 	::SetProcessWorkingSetSize( GetCurrentProcess(), minBytes, maxBytes );
 }
 
@@ -259,8 +298,8 @@ Sys_GetCurrentUser
 ================
 */
 char *Sys_GetCurrentUser() {
-	static char s_userName[1024];
-	unsigned long size = sizeof( s_userName );
+	static char s_userName[1024] = {};
+	DWORD size = idMath::integer_cast<DWORD>(sizeof( s_userName ));
 
 
 	if ( !GetUserName( s_userName, &size ) ) {
@@ -284,7 +323,7 @@ char *Sys_GetCurrentUser() {
 */
 
 
-#define PROLOGUE_SIGNATURE 0x00EC8B55
+constexpr auto PROLOGUE_SIGNATURE = 0x00EC8B55;
 
 #include <dbghelp.h>
 
@@ -295,29 +334,37 @@ constexpr int UNDECORATE_FLAGS =	UNDNAME_NO_MS_KEYWORDS |
 								UNDNAME_NO_ALLOCATION_LANGUAGE |
 								UNDNAME_NO_MEMBER_TYPE;
 
-#if defined(_DEBUG) && 1
+#if (defined(_DEBUG) || defined(DEBUG)) && 1
 
 typedef struct symbol_s {
+#if defined(ID_WIN64) || defined (ID_WIN32)
+	UINT_PTR            address;
+#else
 	int					address;
+#endif
 	char *				name;
 	struct symbol_s *	next;
 } symbol_t;
 
 typedef struct module_s {
+#if defined(ID_WIN64) || defined (ID_WIN32)
+	UINT_PTR            address;
+#else
 	int					address;
+#endif
 	char *				name;
 	symbol_t *			symbols;
 	struct module_s *	next;
 } module_t;
 
-module_t *modules;
+static module_t *modules;
 
 /*
 ==================
 SkipRestOfLine
 ==================
 */
-void SkipRestOfLine( const char **ptr ) {
+static void SkipRestOfLine( const char **ptr ) {
 	while( (**ptr) != '\0' && (**ptr) != '\n' && (**ptr) != '\r' ) {
 		(*ptr)++;
 	}
@@ -331,7 +378,7 @@ void SkipRestOfLine( const char **ptr ) {
 SkipWhiteSpace
 ==================
 */
-void SkipWhiteSpace( const char **ptr ) {
+static void SkipWhiteSpace( const char **ptr ) {
 	while( (**ptr) == ' ' ) {
 		(*ptr)++;
 	}
@@ -342,7 +389,7 @@ void SkipWhiteSpace( const char **ptr ) {
 ParseHexNumber
 ==================
 */
-int ParseHexNumber( const char **ptr ) {
+static int ParseHexNumber( const char **ptr ) {
 	int n = 0;
 	while( (**ptr) >= '0' && (**ptr) <= '9' || (**ptr) >= 'a' && (**ptr) <= 'f' ) {
 		n <<= 4;
@@ -356,18 +403,33 @@ int ParseHexNumber( const char **ptr ) {
 	return n;
 }
 
+static int64 ParseHexNumber64(const char** ptr) {
+	int64 n = 0;
+	while ((**ptr) >= '0' && (**ptr) <= '9' || (**ptr) >= 'a' && (**ptr) <= 'f') {
+		n <<= 4;
+		if (**ptr >= '0' && **ptr <= '9') {
+			n |= idMath::integer_cast<int64>((**ptr) - '0');
+		}
+		else {
+			n |= 10LL + idMath::integer_cast<int64>((**ptr) - 'a');
+		}
+		(*ptr)++;
+	}
+	return n;
+}
+
 /*
 ==================
 Sym_Init
 ==================
 */
-void Sym_Init( long addr ) {
-	TCHAR moduleName[MAX_STRING_CHARS];
-	MEMORY_BASIC_INFORMATION mbi;
+static void Sym_Init( UINT_PTR addr ) {
+	TCHAR moduleName[MAX_STRING_CHARS] = {};
+	MEMORY_BASIC_INFORMATION mbi = {};
 
-	VirtualQuery( (void*)addr, &mbi, sizeof(mbi) );
+	VirtualQuery( reinterpret_cast<LPVOID>(addr), &mbi, sizeof(mbi) );
 
-	GetModuleFileName( (HMODULE)mbi.AllocationBase, moduleName, sizeof( moduleName ) );
+	GetModuleFileName( static_cast<HMODULE>(mbi.AllocationBase), moduleName, sizeof( moduleName ) );
 
 	char *ext = moduleName + strlen( moduleName );
 	while( ext > moduleName && *ext != '.' ) {
@@ -379,10 +441,10 @@ void Sym_Init( long addr ) {
 		strcpy( ext, ".map" );
 	}
 
-	module_t *module = (module_t *) malloc( sizeof( module_t ) );
-	module->name = (char *) malloc( strlen( moduleName ) + 1 );
+	module_t *module = static_cast<module_t*>(malloc(sizeof(module_t)));
+	module->name = static_cast<char*>(malloc(strlen(moduleName) + 1));
 	strcpy( module->name, moduleName );
-	module->address = (int)mbi.AllocationBase;
+	module->address = reinterpret_cast<UINT_PTR>(mbi.AllocationBase);
 	module->symbols = nullptr;
 	module->next = modules;
 	modules = module;
@@ -392,12 +454,12 @@ void Sym_Init( long addr ) {
 		return;
 	}
 
-	int pos = ftell( fp );
+	auto pos = ftell( fp );
 	fseek( fp, 0, SEEK_END );
-	int length = ftell( fp );
+	auto length = idMath::integer_cast<size_t>(ftell( fp ));
 	fseek( fp, pos, SEEK_SET );
 
-	char *text = (char *) malloc( length+1 );
+	char *text = static_cast<char*>(malloc(length + 1));
 	fread( text, 1, length, fp );
 	text[length] = '\0';
 	fclose( fp );
@@ -414,10 +476,13 @@ void Sym_Init( long addr ) {
 		SkipRestOfLine( &ptr );
 	}
 
+#if defined(ID_WIN64) || defined (ID_WIN32)
+	UINT_PTR symbolAddress = 0;
+#else
 	int symbolAddress;
-	int symbolLength;
-	char symbolName[MAX_STRING_CHARS];
-	symbol_t *symbol;
+#endif
+	char symbolName[MAX_STRING_CHARS] = {};
+	symbol_t *symbol = nullptr;
 
 	// parse symbols
 	while( *ptr != '\0' ) {
@@ -435,7 +500,7 @@ void Sym_Init( long addr ) {
 		SkipWhiteSpace( &ptr );
 
 		// parse symbol name
-		symbolLength = 0;
+		size_t symbolLength = 0;
 		while( *ptr != '\0' && *ptr != ' ' ) {
 			symbolName[symbolLength++] = *ptr++;
 			if ( symbolLength >= sizeof( symbolName ) - 1 ) {
@@ -447,12 +512,16 @@ void Sym_Init( long addr ) {
 		SkipWhiteSpace( &ptr );
 
 		// parse symbol address
+#if defined (ID_WIN64)
+		symbolAddress = ParseHexNumber64(&ptr);
+#else
 		symbolAddress = ParseHexNumber( &ptr );
+#endif // #if defined(ID_WIN64)
 
 		SkipRestOfLine( &ptr );
 
-		symbol = (symbol_t *) malloc( sizeof( symbol_t ) );
-		symbol->name = (char *) malloc( symbolLength );
+		symbol = static_cast<symbol_t*>(malloc(sizeof(symbol_t)));
+		symbol->name = static_cast<char*>(malloc(symbolLength));
 		strcpy( symbol->name, symbolName );
 		symbol->address = symbolAddress;
 		symbol->next = module->symbols;
@@ -467,9 +536,9 @@ void Sym_Init( long addr ) {
 Sym_Shutdown
 ==================
 */
-void Sym_Shutdown() {
-	module_t *m;
-	symbol_t *s;
+static void Sym_Shutdown() {
+	module_t *m = nullptr;
+	symbol_t *s = nullptr;
 
 	for ( m = modules; m != nullptr; m = modules ) {
 		modules = m->next;
@@ -489,15 +558,15 @@ void Sym_Shutdown() {
 Sym_GetFuncInfo
 ==================
 */
-void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
-	MEMORY_BASIC_INFORMATION mbi;
-	module_t *m;
-	symbol_t *s;
+static void Sym_GetFuncInfo( UINT_PTR addr, idStr &module, idStr &funcName ) {
+	MEMORY_BASIC_INFORMATION mbi = {};
+	module_t *m = nullptr;
+	symbol_t *s = nullptr;
 
-	VirtualQuery( (void*)addr, &mbi, sizeof(mbi) );
+	VirtualQuery( reinterpret_cast<LPCVOID>(addr), &mbi, sizeof(mbi) );
 
 	for ( m = modules; m != nullptr; m = m->next ) {
-		if ( m->address == (int) mbi.AllocationBase ) {
+		if ( m->address == reinterpret_cast<UINT_PTR>(mbi.AllocationBase) ) {
 			break;
 		}
 	}
@@ -506,16 +575,17 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 		m = modules;
 	}
 
-	for ( s = m->symbols; s != nullptr; s = s->next ) {
-		if ( s->address == addr ) {
-
-			char undName[MAX_STRING_CHARS];
+	for ( s = m->symbols; s != nullptr; s = s->next )
+	{
+		if ( s->address == addr ) 
+		{
+			char undName[MAX_STRING_CHARS] = {};
 			if ( UnDecorateSymbolName( s->name, undName, sizeof(undName), UNDECORATE_FLAGS ) ) {
 				funcName = undName;
 			} else {
 				funcName = s->name;
 			}
-			for ( int i = 0; i < funcName.Length(); i++ ) {
+			for ( size_t i = 0; i < funcName.Length(); i++ ) {
 				if ( funcName[i] == '(' ) {
 					funcName.CapLength( i );
 					break;
@@ -526,11 +596,11 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 		}
 	}
 
-	sprintf( funcName, "0x%08x", addr );
+	sprintf( funcName, "0x%08llu", addr );
 	module = "";
 }
 
-#elif defined(_DEBUG)
+#elif defined(_DEBUG) || defined(DEBUG)
 
 DWORD lastAllocationBase = -1;
 HANDLE processHandle;
@@ -541,10 +611,10 @@ idStr lastModule;
 Sym_Init
 ==================
 */
-void Sym_Init( long addr ) {
-	TCHAR moduleName[MAX_STRING_CHARS];
-	TCHAR modShortNameBuf[MAX_STRING_CHARS];
-	MEMORY_BASIC_INFORMATION mbi;
+static void Sym_Init( UINT_PTR addr ) {
+	TCHAR moduleName[MAX_STRING_CHARS] = {};
+	TCHAR modShortNameBuf[MAX_STRING_CHARS] = {};
+	MEMORY_BASIC_INFORMATION mbi = {};
 
 	if ( lastAllocationBase != -1 ) {
 		Sym_Shutdown();
@@ -575,7 +645,7 @@ void Sym_Init( long addr ) {
 Sym_Shutdown
 ==================
 */
-void Sym_Shutdown() {
+static void Sym_Shutdown() {
 	SymUnloadModule( GetCurrentProcess(), lastAllocationBase );
 	SymCleanup( GetCurrentProcess() );
 	lastAllocationBase = -1;
@@ -586,7 +656,7 @@ void Sym_Shutdown() {
 Sym_GetFuncInfo
 ==================
 */
-void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
+static void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 	MEMORY_BASIC_INFORMATION mbi;
 
 	VirtualQuery( (void*)addr, &mbi, sizeof(mbi) );
@@ -639,7 +709,7 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 Sym_Init
 ==================
 */
-void Sym_Init( long addr ) {
+static void Sym_Init( long addr ) {
 }
 
 /*
@@ -647,7 +717,7 @@ void Sym_Init( long addr ) {
 Sym_Shutdown
 ==================
 */
-void Sym_Shutdown() {
+static void Sym_Shutdown() {
 }
 
 /*
@@ -655,7 +725,7 @@ void Sym_Shutdown() {
 Sym_GetFuncInfo
 ==================
 */
-void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
+static void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 	module = "";
 	sprintf( funcName, "0x%08x", addr );
 }
@@ -667,7 +737,7 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 GetFuncAddr
 ==================
 */
-address_t GetFuncAddr( address_t midPtPtr ) {
+static address_t GetFuncAddr( address_t midPtPtr ) {
 	long temp;
 	do {
 		temp = (long)(*(long*)midPtPtr);
@@ -685,8 +755,8 @@ address_t GetFuncAddr( address_t midPtPtr ) {
 GetCallerAddr
 ==================
 */
-address_t GetCallerAddr( long _ebp ) {
-	long midPtPtr;
+static address_t GetCallerAddr( long _ebp ) {
+	long midPtPtr = 0;
 	long res = 0;
 
 	__asm {
@@ -711,9 +781,82 @@ Sys_GetCallStack
  use /Oy option
 ==================
 */
-void Sys_GetCallStack( address_t *callStack, const int callStackSize ) {
+size_t Sys_GetCallStack( address_t *callStack, const size_t callStackSize, const size_t skipFrames = 0) noexcept {
+	size_t i = 0, count = 0;
 #if 1 //def _DEBUG
-	int i;
+#if defined (ID_WIN64)
+	if (!callStack || callStackSize == 0)
+	{
+		return 0;
+	}
+
+	// Capture current register context
+	CONTEXT ctx = {};
+	RtlCaptureContext(&ctx);
+
+	// Skip this function + user-requested frames
+	auto unwind_one = [](CONTEXT& c) -> bool {
+		DWORD64 imageBase = 0;
+		// history table not necessary for single-step skipping
+		PRUNTIME_FUNCTION rf = RtlLookupFunctionEntry(c.Rip, &imageBase, nullptr);
+		if (!rf) {
+			// Leaf function: emulate "ret"
+			const DWORD64* sp = reinterpret_cast<DWORD64*>(c.Rsp);
+			if (!sp)
+			{
+				return false;
+			}
+			c.Rip = *sp;
+			c.Rsp += 8;
+		}
+		else {
+			void* handlerData = nullptr;
+			DWORD64 establisherFrame = 0;
+			CONTEXT newCtx = c;
+			RtlVirtualUnwind(UNW_FLAG_NHANDLER, imageBase, c.Rip, rf,
+				&newCtx, &handlerData, &establisherFrame, nullptr);
+			c = newCtx;
+		}
+		return c.Rip != 0;
+		};
+
+	for (i = 0; i < skipFrames + 1; ++i) {
+		if (!unwind_one(ctx))
+		{
+			return 0;
+		}
+	}
+
+	// Walk until we fill the array or reach the top of the stack
+	UNWIND_HISTORY_TABLE history = {};
+
+	while (count < callStackSize && ctx.Rip != 0) {
+		callStack[count++] = static_cast<address_t>(ctx.Rip);
+
+		DWORD64 imageBase = 0;
+		PRUNTIME_FUNCTION rf = ::RtlLookupFunctionEntry(ctx.Rip, &imageBase, &history);
+		if (!rf) {
+			// Leaf function: emulate "ret"
+			const DWORD64* sp = reinterpret_cast<DWORD64*>(ctx.Rsp);
+			if (!sp)
+			{
+				break;
+			}
+			ctx.Rip = *sp;
+			ctx.Rsp += 8;
+		}
+		else {
+			PVOID handlerData = nullptr;
+			DWORD64 establisherFrame = 0;
+			CONTEXT newCtx = ctx;
+			RtlVirtualUnwind(UNW_FLAG_NHANDLER, imageBase, ctx.Rip, rf,
+				&newCtx, &handlerData, &establisherFrame, nullptr);
+			ctx = newCtx;
+		}
+	}
+
+	return count;
+#elif defined(ID_WIN32)
 	long m_ebp;
 
 	__asm {
@@ -731,12 +874,22 @@ void Sys_GetCallStack( address_t *callStack, const int callStackSize ) {
 		}
 		m_ebp = *((long*)m_ebp);
 	}
-#else
-	int i = 0;
-#endif
-	while( i < callStackSize ) {
+	count = i;
+	// clear the rest of the stack
+	while (i < callStackSize) {
 		callStack[i++] = 0;
 	}
+
+	return count;
+#endif // #if defined (ID_WIN64)
+#else
+	int i = 0;
+	while (i < callStackSize) {
+		callStack[i++] = 0;
+	}
+
+	return 0;
+#endif
 }
 
 /*
@@ -744,13 +897,14 @@ void Sys_GetCallStack( address_t *callStack, const int callStackSize ) {
 Sys_GetCallStackStr
 ==================
 */
-const char *Sys_GetCallStackStr( const address_t *callStack, const int callStackSize ) {
-	static char string[MAX_STRING_CHARS*2];
-	int index, i;
+const char *Sys_GetCallStackStr( const address_t *callStack, const size_t callStackSize ) {
+	static char string[MAX_STRING_CHARS*2] = {};
+	size_t index = 0;
+	int64 i = 0;
 	idStr module, funcName;
 
 	index = 0;
-	for ( i = callStackSize-1; i >= 0; i-- ) {
+	for ( i = idMath::integer_cast<int64>(callStackSize)-1; i >= 0; i-- ) {
 		Sym_GetFuncInfo( callStack[i], module, funcName );
 		index += sprintf( string+index, " -> %s", funcName.c_str() );
 	}
@@ -762,12 +916,12 @@ const char *Sys_GetCallStackStr( const address_t *callStack, const int callStack
 Sys_GetCallStackCurStr
 ==================
 */
-const char *Sys_GetCallStackCurStr( int depth ) {
-	address_t *callStack;
+const char *Sys_GetCallStackCurStr( const size_t depth ) {
+	address_t *callStack = nullptr;
 
-	callStack = (address_t *) _alloca( depth * sizeof( address_t ) );
-	Sys_GetCallStack( callStack, depth );
-	return Sys_GetCallStackStr( callStack, depth );
+	callStack = static_cast<address_t*>(_alloca(depth * sizeof(address_t)));
+	auto totalDepth = Sys_GetCallStack( callStack, depth );
+	return Sys_GetCallStackStr( callStack, totalDepth );
 }
 
 /*
@@ -775,17 +929,18 @@ const char *Sys_GetCallStackCurStr( int depth ) {
 Sys_GetCallStackCurAddressStr
 ==================
 */
-const char *Sys_GetCallStackCurAddressStr( int depth ) {
-	static char string[MAX_STRING_CHARS*2];
-	address_t *callStack;
-	int index, i;
+const char *Sys_GetCallStackCurAddressStr( const size_t depth ) {
+	static char string[MAX_STRING_CHARS * 2] = {};
+	address_t *callStack = nullptr;
+	size_t index = 0;
+	int64 i = 0;
 
-	callStack = (address_t *) _alloca( depth * sizeof( address_t ) );
-	Sys_GetCallStack( callStack, depth );
+	callStack = static_cast<address_t*>(_alloca(depth * sizeof(address_t)));
+	auto totalDepth = Sys_GetCallStack( callStack, depth );
 
 	index = 0;
-	for ( i = depth-1; i >= 0; i-- ) {
-		index += sprintf( string+index, " -> 0x%08x", callStack[i] );
+	for ( i = idMath::integer_cast<int64>(totalDepth)-1; i >= 0; i-- ) {
+		index += sprintf( string+index, " -> 0x%08llu", callStack[i] );
 	}
 	return string;
 }

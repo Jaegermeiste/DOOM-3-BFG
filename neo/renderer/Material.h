@@ -348,7 +348,7 @@ public:
 	virtual void		Print() const;
 
 	//BSM Nerve: Added for material editor
-	bool				Save( const char *fileName = nullptr);
+	bool				Save( const char *fileName = nullptr) const;
 
 						// returns the internal image name for stage 0, which can be used
 						// for the renderer CaptureRenderToImage() call
@@ -602,13 +602,13 @@ private:
 	// parse the entire material
 	void				CommonInit();
 	void				ParseMaterial( idLexer &src );
-	bool				MatchToken( idLexer &src, const char *match );
-	void				ParseSort( idLexer &src );
+	bool				MatchToken( idLexer &src, const char *match ) const;
+	void				ParseSort( idLexer &src ) const;
 	void				ParseStereoEye( idLexer &src );
 	void				ParseBlend( idLexer &src, shaderStage_t *stage );
 	void				ParseVertexParm( idLexer &src, newShaderStage_t *newStage );
 	void				ParseVertexParm2( idLexer &src, newShaderStage_t *newStage );
-	void				ParseFragmentMap( idLexer &src, newShaderStage_t *newStage );
+	void				ParseFragmentMap( idLexer &src, newShaderStage_t *newStage ) const;
 	void				ParseStage( idLexer &src, const textureRepeat_t trpDefault = TR_REPEAT );
 	void				ParseDeform( idLexer &src );
 	void				ParseDecalInfo( idLexer &src );
@@ -622,10 +622,10 @@ private:
 	int					ParseExpressionPriority( idLexer &src, int priority );
 	int					ParseExpression( idLexer &src );
 	void				ClearStage( shaderStage_t *ss );
-	int					NameToSrcBlendMode( const idStr &name );
-	int					NameToDstBlendMode( const idStr &name );
+	int					NameToSrcBlendMode( const idStr &name ) const;
+	int					NameToDstBlendMode( const idStr &name ) const;
 	void				MultiplyTextureMatrix( textureStage_t *ts, int registers[2][3] );	// FIXME: for some reason the const is bad for gcc and Mac
-	void				SortInteractionStages();
+	void				SortInteractionStages() const;
 	void				AddImplicitStages( const textureRepeat_t trpDefault = TR_REPEAT );
 	void				CheckForConstantRegisters();
 	void				SetFastPathImages();

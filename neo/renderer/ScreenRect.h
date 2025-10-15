@@ -53,10 +53,10 @@ public:
 
 	// clear to backwards values
 	void		Clear();
-	bool		IsEmpty() const;
-	short		GetWidth() const { return x2 - x1 + 1; }
-	short		GetHeight() const { return y2 - y1 + 1; }
-	int			GetArea() const { return ( x2 - x1 + 1 ) * ( y2 - y1 + 1 ); }
+	[[nodiscard]] bool		IsEmpty() const;
+	[[nodiscard]] short		GetWidth() const { return x2 - x1 + 1; }
+	[[nodiscard]] short		GetHeight() const { return y2 - y1 + 1; }
+	[[nodiscard]] int			GetArea() const { return ( x2 - x1 + 1 ) * ( y2 - y1 + 1 ); }
 
 	// expand by one pixel each way to fix roundoffs
 	void		Expand();
@@ -66,7 +66,7 @@ public:
 
 	void		Intersect( const idScreenRect &rect );
 	void		Union( const idScreenRect &rect );
-	bool		Equals( const idScreenRect &rect ) const;
+	[[nodiscard]] bool		Equals( const idScreenRect &rect ) const;
 };
 
 void R_ShowColoredScreenRect( const idScreenRect &rect, int colorIndex );

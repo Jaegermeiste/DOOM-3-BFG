@@ -83,7 +83,7 @@ public:
 	virtual bool			PostReloadEngine();
 
 	void					SetWait( int numFrames ) { wait = numFrames; }
-	commandDef_t *			GetCommands() const { return commands; }
+	[[nodiscard]] commandDef_t *			GetCommands() const { return commands; }
 
 private:
 	static constexpr int		MAX_CMD_BUFFER = 0x10000;
@@ -132,7 +132,7 @@ idSort_CommandDef
 */
 class idSort_CommandDef : public idSort_Quick< commandDef_t, idSort_CommandDef > {
 public:
-	int Compare( const commandDef_t & a, const commandDef_t & b ) const { return idStr::Icmp( a.name, b.name ); }
+	[[nodiscard]] int Compare( const commandDef_t & a, const commandDef_t & b ) const { return idStr::Icmp( a.name, b.name ); }
 };
 
 /*
@@ -546,7 +546,7 @@ void idCmdSystemLocal::InsertCommandText( const char *text ) {
 	int		i;
 
 	len = strlen( text ) + 1;
-	if ( len + textLength > (int)sizeof( textBuf ) ) {
+	if ( len + textLength > static_cast<int>(sizeof(textBuf)) ) {
 		common->Printf( "idCmdSystemLocal::InsertText: buffer overflow\n" );
 		return;
 	}
@@ -577,7 +577,7 @@ void idCmdSystemLocal::AppendCommandText( const char *text ) {
 	
 	l = strlen( text );
 
-	if ( textLength + l >= (int)sizeof( textBuf ) ) {
+	if ( textLength + l >= static_cast<int>(sizeof(textBuf)) ) {
 		common->Printf( "idCmdSystemLocal::AppendText: buffer overflow\n" );
 		return;
 	}
@@ -770,9 +770,9 @@ void idCmdSystemLocal::ArgCompletion_DeclName( const idCmdArgs &args, void(*call
 	if ( declManager == nullptr) {
 		return;
 	}
-	num = declManager->GetNumDecls( (declType_t)type );
+	num = declManager->GetNumDecls( static_cast<declType_t>(type) );
 	for ( i = 0; i < num; i++ ) {
-		callback( idStr( args.Argv( 0 ) ) + " " + declManager->DeclByIndex( (declType_t)type, i , false )->GetName() );
+		callback( idStr( args.Argv( 0 ) ) + " " + declManager->DeclByIndex( static_cast<declType_t>(type), i , false )->GetName() );
 	}
 }
 

@@ -85,7 +85,7 @@ private:
 	void				ResetGameState();
 
 	void				UpdateBear();
-	void				UpdateHelicopter();
+	void				UpdateHelicopter() const;
 	void				UpdateTurret();
 	void				UpdateButtons();
 	void				UpdateGame();

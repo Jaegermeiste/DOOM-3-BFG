@@ -26,13 +26,15 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <utility>
+
 #include "precompiled.h"
 #pragma hdrstop
 
 #define PUNCTABLE
 
 //longer punctuations first
-punctuation_t default_punctuations[] = {
+static punctuation_t default_punctuations[] = {
 	//binary operators
 	{">>=",P_RSHIFT_ASSIGN},
 	{"<<=",P_LSHIFT_ASSIGN},
@@ -106,9 +108,9 @@ punctuation_t default_punctuations[] = {
 	{nullptr, 0}
 };
 
-int default_punctuationtable[256];
-int default_nextpunctuation[sizeof(default_punctuations) / sizeof(punctuation_t)];
-int default_setup;
+static int default_punctuationtable[256];
+static int default_nextpunctuation[sizeof(default_punctuations) / sizeof(punctuation_t)];
+static int default_setup;
 
 char idLexer::baseFolder[ 256 ];
 
@@ -179,14 +181,14 @@ void idLexer::CreatePunctuationTable( const punctuation_t *punctuations ) {
 idLexer::GetPunctuationFromId
 ================
 */
-const char *idLexer::GetPunctuationFromId(const int id ) const
+const char *idLexer::GetPunctuationFromId(const size_t id) const
 {
 	for (int i = 0; idLexer::punctuations[i].p; i++) {
-		if ( idLexer::punctuations[i].n == id ) {
+		if (std::cmp_equal(idLexer::punctuations[i].n, id)) {
 			return idLexer::punctuations[i].p;
 		}
 	}
-	return "unkown punctuation";
+	return "unknown punctuation";
 }
 
 /*
@@ -438,7 +440,7 @@ idLexer::ReadEscapeCharacter
 ================
 */
 int idLexer::ReadEscapeCharacter( char *ch ) {
-	int c, val, i;
+	int c = 0, val = 0, i = 0;
 
 	// step over the leading '\\'
 	idLexer::script_p++;
@@ -461,13 +463,21 @@ int idLexer::ReadEscapeCharacter( char *ch ) {
 			for (i = 0, val = 0; ; i++, idLexer::script_p++) {
 				c = *idLexer::script_p;
 				if (c >= '0' && c <= '9')
+				{
 					c = c - '0';
+				}
 				else if (c >= 'A' && c <= 'Z')
+				{
 					c = c - 'A' + 10;
+				}
 				else if (c >= 'a' && c <= 'z')
+				{
 					c = c - 'a' + 10;
+				}
 				else
+				{
 					break;
+				}
 				val = (val << 4) + c;
 			}
 			idLexer::script_p--;
@@ -486,9 +496,13 @@ int idLexer::ReadEscapeCharacter( char *ch ) {
 			for (i = 0, val = 0; ; i++, idLexer::script_p++) {
 				c = *idLexer::script_p;
 				if (c >= '0' && c <= '9')
+				{
 					c = c - '0';
+				}
 				else
+				{
 					break;
+				}
 				val = val * 10 + c;
 			}
 			idLexer::script_p--;
@@ -547,7 +561,7 @@ int idLexer::ReadString( idToken *token, const int quote ) {
 			}
 
 			const char* tmpscript_p = idLexer::script_p;
-			int tmpline = idLexer::line;
+			const int tmpline = idLexer::line;
 			// read white space between possible two consecutive strings
 			if ( !idLexer::ReadWhiteSpace() ) {
 				idLexer::script_p = tmpscript_p;
@@ -850,11 +864,11 @@ idLexer::ReadPunctuation
 ================
 */
 int idLexer::ReadPunctuation( idToken *token ) {
-	size_t l;
-	const punctuation_t *punc;
+	size_t l = 0;
+	const punctuation_t *punc = nullptr;
 
 #ifdef PUNCTABLE
-	for (size_t n = idLexer::punctuationtable[static_cast<unsigned int>(*(idLexer::script_p))]; n >= 0; n = idLexer::nextpunctuation[n])
+	for (int64 n = idLexer::punctuationtable[static_cast<unsigned int>(*(idLexer::script_p))]; n >= 0; n = idLexer::nextpunctuation[n])
 	{
 		punc = &(idLexer::punctuations[n]);
 #else
@@ -1036,14 +1050,38 @@ int idLexer::ExpectTokenType(const int type, const size_t subtype, idToken *toke
 	if ( token->type == TT_NUMBER ) {
 		if ( (token->subtype & subtype) != subtype ) {
 			str.Clear();
-			if ( subtype & TT_DECIMAL ) str = "decimal ";
-			if ( subtype & TT_HEX ) str = "hex ";
-			if ( subtype & TT_OCTAL ) str = "octal ";
-			if ( subtype & TT_BINARY ) str = "binary ";
-			if ( subtype & TT_UNSIGNED ) str += "unsigned ";
-			if ( subtype & TT_LONG ) str += "long ";
-			if ( subtype & TT_FLOAT ) str += "float ";
-			if ( subtype & TT_INTEGER ) str += "integer ";
+			if ( subtype & TT_DECIMAL )
+			{
+				str = "decimal ";
+			}
+			if ( subtype & TT_HEX )
+			{
+				str = "hex ";
+			}
+			if ( subtype & TT_OCTAL )
+			{
+				str = "octal ";
+			}
+			if ( subtype & TT_BINARY )
+			{
+				str = "binary ";
+			}
+			if ( subtype & TT_UNSIGNED )
+			{
+				str += "unsigned ";
+			}
+			if ( subtype & TT_LONG )
+			{
+				str += "long ";
+			}
+			if ( subtype & TT_FLOAT )
+			{
+				str += "float ";
+			}
+			if ( subtype & TT_INTEGER )
+			{
+				str += "integer ";
+			}
 			str.StripTrailing( ' ' );
 			idLexer::Error( "expected %s but found '%s'", str.c_str(), token->c_str() );
 			return 0;
@@ -1454,7 +1492,7 @@ const char *idLexer::ParseBracedSectionExact( idStr &out, int tabs ) {
 	out = "{";
 	int depth = 1;	
 	bool skipWhite = false;
-	bool doTabs = tabs >= 0;
+	const bool doTabs = tabs >= 0;
 
 	while( depth && *idLexer::script_p ) {
 		const char c = *(idLexer::script_p++);
@@ -1613,7 +1651,7 @@ const char *idLexer::ParseCompleteLine( idStr &out ) {
 idLexer::GetLastWhiteSpace
 ================
 */
-int idLexer::GetLastWhiteSpace( idStr &whiteSpace ) const {
+size_t idLexer::GetLastWhiteSpace(idStr& whiteSpace) const {
 	whiteSpace.Clear();
 	for ( const char *p = whiteSpaceStart_p; p < whiteSpaceEnd_p; p++ ) {
 		whiteSpace.Append( *p );
@@ -1626,7 +1664,7 @@ int idLexer::GetLastWhiteSpace( idStr &whiteSpace ) const {
 idLexer::GetLastWhiteSpaceStart
 ================
 */
-int idLexer::GetLastWhiteSpaceStart() const {
+int64 idLexer::GetLastWhiteSpaceStart() const {
 	return whiteSpaceStart_p - buffer;
 }
 
@@ -1635,7 +1673,7 @@ int idLexer::GetLastWhiteSpaceStart() const {
 idLexer::GetLastWhiteSpaceEnd
 ================
 */
-int idLexer::GetLastWhiteSpaceEnd() const {
+int64 idLexer::GetLastWhiteSpaceEnd() const {
 	return whiteSpaceEnd_p - buffer;
 }
 
@@ -1854,7 +1892,7 @@ idLexer::idLexer( const char *filename, const int flags, const bool OSPath ) {
 idLexer::idLexer
 ================
 */
-idLexer::idLexer( const char *ptr, const int length, const char *name, const int flags ) {
+idLexer::idLexer( const char *ptr, const size_t length, const char *name, const int flags ) {
 	idLexer::loaded = false;
 	idLexer::flags = flags;
 	idLexer::SetPunctuations(nullptr);

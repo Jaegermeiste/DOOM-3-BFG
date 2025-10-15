@@ -108,13 +108,13 @@ public:
 	void					MakeArray();
 
 	void					SetSprite( idSWFSpriteInstance * s ) { objectType = SWF_OBJECT_SPRITE; data.sprite = s; }
-	idSWFSpriteInstance *	GetSprite() { return ( objectType == SWF_OBJECT_SPRITE ) ? data.sprite : nullptr; }
+							[[nodiscard]] idSWFSpriteInstance *	GetSprite() const { return ( objectType == SWF_OBJECT_SPRITE ) ? data.sprite : nullptr; }
 
 	void					SetText( idSWFTextInstance * t ) { objectType = SWF_OBJECT_TEXT; data.text = t; }
-	idSWFTextInstance *		GetText() { return ( objectType == SWF_OBJECT_TEXT ) ? data.text : nullptr; }
+							[[nodiscard]] idSWFTextInstance *		GetText() const { return ( objectType == SWF_OBJECT_TEXT ) ? data.text : nullptr; }
 
 	// Also accessible via __proto__ property
-	idSWFScriptObject *		GetPrototype() { return prototype; }
+							[[nodiscard]] idSWFScriptObject *		GetPrototype() const { return prototype; }
 	void					SetPrototype( idSWFScriptObject *_prototype ) { assert( prototype == NULL ); prototype = _prototype; prototype->AddRef(); }
 	idSWFScriptVar			Get( int index );
 	idSWFScriptVar			Get( const char * name );
@@ -132,7 +132,7 @@ public:
 	idSWFScriptVar			DefaultValue( bool stringHint );
 
 	// This is to implement for-in (fixme: respect DONTENUM flag)
-	int						NumVariables() { return variables.Num(); }
+							[[nodiscard]] size_t					NumVariables() const { return variables.Num(); }
 	const char *			EnumVariable( int i ) { return variables[i].name; }
 	
 	idSWFScriptVar			GetNestedVar( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
@@ -152,7 +152,10 @@ private:
 		SWF_VAR_FLAG_DONTENUM = BIT(2)
 	};
 	struct swfNamedVar_t {
-									swfNamedVar_t() : native(nullptr) { }
+									swfNamedVar_t() noexcept : index(0), hashNext(0), native(nullptr), flags(0)
+									{
+									}
+
 									~swfNamedVar_t();
 									swfNamedVar_t & operator=( const swfNamedVar_t & other );
 

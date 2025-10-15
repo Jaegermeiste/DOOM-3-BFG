@@ -78,14 +78,14 @@ public:
 
 class idDict {
 public:
-						idDict();
+						idDict() noexcept;
 						idDict( const idDict &other );	// allow declaration with assignment
 						~idDict();
 
 						// set the granularity for the index
-	void				SetGranularity( int granularity );
+	void				SetGranularity( size_t granularity );
 						// set hash size
-	void				SetHashSize( int hashSize );
+	void				SetHashSize( size_t hashSize );
 						// clear existing key/value pairs and copy all key/value pairs from other
 	idDict &			operator=( const idDict &other );
 						// copy from other while leaving existing key/value pairs in place
@@ -142,14 +142,15 @@ public:
 	bool				GetAngles( const char *key, const char *defaultString, idAngles &out ) const;
 	bool				GetMatrix( const char *key, const char *defaultString, idMat3 &out ) const;
 
-	int					GetNumKeyVals() const;
-	const idKeyValue *	GetKeyVal( int index ) const;
+	size_t				GetNumKeyVals() const;
+	
+	const idKeyValue *	GetKeyVal( Ordinal auto index ) const;
 						// returns the key/value pair with the given key
 						// returns NULL if the key/value pair does not exist
 	const idKeyValue *	FindKey( const char *key ) const;
 						// returns the index to the key/value pair with the given key
 						// returns -1 if the key/value pair does not exist
-	int					FindKeyIndex( const char *key ) const;
+	int64				FindKeyIndex( const char *key ) const;
 						// delete the key/value pair with the given key
 	void				Delete( const char *key );
 						// finds the next key/value pair with the given key prefix.
@@ -185,7 +186,7 @@ private:
 };
 
 
-ID_INLINE idDict::idDict() {
+ID_INLINE idDict::idDict() noexcept {
 	args.SetGranularity( 16 );
 	argHash.SetGranularity( 16 );
 	argHash.Clear( 128, 16 );
@@ -199,12 +200,12 @@ ID_INLINE idDict::~idDict() {
 	Clear();
 }
 
-ID_INLINE void idDict::SetGranularity(const int granularity ) {
+ID_INLINE void idDict::SetGranularity(const size_t granularity ) {
 	args.SetGranularity( granularity );
 	argHash.SetGranularity( granularity );
 }
 
-ID_INLINE void idDict::SetHashSize(const int hashSize ) {
+ID_INLINE void idDict::SetHashSize(const size_t hashSize ) {
 	if ( args.Num() == 0 ) {
 		argHash.Clear( hashSize, 16 );
 	}
@@ -271,21 +272,22 @@ ID_INLINE const char *idDict::GetString( const char *key, const char *defaultStr
 }
 
 ID_INLINE float idDict::GetFloat( const char *key, const char *defaultString ) const {
-	return atof( GetString( key, defaultString ) );
+	return idStr::AtoF<float>( GetString( key, defaultString ) );
 }
 
 ID_INLINE int idDict::GetInt( const char *key, const char *defaultString ) const {
-	return atoi( GetString( key, defaultString ) );
+	return idStr::AtoI<int>( GetString( key, defaultString ) );
 }
 
 ID_INLINE bool idDict::GetBool( const char *key, const char *defaultString ) const {
-	return ( atoi( GetString( key, defaultString ) ) != 0 );
+	return ( idStr::AtoI<bool>( GetString( key, defaultString ) ) != 0 );
 }
 
 ID_INLINE float idDict::GetFloat( const char *key, const float defaultFloat ) const {
 	const idKeyValue *kv = FindKey( key );
-	if ( kv ) {
-		return atof( kv->GetValue() );
+	if ( kv ) 
+	{
+		return idStr::AtoF<float>( kv->GetValue() );
 	}
 	return defaultFloat;
 }
@@ -336,11 +338,12 @@ ID_INLINE idMat3 idDict::GetMatrix( const char *key, const char *defaultString )
 	return out;
 }
 
-ID_INLINE int idDict::GetNumKeyVals() const {
+ID_INLINE size_t idDict::GetNumKeyVals() const {
 	return args.Num();
 }
 
-ID_INLINE const idKeyValue *idDict::GetKeyVal(const int index ) const {
+
+ID_INLINE const idKeyValue *idDict::GetKeyVal(const Ordinal auto index ) const {
 	if ( index >= 0 && index < args.Num() ) {
 		return &args[ index ];
 	}

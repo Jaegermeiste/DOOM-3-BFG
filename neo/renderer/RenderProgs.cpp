@@ -396,7 +396,7 @@ idRenderProgManager::SetRenderParms
 */
 void idRenderProgManager::SetRenderParms( renderParm_t rp, const float * value, int num ) {
 	for ( int i = 0; i < num; i++ ) {
-		SetRenderParm( (renderParm_t)(rp + i), value + ( i * 4 ) );
+		SetRenderParm( static_cast<renderParm_t>(rp + i), value + ( i * 4 ) );
 	}
 }
 

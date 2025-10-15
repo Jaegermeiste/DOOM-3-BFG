@@ -112,7 +112,8 @@ int idLocalUserWin::GetPartyCount() const {
 idLocalUserWin::VerifyUserState
 ========================
 */
-bool idLocalUserWin::VerifyUserState( winUserState_t & state ) {
+bool idLocalUserWin::VerifyUserState( winUserState_t & state ) const
+{
 
 	if ( state.inputDevice != inputDevice ) {
 		return false;

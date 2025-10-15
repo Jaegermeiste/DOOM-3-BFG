@@ -402,7 +402,8 @@ void idCollisionModelManagerLocal::TranslateTrmVertexThroughPolygon( cm_traceWor
 idCollisionModelManagerLocal::TranslatePointThroughPolygon
 ================
 */
-void idCollisionModelManagerLocal::TranslatePointThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v ) {
+void idCollisionModelManagerLocal::TranslatePointThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v ) const
+{
 	int i, edgeNum;
 	float f;
 	cm_edge_t *edge;

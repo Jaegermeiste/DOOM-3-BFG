@@ -43,16 +43,16 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ====================
-idBinSearch_GreaterEqual
+idBinSearch_Less
 
 	Finds the last array element which is smaller than the given value.
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_Less( const type *array, const int arraySize, const type &value ) {
-	int len = arraySize;
-	int mid = len;
-	int offset = 0;
+ID_INLINE int idBinSearch_Less( const type *array, const size_t arraySize, const type &value ) {
+	size_t len = arraySize;
+	size_t mid = len;
+	size_t offset = 0;
 	while( mid > 0 ) {
 		mid = len >> 1;
 		if ( array[offset+mid] < value ) {
@@ -65,16 +65,16 @@ ID_INLINE int idBinSearch_Less( const type *array, const int arraySize, const ty
 
 /*
 ====================
-idBinSearch_GreaterEqual
+idBinSearch_LessEqual
 
 	Finds the last array element which is smaller than or equal to the given value.
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_LessEqual( const type *array, const int arraySize, const type &value ) {
-	int len = arraySize;
-	int mid = len;
-	int offset = 0;
+ID_INLINE size_t idBinSearch_LessEqual( const type *array, const size_t arraySize, const type &value ) {
+	size_t len = arraySize;
+	size_t mid = len;
+	size_t offset = 0;
 	while( mid > 0 ) {
 		mid = len >> 1;
 		if ( array[offset+mid] <= value ) {
@@ -93,11 +93,11 @@ idBinSearch_Greater
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_Greater( const type *array, const int arraySize, const type &value ) {
-	int len = arraySize;
-	int mid = len;
-	int offset = 0;
-	int res = 0;
+ID_INLINE size_t idBinSearch_Greater( const type *array, const size_t arraySize, const type &value ) {
+	size_t len = arraySize;
+	size_t mid = len;
+	size_t offset = 0;
+	size_t res = 0;
 	while( mid > 0 ) {
 		mid = len >> 1;
 		if ( array[offset+mid] > value ) {
@@ -119,11 +119,11 @@ idBinSearch_GreaterEqual
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_GreaterEqual( const type *array, const int arraySize, const type &value ) {
-	int len = arraySize;
-	int mid = len;
-	int offset = 0;
-	int res = 0;
+ID_INLINE size_t idBinSearch_GreaterEqual( const type *array, const size_t arraySize, const type &value ) {
+	size_t len = arraySize;
+	size_t mid = len;
+	size_t offset = 0;
+	size_t res = 0;
 	while( mid > 0 ) {
 		mid = len >> 1;
 		if ( array[offset+mid] >= value ) {

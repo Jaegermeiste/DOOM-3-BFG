@@ -41,7 +41,8 @@ int idRegister::REGCOUNT[NUMTYPES] = {4, 1, 1, 1, 0, 2, 3, 4};
 idRegister::SetToRegs
 ====================
 */
-void idRegister::SetToRegs( float *registers ) {
+void idRegister::SetToRegs( float *registers ) const
+{
 	int i;
 	idVec4 v;
 	idVec2 v2;
@@ -102,7 +103,8 @@ void idRegister::SetToRegs( float *registers ) {
 idRegister::GetFromRegs
 =================
 */
-void idRegister::GetFromRegs( float *registers ) {
+void idRegister::GetFromRegs( float *registers ) const
+{
 	idVec4 v;
 	idRectangle rect;
 
@@ -187,7 +189,8 @@ void idRegister::WriteToDemoFile( idDemoFile *f ) {
 idRegister::WriteToSaveGame
 =================
 */
-void idRegister::WriteToSaveGame( idFile *savefile ) {
+void idRegister::WriteToSaveGame( idFile *savefile ) const
+{
 	int len;
 
 	savefile->Write( &enabled, sizeof( enabled ) );

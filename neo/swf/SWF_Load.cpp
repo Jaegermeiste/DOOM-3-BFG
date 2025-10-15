@@ -75,16 +75,16 @@ bool idSWF::LoadSWF( const char * fullpath ) {
 	idSwap::Little( header.fileLength );
 
 	// header.fileLength somewhat annoyingly includes the size of the header
-	uint32 fileLength2 = header.fileLength - (uint32)sizeof( swfHeader_t );
+	uint32 fileLength2 = header.fileLength - static_cast<uint32>(sizeof(swfHeader_t));
 
 	// slurp the raw file into a giant array, which is somewhat atrocious when loading from the preload since it's already an idFile_Memory
-	byte * fileData = (byte *)Mem_Alloc( fileLength2, TAG_SWF );
+	byte * fileData = static_cast<byte*>(Mem_Alloc(fileLength2, TAG_SWF));
 	size_t fileSize = rawfile->Read( fileData, fileLength2 );
 	delete rawfile;
 
 	if ( compressed ) {
-		byte * uncompressed = (byte *)Mem_Alloc( fileLength2, TAG_SWF );
-		if ( !Inflate( fileData, (int)fileSize, uncompressed, fileLength2 ) ) {
+		byte * uncompressed = static_cast<byte*>(Mem_Alloc(fileLength2, TAG_SWF));
+		if ( !Inflate( fileData, static_cast<int>(fileSize), uncompressed, fileLength2 ) ) {
 			idLib::Warning( "Inflate error" );
 			Mem_Free( uncompressed );
 			return false;

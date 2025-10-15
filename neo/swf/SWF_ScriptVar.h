@@ -57,7 +57,10 @@ they can contain raw data (int, float), strings, functions, or objects
 */
 class idSWFScriptVar {
 public:
-	idSWFScriptVar() : type( SWF_VAR_UNDEF ) { }
+	idSWFScriptVar() noexcept : type(SWF_VAR_UNDEF), value({})
+	{
+	}
+
 	idSWFScriptVar( const idSWFScriptVar & other );
 	idSWFScriptVar( idSWFScriptObject * o ) : type( SWF_VAR_UNDEF ) { SetObject( o ); }
 	idSWFScriptVar( idStrId s ) : type( SWF_VAR_UNDEF ) { SetString( s ); }
@@ -72,8 +75,8 @@ public:
 	idSWFScriptVar & operator=( const idSWFScriptVar & other );
 
 	// implements ECMA 262 11.9.3
-	bool AbstractEquals( const idSWFScriptVar & other );
-	bool StrictEquals( const idSWFScriptVar & other );
+	[[nodiscard]] bool AbstractEquals( const idSWFScriptVar & other ) const;
+	[[nodiscard]] bool StrictEquals( const idSWFScriptVar & other ) const;
 
 	void SetString( idStrId s )	{ Free(); type = SWF_VAR_STRINGID; value.i = s.GetIndex(); }
 	void SetString( const idStr & s )	{ Free(); type = SWF_VAR_STRING; value.string = idSWFScriptString::Alloc( s ); }
@@ -83,39 +86,44 @@ public:
 	void SetNULL()						{ Free(); type = SWF_VAR_NULL; }
 	void SetUndefined()					{ Free(); type = SWF_VAR_UNDEF; }
 	void SetBool( bool b )				{ Free(); type = SWF_VAR_BOOL; value.b = b; }
-	void SetInteger( int32 i )			{ Free(); type = SWF_VAR_INTEGER; value.i = i; }
+	void SetInteger( Ordinal auto i )	{ Free(); type = SWF_VAR_INTEGER; value.i = idMath::integer_cast<int64>(i); }
 
 	void SetObject( idSWFScriptObject * o );
 	void SetFunction( idSWFScriptFunction * f );
 
-	idStr	ToString() const;
-	float	ToFloat() const;
-	bool	ToBool() const;
-	int32	ToInteger() const;
+	[[nodiscard]] idStr	ToString() const;
+	[[nodiscard]] float	ToFloat() const;
+	[[nodiscard]] bool	ToBool() const;
+	[[nodiscard]] int32	ToInteger() const;
+	template <Ordinal Dest>
+	Dest	ToInteger() const;
 
 	idSWFScriptObject *		GetObject() { assert( type == SWF_VAR_OBJECT ); return value.object; }
 	idSWFScriptObject *		GetObject() const { assert( type == SWF_VAR_OBJECT ); return value.object; }
-	idSWFScriptFunction *	GetFunction() { assert( type == SWF_VAR_FUNCTION ); return value.function; }
-	idSWFSpriteInstance *	ToSprite();
-	idSWFTextInstance *		ToText();
+
+	[[nodiscard]] idSWFScriptFunction *	GetFunction() const
+	{ assert( type == SWF_VAR_FUNCTION ); return value.function; }
+
+	[[nodiscard]] idSWFSpriteInstance *	ToSprite() const;
+	[[nodiscard]] idSWFTextInstance *		ToText() const;
 
 	idSWFScriptVar			GetNestedVar( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
 	idSWFScriptObject *		GetNestedObj( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
 	idSWFSpriteInstance *	GetNestedSprite( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
 	idSWFTextInstance *		GetNestedText( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
 
-	const char *			TypeOf() const;
+	[[nodiscard]] const char *			TypeOf() const;
 
 	// debug print of this variable to the console
 	void					PrintToConsole() const;
 
-	bool IsString()		const { return ( type == SWF_VAR_STRING ) || ( type == SWF_VAR_STRINGID ); }
-	bool IsNULL()		const { return ( type == SWF_VAR_NULL ); }
-	bool IsUndefined()	const { return ( type == SWF_VAR_UNDEF ); }
-	bool IsValid()		const { return ( type != SWF_VAR_UNDEF ) && ( type != SWF_VAR_NULL ); }
-	bool IsFunction()	const { return ( type == SWF_VAR_FUNCTION ); }
-	bool IsObject()		const { return ( type == SWF_VAR_OBJECT ); }
-	bool IsNumeric()	const { return ( type == SWF_VAR_FLOAT ) || ( type == SWF_VAR_INTEGER ) || ( type == SWF_VAR_BOOL ); }
+	[[nodiscard]] bool IsString()		const { return ( type == SWF_VAR_STRING ) || ( type == SWF_VAR_STRINGID ); }
+	[[nodiscard]] bool IsNULL()		const { return ( type == SWF_VAR_NULL ); }
+	[[nodiscard]] bool IsUndefined()	const { return ( type == SWF_VAR_UNDEF ); }
+	[[nodiscard]] bool IsValid()		const { return ( type != SWF_VAR_UNDEF ) && ( type != SWF_VAR_NULL ); }
+	[[nodiscard]] bool IsFunction()	const { return ( type == SWF_VAR_FUNCTION ); }
+	[[nodiscard]] bool IsObject()		const { return ( type == SWF_VAR_OBJECT ); }
+	[[nodiscard]] bool IsNumeric()	const { return ( type == SWF_VAR_FLOAT ) || ( type == SWF_VAR_INTEGER ) || ( type == SWF_VAR_BOOL ); }
 
 	enum swfScriptVarType {
 		SWF_VAR_STRINGID,
@@ -129,7 +137,7 @@ public:
 		SWF_VAR_OBJECT
 	};
 
-	swfScriptVarType	GetType() const { return type; }
+	[[nodiscard]] swfScriptVarType	GetType() const { return type; }
 
 private:
 	void Free();
@@ -137,7 +145,7 @@ private:
 
 	union swfScriptVarValue_t {
 		float	f;
-		int32	i;
+		int64	i;
 		bool	b;
 		idSWFScriptObject * object;
 		idSWFScriptString * string;

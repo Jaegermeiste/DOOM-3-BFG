@@ -97,15 +97,59 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef ID_PC_WIN
 
-#ifdef _M_AMD64
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__) || defined(__amd64__)
 constexpr auto CPUSTRING = "x64";
-#elif _M_IA64
+#define ID_CPU_ARCH_X64
+#elif defined(_M_IA64)
 constexpr auto CPUSTRING = "IA64";
-#elif _M_IX86
+#define ID_CPU_ARCH_IA64
+#elif defined(_M_IX86) || defined(__i386__)
 constexpr auto CPUSTRING = "x86";
+#define ID_CPU_ARCH_X86
+#elif defined(__aarch64__) || defined(_M_ARM64)
+constexpr auto CPUSTRING = "ARM64";
+#define ID_CPU_ARCH_ARM64
+#elif defined(__arm__) || defined(_M_ARM)
+constexpr auto CPUSTRING = "ARM32";
+#define ID_CPU_ARCH_ARM32
+#elif defined(__riscv)
+constexpr auto CPUSTRING = "RISCV";
+#define ID_CPU_ARCH_RISCV
+#elif defined(__powerpc64__) || defined(__ppc64__)
+constexpr auto CPUSTRING = "PPC64";
+#define ID_CPU_ARCH_PPC64
+#elif defined(__powerpc__) || defined(__ppc__)
+constexpr auto CPUSTRING = "PPC32";
+#define ID_CPU_ARCH_PPC32
+#elif defined(__mips__) || defined(__mips)
+#if defined(__mips64)
+constexpr auto CPUSTRING = "MIPS64";
+#define ID_CPU_ARCH_MIPS64
+#else
+constexpr auto CPUSTRING = "MIPS32";
+#define ID_CPU_ARCH_MIPS32
+#endif
+#elif defined(__s390x__)
+constexpr auto CPUSTRING = "S390X";
+#define ID_CPU_ARCH_S390X
+#elif defined(__wasm64__)
+constexpr auto CPUSTRING = "WASM64";
+#define ID_CPU_ARCH_WASM64
+#elif defined(__wasm32__)
+constexpr auto CPUSTRING = "WASM32";
+#define ID_CPU_ARCH_WASM32
+#else
+constexpr auto CPUSTRING = "UNK";
+#define ID_CPU_ARCH_UNKNOWN
 #endif
 
-#define BUILD_STRING "win-" CPUSTRING;
+#if defined(_DEBUG) || defined (DEBUG)
+constexpr auto BUILD_TYPE = "DEBUG";
+#else
+constexpr auto BUILD_TYPE = "Release";
+#endif // defined(_DEBUG) || defined (DEBUG)
+
+#define BUILD_STRING "win-" CPUSTRING "_" BUILD_TYPE;
 constexpr auto BUILD_OS_ID = 0;
 
 #define ALIGN16( x )					__declspec(align(16)) x
@@ -222,9 +266,11 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // False	2	4214	V519	The 'ignoredReturnValue' object is assigned values twice successively. Perhaps this is a mistake. Check lines: 545, 547.	Rage	collisionmodelmanager_debug.cpp	547	False
 extern volatile int ignoredReturnValue;
 
+/*
 #define MAX_TYPE( x )			( ( ( ( 1 << ( ( sizeof( x ) - 1 ) * 8 - 1 ) ) - 1 ) << 8 ) | 255 )
 #define MIN_TYPE( x )			( - MAX_TYPE( x ) - 1 )
 #define MAX_UNSIGNED_TYPE( x )	( ( ( ( 1U << ( ( sizeof( x ) - 1 ) * 8 ) ) - 1 ) << 8 ) | 255U )
 #define MIN_UNSIGNED_TYPE( x )	0
+*/
 
 #endif

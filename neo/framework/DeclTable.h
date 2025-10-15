@@ -40,12 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 
 class idDeclTable : public idDecl {
 public:
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+	[[nodiscard]] virtual size_t			Size() const;
+	[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 
-	float					TableLookup( float index ) const;
+	[[nodiscard]] float					TableLookup( float index ) const;
 
 private:
 	bool					clamp;

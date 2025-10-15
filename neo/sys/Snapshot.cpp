@@ -61,10 +61,11 @@ idSnapShot::objectState_t::Print
 Helper function for net_ssTemplateDebug debugging
 ========================
 */
-void idSnapShot::objectState_t::Print( const char * name ) {
+void idSnapShot::objectState_t::Print( const char * name ) const
+{
 
-	unsigned int start = (unsigned int)net_ssTemplateDebug_start.GetInteger();
-	unsigned int end = Min( (unsigned int)buffer.Size(), start + net_ssTemplateDebug_len.GetInteger() );
+	unsigned int start = static_cast<unsigned int>(net_ssTemplateDebug_start.GetInteger());
+	unsigned int end = Min( static_cast<unsigned int>(buffer.Size()), start + net_ssTemplateDebug_len.GetInteger() );
 
 	PrintAlign( va( "%s: [sz %d]", name, buffer.Size() ) );
 
@@ -85,7 +86,7 @@ void idSnapShot::objectBuffer_t::Alloc( int s ) {
 		idLib::FatalError( "s >= SIZE_NOT_STALE" );
 	}
 	_Release();
-	data = (byte *)Mem_Alloc( s + 1, TAG_NETWORKING );
+	data = static_cast<byte*>(Mem_Alloc(s + 1, TAG_NETWORKING));
 	size = s;
 	data[size] = 1;
 }
@@ -95,7 +96,8 @@ void idSnapShot::objectBuffer_t::Alloc( int s ) {
 idSnapShot::objectBuffer_t::AddRef
 ========================
 */
-void idSnapShot::objectBuffer_t::_AddRef() {
+void idSnapShot::objectBuffer_t::_AddRef() const
+{
 	if ( data != nullptr) {
 		assert( size > 0 );
 		assert( data[size] < 255 );
@@ -494,7 +496,8 @@ void idSnapShot::SubmitLZWJob(
 	objParms_t *&					curObjParm,			// Current obj parm
 	lzwParm_t *&					curlzwParm,			// Current delta parm
 	bool							saveDictionary
-) {
+) const
+{
 	int numObjects = curObjParm - baseObjParm;
 	
 	if ( numObjects == 0 ) {

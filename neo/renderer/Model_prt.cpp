@@ -135,8 +135,8 @@ idRenderModel *idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 		int	stageCycle = stageAge / stage->cycleMsec;
 
 		// some particles will be in this cycle, some will be in the previous cycle
-		steppingRandom.SetSeed( (( stageCycle << 10 ) & idRandom::MAX_RAND) ^ (int)( renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND )  );
-		steppingRandom2.SetSeed( (( (stageCycle-1) << 10 ) & idRandom::MAX_RAND) ^ (int)( renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND )  );
+		steppingRandom.SetSeed( (( stageCycle << 10 ) & idRandom::MAX_RAND) ^ static_cast<int>(renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND)  );
+		steppingRandom2.SetSeed( (( (stageCycle-1) << 10 ) & idRandom::MAX_RAND) ^ static_cast<int>(renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND)  );
 
 		int	count = stage->totalParticles * stage->NumQuadsPerParticle();
 
@@ -194,7 +194,7 @@ idRenderModel *idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 			}
 
 			// supress particles before or after the age clamp
-			g.frac = (float)inCycleTime / ( stage->particleLife * 1000 );
+			g.frac = static_cast<float>(inCycleTime) / ( stage->particleLife * 1000 );
 			if ( g.frac < 0.0f ) {
 				// yet to be spawned
 				continue;

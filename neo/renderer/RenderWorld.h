@@ -291,12 +291,12 @@ public:
 	virtual	qhandle_t		AddEntityDef( const renderEntity_t *re ) = 0;
 	virtual	void			UpdateEntityDef( qhandle_t entityHandle, const renderEntity_t *re ) = 0;
 	virtual	void			FreeEntityDef( qhandle_t entityHandle ) = 0;
-	virtual const renderEntity_t *GetRenderEntity( qhandle_t entityHandle ) const = 0;
+	[[nodiscard]] virtual const renderEntity_t *GetRenderEntity( qhandle_t entityHandle ) const = 0;
 
 	virtual	qhandle_t		AddLightDef( const renderLight_t *rlight ) = 0;
 	virtual	void			UpdateLightDef( qhandle_t lightHandle, const renderLight_t *rlight ) = 0;
 	virtual	void			FreeLightDef( qhandle_t lightHandle ) = 0;
-	virtual const renderLight_t *GetRenderLight( qhandle_t lightHandle ) const = 0;
+	[[nodiscard]] virtual const renderLight_t *GetRenderLight( qhandle_t lightHandle ) const = 0;
 
 	// Force the generation of all light / surface interactions at the start of a level
 	// If this isn't called, they will all be dynamically generated
@@ -337,13 +337,13 @@ public:
 	//-------------- Portal Area Information -----------------
 
 	// returns the number of portals
-	virtual int				NumPortals() const = 0;
+	[[nodiscard]] virtual int				NumPortals() const = 0;
 
 	// returns 0 if no portal contacts the bounds
 	// This is used by the game to identify portals that are contained
 	// inside doors, so the connection between areas can be topologically
 	// terminated when the door shuts.
-	virtual	qhandle_t		FindPortal( const idBounds &b ) const = 0;
+	[[nodiscard]] virtual	qhandle_t		FindPortal( const idBounds &b ) const = 0;
 
 	// doors explicitly close off portals when shut
 	// multiple bits can be set to block multiple things, ie: ( PS_VIEW | PS_LOCATION | PS_AIR )
@@ -352,15 +352,15 @@ public:
 
 	// returns true only if a chain of portals without the given connection bits set
 	// exists between the two areas (a door doesn't separate them, etc)
-	virtual	bool			AreasAreConnected( int areaNum1, int areaNum2, portalConnection_t connection ) const = 0;
+	[[nodiscard]] virtual	bool			AreasAreConnected( int areaNum1, int areaNum2, portalConnection_t connection ) const = 0;
 
 	// returns the number of portal areas in a map, so game code can build information
 	// tables for the different areas
-	virtual	int				NumAreas() const = 0;
+	[[nodiscard]] virtual	int				NumAreas() const = 0;
 
 	// Will return -1 if the point is not in an area, otherwise
 	// it will return 0 <= value < NumAreas()
-	virtual int				PointInArea( const idVec3 &point ) const = 0;
+	[[nodiscard]] virtual int				PointInArea( const idVec3 &point ) const = 0;
 
 	// fills the *areas array with the numbers of the areas the bounds cover
 	// returns the total number of areas the bounds cover
@@ -378,7 +378,7 @@ public:
 	// fraction location of the trace on the gui surface, or -1,-1 if no hit.
 	// This doesn't do any occlusion testing, simply ignoring non-gui surfaces.
 	// start / end are in global world coordinates.
-	virtual guiPoint_t		GuiTrace( qhandle_t entityHandle, const idVec3 start, const idVec3 end ) const = 0;
+	[[nodiscard]] virtual guiPoint_t		GuiTrace( qhandle_t entityHandle, const idVec3 start, const idVec3 end ) const = 0;
 
 	// Traces vs the render model, possibly instantiating a dynamic version, and returns true if something was hit
 	virtual bool			ModelTrace( modelTrace_t &trace, qhandle_t entityHandle, const idVec3 &start, const idVec3 &end, const float radius ) const = 0;

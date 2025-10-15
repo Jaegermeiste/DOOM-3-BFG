@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <utility>
+
 #include "../precompiled.h"
 
 /*
@@ -34,11 +36,11 @@ If you have questions concerning this license or the applicable additional terms
 idSurface_Patch::SetSize
 =================
 */
-void idSurface_Patch::SetSize(const int patchWidth, const int patchHeight ) {
-	if ( patchWidth < 1 || patchWidth > maxWidth ) {
+void idSurface_Patch::SetSize(const size_t patchWidth, const size_t patchHeight ) {
+	if ( patchWidth < 1 || std::cmp_greater(patchWidth, maxWidth)) {
 		idLib::common->FatalError("idSurface_Patch::SetSize: invalid patchWidth");
 	}
-	if ( patchHeight < 1 || patchHeight > maxHeight ) {
+	if ( patchHeight < 1 || std::cmp_greater(patchHeight, maxHeight)) {
 		idLib::common->FatalError("idSurface_Patch::SetSize: invalid patchHeight");
 	}
 	width = patchWidth;
@@ -54,21 +56,21 @@ Expects an expanded patch.
 =================
 */
 void idSurface_Patch::PutOnCurve() {
-	int i, j;
+	size_t i = 0, j = 0;
 	idDrawVert prev, next;
 
 	assert( expanded == true );
 	// put all the approximating points on the curve
-	for ( i = 0; i < width; i++ ) {
-		for ( j = 1; j < height; j += 2 ) {
+	for ( i = 0; std::cmp_less(i, width); i++ ) {
+		for ( j = 1; std::cmp_less(j, height); j += 2 ) {
 			LerpVert( verts[j*maxWidth+i], verts[(j+1)*maxWidth+i], prev );
 			LerpVert( verts[j*maxWidth+i], verts[(j-1)*maxWidth+i], next );
 			LerpVert( prev, next, verts[j*maxWidth+i] );
 		}
 	}
 
-	for ( j = 0; j < height; j++ ) {
-		for ( i = 1; i < width; i += 2 ) {
+	for ( j = 0; std::cmp_less(j, height); j++ ) {
+		for ( i = 1; std::cmp_less(i, width); i += 2 ) {
 			LerpVert( verts[j*maxWidth+i], verts[j*maxWidth+i+1], prev );
 			LerpVert( verts[j*maxWidth+i], verts[j*maxWidth+i-1], next );
 			LerpVert( prev, next, verts[j*maxWidth+i] );
@@ -82,7 +84,7 @@ idSurface_Patch::ProjectPointOntoVector
 ================
 */
 void idSurface_Patch::ProjectPointOntoVector( const idVec3 &point, const idVec3 &vStart, const idVec3 &vEnd, idVec3 &vProj ) {
-	idVec3 pVec = point - vStart;
+	const idVec3 pVec = point - vStart;
 	idVec3 vec = vEnd - vStart;
 	vec.Normalize();
 	// project onto the directional vector for this segment
@@ -97,14 +99,14 @@ Expects an expanded patch.
 ================
 */
 void idSurface_Patch::RemoveLinearColumnsRows() {
-	int i, j, k;
-	float len, maxLength;
+	size_t i = 0, j = 0, k = 0;
+	float len = 0.0f, maxLength = 0.0f;
 	idVec3 proj, dir;
 
 	assert( expanded == true );
 	for ( j = 1; j < width - 1; j++ ) {
 		maxLength = 0;
-		for ( i = 0; i < height; i++ ) {
+		for ( i = 0; std::cmp_less(i, height); i++ ) {
 			idSurface_Patch::ProjectPointOntoVector( verts[i*maxWidth + j].xyz,
 									verts[i*maxWidth + j-1].xyz, verts[i*maxWidth + j+1].xyz, proj);
 			dir = verts[i*maxWidth + j].xyz - proj;
@@ -115,8 +117,8 @@ void idSurface_Patch::RemoveLinearColumnsRows() {
 		}
 		if ( maxLength < Square( 0.2f ) ) {
 			width--;
-			for ( i = 0; i < height; i++ ) {
-				for ( k = j; k < width; k++ ) {
+			for ( i = 0; std::cmp_less(i, height); i++ ) {
+				for ( k = j; std::cmp_less(k, width); k++ ) {
 					verts[i*maxWidth + k] = verts[i*maxWidth + k+1];
 				}
 			}
@@ -125,19 +127,17 @@ void idSurface_Patch::RemoveLinearColumnsRows() {
 	}
 	for ( j = 1; j < height - 1; j++ ) {
 		maxLength = 0;
-		for ( i = 0; i < width; i++ ) {
+		for ( i = 0; std::cmp_less(i, width); i++ ) {
 			idSurface_Patch::ProjectPointOntoVector( verts[j*maxWidth + i].xyz,
 									verts[(j-1)*maxWidth + i].xyz, verts[(j+1)*maxWidth + i].xyz, proj);
 			dir = verts[j*maxWidth + i].xyz - proj;
 			len = dir.LengthSqr();
-			if ( len > maxLength ) {
-				maxLength = len;
-			}
+			maxLength = (std::max)(len, maxLength);
 		}
 		if ( maxLength < Square( 0.2f ) ) {
 			height--;
-			for ( i = 0; i < width; i++ ) {
-				for ( k = j; k < height; k++ ) {
+			for ( i = 0; std::cmp_less(i, width); i++ ) {
+				for ( k = j; std::cmp_less(k, height); k++ ) {
 					verts[k*maxWidth + i] = verts[(k+1)*maxWidth + i];
 				}
 			}
@@ -151,18 +151,18 @@ void idSurface_Patch::RemoveLinearColumnsRows() {
 idSurface_Patch::ResizeExpanded
 ================
 */
-void idSurface_Patch::ResizeExpanded(const int newHeight, const int newWidth ) {
+void idSurface_Patch::ResizeExpanded(const size_t newHeight, const size_t newWidth ) {
 	assert( expanded == true );
-	if ( newHeight <= maxHeight && newWidth <= maxWidth ) {
+	if (std::cmp_less_equal(newHeight, maxHeight) && std::cmp_less_equal(newWidth, maxWidth)) {
 		return;
 	}
 	if ( newHeight * newWidth > maxHeight * maxWidth ) {
 		verts.SetNum( newHeight * newWidth );
 	}
 	// space out verts for new height and width
-	for ( int j = maxHeight - 1; j >= 0; j-- ) {
-		for ( int i = maxWidth - 1; i >= 0; i-- ) {
-			verts[j*newWidth + i] = verts[j*maxWidth + i];
+	for ( int64 j = idMath::integer_cast<int64>(maxHeight) - 1; j >= 0; j-- ) {
+		for (int64 i = idMath::integer_cast<int64>(maxWidth) - 1; i >= 0; i-- ) {
+			verts[j * newWidth + i] = verts[j * maxWidth + i];
 		}
 	}
 	maxHeight = newHeight;
@@ -180,8 +180,8 @@ void idSurface_Patch::Collapse() {
 	}
 	expanded = false;
 	if ( width != maxWidth ) {
-		for ( int j = 0; j < height; j++ ) {
-			for ( int i = 0; i < width; i++ ) {
+		for ( int j = 0; std::cmp_less(j, height); j++ ) {
+			for ( int i = 0; std::cmp_less(i, width); i++ ) {
 				verts[j*width + i] = verts[j*maxWidth + i];
 			}
 		}
@@ -201,8 +201,8 @@ void idSurface_Patch::Expand() {
 	expanded = true;
 	verts.SetNum( maxWidth * maxHeight );
 	if ( width != maxWidth ) {
-		for ( int j = height - 1; j >= 0; j-- ) {
-			for ( int i = width - 1; i >= 0; i-- ) {
+		for ( int64 j = idMath::integer_cast<int64>(height) - 1; j >= 0; j-- ) {
+			for ( int64 i = idMath::integer_cast<int64>(width) - 1; i >= 0; i-- ) {
 				verts[j*maxWidth + i] = verts[j*width + i];
 			}
 		}
@@ -233,10 +233,10 @@ Expects a Not expanded patch.
 #define	COPLANAR_EPSILON	0.1f
 
 void idSurface_Patch::GenerateNormals() {
-	int			i, k;
+	size_t		i = 0, k = 0;
 	idVec3		delta;
-	idVec3		around[8];
-	bool		good[8];
+	idVec3		around[8] = {};
+	bool		good[8] = {};
 	static int	neighbors[8][2] = {
 		{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}
 	};
@@ -246,7 +246,7 @@ void idSurface_Patch::GenerateNormals() {
 	//
 	// if all points are coplanar, set all normals to that plane
 	//
-	idVec3		extent[3];
+	idVec3		extent[3] = {};
 
 	extent[0] = verts[width - 1].xyz - verts[0].xyz;
 	extent[1] = verts[(height-1) * width + width - 1].xyz - verts[0].xyz;
@@ -263,7 +263,7 @@ void idSurface_Patch::GenerateNormals() {
 	// wrapped patched may not get a valid normal here
 	if ( norm.Normalize() != 0.0f ) {
 
-		float offset = verts[0].xyz * norm;
+		const float offset = verts[0].xyz * norm;
 		for ( i = 1; i < width * height; i++ ) {
 			const float d = verts[i].xyz * norm;
 			if ( idMath::Fabs( d - offset ) > COPLANAR_EPSILON ) {
@@ -282,54 +282,54 @@ void idSurface_Patch::GenerateNormals() {
 
 	// check for wrapped edge cases, which should smooth across themselves
 	bool wrapWidth = false;
-	for ( i = 0; i < height; i++ ) {
+	for ( i = 0; std::cmp_less(i, height); i++ ) {
 		delta = verts[i * width].xyz - verts[i * width + width-1].xyz;
 		if ( delta.LengthSqr() > Square( 1.0f ) ) {
 			break;
 		}
 	}
-	if ( i == height ) {
+	if (std::cmp_equal(i, height)) {
 		wrapWidth = true;
 	}
 
 	bool wrapHeight = false;
-	for ( i = 0; i < width; i++ ) {
+	for ( i = 0; std::cmp_less(i, width); i++ ) {
 		delta = verts[i].xyz - verts[(height-1) * width + i].xyz;
 		if ( delta.LengthSqr() > Square( 1.0f ) ) {
 			break;
 		}
 	}
-	if ( i == width ) {
+	if (std::cmp_equal(i, width)) {
 		wrapHeight = true;
 	}
 
-	for ( i = 0; i < width; i++ ) {
-		for ( int j = 0; j < height; j++ ) {
-			int count = 0;
+	for ( i = 0; std::cmp_less(i, width); i++ ) {
+		for (size_t j = 0; std::cmp_less(j, height); j++ ) {
+			size_t count = 0;
 			idVec3 base = verts[j * width + i].xyz;
 			for ( k = 0; k < 8; k++ ) {
 				around[k] = vec3_origin;
 				good[k] = false;
 
-				for ( int dist = 1; dist <= 3; dist++ ) {
-					int x = i + neighbors[k][0] * dist;
-					int y = j + neighbors[k][1] * dist;
+				for (size_t dist = 1; dist <= 3; dist++ ) {
+					size_t x = i + neighbors[k][0] * dist;
+					size_t y = j + neighbors[k][1] * dist;
 					if ( wrapWidth ) {
 						if ( x < 0 ) {
 							x = width - 1 + x;
-						} else if ( x >= width ) {
+						} else if (std::cmp_greater_equal(x, width)) {
 							x = 1 + x - width;
 						}
 					}
 					if ( wrapHeight ) {
 						if ( y < 0 ) {
 							y = height - 1 + y;
-						} else if ( y >= height ) {
+						} else if (std::cmp_greater_equal(y, height)) {
 							y = 1 + y - height;
 						}
 					}
 
-					if ( x < 0 || x >= width || y < 0 || y >= height ) {
+					if ( x < 0 || std::cmp_greater_equal(x, width) || y < 0 || std::cmp_greater_equal(y, height)) {
 						break;					// edge of patch
 					}
 					idVec3 temp = verts[y * width + x].xyz - base;
@@ -372,13 +372,13 @@ idSurface_Patch::GenerateIndexes
 */
 void idSurface_Patch::GenerateIndexes() {
 	indexes.SetNum( (width-1) * (height-1) * 2 * 3 );
-	int index = 0;
-	for ( int i = 0; i < width - 1; i++ ) {
-		for ( int j = 0; j < height - 1; j++ ) {
-			int v1 = j * width + i;
-			int v2 = v1 + 1;
-			int v3 = v1 + width + 1;
-			int v4 = v1 + width;
+	size_t index = 0;
+	for (size_t i = 0; i < width - 1; i++ ) {
+		for (size_t j = 0; j < height - 1; j++ ) {
+			const size_t v1 = j * width + i;
+			const size_t v2 = v1 + 1;
+			const size_t v3 = v1 + width + 1;
+			const size_t v4 = v1 + width;
 			indexes[index++] = v1;
 			indexes[index++] = v3;
 			indexes[index++] = v2;
@@ -396,12 +396,13 @@ void idSurface_Patch::GenerateIndexes() {
 idSurface_Patch::SampleSinglePatchPoint
 ===============
 */
-void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], const float u, const float v, idDrawVert *out ) const {
-	float	vCtrl[3][8];
-	int		axis;
+void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], const float u, const float v, idDrawVert *out )
+{
+	float	vCtrl[3][8] = {};
+	size_t	axis = 0;
 
 	// find the control points for the v coordinate
-	for ( int vPoint = 0; vPoint < 3; vPoint++ ) {
+	for (size_t vPoint = 0; vPoint < 3; vPoint++ ) {
 		for ( axis = 0; axis < 8; axis++ ) {
 			float a, b, c;
 			if ( axis < 3 ) {
@@ -417,21 +418,21 @@ void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], const
 				b = ctrl[1][vPoint].GetTexCoord()[axis-6];
 				c = ctrl[2][vPoint].GetTexCoord()[axis-6];
 			}
-			float qA = a - 2.0f * b + c;
-			float qB = 2.0f * b - 2.0f * a;
-			float qC = a;
+			const float qA = a - 2.0f * b + c;
+			const float qB = 2.0f * b - 2.0f * a;
+			const float qC = a;
 			vCtrl[vPoint][axis] = qA * u * u + qB * u + qC;
 		}
 	}
 
 	// interpolate the v value
 	for ( axis = 0; axis < 8; axis++ ) {
-		float a = vCtrl[0][axis];
-		float b = vCtrl[1][axis];
-		float c = vCtrl[2][axis];
-		float qA = a - 2.0f * b + c;
-		float qB = 2.0f * b - 2.0f * a;
-		float qC = a;
+		const float a = vCtrl[0][axis];
+		const float b = vCtrl[1][axis];
+		const float c = vCtrl[2][axis];
+		const float qA = a - 2.0f * b + c;
+		const float qB = 2.0f * b - 2.0f * a;
+		const float qC = a;
 
 		if ( axis < 3 ) {
 			out->xyz[axis] = qA * v * v + qB * v + qC;
@@ -453,13 +454,13 @@ void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], const
 idSurface_Patch::SampleSinglePatch
 ===================
 */
-void idSurface_Patch::SampleSinglePatch( const idDrawVert ctrl[3][3], const int baseCol, const int baseRow, const int width, int horzSub, int vertSub, idDrawVert *outVerts ) const {
+void idSurface_Patch::SampleSinglePatch( const idDrawVert ctrl[3][3], const size_t baseCol, const size_t baseRow, const size_t width, size_t horzSub, size_t vertSub, idDrawVert *outVerts ) const {
 	horzSub++;
 	vertSub++;
-	for ( int i = 0; i < horzSub; i++ ) {
-		for ( int j = 0; j < vertSub; j++ ) {
-			float u = static_cast<float>(i) / (horzSub - 1);
-			float v = static_cast<float>(j) / (vertSub - 1);
+	for (size_t i = 0; i < horzSub; i++ ) {
+		for (size_t j = 0; j < vertSub; j++ ) {
+			const float u = idMath::Itof<float>(i) / idMath::Itof<float>(horzSub - 1);
+			const float v = idMath::Itof<float>(j) / idMath::Itof<float>(vertSub - 1);
 			SampleSinglePatchPoint( ctrl, u, v, &outVerts[((baseRow + j) * width) + i + baseCol] );
 		}
 	}
@@ -470,11 +471,11 @@ void idSurface_Patch::SampleSinglePatch( const idDrawVert ctrl[3][3], const int 
 idSurface_Patch::SubdivideExplicit
 =================
 */
-void idSurface_Patch::SubdivideExplicit(const int horzSubdivisions, const int vertSubdivisions, const bool genNormals, const bool removeLinear ) {
-	int i;
+void idSurface_Patch::SubdivideExplicit(const size_t horzSubdivisions, const size_t vertSubdivisions, const bool genNormals, const bool removeLinear ) {
+	size_t i = 0;
 	idDrawVert sample[3][3];
-	const int outWidth = ((width - 1) / 2 * horzSubdivisions) + 1;
-	const int outHeight = ((height - 1) / 2 * vertSubdivisions) + 1;
+	const size_t outWidth = ((width - 1) / 2 * horzSubdivisions) + 1;
+	const size_t outHeight = ((height - 1) / 2 * vertSubdivisions) + 1;
 	idDrawVert *dv = new (TAG_IDLIB_SURFACE) idDrawVert[ outWidth * outHeight ];
 
 	// generate normals for the control mesh
@@ -482,12 +483,12 @@ void idSurface_Patch::SubdivideExplicit(const int horzSubdivisions, const int ve
 		GenerateNormals();
 	}
 
-	int baseCol = 0;
-	for ( i = 0; i + 2 < width; i += 2 ) {
-		int baseRow = 0;
-		for ( int j = 0; j + 2 < height; j += 2 ) {
-			for ( int k = 0; k < 3; k++ ) {
-				for ( int l = 0; l < 3; l++ ) {
+	size_t baseCol = 0;
+	for ( i = 0; std::cmp_less(i + 2, width); i += 2 ) {
+		size_t baseRow = 0;
+		for (size_t j = 0; std::cmp_less(j + 2, height); j += 2 ) {
+			for (size_t k = 0; k < 3; k++ ) {
+				for (size_t l = 0; l < 3; l++ ) {
 					sample[k][l] = verts[ ((j + l) * width) + i + k ];
 				}
 			}
@@ -531,7 +532,7 @@ idSurface_Patch::Subdivide
 =================
 */
 void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxVerticalError, const float maxLength, const bool genNormals ) {
-	int			i, j, k, l;
+	size_t		i = 0, j = 0, k = 0, l = 0;
 	idDrawVert	prev, next, mid;
 	idVec3		prevxyz, nextxyz, midxyz;
 	idVec3		delta;
@@ -541,16 +542,16 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 		GenerateNormals();
 	}
 
-	float maxHorizontalErrorSqr = Square(maxHorizontalError);
-	float maxVerticalErrorSqr = Square(maxVerticalError);
-	float maxLengthSqr = Square(maxLength);
+	const float maxHorizontalErrorSqr = Square(maxHorizontalError);
+	const float maxVerticalErrorSqr = Square(maxVerticalError);
+	const float maxLengthSqr = Square(maxLength);
 
 	Expand();
 
 	// horizontal subdivisions
-	for ( j = 0; j + 2 < width; j += 2 ) {
+	for ( j = 0; std::cmp_less(j + 2, width); j += 2 ) {
 		// check subdivided midpoints against control points
-		for ( i = 0; i < height; i++ ) {
+		for ( i = 0; std::cmp_less(i, height); i++ ) {
 			for ( l = 0; l < 3; l++ ) {
 				prevxyz[l] = verts[i*maxWidth + j+1].xyz[l] - verts[i*maxWidth + j  ].xyz[l];
 				nextxyz[l] = verts[i*maxWidth + j+2].xyz[l] - verts[i*maxWidth + j+1].xyz[l];
@@ -571,7 +572,7 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 			}
 		}
 
-		if ( i == height ) {
+		if (std::cmp_equal(i, height)) {
 			continue;	// didn't need subdivision
 		}
 
@@ -582,7 +583,7 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 		// insert two columns and replace the peak
 		width += 2;
 
-		for ( i = 0; i < height; i++ ) {
+		for ( i = 0; std::cmp_less(i, height); i++ ) {
 			idSurface_Patch::LerpVert( verts[i*maxWidth + j  ], verts[i*maxWidth + j+1], prev );
 			idSurface_Patch::LerpVert( verts[i*maxWidth + j+1], verts[i*maxWidth + j+2], next );
 			idSurface_Patch::LerpVert( prev, next, mid );
@@ -600,9 +601,9 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 	}
 
 	// vertical subdivisions
-	for ( j = 0; j + 2 < height; j += 2 ) {
+	for ( j = 0; std::cmp_less(j + 2, height); j += 2 ) {
 		// check subdivided midpoints against control points
-		for ( i = 0; i < width; i++ ) {
+		for ( i = 0; std::cmp_less(i, width); i++ ) {
 			for ( l = 0; l < 3; l++ ) {
 				prevxyz[l] = verts[(j+1)*maxWidth + i].xyz[l] - verts[j*maxWidth + i].xyz[l];
 				nextxyz[l] = verts[(j+2)*maxWidth + i].xyz[l] - verts[(j+1)*maxWidth + i].xyz[l];
@@ -623,7 +624,7 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 			}
 		}
 
-		if ( i == width ) {
+		if (std::cmp_equal(i, width)) {
 			continue;	// didn't need subdivision
 		}
 
@@ -634,7 +635,7 @@ void idSurface_Patch::Subdivide(const float maxHorizontalError, const float maxV
 		// insert two columns and replace the peak
 		height += 2;
 
-		for ( i = 0; i < width; i++ ) {
+		for ( i = 0; std::cmp_less(i, width); i++ ) {
 			LerpVert( verts[j*maxWidth + i], verts[(j+1)*maxWidth + i], prev );
 			LerpVert( verts[(j+1)*maxWidth + i], verts[(j+2)*maxWidth + i], next );
 			LerpVert( prev, next, mid );

@@ -190,27 +190,27 @@ public:
 
 	virtual void			ShutdownOpenGL() = 0;
 
-	virtual bool			IsOpenGLRunning() const = 0;
+	[[nodiscard]] virtual bool			IsOpenGLRunning() const = 0;
 
-	virtual bool			IsFullScreen() const = 0;
-	virtual int				GetWidth() const = 0;
-	virtual int				GetHeight() const = 0;
+	[[nodiscard]] virtual bool			IsFullScreen() const = 0;
+	[[nodiscard]] virtual int				GetWidth() const = 0;
+	[[nodiscard]] virtual int				GetHeight() const = 0;
 
 	// return w/h of a single pixel. This will be 1.0 for normal cases.
 	// A side-by-side stereo 3D frame will have a pixel aspect of 0.5.
 	// A top-and-bottom stereo 3D frame will have a pixel aspect of 2.0
-	virtual float			GetPixelAspect() const = 0;
+	[[nodiscard]] virtual float			GetPixelAspect() const = 0;
 
 	// This is used to calculate stereoscopic screen offset for a given interocular distance.
-	virtual float			GetPhysicalScreenWidthInCentimeters() const = 0;
+	[[nodiscard]] virtual float			GetPhysicalScreenWidthInCentimeters() const = 0;
 
 	// GetWidth() / GetHeight() return the size of a single eye
 	// view, which may be replicated twice in a stereo display
-	virtual stereo3DMode_t	GetStereo3DMode() const = 0;
-	virtual bool			IsStereoScopicRenderingSupported() const = 0;
-	virtual stereo3DMode_t	GetStereoScopicRenderingMode() const = 0;
+	[[nodiscard]] virtual stereo3DMode_t	GetStereo3DMode() const = 0;
+	[[nodiscard]] virtual bool			IsStereoScopicRenderingSupported() const = 0;
+	[[nodiscard]] virtual stereo3DMode_t	GetStereoScopicRenderingMode() const = 0;
 	virtual void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const = 0;
-	virtual bool			HasQuadBufferSupport() const = 0;
+	[[nodiscard]] virtual bool			HasQuadBufferSupport() const = 0;
 
 	// allocate a renderWorld to be used for drawing
 	virtual idRenderWorld *	AllocRenderWorld() = 0;
@@ -313,7 +313,7 @@ public:
 	virtual bool			UploadImage( const char *imageName, const byte *data, int width, int height ) = 0;
 
 	// consoles switch stereo 3D eye views each 60 hz frame
-	virtual int				GetFrameCount() const = 0;
+	[[nodiscard]] virtual int				GetFrameCount() const = 0;
 };
 
 extern idRenderSystem *			renderSystem;

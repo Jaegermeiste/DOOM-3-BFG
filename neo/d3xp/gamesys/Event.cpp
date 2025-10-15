@@ -48,7 +48,7 @@ Event are used for scheduling tasks and for linking script commands.
 ***********************************************************************/
 
 idEventDef *idEventDef::eventDefList[MAX_EVENTS];
-int idEventDef::numEventDefs = 0;
+size_t idEventDef::numEventDefs = 0;
 
 static bool eventError = false;
 static char eventErrorMsg[ 128 ];
@@ -172,7 +172,7 @@ idEventDef::idEventDef( const char *command, const char *formatspec, char return
 idEventDef::NumEventCommands
 ================
 */
-int	idEventDef::NumEventCommands() {
+size_t	idEventDef::NumEventCommands() {
 	return numEventDefs;
 }
 
@@ -181,7 +181,7 @@ int	idEventDef::NumEventCommands() {
 idEventDef::GetEventCommand
 ================
 */
-const idEventDef *idEventDef::GetEventCommand( int eventnum ) {
+const idEventDef *idEventDef::GetEventCommand( size_t eventnum ) {
 	return eventDefList[ eventnum ];
 }
 
@@ -191,9 +191,9 @@ idEventDef::FindEvent
 ================
 */
 const idEventDef *idEventDef::FindEvent( const char *name ) {
-	idEventDef	*ev;
-	int			num;
-	int			i;
+	idEventDef	*ev = nullptr;
+	size_t		num = 0;
+	size_t		i = 0;
 
 	assert( name );
 
@@ -205,7 +205,7 @@ const idEventDef *idEventDef::FindEvent( const char *name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /***********************************************************************
@@ -237,13 +237,13 @@ idEvent::~idEvent() {
 idEvent::Alloc
 ================
 */
-idEvent *idEvent::Alloc( const idEventDef *evdef, int numargs, va_list args ) {
-	idEvent		*ev;
-	size_t		size;
+idEvent *idEvent::Alloc( const idEventDef *evdef, size_t numargs, va_list args ) {
+	idEvent		*ev = nullptr;
+	size_t		size = 0;
 	const char	*format;
-	idEventArg	*arg;
-	byte		*dataPtr;
-	int			i;
+	idEventArg	*arg = nullptr;
+	byte		*dataPtr = nullptr;
+	size_t		i = 0;
 	const char	*materialName;
 
 	if ( FreeEvents.IsListEmpty() ) {
@@ -264,7 +264,7 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, int numargs, va_list args ) {
 		ev->data = eventDataAllocator.Alloc( size );
 		memset( ev->data, 0, size );
 	} else {
-		ev->data = NULL;
+		ev->data = nullptr;
 		return ev;
 	}
 
@@ -334,10 +334,10 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, int numargs, va_list args ) {
 idEvent::CopyArgs
 ================
 */
-void idEvent::CopyArgs( const idEventDef *evdef, int numargs, va_list args, int data[ D_EVENT_MAXARGS ] ) {
-	int			i;
+void idEvent::CopyArgs( const idEventDef *evdef, size_t numargs, va_list args, int data[ D_EVENT_MAXARGS ] ) {
+	size_t		i = 0;
 	const char	*format;
-	idEventArg	*arg;
+	idEventArg	*arg = nullptr;
 
 	format = evdef->GetArgFormat();
 	if ( numargs != evdef->GetNumArgs() ) {
@@ -365,13 +365,13 @@ idEvent::Free
 void idEvent::Free() {
 	if ( data ) {
 		eventDataAllocator.Free( data );
-		data = NULL;
+		data = nullptr;
 	}
 
-	eventdef	= NULL;
+	eventdef	= nullptr;
 	time		= 0;
-	object		= NULL;
-	typeinfo	= NULL;
+	object		= nullptr;
+	typeinfo	= nullptr;
 
 	eventNode.SetOwner( this );
 	eventNode.AddToEnd( FreeEvents );
@@ -382,8 +382,8 @@ void idEvent::Free() {
 idEvent::Schedule
 ================
 */
-void idEvent::Schedule( idClass *obj, const idTypeInfo *type, int time ) {
-	idEvent *event;
+void idEvent::Schedule( idClass *obj, const idTypeInfo *type, ID_TIME_T time ) {
+	idEvent *event = nullptr;
 
 	assert( initialized );
 	if ( !initialized ) {
@@ -398,9 +398,9 @@ void idEvent::Schedule( idClass *obj, const idTypeInfo *type, int time ) {
 
 	eventNode.Remove();
 
-	if ( obj->IsType( idEntity::Type ) && ( ( (idEntity*)(obj) )->timeGroup == TIME_GROUP2 ) ) {
+	if ( obj->IsType( idEntity::Type ) && ( static_cast<idEntity*>(obj)->timeGroup == TIME_GROUP2 ) ) {
 		event = FastEventQueue.Next();
-		while( ( event != NULL ) && ( this->time >= event->time ) ) {
+		while( ( event != nullptr) && ( this->time >= event->time ) ) {
 			event = event->eventNode.Next();
 		}
 
@@ -416,7 +416,7 @@ void idEvent::Schedule( idClass *obj, const idTypeInfo *type, int time ) {
 	}
 
 	event = EventQueue.Next();
-	while( ( event != NULL ) && ( this->time >= event->time ) ) {
+	while( ( event != nullptr) && ( this->time >= event->time ) ) {
 		event = event->eventNode.Next();
 	}
 
@@ -433,14 +433,14 @@ idEvent::CancelEvents
 ================
 */
 void idEvent::CancelEvents( const idClass *obj, const idEventDef *evdef ) {
-	idEvent *event;
-	idEvent *next;
+	idEvent *event =  nullptr;
+	idEvent *next = nullptr;
 
 	if ( !initialized ) {
 		return;
 	}
 
-	for( event = EventQueue.Next(); event != NULL; event = next ) {
+	for( event = EventQueue.Next(); event != nullptr; event = next ) {
 		next = event->eventNode.Next();
 		if ( event->object == obj ) {
 			if ( !evdef || ( evdef == event->eventdef ) ) {
@@ -449,7 +449,7 @@ void idEvent::CancelEvents( const idClass *obj, const idEventDef *evdef ) {
 		}
 	}
 
-	for( event = FastEventQueue.Next(); event != NULL; event = next ) {
+	for( event = FastEventQueue.Next(); event != nullptr; event = next ) {
 		next = event->eventNode.Next();
 		if ( event->object == obj ) {
 			if ( !evdef || ( evdef == event->eventdef ) ) {
@@ -465,7 +465,7 @@ idEvent::ClearEventList
 ================
 */
 void idEvent::ClearEventList() {
-	int i;
+	size_t i = 0;
 
 	//
 	// initialize lists
@@ -487,16 +487,14 @@ idEvent::ServiceEvents
 ================
 */
 void idEvent::ServiceEvents() {
-	idEvent		*event;
-	int			num;
+	idEvent		*event = nullptr;
+	size_t		num = 0;
 	int			args[ D_EVENT_MAXARGS ];
-	int			offset;
-	int			i;
-	int			numargs;
-	const char	*formatspec;
-	trace_t		**tracePtr;
+	size_t		i = 0;
+	size_t		numargs = 0;
+	trace_t		**tracePtr = nullptr;
 	const idEventDef *ev;
-	byte		*data;
+	byte		*data = nullptr;
 	const char  *materialName;
 
 	num = 0;
@@ -512,10 +510,10 @@ void idEvent::ServiceEvents() {
 
 		// copy the data into the local args array and set up pointers
 		ev = event->eventdef;
-		formatspec = ev->GetArgFormat();
+		const char* formatspec = ev->GetArgFormat();
 		numargs = ev->GetNumArgs();
 		for( i = 0; i < numargs; i++ ) {
-			offset = ev->GetArgOffset( i );
+			auto offset = ev->GetArgOffset(i);
 			data = event->data;
 			switch( formatspec[ i ] ) {
 			case D_EVENT_FLOAT :
@@ -541,13 +539,13 @@ void idEvent::ServiceEvents() {
 				if ( *reinterpret_cast<bool *>( &data[ offset ] ) ) {
 					*tracePtr = reinterpret_cast<trace_t *>( &data[ offset + sizeof( bool ) ] );
 
-					if ( ( *tracePtr )->c.material != NULL ) {
+					if ( ( *tracePtr )->c.material != nullptr) {
 						// look up the material name to get the material pointer
 						materialName = reinterpret_cast<const char *>( &data[ offset + sizeof( bool ) + sizeof( trace_t ) ] );
 						( *tracePtr )->c.material = declManager->FindMaterial( materialName, true );
 					}
 				} else {
-					*tracePtr = NULL;
+					*tracePtr = nullptr;
 				}
 				break;
 
@@ -640,13 +638,13 @@ void idEvent::ServiceFastEvents() {
 				if ( *reinterpret_cast<bool *>( &data[ offset ] ) ) {
 					*tracePtr = reinterpret_cast<trace_t *>( &data[ offset + sizeof( bool ) ] );
 
-					if ( ( *tracePtr )->c.material != NULL ) {
+					if ( ( *tracePtr )->c.material != nullptr) {
 						// look up the material name to get the material pointer
 						materialName = reinterpret_cast<const char *>( &data[ offset + sizeof( bool ) + sizeof( trace_t ) ] );
 						( *tracePtr )->c.material = declManager->FindMaterial( materialName, true );
 					}
 				} else {
-					*tracePtr = NULL;
+					*tracePtr = nullptr;
 				}
 				break;
 
@@ -752,7 +750,7 @@ void idEvent::Save( idSaveGame *savefile ) {
 	savefile->WriteInt( EventQueue.Num() );
 
 	event = EventQueue.Next();
-	while( event != NULL ) {
+	while( event != nullptr) {
 		savefile->WriteInt( event->time );
 		savefile->WriteString( event->eventdef->GetName() );
 		savefile->WriteString( event->typeinfo->classname );
@@ -803,7 +801,7 @@ void idEvent::Save( idSaveGame *savefile ) {
 	savefile->WriteInt( FastEventQueue.Num() );
 
 	event = FastEventQueue.Next();
-	while( event != NULL ) {
+	while( event != nullptr) {
 		savefile->WriteInt( event->time );
 		savefile->WriteString( event->eventdef->GetName() );
 		savefile->WriteString( event->typeinfo->classname );
@@ -821,11 +819,11 @@ idEvent::Restore
 ================
 */
 void idEvent::Restore( idRestoreGame *savefile ) {
-	char    *str;
-	int		num, argsize, i, j, size;
+	char    *str = nullptr;
+	size_t	num = 0, argsize = 0, i = 0, j = 0, size = 0;
 	idStr	name;
-	byte *dataPtr;
-	idEvent	*event;
+	byte *dataPtr = nullptr;
+	idEvent	*event = nullptr;
 	const char	*format;
 
 	savefile->ReadInt( num );
@@ -844,7 +842,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 		// read the event name
 		savefile->ReadString( name );
 		event->eventdef = idEventDef::FindEvent( name );
-		if ( event->eventdef == NULL ) {
+		if ( event->eventdef == nullptr) {
 			savefile->Error( "idEvent::Restore: unknown event '%s'", name.c_str() );
 			return;
 		}
@@ -852,7 +850,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 		// read the classtype
 		savefile->ReadString( name );
 		event->typeinfo = idClass::GetClass( name );
-		if ( event->typeinfo == NULL ) {
+		if ( event->typeinfo == nullptr) {
 			savefile->Error( "idEvent::Restore: unknown class '%s' on event '%s'", name.c_str(), event->eventdef->GetName() );
 			return;
 		}
@@ -861,7 +859,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 
 		// read the args
 		savefile->ReadInt( argsize );
-		if ( argsize != (int)event->eventdef->GetArgSize() ) {
+		if ( argsize != static_cast<int>(event->eventdef->GetArgSize()) ) {
 			savefile->Error( "idEvent::Restore: arg size (%d) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
 		}
 		if ( argsize ) {
@@ -905,7 +903,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 			}
 			assert( size == (int)event->eventdef->GetArgSize() );
 		} else {
-			event->data = NULL;
+			event->data = nullptr;
 		}
 	}
 
@@ -926,7 +924,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 		// read the event name
 		savefile->ReadString( name );
 		event->eventdef = idEventDef::FindEvent( name );
-		if ( event->eventdef == NULL ) {
+		if ( event->eventdef == nullptr) {
 			savefile->Error( "idEvent::Restore: unknown event '%s'", name.c_str() );
 			return;
 		}
@@ -934,7 +932,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 		// read the classtype
 		savefile->ReadString( name );
 		event->typeinfo = idClass::GetClass( name );
-		if ( event->typeinfo == NULL ) {
+		if ( event->typeinfo == nullptr) {
 			savefile->Error( "idEvent::Restore: unknown class '%s' on event '%s'", name.c_str(), event->eventdef->GetName() );
 			return;
 		}
@@ -943,14 +941,14 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 
 		// read the args
 		savefile->ReadInt( argsize );
-		if ( argsize != (int)event->eventdef->GetArgSize() ) {
+		if ( argsize != static_cast<int>(event->eventdef->GetArgSize()) ) {
 			savefile->Error( "idEvent::Restore: arg size (%d) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
 		}
 		if ( argsize ) {
 			event->data = eventDataAllocator.Alloc( argsize );
 			savefile->Read( event->data, argsize );
 		} else {
-			event->data = NULL;
+			event->data = nullptr;
 		}
 	}
 }

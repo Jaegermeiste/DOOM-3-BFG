@@ -115,7 +115,7 @@ int	idTokenParser::ExpectTokenString( const char *string ) {
 	return 1;
 }
 // expect a certain token type
-int	idTokenParser::ExpectTokenType( int type, int subtype, idToken *token ) {
+int	idTokenParser::ExpectTokenType( int type, uint64 subtype, idToken *token ) {
 	idStr str;
 
 	if ( !ReadToken( token ) ) {
@@ -138,14 +138,38 @@ int	idTokenParser::ExpectTokenType( int type, int subtype, idToken *token ) {
 	if ( token->type == TT_NUMBER ) {
 		if ( (token->subtype & subtype) != subtype ) {
 			str.Clear();
-			if ( subtype & TT_DECIMAL ) str = "decimal ";
-			if ( subtype & TT_HEX ) str = "hex ";
-			if ( subtype & TT_OCTAL ) str = "octal ";
-			if ( subtype & TT_BINARY ) str = "binary ";
-			if ( subtype & TT_UNSIGNED ) str += "unsigned ";
-			if ( subtype & TT_LONG ) str += "long ";
-			if ( subtype & TT_FLOAT ) str += "float ";
-			if ( subtype & TT_INTEGER ) str += "integer ";
+			if ( subtype & TT_DECIMAL )
+			{
+				str = "decimal ";
+			}
+			if ( subtype & TT_HEX )
+			{
+				str = "hex ";
+			}
+			if ( subtype & TT_OCTAL )
+			{
+				str = "octal ";
+			}
+			if ( subtype & TT_BINARY )
+			{
+				str = "binary ";
+			}
+			if ( subtype & TT_UNSIGNED )
+			{
+				str += "unsigned ";
+			}
+			if ( subtype & TT_LONG )
+			{
+				str += "long ";
+			}
+			if ( subtype & TT_FLOAT )
+			{
+				str += "float ";
+			}
+			if ( subtype & TT_INTEGER )
+			{
+				str += "integer ";
+			}
 			str.StripTrailing( ' ' );
 			Error( "expected %s but found '%s'", str.c_str(), token->c_str() );
 			return 0;

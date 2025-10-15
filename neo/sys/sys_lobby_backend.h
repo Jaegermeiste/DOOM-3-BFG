@@ -43,9 +43,9 @@ public:
 
 	void InitFromIPandPort( const char * ip, int port );
 
-	const char * ToString() const;
-	bool UsingRelay() const;
-	bool Compare( const lobbyAddress_t & addr, bool ignoreSessionCheck = false ) const;
+	[[nodiscard]] const char * ToString() const;
+	[[nodiscard]] bool UsingRelay() const;
+	[[nodiscard]] bool Compare( const lobbyAddress_t & addr, bool ignoreSessionCheck = false ) const;
 	void WriteToMsg( idBitMsg & msg ) const;
 	void ReadFromMsg( idBitMsg & msg );
 
@@ -74,7 +74,7 @@ public:
 	bool ReadRawPacket( lobbyAddress_t & from, void * data, int & size, int maxSize  );
 	void SendRawPacket( const lobbyAddress_t & to, const void * data, int size );
 
-	bool IsOpen();
+	[[nodiscard]] bool IsOpen() const;
 	void Close();
 	
 private:
@@ -129,8 +129,8 @@ struct lobbyUser_t {
 	int					migrationGameData;	// index into the local migration gamedata array that is associated with this user. -1=no migration game data available
 
 	// Platform variables
-	
-	bool IsDisconnected() const { return lobbyUserID.IsValid() ? false : true; }
+
+	[[nodiscard]] bool IsDisconnected() const { return lobbyUserID.IsValid() ? false : true; }
 	
 	void WriteToMsg( idBitMsg & msg ) {
 		address.WriteToMsg( msg );
@@ -154,7 +154,8 @@ struct lobbyUser_t {
 
 	bool UpdateClientMutableData( const idLocalUser * localUser );
 
-	void WriteClientMutableData( idBitMsg & msg ) {
+	void WriteClientMutableData( idBitMsg & msg ) const
+	{
 		msg.WriteBits( selectedSkin, 4 );
 		msg.WriteBits( teamNumber, 2 );		// We need two bits since we use team value of 2 for spectating
 		msg.WriteBool( weaponAutoSwitch );
@@ -224,7 +225,7 @@ public:
 	virtual lobbyConnectInfo_t GetConnectInfo()	= 0;
 	virtual void			FillMsgWithPostConnectInfo( idBitMsg & msg ) = 0;				// Passed itno PostConnectFromMsg
 	virtual void			PostConnectFromMsg( idBitMsg & msg ) = 0;						// Uses results from FillMsgWithPostConnectInfo
-	virtual bool			IsOwnerOfConnectInfo( const lobbyConnectInfo_t & connectInfo ) const { return false; }
+	[[nodiscard]] virtual bool			IsOwnerOfConnectInfo( const lobbyConnectInfo_t & connectInfo ) const { return false; }
 	virtual void			Shutdown() = 0;
 	virtual void			GetOwnerAddress( lobbyAddress_t & outAddr ) = 0;
 	virtual bool			IsHost() { return isHost; }
@@ -235,8 +236,8 @@ public:
 	virtual void			SetInGame( bool value ) {}
 	
 	virtual lobbyBackendState_t	GetState() = 0;
-	virtual bool			IsLocal() const { return isLocal; }
-	virtual bool			IsOnline() const { return !isLocal; }
+	[[nodiscard]] virtual bool			IsLocal() const { return isLocal; }
+	[[nodiscard]] virtual bool			IsOnline() const { return !isLocal; }
 
 	virtual bool			StartArbitration() { return false; }
 	virtual void			Arbitrate() {}
@@ -256,11 +257,11 @@ public:
 	virtual void			FinishBecomeHost() {}
 	
 	void					SetLobbyType( lobbyBackendType_t lobbyType ) { type = lobbyType; }
-	lobbyBackendType_t		GetLobbyType() const { return type; }
-	const char *			GetLobbyTypeString() const { return ( GetLobbyType() == TYPE_PARTY ) ? "Party" : "Game"; }
+	[[nodiscard]] lobbyBackendType_t		GetLobbyType() const { return type; }
+	[[nodiscard]] const char *			GetLobbyTypeString() const { return ( GetLobbyType() == TYPE_PARTY ) ? "Party" : "Game"; }
 
-	bool					IsRanked() { return MatchTypeIsRanked( parms.matchFlags ); }
-	bool					IsPrivate() { return MatchTypeIsPrivate( parms.matchFlags ); }
+	[[nodiscard]] bool					IsRanked() const { return MatchTypeIsRanked( parms.matchFlags ); }
+	[[nodiscard]] bool					IsPrivate() const { return MatchTypeIsPrivate( parms.matchFlags ); }
 
 protected:
 	lobbyBackendType_t		type;
@@ -271,8 +272,8 @@ protected:
 
 class idLobbyToSessionCB {
 public:
-	virtual class idLobbyBackend *				GetLobbyBackend( idLobbyBackend::lobbyBackendType_t type ) const = 0;
-	virtual bool								CanJoinLocalHost() const = 0;
+	[[nodiscard]] virtual class idLobbyBackend *				GetLobbyBackend( idLobbyBackend::lobbyBackendType_t type ) const = 0;
+	[[nodiscard]] virtual bool								CanJoinLocalHost() const = 0;
 
 	// Ugh, hate having to ifdef these, but we're doing some fairly platform specific callbacks
 };

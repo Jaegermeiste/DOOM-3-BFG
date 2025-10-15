@@ -83,7 +83,7 @@ F32toF16
 ========================
 */
 ID_INLINE halfFloat_t F32toF16( float a ) {
-	const unsigned int f = *(unsigned *)( &a );
+	const unsigned int f = *reinterpret_cast<unsigned*>(&a);
 	const unsigned int signbit  = ( f & 0x80000000 ) >> 16;
 	const int exponent = ( ( f & 0x7F800000 ) >> 23 ) - 112;
 	const unsigned int mantissa = ( f & 0x007FFFFF );
@@ -115,8 +115,10 @@ public:
 	byte				color[4];		// 4 bytes
 	byte				color2[4];		// 4 bytes -- weights for skinning
 
-	float				operator[]( const int index ) const;
-	float &				operator[]( const int index );
+	
+	float				operator[]( const Ordinal auto index ) const;
+	
+	float &				operator[]( const Ordinal auto index );
 
 	void				Clear();
 
@@ -150,8 +152,8 @@ public:
 	void				SetTexCoordS( float s );
 	void				SetTexCoordT( float t );
 	const idVec2		GetTexCoord() const;
-	const halfFloat_t	GetTexCoordNativeS() const;
-	const halfFloat_t	GetTexCoordNativeT() const;
+	      halfFloat_t	GetTexCoordNativeS() const;
+	      halfFloat_t	GetTexCoordNativeT() const;
 
 	// either 1.0f or -1.0f
 	ID_INLINE void		SetBiTangentSign( float sign );
@@ -226,9 +228,10 @@ ID_INLINE void VertexFloatToByte( const float & x, const float & y, const float 
 idDrawVert::operator[]
 ========================
 */
-ID_INLINE float idDrawVert::operator[]( const int index ) const {
+
+ID_INLINE float idDrawVert::operator[]( const Ordinal auto index ) const {
 	assert( index >= 0 && index < 5 );
-	return ((float *)(&xyz))[index];
+	return reinterpret_cast<const float*>(&xyz)[index];
 }
 
 /*
@@ -236,9 +239,10 @@ ID_INLINE float idDrawVert::operator[]( const int index ) const {
 idDrawVert::operator[]
 ========================
 */
-ID_INLINE float	&idDrawVert::operator[]( const int index ) {
+
+ID_INLINE float	&idDrawVert::operator[]( const Ordinal auto index ) {
 	assert( index >= 0 && index < 5 );
-	return ((float *)(&xyz))[index];
+	return reinterpret_cast<float*>(&xyz)[index];
 }
 
 /*
@@ -560,7 +564,7 @@ ID_INLINE const idVec2	idDrawVert::GetTexCoord() const {
 idDrawVert::GetTexCoordNativeS
 ========================
 */
-ID_INLINE const halfFloat_t idDrawVert::GetTexCoordNativeS() const {
+ID_INLINE halfFloat_t idDrawVert::GetTexCoordNativeS() const {
 	return st[0];
 }
 
@@ -569,7 +573,7 @@ ID_INLINE const halfFloat_t idDrawVert::GetTexCoordNativeS() const {
 idDrawVert::GetTexCoordNativeT
 ========================
 */
-ID_INLINE const halfFloat_t idDrawVert::GetTexCoordNativeT() const {
+ID_INLINE halfFloat_t idDrawVert::GetTexCoordNativeT() const {
 	return st[1];
 }
 
@@ -660,13 +664,13 @@ ID_INLINE idDrawVert idDrawVert::GetSkinnedDrawVert( const idDrawVert & vert, co
 	const float w2 = vert.color2[2] * ( 1.0f / 255.0f );
 	const float w3 = vert.color2[3] * ( 1.0f / 255.0f );
 
-	idJointMat accum;
+	idJointMat accum = {};
 	idJointMat::Mul( accum, j0, w0 );
 	idJointMat::Mad( accum, j1, w1 );
 	idJointMat::Mad( accum, j2, w2 );
 	idJointMat::Mad( accum, j3, w3 );
 
-	idDrawVert outVert;
+	idDrawVert outVert = {};
 	outVert.xyz = accum * idVec4( vert.xyz.x, vert.xyz.y, vert.xyz.z, 1.0f );
 	outVert.SetTexCoordNative( vert.GetTexCoordNativeS(), vert.GetTexCoordNativeT() );
 	outVert.SetNormal( accum * vert.GetNormal() );

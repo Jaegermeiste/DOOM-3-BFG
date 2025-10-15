@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 Mem_Alloc16
 ==================
 */
-void * Mem_Alloc16( const int size, const memTag_t tag ) {
+static void * Mem_Alloc16( const int size, const memTag_t tag ) {
 	if ( !size ) {
 		return nullptr;
 	}
@@ -67,7 +67,7 @@ void Mem_Free16( void *ptr ) {
 Mem_ClearedAlloc
 ==================
 */
-void * Mem_ClearedAlloc( const int size, const memTag_t tag ) {
+static void * Mem_ClearedAlloc( const int size, const memTag_t tag ) {
 	void * mem = Mem_Alloc( size, tag );
 	SIMDProcessor->Memset( mem, 0, size );
 	return mem;
@@ -79,8 +79,9 @@ Mem_CopyString
 ==================
 */
 char *Mem_CopyString( const char *in ) {
-	char * out = static_cast<char*>(Mem_Alloc(strlen(in) + 1, TAG_STRING));
-	strcpy( out, in );
+	const size_t length = strlen(in) + 1;
+	char * out = static_cast<char*>(Mem_Alloc(length, TAG_STRING));
+	strcat_s( out, length, in );
 	return out;
 }
 

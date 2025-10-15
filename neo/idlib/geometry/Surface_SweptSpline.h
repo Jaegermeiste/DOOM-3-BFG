@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idSurface_SweptSpline : public idSurface {
 public:
-							idSurface_SweptSpline();
+							idSurface_SweptSpline() noexcept;
 							~idSurface_SweptSpline();
 
 	void					SetSpline( idCurve_Spline<idVec4> *spline );
@@ -64,7 +64,7 @@ protected:
 idSurface_SweptSpline::idSurface_SweptSpline
 ====================
 */
-ID_INLINE idSurface_SweptSpline::idSurface_SweptSpline() {
+ID_INLINE idSurface_SweptSpline::idSurface_SweptSpline() noexcept {
 	spline = nullptr;
 	sweptSpline = nullptr;
 }

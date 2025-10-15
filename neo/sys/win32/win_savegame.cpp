@@ -79,7 +79,8 @@ idLocalUserWin * GetLocalUserFromSaveParms( const saveGameThreadArgs_t & data ) 
 idSaveGameThread::SaveGame
 ========================
 */
-int idSaveGameThread::Save() {
+int idSaveGameThread::Save() const
+{
 	idLocalUserWin * user = GetLocalUserFromSaveParms( data );
 	if ( user == nullptr) {
 		data.saveLoadParms->errorCode = SAVEGAME_E_INVALID_USER;
@@ -242,7 +243,8 @@ int idSaveGameThread::Save() {
 idSessionLocal::LoadGame
 ========================
 */
-int idSaveGameThread::Load() {
+int idSaveGameThread::Load() const
+{
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr saveFolder = "savegame";
 
@@ -339,7 +341,8 @@ idSaveGameThread::Delete
 This deletes a complete savegame directory
 ========================
 */
-int idSaveGameThread::Delete() {
+int idSaveGameThread::Delete() const
+{
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr saveFolder = "savegame";
 
@@ -371,7 +374,8 @@ int idSaveGameThread::Delete() {
 idSaveGameThread::Enumerate
 ========================
 */
-int idSaveGameThread::Enumerate() {
+int idSaveGameThread::Enumerate() const
+{
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr saveFolder = "savegame";
 
@@ -450,7 +454,8 @@ int idSaveGameThread::Enumerate() {
 idSaveGameThread::EnumerateFiles
 ========================
 */
-int idSaveGameThread::EnumerateFiles() {
+int idSaveGameThread::EnumerateFiles() const
+{
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr folder = "savegame";
 	
@@ -517,7 +522,8 @@ int idSaveGameThread::EnumerateFiles() {
 idSaveGameThread::DeleteFiles
 ========================
 */
-int idSaveGameThread::DeleteFiles() {
+int idSaveGameThread::DeleteFiles() const
+{
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr folder = "savegame";
 
@@ -571,7 +577,8 @@ idSaveGameThread::DeleteAll
 This deletes all savegame directories
 ========================
 */
-int idSaveGameThread::DeleteAll() {
+int idSaveGameThread::DeleteAll() const
+{
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr saveFolder = "savegame";
 	int ret = ERROR_SUCCESS;
@@ -650,7 +657,7 @@ int idSaveGameThread::Run() {
 
 	// Override error if cvar set
 	if ( savegame_error.GetInteger() != 0 ) {
-		data.saveLoadParms->errorCode = (saveGameError_t)savegame_error.GetInteger();
+		data.saveLoadParms->errorCode = static_cast<saveGameError_t>(savegame_error.GetInteger());
 	}
 
 	// Tell the waiting caller that we are done

@@ -98,7 +98,7 @@ public:
 
 	virtual void		ExportToTGA( bool skipExisting = true );
 
-	virtual float		GetFrameRate() const;
+	[[nodiscard]] virtual float		GetFrameRate() const;
 };
 
 /*
@@ -112,7 +112,7 @@ public:
 class idSndWindow : public idCinematic {
 public:
 	
-						idSndWindow() { showWaveform = false; }
+						idSndWindow() noexcept { showWaveform = false; }
 						~idSndWindow() {}
 
 	bool				InitFromFile( const char *qpath, bool looping );

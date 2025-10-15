@@ -273,11 +273,11 @@ void idCommonLocal::EndAVICapture() {
 	f->Printf( "INPUT_DIR demos/%s\n", aviDemoShortName.c_str() );
 	f->Printf( "FILENAME demos/%s/%s.RoQ\n", aviDemoShortName.c_str(), aviDemoShortName.c_str() );
 	f->Printf( "\nINPUT\n" );
-	f->Printf( "%s_*.tga [00000-%05i]\n", aviDemoShortName.c_str(), (int)( aviDemoFrameCount-1 ) );
+	f->Printf( "%s_*.tga [00000-%05i]\n", aviDemoShortName.c_str(), static_cast<int>(aviDemoFrameCount - 1) );
 	f->Printf( "END_INPUT\n" );
 	delete f;
 
-	common->Printf( "captured %i frames for %s.\n", ( int )aviDemoFrameCount, aviDemoShortName.c_str() );
+	common->Printf( "captured %i frames for %s.\n", static_cast<int>(aviDemoFrameCount), aviDemoShortName.c_str() );
 
 	aviCaptureMode = false;
 }

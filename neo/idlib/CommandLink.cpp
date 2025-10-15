@@ -45,7 +45,7 @@ idCommandLink *CommandLinks( idCommandLink *cl ) {
 }
 
 
-idCommandLink *commandLinks = nullptr;
+//static idCommandLink *commandLinks = nullptr;
 
 idCommandLink::idCommandLink( const char *cmdName, const cmdFunction_t function, 
 	const char *description, const argCompletion_t argCompletion ) {

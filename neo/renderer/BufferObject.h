@@ -68,15 +68,15 @@ public:
 	// Copies data to the buffer. 'size' may be less than the originally allocated size.
 	void				Update( const void * data, int updateSize ) const;
 
-	void *				MapBuffer( bufferMapType_t mapType ) const;
-	idDrawVert *		MapVertexBuffer( bufferMapType_t mapType ) const { return static_cast< idDrawVert * >( MapBuffer( mapType ) ); }
+						[[nodiscard]] void *				MapBuffer( bufferMapType_t mapType ) const;
+						[[nodiscard]] idDrawVert *		MapVertexBuffer( bufferMapType_t mapType ) const { return static_cast< idDrawVert * >( MapBuffer( mapType ) ); }
 	void				UnmapBuffer() const;
-	bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
+						[[nodiscard]] bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
 
-	int					GetSize() const { return ( size & ~MAPPED_FLAG ); }
-	int					GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
-	void *				GetAPIObject() const { return apiObject; }
-	int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
+						[[nodiscard]] int					GetSize() const { return ( size & ~MAPPED_FLAG ); }
+						[[nodiscard]] int					GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
+						[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
+						[[nodiscard]] int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 
 private:
 	int					size;					// size in bytes
@@ -91,7 +91,7 @@ private:
 	void				ClearWithoutFreeing();
 	void				SetMapped() const { const_cast< int & >( size ) |= MAPPED_FLAG; }
 	void				SetUnmapped() const { const_cast< int & >( size ) &= ~MAPPED_FLAG; }
-	bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
+						[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
 
 	DISALLOW_COPY_AND_ASSIGN( idVertexBuffer );
 };
@@ -117,15 +117,15 @@ public:
 	// Copies data to the buffer. 'size' may be less than the originally allocated size.
 	void				Update( const void * data, int updateSize ) const;
 
-	void *				MapBuffer( bufferMapType_t mapType ) const;
-	triIndex_t *		MapIndexBuffer( bufferMapType_t mapType ) const { return static_cast< triIndex_t * >( MapBuffer( mapType ) ); }
+						[[nodiscard]] void *				MapBuffer( bufferMapType_t mapType ) const;
+						[[nodiscard]] triIndex_t *		MapIndexBuffer( bufferMapType_t mapType ) const { return static_cast< triIndex_t * >( MapBuffer( mapType ) ); }
 	void				UnmapBuffer() const;
-	bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
+						[[nodiscard]] bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
 
-	int					GetSize() const { return ( size & ~MAPPED_FLAG ); }
-	int					GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
-	void *				GetAPIObject() const { return apiObject; }
-	int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
+						[[nodiscard]] int					GetSize() const { return ( size & ~MAPPED_FLAG ); }
+						[[nodiscard]] int					GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
+						[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
+						[[nodiscard]] int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 
 private:
 	int					size;					// size in bytes
@@ -140,7 +140,7 @@ private:
 	void				ClearWithoutFreeing();
 	void				SetMapped() const { const_cast< int & >( size ) |= MAPPED_FLAG; }
 	void				SetUnmapped() const { const_cast< int & >( size ) &= ~MAPPED_FLAG; }
-	bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
+						[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
 
 	DISALLOW_COPY_AND_ASSIGN( idIndexBuffer );
 };
@@ -170,14 +170,14 @@ public:
 	// Copies data to the buffer. 'numJoints' may be less than the originally allocated size.
 	void				Update( const float * joints, int numUpdateJoints ) const;
 
-	float *				MapBuffer( bufferMapType_t mapType ) const;
+						[[nodiscard]] float *				MapBuffer( bufferMapType_t mapType ) const;
 	void				UnmapBuffer() const;
-	bool				IsMapped() const { return ( numJoints & MAPPED_FLAG ) != 0; }
+						[[nodiscard]] bool				IsMapped() const { return ( numJoints & MAPPED_FLAG ) != 0; }
 
-	int					GetNumJoints() const { return ( numJoints & ~MAPPED_FLAG ); }
-	int					GetAllocedSize() const { return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float ); }
-	void *				GetAPIObject() const { return apiObject; }
-	int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
+						[[nodiscard]] int					GetNumJoints() const { return ( numJoints & ~MAPPED_FLAG ); }
+						[[nodiscard]] int					GetAllocedSize() const { return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float ); }
+						[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
+						[[nodiscard]] int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 
 	void				Swap( idJointBuffer & other );
 
@@ -194,7 +194,7 @@ private:
 	void				ClearWithoutFreeing();
 	void				SetMapped() const { const_cast< int & >( numJoints ) |= MAPPED_FLAG; }
 	void				SetUnmapped() const { const_cast< int & >( numJoints ) &= ~MAPPED_FLAG; }
-	bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
+						[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
 
 	DISALLOW_COPY_AND_ASSIGN( idJointBuffer );
 };

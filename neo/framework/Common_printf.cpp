@@ -127,7 +127,7 @@ void idCommonLocal::VPrintf( const char *fmt, va_list args ) {
 	}
 
 	if ( rd_buffer ) {
-		if ( (int)( strlen( msg ) + strlen( rd_buffer ) ) > ( rd_buffersize - 1 ) ) {
+		if ( static_cast<int>(strlen(msg) + strlen(rd_buffer)) > ( rd_buffersize - 1 ) ) {
 			rd_flush( rd_buffer );
 			*rd_buffer = 0;
 		}

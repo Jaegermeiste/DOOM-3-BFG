@@ -110,7 +110,8 @@ void idRenderWorldLocal::TouchWorldModels() {
 idRenderWorldLocal::ReadBinaryShadowModel
 ================
 */
-idRenderModel *idRenderWorldLocal::ReadBinaryModel( idFile *fileIn ) {
+idRenderModel *idRenderWorldLocal::ReadBinaryModel( idFile *fileIn ) const
+{
 	idStrStatic< MAX_OSPATH > name;
 	fileIn->ReadString( name );
 	idRenderModel * model = renderModelManager->AllocModel();
@@ -278,7 +279,8 @@ idRenderModel *idRenderWorldLocal::ParseModel( idLexer *src, const char *mapName
 idRenderWorldLocal::ReadBinaryShadowModel
 ================
 */
-idRenderModel *idRenderWorldLocal::ReadBinaryShadowModel( idFile *fileIn ) {
+idRenderModel *idRenderWorldLocal::ReadBinaryShadowModel( idFile *fileIn ) const
+{
 	idStrStatic< MAX_OSPATH > name;
 	fileIn->ReadString( name );
 	idRenderModel * model = renderModelManager->AllocModel();
@@ -401,8 +403,8 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer *src, idFile *fileOut ) 
 	}
 
 
-	portalAreas = (portalArea_t *)R_ClearedStaticAlloc( numPortalAreas * sizeof( portalAreas[0] ) );
-	areaScreenRect = (idScreenRect *) R_ClearedStaticAlloc( numPortalAreas * sizeof( idScreenRect ) );
+	portalAreas = static_cast<portalArea_t*>(R_ClearedStaticAlloc(numPortalAreas * sizeof(portalAreas[0])));
+	areaScreenRect = static_cast<idScreenRect*>(R_ClearedStaticAlloc(numPortalAreas * sizeof(idScreenRect)));
 
 	// set the doubly linked lists
 	SetupAreaRefs();
@@ -418,8 +420,8 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer *src, idFile *fileOut ) 
 		fileOut->WriteBig( numInterAreaPortals );
 	}
 
-	doublePortals = (doublePortal_t *)R_ClearedStaticAlloc( numInterAreaPortals * 
-		sizeof( doublePortals [0] ) );
+	doublePortals = static_cast<doublePortal_t*>(R_ClearedStaticAlloc(numInterAreaPortals *
+		sizeof(doublePortals[0])));
 
 	for ( int i = 0; i < numInterAreaPortals; i++ ) {
 		int		numPoints, a1, a2;
@@ -452,7 +454,7 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer *src, idFile *fileOut ) 
 		}
 
 		// add the portal to a1
-		p = (portal_t *)R_ClearedStaticAlloc( sizeof( *p ) );
+		p = static_cast<portal_t*>(R_ClearedStaticAlloc(sizeof(*p)));
 		p->intoArea = a2;
 		p->doublePortal = &doublePortals[i];
 		p->w = w;
@@ -464,7 +466,7 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer *src, idFile *fileOut ) 
 		doublePortals[i].portals[0] = p;
 
 		// reverse it for a2
-		p = (portal_t *)R_ClearedStaticAlloc( sizeof( *p ) );
+		p = static_cast<portal_t*>(R_ClearedStaticAlloc(sizeof(*p)));
 		p->intoArea = a1;
 		p->doublePortal = &doublePortals[i];
 		p->w = w->Reverse();
@@ -489,13 +491,13 @@ void idRenderWorldLocal::ReadBinaryAreaPortals( idFile *file ) {
 	file->ReadBig( numPortalAreas );
 	file->ReadBig( numInterAreaPortals );
 
-	portalAreas = (portalArea_t *)R_ClearedStaticAlloc( numPortalAreas * sizeof( portalAreas[0] ) );
-	areaScreenRect = (idScreenRect *) R_ClearedStaticAlloc( numPortalAreas * sizeof( idScreenRect ) );
+	portalAreas = static_cast<portalArea_t*>(R_ClearedStaticAlloc(numPortalAreas * sizeof(portalAreas[0])));
+	areaScreenRect = static_cast<idScreenRect*>(R_ClearedStaticAlloc(numPortalAreas * sizeof(idScreenRect)));
 
 	// set the doubly linked lists
 	SetupAreaRefs();
 
-	doublePortals = (doublePortal_t *)R_ClearedStaticAlloc( numInterAreaPortals * sizeof( doublePortals [0] ) );
+	doublePortals = static_cast<doublePortal_t*>(R_ClearedStaticAlloc(numInterAreaPortals * sizeof(doublePortals[0])));
 
 	for ( int i = 0; i < numInterAreaPortals; i++ ) {
 		int		numPoints, a1, a2;
@@ -517,7 +519,7 @@ void idRenderWorldLocal::ReadBinaryAreaPortals( idFile *file ) {
 		}
 
 		// add the portal to a1
-		p = (portal_t *)R_ClearedStaticAlloc( sizeof( *p ) );
+		p = static_cast<portal_t*>(R_ClearedStaticAlloc(sizeof(*p)));
 		p->intoArea = a2;
 		p->doublePortal = &doublePortals[i];
 		p->w = w;
@@ -529,7 +531,7 @@ void idRenderWorldLocal::ReadBinaryAreaPortals( idFile *file ) {
 		doublePortals[i].portals[0] = p;
 
 		// reverse it for a2
-		p = (portal_t *)R_ClearedStaticAlloc( sizeof( *p ) );
+		p = static_cast<portal_t*>(R_ClearedStaticAlloc(sizeof(*p)));
 		p->intoArea = a1;
 		p->doublePortal = &doublePortals[i];
 		p->w = w->Reverse();
@@ -555,7 +557,7 @@ void idRenderWorldLocal::ParseNodes( idLexer *src, idFile *fileOut ) {
 	if ( numAreaNodes < 0 ) {
 		src->Error( "R_ParseNodes: bad numAreaNodes" );
 	}
-	areaNodes = (areaNode_t *)R_ClearedStaticAlloc( numAreaNodes * sizeof( areaNodes[0] ) );
+	areaNodes = static_cast<areaNode_t*>(R_ClearedStaticAlloc(numAreaNodes * sizeof(areaNodes[0])));
 
 	if ( fileOut != nullptr) {
 		// write out the type so the binary reader knows what to instantiate
@@ -597,7 +599,7 @@ idRenderWorldLocal::ReadBinaryNodes
 */
 void idRenderWorldLocal::ReadBinaryNodes( idFile * file ) {
 	file->ReadBig( numAreaNodes );
-	areaNodes = (areaNode_t *)R_ClearedStaticAlloc( numAreaNodes * sizeof( areaNodes[0] ) );
+	areaNodes = static_cast<areaNode_t*>(R_ClearedStaticAlloc(numAreaNodes * sizeof(areaNodes[0])));
 	for ( int i = 0; i < numAreaNodes; i++ ) {
 		areaNode_t * node = &areaNodes[ i ];
 		file->ReadBig( node->plane[ 0 ] );
@@ -654,15 +656,15 @@ Sets up for a single area world
 */
 void idRenderWorldLocal::ClearWorld() {
 	numPortalAreas = 1;
-	portalAreas = (portalArea_t *)R_ClearedStaticAlloc( sizeof( portalAreas[0] ) );
-	areaScreenRect = (idScreenRect *) R_ClearedStaticAlloc( sizeof( idScreenRect ) );
+	portalAreas = static_cast<portalArea_t*>(R_ClearedStaticAlloc(sizeof(portalAreas[0])));
+	areaScreenRect = static_cast<idScreenRect*>(R_ClearedStaticAlloc(sizeof(idScreenRect)));
 
 	SetupAreaRefs();
 
 	// even though we only have a single area, create a node
 	// that has both children pointing at it so we don't need to
 	//
-	areaNodes = (areaNode_t *)R_ClearedStaticAlloc( sizeof( areaNodes[0] ) );
+	areaNodes = static_cast<areaNode_t*>(R_ClearedStaticAlloc(sizeof(areaNodes[0])));
 	areaNodes[0].plane[3] = 1;
 	areaNodes[0].children[0] = -1;
 	areaNodes[0].children[1] = -1;

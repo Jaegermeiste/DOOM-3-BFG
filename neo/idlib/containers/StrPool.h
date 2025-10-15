@@ -45,7 +45,7 @@ class idPoolStr : public idStr {
 	friend class idStrPool;
 
 public:
-						idPoolStr() { numUsers = 0; }
+						idPoolStr() noexcept { numUsers = 0; }
 						~idPoolStr() { assert( numUsers == 0 ); }
 
 						// returns total size of allocated memory
@@ -62,15 +62,16 @@ private:
 
 class idStrPool {
 public:
-						idStrPool() { caseSensitive = true; }
+						idStrPool() noexcept { caseSensitive = true; }
 
 	void				SetCaseSensitive( bool caseSensitive );
 
-	int					Num() const { return pool.Num(); }
+	size_t				Num() const { return pool.Num(); }
 	size_t				Allocated() const;
 	size_t				Size() const;
 
-	const idPoolStr *	operator[](const int index ) const { return pool[index]; }
+	
+	const idPoolStr*    operator[](const Ordinal auto index) const { ORDINAL_CHECK(index, pool.Num()); return pool[index]; }
 
 	const idPoolStr *	AllocString( const char *string );
 	void				FreeString( const idPoolStr *poolStr );
@@ -98,9 +99,9 @@ idStrPool::AllocString
 ================
 */
 ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
-	int i;
+	int64 i = 0;
 
-	int hash = poolHash.GenerateKey(string, caseSensitive);
+	const int64 hash = poolHash.GenerateKey(string, caseSensitive);
 	if ( caseSensitive ) {
 		for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
 			if ( pool[i]->Cmp( string ) == 0 ) {
@@ -131,14 +132,14 @@ idStrPool::FreeString
 ================
 */
 ID_INLINE void idStrPool::FreeString( const idPoolStr *poolStr ) {
-	int i;
+	int64 i = 0;
 
 	assert( poolStr->numUsers >= 1 );
 	assert( poolStr->pool == this );
 
 	poolStr->numUsers--;
 	if ( poolStr->numUsers <= 0 ) {
-		int hash = poolHash.GenerateKey(poolStr->c_str(), caseSensitive);
+		const int64 hash = poolHash.GenerateKey(poolStr->c_str(), caseSensitive);
 		if ( caseSensitive ) { 
 			for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
 				if ( pool[i]->Cmp( poolStr->c_str() ) == 0 ) {

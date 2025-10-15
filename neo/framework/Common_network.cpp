@@ -235,7 +235,7 @@ void idCommonLocal::NetReceiveReliable( int peer, int type, idBitMsg & msg ) {
 	reliable.client = clientNum;
 	reliable.type = type;
 	reliable.dataSize = msgSize;
-	reliable.data = (byte *)Mem_Alloc( msgSize, TAG_NETWORKING );
+	reliable.data = static_cast<byte*>(Mem_Alloc(msgSize, TAG_NETWORKING));
 	memcpy( reliable.data, msgData, msgSize );
 }
 
@@ -442,7 +442,7 @@ void idCommonLocal::RunNetworkSnapshotFrame() {
 
 	// Process any reliable messages we've received
 	for ( int i = 0; i < reliableQueue.Num(); i++ ) {
-		game->ProcessReliableMessage( reliableQueue[i].client, reliableQueue[i].type, idBitMsg( (const byte *)reliableQueue[i].data, reliableQueue[i].dataSize ) );
+		game->ProcessReliableMessage( reliableQueue[i].client, reliableQueue[i].type, idBitMsg( static_cast<const byte*>(reliableQueue[i].data), reliableQueue[i].dataSize ) );
 		Mem_Free( reliableQueue[i].data );
 	}
 	reliableQueue.Clear();
@@ -454,7 +454,7 @@ void idCommonLocal::RunNetworkSnapshotFrame() {
 
 	if ( snapPrevious.serverTime >= 0 ) {
 
-		int	msec_interval = 1 + idMath::Ftoi( (float)initialBaseTicksPerSec  );
+		int	msec_interval = 1 + idMath::Ftoi( static_cast<float>(initialBaseTicksPerSec)  );
 
 		static int clientTimeResidual = 0;
 		static int lastTime = Sys_Milliseconds();
@@ -480,16 +480,16 @@ void idCommonLocal::RunNetworkSnapshotFrame() {
 			// JAF Game()->GetRenderWorld()->UpdateDeferredPositions();
 
 			// Clamp the current time so that it doesn't fall outside of our extrapolation bounds
-			snapCurrentTime = idMath::ClampInt( 0, snapRate + Min( (int)snapRate, (int)net_maxExtrapolationInMS.GetInteger() ), snapCurrentTime );
+			snapCurrentTime = idMath::ClampInt( 0, snapRate + Min( static_cast<int>(snapRate), (int)net_maxExtrapolationInMS.GetInteger() ), snapCurrentTime );
 
 			if ( snapRate <= 0 ) {
 				idLib::Warning("snapRate <= 0. Resetting to 100");
 				snapRate = 100;
 			}
 
-			float fraction = (float)snapCurrentTime / (float)snapRate;		
+			float fraction = static_cast<float>(snapCurrentTime) / static_cast<float>(snapRate);		
 			if ( !IsValid( fraction ) ) {
-				idLib::Warning("Interpolation Fraction invalid: snapCurrentTime %d / snapRate %d", (int)snapCurrentTime, (int)snapRate );
+				idLib::Warning("Interpolation Fraction invalid: snapCurrentTime %d / snapRate %d", static_cast<int>(snapCurrentTime), static_cast<int>(snapRate) );
 				fraction = 0.0f;
 			}
 			
@@ -542,7 +542,7 @@ void idCommonLocal::RunNetworkSnapshotFrame() {
 
 			}
 
-			float delta_interpolate = (float)initialBaseTicksPerSec * snapRateScale;
+			float delta_interpolate = static_cast<float>(initialBaseTicksPerSec) * snapRateScale;
 			if ( net_effectiveSnapRateEnable.GetBool() ) {
 
 				float deltaFrameGameMS = static_cast<float>( initialBaseTicksPerSec ) * static_cast<float>( deltaFrameTime / 1000.0f );
@@ -587,7 +587,7 @@ void idCommonLocal::ExecuteReliableMessages() {
 	// Process any reliable messages we've received
 	for ( int i = 0; i < reliableQueue.Num(); i++ ) {
 		reliableMsg_t & reliable = reliableQueue[i];
-		game->ProcessReliableMessage( reliable.client, reliable.type, idBitMsg( (const byte *)reliable.data, reliable.dataSize ) );
+		game->ProcessReliableMessage( reliable.client, reliable.type, idBitMsg( static_cast<const byte*>(reliable.data), reliable.dataSize ) );
 		Mem_Free( reliable.data );
 	}
 	reliableQueue.Clear();

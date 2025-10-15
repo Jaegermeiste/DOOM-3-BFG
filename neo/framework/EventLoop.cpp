@@ -59,7 +59,8 @@ idEventLoop::~idEventLoop() {
 idEventLoop::GetRealEvent
 =================
 */
-sysEvent_t	idEventLoop::GetRealEvent() {
+sysEvent_t	idEventLoop::GetRealEvent() const
+{
 	int			r;
 	sysEvent_t	ev;
 
@@ -154,7 +155,7 @@ void idEventLoop::ProcessEvent( sysEvent_t ev ) {
 
 	if ( ev.evType == SE_CONSOLE ) {
 		// from a text console outside the game window
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, (char *)ev.evPtr );
+		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, static_cast<char*>(ev.evPtr) );
 		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "\n" );
 	} else {
 		common->ProcessEvent( &ev );

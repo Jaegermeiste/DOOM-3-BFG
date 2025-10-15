@@ -50,10 +50,10 @@ public:
 };
 
 // offsets for SIMD code
-#define JOINTQUAT_SIZE (8 * 4)		// sizeof( idJointQuat );
-#define JOINTQUAT_SIZE_SHIFT 5			// log2( sizeof( idJointQuat ) );
-#define JOINTQUAT_Q_OFFSET  (0 * 4)		// offsetof( idJointQuat, q );
-#define JOINTQUAT_T_OFFSET (4 * 4)		// offsetof( idJointQuat, t );
+constexpr auto JOINTQUAT_SIZE = (8 * 4);		// sizeof( idJointQuat );
+constexpr auto JOINTQUAT_SIZE_SHIFT = 5;			// log2( sizeof( idJointQuat ) );
+constexpr auto JOINTQUAT_Q_OFFSET = (0 * 4);		// offsetof( idJointQuat, q );
+constexpr auto JOINTQUAT_T_OFFSET = (4 * 4);		// offsetof( idJointQuat, t );
 
 assert_sizeof( idJointQuat, JOINTQUAT_SIZE );
 assert_sizeof( idJointQuat, (1<<JOINTQUAT_SIZE_SHIFT) );
@@ -255,7 +255,7 @@ idJointMat::operator/=
 ========================
 */
 ID_INLINE idJointMat &idJointMat::operator/=( const idJointMat &a ) {
-	float tmp[3];
+	float tmp[3] = {};
 
 	mat[0 * 4 + 3] -= a.mat[0 * 4 + 3];
 	mat[1 * 4 + 3] -= a.mat[1 * 4 + 3];

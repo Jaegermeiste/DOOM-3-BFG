@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __CVARSYSTEM_H__
 #define __CVARSYSTEM_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -125,57 +127,57 @@ public:
 
 	virtual					~idCVar() {}
 
-	const char *			GetName() const { return internalVar->name; }
-	int						GetFlags() const { return internalVar->flags; }
-	const char *			GetDescription() const { return internalVar->description; }
-	float					GetMinValue() const { return internalVar->valueMin; }
-	float					GetMaxValue() const { return internalVar->valueMax; }
-	const char **			GetValueStrings() const { return valueStrings; }
-	argCompletion_t			GetValueCompletion() const { return valueCompletion; }
+							[[nodiscard]] const char *			GetName() const noexcept { return internalVar->name; }
+							[[nodiscard]] int						GetFlags() const noexcept { return internalVar->flags; }
+							[[nodiscard]] const char *			GetDescription() const noexcept { return internalVar->description; }
+							[[nodiscard]] float					GetMinValue() const noexcept { return internalVar->valueMin; }
+							[[nodiscard]] float					GetMaxValue() const noexcept { return internalVar->valueMax; }
+							[[nodiscard]] const char **			GetValueStrings() const noexcept { return valueStrings; }
+							[[nodiscard]] argCompletion_t			GetValueCompletion() const noexcept { return valueCompletion; }
 
-	bool					IsModified() const { return ( internalVar->flags & CVAR_MODIFIED ) != 0; }
-	void					SetModified() { internalVar->flags |= CVAR_MODIFIED; }
-	void					ClearModified() { internalVar->flags &= ~CVAR_MODIFIED; }
+							[[nodiscard]] bool					IsModified() const noexcept { return ( internalVar->flags & CVAR_MODIFIED ) != 0; }
+	void					SetModified() const noexcept { internalVar->flags |= CVAR_MODIFIED; }
+	void					ClearModified() const noexcept { internalVar->flags &= ~CVAR_MODIFIED; }
 
-	const char *			GetDefaultString() const { return internalVar->InternalGetResetString(); }
-	const char *			GetString() const { return internalVar->value; }
-	bool					GetBool() const { return ( internalVar->integerValue != 0 ); }
-	int						GetInteger() const { return internalVar->integerValue; }
-	float					GetFloat() const { return internalVar->floatValue; }
+							[[nodiscard]] const char *			GetDefaultString() const { return internalVar->InternalGetResetString(); }
+							[[nodiscard]] const char *			GetString() const noexcept { return internalVar->value; }
+							[[nodiscard]] bool					GetBool() const noexcept { return ( internalVar->integerValue != 0 ); }
+							[[nodiscard]] int						GetInteger() const noexcept { return internalVar->integerValue; }
+							[[nodiscard]] float					GetFloat() const noexcept { return internalVar->floatValue; }
 
-	void					SetString( const char *value ) { internalVar->InternalSetString( value ); }
-	void					SetBool( const bool value ) { internalVar->InternalSetBool( value ); }
-	void					SetInteger( const int value ) { internalVar->InternalSetInteger( value ); }
-	void					SetFloat( const float value ) { internalVar->InternalSetFloat( value ); }
+	void					SetString( const char *value ) const { internalVar->InternalSetString( value ); }
+	void					SetBool( const bool value ) const { internalVar->InternalSetBool( value ); }
+	void					SetInteger( const int value ) const { internalVar->InternalSetInteger( value ); }
+	void					SetFloat( const float value ) const { internalVar->InternalSetFloat( value ); }
 
-	void					SetInternalVar( idCVar *cvar ) { internalVar = cvar; }
+	void					SetInternalVar( idCVar *cvar ) noexcept { internalVar = cvar; }
 
 	static void				RegisterStaticVars();
 
 protected:
-	const char *			name;					// name
-	const char *			value;					// value
-	const char *			description;			// description
-	int						flags;					// CVAR_? flags
-	float					valueMin;				// minimum value
-	float					valueMax;				// maximum value
-	const char **			valueStrings;			// valid value strings
+	const char *			name = nullptr;					// name
+	const char *			value = nullptr;					// value
+	const char *			description = nullptr;			// description
+	int						flags = 0;					// CVAR_? flags
+	float					valueMin = 1.0f;				// minimum value
+	float					valueMax = -1.0f;				// maximum value
+	const char **			valueStrings = nullptr;			// valid value strings
 	argCompletion_t			valueCompletion;		// value auto-completion function
-	int						integerValue;			// atoi( string )
-	float					floatValue;				// atof( value )
-	idCVar *				internalVar;			// internal cvar
-	idCVar *				next;					// next statically declared cvar
+	int						integerValue = 0;			// atoi( string )
+	float					floatValue = 0.0f;				// atof( value )
+	idCVar *				internalVar = nullptr;			// internal cvar
+	idCVar *				next = nullptr;					// next statically declared cvar
 
 private:
 	void					Init( const char *name, const char *value, int flags, const char *description,
 									float valueMin, float valueMax, const char **valueStrings, argCompletion_t valueCompletion );
 
-	virtual void			InternalSetString( const char *newValue ) {}
-	virtual void			InternalSetBool( const bool newValue ) {}
-	virtual void			InternalSetInteger( const int newValue ) {}
-	virtual void			InternalSetFloat( const float newValue ) {}
+	virtual void			InternalSetString( const char *newValue ) noexcept {}
+	virtual void			InternalSetBool( const bool newValue ) noexcept {}
+	virtual void			InternalSetInteger( const int newValue ) noexcept {}
+	virtual void			InternalSetFloat( const float newValue ) noexcept {}
 
-	virtual const char *	InternalGetResetString() const { return value; }
+							[[nodiscard]] virtual const char *	InternalGetResetString() const noexcept { return value; }
 
 	static idCVar *			staticVars;
 };
@@ -213,7 +215,7 @@ public:
 
 	virtual void			Init() = 0;
 	virtual void			Shutdown() = 0;
-	virtual bool			IsInitialized() const = 0;
+	[[nodiscard]] virtual bool			IsInitialized() const = 0;
 
 							// Registers a CVar.
 	virtual void			Register( idCVar *cvar ) = 0;
@@ -244,7 +246,7 @@ public:
 
 							// Sets/gets/clears modified flags that tell what kind of CVars have changed.
 	virtual void			SetModifiedFlags( int flags ) = 0;
-	virtual int				GetModifiedFlags() const = 0;
+	[[nodiscard]] virtual int				GetModifiedFlags() const = 0;
 	virtual void			ClearModifiedFlags( int flags ) = 0;
 
 							// Resets variables with one of the given flags set.

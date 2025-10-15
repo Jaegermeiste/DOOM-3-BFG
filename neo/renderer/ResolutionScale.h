@@ -37,7 +37,7 @@ public:
 	// Returns a float from 0.5 to 1.0, representing
 	// the estimated resolution downscale needed to
 	// maintain the target framerate.
-	void	GetCurrentResolutionScale( float &x, float &y );
+	void	GetCurrentResolutionScale( float &x, float &y ) const;
 
 	// This should be called after any discontinuous
 	// view movement or force texture loading to prevent

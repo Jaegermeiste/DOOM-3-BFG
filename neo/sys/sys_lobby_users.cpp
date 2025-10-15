@@ -116,7 +116,8 @@ void idLobby::FreeAllUsers() {
 idLobby::RegisterUser
 ========================
 */
-void idLobby::RegisterUser( lobbyUser_t * lobbyUser ) {
+void idLobby::RegisterUser( lobbyUser_t * lobbyUser ) const
+{
 	if ( lobbyUser->isBot ) {
 		return;
 	}
@@ -136,7 +137,8 @@ void idLobby::RegisterUser( lobbyUser_t * lobbyUser ) {
 idLobby::UnregisterUser
 ========================
 */
-void idLobby::UnregisterUser( lobbyUser_t * lobbyUser ) {
+void idLobby::UnregisterUser( lobbyUser_t * lobbyUser ) const
+{
 	if ( lobbyUser->isBot ) {
 		return;
 	}
@@ -241,7 +243,8 @@ idLobby::CreateLobbyUserFromLocalUser
 This functions just defaults the session users to the signin manager local users
 ========================
 */
-lobbyUser_t idLobby::CreateLobbyUserFromLocalUser( const idLocalUser * localUser ) {
+lobbyUser_t idLobby::CreateLobbyUserFromLocalUser( const idLocalUser * localUser ) const
+{
 		
 	lobbyUser_t lobbyUser;
 	idStr::Copynz( lobbyUser.gamertag, localUser->GetGamerTag(), sizeof( lobbyUser.gamertag ) );
@@ -1291,7 +1294,7 @@ float idLobby::GetAverageSessionLevel() {
 	}
 
 	if ( numActiveMembers > 0 ) {
-		level /= (float)numActiveMembers;
+		level /= static_cast<float>(numActiveMembers);
 	}
 
 	float ret = Max( level, 1.0f );
@@ -1304,7 +1307,8 @@ float idLobby::GetAverageSessionLevel() {
 idLobby::GetAverageLocalUserLevel
 ========================
 */
-float idLobby::GetAverageLocalUserLevel( bool onlineOnly ) {
+float idLobby::GetAverageLocalUserLevel( bool onlineOnly ) const
+{
 	float	level				= 0.0f;
 	int		numActiveMembers	= 0;
 
@@ -1326,7 +1330,7 @@ float idLobby::GetAverageLocalUserLevel( bool onlineOnly ) {
 	}
 
 	if ( numActiveMembers > 0 ) {
-		level /= (float)numActiveMembers;
+		level /= static_cast<float>(numActiveMembers);
 	}
 
 	return Max( level, 1.0f );
@@ -1361,7 +1365,7 @@ void idLobby::QueueReliablePlayerToPlayerMessage( int fromSessionUserIndex, int 
 
 	const int sendToPeer = IsHost() ? targetUser->peerIndex : host;
 
-	QueueReliableMessage( sendToPeer, RELIABLE_PLAYER_TO_PLAYER_BEGIN + (int) type, outmsg.GetReadData(), outmsg.GetSize() );
+	QueueReliableMessage( sendToPeer, RELIABLE_PLAYER_TO_PLAYER_BEGIN + static_cast<int>(type), outmsg.GetReadData(), outmsg.GetSize() );
 }
 
 /*

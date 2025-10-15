@@ -51,7 +51,7 @@ typedef void (*deriveFunction_t)( const float t, const void *userData, const flo
 class idODE {
 
 public:
-	virtual				~idODE() {}
+	virtual				~idODE() = default;
 
 	virtual float		Evaluate( const float *state, float *newState, float t0, float t1 ) = 0;
 

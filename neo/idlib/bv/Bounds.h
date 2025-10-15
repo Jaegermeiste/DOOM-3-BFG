@@ -41,12 +41,14 @@ If you have questions concerning this license or the applicable additional terms
 
 class idBounds {
 public:
-					idBounds();
+					idBounds() noexcept;
 					explicit idBounds( const idVec3 &mins, const idVec3 &maxs );
 					explicit idBounds( const idVec3 &point );
 
-	const idVec3 &	operator[]( const int index ) const;
-	idVec3 &		operator[]( const int index );
+	
+	const idVec3 &	operator[]( const Ordinal auto index ) const;
+	
+	idVec3 &		operator[]( const Ordinal auto index );
 	idBounds		operator+( const idVec3 &t ) const;				// returns translated bounds
 	idBounds &		operator+=( const idVec3 &t );					// translate the bounds
 	idBounds		operator*( const idMat3 &r ) const;				// returns rotated bounds
@@ -120,8 +122,7 @@ extern idBounds	bounds_zero;
 extern idBounds bounds_zeroOneCube;
 extern idBounds bounds_unitCube;
 
-ID_INLINE idBounds::idBounds() {
-}
+ID_INLINE idBounds::idBounds() noexcept = default;
 
 ID_INLINE idBounds::idBounds( const idVec3 &mins, const idVec3 &maxs ) {
 	b[0] = mins;
@@ -133,11 +134,15 @@ ID_INLINE idBounds::idBounds( const idVec3 &point ) {
 	b[1] = point;
 }
 
-ID_INLINE const idVec3 &idBounds::operator[]( const int index ) const {
+
+ID_INLINE const idVec3 &idBounds::operator[]( const Ordinal auto index ) const {
+	ORDINAL_CHECK(index, 2);
 	return b[index];
 }
 
-ID_INLINE idVec3 &idBounds::operator[]( const int index ) {
+
+ID_INLINE idVec3 &idBounds::operator[]( const Ordinal auto index ) {
+	ORDINAL_CHECK(index, 2);
 	return b[index];
 }
 
@@ -382,11 +387,11 @@ ID_INLINE idSphere idBounds::ToSphere() const {
 }
 
 ID_INLINE void idBounds::AxisProjection( const idVec3 &dir, float &min, float &max ) const {
-	idVec3 center = (b[0] + b[1]) * 0.5f;
+	const idVec3 center = (b[0] + b[1]) * 0.5f;
 	idVec3 extents = b[1] - center;
 
-	float d1 = dir * center;
-	float d2 = idMath::Fabs(extents[0] * dir[0]) +
+	const float d1 = dir * center;
+	const float d2 = idMath::Fabs(extents[0] * dir[0]) +
 		idMath::Fabs(extents[1] * dir[1]) +
 		idMath::Fabs(extents[2] * dir[2]);
 
@@ -399,8 +404,8 @@ ID_INLINE void idBounds::AxisProjection( const idVec3 &origin, const idMat3 &axi
 	idVec3 extents = b[1] - center;
 	center = origin + center * axis;
 
-	float d1 = dir * center;
-	float d2 = idMath::Fabs(extents[0] * (dir * axis[0])) +
+	const float d1 = dir * center;
+	const float d2 = idMath::Fabs(extents[0] * (dir * axis[0])) +
 		idMath::Fabs(extents[1] * (dir * axis[1])) +
 		idMath::Fabs(extents[2] * (dir * axis[2]));
 

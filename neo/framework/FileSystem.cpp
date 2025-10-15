@@ -131,7 +131,7 @@ public:
 	virtual void			Init();
 	virtual void			Restart();
 	virtual void			Shutdown( bool reloading );
-	virtual bool			IsInitialized() const;
+							[[nodiscard]] virtual bool			IsInitialized() const;
 	virtual idFileList *	ListFiles( const char *relativePath, const char *extension, bool sort = false, bool fullRelativePath = false, const char* gamedir = nullptr);
 	virtual idFileList *	ListFilesTree( const char *relativePath, const char *extension, bool sort = false, const char* gamedir = nullptr);
 	virtual void			FreeFileList( idFileList *fileList );
@@ -140,9 +140,9 @@ public:
 	virtual const char *	BuildOSPath( const char *base, const char *game, const char *relativePath );
 	virtual const char *	BuildOSPath( const char *base, const char *relativePath );
 	virtual void			CreateOSPath( const char *OSPath );
-	virtual int				ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp );
+	virtual int64			ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp );
 	virtual void			FreeFile( void *buffer );
-	virtual int				WriteFile( const char *relativePath, const void *buffer, int size, const char *basePath = "fs_savepath" );
+	virtual size_t			WriteFile(const char* relativePath, const void* buffer, size_t size, const char* basePath = "fs_savepath");
 	virtual void			RemoveFile( const char *relativePath );	
 	virtual	bool			RemoveDir( const char * relativePath );
 	virtual bool			RenameFile( const char * relativePath, const char * newName, const char * basePath = "fs_savepath" );
@@ -154,13 +154,13 @@ public:
 	virtual idFile *		OpenFileByMode( const char *relativePath, fsMode_t mode );
 	virtual idFile *		OpenExplicitFileRead( const char *OSPath );
 	virtual idFile *		OpenExplicitFileWrite( const char *OSPath );
-	virtual idFile_Cached *		OpenExplicitPakFile( const char *OSPath );
+	virtual idFile_Cached *	OpenExplicitPakFile( const char *OSPath );
 	virtual void			CloseFile( idFile *f );
 	virtual void			FindDLL( const char *basename, char dllPath[ MAX_OSPATH ] );
 	virtual void			CopyFile( const char *fromOSPath, const char *toOSPath );
 	virtual findFile_t		FindFile( const char *path );
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const;
-	virtual int				GetFileLength( const char * relativePath );
+	virtual int64			GetFileLength( const char * relativePath );
 	virtual sysFolder_t		IsFolder( const char * relativePath, const char *basePath = "fs_basepath" );
 	// resource tracking
 	virtual void			EnableBackgroundCache( bool enable );
@@ -182,8 +182,8 @@ public:
 	idFile *				GetResourceFile( const char *fileName, bool memFile );
 	bool					GetResourceCacheEntry( const char *fileName, idResourceCacheEntry &rc );
 	virtual int				ReadFromBGL( idFile *_resourceFile, void * _buffer, int _offset, int _len );
-	virtual bool			IsBinaryModel( const idStr & resName ) const;
-	virtual bool			IsSoundSample( const idStr & resName ) const;
+							[[nodiscard]] virtual bool			IsBinaryModel( const idStr & resName ) const;
+							[[nodiscard]] virtual bool			IsSoundSample( const idStr & resName ) const;
 	virtual void			FreeResourceBuffer() { resourceBufferAvailable = resourceBufferSize; }
 	virtual void			AddImagePreload( const char *resName, int _filter, int _repeat, int _usage, int _cube ) {
 		preloadList.AddImage( resName, _filter, _repeat, _usage, _cube );
@@ -239,9 +239,9 @@ private:
 
 	idList< idResourceContainer * > resourceFiles;
 	byte *	resourceBufferPtr;
-	int		resourceBufferSize;
-	int		resourceBufferAvailable;
-	int		numFilesOpenedAsCached;
+	size_t	resourceBufferSize;
+	size_t	resourceBufferAvailable;
+	size_t	numFilesOpenedAsCached;
 
 private:
 
@@ -376,9 +376,9 @@ bool idFileSystemLocal::FilenameCompare( const char *s1, const char *s2 ) const 
 idFileSystemLocal::GetFileLength
 ========================
 */
-int idFileSystemLocal::GetFileLength( const char * relativePath ) {
-	idFile *	f;
-	int			len;
+int64 idFileSystemLocal::GetFileLength( const char * relativePath ) {
+	idFile *	f = nullptr;
+	int64		len = -1;
 
 	if ( !IsInitialized() ) {
 		idLib::FatalError( "Filesystem call made without initialization" );
@@ -402,7 +402,7 @@ int idFileSystemLocal::GetFileLength( const char * relativePath ) {
 		return -1;
 	}
 
-	len = (int)f->Length();
+	len = idMath::integer_cast<int64>(f->Length());
 
 	delete f;
 	return len;
@@ -1580,12 +1580,12 @@ a null buffer will just return the file length and time without loading
 timestamp can be NULL if not required
 ============
 */
-int idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp ) {
+int64 idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp ) {
 
-	idFile *	f;
-	byte *		buf;
-	int			len;
-	bool		isConfig;
+	idFile *	f = nullptr;
+	byte *		buf = nullptr;
+	int64		len = -1;
+	bool		isConfig = false;
 
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
@@ -1607,10 +1607,10 @@ int idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIM
 
 	if ( buffer == nullptr && timestamp != nullptr && resourceFiles.Num() > 0 ) {
 		static idResourceCacheEntry rc;
-		int size = 0;
+		int64 size = 0;
 		if ( GetResourceCacheEntry( relativePath, rc ) ) {
 			*timestamp = 0;
-			size = rc.length;
+			size = idMath::integer_cast<int64>(rc.length);
 		} 
 		return size;
 	}
@@ -1634,7 +1634,7 @@ int idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIM
 				*buffer = nullptr;
 				return -1;
 			}
-			buf = (byte *)Mem_ClearedAlloc(len+1, TAG_IDFILE);
+			buf = static_cast<byte*>(Mem_ClearedAlloc(len + 1, TAG_IDFILE));
 			*buffer = buf;
 			r = eventLoop->com_journalDataFile->Read( buf, len );
 			if ( r != len ) {
@@ -1672,7 +1672,7 @@ int idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIM
 	loadCount++;
 	loadStack++;
 
-	buf = (byte *)Mem_ClearedAlloc(len+1, TAG_IDFILE);
+	buf = static_cast<byte*>(Mem_ClearedAlloc(len + 1, TAG_IDFILE));
 	*buffer = buf;
 
 	f->Read( buf, len );
@@ -1716,8 +1716,8 @@ idFileSystemLocal::WriteFile
 Filenames are relative to the search path
 ============
 */
-int idFileSystemLocal::WriteFile( const char *relativePath, const void *buffer, int size, const char *basePath ) {
-	idFile *f;
+size_t idFileSystemLocal::WriteFile( const char *relativePath, const void *buffer, size_t size, const char *basePath ) {
+	idFile *f = nullptr;
 
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
@@ -2266,12 +2266,12 @@ Generates a CRC checksum file for each .resources file.
 void idFileSystemLocal::GenerateResourceCRCs_f( const idCmdArgs &args ) {
 	idLib::Printf( "Generating CRCs for resource files...\n" );
 
-	const std::auto_ptr<idFileList> baseResourceFileList( fileSystem->ListFiles( ".", ".resources" ) );
+	const std::unique_ptr<idFileList> baseResourceFileList( fileSystem->ListFiles( ".", ".resources" ) );
 	if ( baseResourceFileList.get() != nullptr) {
 		CreateCRCsForResourceFileList ( *baseResourceFileList );
 	}
 
-	const std::auto_ptr<idFileList> mapResourceFileList( fileSystem->ListFilesTree( "maps", ".resources" ) );
+	const std::unique_ptr<idFileList> mapResourceFileList( fileSystem->ListFilesTree( "maps", ".resources" ) );
 	if ( mapResourceFileList.get() != nullptr) {
 		CreateCRCsForResourceFileList ( *mapResourceFileList );
 	}
@@ -2288,7 +2288,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList & list )
 	for ( int fileIndex = 0; fileIndex < list.GetNumFiles(); ++fileIndex ) {
 		idLib::Printf( " Processing %s.\n", list.GetFile( fileIndex ) );
 
-		std::auto_ptr<idFile_Memory> currentFile( static_cast<idFile_Memory *>( fileSystem->OpenFileReadMemory( list.GetFile( fileIndex ) ) ) );
+		std::unique_ptr<idFile_Memory> currentFile( static_cast<idFile_Memory *>( fileSystem->OpenFileReadMemory( list.GetFile( fileIndex ) ) ) );
 
 		if ( currentFile.get() == nullptr) {
 			idLib::Printf( " Error reading %s.\n", list.GetFile( fileIndex ) );
@@ -2336,7 +2336,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList & list )
 		// Write the .crc file corresponding to the .resources file.
 		idStr crcFilename = list.GetFile( fileIndex );
 		crcFilename.SetFileExtension( ".crc" );
-		std::auto_ptr<idFile> crcOutputFile( fileSystem->OpenFileWrite( crcFilename, "fs_basepath" ) );
+		std::unique_ptr<idFile> crcOutputFile( fileSystem->OpenFileWrite( crcFilename, "fs_basepath" ) );
 		if ( crcOutputFile.get() == nullptr) {
 			idLib::Printf( "Error writing CRC file %s.\n", crcFilename );
 			continue;
@@ -2739,7 +2739,7 @@ idFile * idFileSystemLocal::GetResourceFile( const char *fileName, bool memFile 
 			idLib::Printf( "RES: loading file %s\n", rc.filename.c_str() );
 		}
 		idFile_InnerResource *file = new idFile_InnerResource( rc.filename, resourceFiles[ rc.containerIndex ]->resourceFile, rc.offset, rc.length );
-		if ( file != nullptr && ( memFile || rc.length <= resourceBufferAvailable ) || rc.length < 8 * 1024 * 1024 ) {
+		if ( file != nullptr && ( memFile || rc.length <= resourceBufferAvailable ) || rc.length < 8ULL * 1024 * 1024 ) {
 			byte *buf = nullptr;
 			if ( rc.length < resourceBufferAvailable ) {
 				buf = resourceBufferPtr;
@@ -2748,7 +2748,7 @@ idFile * idFileSystemLocal::GetResourceFile( const char *fileName, bool memFile 
 		if ( fs_debugResources.GetBool() ) {
 				idLib::Printf( "MEM: Allocating %05d bytes for a resource load\n", rc.length );
 }
-				buf = ( byte * )Mem_Alloc( rc.length, TAG_TEMP );
+				buf = static_cast<byte*>(Mem_Alloc(rc.length, TAG_TEMP));
 			}
 			file->Read( (void*)buf, rc.length );
 

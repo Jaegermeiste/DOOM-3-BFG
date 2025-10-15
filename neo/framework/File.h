@@ -51,19 +51,19 @@ class idFile {
 public:
 	virtual					~idFile() {};
 							// Get the name of the file.
-	virtual const char *	GetName() const;
+	[[nodiscard]] virtual const char *	GetName() const;
 							// Get the full file path.
-	virtual const char *	GetFullPath() const;
+	[[nodiscard]] virtual const char *	GetFullPath() const;
 							// Read data from the file to the buffer.
 	virtual size_t			Read( void *buffer, size_t len );
 							// Write data from the buffer to the file.
 	virtual size_t			Write( const void *buffer, size_t len );
 							// Returns the length of the file.
-	virtual size_t			Length() const;
+	[[nodiscard]] virtual size_t			Length() const;
 							// Return a time value for reload operations.
-	virtual ID_TIME_T		Timestamp() const;
+	[[nodiscard]] virtual ID_TIME_T		Timestamp() const;
 							// Returns offset in file.
-	virtual size_t			Tell() const;
+	[[nodiscard]] virtual size_t			Tell() const;
 							// Forces flush on files being writting to.
 	virtual void			ForceFlush();
 							// Causes any buffered data to be written to the file.
@@ -153,14 +153,14 @@ public:
 							idFile_Memory( const char *name, const char *data, int length );	// file for reading
 	~idFile_Memory() override;
 
-	const char *	GetName() const override { return name.c_str(); }
-	const char *	GetFullPath() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetFullPath() const override { return name.c_str(); }
 	size_t			Read( void *buffer, size_t len ) override;
 	size_t			Write( const void *buffer, size_t len ) override;
-	size_t			Length() const override;
+	[[nodiscard]] size_t			Length() const override;
 	virtual void			SetLength( size_t len );
 	ID_TIME_T Timestamp() const override;
-	size_t			Tell() const override;
+	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
 	short			Seek(size_t offset, fsOrigin_t origin ) override;
@@ -176,9 +176,9 @@ public:
 							// set data for reading
 	void					SetData( const char *data, int length );
 							// returns const pointer to the memory buffer
-	const char *			GetDataPtr() const { return filePtr; }
+	[[nodiscard]] const char *			GetDataPtr() const noexcept { return filePtr; }
 							// returns pointer to the memory buffer
-	char *					GetDataPtr() { return filePtr; }
+	char *					GetDataPtr() noexcept { return filePtr; }
 							// set the file granularity
 	void					SetGranularity( int g ) { assert( g > 0 ); granularity = g; }
 	void					PreAllocate( size_t len );
@@ -189,8 +189,8 @@ public:
 
 	void					TakeDataOwnership();
 
-	size_t					GetMaxLength() const { return maxSize; }
-	size_t					GetAllocated() const { return allocated; }
+	[[nodiscard]] size_t					GetMaxLength() const noexcept { return maxSize; }
+	[[nodiscard]] size_t					GetAllocated() const noexcept { return allocated; }
 
 protected:
 	idStr					name;			// name of the file
@@ -213,13 +213,13 @@ public:
 							idFile_BitMsg( const idBitMsg &msg );
 	~idFile_BitMsg() override;
 
-	const char *	GetName() const override { return name.c_str(); }
-	const char *	GetFullPath() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetFullPath() const override { return name.c_str(); }
 	size_t			Read( void *buffer, size_t len ) override;
 	size_t			Write( const void *buffer, size_t len ) override;
-	size_t			Length() const override;
+	[[nodiscard]] size_t			Length() const override;
 	ID_TIME_T       Timestamp() const override;
-	size_t			Tell() const override;
+	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
 	virtual short	Seek(size_t offset, fsOrigin_t origin );
@@ -238,19 +238,19 @@ public:
 							idFile_Permanent();
 	~idFile_Permanent() override;
 
-	const char *	GetName() const override { return name.c_str(); }
-	const char *	GetFullPath() const override { return fullPath.c_str(); }
+	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetFullPath() const override { return fullPath.c_str(); }
 	size_t			Read( void *buffer, size_t len ) override;
 	size_t			Write( const void *buffer, size_t len ) override;
-	size_t			Length() const override;
+	[[nodiscard]] size_t			Length() const override;
 	ID_TIME_T       Timestamp() const override;
-	size_t			Tell() const override;
+	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
 	virtual short	Seek(size_t offset, fsOrigin_t origin );
 
 	// returns file pointer
-	idFileHandle			GetFilePtr() const { return o; }
+	[[nodiscard]] idFileHandle			GetFilePtr() const noexcept { return o; }
 
 private:
 	idStr					name;			// relative path of the file - relative path
@@ -271,7 +271,7 @@ public:
 
 	size_t			Read( void *buffer, size_t len ) override;
 
-	size_t			Tell() const override;
+	[[nodiscard]] size_t			Tell() const override;
 	short			Seek(size_t offset, fsOrigin_t origin ) override;
 
 private:
@@ -289,13 +289,13 @@ public:
 							idFile_InZip();
 	~idFile_InZip() override;
 
-	const char *	GetName() const override { return name.c_str(); }
-	const char *	GetFullPath() const override { return fullPath.c_str(); }
+	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetFullPath() const override { return fullPath.c_str(); }
 	size_t			Read( void *buffer, size_t len ) override;
 	size_t			Write( const void *buffer, size_t len ) override;
-	size_t			Length() const override;
+	[[nodiscard]] size_t			Length() const override;
 	ID_TIME_T       Timestamp() const override;
-	size_t			Tell() const override;
+	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
 	virtual short	Seek(size_t offset, fsOrigin_t origin );
@@ -316,17 +316,17 @@ public:
 							idFile_InnerResource( const char *_name, idFile *rezFile, int _offset, int _len );
 	~idFile_InnerResource() override;
 
-	const char *	GetName() const override { return name.c_str(); }
-	const char *	GetFullPath() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetFullPath() const override { return name.c_str(); }
 	size_t			Read( void *buffer, size_t len ) override;
 	size_t			Write( const void *buffer, size_t len ) override
 	{ assert( false ); return 0; }
 
-	size_t			Length() const override { return length; }
-	ID_TIME_T       Timestamp() const override { return 0; }
-	size_t			Tell() const override;
+	[[nodiscard]] size_t			Length() const noexcept override { return length; }
+	ID_TIME_T       Timestamp() const noexcept override { return 0; }
+	[[nodiscard]] size_t			Tell() const override;
 	short			Seek(size_t offset, fsOrigin_t origin ) override;
-	void					SetResourceBuffer( byte * buf ) {
+	void					SetResourceBuffer( byte * buf ) noexcept {
 		resourceBuffer = buf;
 		internalFilePos = 0;
 	}
@@ -351,19 +351,19 @@ SmartPointer, as it does not keep a reference count.
 class idFileLocal {
 public:
 	// Constructor that accepts and stores the file pointer.
-	idFileLocal( idFile *_file )	: file( _file ) {
+	idFileLocal( idFile *_file ) noexcept : file( _file ) {
 	}
 
 	// Destructor that will destroy (close) the file when this wrapper class goes out of scope.
 	~idFileLocal();
 
 	// Cast to a file pointer.
-	operator idFile * () const {
+	operator idFile * () const noexcept {
 		return file;
 	}
 
 	// Member access operator for treating the wrapper as if it were the file, itself.
-	idFile * operator -> () const {
+	idFile * operator -> () const noexcept {
 		return file;
 	}
 

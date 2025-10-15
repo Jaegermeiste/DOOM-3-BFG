@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
 ===========================================================================
 
@@ -42,17 +44,19 @@ If you have questions concerning this license or the applicable additional terms
 class idWinding {
 
 public:
-					idWinding();
-					explicit idWinding( const int n );								// allocate for n points
-					explicit idWinding( const idVec3 *verts, const int n );			// winding from points
+					idWinding() noexcept;
+					explicit idWinding( const size_t n );								// allocate for n points
+					explicit idWinding( const idVec3 *verts, const size_t n );			// winding from points
 					explicit idWinding( const idVec3 &normal, const float dist );	// base winding for plane
 					explicit idWinding( const idPlane &plane );						// base winding for plane
 					explicit idWinding( const idWinding &winding );
 	virtual			~idWinding();
 
 	idWinding &		operator=( const idWinding &winding );
-	const idVec5 &	operator[]( const int index ) const;
-	idVec5 &		operator[]( const int index );
+	
+	const idVec5 &	operator[]( const Ordinal auto index ) const;
+	
+	idVec5 &		operator[]( const Ordinal auto index );
 
 					// add a point to the end of the winding point array
 	idWinding &		operator+=( const idVec3 &v );
@@ -61,8 +65,8 @@ public:
 	void			AddPoint( const idVec5 &v );
 
 					// number of points on winding
-	int				GetNumPoints() const;
-	void			SetNumPoints( int n );
+	size_t          GetNumPoints() const;
+	void			SetNumPoints(size_t n);
 	virtual void	Clear();
 
 					// huge winding for plane, the points go counter clockwise when facing the front of the plane
@@ -85,8 +89,10 @@ public:
 	void			ReverseSelf() const;
 	void			RemoveEqualPoints( const float epsilon = ON_EPSILON );
 	void			RemoveColinearPoints( const idVec3 &normal, const float epsilon = ON_EPSILON );
-	void			RemovePoint( int point );
-	void			InsertPoint( const idVec5 &point, int spot );
+	
+	void			RemovePoint(Ordinal auto point );
+	
+	void			InsertPoint( const idVec5 &point, Ordinal auto spot );
 	bool			InsertPointIfOnEdge( const idVec5 &point, const idPlane &plane, const float epsilon = ON_EPSILON );
 					// add a winding to the convex hull
 	void			AddToConvexHull( const idWinding *winding, const idVec3 &normal, const float epsilon = ON_EPSILON );
@@ -123,33 +129,33 @@ public:
 	static float	TriangleArea( const idVec3 &a, const idVec3 &b, const idVec3 &c );
 
 protected:
-	int				numPoints;				// number of points
+	size_t			numPoints;				// number of points
 	idVec5 *		p;						// pointer to point data
-	int				allocedSize;
+	size_t			allocedSize;
 
-	bool			EnsureAlloced( int n, bool keep = false );
-	virtual bool	ReAllocate( int n, bool keep = false );
+	bool			EnsureAlloced(size_t n, bool keep = false);
+	virtual bool	ReAllocate(size_t n, bool keep = false);
 };
 
-ID_INLINE idWinding::idWinding() {
+ID_INLINE idWinding::idWinding() noexcept {
 	numPoints = allocedSize = 0;
 	p = nullptr;
 }
 
-ID_INLINE idWinding::idWinding(const int n ) {
+ID_INLINE idWinding::idWinding(const size_t n ) {
 	numPoints = allocedSize = 0;
 	p = nullptr;
 	EnsureAlloced( n );
 }
 
-ID_INLINE idWinding::idWinding( const idVec3 *verts, const int n ) {
+ID_INLINE idWinding::idWinding( const idVec3 *verts, const size_t n ) {
 	numPoints = allocedSize = 0;
 	p = nullptr;
 	if ( !EnsureAlloced( n ) ) {
 		numPoints = 0;
 		return;
 	}
-	for ( int i = 0; i < n; i++ ) {
+	for ( int i = 0; std::cmp_less(i, n); i++ ) {
 		p[i].ToVec3() = verts[i];
 		p[i].s = p[i].t = 0.0f;
 	}
@@ -169,14 +175,21 @@ ID_INLINE idWinding::idWinding( const idPlane &plane ) {
 }
 
 ID_INLINE idWinding::idWinding( const idWinding &winding ) {
+	p = nullptr;
+	allocedSize = 0;
+	numPoints = 0;
+
 	if ( !EnsureAlloced( winding.GetNumPoints() ) ) {
 		numPoints = 0;
 		return;
 	}
-	for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
-		p[i] = winding[i];
+	if (p)
+	{
+		for (size_t i = 0; i < winding.GetNumPoints(); i++) {
+			p[i] = winding[i];
+		}
+		numPoints = winding.GetNumPoints();
 	}
-	numPoints = winding.GetNumPoints();
 }
 
 ID_INLINE idWinding::~idWinding() {
@@ -189,20 +202,22 @@ ID_INLINE idWinding &idWinding::operator=( const idWinding &winding ) {
 		numPoints = 0;
 		return *this;
 	}
-	for ( int i = 0; i < winding.numPoints; i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, winding.numPoints); i++ ) {
 		p[i] = winding.p[i];
 	}
 	numPoints = winding.numPoints;
 	return *this;
 }
 
-ID_INLINE const idVec5 &idWinding::operator[]( const int index ) const {
-	//assert( index >= 0 && index < numPoints );
+
+ID_INLINE const idVec5 &idWinding::operator[]( const Ordinal auto index ) const {
+	assert( index >= 0 && index < numPoints );
 	return p[ index ];
 }
 
-ID_INLINE idVec5 &idWinding::operator[]( const int index ) {
-	//assert( index >= 0 && index < numPoints );
+
+ID_INLINE idVec5 &idWinding::operator[]( const Ordinal auto index ) {
+	assert( index >= 0 && index < numPoints );
 	return p[ index ];
 }
 
@@ -232,11 +247,11 @@ ID_INLINE void idWinding::AddPoint( const idVec5 &v ) {
 	numPoints++;
 }
 
-ID_INLINE int idWinding::GetNumPoints() const {
+ID_INLINE size_t idWinding::GetNumPoints() const {
 	return numPoints;
 }
 
-ID_INLINE void idWinding::SetNumPoints(const int n ) {
+ID_INLINE void idWinding::SetNumPoints(const size_t n) {
 	if ( !EnsureAlloced( n, true ) ) {
 		return;
 	}
@@ -253,7 +268,7 @@ ID_INLINE void idWinding::BaseForPlane( const idPlane &plane ) {
 	BaseForPlane( plane.Normal(), plane.Dist() );
 }
 
-ID_INLINE bool idWinding::EnsureAlloced(const int n, const bool keep ) {
+ID_INLINE bool idWinding::EnsureAlloced(const size_t n, const bool keep) {
 	if ( n > allocedSize ) {
 		return ReAllocate( n, keep );
 	}
@@ -273,12 +288,12 @@ ID_INLINE bool idWinding::EnsureAlloced(const int n, const bool keep ) {
 ===============================================================================
 */
 
-#define	MAX_POINTS_ON_WINDING	64
+constexpr auto MAX_POINTS_ON_WINDING = 64;
 
 class idFixedWinding : public idWinding {
 
 public:
-					idFixedWinding();
+					idFixedWinding() noexcept;
 					explicit idFixedWinding( const int n );
 					explicit idFixedWinding( const idVec3 *verts, const int n );
 					explicit idFixedWinding( const idVec3 &normal, const float dist );
@@ -298,10 +313,10 @@ public:
 protected:
 	idVec5			data[MAX_POINTS_ON_WINDING];	// point data
 
-					bool	ReAllocate( int n, bool keep = false ) override;
+					bool	ReAllocate(size_t n, bool keep = false) override;
 };
 
-ID_INLINE idFixedWinding::idFixedWinding() {
+ID_INLINE idFixedWinding::idFixedWinding() noexcept {
 	numPoints = 0;
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;

@@ -86,7 +86,8 @@ void SSDCrossHair::InitCrosshairs() {
 
 }
 
-void SSDCrossHair::Draw(const idVec2& cursor) {
+void SSDCrossHair::Draw(const idVec2& cursor) const
+{
 
 	float x,y;
 	x = cursor.x-(crosshairWidth/2);
@@ -370,10 +371,10 @@ void SSDMover::EntityUpdate() {
 	SSDEntity::EntityUpdate();
 
 	//Move forward based on speed (units per second)
-	idVec3 moved = ((float)elapsed/1000.0f)*speed;
+	idVec3 moved = (static_cast<float>(elapsed)/1000.0f)*speed;
 	position += moved;
 
-	float rotated = ((float)elapsed/1000.0f)*rotationSpeed*360.0f;
+	float rotated = (static_cast<float>(elapsed)/1000.0f)*rotationSpeed*360.0f;
 	rotation += rotated;
 	if(rotation >= 360) {
 		rotation -= 360.0f;
@@ -679,7 +680,7 @@ void SSDExplosion::EntityUpdate() {
 	}
 
 	//Scale the image based on the time
-	size = finalSize*((float)(currentTime-beginTime)/(float)length);
+	size = finalSize*(static_cast<float>(currentTime - beginTime)/static_cast<float>(length));
 
 	//Destroy myself after the explosion is done
 	if(currentTime > endTime) {
@@ -826,7 +827,7 @@ void SSDPoints::Init(idGameSSDWindow* _game, SSDEntity* _ent, int _points, int _
 
 void SSDPoints::EntityUpdate() {
 
-	float t = (float)(currentTime - beginTime)/(float)length;
+	float t = static_cast<float>(currentTime - beginTime)/static_cast<float>(length);
 
 	//Move up from the start position
 	position.Lerp(beginPosition, endPosition, t);
@@ -947,7 +948,7 @@ void SSDProjectile::EntityUpdate() {
 	SSDEntity::EntityUpdate();
 
 	//Move forward based on speed (units per second)
-	idVec3 moved = dir*((float)elapsed/1000.0f)*speed.z;
+	idVec3 moved = dir*(static_cast<float>(elapsed)/1000.0f)*speed.z;
 	position += moved;
 
 	if(position.z > endPosition.z) {
@@ -1702,7 +1703,7 @@ void idGameSSDWindow::LevelComplete() {
 	if( !gameStats.levelStats.shotCount ) {
 		accuracy = 0;
 	} else {
-		accuracy = (int)( ( (float)gameStats.levelStats.hitCount / (float)gameStats.levelStats.shotCount ) * 100.0f );
+		accuracy = static_cast<int>(((float)gameStats.levelStats.hitCount / (float)gameStats.levelStats.shotCount) * 100.0f);
 	}
 	int accuracyPoints = Max( 0, accuracy - 50 ) * 20;
 
@@ -1715,7 +1716,7 @@ void idGameSSDWindow::LevelComplete() {
 	if( !totalAst ) {
 		saveAccuracy = 0;
 	} else {
-		saveAccuracy = (int)( ( (float)gameStats.levelStats.savedAstronauts / (float)totalAst ) * 100.0f );
+		saveAccuracy = static_cast<int>(((float)gameStats.levelStats.savedAstronauts / (float)totalAst) * 100.0f);
 	}
 	accuracyPoints = Max( 0, saveAccuracy - 50 ) * 20;
 
@@ -2074,7 +2075,7 @@ void idGameSSDWindow::OnRescueAll() {
 
 		if(entities[i]->type == SSD_ENTITY_ASTRONAUT) {
 
-			AstronautStruckPlayer((SSDAstronaut*)entities[i]);
+			AstronautStruckPlayer(static_cast<SSDAstronaut*>(entities[i]));
 		}
 	}
 }
@@ -2096,9 +2097,9 @@ void idGameSSDWindow::RefreshGuiData() {
 	if(!gameStats.levelStats.shotCount) {
 		accuracy = 0;
 	} else {
-		accuracy = ((float)gameStats.levelStats.hitCount/(float)gameStats.levelStats.shotCount)*100.0f;
+		accuracy = (static_cast<float>(gameStats.levelStats.hitCount)/static_cast<float>(gameStats.levelStats.shotCount))*100.0f;
 	}
-	gui->SetStateString( "player_accuracy", va("%d%%", (int)accuracy));
+	gui->SetStateString( "player_accuracy", va("%d%%", static_cast<int>(accuracy)));
 
 	float saveAccuracy;
 	int totalAst = gameStats.levelStats.savedAstronauts + gameStats.levelStats.killedAstronauts;
@@ -2106,9 +2107,9 @@ void idGameSSDWindow::RefreshGuiData() {
 	if(!totalAst) {
 		saveAccuracy = 0;
 	} else {
-		saveAccuracy = ((float)gameStats.levelStats.savedAstronauts/(float)totalAst)*100.0f;
+		saveAccuracy = (static_cast<float>(gameStats.levelStats.savedAstronauts)/static_cast<float>(totalAst))*100.0f;
 	}
-	gui->SetStateString( "save_accuracy", va("%d%%", (int)saveAccuracy));
+	gui->SetStateString( "save_accuracy", va("%d%%", static_cast<int>(saveAccuracy)));
 
 
 
@@ -2133,7 +2134,8 @@ void idGameSSDWindow::RefreshGuiData() {
 	}
 }
 
-idVec2 idGameSSDWindow::GetCursorWorld() {
+idVec2 idGameSSDWindow::GetCursorWorld() const
+{
 	
 	idVec2 cursor;
 	//GetCursor(cursor);

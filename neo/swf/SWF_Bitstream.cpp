@@ -107,7 +107,7 @@ void idSWFBitStream::Load( const byte * data, uint32 len, bool copy ) {
 
 	if ( copy ) {
 		free = true;
-		startp = (const byte *)Mem_Alloc( len, TAG_SWF );
+		startp = static_cast<const byte*>(Mem_Alloc(len, TAG_SWF));
 		memcpy( (byte *)startp, data, len );
 	} else {
 		free = false;
@@ -173,7 +173,7 @@ ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBi
 		regCurrentByte = ( regCurrentByte << 8 ) | readp[i];
 	}
 	readp += numExtraBytes;
-	return (unsigned int) ( ( regCurrentByte >> regCurrentBit ) & maskForNumBits[numBits] );
+	return static_cast<unsigned int>((regCurrentByte >> regCurrentBit) & maskForNumBits[numBits]);
 }
 
 /*
@@ -182,7 +182,7 @@ idSWFBitStream::ReadInternalS
 ========================
 */
 ID_FORCEINLINE int idSWFBitStream::ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
-	int i = (int)ReadInternalU( regCurrentBit, regCurrentByte, numBits );
+	int i = static_cast<int>(ReadInternalU(regCurrentBit, regCurrentByte, numBits));
 
 	// sign extend without microcoded shift instrunction (shift with variable) on the consoles
 	int s = signForNumBits[numBits];

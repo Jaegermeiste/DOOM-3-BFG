@@ -166,14 +166,14 @@ private:
 	void				EmitByte( byte b );
 	void				EmitUShort( unsigned short s );
 	void				EmitUInt( unsigned int i );
-	unsigned int		AlphaDistance( const byte a1, const byte a2 ) const;
+			[[nodiscard]] unsigned int		AlphaDistance( const byte a1, const byte a2 ) const;
 	unsigned int		ColorDistance( const byte *c1, const byte *c2 ) const;
 	unsigned int		ColorDistanceWeighted( const byte *c1, const byte *c2 ) const;
 	unsigned int		CTX1Distance( const byte *c1, const byte *c2 ) const;
 	unsigned short		ColorTo565( const byte *color ) const;
-	unsigned short		ColorTo565( byte r, byte g, byte b ) const;
+			[[nodiscard]] unsigned short		ColorTo565( byte r, byte g, byte b ) const;
 	void				ColorFrom565( unsigned short c565, byte *color ) const;
-	byte				GreenFrom565( unsigned short c565 ) const;
+			[[nodiscard]] byte				GreenFrom565( unsigned short c565 ) const;
 
 	void				NV4XHardwareBugFix( byte *minColor, byte *maxColor ) const;
 
@@ -246,9 +246,9 @@ private:
 	void				EmitNormalYIndices_SSE2( const byte *normalBlock, const int offset, const byte minNormalY, const byte maxNormalY );
 
 	void				DecodeDXNAlphaValues( const byte *inBuf, byte *values );
-	void				EncodeDXNAlphaValues( byte *outBuf, const byte min, const byte max, const byte *values );
+	void				EncodeDXNAlphaValues( byte *outBuf, const byte min, const byte max, const byte *values ) const;
 
-	void				DecodeNormalYValues( const byte *inBuf, byte &min, byte &max, byte *values );
+	void				DecodeNormalYValues( const byte *inBuf, byte &min, byte &max, byte *values ) const;
 	void				EncodeNormalRGBIndices( byte *outBuf, const byte min, const byte max, const byte *values );
 };
 
@@ -402,10 +402,10 @@ ID_INLINE unsigned int idDxtEncoder::ColorDistanceWeighted( const byte *c1, cons
 	int rmean;
 
 	// http://www.compuphase.com/cmetric.htm
-	rmean = ( (int)c1[0] + (int)c2[0] ) / 2;
-	r = (int)c1[0] - (int)c2[0];
-	g = (int)c1[1] - (int)c2[1];
-	b = (int)c1[2] - (int)c2[2];
+	rmean = ( static_cast<int>(c1[0]) + static_cast<int>(c2[0]) ) / 2;
+	r = static_cast<int>(c1[0]) - static_cast<int>(c2[0]);
+	g = static_cast<int>(c1[1]) - static_cast<int>(c2[1]);
+	b = static_cast<int>(c1[2]) - static_cast<int>(c2[2]);
 	return ( ( ( 512 + rmean ) * r * r ) >> 8 ) + 4 * g * g + ( ( ( 767 - rmean ) * b * b ) >> 8 );
 }
 
@@ -433,9 +433,9 @@ idDxtEncoder::ColorFrom565
 ========================
 */
 ID_INLINE void idDxtEncoder::ColorFrom565( unsigned short c565, byte *color ) const {
-	color[0] = byte( ( ( c565 >> 8 ) & ( ( ( 1 << ( 8 - 3 ) ) - 1 ) << 3 ) ) | ( ( c565 >> 13 ) & ((1<<3)-1) ) );
-	color[1] = byte( ( ( c565 >> 3 ) & ( ( ( 1 << ( 8 - 2 ) ) - 1 ) << 2 ) ) | ( ( c565 >>  9 ) & ((1<<2)-1) ) );
-	color[2] = byte( ( ( c565 << 3 ) & ( ( ( 1 << ( 8 - 3 ) ) - 1 ) << 3 ) ) | ( ( c565 >>  2 ) & ((1<<3)-1) ) );
+	color[0] = static_cast<byte>(((c565 >> 8) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 13) & ((1 << 3) - 1)));
+	color[1] = static_cast<byte>(((c565 >> 3) & (((1 << (8 - 2)) - 1) << 2)) | ((c565 >> 9) & ((1 << 2) - 1)));
+	color[2] = static_cast<byte>(((c565 << 3) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 2) & ((1 << 3) - 1)));
 }
 
 /*
@@ -453,7 +453,7 @@ idDxtEncoder::GreenFrom565
 ========================
 */
 ID_INLINE byte idDxtEncoder::GreenFrom565( unsigned short c565 ) const {
-	byte c = byte( ( c565 & ( ( ( 1 << 6 ) - 1 ) << 5 ) ) >> 3 );
+	byte c = static_cast<byte>((c565 & (((1 << 6) - 1) << 5)) >> 3);
 	return ( c | ( c >> 6 ) );
 }
 
@@ -512,12 +512,12 @@ private:
 	unsigned int		ReadUInt();
 	unsigned short		ColorTo565( const byte *color ) const;
 	void				ColorFrom565( unsigned short c565, byte *color ) const;
-	unsigned short		NormalYTo565( byte y ) const;
-	byte				NormalYFrom565( unsigned short c565 ) const;
-	byte				NormalScaleFrom565( unsigned short c565 ) const;
-	byte				NormalBiasFrom565( unsigned short c565 ) const;
+	[[nodiscard]] unsigned short		NormalYTo565( byte y ) const;
+	[[nodiscard]] byte				NormalYFrom565( unsigned short c565 ) const;
+	[[nodiscard]] byte				NormalScaleFrom565( unsigned short c565 ) const;
+	[[nodiscard]] byte				NormalBiasFrom565( unsigned short c565 ) const;
 
-	void				EmitBlock( byte *outPtr, int x, int y, const byte *colorBlock );
+	void				EmitBlock( byte *outPtr, int x, int y, const byte *colorBlock ) const;
 	void				DecodeAlphaValues( byte *colorBlock, const int offset );
 	void				DecodeColorValues( byte *colorBlock, bool noBlack, bool writeAlpha );
 	void				DecodeCTX1Values( byte *colorBlock );
@@ -577,9 +577,9 @@ idDxtDecoder::ColorFrom565
 ========================
 */
 ID_INLINE void idDxtDecoder::ColorFrom565( unsigned short c565, byte *color ) const {
-	color[0] = byte( ( ( c565 >> 8 ) & ( ( ( 1 << ( 8 - 3 ) ) - 1 ) << 3 ) ) | ( ( c565 >> 13 ) & ((1<<3)-1) ) );
-	color[1] = byte( ( ( c565 >> 3 ) & ( ( ( 1 << ( 8 - 2 ) ) - 1 ) << 2 ) ) | ( ( c565 >>  9 ) & ((1<<2)-1) ) );
-	color[2] = byte( ( ( c565 << 3 ) & ( ( ( 1 << ( 8 - 3 ) ) - 1 ) << 3 ) ) | ( ( c565 >>  2 ) & ((1<<3)-1) ) );
+	color[0] = static_cast<byte>(((c565 >> 8) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 13) & ((1 << 3) - 1)));
+	color[1] = static_cast<byte>(((c565 >> 3) & (((1 << (8 - 2)) - 1) << 2)) | ((c565 >> 9) & ((1 << 2) - 1)));
+	color[2] = static_cast<byte>(((c565 << 3) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 2) & ((1 << 3) - 1)));
 }
 
 /*
@@ -597,7 +597,7 @@ idDxtDecoder::NormalYFrom565
 ========================
 */
 ID_INLINE byte idDxtDecoder::NormalYFrom565( unsigned short c565 ) const {
-	byte c = byte( ( c565 & ( ( ( 1 << 6 ) - 1 ) << 5 ) ) >> 3 );
+	byte c = static_cast<byte>((c565 & (((1 << 6) - 1) << 5)) >> 3);
 	return ( c | ( c >> 6 ) );
 }
 
@@ -607,7 +607,7 @@ idDxtDecoder::NormalBiasFrom565
 ========================
 */
 ID_INLINE byte idDxtDecoder::NormalBiasFrom565( unsigned short c565 ) const {
-	byte c = byte( ( c565 & ( ( ( 1 << 5 ) - 1 ) << 11 ) ) >> 8 );
+	byte c = static_cast<byte>((c565 & (((1 << 5) - 1) << 11)) >> 8);
 	return ( c | ( c >> 5 ) );
 }
 
@@ -617,7 +617,7 @@ idDxtDecoder::NormalScaleFrom565
 ========================
 */
 ID_INLINE byte idDxtDecoder::NormalScaleFrom565( unsigned short c565 ) const {
-	byte c = byte( ( c565 & ( ( ( 1 << 5 ) - 1 ) << 0 ) ) << 3 );
+	byte c = static_cast<byte>((c565 & (((1 << 5) - 1) << 0)) << 3);
 	return ( c | ( c >> 5 ) );
 }
 

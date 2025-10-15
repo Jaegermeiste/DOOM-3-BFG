@@ -199,7 +199,7 @@ idSort_SpriteDepth
 */
 class idSort_SpriteDepth : public idSort_Quick< swfDisplayEntry_t, idSort_SpriteDepth > {
 public:
-	int Compare( const swfDisplayEntry_t & a, const swfDisplayEntry_t & b ) const { return a.depth - b.depth; }
+	[[nodiscard]] int Compare( const swfDisplayEntry_t & a, const swfDisplayEntry_t & b ) const { return a.depth - b.depth; }
 };
 
 /*
@@ -528,8 +528,8 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial * material, int width, i
 		} else {
 			assert( materialOverride->GetImageWidth() > 0 && materialOverride->GetImageHeight() > 0 );
 			assert( materialOverride->GetImageWidth() <= 8192 && materialOverride->GetImageHeight() <= 8192 );
-			materialWidth = (uint16)materialOverride->GetImageWidth();
-			materialHeight = (uint16)materialOverride->GetImageHeight();
+			materialWidth = static_cast<uint16>(materialOverride->GetImageWidth());
+			materialHeight = static_cast<uint16>(materialOverride->GetImageHeight());
 		}
 	} else {
 		materialWidth = 0;
@@ -537,11 +537,11 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial * material, int width, i
 	}
 
 	if ( width >= 0 ) {
-		materialWidth = (uint16)width;
+		materialWidth = static_cast<uint16>(width);
 	}
 
 	if ( height >= 0 ) {
-		materialHeight = (uint16)height;
+		materialHeight = static_cast<uint16>(height);
 	}
 }
 
@@ -635,7 +635,8 @@ float idSWFSpriteInstance::GetYPos( bool overallPos ) const {
 idSWFSpriteInstance::SetXPos
 ========================
 */
-void idSWFSpriteInstance::SetXPos( float xPos ) {
+void idSWFSpriteInstance::SetXPos( float xPos ) const
+{
 	if ( parent == nullptr) {
 		return;
 	}
@@ -654,7 +655,8 @@ void idSWFSpriteInstance::SetXPos( float xPos ) {
 idSWFSpriteInstance::SetYPos
 ========================
 */
-void idSWFSpriteInstance::SetYPos( float yPos ) {
+void idSWFSpriteInstance::SetYPos( float yPos ) const
+{
 	if ( parent == nullptr) {
 		return;
 	}
@@ -673,7 +675,8 @@ void idSWFSpriteInstance::SetYPos( float yPos ) {
 idSWFSpriteInstance::SetPos
 ========================
 */
-void idSWFSpriteInstance::SetPos( float xPos, float yPos ) {
+void idSWFSpriteInstance::SetPos( float xPos, float yPos ) const
+{
 	if ( parent == nullptr) {
 		return;
 	}
@@ -693,7 +696,8 @@ void idSWFSpriteInstance::SetPos( float xPos, float yPos ) {
 idSWFSpriteInstance::SetRotation
 ========================
 */
-void idSWFSpriteInstance::SetRotation( float rot ) {
+void idSWFSpriteInstance::SetRotation( float rot ) const
+{
 	if ( parent == nullptr) {
 		return;
 	}
@@ -720,7 +724,8 @@ void idSWFSpriteInstance::SetRotation( float rot ) {
 idSWFSpriteInstance::SetScale
 ========================
 */
-void idSWFSpriteInstance::SetScale( float x, float y ) {
+void idSWFSpriteInstance::SetScale( float x, float y ) const
+{
 	if ( parent == nullptr) {
 		return;
 	}
@@ -834,7 +839,8 @@ bool idSWFSpriteInstance::UpdateMoveToScale( float speed ) {
 idSWFSpriteInstance::SetAlpha
 ========================
 */
-void idSWFSpriteInstance::SetAlpha( float val ) {
+void idSWFSpriteInstance::SetAlpha( float val ) const
+{
 	if ( parent == nullptr) {
 		return;
 	}
@@ -1327,7 +1333,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( materialWidth ) {
 	SWF_SPRITE_PTHIS_SET( "materialWidth" );
 	assert( value.ToInteger() > 0 );
 	assert( value.ToInteger() <= 8192 );
-	pThis->materialWidth = (uint16)value.ToInteger();
+	pThis->materialWidth = static_cast<uint16>(value.ToInteger());
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( materialHeight ) {
@@ -1339,7 +1345,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( materialHeight ) {
 	SWF_SPRITE_PTHIS_SET( "materialHeight" );
 	assert( value.ToInteger() > 0 );
 	assert( value.ToInteger() <= 8192 );
-	pThis->materialHeight = (uint16)value.ToInteger();
+	pThis->materialHeight = static_cast<uint16>(value.ToInteger());
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( xOffset ) {

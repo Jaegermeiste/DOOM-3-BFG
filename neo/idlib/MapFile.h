@@ -60,8 +60,8 @@ public:
 
 	idDict					epairs;
 
-							idMapPrimitive() { type = TYPE_INVALID; }
-	virtual					~idMapPrimitive() { }
+							idMapPrimitive() noexcept { type = TYPE_INVALID; }
+	virtual					~idMapPrimitive() = default;
 	int						GetType() const { return type; }
 
 protected:
@@ -73,8 +73,8 @@ class idMapBrushSide {
 	friend class idMapBrush;
 
 public:
-							idMapBrushSide();
-							~idMapBrushSide() { }
+							idMapBrushSide() noexcept;
+							~idMapBrushSide() = default;
 	const char *			GetMaterial() const { return material; }
 	void					SetMaterial( const char *p ) { material = p; }
 	const idPlane &			GetPlane() const { return plane; }
@@ -91,7 +91,7 @@ protected:
 	idVec3					origin;
 };
 
-ID_INLINE idMapBrushSide::idMapBrushSide() {
+ID_INLINE idMapBrushSide::idMapBrushSide() noexcept {
 	plane.Zero();
 	texMat[0].Zero();
 	texMat[1].Zero();
@@ -101,29 +101,31 @@ ID_INLINE idMapBrushSide::idMapBrushSide() {
 
 class idMapBrush : public idMapPrimitive {
 public:
-							idMapBrush() { type = TYPE_BRUSH; sides.Resize( 8, 4 ); }
+							idMapBrush() noexcept { type = TYPE_BRUSH; sides.Resize( 8, 4 ); }
 							~idMapBrush() override { sides.DeleteContents( true ); }
 	static idMapBrush *		Parse( idLexer &src, const idVec3 &origin, bool newFormat = true, float version = CURRENT_MAP_VERSION );
 	static idMapBrush *		ParseQ3( idLexer &src, const idVec3 &origin );
-	bool					Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const;
-	int						GetNumSides() const { return sides.Num(); }
-	int						AddSide( idMapBrushSide *side ) { return sides.Append( side ); }
-	idMapBrushSide *		GetSide(const int i ) const { return sides[i]; }
+	
+	bool					Write( idFile *fp, Ordinal auto primitiveNum, const idVec3 &origin ) const;
+	size_t					GetNumSides() const { return sides.Num(); }
+	size_t					AddSide( idMapBrushSide *side ) { return sides.Append( side ); }
+	
+	idMapBrushSide* GetSide(const Ordinal auto i) const { ORDINAL_CHECK(i, sides.Num());  return sides[i]; }
 	unsigned int			GetGeometryCRC() const;
 
 protected:
-	int						numSides;
 	idList<idMapBrushSide*, TAG_IDLIB_LIST_MAP> sides;
 };
 
 
 class idMapPatch : public idMapPrimitive, public idSurface_Patch {
 public:
-							idMapPatch();
-							idMapPatch( int maxPatchWidth, int maxPatchHeight );
-							~idMapPatch() override { }
-	static idMapPatch *		Parse( idLexer &src, const idVec3 &origin, bool patchDef3 = true, float version = CURRENT_MAP_VERSION );
-	bool					Write( idFile *fp, int primitiveNum, const idVec3 &origin ) const;
+							idMapPatch() noexcept;
+							idMapPatch(size_t maxPatchWidth, size_t maxPatchHeight );
+							~idMapPatch() override = default;
+							static idMapPatch *		Parse( idLexer &src, const idVec3 &origin, bool patchDef3 = true, float version = CURRENT_MAP_VERSION );
+	
+	bool					Write( idFile *fp, Ordinal auto primitiveNum, const idVec3 &origin ) const;
 	const char *			GetMaterial() const { return material; }
 	void					SetMaterial( const char *p ) { material = p; }
 	int						GetHorzSubdivisions() const { return horzSubdivisions; }
@@ -141,7 +143,7 @@ protected:
 	bool					explicitSubdivisions;
 };
 
-ID_INLINE idMapPatch::idMapPatch() {
+ID_INLINE idMapPatch::idMapPatch() noexcept {
 	type = TYPE_PATCH;
 	horzSubdivisions = vertSubdivisions = 0;
 	explicitSubdivisions = false;
@@ -150,7 +152,7 @@ ID_INLINE idMapPatch::idMapPatch() {
 	expanded = false;
 }
 
-ID_INLINE idMapPatch::idMapPatch(const int maxPatchWidth, const int maxPatchHeight ) {
+ID_INLINE idMapPatch::idMapPatch(const size_t maxPatchWidth, const size_t maxPatchHeight ) {
 	type = TYPE_PATCH;
 	horzSubdivisions = vertSubdivisions = 0;
 	explicitSubdivisions = false;
@@ -169,12 +171,14 @@ public:
 	idDict					epairs;
 
 public:
-							idMapEntity() { epairs.SetHashSize( 64 ); }
+							idMapEntity() noexcept { epairs.SetHashSize( 64 ); }
 							~idMapEntity() { primitives.DeleteContents( true ); }
 	static idMapEntity *	Parse( idLexer &src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
-	bool					Write( idFile *fp, int entityNum ) const;
-	int						GetNumPrimitives() const { return primitives.Num(); }
-	idMapPrimitive *		GetPrimitive(const int i ) const { return primitives[i]; }
+	
+	bool					Write( idFile *fp, Ordinal auto entityNum ) const;
+	size_t					GetNumPrimitives() const { return primitives.Num(); }
+	
+	idMapPrimitive* GetPrimitive(const Ordinal auto i) const { ORDINAL_CHECK(i, primitives.Num()); return primitives[i]; }
 	void					AddPrimitive( idMapPrimitive *p ) { primitives.Append( p ); }
 	unsigned int			GetGeometryCRC() const;
 	void					RemovePrimitiveData();
@@ -186,7 +190,7 @@ protected:
 
 class idMapFile {
 public:
-							idMapFile();
+							idMapFile() noexcept;
 							~idMapFile() { entities.DeleteContents( true ); }
 
 							// filename does not require an extension
@@ -196,7 +200,7 @@ public:
 	bool					Parse( const char *filename, bool ignoreRegion = false, bool osPath = false );
 	bool					Write( const char *fileName, const char *ext, bool fromBasePath = true );
 							// get the number of entities in the map
-	int						GetNumEntities() const { return entities.Num(); }
+	size_t					GetNumEntities() const { return entities.Num(); }
 							// get the specified entity
 	idMapEntity *			GetEntity(const int i ) const { return entities[i]; }
 							// get the name without file extension
@@ -209,7 +213,7 @@ public:
 							// returns true if the file on disk changed
 	bool					NeedsReload();
 
-	int						AddEntity( idMapEntity *mapentity );
+	size_t					AddEntity( idMapEntity *mapentity );
 	idMapEntity *			FindEntity( const char *name );
 	void					RemoveEntity( idMapEntity *mapEnt );
 	void					RemoveEntities( const char *classname );
@@ -219,7 +223,7 @@ public:
 
 protected:
 	float					version;
-	ID_TIME_T					fileTime;
+	ID_TIME_T				fileTime;
 	unsigned int			geometryCRC;
 	idList<idMapEntity *, TAG_IDLIB_LIST_MAP>	entities;
 	idStr					name;
@@ -229,7 +233,7 @@ private:
 	void					SetGeometryCRC();
 };
 
-ID_INLINE idMapFile::idMapFile() {
+ID_INLINE idMapFile::idMapFile() noexcept {
 	version = CURRENT_MAP_VERSION;
 	fileTime = 0;
 	geometryCRC = 0;

@@ -183,7 +183,7 @@ void idPacketProcessor::UpdateOutgoingRate( const int time, const int size ) {
 
 	// update outgoing rate variables
 	if ( time > outgoingRateTime ) {
-		outgoingRateBytes -= outgoingRateBytes * (float)( time - outgoingRateTime ) / 1000.0f;
+		outgoingRateBytes -= outgoingRateBytes * static_cast<float>(time - outgoingRateTime) / 1000.0f;
 		if ( outgoingRateBytes < 0.0f ) {
 			outgoingRateBytes = 0.0f;
 		}
@@ -210,7 +210,7 @@ void idPacketProcessor::UpdateIncomingRate( const int time, const int size ) {
 
 	// update incoming rate variables
 	if ( time > incomingRateTime ) {
-		incomingRateBytes -= incomingRateBytes * (float)( time - incomingRateTime ) / 1000.0f;
+		incomingRateBytes -= incomingRateBytes * static_cast<float>(time - incomingRateTime) / 1000.0f;
 		if ( incomingRateBytes < 0.0f ) {
 			incomingRateBytes = 0.0f;
 		}
@@ -303,8 +303,8 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg & msg, b
 				totalUncompressed += uncompressedSize;
 				totalCompressed += lzwCompressor.Length();
 
-				float ratio1 = (float)lzwCompressor.Length() / (float)uncompressedSize;
-				float ratio2 = (float)totalCompressed / (float)totalUncompressed;
+				float ratio1 = static_cast<float>(lzwCompressor.Length()) / static_cast<float>(uncompressedSize);
+				float ratio2 = static_cast<float>(totalCompressed) / static_cast<float>(totalUncompressed);
 
 				idLib::Printf( "Uncompressed: %i, Compressed: %i, TotalUncompressed: %i, TotalCompressed: %i, (%2.2f / %2.2f )\n", uncompressedSize, lzwCompressor.Length(), totalUncompressed, totalCompressed, ratio1, ratio2 );
 			}

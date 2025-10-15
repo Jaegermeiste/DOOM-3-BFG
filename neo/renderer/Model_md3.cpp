@@ -68,7 +68,7 @@ void idRenderModelMD3::InitFromFile( const char *fileName ) {
 		return;
 	}
 
-	pinmodel = (md3Header_t *)buffer;
+	pinmodel = static_cast<md3Header_t*>(buffer);
 
 	version = LittleLong (pinmodel->version);
 	if (version != MD3_VERSION) {
@@ -80,7 +80,7 @@ void idRenderModelMD3::InitFromFile( const char *fileName ) {
 
 	size = LittleLong(pinmodel->ofsEnd);
 	dataSize += size;
-	md3 = (md3Header_t *)Mem_Alloc( size, TAG_MODEL );
+	md3 = static_cast<md3Header_t*>(Mem_Alloc(size, TAG_MODEL));
 
 	memcpy (md3, buffer, LittleLong(pinmodel->ofsEnd) );
 
@@ -151,7 +151,7 @@ void idRenderModelMD3::InitFromFile( const char *fileName ) {
 		surf->ident = 0;	//SF_MD3;
 
 		// lowercase the surface name so skin compares are faster
-		int slen = (int)strlen( surf->name );
+		int slen = static_cast<int>(strlen(surf->name));
 		for( j = 0; j < slen; j++ ) {
 			surf->name[j] = tolower( surf->name[j] );
 		}

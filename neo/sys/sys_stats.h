@@ -57,8 +57,8 @@ public:
 		idArray< int64, MAX_LEADERBOARD_COLUMNS > 	columns;
 	};
 
-	idLeaderboardCallback() : def(nullptr), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
-	virtual idLeaderboardCallback * Clone() const = 0;
+	idLeaderboardCallback() noexcept : def(nullptr), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
+	[[nodiscard]] virtual idLeaderboardCallback * Clone() const = 0;
 
 	// Used by the platform handlers to set data
 	void 							ResetRows() { rows.Clear(); }
@@ -70,12 +70,12 @@ public:
 	void							SetErrorCode( leaderboardError_t errorCode ) { this->errorCode = errorCode; }
 
 	// Used in user callback for information retrieval
-	const leaderboardDefinition_t *	GetDef() const { return def; }
-	int								GetStartIndex() const { return startIndex; }
-	const idList< row_t > &			GetRows() const { return rows; } 
-	int								GetNumRowsInLeaderboard() const { return numRowsInLeaderboard; }
-	int								GetLocalIndex() const { return localIndex; }
-	leaderboardError_t				GetErrorCode() const { return this->errorCode; }
+	[[nodiscard]] const leaderboardDefinition_t *	GetDef() const { return def; }
+	[[nodiscard]] int								GetStartIndex() const { return startIndex; }
+	[[nodiscard]] const idList< row_t > &			GetRows() const { return rows; }
+	[[nodiscard]] int								GetNumRowsInLeaderboard() const { return numRowsInLeaderboard; }
+	[[nodiscard]] int								GetLocalIndex() const { return localIndex; }
+	[[nodiscard]] leaderboardError_t				GetErrorCode() const { return this->errorCode; }
 
 protected:
 	const leaderboardDefinition_t *	def;					// leaderboard def

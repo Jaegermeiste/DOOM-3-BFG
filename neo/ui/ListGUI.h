@@ -52,7 +52,7 @@ public:
 	virtual int			GetSelection( char *s, int size, int sel = 0 ) const = 0; // returns the id, not the list index (or -1)
 	virtual void		SetSelection( int sel ) = 0;
 	virtual int			GetNumSelections() = 0;
-	virtual bool		IsConfigured() const = 0;
+	[[nodiscard]] virtual bool		IsConfigured() const = 0;
 						// by default, any modification to the list will trigger a full GUI refresh immediately
 	virtual void		SetStateChanges( bool enable ) = 0;
 	virtual void		Shutdown() = 0;

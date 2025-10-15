@@ -211,7 +211,7 @@ void idSoundHardware_XAudio2::Init() {
 	listDevices_f( args );
 
 	int preferredDevice = s_device.GetInteger();
-	if ( preferredDevice < 0 || preferredDevice >= (int)deviceCount ) {
+	if ( preferredDevice < 0 || preferredDevice >= static_cast<int>(deviceCount) ) {
 		int preferredChannels = 0;
 		for ( unsigned int i = 0; i < deviceCount; i++ ) {
 			XAUDIO2_DEVICE_DETAILS deviceDetails;
@@ -363,7 +363,7 @@ void idSoundHardware_XAudio2::Shutdown() {
 	if ( pXAudio2 != nullptr) {
 		XAUDIO2_PERFORMANCE_DATA perfData;
 		pXAudio2->GetPerformanceData( &perfData );
-		idLib::Printf( "Final pXAudio2 performanceData: Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / (float)perfData.TotalCyclesSinceLastQuery, perfData.MemoryUsageInBytes / 1024 );
+		idLib::Printf( "Final pXAudio2 performanceData: Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / static_cast<float>(perfData.TotalCyclesSinceLastQuery), perfData.MemoryUsageInBytes / 1024 );
 		pXAudio2->Release();
 		pXAudio2 = nullptr;
 	}
@@ -400,7 +400,7 @@ idSoundVoice * idSoundHardware_XAudio2::AllocateVoice( const idSoundSample * lea
 		if ( freeVoices[i]->IsPlaying() ) {
 			continue;
 		}
-		voice = (idSoundVoice *)freeVoices[i];
+		voice = static_cast<idSoundVoice*>(freeVoices[i]);
 		if ( voice->CompatibleFormat( (idSoundSample_XAudio2*)leadinSample ) ) {
 			break;
 		}
@@ -467,7 +467,7 @@ void idSoundHardware_XAudio2::Update() {
 	if ( s_showPerfData.GetBool() ) {
 		XAUDIO2_PERFORMANCE_DATA perfData;
 		pXAudio2->GetPerformanceData( &perfData );
-		idLib::Printf( "Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / (float)perfData.TotalCyclesSinceLastQuery, perfData.MemoryUsageInBytes / 1024 );
+		idLib::Printf( "Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / static_cast<float>(perfData.TotalCyclesSinceLastQuery), perfData.MemoryUsageInBytes / 1024 );
 	}
 
 	if ( vuMeterRMS == nullptr) {

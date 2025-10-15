@@ -39,15 +39,15 @@ is never free-d.
 */
 class idBitMsg {
 public:
-					idBitMsg() { InitWrite(nullptr, 0 ); }
+					idBitMsg() noexcept { InitWrite(nullptr, 0 ); }
 					idBitMsg( byte * data, const size_t length ) { InitWrite( data, length ); }
 					idBitMsg( const byte * data, const size_t length ) { InitRead( data, length ); }
 
 	// both read & write
-	void			InitWrite( byte *data, size_t length );
+	void			InitWrite( byte *data, size_t length ) noexcept;
 
 	// read only
-	void			InitRead( const byte *data, size_t length );
+	void			InitRead( const byte *data, size_t length ) noexcept;
 
 	// get data for writing
 	byte *			GetWriteData() const;
@@ -272,7 +272,8 @@ private:
 idBitMsg::InitWrite
 ========================
 */
-ID_INLINE void idBitMsg::InitWrite( byte *data, const size_t length ) {
+ID_INLINE void idBitMsg::InitWrite( byte *data, const size_t length ) noexcept
+{
 	writeData = data;
 	readData = data;
 	maxSize = length;
@@ -292,7 +293,8 @@ ID_INLINE void idBitMsg::InitWrite( byte *data, const size_t length ) {
 idBitMsg::InitRead
 ========================
 */
-ID_INLINE void idBitMsg::InitRead( const byte *data, const size_t length ) {
+ID_INLINE void idBitMsg::InitRead( const byte *data, const size_t length ) noexcept
+{
 	writeData = nullptr;
 	readData = data;
 	maxSize = length;
@@ -631,11 +633,11 @@ ID_INLINE void idBitMsg::WriteLong(const int32 c ) {
 idBitMsg::WriteLongLong
 ========================
 */
-ID_INLINE void idBitMsg::WriteLongLong(const int64 c ) {
-	const int a = c;
-	const int b = c >> 32;
-	WriteBits( a, 32 );
-	WriteBits( b, 32 );
+ID_INLINE void idBitMsg::WriteLongLong(const int64 c) {
+	const int32_t low = static_cast<int32_t>(c & 0xFFFFFFFFLL);
+	const int32_t high = static_cast<int32_t>((c >> 32) & 0xFFFFFFFFLL);
+	WriteBits( low, 32 );
+	WriteBits( high, 32 );
 }
 
 /*
@@ -778,7 +780,7 @@ idBitMsg::ReadFloat
 ========================
 */
 ID_INLINE float idBitMsg::ReadFloat() const {
-	float value;
+	float value = 0.0f;
 	*reinterpret_cast<int *>(&value) = ReadBits( 32 );
 	return value;
 }
@@ -936,7 +938,7 @@ Reads _num_ values from the array to the bit message.
 */
 template< class _arrayType_ >
 _arrayType_ ReadFloatArray( const idBitMsg & message ) {
-	_arrayType_ result;
+	_arrayType_ result = {};
 
 	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
 		result[i] = message.ReadFloat();
@@ -953,7 +955,7 @@ Reads _num_ values from the array to the bit message.
 */
 template< class _arrayType_ >
 _arrayType_ ReadDeltaFloatArray( const idBitMsg & message, const _arrayType_ & oldArray ) {
-	_arrayType_ result;
+	_arrayType_ result = {};
 
 	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
 		result[i] = message.ReadDeltaFloat( oldArray[i] );

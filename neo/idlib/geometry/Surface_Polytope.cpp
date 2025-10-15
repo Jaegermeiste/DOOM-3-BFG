@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <utility>
+
 #include "../precompiled.h"
 
 #define POLYTOPE_VERTEX_EPSILON		0.1f
@@ -36,15 +38,15 @@ If you have questions concerning this license or the applicable additional terms
 idSurface_Polytope::FromPlanes
 ====================
 */
-void idSurface_Polytope::FromPlanes( const idPlane *planes, const int numPlanes ) {
-	int j, k;
+void idSurface_Polytope::FromPlanes( const idPlane *planes, const size_t numPlanes ) {
+	size_t j = 0, k = 0;
 	idFixedWinding w;
 	idDrawVert newVert;
 
-	int* windingVerts = static_cast<int*>(_alloca(MAX_POINTS_ON_WINDING * sizeof(int)));
+	size_t* windingVerts = static_cast<size_t*>(_alloca(MAX_POINTS_ON_WINDING * sizeof(size_t)));
 	memset( &newVert, 0, sizeof( newVert ) );
 
-	for ( int i = 0; i < numPlanes; i++ ) {
+	for ( size_t i = 0; i < numPlanes; i++ ) {
 
 		w.BaseForPlane( planes[i] );
 
@@ -89,12 +91,12 @@ idSurface_Polytope::SetupTetrahedron
 ====================
 */
 void idSurface_Polytope::SetupTetrahedron( const idBounds &bounds ) {
-	float c1 = 0.4714045207f;
-	float c2 = 0.8164965809f;
-	float c3 = -0.3333333333f;
+	const float c1 = 0.4714045207f;
+	const float c2 = 0.8164965809f;
+	const float c3 = -0.3333333333f;
 
-	idVec3 center = bounds.GetCenter();
-	idVec3 scale = bounds[1] - center;
+	const idVec3 center = bounds.GetCenter();
+	const idVec3 scale = bounds[1] - center;
 
 	verts.SetNum( 4 );
 	verts[0].xyz = center + idVec3( 0.0f, 0.0f, scale.z );
@@ -102,19 +104,19 @@ void idSurface_Polytope::SetupTetrahedron( const idBounds &bounds ) {
 	verts[2].xyz = center + idVec3( -c1 * scale.x, c2 * scale.y, c3 * scale.z );
 	verts[3].xyz = center + idVec3( -c1 * scale.x, -c2 * scale.y, c3 * scale.z );
 
-	indexes.SetNum( 4*3 );
-	indexes[0*3+0] = 0;
-	indexes[0*3+1] = 1;
-	indexes[0*3+2] = 2;
-	indexes[1*3+0] = 0;
-	indexes[1*3+1] = 2;
-	indexes[1*3+2] = 3;
-	indexes[2*3+0] = 0;
-	indexes[2*3+1] = 3;
-	indexes[2*3+2] = 1;
-	indexes[3*3+0] = 1;
-	indexes[3*3+1] = 3;
-	indexes[3*3+2] = 2;
+	indexes.SetNum( 4ULL * 3 );
+	indexes[0ULL * 3 + 0] = 0;
+	indexes[0ULL * 3 + 1] = 1;
+	indexes[0ULL * 3 + 2] = 2;
+	indexes[1ULL * 3 + 0] = 0;
+	indexes[1ULL * 3 + 1] = 2;
+	indexes[1ULL * 3 + 2] = 3;
+	indexes[2ULL * 3 + 0] = 0;
+	indexes[2ULL * 3 + 1] = 3;
+	indexes[2ULL * 3 + 2] = 1;
+	indexes[3ULL * 3 + 0] = 1;
+	indexes[3ULL * 3 + 1] = 3;
+	indexes[3ULL * 3 + 2] = 2;
 
 	GenerateEdgeIndexes();
 }
@@ -125,8 +127,8 @@ idSurface_Polytope::SetupHexahedron
 ====================
 */
 void idSurface_Polytope::SetupHexahedron( const idBounds &bounds ) {
-	idVec3 center = bounds.GetCenter();
-	idVec3 scale = bounds[1] - center;
+	const idVec3 center = bounds.GetCenter();
+	const idVec3 scale = bounds[1] - center;
 
 	verts.SetNum( 8 );
 	verts[0].xyz = center + idVec3( -scale.x, -scale.y, -scale.z );
@@ -138,43 +140,43 @@ void idSurface_Polytope::SetupHexahedron( const idBounds &bounds ) {
 	verts[6].xyz = center + idVec3(  scale.x,  scale.y,  scale.z );
 	verts[7].xyz = center + idVec3( -scale.x,  scale.y,  scale.z );
 
-	indexes.SetNum( 12*3 );
-	indexes[ 0*3+0] = 0;
-	indexes[ 0*3+1] = 3;
-	indexes[ 0*3+2] = 2;
-	indexes[ 1*3+0] = 0;
-	indexes[ 1*3+1] = 2;
-	indexes[ 1*3+2] = 1;
-	indexes[ 2*3+0] = 0;
-	indexes[ 2*3+1] = 1;
-	indexes[ 2*3+2] = 5;
-	indexes[ 3*3+0] = 0;
-	indexes[ 3*3+1] = 5;
-	indexes[ 3*3+2] = 4;
-	indexes[ 4*3+0] = 0;
-	indexes[ 4*3+1] = 4;
-	indexes[ 4*3+2] = 7;
-	indexes[ 5*3+0] = 0;
-	indexes[ 5*3+1] = 7;
-	indexes[ 5*3+2] = 3;
-	indexes[ 6*3+0] = 6;
-	indexes[ 6*3+1] = 5;
-	indexes[ 6*3+2] = 1;
-	indexes[ 7*3+0] = 6;
-	indexes[ 7*3+1] = 1;
-	indexes[ 7*3+2] = 2;
-	indexes[ 8*3+0] = 6;
-	indexes[ 8*3+1] = 2;
-	indexes[ 8*3+2] = 3;
-	indexes[ 9*3+0] = 6;
-	indexes[ 9*3+1] = 3;
-	indexes[ 9*3+2] = 7;
-	indexes[10*3+0] = 6;
-	indexes[10*3+1] = 7;
-	indexes[10*3+2] = 4;
-	indexes[11*3+0] = 6;
-	indexes[11*3+1] = 4;
-	indexes[11*3+2] = 5;
+	indexes.SetNum( 12ULL * 3 );
+	indexes[ 0ULL * 3 + 0] = 0;
+	indexes[ 0ULL * 3 + 1] = 3;
+	indexes[ 0ULL * 3 + 2] = 2;
+	indexes[ 1ULL * 3 + 0] = 0;
+	indexes[ 1ULL * 3 + 1] = 2;
+	indexes[ 1ULL * 3 + 2] = 1;
+	indexes[ 2ULL * 3 + 0] = 0;
+	indexes[ 2ULL * 3 + 1] = 1;
+	indexes[ 2ULL * 3 + 2] = 5;
+	indexes[ 3ULL * 3 + 0] = 0;
+	indexes[ 3ULL * 3 + 1] = 5;
+	indexes[ 3ULL * 3 + 2] = 4;
+	indexes[ 4ULL * 3 + 0] = 0;
+	indexes[ 4ULL * 3 + 1] = 4;
+	indexes[ 4ULL * 3 + 2] = 7;
+	indexes[ 5ULL * 3 + 0] = 0;
+	indexes[ 5ULL * 3 + 1] = 7;
+	indexes[ 5ULL * 3 + 2] = 3;
+	indexes[ 6ULL * 3 + 0] = 6;
+	indexes[ 6ULL * 3 + 1] = 5;
+	indexes[ 6ULL * 3 + 2] = 1;
+	indexes[ 7ULL * 3 + 0] = 6;
+	indexes[ 7ULL * 3 + 1] = 1;
+	indexes[ 7ULL * 3 + 2] = 2;
+	indexes[ 8ULL * 3 + 0] = 6;
+	indexes[ 8ULL * 3 + 1] = 2;
+	indexes[ 8ULL * 3 + 2] = 3;
+	indexes[ 9ULL * 3 + 0] = 6;
+	indexes[ 9ULL * 3 + 1] = 3;
+	indexes[ 9ULL * 3 + 2] = 7;
+	indexes[10ULL * 3 + 0] = 6;
+	indexes[10ULL * 3 + 1] = 7;
+	indexes[10ULL * 3 + 2] = 4;
+	indexes[11ULL * 3 + 0] = 6;
+	indexes[11ULL * 3 + 1] = 4;
+	indexes[11ULL * 3 + 2] = 5;
 
 	GenerateEdgeIndexes();
 }
@@ -185,8 +187,8 @@ idSurface_Polytope::SetupOctahedron
 ====================
 */
 void idSurface_Polytope::SetupOctahedron( const idBounds &bounds ) {
-	idVec3 center = bounds.GetCenter();
-	idVec3 scale = bounds[1] - center;
+	const idVec3 center = bounds.GetCenter();
+	const idVec3 scale = bounds[1] - center;
 
 	verts.SetNum( 6 );
 	verts[0].xyz = center + idVec3(  scale.x, 0.0f, 0.0f );
@@ -196,31 +198,31 @@ void idSurface_Polytope::SetupOctahedron( const idBounds &bounds ) {
 	verts[4].xyz = center + idVec3( 0.0f, 0.0f,  scale.z );
 	verts[5].xyz = center + idVec3( 0.0f, 0.0f, -scale.z );
 
-	indexes.SetNum( 8*3 );
-	indexes[0*3+0] = 4;
-	indexes[0*3+1] = 0;
-	indexes[0*3+2] = 2;
-	indexes[1*3+0] = 4;
-	indexes[1*3+1] = 2;
-	indexes[1*3+2] = 1;
-	indexes[2*3+0] = 4;
-	indexes[2*3+1] = 1;
-	indexes[2*3+2] = 3;
-	indexes[3*3+0] = 4;
-	indexes[3*3+1] = 3;
-	indexes[3*3+2] = 0;
-	indexes[4*3+0] = 5;
-	indexes[4*3+1] = 2;
-	indexes[4*3+2] = 0;
-	indexes[5*3+0] = 5;
-	indexes[5*3+1] = 1;
-	indexes[5*3+2] = 2;
-	indexes[6*3+0] = 5;
-	indexes[6*3+1] = 3;
-	indexes[6*3+2] = 1;
-	indexes[7*3+0] = 5;
-	indexes[7*3+1] = 0;
-	indexes[7*3+2] = 3;
+	indexes.SetNum( 8ULL * 3 );
+	indexes[0ULL * 3 + 0] = 4;
+	indexes[0ULL * 3 + 1] = 0;
+	indexes[0ULL * 3 + 2] = 2;
+	indexes[1ULL * 3 + 0] = 4;
+	indexes[1ULL * 3 + 1] = 2;
+	indexes[1ULL * 3 + 2] = 1;
+	indexes[2ULL * 3 + 0] = 4;
+	indexes[2ULL * 3 + 1] = 1;
+	indexes[2ULL * 3 + 2] = 3;
+	indexes[3ULL * 3 + 0] = 4;
+	indexes[3ULL * 3 + 1] = 3;
+	indexes[3ULL * 3 + 2] = 0;
+	indexes[4ULL * 3 + 0] = 5;
+	indexes[4ULL * 3 + 1] = 2;
+	indexes[4ULL * 3 + 2] = 0;
+	indexes[5ULL * 3 + 0] = 5;
+	indexes[5ULL * 3 + 1] = 1;
+	indexes[5ULL * 3 + 2] = 2;
+	indexes[6ULL * 3 + 0] = 5;
+	indexes[6ULL * 3 + 1] = 3;
+	indexes[6ULL * 3 + 2] = 1;
+	indexes[7ULL * 3 + 0] = 5;
+	indexes[7ULL * 3 + 1] = 0;
+	indexes[7ULL * 3 + 2] = 3;
 
 	GenerateEdgeIndexes();
 }
@@ -246,7 +248,7 @@ void idSurface_Polytope::SetupIcosahedron( const idBounds &bounds ) {
 idSurface_Polytope::SetupCylinder
 ====================
 */
-void idSurface_Polytope::SetupCylinder( const idBounds &bounds, const int numSides ) {
+void idSurface_Polytope::SetupCylinder( const idBounds &bounds, const size_t numSides ) {
 }
 
 /*
@@ -254,7 +256,7 @@ void idSurface_Polytope::SetupCylinder( const idBounds &bounds, const int numSid
 idSurface_Polytope::SetupCone
 ====================
 */
-void idSurface_Polytope::SetupCone( const idBounds &bounds, const int numSides ) {
+void idSurface_Polytope::SetupCone( const idBounds &bounds, const size_t numSides ) {
 }
 
 /*
@@ -263,15 +265,15 @@ idSurface_Polytope::SplitPolytope
 ====================
 */
 int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon, idSurface_Polytope **front, idSurface_Polytope **back ) const {
-	int i, s;
-	idSurface *surface[2];
-	idSurface_Polytope *polytopeSurfaces[2];
-	int *onPlaneEdges[2];
+	size_t i = 0, s = 0;
+	idSurface *surface[2] = {};
+	idSurface_Polytope *polytopeSurfaces[2] = {};
+	size_t *onPlaneEdges[2] = {};
 
-	onPlaneEdges[0] = static_cast<int*>(_alloca(indexes.Num() / 3 * sizeof(int)));
-	onPlaneEdges[1] = static_cast<int*>(_alloca(indexes.Num() / 3 * sizeof(int)));
+	onPlaneEdges[0] = static_cast<size_t*>(_alloca(indexes.Num() / 3 * sizeof(size_t)));
+	onPlaneEdges[1] = static_cast<size_t*>(_alloca(indexes.Num() / 3 * sizeof(size_t)));
 
-	int side = Split(plane, epsilon, &surface[0], &surface[1], onPlaneEdges[0], onPlaneEdges[1]);
+	const int side = Split(plane, epsilon, &surface[0], &surface[1], onPlaneEdges[0], onPlaneEdges[1]);
 
 	*front = polytopeSurfaces[0] = new (TAG_IDLIB_SURFACE) idSurface_Polytope;
 	*back = polytopeSurfaces[1] = new (TAG_IDLIB_SURFACE) idSurface_Polytope;
@@ -296,15 +298,15 @@ int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon
 
 		idSurface_Polytope* surf = polytopeSurfaces[s];
 
-		int edgeNum = surf->edgeIndexes[onPlaneEdges[s][0]];
-		int v0 = surf->edges[abs(edgeNum)].verts[INT32_SIGNBITSET(edgeNum)];
-		int v1 = surf->edges[abs(edgeNum)].verts[INT32_SIGNBITNOTSET(edgeNum)];
+		int64 edgeNum = surf->edgeIndexes[onPlaneEdges[s][0]];
+		size_t v0 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITSET(edgeNum)];
+		size_t v1 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITNOTSET(edgeNum)];
 
 		for ( i = 1; onPlaneEdges[s][i] >= 0; i++ ) {
-			for ( int j = i + 1; onPlaneEdges[s][j] >= 0; j++ ) {
+			for (size_t j = i + 1; onPlaneEdges[s][j] >= 0; j++ ) {
 				edgeNum = surf->edgeIndexes[onPlaneEdges[s][j]];
-				if ( v1 == surf->edges[abs(edgeNum)].verts[INT32_SIGNBITSET(edgeNum)] ) {
-					v1 = surf->edges[abs(edgeNum)].verts[INT32_SIGNBITNOTSET(edgeNum)];
+				if (std::cmp_equal(v1, surf->edges[abs(edgeNum)].verts[INT64_SIGNBITSET(edgeNum)])) {
+					v1 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITNOTSET(edgeNum)];
 					SwapValues( onPlaneEdges[s][i], onPlaneEdges[s][j] );
 					break;
 				}
@@ -313,8 +315,8 @@ int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon
 
 		for ( i = 2; onPlaneEdges[s][i] >= 0; i++ ) {
 			edgeNum = surf->edgeIndexes[onPlaneEdges[s][i]];
-			v1 = surf->edges[abs(edgeNum)].verts[INT32_SIGNBITNOTSET(edgeNum)];
-			int v2 = surf->edges[abs(edgeNum)].verts[INT32_SIGNBITSET(edgeNum)];
+			v1 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITNOTSET(edgeNum)];
+			size_t v2 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITSET(edgeNum)];
 			surf->indexes.Append( v0 );
 			surf->indexes.Append( v1 );
 			surf->indexes.Append( v2 );

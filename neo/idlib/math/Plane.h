@@ -43,42 +43,53 @@ If you have questions concerning this license or the applicable additional terms
 class idVec3;
 class idMat3;
 
-#define	ON_EPSILON					0.1f
-#define DEGENERATE_DIST_EPSILON		1e-4f
+constexpr auto ON_EPSILON = 0.1f;
+constexpr auto DEGENERATE_DIST_EPSILON = 1e-4f;
 
-#define	SIDE_FRONT					0
-#define	SIDE_BACK					1
-#define	SIDE_ON						2
-#define	SIDE_CROSS					3
+enum sides_e : byte
+{
+	SIDE_FRONT = 0,
+	SIDE_BACK = 1,
+	SIDE_ON = 2,
+	SIDE_CROSS = 3
+};
 
 // plane sides
-#define PLANESIDE_FRONT				0
-#define PLANESIDE_BACK				1
-#define PLANESIDE_ON				2
-#define PLANESIDE_CROSS				3
+enum planesides_e: byte
+{
+	PLANESIDE_FRONT = 0,
+	PLANESIDE_BACK = 1,
+	PLANESIDE_ON = 2,
+	PLANESIDE_CROSS = 3
+};
 
 // plane types
-#define PLANETYPE_X					0
-#define PLANETYPE_Y					1
-#define PLANETYPE_Z					2
-#define PLANETYPE_NEGX				3
-#define PLANETYPE_NEGY				4
-#define PLANETYPE_NEGZ				5
-#define PLANETYPE_TRUEAXIAL			6	// all types < 6 are true axial planes
-#define PLANETYPE_ZEROX				6
-#define PLANETYPE_ZEROY				7
-#define PLANETYPE_ZEROZ				8
-#define PLANETYPE_NONAXIAL			9
+enum planetypes_e : byte
+{
+	PLANETYPE_X = 0,
+	PLANETYPE_Y = 1,
+	PLANETYPE_Z = 2,
+	PLANETYPE_NEGX = 3,
+	PLANETYPE_NEGY = 4,
+	PLANETYPE_NEGZ = 5,
+	PLANETYPE_TRUEAXIAL = 6,	// all types < 6 are true axial planes
+	PLANETYPE_ZEROX = 6,
+	PLANETYPE_ZEROY = 7,
+	PLANETYPE_ZEROZ = 8,
+	PLANETYPE_NONAXIAL = 9
+};
 
 class idPlane {
 public:
-					idPlane();
+					idPlane() noexcept;
 					explicit idPlane( float a, float b, float c, float d );
 					explicit idPlane( const idVec3 &normal, const float dist );
 					explicit idPlane( const idVec3 & v0, const idVec3 & v1, const idVec3 & v2, bool fixDegenerate = false );
 
-	float			operator[]( int index ) const;
-	float &			operator[]( int index );
+	
+	float			operator[](Ordinal auto index ) const;
+	
+	float &			operator[](Ordinal auto index );
 	idPlane			operator-() const;						// flips plane
 	idPlane &		operator=( const idVec3 &v );			// sets normal and sets idPlane::d to zero
 	idPlane			operator+( const idPlane &p ) const;	// add plane equations
@@ -138,8 +149,7 @@ private:
 extern idPlane plane_origin;
 #define plane_zero plane_origin
 
-ID_INLINE idPlane::idPlane() {
-}
+ID_INLINE idPlane::idPlane() noexcept = default;
 
 ID_INLINE idPlane::idPlane(const float a, const float b, const float c, const float d ) {
 	this->a = a;
@@ -159,11 +169,15 @@ ID_INLINE idPlane::idPlane( const idVec3 & v0, const idVec3 & v1, const idVec3 &
 	FromPoints( v0, v1, v2, fixDegenerate );
 }
 
-ID_INLINE float idPlane::operator[](const int index ) const {
+
+ID_INLINE float idPlane::operator[](const Ordinal auto index ) const {
+	assert(index >= 0 && std::cmp_less(index, 4));
 	return ( &a )[ index ];
 }
 
-ID_INLINE float& idPlane::operator[](const int index ) {
+
+ID_INLINE float& idPlane::operator[](const Ordinal auto index ) {
+	assert(index >= 0 && std::cmp_less(index, 4));
 	return ( &a )[ index ];
 }
 
@@ -351,8 +365,8 @@ ID_INLINE int idPlane::Side( const idVec3 &v, const float epsilon ) const {
 }
 
 ID_INLINE bool idPlane::LineIntersection( const idVec3 &start, const idVec3 &end ) const {
-	float d1 = Normal() * start + d;
-	float d2 = Normal() * end + d;
+	const float d1 = Normal() * start + d;
+	const float d2 = Normal() * end + d;
 	if ( d1 == d2 ) {
 		return false;
 	}
@@ -362,13 +376,13 @@ ID_INLINE bool idPlane::LineIntersection( const idVec3 &start, const idVec3 &end
 	if ( d1 < 0.0f && d2 < 0.0f ) {
 		return false;
 	}
-	float fraction = (d1 / (d1 - d2));
+	const float fraction = (d1 / (d1 - d2));
 	return ( fraction >= 0.0f && fraction <= 1.0f );
 }
 
 ID_INLINE bool idPlane::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale ) const {
-	float d1 = Normal() * start + d;
-	float d2 = Normal() * dir;
+	const float d1 = Normal() * start + d;
+	const float d2 = Normal() * dir;
 	if ( d2 == 0.0f ) {
 		return false;
 	}
@@ -389,11 +403,11 @@ ID_INLINE idVec4 &idPlane::ToVec4() {
 }
 
 ID_INLINE const float *idPlane::ToFloatPtr() const {
-	return reinterpret_cast<const float *>(&a);
+	return &a;
 }
 
 ID_INLINE float *idPlane::ToFloatPtr() {
-	return reinterpret_cast<float *>(&a);
+	return &a;
 }
 
 #endif /* !__MATH_PLANE_H__ */

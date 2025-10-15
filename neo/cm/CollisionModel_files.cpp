@@ -326,7 +326,7 @@ void idCollisionModelManagerLocal::ParseVertices( idLexer *src, cm_model_t *mode
 	src->ExpectTokenString( "{" );
 	model->numVertices = src->ParseInt();
 	model->maxVertices = model->numVertices;
-	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof( cm_vertex_t ), TAG_COLLISION );
+	model->vertices = static_cast<cm_vertex_t*>(Mem_ClearedAlloc(model->maxVertices * sizeof(cm_vertex_t), TAG_COLLISION));
 	for ( i = 0; i < model->numVertices; i++ ) {
 		src->Parse1DMatrix( 3, model->vertices[i].p.ToFloatPtr() );
 		model->vertices[i].side = 0;
@@ -347,7 +347,7 @@ void idCollisionModelManagerLocal::ParseEdges( idLexer *src, cm_model_t *model )
 	src->ExpectTokenString( "{" );
 	model->numEdges = src->ParseInt();
 	model->maxEdges = model->numEdges;
-	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof( cm_edge_t ), TAG_COLLISION );
+	model->edges = static_cast<cm_edge_t*>(Mem_ClearedAlloc(model->maxEdges * sizeof(cm_edge_t), TAG_COLLISION));
 	for ( i = 0; i < model->numEdges; i++ ) {
 		src->ExpectTokenString( "(" );
 		model->edges[i].vertexNum[0] = src->ParseInt();
@@ -400,7 +400,7 @@ void idCollisionModelManagerLocal::ParsePolygons( idLexer *src, cm_model_t *mode
 	idToken token;
 
 	if ( src->CheckTokenType( TT_NUMBER, 0, &token ) ) {
-		model->polygonBlock = (cm_polygonBlock_t *) Mem_ClearedAlloc( sizeof( cm_polygonBlock_t ) + token.GetIntValue(), TAG_COLLISION );
+		model->polygonBlock = static_cast<cm_polygonBlock_t*>(Mem_ClearedAlloc(sizeof(cm_polygonBlock_t) + token.GetIntValue(), TAG_COLLISION));
 		model->polygonBlock->bytesRemaining = token.GetIntValue();
 		model->polygonBlock->next = ( (byte *) model->polygonBlock ) + sizeof( cm_polygonBlock_t );
 	}
@@ -443,7 +443,7 @@ void idCollisionModelManagerLocal::ParseBrushes( idLexer *src, cm_model_t *model
 	idToken token;
 
 	if ( src->CheckTokenType( TT_NUMBER, 0, &token ) ) {
-		model->brushBlock = (cm_brushBlock_t *) Mem_ClearedAlloc( sizeof( cm_brushBlock_t ) + token.GetIntValue(), TAG_COLLISION );
+		model->brushBlock = static_cast<cm_brushBlock_t*>(Mem_ClearedAlloc(sizeof(cm_brushBlock_t) + token.GetIntValue(), TAG_COLLISION));
 		model->brushBlock->bytesRemaining = token.GetIntValue();
 		model->brushBlock->next = ( (byte *) model->brushBlock ) + sizeof( cm_brushBlock_t );
 	}

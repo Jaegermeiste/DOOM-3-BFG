@@ -276,7 +276,8 @@ void idWindow::Move(float x, float y) {
 idWindow::SetFont
 ================
 */
-void idWindow::SetFont() {
+void idWindow::SetFont() const
+{
 	dc->SetFont( font );
 }
 
@@ -323,8 +324,8 @@ void idWindow::Draw( int time, float x, float y ) {
 
 	if ( gui_edit.GetBool() ) {
 		dc->EnableClipping( false );
-		dc->DrawText( va( "x: %i  y: %i", ( int )rect.x(), ( int )rect.y() ), 0.25, 0, dc->colorWhite, idRectangle( rect.x(), rect.y() - 15, 100, 20 ), false );
-		dc->DrawText( va( "w: %i  h: %i", ( int )rect.w(), ( int )rect.h() ), 0.25, 0, dc->colorWhite, idRectangle( rect.x() + rect.w(), rect.w() + rect.h() + 5, 100, 20 ), false );
+		dc->DrawText( va( "x: %i  y: %i", static_cast<int>(rect.x()), static_cast<int>(rect.y()) ), 0.25, 0, dc->colorWhite, idRectangle( rect.x(), rect.y() - 15, 100, 20 ), false );
+		dc->DrawText( va( "w: %i  h: %i", static_cast<int>(rect.w()), static_cast<int>(rect.h()) ), 0.25, 0, dc->colorWhite, idRectangle( rect.x() + rect.w(), rect.w() + rect.h() + 5, 100, 20 ), false );
 		dc->EnableClipping( true );
 	}
 
@@ -649,7 +650,8 @@ void idWindow::RunNamedEvent ( const char* eventName )
 idWindow::Contains
 ================
 */
-bool idWindow::Contains(const idRectangle &sr, float x, float y) {
+bool idWindow::Contains(const idRectangle &sr, float x, float y) const
+{
 	idRectangle r = sr;
 	r.x += actualX - drawRect.x;
 	r.y += actualY - drawRect.y;
@@ -661,7 +663,8 @@ bool idWindow::Contains(const idRectangle &sr, float x, float y) {
 idWindow::Contains
 ================
 */
-bool idWindow::Contains(float x, float y) {
+bool idWindow::Contains(float x, float y) const
+{
 	idRectangle r = drawRect;
 	r.x = actualX;
 	r.y = actualY;
@@ -944,7 +947,8 @@ const char *idWindow::HandleEvent(const sysEvent_t *event, bool *updateVisuals) 
 idWindow::DebugDraw
 ================
 */
-void idWindow::DebugDraw(int time, float x, float y) {
+void idWindow::DebugDraw(int time, float x, float y) const
+{
 	static char buff[16384] = { 0 };
 	if (dc) {
 		dc->EnableClipping(false);
@@ -1119,7 +1123,8 @@ void idWindow::DrawBackground(const idRectangle &drawRect) {
 idWindow::DrawBorderAndCaption
 ================
 */
-void idWindow::DrawBorderAndCaption(const idRectangle &drawRect) {
+void idWindow::DrawBorderAndCaption(const idRectangle &drawRect) const
+{
 	if ( flags & WIN_BORDER && borderSize && borderColor.w() ) {
 		dc->DrawRect(drawRect.x, drawRect.y, drawRect.w, drawRect.h, borderSize, borderColor);
 	}
@@ -1130,7 +1135,8 @@ void idWindow::DrawBorderAndCaption(const idRectangle &drawRect) {
 idWindow::SetupTransforms
 ================
 */
-void idWindow::SetupTransforms(float x, float y) {
+void idWindow::SetupTransforms(float x, float y) const
+{
 	static idMat3 trans;
 	static idVec3 org;
 	
@@ -1201,12 +1207,12 @@ void idWindow::Redraw(float x, float y, bool hud) {
 	}
 
 	if ( flags & WIN_SHOWTIME ) {
-		dc->DrawText(va(" %0.1f seconds\n%s", (float)(time - timeLine) / 1000, gui->State().GetString("name")), 0.35f, 0, dc->colorWhite, idRectangle(100, 0, 80, 80), false);
+		dc->DrawText(va(" %0.1f seconds\n%s", static_cast<float>(time - timeLine) / 1000, gui->State().GetString("name")), 0.35f, 0, dc->colorWhite, idRectangle(100, 0, 80, 80), false);
 	}
 
 	if ( flags & WIN_SHOWCOORDS ) {
 		dc->EnableClipping(false);
-		sprintf(str, "x: %i y: %i  cursorx: %i cursory: %i", (int)rect.x(), (int)rect.y(), (int)gui->CursorX(), (int)gui->CursorY());
+		sprintf(str, "x: %i y: %i  cursorx: %i cursory: %i", static_cast<int>(rect.x()), static_cast<int>(rect.y()), static_cast<int>(gui->CursorX()), static_cast<int>(gui->CursorY()));
 		dc->DrawText(str, 0.25f, 0, dc->colorWhite, idRectangle(0, 0, 100, 20), false);
 		dc->EnableClipping(true);
 	}
@@ -1490,7 +1496,8 @@ void idWindow::SetParent(idWindow *w) {
 idWindow::GetCaptureChild
 ================
 */
-idWindow *idWindow::GetCaptureChild() {
+idWindow *idWindow::GetCaptureChild() const
+{
 	if (flags & WIN_DESKTOP) {
 		return gui->GetDesktop()->captureChild;
 	}
@@ -1502,7 +1509,8 @@ idWindow *idWindow::GetCaptureChild() {
 idWindow::GetFocusedChild
 ================
 */
-idWindow *idWindow::GetFocusedChild() {
+idWindow *idWindow::GetFocusedChild() const
+{
 	if (flags & WIN_DESKTOP) {
 		return gui->GetDesktop()->focusedChild;
 	}
@@ -1515,7 +1523,8 @@ idWindow *idWindow::GetFocusedChild() {
 idWindow::SetFocus
 ================
 */
-idWindow *idWindow::SetFocus(idWindow *w, bool scripts) {
+idWindow *idWindow::SetFocus(idWindow *w, bool scripts) const
+{
 	// only one child can have the focus
 	idWindow *lastFocus = nullptr;
 	if (w->flags & WIN_CANFOCUS) {
@@ -1640,7 +1649,7 @@ idWindow::SaveExpressionParseState
 ================
 */
 void idWindow::SaveExpressionParseState() {
-	saveTemps = (bool*)Mem_Alloc(MAX_EXPRESSION_REGISTERS * sizeof(bool), TAG_CRAP);
+	saveTemps = static_cast<bool*>(Mem_Alloc(MAX_EXPRESSION_REGISTERS * sizeof(bool), TAG_CRAP));
 	memcpy(saveTemps, registerIsTemporary, MAX_EXPRESSION_REGISTERS * sizeof(bool));
 }
 
@@ -1649,7 +1658,8 @@ void idWindow::SaveExpressionParseState() {
 idWindow::RestoreExpressionParseState
 ================
 */
-void idWindow::RestoreExpressionParseState() {
+void idWindow::RestoreExpressionParseState() const
+{
 	memcpy(registerIsTemporary, saveTemps, MAX_EXPRESSION_REGISTERS * sizeof(bool));
 	Mem_Free(saveTemps);
 }
@@ -1689,7 +1699,7 @@ idSort_TimeLine
 */
 class idSort_TimeLine : public idSort_Quick< idTimeLineEvent *, idSort_TimeLine > {
 public:
-	int Compare( idTimeLineEvent * const & a, idTimeLineEvent * const & b ) const {
+	[[nodiscard]] int Compare( idTimeLineEvent * const & a, idTimeLineEvent * const & b ) const {
 		return a->time - b->time;
 	}
 };
@@ -1714,35 +1724,35 @@ int idWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
 	int ret = -1;
 
 	if ( wv == &rect ) {
-		ret = (int)&( ( idWindow * ) nullptr )->rect;
+		ret = (int)&static_cast<idWindow*>(nullptr)->rect;
 	}
 
 	if ( wv == &backColor ) {
-		ret = (int)&( ( idWindow * ) nullptr )->backColor;
+		ret = (int)&static_cast<idWindow*>(nullptr)->backColor;
 	}
 
 	if ( wv == &matColor ) {
-		ret = (int)&( ( idWindow * ) nullptr )->matColor;
+		ret = (int)&static_cast<idWindow*>(nullptr)->matColor;
 	}
 
 	if ( wv == &foreColor ) {
-		ret = (int)&( ( idWindow * ) nullptr )->foreColor;
+		ret = (int)&static_cast<idWindow*>(nullptr)->foreColor;
 	}
 
 	if ( wv == &hoverColor ) {
-		ret = (int)&( ( idWindow * ) nullptr )->hoverColor;
+		ret = (int)&static_cast<idWindow*>(nullptr)->hoverColor;
 	}
 
 	if ( wv == &borderColor ) {
-		ret = (int)&( ( idWindow * ) nullptr )->borderColor;
+		ret = (int)&static_cast<idWindow*>(nullptr)->borderColor;
 	}
 
 	if ( wv == &textScale ) {
-		ret = (int)&( ( idWindow * ) nullptr )->textScale;
+		ret = (int)&static_cast<idWindow*>(nullptr)->textScale;
 	}
 
 	if ( wv == &rotate ) {
-		ret = (int)&( ( idWindow * ) nullptr )->rotate;
+		ret = (int)&static_cast<idWindow*>(nullptr)->rotate;
 	}
 
 	if ( ret != -1 ) {
@@ -2496,7 +2506,8 @@ void idWindow::StartTransition() {
 idWindow::ResetCinematics
 ================
 */
-void idWindow::ResetCinematics() {
+void idWindow::ResetCinematics() const
+{
 	if ( background ) {
 		background->ResetCinematicTime( gui->GetTime() );
 	}
@@ -2927,9 +2938,9 @@ void idWindow::EvaluateRegisters(float *registers) {
 			}
 			break;
 		case WOP_TYPE_MOD:
-			b = (int)registers[op->b];
+			b = static_cast<int>(registers[op->b]);
 			b = b != 0 ? b : 1;
-			registers[op->c] = (int)registers[op->a] % b;
+			registers[op->c] = static_cast<int>(registers[op->a]) % b;
 			break;
 		case WOP_TYPE_TABLE:
 			{
@@ -3652,40 +3663,40 @@ idWindow::FixupTransitions
 void idWindow::FixupTransitions() {
 	int i, c = transitions.Num();
 	for ( i = 0; i < c; i++ ) {
-		drawWin_t *dw = gui->GetDesktop()->FindChildByName( ( ( idWinStr* )transitions[i].data )->c_str() );
+		drawWin_t *dw = gui->GetDesktop()->FindChildByName( static_cast<idWinStr*>(transitions[i].data)->c_str() );
 		delete transitions[i].data;
 		transitions[i].data = nullptr;
 		if ( dw != nullptr && ( dw->win != nullptr || dw->simp != nullptr) ){
 			if ( dw->win != nullptr) {
-				if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->rect ) {
+				if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->rect ) {
 					transitions[i].data = &dw->win->rect;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->backColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->backColor ) {
 					transitions[i].data = &dw->win->backColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->matColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->matColor ) {
 					transitions[i].data = &dw->win->matColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->foreColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->foreColor ) {
 					transitions[i].data = &dw->win->foreColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->borderColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->borderColor ) {
 					transitions[i].data = &dw->win->borderColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->textScale ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->textScale ) {
 					transitions[i].data = &dw->win->textScale;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) nullptr )->rotate ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idWindow*>(nullptr)->rotate ) {
 					transitions[i].data = &dw->win->rotate;
 				}
 			} else {
-				if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->rect ) {
+				if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->rect ) {
 					transitions[i].data = &dw->simp->rect;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->backColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->backColor ) {
 					transitions[i].data = &dw->simp->backColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->matColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->matColor ) {
 					transitions[i].data = &dw->simp->matColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->foreColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->foreColor ) {
 					transitions[i].data = &dw->simp->foreColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->borderColor ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->borderColor ) {
 					transitions[i].data = &dw->simp->borderColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->textScale ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->textScale ) {
 					transitions[i].data = &dw->simp->textScale;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) nullptr )->rotate ) {
+				} else if ( transitions[i].offset == (int)&static_cast<idSimpleWindow*>(nullptr)->rotate ) {
 					transitions[i].data = &dw->simp->rotate;
 				}
 			}
@@ -3762,7 +3773,8 @@ void idWindow::FixupParms() {
 idWindow::IsSimple
 ================
 */
-bool idWindow::IsSimple() {
+bool idWindow::IsSimple() const
+{
 
 	if (ops.Num()) {
 		return false;
@@ -3897,7 +3909,7 @@ idWindow::GetChildCount
 Returns the number of children
 ================
 */
-int idWindow::GetChildCount ()
+int idWindow::GetChildCount () const
 {
 	return drawWindows.Num ( );
 }

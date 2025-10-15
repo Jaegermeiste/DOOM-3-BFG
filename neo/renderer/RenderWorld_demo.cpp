@@ -249,7 +249,8 @@ bool		idRenderWorldLocal::ProcessDemoCommand( idDemoFile *readDemo, renderView_t
 WriteLoadMap
 ================
 */
-void	idRenderWorldLocal::WriteLoadMap() {
+void	idRenderWorldLocal::WriteLoadMap() const
+{
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
 	// menu renders
@@ -322,7 +323,8 @@ void	idRenderWorldLocal::WriteVisibleDefs( const viewDef_t *viewDef ) {
 WriteRenderView
 ================
 */
-void	idRenderWorldLocal::WriteRenderView( const renderView_t *renderView ) {
+void	idRenderWorldLocal::WriteRenderView( const renderView_t *renderView ) const
+{
 	int i;
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
@@ -359,7 +361,8 @@ void	idRenderWorldLocal::WriteRenderView( const renderView_t *renderView ) {
 WriteFreeEntity
 ================
 */
-void	idRenderWorldLocal::WriteFreeEntity( qhandle_t handle ) {
+void	idRenderWorldLocal::WriteFreeEntity( qhandle_t handle ) const
+{
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
 	// menu renders
@@ -381,7 +384,8 @@ void	idRenderWorldLocal::WriteFreeEntity( qhandle_t handle ) {
 WriteFreeLightEntity
 ================
 */
-void	idRenderWorldLocal::WriteFreeLight( qhandle_t handle ) {
+void	idRenderWorldLocal::WriteFreeLight( qhandle_t handle ) const
+{
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
 	// menu renders
@@ -403,7 +407,8 @@ void	idRenderWorldLocal::WriteFreeLight( qhandle_t handle ) {
 WriteRenderLight
 ================
 */
-void	idRenderWorldLocal::WriteRenderLight( qhandle_t handle, const renderLight_t *light ) {
+void	idRenderWorldLocal::WriteRenderLight( qhandle_t handle, const renderLight_t *light ) const
+{
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
 	// menu renders
@@ -674,7 +679,7 @@ void	idRenderWorldLocal::ReadRenderEntity() {
 		ent.referenceSound = common->SW()->EmitterForIndex( index );
 	}
 	if ( ent.numJoints ) {
-		ent.joints = (idJointMat *)Mem_Alloc16( SIMD_ROUND_JOINTS( ent.numJoints ) * sizeof( ent.joints[0] ), TAG_JOINTMAT ); 
+		ent.joints = static_cast<idJointMat*>(Mem_Alloc16(SIMD_ROUND_JOINTS(ent.numJoints) * sizeof(ent.joints[0]), TAG_JOINTMAT)); 
 		for ( int i = 0; i < ent.numJoints; i++) {
 			float *data = ent.joints[i].ToFloatPtr();
 			for ( int j = 0; j < 12; ++j ) {

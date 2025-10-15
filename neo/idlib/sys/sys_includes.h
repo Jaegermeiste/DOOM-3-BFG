@@ -30,6 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+// Disable the VCR101 warning
+#pragma warning(push)          // Save the current warning state
+#pragma warning(disable : 101) // Disable warning VCR101
+
 // Include the various platform specific header files (windows.h, etc)
 
 /*
@@ -47,11 +51,16 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef GAME_DLL
 
 #include <winsdkver.h>
-#ifndef WINVER
-#define WINVER 0x0A00
-#endif
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0A00
+#define _WIN32_WINNT 0x0A00 
+#endif
+#ifndef WINVER
+#ifdef _WIN32_WINNT
+// set WINVER based on _WIN32_WINNT
+#define WINVER          _WIN32_WINNT
+#else
+#define WINVER          0x0A00
+#endif
 #endif
 #include <sdkddkver.h>
 
@@ -80,6 +89,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <windows.h>						// for qgl.h
 #undef FindText								// fix namespace pollution
 
+#include <SafeInt.h>
+
 /*
 ================================================================================================
 
@@ -105,11 +116,19 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <limits.h>
 #include <memory>
+#include <type_traits>
+#include <concepts>
+#include <charconv>
+#include <locale>
+#include <limits>
+#include <span>
 
 //-----------------------------------------------------
 
 // Hacked stuff we may want to consider implementing later
 class idScopedGlobalHeap {
 };
+
+#pragma warning(pop)           // Restore the previous warning state
 
 #endif // SYS_INCLUDES_H

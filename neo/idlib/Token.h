@@ -77,13 +77,13 @@ class idToken : public idStr {
 
 public:
 	int				type;								// token type
-	size_t			subtype;							// token sub type
+	uint64			subtype;							// token sub type
 	int				line;								// line in script the token was on
 	int				linesCrossed;						// number of lines crossed in white space before token
 	int				flags;								// token flags, used for recursive defines
 
 public:
-					idToken();
+					idToken() noexcept;
 					idToken( const idToken *token );
 					~idToken();
 
@@ -94,13 +94,15 @@ public:
 	float			GetFloatValue();				// float value of TT_NUMBER
 	unsigned long	GetUnsignedLongValue();		// unsigned long value of TT_NUMBER
 	int				GetIntValue();				// int value of TT_NUMBER
+	int64			GetInt64Value();				// int value of TT_NUMBER
+	uint64			GetUnsignedInt64Value();				// int value of TT_NUMBER
 	int				WhiteSpaceBeforeToken() const;// returns length of whitespace before token
 	void			ClearTokenWhiteSpace();		// forget whitespace before token
 
 	void			NumberValue();				// calculate values for a TT_NUMBER
 
 private:
-	unsigned long	intvalue;							// integer value
+	int64	        intvalue;							// integer value
 	double			floatvalue;							// floating point value
 	const char *	whiteSpaceStart_p;					// start of white space before token, only used by idLexer
 	const char *	whiteSpaceEnd_p;					// end of white space before token, only used by idLexer
@@ -109,15 +111,18 @@ private:
 	void			AppendDirty( const char a );		// append character without adding trailing zero
 };
 
-ID_INLINE idToken::idToken() : type(), subtype(), line(), linesCrossed(), flags() {
+ID_INLINE idToken::idToken() noexcept : type(), subtype(), line(), linesCrossed(), flags(), intvalue(0), floatvalue(0),
+                                        whiteSpaceStart_p(nullptr),
+                                        whiteSpaceEnd_p(nullptr),
+                                        next(nullptr)
+{
 }
 
 ID_INLINE idToken::idToken( const idToken *token ) {
 	*this = *token;
 }
 
-ID_INLINE idToken::~idToken() {
-}
+ID_INLINE idToken::~idToken() = default;
 
 ID_INLINE void idToken::operator=( const char *text) {
 	*static_cast<idStr *>(this) = text;
@@ -148,7 +153,27 @@ ID_INLINE unsigned long	idToken::GetUnsignedLongValue() {
 	if ( !(subtype & TT_VALUESVALID) ) {
 		NumberValue();
 	}
+	return idMath::integer_cast<unsigned long>(intvalue);
+}
+
+ID_INLINE int64	idToken::GetInt64Value() {
+	if (type != TT_NUMBER) {
+		return 0;
+	}
+	if (!(subtype & TT_VALUESVALID)) {
+		NumberValue();
+	}
 	return intvalue;
+}
+
+ID_INLINE uint64	idToken::GetUnsignedInt64Value() {
+	if (type != TT_NUMBER) {
+		return 0;
+	}
+	if (!(subtype & TT_VALUESVALID)) {
+		NumberValue();
+	}
+	return idMath::integer_cast<uint64>(intvalue);
 }
 
 ID_INLINE int idToken::GetIntValue() {

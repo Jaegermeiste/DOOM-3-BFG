@@ -47,7 +47,7 @@ public:
 	// all idStr operators are overloaded and the idStr default constructor is called so that the
 	// static buffer can be initialized in the body of the constructor before the data is ever
 	// copied.
-	ID_INLINE	idStrStatic() {
+	ID_INLINE	idStrStatic() noexcept {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
 				}

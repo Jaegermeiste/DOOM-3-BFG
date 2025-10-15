@@ -110,8 +110,8 @@ The array of objects is sorted such that: Compare( array[i], array[i+1] ) <= 0 f
 template< typename _type_ >
 class idSort {
 public:
-	virtual			~idSort() {}
-	virtual void	Sort( _type_ * base, unsigned int num ) const = 0;
+	virtual			~idSort() = default;
+	virtual void	Sort( _type_ * base, size_t num ) const = 0;
 };
 
 /*
@@ -123,14 +123,14 @@ quick-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Quick : public idSort< _type_ > {
 public:
-	void Sort( _type_ * base, const unsigned int num ) const override
+	void Sort( _type_ * base, const size_t num ) const override
 	{
 		if ( num <= 0 ) {
 			return;
 		}
 
 		constexpr int64 MAX_LEVELS = 128;
-		int64 lo[MAX_LEVELS], hi[MAX_LEVELS];
+		int64 lo[MAX_LEVELS] = {}, hi[MAX_LEVELS] = {};
 
 		// 'lo' is the lower index, 'hi' is the upper index
 		// of the region of the array that is being sorted.
@@ -158,9 +158,20 @@ public:
 
 				// Partition the region.
 				do {
-					while( static_cast< const _derived_ * >( this )->Compare( base[i], pivot ) < 0 ) { if ( ++i >= j ) break; }
-					while( static_cast< const _derived_ * >( this )->Compare( base[j], pivot ) > 0 ) { if ( --j <= i ) break; }
-					if ( i >= j ) break;
+					while( static_cast< const _derived_ * >( this )->Compare( base[i], pivot ) < 0 ) { if ( ++i >= j )
+						{
+							break;
+						}
+					}
+					while( static_cast< const _derived_ * >( this )->Compare( base[j], pivot ) > 0 ) { if ( --j <= i )
+						{
+							break;
+						}
+					}
+					if ( i >= j )
+					{
+						break;
+					}
 					SwapValues( base[i], base[j] );
 				} while( ++i < --j );
 
@@ -238,15 +249,15 @@ heap-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Heap : public idSort< _type_ > {
 public:
-	void Sort( _type_ * base, const unsigned int num ) const override
+	void Sort( _type_ * base, const size_t num ) const override
 	{
 		// get all elements in heap order
 #if 1
 		// O( n )
-		for ( unsigned int i = num / 2; i > 0; i-- ) {
+		for (size_t i = num / 2; i > 0; i-- ) {
 			// sift down
-			unsigned int parent = i - 1;
-			for ( unsigned int child = parent * 2 + 1; child < num; child = parent * 2 + 1 ) {
+			size_t parent = i - 1;
+			for ( size_t child = parent * 2 + 1; child < num; child = parent * 2 + 1 ) {
 				if ( child + 1 < num && static_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
 					child++;
 				}
@@ -272,11 +283,11 @@ public:
 		}
 #endif
 		// get sorted elements while maintaining heap order
-		for ( unsigned int i = num - 1; i > 0; i-- ) {
+		for (size_t i = num - 1; i > 0; i-- ) {
 			SwapValues( base[0], base[i] );
 			// sift down
-			unsigned int parent = 0;
-			for ( unsigned int child = parent * 2 + 1; child < i; child = parent * 2 + 1 ) {
+			size_t parent = 0;
+			for (size_t child = parent * 2 + 1; child < i; child = parent * 2 + 1 ) {
 				if ( child + 1 < i && static_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
 					child++;
 				}
@@ -311,7 +322,7 @@ insertion-sort algorithm on an array of objects of the specified data type.
 template< typename _type_, typename _derived_ >
 class idSort_Insertion : public idSort< _type_ > {
 public:
-	void Sort( _type_ * base, const unsigned int num ) const override
+	void Sort( _type_ * base, const size_t num ) const override
 	{
 		_type_ * lo = base;
 		_type_ * hi = base + ( num - 1 );

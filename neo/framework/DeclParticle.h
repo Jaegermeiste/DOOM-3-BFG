@@ -41,7 +41,7 @@ static constexpr int MAX_PARTICLE_STAGES	= 32;
 
 class idParticleParm {
 public:
-							idParticleParm() { table = nullptr; from = to = 0.0f; }
+							idParticleParm() noexcept { table = nullptr; from = to = 0.0f; }
 
 	const idDeclTable *		table;
 	float					from;
@@ -109,7 +109,7 @@ public:
 							~idParticleStage() {}
 
 	void					Default();
-	int						NumQuadsPerParticle() const;	// includes trails and cross faded animations
+							[[nodiscard]] int						NumQuadsPerParticle() const;	// includes trails and cross faded animations
 	// returns the number of verts created, which will range from 0 to 4*NumQuadsPerParticle()
 	int						CreateParticle( particleGen_t *g, idDrawVert *verts ) const;
 
@@ -118,9 +118,9 @@ public:
 	void					ParticleTexCoords( particleGen_t *g, idDrawVert *verts ) const;
 	void					ParticleColors( particleGen_t *g, idDrawVert *verts ) const;
 
-	const char *			GetCustomPathName();
-	const char *			GetCustomPathDesc();
-	int						NumCustomPathParms();
+							[[nodiscard]] const char *			GetCustomPathName() const;
+							[[nodiscard]] const char *			GetCustomPathDesc() const;
+							[[nodiscard]] int						NumCustomPathParms() const;
 	void					SetCustomPathType( const char *p );
 	void					operator=( const idParticleStage &src );
 
@@ -195,9 +195,8 @@ public:
 //
 class idDeclParticle : public idDecl {
 public:
-
-	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
+	[[nodiscard]] virtual size_t			Size() const;
+	[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 

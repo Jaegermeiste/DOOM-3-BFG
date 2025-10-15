@@ -186,7 +186,8 @@ idCommonLocal::DrawWipeModel
 Draw the fade material over everything that has been drawn
 ===============
 */
-void idCommonLocal::DrawWipeModel() {
+void idCommonLocal::DrawWipeModel() const
+{
 
 	if ( wipeStartTime >= wipeStopTime ) {
 		return;
@@ -198,7 +199,7 @@ void idCommonLocal::DrawWipeModel() {
 		return;
 	}
 
-	float fade = ( float )( currentTime - wipeStartTime ) / ( wipeStopTime - wipeStartTime );
+	float fade = static_cast<float>(currentTime - wipeStartTime) / ( wipeStopTime - wipeStartTime );
 	renderSystem->SetColor4( 1, 1, 1, fade );
 	renderSystem->DrawStretchPic( 0, 0, 640, 480, 0, 0, 1, 1, wipeMaterial );
 }
@@ -222,8 +223,8 @@ void idCommonLocal::Draw() {
 		const float sysAspect = sysWidth / sysHeight;
 		constexpr float doomAspect = 4.0f / 3.0f;
 		const float adjustment = sysAspect / doomAspect;
-		const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * (float)SCREEN_HEIGHT * 0.25f;
-		const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * (float)SCREEN_WIDTH * 0.25f;
+		const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * static_cast<float>(SCREEN_HEIGHT) * 0.25f;
+		const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * static_cast<float>(SCREEN_WIDTH) * 0.25f;
 		if ( barHeight > 0.0f ) {
 			renderSystem->SetColor( colorBlack );
 			renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, barHeight, 0, 0, 1, 1, whiteMaterial );
@@ -719,7 +720,7 @@ void idCommonLocal::RunDoomClassicFrame() {
 
 
 	if ( DoomLib::Interface.Frame( doomTics, &userCmdMgr ) ) {
-		Globals *data = (Globals*)DoomLib::GetGlobalData( 0 );
+		Globals *data = static_cast<Globals*>(DoomLib::GetGlobalData(0));
 
 		idArray< unsigned int, 256 > palette;
 		std::copy( data->XColorMap, data->XColorMap + palette.Num(), palette.Ptr() );

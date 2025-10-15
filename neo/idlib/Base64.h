@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idBase64 {
 public:
-				idBase64();
+				idBase64() noexcept;
 				idBase64( const idStr &s );
 				~idBase64();
 
@@ -61,12 +61,12 @@ private:
 	size_t		len = 0;
 	size_t		alloced = 0;
 
-	void		Init();
+	void		Init() noexcept;
 	void		Release();
 	void		EnsureAlloced(size_t size );
 };
 
-ID_INLINE idBase64::idBase64() {
+ID_INLINE idBase64::idBase64() noexcept {
 	Init();
 }
 
@@ -83,7 +83,7 @@ ID_INLINE const char *idBase64::c_str() const {
 	return reinterpret_cast<const char*>(data);
 }
 
-ID_INLINE void idBase64::Init() {
+ID_INLINE void idBase64::Init() noexcept {
 	len = 0;
 	alloced = 0;
 	data = nullptr;
@@ -92,6 +92,7 @@ ID_INLINE void idBase64::Init() {
 ID_INLINE void idBase64::Release() {
 	if ( data ) {
 		delete[] data;
+		data = nullptr;
 	}
 	Init();
 }

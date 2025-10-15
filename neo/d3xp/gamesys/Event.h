@@ -33,19 +33,19 @@ Event are used for scheduling tasks and for linking script commands.
 #ifndef __SYS_EVENT_H__
 #define __SYS_EVENT_H__
 
-#define D_EVENT_MAXARGS				8			// if changed, enable the CREATE_EVENT_CODE define in Event.cpp to generate switch statement for idClass::ProcessEventArgPtr.
+constexpr auto D_EVENT_MAXARGS     = 8;			// if changed, enable the CREATE_EVENT_CODE define in Event.cpp to generate switch statement for idClass::ProcessEventArgPtr.
 												// running the game will then generate c:\doom\base\events.txt, the contents of which should be copied into the switch statement.
 
-#define D_EVENT_VOID				( ( char )0 )
-#define D_EVENT_INTEGER				'd'
-#define D_EVENT_FLOAT				'f'
-#define D_EVENT_VECTOR				'v'
-#define D_EVENT_STRING				's'
-#define D_EVENT_ENTITY				'e'
-#define	D_EVENT_ENTITY_NULL			'E'			// event can handle NULL entity pointers
-#define D_EVENT_TRACE				't'
+constexpr auto D_EVENT_VOID        = static_cast<char>(0);
+constexpr auto D_EVENT_INTEGER     = 'd';
+constexpr auto D_EVENT_FLOAT       = 'f';
+constexpr auto D_EVENT_VECTOR      = 'v';
+constexpr auto D_EVENT_STRING      = 's';
+constexpr auto D_EVENT_ENTITY      = 'e';
+constexpr auto D_EVENT_ENTITY_NULL = 'E';			// event can handle NULL entity pointers
+constexpr auto D_EVENT_TRACE       = 't';
 
-#define MAX_EVENTS					4096
+constexpr auto MAX_EVENTS          = 4096;
 
 class idClass;
 class idTypeInfo;
@@ -56,29 +56,29 @@ private:
 	const char					*formatspec;
 	unsigned int				formatspecIndex;
 	int							returnType;
-	int							numargs;
+	size_t						numargs;
 	size_t						argsize;
 	int							argOffset[ D_EVENT_MAXARGS ];
-	int							eventnum;
+	size_t						eventnum;
 	const idEventDef *			next;
 
 	static idEventDef *			eventDefList[MAX_EVENTS];
-	static int					numEventDefs;
+	static size_t				numEventDefs;
 
 public:
-								idEventDef( const char *command, const char *formatspec = NULL, char returnType = 0 );
+								idEventDef( const char *command, const char *formatspec = nullptr, char returnType = 0 );
 								
 	const char					*GetName() const;
 	const char					*GetArgFormat() const;
 	unsigned int				GetFormatspecIndex() const;
 	char						GetReturnType() const;
-	int							GetEventNum() const;
-	int							GetNumArgs() const;
+	size_t						GetEventNum() const;
+	size_t						GetNumArgs() const;
 	size_t						GetArgSize() const;
-	int							GetArgOffset( int arg ) const;
+	int							GetArgOffset( Ordinal auto arg ) const;
 
-	static int					NumEventCommands();
-	static const idEventDef		*GetEventCommand( int eventnum );
+	static size_t				NumEventCommands();
+	static const idEventDef		*GetEventCommand( size_t eventnum );
 	static const idEventDef		*FindEvent( const char *name );
 };
 
@@ -89,7 +89,7 @@ class idEvent {
 private:
 	const idEventDef			*eventdef;
 	byte						*data;
-	int							time;
+	ID_TIME_T					time;
 	idClass						*object;
 	const idTypeInfo			*typeinfo;
 
@@ -103,11 +103,11 @@ public:
 
 								~idEvent();
 
-	static idEvent				*Alloc( const idEventDef *evdef, int numargs, va_list args );
-	static void					CopyArgs( const idEventDef *evdef, int numargs, va_list args, int data[ D_EVENT_MAXARGS ]  );
+	static idEvent				*Alloc( const idEventDef *evdef, size_t numargs, va_list args );
+	static void					CopyArgs( const idEventDef *evdef, size_t numargs, va_list args, int data[ D_EVENT_MAXARGS ]  );
 	
 	void						Free();
-	void						Schedule( idClass *object, const idTypeInfo *cls, int time );
+	void						Schedule( idClass *object, const idTypeInfo *cls, ID_TIME_T time );
 	byte						*GetData();
 
 	static void					CancelEvents( const idClass *obj, const idEventDef *evdef = NULL );
@@ -175,7 +175,7 @@ ID_INLINE char idEventDef::GetReturnType() const {
 idEventDef::GetNumArgs
 ================
 */
-ID_INLINE int idEventDef::GetNumArgs() const {
+ID_INLINE size_t idEventDef::GetNumArgs() const {
 	return numargs;
 }
 
@@ -193,7 +193,7 @@ ID_INLINE size_t idEventDef::GetArgSize() const {
 idEventDef::GetArgOffset
 ================
 */
-ID_INLINE int idEventDef::GetArgOffset( int arg ) const {
+ID_INLINE int idEventDef::GetArgOffset( Ordinal auto arg ) const {
 	assert( ( arg >= 0 ) && ( arg < D_EVENT_MAXARGS ) );
 	return argOffset[ arg ];
 }
@@ -203,7 +203,7 @@ ID_INLINE int idEventDef::GetArgOffset( int arg ) const {
 idEventDef::GetEventNum
 ================
 */
-ID_INLINE int idEventDef::GetEventNum() const {
+ID_INLINE size_t idEventDef::GetEventNum() const {
 	return eventnum;
 }
 

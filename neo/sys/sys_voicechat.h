@@ -56,10 +56,10 @@ public:
 	void			SubmitIncomingChatData( const byte * data, int dataSize );
 	voiceState_t	GetVoiceState( const lobbyUser_t * user );
 	bool			CanSendVoiceTo( int talkerFromIndex, int talkerToIndex );
-	bool			IsRestrictedByPrivleges();
+	[[nodiscard]] bool			IsRestrictedByPrivleges() const;
 
 	void			SetHeadsetState( int talkerIndex, bool state );
-	bool			GetHeadsetState( int talkerIndex ) const	{ return talkers[ talkerIndex ].hasHeadset; }
+	[[nodiscard]] bool			GetHeadsetState( int talkerIndex ) const	{ return talkers[ talkerIndex ].hasHeadset; }
 	bool			HasHeadsetStateChanged( int talkerIndex );
 
 	enum disableVoiceReason_t {
@@ -117,7 +117,7 @@ protected:
 		bool			talkingGlobal;
 		int				talkingTime;
 
-		bool IsLocal() const { return isLocal; }
+		[[nodiscard]] bool IsLocal() const { return isLocal; }
 	};
 
 	virtual bool	RegisterTalkerInternal( int index ) = 0;

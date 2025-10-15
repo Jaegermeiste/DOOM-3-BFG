@@ -313,7 +313,7 @@ public:
 	bool			TrmFromModel( const char *modelName, idTraceModel &trm );
 
 	// name of the model
-	const char *	GetModelName( cmHandle_t model ) const;
+	[[nodiscard]] const char *	GetModelName( cmHandle_t model ) const;
 	// bounds of the model
 	bool			GetModelBounds( cmHandle_t model, idBounds &bounds ) const;
 	// all contents flags of brushes and polygons ored together
@@ -357,7 +357,7 @@ private:			// CollisionMap_translate.cpp
 	int				TranslateEdgeThroughEdge( idVec3 &cross, idPluecker &l1, idPluecker &l2, float *fraction );
 	void			TranslateTrmEdgeThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmEdge_t *trmEdge );
 	void			TranslateTrmVertexThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v, int bitNum );
-	void			TranslatePointThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v );
+	void			TranslatePointThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v ) const;
 	void			TranslateVertexThroughTrmPolygon( cm_traceWork_t *tw, cm_trmPolygon_t *trmpoly, cm_polygon_t *poly, cm_vertex_t *v, idVec3 &endp, idPluecker &pl );
 	bool			TranslateTrmThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *p );
 	void			SetupTranslationHeartPlanes( cm_traceWork_t *tw );
@@ -392,8 +392,8 @@ private:			// CollisionMap_rotate.cpp
 									cmHandle_t model, const idVec3 &origin, const idMat3 &modelAxis );
 
 private:			// CollisionMap_contents.cpp
-	bool			TestTrmVertsInBrush( cm_traceWork_t *tw, cm_brush_t *b );
-	bool			TestTrmInPolygon( cm_traceWork_t *tw, cm_polygon_t *p );
+	bool			TestTrmVertsInBrush( cm_traceWork_t *tw, cm_brush_t *b ) const;
+	bool			TestTrmInPolygon( cm_traceWork_t *tw, cm_polygon_t *p ) const;
 	cm_node_t *		PointNode( const idVec3 &p, cm_model_t *model );
 	int				PointContents( const idVec3 p, cmHandle_t model );
 	int				TransformedPointContents( const idVec3 &p, cmHandle_t model, const idVec3 &origin, const idMat3 &modelAxis );
@@ -469,12 +469,12 @@ private:			// CollisionMap_load.cpp
 	void			ConvertBrushSides( cm_model_t *model, const idMapBrush *mapBrush, int primitiveNum );
 	void			ConvertBrush( cm_model_t *model, const idMapBrush *mapBrush, int primitiveNum );
 	void			PrintModelInfo( const cm_model_t *model );
-	void			AccumulateModelInfo( cm_model_t *model );
+	void			AccumulateModelInfo( cm_model_t *model ) const;
 	void			RemapEdges( cm_node_t *node, int *edgeRemap );
 	void			OptimizeArrays( cm_model_t *model );
 	void			FinishModel( cm_model_t *model );
 	void			BuildModels( const idMapFile *mapFile );
-	cmHandle_t		FindModel( const char *name );
+	cmHandle_t		FindModel( const char *name ) const;
 	cm_model_t *	CollisionModelForMapEntity( const idMapEntity *mapEnt );	// brush/patch model from .map
 	cm_model_t *	LoadRenderModel( const char *fileName );					// ASE/LWO models
 	cm_model_t *	LoadBinaryModel( const char *fileName, ID_TIME_T sourceTimeStamp );
@@ -504,7 +504,7 @@ private:			// CollisionMap_files.cpp
 
 private:			// CollisionMap_debug
 	int				ContentsFromString( const char *string ) const;
-	const char *	StringFromContents( const int contents ) const;
+	[[nodiscard]] const char *	StringFromContents( const int contents ) const;
 	void			DrawEdge( cm_model_t *model, int edgeNum, const idVec3 &origin, const idMat3 &axis );
 	void			DrawPolygon( cm_model_t *model, cm_polygon_t *p, const idVec3 &origin, const idMat3 &axis,
 								const idVec3 &viewOrigin );

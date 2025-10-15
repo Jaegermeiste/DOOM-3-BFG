@@ -263,7 +263,7 @@ public:
 TestThread
 ========================
 */
-void TestThread() {
+static void TestThread() {
 	idMyThread thread;
 	thread.StartThread( "myThread", CORE_ANY );
 }
@@ -273,7 +273,7 @@ void TestThread() {
 TestWorkers
 ========================
 */
-void TestWorkers() {
+static void TestWorkers() {
 	idSysWorkerThreadGroup<idMyThread> workers( "myWorkers", 4 );
 	for ( ; ; ) {
 		for ( int i = 0; i < workers.GetNumThreads(); i++ ) {

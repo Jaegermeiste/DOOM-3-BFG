@@ -69,21 +69,21 @@ idQuat::ToMat3
 idMat3 idQuat::ToMat3() const {
 	idMat3	mat;
 
-	float x2 = x + x;
-	float y2 = y + y;
-	float z2 = z + z;
+	const float x2 = x + x;
+	const float y2 = y + y;
+	const float z2 = z + z;
 
-	float xx = x * x2;
-	float xy = x * y2;
-	float xz = x * z2;
+	const float xx = x * x2;
+	const float xy = x * y2;
+	const float xz = x * z2;
 
-	float yy = y * y2;
-	float yz = y * z2;
-	float zz = z * z2;
+	const float yy = y * y2;
+	const float yz = y * z2;
+	const float zz = z * z2;
 
-	float wx = w * x2;
-	float wy = w * y2;
-	float wz = w * z2;
+	const float wx = w * x2;
+	const float wy = w * y2;
+	const float wz = w * z2;
 
 	mat[ 0 ][ 0 ] = 1.0f - ( yy + zz );
 	mat[ 0 ][ 1 ] = xy - wz;

@@ -81,23 +81,23 @@ void Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t &stats ) {
 Sys_Sentry
 ==================
 */
-void Sys_Sentry() {
+static void Sys_Sentry() {
 }
 
 
 #pragma optimize( "", on )
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined (_DEBUG)
 
 
-static unsigned int debug_total_alloc = 0;
-static unsigned int debug_total_alloc_count = 0;
-static unsigned int debug_current_alloc = 0;
-static unsigned int debug_current_alloc_count = 0;
-static unsigned int debug_frame_alloc = 0;
-static unsigned int debug_frame_alloc_count = 0;
+static size_t debug_total_alloc = 0;
+static size_t debug_total_alloc_count = 0;
+static size_t debug_current_alloc = 0;
+static size_t debug_current_alloc_count = 0;
+static size_t debug_frame_alloc = 0;
+static size_t debug_frame_alloc_count = 0;
 
-idCVar sys_showMallocs( "sys_showMallocs", "0", CVAR_SYSTEM, "" );
+static idCVar sys_showMallocs( "sys_showMallocs", "0", CVAR_SYSTEM, "" );
 
 // _HOOK_ALLOC, _HOOK_REALLOC, _HOOK_FREE
 
@@ -122,10 +122,10 @@ Sys_AllocHook
 	called for every malloc/new/free/delete
 ==================
 */
-int Sys_AllocHook( int nAllocType, void *pvData, size_t nSize, int nBlockUse, long lRequest, const unsigned char * szFileName, int nLine ) 
+static int Sys_AllocHook( int nAllocType, void *pvData, size_t nSize, int nBlockUse, long lRequest, const unsigned char * szFileName, int nLine ) 
 {
-	CrtMemBlockHeader	*pHead;
-	byte				*temp;
+	CrtMemBlockHeader	*pHead = nullptr;
+	byte				*temp = nullptr;
 
 	if ( nBlockUse == _CRT_BLOCK )
 	{
@@ -133,9 +133,9 @@ int Sys_AllocHook( int nAllocType, void *pvData, size_t nSize, int nBlockUse, lo
 	}
 
 	// get a pointer to memory block header
-	temp = ( byte * )pvData;
+	temp = static_cast<byte*>(pvData);
 	temp -= 32;
-	pHead = ( CrtMemBlockHeader * )temp;
+	pHead = reinterpret_cast<CrtMemBlockHeader*>(temp);
 
 	switch( nAllocType ) {
 		case	_HOOK_ALLOC:
@@ -176,7 +176,7 @@ int Sys_AllocHook( int nAllocType, void *pvData, size_t nSize, int nBlockUse, lo
 Sys_DebugMemory_f
 ==================
 */
-void Sys_DebugMemory_f() {
+static void Sys_DebugMemory_f() {
   	common->Printf( "Total allocation %8dk in %d blocks\n", debug_total_alloc / 1024, debug_total_alloc_count );
   	common->Printf( "Current allocation %8dk in %d blocks\n", debug_current_alloc / 1024, debug_current_alloc_count );
 }
@@ -186,7 +186,7 @@ void Sys_DebugMemory_f() {
 Sys_MemFrame
 ==================
 */
-void Sys_MemFrame() {
+static void Sys_MemFrame() {
 	if( sys_showMallocs.GetInteger() ) {
 		common->Printf("Frame: %8dk in %5d blocks\n", debug_frame_alloc / 1024, debug_frame_alloc_count );
 	}
@@ -205,7 +205,7 @@ On windows, the vertex buffers are write combined, so they
 don't need to be flushed from the cache
 ==================
 */
-void Sys_FlushCacheMemory( void *base, int bytes ) {
+static void Sys_FlushCacheMemory( void *base, int bytes ) {
 }
 
 /*
@@ -216,9 +216,9 @@ Show the early console as an error dialog
 =============
 */
 void Sys_Error( const char *error, ... ) {
-	va_list		argptr;
-	char		text[4096];
-    MSG        msg;
+	va_list		argptr = nullptr;
+	char		text[4096] = {};
+    MSG        msg = {};
 
 	va_start( argptr, error );
 	vsprintf( text, error, argptr );
@@ -257,16 +257,16 @@ void Sys_Error( const char *error, ... ) {
 Sys_Launch
 ========================
 */
-void Sys_Launch( const char * path, idCmdArgs & args,  void * data, unsigned int dataSize ) {
+void Sys_Launch( const char * path, idCmdArgs & args,  void * data, size_t dataSize ) {
 
-	TCHAR				szPathOrig[_MAX_PATH];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
+	TCHAR				szPathOrig[_MAX_PATH] = {};
+	STARTUPINFO			si = {};
+	PROCESS_INFORMATION	pi = {};
 
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), (const char *)data ) );
+	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), static_cast<const char*>(data) ) );
 
 	if ( !CreateProcess(nullptr, szPathOrig, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi ) ) {
 		idLib::Error( "Could not start process: '%s' ", szPathOrig );
@@ -289,15 +289,15 @@ const char * Sys_GetCmdLine() {
 Sys_ReLaunch
 ========================
 */
-void Sys_ReLaunch( void * data, const unsigned int dataSize ) {
-	TCHAR				szPathOrig[MAX_PRINT_MSG];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
+void Sys_ReLaunch( void * data, const size_t dataSize ) {
+	TCHAR				szPathOrig[MAX_PRINT_MSG] = {};
+	STARTUPINFO			si = {};
+	PROCESS_INFORMATION	pi = {};
 
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), (const char *)data ) );
+	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), static_cast<const char*>(data) ) );
 
 	CloseHandle( hProcessMutex );
 
@@ -326,11 +326,11 @@ void Sys_Quit() {
 Sys_Printf
 ==============
 */
-#define MAXPRINTMSG 4096
-void Sys_Printf( const char *fmt, ... ) {
-	char		msg[MAXPRINTMSG];
+constexpr size_t MAXPRINTMSG = 4096;
+static void Sys_Printf( const char *fmt, ... ) {
+	char		msg[MAXPRINTMSG] = {};
 
-	va_list argptr;
+	va_list argptr = nullptr;
 	va_start(argptr, fmt);
 	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, argptr );
 	va_end(argptr);
@@ -348,11 +348,10 @@ void Sys_Printf( const char *fmt, ... ) {
 Sys_DebugPrintf
 ==============
 */
-#define MAXPRINTMSG 4096
-void Sys_DebugPrintf( const char *fmt, ... ) {
-	char msg[MAXPRINTMSG];
+static void Sys_DebugPrintf( const char *fmt, ... ) {
+	char msg[MAXPRINTMSG] = {};
 
-	va_list argptr;
+	va_list argptr = nullptr;
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, argptr );
 	msg[ sizeof(msg)-1 ] = '\0';
@@ -366,8 +365,8 @@ void Sys_DebugPrintf( const char *fmt, ... ) {
 Sys_DebugVPrintf
 ==============
 */
-void Sys_DebugVPrintf( const char *fmt, va_list arg ) {
-	char msg[MAXPRINTMSG];
+static void Sys_DebugVPrintf( const char *fmt, va_list arg ) {
+	char msg[MAXPRINTMSG] = {};
 
 	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, arg );
 	msg[ sizeof(msg)-1 ] = '\0';
@@ -380,7 +379,7 @@ void Sys_DebugVPrintf( const char *fmt, va_list arg ) {
 Sys_Sleep
 ==============
 */
-void Sys_Sleep( int msec ) {
+static void Sys_Sleep(const uint32 msec ) {
 	Sleep( msec );
 }
 
@@ -389,7 +388,7 @@ void Sys_Sleep( int msec ) {
 Sys_ShowWindow
 ==============
 */
-void Sys_ShowWindow( bool show ) {
+static void Sys_ShowWindow( bool show ) {
 	::ShowWindow( win32.hWnd, show ? SW_SHOW : SW_HIDE );
 }
 
@@ -398,7 +397,7 @@ void Sys_ShowWindow( bool show ) {
 Sys_IsWindowVisible
 ==============
 */
-bool Sys_IsWindowVisible() {
+static bool Sys_IsWindowVisible() {
 	return ( ::IsWindowVisible( win32.hWnd ) != 0 );
 }
 
@@ -417,7 +416,7 @@ Sys_FileTimeStamp
 =================
 */
 ID_TIME_T Sys_FileTimeStamp( idFileHandle fp ) {
-	FILETIME writeTime;
+	FILETIME writeTime = {};
 	GetFileTime( fp, nullptr, nullptr, &writeTime );
 
 	/*
@@ -440,14 +439,14 @@ ID_TIME_T Sys_FileTimeStamp( idFileHandle fp ) {
 		0       // wMilliseconds
 	};
 
-	FILETIME base_ft;
+	FILETIME base_ft = {};
 	SystemTimeToFileTime( &base_st, &base_ft );
 
-	LARGE_INTEGER itime;
+	LARGE_INTEGER itime = {};
 	itime.QuadPart = reinterpret_cast<LARGE_INTEGER&>( writeTime ).QuadPart;
 	itime.QuadPart -= reinterpret_cast<LARGE_INTEGER&>( base_ft ).QuadPart;
 	itime.QuadPart /= 10000000LL;
-	return itime.QuadPart;
+	return static_cast<ID_TIME_T>(itime.QuadPart);
 }
 
 /*
@@ -490,8 +489,8 @@ sysFolder_t Sys_IsFolder( const char *path ) {
 Sys_Cwd
 ==============
 */
-const char *Sys_Cwd() {
-	static char cwd[MAX_OSPATH];
+static const char *Sys_Cwd() {
+	static char cwd[MAX_OSPATH] = {};
 
 	_getcwd( cwd, sizeof( cwd ) - 1 );
 	cwd[MAX_OSPATH-1] = 0;
@@ -522,12 +521,12 @@ Sys_DefaultSavePath
 ==============
 */
 const char *Sys_DefaultSavePath() {
-	static char savePath[ MAX_PATH ];
+	static char savePath[ MAX_PATH ] = {};
 	memset( savePath, 0, MAX_PATH );
 
 	HMODULE hShell = LoadLibrary( "shell32.dll" );
 	if ( hShell ) {
-		SHGetKnownFolderPath_t SHGetKnownFolderPath = (SHGetKnownFolderPath_t)GetProcAddress( hShell, "SHGetKnownFolderPath" );
+		SHGetKnownFolderPath_t SHGetKnownFolderPath = reinterpret_cast<SHGetKnownFolderPath_t>(GetProcAddress(hShell, "SHGetKnownFolderPath"));
 		if ( SHGetKnownFolderPath ) {
 			wchar_t * path;
 			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE | CSIDL_FLAG_PER_USER_INIT, nullptr, &path ) ) ) {
@@ -556,7 +555,7 @@ Sys_EXEPath
 ==============
 */
 const char *Sys_EXEPath() {
-	static char exe[ MAX_OSPATH ];
+	static char exe[ MAX_OSPATH ] = {};
 	GetModuleFileName(nullptr, exe, sizeof( exe ) - 1 );
 	return exe;
 }
@@ -566,11 +565,11 @@ const char *Sys_EXEPath() {
 Sys_ListFiles
 ==============
 */
-int Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
+static int64 Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
 	idStr		search;
-	struct _finddata_t findinfo;
-	int			findhandle;
-	int			flag;
+	struct _finddata_t findinfo = {};
+	intptr_t			findhandle = 0;
+	int			flag = 0;
 
 	if ( !extension) {
 		extension = "";
@@ -602,7 +601,7 @@ int Sys_ListFiles( const char *directory, const char *extension, idStrList &list
 
 	_findclose( findhandle );
 
-	return list.Num();
+	return idMath::integer_cast<int64>(list.Num());
 }
 
 
@@ -613,14 +612,14 @@ Sys_GetClipboardData
 */
 char *Sys_GetClipboardData() {
 	char *data = nullptr;
-	char *cliptext;
+	char *cliptext = nullptr;
 
 	if ( OpenClipboard(nullptr) != 0 ) {
 		HANDLE hClipboardData;
 
 		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != nullptr ) {
-			if ( ( cliptext = (char *)GlobalLock( hClipboardData ) ) != nullptr ) {
-				data = (char *)Mem_Alloc( GlobalSize( hClipboardData ) + 1, TAG_CRAP );
+			if ( ( cliptext = static_cast<char*>(GlobalLock(hClipboardData)) ) != nullptr ) {
+				data = static_cast<char*>(Mem_Alloc(GlobalSize(hClipboardData) + 1, TAG_CRAP));
 				strcpy( data, cliptext );
 				GlobalUnlock( hClipboardData );
 				
@@ -639,15 +638,15 @@ Sys_SetClipboardData
 */
 void Sys_SetClipboardData( const char *string ) {
 	HGLOBAL HMem;
-	char *PMem;
+	char *PMem = nullptr;
 
 	// allocate memory block
-	HMem = (char *)::GlobalAlloc( GMEM_MOVEABLE | GMEM_DDESHARE, strlen( string ) + 1 );
+	HMem = static_cast<char*>(::GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, strlen(string) + 1));
 	if ( HMem == nullptr) {
 		return;
 	}
 	// lock allocated memory and obtain a pointer
-	PMem = (char *)::GlobalLock( HMem );
+	PMem = static_cast<char*>(::GlobalLock(HMem));
 	if ( PMem == nullptr) {
 		return;
 	}
@@ -689,10 +688,10 @@ Other waitMsec values will allow the workFn to be called at those intervals.
 ========================
 */
 bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args, 
-	execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const int waitMS,
+	execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const uint32 waitMS,
 	unsigned int & exitCode ) {
 		exitCode = 0;
-		SECURITY_ATTRIBUTES secAttr;
+		SECURITY_ATTRIBUTES secAttr = {};
 		secAttr.nLength = sizeof( SECURITY_ATTRIBUTES );
 		secAttr.bInheritHandle = TRUE;
 		secAttr.lpSecurityDescriptor = nullptr;
@@ -707,7 +706,7 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 		CreatePipe( &hStdInRead, &hStdInWrite, &secAttr, 0 );
 		SetHandleInformation( hStdInWrite, HANDLE_FLAG_INHERIT, 0 );										
 
-		STARTUPINFO si;
+		STARTUPINFO si = {};
 		memset( &si, 0, sizeof( si ) );
 		si.cb = sizeof( si );
 		si.hStdError = hStdOutWrite;
@@ -716,7 +715,7 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 		si.wShowWindow = FALSE;
 		si.dwFlags |= STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 
-		PROCESS_INFORMATION pi;
+		PROCESS_INFORMATION pi = {};
 		memset ( &pi, 0, sizeof( pi ) );
 
 		if ( outputFn != nullptr) {
@@ -733,15 +732,15 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 			// the command line buffer.
 			if ( args != nullptr) {
 				if ( appPath != nullptr) {
-					int len = idStr::Length( args ) + idStr::Length( appPath ) + 1 /* for space */ + 1 /* for NULL terminator */ + 2 /* app quotes */;
-					cmdLine = (char*)Mem_Alloc( len, TAG_TEMP );
+					size_t len = idStr::Length( args ) + idStr::Length( appPath ) + 1 /* for space */ + 1 /* for NULL terminator */ + 2 /* app quotes */;
+					cmdLine = static_cast<char*>(Mem_Alloc(len, TAG_TEMP));
 					// note that we're putting quotes around the appPath here because when AAS2.exe gets an app path with spaces
 					// in the path "w:/zion/build/win32/Debug with Inlines/AAS2.exe" it gets more than one arg for the app name,
 					// which it most certainly should not, so I am assuming this is a side effect of using CreateProcess.
 					idStr::snPrintf( cmdLine, len, "\"%s\" %s", appPath, args );
 				} else {
-					int len = idStr::Length( args ) + 1;
-					cmdLine = (char*)Mem_Alloc( len, TAG_TEMP );
+					size_t len = idStr::Length( args ) + 1;
+					cmdLine = static_cast<char*>(Mem_Alloc(len, TAG_TEMP));
 					idStr::Copynz( cmdLine, args, len );
 				}
 				// the image name should always be NULL if we have command line arguments because it is already
@@ -753,8 +752,8 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 		BOOL result = CreateProcess( imageName, (LPSTR)cmdLine, nullptr, nullptr, TRUE, 0, nullptr, workingPath, &si, &pi );
 
 		if ( result == FALSE ) {
-			TCHAR szBuf[1024]; 
-			LPVOID lpMsgBuf;
+			TCHAR szBuf[1024] = {};
+			LPVOID lpMsgBuf = nullptr;
 			DWORD dw = GetLastError(); 
 
 			FormatMessage(
@@ -763,7 +762,7 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 				nullptr,
 				dw,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-				(LPTSTR) &lpMsgBuf,
+				reinterpret_cast<LPTSTR>(&lpMsgBuf),
 				0, nullptr);
 
 			wsprintf( szBuf, "%d: %s", dw, lpMsgBuf );
@@ -777,10 +776,9 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 			return false;
 		} else if ( waitMS >= 0 ) {	// if waitMS == -1, don't wait for process to exit
 			DWORD ec = 0;
-			DWORD wait = 0;
-			char buffer[ 4096 ];
+			char buffer[ 4096 ] = {};
 			for ( ; ; ) {
-				wait = WaitForSingleObject( pi.hProcess, waitMS );
+				DWORD wait = WaitForSingleObject(pi.hProcess, waitMS);
 				GetExitCodeProcess( pi.hProcess, &ec );
 
 				DWORD bytesRead = 0;
@@ -846,9 +844,9 @@ DLL Loading
 Sys_DLL_Load
 =====================
 */
-int Sys_DLL_Load( const char *dllName ) {
+dllHandle_t Sys_DLL_Load( const char *dllName ) {
 	HINSTANCE libHandle = LoadLibrary( dllName );
-	return (int)libHandle;
+	return libHandle;
 }
 
 /*
@@ -856,8 +854,8 @@ int Sys_DLL_Load( const char *dllName ) {
 Sys_DLL_GetProcAddress
 =====================
 */
-void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
-	return GetProcAddress( (HINSTANCE)dllHandle, procName ); 
+address_t Sys_DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName ) {
+	return reinterpret_cast<address_t>(GetProcAddress(dllHandle, procName)); 
 }
 
 /*
@@ -865,23 +863,23 @@ void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
 Sys_DLL_Unload
 =====================
 */
-void Sys_DLL_Unload( int dllHandle ) {
-	if ( !dllHandle ) {
+void Sys_DLL_Unload( dllHandle_t dllHandle ) {
+	if (!dllHandle) {
 		return;
 	}
-	if ( FreeLibrary( (HINSTANCE)dllHandle ) == 0 ) {
-		int lastError = GetLastError();
-		LPVOID lpMsgBuf;
+	if (FreeLibrary(dllHandle) == 0) {
+		const auto lastError = GetLastError();
+		LPVOID lpMsgBuf = nullptr;
 		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER,
 			nullptr,
 			lastError,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-			(LPTSTR) &lpMsgBuf,
+			reinterpret_cast<LPTSTR>(&lpMsgBuf),
 			0,
 			nullptr
 		);
-		Sys_Error( "Sys_DLL_Unload: FreeLibrary failed - %s (%d)", lpMsgBuf, lastError );
+		Sys_Error("Sys_DLL_Unload: FreeLibrary failed - %s (%d)", lpMsgBuf, lastError);
 	}
 }
 
@@ -893,26 +891,26 @@ EVENT LOOP
 ========================================================================
 */
 
-#define	MAX_QUED_EVENTS		256
-#define	MASK_QUED_EVENTS	( MAX_QUED_EVENTS - 1 )
+constexpr auto MAX_QUEUED_EVENTS = 256;
+#define	MASK_QUEUED_EVENTS	( MAX_QUEUED_EVENTS - 1 )
 
-sysEvent_t	eventQue[MAX_QUED_EVENTS];
-int			eventHead = 0;
-int			eventTail = 0;
+static sysEvent_t	eventQueue[MAX_QUEUED_EVENTS];
+static int			eventHead = 0;
+static int			eventTail = 0;
 
 /*
 ================
-Sys_QueEvent
+Sys_QueueEvent
 
 Ptr should either be null, or point to a block of data that can
 be freed by the game later.
 ================
 */
-void Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void *ptr, int inputDeviceNum ) {
-	sysEvent_t * ev = &eventQue[ eventHead & MASK_QUED_EVENTS ];
+void Sys_QueueEvent( sysEventType_t type, int value, int value2, size_t ptrLength, void *ptr, int inputDeviceNum ) {
+	sysEvent_t * ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
 
-	if ( eventHead - eventTail >= MAX_QUED_EVENTS ) {
-		common->Printf("Sys_QueEvent: overflow\n");
+	if ( eventHead - eventTail >= MAX_QUEUED_EVENTS ) {
+		common->Printf("Sys_QueueEvent: overflow\n");
 		// we are discarding an event, but don't leak memory
 		if ( ev->evPtr ) {
 			Mem_Free( ev->evPtr );
@@ -937,7 +935,7 @@ Sys_PumpEvents
 This allows windows to be moved during renderbump
 =============
 */
-void Sys_PumpEvents() {
+static void Sys_PumpEvents() {
     MSG msg;
 
 	// pump the message loop
@@ -947,7 +945,7 @@ void Sys_PumpEvents() {
 		}
 
 		// save the msg time, because wndprocs don't have access to the timestamp
-		if ( win32.sysMsgTime && win32.sysMsgTime > (int)msg.time ) {
+		if ( win32.sysMsgTime && win32.sysMsgTime > static_cast<int>(msg.time) ) {
 			// don't ever let the event times run backwards	
 //			common->Printf( "Sys_PumpEvents: win32.sysMsgTime (%i) > msg.time (%i)\n", win32.sysMsgTime, msg.time );
 		} else {
@@ -966,7 +964,7 @@ Sys_GenerateEvents
 */
 void Sys_GenerateEvents() {
 	static int entered = false;
-	char *s;
+	char *s = nullptr;
 
 	if ( entered ) {
 		return;
@@ -982,13 +980,13 @@ void Sys_GenerateEvents() {
 	// check for console commands
 	s = Sys_ConsoleInput();
 	if ( s ) {
-		char	*b;
-		int		len;
+		char *b = nullptr;
+		size_t	len = 0;
 
 		len = strlen( s ) + 1;
-		b = (char *)Mem_Alloc( len, TAG_EVENTS );
+		b = static_cast<char*>(Mem_Alloc(len, TAG_EVENTS));
 		strcpy( b, s );
-		Sys_QueEvent( SE_CONSOLE, 0, 0, len, b, 0 );
+		Sys_QueueEvent( SE_CONSOLE, 0, 0, len, b, 0 );
 	}
 
 	entered = false;
@@ -1014,7 +1012,7 @@ sysEvent_t Sys_GetEvent() {
 	// return if we have data
 	if ( eventHead > eventTail ) {
 		eventTail++;
-		return eventQue[ ( eventTail - 1 ) & MASK_QUED_EVENTS ];
+		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
 	}
 
 	// return the empty event 
@@ -1032,7 +1030,7 @@ Sys_In_Restart_f
 Restart the input subsystem
 =================
 */
-void Sys_In_Restart_f( const idCmdArgs &args ) {
+static void Sys_In_Restart_f( const idCmdArgs &args ) {
 	Sys_ShutdownInput();
 	Sys_InitInput();
 }
@@ -1063,8 +1061,203 @@ Sys_Init
 The cvar system must already be setup
 ================
 */
-#define OSR2_BUILD_NUMBER 1111
-#define WIN98_BUILD_NUMBER 1998
+constexpr auto OSR2_BUILD_NUMBER = 1111;
+constexpr auto WIN98_BUILD_NUMBER = 1998;
+
+// Input:  DWORD dwProductType  (returned by GetProductInfo)
+// Output: const char* edition  (friendly edition text)
+static const char* GetWindowsEditionFromProductType( const DWORD dwProductType )
+{
+	const char* edition = "Unknown";
+
+	switch (dwProductType)
+	{
+	case PRODUCT_UNDEFINED:                               edition = "Undefined"; break;
+
+	case PRODUCT_ULTIMATE:                                edition = "Ultimate"; break;
+	case PRODUCT_HOME_BASIC:                              edition = "Home Basic"; break;
+	case PRODUCT_HOME_PREMIUM:                            edition = "Home Premium"; break;
+	case PRODUCT_ENTERPRISE:                              edition = "Enterprise"; break;
+	case PRODUCT_HOME_BASIC_N:                            edition = "Home Basic N"; break;
+	case PRODUCT_BUSINESS:                                edition = "Business"; break;
+	case PRODUCT_STANDARD_SERVER:                         edition = "Server Standard (Full)"; break;
+	case PRODUCT_DATACENTER_SERVER:                       edition = "Server Datacenter (Full)"; break;
+	case PRODUCT_SMALLBUSINESS_SERVER:                    edition = "Small Business Server"; break;
+	case PRODUCT_ENTERPRISE_SERVER:                       edition = "Server Enterprise (Full)"; break;
+	case PRODUCT_STARTER:                                 edition = "Starter"; break;
+	case PRODUCT_DATACENTER_SERVER_CORE:                  edition = "Server Datacenter (Core)"; break;
+	case PRODUCT_STANDARD_SERVER_CORE:                    edition = "Server Standard (Core)"; break;
+	case PRODUCT_ENTERPRISE_SERVER_CORE:                  edition = "Server Enterprise (Core)"; break;
+	case PRODUCT_ENTERPRISE_SERVER_IA64:                  edition = "Server Enterprise (IA64)"; break;
+	case PRODUCT_BUSINESS_N:                              edition = "Business N"; break;
+	case PRODUCT_WEB_SERVER:                              edition = "Web Server (Full)"; break;
+	case PRODUCT_CLUSTER_SERVER:                          edition = "Cluster Server"; break;
+	case PRODUCT_HOME_SERVER:                             edition = "Home Server"; break;
+	case PRODUCT_STORAGE_EXPRESS_SERVER:                  edition = "Storage Server Express (Full)"; break;
+	case PRODUCT_STORAGE_STANDARD_SERVER:                 edition = "Storage Server Standard (Full)"; break;
+	case PRODUCT_STORAGE_WORKGROUP_SERVER:                edition = "Storage Server Workgroup (Full)"; break;
+	case PRODUCT_STORAGE_ENTERPRISE_SERVER:               edition = "Storage Server Enterprise (Full)"; break;
+	case PRODUCT_SERVER_FOR_SMALLBUSINESS:                edition = "Server for Small Business"; break;
+	case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM:            edition = "Small Business Server Premium"; break;
+	case PRODUCT_HOME_PREMIUM_N:                          edition = "Home Premium N"; break;
+	case PRODUCT_ENTERPRISE_N:                            edition = "Enterprise N"; break;
+	case PRODUCT_ULTIMATE_N:                              edition = "Ultimate N"; break;
+	case PRODUCT_WEB_SERVER_CORE:                         edition = "Web Server (Core)"; break;
+	case PRODUCT_MEDIUMBUSINESS_SERVER_MANAGEMENT:        edition = "Essential Business Server Management"; break;
+	case PRODUCT_MEDIUMBUSINESS_SERVER_SECURITY:          edition = "Essential Business Server Security"; break;
+	case PRODUCT_MEDIUMBUSINESS_SERVER_MESSAGING:         edition = "Essential Business Server Messaging"; break;
+	case PRODUCT_SERVER_FOUNDATION:                       edition = "Server Foundation"; break;
+	case PRODUCT_HOME_PREMIUM_SERVER:                     edition = "Home Premium Server"; break;
+	case PRODUCT_SERVER_FOR_SMALLBUSINESS_V:              edition = "Server for Small Business (No Hyper-V)"; break;
+	case PRODUCT_STANDARD_SERVER_V:                       edition = "Server Standard (No Hyper-V)"; break;
+	case PRODUCT_DATACENTER_SERVER_V:                     edition = "Server Datacenter (No Hyper-V)"; break;
+	case PRODUCT_ENTERPRISE_SERVER_V:                     edition = "Server Enterprise (No Hyper-V)"; break;
+	case PRODUCT_DATACENTER_SERVER_CORE_V:                edition = "Server Datacenter Core (No Hyper-V)"; break;
+	case PRODUCT_STANDARD_SERVER_CORE_V:                  edition = "Server Standard Core (No Hyper-V)"; break;
+	case PRODUCT_ENTERPRISE_SERVER_CORE_V:                edition = "Server Enterprise Core (No Hyper-V)"; break;
+	case PRODUCT_HYPERV:                                  edition = "Microsoft Hyper-V Server"; break;
+	case PRODUCT_STORAGE_EXPRESS_SERVER_CORE:             edition = "Storage Server Express (Core)"; break;
+	case PRODUCT_STORAGE_STANDARD_SERVER_CORE:            edition = "Storage Server Standard (Core)"; break;
+	case PRODUCT_STORAGE_WORKGROUP_SERVER_CORE:           edition = "Storage Server Workgroup (Core)"; break;
+	case PRODUCT_STORAGE_ENTERPRISE_SERVER_CORE:          edition = "Storage Server Enterprise (Core)"; break;
+	case PRODUCT_STARTER_N:                               edition = "Starter N"; break;
+	case PRODUCT_PROFESSIONAL:                            edition = "Professional"; break;
+	case PRODUCT_PROFESSIONAL_N:                          edition = "Professional N"; break;
+	case PRODUCT_SB_SOLUTION_SERVER:                      edition = "SB Solution Server"; break;
+	case PRODUCT_SERVER_FOR_SB_SOLUTIONS:                 edition = "Server for SB Solutions"; break;
+	case PRODUCT_STANDARD_SERVER_SOLUTIONS:               edition = "Standard Server Solutions"; break;
+	case PRODUCT_STANDARD_SERVER_SOLUTIONS_CORE:          edition = "Standard Server Solutions (Core)"; break;
+	case PRODUCT_SB_SOLUTION_SERVER_EM:                   edition = "SB Solution Server (Embedded)"; break;
+	case PRODUCT_SERVER_FOR_SB_SOLUTIONS_EM:              edition = "Server for SB Solutions (Embedded)"; break;
+	case PRODUCT_SOLUTION_EMBEDDEDSERVER:                 edition = "Solution Embedded Server"; break;
+	case PRODUCT_SOLUTION_EMBEDDEDSERVER_CORE:            edition = "Solution Embedded Server (Core)"; break;
+	case PRODUCT_PROFESSIONAL_EMBEDDED:                   edition = "Professional (Embedded)"; break;
+	case PRODUCT_ESSENTIALBUSINESS_SERVER_MGMT:           edition = "Essential Business Server Management"; break;
+	case PRODUCT_ESSENTIALBUSINESS_SERVER_ADDL:           edition = "Essential Business Server Additional"; break;
+	case PRODUCT_ESSENTIALBUSINESS_SERVER_MGMTSVC:        edition = "Essential Business Server Mgmt Service"; break;
+	case PRODUCT_ESSENTIALBUSINESS_SERVER_ADDLSVC:        edition = "Essential Business Server Addl Service"; break;
+	case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM_CORE:       edition = "Small Business Server Premium (Core)"; break;
+	case PRODUCT_CLUSTER_SERVER_V:                        edition = "Cluster Server (No Hyper-V)"; break;
+	case PRODUCT_EMBEDDED:                                edition = "Embedded"; break;
+	case PRODUCT_STARTER_E:                               edition = "Starter E"; break;
+	case PRODUCT_HOME_BASIC_E:                            edition = "Home Basic E"; break;
+	case PRODUCT_HOME_PREMIUM_E:                          edition = "Home Premium E"; break;
+	case PRODUCT_PROFESSIONAL_E:                          edition = "Professional E"; break;
+	case PRODUCT_ENTERPRISE_E:                            edition = "Enterprise E"; break;
+	case PRODUCT_ULTIMATE_E:                              edition = "Ultimate E"; break;
+	case PRODUCT_ENTERPRISE_EVALUATION:                   edition = "Enterprise Evaluation"; break;
+	case PRODUCT_MULTIPOINT_STANDARD_SERVER:              edition = "MultiPoint Server Standard"; break;
+	case PRODUCT_MULTIPOINT_PREMIUM_SERVER:               edition = "MultiPoint Server Premium"; break;
+	case PRODUCT_STANDARD_EVALUATION_SERVER:              edition = "Server Standard Evaluation"; break;
+	case PRODUCT_DATACENTER_EVALUATION_SERVER:            edition = "Server Datacenter Evaluation"; break;
+	case PRODUCT_ENTERPRISE_N_EVALUATION:                 edition = "Enterprise N Evaluation"; break;
+	case PRODUCT_EMBEDDED_AUTOMOTIVE:                     edition = "Embedded Automotive"; break;
+	case PRODUCT_EMBEDDED_INDUSTRY_A:                     edition = "Embedded Industry A"; break;
+	case PRODUCT_THINPC:                                  edition = "Thin PC"; break;
+	case PRODUCT_EMBEDDED_A:                              edition = "Embedded A"; break;
+	case PRODUCT_EMBEDDED_INDUSTRY:                       edition = "Embedded Industry"; break;
+	case PRODUCT_EMBEDDED_E:                              edition = "Embedded E"; break;
+	case PRODUCT_EMBEDDED_INDUSTRY_E:                     edition = "Embedded Industry E"; break;
+	case PRODUCT_EMBEDDED_INDUSTRY_A_E:                   edition = "Embedded Industry A E"; break;
+	case PRODUCT_STORAGE_WORKGROUP_EVALUATION_SERVER:     edition = "Storage Server Workgroup Evaluation"; break;
+	case PRODUCT_STORAGE_STANDARD_EVALUATION_SERVER:      edition = "Storage Server Standard Evaluation"; break;
+	case PRODUCT_CORE_ARM:                                edition = "Core (ARM)"; break;
+	case PRODUCT_CORE_N:                                  edition = "Core N"; break;
+	case PRODUCT_CORE_COUNTRYSPECIFIC:                    edition = "Core (Country Specific)"; break;
+	case PRODUCT_CORE_SINGLELANGUAGE:                     edition = "Core Single Language"; break;
+	case PRODUCT_CORE:                                    edition = "Core"; break;
+	case PRODUCT_PROFESSIONAL_WMC:                        edition = "Professional with Media Center"; break;
+	case PRODUCT_EMBEDDED_INDUSTRY_EVAL:                  edition = "Embedded Industry (Eval)"; break;
+	case PRODUCT_EMBEDDED_INDUSTRY_E_EVAL:                edition = "Embedded Industry E (Eval)"; break;
+	case PRODUCT_EMBEDDED_EVAL:                           edition = "Embedded (Eval)"; break;
+	case PRODUCT_EMBEDDED_E_EVAL:                         edition = "Embedded E (Eval)"; break;
+	case PRODUCT_NANO_SERVER:                             edition = "Nano Server"; break;
+	case PRODUCT_CLOUD_STORAGE_SERVER:                    edition = "Cloud Storage Server"; break;
+	case PRODUCT_CORE_CONNECTED:                          edition = "Core Connected"; break;
+	case PRODUCT_PROFESSIONAL_STUDENT:                    edition = "Professional Student"; break;
+	case PRODUCT_CORE_CONNECTED_N:                        edition = "Core Connected N"; break;
+	case PRODUCT_PROFESSIONAL_STUDENT_N:                  edition = "Professional Student N"; break;
+	case PRODUCT_CORE_CONNECTED_SINGLELANGUAGE:           edition = "Core Connected Single Language"; break;
+	case PRODUCT_CORE_CONNECTED_COUNTRYSPECIFIC:          edition = "Core Connected Country Specific"; break;
+	case PRODUCT_CONNECTED_CAR:                           edition = "Connected Car"; break;
+	case PRODUCT_INDUSTRY_HANDHELD:                       edition = "Industry Handheld"; break;
+	case PRODUCT_PPI_PRO:                                 edition = "Surface Hub (PPI Pro)"; break;
+	case PRODUCT_ARM64_SERVER:                            edition = "ARM64 Server"; break;
+	case PRODUCT_EDUCATION:                               edition = "Education"; break;
+	case PRODUCT_EDUCATION_N:                             edition = "Education N"; break;
+	case PRODUCT_IOTUAP:                                  edition = "IoT Core (UAP)"; break;
+	case PRODUCT_CLOUD_HOST_INFRASTRUCTURE_SERVER:        edition = "Cloud Host Infrastructure Server"; break;
+	case PRODUCT_ENTERPRISE_S:                            edition = "Enterprise S"; break;
+	case PRODUCT_ENTERPRISE_S_N:                          edition = "Enterprise S N"; break;
+	case PRODUCT_PROFESSIONAL_S:                          edition = "Professional S"; break;
+	case PRODUCT_PROFESSIONAL_S_N:                        edition = "Professional S N"; break;
+	case PRODUCT_ENTERPRISE_S_EVALUATION:                 edition = "Enterprise S Evaluation"; break;
+	case PRODUCT_ENTERPRISE_S_N_EVALUATION:               edition = "Enterprise S N Evaluation"; break;
+	case PRODUCT_HOLOGRAPHIC:                             edition = "Holographic"; break;
+	case PRODUCT_HOLOGRAPHIC_BUSINESS:                    edition = "Holographic Business"; break;
+	case PRODUCT_PRO_SINGLE_LANGUAGE:                     edition = "Pro Single Language"; break;
+	case PRODUCT_PRO_CHINA:                               edition = "Pro China Only"; break;
+	case PRODUCT_ENTERPRISE_SUBSCRIPTION:                 edition = "Enterprise Subscription"; break;
+	case PRODUCT_ENTERPRISE_SUBSCRIPTION_N:               edition = "Enterprise Subscription N"; break;
+	case PRODUCT_DATACENTER_NANO_SERVER:                  edition = "Datacenter Nano Server"; break;
+	case PRODUCT_STANDARD_NANO_SERVER:                    edition = "Standard Nano Server"; break;
+	case PRODUCT_DATACENTER_A_SERVER_CORE:                edition = "Datacenter Server Azure (Core)"; break;
+	case PRODUCT_STANDARD_A_SERVER_CORE:                  edition = "Standard Server Azure (Core)"; break;
+	case PRODUCT_DATACENTER_WS_SERVER_CORE:               edition = "Datacenter WS Server (Core)"; break;
+	case PRODUCT_STANDARD_WS_SERVER_CORE:                 edition = "Standard WS Server (Core)"; break;
+	case PRODUCT_UTILITY_VM:                              edition = "Utility VM"; break;
+	case PRODUCT_DATACENTER_EVALUATION_SERVER_CORE:       edition = "Datacenter Evaluation (Core)"; break;
+	case PRODUCT_STANDARD_EVALUATION_SERVER_CORE:         edition = "Standard Evaluation (Core)"; break;
+	case PRODUCT_PRO_WORKSTATION:                         edition = "Pro for Workstations"; break;
+	case PRODUCT_PRO_WORKSTATION_N:                       edition = "Pro for Workstations N"; break;
+	case PRODUCT_PRO_FOR_EDUCATION:                       edition = "Pro Education"; break;
+	case PRODUCT_PRO_FOR_EDUCATION_N:                     edition = "Pro Education N"; break;
+	case PRODUCT_AZURE_SERVER_CORE:                       edition = "Azure Server (Core)"; break;
+	case PRODUCT_AZURE_NANO_SERVER:                       edition = "Azure Nano Server"; break;
+	case PRODUCT_ENTERPRISEG:                             edition = "Enterprise G (China Gov)"; break;
+	case PRODUCT_ENTERPRISEGN:                            edition = "Enterprise GN (China Gov N)"; break;
+	case PRODUCT_SERVERRDSH:                              edition = "Windows Server RDSH"; break;
+	case PRODUCT_CLOUD:                                   edition = "Cloud"; break;
+	case PRODUCT_CLOUDN:                                  edition = "Cloud N"; break;
+	case PRODUCT_HUBOS:                                   edition = "Hub OS"; break;
+	case PRODUCT_ONECOREUPDATEOS:                         edition = "OneCore Update OS"; break;
+	case PRODUCT_CLOUDE:                                  edition = "CloudE"; break;
+	case PRODUCT_IOTOS:                                   edition = "IoT OS"; break;
+	case PRODUCT_CLOUDEN:                                 edition = "CloudE N"; break;
+	case PRODUCT_IOTEDGEOS:                               edition = "IoT Edge OS"; break;
+	case PRODUCT_IOTENTERPRISE:                           edition = "IoT Enterprise"; break;
+	case PRODUCT_LITE:                                    edition = "Lite / 10X"; break;
+	case PRODUCT_IOTENTERPRISES:                          edition = "IoT Enterprise S"; break;
+	case PRODUCT_XBOX_SYSTEMOS:                           edition = "Xbox System OS"; break;
+	case PRODUCT_XBOX_GAMEOS:                             edition = "Xbox Game OS"; break;
+	case PRODUCT_XBOX_ERAOS:                              edition = "Xbox ERA OS"; break;
+	case PRODUCT_XBOX_DURANGOHOSTOS:                      edition = "Xbox Durango Host OS"; break;
+	case PRODUCT_XBOX_SCARLETTHOSTOS:                     edition = "Xbox Scarlett Host OS"; break;
+	case PRODUCT_XBOX_KEYSTONE:                           edition = "Xbox Keystone"; break;
+	case PRODUCT_AZURE_SERVER_CLOUDHOST:                  edition = "Azure Server CloudHost"; break;
+	case PRODUCT_AZURE_SERVER_CLOUDMOS:                   edition = "Azure Server CloudMOS"; break;
+	case PRODUCT_CLOUDEDITIONN:                           edition = "Cloud Edition N"; break;
+	case PRODUCT_CLOUDEDITION:                            edition = "Cloud Edition"; break;
+	case PRODUCT_VALIDATION:                              edition = "Validation SKU"; break;
+	case PRODUCT_IOTENTERPRISESK:                         edition = "IoT Enterprise SK"; break;
+	case PRODUCT_IOTENTERPRISEK:                          edition = "IoT Enterprise K"; break;
+	case PRODUCT_IOTENTERPRISESEVAL:                      edition = "IoT Enterprise S (Eval)"; break;
+	case PRODUCT_AZURE_SERVER_AGENTBRIDGE:                edition = "Azure Server AgentBridge"; break;
+	case PRODUCT_AZURE_SERVER_NANOHOST:                   edition = "Azure Server NanoHost"; break;
+	case PRODUCT_WNC:                                     edition = "Windows Core (WNC)"; break;
+
+	case PRODUCT_AZURESTACKHCI_SERVER_CORE:               edition = "Azure Stack HCI (Core)"; break;
+	case PRODUCT_DATACENTER_SERVER_AZURE_EDITION:         edition = "Server Datacenter Azure Edition (Full)"; break;
+	case PRODUCT_DATACENTER_SERVER_CORE_AZURE_EDITION:    edition = "Server Datacenter Azure Edition (Core)"; break;
+	case PRODUCT_DATACENTER_WS_SERVER_CORE_AZURE_EDITION: edition = "Datacenter WS Server (Core, Azure Edition)"; break;
+
+	case PRODUCT_UNLICENSED:                              edition = "Unlicensed"; break;
+
+	default:                                              /* keep "Unknown" */ break;
+	}
+
+	return edition;
+}
 
 void Sys_Init() {
 
@@ -1085,7 +1278,7 @@ void Sys_Init() {
 	//
 	win32.osversion.dwOSVersionInfoSize = sizeof( win32.osversion );
 
-	if ( !GetVersionEx( (LPOSVERSIONINFO)&win32.osversion ) )
+	if ( !GetVersionEx( reinterpret_cast<LPOSVERSIONINFO>(&win32.osversion) ) )
 		Sys_Error( "Couldn't get OS info" );
 
 	if ( win32.osversion.dwMajorVersion < 4 ) {
@@ -1095,17 +1288,129 @@ void Sys_Init() {
 		Sys_Error( GAME_NAME " doesn't run on Win32s" );
 	}
 
+	DWORD dwProductType = 0;
+	GetProductInfo(win32.osversion.dwMajorVersion, win32.osversion.dwMinorVersion, 0, 0, &dwProductType);
+
+	win32.win_edition.SetString(GetWindowsEditionFromProductType(dwProductType));
+
 	if( win32.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT ) {
-		if( win32.osversion.dwMajorVersion <= 4 ) {
-			win32.sys_arch.SetString( "WinNT (NT)" );
-		} else if( win32.osversion.dwMajorVersion == 5 && win32.osversion.dwMinorVersion == 0 ) {
-			win32.sys_arch.SetString( "Win2K (NT)" );
-		} else if( win32.osversion.dwMajorVersion == 5 && win32.osversion.dwMinorVersion == 1 ) {
-			win32.sys_arch.SetString( "WinXP (NT)" );
-		} else if ( win32.osversion.dwMajorVersion == 6 ) {
-			win32.sys_arch.SetString( "Vista" );
-		} else {
-			win32.sys_arch.SetString( "Unknown NT variant" );
+		if (win32.osversion.dwMajorVersion <= 3) {
+			win32.sys_arch.SetString("NT3");
+		}
+		else if (win32.osversion.dwMajorVersion <= 4) {
+			win32.sys_arch.SetString("NT4");
+		}
+		else if (win32.osversion.dwMajorVersion == 5 && win32.osversion.dwMinorVersion == 0) {
+			if (IsWindowsServer())
+			{
+				win32.sys_arch.SetString("2000 Server");
+			}
+			else
+			{
+				win32.sys_arch.SetString("2000 Pro");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 5 && win32.osversion.dwMinorVersion == 1) {
+			win32.sys_arch.SetString("XP");
+		}
+		else if (win32.osversion.dwMajorVersion == 5 && win32.osversion.dwMinorVersion == 2) {
+			if (IsWindowsServer())
+			{
+				if (win32.osversion.wSuiteMask & VER_SUITE_WH_SERVER)
+				{
+					win32.sys_arch.SetString("Home Server");
+				}
+				if (GetSystemMetrics(SM_SERVERR2) == 0)
+				{
+					win32.sys_arch.SetString("Server 2003");
+				}
+				else if (GetSystemMetrics(SM_SERVERR2) == 1)
+				{
+					win32.sys_arch.SetString("Server 2003 R2");
+				}
+			}
+			else
+			{
+				win32.sys_arch.SetString("XP Pro x64");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 6 && win32.osversion.dwMinorVersion == 0) {
+			if (IsWindowsServer())
+			{
+				win32.sys_arch.SetString("Server 2008");
+			}
+			else
+			{
+				win32.sys_arch.SetString("Vista");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 6 && win32.osversion.dwMinorVersion == 1) {
+			if (IsWindowsServer())
+			{
+				win32.sys_arch.SetString("Server 2008 R2");
+			}
+			else
+			{
+				win32.sys_arch.SetString("7");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 6 && win32.osversion.dwMinorVersion == 2) {
+			if (IsWindowsServer())
+			{
+				win32.sys_arch.SetString("Server 2012");
+			}
+			else
+			{
+				win32.sys_arch.SetString("8");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 6 && win32.osversion.dwMinorVersion == 3) {
+			if (IsWindowsServer())
+			{
+				win32.sys_arch.SetString("Server 2012 R2");
+			}
+			else
+			{
+				win32.sys_arch.SetString("8.1");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 10 && win32.osversion.dwMinorVersion == 0 && win32.osversion.dwBuildNumber < 22000) {
+			if (IsWindowsServer())
+			{
+				if (win32.osversion.dwBuildNumber == 14393)
+				{
+					win32.sys_arch.SetString("Server 2016");
+				}
+				else if (win32.osversion.dwBuildNumber == 17763)
+				{
+					win32.sys_arch.SetString("Server 2019");
+				}
+				else if (win32.osversion.dwBuildNumber == 20348)
+				{
+					win32.sys_arch.SetString("Server 2022");
+				}
+				else
+				{
+					win32.sys_arch.SetString("Server 2016/2019/2022");
+				}
+			}
+			else
+			{
+				win32.sys_arch.SetString("10");
+			}
+		}
+		else if (win32.osversion.dwMajorVersion == 10 && win32.osversion.dwMinorVersion == 0 && win32.osversion.dwBuildNumber >= 22000) {
+			if (IsWindowsServer())
+			{
+				win32.sys_arch.SetString("Server 2025");
+			}
+			else
+			{
+				win32.sys_arch.SetString("11");
+			}
+		}
+		else {
+			win32.sys_arch.SetString("Unknown NT variant");
 		}
 	} else if( win32.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS ) {
 		if( win32.osversion.dwMajorVersion == 4 && win32.osversion.dwMinorVersion == 0 ) {
@@ -1140,20 +1445,37 @@ void Sys_Init() {
 
 		common->Printf( "%1.0f MHz ", Sys_ClockTicksPerSecond() / 1000000.0f );
 
-		win32.cpuid = Sys_GetCPUId();
+		win32.cpuid = Sys_GetCPUCapabilities();
 
 		string.Clear();
 
+		// Vendor
 		if ( win32.cpuid & CPUID_AMD ) {
 			string += "AMD CPU";
 		} else if ( win32.cpuid & CPUID_INTEL ) {
 			string += "Intel CPU";
+		} else if ( win32.cpuid & CPUID_ARM ) {
+			string += "ARM CPU";
 		} else if ( win32.cpuid & CPUID_UNSUPPORTED ) {
 			string += "unsupported CPU";
 		} else {
 			string += "generic CPU";
 		}
 
+		// Architecture
+		if ( (win32.cpuid & CPUID_64BIT) && ((win32.cpuid & CPUID_INTEL) || (win32.cpuid & CPUID_AMD)) ) {
+			string += " (x86_64)";
+		} else if ((win32.cpuid & CPUID_32BIT) && ((win32.cpuid & CPUID_INTEL) || (win32.cpuid & CPUID_AMD))) {
+			string += " (x86)";
+		} else if ((win32.cpuid & CPUID_64BIT) && (win32.cpuid & CPUID_ARM)) {
+			string += " (ARM64)";
+		} else if ((win32.cpuid & CPUID_32BIT) && (win32.cpuid & CPUID_ARM)) {
+			string += " (ARM)";
+		} else {
+			string += " (unknown architecture)";
+		}
+
+		// Features
 		string += " with ";
 		if ( win32.cpuid & CPUID_MMX ) {
 			string += "MMX & ";
@@ -1170,7 +1492,40 @@ void Sys_Init() {
 		if ( win32.cpuid & CPUID_SSE3 ) {
 			string += "SSE3 & ";
 		}
-		if ( win32.cpuid & CPUID_HTT ) {
+		if ( win32.cpuid & CPUID_SSSE3 ) {
+			string += "SSSE3 & ";
+		}
+		if ( win32.cpuid & CPUID_SSE4_1 ) {
+			string += "SSE4.1 & ";
+		}
+		if ( win32.cpuid & CPUID_SSE4_2 ) {
+			string += "SSE4.2 & ";
+		}
+		if ( win32.cpuid & CPUID_AVX ) {
+			string += "AVX & ";
+		}
+		if ( win32.cpuid & CPUID_AVX2 ) {
+			string += "AVX2 & ";
+		}
+		if ( win32.cpuid & CPUID_AVX512F ) {
+			string += "AVX512F & ";
+		}
+		if ( win32.cpuid & CPUID_FMA3 ) {
+			string += "FMA3 & ";
+		}
+		if ( win32.cpuid & CPUID_NEON ) {
+			string += "NEON & ";
+		}
+		if ( win32.cpuid & CPUID_SVE ) {
+			string += "SVE & ";
+		}
+		if ( win32.cpuid & CPUID_SVE2 ) {
+			string += "SVE2 & ";
+		}
+		if (win32.cpuid & CPUID_SVE2_1) {
+			string += "SVE2.1 & ";
+		}
+		if ( win32.cpuid & CPUID_SMT ) {
 			string += "HTT & ";
 		}
 		string.StripTrailing( " & " );
@@ -1199,15 +1554,29 @@ void Sys_Init() {
 				id |= CPUID_SSE2;
 			} else if ( token.Icmp( "sse3" ) == 0 ) {
 				id |= CPUID_SSE3;
+			} else if ( token.Icmp( "ssse3" ) == 0) {
+				id |= CPUID_SSSE3;
+			} else if ( token.Icmp( "sse4.1" ) == 0 ) {
+				id |= CPUID_SSE4_1;
+			} else if ( token.Icmp( "sse4.2" ) == 0 ) {
+				id |= CPUID_SSE4_2;
+			} else if ( token.Icmp( "avx" ) == 0 ) {
+				id |= CPUID_AVX;
+			} else if ( token.Icmp( "avx2" ) == 0 ) {
+				id |= CPUID_AVX2;
+			} else if ( token.Icmp( "avx512f" ) == 0 ) {
+				id |= CPUID_AVX512F;
+			} else if ( token.Icmp( "fma3" ) == 0 ) {
+				id |= CPUID_FMA3;
 			} else if ( token.Icmp( "htt" ) == 0 ) {
-				id |= CPUID_HTT;
+				id |= CPUID_SMT;
 			}
 		}
 		if ( id == CPUID_NONE ) {
 			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", win32.sys_cpustring.GetString() );
 			id = CPUID_GENERIC;
 		}
-		win32.cpuid = (cpuid_t) id;
+		win32.cpuid = static_cast<cpuid_t>(id);
 	}
 
 	common->Printf( "%s\n", win32.sys_cpustring.GetString() );
@@ -1257,7 +1626,7 @@ const char *Sys_GetProcessorString() {
 Win_Frame
 ====================
 */
-void Win_Frame() {
+static void Win_Frame() {
 	// if "viewlog" has been modified, show or hide the log console
 	if ( win32.win_viewlog.IsModified() ) {
 		win32.win_viewlog.ClearModified();
@@ -1265,15 +1634,16 @@ void Win_Frame() {
 }
 
 extern "C" { void _chkstk( int size ); };
-void clrstk();
+
+static void clrstk();
 
 /*
 ====================
 TestChkStk
 ====================
 */
-void TestChkStk() {
-	int		buffer[0x1000];
+static void TestChkStk() {
+	int		buffer[0x1000] = {};
 
 	buffer[0] = 1;
 }
@@ -1283,7 +1653,7 @@ void TestChkStk() {
 HackChkStk
 ====================
 */
-void HackChkStk() {
+static void HackChkStk() {
 	DWORD	old;
 	VirtualProtect( _chkstk, 6, PAGE_EXECUTE_READWRITE, &old );
 	*(byte *)_chkstk = 0xe9;
@@ -1297,7 +1667,7 @@ void HackChkStk() {
 GetExceptionCodeInfo
 ====================
 */
-const char *GetExceptionCodeInfo( UINT code ) {
+static const char *GetExceptionCodeInfo( UINT code ) {
 	switch( code ) {
 		case EXCEPTION_ACCESS_VIOLATION: return "The thread tried to read from or write to a virtual address for which it does not have the appropriate access.";
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return "The thread tried to access an array element that is out of bounds and the underlying hardware supports bounds checking.";
@@ -1330,8 +1700,8 @@ EmailCrashReport
   emailer originally from Raven/Quake 4
 ====================
 */
-void EmailCrashReport( LPSTR messageText ) {
-	static int lastEmailTime = 0;
+static void EmailCrashReport( LPSTR messageText ) {
+	static ID_TIME_T lastEmailTime = 0;
 
 	if ( Sys_Milliseconds() < lastEmailTime + 10000 ) {
 		return;
@@ -1341,20 +1711,20 @@ void EmailCrashReport( LPSTR messageText ) {
 
 	HINSTANCE mapi = LoadLibrary( "MAPI32.DLL" ); 
 	if( mapi ) {
-		LPMAPISENDMAIL	MAPISendMail = ( LPMAPISENDMAIL )GetProcAddress( mapi, "MAPISendMail" );
+		const LPMAPISENDMAIL	MAPISendMail = reinterpret_cast<LPMAPISENDMAIL>(GetProcAddress(mapi, "MAPISendMail"));
 		if( MAPISendMail ) {
 			MapiRecipDesc toProgrammers =
 			{
 				0,										// ulReserved
 					MAPI_TO,							// ulRecipClass
-					"DOOM 3 Crash",						// lpszName
-					"SMTP:programmers@idsoftware.com",	// lpszAddress
+					const_cast<LPSTR>("DOOM 3 BFG Crash"),						// lpszName
+					const_cast<LPSTR>("SMTP:programmers@idsoftware.com"),	// lpszAddress
 					0,									// ulEIDSize
 					nullptr									// lpEntry
 			};
 
 			MapiMessage		message = {};
-			message.lpszSubject = "DOOM 3 Fatal Error";
+			message.lpszSubject = const_cast<LPSTR>("DOOM 3 BFG Fatal Error");
 			message.lpszNoteText = messageText;
 			message.nRecipCount = 1;
 			message.lpRecips = &toProgrammers;
@@ -1371,19 +1741,28 @@ void EmailCrashReport( LPSTR messageText ) {
 	}
 }
 
-int Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse );
+size_t Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, DWORD inof, int inse, DWORD opof, int opse );
 
 /*
 ====================
 _except_handler
 ====================
 */
-EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *ExceptionRecord, void * EstablisherFrame,
-												struct _CONTEXT *ContextRecord, void * DispatcherContext ) {
+static EXCEPTION_DISPOSITION __cdecl _except_handler(const struct _EXCEPTION_RECORD *ExceptionRecord, void * EstablisherFrame,
+                                                     struct _CONTEXT *ContextRecord, void * DispatcherContext ) {
 
-	static char msg[ 8192 ];
-	char FPUFlags[2048];
+	static char msg[ 8192 ] = {};
+	char FPUFlags[2048] = {};
 
+#if defined (ID_WIN64)
+	Sys_FPU_PrintStateFlags(FPUFlags, ContextRecord->FltSave.ControlWord,
+										ContextRecord->FltSave.StatusWord,
+										ContextRecord->FltSave.TagWord,
+										ContextRecord->FltSave.ErrorOffset,
+										ContextRecord->FltSave.ErrorSelector,
+										ContextRecord->FltSave.DataOffset,
+										ContextRecord->FltSave.DataSelector);
+#else
 	Sys_FPU_PrintStateFlags( FPUFlags, ContextRecord->FloatSave.ControlWord,
 										ContextRecord->FloatSave.StatusWord,
 										ContextRecord->FloatSave.TagWord,
@@ -1391,25 +1770,37 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
 										ContextRecord->FloatSave.ErrorSelector,
 										ContextRecord->FloatSave.DataOffset,
 										ContextRecord->FloatSave.DataSelector );
-
+#endif
 
 	sprintf( msg, 
-		"Please describe what you were doing when DOOM 3 crashed!\n"
+		"Please describe what you were doing when DOOM 3 BFG crashed!\n"
 		"If this text did not pop into your email client please copy and email it to programmers@idsoftware.com\n"
 			"\n"
 			"-= FATAL EXCEPTION =-\n"
 			"\n"
 			"%s\n"
 			"\n"
-			"0x%x at address 0x%08p\n"
+			"0x%lx at address 0x%08p\n"
 			"\n"
 			"%s\n"
 			"\n"
+#if defined (ID_WIN64)
+			"RAX = 0x%08llu RBX = 0x%08llu\n"
+			"RCX = 0x%08llu RDX = 0x%08llu\n"
+			"RSI = 0x%08llu RDI = 0x%08llu\n"
+			"RBP = 0x%08llu RSP = 0x%08llu\n"
+			"R8  = 0x%08llu R9  = 0x%08llu\n"
+			"R10 = 0x%08llu R11 = 0x%08llu\n"
+			"R12 = 0x%08llu R13 = 0x%08llu\n"
+			"R14 = 0x%08llu R15 = 0x%08llu\n"
+			"RIP = 0x%08llu EFL = 0x%08lx\n"
+#else
 			"EAX = 0x%08x EBX = 0x%08x\n"
 			"ECX = 0x%08x EDX = 0x%08x\n"
 			"ESI = 0x%08x EDI = 0x%08x\n"
 			"EIP = 0x%08x ESP = 0x%08x\n"
 			"EBP = 0x%08x EFL = 0x%08x\n"
+#endif
 			"\n"
 			"CS = 0x%04x\n"
 			"SS = 0x%04x\n"
@@ -1423,11 +1814,24 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
 			ExceptionRecord->ExceptionCode,
 			ExceptionRecord->ExceptionAddress,
 			GetExceptionCodeInfo( ExceptionRecord->ExceptionCode ),
+#if defined (ID_WIN64)
+			ContextRecord->Rax, ContextRecord->Rbx,
+			ContextRecord->Rcx, ContextRecord->Rdx,
+			ContextRecord->Rsi, ContextRecord->Rdi,
+			ContextRecord->Rbp, ContextRecord->Rsp,
+			ContextRecord->R8,  ContextRecord->R9,
+			ContextRecord->R10, ContextRecord->R11,
+			ContextRecord->R12, ContextRecord->R13,
+			ContextRecord->R14, ContextRecord->R15,
+			ContextRecord->Rip,
+#else
 			ContextRecord->Eax, ContextRecord->Ebx,
 			ContextRecord->Ecx, ContextRecord->Edx,
 			ContextRecord->Esi, ContextRecord->Edi,
 			ContextRecord->Eip, ContextRecord->Esp,
-			ContextRecord->Ebp, ContextRecord->EFlags,
+			ContextRecord->Ebp,
+#endif
+			ContextRecord->EFlags,
 			ContextRecord->SegCs,
 			ContextRecord->SegSs,
 			ContextRecord->SegDs,
@@ -1461,7 +1865,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	const HCURSOR hcurSave = ::SetCursor( LoadCursor( nullptr, IDC_WAIT ) );
 
-	Sys_SetPhysicalWorkMemory( 192 << 20, 1024 << 20 );
+	Sys_SetPhysicalWorkMemory( 192ULL << 20, 1024ULL << 20 );
 
 	Sys_GetCurrentMemoryStatus( exeLaunchMemoryStats );
 
@@ -1471,7 +1875,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     {                           // Build EXCEPTION_REGISTRATION record:
         push    handler         // Address of handler function
         push    FS:[0]          // Address of previous handler
-        mov     FS:[0],ESP      // Install new EXECEPTION_REGISTRATION
+        mov     FS:[0],ESP      // Install new EXCEPTION_REGISTRATION
     }
 #endif
 
@@ -1484,13 +1888,16 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// no abort/retry/fail errors
 	SetErrorMode( SEM_FAILCRITICALERRORS );
 
-	for ( int i = 0; i < MAX_CRITICAL_SECTIONS; i++ ) {
-		InitializeCriticalSection( &win32.criticalSections[i] );
+#ifndef USE_STL_MUTEX
+	for (auto& criticalSection : win32.criticalSections)
+	{
+		InitializeCriticalSection( &criticalSection);
 	}
+#endif
 
 	// make sure the timer is high precision, otherwise
 	// NT gets 18ms resolution
-	timeBeginPeriod( 1 );
+	std::ignore = timeBeginPeriod( 1 );
 
 	// get the initial time base
 	Sys_Milliseconds();
@@ -1534,7 +1941,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 		Win_Frame();
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined (_DEBUG)
 		Sys_MemFrame();
 #endif
 

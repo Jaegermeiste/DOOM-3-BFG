@@ -43,7 +43,7 @@ public:
 
 	void			Init( idFile *f, bool compress, int wordLength );
 	void			FinishCompress();
-	float			GetCompressionRatio() const;
+					[[nodiscard]] float			GetCompressionRatio() const;
 
 	const char *	GetName();
 	const char *	GetFullPath();
@@ -236,7 +236,7 @@ public:
 
 	void			Init( idFile *f, bool compress, int wordLength );
 	void			FinishCompress();
-	float			GetCompressionRatio() const;
+					[[nodiscard]] float			GetCompressionRatio() const;
 
 	int				Write( const void *inData, int inLength );
 	int				Read( void *outData, int outLength );
@@ -302,7 +302,7 @@ ID_INLINE void idCompressor_BitStream::InitCompress( const void *inData, const i
 	readLength = inLength;
 	readByte = 0;
 	readBit = 0;
-	readData = (const byte *) inData;
+	readData = static_cast<const byte*>(inData);
 
 	if ( !writeLength ) {
 		writeLength = sizeof( buffer );
@@ -329,7 +329,7 @@ ID_INLINE void idCompressor_BitStream::InitDecompress( void *outData, int outLen
 	writeLength = outLength;
 	writeByte = 0;
 	writeBit = 0;
-	writeData = (byte *) outData;
+	writeData = static_cast<byte*>(outData);
 }
 
 /*
@@ -822,7 +822,7 @@ public:
 
 	void			Init( idFile *f, bool compress, int wordLength );
 	void			FinishCompress();
-	float			GetCompressionRatio() const;
+					[[nodiscard]] float			GetCompressionRatio() const;
 
 	int				Write( const void *inData, int inLength );
 	int				Read( void *outData, int outLength );
@@ -1249,7 +1249,7 @@ void idCompressor_Huffman::Transmit( int ch, byte *fout ) {
 		/* huffmanNode_t hasn't been transmitted, send a NYT, then the symbol */
 		Transmit( NYT, fout );
 		for ( i = 7; i >= 0; i-- ) {
-			Add_bit( (char)((ch >> i) & 0x1), fout );
+			Add_bit( static_cast<char>((ch >> i) & 0x1), fout );
 		}
 	} else {
 		Send( loc[ch], nullptr, fout );
@@ -1269,9 +1269,9 @@ int idCompressor_Huffman::Write( const void *inData, int inLength ) {
 	}
 
 	for ( i = 0; i < inLength; i++ ) {
-		ch = ((const byte *)inData)[i];
+		ch = static_cast<const byte*>(inData)[i];
 		Transmit( ch, seq );				/* Transmit symbol */
-		AddRef( (byte)ch );					/* Do update */
+		AddRef( static_cast<byte>(ch) );					/* Do update */
 		int b = (bloc>>3);
 		if ( b > 32768 ) {
 			file->Write( seq, b );
@@ -1335,8 +1335,8 @@ int idCompressor_Huffman::Read( void *outData, int outLength ) {
 			}
 		}
     
-		((byte *)outData)[i] = ch;			/* Write symbol */
-		AddRef( (byte) ch );				/* Increment node */
+		static_cast<byte*>(outData)[i] = ch;			/* Write symbol */
+		AddRef( static_cast<byte>(ch) );				/* Increment node */
 	}
 
 	compressedSize = bloc >> 3;
@@ -1412,11 +1412,11 @@ private:
 	void			UpdateProbabilities( acSymbol_t* symbol );
 	int				ProbabilityForCount( unsigned int count );
 
-	void			CharToSymbol( byte c, acSymbol_t* symbol );
+	void			CharToSymbol( byte c, acSymbol_t* symbol ) const;
 	void			EncodeSymbol( acSymbol_t* symbol );
 
 	int				SymbolFromCount( unsigned int count, acSymbol_t* symbol );
-	int				GetCurrentCount();
+					[[nodiscard]] int				GetCurrentCount() const;
 	void			RemoveSymbolFromStream( acSymbol_t* symbol );
 
 	void			PutBit( int bit );
@@ -1481,8 +1481,9 @@ void idCompressor_Arithmetic::UpdateProbabilities( acSymbol_t* symbol ) {
 idCompressor_Arithmetic::GetCurrentCount
 ================
 */
-int idCompressor_Arithmetic::GetCurrentCount() {
-    return (unsigned int) ( ( ( ( (long) code - low ) + 1 ) * scale - 1 ) / ( ( (long) high - low ) + 1 ) );
+int idCompressor_Arithmetic::GetCurrentCount() const
+{
+    return static_cast<unsigned int>(((((long)code - low) + 1) * scale - 1) / (((long)high - low) + 1));
 }
 
 /*
@@ -1553,9 +1554,9 @@ idCompressor_Arithmetic::RemoveSymbolFromStream
 void idCompressor_Arithmetic::RemoveSymbolFromStream( acSymbol_t* symbol ) {
     long range;
 
-	range	= ( long )( high - low ) + 1;
-	high	= low + ( unsigned short )( ( range * symbol->high ) / scale - 1 );
-	low		= low + ( unsigned short )( ( range * symbol->low ) / scale );
+	range	= static_cast<long>(high - low) + 1;
+	high	= low + static_cast<unsigned short>((range * symbol->high) / scale - 1);
+	low		= low + static_cast<unsigned short>((range * symbol->low) / scale);
 
     while( true ) {
 
@@ -1610,8 +1611,8 @@ void idCompressor_Arithmetic::EncodeSymbol( acSymbol_t* symbol ) {
 	
 	// rescale high and low for the new symbol.
 	range	= ( high - low ) + 1;
-	high	= low + ( unsigned short )(( range * symbol->high ) / scale - 1 );
-	low		= low + ( unsigned short )(( range * symbol->low ) / scale );
+	high	= low + static_cast<unsigned short>((range * symbol->high) / scale - 1);
+	low		= low + static_cast<unsigned short>((range * symbol->low) / scale);
 
 	while( true ) {
 		if ( ( high & AC_MSB_MASK ) == ( low & AC_MSB_MASK ) ) {
@@ -1645,7 +1646,8 @@ void idCompressor_Arithmetic::EncodeSymbol( acSymbol_t* symbol ) {
 idCompressor_Arithmetic::CharToSymbol
 ================
 */
-void idCompressor_Arithmetic::CharToSymbol( byte c, acSymbol_t* symbol ) {
+void idCompressor_Arithmetic::CharToSymbol( byte c, acSymbol_t* symbol ) const
+{
 	symbol->low			= probabilities[ c ].low;
 	symbol->high		= probabilities[ c ].high;
 	symbol->position	= c;
@@ -1825,9 +1827,9 @@ protected:
 	int				hashNext[LZSS_BLOCK_SIZE * 8];
 
 protected:
-	bool			FindMatch( int startWord, int startValue, int &wordOffset, int &numWords );
+	bool			FindMatch( int startWord, int startValue, int &wordOffset, int &numWords ) const;
 	void			AddToHash( int index, int hash );
-	int				GetWordFromBlock( int wordOffset ) const;
+					[[nodiscard]] int				GetWordFromBlock( int wordOffset ) const;
 	virtual void	CompressBlock();
 	virtual void	DecompressBlock();
 };
@@ -1853,7 +1855,8 @@ void idCompressor_LZSS::Init( idFile *f, bool compress, int wordLength ) {
 idCompressor_LZSS::FindMatch
 ================
 */
-bool idCompressor_LZSS::FindMatch( int startWord, int startValue, int &wordOffset, int &numWords ) {
+bool idCompressor_LZSS::FindMatch( int startWord, int startValue, int &wordOffset, int &numWords ) const
+{
 	int i, n, hash, bottom, maxBits;
 
 	wordOffset = startWord;
@@ -2007,12 +2010,12 @@ int idCompressor_LZSS::Write( const void *inData, int inLength ) {
 	for ( n = i = 0; i < inLength; i += n ) {
 		n = LZSS_BLOCK_SIZE - blockSize;
 		if ( inLength - i >= n ) {
-			memcpy( block + blockSize, ((const byte *)inData) + i, n );
+			memcpy( block + blockSize, static_cast<const byte*>(inData) + i, n );
 			blockSize = LZSS_BLOCK_SIZE;
 			CompressBlock();
 			blockSize = 0;
 		} else {
-			memcpy( block + blockSize, ((const byte *)inData) + i, inLength - i );
+			memcpy( block + blockSize, static_cast<const byte*>(inData) + i, inLength - i );
 			n = inLength - i;
 			blockSize += n;
 		}
@@ -2058,11 +2061,11 @@ int idCompressor_LZSS::Read( void *outData, int outLength ) {
 		}
 		n = blockSize - blockIndex;
 		if ( outLength - i >= n ) {
-			memcpy( ((byte *)outData) + i, block + blockIndex, n );
+			memcpy( static_cast<byte*>(outData) + i, block + blockIndex, n );
 			DecompressBlock();
 			blockIndex = 0;
 		} else {
-			memcpy( ((byte *)outData) + i, block + blockIndex, outLength - i );
+			memcpy( static_cast<byte*>(outData) + i, block + blockIndex, outLength - i );
 			n = outLength - i;
 			blockIndex += n;
 		}
@@ -2232,7 +2235,7 @@ public:
 
 protected:
 	int				AddToDict( int w, int k );
-	int				Lookup( int w, int k );
+					[[nodiscard]] int				Lookup( int w, int k ) const;
 
 	bool			BumpBits();
 
@@ -2313,11 +2316,11 @@ int idCompressor_LZW::Read( void *outData, int outLength ) {
 		}
 		n = blockSize - blockIndex;
 		if ( outLength - i >= n ) {
-			memcpy( ((byte *)outData) + i, block + blockIndex, n );
+			memcpy( static_cast<byte*>(outData) + i, block + blockIndex, n );
 			DecompressBlock();
 			blockIndex = 0;
 		} else {
-			memcpy( ((byte *)outData) + i, block + blockIndex, outLength - i );
+			memcpy( static_cast<byte*>(outData) + i, block + blockIndex, outLength - i );
 			n = outLength - i;
 			blockIndex += n;
 		}
@@ -2331,7 +2334,8 @@ int idCompressor_LZW::Read( void *outData, int outLength ) {
 idCompressor_LZW::Lookup
 ================
 */
-int idCompressor_LZW::Lookup( int w, int k ) {
+int idCompressor_LZW::Lookup( int w, int k ) const
+{
 	int j;
 
 	if ( w == -1 ) {

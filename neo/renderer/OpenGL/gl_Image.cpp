@@ -128,7 +128,8 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 idImage::SetPixel
 ========================
 */
-void idImage::SetPixel( int mipLevel, int x, int y, const void * data, int dataSize ) {
+void idImage::SetPixel( int mipLevel, int x, int y, const void * data, int dataSize ) const
+{
 	SubImageUpload( mipLevel, x, y, 0, 1, 1, data );
 }
 
@@ -377,7 +378,7 @@ void idImage::AllocImage() {
 	}
 
 	// generate the texture number
-	qglGenTextures( 1, (GLuint *)&texnum );
+	qglGenTextures( 1, static_cast<GLuint*>(&texnum) );
 	assert( texnum != TEXTURE_NOT_LOADED );
 
 	//----------------------------------------------------
@@ -414,7 +415,7 @@ void idImage::AllocImage() {
 			GL_CheckErrors();
 
 			if ( IsCompressed() ) {
-				int compressedSize = ( ((w+3)/4) * ((h+3)/4) * int64( 16 ) * BitsForFormat( opts.format ) ) / 8;
+				int compressedSize = ( ((w+3)/4) * ((h+3)/4) * static_cast<int64>(16) * BitsForFormat( opts.format ) ) / 8;
 
 				// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
 				// drivers we actually need to upload data to get it to allocate the texture.
@@ -457,7 +458,7 @@ idImage::PurgeImage
 */
 void idImage::PurgeImage() {
 	if ( texnum != TEXTURE_NOT_LOADED ) {
-		qglDeleteTextures( 1, (GLuint *)&texnum );	// this should be the ONLY place it is ever called!
+		qglDeleteTextures( 1, static_cast<GLuint*>(&texnum) );	// this should be the ONLY place it is ever called!
 		texnum = TEXTURE_NOT_LOADED;
 	}
 	// clear all the current binding caches, so the next bind will do a real one

@@ -184,9 +184,9 @@ public:
 	void	BindShader_MotionBlur() { BindShader_Builtin( BUILTIN_MOTION_BLUR); }
 
 	// the joints buffer should only be bound for vertex programs that use joints
-	bool	ShaderUsesJoints() const { return vertexShaders[currentVertexShader].usesJoints; }
+	[[nodiscard]] bool	ShaderUsesJoints() const { return vertexShaders[currentVertexShader].usesJoints; }
 	// the rpEnableSkinning render parm should only be set for vertex programs that use it
-	bool	ShaderHasOptionalSkinning() const { return vertexShaders[currentVertexShader].optionalSkinning; }
+	[[nodiscard]] bool	ShaderHasOptionalSkinning() const { return vertexShaders[currentVertexShader].optionalSkinning; }
 
 	// unbind the currently bound render program
 	void	Unbind();
@@ -196,8 +196,8 @@ public:
 	void	KillAllShaders();
 
 	static constexpr int	MAX_GLSL_USER_PARMS = 8;
-	const char*	GetGLSLParmName( int rp ) const;
-	int			GetGLSLCurrentProgram() const { return currentRenderProgram; }
+	[[nodiscard]] const char*	GetGLSLParmName( int rp ) const;
+	[[nodiscard]] int			GetGLSLCurrentProgram() const { return currentRenderProgram; }
 	void		SetUniformValue( const renderParm_t rp, const float * value );
 	void		CommitUniforms();
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
@@ -252,7 +252,7 @@ protected:
 
 	GLuint	LoadShader( GLenum target, const char * name, const char * startToken );
 	bool	CompileGLSL( GLenum target, const char * name );
-	GLuint	LoadGLSLShader( GLenum target, const char * name, idList<int> & uniforms );
+	GLuint	LoadGLSLShader( GLenum target, const char * name, idList<int> & uniforms ) const;
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
 
 	static constexpr GLuint INVALID_PROGID = 0xFFFFFFFF;

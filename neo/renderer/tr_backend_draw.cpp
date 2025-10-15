@@ -59,7 +59,7 @@ SetVertexParms
 */
 static ID_INLINE void SetVertexParms( renderParm_t rp, const float * value, int num ) {
 	for ( int i = 0; i < num; i++ ) {
-		renderProgManager.SetUniformValue( (renderParm_t)( rp + i ), value + ( i * 4 ) );
+		renderProgManager.SetUniformValue( static_cast<renderParm_t>(rp + i), value + ( i * 4 ) );
 	}
 }
 
@@ -131,14 +131,14 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 	if ( vertexCache.CacheIsStatic( vbHandle ) ) {
 		vertexBuffer = &vertexCache.staticData.vertexBuffer;
 	} else {
-		const uint64 frameNum = (int)( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 frameNum = static_cast<int>(vbHandle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 		if ( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) ) {
 			idLib::Warning( "RB_DrawElementsWithCounters, vertexBuffer == NULL" );
 			return;
 		}
 		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
 	}
-	const int vertOffset = (int)( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	const int vertOffset = static_cast<int>(vbHandle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
 
 	// get index buffer
 	const vertCacheHandle_t ibHandle = surf->indexCache;
@@ -146,14 +146,14 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 	if ( vertexCache.CacheIsStatic( ibHandle ) ) {
 		indexBuffer = &vertexCache.staticData.indexBuffer;
 	} else {
-		const uint64 frameNum = (int)( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 frameNum = static_cast<int>(ibHandle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 		if ( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) ) {
 			idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == NULL" );
 			return;
 		}
 		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
 	}
-	const int indexOffset = (int)( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	const int indexOffset = static_cast<int>(ibHandle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
 
 	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
@@ -198,7 +198,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
 		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), (void *)( nullptr ) );
+		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), static_cast<void*>(nullptr) );
 		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_NORMAL_OFFSET ) );
 		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_COLOR_OFFSET ) );
 		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_COLOR2_OFFSET ) );
@@ -236,10 +236,10 @@ static void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textu
 	// we attempt to keep scrolls from generating incredibly large texture values, but
 	// center rotations and center scales can still generate offsets that need to be > 1
 	if ( matrix[3*4+0] < -40.0f || matrix[12] > 40.0f ) {
-		matrix[3*4+0] -= (int)matrix[3*4+0];
+		matrix[3*4+0] -= static_cast<int>(matrix[3 * 4 + 0]);
 	}
 	if ( matrix[13] < -40.0f || matrix[13] > 40.0f ) {
-		matrix[13] -= (int)matrix[13];
+		matrix[13] -= static_cast<int>(matrix[13]);
 	}
 
 	matrix[0*4+2] = 0.0f;
@@ -787,7 +787,7 @@ static void RB_FillDepthBufferFast( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		RB_FillDepthBufferGeneric( &drawSurfs[surfNum], 1 );
 	}
 
-	const drawSurf_t ** perforatedSurfaces = (const drawSurf_t ** )_alloca( numDrawSurfs * sizeof( drawSurf_t * ) );
+	const drawSurf_t ** perforatedSurfaces = static_cast<const drawSurf_t**>(_alloca(numDrawSurfs * sizeof(drawSurf_t*)));
 	int numPerforatedSurfaces = 0;
 
 	// draw all the opaque surfaces and build up a list of perforated surfaces that
@@ -1471,14 +1471,14 @@ static void RB_StencilShadowPass( const drawSurf_t *drawSurfs, const viewLight_t
 		if ( vertexCache.CacheIsStatic( vbHandle ) ) {
 			vertexBuffer = &vertexCache.staticData.vertexBuffer;
 		} else {
-			const uint64 frameNum = (int)( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+			const uint64 frameNum = static_cast<int>(vbHandle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 			if ( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) ) {
 				idLib::Warning( "RB_DrawElementsWithCounters, vertexBuffer == NULL" );
 				continue;
 			}
 			vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
 		}
-		const int vertOffset = (int)( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		const int vertOffset = static_cast<int>(vbHandle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
 
 		// get index buffer
 		const vertCacheHandle_t ibHandle = drawSurf->indexCache;
@@ -1486,14 +1486,14 @@ static void RB_StencilShadowPass( const drawSurf_t *drawSurfs, const viewLight_t
 		if ( vertexCache.CacheIsStatic( ibHandle ) ) {
 			indexBuffer = &vertexCache.staticData.indexBuffer;
 		} else {
-			const uint64 frameNum = (int)( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+			const uint64 frameNum = static_cast<int>(ibHandle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 			if ( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) ) {
 				idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == NULL" );
 				continue;
 			}
 			indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
 		}
-		const uint64 indexOffset = (int)( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		const uint64 indexOffset = static_cast<int>(ibHandle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
 
 		RENDERLOG_PRINTF( "Binding Buffers: %p %p\n", vertexBuffer, indexBuffer );
 
@@ -1527,7 +1527,7 @@ static void RB_StencilShadowPass( const drawSurf_t *drawSurfs, const viewLight_t
 				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
 				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 
-				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVertSkinned ), (void *)( SHADOWVERTSKINNED_XYZW_OFFSET ) );
+				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVertSkinned ), static_cast<void*>((SHADOWVERTSKINNED_XYZW_OFFSET)) );
 				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), (void *)( SHADOWVERTSKINNED_COLOR_OFFSET ) );
 				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), (void *)( SHADOWVERTSKINNED_COLOR2_OFFSET ) );
 
@@ -1547,7 +1547,7 @@ static void RB_StencilShadowPass( const drawSurf_t *drawSurfs, const viewLight_t
 				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
 				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 
-				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), (void *)( SHADOWVERT_XYZW_OFFSET ) );
+				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), static_cast<void*>((SHADOWVERT_XYZW_OFFSET)) );
 
 				backEnd.glState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT;
 			}
@@ -1982,7 +1982,7 @@ static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, cons
 					parm[1] = regs[ newStage->vertexParms[j][1] ];
 					parm[2] = regs[ newStage->vertexParms[j][2] ];
 					parm[3] = regs[ newStage->vertexParms[j][3] ];
-					SetVertexParm( (renderParm_t)( RENDERPARM_USER + j ), parm );
+					SetVertexParm( static_cast<renderParm_t>(RENDERPARM_USER + j), parm );
 				}
 
 				// set rpEnableSkinning if the shader has optional support for skinning
@@ -2724,7 +2724,7 @@ void RB_MotionBlur() {
 	renderProgManager.BindShader_MotionBlur();
 
 	// let the fragment program know how many samples we are going to use
-	idVec4 samples( (float)( 1 << r_motionBlur.GetInteger() ) );
+	idVec4 samples( static_cast<float>(1 << r_motionBlur.GetInteger()) );
 	SetFragmentParm( RENDERPARM_OVERBRIGHT, samples.ToFloatPtr() );
 
 	GL_SelectTexture( 0 );
@@ -2746,7 +2746,7 @@ is 0, so the stereoEye parameter is not always the same as that.
 ==================
 */
 void RB_DrawView( const void *data, const int stereoEye ) {
-	const drawSurfsCommand_t * cmd = (const drawSurfsCommand_t *)data;
+	const drawSurfsCommand_t * cmd = static_cast<const drawSurfsCommand_t*>(data);
 
 	backEnd.viewDef = cmd->viewDef;
 
@@ -2813,7 +2813,7 @@ Copy part of the current framebuffer to an image
 ==================
 */
 void RB_CopyRender( const void *data ) {
-	const copyRenderCommand_t * cmd = (const copyRenderCommand_t *)data;
+	const copyRenderCommand_t * cmd = static_cast<const copyRenderCommand_t*>(data);
 
 	if ( r_skipCopyTexture.GetBool() ) {
 		return;

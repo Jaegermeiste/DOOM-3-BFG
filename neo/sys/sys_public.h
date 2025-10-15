@@ -39,24 +39,41 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-enum cpuid_t {
+enum cpuid_t : uint64 {
 	CPUID_NONE							= 0x00000,
-	CPUID_UNSUPPORTED					= 0x00001,	// unsupported (386/486)
-	CPUID_GENERIC						= 0x00002,	// unrecognized processor
-	CPUID_INTEL							= 0x00004,	// Intel
-	CPUID_AMD							= 0x00008,	// AMD
-	CPUID_MMX							= 0x00010,	// Multi Media Extensions
-	CPUID_3DNOW							= 0x00020,	// 3DNow!
-	CPUID_SSE							= 0x00040,	// Streaming SIMD Extensions
-	CPUID_SSE2							= 0x00080,	// Streaming SIMD Extensions 2
-	CPUID_SSE3							= 0x00100,	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
-	CPUID_ALTIVEC						= 0x00200,	// AltiVec
-	CPUID_HTT							= 0x01000,	// Hyper-Threading Technology
-	CPUID_CMOV							= 0x02000,	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
-	CPUID_FTZ							= 0x04000,	// Flush-To-Zero mode (denormal results are flushed to zero)
-	CPUID_DAZ							= 0x08000,	// Denormals-Are-Zero mode (denormal source operands are set to zero)
-	CPUID_XENON							= 0x10000,	// Xbox 360
-	CPUID_CELL							= 0x20000	// PS3
+	CPUID_UNSUPPORTED					= 0x00001,	 // unsupported (386/486)
+	CPUID_GENERIC						= 0x00002,	 // unrecognized processor
+	CPUID_INTEL							= 0x00004,	 // Intel
+	CPUID_AMD							= 0x00008,	 // AMD
+	CPUID_MMX							= 0x00010,	 // Multi Media Extensions
+	CPUID_3DNOW							= 0x00020,	 // 3DNow!
+	CPUID_SSE							= 0x00040,	 // Streaming SIMD Extensions
+	CPUID_SSE2							= 0x00080,	 // Streaming SIMD Extensions 2
+	CPUID_SSE3							= 0x00100,	 // Streaming SIMD Extensions 3 aka Prescott's New Instructions
+	CPUID_ALTIVEC						= 0x00200,	 // AltiVec
+	CPUID_SMT							= 0x01000,	 // Hyper-Threading Technology
+	CPUID_CMOV							= 0x02000,	 // Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
+	CPUID_FTZ							= 0x04000,	 // Flush-To-Zero mode (denormal results are flushed to zero)
+	CPUID_DAZ							= 0x08000,	 // Denormals-Are-Zero mode (denormal source operands are set to zero)
+	CPUID_XENON							= 0x10000,	 // Xbox 360
+	CPUID_CELL							= 0x20000,	 // PS3
+
+	CPUID_SSSE3                         = 0x40000,	 // Supplemental Streaming SIMD Extensions 3
+	CPUID_SSE4_1                        = 0x80000,	 // Streaming SIMD Extensions 4.1
+	CPUID_SSE4_2                        = 0x100000,	 // Streaming SIMD Extensions 4.2
+	CPUID_AVX                           = 0x200000,	 // Advanced Vector Extensions
+	CPUID_AVX2                          = 0x400000,	 // Advanced Vector Extensions 2
+	CPUID_AVX512F                       = 0x800000,	 // Advanced Vector Extensions 512 Foundation
+	CPUID_FMA3                          = 0x1000000, // Fused Multiply Add 3
+
+	CPUID_32BIT                         = 0x4000000, // Any 32-bit processor
+	CPUID_64BIT                         = 0x8000000, // Any 64-bit processor
+
+	CPUID_ARM                           = 0x10000000, // Any ARM processor
+	CPUID_NEON                          = 0x20000000, // ARM NEON
+	CPUID_SVE                           = 0x40000000, // ARM SVE
+	CPUID_SVE2                          = 0x80000000, // ARM SVE2
+	CPUID_SVE2_1                        = 0x100000000 // ARM SVE2.1
 };
 
 enum fpuExceptions_t {
@@ -365,39 +382,46 @@ struct sysEvent_t {
 	sysEventType_t	evType;
 	int				evValue;
 	int				evValue2;
-	int				evPtrLength;		// bytes of data pointed to by evPtr, for journaling
+	size_t			evPtrLength;		// bytes of data pointed to by evPtr, for journaling
 	void *			evPtr;				// this must be manually freed if not NULL
 
 	int				inputDevice;
-	bool			IsKeyEvent() const { return evType == SE_KEY; }
-	bool			IsMouseEvent() const { return evType == SE_MOUSE; }
-	bool			IsCharEvent() const { return evType == SE_CHAR; }
-	bool			IsJoystickEvent() const { return evType == SE_JOYSTICK; }
-	bool			IsKeyDown() const { return evValue2 != 0; }
-	keyNum_t		GetKey() const { return static_cast< keyNum_t >( evValue ); }
-	int				GetXCoord() const { return evValue; }
-	int				GetYCoord() const { return evValue2; }
+	[[nodiscard]] bool			IsKeyEvent() const { return evType == SE_KEY; }
+	[[nodiscard]] bool			IsMouseEvent() const { return evType == SE_MOUSE; }
+	[[nodiscard]] bool			IsCharEvent() const { return evType == SE_CHAR; }
+	[[nodiscard]] bool			IsJoystickEvent() const { return evType == SE_JOYSTICK; }
+	[[nodiscard]] bool			IsKeyDown() const { return evValue2 != 0; }
+	[[nodiscard]] keyNum_t		GetKey() const { return static_cast< keyNum_t >( evValue ); }
+	[[nodiscard]] int			GetXCoord() const { return evValue; }
+	[[nodiscard]] int			GetYCoord() const { return evValue2; }
 };
 
 struct sysMemoryStats_t {
-	int memoryLoad;
-	int totalPhysical;
-	int availPhysical;
-	int totalPageFile;
-	int availPageFile;
-	int totalVirtual;
-	int availVirtual;
-	int availExtendedVirtual;
+	uint32 memoryLoad;
+	size_t totalPhysical;
+	size_t availPhysical;
+	size_t totalPageFile;
+	size_t availPageFile;
+	size_t totalVirtual;
+	size_t availVirtual;
+	size_t availExtendedVirtual;
 };
 
+#if defined (ID_WIN64) || defined (ID_WIN32)
+typedef INT_PTR address_t;
+typedef HINSTANCE dllHandle_t;
+#else
 typedef unsigned long address_t;
+typedef int dllHandle_t;
+#endif // defined (ID_WIN64) || defined (ID_WIN32)
+
 
 void			Sys_Init();
 void			Sys_Shutdown();
 void			Sys_Error( const char *error, ...);
 const char *	Sys_GetCmdLine();
-void			Sys_ReLaunch( void * launchData, unsigned int launchDataSize );
-void			Sys_Launch( const char * path, idCmdArgs & args,  void * launchData, unsigned int launchDataSize );
+void			Sys_ReLaunch( void * launchData, size_t launchDataSize );
+void			Sys_Launch( const char * path, idCmdArgs & args,  void * launchData, size_t launchDataSize );
 void			Sys_SetLanguageFromSystem();
 const char *	Sys_DefaultLanguage();
 void			Sys_Quit();
@@ -417,16 +441,16 @@ void			Sys_DebugPrintf( VERIFY_FORMAT_STRING const char *fmt, ... );
 void			Sys_DebugVPrintf( const char *fmt, va_list arg );
 
 // a decent minimum sleep time to avoid going below the process scheduler speeds
-#define			SYS_MINSLEEP	20
+constexpr auto SYS_MINSLEEP = 20;
 
 // allow game to yield CPU time
 // NOTE: due to SYS_MINSLEEP this is very bad portability karma, and should be completely removed
-void			Sys_Sleep( int msec );
+void			Sys_Sleep( const uint32 msec );
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
-int				Sys_Milliseconds();
-uint64			Sys_Microseconds();
+ID_TIME_T		Sys_Milliseconds();
+ID_TIME_T		Sys_Microseconds();
 
 // for accurate performance testing
 double			Sys_GetClockTicks();
@@ -452,7 +476,7 @@ void			Sys_FPU_EnableExceptions( int exceptions );
 void			Sys_FPU_SetPrecision( int precision );
 
 // sets the FPU rounding mode
-void			Sys_FPU_SetRounding( int rounding );
+void			Sys_FPU_SetRounding( uint8 rounding );
 
 // sets Flush-To-Zero mode (only available when CPUID_FTZ is set)
 void			Sys_FPU_SetFTZ( bool enable );
@@ -461,39 +485,39 @@ void			Sys_FPU_SetFTZ( bool enable );
 void			Sys_FPU_SetDAZ( bool enable );
 
 // returns amount of system ram
-int				Sys_GetSystemRam();
+size_t			Sys_GetSystemRam();
 
 // returns amount of video ram
-int				Sys_GetVideoRam();
+size_t			Sys_GetVideoRam();
 
 // returns amount of drive space in path
-int				Sys_GetDriveFreeSpace( const char *path );
+size_t			Sys_GetDriveFreeSpace( const char *path );
 
 // returns amount of drive space in path in bytes
-int64			Sys_GetDriveFreeSpaceInBytes( const char * path );
+size_t			Sys_GetDriveFreeSpaceInBytes( const char * path );
 
 // returns memory stats
 void			Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats );
 void			Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t &stats );
 
 // lock and unlock memory
-bool			Sys_LockMemory( void *ptr, int bytes );
-bool			Sys_UnlockMemory( void *ptr, int bytes );
+bool			Sys_LockMemory( void *ptr, size_t bytes );
+bool			Sys_UnlockMemory( void *ptr, size_t bytes );
 
 // set amount of physical work memory
-void			Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes );
+void			Sys_SetPhysicalWorkMemory(size_t minBytes, size_t maxBytes );
 
 // allows retrieving the call stack at execution points
-void			Sys_GetCallStack( address_t *callStack, const int callStackSize );
-const char *	Sys_GetCallStackStr( const address_t *callStack, const int callStackSize );
-const char *	Sys_GetCallStackCurStr( int depth );
-const char *	Sys_GetCallStackCurAddressStr( int depth );
+size_t			Sys_GetCallStack( address_t *callStack, const size_t callStackSize, const size_t skipFrames );
+const char *	Sys_GetCallStackStr( const address_t *callStack, const size_t callStackSize );
+const char *	Sys_GetCallStackCurStr( const size_t depth );
+const char *	Sys_GetCallStackCurAddressStr( const size_t depth );
 void			Sys_ShutdownSymbols();
 
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
-int				Sys_DLL_Load( const char *dllName );
-void *			Sys_DLL_GetProcAddress( int dllHandle, const char *procName );
-void			Sys_DLL_Unload( int dllHandle );
+dllHandle_t		Sys_DLL_Load( const char* dllName );
+address_t		Sys_DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName );
+void			Sys_DLL_Unload( dllHandle_t dllHandle );
 
 // event generation
 void			Sys_GenerateEvents();
@@ -553,18 +577,18 @@ void			Sys_SetFatalError( const char *error );
 typedef bool ( *execProcessWorkFunction_t )();
 typedef void ( *execOutputFunction_t)( const char * text );
 bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args, 
-	execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const int waitMS,
+	execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const uint32 waitMS,
 	unsigned int & exitCode );
 
 // localization
 
-#define ID_LANG_ENGLISH		"english"
-#define ID_LANG_FRENCH		"french"
-#define ID_LANG_ITALIAN		"italian"
-#define ID_LANG_GERMAN		"german"
-#define ID_LANG_SPANISH		"spanish"
-#define ID_LANG_JAPANESE	"japanese"
-int Sys_NumLangs();
+constexpr auto ID_LANG_ENGLISH  = "english";
+constexpr auto ID_LANG_FRENCH   = "french";
+constexpr auto ID_LANG_ITALIAN  = "italian";
+constexpr auto ID_LANG_GERMAN   = "german";
+constexpr auto ID_LANG_SPANISH  = "spanish";
+constexpr auto ID_LANG_JAPANESE = "japanese";
+size_t Sys_NumLangs();
 const char * Sys_Lang( int idx );
 
 /*
@@ -604,9 +628,9 @@ public:
 	// if the InitForPort fails, the idUDP.port field will remain 0
 	bool		InitForPort( int portNumber );
 
-	int			GetPort() const { return bound_to.port; }
-	netadr_t	GetAdr() const { return bound_to; }
-	uint32		GetUIntAdr() const { return ( bound_to.ip[0] | bound_to.ip[1] << 8 | bound_to.ip[2] << 16 | bound_to.ip[3] << 24 ); }
+	[[nodiscard]] int			GetPort() const { return bound_to.port; }
+	[[nodiscard]] netadr_t	GetAdr() const { return bound_to; }
+	[[nodiscard]] uint32		GetUIntAdr() const { return ( bound_to.ip[0] | bound_to.ip[1] << 8 | bound_to.ip[2] << 16 | bound_to.ip[3] << 24 ); }
 	void		Close();
 
 	bool		GetPacket( netadr_t &from, void *data, int &size, int maxSize );
@@ -617,7 +641,7 @@ public:
 	void		SendPacket( const netadr_t to, const void *data, int size );
 
 	void		SetSilent( bool silent ) { this->silent = silent; }
-	bool		GetSilent() const { return silent; }
+	[[nodiscard]] bool		GetSilent() const { return silent; }
 
 	int			packetsRead;
 	int			bytesRead;
@@ -625,7 +649,7 @@ public:
 	int			packetsWritten;
 	int			bytesWritten;
 
-	bool		IsOpen() const { return netSocket > 0; }
+	[[nodiscard]] bool		IsOpen() const { return netSocket > 0; }
 
 private:
 	netadr_t	bound_to;		// interface and port
@@ -705,9 +729,9 @@ public:
 	virtual const char *	GetCallStackCurStr( int depth ) = 0;
 	virtual void			ShutdownSymbols() = 0;
 
-	virtual int				DLL_Load( const char *dllName ) = 0;
-	virtual void *			DLL_GetProcAddress( int dllHandle, const char *procName ) = 0;
-	virtual void			DLL_Unload( int dllHandle ) = 0;
+	virtual dllHandle_t		DLL_Load( const char *dllName ) = 0;
+	virtual address_t		DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName ) = 0;
+	virtual void			DLL_Unload( dllHandle_t dllHandle ) = 0;
 	virtual void			DLL_GetFileName( const char *baseName, char *dllName, int maxLength ) = 0;
 
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down ) = 0;

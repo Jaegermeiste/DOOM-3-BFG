@@ -75,43 +75,43 @@ public:
 	void			SetDefaults();
 	bool			Serialize( idSerializer & ser );
 
-	const int		GetDeviceNumForProfile() const { return deviceNum; }
+	[[nodiscard]] const int		GetDeviceNumForProfile() const { return deviceNum; }
 	void			SetDeviceNumForProfile( int num ) { deviceNum = num; }
 	void			SaveSettings( bool forceDirty );
 	void			LoadSettings();
-	state_t			GetState() const { return state; }
-	state_t			GetRequestedState() const { return requestedState; }
-	bool			IsDirty() { return dirty; }
+	[[nodiscard]] state_t			GetState() const { return state; }
+	[[nodiscard]] state_t			GetRequestedState() const { return requestedState; }
+	[[nodiscard]] bool			IsDirty() const { return dirty; }
 
-	bool			GetAchievement( const int id ) const;
+	[[nodiscard]] bool			GetAchievement( const int id ) const;
 	void			SetAchievement( const int id );
 	void			ClearAchievement( const int id );
 
-	int				GetDlcReleaseVersion() const { return dlcReleaseVersion; }
+	[[nodiscard]] int				GetDlcReleaseVersion() const { return dlcReleaseVersion; }
 	void			SetDlcReleaseVersion( int version ) { dlcReleaseVersion = version; }
 
-	int				GetLevel() const { return 0; }
+	[[nodiscard]] int				GetLevel() const { return 0; }
 
 	//------------------------
 	// Config
 	//------------------------
-	int				GetConfig() const { return configSet; }
+	[[nodiscard]] int				GetConfig() const { return configSet; }
 	void			SetConfig( int config, bool save );
 	void			RestoreDefault();
 
 	void			SetLeftyFlip( bool lf );
-	bool			GetLeftyFlip() const { return leftyFlip; }
+	[[nodiscard]] bool			GetLeftyFlip() const { return leftyFlip; }
 
 private:
 	void			StatSetInt( int s, int v );
 	void			StatSetFloat( int s, float v );
-	int				StatGetInt( int s ) const;
-	float			StatGetFloat( int s ) const;
+	[[nodiscard]] int				StatGetInt( int s ) const;
+	[[nodiscard]] float			StatGetFloat( int s ) const;
 	void			SetState( state_t value ) { state = value; }
 	void			SetRequestedState( state_t value ) { requestedState = value; }
 	void			MarkDirty( bool isDirty ) { dirty = isDirty; }
 
-	void			ExecConfig( bool save = false, bool forceDefault = false );
+	void			ExecConfig( bool save = false, bool forceDefault = false ) const;
 
 protected:
 	// Do not save:

@@ -239,7 +239,7 @@ localUserHandle_t idSignInManagerBase::GetUniqueLocalUserHandle( const char * na
 		localUserHandle_t::userHandleType_t tempHandle = 0;
 
 		for ( int j = 0; j < STRIDE_BYTES; j++ ) {
-			tempHandle |= ( ( localUserHandle_t::userHandleType_t )digest[ ( i * STRIDE_BYTES ) + j ] ) << ( j * 8 );
+			tempHandle |= static_cast<localUserHandle_t::userHandleType_t>(digest[(i * STRIDE_BYTES) + j]) << ( j * 8 );
 		}
 
 		handle ^= tempHandle;

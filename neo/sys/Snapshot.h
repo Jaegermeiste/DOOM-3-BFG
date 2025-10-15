@@ -48,10 +48,10 @@ public:
 	// clears the snapshot
 	void Clear();
 
-	int  GetTime() const { return time; }
+	[[nodiscard]] int  GetTime() const { return time; }
 	void SetTime( int t ) { time = t; }
 
-	int  GetRecvTime() const { return recvTime; }
+	[[nodiscard]] int  GetRecvTime() const { return recvTime; }
 	void SetRecvTime( int t ) { recvTime = t; }
 
 	// Loads only sequence and baseSequence values from the compressed stream
@@ -63,19 +63,19 @@ public:
 
 	// Writes an object state packet which is delta compressed against the old snapshot
 	struct objectBuffer_t {
-		objectBuffer_t() : data(nullptr), size( 0 ) { }
+		objectBuffer_t() noexcept : data(nullptr), size( 0 ) { }
 		objectBuffer_t( int s ) : data(nullptr), size( s ) { Alloc( s ); }
 		objectBuffer_t( const objectBuffer_t & o ) : data(nullptr), size( 0 ) { *this = o; }
 		~objectBuffer_t() { _Release(); }
-		void Alloc( int size );
-		int NumRefs() { return data == nullptr ? 0 : data[size]; }
-		objectSize_t Size() const { return size; }
-		byte * Ptr() { return data == nullptr ? nullptr : data ; }
-		byte & operator[]( int i ) { return data[i]; }
+		void Alloc(size_t size );
+		[[nodiscard]] int NumRefs() const { return data == nullptr ? 0 : data[size]; }
+		[[nodiscard]] objectSize_t Size() const { return size; }
+		[[nodiscard]] byte * Ptr() const { return data == nullptr ? nullptr : data ; }
+		byte & operator[]( int i ) const { return data[i]; }
 		void operator=( const objectBuffer_t & other );
 
 		// (not making private because of idSnapshot)
-		void _AddRef();
+		void _AddRef() const;
 		void _Release();
 	private:
 		byte *			data;
@@ -83,7 +83,7 @@ public:
 	};
 
 	struct objectState_t {
-		objectState_t() : 
+		objectState_t() noexcept :
 			objectNum( 0 ),
 			visMask( MAX_UNSIGNED_TYPE( uint32 ) ),
 			stale( false ),
@@ -93,30 +93,30 @@ public:
 			
 			expectedSequence( 0 )
 			{ }
-		void Print( const char * name );
+		void Print( const char * name ) const;
 
 		uint16			objectNum;
 		objectBuffer_t	buffer;
 		uint32			visMask;
 		bool			stale;			// easy way for clients to check if ss obj is stale. Probably temp till client side of vismask system is more fleshed out
 		bool			deleted;
-		int				changedCount;	// Incremented each time the state changed
+		size_t			changedCount;	// Incremented each time the state changed
 		int				expectedSequence;
 		bool			createdFromTemplate;
 	};
 
 	struct submitDeltaJobsInfo_t {
 		objParms_t *		objParms;				// Start of object parms
-		int					maxObjParms;			// Max parms (which will dictate how many objects can be processed)
+		size_t				maxObjParms;			// Max parms (which will dictate how many objects can be processed)
 		uint8 *				objMemory;				// Memory that objects were written out to
 		objHeader_t *		headers;				// Memory for headers
-		int					maxHeaders;
-		int					maxObjMemory;			// Max memory (which will dictate when syncs need to occur)
+		size_t				maxHeaders;
+		size_t				maxObjMemory;			// Max memory (which will dictate when syncs need to occur)
 		lzwParm_t *			lzwParms;				// Start of lzw parms
-		int					maxDeltaParms;			// Max lzw parms (which will dictate how many syncs we can have)
+		size_t				maxDeltaParms;			// Max lzw parms (which will dictate how many syncs we can have)
 		
 		idSnapShot *		oldSnap;				// snap we are comparing this snap to (to produce a delta)
-		int					visIndex; 
+		size_t				visIndex;
 		int					baseSequence;
 
 		idSnapShot *		templateStates;			// states for new snapObj that arent in old states
@@ -136,24 +136,24 @@ public:
 	int CompareObject( const idSnapShot * oldss, int objectNum, int start=0, int end=0, int oldStart=0 );
 
 	// returns the number of objects in this snapshot
-	int NumObjects() const { return objectStates.Num(); }
+	[[nodiscard]] size_t NumObjects() const { return objectStates.Num(); }
 
 	// Returns the object number of the specified object, also fills the bitmsg
 	int GetObjectMsgByIndex( int i, idBitMsg & msg, bool ignoreIfStale = false ) const;
 
 	// returns true if the object was found in the snapshot
-	bool GetObjectMsgByID( int objectNum, idBitMsg & msg, bool ignoreIfStale = false ) { return GetObjectMsgByIndex( FindObjectIndexByID( objectNum ), msg, ignoreIfStale ) == objectNum; }
+	bool GetObjectMsgByID( int objectNum, idBitMsg & msg, bool ignoreIfStale = false ) const { return GetObjectMsgByIndex( FindObjectIndexByID( objectNum ), msg, ignoreIfStale ) == objectNum; }
 
 	// returns the object index or -1 if it's not found
-	int FindObjectIndexByID( int objectNum ) const;
+	[[nodiscard]] int FindObjectIndexByID( int objectNum ) const;
 	
 	// returns the object by id, or NULL if not found
-	objectState_t *	FindObjectByID( int objectNum ) const;
+	[[nodiscard]] objectState_t *	FindObjectByID( int objectNum ) const;
 
 	// Returns whether or not an object is stale
-	bool ObjectIsStaleByIndex( int i ) const;
+	[[nodiscard]] bool ObjectIsStaleByIndex( int i ) const;
 
-	int ObjectChangedCountByIndex( int i ) const;
+	[[nodiscard]] int ObjectChangedCountByIndex( int i ) const;
 
 	// clears the empty states from the snapshot snapshot
 	void CleanupEmptyStates();
@@ -175,7 +175,7 @@ private:
 	int													time;
 	int													recvTime;
 
-	int				BinarySearch( int objectNum ) const;
+	[[nodiscard]] int				BinarySearch( int objectNum ) const;
 	objectState_t &	FindOrCreateObjectByID( int objectNum );					// objIndex is optional parm for returning the index of the obj
 
 	void			SubmitObjectJob(	const submitDeltaJobsInfo_t &	submitDeltaJobsInfo,		// Struct containing parameters originally passed in to SubmitWriteDeltaToJobs
@@ -192,7 +192,7 @@ private:
 		objParms_t *&					curObjParm,			// Current obj parm
 		lzwParm_t *&					curlzwParm,			// Current delta parm
 		bool							saveDictionary		// If true, this is the first of several calls which will be appended
-	);		
+	) const;		
 	
 	void WriteObject( idFile * file, int visIndex, objectState_t * newState, objectState_t * oldState, int & lastobjectNum );
 	void FreeObjectState( int index );

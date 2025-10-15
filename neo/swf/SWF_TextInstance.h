@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __SWF_TEXTINSTANCE_H__
 
 struct subTimingWordData_t {
-	subTimingWordData_t() {
+	subTimingWordData_t() noexcept {
 		startTime = 0;
 		forceBreak = false;
 	}
@@ -48,19 +48,19 @@ public:
 
 	idSWFScriptObject * GetScriptObject() { return &scriptObject; }
 
-	bool	GetHasDropShadow() { return useDropShadow; }
-	bool	HasStroke() { return useStroke; }
-	float	GetStrokeStrength() { return strokeStrength; }
-	float	GetStrokeWeight() { return strokeWeight; }
+	[[nodiscard]] bool	GetHasDropShadow() const { return useDropShadow; }
+	[[nodiscard]] bool	HasStroke() const { return useStroke; }
+	[[nodiscard]] float	GetStrokeStrength() const { return strokeStrength; }
+	[[nodiscard]] float	GetStrokeWeight() const { return strokeWeight; }
 
 	// used for when text has random render mode set 
-	bool	IsGeneratingRandomText() { return generatingText; }
+	[[nodiscard]] bool	IsGeneratingRandomText() const { return generatingText; }
 	void	StartRandomText( int time );	
 	idStr	GetRandomText( int time );
 	void	StartParagraphText( int time );
 	idStr	GetParagraphText( int time );
-	bool	NeedsGenerateRandomText() { return triggerGenerate; }
-	bool	NeedsSoundPlayed();
+	[[nodiscard]] bool	NeedsGenerateRandomText() const { return triggerGenerate; }
+	[[nodiscard]] bool	NeedsSoundPlayed() const;
 	void	ClearPlaySound() { needsSoundUpdate = false; }
 	idStr	GetSoundClip() { return soundClip; }
 	void	SetIgnoreColor( bool ignore ) { ignoreColor = ignore; }
@@ -72,28 +72,28 @@ public:
 	// subtitle functions
 	void	SwitchSubtitleText( int time );
 	bool	UpdateSubtitle( int time );
-	bool	IsSubtitle() { return isSubtitle; }
-	bool	IsUpdatingSubtitle() { return subUpdating; }
+	[[nodiscard]] bool	IsSubtitle() const { return isSubtitle; }
+	[[nodiscard]] bool	IsUpdatingSubtitle() const { return subUpdating; }
 	void	SetSubEndIndex( int endChar, int time );
-	int		GetLastWordIndex() { return subLastWordIndex; }
-	int		GetPrevLastWordIndex() { return subPrevLastWordIndex; }
+	[[nodiscard]] int		GetLastWordIndex() const { return subLastWordIndex; }
+	[[nodiscard]] int		GetPrevLastWordIndex() const { return subPrevLastWordIndex; }
 	void	LastWordChanged( int wordCount, int time );
 	void	SetSubStartIndex( int value ) { subCharStartIndex = value; }
-	int		GetSubEndIndex() { return subCharEndIndex; }
-	int		GetSubStartIndex() { return subCharStartIndex; }
+	[[nodiscard]] int		GetSubEndIndex() const { return subCharEndIndex; }
+	[[nodiscard]] int		GetSubStartIndex() const { return subCharStartIndex; }
 	void	SetSubNextStartIndex( int value );
 	int		GetApporoximateSubtitleBreak( int time );
-	bool	SubNeedsSwitch() { return subNeedsSwitch; }
-	idStr	GetPreviousText() { return subtitleText.c_str(); }
+	[[nodiscard]] bool	SubNeedsSwitch() const { return subNeedsSwitch; }
+	[[nodiscard]] idStr	GetPreviousText() const { return subtitleText.c_str(); }
 	void	SubtitleComplete();
-	int		GetSubAlignment() { return subAlign; }
-	idStr	GetSpeaker() { return subSpeaker.c_str(); }
+	[[nodiscard]] int		GetSubAlignment() const { return subAlign; }
+	[[nodiscard]] idStr	GetSpeaker() const { return subSpeaker.c_str(); }
 	void	SubtitleCleanup();
 	float	GetTextLength();
-	int		GetInputStartChar( ) { return inputTextStartChar; }
+	[[nodiscard]] int		GetInputStartChar( ) const { return inputTextStartChar; }
 	void	SetInputStartCharacter( int c ) { inputTextStartChar = c; }
 
-	const idSWFEditText * GetEditText() const { return editText; }
+	[[nodiscard]] const idSWFEditText * GetEditText() const { return editText; }
 	void	SetText( idStr val ) { text = val; lengthCalculated = false; }
 
 	// Removing the private access control statement due to cl 214702

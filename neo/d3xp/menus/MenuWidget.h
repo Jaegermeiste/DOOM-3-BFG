@@ -295,7 +295,7 @@ public:
 
 	void Set( idSWFScriptFunction * function ) {
 		action = WIDGET_ACTION_FUNCTION;
-		if ( scriptFunction != NULL ) {
+		if ( scriptFunction != nullptr ) {
 			scriptFunction->Release();
 		}
 		scriptFunction = function;

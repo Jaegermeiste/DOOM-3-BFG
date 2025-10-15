@@ -48,7 +48,7 @@ public:
 	virtual void				GetOwnerAddress( lobbyAddress_t & outAddr );
 	virtual void				SetIsJoinable( bool joinable );	
 	virtual lobbyConnectInfo_t	GetConnectInfo();
-	virtual bool				IsOwnerOfConnectInfo( const lobbyConnectInfo_t & connectInfo ) const;
+	[[nodiscard]] virtual bool				IsOwnerOfConnectInfo( const lobbyConnectInfo_t & connectInfo ) const;
 	virtual void				Pump();
 	virtual void				UpdateMatchParms( const idMatchParameters & p );
 	virtual void				UpdateLobbySkill( float lobbySkill );

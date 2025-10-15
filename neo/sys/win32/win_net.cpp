@@ -161,7 +161,7 @@ void Net_NetadrToSockadr( const netadr_t *a, sockaddr_in *s ) {
 		s->sin_addr.s_addr = *(int *)a->ip;
 	}
 
-	s->sin_port = htons( (short)a->port );
+	s->sin_port = htons( static_cast<short>(a->port) );
 }
 
 /*
@@ -306,7 +306,7 @@ int NET_IPSocket( const char *net_interface, int port, netadr_t *bound_to ) {
 		address.sin_port = 0;
 	}
 	else {
-		address.sin_port = htons( (short)port );
+		address.sin_port = htons( static_cast<short>(port) );
 	}
 
 	address.sin_family = AF_INET;
@@ -360,7 +360,7 @@ void NET_OpenSocks( int port ) {
 	}
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = *(int *)h->h_addr_list[0];
-	address.sin_port = htons( (short)net_socksPort.GetInteger() );
+	address.sin_port = htons( static_cast<short>(net_socksPort.GetInteger()) );
 
 	if ( connect( socks_socket, (sockaddr *)&address, sizeof( address ) ) == SOCKET_ERROR ) {
 		idLib::Printf( "NET_OpenSocks: connect: %s\n", NET_ErrorString() );
@@ -461,7 +461,7 @@ void NET_OpenSocks( int port ) {
 	buf[2] = 0;		// reserved
 	buf[3] = 1;		// address type: IPV4
 	*(int *)&buf[4] = INADDR_ANY;
-	*(short *)&buf[8] = htons( (short)port );		// port
+	*(short *)&buf[8] = htons( static_cast<short>(port) );		// port
 	if ( send( socks_socket, (const char *)buf, 10, 0 ) == SOCKET_ERROR ) {
 		idLib::Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 		return;
@@ -618,7 +618,7 @@ void Net_SendUDPPacket( int netSocket, int length, const void *data, const netad
 		memcpy( &socksBuf[10], data, length );
 		ret = sendto( netSocket, socksBuf, length+10, 0, (sockaddr *)&socksRelayAddr, sizeof(socksRelayAddr) );
 	} else {
-		ret = sendto( netSocket, (const char *)data, length, 0, (sockaddr *)&addr, sizeof(addr) );
+		ret = sendto( netSocket, static_cast<const char*>(data), length, 0, (sockaddr *)&addr, sizeof(addr) );
 	}
 	if ( ret == SOCKET_ERROR ) {
 		int err = WSAGetLastError();
@@ -664,7 +664,7 @@ void Sys_InitNetworking() {
 	num_interfaces = 0;
 	foundloopback = false;
 
-	pAdapterInfo = (IP_ADAPTER_INFO *)malloc( sizeof( IP_ADAPTER_INFO ) );
+	pAdapterInfo = static_cast<IP_ADAPTER_INFO*>(malloc(sizeof(IP_ADAPTER_INFO)));
 	if( !pAdapterInfo ) {
 		idLib::FatalError( "Sys_InitNetworking: Couldn't malloc( %d )", sizeof( IP_ADAPTER_INFO ) );
 	}
@@ -674,7 +674,7 @@ void Sys_InitNetworking() {
 	// the necessary size into the ulOutBufLen variable
 	if( GetAdaptersInfo( pAdapterInfo, &ulOutBufLen ) == ERROR_BUFFER_OVERFLOW ) {
 		free( pAdapterInfo );
-		pAdapterInfo = (IP_ADAPTER_INFO *)malloc( ulOutBufLen ); 
+		pAdapterInfo = static_cast<IP_ADAPTER_INFO*>(malloc(ulOutBufLen)); 
 		if( !pAdapterInfo ) {
 			idLib::FatalError( "Sys_InitNetworking: Couldn't malloc( %ld )", ulOutBufLen );
 		}
@@ -933,7 +933,7 @@ bool idUDP::GetPacket( netadr_t &from, void *data, int &size, int maxSize ) {
 
 	while ( 1 ) {
 
-		ret = Net_GetUDPPacket( netSocket, from, (char *)data, size, maxSize );
+		ret = Net_GetUDPPacket( netSocket, from, static_cast<char*>(data), size, maxSize );
 		if ( !ret ) {
 			break;
 		}

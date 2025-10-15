@@ -55,7 +55,8 @@ idCollisionModelManagerLocal::TestTrmVertsInBrush
   returns true if any of the trm vertices is inside the brush
 ================
 */
-bool idCollisionModelManagerLocal::TestTrmVertsInBrush( cm_traceWork_t *tw, cm_brush_t *b ) {
+bool idCollisionModelManagerLocal::TestTrmVertsInBrush( cm_traceWork_t *tw, cm_brush_t *b ) const
+{
 	int i, j, numVerts, bestPlane;
 	float d, bestd;
 	idVec3 *p;
@@ -119,11 +120,11 @@ CM_SetTrmEdgeSidedness
 ================
 */
 #define CM_SetTrmEdgeSidedness( edge, bpl, epl, bitNum ) {						\
-	const int mask = 1 << bitNum;												\
-	if ( ( edge->sideSet & mask ) == 0 ) {										\
+	const int8 mask = 1 << (bitNum);												\
+	if ( ( (edge)->sideSet & mask ) == 0 ) {										\
 		const float fl = (bpl).PermutedInnerProduct( epl );						\
-		edge->side = ( edge->side & ~mask ) | ( ( fl < 0.0f ) ? mask : 0 );		\
-		edge->sideSet |= mask;													\
+		(edge)->side = ( (edge)->side & ~mask ) | ( ( fl < 0.0f ) ? mask : 0 );		\
+		(edge)->sideSet |= mask;													\
 	}																			\
 }
 
@@ -133,9 +134,9 @@ CM_SetTrmPolygonSidedness
 ================
 */
 #define CM_SetTrmPolygonSidedness( v, plane, bitNum ) {						\
-	const int mask = 1 << bitNum;											\
+	const int mask = 1 << (bitNum);											\
 	if ( ( (v)->sideSet & mask ) == 0 ) {									\
-		const float fl = plane.Distance( (v)->p );							\
+		const float fl = (plane).Distance( (v)->p );							\
 		(v)->side = ( (v)->side & ~mask ) | ( ( fl < 0.0f ) ? mask : 0 );		\
 		(v)->sideSet |= mask;												\
 	}																		\
@@ -148,7 +149,8 @@ idCollisionModelManagerLocal::TestTrmInPolygon
   returns true if the trm intersects the polygon
 ================
 */
-bool idCollisionModelManagerLocal::TestTrmInPolygon( cm_traceWork_t *tw, cm_polygon_t *p ) {
+bool idCollisionModelManagerLocal::TestTrmInPolygon( cm_traceWork_t *tw, cm_polygon_t *p ) const
+{
 	int i, j, k, edgeNum, flip, trmEdgeNum, bitNum, bestPlane;
 	int sides[MAX_TRACEMODEL_VERTS];
 	float d, bestd;

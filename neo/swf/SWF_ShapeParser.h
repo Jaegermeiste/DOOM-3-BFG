@@ -35,7 +35,7 @@ This class handles parsing and triangulating a shape
 */
 class idSWFShapeParser {
 public:
-	idSWFShapeParser() { }
+	idSWFShapeParser() noexcept { }
 	void Parse( idSWFBitStream & bitstream, idSWFShape & shape, int recordType );
 	void ParseMorph( idSWFBitStream & bitstream, idSWFShape & shape );
 	void ParseFont( idSWFBitStream & bitstream, idSWFFontGlyph & shape );
@@ -82,7 +82,7 @@ private:
 	void TriangulateSoup( idSWFShape & shape );
 	void TriangulateSoup( idSWFFontGlyph & shape );
 	int FindEarVert( const swfSPLineLoop_t & loop );
-	void AddUniqueVert( idSWFShapeDrawFill & drawFill, const idVec2 & start, const idVec2 & end );
+	void AddUniqueVert( idSWFShapeDrawFill & drawFill, const idVec2 & start, const idVec2 & end ) const;
 
 };
 

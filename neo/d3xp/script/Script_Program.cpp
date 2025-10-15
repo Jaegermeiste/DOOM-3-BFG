@@ -1440,10 +1440,10 @@ Returns >0 if function found.
 ================
 */
 function_t *idProgram::FindFunction( const char *name ) const {
-	int			start;
-	int			pos;
-	idVarDef	*namespaceDef;
-	idVarDef	*def;
+	int64		start = 0;
+	int64		pos = 0;
+	idVarDef	*namespaceDef = nullptr;
+	idVarDef	*def = nullptr;
 
 	assert( name );
 
@@ -1480,7 +1480,7 @@ function_t *idProgram::FindFunction( const char *name ) const {
 	}
 
 	// is not a function, or is an eventdef
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1706,12 +1706,12 @@ called after all files are compiled to report memory usage.
 ==============
 */
 void idProgram::CompileStats() {
-	int	memused;
-	int	memallocated;
-	int	numdefs;
-	int	stringspace;
-	int funcMem;
-	int	i;
+	size_t	memused = 0;
+	size_t	memallocated = 0;
+	size_t	numdefs = 0;
+	size_t	stringspace = 0;
+	size_t  funcMem = 0;
+	size_t	i = 0;
 
 	gameLocal.Printf( "---------- Compile stats ----------\n" );
 	gameLocal.DPrintf( "Files loaded:\n" );

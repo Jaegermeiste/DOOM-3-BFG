@@ -43,36 +43,36 @@ class idDebugGraph {
 public:
 	idDebugGraph( int numItems = 0 );
 
-	void	Enable( bool b ) { enable = b; }
+	void	Enable( bool b ) noexcept { enable = b; }
 
 	// create a graph with the specified number of bars
-	void	Init( int numBars );
+	void	Init( size_t numBars );
 
 	void	AddGridLine( float value, const idVec4 & color );
 
 	// sets a bar value, pass -1 to append an element
-	void	SetValue( int b, float value, const idVec4 & color );
-	float	GetValue( int b ) { return bars[b].value; }
+	void	SetValue( Ordinal auto b, float value, const idVec4 & color );
+	float	GetValue( Ordinal auto b ) { return bars[b].value; }
 
 	// sets a bar label
-	void	SetLabel( int b, const char * text );
+	void	SetLabel( Ordinal auto b, const char * text );
 
 	enum fillMode_t {
 		GRAPH_LINE,				// only draw a single top line for each bar
 		GRAPH_FILL,				// fill the entire bar from the bottom (or left)
 		GRAPH_FILL_REVERSE,		// fill the entire bar from the top (or right)
 	};
-	void	SetFillMode( fillMode_t m ) { mode = m; }
+	void	SetFillMode( fillMode_t m ) noexcept { mode = m; }
 
 	// render the graph sideways?
-	void	SetSideways( bool s ) { sideways = s; }
+	void	SetSideways( bool s ) noexcept { sideways = s; }
 
 	// the background color is what's drawn between bars and in the empty space
-	void	SetBackgroundColor( const idVec4 & color ) { bgColor = color; }
-	void	SetLabelColor( const idVec4 & color ) { fontColor = color; }
+	void	SetBackgroundColor( const idVec4 & color ) noexcept { bgColor = color; }
+	void	SetLabelColor( const idVec4 & color ) noexcept { fontColor = color; }
 
 	// the border specifies the amount of space between bars as well as the amount of space around the entire graph
-	void	SetBorder( float b ) { border = b; }
+	void	SetBorder( float b ) noexcept { border = b; }
 
 	// set the screen position for the graph
 	void	SetPosition( float x, float y, float w, float h ) { position.Set( x, y, w, h ); }

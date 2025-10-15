@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 
 #include "tr_local.h"
@@ -39,13 +41,13 @@ FRAME MEMORY ALLOCATION
 ==========================================================================================
 */
 
-static constexpr unsigned int NUM_FRAME_DATA = 2;
-static constexpr unsigned int FRAME_ALLOC_ALIGNMENT = 128;
-static constexpr unsigned int MAX_FRAME_MEMORY = 64 * 1024 * 1024;	// larger so that we can noclip on PC for dev purposes
+static constexpr size_t NUM_FRAME_DATA = 2;
+static constexpr size_t FRAME_ALLOC_ALIGNMENT = 128;
+static constexpr size_t MAX_FRAME_MEMORY = 64 * 1024 * 1024;	// larger so that we can noclip on PC for dev purposes
 
-idFrameData		smpFrameData[NUM_FRAME_DATA];
-idFrameData *	frameData;
-unsigned int	smpFrame;
+idFrameData		smpFrameData[NUM_FRAME_DATA] = {};
+idFrameData *	frameData = nullptr;
+size_t	smpFrame = 0;
 
 //#define TRACK_FRAME_ALLOCS
 
@@ -61,22 +63,14 @@ R_ToggleSmpFrame
 */
 void R_ToggleSmpFrame() {
 	// update the highwater mark
-	if ( frameData->frameMemoryAllocated.GetValue() > frameData->highWaterAllocated ) {
-		frameData->highWaterAllocated = frameData->frameMemoryAllocated.GetValue();
-#if defined( TRACK_FRAME_ALLOCS )
-		frameData->highWaterUsed = frameData->frameMemoryUsed.GetValue();
-		for ( int i = 0; i < FRAME_ALLOC_MAX; i++ ) {
-			frameHighWaterTypeCount[i] = frameAllocTypeCount[i].GetValue();
-		}
-#endif
-	}
+	frameData->highWaterAllocated = (std::max)(frameData->frameMemoryAllocated.GetValue(), frameData->highWaterAllocated);
 
 	// switch to the next frame
 	smpFrame++;
 	frameData = &smpFrameData[smpFrame % NUM_FRAME_DATA];
 
 	// reset the memory allocation
-	const unsigned int bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( (unsigned int)frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+	const size_t bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( reinterpret_cast<size_t>(frameData->frameMemory) & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
 	frameData->frameMemoryAllocated.SetValue( bytesNeededForAlignment );
 	frameData->frameMemoryUsed.SetValue( 0 );
 
@@ -87,7 +81,7 @@ void R_ToggleSmpFrame() {
 #endif
 
 	// clear the command chain and make a RC_NOP command the only thing on the list
-	frameData->cmdHead = frameData->cmdTail = (emptyCommand_t *)R_FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
+	frameData->cmdHead = frameData->cmdTail = static_cast<emptyCommand_t*>(R_FrameAlloc(sizeof(*frameData->cmdHead), FRAME_ALLOC_DRAW_COMMAND));
 	frameData->cmdHead->commandId = RC_NOP;
 	frameData->cmdHead->next = nullptr;
 }
@@ -99,9 +93,10 @@ R_ShutdownFrameData
 */
 void R_ShutdownFrameData() {
 	frameData = nullptr;
-	for ( int i = 0; i < NUM_FRAME_DATA; i++ ) {
-		Mem_Free16( smpFrameData[i].frameMemory );
-		smpFrameData[i].frameMemory = nullptr;
+	for (auto& i : smpFrameData)
+	{
+		Mem_Free16(i.frameMemory );
+		i.frameMemory = nullptr;
 	}
 }
 
@@ -113,8 +108,9 @@ R_InitFrameData
 void R_InitFrameData() {
 	R_ShutdownFrameData();
 
-	for ( int i = 0; i < NUM_FRAME_DATA; i++ ) {
-		smpFrameData[i].frameMemory = (byte *) Mem_Alloc16( MAX_FRAME_MEMORY, TAG_RENDER );
+	for (auto& i : smpFrameData)
+	{
+		i.frameMemory = static_cast<byte*>(Mem_Alloc16(MAX_FRAME_MEMORY, TAG_RENDER));
 	}
 
 	// must be set before calling R_ToggleSmpFrame()
@@ -139,7 +135,7 @@ and local spaces are allocated here.
 All memory is cache-line-cleared for the best performance.
 ================
 */
-void *R_FrameAlloc( int bytes, frameAllocType_t type ) {
+void *R_FrameAlloc(size_t bytes, frameAllocType_t type ) {
 #if defined( TRACK_FRAME_ALLOCS )
 	frameData->frameMemoryUsed.Add( bytes );
 	frameAllocTypeCount[type].Add( bytes );
@@ -156,7 +152,7 @@ void *R_FrameAlloc( int bytes, frameAllocType_t type ) {
 	byte * ptr = frameData->frameMemory + end - bytes;
 
 	// cache line clear the memory
-	for ( int offset = 0; offset < bytes; offset += CACHE_LINE_SIZE ) {
+	for (size_t offset = 0; offset < bytes; offset += CACHE_LINE_SIZE ) {
 		ZeroCacheLine( ptr, offset );
 	}
 
@@ -168,7 +164,7 @@ void *R_FrameAlloc( int bytes, frameAllocType_t type ) {
 R_ClearedFrameAlloc
 ==================
 */
-void *R_ClearedFrameAlloc( int bytes, frameAllocType_t type ) {
+void *R_ClearedFrameAlloc(size_t bytes, frameAllocType_t type ) {
 	// NOTE: every allocation is cache line cleared
 	return R_FrameAlloc( bytes, type );
 }
@@ -186,7 +182,7 @@ FONT-END STATIC MEMORY ALLOCATION
 R_StaticAlloc
 =================
 */
-void *R_StaticAlloc( int bytes, const memTag_t tag ) {
+void *R_StaticAlloc(size_t bytes, const memTag_t tag ) {
 	tr.pc.c_alloc++;
 
     void * buf = Mem_Alloc( bytes, tag );
@@ -203,7 +199,7 @@ void *R_StaticAlloc( int bytes, const memTag_t tag ) {
 R_ClearedStaticAlloc
 =================
 */
-void *R_ClearedStaticAlloc( int bytes ) {
+void *R_ClearedStaticAlloc(size_t bytes ) {
 	void * buf = R_StaticAlloc( bytes );
 	memset( buf, 0, bytes );
 	return buf;
@@ -232,18 +228,18 @@ FONT-END RENDERING
 R_SortDrawSurfs
 =================
 */
-static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
+static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const size_t numDrawSurfs ) {
 #if 1
 
-	uint64 * indices = (uint64 *) _alloca16( numDrawSurfs * sizeof( indices[0] ) );
+	uint64 * indices = static_cast<uint64*>(_alloca16(numDrawSurfs * sizeof( indices[0] )));
 
 	// sort the draw surfs based on:
 	// 1. sort value (largest first)
 	// 2. depth (smallest first)
 	// 3. index (largest first)
 	assert( numDrawSurfs <= 0xFFFF );
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
-		float sort = SS_POST_PROCESS - drawSurfs[i]->sort;
+	for (size_t i = 0; i < numDrawSurfs; i++ ) {
+		float sort = idMath::Itof<float>(SS_POST_PROCESS) - drawSurfs[i]->sort;
 		assert( sort >= 0.0f );
 
 		uint64 dist = 0;
@@ -254,28 +250,37 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 			dist = idMath::Ftoui16( min * 0xFFFF );
 		}
 		
-		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( (uint64) ( *(uint32 *)&sort ) << 32 );
+		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( static_cast<uint64>(*reinterpret_cast<uint32*>(&sort)) << 32 );
 	}
 
-	constexpr int64 MAX_LEVELS = 128;
-	int64 lo[MAX_LEVELS];
-	int64 hi[MAX_LEVELS];
+	constexpr size_t MAX_LEVELS = 128;
+	size_t lo[MAX_LEVELS];
+	size_t hi[MAX_LEVELS];
 
-	// Keep the top of the stack in registers to avoid load-hit-stores.
-	register int64 st_lo = 0;
-	register int64 st_hi = numDrawSurfs - 1;
-	register int64 level = 0;
+	// Keep the top of the stack in registers to avoid load-hit-stores. // not possible anymore in C++17+
+	size_t st_lo = 0;
+	size_t st_hi = numDrawSurfs - 1;
+	int64 level = 0;
 
 	for ( ; ; ) {
-		register int64 i = st_lo;
-		register int64 j = st_hi;
-		if ( j - i >= 4 && level < MAX_LEVELS - 1 ) {
-			register uint64 pivot = indices[( i + j ) / 2];
+		size_t i = st_lo;
+		size_t j = st_hi;
+		if ( j - i >= 4 && std::cmp_less(level, MAX_LEVELS - 1) ) {
+			size_t pivot = indices[( i + j ) / 2];
 			do {
-				while ( indices[i] > pivot ) i++;
-				while ( indices[j] < pivot ) j--;
-				if ( i > j ) break;
-				uint64 h = indices[i]; indices[i] = indices[j]; indices[j] = h;
+				while ( indices[i] > pivot )
+				{
+					i++;
+				}
+				while ( indices[j] < pivot )
+				{
+					j--;
+				}
+				if ( i > j )
+				{
+					break;
+				}
+				size_t h = indices[i]; indices[i] = indices[j]; indices[j] = h;
 			} while ( ++i <= --j );
 
 			// No need for these iterations because we are always sorting unique values.
@@ -289,13 +294,13 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 			level++;
 		} else {
 			for( ; i < j; j-- ) {
-				register int64 m = i;
-				for ( int64 k = i + 1; k <= j; k++ ) {
+				size_t m = i;
+				for (size_t k = i + 1; k <= j; k++ ) {
 					if ( indices[k] < indices[m] ) {
 						m = k;
 					}
 				}
-				uint64 h = indices[m]; indices[m] = indices[j]; indices[j] = h;
+				size_t h = indices[m]; indices[m] = indices[j]; indices[j] = h;
 			}
 			if ( --level < 0 ) {
 				break;
@@ -305,8 +310,8 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 		}
 	}
 
-	drawSurf_t ** newDrawSurfs = (drawSurf_t **) indices;
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	drawSurf_t ** newDrawSurfs = reinterpret_cast<drawSurf_t**>(indices);
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		newDrawSurfs[i] = drawSurfs[numDrawSurfs - ( indices[i] & 0xFFFF )];
 	}
 	memcpy( drawSurfs, newDrawSurfs, numDrawSurfs * sizeof( drawSurfs[0] ) );
@@ -365,9 +370,9 @@ void R_RenderView( viewDef_t *parms ) {
 	R_SetupProjectionMatrix( tr.viewDef );
 
 	// setup render matrices for faster culling
-	idRenderMatrix::Transpose( *(idRenderMatrix *)tr.viewDef->projectionMatrix, tr.viewDef->projectionRenderMatrix );
+	idRenderMatrix::Transpose( *reinterpret_cast<idRenderMatrix*>(tr.viewDef->projectionMatrix), tr.viewDef->projectionRenderMatrix );
 	idRenderMatrix viewRenderMatrix;
-	idRenderMatrix::Transpose( *(idRenderMatrix *)tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
+	idRenderMatrix::Transpose( *reinterpret_cast<idRenderMatrix*>(tr.viewDef->worldSpace.modelViewMatrix), viewRenderMatrix );
 	idRenderMatrix::Multiply( tr.viewDef->projectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.mvp );
 
 	// the planes of the view frustum are needed for portal visibility culling

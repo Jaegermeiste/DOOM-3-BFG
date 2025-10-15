@@ -84,7 +84,7 @@ struct columnDef_t {
 
 struct leaderboardDefinition_t {
 
-	leaderboardDefinition_t() :
+	leaderboardDefinition_t() noexcept :
 		id ( -1 ),
 		numColumns( 0 ),
 		columnDefs(nullptr),
@@ -113,7 +113,7 @@ struct leaderboardDefinition_t {
 
 struct column_t {
 	column_t( int64 value_ ) : value( value_ ) {}
-	column_t() {}
+	column_t() noexcept {}
 
 	int64				value;
 };

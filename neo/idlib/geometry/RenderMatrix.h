@@ -55,14 +55,15 @@ This is a row-major matrix and transforms are applied with left-multiplication.
 */
 class idRenderMatrix {
 public:
-							idRenderMatrix() {}
-	ID_INLINE				idRenderMatrix(	float a0, float a1, float a2, float a3,
-											float b0, float b1, float b2, float b3,
-											float c0, float c1, float c2, float c3,
-											float d0, float d1, float d2, float d3 );
-
-	const float *			operator[](const int index ) const { assert( index >= 0 && index < 4 ); return &m[index*4]; }
-	float *					operator[](const int index ) { assert( index >= 0 && index < 4 ); return &m[index*4]; }
+							idRenderMatrix() noexcept = default;
+							ID_INLINE idRenderMatrix(	float a0, float a1, float a2, float a3,
+								                         float b0, float b1, float b2, float b3,
+								                         float c0, float c1, float c2, float c3,
+								                         float d0, float d1, float d2, float d3 );
+	
+	const float *			operator[](const Ordinal auto index ) const { assert( index >= 0 && index < 4 ); return &m[index*4]; }
+	
+	float *					operator[](const Ordinal auto index ) { assert( index >= 0 && index < 4 ); return &m[index*4]; }
 
 	void					Zero() { memset( m, 0, sizeof( m ) ); }
 	ID_INLINE void			Identity();

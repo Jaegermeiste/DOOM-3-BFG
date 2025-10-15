@@ -1,3 +1,8 @@
+#include <algorithm>
+#include <utility>
+
+#include "sys/sys_types.h"
+
 /*
 ===========================================================================
 
@@ -129,7 +134,7 @@ typedef enum {
 class idStr {
 
 public:
-						idStr();
+						idStr() noexcept;
 						idStr( const idStr &text );
 						idStr( const idStr &text, size_t start, size_t end );
 						idStr( const char *text );
@@ -146,8 +151,9 @@ public:
 	operator			const char *() const;
 	operator			const char *();
 
-	char				operator[]( size_t index ) const;
-	char &				operator[]( size_t index );
+	
+	char				operator[]( Ordinal auto index ) const;
+	char &				operator[]( Ordinal auto index );
 
 	void				operator=( const idStr &text );
 	void				operator=( const char *text );
@@ -207,8 +213,8 @@ public:
 	void				Append( const idStr &text );
 	void				Append( const char *text );
 	void				Append( const char *text, size_t len );
-	void				Insert( const char a, size_t index );
-	void				Insert( const char *text, size_t index );
+	void				Insert( const char a, Ordinal auto index );
+	void				Insert( const char *text, Ordinal auto index );
 	void				ToLower() const;
 	void				ToUpper() const;
 	bool				IsNumeric() const;
@@ -221,10 +227,13 @@ public:
 	void				Fill( const char ch, size_t newlen );
 
 	ID_INLINE size_t		UTF8Length() const;
-	ID_INLINE uint32		UTF8Char(size_t& idx ) const;
+	
+	ID_INLINE uint32		UTF8Char(Ordinal auto& idx ) const;
 	static size_t			UTF8Length( const byte * s );
-	static ID_INLINE uint32 UTF8Char( const char * s, size_t& idx );
-	static uint32			UTF8Char( const byte * s, size_t& idx );
+	
+	static ID_INLINE uint32 UTF8Char( const char * s, Ordinal auto& idx );
+	
+	static uint32			UTF8Char( const byte * s, Ordinal auto& idx );
 	void					AppendUTF8Char( uint32 c );
 	ID_INLINE void			ConvertToUTF8();
 	static bool				IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & encoding );
@@ -232,10 +241,16 @@ public:
 	static ID_INLINE bool	IsValidUTF8( const uint8 * s, const size_t maxLen );
 	static ID_INLINE bool	IsValidUTF8( const char * s, const size_t maxLen ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen ); }
 
-	int					Find( const char c, size_t start = 0, int64 end = -1 ) const;
-	int					Find( const char *text, bool casesensitive = true, size_t start = 0, int64 end = -1 ) const;
+	int64               Find(const char c) const;
+	template <Ordinal StartI, Ordinal EndI>
+		requires (!std::same_as<std::remove_cvref_t<StartI>, bool> && !std::same_as<std::remove_cvref_t<EndI>, bool>)
+	int64               Find(const char c, StartI start = 0, EndI end = -1) const;
+	int64               Find(const char* text, bool casesensitive = true) const;
+	template <Ordinal StartI, Ordinal EndI>
+		requires (!std::same_as<std::remove_cvref_t<StartI>, bool> && !std::same_as<std::remove_cvref_t<EndI>, bool>)
+	int64               Find(const char* text, bool casesensitive, StartI start, EndI end = -1) const;
 	bool				Filter( const char *filter, bool casesensitive ) const;
-	int					Last( const char c ) const;						// return the index to the last occurrance of 'c', returns -1 if not found
+	int					Last( const char c ) const;						// return the index to the last occurrence of 'c', returns -1 if not found
 	const char *		Left(size_t len, idStr &result ) const;			// store the leftmost 'len' characters in the result
 	const char *		Right(size_t len, idStr &result ) const;			// store the rightmost 'len' characters in the result
 	const char *		Mid(size_t start, size_t len, idStr &result ) const;	// store 'len' characters starting at 'start' in result
@@ -278,7 +293,7 @@ public:
 	bool				CheckExtension( const char *ext ) const;
 
 	// char * methods to replace library functions
-	static size_t		Length( const char *s );
+	static size_t	    Length(const char* s);
 	static char *		ToLower( char *s );
 	static char *		ToUpper( char *s );
 	static bool			IsNumeric( const char *s );
@@ -296,16 +311,22 @@ public:
 	static int			IcmpnPath( const char *s1, const char *s2, size_t n );	// compares paths and makes sure folders come first
 	static void			Append( char *dest, size_t size, const char *src );
 	static void			Copynz( char *dest, const char *src, size_t destsize );
-	static int			snPrintf( char *dest, size_t size, VERIFY_FORMAT_STRING const char *fmt, ... );
+	static int64 snPrintf(char* dest, size_t size, VERIFY_FORMAT_STRING const char* fmt, ...);
 	static int			vsnPrintf( char *dest, size_t size, const char *fmt, va_list argptr );
-	static int64 FindChar(const char* str, const char c, size_t start = 0, int64 end = -1);
-	static int			FindText( const char *str, const char *text, bool casesensitive = true, size_t start = 0, int64 end = -1 );
+	template <Ordinal StartI, Ordinal EndI>
+	static int64        FindChar(const char* str, const char c, StartI start = 0, EndI end = -1);
+	template <Ordinal StartI, Ordinal EndI>
+	static int64        FindText(const char* str, const char* text, bool casesensitive = true, StartI start = 0, EndI end = -1);
 	static bool			Filter( const char *filter, const char *name, bool casesensitive );
 	static void			StripMediaName( const char *name, idStr &mediaName );
 	static bool			CheckExtension( const char *name, const char *ext );
 	static const char *	FloatArrayToString( const float *array, const size_t length, const int precision );
 	static const char *	CStyleQuote( const char *str );
 	static const char *	CStyleUnQuote( const char *str );
+	template <std::floating_point T>
+	static T            AtoF(const char* str) noexcept;
+	template <std::integral T>
+	static T            AtoI(const char* str) noexcept;
 
 	// hash keys
 	static int			Hash( const char *string );
@@ -348,7 +369,7 @@ public:
 protected:
 	size_t				len = 0;
 	char *				data = nullptr;
-	int					allocedAndFlag;	// top bit is used to store a flag that indicates if the string data is static or not
+	uint32				allocedAndFlag;	// top bit is used to store a flag that indicates if the string data is static or not
 	char				baseBuffer[ STR_ALLOC_BASE ];
 
 	void				EnsureAlloced(size_t amount, bool keepold = true );	// ensure string data buffer is large anough
@@ -361,12 +382,12 @@ private:
 	// initialize string using base buffer... call ONLY FROM CONSTRUCTOR
 	ID_INLINE void		Construct();										
 
-	static constexpr uint32	STATIC_BIT	= 31;
+	static constexpr uint32	STATIC_BIT	= 31u;
 	static constexpr uint32	STATIC_MASK	= 1u << STATIC_BIT;
 	static constexpr uint32	ALLOCED_MASK = STATIC_MASK - 1;
 
 
-	ID_INLINE int		GetAlloced() const { return allocedAndFlag & ALLOCED_MASK; }
+	ID_INLINE uint32	GetAlloced() const { return allocedAndFlag & ALLOCED_MASK; }
 	ID_INLINE void		SetAlloced( const size_t a ) { allocedAndFlag = ( allocedAndFlag & STATIC_MASK ) | ( a & ALLOCED_MASK); }
 
 	ID_INLINE bool		IsStatic() const { return ( allocedAndFlag & STATIC_MASK ) != 0; }
@@ -416,10 +437,10 @@ ID_INLINE void idStr::Construct() {
 ID_INLINE void idStr::EnsureAlloced(const size_t amount, const bool keepold ) {
 	// static string's can't reallocate
 	if ( IsStatic() ) {
-		release_assert( amount <= GetAlloced() );
+		release_assert( std::cmp_less_equal(amount, GetAlloced() ) )
 		return;
 	}
-	if ( amount > GetAlloced() ) {
+	if (std::cmp_greater(amount, GetAlloced())) {
 		ReAllocate( amount, keepold );
 	}
 }
@@ -438,7 +459,7 @@ ID_INLINE void idStr::SetStaticBuffer( char * buffer, const size_t bufferLength 
 	SetStatic( true );
 }
 
-ID_INLINE idStr::idStr() {
+ID_INLINE idStr::idStr() noexcept {
 	Construct();
 }
 
@@ -447,16 +468,18 @@ ID_INLINE idStr::idStr( const idStr &text ) {
 
 	const size_t l = text.Length();
 	EnsureAlloced( l + 1 );
-	strcpy( data, text.data );
-	len = l;
+
+	if (data)
+	{
+		strcpy(data, text.data);
+		len = l;
+	}
 }
 
 ID_INLINE idStr::idStr( const idStr &text, size_t start, size_t end ) {
 	Construct();
 
-	if ( end > text.Length() ) {
-		end = text.Length();
-	}
+	end = (std::min)(end, text.Length());
 	if ( start > text.Length() ) {
 		start = text.Length();
 	} else if ( start < 0 ) {
@@ -484,8 +507,12 @@ ID_INLINE idStr::idStr( const char *text ) {
 	if ( text ) {
 		const size_t l = strlen(text);
 		EnsureAlloced( l + 1 );
-		strcpy( data, text );
-		len = l;
+
+		if (data)
+		{
+			strcpy(data, text);
+			len = l;
+		}
 	}
 }
 
@@ -503,66 +530,88 @@ ID_INLINE idStr::idStr( const char *text, size_t start, size_t end ) {
 	}
 
 	l = end - start;
-	if ( l < 0 ) {
-		l = 0;
-	}
+	l = (std::max<size_t>)(l, 0);
 
 	EnsureAlloced( l + 1 );
 
-	for ( int i = 0; i < l; i++ ) {
-		data[ i ] = text[ start + i ];
-	}
+	if (data)
+	{
+		for (size_t i = 0; std::cmp_less(i, l); i++) {
+			data[i] = text[start + i];
+		}
 
-	data[ l ] = '\0';
-	len = l;
+		data[l] = '\0';
+		len = l;
+	}
 }
 
 ID_INLINE idStr::idStr( const bool b ) {
 	Construct();
 	EnsureAlloced( 2 );
-	data[ 0 ] = b ? '1' : '0';
-	data[ 1 ] = '\0';
-	len = 1;
+	if (data)
+	{
+		data[0] = b ? '1' : '0';
+		data[1] = '\0';
+		len = 1;
+	}
 }
 
 ID_INLINE idStr::idStr( const char c ) {
 	Construct();
 	EnsureAlloced( 2 );
-	data[ 0 ] = c;
-	data[ 1 ] = '\0';
-	len = 1;
+	if (data)
+	{
+		data[0] = c;
+		data[1] = '\0';
+		len = 1;
+	}
 }
 
 ID_INLINE idStr::idStr( const int i ) {
 	Construct();
 	char text[ 64 ];
 
-	const int l = sprintf(text, "%d", i);
+	const size_t l = SAFE_SIZE(sprintf(text, "%d", i));
 	EnsureAlloced( l + 1 );
-	strcpy( data, text );
-	len = l;
+	if (data)
+	{
+		strcpy(data, text);
+		len = l;
+	}
 }
 
 ID_INLINE idStr::idStr( const unsigned u ) {
 	Construct();
 	char text[ 64 ];
 
-	const int l = sprintf(text, "%u", u);
+	const size_t l = SAFE_SIZE(sprintf(text, "%u", u));
 	EnsureAlloced( l + 1 );
-	strcpy( data, text );
-	len = l;
+	if (data)
+	{
+		strcpy(data, text);
+		len = l;
+	}
 }
 
 ID_INLINE idStr::idStr( const float f ) {
 	Construct();
 	char text[ 64 ];
 
-	int l = idStr::snPrintf(text, sizeof(text), "%f", f);
-	while( l > 0 && text[l-1] == '0' ) text[--l] = '\0';
-	while( l > 0 && text[l-1] == '.' ) text[--l] = '\0';
+	size_t l = SAFE_SIZE(idStr::snPrintf(text, sizeof(text), "%f", f));
+	while( l > 0 && text[l-1] == '0' )
+	{
+		text[--l] = '\0';
+	}
+	while( l > 0 && text[l-1] == '.' )
+	{
+		text[--l] = '\0';
+	}
 	EnsureAlloced( l + 1 );
-	strcpy( data, text );
-	len = l;
+	if (data)
+	{
+		strcpy(data, text);
+		len = l;
+	}
 }
 
 ID_INLINE idStr::~idStr() {
@@ -585,12 +634,14 @@ ID_INLINE idStr::operator const char *() const {
 	return c_str();
 }
 
-ID_INLINE char idStr::operator[](const size_t index ) const {
+
+ID_INLINE char idStr::operator[](const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index <= len ) );
 	return data[ index ];
 }
 
-ID_INLINE char &idStr::operator[](const size_t index ) {
+
+ID_INLINE char &idStr::operator[](const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index <= len ) );
 	return data[ index ];
 }
@@ -598,9 +649,12 @@ ID_INLINE char &idStr::operator[](const size_t index ) {
 ID_INLINE void idStr::operator=( const idStr &text ) {
 	const size_t l = text.Length();
 	EnsureAlloced( l + 1, false );
-	memcpy( data, text.data, l );
-	data[l] = '\0';
-	len = l;
+	if (data)
+	{
+		memcpy(data, text.data, l);
+		data[l] = '\0';
+		len = l;
+	}
 }
 
 ID_INLINE idStr operator+( const idStr &a, const idStr &b ) {
@@ -800,8 +854,11 @@ ID_INLINE size_t idStr::Allocated() const {
 
 ID_INLINE void idStr::Empty() {
 	EnsureAlloced( 1 );
-	data[ 0 ] = '\0';
-	len = 0;
+	if (data)
+	{
+		data[0] = '\0';
+		len = 0;
+	}
 }
 
 ID_INLINE bool idStr::IsEmpty() const {
@@ -810,8 +867,11 @@ ID_INLINE bool idStr::IsEmpty() const {
 
 ID_INLINE void idStr::Clear() {
 	if ( IsStatic() ) {
-		len = 0;
-		data[ 0 ] = '\0';
+		if (data)
+		{
+			len = 0;
+			data[0] = '\0';
+		}
 		return;
 	}
 	FreeData();
@@ -820,30 +880,39 @@ ID_INLINE void idStr::Clear() {
 
 ID_INLINE void idStr::Append( const char a ) {
 	EnsureAlloced( len + 2 );
-	data[ len ] = a;
-	len++;
-	data[ len ] = '\0';
+	if (data)
+	{
+		data[len] = a;
+		len++;
+		data[len] = '\0';
+	}
 }
 
 ID_INLINE void idStr::Append( const idStr &text ) {
 	const size_t newLen = len + text.Length();
 	EnsureAlloced( newLen + 1 );
-	for ( size_t i = 0; i < text.len; i++ ) {
-		data[ len + i ] = text[ i ];
+	if (data)
+	{
+		for (size_t i = 0; i < text.len; i++) {
+			data[len + i] = text[i];
+		}
+		len = newLen;
+		data[len] = '\0';
 	}
-	len = newLen;
-	data[ len ] = '\0';
 }
 
 ID_INLINE void idStr::Append( const char *text ) {
 	if ( text ) {
 		const size_t newLen = len + strlen(text);
 		EnsureAlloced( newLen + 1 );
-		for ( size_t i = 0; text[ i ]; i++ ) {
-			data[ len + i ] = text[ i ];
+		if (data)
+		{
+			for (size_t i = 0; text[i]; i++) {
+				data[len + i] = text[i];
+			}
+			len = newLen;
+			data[len] = '\0';
 		}
-		len = newLen;
-		data[ len ] = '\0';
 	}
 }
 
@@ -851,64 +920,80 @@ ID_INLINE void idStr::Append( const char *text, const size_t l ) {
 	if ( text && l ) {
 		const size_t newLen = len + l;
 		EnsureAlloced( newLen + 1 );
-		for ( size_t i = 0; text[ i ] && i < l; i++ ) {
-			data[ len + i ] = text[ i ];
+		if (data)
+		{
+			for (size_t i = 0; text[i] && i < l; i++) {
+				data[len + i] = text[i];
+			}
+			len = newLen;
+			data[len] = '\0';
 		}
-		len = newLen;
-		data[ len ] = '\0';
 	}
 }
 
-ID_INLINE void idStr::Insert( const char a, size_t index ) {
-	if ( index < 0 ) {
+ID_INLINE void idStr::Insert( const char a, Ordinal auto index ) {
+	if (index < 0) {
 		index = 0;
-	} else if ( index > len ) {
-		index = len;
+	}
+	else if (std::cmp_greater(index, len)) {
+		index = idMath::integer_cast<decltype(index)>(len);
 	}
 
 	constexpr size_t l = 1;
 	EnsureAlloced( len + l + 1 );
-	for ( size_t i = len; i >= index; i-- ) {
-		data[i+l] = data[i];
+	if (data)
+	{
+		for (size_t i = len; std::cmp_greater_equal(i, index); i--) {
+			data[i + l] = data[i];
+		}
+		data[index] = a;
+		len++;
 	}
-	data[index] = a;
-	len++;
 }
 
-ID_INLINE void idStr::Insert( const char *text, size_t index ) {
-	size_t i;
+ID_INLINE void idStr::Insert( const char *text, Ordinal auto index ) {
+	size_t i = 0;
 
 	if ( index < 0 ) {
 		index = 0;
-	} else if ( index > len ) {
-		index = len;
+	} else if ( std::cmp_greater(index, len) ) {
+		index = idMath::integer_cast<decltype(index)>(len);
 	}
 
 	const size_t l = strlen(text);
 	EnsureAlloced( len + l + 1 );
-	for ( i = len; i >= index; i-- ) {
-		data[i+l] = data[i];
+	if (data)
+	{
+		for (i = len; std::cmp_greater_equal(i, index); i--) {
+			data[i + l] = data[i];
+		}
+		for (i = 0; i < l; i++) {
+			data[index + i] = text[i];
+		}
+		len += l;
 	}
-	for ( i = 0; i < l; i++ ) {
-		data[index+i] = text[i];
-	}
-	len += l;
 }
 
 ID_INLINE void idStr::ToLower() const
 {
-	for (int i = 0; data[i]; i++ ) {
-		if ( CharIsUpper( data[i] ) ) {
-			data[i] += ( 'a' - 'A' );
+	if (data)
+	{
+		for (int i = 0; data[i]; i++) {
+			if (CharIsUpper(data[i])) {
+				data[i] += ('a' - 'A');
+			}
 		}
 	}
 }
 
 ID_INLINE void idStr::ToUpper() const
 {
-	for (int i = 0; data[i]; i++ ) {
-		if ( CharIsLower( data[i] ) ) {
-			data[i] -= ( 'a' - 'A' );
+	if (data)
+	{
+		for (int i = 0; data[i]; i++) {
+			if (CharIsLower(data[i])) {
+				data[i] -= ('a' - 'A');
+			}
 		}
 	}
 }
@@ -943,15 +1028,21 @@ ID_INLINE void idStr::CapLength(const size_t newlen ) {
 	if ( len <= newlen ) {
 		return;
 	}
-	data[ newlen ] = 0;
-	len = newlen;
+	if (data)
+	{
+		data[newlen] = 0;
+		len = newlen;
+	}
 }
 
 ID_INLINE void idStr::Fill( const char ch, const size_t newlen ) {
 	EnsureAlloced( newlen + 1 );
-	len = newlen;
-	memset( data, ch, len );
-	data[ len ] = 0;
+	if (data)
+	{
+		len = newlen;
+		memset(data, ch, len);
+		data[len] = 0;
+	}
 }
 
 /*
@@ -969,8 +1060,10 @@ ID_INLINE size_t idStr::UTF8Length() const
 idStr::UTF8Char
 ========================
 */
-ID_INLINE uint32 idStr::UTF8Char(size_t& idx ) const
+
+ID_INLINE uint32 idStr::UTF8Char(Ordinal auto& idx ) const
 {
+	ORDINAL_CHECK(idx, MAX_STRING_CHARS);
 	return UTF8Char( reinterpret_cast<byte*>(data), idx );
 }
 
@@ -982,7 +1075,7 @@ idStr::ConvertToUTF8
 ID_INLINE void idStr::ConvertToUTF8() {
 	idStr temp( *this );
 	Clear();
-	for( int index = 0; index < temp.Length(); ++index ) {
+	for( size_t index = 0; index < temp.Length(); ++index ) {
 		AppendUTF8Char( temp[index] );
 	}
 }
@@ -992,8 +1085,10 @@ ID_INLINE void idStr::ConvertToUTF8() {
 idStr::UTF8Char
 ========================
 */
-ID_INLINE uint32 idStr::UTF8Char( const char * s, size_t& idx ) {
-	return UTF8Char(reinterpret_cast<byte*>(const_cast<char*>(s)), idx );
+
+ID_INLINE uint32 idStr::UTF8Char( const char * s, Ordinal auto& idx ) {
+	ORDINAL_CHECK(idx, MAX_STRING_CHARS);
+	return UTF8Char(reinterpret_cast<const byte*>(s), idx );
 }
 
 /*
@@ -1006,18 +1101,24 @@ ID_INLINE bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen ) {
 	return IsValidUTF8( s, maxLen, encoding );
 }
 
-ID_INLINE int idStr::Find( const char c, const size_t start, int64 end ) const {
-	if ( end == -1 ) {
-		end = len;
-	}
-	return idStr::FindChar( data, c, start, end );
+ID_INLINE int64 idStr::Find(const char c) const {
+	return idStr::FindChar(data, c, 0, -1);
 }
 
-ID_INLINE int idStr::Find( const char *text, const bool casesensitive, const size_t start, int64 end ) const {
-	if ( end == -1 ) {
-		end = len;
-	}
-	return idStr::FindText( data, text, casesensitive, start, end );
+template <Ordinal StartI, Ordinal EndI>
+	requires (!std::same_as<std::remove_cvref_t<StartI>, bool> && !std::same_as<std::remove_cvref_t<EndI>, bool>)
+ID_INLINE int64 idStr::Find(const char c, const StartI start, EndI end) const {
+	return idStr::FindChar( data, c, start.v, end.v);
+}
+
+ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive) const {
+	return idStr::FindText(data, text, casesensitive, 0, -1);
+}
+
+template <Ordinal StartI, Ordinal EndI>
+	requires (!std::same_as<std::remove_cvref_t<StartI>, bool> && !std::same_as<std::remove_cvref_t<EndI>, bool>)
+ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive, const StartI start, EndI end) const {
+	return idStr::FindText( data, text, casesensitive, start.v, end.v );
 }
 
 ID_INLINE bool idStr::Filter( const char *filter, const bool casesensitive ) const {
@@ -1096,7 +1197,7 @@ ID_INLINE int idStr::Hash( const char *string ) {
 
 ID_INLINE int idStr::Hash( const char *string, const size_t length ) {
 	int hash = 0;
-	for ( int i = 0; i < length; i++ ) {
+	for ( int i = 0; std::cmp_less(i, length); i++ ) {
 		hash += ( *string++ ) * ( i + 119 );
 	}
 	return hash;
@@ -1112,7 +1213,7 @@ ID_INLINE int idStr::IHash( const char *string ) {
 
 ID_INLINE int idStr::IHash( const char *string, const size_t length ) {
 	int hash = 0;
-	for ( int i = 0; i < length; i++ ) {
+	for ( int i = 0; std::cmp_less(i, length); i++ ) {
 		hash += ToLower( *string++ ) * ( i + 119 );
 	}
 	return hash;
@@ -1183,19 +1284,19 @@ idStr::CopyRange
 ========================
 */
 ID_INLINE void idStr::CopyRange( const char * text, const size_t start, const size_t end ) {
-	int64 l = end - start;
-	if ( l < 0 ) {
-		l = 0;
-	}
+	int64 l = idMath::integer_cast<int64>(end - start);
+	l = std::max<int64>(l, 0);
 
 	EnsureAlloced( l + 1 );
+	if (data)
+	{
+		for (int i = 0; i < l; i++) {
+			data[i] = text[start + i];
+		}
 
-	for ( int i = 0; i < l; i++ ) {
-		data[ i ] = text[ start + i ];
+		data[l] = '\0';
+		len = l;
 	}
-
-	data[ l ] = '\0';
-	len = l;
 }
 
 #endif /* !__STR_H__ */

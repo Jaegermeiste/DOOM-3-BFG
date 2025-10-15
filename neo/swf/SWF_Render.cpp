@@ -50,7 +50,8 @@ extern idCVar in_useJoystick;
 idSWF::DrawStretchPic
 ========================
 */
-void idSWF::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) {
+void idSWF::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) const
+{
 	renderSystem->DrawStretchPic( x * scaleToVirtual.x, y * scaleToVirtual.y, w * scaleToVirtual.x, h * scaleToVirtual.y, s1, t1, s2, t2, material );
 }
 
@@ -59,7 +60,8 @@ void idSWF::DrawStretchPic( float x, float y, float w, float h, float s1, float 
 idSWF::DrawStretchPic
 ========================
 */
-void idSWF::DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material ) {
+void idSWF::DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material ) const
+{
 	renderSystem->DrawStretchPic(
 		idVec4( topLeft.x * scaleToVirtual.x, topLeft.y * scaleToVirtual.y, topLeft.z, topLeft.w ),
 		idVec4( topRight.x * scaleToVirtual.x, topRight.y * scaleToVirtual.y, topRight.z, topRight.w ),
@@ -99,7 +101,7 @@ void idSWF::Render( idRenderSystem * gui, int time, bool isSplitscreen ) {
 			framesToRun = 1;
 		} else {
 			float deltaTime = ( currentTime - lastRenderTime );
-			float fr = ( (float)frameRate / 256.0f ) * swf_timescale.GetFloat();
+			float fr = ( static_cast<float>(frameRate) / 256.0f ) * swf_timescale.GetFloat();
 			framesToRun = idMath::Ftoi( ( fr * deltaTime ) / 1000.0f );
 			lastRenderTime += ( framesToRun * ( 1000.0f / fr ) );
 			if ( framesToRun > 10 ) {
@@ -118,7 +120,7 @@ void idSWF::Render( idRenderSystem * gui, int time, bool isSplitscreen ) {
 	float scale = swfScale * sysHeight / (float)frameHeight;
 
 	swfRenderState_t renderState;
-	renderState.stereoDepth = (stereoDepthType_t)mainspriteInstance->GetStereoDepth();
+	renderState.stereoDepth = static_cast<stereoDepthType_t>(mainspriteInstance->GetStereoDepth());
 	renderState.matrix.xx = scale;
 	renderState.matrix.yy = scale;
 	renderState.matrix.tx = 0.5f * ( sysWidth - ( frameWidth * scale ) );
@@ -126,7 +128,7 @@ void idSWF::Render( idRenderSystem * gui, int time, bool isSplitscreen ) {
 
 	renderBorder = renderState.matrix.tx / scale;
 
-	scaleToVirtual.Set( (float)SCREEN_WIDTH / sysWidth, (float)SCREEN_HEIGHT / sysHeight );
+	scaleToVirtual.Set( static_cast<float>(SCREEN_WIDTH) / sysWidth, static_cast<float>(SCREEN_HEIGHT) / sysHeight );
 
 	RenderSprite( gui, mainspriteInstance, renderState, time, isSplitscreen );
 
@@ -226,7 +228,7 @@ void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInst
 		swfRenderState_t renderState2;
 
 		if ( spriteInstance->stereoDepth != STEREO_DEPTH_TYPE_NONE ) {
-			renderState2.stereoDepth = ( stereoDepthType_t )spriteInstance->stereoDepth; 
+			renderState2.stereoDepth = static_cast<stereoDepthType_t>(spriteInstance->stereoDepth); 
 		} else if ( renderState.stereoDepth != STEREO_DEPTH_TYPE_NONE ) {
 			renderState2.stereoDepth = renderState.stereoDepth;
 		}
@@ -311,49 +313,49 @@ void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInst
 					
 
 					float prevY = renderState2.matrix.ty;
-					renderState2.matrix.ty = ( (float)sysHeight - ( ( (float)frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
+					renderState2.matrix.ty = ( static_cast<float>(sysHeight) - ( ( (float)frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
 					yOffset = (( renderState2.matrix.ty - prevY ) / renderState.matrix.yy );
 					
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_absBottom" ) == 0 ) {
-					renderState2.matrix.ty = ( (float)sysHeight - ( ( (float)frameHeight - display.matrix.ty ) * renderState.matrix.yy ) );
+					renderState2.matrix.ty = ( static_cast<float>(sysHeight) - ( ( (float)frameHeight - display.matrix.ty ) * renderState.matrix.yy ) );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_bottom" ) == 0 ) {
-					renderState2.matrix.ty = ( (float)sysHeight - ( ( (float)frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
+					renderState2.matrix.ty = ( static_cast<float>(sysHeight) - ( ( (float)frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_topRight" ) == 0 ) {
-					renderState2.matrix.tx = ( (float)sysWidth - ( ( (float)frameWidth - display.matrix.tx + widthAdj ) * renderState.matrix.xx ) );
+					renderState2.matrix.tx = ( static_cast<float>(sysWidth) - ( ( (float)frameWidth - display.matrix.tx + widthAdj ) * renderState.matrix.xx ) );
 					renderState2.matrix.ty = ( display.matrix.ty + heightAdj ) * renderState.matrix.yy;
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_right" ) == 0 ) {
 					float prevX = renderState2.matrix.tx;
-					renderState2.matrix.tx = ( (float)sysWidth - ( ( (float)frameWidth - display.matrix.tx + widthAdj ) * renderState.matrix.xx ) );
+					renderState2.matrix.tx = ( static_cast<float>(sysWidth) - ( ( (float)frameWidth - display.matrix.tx + widthAdj ) * renderState.matrix.xx ) );
 					xOffset = (( renderState2.matrix.tx - prevX ) / renderState.matrix.xx );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( idStr::FindText( display.spriteInstance->name, "_absRight", true ) >= 0 ) {
 					float prevX = renderState2.matrix.tx;
-					renderState2.matrix.tx = ( (float)sysWidth - ( ( (float)frameWidth - display.matrix.tx ) * renderState.matrix.xx ) );
+					renderState2.matrix.tx = ( static_cast<float>(sysWidth) - ( ( (float)frameWidth - display.matrix.tx ) * renderState.matrix.xx ) );
 					xOffset = (( renderState2.matrix.tx - prevX ) / renderState.matrix.xx );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );					
 				} else if ( display.spriteInstance->name.Icmp( "_bottomRight" ) == 0 ) {
-					renderState2.matrix.tx = ( (float)sysWidth - ( ( (float)frameWidth - display.matrix.tx + widthAdj ) * renderState.matrix.xx ) );
-					renderState2.matrix.ty = ( (float)sysHeight - ( ( (float)frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
+					renderState2.matrix.tx = ( static_cast<float>(sysWidth) - ( ( (float)frameWidth - display.matrix.tx + widthAdj ) * renderState.matrix.xx ) );
+					renderState2.matrix.ty = ( static_cast<float>(sysHeight) - ( ( (float)frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_absTopLeft" ) == 0 ) {	// ABSOLUTE CORNERS OF SCREEN
 					renderState2.matrix.tx = display.matrix.tx * renderState.matrix.xx;
 					renderState2.matrix.ty = display.matrix.ty * renderState.matrix.yy;
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_absTopRight" ) == 0 ) {
-					renderState2.matrix.tx = ( (float)sysWidth - ( ( (float)frameWidth - display.matrix.tx ) * renderState.matrix.xx ) );
+					renderState2.matrix.tx = ( static_cast<float>(sysWidth) - ( ( (float)frameWidth - display.matrix.tx ) * renderState.matrix.xx ) );
 					renderState2.matrix.ty = display.matrix.ty * renderState.matrix.yy;
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_absBottomLeft" ) == 0 ) {
 					renderState2.matrix.tx = display.matrix.tx * renderState.matrix.xx;
-					renderState2.matrix.ty = ( (float)sysHeight - ( ( (float)frameHeight - display.matrix.ty ) * renderState.matrix.yy ) );
+					renderState2.matrix.ty = ( static_cast<float>(sysHeight) - ( ( (float)frameHeight - display.matrix.ty ) * renderState.matrix.yy ) );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				} else if ( display.spriteInstance->name.Icmp( "_absBottomRight" ) == 0 ) {
-					renderState2.matrix.tx = ( (float)sysWidth - ( ( (float)frameWidth - display.matrix.tx ) * renderState.matrix.xx ) );
-					renderState2.matrix.ty = ( (float)sysHeight - ( ( (float)frameHeight - display.matrix.ty ) * renderState.matrix.yy ) );
+					renderState2.matrix.tx = ( static_cast<float>(sysWidth) - ( ( (float)frameWidth - display.matrix.tx ) * renderState.matrix.xx ) );
+					renderState2.matrix.ty = ( static_cast<float>(sysHeight) - ( ( (float)frameHeight - display.matrix.ty ) * renderState.matrix.yy ) );
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				}
 			}
@@ -545,7 +547,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 			for ( int i = 0 ; i < 2 ; i++ ) {
 				size[i] = entry->imageSize[i];
 				atlasScale[i] = (float)size[i] / atlasSize[i];
-				atlasBias[i] = (float)entry->imageAtlasOffset[i] / atlasSize[i];
+				atlasBias[i] = static_cast<float>(entry->imageAtlasOffset[i]) / atlasSize[i];
 			}
 			// de-normalize color channels after DXT decompression
 			color.mul = entry->channelScale;
@@ -1254,7 +1256,7 @@ void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstan
 		case SWF_ET_ALIGN_JUSTIFY:
 			x = bounds.tl.x;
 			if ( width > ( bounds.br.x - bounds.tl.x ) * 0.5f && index < textLines.Num() - 1 ) {
-				extraSpace = ( ( bounds.br.x - bounds.tl.x ) - width ) / ( (float) lastChar - 1.0f );
+				extraSpace = ( ( bounds.br.x - bounds.tl.x ) - width ) / ( static_cast<float>(lastChar) - 1.0f );
 			}
 			break;
 		}

@@ -34,15 +34,15 @@ public:
 								idUserInterfaceLocal();
 	virtual						~idUserInterfaceLocal();
 
-	virtual const char *		Name() const;
-	virtual const char *		Comment() const;
-	virtual bool				IsInteractive() const;
+	[[nodiscard]] virtual const char *		Name() const;
+	[[nodiscard]] virtual const char *		Comment() const;
+	[[nodiscard]] virtual bool				IsInteractive() const;
 	virtual bool				InitFromFile( const char *qpath, bool rebuild = true, bool cache = true );
 	virtual const char *		HandleEvent( const sysEvent_t *event, int time, bool *updateVisuals );
 	virtual void				HandleNamedEvent( const char* namedEvent );
 	virtual void				Redraw( int time, bool hud );
 	virtual void				DrawCursor();
-	virtual const idDict &		State() const;
+	[[nodiscard]] virtual const idDict &		State() const;
 	virtual void				DeleteStateVar( const char *varName );
 	virtual void				SetStateString( const char *varName, const char *value );
 	virtual void				SetStateBool( const char *varName, const bool value );
@@ -63,29 +63,29 @@ public:
 	virtual bool				WriteToSaveGame( idFile *savefile ) const;
 	virtual bool				ReadFromSaveGame( idFile * savefile );
 	virtual void				SetKeyBindingNames();
-	virtual bool				IsUniqued() const { return uniqued; };
+	[[nodiscard]] virtual bool				IsUniqued() const { return uniqued; };
 	virtual void				SetUniqued( bool b ) { uniqued = b; };
 	virtual void				SetCursor( float x, float y );
 
 	virtual float				CursorX() { return cursorX; }
 	virtual float				CursorY() { return cursorY; }
 
-	size_t						Size();
+	[[nodiscard]] size_t						Size() const;
 
 	idDict *					GetStateDict() { return &state; }
 
-	const char *				GetSourceFile() const { return source; }
+	[[nodiscard]] const char *				GetSourceFile() const { return source; }
 	ID_TIME_T						GetTimeStamp() const { return timeStamp; }
 
-	idWindow *					GetDesktop() const { return desktop; }
+	[[nodiscard]] idWindow *					GetDesktop() const { return desktop; }
 	void						SetBindHandler( idWindow *win ) { bindHandler = win; }
-	bool						Active() const { return active; }
-	int							GetTime() const { return time; }
+	[[nodiscard]] bool						Active() const { return active; }
+	[[nodiscard]] int							GetTime() const { return time; }
 	void						SetTime( int _time ) { time = _time; }
 
 	void						ClearRefs() { refs = 0; }
 	void						AddRef() { refs++; }
-	int							GetRefs() { return refs; }
+	[[nodiscard]] int							GetRefs() const { return refs; }
 
 	void						RecurseSetKeyBindingNames( idWindow *window );
 	idStr						&GetPendingCmd() { return pendingCmd; };
@@ -133,11 +133,11 @@ public:
 	virtual void				Reload( bool all );
 	virtual void				ListGuis() const;
 	virtual bool				CheckGui( const char *qpath ) const;
-	virtual idUserInterface *	Alloc() const;
+	[[nodiscard]] virtual idUserInterface *	Alloc() const;
 	virtual void				DeAlloc( idUserInterface *gui );
 	virtual idUserInterface *	FindGui( const char *qpath, bool autoLoad = false, bool needInteractive = false, bool forceUnique = false );
 	virtual idUserInterface *	FindDemoGui( const char *qpath );
-	virtual	idListGUI *			AllocListGUI() const;
+	[[nodiscard]] virtual	idListGUI *			AllocListGUI() const;
 	virtual void				FreeListGUI( idListGUI *listgui );
 	idTokenParser &				GetBinaryParser() { return mapParser; }
 private:

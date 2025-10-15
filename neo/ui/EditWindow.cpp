@@ -421,7 +421,7 @@ void idEditWindow::PostParse() {
 	if ( sourceFile.Length() ) {
 		void *buffer;
 		fileSystem->ReadFile( sourceFile, &buffer );
-		text = (char *) buffer;
+		text = static_cast<char*>(buffer);
 		fileSystem->FreeFile( buffer );
 	}
 

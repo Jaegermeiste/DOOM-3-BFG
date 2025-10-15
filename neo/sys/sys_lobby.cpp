@@ -126,8 +126,8 @@ void idLobby::Initialize( lobbyType_t sessionType_, idSessionCallbacks * callbac
 
 	if ( lobbyType == GetActingGameStateLobbyType() ) {
 		// only needed in multiplayer mode
-		objMemory		= (uint8*)Mem_Alloc( SNAP_OBJ_JOB_MEMORY, TAG_NETWORKING );
-		lzwData			= (lzwCompressionData_t*)Mem_Alloc( sizeof( lzwCompressionData_t ), TAG_NETWORKING );
+		objMemory		= static_cast<uint8*>(Mem_Alloc(SNAP_OBJ_JOB_MEMORY, TAG_NETWORKING));
+		lzwData			= static_cast<lzwCompressionData_t*>(Mem_Alloc(sizeof(lzwCompressionData_t), TAG_NETWORKING));
 	}
 }
 
@@ -583,7 +583,7 @@ void idLobby::HandlePacket( lobbyAddress_t & remoteAddress, idBitMsg fragMsg, id
 				int usercmdSize = lzwCompressor.Read( usercmdBuffer, sizeof( usercmdBuffer ), true );
 				lzwCompressor.End();
 
-				float receivedBps = ( receivedBps_quantized / (float)( BIT( idLobby::BANDWIDTH_REPORTING_BITS ) - 1 ) ) * (float)idLobby::BANDWIDTH_REPORTING_MAX;
+				float receivedBps = ( receivedBps_quantized / static_cast<float>((BIT(idLobby::BANDWIDTH_REPORTING_BITS) - 1)) ) * static_cast<float>(idLobby::BANDWIDTH_REPORTING_MAX);
 				if ( peers[ peerNum ].receivedBpsIndex != snapNum ) {
 					peers[ peerNum ].receivedBps = receivedBps;
 					peers[ peerNum ].receivedBpsIndex = snapNum;
@@ -594,7 +594,7 @@ void idLobby::HandlePacket( lobbyAddress_t & remoteAddress, idBitMsg fragMsg, id
 				}
 				ApplySnapshotDelta( peerNum, snapNum );
 
-				idBitMsg usercmdMsg( (const byte *)usercmdBuffer, usercmdSize );
+				idBitMsg usercmdMsg( static_cast<const byte*>(usercmdBuffer), usercmdSize );
 				common->NetReceiveUsercmds( peerNum, usercmdMsg );
 			}
 		}
@@ -892,7 +892,7 @@ void idLobby::StartCreating() {
 
 	float skillLevel = GetAverageLocalUserLevel( true );
 
-	lobbyBackend = sessionCB->CreateLobbyBackend( parms, skillLevel, (idLobbyBackend::lobbyBackendType_t)lobbyType );
+	lobbyBackend = sessionCB->CreateLobbyBackend( parms, skillLevel, static_cast<idLobbyBackend::lobbyBackendType_t>(lobbyType) );
 
 	SetState( STATE_CREATE_LOBBY_BACKEND );	
 }
@@ -1325,7 +1325,8 @@ void idLobby::HandleReliablePlayerToPlayerMsg( const reliablePlayerToPlayerHeade
 idLobby::SendConnectionLess
 ========================
 */
-void idLobby::SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type, const byte * data, int dataLen ) {
+void idLobby::SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type, const byte * data, int dataLen ) const
+{
 	idBitMsg msg( data, dataLen );
 	msg.SetSize( dataLen );
 
@@ -1408,7 +1409,7 @@ void idLobby::ConnectTo( const lobbyConnectInfo_t & connectInfo, bool fromInvite
 
 	connectIsFromInvite = fromInvite;
 
-	lobbyBackend = sessionCB->JoinFromConnectInfo( connectInfo, (idLobbyBackend::lobbyBackendType_t)lobbyType );
+	lobbyBackend = sessionCB->JoinFromConnectInfo( connectInfo, static_cast<idLobbyBackend::lobbyBackendType_t>(lobbyType) );
 
 	// First, we need the address of the lobbyBackend owner
 	lobbyBackend->GetOwnerAddress( hostAddress );
@@ -2602,7 +2603,7 @@ void idLobby::HandleReliableMsg( int p, idBitMsg & msg ) {
 		lobbyConnectInfo_t connectInfo;
 		connectInfo.ReadFromMsg( msg );
 
-		const lobbyType_t	destLobbyType	= (lobbyType_t)msg.ReadByte();
+		const lobbyType_t	destLobbyType	= static_cast<lobbyType_t>(msg.ReadByte());
 		const bool			waitForMembers	= msg.ReadBool();
 
 		assert( destLobbyType > lobbyType );		// Make sure this is a proper transition (i.e. TYPE_PARTY moves to TYPE_GAME, TYPE_GAME moves to TYPE_GAME_STATE)
@@ -2715,8 +2716,8 @@ void idLobby::DrawDebugNetworkHUD() const {
 		totalRecvRate += proc.GetIncomingRateBytes();
 		float sentKps = (float)proc.GetOutgoingRateBytes() / 1024.0f;
 		float recvKps = (float)proc.GetIncomingRateBytes() / 1024.0f;
-		float sentMB = (float)proc.GetOutgoingBytes() / ( 1024.0f * 1024.0f );
-		float recvMB = (float)proc.GetIncomingBytes() / ( 1024.0f * 1024.0f );
+		float sentMB = static_cast<float>(proc.GetOutgoingBytes()) / ( 1024.0f * 1024.0f );
+		float recvMB = static_cast<float>(proc.GetIncomingBytes()) / ( 1024.0f * 1024.0f );
 		
 		totalSentMB += sentMB;
 		totalRecvMB += recvMB;
@@ -2736,8 +2737,8 @@ void idLobby::DrawDebugNetworkHUD() const {
 	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "------------------------------------------------------------------------------------------------------------------------------------", colorGreen, false );
 	curY += Y_SPACING;
 
-	float totalSentKps = (float)totalSendRate / 1024.0f;
-	float totalRecvKps = (float)totalRecvRate / 1024.0f;
+	float totalSentKps = static_cast<float>(totalSendRate) / 1024.0f;
+	float totalRecvKps = static_cast<float>(totalRecvRate) / 1024.0f;
 	
 	idVec4 color = totalSentKps > 100.0f ? colorRed : colorGreen;
 	
@@ -2793,8 +2794,8 @@ void idLobby::DrawDebugNetworkHUD2() const {
 
 		totalSendRate += proc.GetOutgoingRate2();
 		totalRecvRate += proc.GetIncomingRate2();
-		float sentKps = ( float )proc.GetOutgoingRate2() / 1024.0f;
-		float recvKps = ( float )proc.GetIncomingRate2() / 1024.0f;
+		float sentKps = static_cast<float>(proc.GetOutgoingRate2()) / 1024.0f;
+		float recvKps = static_cast<float>(proc.GetIncomingRate2()) / 1024.0f;
 
 		// should probably complement that with a bandwidth reading
 		// right now I am mostly concerned about fragmentation and the latency spikes it will cause
@@ -2828,8 +2829,8 @@ void idLobby::DrawDebugNetworkHUD2() const {
 	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "------------------------------------------------------------------", colorGreen, false );
 	curY += Y_SPACING;
 
-	float totalSentKps = (float)totalSendRate / 1024.0f;
-	float totalRecvKps = (float)totalRecvRate / 1024.0f;
+	float totalSentKps = static_cast<float>(totalSendRate) / 1024.0f;
+	float totalRecvKps = static_cast<float>(totalRecvRate) / 1024.0f;
 
 	renderSystem->DrawSmallStringExt( X_OFFSET, curY, va( "Total | %2.02f KB/s | %2.02f KB/s", totalSentKps, totalRecvKps ), colorGreen, false );
 }
@@ -3253,7 +3254,8 @@ void idLobby::BeginBandwidthTest() {
 idLobby::SaturatePeers
 ========================
 */
-bool idLobby::BandwidthTestStarted() {
+bool idLobby::BandwidthTestStarted() const
+{
 	return bandwidthChallengeStartTime != 0;
 }
 /*
@@ -3320,7 +3322,8 @@ void idLobby::ServerUpdateBandwidthTest() {
 
 		msg.WriteLong( peer.bandwidthSequenceNum++ );
 
-		unsigned int randomSize = Min( (unsigned int)(sizeof(buffer) - 12), (unsigned int)session->GetTitleStorageInt( "net_bw_test_packetSizeBytes", net_bw_test_packetSizeBytes.GetInteger() ) );
+		unsigned int randomSize = Min( static_cast<unsigned int>(sizeof(buffer) - 12), static_cast<unsigned int>(session->GetTitleStorageInt("net_bw_test_packetSizeBytes",
+			                               net_bw_test_packetSizeBytes.GetInteger())) );
 		msg.WriteLong( randomSize );
 		
 		for ( unsigned int j=0; j < randomSize; j++ ) {
@@ -3449,23 +3452,23 @@ void idLobby::HandleBandwidhTestValue( int p, idBitMsg & msg ) {
 	// This is the % of complete packets we received. If the packets used in the BWC are big enough to fragment, then pctPackets
 	// will be lower than bytesPct (we will have received a larger PCT of overall bandwidth than PCT of full packets received).
 	// Im not sure if this is a useful distinction or not, but it may be good to compare against for now.
-	float pctPackets = peers[p].bandwidthSequenceNum > 0 ? (float) totalGoodSeq / (float)peers[p].bandwidthSequenceNum : -1.0f;
+	float pctPackets = peers[p].bandwidthSequenceNum > 0 ? static_cast<float>(totalGoodSeq) / static_cast<float>(peers[p].bandwidthSequenceNum) : -1.0f;
 
 	// This is the % of total bytes sent/bytes received.
-	float bytesPct = peers[p].bandwidthTestBytes > 0 ? (float) totalReceivedBytes / (float)peers[p].bandwidthTestBytes : -1.0f;
+	float bytesPct = peers[p].bandwidthTestBytes > 0 ? static_cast<float>(totalReceivedBytes) / static_cast<float>(peers[p].bandwidthTestBytes) : -1.0f;
 
 	// Calculate overall bandwidth for the test. That is, total amount received over time.
 	// We may want to expand this to also factor in an average instantaneous rate. 
 	// For now we are mostly concerned with culling out poor performing clients
 	float peerKBS = -1.0f;
 	if ( verify( totalTime > 0 ) ) {
-		peerKBS = ( (float)totalReceivedBytes / 1024.0f ) / MS2SEC(totalTime);
+		peerKBS = ( static_cast<float>(totalReceivedBytes) / 1024.0f ) / MS2SEC(totalTime);
 	}
 
 	int totalSendTime = peers[p].bandwidthTestLastSendTime - peers[p].bandwidthChallengeStartSendTime;
 	float outgoingKBS = -1.0f;
 	if ( verify( totalSendTime > 0 ) ) {
-		outgoingKBS = ( (float)peers[p].bandwidthTestBytes / 1024.0f ) / MS2SEC(totalSendTime);
+		outgoingKBS = ( static_cast<float>(peers[p].bandwidthTestBytes) / 1024.0f ) / MS2SEC(totalSendTime);
 	}
 
 	float pctKBS = peerKBS / outgoingKBS;
@@ -4038,7 +4041,8 @@ bool idLobby::reliablePlayerToPlayerHeader_t::Read( idLobby * lobby, idBitMsg & 
 idLobby::reliablePlayerToPlayerHeader_t::Write
 ========================
 */
-bool idLobby::reliablePlayerToPlayerHeader_t::Write( idLobby * lobby, idBitMsg & msg ) {
+bool idLobby::reliablePlayerToPlayerHeader_t::Write( idLobby * lobby, idBitMsg & msg ) const
+{
 
 	
 	if ( !verify( lobby->GetLobbyUser( fromSessionUserIndex ) != NULL ) ) {

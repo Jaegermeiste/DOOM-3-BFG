@@ -47,15 +47,15 @@ bool idMat2::InverseSelf() {
 	// 2+4 = 6 multiplications
 	//		 1 division
 
-	double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+	const double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	double invDet = 1.0f / det;
+	const float invDet = idMath::Dtof(1.0 / det);
 
-	double a = mat[0][0];
+	const float a = mat[0][0];
 	mat[0][0] =   mat[1][1] * invDet;
 	mat[0][1] = - mat[0][1] * invDet;
 	mat[1][0] = - mat[1][0] * invDet;
@@ -74,15 +74,15 @@ bool idMat2::InverseFastSelf() {
 	// 2+4 = 6 multiplications
 	//		 1 division
 
-	double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+	const double det = static_cast<double>(mat[0][0]) * mat[1][1] - static_cast<double>(mat[0][1]) * mat[1][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	double invDet = 1.0f / det;
+	const float invDet = idMath::Dtof(1.0 / det);
 
-	double a = mat[0][0];
+	const float a = mat[0][0];
 	mat[0][0] =   mat[1][1] * invDet;
 	mat[0][1] = - mat[0][1] * invDet;
 	mat[1][0] = - mat[1][0] * invDet;
@@ -170,7 +170,7 @@ idQuat idMat3::ToQuat() const {
 
 	static int 	next[ 3 ] = { 1, 2, 0 };
 
-	float trace = mat[0][0] + mat[1][1] + mat[2][2];
+	const float trace = mat[0][0] + mat[1][1] + mat[2][2];
 
 	if ( trace > 0.0f ) {
 
@@ -191,8 +191,8 @@ idQuat idMat3::ToQuat() const {
 		if ( mat[ 2 ][ 2 ] > mat[ i ][ i ] ) {
 			i = 2;
 		}
-		int j = next[i];
-		int k = next[j];
+		const int j = next[i];
+		const int k = next[j];
 
 		t = ( mat[ i ][ i ] - ( mat[ j ][ j ] + mat[ k ][ k ] ) ) + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
@@ -229,7 +229,7 @@ idRotation idMat3::ToRotation() const {
 	float		t;
 	static int 	next[ 3 ] = { 1, 2, 0 };
 
-	float trace = mat[0][0] + mat[1][1] + mat[2][2];
+	const float trace = mat[0][0] + mat[1][1] + mat[2][2];
 	if ( trace > 0.0f ) {
 
 		t = trace + 1.0f;
@@ -249,8 +249,8 @@ idRotation idMat3::ToRotation() const {
 		if ( mat[ 2 ][ 2 ] > mat[ i ][ i ] ) {
 			i = 2;
 		}
-		int j = next[i];  
-		int k = next[j];
+		const int j = next[i];
+		const int k = next[j];
     
 		t = ( mat[ i ][ i ] - ( mat[ j ][ j ] + mat[ k ][ k ] ) ) + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
@@ -316,13 +316,13 @@ bool idMat3::InverseSelf() {
 	inverse[1][0] = mat[1][2] * mat[2][0] - mat[1][0] * mat[2][2];
 	inverse[2][0] = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
 
-	double det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
+	const double det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	double invDet = 1.0f / det;
+	const float invDet = idMath::Dtof(1.0 / det);
 
 	inverse[0][1] = mat[0][2] * mat[2][1] - mat[0][1] * mat[2][2];
 	inverse[0][2] = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
@@ -361,13 +361,13 @@ bool idMat3::InverseFastSelf() {
 	inverse[1][0] = mat[1][2] * mat[2][0] - mat[1][0] * mat[2][2];
 	inverse[2][0] = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
 
-	double det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
+	const double det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	double invDet = 1.0f / det;
+	const float invDet = idMath::Dtof(1.0 / det);
 
 	inverse[0][1] = mat[0][2] * mat[2][1] - mat[0][1] * mat[2][2];
 	inverse[0][2] = mat[0][1] * mat[1][2] - mat[0][2] * mat[1][1];
@@ -618,7 +618,7 @@ idMat4::TransposeSelf
 idMat4 &idMat4::TransposeSelf() {
 	for( int i = 0; i < 4; i++ ) {
 		for( int j = i + 1; j < 4; j++ ) {
-			float temp = mat[i][j];
+			const float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
         }
@@ -673,14 +673,14 @@ bool idMat4::InverseSelf() {
 	const float det3_201_023 = mat[2][0] * det2_01_23 - mat[2][2] * det2_01_03 + mat[2][3] * det2_01_02;
 	const float det3_201_123 = mat[2][1] * det2_01_23 - mat[2][2] * det2_01_13 + mat[2][3] * det2_01_12;
 
-	double det = (-det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[
+	const double det = (-det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[
 		3][3]);
 
 	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
 
-	double invDet = 1.0f / det;
+	const float invDet = idMath::Dtof(1.0 / det);
 
 	// remaining 2x2 sub-determinants
 	const float det2_03_01 = mat[0][0] * mat[3][1] - mat[0][1] * mat[3][0];
@@ -965,7 +965,7 @@ bool idMat4::InverseFastSelf() {
 
 	invDet = 1.0f / det;
 
-	float a = r3[0][0];
+	const float a = r3[0][0];
 	r3[0][0] =   r3[1][1] * invDet;
 	r3[0][1] = - r3[0][1] * invDet;
 	r3[1][0] = - r3[1][0] * invDet;
@@ -1048,7 +1048,7 @@ idMat5::TransposeSelf
 idMat5 &idMat5::TransposeSelf() {
 	for( int i = 0; i < 5; i++ ) {
 		for( int j = i + 1; j < 5; j++ ) {
-			float temp = mat[i][j];
+			const float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
         }
@@ -1106,7 +1106,7 @@ idMat5::InverseSelf
 bool idMat5::InverseSelf() {
 	// 280+5+25 = 310 multiplications
 	//				1 division
-	double det, invDet;
+	double det = 0.0;
 
 	// 2x2 sub-determinants required to calculate 5x5 determinant
 	float det2_34_01 = mat[3][0] * mat[4][1] - mat[3][1] * mat[4][0];
@@ -1146,7 +1146,7 @@ bool idMat5::InverseSelf() {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	float invDet = idMath::Dtof(1.0 / det);
 
 	// remaining 2x2 sub-determinants
 	float det2_23_01 = mat[2][0] * mat[3][1] - mat[2][1] * mat[3][0];
@@ -1592,8 +1592,8 @@ bool idMat5::InverseFastSelf() {
 
 	// r0 = m0.Inverse();	// 3x3
 	float c0 = mat[1 * 5 + 1] * mat[2 * 5 + 2] - mat[1 * 5 + 2] * mat[2 * 5 + 1];
-	float c1 = mat[1 * 5 + 2] * mat[2 * 5 + 0] - mat[1 * 5 + 0] * mat[2 * 5 + 2];
-	float c2 = mat[1 * 5 + 0] * mat[2 * 5 + 1] - mat[1 * 5 + 1] * mat[2 * 5 + 0];
+	const float c1 = mat[1 * 5 + 2] * mat[2 * 5 + 0] - mat[1 * 5 + 0] * mat[2 * 5 + 2];
+	const float c2 = mat[1 * 5 + 0] * mat[2 * 5 + 1] - mat[1 * 5 + 1] * mat[2 * 5 + 0];
 
 	float det = mat[0 * 5 + 0] * c0 + mat[0 * 5 + 1] * c1 + mat[0 * 5 + 2] * c2;
 
@@ -1736,7 +1736,7 @@ idMat6::TransposeSelf
 idMat6 &idMat6::TransposeSelf() {
 	for( int i = 0; i < 6; i++ ) {
 		for( int j = i + 1; j < 6; j++ ) {
-			float temp = mat[i][j];
+			const float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
         }
@@ -1828,7 +1828,7 @@ idMat6::InverseSelf
 bool idMat6::InverseSelf() {
 	// 810+6+36 = 852 multiplications
 	//				1 division
-	double det, invDet;
+	double det = 0.0;
 
 	// 2x2 sub-determinants required to calculate 6x6 determinant
 	float det2_45_01 = mat[4][0] * mat[5][1] - mat[4][1] * mat[5][0];
@@ -1902,7 +1902,7 @@ bool idMat6::InverseSelf() {
 		return false;
 	}
 
-	invDet = 1.0f / det;
+	float invDet = idMath::Dtof(1.0 / det);
 
 	// remaining 2x2 sub-determinants
 	float det2_34_01 = mat[3][0] * mat[4][1] - mat[3][1] * mat[4][0];
@@ -2733,9 +2733,9 @@ bool idMat6::InverseFastSelf() {
 	float *mat = reinterpret_cast<float *>(this);
 
 	// r0 = m0.Inverse();
-	float c0 = mat[1 * 6 + 1] * mat[2 * 6 + 2] - mat[1 * 6 + 2] * mat[2 * 6 + 1];
-	float c1 = mat[1 * 6 + 2] * mat[2 * 6 + 0] - mat[1 * 6 + 0] * mat[2 * 6 + 2];
-	float c2 = mat[1 * 6 + 0] * mat[2 * 6 + 1] - mat[1 * 6 + 1] * mat[2 * 6 + 0];
+	const float c0 = mat[1 * 6 + 1] * mat[2 * 6 + 2] - mat[1 * 6 + 2] * mat[2 * 6 + 1];
+	const float c1 = mat[1 * 6 + 2] * mat[2 * 6 + 0] - mat[1 * 6 + 0] * mat[2 * 6 + 2];
+	const float c2 = mat[1 * 6 + 0] * mat[2 * 6 + 1] - mat[1 * 6 + 1] * mat[2 * 6 + 0];
 
 	float det = mat[0 * 6 + 0] * c0 + mat[0 * 6 + 1] * c1 + mat[0 * 6 + 2] * c2;
 

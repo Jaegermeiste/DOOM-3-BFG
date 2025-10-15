@@ -39,14 +39,14 @@ from accessing the same piece of data simultaneously.
 */
 class idSysMutex {
 public:
-					idSysMutex() { Sys_MutexCreate( handle ); }
+					idSysMutex() noexcept { Sys_MutexCreate( handle ); }
 					~idSysMutex() { Sys_MutexDestroy( handle ); }
 
 	bool			Lock(const bool blocking = true ) { return Sys_MutexLock( handle, blocking ); }
 	void			Unlock() { Sys_MutexUnlock( handle ); }
 
 private:
-	mutexHandle_t	handle;
+	mutable mutexHandle_t	handle;
 
 					idSysMutex( const idSysMutex & s ) {}
 	void			operator=( const idSysMutex & s ) const {}
@@ -78,7 +78,7 @@ class idSysSignal {
 public:
 	static constexpr int	WAIT_INFINITE = -1;
 
-			idSysSignal(const bool manualReset = false )	{ Sys_SignalCreate( handle, manualReset ); }
+			idSysSignal(const bool manualReset = false )	noexcept { Sys_SignalCreate( handle, manualReset ); }
 			~idSysSignal()	{ Sys_SignalDestroy( handle ); }
 
 	void	Raise() { Sys_SignalRaise( handle ); }
@@ -92,7 +92,7 @@ public:
 private:
 	signalHandle_t		handle;
 
-						idSysSignal( const idSysSignal & s ) {}
+						idSysSignal( const idSysSignal & s ) { handle = {};}
 	void				operator=( const idSysSignal & s ) const {}
 };
 
@@ -104,8 +104,8 @@ routines to atomically increment or decrement an integer.
 */
 class idSysInterlockedInteger {
 public:
-						idSysInterlockedInteger() : value( 0 ) {}
-
+						idSysInterlockedInteger() noexcept : value( 0 ) {}
+#if defined(ID_WIN32)
 	// atomically increments the integer and returns the new value
 	int					Increment() { return Sys_InterlockedIncrement( value ); }
 
@@ -113,16 +113,35 @@ public:
 	int					Decrement() { return Sys_InterlockedDecrement( value ); }
 
 	// atomically adds a value to the integer and returns the new value
-	int					Add(const int v ) { return Sys_InterlockedAdd( value, (interlockedInt_t) v ); }
+	int					Add(const int v ) { return Sys_InterlockedAdd( value, static_cast<interlockedInt_t>(v) ); }
 
 	// atomically subtracts a value from the integer and returns the new value
-	int					Sub(const int v ) { return Sys_InterlockedSub( value, (interlockedInt_t) v ); }
+	int					Sub(const int v ) { return Sys_InterlockedSub( value, static_cast<interlockedInt_t>(v) ); }
 
 	// returns the current value of the integer
 	int					GetValue() const { return value; }
 
 	// sets a new value, Note: this operation is not atomic
 	void				SetValue(const int v ) { value = static_cast<interlockedInt_t>(v); }
+#elif defined(ID_WIN64)
+	// atomically increments the integer and returns the new value
+	int64				Increment() { return Sys_InterlockedIncrement(value); }
+
+	// atomically decrements the integer and returns the new value
+	int64				Decrement() { return Sys_InterlockedDecrement(value); }
+
+	// atomically adds a value to the integer and returns the new value
+	int64				Add(const int64 v) { return Sys_InterlockedAdd(value, static_cast<interlockedInt_t>(v)); }
+
+	// atomically subtracts a value from the integer and returns the new value
+	int64				Sub(const int64 v) { return Sys_InterlockedSub(value, static_cast<interlockedInt_t>(v)); }
+
+	// returns the current value of the integer
+	int64				GetValue() const { return value; }
+
+	// sets a new value, Note: this operation is not atomic
+	void				SetValue(const int64 v) { value = static_cast<interlockedInt_t>(v); }
+#endif
 
 private:
 	interlockedInt_t	value;
@@ -270,8 +289,13 @@ private:
 
 	static int		ThreadProc( idSysThread * thread );
 
-					idSysThread( const idSysThread & s ) {}
-	void			operator=( const idSysThread & s ) const {}
+					idSysThread( const idSysThread & s ) : threadHandle(0), isWorker(false), isRunning(false),
+					                                       isTerminating(false),
+					                                       moreWorkToDo(false)
+					{
+					}
+
+					void			operator=( const idSysThread & s ) const {}
 };
 
 /*
@@ -312,7 +336,7 @@ public:
 
 	virtual			~idSysWorkerThreadGroup();
 
-	int				GetNumThreads() const { return threadList.Num(); }
+	size_t			GetNumThreads() const { return threadList.Num(); }
 	threadType &	GetThread( int i ) { return *threadList[i]; }
 
 	void			SignalWorkAndWait();

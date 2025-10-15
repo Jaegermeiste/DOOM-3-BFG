@@ -175,8 +175,10 @@ void idFileManifest::RemoveAll( const char * _fileName ) {
 ========================
 idFileManifest::GetFileNameByIndex 
 ========================
-*/ 
-const idStr & idFileManifest::GetFileNameByIndex( int idx ) const {
+*/
+template <Ordinal I>
+[[nodiscard]] const idStr & idFileManifest::GetFileNameByIndex( I idx ) const {
+	INDEX_CHECK(idx, cacheTable.Num());
 	return cacheTable[ idx ];
 }
 

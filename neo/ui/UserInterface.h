@@ -47,15 +47,15 @@ public:
 	virtual						~idUserInterface() {};
 
 								// Returns the name of the gui.
-	virtual const char *		Name() const = 0;
+	[[nodiscard]] virtual const char *		Name() const = 0;
 
 								// Returns a comment on the gui.
-	virtual const char *		Comment() const = 0;
+	[[nodiscard]] virtual const char *		Comment() const = 0;
 
 								// Returns true if the gui is interactive.
-	virtual bool				IsInteractive() const = 0;
+	[[nodiscard]] virtual bool				IsInteractive() const = 0;
 
-	virtual bool				IsUniqued() const = 0;
+	[[nodiscard]] virtual bool				IsUniqued() const = 0;
 
 	virtual void				SetUniqued( bool b ) = 0;
 								// returns false if it failed to load
@@ -75,7 +75,7 @@ public:
 	virtual void				DrawCursor() = 0;
 
 								// Provides read access to the idDict that holds this gui's state.
-	virtual const idDict &		State() const = 0;
+	[[nodiscard]] virtual const idDict &		State() const = 0;
 
 								// Removes a gui state variable
 	virtual void				DeleteStateVar( const char *varName ) = 0;
@@ -144,7 +144,7 @@ public:
 	virtual bool				CheckGui( const char *qpath ) const = 0;
 
 								// Allocates a new gui.
-	virtual idUserInterface *	Alloc() const = 0;
+	[[nodiscard]] virtual idUserInterface *	Alloc() const = 0;
 
 								// De-allocates a gui.. ONLY USE FOR PRECACHING
 	virtual void				DeAlloc( idUserInterface *gui ) = 0;
@@ -156,7 +156,7 @@ public:
 	virtual idUserInterface *	FindDemoGui( const char *qpath ) = 0;
 
 								// Allocates a new GUI list handler
-	virtual	idListGUI *			AllocListGUI() const = 0;
+	[[nodiscard]] virtual	idListGUI *			AllocListGUI() const = 0;
 
 								// De-allocates a list gui
 	virtual void				FreeListGUI( idListGUI *listgui ) = 0;

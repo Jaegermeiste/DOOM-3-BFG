@@ -254,7 +254,7 @@ void idSWF::DefineEditText( idSWFBitStream & bitstream ) {
 		edittext->maxLength = bitstream.ReadU16();
 	}
 	if ( hasLayout ) {
-		edittext->align = (swfEditTextAlign_t)bitstream.ReadU8();
+		edittext->align = static_cast<swfEditTextAlign_t>(bitstream.ReadU8());
 		edittext->leftMargin = bitstream.ReadU16();
 		edittext->rightMargin = bitstream.ReadU16();
 		edittext->indent = bitstream.ReadU16();
@@ -275,7 +275,7 @@ void idSWF::DefineEditText( idSWFBitStream & bitstream ) {
 				}
 				continue;
 			}
-			byte tc = (byte)text[i];
+			byte tc = static_cast<byte>(text[i]);
 			if ( tc == '&' ) {
 				idStr special;
 				for ( i++; text[i] != 0 && text[i] != ';'; i++ ) {

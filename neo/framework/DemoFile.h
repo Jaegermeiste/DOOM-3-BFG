@@ -49,11 +49,11 @@ public:
 					idDemoFile();
 					~idDemoFile();
 
-	const char *	GetName() { return (f?f->GetName():""); }
-	const char *	GetFullPath() { return (f?f->GetFullPath():""); }
+					[[nodiscard]] const char *	GetName() const { return (f?f->GetName():""); }
+					[[nodiscard]] const char *	GetFullPath() const { return (f?f->GetFullPath():""); }
 
 	void			SetLog( bool b, const char *p );
-	void			Log( const char *p );
+	void			Log( const char *p ) const;
 	bool			OpenForReading( const char *fileName );
 	bool			OpenForWriting( const char *fileName );
 	void			Close();
@@ -64,8 +64,8 @@ public:
 	void			ReadDict( idDict &dict );
 	void			WriteDict( const idDict &dict );
 
-	int				Read( void *buffer, int len );
-	int				Write( const void *buffer, int len );
+	int				Read( void *buffer, int len ) const;
+	int				Write( const void *buffer, int len ) const;
 
 private:
 	static idCompressor *AllocCompressor( int type );

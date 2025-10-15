@@ -39,7 +39,7 @@ idSphere::PlaneDistance
 ================
 */
 float idSphere::PlaneDistance( const idPlane &plane ) const {
-	float d = plane.Distance(origin);
+	const float d = plane.Distance(origin);
 	if ( d > radius ) {
 		return d - radius;
 	}
@@ -55,7 +55,7 @@ idSphere::PlaneSide
 ================
 */
 int idSphere::PlaneSide( const idPlane &plane, const float epsilon ) const {
-	float d = plane.Distance(origin);
+	const float d = plane.Distance(origin);
 	if ( d > radius + epsilon ) {
 		return PLANESIDE_FRONT;
 	}
@@ -73,10 +73,10 @@ idSphere::LineIntersection
 ============
 */
 bool idSphere::LineIntersection( const idVec3 &start, const idVec3 &end ) const {
-	idVec3 s = start - origin;
-	idVec3 e = end - origin;
+	const idVec3 s = start - origin;
+	const idVec3 e = end - origin;
 	idVec3 r = e - s;
-	float a = -s * r;
+	const float a = -s * r;
 	if ( a <= 0 ) {
 		return ( s * s < radius * radius );
 	}
@@ -99,21 +99,21 @@ idSphere::RayIntersection
 ============
 */
 bool idSphere::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale1, float &scale2 ) const {
-	idVec3 p = start - origin;
+	const idVec3 p = start - origin;
 	double a = dir * dir;
-	double b = dir * p;
-	double c = p * p - radius * radius;
-	double d = b * b - c * a;
+	const double b = dir * p;
+	const double c = p * p - static_cast<double>(radius) * radius;
+	const double d = b * b - c * a;
 
 	if ( d < 0.0f ) {
 		return false;
 	}
 
-	double sqrtd = idMath::Sqrt(d);
+	const double sqrtd = idMath::Sqrt(d);
 	a = 1.0f / a;
 
-	scale1 = ( -b + sqrtd ) * a;
-	scale2 = ( -b - sqrtd ) * a;
+	scale1 = idMath::Dtof(( -b + sqrtd ) * a);
+	scale2 = idMath::Dtof(( -b - sqrtd ) * a);
 
 	return true;
 }
@@ -134,7 +134,7 @@ void idSphere::FromPoints( const idVec3 *points, const int numPoints ) {
 
 	float radiusSqr = 0.0f;
 	for ( int i = 0; i < numPoints; i++ ) {
-		float dist = (points[i] - origin).LengthSqr();
+		const float dist = (points[i] - origin).LengthSqr();
 		if ( dist > radiusSqr ) {
 			radiusSqr = dist;
 		}

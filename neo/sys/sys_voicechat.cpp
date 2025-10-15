@@ -384,7 +384,8 @@ bool idVoiceChatMgr::CanSendVoiceTo( int talkerFromIndex, int talkerToIndex ) {
 idVoiceChatMgr::IsRestrictedByPrivleges
 ========================
 */
-bool idVoiceChatMgr::IsRestrictedByPrivleges() {
+bool idVoiceChatMgr::IsRestrictedByPrivleges() const
+{
 	return ( disableVoiceReasons & REASON_PRIVILEGES ) != 0;
 }
 

@@ -36,9 +36,6 @@ idToken::NumberValue
 ================
 */
 void idToken::NumberValue() {
-	int i, div;
-	double m;
-
 	assert( type == TT_NUMBER );
 	const char* p = c_str();
 	floatvalue = 0;
@@ -47,19 +44,20 @@ void idToken::NumberValue() {
 	if ( subtype & TT_FLOAT ) {
 		if ( subtype & ( TT_INFINITE | TT_INDEFINITE | TT_NAN ) ) {
 			if ( subtype & TT_INFINITE ) {			// 1.#INF
-				unsigned int inf = 0x7f800000;
-				floatvalue = static_cast<double>(*(float*)&inf);
+				constexpr unsigned int inf = 0x7f800000;
+				floatvalue = static_cast<double>(static_cast<float>(inf));
 			}
 			else if ( subtype & TT_INDEFINITE ) {	// 1.#IND
-				unsigned int ind = 0xffc00000;
-				floatvalue = static_cast<double>(*(float*)&ind);
+				constexpr unsigned int ind = 0xffc00000;
+				floatvalue = static_cast<double>(static_cast<float>(ind));
 			}
 			else if ( subtype & TT_NAN ) {			// 1.#QNAN
-				unsigned int nan = 0x7fc00000;
-				floatvalue = static_cast<double>(*(float*)&nan);
+				constexpr unsigned int nan = 0x7fc00000;
+				floatvalue = static_cast<double>(static_cast<float>(nan));
 			}
 		}
 		else {
+			double m = 0.0;
 			while( *p && *p != '.' && *p != 'e' ) {
 				floatvalue = floatvalue * 10.0 + static_cast<double>(*p - '0');
 				p++;
@@ -72,6 +70,8 @@ void idToken::NumberValue() {
 				}
 			}
 			if ( *p == 'e' ) {
+				int div = 0;
+				int i = 0;
 				p++;
 				if ( *p == '-' ) {
 					div = true;
@@ -86,7 +86,7 @@ void idToken::NumberValue() {
 				}
 				int pow = 0;
 				for ( pow = 0; *p; p++ ) {
-					pow = pow * 10 + (int) (*p - '0');
+					pow = pow * 10 + (*p - '0');
 				}
 				for ( m = 1.0, i = 0; i < pow; i++ ) {
 					m *= 10.0;
@@ -103,10 +103,10 @@ void idToken::NumberValue() {
 	}
 	else if ( subtype & TT_DECIMAL ) {
 		while( *p ) {
-			intvalue = intvalue * 10 + (*p - '0');
+			intvalue = intvalue * 10 + idMath::integer_cast<int64>(*p - '0');
 			p++;
 		}
-		floatvalue = intvalue;
+		floatvalue = idMath::Itof<double>(intvalue);
 	}
 	else if ( subtype & TT_IPADDRESS ) {
 		int c = 0;
@@ -119,7 +119,7 @@ void idToken::NumberValue() {
 				c = 0;
 			}
 			else {
-				intvalue = intvalue * 10 + (*p - '0');
+				intvalue = intvalue * 10 + idMath::integer_cast<int64>(*p - '0');
 				c++;
 			}
 			p++;
@@ -128,16 +128,16 @@ void idToken::NumberValue() {
 			intvalue = intvalue * 10;
 			c++;
 		}
-		floatvalue = intvalue;
+		floatvalue = idMath::Itof<double>(intvalue);
 	}
 	else if ( subtype & TT_OCTAL ) {
 		// step over the first zero
 		p += 1;
 		while( *p ) {
-			intvalue = (intvalue << 3) + (*p - '0');
+			intvalue = (intvalue << 3) + idMath::integer_cast<int64>(*p - '0');
 			p++;
 		}
-		floatvalue = intvalue;
+		floatvalue = idMath::Itof<double>(intvalue);
 	}
 	else if ( subtype & TT_HEX ) {
 		// step over the leading 0x or 0X
@@ -145,23 +145,29 @@ void idToken::NumberValue() {
 		while( *p ) {
 			intvalue <<= 4;
 			if (*p >= 'a' && *p <= 'f')
-				intvalue += *p - 'a' + 10;
+			{
+				intvalue += idMath::integer_cast<int64>(*p - 'a' + 10);
+			}
 			else if (*p >= 'A' && *p <= 'F')
-				intvalue += *p - 'A' + 10;
+			{
+				intvalue += idMath::integer_cast<int64>(*p - 'A' + 10);
+			}
 			else
-				intvalue += *p - '0';
+			{
+				intvalue += idMath::integer_cast<int64>(*p - '0');
+			}
 			p++;
 		}
-		floatvalue = intvalue;
+		floatvalue = idMath::Itof<double>(intvalue);
 	}
 	else if ( subtype & TT_BINARY ) {
 		// step over the leading 0b or 0B
 		p += 2;
 		while( *p ) {
-			intvalue = (intvalue << 1) + (*p - '0');
+			intvalue = (intvalue << 1) + idMath::integer_cast<int64>(*p - '0');
 			p++;
 		}
-		floatvalue = intvalue;
+		floatvalue = idMath::Itof<double>(intvalue);
 	}
 	subtype |= TT_VALUESVALID;
 }

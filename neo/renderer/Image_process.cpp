@@ -61,7 +61,7 @@ byte *R_ResampleTexture( const byte *in, int inwidth, int inheight,
 		outheight = MAX_DIMENSION;
 	}
 
-	out = (byte *)R_StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
+	out = static_cast<byte*>(R_StaticAlloc(outwidth * outheight * 4, TAG_IMAGE));
 	out_p = out;
 
 	fracstep = inwidth*0x10000/outwidth;
@@ -78,8 +78,8 @@ byte *R_ResampleTexture( const byte *in, int inwidth, int inheight,
 	}
 
 	for (i=0 ; i<outheight ; i++, out_p += outwidth*4 ) {
-		inrow = in + 4 * inwidth * (int)( ( i + 0.25f ) * inheight / outheight );
-		inrow2 = in + 4 * inwidth * (int)( ( i + 0.75f ) * inheight / outheight );
+		inrow = in + 4 * inwidth * static_cast<int>((i + 0.25f) * inheight / outheight);
+		inrow2 = in + 4 * inwidth * static_cast<int>((i + 0.75f) * inheight / outheight);
 		frac = fracstep >> 1;
 		for (j=0 ; j<outwidth ; j++) {
 			pix1 = inrow + p1[j];
@@ -111,11 +111,11 @@ byte *R_Dropsample( const byte *in, int inwidth, int inheight,
 	const byte	*pix1;
 	byte		*out, *out_p;
 
-	out = (byte *)R_StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
+	out = static_cast<byte*>(R_StaticAlloc(outwidth * outheight * 4, TAG_IMAGE));
 	out_p = out;
 
 	for (i=0 ; i<outheight ; i++, out_p += outwidth*4 ) {
-		inrow = in + 4*inwidth*(int)((i+0.25)*inheight/outheight);
+		inrow = in + 4*inwidth*static_cast<int>((i + 0.25) * inheight / outheight);
 		for (j=0 ; j<outwidth ; j++) {
 			k = j * inwidth / outwidth;
 			pix1 = inrow + k * 4;
@@ -217,7 +217,7 @@ byte *R_MipMapWithAlphaSpecularity( const byte *in, int width, int height ) {
 
 	// convert the incoming texture to centered floating point
 	c = width * height;
-	fbuf = (float *)_alloca( c * 4 * sizeof( *fbuf ) );
+	fbuf = static_cast<float*>(_alloca(c * 4 * sizeof(*fbuf)));
 	in_p = in;
 	fbuf_p = fbuf;
 	for ( i = 0 ; i < c ; i++, in_p+=4, fbuf_p += 4 ) {
@@ -237,7 +237,7 @@ byte *R_MipMapWithAlphaSpecularity( const byte *in, int width, int height ) {
 	if ( !newHeight ) {
 		newHeight = 1;
 	}
-	out = (byte *)R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
+	out = static_cast<byte*>(R_StaticAlloc(newWidth * newHeight * 4, TAG_IMAGE));
 	out_p = out;
 
 	in_p = in;
@@ -326,7 +326,7 @@ byte * R_MipMapWithGamma( const byte *in, int width, int height ) {
 	if ( !newHeight ) {
 		newHeight = 1;
 	}
-	out = (byte *)R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
+	out = static_cast<byte*>(R_StaticAlloc(newWidth * newHeight * 4, TAG_IMAGE));
 	out_p = out;
 
 	in_p = in;
@@ -384,7 +384,7 @@ byte * R_MipMap( const byte *in, int width, int height ) {
 	if ( !newHeight ) {
 		newHeight = 1;
 	}
-	out = (byte *)R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
+	out = static_cast<byte*>(R_StaticAlloc(newWidth * newHeight * 4, TAG_IMAGE));
 	out_p = out;
 
 	in_p = in;
@@ -477,7 +477,7 @@ void R_RotatePic( byte *data, int width ) {
 	int		i, j;
 	int		*temp;
 
-	temp = (int *)R_StaticAlloc( width * width * 4, TAG_IMAGE );
+	temp = static_cast<int*>(R_StaticAlloc(width * width * 4, TAG_IMAGE));
 
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < width ; j++ ) {

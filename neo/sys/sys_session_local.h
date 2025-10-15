@@ -49,58 +49,58 @@ idLobbyStub
 */
 class idLobbyStub : public idLobbyBase {
 public:
-	virtual bool						IsHost() const { return false; }
-	virtual bool						IsPeer() const { return false; }
-	virtual bool						HasActivePeers() const { return false; }
-	virtual int							GetNumLobbyUsers() const { return 0; }
-	virtual int							GetNumActiveLobbyUsers() const { return 0; }
-	virtual bool						IsLobbyUserConnected( int index ) const { return false; }
+	[[nodiscard]] virtual bool						IsHost() const { return false; }
+	[[nodiscard]] virtual bool						IsPeer() const { return false; }
+	[[nodiscard]] virtual bool						HasActivePeers() const { return false; }
+	[[nodiscard]] virtual int							GetNumLobbyUsers() const { return 0; }
+	[[nodiscard]] virtual int							GetNumActiveLobbyUsers() const { return 0; }
+	[[nodiscard]] virtual bool						IsLobbyUserConnected( int index ) const { return false; }
 
-	virtual lobbyUserID_t				GetLobbyUserIdByOrdinal( int userIndex ) const { return lobbyUserID_t(); }
-	virtual	int							GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const { return -1; }
+	[[nodiscard]] virtual lobbyUserID_t				GetLobbyUserIdByOrdinal( int userIndex ) const { return lobbyUserID_t(); }
+	[[nodiscard]] virtual	int							GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const { return -1; }
 
 	virtual void						SendReliable( int type, idBitMsg & msg, bool callReceiveReliable = true, peerMask_t sessionUserMask = MAX_UNSIGNED_TYPE( peerMask_t ) ) {}
 	virtual void						SendReliableToLobbyUser( lobbyUserID_t lobbyUserID, int type, idBitMsg & msg ) {}
 	virtual void						SendReliableToHost( int type, idBitMsg & msg ) {}
 
-	virtual const char *				GetLobbyUserName( lobbyUserID_t lobbyUserID ) const { return "INVALID"; }
+	[[nodiscard]] virtual const char *				GetLobbyUserName( lobbyUserID_t lobbyUserID ) const { return "INVALID"; }
 	virtual void						KickLobbyUser( lobbyUserID_t lobbyUserID ) {}
-	virtual bool						IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const { return false; }
-	virtual bool						IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const { return false; }
-	virtual bool						LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const { return false; }
+	[[nodiscard]] virtual bool						IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const { return false; }
+	[[nodiscard]] virtual bool						IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const { return false; }
+	[[nodiscard]] virtual bool						LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const { return false; }
 	virtual void						EnableSnapshotsForLobbyUser( lobbyUserID_t lobbyUserID ) {}
 
-	virtual int							GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const { return 0; }
-	virtual bool						GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const { return false; }
-	virtual bool						GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const { return false; }
-	virtual int							GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const { return 0; }
-	virtual int							GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const { return 0; }
-	virtual int							GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const { return 0; }
+	[[nodiscard]] virtual int							GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const { return 0; }
+	[[nodiscard]] virtual bool						GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const { return false; }
+	[[nodiscard]] virtual bool						GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const { return false; }
+	[[nodiscard]] virtual int							GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const { return 0; }
+	[[nodiscard]] virtual int							GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const { return 0; }
+	[[nodiscard]] virtual int							GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const { return 0; }
 	virtual bool						SetLobbyUserTeam( lobbyUserID_t lobbyUserID, int teamNumber ) { return false; }
-	virtual int							GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const { return 0; }
+	[[nodiscard]] virtual int							GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const { return 0; }
 	virtual idPlayerProfile *			GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID ) { return nullptr; }
 	virtual idLocalUser *				GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID ) { return nullptr; }
-	virtual int							GetNumLobbyUsersOnTeam( int teamNumber ) const { return 0; }
+	[[nodiscard]] virtual int							GetNumLobbyUsersOnTeam( int teamNumber ) const { return 0; }
 
-	virtual int							PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const { return -1; }
+	[[nodiscard]] virtual int							PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const { return -1; }
 
-	virtual int							GetPeerTimeSinceLastPacket( int peerIndex ) const { return 0; }
-	virtual int							PeerIndexForHost() const { return -1; }
+	[[nodiscard]] virtual int							GetPeerTimeSinceLastPacket( int peerIndex ) const { return 0; }
+	[[nodiscard]] virtual int							PeerIndexForHost() const { return -1; }
 
 	virtual lobbyUserID_t				AllocLobbyUserSlotForBot( const char * botName ) { return lobbyUserID_t(); }
 	virtual void						RemoveBotFromLobbyUserList( lobbyUserID_t lobbyUserID ) {}
-	virtual bool						GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const { return false; }
+	[[nodiscard]] virtual bool						GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const { return false; }
 
-	virtual const char *				GetHostUserName() const { return "INVALID"; }
-	virtual const idMatchParameters &	GetMatchParms() const { return fakeParms; }
-	virtual bool						IsLobbyFull() const { return false; }
+	[[nodiscard]] virtual const char *				GetHostUserName() const { return "INVALID"; }
+	[[nodiscard]] virtual const idMatchParameters &	GetMatchParms() const { return fakeParms; }
+	[[nodiscard]] virtual bool						IsLobbyFull() const { return false; }
 
 	virtual bool						EnsureAllPeersHaveBaseState() { return false; }
-	virtual bool						AllPeersInGame() const { return false; }
-	virtual int							GetNumConnectedPeers() const { return 0; }
-	virtual int							GetNumConnectedPeersInGame() const { return 0; }
-	virtual int							PeerIndexOnHost() const { return -1; }
-	virtual bool						IsPeerDisconnected( int peerIndex ) const { return false; }
+	[[nodiscard]] virtual bool						AllPeersInGame() const { return false; }
+	[[nodiscard]] virtual int							GetNumConnectedPeers() const { return 0; }
+	[[nodiscard]] virtual int							GetNumConnectedPeersInGame() const { return 0; }
+	[[nodiscard]] virtual int							PeerIndexOnHost() const { return -1; }
+	[[nodiscard]] virtual bool						IsPeerDisconnected( int peerIndex ) const { return false; }
 
 	virtual bool						AllPeersHaveStaleSnapObj( int objId ) { return false; }
 	virtual bool						AllPeersHaveExpectedSnapObj( int objId ) { return false; }
@@ -189,12 +189,12 @@ public:
 	virtual bool			IsPlatformPartyInLobby();
 
 	// Downloadable Content
-	virtual int				GetNumContentPackages() const;
-	virtual int				GetContentPackageID( int contentIndex ) const;
-	virtual const char *	GetContentPackagePath( int contentIndex ) const;
-	virtual int				GetContentPackageIndexForID( int contentID ) const;
+	[[nodiscard]] virtual int				GetNumContentPackages() const;
+	[[nodiscard]] virtual int				GetContentPackageID( int contentIndex ) const;
+	[[nodiscard]] virtual const char *	GetContentPackagePath( int contentIndex ) const;
+	[[nodiscard]] virtual int				GetContentPackageIndexForID( int contentID ) const;
 
-	virtual bool			GetSystemMarketplaceHasNewContent() const { return marketplaceHasNewContent; }
+	[[nodiscard]] virtual bool			GetSystemMarketplaceHasNewContent() const { return marketplaceHasNewContent; }
 	virtual void			SetSystemMarketplaceHasNewContent( bool hasNewContent ) { marketplaceHasNewContent = hasNewContent; }
 
 	// Lobby management 
@@ -212,21 +212,21 @@ public:
 	virtual void			Cancel();
 	virtual void			MoveToPressStart();
 	virtual void			FinishDisconnect();
-	virtual bool			ShouldShowMigratingDialog() const;	// Note this is not in sys_session.h
-	virtual bool			IsCurrentLobbyMigrating() const;
-	virtual bool			IsLosingConnectionToHost() const;
+	[[nodiscard]] virtual bool			ShouldShowMigratingDialog() const;	// Note this is not in sys_session.h
+	[[nodiscard]] virtual bool			IsCurrentLobbyMigrating() const;
+	[[nodiscard]] virtual bool			IsLosingConnectionToHost() const;
 	
 	// Migration
-	virtual bool			WasMigrationGame() const;
-	virtual bool			ShouldRelaunchMigrationGame() const;
+	[[nodiscard]] virtual bool			WasMigrationGame() const;
+	[[nodiscard]] virtual bool			ShouldRelaunchMigrationGame() const;
 	virtual bool			GetMigrationGameData( idBitMsg & msg, bool reading );
 	virtual bool			GetMigrationGameDataUser( lobbyUserID_t lobbyUserID, idBitMsg & msg, bool reading );
 
-	virtual bool			WasGameLobbyCoalesced() const { return gameLobbyWasCoalesced; }
+	[[nodiscard]] virtual bool			WasGameLobbyCoalesced() const { return gameLobbyWasCoalesced; }
 
 	// Misc
 	virtual	int				GetLoadingID() { return loadingID; }
-	virtual bool			IsAboutToLoad() const { return GetGameLobby().IsLobbyActive() && GetGameLobby().startLoadingFromHost; }
+	[[nodiscard]] virtual bool			IsAboutToLoad() const { return GetGameLobby().IsLobbyActive() && GetGameLobby().startLoadingFromHost; }
 	virtual bool			GetMatchParamUpdate( int &peer, int &msg );
 	virtual int				GetInputRouting( int inputRouting[ MAX_INPUT_DEVICES ] );
 	virtual void			EndMatch( bool premature=false );			// Meant for host to end match gracefully, go back to lobby, tally scores, etc
@@ -237,14 +237,14 @@ public:
 	virtual void			Pump();
 	virtual void			ProcessSnapAckQueue();
 
-	virtual sessionState_t	GetState() const;
-	virtual const char *	GetStateString() const ;
+	[[nodiscard]] virtual sessionState_t	GetState() const;
+	[[nodiscard]] virtual const char *	GetStateString() const ;
 	
 	virtual void			SendUsercmds( idBitMsg & msg );
 	virtual void			SendSnapshot( idSnapShot & ss );
 	virtual const char *	GetPeerName( int peerNum );
 
-	virtual const char *	GetLocalUserName( int i ) const { return signInManager->GetLocalUserByIndex( i )->GetGamerTag(); }
+	[[nodiscard]] virtual const char *	GetLocalUserName( int i ) const { return signInManager->GetLocalUserByIndex( i )->GetGamerTag(); }
 	virtual void			UpdateSignInManager();
 	virtual idPlayerProfile * GetProfileFromMasterLocalUser();
 
@@ -270,7 +270,7 @@ public:
 	//	Voice chat
 	//=====================================================================================================
 	virtual voiceState_t		GetLobbyUserVoiceState( lobbyUserID_t lobbyUserID );
-	virtual voiceStateDisplay_t GetDisplayStateFromVoiceState( voiceState_t voiceState ) const;
+	[[nodiscard]] virtual voiceStateDisplay_t GetDisplayStateFromVoiceState( voiceState_t voiceState ) const;
 	virtual void				ToggleLobbyUserVoiceMute( lobbyUserID_t lobbyUserID );
 	virtual void				SetActiveChatGroup( int groupIndex );
 	virtual void				UpdateMasterUserHeadsetState();
@@ -291,9 +291,9 @@ public:
 	virtual bool			HasPendingBootableInvite() = 0;
 	virtual void			SetDiscSwapMPInvite( void * parm ) = 0;		// call to request a discSwap multiplayer invite
 	virtual void *			GetDiscSwapMPInviteParms() = 0;
-	virtual bool			IsDiscSwapMPInviteRequested() const { return inviteInfoRequested; }
+	[[nodiscard]] virtual bool			IsDiscSwapMPInviteRequested() const { return inviteInfoRequested; }
 
-	bool					GetFlushedStats() { return flushedStats; }
+	[[nodiscard]] bool					GetFlushedStats() const { return flushedStats; }
 	void					SetFlushedStats( bool _flushedStats ) { flushedStats = _flushedStats; }
 	
 	//=====================================================================================================
@@ -329,12 +329,12 @@ public:
 	virtual bool			ProcessInputEvent( const sysEvent_t * ev ) = 0;
 
 	// Play with Friends server listing
-	virtual int				NumServers() const = 0;
+	[[nodiscard]] virtual int				NumServers() const = 0;
 	virtual void			ListServers( const idCallback & callback ) = 0;
 	virtual void			ListServersCommon();
 	virtual void			CancelListServers() = 0;
 	virtual void			ConnectToServer( int i ) = 0;
-	virtual const serverInfo_t * ServerInfo( int i ) const = 0;
+	[[nodiscard]] virtual const serverInfo_t * ServerInfo( int i ) const = 0;
 	virtual const idList< idStr > * ServerPlayerList( int i );
 	virtual void			ShowServerGamerCardUI( int i ) = 0;
 
@@ -342,7 +342,7 @@ public:
 	virtual void 			HandleServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) = 0;
 
 	// System UI
-	virtual bool			IsSystemUIShowing() const = 0;
+	[[nodiscard]] virtual bool			IsSystemUIShowing() const = 0;
 	virtual void			SetSystemUIShowing( bool show ) = 0;
 
 	virtual void			ShowSystemMarketplaceUI() const = 0;
@@ -369,16 +369,16 @@ public:
 	virtual saveGameHandle_t	DeleteSaveGameSync( const char * name );
 	virtual saveGameHandle_t	DeleteSaveGameAsync( const char * name );
 
-	virtual bool							IsSaveGameCompletedFromHandle( const saveGameHandle_t & handle ) const { return saveGameManager->IsSaveGameCompletedFromHandle( handle ); }
+	[[nodiscard]] virtual bool							IsSaveGameCompletedFromHandle( const saveGameHandle_t & handle ) const { return saveGameManager->IsSaveGameCompletedFromHandle( handle ); }
 	virtual void							CancelSaveGameWithHandle( const saveGameHandle_t & handle ) { GetSaveGameManager().CancelWithHandle( handle ); }
-	virtual const saveGameDetailsList_t &	GetEnumeratedSavegames() const { return saveGameManager->GetEnumeratedSavegames(); }
-	virtual bool							IsEnumerating() const;
-	virtual saveGameHandle_t				GetEnumerationHandle() const;
+	[[nodiscard]] virtual const saveGameDetailsList_t &	GetEnumeratedSavegames() const { return saveGameManager->GetEnumeratedSavegames(); }
+	[[nodiscard]] virtual bool							IsEnumerating() const;
+	[[nodiscard]] virtual saveGameHandle_t				GetEnumerationHandle() const;
 	virtual void							SetCurrentSaveSlot( const char * slotName ) { currentSaveSlot = slotName; }
-	virtual const char *					GetCurrentSaveSlot() const { return currentSaveSlot.c_str(); }
+	[[nodiscard]] virtual const char *					GetCurrentSaveSlot() const { return currentSaveSlot.c_str(); }
 
 	// Notifications
-	void					OnSaveCompleted( idSaveLoadParms * parms );
+	void					OnSaveCompleted( idSaveLoadParms * parms ) const;
 	void					OnLoadCompleted( idSaveLoadParms * parms );
 	void					OnDeleteCompleted( idSaveLoadParms * parms );
 	void					OnEnumerationCompleted( idSaveLoadParms * parms );
@@ -408,24 +408,24 @@ protected:
 
 	// The party and game lobby are the two platform lobbies that notify the backends (Steam/PSN/LIVE of changes)
 	idLobby &				GetPartyLobby()				{ return partyLobby; }
-	const idLobby &			GetPartyLobby() const		{ return partyLobby; }
+	[[nodiscard]] const idLobby &			GetPartyLobby() const		{ return partyLobby; }
 	idLobby &				GetGameLobby()				{ return gameLobby; }
-	const idLobby &			GetGameLobby() const		{ return gameLobby; }
+	[[nodiscard]] const idLobby &			GetGameLobby() const		{ return gameLobby; }
 
 	// Game state lobby is the lobby used while in-game.  It is so the dedicated server can host this lobby
 	// and have all platform clients join. It does NOT notify the backends of changes, it's purely for the dedicated
 	// server to be able to host the in-game lobby.
 	// Generally, you would call GetActingGameStateLobby.  If we are not using game state lobby, GetActingGameStateLobby will return GetGameLobby insread.
 	idLobby &				GetGameStateLobby()			{ return gameStateLobby; }
-	const idLobby &			GetGameStateLobby() const	{ return gameStateLobby; }
+	[[nodiscard]] const idLobby &			GetGameStateLobby() const	{ return gameStateLobby; }
 
 	idLobby &				GetActingGameStateLobby();
-	const idLobby &			GetActingGameStateLobby() const;
+	[[nodiscard]] const idLobby &			GetActingGameStateLobby() const;
 	
 	// GetActivePlatformLobby will return either the game or party lobby, it won't return the game state lobby
 	// This function is generally used for menus, in-game code should refer to GetActingGameStateLobby
 	idLobby *				GetActivePlatformLobby();
-	const idLobby *			GetActivePlatformLobby() const;
+	[[nodiscard]] const idLobby *			GetActivePlatformLobby() const;
 	
 	idLobby *				GetLobbyFromType( idLobby::lobbyType_t lobbyType );
 
@@ -441,7 +441,7 @@ protected:
 
 	void					HandleVoiceRestrictionDialog();
 	void					SetDroppedByHost( bool dropped ) { droppedByHost = dropped; }
-	bool					GetDroppedByHost() { return droppedByHost; }
+	[[nodiscard]] bool					GetDroppedByHost() const { return droppedByHost; }
 
 public:
 	int						storedPeer;
@@ -568,7 +568,7 @@ protected:
 	void	RecvLeaderboardStatsForPlayer( idBitMsg & msg );
 
 	const leaderboardDefinition_t * ReadLeaderboardFromMsg( idBitMsg & msg, column_t * stats );
-	bool	RequirePersistentMaster();
+	[[nodiscard]] bool	RequirePersistentMaster() const;
 	
 	virtual idNetSessionPort &	GetPort( bool dedicated = false ) = 0; 
 	virtual idLobbyBackend *	CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) = 0;
@@ -580,7 +580,7 @@ protected:
 	virtual bool				GetNetAddressFromLobbyAddress( const lobbyAddress_t & lobbyAddress, netadr_t & outNetAddr ) const = 0;
 
 	void 	HandleDedicatedServerQueryRequest( lobbyAddress_t & remoteAddr, idBitMsg & msg, int msgType );
-	void 	HandleDedicatedServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg );
+	void 	HandleDedicatedServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) const;
 
 
 	void	ClearMigrationState();	
@@ -647,7 +647,7 @@ public:
 	virtual idLobby &				GetActingGameStateLobby()	{ return sessionLocal->GetActingGameStateLobby(); }
 	virtual idLobby *				GetLobbyFromType( idLobby::lobbyType_t lobbyType ) { return sessionLocal->GetLobbyFromType( lobbyType ); }
 
-	virtual int						GetUniquePlayerId() const { return sessionLocal->currentID++; }
+	[[nodiscard]] virtual int						GetUniquePlayerId() const { return sessionLocal->currentID++; }
 	virtual idSignInManagerBase	&	GetSignInManager() { return *sessionLocal->signInManager; }
 	virtual	void					SendRawPacket( const lobbyAddress_t & to, const void * data, int size, bool useDirectPort ) { sessionLocal->SendRawPacket( to, data, size, useDirectPort ); }
 	
@@ -662,9 +662,9 @@ public:
 	virtual void					GoodbyeFromHost( idLobby & lobby, int peerNum, const lobbyAddress_t & remoteAddress, int msgType );
 	virtual	uint32					GetSessionOptions() { return sessionLocal->sessionOptions; }
 
-	virtual bool					AnyPeerHasAddress( const lobbyAddress_t & remoteAddress ) const;
+	[[nodiscard]] virtual bool					AnyPeerHasAddress( const lobbyAddress_t & remoteAddress ) const;
 
-	virtual idSession::sessionState_t GetState() const { return sessionLocal->GetState(); }
+	[[nodiscard]] virtual idSession::sessionState_t GetState() const { return sessionLocal->GetState(); }
 
 	virtual void					ClearMigrationState() { GetPartyLobby().ResetAllMigrationState(); GetGameLobby().ResetAllMigrationState(); }
 

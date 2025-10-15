@@ -35,14 +35,14 @@ class idVec2i {
 public:
     int      x, y;
 
-	idVec2i() {}
+	idVec2i() noexcept {}
 	idVec2i( int _x, int _y ) : x(_x), y(_y ) {}
 
 	void		Set( int _x, int _y ) { x = _x; y = _y; }
 	int			Area() const { return x * y; }
 
-    void		Min( idVec2i &v ) { x = MinInt( x, v.x ); y = MinInt( y, v.y ); }
-	void		Max( idVec2i &v ) { x = MaxInt( x, v.x ); y = MaxInt( y, v.y ); }
+    void		Min(const idVec2i &v ) { x = MinInt( x, v.x ); y = MinInt( y, v.y ); }
+	void		Max(const idVec2i &v ) { x = MaxInt( x, v.x ); y = MaxInt( y, v.y ); }
 
 	int			operator[]( const int index ) const { assert( index == 0 || index == 1 ); return (&x)[index]; }
 	int &		operator[]( const int index ) { assert( index == 0 || index == 1 ); return (&x)[index]; }

@@ -53,7 +53,7 @@ public:
 	int					GetSelection( char *s, int size, int sel = 0 ) const; // returns the id, not the list index (or -1)
 	void				SetSelection( int sel );
 	int					GetNumSelections();
-	bool				IsConfigured() const;
+						[[nodiscard]] bool				IsConfigured() const;
 	void				SetStateChanges( bool enable );
 	void				Shutdown();
 

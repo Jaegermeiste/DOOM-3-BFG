@@ -56,9 +56,9 @@ idSIMD::InitProcessor
 ============
 */
 void idSIMD::InitProcessor( const char *module, const bool forceGeneric ) {
-	idSIMDProcessor *newProcessor;
+	idSIMDProcessor *newProcessor = nullptr;
 
-	cpuid_t cpuid = idLib::sys->GetProcessorId();
+	const cpuid_t cpuid = idLib::sys->GetProcessorId();
 
 	if ( forceGeneric ) {
 
@@ -116,11 +116,11 @@ void idSIMD::Shutdown() {
 //
 //===============================================================
 
-#define COUNT		999			// data count (odd to catch edge cases)
-#define BIG_COUNT	COUNT*5		// Some tests need a larger count
-#define NUMTESTS	2048		// number of tests
+constexpr auto COUNT = 999;			// data count (odd to catch edge cases)
+#define BIG_COUNT	(COUNT*5)		// Some tests need a larger count
+constexpr size_t NUMTESTS = 2048;		// number of tests
 
-#define RANDOM_SEED		1013904223L	//((int)idLib::sys->GetClockTicks())
+constexpr auto RANDOM_SEED = 1013904223L;	//((int)idLib::sys->GetClockTicks())
 
 static idSIMDProcessor *p_simd = nullptr;
 static idSIMDProcessor *p_generic = nullptr;
@@ -158,11 +158,12 @@ static long saved_ebx = 0;
 #elif defined (ID_WIN64)
 // Read TSC with proper serialization.
 // Pattern: LFENCE; RDTSC ... RDTSCP; LFENCE
-inline void StartRecordTime(TIME_TYPE &start) {
+static inline void StartRecordTime(TIME_TYPE &start) {
 	_mm_lfence();                 // serialize before start
 	start = __rdtsc();             // t0 (not serializing itself)
 }
-inline void StopRecordTime(TIME_TYPE &end) {
+
+static inline void StopRecordTime(TIME_TYPE &end) {
 	unsigned aux;
 	const uint64_t t = __rdtscp(&aux);  // serializing read
 	_mm_lfence();                 // keep following loads/stores after
@@ -171,8 +172,8 @@ inline void StopRecordTime(TIME_TYPE &end) {
 #endif // ID_WIN32
 
 #define GetBest( start, end, best )			\
-	if ( !best || end - start < best ) {	\
-		best = end - start;					\
+	if ( !(best) || (end) - (start) < (best) ) {	\
+		(best) = (end) - (start);					\
 	}
 
 
@@ -353,10 +354,10 @@ TestMemcpy
 ============
 */
 static void TestMemcpy() {
-	TIME_TYPE start, end;
-	int i;
-	byte test0[BIG_COUNT];
-	byte test1[BIG_COUNT];
+	TIME_TYPE start = 0, end = 0;
+	int i = 0;
+	byte test0[BIG_COUNT] = {};
+	byte test1[BIG_COUNT] = {};
 
 	idRandom random( RANDOM_SEED );
 	for ( i = 0; i < BIG_COUNT; i++ ) {
@@ -474,7 +475,7 @@ static void TestBlendJoints() {
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
 	idTempArray< idJointQuat > blendJoints( COUNT );
-	idTempArray< int > index( COUNT );
+	idTempArray< size_t > index( COUNT );
 	constexpr float lerp = 0.3f;
 
 	idRandom srnd( RANDOM_SEED );
@@ -541,13 +542,13 @@ TestBlendJoints
 ============
 */
 static void TestBlendJointsFast() {
-	int i, j;
+	size_t i = 0, j = 0;
 	TIME_TYPE start, end;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
 	idTempArray< idJointQuat > blendJoints( COUNT );
-	idTempArray< int > index( COUNT );
+	idTempArray< size_t > index( COUNT );
 	constexpr float lerp = 0.3f;
 
 	idRandom srnd( RANDOM_SEED );
@@ -679,7 +680,7 @@ static void TestConvertJointMatsToJointQuats() {
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
 		baseJoints[i].SetRotation( angles.ToMat3() );
-		idVec3 v;
+		idVec3 v = {};
 		v[0] = srnd.CRandomFloat() * 10.0f;
 		v[1] = srnd.CRandomFloat() * 10.0f;
 		v[2] = srnd.CRandomFloat() * 10.0f;
@@ -721,12 +722,12 @@ TestTransformJoints
 ============
 */
 static void TestTransformJoints() {
-	int i, j;
+	size_t i = 0, j = 0;
 	TIME_TYPE start, end;
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
-	idTempArray< int > parents( COUNT+1 );
+	idTempArray< size_t > parents( COUNT+1 );
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -782,12 +783,12 @@ TestUntransformJoints
 ============
 */
 static void TestUntransformJoints() {
-	int i, j;
+	size_t i = 0, j = 0;
 	TIME_TYPE start, end;
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
-	idTempArray< int > parents( COUNT+1 );
+	idTempArray< size_t > parents( COUNT+1 );
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -843,7 +844,7 @@ TestMath
 ============
 */
 static void TestMath() {
-	int i;
+	size_t i = 0;
 	TIME_TYPE start, end, bestClocks;
 
 	idLib::common->Printf("====================================\n" );
@@ -869,9 +870,9 @@ static void TestMath() {
 	tst = rnd.CRandomFloat();
 	for ( i = 0; i < NUMTESTS; i++ ) {
 		StartRecordTime( start );
-		int tmp = * ( int * ) &tst;
+		int tmp = * reinterpret_cast<int*>(&tst);
 		tmp &= 0x7FFFFFFF;
-		tst = * ( float * ) &tmp;
+		tst = * reinterpret_cast<float*>(&tmp);
 		StopRecordTime( end );
 		GetBest( start, end, bestClocks );
 		testvar = ( testvar + tst ) * tst;

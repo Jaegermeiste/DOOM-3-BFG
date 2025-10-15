@@ -87,29 +87,29 @@ class idDeclLocal : public idDeclBase {
 public:
 								idDeclLocal();
 	virtual 					~idDeclLocal() {};
-	virtual const char *		GetName() const;
-	virtual declType_t			GetType() const;
-	virtual declState_t			GetState() const;
-	virtual bool				IsImplicit() const;
-	virtual bool				IsValid() const;
+	[[nodiscard]] virtual const char *		GetName() const;
+	[[nodiscard]] virtual declType_t			GetType() const;
+	[[nodiscard]] virtual declState_t			GetState() const;
+	[[nodiscard]] virtual bool				IsImplicit() const;
+	[[nodiscard]] virtual bool				IsValid() const;
 	virtual void				Invalidate();
 	virtual void				Reload();
 	virtual void				EnsureNotPurged();
-	virtual int					Index() const;
-	virtual int					GetLineNum() const;
-	virtual const char *		GetFileName() const;
-	virtual size_t				Size() const;
+	[[nodiscard]] virtual int					Index() const;
+	[[nodiscard]] virtual int					GetLineNum() const;
+	[[nodiscard]] virtual const char *		GetFileName() const;
+	[[nodiscard]] virtual size_t				Size() const;
 	virtual void				GetText( char *text ) const;
-	virtual int					GetTextLength() const;
+	[[nodiscard]] virtual int					GetTextLength() const;
 	virtual void				SetText( const char *text );
 	virtual bool				ReplaceSourceFileText();
-	virtual bool				SourceFileChanged() const;
+	[[nodiscard]] virtual bool				SourceFileChanged() const;
 	virtual void				MakeDefault();
-	virtual bool				EverReferenced() const;
+	[[nodiscard]] virtual bool				EverReferenced() const;
 
 protected:
 	virtual bool				SetDefaultText();
-	virtual const char *		DefaultDefinition() const;
+	[[nodiscard]] virtual const char *		DefaultDefinition() const;
 	virtual bool				Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void				FreeData();
 	virtual void				List() const;
@@ -477,7 +477,7 @@ int HuffmanCompressText( const char *text, int textLength, byte *compressed, int
 	msg.InitWrite( compressed, maxCompressedSize );
 	msg.BeginWriting();
 	for ( i = 0; i < textLength; i++ ) {
-		const huffmanCode_t &code = huffmanCodes[(unsigned char)text[i]];
+		const huffmanCode_t &code = huffmanCodes[static_cast<unsigned char>(text[i])];
 		for ( j = 0; j < ( code.numBits >> 5 ); j++ ) {
 			msg.WriteBits( code.bits[j], 32 );
 		}
@@ -525,7 +525,7 @@ void ListHuffmanFrequencies_f( const idCmdArgs &args ) {
 	int		i;
 	float compression;
 	compression = !totalUncompressedLength ? 100 : 100 * totalCompressedLength / totalUncompressedLength;
-	common->Printf( "// compression ratio = %d%%\n", (int)compression );
+	common->Printf( "// compression ratio = %d%%\n", static_cast<int>(compression) );
 	common->Printf( "static int huffmanFrequencies[] = {\n" );
 	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i += 8 ) {
 		common->Printf( "\t0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x,\n",
@@ -968,7 +968,7 @@ idDeclManagerLocal::RegisterDeclType
 void idDeclManagerLocal::RegisterDeclType( const char *typeName, declType_t type, idDecl *(*allocator)() ) {
 	idDeclType *declType;
 
-	if ( type < declTypes.Num() && declTypes[(int)type] ) {
+	if ( type < declTypes.Num() && declTypes[static_cast<int>(type)] ) {
 		common->Warning( "idDeclManager::RegisterDeclType: type '%s' already exists", typeName );
 		return;
 	}
@@ -978,8 +978,8 @@ void idDeclManagerLocal::RegisterDeclType( const char *typeName, declType_t type
 	declType->type = type;
 	declType->allocator = allocator;
 
-	if ( (int)type + 1 > declTypes.Num() ) {
-		declTypes.AssureSize( (int)type + 1, nullptr);
+	if ( static_cast<int>(type) + 1 > declTypes.Num() ) {
+		declTypes.AssureSize( static_cast<int>(type) + 1, nullptr);
 	}
 	declTypes[type] = declType;
 }
@@ -1052,11 +1052,11 @@ int idDeclManagerLocal::GetChecksum() const {
 		total += linearLists[i].Num();
 	}
 
-	checksumData = (int *) _alloca16( total * 2 * sizeof( int ) );
+	checksumData = static_cast<int*>(_alloca16(total * 2 * sizeof( int )));
 
 	total = 0;
 	for ( i = 0; i < DECL_MAX_TYPES; i++ ) {
-		declType_t type = (declType_t) i;
+		declType_t type = static_cast<declType_t>(i);
 
 		// FIXME: not particularly pretty but PDAs and associated decls are localized and should not be checksummed
 		if ( type == DECL_PDA || type == DECL_VIDEO || type == DECL_AUDIO || type == DECL_EMAIL ) {
@@ -1266,9 +1266,9 @@ void idDeclManagerLocal::ListType( const idCmdArgs &args, declType_t type ) {
 
 	common->Printf( "--------------------\n" );
 	int printed = 0;
-	int	count = linearLists[ (int)type ].Num();
+	int	count = linearLists[ static_cast<int>(type) ].Num();
 	for ( int i = 0 ; i < count ; i++ ) {
-		idDeclLocal *decl = linearLists[ (int)type ][ i ];
+		idDeclLocal *decl = linearLists[ static_cast<int>(type) ][ i ];
 
 		if ( !all && decl->declState == DS_UNPARSED ) {
 			continue;
@@ -1328,7 +1328,7 @@ void idDeclManagerLocal::PrintType( const idCmdArgs &args, declType_t type ) {
 	common->Printf( "source: %s:%i\n", decl->sourceFile->fileName.c_str(), decl->sourceLine );
 	common->Printf( "----------\n" );
 	if ( decl->textSource != nullptr) {
-		char *declText = (char *)_alloca( decl->textLength + 1 );
+		char *declText = static_cast<char*>(_alloca(decl->textLength + 1));
 		decl->GetText( declText );
 		common->Printf( "%s\n", declText );
 	} else {
@@ -1416,7 +1416,7 @@ idDecl *idDeclManagerLocal::CreateNewDecl( declType_t type, const char *name, co
 
 
 	int size = header.Length() + 1 + idStr::Length( canonicalName ) + 1 + defaultText.Length();
-	char *declText = ( char * ) _alloca( size + 1 );
+	char *declText = static_cast<char*>(_alloca(size + 1));
 
 	memcpy( declText, header, header.Length() );
 	declText[header.Length()] = ' ';
@@ -1711,7 +1711,7 @@ void idDeclManagerLocal::TouchDecl_f( const idCmdArgs &args ) {
 		return;
 	}
 
-	const idDecl *decl = declManagerLocal.FindType( (declType_t)i, args.Argv( 2 ), false );
+	const idDecl *decl = declManagerLocal.FindType( static_cast<declType_t>(i), args.Argv( 2 ), false );
 	if ( !decl ) {
 		common->Printf( "%s '%s' not found\n", declManagerLocal.declTypes[i]->typeName.c_str(), args.Argv( 2 ) );
 	}
@@ -2131,9 +2131,9 @@ void idDeclLocal::SetTextLocal( const char *text, const int length ) {
 
 #ifdef USE_COMPRESSED_DECLS
 	int maxBytesPerCode = ( maxHuffmanBits + 7 ) >> 3;
-	byte *compressed = (byte *)_alloca( length * maxBytesPerCode );
+	byte *compressed = static_cast<byte*>(_alloca(length * maxBytesPerCode));
 	compressedLength = HuffmanCompressText( text, length, compressed, length * maxBytesPerCode );
-	textSource = (char *)Mem_Alloc( compressedLength, TAG_DECLTEXT );
+	textSource = static_cast<char*>(Mem_Alloc(compressedLength, TAG_DECLTEXT));
 	memcpy( textSource, compressed, compressedLength );
 #else
 	compressedLength = length;
@@ -2183,14 +2183,14 @@ bool idDeclLocal::ReplaceSourceFileText() {
 		file->Read( buffer.Ptr(), oldFileLength );
 		fileSystem->CloseFile( file );
 
-		if ( MD5_BlockChecksum( buffer.Ptr(), oldFileLength ) != (unsigned int)sourceFile->checksum ) {
+		if ( MD5_BlockChecksum( buffer.Ptr(), oldFileLength ) != static_cast<unsigned int>(sourceFile->checksum) ) {
 			common->Warning( "The file %s has been modified outside of the engine.", GetFileName() );
 			return false;
 		}
 	}
 
 	// insert new text
-	char *declText = (char *) _alloca( textLength + 1 );
+	char *declText = static_cast<char*>(_alloca(textLength + 1));
 	GetText( declText );
 	memmove( buffer.Ptr() + sourceTextOffset + textLength, buffer.Ptr() + sourceTextOffset + sourceTextLength, oldFileLength - sourceTextOffset - sourceTextLength );
 	memcpy( buffer.Ptr() + sourceTextOffset, declText, textLength );
@@ -2390,7 +2390,7 @@ void idDeclLocal::ParseLocal() {
 	declState = DS_PARSED;
 
 	// parse
-	char *declText = (char *) _alloca( ( GetTextLength() + 1 ) * sizeof( char ) );
+	char *declText = static_cast<char*>(_alloca((GetTextLength() + 1) * sizeof(char)));
 	GetText( declText );
 	self->Parse( declText, GetTextLength(), true );
 

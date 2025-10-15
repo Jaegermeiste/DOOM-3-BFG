@@ -101,12 +101,12 @@ public:
 	virtual	qhandle_t		AddEntityDef( const renderEntity_t *re );
 	virtual	void			UpdateEntityDef( qhandle_t entityHandle, const renderEntity_t *re );
 	virtual	void			FreeEntityDef( qhandle_t entityHandle );
-	virtual const renderEntity_t *GetRenderEntity( qhandle_t entityHandle ) const;
+							[[nodiscard]] virtual const renderEntity_t *GetRenderEntity( qhandle_t entityHandle ) const;
 
 	virtual	qhandle_t		AddLightDef( const renderLight_t *rlight );
 	virtual	void			UpdateLightDef( qhandle_t lightHandle, const renderLight_t *rlight );
 	virtual	void			FreeLightDef( qhandle_t lightHandle );
-	virtual const renderLight_t *GetRenderLight( qhandle_t lightHandle ) const;
+							[[nodiscard]] virtual const renderLight_t *GetRenderLight( qhandle_t lightHandle ) const;
 
 	virtual bool			CheckAreaForPortalSky( int areaNum );
 
@@ -121,13 +121,13 @@ public:
 	virtual void			SetRenderView( const renderView_t *renderView );
 	virtual	void			RenderScene( const renderView_t *renderView );
 
-	virtual	int				NumAreas() const;
-	virtual int				PointInArea( const idVec3 &point ) const;
+							[[nodiscard]] virtual	int				NumAreas() const;
+							[[nodiscard]] virtual int				PointInArea( const idVec3 &point ) const;
 	virtual int				BoundsInAreas( const idBounds &bounds, int *areas, int maxAreas ) const;
 	virtual	int				NumPortalsInArea( int areaNum );
 	virtual exitPortal_t	GetPortal( int areaNum, int portalNum );
 
-	virtual	guiPoint_t		GuiTrace( qhandle_t entityHandle, const idVec3 start, const idVec3 end ) const;
+							[[nodiscard]] virtual	guiPoint_t		GuiTrace( qhandle_t entityHandle, const idVec3 start, const idVec3 end ) const;
 	virtual bool			ModelTrace( modelTrace_t &trace, qhandle_t entityHandle, const idVec3 &start, const idVec3 &end, const float radius ) const;
 	virtual bool			Trace( modelTrace_t &trace, const idVec3 &start, const idVec3 &end, const float radius, bool skipDynamic = true, bool skipPlayer = false ) const;
 	virtual bool			FastWorldTrace( modelTrace_t &trace, const idVec3 &start, const idVec3 &end ) const;
@@ -210,8 +210,8 @@ public:
 	void					ClearPortalStates();
 	void					ReadBinaryAreaPortals( idFile *file );
 	void					ReadBinaryNodes( idFile *file );
-	idRenderModel *			ReadBinaryModel( idFile *file );
-	idRenderModel *			ReadBinaryShadowModel( idFile *file );
+	idRenderModel *			ReadBinaryModel( idFile *file ) const;
+	idRenderModel *			ReadBinaryShadowModel( idFile *file ) const;
 
 	//--------------------------
 	// RenderWorld_portals.cpp
@@ -232,14 +232,14 @@ public:
 	void					FloodLightThroughArea_r( idRenderLightLocal *light, int areaNum, const portalStack_t *ps );
 	void					FlowLightThroughPortals( idRenderLightLocal *light );
 
-	int						NumPortals() const;
-	qhandle_t				FindPortal( const idBounds &b ) const;
+							[[nodiscard]] int						NumPortals() const;
+							[[nodiscard]] qhandle_t				FindPortal( const idBounds &b ) const;
 	void					SetPortalState( qhandle_t portal, int blockingBits );
 	int						GetPortalState( qhandle_t portal );
-	bool					AreasAreConnected( int areaNum1, int areaNum2, portalConnection_t connection ) const;
+							[[nodiscard]] bool					AreasAreConnected( int areaNum1, int areaNum2, portalConnection_t connection ) const;
 	void					FloodConnectedAreas( portalArea_t *area, int portalAttributeIndex );
-	idScreenRect &			GetAreaScreenRect( int areaNum ) const { return areaScreenRect[areaNum]; }
-	void					ShowPortals();
+							[[nodiscard]] idScreenRect &			GetAreaScreenRect( int areaNum ) const { return areaScreenRect[areaNum]; }
+	void					ShowPortals() const;
 
 	//--------------------------
 	// RenderWorld_demo.cpp
@@ -248,12 +248,12 @@ public:
 	void					StopWritingDemo();
 	bool					ProcessDemoCommand( idDemoFile *readDemo, renderView_t *demoRenderView, int *demoTimeOffset );
 
-	void					WriteLoadMap();
-	void					WriteRenderView( const renderView_t *renderView );
+	void					WriteLoadMap() const;
+	void					WriteRenderView( const renderView_t *renderView ) const;
 	void					WriteVisibleDefs( const viewDef_t *viewDef );
-	void					WriteFreeLight( qhandle_t handle );
-	void					WriteFreeEntity( qhandle_t handle );
-	void					WriteRenderLight( qhandle_t handle, const renderLight_t *light );
+	void					WriteFreeLight( qhandle_t handle ) const;
+	void					WriteFreeEntity( qhandle_t handle ) const;
+	void					WriteRenderLight( qhandle_t handle, const renderLight_t *light ) const;
 	void					WriteRenderEntity( qhandle_t handle, const renderEntity_t *ent );
 	void					ReadRenderEntity();
 	void					ReadRenderLight();

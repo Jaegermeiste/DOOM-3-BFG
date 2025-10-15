@@ -220,7 +220,7 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 		*height = rows;
 	}
 
-	targa_rgba = (byte *)R_StaticAlloc(numPixels*4, TAG_IMAGE);
+	targa_rgba = static_cast<byte*>(R_StaticAlloc(numPixels * 4, TAG_IMAGE));
 	*pic = targa_rgba;
 
 	if ( targa_header.id_length != 0 ) {
@@ -444,7 +444,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 			fileSystem->CloseFile( f );
 			return;	// just getting timestamp
 		}
-		fbuffer = (byte *)Mem_ClearedAlloc( len + 4096, TAG_JPG );
+		fbuffer = static_cast<byte*>(Mem_ClearedAlloc(len + 4096, TAG_JPG));
 		f->Read( fbuffer, len );
 		fileSystem->CloseFile( f );
   }
@@ -501,7 +501,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 		common->DWarning( "JPG %s is unsupported color depth (%d)", 
 			filename, cinfo.output_components);
   }
-  out = (byte *)R_StaticAlloc(cinfo.output_width*cinfo.output_height*4, TAG_IMAGE);
+  out = static_cast<byte*>(R_StaticAlloc(cinfo.output_width * cinfo.output_height * 4, TAG_IMAGE));
 
   *pic = out;
   *width = cinfo.output_width;

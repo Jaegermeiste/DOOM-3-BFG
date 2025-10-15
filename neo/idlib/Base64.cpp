@@ -94,7 +94,7 @@ size_t idBase64::Decode( byte *to ) const {
 	int i, j;
 	static char base64_to_sixtet[256];
 	static int tab_init = 0;
-	byte *from = data;
+	const byte *from = data;
 	
 	if (!tab_init) {
 		memset( base64_to_sixtet, 0, 256 );
@@ -104,7 +104,6 @@ size_t idBase64::Decode( byte *to ) const {
 		tab_init = 1;
 	}
 
-	unsigned long w = 0;
 	i = 0;
 	size_t n = 0;
 	byte in[4] = {0,0,0,0};
@@ -113,18 +112,17 @@ size_t idBase64::Decode( byte *to ) const {
 			++from;
 			continue;
 		}
-		in[i] = base64_to_sixtet[* (unsigned char *) from];
+		in[i] = base64_to_sixtet[* from];
 		++i;
 		++from;
 		if (*from == '\0' || *from == '=' || i == 4) {
-			w = IntForSixtets( in );
+			unsigned long w = IntForSixtets(in);
 			for (j = 0; j*8 < i*6; ++j) {
 				*to++ = w & 0xff;
 				++n;
 				w >>= 8;
 			}
 			i = 0;
-			w = 0;
 		}
 	}
 	return n;

@@ -1079,7 +1079,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s *as
 	// the modeling programs can save out multiple surfaces with a common
 	// material, but we would like to mege them together where possible
 	// meaning that this->NumSurfaces() <= ase->objects.currentElements
-	mergeTo = (int *)_alloca( ase->objects.Num() * sizeof( *mergeTo ) ); 
+	mergeTo = static_cast<int*>(_alloca(ase->objects.Num() * sizeof(*mergeTo))); 
 	surf.geometry = nullptr;
 	if ( ase->materials.Num() == 0 ) {
 		// if we don't have any materials, dump everything into a single surface
@@ -1154,7 +1154,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s *as
 		// before doing this operation, because we can miss a slop combination
 		// if they are in different surfaces
 
-		vRemap = (int *)R_StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
+		vRemap = static_cast<int*>(R_StaticAlloc(mesh->numVertexes * sizeof(vRemap[0]), TAG_MODEL));
 
 		if ( fastLoad ) {
 			// renderbump doesn't care about vertex count
@@ -1175,7 +1175,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s *as
 			}
 		}
 
-		tvRemap = (int *)R_StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+		tvRemap = static_cast<int*>(R_StaticAlloc(mesh->numTVertexes * sizeof(tvRemap[0]), TAG_MODEL));
 
 		if ( fastLoad ) {
 			// renderbump doesn't care about vertex count
@@ -1200,10 +1200,10 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s *as
 		// there are, because ASE tracks them separately but we need them unified
 
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = (matchVert_t *)R_ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
+		mvTable = static_cast<matchVert_t*>(R_ClearedStaticAlloc(mesh->numFaces * 3 * sizeof(mvTable[0])));
 
 		// we will have a hash chain based on the xyz values
-		mvHash = (matchVert_t **)R_ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
+		mvHash = static_cast<matchVert_t**>(R_ClearedStaticAlloc(mesh->numVertexes * sizeof(mvHash[0])));
 
 		// allocate triangle surface
 		tri = R_AllocStaticTriSurf();
@@ -1391,7 +1391,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 
 	// the modeling programs can save out multiple surfaces with a common
 	// material, but we would like to merge them together where possible
-	mergeTo = (int *)_alloca( i * sizeof( mergeTo[0] ) ); 
+	mergeTo = static_cast<int*>(_alloca(i * sizeof(mergeTo[0]))); 
 	memset( &surf, 0, sizeof( surf ) );
 
 	if ( !r_mergeModelSurfaces.GetBool() ) {
@@ -1442,7 +1442,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 		return false;
 	}
 
-	vList = (idVec3 *)R_StaticAlloc( layer->point.count * sizeof( vList[0] ), TAG_MODEL );
+	vList = static_cast<idVec3*>(R_StaticAlloc(layer->point.count * sizeof(vList[0]), TAG_MODEL));
 	for ( j = 0; j < layer->point.count; j++ ) {
 		vList[j].x = layer->point.pt[j].pos[0];
 		vList[j].y = layer->point.pt[j].pos[2];
@@ -1461,7 +1461,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 	}
 
 	if ( numTVertexes ) {
-		tvList = (idVec2 *)Mem_Alloc( numTVertexes * sizeof( tvList[0] ), TAG_MODEL );
+		tvList = static_cast<idVec2*>(Mem_Alloc(numTVertexes * sizeof(tvList[0]), TAG_MODEL));
 		int offset = 0;
 		for( lwVMap *vm = layer->vmap; vm; vm = vm->next ) {
 			if ( vm->type == LWID_('T','X','U','V') ) {
@@ -1476,7 +1476,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 	} else {
 		common->Warning( "ConvertLWOToModelSurfaces: model \'%s\' has bad or missing uv data", name.c_str() );
 	  	numTVertexes = 1;
-		tvList = (idVec2 *)Mem_ClearedAlloc( numTVertexes * sizeof( tvList[0] ), TAG_MODEL );
+		tvList = static_cast<idVec2*>(Mem_ClearedAlloc(numTVertexes * sizeof(tvList[0]), TAG_MODEL));
 	}
 
 	// It seems like the tools our artists are using often generate
@@ -1485,7 +1485,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 	// before doing this operation, because we can miss a slop combination
 	// if they are in different surfaces
 
-	vRemap = (int *)R_StaticAlloc( layer->point.count * sizeof( vRemap[0] ), TAG_MODEL );
+	vRemap = static_cast<int*>(R_StaticAlloc(layer->point.count * sizeof(vRemap[0]), TAG_MODEL));
 
 	if ( fastLoad ) {
 		// renderbump doesn't care about vertex count
@@ -1506,7 +1506,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 		}
 	}
 
-	tvRemap = (int *)R_StaticAlloc( numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+	tvRemap = static_cast<int*>(R_StaticAlloc(numTVertexes * sizeof(tvRemap[0]), TAG_MODEL));
 
 	if ( fastLoad ) {
 		// renderbump doesn't care about vertex count
@@ -1543,10 +1543,10 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 		// we need to find out how many unique vertex / texcoord combinations there are
 
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = (matchVert_t *)R_ClearedStaticAlloc( layer->polygon.count * 3 * sizeof( mvTable[0] ) );
+		mvTable = static_cast<matchVert_t*>(R_ClearedStaticAlloc(layer->polygon.count * 3 * sizeof(mvTable[0])));
 
 		// we will have a hash chain based on the xyz values
-		mvHash = (matchVert_t **)R_ClearedStaticAlloc( layer->point.count * sizeof( mvHash[0] ) );
+		mvHash = static_cast<matchVert_t**>(R_ClearedStaticAlloc(layer->point.count * sizeof(mvHash[0])));
 
 		// allocate triangle surface
 		tri = R_AllocStaticTriSurf();
@@ -1708,7 +1708,8 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject *l
 idRenderModelStatic::ConvertLWOToASE
 =================
 */
-struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObject *obj, const char *fileName ) {
+struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObject *obj, const char *fileName ) const
+{
 	int j, k;
 	aseModel_t *ase;
 
@@ -1725,7 +1726,7 @@ struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 
 	for ( lwSurface *surf = obj->surf; surf; surf = surf->next ) {
 
-		aseMaterial_t *mat = (aseMaterial_t *)Mem_ClearedAlloc( sizeof( *mat ), TAG_MODEL );
+		aseMaterial_t *mat = static_cast<aseMaterial_t*>(Mem_ClearedAlloc(sizeof(*mat), TAG_MODEL));
 		strcpy( mat->name, surf->name );
 		mat->uTiling = mat->vTiling = 1;
 		mat->angle = mat->uOffset = mat->vOffset = 0;
@@ -1733,7 +1734,7 @@ struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 
 		lwLayer *layer = obj->layer;
 
-		aseObject_t *object = (aseObject_t *)Mem_ClearedAlloc( sizeof( *object ), TAG_MODEL );
+		aseObject_t *object = static_cast<aseObject_t*>(Mem_ClearedAlloc(sizeof(*object), TAG_MODEL));
 		object->materialRef = materialRef++;
 
 		aseMesh_t *mesh = &object->mesh;
@@ -1741,10 +1742,10 @@ struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 
 		mesh->numFaces = layer->polygon.count;
 		mesh->numTVFaces = mesh->numFaces;
-		mesh->faces = (aseFace_t *)Mem_Alloc( mesh->numFaces  * sizeof( mesh->faces[0] ), TAG_MODEL );
+		mesh->faces = static_cast<aseFace_t*>(Mem_Alloc(mesh->numFaces * sizeof(mesh->faces[0]), TAG_MODEL));
 
 		mesh->numVertexes = layer->point.count;
-		mesh->vertexes = (idVec3 *)Mem_Alloc( mesh->numVertexes * sizeof( mesh->vertexes[0] ), TAG_MODEL );
+		mesh->vertexes = static_cast<idVec3*>(Mem_Alloc(mesh->numVertexes * sizeof(mesh->vertexes[0]), TAG_MODEL));
 
 		// vertex positions
 		if ( layer->point.count <= 0 ) {
@@ -1769,7 +1770,7 @@ struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 		}
 
 		if ( mesh->numTVertexes ) {
-		  	mesh->tvertexes = (idVec2 *)Mem_Alloc( mesh->numTVertexes * sizeof( mesh->tvertexes[0] ), TAG_MODEL );
+		  	mesh->tvertexes = static_cast<idVec2*>(Mem_Alloc(mesh->numTVertexes * sizeof(mesh->tvertexes[0]), TAG_MODEL));
 		  	int offset = 0;
 		  	for( lwVMap *vm = layer->vmap; vm; vm = vm->next ) {
 				if ( vm->type == LWID_('T','X','U','V') ) {
@@ -1784,7 +1785,7 @@ struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 	  	} else {
 			common->Warning( "ConvertLWOToASE: model \'%s\' has bad or missing uv data", fileName );
 	  		mesh->numTVertexes = 1;
-	  		mesh->tvertexes = (idVec2 *)Mem_ClearedAlloc( mesh->numTVertexes * sizeof( mesh->tvertexes[0] ), TAG_MODEL );
+	  		mesh->tvertexes = static_cast<idVec2*>(Mem_ClearedAlloc(mesh->numTVertexes * sizeof(mesh->tvertexes[0]), TAG_MODEL));
 	  	}
 
 		mesh->normalsParsed = true;
@@ -1861,7 +1862,7 @@ struct aseModel_s *idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 		mesh->numFaces = faceIndex;
 		mesh->numTVFaces = faceIndex;
 
-		aseFace_t *newFaces = ( aseFace_t* )Mem_Alloc( mesh->numFaces * sizeof ( mesh->faces[0] ), TAG_MODEL );
+		aseFace_t *newFaces = static_cast<aseFace_t*>(Mem_Alloc(mesh->numFaces * sizeof (mesh->faces[0]), TAG_MODEL));
 		memcpy( newFaces, mesh->faces, sizeof( mesh->faces[0] ) * mesh->numFaces );
 		Mem_Free( mesh->faces );
 		mesh->faces = newFaces;
@@ -1912,7 +1913,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces (const struct maModel_s *ma )
 	// the modeling programs can save out multiple surfaces with a common
 	// material, but we would like to mege them together where possible
 	// meaning that this->NumSurfaces() <= ma->objects.currentElements
-	mergeTo = (int *)_alloca( ma->objects.Num() * sizeof( *mergeTo ) ); 
+	mergeTo = static_cast<int*>(_alloca(ma->objects.Num() * sizeof(*mergeTo))); 
 
 	surf.geometry = nullptr;
 	if ( ma->materials.Num() == 0 ) {
@@ -2000,7 +2001,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces (const struct maModel_s *ma )
 		// before doing this operation, because we can miss a slop combination
 		// if they are in different surfaces
 
-		vRemap = (int *)R_StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
+		vRemap = static_cast<int*>(R_StaticAlloc(mesh->numVertexes * sizeof(vRemap[0]), TAG_MODEL));
 
 		if ( fastLoad ) {
 			// renderbump doesn't care about vertex count
@@ -2021,7 +2022,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces (const struct maModel_s *ma )
 			}
 		}
 
-		tvRemap = (int *)R_StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+		tvRemap = static_cast<int*>(R_StaticAlloc(mesh->numTVertexes * sizeof(tvRemap[0]), TAG_MODEL));
 
 		if ( fastLoad ) {
 			// renderbump doesn't care about vertex count
@@ -2046,10 +2047,10 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces (const struct maModel_s *ma )
 		// there are, because MA tracks them separately but we need them unified
 
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = (matchVert_t *)R_ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
+		mvTable = static_cast<matchVert_t*>(R_ClearedStaticAlloc(mesh->numFaces * 3 * sizeof(mvTable[0])));
 
 		// we will have a hash chain based on the xyz values
-		mvHash = (matchVert_t **)R_ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
+		mvHash = static_cast<matchVert_t**>(R_ClearedStaticAlloc(mesh->numVertexes * sizeof(mvHash[0])));
 
 		// allocate triangle surface
 		tri = R_AllocStaticTriSurf();

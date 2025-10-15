@@ -67,7 +67,7 @@ performing EndianSwapping.
 class idSwap {
 public:
 	//#define SwapBytes( x, y )		(x) ^= (y) ^= (x) ^= (y)
-	#define SwapBytes( x, y )		{ byte t = (x); (x) = (y); (y) = t; }
+	#define SwapBytes( x, y )		{ const byte t = (x); (x) = (y); (y) = t; }
 
 	template<class type> static void Little( type &c ) {
 		// byte swapping pointers is pointless because we should never store pointers on disk
@@ -82,17 +82,17 @@ public:
 			if ( sizeof( type ) == 1 ) {
 			} else if ( sizeof( type ) == 2 ) {
 				byte *b = reinterpret_cast<byte*>(&c);
-				SwapBytes( b[0], b[1] );
+				SwapBytes( b[0], b[1] )
 			} else if ( sizeof( type ) == 4 ) {
 				byte *b = reinterpret_cast<byte*>(&c);
-				SwapBytes( b[0], b[3] );
-				SwapBytes( b[1], b[2] );
+				SwapBytes( b[0], b[3] )
+				SwapBytes( b[1], b[2] )
 			} else if ( sizeof( type ) == 8 ) {
 				byte * b = reinterpret_cast<byte*>(&c);
-				SwapBytes( b[0], b[7] );
-				SwapBytes( b[1], b[6]);
-				SwapBytes( b[2], b[5] );
-				SwapBytes( b[3], b[4] );
+				SwapBytes( b[0], b[7] )
+				SwapBytes( b[1], b[6])
+				SwapBytes( b[2], b[5] )
+				SwapBytes( b[3], b[4] )
 			} else {
 				assert( false );
 			}
@@ -108,7 +108,7 @@ public:
 	}
 
 	static void SixtetsForInt( byte *out, int src ) {
-			const byte *b = (byte *)&src;
+			const byte *b = reinterpret_cast<byte*>(&src);
 			out[0] = ( b[0] & 0xfc ) >> 2;
 			out[1] = ( ( b[0] & 0x3 ) << 4 ) + ( ( b[1] & 0xf0 ) >> 4 );
 			out[2] = ( ( b[1] & 0xf ) << 2 ) + ( ( b[2] & 0xc0 ) >> 6 );
@@ -117,7 +117,7 @@ public:
 
 	static int IntForSixtets( byte *in ) {
 			int ret = 0;
-			byte *b = (byte *)&ret;
+			byte *b = reinterpret_cast<byte*>(&ret);
 			b[0] |= in[0] << 2;
 			b[0] |= ( in[1] & 0x30 ) >> 4;
 			b[1] |= ( in[1] & 0xf ) << 4;

@@ -286,7 +286,7 @@ bool idSoundSample_XAudio2::LoadWav( const idStr & filename ) {
 		wave.Read( buffers[0].buffer, totalBufferSize );
 
 		if ( format.basic.bitsPerSample == 16 ) {
-			idSwap::LittleArray( (short *)buffers[0].buffer, totalBufferSize / sizeof( short ) );
+			idSwap::LittleArray( static_cast<short*>(buffers[0].buffer), totalBufferSize / sizeof( short ) );
 		}
 
 		buffers[0].buffer = GPU_CONVERT_CPU_TO_CPU_CACHED_READONLY_ADDRESS( buffers[0].buffer );
@@ -410,7 +410,7 @@ void idSoundSample_XAudio2::MakeDefault() {
 
 	totalBufferSize = DEFAULT_NUM_SAMPLES * 2;
 
-	short * defaultBuffer = (short *)AllocBuffer( totalBufferSize, GetName() );
+	short * defaultBuffer = static_cast<short*>(AllocBuffer(totalBufferSize, GetName()));
 	for ( int i = 0; i < DEFAULT_NUM_SAMPLES; i += 2 ) {
 		defaultBuffer[i + 0] = SHRT_MIN;
 		defaultBuffer[i + 1] = SHRT_MAX;
@@ -435,7 +435,7 @@ Called before deleting the object and at the start of LoadResource()
 */
 void idSoundSample_XAudio2::FreeData() {
 	if ( buffers.Num() > 0 ) {
-		soundSystemLocal.StopVoicesWithSample( (idSoundSample *)this );
+		soundSystemLocal.StopVoicesWithSample( static_cast<idSoundSample*>(this) );
 		for ( int i = 0; i < buffers.Num(); i++ ) {
 			FreeBuffer( buffers[i].buffer );
 		}
@@ -483,5 +483,5 @@ float idSoundSample_XAudio2::GetAmplitude( int timeMS ) const {
 	if ( index < 0 || index >= amplitude.Num() ) {
 		return 0.0f;
 	}
-	return (float)amplitude[index] / 255.0f;
+	return static_cast<float>(amplitude[index]) / 255.0f;
 }

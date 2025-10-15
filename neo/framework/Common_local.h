@@ -220,7 +220,7 @@ public:
 
 public:	// These are public because they are called directly by static functions in this file
 
-	const char * GetCurrentMapName() { return currentMapName.c_str(); }
+	const char * GetCurrentMapName() const { return currentMapName.c_str(); }
 
 	// loads a map and starts a new game on it
 	void	StartNewGame( const char * mapName, bool devmap, int gameMode );
@@ -483,7 +483,7 @@ private:
 	void	Stop( bool resetSession = true );
 
 	// called by Draw when the scene to scene wipe is still running
-	void	DrawWipeModel();
+	void	DrawWipeModel() const;
 	void	StartWipe( const char *materialName, bool hold = false);
 	void	CompleteWipe();
 	void	ClearWipe();

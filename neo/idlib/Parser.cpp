@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <utility>
+
 #include "precompiled.h"
 #pragma hdrstop
 
@@ -159,7 +161,7 @@ idParser::AddDefineToHash
 ================
 */
 void idParser::AddDefineToHash( define_t *define, define_t **definehash ) {
-	int hash = PC_NameHash(define->name);
+	const int hash = PC_NameHash(define->name);
 	define->hashnext = definehash[hash];
 	definehash[hash] = define;
 }
@@ -170,7 +172,7 @@ FindHashedDefine
 ================
 */
 define_t *idParser::FindHashedDefine( define_t **definehash, const char *name ) {
-	int hash = PC_NameHash(name);
+	const int hash = PC_NameHash(name);
 	for ( define_t* d = definehash[hash]; d; d = d->hashnext ) {
 		if ( !strcmp(d->name, name) ) {
 			return d;
@@ -200,7 +202,7 @@ idParser::FindDefineParm
 */
 int idParser::FindDefineParm( define_t *define, const char *name ) {
 	int i = 0;
-	for ( idToken* p = define->parms; p; p = p->next ) {
+	for (const idToken* p = define->parms; p; p = p->next ) {
 		if ( (*p) == name ) {
 			return i;
 		}
@@ -217,10 +219,9 @@ idParser::CopyDefine
 define_t *idParser::CopyDefine( define_t *define ) {
 	idToken *token, *newtoken, *lasttoken;
 
-	define_t* newdefine = static_cast<define_t*>(Mem_Alloc(sizeof(define_t) + strlen(define->name) + 1,
-	                                                       TAG_IDLIB_PARSER));
+	define_t* newdefine = static_cast<define_t*>(Mem_Alloc(sizeof(define_t) + strlen(define->name) + 1, TAG_IDLIB_PARSER));
 	//copy the define name
-	newdefine->name = (char *) newdefine + sizeof(define_t);
+	newdefine->name = reinterpret_cast<char*>(newdefine) + sizeof(define_t);
 	strcpy(newdefine->name, define->name);
 	newdefine->flags = define->flags;
 	newdefine->builtin = define->builtin;
@@ -233,8 +234,14 @@ define_t *idParser::CopyDefine( define_t *define ) {
 	for (lasttoken = nullptr, token = define->tokens; token; token = token->next) {
 		newtoken = new (TAG_IDLIB_PARSER) idToken(token);
 		newtoken->next = nullptr;
-		if (lasttoken) lasttoken->next = newtoken;
-		else newdefine->tokens = newtoken;
+		if (lasttoken)
+		{
+			lasttoken->next = newtoken;
+		}
+		else
+		{
+			newdefine->tokens = newtoken;
+		}
 		lasttoken = newtoken;
 	}
 	//copy the define parameters
@@ -242,8 +249,14 @@ define_t *idParser::CopyDefine( define_t *define ) {
 	for (lasttoken = nullptr, token = define->parms; token; token = token->next) {
 		newtoken = new (TAG_IDLIB_PARSER) idToken(token);
 		newtoken->next = nullptr;
-		if (lasttoken) lasttoken->next = newtoken;
-		else newdefine->parms = newtoken;
+		if (lasttoken)
+		{
+			lasttoken->next = newtoken;
+		}
+		else
+		{
+			newdefine->parms = newtoken;
+		}
 		lasttoken = newtoken;
 	}
 	return newdefine;
@@ -255,7 +268,7 @@ idParser::FreeDefine
 ================
 */
 void idParser::FreeDefine( define_t *define ) {
-	idToken *t, *next;
+	idToken *t = nullptr, *next = nullptr;
 
 	//free the define parameters
 	for (t = define->parms; t; t = next) {
@@ -352,7 +365,10 @@ void idParser::PopIndent( int *type, int *skip ) {
 	*skip = 0;
 
 	indent_t* indent = idParser::indentstack;
-	if (!indent) return;
+	if (!indent)
+	{
+		return;
+	}
 
 	// must be an indent from the current script
 	if (idParser::indentstack->script != idParser::scriptstack) {
@@ -422,14 +438,14 @@ int idParser::ReadSourceToken( idToken *token ) {
 			return false;
 		}
 		// remove the script and return to the previous one
-		idLexer* script = idParser::scriptstack;
+		const idLexer* script = idParser::scriptstack;
 		idParser::scriptstack = idParser::scriptstack->next;
 		delete script;
 	}
 	// copy the already available token
 	*token = idParser::tokens;
 	// remove the token from the source
-	idToken* t = idParser::tokens;
+	const idToken* t = idParser::tokens;
 	assert( idParser::tokens != NULL );
 	idParser::tokens = idParser::tokens->next;
 	delete t;
@@ -533,8 +549,14 @@ int idParser::ReadDefineParms( define_t *define, idToken **parms, const int maxp
 
 				idToken* t = new(TAG_IDLIB_PARSER) idToken(token);
 				t->next = nullptr;
-				if (last) last->next = t;
-				else parms[numparms] = t;
+				if (last)
+				{
+					last->next = t;
+				}
+				else
+				{
+					parms[numparms] = t;
+				}
 				last = t;
 			}
 		}
@@ -553,7 +575,7 @@ int idParser::StringizeTokens( idToken *tokens, idToken *token ) {
 	token->whiteSpaceStart_p = nullptr;
 	token->whiteSpaceEnd_p = nullptr;
 	(*token) = "";
-	for ( idToken* t = tokens; t; t = t->next ) {
+	for (const idToken* t = tokens; t; t = t->next ) {
 		token->Append( t->c_str() );
 	}
 	return true;
@@ -608,7 +630,7 @@ void idParser::AddBuiltinDefines() {
 	for (int i = 0; builtin[i].string; i++) {
 		define_t* define = static_cast<define_t*>(Mem_Alloc(sizeof(define_t) + strlen(builtin[i].string) + 1,
 		                                                    TAG_IDLIB_PARSER));
-		define->name = (char *) define + sizeof(define_t);
+		define->name = reinterpret_cast<char*>(define) + sizeof(define_t);
 		strcpy(define->name, builtin[i].string);
 		define->flags = DEFINE_FIXED;
 		define->builtin = builtin[i].id;
@@ -638,7 +660,7 @@ static idStr PreProcessorDate() {
 	const time_t t = time(nullptr);
 	const char *curtime = ctime(&t);
 	if ( idStr::Length( curtime ) < 24 ) {
-		return idStr( "*** BAD CURTIME ***" );
+		return {"*** BAD CURTIME ***"};
 	}
 	idStr	str = "\"";
 	// skip DAY, extract MMM DD
@@ -657,7 +679,7 @@ static idStr PreProcessorTime() {
 	const time_t t = time(nullptr);
 	const char *curtime = ctime(&t);
 	if ( idStr::Length( curtime ) < 24 ) {
-		return idStr( "*** BAD CURTIME ***" );
+		return {"*** BAD CURTIME ***"};
 	}
 
 	idStr	str = "\"";
@@ -752,8 +774,8 @@ idParser::ExpandDefine
 ================
 */
 int idParser::ExpandDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken ) {
-	idToken *parms[MAX_DEFINEPARMS], *pt, *t;
-	idToken *nextpt, token;
+	idToken *parms[MAX_DEFINEPARMS] = { nullptr }, *pt = nullptr, *t = nullptr;
+	idToken *nextpt = nullptr, token;
 	int i;
 
 	// if it is a builtin define
@@ -778,7 +800,7 @@ int idParser::ExpandDefine( idToken *deftoken, define_t *define, idToken **first
 	idToken* first = nullptr;
 	idToken* last = nullptr;
 	// create a list with tokens of the expanded define
-	for ( idToken* dt = define->tokens; dt; dt = dt->next ) {
+	for (const idToken* dt = define->tokens; dt; dt = dt->next ) {
 		int parmnum = -1;
 		// if the token is a name, it could be a define parameter
 		if ( dt->type == TT_NAME ) {
@@ -790,8 +812,14 @@ int idParser::ExpandDefine( idToken *deftoken, define_t *define, idToken **first
 				t = new (TAG_IDLIB_PARSER) idToken(pt);
 				//add the token to the list
 				t->next = nullptr;
-				if (last) last->next = t;
-				else first = t;
+				if (last)
+				{
+					last->next = t;
+				}
+				else
+				{
+					first = t;
+				}
 				last = t;
 			}
 		}
@@ -832,8 +860,14 @@ int idParser::ExpandDefine( idToken *deftoken, define_t *define, idToken **first
 // the original file, not the header file			
 			t->line = deftoken->line;
 
-			if ( last ) last->next = t;
-			else first = t;
+			if ( last )
+			{
+				last->next = t;
+			}
+			else
+			{
+				first = t;
+			}
 			last = t;
 		}
 	}
@@ -851,7 +885,10 @@ int idParser::ExpandDefine( idToken *deftoken, define_t *define, idToken **first
 					}
 					delete t1->next;
 					t1->next = t2->next;
-					if ( t2 == last ) last = t1;
+					if ( t2 == last )
+					{
+						last = t1;
+					}
 					delete t2;
 					continue;
 				}
@@ -1017,7 +1054,7 @@ int idParser::Directive_undef() {
 		return false;
 	}
 
-	int hash = PC_NameHash(token.c_str());
+	const int hash = PC_NameHash(token.c_str());
 	for (lastdefine = nullptr, define = idParser::definehash[hash]; define; define = define->hashnext) {
 		if (!strcmp(define->name, token.c_str()))
 		{
@@ -1068,13 +1105,15 @@ int idParser::Directive_define() {
 		// unread the define name before executing the #undef directive
 		idParser::UnreadSourceToken( &token );
 		if (!idParser::Directive_undef())
+		{
 			return false;
+		}
 		// if the define was not removed (define->flags & DEFINE_FIXED)
 		define = FindHashedDefine(idParser::definehash, token.c_str());
 	}
 	// allocate define
 	define = static_cast<define_t*>(Mem_ClearedAlloc(sizeof(define_t) + token.Length() + 1, TAG_IDLIB_PARSER));
-	define->name = (char *) define + sizeof(define_t);
+	define->name = reinterpret_cast<char*>(define) + sizeof(define_t);
 	strcpy(define->name, token.c_str());
 	// add the define to the source
 	AddDefineToHash(define, idParser::definehash);
@@ -1106,8 +1145,14 @@ int idParser::Directive_define() {
 				t = new (TAG_IDLIB_PARSER) idToken(token);
 				t->ClearTokenWhiteSpace();
 				t->next = nullptr;
-				if (last) last->next = t;
-				else define->parms = t;
+				if (last)
+				{
+					last->next = t;
+				}
+				else
+				{
+					define->parms = t;
+				}
 				last = t;
 				define->numparms++;
 				// read next token
@@ -1141,8 +1186,14 @@ int idParser::Directive_define() {
 		}
 		t->ClearTokenWhiteSpace();
 		t->next = nullptr;
-		if ( last ) last->next = t;
-		else define->tokens = t;
+		if ( last )
+		{
+			last->next = t;
+		}
+		else
+		{
+			define->tokens = t;
+		}
 		last = t;
 	} while( idParser::ReadLine( &token ) );
 
@@ -1199,8 +1250,8 @@ int idParser::Directive_if_def(const int type ) {
 		idParser::Error( "expected name after #ifdef, found '%s'", token.c_str() );
 		return false;
 	}
-	define_t* d = FindHashedDefine(idParser::definehash, token.c_str());
-	int skip = (type == INDENT_IFDEF) == (d == nullptr);
+	const define_t* d = FindHashedDefine(idParser::definehash, token.c_str());
+	const int skip = (type == INDENT_IFDEF) == (d == nullptr);
 	idParser::PushIndent( type, skip );
 	return true;
 }
@@ -1267,7 +1318,7 @@ idParser::EvaluateTokens
 */
 typedef struct operator_s
 {
-	int op;
+	size_t op;
 	int priority;
 	int parentheses;
 	struct operator_s *prev, *next;
@@ -1281,7 +1332,7 @@ typedef struct value_s
 	struct value_s *prev, *next;
 } value_t;
 
-int PC_OperatorPriority(const int op) {
+static int PC_OperatorPriority(const size_t op) {
 	switch(op) {
 		case P_MUL: return 15;
 		case P_DIV: return 15;
@@ -1347,9 +1398,9 @@ int PC_OperatorPriority(const int op) {
 #define FreeOperator(op)
 
 int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double *floatvalue, int integer ) {
-	operator_t *o, *firstoperator, *lastoperator;
-	value_t *v, *firstvalue, *lastvalue, *v1, *v2;
-	idToken *t;
+	operator_t *o = nullptr, *firstoperator = nullptr, *lastoperator = nullptr;
+	value_t *v = nullptr, *firstvalue = nullptr, *lastvalue = nullptr, *v1 = nullptr, *v2 = nullptr;
+	idToken *t = nullptr;
 	int brace = 0;
 	int parentheses = 0;
 	int error = 0;
@@ -1358,17 +1409,23 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 	int questmarkintvalue = 0;
 	double questmarkfloatvalue = 0;
 	int gotquestmarkvalue = false;
-	int lastoperatortype = 0;
+	size_t lastoperatortype = 0;
 	//
-	operator_t operator_heap[MAX_OPERATORS];
+	operator_t operator_heap[MAX_OPERATORS] = {};
 	int numoperators = 0;
-	value_t value_heap[MAX_VALUES];
+	value_t value_heap[MAX_VALUES] = {};
 	int numvalues = 0;
 
 	firstoperator = lastoperator = nullptr;
 	firstvalue = lastvalue = nullptr;
-	if (intvalue) *intvalue = 0;
-	if (floatvalue) *floatvalue = 0;
+	if (intvalue)
+	{
+		*intvalue = 0;
+	}
+	if (floatvalue)
+	{
+		*floatvalue = 0;
+	}
 	for ( t = tokens; t; t = t->next ) {
 		switch( t->type ) {
 			case TT_NAME:
@@ -1406,8 +1463,14 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 				v->parentheses = parentheses;
 				v->next = nullptr;
 				v->prev = lastvalue;
-				if (lastvalue) lastvalue->next = v;
-				else firstvalue = v;
+				if (lastvalue)
+				{
+					lastvalue->next = v;
+				}
+				else
+				{
+					firstvalue = v;
+				}
 				lastvalue = v;
 				if (brace) {
 					t = t->next;
@@ -1442,8 +1505,14 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 				v->parentheses = parentheses;
 				v->next = nullptr;
 				v->prev = lastvalue;
-				if (lastvalue) lastvalue->next = v;
-				else firstvalue = v;
+				if (lastvalue)
+				{
+					lastvalue->next = v;
+				}
+				else
+				{
+					firstvalue = v;
+				}
 				lastvalue = v;
 				//last token was a value
 				lastwasvalue = 1;
@@ -1553,8 +1622,14 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 					o->parentheses = parentheses;
 					o->next = nullptr;
 					o->prev = lastoperator;
-					if (lastoperator) lastoperator->next = o;
-					else firstoperator = o;
+					if (lastoperator)
+					{
+						lastoperator->next = o;
+					}
+					else
+					{
+						firstoperator = o;
+					}
 					lastoperator = o;
 					lastwasvalue = 0;
 				}
@@ -1621,11 +1696,17 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 #ifdef DEBUG_EVAL
 		if (integer) {
 			Log_Write("operator %s, value1 = %d", idParser::scriptstack->getPunctuationFromId(o->op), v1->intvalue);
-			if (v2) Log_Write("value2 = %d", v2->intvalue);
+			if (v2)
+			{
+				Log_Write("value2 = %d", v2->intvalue);
+			}
 		}
 		else {
 			Log_Write("operator %s, value1 = %f", idParser::scriptstack->getPunctuationFromId(o->op), v1->floatvalue);
-			if (v2) Log_Write("value2 = %f", v2->floatvalue);
+			if (v2)
+			{
+				Log_Write("value2 = %f", v2->floatvalue);
+			}
 		}
 #endif //DEBUG_EVAL
 		switch(o->op) {
@@ -1689,11 +1770,15 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 				}
 				if (integer) {
 					if (!questmarkintvalue)
+					{
 						v1->intvalue = v2->intvalue;
+					}
 				}
 				else {
 					if (!questmarkfloatvalue)
+					{
 						v1->floatvalue = v2->floatvalue;
+					}
 				}
 				gotquestmarkvalue = false;
 				break;
@@ -1712,11 +1797,19 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 			}
 		}
 #ifdef DEBUG_EVAL
-		if (integer) Log_Write("result value = %d", v1->intvalue);
-		else Log_Write("result value = %f", v1->floatvalue);
+		if (integer)
+		{
+			Log_Write("result value = %d", v1->intvalue);
+		}
+		else
+		{
+			Log_Write("result value = %f", v1->floatvalue);
+		}
 #endif //DEBUG_EVAL
 		if (error)
+		{
 			break;
+		}
 		lastoperatortype = o->op;
 		//if not an operator with arity 1
 		if (o->op != P_LOGIC_NOT && o->op != P_BIN_NOT) {
@@ -1725,24 +1818,54 @@ int idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double
 				v = v->next;
 			}
 			//
-			if (v->prev) v->prev->next = v->next;
-			else firstvalue = v->next;
-			if (v->next) v->next->prev = v->prev;
-			else lastvalue = v->prev;
+			if (v->prev)
+			{
+				v->prev->next = v->next;
+			}
+			else
+			{
+				firstvalue = v->next;
+			}
+			if (v->next)
+			{
+				v->next->prev = v->prev;
+			}
+			else
+			{
+				lastvalue = v->prev;
+			}
 			//FreeMemory(v);
 			FreeValue(v);
 		}
 		//remove the operator
-		if (o->prev) o->prev->next = o->next;
-		else firstoperator = o->next;
-		if (o->next) o->next->prev = o->prev;
-		else lastoperator = o->prev;
+		if (o->prev)
+		{
+			o->prev->next = o->next;
+		}
+		else
+		{
+			firstoperator = o->next;
+		}
+		if (o->next)
+		{
+			o->next->prev = o->prev;
+		}
+		else
+		{
+			lastoperator = o->prev;
+		}
 		//FreeMemory(o);
 		FreeOperator(o);
 	}
 	if (firstvalue) {
-		if (intvalue) *intvalue = firstvalue->intvalue;
-		if (floatvalue) *floatvalue = firstvalue->floatvalue;
+		if (intvalue)
+		{
+			*intvalue = firstvalue->intvalue;
+		}
+		if (floatvalue)
+		{
+			*floatvalue = firstvalue->floatvalue;
+		}
 	}
 	for (o = firstoperator; o; o = lastoperator) {
 		lastoperator = o->next;
@@ -1773,7 +1896,7 @@ idParser::Evaluate
 */
 int idParser::Evaluate( signed long int *intvalue, double *floatvalue, const int integer ) {
 	idToken token;
-	idToken *t, *nexttoken;
+	idToken *t = nullptr, *nexttoken = nullptr;
 	int defined = false;
 
 	if (intvalue) {
@@ -1796,16 +1919,28 @@ int idParser::Evaluate( signed long int *intvalue, double *floatvalue, const int
 				defined = false;
 				t = new (TAG_IDLIB_PARSER) idToken(token);
 				t->next = nullptr;
-				if (lasttoken) lasttoken->next = t;
-				else firsttoken = t;
+				if (lasttoken)
+				{
+					lasttoken->next = t;
+				}
+				else
+				{
+					firsttoken = t;
+				}
 				lasttoken = t;
 			}
 			else if ( token == "defined" ) {
 				defined = true;
 				t = new (TAG_IDLIB_PARSER) idToken(token);
 				t->next = nullptr;
-				if (lasttoken) lasttoken->next = t;
-				else firsttoken = t;
+				if (lasttoken)
+				{
+					lasttoken->next = t;
+				}
+				else
+				{
+					firsttoken = t;
+				}
 				lasttoken = t;
 			}
 			else {
@@ -1824,8 +1959,14 @@ int idParser::Evaluate( signed long int *intvalue, double *floatvalue, const int
 		else if (token.type == TT_NUMBER || token.type == TT_PUNCTUATION) {
 			t = new (TAG_IDLIB_PARSER) idToken(token);
 			t->next = nullptr;
-			if (lasttoken) lasttoken->next = t;
-			else firsttoken = t;
+			if (lasttoken)
+			{
+				lasttoken->next = t;
+			}
+			else
+			{
+				firsttoken = t;
+			}
 			lasttoken = t;
 		}
 		else {
@@ -1849,8 +1990,14 @@ int idParser::Evaluate( signed long int *intvalue, double *floatvalue, const int
 		delete t;
 	} //end for
 #ifdef DEBUG_EVAL
-	if (integer) Log_Write("eval result: %d", *intvalue);
-	else Log_Write("eval result: %f", *floatvalue);
+	if (integer)
+	{
+		Log_Write("eval result: %d", *intvalue);
+	}
+	else
+	{
+		Log_Write("eval result: %f", *floatvalue);
+	}
 #endif //DEBUG_EVAL
 	//
 	return true;
@@ -1864,7 +2011,7 @@ idParser::DollarEvaluate
 int idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, const int integer) {
 	int defined = false;
 	idToken token;
-	idToken *t, *nexttoken;
+	idToken *t = nullptr, *nexttoken = nullptr;
 
 	if (intvalue) {
 		*intvalue = 0;
@@ -1891,16 +2038,28 @@ int idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, con
 				defined = false;
 				t = new (TAG_IDLIB_PARSER) idToken(token);
 				t->next = nullptr;
-				if (lasttoken) lasttoken->next = t;
-				else firsttoken = t;
+				if (lasttoken)
+				{
+					lasttoken->next = t;
+				}
+				else
+				{
+					firsttoken = t;
+				}
 				lasttoken = t;
 			}
 			else if ( token == "defined" ) {
 				defined = true;
 				t = new (TAG_IDLIB_PARSER) idToken(token);
 				t->next = nullptr;
-				if (lasttoken) lasttoken->next = t;
-				else firsttoken = t;
+				if (lasttoken)
+				{
+					lasttoken->next = t;
+				}
+				else
+				{
+					firsttoken = t;
+				}
 				lasttoken = t;
 			}
 			else {
@@ -1917,15 +2076,27 @@ int idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, con
 		}
 		//if the token is a number or a punctuation
 		else if (token.type == TT_NUMBER || token.type == TT_PUNCTUATION) {
-			if ( token[0] == '(' ) indent++;
-			else if ( token[0] == ')' ) indent--;
+			if ( token[0] == '(' )
+			{
+				indent++;
+			}
+			else if ( token[0] == ')' )
+			{
+				indent--;
+			}
 			if (indent <= 0) {
 				break;
 			}
 			t = new (TAG_IDLIB_PARSER) idToken(token);
 			t->next = nullptr;
-			if (lasttoken) lasttoken->next = t;
-			else firsttoken = t;
+			if (lasttoken)
+			{
+				lasttoken->next = t;
+			}
+			else
+			{
+				firsttoken = t;
+			}
 			lasttoken = t;
 		}
 		else {
@@ -1949,8 +2120,14 @@ int idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, con
 		delete t;
 	} //end for
 #ifdef DEBUG_EVAL
-	if (integer) Log_Write("$eval result: %d", *intvalue);
-	else Log_Write("$eval result: %f", *floatvalue);
+	if (integer)
+	{
+		Log_Write("$eval result: %d", *intvalue);
+	}
+	else
+	{
+		Log_Write("$eval result: %f", *floatvalue);
+	}
 #endif //DEBUG_EVAL
 	//
 	return true;
@@ -1989,7 +2166,7 @@ int idParser::Directive_if() {
 	if ( !idParser::Evaluate( &value, nullptr, true ) ) {
 		return false;
 	}
-	int skip = (value == 0);
+	const int skip = (value == 0);
 	idParser::PushIndent( INDENT_IF, skip );
 	return true;
 }
@@ -2092,7 +2269,7 @@ int idParser::Directive_eval() {
 	token.whiteSpaceEnd_p = nullptr;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf(buf, "%d", abs(value));
+	std::ignore = sprintf(buf, "%d", static_cast<int>(abs(value)));
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER|TT_LONG|TT_DECIMAL;
@@ -2122,7 +2299,7 @@ int idParser::Directive_evalfloat() {
 	token.whiteSpaceEnd_p = nullptr;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf(buf, "%1.2f", idMath::Fabs(value));
+	std::ignore = sprintf(buf, "%1.2f", idMath::Fabs(value));
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT|TT_LONG|TT_DECIMAL;
@@ -2231,7 +2408,7 @@ int idParser::DollarDirective_evalint() {
 	token.whiteSpaceEnd_p = nullptr;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf( buf, "%d", abs( value ) );
+	std::ignore = sprintf( buf, "%d", static_cast<int>(abs( value ) ));
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL | TT_VALUESVALID;
@@ -2395,7 +2572,7 @@ int idParser::ExpectTokenString( const char *string ) {
 idParser::ExpectTokenType
 ================
 */
-int idParser::ExpectTokenType(const int type, const int subtype, idToken *token ) {
+int idParser::ExpectTokenType(const int type, const size_t subtype, idToken *token ) {
 	idStr str;
 
 	if ( !idParser::ReadToken( token ) ) {
@@ -2418,14 +2595,38 @@ int idParser::ExpectTokenType(const int type, const int subtype, idToken *token 
 	if ( token->type == TT_NUMBER ) {
 		if ( (token->subtype & subtype) != subtype ) {
 			str.Clear();
-			if ( subtype & TT_DECIMAL ) str = "decimal ";
-			if ( subtype & TT_HEX ) str = "hex ";
-			if ( subtype & TT_OCTAL ) str = "octal ";
-			if ( subtype & TT_BINARY ) str = "binary ";
-			if ( subtype & TT_UNSIGNED ) str += "unsigned ";
-			if ( subtype & TT_LONG ) str += "long ";
-			if ( subtype & TT_FLOAT ) str += "float ";
-			if ( subtype & TT_INTEGER ) str += "integer ";
+			if ( subtype & TT_DECIMAL )
+			{
+				str = "decimal ";
+			}
+			if ( subtype & TT_HEX )
+			{
+				str = "hex ";
+			}
+			if ( subtype & TT_OCTAL )
+			{
+				str = "octal ";
+			}
+			if ( subtype & TT_BINARY )
+			{
+				str = "binary ";
+			}
+			if ( subtype & TT_UNSIGNED )
+			{
+				str += "unsigned ";
+			}
+			if ( subtype & TT_LONG )
+			{
+				str += "long ";
+			}
+			if ( subtype & TT_FLOAT )
+			{
+				str += "float ";
+			}
+			if ( subtype & TT_INTEGER )
+			{
+				str += "integer ";
+			}
 			str.StripTrailing( ' ' );
 			idParser::Error( "expected %s but found '%s'", str.c_str(), token->c_str() );
 			return 0;
@@ -2436,7 +2637,7 @@ int idParser::ExpectTokenType(const int type, const int subtype, idToken *token 
 			idParser::Error( "BUG: wrong punctuation subtype" );
 			return 0;
 		}
-		if ( token->subtype != subtype ) {
+		if (std::cmp_not_equal(token->subtype, subtype)) {
 			idParser::Error( "expected '%s' but found '%s'", scriptstack->GetPunctuationFromId( subtype ), token->c_str() );
 			return 0;
 		}
@@ -2484,7 +2685,7 @@ int idParser::CheckTokenString( const char *string ) {
 idParser::CheckTokenType
 ================
 */
-int idParser::CheckTokenType(const int type, const int subtype, idToken *token ) {
+int idParser::CheckTokenType(const int type, const size_t subtype, idToken *token ) {
 	idToken tok;
 
 	if ( !ReadToken( &tok ) ) {
@@ -2526,7 +2727,7 @@ int idParser::PeekTokenString( const char *string ) {
 idParser::PeekTokenType
 ================
 */
-int idParser::PeekTokenType(const int type, const int subtype, idToken *token ) {
+int idParser::PeekTokenType(const int type, const size_t subtype, idToken *token ) {
 	idToken tok;
 
 	if ( !ReadToken( &tok ) ) {
@@ -2643,7 +2844,7 @@ const char* idParser::ParseBracedSection( idStr& out, int tabs, const bool parse
 		out = temp;
 	}
 	int depth = 1;
-	bool doTabs = (tabs >= 0);
+	const bool doTabs = (tabs >= 0);
 	do {
 		if ( !ReadToken( &token ) ) {
 			Error( "missing closing brace" );
@@ -2870,7 +3071,7 @@ int idParser::Parse3DMatrix(const int z, const int y, const int x, float *m ) {
 idParser::GetLastWhiteSpace
 ================
 */
-int idParser::GetLastWhiteSpace( idStr &whiteSpace ) const {
+size_t idParser::GetLastWhiteSpace(idStr& whiteSpace) const {
 	if ( scriptstack ) {
 		scriptstack->GetLastWhiteSpace( whiteSpace );
 	} else {
@@ -2903,13 +3104,13 @@ void idParser::GetStringFromMarker( idStr& out, const bool clean ) {
 	}
 		
 	if ( tokens ) {
-		p = (char*)tokens->whiteSpaceStart_p;
+		p = const_cast<char*>(tokens->whiteSpaceStart_p);
 	} else {
-		p = (char*)scriptstack->script_p;
+		p = const_cast<char*>(scriptstack->script_p);
 	}
 	
 	// Set the end character to NULL to give us a complete string
-	char save = *p;
+	const char save = *p;
 	*p = 0;
 	
 	// If cleaning then reparse
@@ -3010,7 +3211,7 @@ int idParser::LoadFile( const char *filename, const bool OSPath ) {
 idParser::LoadMemory
 ================
 */
-int idParser::LoadMemory(const char *ptr, const int length, const char *name ) {
+int idParser::LoadMemory(const char *ptr, const size_t length, const char *name ) {
 	if ( idParser::loaded ) {
 		idLib::common->FatalError("idParser::loadMemory: another source already loaded");
 		return false;
@@ -3046,13 +3247,13 @@ idParser::FreeSource
 void idParser::FreeSource(const bool keepDefines ) {
 	// free all the scripts
 	while( scriptstack ) {
-		idLexer* script = scriptstack;
+		const idLexer* script = scriptstack;
 		scriptstack = scriptstack->next;
 		delete script;
 	}
 	// free all the tokens
 	while( tokens ) {
-		idToken* token = tokens;
+		const idToken* token = tokens;
 		tokens = tokens->next;
 		delete token;
 	}
@@ -3181,7 +3382,7 @@ idParser::idParser( const char *filename, const int flags, const bool OSPath ) {
 idParser::idParser
 ================
 */
-idParser::idParser( const char *ptr, const int length, const char *name, const int flags ) {
+idParser::idParser( const char *ptr, const size_t length, const char *name, const int flags ) {
 	this->loaded = false;
 	this->OSPath = false;
 	this->punctuations = nullptr;

@@ -39,7 +39,8 @@ idCVar net_migration_forcePeerAsHost( "net_migration_forcePeerAsHost", "-1", CVA
 idLobby::IsBetterHost
 ========================
 */
-bool idLobby::IsBetterHost( int ping1, lobbyUserID_t userId1, int ping2, lobbyUserID_t userId2 ) {
+bool idLobby::IsBetterHost( int ping1, lobbyUserID_t userId1, int ping2, lobbyUserID_t userId2 ) const
+{
 	if ( lobbyType == TYPE_PARTY ) {
 		return userId1 < userId2;			// Only use user id for party, since ping doesn't matter
 	}

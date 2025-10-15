@@ -120,7 +120,7 @@ void idDeviceContext::SetTransformInfo(const idVec3 &org, const idMat3 &m) {
 
 // 
 //  added method
-void idDeviceContext::GetTransformInfo(idVec3& org, idMat3& m )
+void idDeviceContext::GetTransformInfo(idVec3& org, idMat3& m ) const
 {
 	m = mat;
 	org = origin;
@@ -217,7 +217,8 @@ bool idDeviceContext::ClippedCoords(float *x, float *y, float *w, float *h, floa
 DrawStretchPic
 =============
 */
-void idDeviceContext::DrawWinding( idWinding & w, const idMaterial * mat ) {
+void idDeviceContext::DrawWinding( idWinding & w, const idMaterial * mat ) const
+{
 
 	idPlane p;
 
@@ -615,11 +616,13 @@ void idDeviceContext::SetOffset( float x, float y ) {
 	yOffset = y;
 }
 
-int idDeviceContext::CharWidth( const char c, float scale ) {
+int idDeviceContext::CharWidth( const char c, float scale ) const
+{
 	return idMath::Ftoi( activeFont->GetGlyphWidth( scale, c ) );
 }
 
-int idDeviceContext::TextWidth( const char *text, float scale, int limit ) {
+int idDeviceContext::TextWidth( const char *text, float scale, int limit ) const
+{
 	if ( text == nullptr) {
 		return 0;
 	}
@@ -646,19 +649,23 @@ int idDeviceContext::TextWidth( const char *text, float scale, int limit ) {
 	return idMath::Ftoi( width );
 }
 
-int idDeviceContext::TextHeight(const char *text, float scale, int limit) {
+int idDeviceContext::TextHeight(const char *text, float scale, int limit) const
+{
 	return idMath::Ftoi( activeFont->GetLineHeight( scale ) );
 }
 
-int idDeviceContext::MaxCharWidth(float scale) {
+int idDeviceContext::MaxCharWidth(float scale) const
+{
 	return idMath::Ftoi( activeFont->GetMaxCharWidth( scale ) );
 }
 
-int idDeviceContext::MaxCharHeight(float scale) {
+int idDeviceContext::MaxCharHeight(float scale) const
+{
 	return idMath::Ftoi( activeFont->GetLineHeight( scale ) );
 }
 
-const idMaterial *idDeviceContext::GetScrollBarImage(int index) {
+const idMaterial *idDeviceContext::GetScrollBarImage(int index) const
+{
 	if (index >= SCROLLBAR_HBACK && index < SCROLLBAR_COUNT) {
 		return scrollBarImages[index];
 	}

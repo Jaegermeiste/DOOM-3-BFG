@@ -41,7 +41,7 @@ idSnapshotProcessor::idSnapshotProcessor() {
 
 	//assert( mem.IsGlobalHeap() );
 
-	jobMemory = (jobMemory_t*)Mem_Alloc( sizeof( jobMemory_t) , TAG_NETWORKING );
+	jobMemory = static_cast<jobMemory_t*>(Mem_Alloc(sizeof(jobMemory_t), TAG_NETWORKING));
 
 	assert_16_byte_aligned( jobMemory );
 	assert_16_byte_aligned( jobMemory->objParms.Ptr() );
@@ -280,7 +280,8 @@ int idSnapshotProcessor::GetPendingSnapDelta( byte * outBuffer, int maxLength ) 
 idSnapshotProcessor::IsBusyConfirmingPartialSnap
 ========================
 */
-bool idSnapshotProcessor::IsBusyConfirmingPartialSnap() {
+bool idSnapshotProcessor::IsBusyConfirmingPartialSnap() const
+{
 	if ( partialBaseSequence != -1 && baseSequence <= partialBaseSequence ) {
 		return true;
 	}
@@ -488,7 +489,8 @@ idSnapshotProcessor::SanityCheckDeltas
 Make sure delta sequence and basesequence values are valid, and in order, etc
 ========================
 */
-void idSnapshotProcessor::SanityCheckDeltas() {
+void idSnapshotProcessor::SanityCheckDeltas() const
+{
 	int deltaSequence			= 0;
 	int deltaBaseSequence		= 0;
 	int lastDeltaSequence		= -1;

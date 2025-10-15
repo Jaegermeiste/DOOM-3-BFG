@@ -6,29 +6,34 @@
 template< int maxItems, int maxBuffer >
 class idDataQueue {
 public:
-	idDataQueue() {
+	idDataQueue() noexcept : data{}
+	{
 		dataLength = 0;
 	}
+
 	bool Append( int sequence, const byte * b1, int b1Len, const byte * b2 = nullptr, int b2Len = 0 );
 	void RemoveOlderThan( int sequence );
 
-	int GetDataLength() const { return dataLength; }
+	size_t GetDataLength() const { return dataLength; }
 
-	int Num() const { return items.Num(); }
-	int ItemSequence( int i ) const { return items[i].sequence; }
-	int ItemLength( int i ) const { return items[i].length; }
-	const byte * ItemData( int i ) const { return &data[items[i].dataOffset]; }
+	size_t Num() const { return items.Num(); }
+	
+	int ItemSequence(Ordinal auto i) const { ORDINAL_CHECK(i, items.Num()); return items[i].sequence; }
+	
+	size_t ItemLength(Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return items[i].length; }
+	
+	const byte * ItemData(Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return &data[items[i].dataOffset]; }
 
 	void Clear() { dataLength = 0; items.Clear(); memset( data, 0, sizeof( data ) ); }
 
 private:
 	struct msgItem_t {
 		int		sequence;
-		int		length;
-		int		dataOffset;
+		size_t	length;
+		size_t	dataOffset;
 	};
 	idStaticList<msgItem_t, maxItems > items;
-	int		dataLength;
+	size_t	dataLength;
 	byte	data[ maxBuffer ];
 };
 
@@ -39,7 +44,7 @@ idDataQueue::RemoveOlderThan
 */
 template< int maxItems, int maxBuffer >
 void idDataQueue< maxItems, maxBuffer >::RemoveOlderThan( int sequence ) {
-	int length = 0;
+	size_t length = 0;
 	while ( items.Num() > 0 && items[0].sequence < sequence ) {
 		length += items[0].length;
 		items.RemoveIndex( 0 );
@@ -53,7 +58,7 @@ void idDataQueue< maxItems, maxBuffer >::RemoveOlderThan( int sequence ) {
 		dataLength -= length;
 	}
 	length = 0;
-	for ( int i = 0; i < items.Num(); i++ ) {
+	for ( size_t i = 0; i < items.Num(); i++ ) {
 		items[i].dataOffset = length;
 		length += items[i].length;
 	}

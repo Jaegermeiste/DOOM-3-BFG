@@ -1084,16 +1084,16 @@ same position as the previous even vertex but is projected to infinity
 */
 void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t * parms ) {
 	if ( parms->tempFacing == nullptr) {
-		*const_cast< byte ** >( &parms->tempFacing ) = (byte *)_alloca16( TEMP_FACING( parms->numIndexes ) );
+		*const_cast< byte ** >( &parms->tempFacing ) = static_cast<byte*>(_alloca16(TEMP_FACING( parms->numIndexes )));
 	}
 	if ( parms->tempCulled == nullptr) {
-		*const_cast< byte ** >( &parms->tempCulled ) = (byte *)_alloca16( TEMP_CULL( parms->numIndexes ) );
+		*const_cast< byte ** >( &parms->tempCulled ) = static_cast<byte*>(_alloca16(TEMP_CULL( parms->numIndexes )));
 	}
 	if ( parms->tempVerts == nullptr && parms->joints != nullptr) {
-		*const_cast< idVec4 ** >( &parms->tempVerts ) = (idVec4 *)_alloca16( TEMP_VERTS( parms->numVerts ) );
+		*const_cast< idVec4 ** >( &parms->tempVerts ) = static_cast<idVec4*>(_alloca16(TEMP_VERTS( parms->numVerts )));
 	}
 	if ( parms->indexBuffer == nullptr) {
-		*const_cast< triIndex_t ** >( &parms->indexBuffer ) = (triIndex_t *)_alloca16( OUTPUT_INDEX_BUFFER_SIZE );
+		*const_cast< triIndex_t ** >( &parms->indexBuffer ) = static_cast<triIndex_t*>(_alloca16(OUTPUT_INDEX_BUFFER_SIZE));
 	}
 
 	assert( parms->joints == NULL || parms->numJoints > 0 );

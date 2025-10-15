@@ -280,7 +280,8 @@ saveGameHandle_t idSessionLocal::SaveGameAsync( const char * name, const saveFil
 idSessionLocal::OnSaveCompleted
 ========================
 */
-void idSessionLocal::OnSaveCompleted( idSaveLoadParms * parms ) {
+void idSessionLocal::OnSaveCompleted( idSaveLoadParms * parms ) const
+{
 	idLocalUser * master = session->GetSignInManager().GetMasterLocalUser();
 
 	if ( parms->GetError() != SAVEGAME_E_INSUFFICIENT_ROOM ) {

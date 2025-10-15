@@ -51,7 +51,7 @@ struct localUserHandle_t {
 public:
 	typedef uint32 userHandleType_t;
 
-	localUserHandle_t() : handle( 0 ) {}
+	localUserHandle_t() noexcept : handle( 0 ) {}
 
 	explicit localUserHandle_t( userHandleType_t handle_ ) : handle( handle_ ) {}
 
@@ -63,9 +63,10 @@ public:
 		return handle < other.handle;
 	}
 
-	bool IsValid() const { return handle > 0; }
+	[[nodiscard]] bool IsValid() const { return handle > 0; }
 
-	void WriteToMsg( idBitMsg & msg ) {
+	void WriteToMsg( idBitMsg & msg ) const
+	{
 		msg.WriteLong( handle );
 	}
 
@@ -96,18 +97,18 @@ public:
 			void				Pump();
 	virtual void				PumpPlatform() = 0;
 
-	virtual bool				IsPersistent() const { return IsProfileReady(); }	// True if this user is a persistent user, and can save stats, etc (signed in)
-	virtual bool				IsProfileReady() const = 0;							// True if IsPersistent is true AND profile is signed into LIVE service
-	virtual bool				IsOnline() const = 0;								// True if this user has online capabilities
-	virtual uint32				GetOnlineCaps() const = 0;							// Returns combination of onlineCaps_t flags
-	virtual bool				HasOwnerChanged() const { return false; }			// Whether or not the original persistent owner has changed since it was first registered
-	virtual int					GetInputDevice() const = 0;							// Input device of controller
-	virtual const char *		GetGamerTag() const = 0;							// Gamertag of user
-	virtual bool				IsInParty() const = 0;								// True if the user is in a party (do we support this on pc and ps3? )
-	virtual int					GetPartyCount() const = 0;							// Gets the amount of users in the party
+								[[nodiscard]] virtual bool				IsPersistent() const { return IsProfileReady(); }	// True if this user is a persistent user, and can save stats, etc (signed in)
+								[[nodiscard]] virtual bool				IsProfileReady() const = 0;							// True if IsPersistent is true AND profile is signed into LIVE service
+								[[nodiscard]] virtual bool				IsOnline() const = 0;								// True if this user has online capabilities
+								[[nodiscard]] virtual uint32				GetOnlineCaps() const = 0;							// Returns combination of onlineCaps_t flags
+								[[nodiscard]] virtual bool				HasOwnerChanged() const { return false; }			// Whether or not the original persistent owner has changed since it was first registered
+								[[nodiscard]] virtual int					GetInputDevice() const = 0;							// Input device of controller
+								[[nodiscard]] virtual const char *		GetGamerTag() const = 0;							// Gamertag of user
+								[[nodiscard]] virtual bool				IsInParty() const = 0;								// True if the user is in a party (do we support this on pc and ps3? )
+								[[nodiscard]] virtual int					GetPartyCount() const = 0;							// Gets the amount of users in the party
 
 	// Storage related
-	virtual bool				IsStorageDeviceAvailable() const;					// Only false if the player has chosen to play without a storage device, only possible on 360, if available, everything needs to check for available space
+								[[nodiscard]] virtual bool				IsStorageDeviceAvailable() const;					// Only false if the player has chosen to play without a storage device, only possible on 360, if available, everything needs to check for available space
 	virtual void				ResetStorageDevice();
 	virtual bool				StorageSizeAvailable( uint64 minSizeInBytes, int64 & neededBytes );
 
@@ -118,17 +119,17 @@ public:
 	virtual float				GetStatFloat( int stat);
 
 	virtual idPlayerProfile *	GetProfile() { return GetProfileMgr().GetProfile(); }
-	const idPlayerProfile *		GetProfile() const { return const_cast< idLocalUser * >( this )->GetProfile(); }
+								[[nodiscard]] const idPlayerProfile *		GetProfile() const { return static_cast< const idLocalUser * >( this )->GetProfile(); }
 
 	idProfileMgr &				GetProfileMgr() { return profileMgr; }
 
 	// Helper state to determine if the user is joining a party lobby or not
 	void						SetJoiningLobby( int lobbyType, bool value ) { joiningLobby[lobbyType] = value; }
-	bool						IsJoiningLobby( int lobbyType ) const { return joiningLobby[lobbyType]; }
+								[[nodiscard]] bool						IsJoiningLobby( int lobbyType ) const { return joiningLobby[lobbyType]; }
 
-	bool						CanPlayOnline() const { return ( GetOnlineCaps() & CAP_CAN_PLAY_ONLINE ) > 0; }
+								[[nodiscard]] bool						CanPlayOnline() const { return ( GetOnlineCaps() & CAP_CAN_PLAY_ONLINE ) > 0; }
 
-	localUserHandle_t			GetLocalUserHandle() const { return localUserHandle; }
+								[[nodiscard]] localUserHandle_t			GetLocalUserHandle() const { return localUserHandle; }
 	void						SetLocalUserHandle( localUserHandle_t newHandle ) { localUserHandle = newHandle; }
 
 	// Creates a new profile if one not already there

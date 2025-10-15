@@ -87,7 +87,7 @@ void idSWFSprite::Load( idSWFBitStream & bitstream, bool parseDictionary ) {
 
 		idSWFBitStream tagStream( bitstream.ReadData( recordLength ), recordLength, false );
 
-		swfTag_t tag = (swfTag_t)( codeAndLength >> 6 );
+		swfTag_t tag = static_cast<swfTag_t>(codeAndLength >> 6);
 
 		// ----------------------
 		// Definition tags
@@ -188,7 +188,7 @@ void idSWFSprite::Read( idFile * f ) {
 	uint32 bufferSize;
 	f->ReadBig( bufferSize );
 
-	commandBuffer = (byte *)Mem_Alloc( bufferSize, TAG_SWF );
+	commandBuffer = static_cast<byte*>(Mem_Alloc(bufferSize, TAG_SWF));
 	f->Read( commandBuffer, bufferSize );
 
 	byte * currentBuffer = commandBuffer;
