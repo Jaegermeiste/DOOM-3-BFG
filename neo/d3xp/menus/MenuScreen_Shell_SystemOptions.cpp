@@ -45,7 +45,7 @@ idMenuScreen_Shell_SystemOptions::Initialize
 void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -149,9 +149,9 @@ idMenuScreen_Shell_SystemOptions::Update
 */
 void idMenuScreen_Shell_SystemOptions::Update() {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+		if ( cmdBar != nullptr) {
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;			
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
@@ -168,18 +168,18 @@ void idMenuScreen_Shell_SystemOptions::Update() {
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
 	if ( BindSprite( root ) ) {
 		idSWFTextInstance * heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if ( heading != NULL ) {
+		if ( heading != nullptr) {
 			heading->SetText( "#str_00183" );	// FULLSCREEN
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 
 		idSWFSpriteInstance * gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if ( gradient != NULL && heading != NULL ) {
+		if ( gradient != nullptr && heading != nullptr) {
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 
-	if ( btnBack != NULL ) {
+	if ( btnBack != nullptr) {
 		btnBack->BindSprite( root );
 	}
 
@@ -250,7 +250,7 @@ idMenuScreen_Shell_SystemOptions::HandleAction h
 */
 bool idMenuScreen_Shell_SystemOptions::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 	
@@ -263,7 +263,7 @@ bool idMenuScreen_Shell_SystemOptions::HandleAction( idWidgetAction & action, co
 
 	switch ( actionType ) {
 		case WIDGET_ACTION_GO_BACK: {
-			if ( menuData != NULL ) {
+			if ( menuData != nullptr) {
 				menuData->SetNextScreen( SHELL_AREA_SETTINGS, MENU_TRANSITION_SIMPLE );
 			}
 			return true;
@@ -276,7 +276,7 @@ bool idMenuScreen_Shell_SystemOptions::HandleAction( idWidgetAction & action, co
 			break;
 		case WIDGET_ACTION_COMMAND: {
 
-			if ( options == NULL ) {
+			if ( options == nullptr) {
 				return true;
 			}
 
@@ -305,7 +305,7 @@ bool idMenuScreen_Shell_SystemOptions::HandleAction( idWidgetAction & action, co
 		}
 		case WIDGET_ACTION_START_REPEATER: {
 
-			if ( options == NULL ) {
+			if ( options == nullptr) {
 				return true;
 			}
 
@@ -445,21 +445,21 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		}
 		case SYSTEM_FIELD_LODBIAS: {
 			const float percent = LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
-			const float adjusted = percent + (float)adjustAmount * 5.0f;
+			const float adjusted = percent + static_cast<float>(adjustAmount) * 5.0f;
 			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
 			r_lodBias.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, -1.0f, 1.0f ) );
 			break;
 		}
 		case SYSTEM_FIELD_BRIGHTNESS: {
 			const float percent = LinearAdjust( r_lightScale.GetFloat(), 2.0f, 4.0f, 0.0f, 100.0f );
-			const float adjusted = percent + (float)adjustAmount;
+			const float adjusted = percent + static_cast<float>(adjustAmount);
 			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
 			r_lightScale.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 2.0f, 4.0f ) );
 			break;
 		}
 		case SYSTEM_FIELD_VOLUME: {
 			const float percent = 100.0f * Square( 1.0f - ( s_volume_dB.GetFloat() / DB_SILENCE ) );
-			const float adjusted = percent + (float)adjustAmount;
+			const float adjusted = percent + static_cast<float>(adjustAmount);
 			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
 			s_volume_dB.SetFloat( DB_SILENCE - ( idMath::Sqrt( clamped / 100.0f ) * DB_SILENCE ) );
 			break;

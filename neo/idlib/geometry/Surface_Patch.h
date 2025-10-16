@@ -48,8 +48,8 @@ public:
 						~idSurface_Patch();
 
 	void				SetSize(size_t patchWidth, size_t patchHeight );
-	size_t				GetWidth() const;
-	size_t				GetHeight() const;
+						[[nodiscard]] size_t				GetWidth() const;
+						[[nodiscard]] size_t				GetHeight() const;
 
 						// subdivide the patch mesh based on error
 	void				Subdivide( float maxHorizontalError, float maxVerticalError, float maxLength, bool genNormals = false );

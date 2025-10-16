@@ -294,10 +294,10 @@ static int      		(*_BigLong)( int l );
 static int       		(*_LittleLong)( int l );
 static unsigned int		(*_BigULong)( unsigned int l );
 static unsigned int		(*_LittleULong)( unsigned int l );
-static int64        	(*_BigLongLong)( int64 l );
-static int64        	(*_LittleLongLong)( int64 l );
-static uint64           (*_BigULongLong)( uint64 l );
-static uint64           (*_LittleULongLong)( uint64 l );
+static long long       	(*_BigLongLong)( long long l );
+static long long        (*_LittleLongLong)( long long l );
+static unsigned long long (*_BigULongLong)( unsigned long long l );
+static unsigned long long (*_LittleULongLong)( unsigned long long l );
 static float	        (*_BigFloat)( float l );
 static float	        (*_LittleFloat)( float l );
 static void		        (*_BigRevBytes)( void *bp, int elsize, int elcount );
@@ -314,10 +314,10 @@ int             		BigLong(const int l ) { return _BigLong( l ); }
 int             		LittleLong(const int l ) { return _LittleLong( l ); }
 unsigned int    		BigULong(const unsigned int l) { return _BigULong(l); }
 unsigned int    		LittleULong(const unsigned int l) { return _LittleULong(l); }
-int64                	BigLongLong(const int64 l) { return _BigLongLong(l); }
-int64               	LittleLongLong(const int64 l) { return _LittleLongLong(l); }
-uint64              	BigULongLong(const uint64 l) { return _BigULongLong(l); }
-uint64              	LittleULongLong(const uint64 l) { return _LittleULongLong(l); }
+long long              	BigLongLong(const long long l) { return _BigLongLong(l); }
+long long             	LittleLongLong(const long long l) { return _LittleLongLong(l); }
+unsigned long long     	BigULongLong(const unsigned long long l) { return _BigULongLong(l); }
+unsigned long long     	LittleULongLong(const unsigned long long l) { return _LittleULongLong(l); }
 float               	BigFloat(const float l ) { return _BigFloat( l ); }
 float                 	LittleFloat(const float l ) { return _LittleFloat( l ); }
 void                	BigRevBytes( void *bp, const int elsize, const int elcount ) { _BigRevBytes( bp, elsize, elcount ); }

@@ -48,25 +48,25 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // lexer flags
-typedef enum {
+typedef enum lexerFlags_e : uint16 {
 	LEXFL_NOERRORS						= BIT(0),	// don't print any errors
 	LEXFL_NOWARNINGS					= BIT(1),	// don't print any warnings
 	LEXFL_NOFATALERRORS					= BIT(2),	// errors aren't fatal
-	LEXFL_NOSTRINGCONCAT				= BIT(3),	// multiple strings seperated by whitespaces are not concatenated
+	LEXFL_NOSTRINGCONCAT				= BIT(3),	// multiple strings separated by whitespaces are not concatenated
 	LEXFL_NOSTRINGESCAPECHARS			= BIT(4),	// no escape characters inside strings
 	LEXFL_NODOLLARPRECOMPILE			= BIT(5),	// don't use the $ sign for precompilation
 	LEXFL_NOBASEINCLUDES				= BIT(6),	// don't include files embraced with < >
-	LEXFL_ALLOWPATHNAMES				= BIT(7),	// allow path seperators in names
+	LEXFL_ALLOWPATHNAMES				= BIT(7),	// allow path separators in names
 	LEXFL_ALLOWNUMBERNAMES				= BIT(8),	// allow names to start with a number
 	LEXFL_ALLOWIPADDRESSES				= BIT(9),	// allow ip addresses to be parsed as numbers
 	LEXFL_ALLOWFLOATEXCEPTIONS			= BIT(10),	// allow float exceptions like 1.#INF or 1.#IND to be parsed
 	LEXFL_ALLOWMULTICHARLITERALS		= BIT(11),	// allow multi character literals
-	LEXFL_ALLOWBACKSLASHSTRINGCONCAT	= BIT(12),	// allow multiple strings seperated by '\' to be concatenated
+	LEXFL_ALLOWBACKSLASHSTRINGCONCAT	= BIT(12),	// allow multiple strings separated by '\' to be concatenated
 	LEXFL_ONLYSTRINGS					= BIT(13)	// parse as whitespace deliminated strings (quoted strings keep quotes)
 } lexerFlags_t;
 
 // punctuation ids
-typedef enum punctutation_ids_e {
+typedef enum punctuationID_e : uint8 {
 	P_NONE,
 	P_RSHIFT_ASSIGN,
 	P_LSHIFT_ASSIGN,
@@ -129,13 +129,13 @@ typedef enum punctutation_ids_e {
 
 	P_PRECOMP,
 	P_DOLLAR
-} punctuation_ids_t;
+} punctuationID_t;
 
 // punctuation
 typedef struct punctuation_s
 {
 	const char *p;						// punctuation character(s)
-	int n;							// punctuation id
+	punctuationID_t n;				// punctuation id
 } punctuation_t;
 
 
@@ -156,27 +156,27 @@ public:
 					// load a script from the given memory with the given length and a specified line offset,
 					// so source strings extracted from a file can still refer to proper line numbers in the file
 					// NOTE: the ptr is expected to point at a valid C string: ptr[length] == '\0'
-	int				LoadMemory(const char *ptr, size_t length, const char *name, int startLine = 1);
+	int				LoadMemory(const char *ptr, size_t length, const char *name, size_t startLine = 1);
 					// free the script
 	void			FreeSource();
 					// returns true if a script is loaded
-	int				IsLoaded() const { return idLexer::loaded; };
+	[[nodiscard]] int				IsLoaded() const { return idLexer::loaded; };
 					// read a token
 	int				ReadToken( idToken *token );
 					// expect a certain token, reads the token when available
 	int				ExpectTokenString( const char *string );
 					// expect a certain token type
-	int				ExpectTokenType(int type, const size_t subtype, idToken *token);
+	int				ExpectTokenType( tokenType_e type, const uint64 subtype, idToken *token);
 					// expect a token
 	int				ExpectAnyToken( idToken *token );
 					// returns true when the token is available
 	int				CheckTokenString( const char *string );
 					// returns true an reads the token when a token with the given type is available
-	int				CheckTokenType( int type, int subtype, idToken *token );
+	int				CheckTokenType( tokenType_e type, uint64 subtype, idToken *token );
 					// returns true if the next token equals the given string but does not remove the token from the source
 	int				PeekTokenString( const char *string );
 					// returns true if the next token equals the given type but does not remove the token from the source
-	int				PeekTokenType( int type, int subtype, idToken *token );
+	int				PeekTokenType( tokenType_e type, uint64 subtype, idToken *token );
 					// skip tokens until the given token string is read
 	int				SkipUntilString( const char *string );
 					// skip the rest of the current line
@@ -215,37 +215,37 @@ public:
 					// retrieves the white space characters before the last read token
 	size_t GetLastWhiteSpace(idStr& whiteSpace) const;
 					// returns start index into text buffer of last white space
-	int64 GetLastWhiteSpaceStart() const;
+	[[nodiscard]] int64 GetLastWhiteSpaceStart() const;
 					// returns end index into text buffer of last white space
-	int64 GetLastWhiteSpaceEnd() const;
+	[[nodiscard]] int64 GetLastWhiteSpaceEnd() const;
 					// set an array with punctuations, NULL restores default C/C++ set, see default_punctuations for an example
 	void			SetPunctuations( const punctuation_t *p );
 					// returns a pointer to the punctuation with the given id
-	const char *	GetPunctuationFromId(size_t id) const;
+	[[nodiscard]] const char *	GetPunctuationFromId( const punctuationID_t id ) const;
 					// get the id for the given punctuation
-	int				GetPunctuationId( const char *p ) const;
+	punctuationID_t GetPunctuationId( const char *p ) const;
 					// set lexer flags
 	void			SetFlags( int flags );
 					// get lexer flags
-	int				GetFlags() const;
+	[[nodiscard]] int				GetFlags() const;
 					// reset the lexer
 	void			Reset();
 					// returns true if at the end of the file
-	bool			EndOfFile() const;
+	[[nodiscard]] bool			EndOfFile() const;
 					// returns the current filename
 	const char *	GetFileName();
 					// get offset in script
-	int64		GetFileOffset() const;
+	[[nodiscard]] int64		    GetFileOffset() const;
 					// get file time
-	ID_TIME_T GetFileTime() const;
+	ID_TIME_T       GetFileTime() const;
 					// returns the current line number
-	int		GetLineNum() const;
+	[[nodiscard]] size_t	        GetLineNum() const;
 					// print an error message
 	void			Error( VERIFY_FORMAT_STRING const char *str, ... );
 					// print a warning message
 	void			Warning( VERIFY_FORMAT_STRING const char *str, ... ) const;
 					// returns true if Error() was called with LEXFL_NOFATALERRORS or LEXFL_NOERRORS set
-	bool			HadError() const;
+	[[nodiscard]] bool			HadError() const;
 
 					// set the base folder to load files from
 	static void		SetBaseFolder( const char *path );
@@ -262,8 +262,8 @@ private:
 	const char *	whiteSpaceEnd_p;		// end of last white space
 	ID_TIME_T		fileTime;				// file time
 	size_t			length;					// length of the script in bytes
-	int				line;					// current line in script
-	int				lastline;				// line before reading token
+	size_t			line;					// current line in script
+	size_t			lastline;				// line before reading token
 	int				tokenavailable;			// set by unreadToken
 	int				flags;					// several script flags
 	const punctuation_t *punctuations;		// the punctuations used in the script
@@ -284,8 +284,8 @@ private:
 	int				ReadNumber( idToken *token );
 	int				ReadPunctuation( idToken *token );
 	int				ReadPrimitive( idToken *token );
-	int				CheckString( const char *str ) const;
-	int				NumLinesCrossed() const;
+	bool			CheckString( const char *str ) const;
+	[[nodiscard]] size_t			NumLinesCrossed() const;
 };
 
 ID_INLINE const char *idLexer::GetFileName() {
@@ -302,7 +302,7 @@ ID_INLINE ID_TIME_T idLexer::GetFileTime() const
 	return idLexer::fileTime;
 }
 
-ID_INLINE int idLexer::GetLineNum() const
+ID_INLINE size_t idLexer::GetLineNum() const
 {
 	return idLexer::line;
 }

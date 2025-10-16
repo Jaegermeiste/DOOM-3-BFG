@@ -96,7 +96,7 @@ public:
 	void	SerializeRange( int & value, int minSize, int maxSize ) {	// Supports signed types
 		SanityCheck();
 		if ( writing ) {
-			msg->WriteBits( value - minSize, idMath::BitsForInteger( maxSize-minSize ) );
+			msg->WriteBits( value - minSize, idMath::integer_cast<int16>(idMath::BitsForInteger( maxSize-minSize )) );
 		} else {
 			value = minSize + msg->ReadBits( idMath::BitsForInteger( maxSize-minSize ) );
 		}
@@ -107,7 +107,7 @@ public:
 	void	SerializeUMax( int & value, int maxSize ) {					// Unsigned only
 		SanityCheck();
 		if ( writing ) {
-			msg->WriteBits( value, idMath::BitsForInteger( maxSize ) );
+			msg->WriteBits( value, idMath::integer_cast<int16>(idMath::BitsForInteger( maxSize ) ));
 		} else {
 			value = msg->ReadBits( idMath::BitsForInteger( maxSize ) );
 		}
@@ -118,7 +118,7 @@ public:
 	int	SerializeUMaxNonRef( int value, int maxSize ) {					// Unsigned only
 		SanityCheck();
 		if ( writing ) {
-			msg->WriteBits(value, idMath::BitsForInteger( maxSize ) );
+			msg->WriteBits(value, idMath::integer_cast<int16>(idMath::BitsForInteger( maxSize )) );
 		} else {
 			value = msg->ReadBits( idMath::BitsForInteger( maxSize ) );
 		}
@@ -373,9 +373,9 @@ ID_INLINE void idSerializer::SerializeQ( idMat3 &axis, int bits ) {
 			out.y = quat[( maxIndex + 2 ) & 3];
 			out.z = quat[( maxIndex + 3 ) & 3];
 		}
-		msg->WriteBits( idMath::Ftoi( out.x * scale ), -bits);
-		msg->WriteBits( idMath::Ftoi( out.y * scale ), -bits);
-		msg->WriteBits( idMath::Ftoi( out.z * scale ), -bits);
+		msg->WriteBits( idMath::Ftoi( out.x * scale ), idMath::integer_cast<int16>(-bits));
+		msg->WriteBits( idMath::Ftoi( out.y * scale ), idMath::integer_cast<int16>(-bits));
+		msg->WriteBits( idMath::Ftoi( out.z * scale ), idMath::integer_cast<int16>(-bits));
 	
 	} else if ( IsReading() ) {
 		idQuat quat;

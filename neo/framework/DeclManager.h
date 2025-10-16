@@ -62,7 +62,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef enum {
+typedef enum declType_e : uint8 {
 	DECL_TABLE				= 0,
 	DECL_MATERIAL,
 	DECL_SKIN,
@@ -101,29 +101,29 @@ constexpr int DECL_LEXER_FLAGS	=	LEXFL_NOSTRINGCONCAT |				// multiple strings s
 class idDeclBase {
 public:
 	virtual 				~idDeclBase() {};
-	[[nodiscard]] virtual const char *	GetName() const = 0;
-	[[nodiscard]] virtual declType_t		GetType() const = 0;
-	[[nodiscard]] virtual declState_t		GetState() const = 0;
-	[[nodiscard]] virtual bool			IsImplicit() const = 0;
-	[[nodiscard]] virtual bool			IsValid() const = 0;
+	[[nodiscard]] virtual const char * GetName() const = 0;
+	[[nodiscard]] virtual declType_t GetType() const = 0;
+	[[nodiscard]] virtual declState_t GetState() const = 0;
+	[[nodiscard]] virtual bool IsImplicit() const = 0;
+	[[nodiscard]] virtual bool IsValid() const = 0;
 	virtual void			Invalidate() = 0;
 	virtual void			Reload() = 0;
 	virtual void			EnsureNotPurged() = 0;
-	[[nodiscard]] virtual int				Index() const = 0;
-	[[nodiscard]] virtual int				GetLineNum() const = 0;
+	[[nodiscard]] virtual size_t Index() const = 0;
+	[[nodiscard]] virtual size_t GetLineNum() const = 0;
 	[[nodiscard]] virtual const char *	GetFileName() const = 0;
 	virtual void			GetText( char *text ) const = 0;
-	[[nodiscard]] virtual int				GetTextLength() const = 0;
+	[[nodiscard]] virtual size_t GetTextLength() const = 0;
 	virtual void			SetText( const char *text ) = 0;
 	virtual bool			ReplaceSourceFileText() = 0;
-	[[nodiscard]] virtual bool			SourceFileChanged() const = 0;
+	[[nodiscard]] virtual bool SourceFileChanged() const = 0;
 	virtual void			MakeDefault() = 0;
-	[[nodiscard]] virtual bool			EverReferenced() const = 0;
+	[[nodiscard]] virtual bool EverReferenced() const = 0;
 	virtual bool			SetDefaultText() = 0;
 	[[nodiscard]] virtual const char *	DefaultDefinition() const = 0;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion ) = 0;
 	virtual void			FreeData() = 0;
-	[[nodiscard]] virtual size_t			Size() const = 0;
+	[[nodiscard]] virtual size_t Size() const = 0;
 	virtual void			List() const = 0;
 	virtual void			Print() const = 0;
 };
@@ -137,60 +137,60 @@ public:
 	virtual 				~idDecl() {};
 
 							// Returns the name of the decl.
-							[[nodiscard]] const char *			GetName() const { return base->GetName(); }
+	[[nodiscard]] const char *	GetName() const { return base->GetName(); }
 
 							// Returns the decl type.
-							[[nodiscard]] declType_t				GetType() const { return base->GetType(); }
+	[[nodiscard]] declType_t	GetType() const { return base->GetType(); }
 
-							// Returns the decl state which is usefull for finding out if a decl defaulted.
-							[[nodiscard]] declState_t				GetState() const { return base->GetState(); }
+							// Returns the decl state which is useful for finding out if a decl defaulted.
+	[[nodiscard]] declState_t	GetState() const { return base->GetState(); }
 
 							// Returns true if the decl was defaulted or the text was created with a call to SetDefaultText.
-							[[nodiscard]] bool					IsImplicit() const { return base->IsImplicit(); }
+	[[nodiscard]] bool		IsImplicit() const { return base->IsImplicit(); }
 
 							// The only way non-manager code can have an invalid decl is if the *ByIndex()
 							// call was used with forceParse = false to walk the lists to look at names
 							// without touching the media.
-							[[nodiscard]] bool					IsValid() const { return base->IsValid(); }
+	[[nodiscard]] bool		IsValid() const { return base->IsValid(); }
 
 							// Sets state back to unparsed.
 							// Used by decl editors to undo any changes to the decl.
 	void					Invalidate() const { base->Invalidate(); }
 
-							// if a pointer might possible be stale from a previous level,
+							// if a pointer might possibly be stale from a previous level,
 							// call this to have it re-parsed
 	void					EnsureNotPurged() const { base->EnsureNotPurged(); }
 
 							// Returns the index in the per-type list.
-							[[nodiscard]] int						Index() const { return base->Index(); }
+	[[nodiscard]] size_t	Index() const { return base->Index(); }
 
 							// Returns the line number the decl starts.
-							[[nodiscard]] int						GetLineNum() const { return base->GetLineNum(); }
+	[[nodiscard]] size_t	GetLineNum() const { return base->GetLineNum(); }
 
 							// Returns the name of the file in which the decl is defined.
-							[[nodiscard]] const char *			GetFileName() const { return base->GetFileName(); }
+	[[nodiscard]] const char *	GetFileName() const { return base->GetFileName(); }
 
 							// Returns the decl text.
 	void					GetText( char *text ) const { base->GetText( text ); }
 
 							// Returns the length of the decl text.
-							[[nodiscard]] int						GetTextLength() const { return base->GetTextLength(); }
+	[[nodiscard]] size_t	GetTextLength() const { return base->GetTextLength(); }
 
 							// Sets new decl text.
 	void					SetText( const char *text ) const { base->SetText( text ); }
 
 							// Saves out new text for the decl.
 							// Used by decl editors to replace the decl text in the source file.
-							[[nodiscard]] bool					ReplaceSourceFileText() const { return base->ReplaceSourceFileText(); }
+	[[nodiscard]] bool		ReplaceSourceFileText() const { return base->ReplaceSourceFileText(); }
 
 							// Returns true if the source file changed since it was loaded and parsed.
-							[[nodiscard]] bool					SourceFileChanged() const { return base->SourceFileChanged(); }
+	[[nodiscard]] bool		SourceFileChanged() const { return base->SourceFileChanged(); }
 
 							// Frees data and makes the decl a default.
 	void					MakeDefault() const { base->MakeDefault(); }
 
 							// Returns true if the decl was ever referenced.
-							[[nodiscard]] bool					EverReferenced() const { return base->EverReferenced(); }
+	[[nodiscard]] bool		EverReferenced() const { return base->EverReferenced(); }
 
 public:
 							// Sets textSource to a default text if necessary.
@@ -204,7 +204,7 @@ public:
 							// has an error while parsing, MakeDefault() will do a FreeData(), then a
 							// Parse() with DefaultDefinition(). The defaultDefintion should start with
 							// an open brace and end with a close brace.
-							[[nodiscard]] virtual const char *	DefaultDefinition() const { return base->DefaultDefinition(); }
+	[[nodiscard]] virtual const char *	DefaultDefinition() const { return base->DefaultDefinition(); }
 
 							// The manager will have already parsed past the type, name and opening brace.
 							// All necessary media will be touched before return.
@@ -220,7 +220,7 @@ public:
 	virtual void			FreeData() { base->FreeData(); }
 
 							// Returns the size of the decl in memory.
-							[[nodiscard]] virtual size_t			Size() const { return base->Size(); }
+	[[nodiscard]] virtual size_t			Size() const { return base->Size(); }
 
 							// If this isn't overridden, it will just print the decl name.
 							// The manager will have printed 7 characters on the line already,
@@ -266,13 +266,13 @@ public:
 	virtual void			RegisterDeclFolder( const char *folder, const char *extension, declType_t defaultType ) = 0;
 
 							// Returns a checksum for all loaded decl text.
-	[[nodiscard]] virtual int				GetChecksum() const = 0;
+	[[nodiscard]] virtual int GetChecksum() const = 0;
 
 							// Returns the number of decl types.
-	[[nodiscard]] virtual int				GetNumDeclTypes() const = 0;
+	[[nodiscard]] virtual size_t GetNumDeclTypes() const = 0;
 
 							// Returns the type name for a decl type.
-	[[nodiscard]] virtual const char *	GetDeclNameFromType( declType_t type ) const = 0;
+	[[nodiscard]] virtual const char * GetDeclNameFromType( declType_t type ) const = 0;
 
 							// Returns the decl type for a type name.
 	virtual declType_t		GetDeclTypeFromName( const char *typeName ) const = 0;
@@ -287,12 +287,12 @@ public:
 	virtual void			ReloadFile( const char* filename, bool force ) = 0;
 
 							// Returns the number of decls of the given type.
-	virtual int				GetNumDecls( declType_t type ) = 0;
+	virtual size_t			GetNumDecls( declType_t type ) = 0;
 
 							// The complete lists of decls can be walked to populate editor browsers.
 							// If forceParse is set false, you can get the decl to check name / filename / etc.
 							// without causing it to parse the source and load media.
-	virtual const idDecl *	DeclByIndex( declType_t type, int index, bool forceParse = true ) = 0;
+	        const idDecl *	DeclByIndex( declType_t type, const Ordinal auto index, bool forceParse = true );
 
 							// List and print decls.
 	virtual void			ListType( const idCmdArgs &args, declType_t type ) = 0;

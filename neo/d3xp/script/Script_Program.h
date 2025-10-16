@@ -38,15 +38,15 @@ class idThread;
 class idSaveGame;
 class idRestoreGame;
 
-#define MAX_STRING_LEN		128
-#define MAX_GLOBALS			296608			// in bytes
-#define MAX_STRINGS			1024
+constexpr size_t MAX_STRING_LEN = 128;
+constexpr size_t MAX_GLOBALS    = 296608;			// in bytes
+constexpr size_t MAX_STRINGS    = 1024;
 
-#define MAX_FUNCS			3584
+constexpr size_t MAX_FUNCS      = 3584;
 
-#define MAX_STATEMENTS		131072			// statement_t - 18 bytes last I checked
+constexpr size_t MAX_STATEMENTS = 131072;			// statement_t - 18 bytes last I checked
 
-typedef enum {
+typedef enum etype_e : int8 {
 	ev_error = -1, ev_void, ev_scriptevent, ev_namespace, ev_string, ev_float, ev_vector, ev_entity, ev_field, ev_function, ev_virtualfunction, ev_pointer, ev_object, ev_jumpoffset, ev_argsize, ev_boolean
 } etype_t;
 
@@ -65,11 +65,11 @@ public:
 	const idEventDef	*eventdef;
 	idVarDef			*def;
 	const idTypeDef		*type;
-	int 				firstStatement;
-	int 				numStatements;
+	size_t				firstStatement;
+	size_t				numStatements;
 	int 				parmTotal;
 	int 				locals; 			// total ints of parms + locals
-	int					filenum; 			// source file defined in
+	size_t				filenum; 			// source file defined in
 	idList<int, TAG_SCRIPT>			parmSize;
 };
 
@@ -78,8 +78,8 @@ typedef union eval_s {
 	float				_float;
 	float				vector[ 3 ];
 	function_t			*function;
-	int 				_int;
-	int 				entity;
+	int64 				_int;
+	int64 				entity;
 } eval_t;
 
 /***********************************************************************
@@ -94,7 +94,7 @@ class idTypeDef {
 private:
 	etype_t						type;
 	idStr 						name;
-	int							size;
+	size_t						size;
 
 	// function types are more complex
 	idTypeDef					*auxType;					// return type
@@ -120,7 +120,7 @@ public:
 	const char			*Name() const;
 
 	etype_t				Type() const;
-	int					Size() const;
+	size_t				Size() const;
 
 	idTypeDef			*SuperClass() const;
 	
@@ -133,9 +133,9 @@ public:
 	idTypeDef			*PointerType() const;
 	void				SetPointerType( idTypeDef *type );
 
-	int					NumParameters() const;
-	idTypeDef			*GetParmType( int parmNumber ) const;
-	const char			*GetParmName( int parmNumber ) const;
+	size_t				NumParameters() const;
+	idTypeDef			*GetParmType( size_t parmNumber ) const;
+	const char			*GetParmName( size_t parmNumber ) const;
 
 	int					NumFunctions() const;
 	int					GetFunctionNumber( const function_t *func ) const;
@@ -209,7 +209,7 @@ ID_INLINE idScriptVariable<type, etype, returnType>::idScriptVariable() {
 
 template<class type, etype_t etype, class returnType>
 ID_INLINE bool idScriptVariable<type, etype, returnType>::IsLinked() const {
-	return ( data != NULL );
+	return ( data != nullptr);
 }
 
 template<class type, etype_t etype, class returnType>
@@ -219,7 +219,7 @@ ID_INLINE void idScriptVariable<type, etype, returnType>::Unlink() {
 
 template<class type, etype_t etype, class returnType>
 ID_INLINE void idScriptVariable<type, etype, returnType>::LinkTo( idScriptObject &obj, const char *name ) {
-	data = ( type * )obj.GetVariable( name, etype );
+	data = static_cast<type*>(obj.GetVariable(name, etype));
 	if ( !data ) {
 		gameError( "Missing '%s' field in script object '%s'", name, obj.GetTypeName() );
 	}
@@ -232,7 +232,7 @@ ID_INLINE idScriptVariable<type, etype, returnType> &idScriptVariable<type, etyp
 
 	// make sure we don't crash if we don't have a pointer
 	if ( data ) {
-		*data = ( type )value;
+		*data = static_cast<type>(value);
 	}
 	return *this;
 }
@@ -244,10 +244,10 @@ ID_INLINE idScriptVariable<type, etype, returnType>::operator returnType() const
 
 	// make sure we don't crash if we don't have a pointer
 	if ( data ) {
-		return ( const returnType )*data;
+		return static_cast<const returnType>(*data);
 	} else {
 		// reasonably safe value
-		return ( const returnType )0;
+		return static_cast<const returnType>(0);
 	}
 }
 
@@ -301,11 +301,11 @@ typedef union varEval_s {
 	byte					*bytePtr;
 	int 					*entityNumberPtr;
 	int						virtualFunction;
-	int						jumpOffset;
-	int						stackOffset;		// offset in stack for local variables
-	int						argSize;
+	size_t					jumpOffset;
+	size_t					stackOffset;		// offset in stack for local variables
+	size_t					argSize;
 	varEval_s				*evalPtr;
-	int						ptrOffset;
+	size_t					ptrOffset;
 } varEval_t;
 
 class idVarDefName;
@@ -314,10 +314,10 @@ class idVarDef {
 	friend class idVarDefName;
 
 public:
-	int						num;
+	size_t					num;
 	varEval_t				value;
 	idVarDef *				scope; 			// function, namespace, or object the var was defined in
-	int						numUsers;		// number of users if this is a constant
+	size_t					numUsers;		// number of users if this is a constant
 
 	typedef enum {
 		uninitialized, initializedVariable, initializedConstant, stackVariable
@@ -326,7 +326,7 @@ public:
 	initialized_t			initialized;
 
 public:
-							idVarDef( idTypeDef *typeptr = NULL );
+							idVarDef( idTypeDef *typeptr = nullptr);
 							~idVarDef();
 
 	const char *			Name() const;
@@ -334,7 +334,7 @@ public:
 
 	void					SetTypeDef( idTypeDef *_type ) { typeDef = _type; }
 	idTypeDef *				TypeDef() const { return typeDef; }
-	etype_t					Type() const { return ( typeDef != NULL ) ? typeDef->Type() : ev_void; }
+	etype_t					Type() const { return ( typeDef != nullptr) ? typeDef->Type() : ev_void; }
 
 	int						DepthOfScope( const idVarDef *otherScope ) const;
 
@@ -361,8 +361,8 @@ private:
 
 class idVarDefName {
 public:
-							idVarDefName() { defs = NULL; }
-							idVarDefName( const char *n ) { name = n; defs = NULL; }
+							idVarDefName() { defs = nullptr; }
+							idVarDefName( const char *n ) { name = n; defs = nullptr; }
 
 	const char *			Name() const { return name; }
 	idVarDef *				GetDefs() const { return defs; }
@@ -418,7 +418,7 @@ typedef struct statement_s {
 	idVarDef		*a;
 	idVarDef		*b;
 	idVarDef		*c;
-	unsigned short	linenumber;
+	size_t      	linenumber;
 	unsigned short	file;
 } statement_t;
 
@@ -437,9 +437,9 @@ class idProgram {
 private:
 	idStrList									fileList;
 	idStr 										filename;
-	int											filenum;
+	size_t										filenum;
 
-	int											numVariables;
+	size_t										numVariables;
 	byte										variables[ MAX_GLOBALS ];
 	idStaticList<byte,MAX_GLOBALS>				variableDefaults;
 	idStaticList<function_t,MAX_FUNCS>			functions;
@@ -484,13 +484,13 @@ public:
 	void										Disassemble() const;
 	void										FreeData();
 
-	const char									*GetFilename( int num );
-	int											GetFilenum( const char *name );
-	int											GetLineNumberForStatement( int index );
-	const char									*GetFilenameForStatement( int index );
+	const char									*GetFilename( size_t num );
+	size_t										GetFilenum( const char *name );
+	size_t										GetLineNumberForStatement( size_t index );
+	const char									*GetFilenameForStatement( size_t index );
 
 	idTypeDef									*AllocType( idTypeDef &type );
-	idTypeDef									*AllocType( etype_t etype, idVarDef *edef, const char *ename, int esize, idTypeDef *aux );
+	idTypeDef									*AllocType( etype_t etype, idVarDef *edef, const char *ename, size_t esize, idTypeDef *aux );
 	idTypeDef									*GetType( idTypeDef &type, bool allocate );
 	idTypeDef									*FindType( const char *name );
 
@@ -504,24 +504,24 @@ public:
 	function_t									*FindFunction( const char *name ) const;						// returns NULL if function not found
 	function_t									*FindFunction( const char *name, const idTypeDef *type ) const;	// returns NULL if function not found
 	function_t									&AllocFunction( idVarDef *def );
-	function_t									*GetFunction( int index );
-	int											GetFunctionIndex( const function_t *func );
+	function_t									*GetFunction( size_t index );
+	size_t										GetFunctionIndex( const function_t *func );
 
 	void										SetEntity( const char *name, idEntity *ent );
 
 	statement_t									*AllocStatement();
-	statement_t									&GetStatement( int index );
-	int											NumStatements() { return statements.Num(); }
+	statement_t									&GetStatement( size_t index );
+	size_t										NumStatements() const { return statements.Num(); }
 
-	int 										GetReturnedInteger();
+	int 										GetReturnedInteger() const;
 
-	void										ReturnFloat( float value );
-	void										ReturnInteger( int value );
-	void										ReturnVector( idVec3 const &vec );
-	void										ReturnString( const char *string );
+	void										ReturnFloat( float value ) const;
+	void										ReturnInteger( int value ) const;
+	void										ReturnVector( idVec3 const &vec ) const;
+	void										ReturnString( const char *string ) const;
 	void										ReturnEntity( idEntity *ent );
 	
-	int											NumFilenames() { return fileList.Num( ); }
+	size_t										NumFilenames() const { return fileList.Num( ); }
 };
 
 /*
@@ -529,7 +529,7 @@ public:
 idProgram::GetStatement
 ================
 */
-ID_INLINE statement_t &idProgram::GetStatement( int index ) {
+ID_INLINE statement_t &idProgram::GetStatement( size_t index ) {
 	return statements[ index ];
 }
 
@@ -538,7 +538,7 @@ ID_INLINE statement_t &idProgram::GetStatement( int index ) {
 idProgram::GetFunction
 ================
 */
-ID_INLINE function_t *idProgram::GetFunction( int index ) {
+ID_INLINE function_t *idProgram::GetFunction( size_t index ) {
 	return &functions[ index ];
 }
 
@@ -547,7 +547,7 @@ ID_INLINE function_t *idProgram::GetFunction( int index ) {
 idProgram::GetFunctionIndex
 ================
 */
-ID_INLINE int idProgram::GetFunctionIndex( const function_t *func ) {
+ID_INLINE size_t idProgram::GetFunctionIndex( const function_t *func ) {
 	return func - &functions[0];
 }
 
@@ -556,7 +556,8 @@ ID_INLINE int idProgram::GetFunctionIndex( const function_t *func ) {
 idProgram::GetReturnedInteger
 ================
 */
-ID_INLINE int idProgram::GetReturnedInteger() {
+ID_INLINE int idProgram::GetReturnedInteger() const
+{
 	return *returnDef->value.intPtr;
 }
 
@@ -565,7 +566,8 @@ ID_INLINE int idProgram::GetReturnedInteger() {
 idProgram::ReturnFloat
 ================
 */
-ID_INLINE void idProgram::ReturnFloat( float value ) {
+ID_INLINE void idProgram::ReturnFloat( float value ) const
+{
 	*returnDef->value.floatPtr = value;
 }
 
@@ -574,7 +576,8 @@ ID_INLINE void idProgram::ReturnFloat( float value ) {
 idProgram::ReturnInteger
 ================
 */
-ID_INLINE void idProgram::ReturnInteger( int value ) {
+ID_INLINE void idProgram::ReturnInteger( int value ) const
+{
 	*returnDef->value.intPtr = value;
 }
 
@@ -583,7 +586,8 @@ ID_INLINE void idProgram::ReturnInteger( int value ) {
 idProgram::ReturnVector
 ================
 */
-ID_INLINE void idProgram::ReturnVector( idVec3 const &vec ) {
+ID_INLINE void idProgram::ReturnVector( idVec3 const &vec ) const
+{
 	*returnDef->value.vectorPtr = vec;
 }
 
@@ -592,7 +596,8 @@ ID_INLINE void idProgram::ReturnVector( idVec3 const &vec ) {
 idProgram::ReturnString
 ================
 */
-ID_INLINE void idProgram::ReturnString( const char *string ) {
+ID_INLINE void idProgram::ReturnString( const char *string ) const
+{
 	idStr::Copynz( returnStringDef->value.stringPtr, string, MAX_STRING_LEN );
 }
 
@@ -601,7 +606,7 @@ ID_INLINE void idProgram::ReturnString( const char *string ) {
 idProgram::GetFilename
 ================
 */
-ID_INLINE const char *idProgram::GetFilename( int num ) {
+ID_INLINE const char *idProgram::GetFilename( size_t num ) {
 	return fileList[ num ];
 }
 
@@ -610,7 +615,7 @@ ID_INLINE const char *idProgram::GetFilename( int num ) {
 idProgram::GetLineNumberForStatement
 ================
 */
-ID_INLINE int idProgram::GetLineNumberForStatement( int index ) {
+ID_INLINE size_t idProgram::GetLineNumberForStatement( size_t index ) {
 	return statements[ index ].linenumber;
 }
 
@@ -619,7 +624,7 @@ ID_INLINE int idProgram::GetLineNumberForStatement( int index ) {
 idProgram::GetFilenameForStatement
 ================
 */
-ID_INLINE const char *idProgram::GetFilenameForStatement( int index ) {
+ID_INLINE const char *idProgram::GetFilenameForStatement( size_t index ) {
 	return GetFilename( statements[ index ].file );
 }
 

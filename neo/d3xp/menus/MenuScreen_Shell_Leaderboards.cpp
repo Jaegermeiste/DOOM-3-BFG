@@ -34,9 +34,9 @@ constexpr int MAX_STAT_LISTINGS = 16;
 static constexpr int MAX_ROWS_PER_BLOCK = 50;
 
 idMenuScreen_Shell_Leaderboards::~idMenuScreen_Shell_Leaderboards() {
-	if ( lbCache != NULL ) {
+	if ( lbCache != nullptr) {
 		delete lbCache;
-		lbCache = NULL;
+		lbCache = nullptr;
 	}
 }
 
@@ -67,7 +67,7 @@ idMenuScreen_Shell_Leaderboards::Initialize
 void idMenuScreen_Shell_Leaderboards::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -150,8 +150,8 @@ void idMenuScreen_Shell_Leaderboards::Initialize( idMenuHandler * data ) {
 	leaderboards.Clear();
 
 	const idList< mpMap_t > maps = common->GetMapList();
-	const char ** gameModes = NULL;
-	const char ** gameModesDisplay = NULL;
+	const char ** gameModes = nullptr;
+	const char ** gameModesDisplay = nullptr;
 	int numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
 
 	for ( int mapIndex = 0; mapIndex < maps.Num(); ++mapIndex ) {
@@ -160,7 +160,7 @@ void idMenuScreen_Shell_Leaderboards::Initialize( idMenuHandler * data ) {
 			if( maps[ mapIndex ].supportedModes & BIT( modeIndex ) ) {
 				int boardID = LeaderboardLocal_GetID( mapIndex, modeIndex );
 				const leaderboardDefinition_t * lbDef = Sys_FindLeaderboardDef( boardID );
-				if ( lbDef != NULL ) {
+				if ( lbDef != nullptr) {
 					doomLeaderboard_t lb = doomLeaderboard_t( lbDef, lbDef->boardName );
 					leaderboards.Append( lb );
 				}
@@ -177,7 +177,7 @@ idMenuScreen_Shell_Leaderboards::PumpLBCache
 */
 void idMenuScreen_Shell_Leaderboards::PumpLBCache() {
 
-	if ( lbCache == NULL ) {
+	if ( lbCache == nullptr) {
 		return;
 	}
 	
@@ -192,7 +192,7 @@ idMenuScreen_Shell_Leaderboards::ClearLeaderboard
 */
 void idMenuScreen_Shell_Leaderboards::ClearLeaderboard() {
 
-	if ( lbCache == NULL ) {
+	if ( lbCache == nullptr) {
 		return;
 	}
 
@@ -207,9 +207,9 @@ idMenuScreen_Shell_Leaderboards::Update
 */
 void idMenuScreen_Shell_Leaderboards::Update() {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+		if ( cmdBar != nullptr) {
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
@@ -222,7 +222,7 @@ void idMenuScreen_Shell_Leaderboards::Update() {
 			buttonInfo->label = "#str_online_leaderboards_toggle_filter";
 			buttonInfo->action.Set( WIDGET_ACTION_JOY3_ON_PRESS );
 			
-			if ( !lbCache->IsLoadingNewLeaderboard() && !lbCache->IsRequestingRows() && options != NULL && options->GetTotalNumberOfOptions() > 0 ) {
+			if ( !lbCache->IsLoadingNewLeaderboard() && !lbCache->IsRequestingRows() && options != nullptr && options->GetTotalNumberOfOptions() > 0 ) {
 				buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 				if ( menuData->GetPlatform() != 2 ) {
 					buttonInfo->label = "#str_swf_view_profile";
@@ -235,18 +235,18 @@ void idMenuScreen_Shell_Leaderboards::Update() {
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
 	if ( BindSprite( root ) ) {
 		idSWFTextInstance * heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if ( heading != NULL ) {
+		if ( heading != nullptr) {
 			heading->SetText( lbCache->GetFilterStrType() );
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 
 		idSWFSpriteInstance * gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if ( gradient != NULL && heading != NULL ) {
+		if ( gradient != nullptr && heading != nullptr) {
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 
-	if ( btnBack != NULL ) {
+	if ( btnBack != nullptr) {
 		btnBack->BindSprite( root );
 	}
 
@@ -261,19 +261,19 @@ idMenuScreen_Shell_Leaderboards::ShowScreen
 void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t transitionType ) {
 	idMenuScreen::ShowScreen( transitionType );
 	
-	if ( GetSprite() != NULL ) {
+	if ( GetSprite() != nullptr) {
 		lbHeading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtLbType" );	
-		if ( menuData != NULL && menuData->GetGUI() != NULL ) {
+		if ( menuData != nullptr && menuData->GetGUI() != nullptr) {
 			idSWFScriptObject * const shortcutKeys = menuData->GetGUI()->GetGlobal( "shortcutKeys" ).GetObject();
 			if ( verify( shortcutKeys != NULL ) ) {
 			
 				// TAB NEXT
 				idSWFScriptObject * const btnTabNext = GetSprite()->GetScriptObject()->GetNestedObj( "info", "btnNext" );
-				if ( btnTabNext != NULL ) {
+				if ( btnTabNext != nullptr) {
 					btnTabNext->Set( "onPress", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_TAB_NEXT, 0 ) );
 					shortcutKeys->Set( "JOY6", btnTabNext );
 
-					if ( btnTabNext->GetSprite() != NULL && menuData != NULL ) {
+					if ( btnTabNext->GetSprite() != nullptr && menuData != nullptr) {
 						btnTabNext->GetSprite()->StopFrame( menuData->GetPlatform() + 1 );
 					}
 
@@ -281,22 +281,22 @@ void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t tra
 
 				// TAB PREV
 				idSWFScriptObject * const btnTabPrev = GetSprite()->GetScriptObject()->GetNestedObj( "info", "btnPrevious" );
-				if ( btnTabPrev != NULL ) {
+				if ( btnTabPrev != nullptr) {
 					btnTabPrev->Set( "onPress", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_TAB_PREV, 0 ) );
 					shortcutKeys->Set( "JOY5", btnTabPrev );
 
-					if ( btnTabPrev->GetSprite() != NULL && menuData != NULL ) {
+					if ( btnTabPrev->GetSprite() != nullptr && menuData != nullptr) {
 						btnTabPrev->GetSprite()->StopFrame( menuData->GetPlatform() + 1 );
 					}
 				}
 									
 				// TAB NEXT
 				idSWFScriptObject * const btnDwn = GetSprite()->GetScriptObject()->GetNestedObj( "info", "btnPageDwn" );
-				if ( btnDwn != NULL ) {
+				if ( btnDwn != nullptr) {
 					btnDwn->Set( "onPress", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_SCROLL_PAGEDWN, 0 ) );
 					shortcutKeys->Set( "JOY_TRIGGER2", btnDwn );
 
-					if ( btnDwn->GetSprite() != NULL && menuData != NULL ) {
+					if ( btnDwn->GetSprite() != nullptr && menuData != nullptr) {
 						btnDwn->GetSprite()->StopFrame( menuData->GetPlatform() + 1 );
 					}
 
@@ -304,11 +304,11 @@ void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t tra
 
 				// TAB PREV
 				idSWFScriptObject * const btnUp = GetSprite()->GetScriptObject()->GetNestedObj( "info", "btnPageUp" );
-				if ( btnUp != NULL ) {
+				if ( btnUp != nullptr) {
 					btnUp->Set( "onPress", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_SCROLL_PAGEUP, 0 ) );
 					shortcutKeys->Set( "JOY_TRIGGER1", btnUp );
 
-					if ( btnUp->GetSprite() != NULL && menuData != NULL ) {
+					if ( btnUp->GetSprite() != nullptr && menuData != nullptr) {
 						btnUp->GetSprite()->StopFrame( menuData->GetPlatform() + 1 );
 					}
 				}
@@ -319,15 +319,15 @@ void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t tra
 
 	SetLeaderboardIndex();
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return;
 	}
 
 	int platform = menuData->GetPlatform();
-	if ( btnNext != NULL && btnNext->GetSprite() != NULL ) {
+	if ( btnNext != nullptr && btnNext->GetSprite() != nullptr) {
 		idSWFSpriteInstance * btnImg = btnNext->GetSprite()->GetScriptObject()->GetNestedSprite( "btnImg" );
 
-		if ( btnImg != NULL ) {
+		if ( btnImg != nullptr) {
 			if ( platform == 2 ) {
 				btnImg->SetVisible( false );
 			} else {
@@ -337,10 +337,10 @@ void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t tra
 		}
 	}
 
-	if ( btnPrev != NULL && btnPrev->GetSprite() != NULL ) {
+	if ( btnPrev != nullptr && btnPrev->GetSprite() != nullptr) {
 		idSWFSpriteInstance * btnImg = btnPrev->GetSprite()->GetScriptObject()->GetNestedSprite( "btnImg" );
 
-		if ( btnImg != NULL ) {
+		if ( btnImg != nullptr) {
 			if ( platform == 2 ) {
 				btnImg->SetVisible( false );
 			} else {
@@ -350,10 +350,10 @@ void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t tra
 		}
 	}
 
-	if ( btnPageDwn != NULL && btnPageDwn->GetSprite() != NULL ) {
+	if ( btnPageDwn != nullptr && btnPageDwn->GetSprite() != nullptr) {
 		idSWFSpriteInstance * btnImg = btnPageDwn->GetSprite()->GetScriptObject()->GetNestedSprite( "btnImg" );
 
-		if ( btnImg != NULL ) {
+		if ( btnImg != nullptr) {
 			if ( platform == 2 ) {
 				btnImg->SetVisible( false );
 			} else {
@@ -363,10 +363,10 @@ void idMenuScreen_Shell_Leaderboards::ShowScreen( const mainMenuTransition_t tra
 		}
 	}
 
-	if ( btnPageUp != NULL && btnPageUp->GetSprite() != NULL ) {
+	if ( btnPageUp != nullptr && btnPageUp->GetSprite() != nullptr) {
 		idSWFSpriteInstance * btnImg = btnPageUp->GetSprite()->GetScriptObject()->GetNestedSprite( "btnImg" );
 
-		if ( btnImg != NULL ) {
+		if ( btnImg != nullptr) {
 			if ( platform == 2 ) {
 				btnImg->SetVisible( false );
 			} else {
@@ -395,7 +395,7 @@ idMenuScreen_Shell_Leaderboards::HandleAction
 */
 bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 
@@ -418,7 +418,7 @@ bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, con
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED: {
 
-			if ( options == NULL ) {
+			if ( options == nullptr) {
 				return true;
 			}
 
@@ -434,7 +434,7 @@ bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, con
 			}
 
 			const idLeaderboardCallback::row_t * row = lbCache->GetLeaderboardRow( lbCache->GetRowOffset() + lbCache->GetEntryIndex() );
-			if ( row != NULL ) {
+			if ( row != nullptr) {
 				lbCache->DisplayGamerCardUI( row );
 			}
 
@@ -451,7 +451,7 @@ bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, con
 				return true;
 			}
 
-			if ( options == NULL ) {		
+			if ( options == nullptr) {		
 				return true;
 			}
 
@@ -468,7 +468,7 @@ bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, con
 				return true;
 			}
 
-			if ( options == NULL ) {		
+			if ( options == nullptr) {		
 				return true;
 			}
 
@@ -559,8 +559,8 @@ void idMenuScreen_Shell_Leaderboards::RefreshLeaderboard() {
 			int index = lbCache->GetRowOffset() + addIndex;
 
 			const idLeaderboardCallback::row_t * row = lbCache->GetLeaderboardRow( index );		// If this row is not in the cache, this will kick off a request
-			if ( row != NULL ) {
-				values.Append( va( "%i", (int)row->rank ) );
+			if ( row != nullptr) {
+				values.Append( va( "%i", static_cast<int>(row->rank) ) );
 				values.Append( row->name );				
 				values.Append( FormatColumn( &lbCache->GetLeaderboard()->columnDefs[0], row->columns[0] ).ToString() );
 			}
@@ -581,7 +581,7 @@ void idMenuScreen_Shell_Leaderboards::RefreshLeaderboard() {
 		}
 	}
 
-	if ( lbHeading != NULL ) {
+	if ( lbHeading != nullptr) {
 		lbHeading->SetText( leaderboards[ lbIndex ].name );
 		lbHeading->SetStrokeInfo( true, 0.75f, 1.75f );
 	}
@@ -590,11 +590,11 @@ void idMenuScreen_Shell_Leaderboards::RefreshLeaderboard() {
 		options->SetFocusIndex( focusIndex );
 	}
 
-	if ( btnPageDwn != NULL && btnPageDwn->GetSprite() != NULL ) {
+	if ( btnPageDwn != nullptr && btnPageDwn->GetSprite() != nullptr) {
 		btnPageDwn->GetSprite()->SetVisible( downArrow );
 	}
 
-	if ( btnPageUp != NULL && btnPageUp->GetSprite() != NULL ) {
+	if ( btnPageUp != nullptr && btnPageUp->GetSprite() != nullptr) {
 		btnPageUp->GetSprite()->SetVisible( upArrow );
 	}
 
@@ -647,27 +647,27 @@ void idMenuScreen_Shell_Leaderboards::ShowMessage( bool show, idStr message, boo
 
 	if ( show ) {
 
-		if ( spinner && options != NULL && options->GetSprite() != NULL ) {
+		if ( spinner && options != nullptr && options->GetSprite() != nullptr) {
 			options->GetSprite()->SetAlpha( 0.35f );
-		} else if ( options != NULL && options->GetSprite() != NULL ) {
+		} else if ( options != nullptr && options->GetSprite() != nullptr) {
 			options->GetSprite()->SetVisible( false );
 		}
 
 		pacifier->SetVisible( true );
 		idSWFTextInstance * txtMsg = pacifier->GetScriptObject()->GetNestedText( "message" );
-		if ( txtMsg != NULL ) {
+		if ( txtMsg != nullptr) {
 			txtMsg->SetText( message );
 			txtMsg->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 		
 		idSWFSpriteInstance * spriteSpinner = pacifier->GetScriptObject()->GetNestedSprite( "graphic" );
-		if ( spriteSpinner != NULL ) {
+		if ( spriteSpinner != nullptr) {
 			spriteSpinner->StopFrame( spinner ? 1 : 2 );
 		}
 
 	} else {
 
-		if ( options != NULL && options->GetSprite() != NULL ) {
+		if ( options != nullptr && options->GetSprite() != nullptr) {
 			options->GetSprite()->SetVisible( true );
 			options->GetSprite()->SetAlpha( 1.0f );
 		}
@@ -706,7 +706,7 @@ void idLBCache::Pump() {
 		return;
 	}
 
-	if ( pendingDef != NULL ) {
+	if ( pendingDef != nullptr) {
 		SetLeaderboard( pendingDef, pendingFilter );
 	}
 }
@@ -722,9 +722,9 @@ void idLBCache::Reset() {
 		rowBlocks[i].rows.Clear();
 	}
 
-	def						= NULL;
+	def						= nullptr;
 	filter					= DEFAULT_LEADERBOARD_FILTER;
-	pendingDef				= NULL;
+	pendingDef				= nullptr;
 	pendingFilter			= DEFAULT_LEADERBOARD_FILTER;
 	rowOffset				= 0;
 	requestingRows			= false;
@@ -940,7 +940,7 @@ void idLBCache::Update( const idLeaderboardCallback * callback ) {
 				if ( shell != NULL ) {
 					shell->SetNextScreen( SHELL_AREA_ROOT, MENU_TRANSITION_SIMPLE );
 				}*/
-				common->Dialog().AddDialog( GDM_CONNECTION_LOST, DIALOG_ACCEPT, NULL, NULL, true, "", 0, true );
+				common->Dialog().AddDialog( GDM_CONNECTION_LOST, DIALOG_ACCEPT, nullptr, nullptr, true, "", 0, true );
 				break;
 			default:
 				break;
@@ -996,11 +996,11 @@ idLBCache::GetLeaderboardRow
 */
 const idLeaderboardCallback::row_t * idLBCache::GetLeaderboardRow( int row ) {
 	if ( loadingNewLeaderboard ) {
-		return NULL;		// If we are refreshing (seeing this leaderboard for the first time), force NULL till we get first set of results
+		return nullptr;		// If we are refreshing (seeing this leaderboard for the first time), force NULL till we get first set of results
 	}
 
 	if ( row >= numRowsInLeaderboard ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// Find it in the cache
@@ -1024,7 +1024,7 @@ const idLeaderboardCallback::row_t * idLBCache::GetLeaderboardRow( int row ) {
 		//idLib::Printf( "Stat request\n" );
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

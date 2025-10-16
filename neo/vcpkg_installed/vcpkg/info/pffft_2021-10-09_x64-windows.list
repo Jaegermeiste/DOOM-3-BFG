@@ -1,0 +1,17 @@
+x64-windows/
+x64-windows/debug/
+x64-windows/debug/lib/
+x64-windows/debug/lib/pffft.lib
+x64-windows/include/
+x64-windows/include/pffft/
+x64-windows/include/pffft/pffft.h
+x64-windows/lib/
+x64-windows/lib/pffft.lib
+x64-windows/share/
+x64-windows/share/pffft/
+x64-windows/share/pffft/copyright
+x64-windows/share/pffft/pffft-config-debug.cmake
+x64-windows/share/pffft/pffft-config-release.cmake
+x64-windows/share/pffft/pffft-config.cmake
+x64-windows/share/pffft/vcpkg.spdx.json
+x64-windows/share/pffft/vcpkg_abi_info.txt

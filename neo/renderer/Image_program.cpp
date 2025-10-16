@@ -51,6 +51,8 @@ Manager
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 
 
@@ -199,9 +201,9 @@ R_AddNormalMaps
 
 ===================
 */
-static void R_AddNormalMaps( byte *data1, int width1, int height1, byte *data2, int width2, int height2 ) {
-	int		i, j;
-	byte	*newMap;
+static void R_AddNormalMaps( byte *data1, const size_t width1, const size_t height1, byte *data2, const size_t width2, const size_t height2 ) {
+	size_t	i = 0, j = 0;
+	byte	*newMap = nullptr;
 
 	// resample pic2 to the same size as pic1
 	if ( width2 != width1 || height2 != height1 ) {
@@ -214,31 +216,31 @@ static void R_AddNormalMaps( byte *data1, int width1, int height1, byte *data2, 
 	// add the normal change from the second and renormalize
 	for ( i = 0 ; i < height1 ; i++ ) {
 		for ( j = 0 ; j < width1 ; j++ ) {
-			byte	*d1, *d2;
-			idVec3	n;
-			float   len;
+			byte	*d1 = nullptr, *d2 = nullptr;
+			idVec3	n = {};
+			float   len = 0.0f;
 
 			d1 = data1 + ( i * width1 + j ) * 4;
 			d2 = data2 + ( i * width1 + j ) * 4;
 
-			n[0] = ( d1[0] - 128 ) / 127.0;
-			n[1] = ( d1[1] - 128 ) / 127.0;
-			n[2] = ( d1[2] - 128 ) / 127.0;
+			n[0] = idMath::Itof<float>( d1[0] - 128 ) / 127.0f;
+			n[1] = idMath::Itof<float>( d1[1] - 128 ) / 127.0f;
+			n[2] = idMath::Itof<float>( d1[2] - 128 ) / 127.0f;
 
 			// There are some normal maps that blend to 0,0,0 at the edges
 			// this screws up compression, so we try to correct that here by instead fading it to 0,0,1
 			len = n.LengthFast();
 			if ( len < 1.0f ) {
-				n[2] = idMath::Sqrt(1.0 - (n[0]*n[0]) - (n[1]*n[1]));
+				n[2] = idMath::Sqrt(1.0f - (n[0]*n[0]) - (n[1]*n[1]));
 			}
 
-			n[0] += ( d2[0] - 128 ) / 127.0;
-			n[1] += ( d2[1] - 128 ) / 127.0;
+			n[0] += idMath::Itof<float>( d2[0] - 128 ) / 127.0f;
+			n[1] += idMath::Itof<float>( d2[1] - 128 ) / 127.0f;
 			n.Normalize();
 
-			d1[0] = static_cast<byte>(n[0] * 127 + 128);
-			d1[1] = static_cast<byte>(n[1] * 127 + 128);
-			d1[2] = static_cast<byte>(n[2] * 127 + 128);
+			d1[0] = idMath::integer_cast<byte>(n[0] * 127 + 128);
+			d1[1] = idMath::integer_cast<byte>(n[1] * 127 + 128);
+			d1[2] = idMath::integer_cast<byte>(n[2] * 127 + 128);
 			d1[3] = 255;
 		}
 	}
@@ -253,11 +255,11 @@ static void R_AddNormalMaps( byte *data1, int width1, int height1, byte *data2, 
 R_SmoothNormalMap
 ================
 */
-static void R_SmoothNormalMap( byte *data, int width, int height ) {
-	byte	*orig;
-	int		i, j, k, l;
-	idVec3	normal;
-	byte	*out;
+static void R_SmoothNormalMap( byte *data, const size_t width, const size_t height ) {
+	byte	*orig = nullptr;
+	size_t	i = 0, j = 0, k = 0, l = 0;
+	idVec3	normal = {};
+	byte	*out = nullptr;
 	static float	factors[3][3] = {
 		{ 1, 1, 1 },
 		{ 1, 1, 1 },
@@ -272,9 +274,7 @@ static void R_SmoothNormalMap( byte *data, int width, int height ) {
 			normal = vec3_origin;
 			for ( k = -1 ; k < 2 ; k++ ) {
 				for ( l = -1 ; l < 2 ; l++ ) {
-					byte	*in;
-
-					in = orig + ( ((j+l)&(height-1))*width + ((i+k)&(width-1)) ) * 4;
+					const byte* in = orig + (((j + l) & (height - 1)) * width + ((i + k) & (width - 1))) * 4;
 
 					// ignore 000 and -1 -1 -1
 					if ( in[0] == 0 && in[1] == 0 && in[2] == 0 ) {
@@ -284,16 +284,16 @@ static void R_SmoothNormalMap( byte *data, int width, int height ) {
 						continue;
 					}
 
-					normal[0] += factors[k+1][l+1] * ( in[0] - 128 );
-					normal[1] += factors[k+1][l+1] * ( in[1] - 128 );
-					normal[2] += factors[k+1][l+1] * ( in[2] - 128 );
+					normal[0] += factors[k+1][l+1] * idMath::Itof<float>( in[0] - 128 );
+					normal[1] += factors[k+1][l+1] * idMath::Itof<float>( in[1] - 128 );
+					normal[2] += factors[k+1][l+1] * idMath::Itof<float>( in[2] - 128 );
 				}
 			}
 			normal.Normalize();
 			out = data + ( j * width + i ) * 4;
-			out[0] = static_cast<byte>(128 + 127 * normal[0]);
-			out[1] = static_cast<byte>(128 + 127 * normal[1]);
-			out[2] = static_cast<byte>(128 + 127 * normal[2]);
+			out[0] = idMath::integer_cast<byte>(128 + 127 * normal[0]);
+			out[1] = idMath::integer_cast<byte>(128 + 127 * normal[1]);
+			out[2] = idMath::integer_cast<byte>(128 + 127 * normal[2]);
 		}
 	}
 
@@ -307,10 +307,9 @@ R_ImageAdd
 
 ===================
 */
-static void R_ImageAdd( byte *data1, int width1, int height1, byte *data2, int width2, int height2 ) {
-	int		i, j;
-	int		c;
-	byte	*newMap;
+static void R_ImageAdd( byte *data1, const size_t width1, const size_t height1, byte *data2, const size_t width2, const size_t height2 ) {
+	size_t	i = 0, j = 0;
+	byte	*newMap = nullptr;
 
 	// resample pic2 to the same size as pic1
 	if ( width2 != width1 || height2 != height1 ) {
@@ -321,14 +320,12 @@ static void R_ImageAdd( byte *data1, int width1, int height1, byte *data2, int w
 	}
 
 
-	c = width1 * height1 * 4;
+	const size_t c = width1 * height1 * 4;
 
 	for ( i = 0 ; i < c ; i++ ) {
 		j = data1[i] + data2[i];
-		if ( j > 255 ) {
-			j = 255;
-		}
-		data1[i] = j;
+		j = std::min<size_t>(j, 255);
+		data1[i] = idMath::integer_cast<byte>(j);
 	}
 
 	if ( newMap ) {
@@ -375,11 +372,11 @@ If both pic and timestamps are NULL, it will just advance past it, which can be
 used to parse an image program from a text stream.
 ===================
 */
-static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *height,
+static bool R_ParseImageProgram_r( idLexer &src, byte **pic, size_t *width, size_t *height,
 								  ID_TIME_T *timestamps, textureUsage_t * usage ) {
-	idToken		token;
-	float		scale;
-	ID_TIME_T		timestamp;
+	idToken		token = {};
+	float		scale = 1.0f;
+	ID_TIME_T		timestamp = 0;
 
 	src.ReadToken( &token );
 
@@ -425,7 +422,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 
 	if ( !token.Icmp( "addnormals" ) ) {
 		byte	*pic2 = nullptr;
-		int		width2, height2;
+		size_t	width2 = 0, height2 = 0;
 
 		MatchAndAppendToken( src, "(" );
 
@@ -476,7 +473,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 
 	if ( !token.Icmp( "add" ) ) {
 		byte	*pic2 = nullptr;
-		int		width2, height2;
+		size_t	width2 = 0, height2 = 0;
 
 		MatchAndAppendToken( src, "(" );
 
@@ -505,8 +502,8 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 	}
 
 	if ( !token.Icmp( "scale" ) ) {
-		float	scale[4];
-		int		i;
+		float	scale[4] = {};
+		size_t	i = 0;
 
 		MatchAndAppendToken( src, "(" );
 
@@ -579,7 +576,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 	}
 
 	if ( !token.Icmp( "makeAlpha" ) ) {
-		int		i;
+		size_t	i = 0;
 
 		MatchAndAppendToken( src, "(" );
 
@@ -587,8 +584,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 
 		// average RGB into alpha, then set RGB to white
 		if ( pic ) {
-			int		c;
-			c = *width * *height * 4;
+			size_t c = *width * *height * 4;
 			for ( i = 0 ; i < c ; i+=4 ) {
 				(*pic)[i+3] = ( (*pic)[i+0] + (*pic)[i+1] + (*pic)[i+2] ) / 3;
 				(*pic)[i+0] = 
@@ -616,9 +612,7 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 
 	// add this to the timestamp
 	if ( timestamps ) {
-		if ( timestamp > *timestamps ) {
-			*timestamps = timestamp;
-		}
+		*timestamps = std::max(timestamp, *timestamps);
 	}
 
 	return true;
@@ -630,8 +624,8 @@ static bool R_ParseImageProgram_r( idLexer &src, byte **pic, int *width, int *he
 R_LoadImageProgram
 ===================
 */
-void R_LoadImageProgram( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamps, textureUsage_t * usage ) {
-	idLexer src;
+void R_LoadImageProgram( const char *name, byte **pic, size_t *width, size_t *height, ID_TIME_T *timestamps, textureUsage_t * usage ) {
+	idLexer src = {};
 
 	src.LoadMemory( name, strlen(name), name );
 	src.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );

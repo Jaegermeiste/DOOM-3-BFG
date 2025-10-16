@@ -144,7 +144,7 @@ bool idAASLocal::WalkPathValid( int areaNum, const idVec3 &origin, int goalAreaN
 	const aasArea_t *area;
 	idVec3 p, dir;
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		endPos = goalOrigin;
 		endAreaNum = 0;
 		return true;
@@ -255,11 +255,11 @@ idVec3 idAASLocal::SubSampleWalkPath( int areaNum, const idVec3 &origin, const i
 	idVec3 dir, point, nextPoint, endPos;
 
 	dir = end - start;
-	numSamples = (int) (dir.Length() / walkPathSampleDistance) + 1;
+	numSamples = static_cast<int>(dir.Length() / walkPathSampleDistance) + 1;
 
 	point = start;
 	for ( i = 1; i < numSamples; i++ ) {
-		nextPoint = start + dir * ((float) i / numSamples);
+		nextPoint = start + dir * (static_cast<float>(i) / numSamples);
 		if ( (point - nextPoint).LengthSqr() > Square( maxWalkPathDistance ) ) {
 			return point;
 		}
@@ -281,16 +281,16 @@ idAASLocal::WalkPathToGoal
 */
 bool idAASLocal::WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
-	idReachability * reach = NULL;
+	idReachability * reach = nullptr;
 	idVec3 endPos;
 
 	path.type = PATHTYPE_WALK;
 	path.moveGoal = origin;
 	path.moveAreaNum = areaNum;
 	path.secondaryGoal = origin;
-	path.reachability = NULL;
+	path.reachability = nullptr;
 
-	if ( file == NULL || areaNum == goalAreaNum ) {
+	if ( file == nullptr || areaNum == goalAreaNum ) {
 		path.moveGoal = goalOrigin;
 		return true;
 	}
@@ -366,7 +366,7 @@ bool idAASLocal::WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &ori
 		}
 	}
 
-	if ( reach == NULL ) {
+	if ( reach == nullptr) {
 		return false;
 	}
 
@@ -403,7 +403,7 @@ idAASLocal::FlyPathValid
 bool idAASLocal::FlyPathValid( int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, int &endAreaNum ) const {
 	aasTrace_t trace;
 
-	if ( file == NULL ) {
+	if ( file == nullptr) {
 		endPos = goalOrigin;
 		endAreaNum = 0;
 		return true;
@@ -431,11 +431,11 @@ idVec3 idAASLocal::SubSampleFlyPath( int areaNum, const idVec3 &origin, const id
 	idVec3 dir, point, nextPoint, endPos;
 
 	dir = end - start;
-	numSamples = (int) (dir.Length() / flyPathSampleDistance) + 1;
+	numSamples = static_cast<int>(dir.Length() / flyPathSampleDistance) + 1;
 
 	point = start;
 	for ( i = 1; i < numSamples; i++ ) {
-		nextPoint = start + dir * ((float) i / numSamples);
+		nextPoint = start + dir * (static_cast<float>(i) / numSamples);
 		if ( (point - nextPoint).LengthSqr() > Square( maxFlyPathDistance ) ) {
 			return point;
 		}
@@ -457,16 +457,16 @@ idAASLocal::FlyPathToGoal
 */
 bool idAASLocal::FlyPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
-	idReachability *reach = NULL;
+	idReachability *reach = nullptr;
 	idVec3 endPos;
 
 	path.type = PATHTYPE_WALK;
 	path.moveGoal = origin;
 	path.moveAreaNum = areaNum;
 	path.secondaryGoal = origin;
-	path.reachability = NULL;
+	path.reachability = nullptr;
 
-	if ( file == NULL || areaNum == goalAreaNum ) {
+	if ( file == nullptr || areaNum == goalAreaNum ) {
 		path.moveGoal = goalOrigin;
 		return true;
 	}
@@ -537,7 +537,7 @@ bool idAASLocal::FlyPathToGoal( aasPath_t &path, int areaNum, const idVec3 &orig
 		}
 	}
 
-	if ( reach == NULL ) {
+	if ( reach == nullptr) {
 		return false;
 	}
 
@@ -559,14 +559,14 @@ void idAASLocal::SortWallEdges( int *edges, int numEdges ) const {
 	int i, j, k, numSequences;
 	wallEdge_t **sequenceFirst, **sequenceLast, *wallEdges, *wallEdge;
 
-	wallEdges = (wallEdge_t *) _alloca16( numEdges * sizeof( wallEdge_t ) );
-	sequenceFirst = (wallEdge_t **)_alloca16( numEdges * sizeof( wallEdge_t * ) );
-	sequenceLast = (wallEdge_t **)_alloca16( numEdges * sizeof( wallEdge_t * ) );
+	wallEdges = static_cast<wallEdge_t*>(_alloca16(numEdges * sizeof( wallEdge_t )));
+	sequenceFirst = static_cast<wallEdge_t**>(_alloca16(numEdges * sizeof( wallEdge_t * )));
+	sequenceLast = static_cast<wallEdge_t**>(_alloca16(numEdges * sizeof( wallEdge_t * )));
 
 	for ( i = 0; i < numEdges; i++ ) {
 		wallEdges[i].edgeNum = edges[i];
 		GetEdgeVertexNumbers( edges[i], wallEdges[i].verts );
-		wallEdges[i].next = NULL;
+		wallEdges[i].next = nullptr;
 		sequenceFirst[i] = &wallEdges[i];
 		sequenceLast[i] = &wallEdges[i];
 	}
@@ -621,9 +621,9 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds &bounds, int travelFla
 
 	numEdges = 0;
 
-	areasVisited = (byte *) _alloca16( file->GetNumAreas() );
+	areasVisited = static_cast<byte*>(_alloca16(file->GetNumAreas()));
 	memset( areasVisited, 0, file->GetNumAreas() * sizeof( byte ) );
-	areaQueue = (int *) _alloca16( file->GetNumAreas() * sizeof( int ) );
+	areaQueue = static_cast<int*>(_alloca16(file->GetNumAreas() * sizeof( int )));
 
 	queueStart = -1;
 	queueEnd = 0;

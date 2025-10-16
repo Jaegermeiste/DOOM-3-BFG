@@ -78,9 +78,9 @@ idAFConstraint::idAFConstraint
 idAFConstraint::idAFConstraint() {
 	type				= CONSTRAINT_INVALID;
 	name				= "noname";
-	body1				= NULL;
-	body2				= NULL;
-	physics				= NULL;
+	body1				= nullptr;
+	body2				= nullptr;
+	physics				= nullptr;
 
 	lo.Zero( 6 );
 	lo.SubVec6(0)		= -vec6_infinity;
@@ -89,7 +89,7 @@ idAFConstraint::idAFConstraint() {
 	e.SetSize( 6 );
 	e.SubVec6(0)		= vec6_lcp_epsilon;
 
-	boxConstraint		= NULL;
+	boxConstraint		= nullptr;
 	boxIndex[0]			= -1;
 	boxIndex[1]			= -1;
 	boxIndex[2]			= -1;
@@ -466,10 +466,10 @@ idAFConstraint_BallAndSocketJoint::idAFConstraint_BallAndSocketJoint( const idSt
 	this->body1 = body1;
 	this->body2 = body2;
 	InitSize( 3 );
-	coneLimit = NULL;
-	pyramidLimit = NULL;
+	coneLimit = nullptr;
+	pyramidLimit = nullptr;
 	friction = 0.0f;
-	fc = NULL;
+	fc = nullptr;
 	fl.allowPrimary = true;
 	fl.noCollision = true;
 }
@@ -533,11 +533,11 @@ idAFConstraint_BallAndSocketJoint::SetNoLimit
 void idAFConstraint_BallAndSocketJoint::SetNoLimit() {
 	if ( coneLimit ) {
 		delete coneLimit;
-		coneLimit = NULL;
+		coneLimit = nullptr;
 	}
 	if ( pyramidLimit ) {
 		delete pyramidLimit;
-		pyramidLimit = NULL;
+		pyramidLimit = nullptr;
 	}
 }
 
@@ -549,7 +549,7 @@ idAFConstraint_BallAndSocketJoint::SetConeLimit
 void idAFConstraint_BallAndSocketJoint::SetConeLimit( const idVec3 &coneAxis, const float coneAngle, const idVec3 &body1Axis ) {
 	if ( pyramidLimit ) {
 		delete pyramidLimit;
-		pyramidLimit = NULL;
+		pyramidLimit = nullptr;
 	}
 	if ( !coneLimit ) {
 		coneLimit = new (TAG_PHYSICS_AF) idAFConstraint_ConeLimit;
@@ -572,7 +572,7 @@ void idAFConstraint_BallAndSocketJoint::SetPyramidLimit( const idVec3 &pyramidAx
 														const float angle1, const float angle2, const idVec3 &body1Axis ) {
 	if ( coneLimit ) {
 		delete coneLimit;
-		coneLimit = NULL;
+		coneLimit = nullptr;
 	}
 	if ( !pyramidLimit ) {
 		pyramidLimit = new (TAG_PHYSICS_AF) idAFConstraint_PyramidLimit;
@@ -822,7 +822,7 @@ idAFConstraint_BallAndSocketJointFriction::idAFConstraint_BallAndSocketJointFric
 	type = CONSTRAINT_FRICTION;
 	name = "ballAndSocketJointFriction";
 	InitSize( 3 );
-	joint = NULL;
+	joint = nullptr;
 	fl.allowPrimary = false;
 	fl.frameConstraint = true;
 }
@@ -923,10 +923,10 @@ idAFConstraint_UniversalJoint::idAFConstraint_UniversalJoint( const idStr &name,
 	this->body1 = body1;
 	this->body2 = body2;
 	InitSize( 4 );
-	coneLimit = NULL;
-	pyramidLimit = NULL;
+	coneLimit = nullptr;
+	pyramidLimit = nullptr;
 	friction = 0.0f;
-	fc = NULL;
+	fc = nullptr;
 	fl.allowPrimary = true;
 	fl.noCollision = true;
 }
@@ -1035,11 +1035,11 @@ idAFConstraint_UniversalJoint::SetNoLimit
 void idAFConstraint_UniversalJoint::SetNoLimit() {
 	if ( coneLimit ) {
 		delete coneLimit;
-		coneLimit = NULL;
+		coneLimit = nullptr;
 	}
 	if ( pyramidLimit ) {
 		delete pyramidLimit;
-		pyramidLimit = NULL;
+		pyramidLimit = nullptr;
 	}
 }
 
@@ -1051,7 +1051,7 @@ idAFConstraint_UniversalJoint::SetConeLimit
 void idAFConstraint_UniversalJoint::SetConeLimit( const idVec3 &coneAxis, const float coneAngle ) {
 	if ( pyramidLimit ) {
 		delete pyramidLimit;
-		pyramidLimit = NULL;
+		pyramidLimit = nullptr;
 	}
 	if ( !coneLimit ) {
 		coneLimit = new (TAG_PHYSICS_AF) idAFConstraint_ConeLimit;
@@ -1074,7 +1074,7 @@ void idAFConstraint_UniversalJoint::SetPyramidLimit( const idVec3 &pyramidAxis, 
 														const float angle1, const float angle2 ) {
 	if ( coneLimit ) {
 		delete coneLimit;
-		coneLimit = NULL;
+		coneLimit = nullptr;
 	}
 	if ( !pyramidLimit ) {
 		pyramidLimit = new (TAG_PHYSICS_AF) idAFConstraint_PyramidLimit;
@@ -1401,7 +1401,7 @@ idAFConstraint_UniversalJointFriction::idAFConstraint_UniversalJointFriction() {
 	type = CONSTRAINT_FRICTION;
 	name = "universalJointFriction";
 	InitSize( 2 );
-	joint = NULL;
+	joint = nullptr;
 	fl.allowPrimary = false;
 	fl.frameConstraint = true;
 }
@@ -1575,10 +1575,10 @@ idAFConstraint_Hinge::idAFConstraint_Hinge( const idStr &name, idAFBody *body1, 
 	this->body1 = body1;
 	this->body2 = body2;
 	InitSize( 5 );
-	coneLimit = NULL;
-	steering = NULL;
+	coneLimit = nullptr;
+	steering = nullptr;
 	friction = 0.0f;
-	fc = NULL;
+	fc = nullptr;
 	fl.allowPrimary = true;
 	fl.noCollision = true;
 	initialAxis = body1->GetWorldAxis();
@@ -1679,7 +1679,7 @@ idAFConstraint_Hinge::SetNoLimit
 void idAFConstraint_Hinge::SetNoLimit() {
 	if ( coneLimit ) {
 		delete coneLimit;
-		coneLimit = NULL;
+		coneLimit = nullptr;
 	}
 }
 
@@ -1751,7 +1751,7 @@ idAFConstraint_Hinge::SetSteerAngle
 void idAFConstraint_Hinge::SetSteerAngle( const float degrees ) {
 	if ( coneLimit ) {
 		delete coneLimit;
-		coneLimit = NULL;
+		coneLimit = nullptr;
 	}
 	if ( !steering ) {
 		steering = new (TAG_PHYSICS_AF) idAFConstraint_HingeSteering();
@@ -2033,7 +2033,7 @@ idAFConstraint_HingeFriction::idAFConstraint_HingeFriction() {
 	type = CONSTRAINT_FRICTION;
 	name = "hingeFriction";
 	InitSize( 1 );
-	hinge = NULL;
+	hinge = nullptr;
 	fl.allowPrimary = false;
 	fl.frameConstraint = true;
 }
@@ -2139,7 +2139,7 @@ idAFConstraint_HingeSteering::idAFConstraint_HingeSteering() {
 	type = CONSTRAINT_HINGESTEERING;
 	name = "hingeFriction";
 	InitSize( 1 );
-	hinge = NULL;
+	hinge = nullptr;
 	fl.allowPrimary = false;
 	fl.frameConstraint = true;
 	steerSpeed = 0.0f;
@@ -2976,7 +2976,7 @@ idAFConstraint_Contact::idAFConstraint_Contact() {
 	name = "contact";
 	type = CONSTRAINT_CONTACT;
 	InitSize( 1 );
-	fc = NULL;
+	fc = nullptr;
 	fl.allowPrimary = false;
 	fl.frameConstraint = true;
 }
@@ -3034,7 +3034,7 @@ void idAFConstraint_Contact::Setup( idAFBody *b1, idAFBody *b2, contactInfo_t &c
 	e[0] = CONTACT_LCP_EPSILON;
 	lo[0] = 0.0f;
 	hi[0] = idMath::INFINITY;
-	boxConstraint = NULL;
+	boxConstraint = nullptr;
 	boxIndex[0] = -1;
 }
 
@@ -3163,7 +3163,7 @@ idAFConstraint_ContactFriction::idAFConstraint_ContactFriction() {
 	type = CONSTRAINT_FRICTION;
 	name = "contactFriction";
 	InitSize( 2 );
-	cc = NULL;
+	cc = nullptr;
 	fl.allowPrimary = false;
 	fl.frameConstraint = true;
 }
@@ -3905,7 +3905,7 @@ idAFConstraint_Suspension::idAFConstraint_Suspension() {
 	motorEnabled = false;
 	motorForce = 0.0f;
 	motorVelocity = 0.0f;
-	wheelModel = NULL;
+	wheelModel = nullptr;
 	memset( &trace, 0, sizeof( trace ) );
 	epsilon = LCP_EPSILON;
 }
@@ -3918,7 +3918,7 @@ idAFConstraint_Suspension::Setup
 void idAFConstraint_Suspension::Setup( const char *name, idAFBody *body, const idVec3 &origin, const idMat3 &axis, idClipModel *clipModel ) {
 	this->name = name;
 	body1 = body;
-	body2 = NULL;
+	body2 = nullptr;
 	localOrigin = ( origin - body->GetWorldOrigin() ) * body->GetWorldAxis().Transpose();
 	localAxis = axis * body->GetWorldAxis().Transpose();
 	wheelModel = clipModel;
@@ -3967,7 +3967,7 @@ void idAFConstraint_Suspension::Evaluate( float invTimeStep ) {
 
 	axis *= rotation.ToMat3();
 
-	gameLocal.clip.Translation( trace, start, end, wheelModel, axis, MASK_SOLID, NULL );
+	gameLocal.clip.Translation( trace, start, end, wheelModel, axis, MASK_SOLID, nullptr);
 
 	wheelOffset = ( trace.endpos - body1->GetWorldOrigin() ) * body1->GetWorldAxis().Transpose();
 
@@ -4017,7 +4017,7 @@ void idAFConstraint_Suspension::Evaluate( float invTimeStep ) {
 	e[0] = 1e-4f;
 	lo[0] = 0.0f;
 	hi[0] = springForce;
-	boxConstraint = NULL;
+	boxConstraint = nullptr;
 	boxIndex[0] = -1;
 
 	// project the friction direction into the contact plane
@@ -4154,7 +4154,7 @@ idAFBody::idAFBody( const idStr &name, idClipModel *clipModel, float density ) {
 	Init();
 
 	this->name = name;
-	this->clipModel = NULL;
+	this->clipModel = nullptr;
 
 	SetClipModel( clipModel );
 	SetDensity( density );
@@ -4181,10 +4181,10 @@ idAFBody::Init
 */
 void idAFBody::Init() {
 	name						= "noname";
-	parent						= NULL;
-	clipModel					= NULL;
-	primaryConstraint			= NULL;
-	tree						= NULL;
+	parent						= nullptr;
+	clipModel					= nullptr;
+	primaryConstraint			= nullptr;
+	tree						= nullptr;
 
 	linearFriction				= -1.0f;
 	angularFriction				= -1.0f;
@@ -4219,8 +4219,8 @@ void idAFBody::Init() {
 	auxForce.Zero( 6 );
 	acceleration.Zero( 6 );
 
-	response					= NULL;
-	responseIndex				= NULL;
+	response					= nullptr;
+	responseIndex				= nullptr;
 	numResponses				= 0;
 	maxAuxiliaryIndex			= 0;
 	maxSubTreeAuxiliaryIndex	= 0;
@@ -4484,7 +4484,7 @@ idAFTree::Factor
 void idAFTree::Factor() const {
 	int i, j;
 	idAFBody *body;
-	idAFConstraint *child = NULL;
+	idAFConstraint *child = nullptr;
 	idMatX childI;
 
 	childI.SetData( 6, 6, MATX_ALLOCA(6 * 6));
@@ -4515,7 +4515,7 @@ void idAFTree::Factor() const {
 			}
 
 			body->invI = body->I;
-			if ( !body->invI.InverseFastSelf() && child != NULL ) {
+			if ( !body->invI.InverseFastSelf() && child != nullptr) {
 				gameLocal.Warning( "idAFTree::Factor: couldn't invert %dx%d matrix for body %s",
 								child->invI.GetNumRows(), child->invI.GetNumColumns(), body->GetName().c_str() );
 			}
@@ -5065,8 +5065,8 @@ void idPhysics_AF::AuxiliaryForces( float timeStep ) {
 	}
 
 	// allocate memory to store the body response to auxiliary constraint forces
-	forcePtr = (float *) _alloca16( bodies.Num() * numAuxConstraints * 8 * sizeof( float ) );
-	index = (int *) _alloca16( bodies.Num() * numAuxConstraints * sizeof( int ) );
+	forcePtr = static_cast<float*>(_alloca16(bodies.Num() * numAuxConstraints * 8 * sizeof( float )));
+	index = static_cast<int*>(_alloca16(bodies.Num() * numAuxConstraints * sizeof( int )));
 	for ( i = 0; i < bodies.Num(); i++ ) {
 		body = bodies[i];
 		body->response = forcePtr;
@@ -5178,7 +5178,7 @@ void idPhysics_AF::AuxiliaryForces( float timeStep ) {
 	lo.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
 	hi.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
 	lm.SetData( numAuxConstraints, VECX_ALLOCA(numAuxConstraints));
-	boxIndex = (int *) _alloca16( numAuxConstraints * sizeof( int ) );
+	boxIndex = static_cast<int*>(_alloca16(numAuxConstraints * sizeof( int )));
 
 	// set first index for special box constrained variables
 	for ( k = 0, i = 0; i < auxiliaryConstraints.Num(); i++ ) {
@@ -5262,8 +5262,8 @@ void idPhysics_AF::AuxiliaryForces( float timeStep ) {
 	// clear pointers pointing to stack space so tools don't get confused
 	for ( i = 0; i < bodies.Num(); i++ ) {
 		body = bodies[i];
-		body->response = NULL;
-		body->responseIndex = NULL;
+		body->response = nullptr;
+		body->responseIndex = nullptr;
 	}
 }
 
@@ -5468,7 +5468,7 @@ idEntity *idPhysics_AF::SetupCollisionForBody( idAFBody *body ) const {
 	idAFBody *b;
 	idEntity *passEntity;
 
-	passEntity = NULL;
+	passEntity = nullptr;
 
 	if ( !selfCollision || !body->fl.selfCollision || af_skipSelfCollision.GetBool() ) {
 
@@ -5483,7 +5483,7 @@ idEntity *idPhysics_AF::SetupCollisionForBody( idAFBody *body ) const {
 				continue;
 			}
 			// if this constraint attaches the body to the world
-			if ( body->constraints[i]->body2 == NULL ) {
+			if ( body->constraints[i]->body2 == nullptr) {
 				// don't collide with the world collision model
 				passEntity = gameLocal.world;
 			}
@@ -5509,7 +5509,7 @@ idEntity *idPhysics_AF::SetupCollisionForBody( idAFBody *body ) const {
 				continue;
 			}
 			// if this constraint attaches the body to the world
-			if ( body->constraints[i]->body2 == NULL ) {
+			if ( body->constraints[i]->body2 == nullptr) {
 				// don't collide with the world collision model
 				passEntity = gameLocal.world;
 			} else {
@@ -5706,7 +5706,7 @@ void idPhysics_AF::SetupContactConstraints() {
 			contactConstraints[i]->Setup( bodies[contactBodies[i]], bodies[ contacts[i].id ], contacts[i] );
 		}
 		else {
-			contactConstraints[i]->Setup( bodies[contactBodies[i]], NULL, contacts[i] );
+			contactConstraints[i]->Setup( bodies[contactBodies[i]], nullptr, contacts[i] );
 		}
 	}
 }
@@ -6082,7 +6082,7 @@ idClipModel *idPhysics_AF::GetClipModel( int id ) const {
 	if ( id >= 0 && id < bodies.Num() ) {
 		return bodies[id]->GetClipModel();
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -6456,7 +6456,7 @@ idPhysics_AF::DebugDraw
 */
 void idPhysics_AF::DebugDraw() {
 	int i;
-	idAFBody *body, *highlightBody = NULL, *constrainedBody1 = NULL, *constrainedBody2 = NULL;
+	idAFBody *body, *highlightBody = nullptr, *constrainedBody1 = nullptr, *constrainedBody2 = nullptr;
 	idAFConstraint *constraint;
 	idVec3 center;
 	idMat3 axis;
@@ -6598,7 +6598,7 @@ idPhysics_AF::idPhysics_AF() {
 	contacts.Clear();
 	collisions.Clear();
 	changedAF = true;
-	masterBody = NULL;
+	masterBody = nullptr;
 
 	lcp = idLCP::AllocSymmetric();
 
@@ -6892,11 +6892,11 @@ void idPhysics_AF::BuildTrees() {
 	totalMass = 0.0f;
 	for ( i = 0; i < bodies.Num(); i++ ) {
 		b = bodies[i];
-		b->parent = NULL;
-		b->primaryConstraint = NULL;
+		b->parent = nullptr;
+		b->primaryConstraint = nullptr;
 		b->constraints.SetNum( 0 );
 		b->children.Clear();
-		b->tree = NULL;
+		b->tree = nullptr;
 		totalMass += b->mass;
 	}
 
@@ -6924,7 +6924,7 @@ void idPhysics_AF::BuildTrees() {
 
 			// only bilateral constraints between two non-world bodies that do not
 			// create loops can be used as primary constraints
-			if ( !c->body1->primaryConstraint && c->fl.allowPrimary && c->body2 != NULL && !IsClosedLoop( c->body1, c->body2 ) ) {
+			if ( !c->body1->primaryConstraint && c->fl.allowPrimary && c->body2 != nullptr && !IsClosedLoop( c->body1, c->body2 ) ) {
 				c->body1->primaryConstraint = c;
 				c->body1->parent = c->body2;
 				c->body2->children.Append( c->body1 );
@@ -7004,7 +7004,7 @@ idPhysics_AF::AddBody
 int idPhysics_AF::AddBody( idAFBody *body ) {
 	int id = 0;
 
-	if ( body->clipModel == NULL ) {
+	if ( body->clipModel == nullptr) {
 		gameLocal.Error( "idPhysics_AF::AddBody: body '%s' has no clip model.", body->name.c_str() );
 		return 0;
 	}
@@ -7196,7 +7196,7 @@ idAFBody *idPhysics_AF::GetBody( const char *bodyName ) const {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -7207,7 +7207,7 @@ idPhysics_AF::GetBody
 idAFBody *idPhysics_AF::GetBody( const int id ) const {
 	if ( id < 0 || id >= bodies.Num() ) {
 		gameLocal.Error( "GetBody: no body with id %d exists\n", id );
-		return NULL;
+		return nullptr;
 	}
 	return bodies[id];
 }
@@ -7226,7 +7226,7 @@ idAFConstraint *idPhysics_AF::GetConstraint( const char *constraintName ) const 
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -7237,7 +7237,7 @@ idPhysics_AF::GetConstraint
 idAFConstraint *idPhysics_AF::GetConstraint( const int id ) const {
 	if ( id < 0 || id >= constraints.Num() ) {
 		gameLocal.Error( "GetConstraint: no constraint with id %d exists\n", id );
-		return NULL;
+		return nullptr;
 	}
 	return constraints[id];
 }
@@ -7464,7 +7464,7 @@ idPhysics_AF::IsPushable
 ================
 */
 bool idPhysics_AF::IsPushable() const {
-	return ( !noImpact && ( masterBody == NULL || forcePushable ) );
+	return ( !noImpact && ( masterBody == nullptr || forcePushable ) );
 }
 
 /*
@@ -7765,7 +7765,7 @@ int idPhysics_AF::ClipContents( const idClipModel *model ) const {
 			}
 			else {
 				contents |= gameLocal.clip.Contents( body->current->worldOrigin,
-									body->clipModel, body->current->worldAxis, -1, NULL );
+									body->clipModel, body->current->worldAxis, -1, nullptr);
 			}
 		}
 	}
@@ -7878,7 +7878,7 @@ void idPhysics_AF::SetMaster( idEntity *master, const bool orientated ) {
 			// translate and rotate all the constraints with body2 == NULL from world space to master space
 			rotation = masterAxis.Transpose().ToRotation();
 			for ( i = 0; i < constraints.Num(); i++ ) {
-				if ( constraints[i]->GetBody2() == NULL ) {
+				if ( constraints[i]->GetBody2() == nullptr) {
 					constraints[i]->Translate( -masterOrigin );
 					constraints[i]->Rotate( rotation );
 				}
@@ -7893,13 +7893,13 @@ void idPhysics_AF::SetMaster( idEntity *master, const bool orientated ) {
 			// translate and rotate all the constraints with body2 == NULL from master space to world space
 			rotation = masterBody->current->worldAxis.ToRotation();
 			for ( i = 0; i < constraints.Num(); i++ ) {
-				if ( constraints[i]->GetBody2() == NULL ) {
+				if ( constraints[i]->GetBody2() == nullptr) {
 					constraints[i]->Rotate( rotation );
 					constraints[i]->Translate( masterBody->current->worldOrigin );
 				}
 			}
 			delete masterBody;
-			masterBody = NULL;
+			masterBody = nullptr;
 			Activate();
 		}
 	}

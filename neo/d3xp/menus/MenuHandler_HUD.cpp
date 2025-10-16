@@ -38,17 +38,17 @@ idMenuHandler_HUD::Update
 */
 void idMenuHandler_HUD::Update() {
 
-	if ( gui == NULL || !gui->IsActive() ) {
+	if ( gui == nullptr || !gui->IsActive() ) {
 		return;
 	}
 
 	if ( nextScreen != activeScreen ) {
 	
-		if ( activeScreen > HUD_AREA_INVALID && activeScreen < HUD_NUM_AREAS && menuScreens[ activeScreen ] != NULL ) {
+		if ( activeScreen > HUD_AREA_INVALID && activeScreen < HUD_NUM_AREAS && menuScreens[ activeScreen ] != nullptr) {
 			menuScreens[ activeScreen ]->HideScreen( static_cast<mainMenuTransition_t>(transition) );
 		}
 
-		if ( nextScreen > HUD_AREA_INVALID && nextScreen < HUD_NUM_AREAS && menuScreens[ nextScreen ] != NULL ) {
+		if ( nextScreen > HUD_AREA_INVALID && nextScreen < HUD_NUM_AREAS && menuScreens[ nextScreen ] != nullptr) {
 			menuScreens[ nextScreen ]->ShowScreen( static_cast<mainMenuTransition_t>(transition) );			
 		}
 
@@ -57,14 +57,14 @@ void idMenuHandler_HUD::Update() {
 	}
 
 	idPlayer * player = gameLocal.GetLocalPlayer();
-	if ( player != NULL ) {
+	if ( player != nullptr) {
 		if ( player->IsTipVisible() && autoHideTip && !hiding ) {		
 			if ( gameLocal.time >= tipStartTime + TIP_DISPLAY_TIME ) {
 				player->HideTip();
 			}
 		}
 
-		if ( player->IsSoundChannelPlaying( SND_CHANNEL_PDA_AUDIO ) && GetHud() != NULL ) {
+		if ( player->IsSoundChannelPlaying( SND_CHANNEL_PDA_AUDIO ) && GetHud() != nullptr) {
 			GetHud()->UpdateAudioLog( true );
 		} else {
 			GetHud()->UpdateAudioLog( false );
@@ -91,7 +91,7 @@ void idMenuHandler_HUD::ActivateMenu( bool show ) {
 	idMenuHandler::ActivateMenu( show );
 	
 	idPlayer * player = gameLocal.GetLocalPlayer();
-	if ( player == NULL ) {
+	if ( player == nullptr) {
 		return;
 	}  	
 
@@ -122,7 +122,7 @@ void idMenuHandler_HUD::Initialize( const char * swfFile, idSoundWorld * sw ) {
 	menuScreens[ (screenId) ]->AddRef();
 
 	for ( int i = 0; i < HUD_NUM_AREAS; ++i ) {
-		menuScreens[ i ] = NULL;
+		menuScreens[ i ] = nullptr;
 	}
 
 	BIND_HUD_SCREEN( HUD_AREA_PLAYING, idMenuScreen_HUD, this );
@@ -136,7 +136,7 @@ idMenuHandler_HUD::GetMenuScreen
 idMenuScreen * idMenuHandler_HUD::GetMenuScreen( int index ) {
 
 	if ( index < 0 || index >= HUD_NUM_AREAS ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return menuScreens[ index ];
@@ -163,7 +163,7 @@ void idMenuHandler_HUD::ShowTip( const char * title, const char * tip, bool auto
 	tipStartTime = gameLocal.time;
 	hiding = false;
 	idMenuScreen_HUD * screen = GetHud();
-	if ( screen != NULL ) {
+	if ( screen != nullptr) {
 		screen->ShowTip( title, tip );
 	}
 }
@@ -175,7 +175,7 @@ idMenuHandler_HUD::HideTip
 */
 void idMenuHandler_HUD::HideTip() {
 	idMenuScreen_HUD * screen = GetHud();
-	if ( screen != NULL && !hiding ) {
+	if ( screen != nullptr && !hiding ) {
 		screen->HideTip();
 	}
 	hiding = true;

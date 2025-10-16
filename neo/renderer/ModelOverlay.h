@@ -53,27 +53,27 @@ static constexpr int MAX_OVERLAYS				= 8;
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_OVERLAYS ) );
 
-struct overlayProjectionParms_t {
+typedef struct overlayProjectionParms_s {
 	idPlane				localTextureAxis[2];
 	const idMaterial *	material;
-	int					startTime;
-};
+	ID_TIME_T			startTime;
+} overlayProjectionParms_t;
 
-struct overlayVertex_t {
-	int					vertexNum;
+typedef struct overlayVertex_s {
+	size_t				vertexNum;
 	halfFloat_t			st[2];
-};
+} overlayVertex_t;
 
-struct overlay_t {
-	int					surfaceNum;
+typedef struct overlay_s {
+	size_t				surfaceNum;
 	int					surfaceId;
-	int					maxReferencedVertex;
-	int					numIndexes;
+	size_t				maxReferencedVertex;
+	size_t				numIndexes;
 	triIndex_t *		indexes;
-	int					numVerts;
+	size_t				numVerts;
 	overlayVertex_t *	verts;
 	const idMaterial *	material;
-};
+} overlay_t;
 
 class idRenderModelOverlay {
 public:
@@ -86,22 +86,22 @@ public:
 	void						CreateDeferredOverlays( const idRenderModel * model );
 
 	unsigned int				GetNumOverlayDrawSurfs();
-	struct drawSurf_t *			CreateOverlayDrawSurf( const struct viewEntity_t *space, const idRenderModel *baseModel, unsigned int index );
+	drawSurf_t *    			CreateOverlayDrawSurf( const viewEntity_t *space, const idRenderModel *baseModel, const Ordinal auto index );
 
 	void						ReadFromDemoFile( class idDemoFile *f );
 	void						WriteToDemoFile( class idDemoFile *f ) const;
 
 private:
 	overlay_t					overlays[MAX_OVERLAYS];
-	unsigned int				firstOverlay;
-	unsigned int				nextOverlay;
+	size_t       				firstOverlay;
+	size_t      				nextOverlay;
 
 	overlayProjectionParms_t	deferredOverlays[MAX_DEFERRED_OVERLAYS];
-	unsigned int				firstDeferredOverlay;
-	unsigned int				nextDeferredOverlay;
+	size_t      				firstDeferredOverlay;
+	size_t      				nextDeferredOverlay;
 
 	const idMaterial *			overlayMaterials[MAX_OVERLAYS];
-	unsigned int				numOverlayMaterials;
+	size_t       				numOverlayMaterials;
 
 	void						CreateOverlay( const idRenderModel *model, const idPlane localTextureAxis[2], const idMaterial *material );
 	void						FreeOverlay( overlay_t & overlay );

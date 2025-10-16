@@ -159,7 +159,7 @@ enum actionHandler_t {
 
 struct widgetTransition_t {
 	widgetTransition_t() :
-		animationName( NULL ) {
+		animationName(nullptr) {
 
 	}
 
@@ -222,7 +222,7 @@ public:
 	idWidgetEvent() :
 		type( WIDGET_EVENT_PRESS ),
 		arg( 0 ),
-		thisObject( NULL ) {
+		thisObject(nullptr) {
 
 	}
 
@@ -248,20 +248,20 @@ class idWidgetAction {
 public:
 	idWidgetAction() :
 		action( WIDGET_ACTION_NONE ),
-		scriptFunction( NULL ) {
+		scriptFunction(nullptr) {
 	}
 
 	idWidgetAction( const idWidgetAction & src ) {
 		action = src.action;
 		parms = src.parms;
 		scriptFunction = src.scriptFunction;
-		if ( scriptFunction != NULL ) {
+		if ( scriptFunction != nullptr) {
 			scriptFunction->AddRef();
 		}
 	}
 
 	~idWidgetAction() {
-		if ( scriptFunction != NULL ) {
+		if ( scriptFunction != nullptr) {
 			scriptFunction->Release();
 		}
 	}
@@ -270,7 +270,7 @@ public:
 		action = src.action;
 		parms = src.parms;
 		scriptFunction = src.scriptFunction;
-		if ( scriptFunction != NULL ) {
+		if ( scriptFunction != nullptr) {
 			scriptFunction->AddRef();
 		}
 	}
@@ -420,8 +420,8 @@ public:
 	bool								BindSprite( idSWFScriptObject & root );
 	void								ClearSprite();
 
-	void								SetSpritePath( const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL );
-	void								SetSpritePath( const idList< idStr > & spritePath_, const char * arg1 = NULL, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL );
+	void								SetSpritePath( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr);
+	void								SetSpritePath( const idList< idStr > & spritePath_, const char * arg1 = nullptr, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr);
 	idList< idStr, TAG_IDLIB_LIST_MENU > &					GetSpritePath() { return spritePath; }
 	int									GetRefCount() const { return refCount; }
 	void						AddRef() { refCount++; }
@@ -458,7 +458,7 @@ public:
 	void								SetDataSourceFieldIndex( const int dataSourceFieldIndex_ ) { dataSourceFieldIndex = dataSourceFieldIndex_; }
 	int									GetDataSourceFieldIndex() const { return dataSourceFieldIndex; }
 
-	idMenuWidget *						GetFocus() { return ( focusIndex >= 0 && focusIndex < children.Num() ) ? children[ focusIndex ] : NULL; }
+	idMenuWidget *						GetFocus() { return ( focusIndex >= 0 && focusIndex < children.Num() ) ? children[ focusIndex ] : nullptr; }
 	int									GetFocusIndex() const { return focusIndex; }
 	void								SetFocusIndex( const int index, bool skipSound = false );
 
@@ -529,7 +529,7 @@ public:
 
 	idMenuWidget_Button() :
 		animState( ANIM_STATE_UP ),
-		img( NULL ),
+		img(nullptr),
 		ignoreColor( false ) {
 	}
 
@@ -1096,7 +1096,7 @@ idMenuWidget_InfoBox
 class idMenuWidget_InfoBox: public idMenuWidget {
 public:
 	idMenuWidget_InfoBox() :
-		scrollbar( NULL ) {
+		scrollbar(nullptr) {
 	}
 
 	virtual void	Initialize( idMenuHandler * data );
@@ -1181,8 +1181,8 @@ class idMenuWidget_PDA_EmailInbox: public idMenuWidget {
 public:
 	idMenuWidget_PDA_EmailInbox() :
 		pdaIndex( 0 ),
-		emailList( NULL ),
-		scrollbar( NULL ) {
+		emailList(nullptr),
+		scrollbar(nullptr) {
 	}
 	virtual void	Update();
 	virtual void	Initialize( idMenuHandler * data );
@@ -1319,7 +1319,7 @@ public:
 				break;
 			}
 			case WIDGET_ACTION_EVENT_DRAG_STOP: {
-				action.Set( (widgetAction_t)WIDGET_ACTION_EVENT_DRAG_STOP );
+				action.Set( static_cast<widgetAction_t>(WIDGET_ACTION_EVENT_DRAG_STOP) );
 				handled = true;
 				break;
 			}

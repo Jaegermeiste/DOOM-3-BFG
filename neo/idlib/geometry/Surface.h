@@ -61,12 +61,12 @@ public:
 	idDrawVert &			operator[]( const Ordinal auto index );
 	idSurface &				operator+=( const idSurface &surf );
 
-	size_t					GetNumIndexes() const { return indexes.Num(); }
-	const size_t*			GetIndexes() const { return indexes.Ptr(); }
-	size_t					GetNumVertices() const { return verts.Num(); }
-	const idDrawVert *		GetVertices() const { return verts.Ptr(); }
-	const int64*			GetEdgeIndexes() const { return edgeIndexes.Ptr(); }
-	const surfaceEdge_t *	GetEdges() const { return edges.Ptr(); }
+							[[nodiscard]] size_t					GetNumIndexes() const { return indexes.Num(); }
+							[[nodiscard]] const size_t*			GetIndexes() const { return indexes.Ptr(); }
+							[[nodiscard]] size_t					GetNumVertices() const { return verts.Num(); }
+							[[nodiscard]] const idDrawVert *		GetVertices() const { return verts.Ptr(); }
+							[[nodiscard]] const int64*			GetEdgeIndexes() const { return edgeIndexes.Ptr(); }
+							[[nodiscard]] const surfaceEdge_t *	GetEdges() const { return edges.Ptr(); }
 
 	void					Clear();
 	void					TranslateSelf( const idVec3 &translation );
@@ -81,17 +81,17 @@ public:
 	bool					ClipInPlace( const idPlane &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
 
 							// returns true if each triangle can be reached from any other triangle by a traversal
-	bool					IsConnected() const;
+							[[nodiscard]] bool					IsConnected() const;
 							// returns true if the surface is closed
-	bool					IsClosed() const;
+							[[nodiscard]] bool					IsClosed() const;
 							// returns true if the surface is a convex hull
-	bool					IsPolytope( const float epsilon = 0.1f ) const;
+							[[nodiscard]] bool					IsPolytope( const float epsilon = 0.1f ) const;
 
-	float					PlaneDistance( const idPlane &plane ) const;
-	sides_e					PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+							[[nodiscard]] float					PlaneDistance( const idPlane &plane ) const;
+							[[nodiscard]] sides_e					PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
 							// returns true if the line intersects one of the surface triangles
-	bool					LineIntersection( const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
+							[[nodiscard]] bool					LineIntersection( const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
 							// intersection point is start + dir * scale
 	bool					RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale, bool backFaceCull = false ) const;
 
@@ -103,7 +103,7 @@ protected:
 
 protected:
 	void					GenerateEdgeIndexes();
-	int64					FindEdge( size_t v1, size_t v2 ) const;
+							[[nodiscard]] int64					FindEdge( size_t v1, size_t v2 ) const;
 };
 
 /*

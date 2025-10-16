@@ -36,14 +36,14 @@ idMenuWidget::idMenuWidget
 ========================
 */
 idMenuWidget::idMenuWidget() :
-	boundSprite( NULL ),
-	parent( NULL ),
-	dataSource( NULL ),
+	boundSprite(nullptr),
+	parent(nullptr),
+	dataSource(nullptr),
 	dataSourceFieldIndex( 0 ),
 	focusIndex( 0 ),
 	widgetState( WIDGET_STATE_NORMAL ),
-	menuData( NULL ),
-	swfObj( NULL ),
+	menuData(nullptr),
+	swfObj(nullptr),
 	handlerIsParent( false ),
 	refCount( 0 ),
 	noAutoFree( false ) {
@@ -90,7 +90,7 @@ void idMenuWidget::AddChild( idMenuWidget * widget ) {
 		return;	// attempt to add a widget that was already in the list
 	}
 
-	if ( widget->GetParent() != NULL ) {
+	if ( widget->GetParent() != nullptr) {
 		// take out of previous parent
 		widget->GetParent()->RemoveChild( widget );
 	}
@@ -111,7 +111,7 @@ void idMenuWidget::RemoveAllChildren() {
 
 		assert( children[ i ]->GetParent() == this );
 
-		children[ i ]->SetParent( NULL );
+		children[ i ]->SetParent(nullptr);
 		children[ i ]->Release();
 	}
 
@@ -127,7 +127,7 @@ void idMenuWidget::RemoveChild( idMenuWidget * widget ) {
 	assert( widget->GetParent() == this );
 
 	children.Remove( widget );
-	widget->SetParent( NULL );
+	widget->SetParent(nullptr);
 	widget->Release();
 }
 
@@ -166,7 +166,7 @@ void idMenuWidget::ReceiveEvent( const idWidgetEvent & event ) {
 
 	int focusRunawayCounter = focusChain.Max();
 	idMenuWidget * focusedWidget = this;
-	while ( focusedWidget != NULL && --focusRunawayCounter != 0 ) {
+	while ( focusedWidget != nullptr && --focusRunawayCounter != 0 ) {
 		focusChain.Append( focusedWidget );
 		focusedWidget = focusedWidget->GetFocus();
 	}
@@ -196,7 +196,7 @@ This should only be used in very specific circumstances!  Most events should go 
 bool idMenuWidget::ExecuteEvent( const idWidgetEvent & event ) {
 	idList< idWidgetAction, TAG_IDLIB_LIST_MENU > * const actions = GetEventActions( event.type );
 
-	if ( actions != NULL ) {
+	if ( actions != nullptr) {
 		for ( int actionIndex = 0; actionIndex < actions->Num(); ++actionIndex ) {
 			HandleAction( ( *actions )[ actionIndex ], event, this );
 		}
@@ -204,7 +204,7 @@ bool idMenuWidget::ExecuteEvent( const idWidgetEvent & event ) {
 
 	SendEventToObservers( event );
 
-	return actions != NULL && actions->Num() > 0;
+	return actions != nullptr && actions->Num() > 0;
 }
 
 /*
@@ -246,7 +246,7 @@ void idMenuWidget::SetSpritePath( const char * arg1, const char * arg2, const ch
 	constexpr int numArgs = sizeof( args ) / sizeof( args[ 0 ] );
 	spritePath.Clear();
 	for ( int i = 0; i < numArgs; ++i ) {
-		if ( args[ i ] == NULL ) {
+		if ( args[ i ] == nullptr) {
 			break;
 		}
 		spritePath.Append( args[ i ] );
@@ -263,7 +263,7 @@ void idMenuWidget::SetSpritePath( const idList< idStr > & spritePath_, const cha
 	constexpr int numArgs = sizeof( args ) / sizeof( args[ 0 ] );
 	spritePath = spritePath_;
 	for ( int i = 0; i < numArgs; ++i ) {
-		if ( args[ i ] == NULL ) {
+		if ( args[ i ] == nullptr) {
 			break;
 		}
 		spritePath.Append( args[ i ] );
@@ -276,11 +276,11 @@ idMenuWidget::ClearSprite
 ========================
 */
 void idMenuWidget::ClearSprite() {
-	if ( GetSprite() == NULL ) {
+	if ( GetSprite() == nullptr) {
 		return;
 	}
 	GetSprite()->SetVisible( false );
-	boundSprite = NULL;
+	boundSprite = nullptr;
 }
 
 /*
@@ -290,19 +290,19 @@ idMenuWidget::GetSWFObject
 */
 idSWF * idMenuWidget::GetSWFObject() {
 
-	if ( swfObj != NULL ) {
+	if ( swfObj != nullptr) {
 		return swfObj;
 	}
 
-	if ( parent != NULL ) {
+	if ( parent != nullptr) {
 		return parent->GetSWFObject();
 	}
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		return menuData->GetGUI();
 	}
 
-	return NULL;	
+	return nullptr;	
 }
 
 /*
@@ -311,7 +311,7 @@ idMenuWidget::GetMenuData
 ========================
 */
 idMenuHandler * idMenuWidget::GetMenuData() {
-	if ( parent != NULL ) {
+	if ( parent != nullptr) {
 		return parent->GetMenuData();
 	}
 
@@ -330,13 +330,13 @@ SWFs aren't necessarily loaded at the time widgets are instantiated.
 */
 bool idMenuWidget::BindSprite( idSWFScriptObject & root ) {
 
-	const char * args[ 6 ] = { NULL };
+	const char * args[ 6 ] = {nullptr};
 	assert( GetSpritePath().Num() > 0 );
 	for ( int i = 0; i < GetSpritePath().Num(); ++i ) {
 		args[ i ] = GetSpritePath()[ i ].c_str();
 	}
 	boundSprite = root.GetNestedSprite( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ], args[ 4 ], args[ 5 ] );
-	return boundSprite != NULL;
+	return boundSprite != nullptr;
 }
 
 /*
@@ -345,7 +345,7 @@ idMenuWidget::Show
 ========================
 */
 void idMenuWidget::Show() {
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 
@@ -370,7 +370,7 @@ idMenuWidget::Hide
 ========================
 */
 void idMenuWidget::Hide() {
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 
@@ -415,7 +415,7 @@ void idMenuWidget::SetFocusIndex( const int index, bool skipSound ) {
 	focusIndex = index;
 
 	if ( oldIndex != focusIndex && !skipSound ) {
-		if ( menuData != NULL ) {
+		if ( menuData != nullptr) {
 			menuData->PlaySound( GUI_SOUND_FOCUS );	
 		}
 	}
@@ -426,11 +426,11 @@ void idMenuWidget::SetFocusIndex( const int index, bool skipSound ) {
 
 	// need to mark the widget as having lost focus
 	if ( oldIndex != index && oldIndex >= 0 && oldIndex < GetChildren().Num() && GetChildByIndex( oldIndex ).GetState() != WIDGET_STATE_HIDDEN ) {
-		GetChildByIndex( oldIndex ).ReceiveEvent( idWidgetEvent( WIDGET_EVENT_FOCUS_OFF, 0, NULL, parms ) );
+		GetChildByIndex( oldIndex ).ReceiveEvent( idWidgetEvent( WIDGET_EVENT_FOCUS_OFF, 0, nullptr, parms ) );
 	}
 
 	//assert( GetChildByIndex( index ).GetState() != WIDGET_STATE_HIDDEN );
-	GetChildByIndex( index ).ReceiveEvent( idWidgetEvent( WIDGET_EVENT_FOCUS_ON, 0, NULL, parms ) );
+	GetChildByIndex( index ).ReceiveEvent( idWidgetEvent( WIDGET_EVENT_FOCUS_ON, 0, nullptr, parms ) );
 }
 
 /*
@@ -441,7 +441,7 @@ Transitioning from the current button state to the new button state
 ========================
 */
 void idMenuWidget::SetState( const widgetState_t state ) {
-	if ( GetSprite() != NULL ) {
+	if ( GetSprite() != nullptr) {
 		// FIXME: will need some more intelligence in the transitions to go from, say,
 		// selected_up -> up ... but this should work fine for now.
 		if ( state == WIDGET_STATE_HIDDEN ) {
@@ -483,7 +483,7 @@ idMenuWidget::HandleAction
 bool idMenuWidget::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
 	bool handled = false;
-	if ( GetParent() != NULL ) {
+	if ( GetParent() != nullptr) {
 		handled = GetParent()->HandleAction( action, event, widget );
 	} else {
 		
@@ -492,7 +492,7 @@ bool idMenuWidget::HandleAction( idWidgetAction & action, const idWidgetEvent & 
 		}
 
 		idMenuHandler * data = GetMenuData();
-		if ( data != NULL ) {
+		if ( data != nullptr) {
 			return data->HandleAction( action, event, widget, false );
 		}
 	}	
@@ -507,7 +507,7 @@ idMenuWidget::GetEventActions
 */
 idList< idWidgetAction, TAG_IDLIB_LIST_MENU > * idMenuWidget::GetEventActions( const widgetEvent_t eventType ) {
 	if ( eventActionLookup[ eventType ] == INVALID_ACTION_INDEX ) {
-		return NULL;
+		return nullptr;
 	}
 	return &eventActions[ eventActionLookup[ eventType ] ];
 }

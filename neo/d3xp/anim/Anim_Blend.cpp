@@ -109,7 +109,9 @@ idAnim::SetAnim
 =====================
 */
 
-void idAnim::SetAnim( const idDeclModelDef *modelDef, const char *sourcename, const char *animname, I num, const idMD5Anim *md5anims[ ANIM_MaxSyncedAnims ] ) {
+void idAnim::SetAnim( const idDeclModelDef *modelDef, const char *sourcename, const char *animname, Ordinal auto num, const idMD5Anim *md5anims[ ANIM_MaxSyncedAnims ] ) {
+	ORDINAL_CHECK(num, ANIM_MaxSyncedAnims + 1); // Offset 0-base for count
+
 	size_t i = 0;
 
 	this->modelDef = modelDef;
@@ -119,7 +121,6 @@ void idAnim::SetAnim( const idDeclModelDef *modelDef, const char *sourcename, co
 		anims[ i ] = nullptr;
 	}
 
-	assert( ( num > 0 ) && ( num <= ANIM_MaxSyncedAnims ) );
 	numAnims	= num;
 	realname	= sourcename;
 	name		= animname;

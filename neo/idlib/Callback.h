@@ -46,7 +46,7 @@ class idCallback {
 public:
 	virtual ~idCallback() = default;
 	virtual void Call() = 0;
-	virtual idCallback * Clone() const = 0;
+	[[nodiscard]] virtual idCallback * Clone() const = 0;
 };
 
 /*
@@ -65,7 +65,8 @@ public:
 	{
 		f();
 	}
-	idCallback * Clone() const override
+
+	[[nodiscard]] idCallback * Clone() const override
 	{
 		//idScopedGlobalHeap	everythingHereGoesInTheGlobalHeap;
 		return new (TAG_FUNC_CALLBACK) idCallbackStatic( f );
@@ -92,7 +93,8 @@ public:
 	{
 		(t->*f)();
 	}
-	idCallback * Clone() const override
+
+	[[nodiscard]] idCallback * Clone() const override
 	{
 		return new (TAG_FUNC_CALLBACK) idCallbackBindMem( t, f );
 	}
@@ -120,7 +122,8 @@ public:
 	{
 		(t->*f)( a1 );
 	}
-	idCallback * Clone() const override
+
+	[[nodiscard]] idCallback * Clone() const override
 	{
 		return new (TAG_FUNC_CALLBACK) idCallbackBindMemArg1( t, f, a1 );
 	}

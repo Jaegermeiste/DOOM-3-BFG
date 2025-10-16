@@ -95,12 +95,12 @@ public:
 	virtual void				Invalidate();
 	virtual void				Reload();
 	virtual void				EnsureNotPurged();
-	[[nodiscard]] virtual int					Index() const;
-	[[nodiscard]] virtual int					GetLineNum() const;
-	[[nodiscard]] virtual const char *		GetFileName() const;
-	[[nodiscard]] virtual size_t				Size() const;
+	[[nodiscard]] virtual size_t Index() const;
+	[[nodiscard]] virtual size_t GetLineNum() const;
+	[[nodiscard]] virtual const char * GetFileName() const;
+	[[nodiscard]] virtual size_t Size() const;
 	virtual void				GetText( char *text ) const;
-	[[nodiscard]] virtual int					GetTextLength() const;
+	[[nodiscard]] virtual size_t GetTextLength() const;
 	virtual void				SetText( const char *text );
 	virtual bool				ReplaceSourceFileText();
 	[[nodiscard]] virtual bool				SourceFileChanged() const;
@@ -127,23 +127,23 @@ protected:
 	void						Purge();
 
 								// Set textSource possible with compression.
-	void						SetTextLocal( const char *text, const int length );
+	void						SetTextLocal( const char *text, const size_t length );
 
 private:
 	idDecl *					self;
 
 	idStr						name;					// name of the decl
 	char *						textSource;				// decl text definition
-	int							textLength;				// length of textSource
-	int							compressedLength;		// compressed length
+	size_t						textLength;				// length of textSource
+	size_t						compressedLength;		// compressed length
 	idDeclFile *				sourceFile;				// source file in which the decl was defined
-	int							sourceTextOffset;		// offset in source file to decl text
-	int							sourceTextLength;		// length of decl text in source file
-	int							sourceLine;				// this is where the actual declaration token starts
+	size_t						sourceTextOffset;		// offset in source file to decl text
+	size_t						sourceTextLength;		// length of decl text in source file
+	size_t						sourceLine;				// this is where the actual declaration token starts
 	int							checksum;				// checksum of the decl text
 	declType_t					type;					// decl type
 	declState_t					declState;				// decl state
-	int							index;					// index in the per-type list
+	size_t						index;					// index in the per-type list
 
 	bool						parsedOutsideLevelLoad;	// these decls will never be purged
 	bool						everReferenced;			// set to true if the decl was ever used
@@ -165,10 +165,10 @@ public:
 	idStr						fileName;
 	declType_t					defaultType;
 
-	ID_TIME_T						timestamp;
+	ID_TIME_T					timestamp;
 	int							checksum;
-	int							fileSize;
-	int							numLines;
+	size_t						fileSize;
+	size_t						numLines;
 
 	idDeclLocal *				decls;
 };
@@ -186,12 +186,12 @@ public:
 	virtual void				RegisterDeclType( const char *typeName, declType_t type, idDecl *(*allocator)() );
 	virtual void				RegisterDeclFolder( const char *folder, const char *extension, declType_t defaultType );
 	virtual int					GetChecksum() const;
-	virtual int					GetNumDeclTypes() const;
-	virtual int					GetNumDecls( declType_t type );
+	virtual size_t				GetNumDeclTypes() const;
+	virtual size_t				GetNumDecls( declType_t type );
 	virtual const char *		GetDeclNameFromType( declType_t type ) const;
 	virtual declType_t			GetDeclTypeFromName( const char *typeName ) const;
 	virtual const idDecl *		FindType( declType_t type, const char *name, bool makeDefault = true );
-	virtual const idDecl *		DeclByIndex( declType_t type, int index, bool forceParse = true );
+	        const idDecl *		DeclByIndex( declType_t type, const Ordinal auto index, bool forceParse = true );
 
 	virtual const idDecl*		FindDeclWithoutParsing( declType_t type, const char *name, bool makeDefault = true );
 	virtual void				ReloadFile( const char* filename, bool force );
@@ -263,7 +263,7 @@ idDeclManager *		declManager = &declManagerLocal;
 ====================================================================================
 */
 
-constexpr int MAX_HUFFMAN_SYMBOLS	= 256;
+constexpr size_t MAX_HUFFMAN_SYMBOLS	= 256;
 
 typedef struct huffmanNode_s {
 	int						symbol;
@@ -274,7 +274,7 @@ typedef struct huffmanNode_s {
 
 typedef struct huffmanCode_s {
 	unsigned long			bits[8];
-	int						numBits;
+	size_t					numBits;
 } huffmanCode_t;
 
 // compression ratio = 64%
@@ -314,11 +314,11 @@ static int huffmanFrequencies[] = {
     0x00000001, 0x00000001, 0x00000001, 0x00000001, 0x00000001, 0x00000001, 0x00000001, 0x00000001,
 };
 
-static huffmanCode_t huffmanCodes[MAX_HUFFMAN_SYMBOLS];
+static huffmanCode_t huffmanCodes[MAX_HUFFMAN_SYMBOLS] = {};
 static huffmanNode_t *huffmanTree = nullptr;
-static int totalUncompressedLength = 0;
-static int totalCompressedLength = 0;
-static int maxHuffmanBits = 0;
+static size_t totalUncompressedLength = 0;
+static size_t totalCompressedLength = 0;
+static size_t maxHuffmanBits = 0;
 
 
 /*
@@ -327,9 +327,7 @@ ClearHuffmanFrequencies
 ================
 */
 void ClearHuffmanFrequencies() {
-	int i;
-
-	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i++ ) {
+	for( size_t i = 0; i < MAX_HUFFMAN_SYMBOLS; i++ ) {
 		huffmanFrequencies[i] = 1;
 	}
 }
@@ -340,9 +338,8 @@ InsertHuffmanNode
 ================
 */
 huffmanNode_t *InsertHuffmanNode( huffmanNode_t *firstNode, huffmanNode_t *node ) {
-	huffmanNode_t *n, *lastNode;
+	huffmanNode_t *n = nullptr, *lastNode = nullptr;
 
-	lastNode = nullptr;
 	for ( n = firstNode; n; n = n->next ) {
 		if ( node->frequency <= n->frequency ) {
 			break;
@@ -376,7 +373,7 @@ void BuildHuffmanCode_r( huffmanNode_t *node, huffmanCode_t code, huffmanCode_t 
 		newCode.bits[code.numBits >> 5] |= 1 << ( code.numBits & 31 );
 		BuildHuffmanCode_r( node->children[1], newCode, codes );
 	} else {
-		assert( code.numBits <= sizeof( codes[0].bits ) * 8 );
+		assert( std::cmp_less_equal(code.numBits, sizeof( codes[0].bits ) * 8 ));
 		codes[node->symbol] = code;
 	}
 }
@@ -417,14 +414,14 @@ SetupHuffman
 ================
 */
 void SetupHuffman() {
-	int i, height;
-	huffmanNode_t *firstNode, *node;
+	size_t i = 0;
+	int height = 0;
+	huffmanNode_t *firstNode = nullptr, *node = nullptr;
 	huffmanCode_t code;
 
-	firstNode = nullptr;
 	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i++ ) {
 		node = new (TAG_DECL) huffmanNode_t;
-		node->symbol = i;
+		node->symbol = idMath::integer_cast<int>(i);
 		node->frequency = huffmanFrequencies[i];
 		node->next = nullptr;
 		node->children[0] = nullptr;
@@ -449,7 +446,7 @@ void SetupHuffman() {
 	huffmanTree = firstNode;
 
 	height = HuffmanHeight_r( firstNode );
-	assert( maxHuffmanBits == height );
+	assert( std::cmp_equal(maxHuffmanBits, height) );
 }
 
 /*
@@ -468,8 +465,8 @@ void ShutdownHuffman() {
 HuffmanCompressText
 ================
 */
-int HuffmanCompressText( const char *text, int textLength, byte *compressed, int maxCompressedSize ) {
-	int i, j;
+size_t HuffmanCompressText( const char *text, const size_t textLength, byte *compressed, const size_t maxCompressedSize ) {
+	size_t i = 0, j = 0;
 	idBitMsg msg;
 
 	totalUncompressedLength += textLength;
@@ -496,10 +493,11 @@ int HuffmanCompressText( const char *text, int textLength, byte *compressed, int
 HuffmanDecompressText
 ================
 */
-int HuffmanDecompressText( char *text, int textLength, const byte *compressed, int compressedSize ) {
-	int i, bit;
+size_t HuffmanDecompressText( char *text, const size_t textLength, const byte *compressed, const size_t compressedSize ) {
+	size_t i = 0;
+	int bit = 0;
 	idBitMsg msg;
-	huffmanNode_t *node;
+	huffmanNode_t *node = nullptr;
 
 	msg.InitRead( compressed, compressedSize );
 	msg.SetSize( compressedSize );
@@ -510,7 +508,7 @@ int HuffmanDecompressText( char *text, int textLength, const byte *compressed, i
 			bit = msg.ReadBits( 1 );
 			node = node->children[bit];
 		} while( node->symbol == -1 );
-		text[i] = node->symbol;
+		text[i] = idMath::integer_cast<char>(node->symbol);
 	}
 	text[i] = '\0';
 	return msg.GetReadCount();
@@ -522,9 +520,8 @@ ListHuffmanFrequencies_f
 ================
 */
 void ListHuffmanFrequencies_f( const idCmdArgs &args ) {
-	int		i;
-	float compression;
-	compression = !totalUncompressedLength ? 100 : 100 * totalCompressedLength / totalUncompressedLength;
+	size_t i = 0;
+	float compression = !totalUncompressedLength ? 100 : idMath::Itof<float>(100ULL * totalCompressedLength / totalUncompressedLength);
 	common->Printf( "// compression ratio = %d%%\n", static_cast<int>(compression) );
 	common->Printf( "static int huffmanFrequencies[] = {\n" );
 	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i += 8 ) {
@@ -1043,8 +1040,7 @@ idDeclManagerLocal::GetChecksum
 ===================
 */
 int idDeclManagerLocal::GetChecksum() const {
-	int i, j, total, num;
-	int *checksumData;
+	size_t i = 0, j = 0, total = 0, num = 0;
 
 	// get the total number of decls
 	total = 0;
@@ -1052,7 +1048,7 @@ int idDeclManagerLocal::GetChecksum() const {
 		total += linearLists[i].Num();
 	}
 
-	checksumData = static_cast<int*>(_alloca16(total * 2 * sizeof( int )));
+	int* checksumData = static_cast<int*>(_alloca16(total * 2 * sizeof( int )));
 
 	total = 0;
 	for ( i = 0; i < DECL_MAX_TYPES; i++ ) {
@@ -1071,7 +1067,7 @@ int idDeclManagerLocal::GetChecksum() const {
 				continue;
 			}
 
-			checksumData[total*2+0] = total;
+			checksumData[total*2+0] = idMath::integer_cast<int>(total);
 			checksumData[total*2+1] = decl->checksum;
 			total++;
 		}
@@ -1086,7 +1082,7 @@ int idDeclManagerLocal::GetChecksum() const {
 idDeclManagerLocal::GetNumDeclTypes
 ===================
 */
-int idDeclManagerLocal::GetNumDeclTypes() const {
+size_t idDeclManagerLocal::GetNumDeclTypes() const {
 	return declTypes.Num();
 }
 
@@ -1110,9 +1106,7 @@ idDeclManagerLocal::GetDeclTypeFromName
 ===================
 */
 declType_t idDeclManagerLocal::GetDeclTypeFromName( const char *typeName ) const {
-	int i;
-
-	for ( i = 0; i < declTypes.Num(); i++ ) {
+	for ( size_t i = 0; i < declTypes.Num(); i++ ) {
 		if ( declTypes[i] && declTypes[i]->typeName.Icmp( typeName ) == 0 ) {
 			return (declType_t)declTypes[i]->type;
 		}
@@ -1128,8 +1122,6 @@ External users will always cause the decl to be parsed before returning
 =================
 */
 const idDecl *idDeclManagerLocal::FindType( declType_t type, const char *name, bool makeDefault ) {
-	idDeclLocal *decl;
-
 	idScopedCriticalSection cs( mutex );
 
 	if ( !name || !name[0] ) {
@@ -1137,7 +1129,7 @@ const idDecl *idDeclManagerLocal::FindType( declType_t type, const char *name, b
 		//common->Warning( "idDeclManager::FindType: empty %s name", GetDeclType( (int)type )->typeName.c_str() );
 	}
 
-	decl = FindTypeWithoutParsing( type, name, makeDefault );
+	idDeclLocal* decl = FindTypeWithoutParsing(type, name, makeDefault);
 	if ( !decl ) {
 		return nullptr;
 	}	
@@ -1170,8 +1162,7 @@ idDeclManagerLocal::FindDeclWithoutParsing
 ===============
 */
 const idDecl* idDeclManagerLocal::FindDeclWithoutParsing( declType_t type, const char *name, bool makeDefault) {
-	idDeclLocal* decl;
-	decl = FindTypeWithoutParsing(type, name, makeDefault);
+	idDeclLocal* decl = FindTypeWithoutParsing(type, name, makeDefault);
 	if(decl) {
 		return decl->self;
 	}
@@ -1184,7 +1175,7 @@ idDeclManagerLocal::ReloadFile
 ===============
 */
 void idDeclManagerLocal::ReloadFile( const char* filename, bool force ) {
-	for ( int i = 0; i < loadedFiles.Num(); i++ ) {
+	for (size_t i = 0; i < loadedFiles.Num(); i++ ) {
 		if(!loadedFiles[i]->fileName.Icmp(filename)) {
 			checksum ^= loadedFiles[i]->checksum;
 			loadedFiles[i]->Reload( force );
@@ -1198,7 +1189,7 @@ void idDeclManagerLocal::ReloadFile( const char* filename, bool force ) {
 idDeclManagerLocal::GetNumDecls
 ===================
 */
-int idDeclManagerLocal::GetNumDecls( declType_t type ) {
+size_t idDeclManagerLocal::GetNumDecls( declType_t type ) {
 	int typeIndex = (int)type;
 
 	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
@@ -1213,14 +1204,14 @@ int idDeclManagerLocal::GetNumDecls( declType_t type ) {
 idDeclManagerLocal::DeclByIndex
 ===================
 */
-const idDecl *idDeclManagerLocal::DeclByIndex( declType_t type, int index, bool forceParse ) {
-	int typeIndex = (int)type;
+const idDecl *idDeclManagerLocal::DeclByIndex( declType_t type, const Ordinal auto index, bool forceParse ) {
+		int typeIndex = (int)type;
 
 	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
 		common->FatalError( "idDeclManager::DeclByIndex: bad type: %i", typeIndex );
 		return nullptr;
 	}
-	if ( index < 0 || index >= linearLists[ typeIndex ].Num() ) {
+	if ( index < 0 || std::cmp_greater_equal(index, linearLists[ typeIndex ].Num()) ) {
 		common->Error( "idDeclManager::DeclByIndex: out of range" );
 	}
 	idDeclLocal *decl = linearLists[ typeIndex ][ index ];
@@ -2050,7 +2041,7 @@ void idDeclLocal::EnsureNotPurged() {
 idDeclLocal::Index
 =================
 */
-int idDeclLocal::Index() const {
+size_t idDeclLocal::Index() const {
 	return index;
 }
 
@@ -2059,7 +2050,7 @@ int idDeclLocal::Index() const {
 idDeclLocal::GetLineNum
 =================
 */
-int idDeclLocal::GetLineNum() const {
+size_t idDeclLocal::GetLineNum() const {
 	return sourceLine;
 }
 
@@ -2099,7 +2090,7 @@ void idDeclLocal::GetText( char *text ) const {
 idDeclLocal::GetTextLength
 =================
 */
-int idDeclLocal::GetTextLength() const {
+size_t idDeclLocal::GetTextLength() const {
 	return textLength;
 }
 
@@ -2117,7 +2108,7 @@ void idDeclLocal::SetText( const char *text ) {
 idDeclLocal::SetTextLocal
 =================
 */
-void idDeclLocal::SetTextLocal( const char *text, const int length ) {
+void idDeclLocal::SetTextLocal( const char *text, const size_t length ) {
 
 	Mem_Free( textSource );
 
@@ -2130,7 +2121,7 @@ void idDeclLocal::SetTextLocal( const char *text, const int length ) {
 #endif
 
 #ifdef USE_COMPRESSED_DECLS
-	int maxBytesPerCode = ( maxHuffmanBits + 7 ) >> 3;
+	size_t maxBytesPerCode = ( maxHuffmanBits + 7 ) >> 3;
 	byte *compressed = static_cast<byte*>(_alloca(length * maxBytesPerCode));
 	compressedLength = HuffmanCompressText( text, length, compressed, length * maxBytesPerCode );
 	textSource = static_cast<char*>(Mem_Alloc(compressedLength, TAG_DECLTEXT));

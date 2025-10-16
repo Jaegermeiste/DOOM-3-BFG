@@ -156,8 +156,8 @@ public:
 	void			WriteNetadr( const netadr_t adr );
 
 	void			WriteUNorm8(const float f ) { WriteByte( idMath::Ftob( f * 255.0f ) ); }
-	void			WriteUNorm16(const float f ) { WriteUShort( idMath::Ftoi( f * 65535.0f ) ); }
-	void			WriteNorm16(const float f ) { WriteShort( idMath::Ftoi( f * 32767.0f ) ); }
+	void			WriteUNorm16(const float f ) { WriteUShort( idMath::Ftoi16( f * 65535.0f ) ); }
+	void			WriteNorm16(const float f ) { WriteShort( idMath::Ftoi16( f * 32767.0f ) ); }
 
 	void			WriteDeltaChar(const int8 oldValue, const int8 newValue ) { WriteByte( newValue - oldValue ); }
 	void			WriteDeltaByte(const uint8 oldValue, const uint8 newValue ) { WriteByte( newValue - oldValue ); }
@@ -165,7 +165,7 @@ public:
 	void			WriteDeltaUShort(const uint16 oldValue, const uint16 newValue ) { WriteUShort( newValue - oldValue ); }
 	void			WriteDeltaLong(const int32 oldValue, const int32 newValue ) { WriteLong( newValue - oldValue ); }
 	void			WriteDeltaFloat(const float oldValue, const float newValue ) { WriteFloat( newValue - oldValue ); }
-	void			WriteDeltaFloat(const float oldValue, const float newValue, const int exponentBits, const int mantissaBits ) { WriteFloat( newValue - oldValue, exponentBits, mantissaBits ); }
+	void			WriteDeltaFloat(const float oldValue, const float newValue, const uint16 exponentBits, const uint16 mantissaBits ) { WriteFloat( newValue - oldValue, exponentBits, mantissaBits ); }
 
 	bool			WriteDeltaDict( const idDict &dict, const idDict *base );
 
@@ -197,11 +197,11 @@ public:
 	int				ReadBits( int numBits ) const;
 
 	bool			ReadBool() const;
-	int				ReadChar() const;
-	int				ReadByte() const;
-	int				ReadShort() const;
-	int				ReadUShort() const;
-	int				ReadLong() const;
+	int8			ReadChar() const;
+	uint8			ReadByte() const;
+	int16			ReadShort() const;
+	uint16			ReadUShort() const;
+	int32			ReadLong() const;
 	int64			ReadLongLong() const;
 	float			ReadFloat() const;
 	float			ReadFloat( int exponentBits, int mantissaBits ) const;
@@ -217,9 +217,9 @@ public:
 	float			ReadUNorm16() const { return ReadUShort() / 65535.0f; }
 	float			ReadNorm16() const { return ReadShort() / 32767.0f; }
 
-	int8			ReadDeltaChar(const int8 oldValue ) const { return oldValue + ReadByte(); }
+	int8			ReadDeltaChar(const int8 oldValue ) const { return oldValue + ReadChar(); }
 	uint8			ReadDeltaByte(const uint8 oldValue ) const { return oldValue + ReadByte(); }
-	int16			ReadDeltaShort(const int16 oldValue ) const { return oldValue + ReadUShort(); }
+	int16			ReadDeltaShort(const int16 oldValue ) const { return oldValue + ReadShort(); }
 	uint16			ReadDeltaUShort(const uint16 oldValue ) const { return oldValue + ReadUShort(); }
 	int32			ReadDeltaLong(const int32 oldValue ) const { return oldValue + ReadLong(); }
 	float			ReadDeltaFloat(const float oldValue ) const { return oldValue + ReadFloat(); }
@@ -722,7 +722,7 @@ ID_INLINE bool idBitMsg::ReadBool() const {
 idBitMsg::ReadChar
 ========================
 */
-ID_INLINE int idBitMsg::ReadChar() const {
+ID_INLINE int8 idBitMsg::ReadChar() const {
 	return static_cast<signed char>(ReadBits(-8));
 }
 
@@ -731,7 +731,7 @@ ID_INLINE int idBitMsg::ReadChar() const {
 idBitMsg::ReadByte
 ========================
 */
-ID_INLINE int idBitMsg::ReadByte() const {
+ID_INLINE uint8 idBitMsg::ReadByte() const {
 	return static_cast<unsigned char>(ReadBits(8));
 }
 
@@ -740,7 +740,7 @@ ID_INLINE int idBitMsg::ReadByte() const {
 idBitMsg::ReadShort
 ========================
 */
-ID_INLINE int idBitMsg::ReadShort() const {
+ID_INLINE int16 idBitMsg::ReadShort() const {
 	return static_cast<short>(ReadBits(-16));
 }
 
@@ -749,7 +749,7 @@ ID_INLINE int idBitMsg::ReadShort() const {
 idBitMsg::ReadUShort
 ========================
 */
-ID_INLINE int idBitMsg::ReadUShort() const {
+ID_INLINE uint16 idBitMsg::ReadUShort() const {
 	return static_cast<unsigned short>(ReadBits(16));
 }
 
@@ -758,7 +758,7 @@ ID_INLINE int idBitMsg::ReadUShort() const {
 idBitMsg::ReadLong
 ========================
 */
-ID_INLINE int idBitMsg::ReadLong() const {
+ID_INLINE int32 idBitMsg::ReadLong() const {
 	return ReadBits( 32 );
 }
 

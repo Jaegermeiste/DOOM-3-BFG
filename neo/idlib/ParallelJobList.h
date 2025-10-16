@@ -92,35 +92,35 @@ public:
 	// Wait for the jobs in this list to finish. Will spin in place if any jobs are not done.
 	void					Wait() const;
 	// Try to wait for the jobs in this list to finish but either way return immediately. Returns true if all jobs are done.
-	bool					TryWait() const;
+	[[nodiscard]] bool					TryWait() const;
 	// returns true if the job list has been submitted.
-	bool					IsSubmitted() const;
+	[[nodiscard]] bool					IsSubmitted() const;
 
 	// Get the number of jobs executed in this job list.
-	size_t		        	GetNumExecutedJobs() const;
+	[[nodiscard]] size_t		        	GetNumExecutedJobs() const;
 	// Get the number of sync points.
-	size_t      			GetNumSyncs() const;
+	[[nodiscard]] size_t      			GetNumSyncs() const;
 	// Time at which the job list was submitted.
-	uint64					GetSubmitTimeMicroSec() const;
+	[[nodiscard]] uint64					GetSubmitTimeMicroSec() const;
 	// Time at which execution of this job list started.
-	uint64					GetStartTimeMicroSec() const;
+	[[nodiscard]] uint64					GetStartTimeMicroSec() const;
 	// Time at which all jobs in the list were executed.
-	uint64					GetFinishTimeMicroSec() const;
+	[[nodiscard]] uint64					GetFinishTimeMicroSec() const;
 	// Time the host thread waited for this job list to finish.
-	uint64					GetWaitTimeMicroSec() const;
+	[[nodiscard]] uint64					GetWaitTimeMicroSec() const;
 	// Get the total time all units spent processing this job list.
-	uint64					GetTotalProcessingTimeMicroSec() const;
+	[[nodiscard]] uint64					GetTotalProcessingTimeMicroSec() const;
 	// Get the total time all units wasted while processing this job list.
-	uint64					GetTotalWastedTimeMicroSec() const;
+	[[nodiscard]] uint64					GetTotalWastedTimeMicroSec() const;
 	// Time the given unit spent processing this job list.
-	uint64					GetUnitProcessingTimeMicroSec( int unit ) const;
+	[[nodiscard]] uint64					GetUnitProcessingTimeMicroSec( int unit ) const;
 	// Time the given unit wasted while processing this job list.
-	uint64					GetUnitWastedTimeMicroSec( int unit ) const;
+	[[nodiscard]] uint64					GetUnitWastedTimeMicroSec( int unit ) const;
 
 	// Get the job list ID
-	jobListId_t				GetId() const;
+	[[nodiscard]] jobListId_t				GetId() const;
 	// Get the color for profiling.
-	const idColor *			GetColor() const { return this->color; }
+	[[nodiscard]] const idColor *			GetColor() const { return this->color; }
 
 private:
 	class idParallelJobList_Threads *	jobListThreads;
@@ -148,8 +148,8 @@ public:
 	virtual idParallelJobList *	AllocJobList( jobListId_t id, jobListPriority_t priority, size_t maxJobs, size_t maxSyncs, const idColor * color ) = 0;
 	virtual void				FreeJobList( idParallelJobList * jobList ) = 0;
 
-	virtual size_t				GetNumJobLists() const = 0;
-	virtual size_t				GetNumFreeJobLists() const = 0;
+	[[nodiscard]] virtual size_t				GetNumJobLists() const = 0;
+	[[nodiscard]] virtual size_t				GetNumFreeJobLists() const = 0;
 	
 	static  idParallelJobList*  GetJobList(Ordinal auto index) { return nullptr; };
 

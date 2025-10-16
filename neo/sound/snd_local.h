@@ -32,18 +32,18 @@ If you have questions concerning this license or the applicable additional terms
 #include "WaveFile.h"
 
 // Maximum number of voices we can have allocated
-#define MAX_HARDWARE_VOICES 48
+constexpr size_t MAX_HARDWARE_VOICES = 48;
 
 // A single voice can play multiple channels (up to 5.1, but most commonly stereo)
 // This is the maximum number of channels which can play simultaneously
 // This is limited primarily by seeking on the optical drive, secondarily by memory consumption, and tertiarily by CPU time spent mixing
-#define MAX_HARDWARE_CHANNELS 64
+constexpr size_t MAX_HARDWARE_CHANNELS = 64;
 
 // We may need up to 3 buffers for each hardware voice if they are all long sounds
-#define MAX_SOUND_BUFFERS ( MAX_HARDWARE_VOICES * 3 )
+constexpr size_t MAX_SOUND_BUFFERS = (MAX_HARDWARE_VOICES * 3);
 
 // Maximum number of channels in a sound sample
-#define MAX_CHANNELS_PER_VOICE	8
+constexpr size_t MAX_CHANNELS_PER_VOICE = 8;
 
 /*
 ========================
@@ -51,8 +51,8 @@ MsecToSamples
 SamplesToMsec
 ========================
 */
-ID_INLINE_EXTERN uint32 MsecToSamples( uint32 msec, uint32 sampleRate ) { return ( msec * ( sampleRate / 100 ) ) / 10; }
-ID_INLINE_EXTERN uint32 SamplesToMsec( uint32 samples, uint32 sampleRate ) { return sampleRate < 100 ? 0 : ( samples * 10 ) / ( sampleRate / 100 ); }
+ID_INLINE_EXTERN size_t MsecToSamples( ID_TIME_T msec, uint32 sampleRate ) { return ( msec * ( sampleRate / 100 ) ) / 10; }
+ID_INLINE_EXTERN ID_TIME_T SamplesToMsec( size_t samples, uint32 sampleRate ) { return sampleRate < 100 ? 0 : ( samples * 10 ) / ( sampleRate / 100 ); }
 
 /*
 ========================
@@ -64,7 +64,7 @@ ID_INLINE_EXTERN float DBtoLinear( float db ) { return idMath::Pow( 2.0f, db * (
 ID_INLINE_EXTERN float LinearToDB( float linear ) { return ( linear > 0.0f ) ? ( idMath::Log( linear ) * ( 6.0f / 0.693147181f ) ) : -999.0f; }
 
 // demo sound commands
-typedef enum {
+typedef enum soundDemoCommand_e : uint8 {
 	SCMD_STATE,				// followed by a load game state
 	SCMD_PLACE_LISTENER,
 	SCMD_ALLOC_EMITTER,
@@ -100,14 +100,14 @@ typedef enum {
 struct listener_t {
 	idMat3	axis;		// orientation of the listener
 	idVec3	pos;		// position in meters
-	int		id;			// the entity number, used to detect when a sound is local
-	int		area;		// area number the listener is in
+	size_t	id;			// the entity number, used to detect when a sound is local
+	size_t	area;		// area number the listener is in
 };
 
 class idSoundFade {
 public:
-	int		fadeStartTime;
-	int		fadeEndTime;
+	ID_TIME_T	fadeStartTime;
+	ID_TIME_T	fadeEndTime;
 	float	fadeStartVolume;
 	float	fadeEndVolume;
 
@@ -117,9 +117,9 @@ public:
 
 	void	Clear();
 	void	SetVolume( float to );
-	void	Fade( float to, int length, int soundTime );
+	void	Fade( float to, ID_TIME_T length, ID_TIME_T soundTime );
 
-	float	GetVolume( int soundTime ) const;
+	float	GetVolume( ID_TIME_T soundTime ) const;
 };
 
 /*
@@ -132,19 +132,19 @@ public:
 	bool	CanMute() const;
 
 	void	Mute();
-	bool	CheckForCompletion( int currentTime ) const;
+	bool	CheckForCompletion( ID_TIME_T currentTime ) const;
 
-	void	UpdateVolume( int currentTime );
-	void	UpdateHardware( float volumeAdd, int currentTime );
+	void	UpdateVolume( ID_TIME_T currentTime );
+	void	UpdateHardware( float volumeAdd, ID_TIME_T currentTime );
 
 	// returns true if this channel is marked as looping
 	bool	IsLooping() const;
 
 	class idSoundEmitterLocal *	emitter;
 
-	int						startTime;
-	int						endTime;
-	int						logicalChannel;
+	ID_TIME_T				startTime;
+	ID_TIME_T				endTime;
+	size_t					logicalChannel;
 	bool					allowSlow;
 
 	soundShaderParms_t		parms;				// combines shader parms and per-channel overrides
@@ -167,7 +167,7 @@ public:
 
 // Maximum number of SoundChannels for a single SoundEmitter.
 // This is probably excessive...
-const int MAX_CHANNELS_PER_EMITTER = 16;
+constexpr size_t MAX_CHANNELS_PER_EMITTER = 16;
 
 /*
 ===================================================================================
@@ -196,7 +196,7 @@ public:
 	virtual idSoundEmitter *AllocSoundEmitter();
 
 	// for load games
-	virtual idSoundEmitter *EmitterForIndex( int index );
+	        idSoundEmitter *EmitterForIndex( const Ordinal auto index );
 
 	// query data from all emitters in the world
 	virtual float			CurrentShakeAmplitude();
@@ -216,15 +216,15 @@ public:
 	virtual void			ProcessDemoCommand( idDemoFile *readDemo );
 
 	// menu sounds
-	virtual int				PlayShaderDirectly( const char *name, int channel = -1 );
+    virtual int				PlayShaderDirectly( const char *name, const s_channelType channel = -1 );
 
-	virtual void			Skip( int time );
+	virtual void			Skip( ID_TIME_T time );
 
 	virtual void			Pause();
 	virtual void			UnPause();
 	virtual bool			IsPaused() { return isPaused; }
 
-	virtual int				GetSoundTime();
+	virtual ID_TIME_T		GetSoundTime();
 
 	// avidump
 	virtual void			AVIOpen( const char *path, const char *name );
@@ -270,8 +270,8 @@ public:
 	idBlockAlloc<idSoundChannel, 16>		channelAllocator;
 
 	idSoundFade				pauseFade;
-	int						pausedTime;
-	int						accumulatedPauseTime;
+	ID_TIME_T				pausedTime;
+	ID_TIME_T				accumulatedPauseTime;
 	bool					isPaused;
 
 	float					slowmoSpeed;
@@ -300,36 +300,36 @@ public:
 
 	virtual void	UpdateEmitter( const idVec3 &origin, int listenerId, const soundShaderParms_t *parms );
 
-	virtual int		StartSound( const idSoundShader *shader, const s_channelType channel, float diversity = 0, int shaderFlags = 0, bool allowSlow = true );
+	[[nodiscard]] virtual ID_TIME_T	StartSound( const idSoundShader *shader, const s_channelType channel, float diversity = 0, int shaderFlags = 0, bool allowSlow = true );
 
 	virtual void	ModifySound( const s_channelType channel, const soundShaderParms_t *parms );
 	virtual void	StopSound( const s_channelType channel );
 
 	virtual void	FadeSound( const s_channelType channel, float to, float over );
 
-	virtual bool	CurrentlyPlaying( const s_channelType channel = SCHANNEL_ANY ) const;
+	[[nodiscard]] virtual bool	CurrentlyPlaying( const s_channelType channel = SCHANNEL_ANY ) const;
 
 	virtual	float	CurrentAmplitude();
 
-	virtual	int		Index() const;
+	[[nodiscard]] virtual	size_t	Index() const;
 
 	//----------------------------------------------
 
-	void			Init( int i, idSoundWorldLocal * sw );
+	void			Init( const Ordinal auto i, idSoundWorldLocal * sw );
 
 	// Returns true if the emitter should be freed.
-	bool			CheckForCompletion( int currentTime );
+	bool			CheckForCompletion( ID_TIME_T currentTime );
 
 	void			OverrideParms( const soundShaderParms_t * base, const soundShaderParms_t * over, soundShaderParms_t * out );
 
-	void			Update( int currentTime );
+	void			Update( ID_TIME_T currentTime );
 	void			OnReloadSound( const idDecl *decl );
 
 	//----------------------------------------------
 
 	idSoundWorldLocal *		soundWorld;						// the world that holds this emitter
 
-	int			index;							// in world emitter list
+	size_t		index;							// in world emitter list
 	bool		canFree;						// if true, this emitter can be canFree (once channels.Num() == 0)
 
 	// a single soundEmitter can have many channels playing from the same point
@@ -338,7 +338,7 @@ public:
 	//----- set by UpdateEmitter -----
 	idVec3				origin;
 	soundShaderParms_t	parms;
-	int					emitterId;						// sounds will be full volume when emitterId == listenerId
+	size_t				emitterId;						// sounds will be full volume when emitterId == listenerId
 
 	//----- set by Update -----
 	int			lastValidPortalArea;
@@ -399,7 +399,7 @@ public:
 	virtual void *			GetIXAudio2() const;
 
 	// for the sound level meter window
-	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform );
+	virtual cinData_t		ImageForTime( const ID_TIME_T milliseconds, const bool waveform );
 
 	// Free all sounds loaded during the last map load
 	virtual	void			BeginLevelLoad();
@@ -420,7 +420,7 @@ public:
 	void					Restart();
 	void					SetNeedsRestart() { needsRestart = true; }
 
-	int						SoundTime() const;
+	ID_TIME_T				SoundTime() const;
 
 	// may return NULL if there are no more voices left
 	idSoundVoice *			AllocateVoice( const idSoundSample * leadinSample, const idSoundSample * loopingSample );
@@ -432,13 +432,13 @@ public:
 
 	struct bufferContext_t {
 		bufferContext_t() :
-			voice( NULL ),
-			sample( NULL ),
+			voice(nullptr),
+			sample(nullptr),
 			bufferNumber( 0 )
 		{ }
 		idSoundVoice_XAudio2 *	voice;
 		idSoundSample_XAudio2 * sample;
-		int bufferNumber;
+		size_t bufferNumber;
 	};
 
 	// Get a stream buffer from the free pool, returns NULL if none are available
@@ -460,7 +460,7 @@ public:
 
 	idRandom2					random;
 	
-	int							soundTime;
+	ID_TIME_T					soundTime;
 	bool						muted;
 	bool						musicMuted;
 	bool						needsRestart;
@@ -471,7 +471,7 @@ public:
 
 	idSoundSystemLocal() :
 		soundTime( 0 ),
-		currentSoundWorld( NULL ),
+		currentSoundWorld( nullptr ),
 		muted( false ),
 		musicMuted( false ),
 		needsRestart( false )

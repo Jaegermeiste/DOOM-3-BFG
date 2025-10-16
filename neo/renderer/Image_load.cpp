@@ -160,7 +160,7 @@ void idImage::AllocImage( const idImageOpts &imgOpts, textureFilter_t tf, textur
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte *pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm ) {
+void idImage::GenerateImage( const byte *pic, const size_t width, const size_t height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm ) {
 	PurgeImage();
 
 	filter = filterParm;
@@ -187,7 +187,7 @@ void idImage::GenerateImage( const byte *pic, int width, int height, textureFilt
 
 	AllocImage();
 
-	for ( int i = 0; i < im.NumImages(); i++ ) {
+	for ( size_t i = 0; i < im.NumImages(); i++ ) {
 		const bimageImage_t & img = im.GetImageHeader( i );
 		const byte * data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
@@ -201,7 +201,7 @@ GenerateCubeImage
 Non-square cube sides are not allowed
 ====================
 */
-void idImage::GenerateCubeImage( const byte *pic[6], int size, textureFilter_t filterParm, textureUsage_t usageParm ) {
+void idImage::GenerateCubeImage( const byte *pic[6], const size_t size, textureFilter_t filterParm, textureUsage_t usageParm ) {
 	PurgeImage();
 
 	filter = filterParm;
@@ -228,7 +228,7 @@ void idImage::GenerateCubeImage( const byte *pic[6], int size, textureFilter_t f
 
 	AllocImage();
 
-	for ( int i = 0; i < im.NumImages(); i++ ) {
+	for ( size_t i = 0; i < im.NumImages(); i++ ) {
 		const bimageImage_t & img = im.GetImageHeader( i );
 		const byte * data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
@@ -478,7 +478,7 @@ int MakePowerOfTwo( int num ) {
 CopyFramebuffer
 ====================
 */
-void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight ) {
+void idImage::CopyFramebuffer( const size_t x, const size_t y, const size_t imageWidth, const size_t imageHeight ) {
 
 
 	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
@@ -487,7 +487,7 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight ) {
 
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(imageWidth), idMath::integer_cast<GLsizei>(imageHeight), 0 );
 
 	// these shouldn't be necessary if the image was initialized properly
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -504,12 +504,12 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight ) {
 CopyDepthbuffer
 ====================
 */
-void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight ) {
+void idImage::CopyDepthbuffer(const size_t x, const size_t y, const size_t imageWidth, const size_t imageHeight) {
 	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
 
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
+	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(imageWidth), idMath::integer_cast<GLsizei>(imageHeight), 0);
 
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -521,13 +521,13 @@ RB_UploadScratchImage
 if rows = cols * 6, assume it is a cube map animation
 =============
 */
-void idImage::UploadScratch( const byte * data, int cols, int rows ) {
+void idImage::UploadScratch( const byte * data, size_t cols, size_t rows ) {
 
 	// if rows = cols * 6, assume it is a cube map animation
 	if ( rows == cols * 6 ) {
 		rows /= 6;
 		const byte * pic[6];
-		for ( int i = 0; i < 6; i++ ) {
+		for ( size_t i = 0; i < 6; i++ ) {
 			pic[i] = data + cols * rows * 4 * i;
 		}
 
@@ -541,7 +541,7 @@ void idImage::UploadScratch( const byte * data, int cols, int rows ) {
 			AllocImage();
 		}
 		SetSamplerState( TF_LINEAR, TR_CLAMP );
-		for ( int i = 0; i < 6; i++ ) {
+		for ( size_t i = 0; i < 6; i++ ) {
 			SubImageUpload( 0, 0, 0, i, opts.width, opts.height, pic[i] );
 		}
 
@@ -565,12 +565,12 @@ void idImage::UploadScratch( const byte * data, int cols, int rows ) {
 StorageSize
 ==================
 */
-int idImage::StorageSize() const {
+size_t idImage::StorageSize() const {
 
 	if ( !IsLoaded() ) {
 		return 0;
 	}
-	int baseSize = opts.width * opts.height;
+	size_t baseSize = opts.width * opts.height;
 	if ( opts.numLevels > 1 ) {
 		baseSize *= 4;
 		baseSize /= 3;

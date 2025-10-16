@@ -103,7 +103,7 @@ void idPlayerIcon::Draw( idPlayer *player, const idVec3 &origin ) {
 		if ( icon != ICON_TEAM_RED && icon != ICON_TEAM_BLUE )
 			return;
 
-		if ( !CreateIcon( player, ( playerIconType_t )icon, origin, axis ) ) {
+		if ( !CreateIcon( player, static_cast<playerIconType_t>(icon), origin, axis ) ) {
 			UpdateIcon( player, origin, axis );
 		}
 	} else {
@@ -159,14 +159,14 @@ bool idPlayerIcon::CreateIcon( idPlayer *player, playerIconType_t type, const ch
 	renderEnt.shaderParms[ SHADERPARM_SPRITE_WIDTH ]	= 16.0f;
 	renderEnt.shaderParms[ SHADERPARM_SPRITE_HEIGHT ]	= 16.0f;
 	renderEnt.hModel = renderModelManager->FindModel( "_sprite" );
-	renderEnt.callback = NULL;
+	renderEnt.callback = nullptr;
 	renderEnt.numJoints = 0;
-	renderEnt.joints = NULL;
-	renderEnt.customSkin = 0;
+	renderEnt.joints = nullptr;
+	renderEnt.customSkin = nullptr;
 	renderEnt.noShadow = true;
 	renderEnt.noSelfShadow = true;
 	renderEnt.customShader = declManager->FindMaterial( mtr );
-	renderEnt.referenceShader = 0;
+	renderEnt.referenceShader = nullptr;
 	renderEnt.bounds = renderEnt.hModel->Bounds( &renderEnt );
 
 	iconHandle = gameRenderWorld->AddEntityDef( &renderEnt );

@@ -56,7 +56,7 @@ bool idPhysics_Parametric::TestIfAtRest() const {
 			( current.angularExtrapolation.GetExtrapolationType() & ~EXTRAPOLATION_NOSTOP ) == EXTRAPOLATION_NONE &&
 				current.linearInterpolation.GetDuration() == 0 &&
 					current.angularInterpolation.GetDuration() == 0 &&
-						current.spline == NULL ) {
+						current.spline == nullptr) {
 		return true;
 	}
 
@@ -76,7 +76,7 @@ bool idPhysics_Parametric::TestIfAtRest() const {
 		return false;
 	}
 
-	if ( current.spline != NULL && !current.spline->IsDone( current.time ) ) {
+	if ( current.spline != nullptr && !current.spline->IsDone( current.time ) ) {
 		return false;
 	}
 
@@ -112,14 +112,14 @@ idPhysics_Parametric::idPhysics_Parametric() {
 	current.angularExtrapolation.Init( 0, 0, ang_zero, ang_zero, ang_zero, EXTRAPOLATION_NONE );
 	current.linearInterpolation.Init( 0, 0, 0, 0, vec3_zero, vec3_zero );
 	current.angularInterpolation.Init( 0, 0, 0, 0, ang_zero, ang_zero );
-	current.spline = NULL;
+	current.spline = nullptr;
 	current.splineInterpolate.Init( 0, 1, 1, 2, 0, 0 );
 
 	saved = current;
 
 	isPusher = false;
 	pushFlags = 0;
-	clipModel = NULL;
+	clipModel = nullptr;
 	isBlocked = false;
 	memset( &pushResults, 0, sizeof( pushResults ) );
 
@@ -133,13 +133,13 @@ idPhysics_Parametric::~idPhysics_Parametric
 ================
 */
 idPhysics_Parametric::~idPhysics_Parametric() {
-	if ( clipModel != NULL ) {
+	if ( clipModel != nullptr) {
 		delete clipModel;
-		clipModel = NULL;
+		clipModel = nullptr;
 	}
-	if ( current.spline != NULL ) {
+	if ( current.spline != nullptr) {
 		delete current.spline;
-		current.spline = NULL;
+		current.spline = nullptr;
 	}
 }
 
@@ -398,12 +398,12 @@ idPhysics_Parametric::SetSpline
 ================
 */
 void idPhysics_Parametric::SetSpline( idCurve_Spline<idVec3> *spline, int accelTime, int decelTime, bool useSplineAngles ) {
-	if ( current.spline != NULL ) {
+	if ( current.spline != nullptr) {
 		delete current.spline;
-		current.spline = NULL;
+		current.spline = nullptr;
 	}
 	current.spline = spline;
-	if ( current.spline != NULL ) {
+	if ( current.spline != nullptr) {
 		float startTime = current.spline->GetTime( 0 );
 		float endTime = current.spline->GetTime( current.spline->GetNumValues() - 1 );
 		float length = current.spline->GetLengthForTime( endTime );
@@ -499,7 +499,7 @@ idPhysics_Parametric::GetNumClipModels
 ================
 */
 int idPhysics_Parametric::GetNumClipModels() const {
-	return ( clipModel != NULL );
+	return ( clipModel != nullptr);
 }
 
 /*
@@ -586,7 +586,7 @@ bool idPhysics_Parametric::Evaluate( int timeStepMSec, int endTimeMSec ) {
 	current.localOrigin.Zero();
 	current.localAngles.Zero();
 
-	if ( current.spline != NULL ) {
+	if ( current.spline != nullptr) {
 		float length = current.splineInterpolate.GetCurrentValue( endTimeMSec );
 		float t = current.spline->GetTimeForLength( length, 0.01f );
 		current.localOrigin = current.spline->GetCurrentValue( t );
@@ -695,7 +695,7 @@ void idPhysics_Parametric::UpdateTime( int endTimeMSec ) {
 	current.angularExtrapolation.SetStartTime( current.angularExtrapolation.GetStartTime() + timeLeap );
 	current.linearInterpolation.SetStartTime( current.linearInterpolation.GetStartTime() + timeLeap );
 	current.angularInterpolation.SetStartTime( current.angularInterpolation.GetStartTime() + timeLeap );
-	if ( current.spline != NULL ) {
+	if ( current.spline != nullptr) {
 		current.spline->ShiftTime( timeLeap );
 		current.splineInterpolate.SetStartTime( current.splineInterpolate.GetStartTime() + timeLeap );
 	}
@@ -865,7 +865,7 @@ idPhysics_Parametric::SetLinearVelocity
 ================
 */
 void idPhysics_Parametric::SetLinearVelocity( const idVec3 &newLinearVelocity, int id ) {
-	SetLinearExtrapolation( extrapolation_t(EXTRAPOLATION_LINEAR|EXTRAPOLATION_NOSTOP), gameLocal.time, 0, current.origin, newLinearVelocity, vec3_origin );
+	SetLinearExtrapolation( static_cast<extrapolation_t>(EXTRAPOLATION_LINEAR | EXTRAPOLATION_NOSTOP), gameLocal.time, 0, current.origin, newLinearVelocity, vec3_origin );
 	current.linearInterpolation.Init( 0, 0, 0, 0, vec3_zero, vec3_zero );
 	Activate();
 }
@@ -884,7 +884,7 @@ void idPhysics_Parametric::SetAngularVelocity( const idVec3 &newAngularVelocity,
 	angle = vec.Normalize();
 	rotation.Set( vec3_origin, vec, (float) RAD2DEG( angle ) );
 
-	SetAngularExtrapolation( extrapolation_t(EXTRAPOLATION_LINEAR|EXTRAPOLATION_NOSTOP), gameLocal.time, 0, current.angles, rotation.ToAngles(), ang_zero );
+	SetAngularExtrapolation( static_cast<extrapolation_t>(EXTRAPOLATION_LINEAR | EXTRAPOLATION_NOSTOP), gameLocal.time, 0, current.angles, rotation.ToAngles(), ang_zero );
 	current.angularInterpolation.Init( 0, 0, 0, 0, ang_zero, ang_zero );
 	Activate();
 }
@@ -965,7 +965,7 @@ idPhysics_Parametric::GetBlockingInfo
 ================
 */
 const trace_t *idPhysics_Parametric::GetBlockingInfo() const {
-	return ( isBlocked ? &pushResults : NULL );
+	return ( isBlocked ? &pushResults : nullptr);
 }
 
 /*
@@ -977,7 +977,7 @@ idEntity *idPhysics_Parametric::GetBlockingEntity() const {
 	if ( isBlocked ) {
 		return gameLocal.entities[ pushResults.c.entityNum ];
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1026,7 +1026,7 @@ idPhysics_Parametric::GetLinearEndTime
 ================
 */
 int idPhysics_Parametric::GetLinearEndTime() const {
-	if ( current.spline != NULL ) {
+	if ( current.spline != nullptr) {
 		if ( current.spline->GetBoundaryType() != idCurve_Spline<idVec3>::BT_CLOSED ) {
 			return current.spline->GetTime( current.spline->GetNumValues() - 1 );
 		} else {

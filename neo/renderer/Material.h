@@ -42,27 +42,27 @@ class idCinematic;
 class idUserInterface;
 
 // moved from image.h for default parm
-typedef enum {
+typedef enum textureFilter_e : uint8 {
 	TF_LINEAR,
 	TF_NEAREST,
 	TF_DEFAULT				// use the user-specified r_textureFilter
 } textureFilter_t;
 
-typedef enum {
+typedef enum textureRepeat_e : uint8 {
 	TR_REPEAT,
 	TR_CLAMP,
 	TR_CLAMP_TO_ZERO,		// guarantee 0,0,0,255 edge for projected textures
 	TR_CLAMP_TO_ZERO_ALPHA	// guarantee 0 alpha edge for projected textures
 } textureRepeat_t;
 
-typedef struct {
-	int		stayTime;		// msec for no change
-	int		fadeTime;		// msec to fade vertex colors over
+typedef struct decalInfo_s {
+	ID_TIME_T stayTime;		// msec for no change
+	ID_TIME_T fadeTime;		// msec to fade vertex colors over
 	float	start[4];		// vertex color at spawn (possibly out of 0.0 - 1.0 range, will clamp after calc)
 	float	end[4];			// vertex color at fade-out (possibly out of 0.0 - 1.0 range, will clamp after calc)
 } decalInfo_t;
 
-typedef enum {
+typedef enum deform_e : uint8 {
 	DFRM_NONE,
 	DFRM_SPRITE,
 	DFRM_TUBE,
@@ -75,7 +75,7 @@ typedef enum {
 	DFRM_TURB
 } deform_t;
 
-typedef enum {
+typedef enum dynamicidImage_e : uint8 {
 	DI_STATIC,
 	DI_SCRATCH,		// video, screen wipe, etc
 	DI_CUBE_RENDER,
@@ -85,7 +85,7 @@ typedef enum {
 } dynamicidImage_t;
 
 // note: keep opNames[] in sync with changes
-typedef enum {
+typedef enum expOpType_e : uint8 {
 	OP_TYPE_ADD,
 	OP_TYPE_SUBTRACT,
 	OP_TYPE_MULTIPLY,
@@ -103,7 +103,7 @@ typedef enum {
 	OP_TYPE_SOUND
 } expOpType_t;
 
-typedef enum {
+typedef enum expRegister_e : uint8 {
 	EXP_REG_TIME,
 
 	EXP_REG_PARM0,
@@ -131,16 +131,16 @@ typedef enum {
 	EXP_REG_NUM_PREDEFINED
 } expRegister_t;
 
-typedef struct {
+typedef struct expOp_s {
 	expOpType_t		opType;	
 	int				a, b, c;
 } expOp_t;
 
-typedef struct {
+typedef struct colorStage_s {
 	int				registers[4];
 } colorStage_t;
 
-typedef enum {
+typedef enum texgen_e : uint8 {
 	TG_EXPLICIT,
 	TG_DIFFUSE_CUBE,
 	TG_REFLECT_CUBE,
@@ -151,7 +151,7 @@ typedef enum {
 	TG_GLASSWARP
 } texgen_t;
 
-typedef struct {
+typedef struct textureStage_s {
 	idCinematic *		cinematic;
 	idImage *			image;
 	texgen_t			texgen;
@@ -165,7 +165,7 @@ typedef struct {
 } textureStage_t;
 
 // the order BUMP / DIFFUSE / SPECULAR is necessary for interactions to draw correctly on low end cards
-typedef enum {
+typedef enum stageLighting_e : uint8 {
 	SL_AMBIENT,						// execute after lighting
 	SL_BUMP,
 	SL_DIFFUSE,
@@ -175,27 +175,27 @@ typedef enum {
 
 // cross-blended terrain textures need to modulate the color by
 // the vertex color to smoothly blend between two textures
-typedef enum {
+typedef enum stageVertexColor_e : uint8 {
 	SVC_IGNORE,
 	SVC_MODULATE,
 	SVC_INVERSE_MODULATE
 } stageVertexColor_t;
 
-static constexpr int	MAX_FRAGMENT_IMAGES = 8;
-static constexpr int	MAX_VERTEX_PARMS = 4;
+static constexpr size_t	MAX_FRAGMENT_IMAGES = 8;
+static constexpr size_t	MAX_VERTEX_PARMS = 4;
 
-typedef struct {
+typedef struct newShaderStage_s {
 	int					vertexProgram;
-	int					numVertexParms;
+	size_t				numVertexParms;
 	int					vertexParms[MAX_VERTEX_PARMS][4];	// evaluated register indexes
 
 	int					fragmentProgram;
 	int					glslProgram;
-	int					numFragmentProgramImages;
+	size_t				numFragmentProgramImages;
 	idImage *			fragmentProgramImages[MAX_FRAGMENT_IMAGES];
 } newShaderStage_t;
 
-typedef struct {
+typedef struct shaderStage_s {
 	int					conditionRegister;	// if registers[conditionRegister] == 0, skip stage
 	stageLighting_t		lighting;			// determines which passes interact with lights
 	uint64				drawStateBits;
@@ -211,14 +211,14 @@ typedef struct {
 	newShaderStage_t	*newStage;			// vertex / fragment program based stage
 } shaderStage_t;
 
-typedef enum {
+typedef enum materialCoverage_e : uint8 {
 	MC_BAD,
 	MC_OPAQUE,			// completely fills the triangle, will have black drawn on fillDepthBuffer
 	MC_PERFORATED,		// may have alpha tested holes
 	MC_TRANSLUCENT		// blended with background
 } materialCoverage_t;
 
-typedef enum {
+typedef enum materialSort_e : int8 {
 	SS_SUBVIEW = -3,	// mirrors, viewscreens, etc
 	SS_GUI = -2,		// guis
 	SS_BAD = -1,
@@ -239,22 +239,22 @@ typedef enum {
 	SS_POST_PROCESS = 100	// after a screen copy to texture
 } materialSort_t;
 
-typedef enum {
+typedef enum cullType_e : uint8 {
 	CT_FRONT_SIDED,
 	CT_BACK_SIDED,
 	CT_TWO_SIDED
 } cullType_t;
 
 // these don't effect per-material storage, so they can be very large
-constexpr int MAX_SHADER_STAGES			= 256;
+constexpr size_t MAX_SHADER_STAGES			= 256;
 
-constexpr int MAX_TEXGEN_REGISTERS		= 4;
+constexpr size_t MAX_TEXGEN_REGISTERS		= 4;
 
-constexpr int MAX_ENTITY_SHADER_PARMS	= 12;
-constexpr int MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
+constexpr size_t MAX_ENTITY_SHADER_PARMS	= 12;
+constexpr size_t MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
 
 // material flags
-typedef enum {
+typedef enum materialFlags_e : uint8 {
 	MF_DEFAULTED				= BIT(0),
 	MF_POLYGONOFFSET			= BIT(1),
 	MF_NOSHADOWS				= BIT(2),
@@ -265,7 +265,7 @@ typedef enum {
 } materialFlags_t;
 
 // contents flags, NOTE: make sure to keep the defines in doom_defs.script up to date with these!
-typedef enum {
+typedef enum contentsFlags_e : uint32 {
 	CONTENTS_SOLID				= BIT(0),	// an eye is never valid in a solid
 	CONTENTS_OPAQUE				= BIT(1),	// blocks visibility (for ai)
 	CONTENTS_WATER				= BIT(2),	// used for water
@@ -294,7 +294,7 @@ typedef enum {
 constexpr int NUM_SURFACE_BITS		= 4;
 constexpr int MAX_SURFACE_TYPES		= 1 << NUM_SURFACE_BITS;
 
-typedef enum {
+typedef enum surfTypes_e : uint8 {
 	SURFTYPE_NONE,					// default type
     SURFTYPE_METAL,
 	SURFTYPE_STONE,
@@ -314,7 +314,7 @@ typedef enum {
 } surfTypes_t;
 
 // surface flags
-typedef enum {
+typedef enum surfaceFlags_e : uint16 {
 	SURF_TYPE_BIT0				= BIT(0),	// encodes the material type (metal, flesh, concrete, etc.)
 	SURF_TYPE_BIT1				= BIT(1),	// "
 	SURF_TYPE_BIT2				= BIT(2),	// "
@@ -343,7 +343,7 @@ public:
 	virtual size_t		Size() const;
 	virtual bool		SetDefaultText();
 	virtual const char *DefaultDefinition() const;
-	virtual bool		Parse( const char *text, const int textLength, bool allowBinaryVersion );
+	virtual bool		Parse( const char *text, const size_t textLength, bool allowBinaryVersion );
 	virtual void		FreeData();
 	virtual void		Print() const;
 
@@ -358,7 +358,7 @@ public:
 	void				ReloadImages( bool force ) const;
 
 						// returns number of stages this material contains
-	const int			GetNumStages() const { return numStages; }
+	const size_t		GetNumStages() const { return numStages; }
 
 						// if the material is simple, all that needs to be known are
 						// the images for drawing.
@@ -368,7 +368,7 @@ public:
 	idImage *			GetFastPathSpecularImage() const { return fastPathSpecularImage; };
 
 						// get a specific stage
-	const shaderStage_t *GetStage( const int index ) const { assert(index >= 0 && index < numStages); return &stages[index]; }
+	const shaderStage_t *GetStage( const Ordinal auto index ) const { ORDINAL_CHECK(index, numStages); return &stages[index]; }
 
 						// get the first bump map stage, or NULL if not present.
 						// used for bumpy-specular
@@ -555,13 +555,13 @@ public:
 
 						// returns the length, in milliseconds, of the videoMap on this material,
 						// or zero if it doesn't have one
-	int					CinematicLength() const;
+	ID_TIME_T			CinematicLength() const;
 
 	void				CloseCinematic() const;
 
 	void				ResetCinematicTime( int time ) const;
 
-	int					GetCinematicStartTime() const;
+	ID_TIME_T			GetCinematicStartTime() const;
 
 	void				UpdateCinematic( int time ) const;
 
@@ -569,15 +569,15 @@ public:
 
 						// gets an image for the editor to use
 	idImage *			GetEditorImage() const;
-	int					GetImageWidth() const;
-	int					GetImageHeight() const;
+	size_t				GetImageWidth() const;
+	size_t				GetImageHeight() const;
 
 	void				SetGui( const char *_gui ) const;
 
 	//------------------------------------------------------------------
 
 						// returns number of registers this material contains
-	const int			GetNumRegisters() const { return numRegisters; }
+	const size_t		GetNumRegisters() const { return numRegisters; }
 
 						// Regs should point to a float array large enough to hold GetNumRegisters() floats.
 						// FloatTime is passed in because different entities, which may be running in parallel,
@@ -676,16 +676,16 @@ private:
 	bool				hasSubview;			// mirror, remote render, etc
 	bool				allowOverlays;
 
-	int					numOps;
+	size_t				numOps;
 	expOp_t *			ops;				// evaluate to make expressionRegisters
 																										
-	int					numRegisters;																			//
+	size_t				numRegisters;																			//
 	float *				expressionRegisters;
 
 	float *				constantRegisters;	// NULL if ops ever reference globalParms or entityParms
 
-	int					numStages;
-	int					numAmbientStages;
+	size_t				numStages;
+	size_t				numAmbientStages;
 																										
 	shaderStage_t *		stages;
 
@@ -702,7 +702,7 @@ private:
 
 	bool				suppressInSubview;
 	bool				portalSky;
-	int					refCount;
+	size_t				refCount;
 };
 
 typedef idList<const idMaterial *, TAG_MATERIAL> idMatList;

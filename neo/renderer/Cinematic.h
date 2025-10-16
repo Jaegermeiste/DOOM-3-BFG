@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // cinematic states
-typedef enum {
+typedef enum cinStatus_e : uint8 {
 	FMV_IDLE,
 	FMV_PLAY,			// play
 	FMV_EOF,			// all other conditions, i.e. stop/EOF/abort
@@ -54,9 +54,9 @@ typedef enum {
 class idImage;
 
 // a cinematic stream generates an image buffer, which the caller will upload to a texture
-typedef struct {
-	int					imageWidth;
-	int					imageHeight;	// will be a power of 2
+typedef struct cinData_s {
+	size_t				imageWidth;
+	size_t				imageHeight;	// will be a power of 2
 	idImage*			imageY;
 	idImage*			imageCr;
 	idImage*			imageCb;
@@ -82,19 +82,19 @@ public:
 	virtual bool		InitFromFile( const char *qpath, bool looping );
 
 	// returns the length of the animation in milliseconds
-	virtual int			AnimationLength();
+	virtual ID_TIME_T	AnimationLength();
 
 	// the pointers in cinData_t will remain valid until the next UpdateForTime() call
-	virtual cinData_t	ImageForTime( int milliseconds );
+	virtual cinData_t	ImageForTime( ID_TIME_T milliseconds );
 
 	// closes the file and frees all allocated memory
 	virtual void		Close();
 
 	// sets the cinematic to start at that time (can be in the past)
-	virtual void		ResetTime(int time);
+	virtual void		ResetTime(ID_TIME_T time);
 
 	// gets the time the cinematic started
-	virtual int			GetStartTime();
+	virtual ID_TIME_T	GetStartTime();
 
 	virtual void		ExportToTGA( bool skipExisting = true );
 
@@ -116,8 +116,8 @@ public:
 						~idSndWindow() {}
 
 	bool				InitFromFile( const char *qpath, bool looping );
-	cinData_t			ImageForTime( int milliseconds );
-	int					AnimationLength();
+	cinData_t			ImageForTime(ID_TIME_T milliseconds );
+	ID_TIME_T			AnimationLength();
 
 private:
 	bool				showWaveform;

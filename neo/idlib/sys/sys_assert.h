@@ -30,8 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#include <concepts>
-
 /*
 ================================================================================================
 
@@ -141,11 +139,5 @@ template<int x> struct compile_time_assert_test {};
 #define ASSERTAI( x )
 #define VERIFYAI( x )	( ( x ) ? true : false )
 #endif // DEBUGAI
-
-template <std::integral T>
-constexpr size_t SAFE_SIZE(T n) {
-    assert(n >= 0);
-    return static_cast<size_t>(n);
-}
 
 #endif	// !__SYS_ASSERT_H__

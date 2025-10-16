@@ -393,6 +393,9 @@
     <ClInclude Include="idlib\geometry\DrawVert_intrinsics.h">
       <Filter>Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="idlib\sys\sys_type_ordinal.hpp">
+      <Filter>Sys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

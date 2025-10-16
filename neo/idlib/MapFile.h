@@ -56,16 +56,16 @@ constexpr float DEFAULT_CURVE_MAX_LENGTH_CD		= -1.0f;
 
 class idMapPrimitive {
 public:
-	enum { TYPE_INVALID = -1, TYPE_BRUSH, TYPE_PATCH };
+	typedef enum mapPrimitiveType_e : int8 { TYPE_INVALID = -1, TYPE_BRUSH, TYPE_PATCH } mapPrimitiveType_t;
 
 	idDict					epairs;
 
 							idMapPrimitive() noexcept { type = TYPE_INVALID; }
 	virtual					~idMapPrimitive() = default;
-	int						GetType() const { return type; }
+	[[nodiscard]] mapPrimitiveType_t GetType() const { return type; }
 
 protected:
-	int						type;
+	mapPrimitiveType_t		type;
 };
 
 
@@ -75,9 +75,9 @@ class idMapBrushSide {
 public:
 							idMapBrushSide() noexcept;
 							~idMapBrushSide() = default;
-	const char *			GetMaterial() const { return material; }
+	[[nodiscard]] const char *	GetMaterial() const { return material; }
 	void					SetMaterial( const char *p ) { material = p; }
-	const idPlane &			GetPlane() const { return plane; }
+	[[nodiscard]] const idPlane &	GetPlane() const { return plane; }
 	void					SetPlane( const idPlane &p ) { plane = p; }
 	void					SetTextureMatrix( const idVec3 mat[2] ) { texMat[0] = mat[0]; texMat[1] = mat[1]; }
 	void					GetTextureMatrix( idVec3 &mat1, idVec3 &mat2 ) const
@@ -107,11 +107,11 @@ public:
 	static idMapBrush *		ParseQ3( idLexer &src, const idVec3 &origin );
 	
 	bool					Write( idFile *fp, Ordinal auto primitiveNum, const idVec3 &origin ) const;
-	size_t					GetNumSides() const { return sides.Num(); }
+	[[nodiscard]] size_t	GetNumSides() const { return sides.Num(); }
 	size_t					AddSide( idMapBrushSide *side ) { return sides.Append( side ); }
-	
-	idMapBrushSide* GetSide(const Ordinal auto i) const { ORDINAL_CHECK(i, sides.Num());  return sides[i]; }
-	unsigned int			GetGeometryCRC() const;
+
+	[[nodiscard]] idMapBrushSide* GetSide(const Ordinal auto i) const { ORDINAL_CHECK(i, sides.Num());  return sides[i]; }
+	[[nodiscard]] unsigned int	GetGeometryCRC() const;
 
 protected:
 	idList<idMapBrushSide*, TAG_IDLIB_LIST_MAP> sides;
@@ -123,23 +123,23 @@ public:
 							idMapPatch() noexcept;
 							idMapPatch(size_t maxPatchWidth, size_t maxPatchHeight );
 							~idMapPatch() override = default;
-							static idMapPatch *		Parse( idLexer &src, const idVec3 &origin, bool patchDef3 = true, float version = CURRENT_MAP_VERSION );
+	static idMapPatch *		Parse( idLexer &src, const idVec3 &origin, bool patchDef3 = true, float version = CURRENT_MAP_VERSION );
 	
 	bool					Write( idFile *fp, Ordinal auto primitiveNum, const idVec3 &origin ) const;
-	const char *			GetMaterial() const { return material; }
+	[[nodiscard]] const char *	GetMaterial() const { return material; }
 	void					SetMaterial( const char *p ) { material = p; }
-	int						GetHorzSubdivisions() const { return horzSubdivisions; }
-	int						GetVertSubdivisions() const { return vertSubdivisions; }
-	bool					GetExplicitlySubdivided() const { return explicitSubdivisions; }
-	void					SetHorzSubdivisions(const int n ) { horzSubdivisions = n; }
-	void					SetVertSubdivisions(const int n ) { vertSubdivisions = n; }
+	[[nodiscard]] size_t	GetHorzSubdivisions() const { return horzSubdivisions; }
+	[[nodiscard]] size_t	GetVertSubdivisions() const { return vertSubdivisions; }
+	[[nodiscard]] bool		GetExplicitlySubdivided() const { return explicitSubdivisions; }
+	void					SetHorzSubdivisions(const size_t n ) { horzSubdivisions = n; }
+	void					SetVertSubdivisions(const size_t n ) { vertSubdivisions = n; }
 	void					SetExplicitlySubdivided(const bool b ) { explicitSubdivisions = b; }
-	unsigned int			GetGeometryCRC() const;
+	[[nodiscard]] unsigned int			GetGeometryCRC() const;
 
 protected:
 	idStr					material;
-	int						horzSubdivisions;
-	int						vertSubdivisions;
+	size_t					horzSubdivisions;
+	size_t					vertSubdivisions;
 	bool					explicitSubdivisions;
 };
 
@@ -176,11 +176,11 @@ public:
 	static idMapEntity *	Parse( idLexer &src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
 	
 	bool					Write( idFile *fp, Ordinal auto entityNum ) const;
-	size_t					GetNumPrimitives() const { return primitives.Num(); }
-	
-	idMapPrimitive* GetPrimitive(const Ordinal auto i) const { ORDINAL_CHECK(i, primitives.Num()); return primitives[i]; }
+	[[nodiscard]] size_t	GetNumPrimitives() const { return primitives.Num(); }
+
+	[[nodiscard]] idMapPrimitive*  GetPrimitive( const Ordinal auto i ) const { ORDINAL_CHECK(i, primitives.Num()); return primitives[i]; }
 	void					AddPrimitive( idMapPrimitive *p ) { primitives.Append( p ); }
-	unsigned int			GetGeometryCRC() const;
+	[[nodiscard]] unsigned int	GetGeometryCRC() const;
 	void					RemovePrimitiveData();
 
 protected:
@@ -200,16 +200,16 @@ public:
 	bool					Parse( const char *filename, bool ignoreRegion = false, bool osPath = false );
 	bool					Write( const char *fileName, const char *ext, bool fromBasePath = true );
 							// get the number of entities in the map
-	size_t					GetNumEntities() const { return entities.Num(); }
+	[[nodiscard]] size_t	GetNumEntities() const { return entities.Num(); }
 							// get the specified entity
-	idMapEntity *			GetEntity(const int i ) const { return entities[i]; }
+	idMapEntity*            GetEntity( const Ordinal auto i ) const { ORDINAL_CHECK(i, entities.Num());  return entities[i]; }
 							// get the name without file extension
-	const char *			GetName() const { return name; }
+	[[nodiscard]] const char *	GetName() const { return name; }
 							// get the file time
-	ID_TIME_T					GetFileTime() const { return fileTime; }
+	ID_TIME_T				GetFileTime() const { return fileTime; }
 							// get CRC for the map geometry
 							// texture coordinates and entity key/value pairs are not taken into account
-	unsigned int			GetGeometryCRC() const { return geometryCRC; }
+	[[nodiscard]] unsigned int	GetGeometryCRC() const { return geometryCRC; }
 							// returns true if the file on disk changed
 	bool					NeedsReload();
 
@@ -219,7 +219,7 @@ public:
 	void					RemoveEntities( const char *classname );
 	void					RemoveAllEntities();
 	void					RemovePrimitiveData();
-	bool					HasPrimitiveData() const { return hasPrimitiveData; }
+	[[nodiscard]] bool					HasPrimitiveData() const { return hasPrimitiveData; }
 
 protected:
 	float					version;

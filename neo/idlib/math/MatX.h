@@ -91,8 +91,8 @@ public:
 	ID_INLINE	void			SetSize(size_t rows, size_t columns);									// set the number of rows/columns
 	void			ChangeSize(size_t rows, size_t columns, bool makeZero = false);		// change the size keeping data intact where possible
 	ID_INLINE	void			ChangeNumRows(const size_t rows ) { ChangeSize( rows, numColumns );	}		// set the number of rows/columns
-	size_t				GetNumRows() const { return numRows; }					// get the number of rows
-	size_t				GetNumColumns() const { return numColumns; }				// get the number of columns
+								[[nodiscard]] size_t				GetNumRows() const { return numRows; }					// get the number of rows
+								[[nodiscard]] size_t				GetNumColumns() const { return numColumns; }				// get the number of columns
 	ID_INLINE	void			SetData(size_t rows, size_t columns, float *data);						// set float array pointer
 	ID_INLINE	void			SetDataCacheLines( size_t rows, size_t columns, float *data, bool clear );// set float array pointer
 	ID_INLINE	void			Zero() const;																// clear matrix
@@ -126,14 +126,14 @@ public:
 	ID_INLINE	bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
 	ID_INLINE	bool			IsTriDiagonal( const float epsilon = MATRIX_EPSILON ) const;
 	ID_INLINE	bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsOrthogonal( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsOrthonormal( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsPMatrix( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsZMatrix( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsPositiveDefinite( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsSymmetricPositiveDefinite( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsPositiveSemiDefinite( const float epsilon = MATRIX_EPSILON ) const;
-	bool			IsSymmetricPositiveSemiDefinite( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsOrthogonal( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsOrthonormal( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsPMatrix( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsZMatrix( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsPositiveDefinite( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsSymmetricPositiveDefinite( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsPositiveSemiDefinite( const float epsilon = MATRIX_EPSILON ) const;
+								[[nodiscard]] bool			IsSymmetricPositiveSemiDefinite( const float epsilon = MATRIX_EPSILON ) const;
 
 	ID_INLINE	float			Trace() const;													// returns product of diagonal elements
 	ID_INLINE	float			Determinant() const;											// returns determinant of matrix
@@ -179,7 +179,7 @@ public:
 	ID_INLINE	idVecX			SubVecX(Ordinal auto row);												// interpret complete row as an idVecX
 	ID_INLINE	const float *	ToFloatPtr() const;												// pointer to const matrix float array
 	ID_INLINE	float *			ToFloatPtr();													// pointer to matrix float array
-	const char *	ToString( int precision = 2 ) const;
+								[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 	void			Update_RankOne( const idVecX &v, const idVecX &w, float alpha );
 	void			Update_RankOneSymmetric( const idVecX &v, float alpha );
@@ -274,11 +274,11 @@ private:
 
 private:
 	void			SetTempSize( size_t rows, size_t columns );
-	float			DeterminantGeneric() const;
+								[[nodiscard]] float			DeterminantGeneric() const;
 	bool			InverseSelfGeneric();
 	void			QR_Rotate(idMatX &R, Ordinal auto i, float a, float b);
-	float			Pythag( float a, float b ) const;
-	double			Pythag(double a, double b) const;
+								[[nodiscard]] float			Pythag( float a, float b ) const;
+								[[nodiscard]] double			Pythag(double a, double b) const;
 	void			SVD_BiDiag( idVecX &w, idVecX &rv1, float &anorm );
 	void			SVD_InitialWV( idVecX &w, idMatX &V, idVecX &rv1 );
 	void			HouseholderReduction( idVecX &diag, idVecX &subd );
@@ -772,9 +772,9 @@ idMatX::Zero
 */
 ID_INLINE void idMatX::Zero() const
 {
-	const size_t s = numRows * numColumns;
 #if defined(ID_WIN_X86_SSE_INTRIN) && defined(MATX_SIMD)
-	for ( int i = 0; i < s; i += 4 ) {
+	const size_t s = numRows * numColumns;
+	for ( size_t i = 0; i < s; i += 4 ) {
 		_mm_store_ps( mat + i, _mm_setzero_ps() );
 	}
 #else

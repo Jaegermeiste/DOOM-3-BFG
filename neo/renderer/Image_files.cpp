@@ -27,6 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+#include <utility>
+
 #include "../idlib/precompiled.h"
 
 
@@ -52,7 +55,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, bool ma
 
 // hooks from jpeg lib to our system
 
-void jpg_Error( const char *fmt, ... ) {
+static void jpg_Error( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[2048];
 
@@ -63,7 +66,7 @@ void jpg_Error( const char *fmt, ... ) {
 	common->FatalError( "%s", msg );
 }
 
-void jpg_Printf( const char *fmt, ... ) {
+static void jpg_Printf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[2048];
 
@@ -81,7 +84,7 @@ void jpg_Printf( const char *fmt, ... ) {
 R_WriteTGA
 ================
 */
-void R_WriteTGA( const char *filename, const byte *data, int width, int height, bool flipVertical, const char * basePath ) {
+static void R_WriteTGA( const char *filename, const byte *data, int width, int height, bool flipVertical, const char * basePath ) {
 	byte	*buffer;
 	int		i;
 	int		bufferSize = width*height*4 + 18;
@@ -144,14 +147,14 @@ TARGA LOADING
 LoadTGA
 =============
 */
-static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamp ) {
-	int		columns, rows, numPixels, fileSize, numBytes;
-	byte	*pixbuf;
-	int		row, column;
-	byte	*buf_p;
-	byte	*buffer;
-	TargaHeader	targa_header;
-	byte		*targa_rgba;
+static void LoadTGA( const char *name, byte **pic, size_t *width, size_t*height, ID_TIME_T *timestamp ) {
+	size_t	columns = 0, rows = 0, numPixels = 0, fileSize = 0, numBytes = 0;
+	byte	*pixbuf = nullptr;
+	int64	row = 0, column = 0;
+	byte	*buf_p = nullptr;
+	byte	*buffer = nullptr;
+	TargaHeader	targa_header = {};
+	byte		*targa_rgba = nullptr;
 
 	if ( !pic ) {
 		fileSystem->ReadFile( name, nullptr, timestamp );
@@ -163,7 +166,7 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 	//
 	// load the file
 	//
-	fileSize = fileSystem->ReadFile( name, (void **)&buffer, timestamp );
+	fileSize = fileSystem->ReadFile( name, reinterpret_cast<void**>(&buffer), timestamp );
 	if ( !buffer ) {
 		return;
 	}
@@ -174,18 +177,18 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 	targa_header.colormap_type = *buf_p++;
 	targa_header.image_type = *buf_p++;
 	
-	targa_header.colormap_index = LittleShort ( *(short *)buf_p );
+	targa_header.colormap_index = LittleUShort ( *reinterpret_cast<unsigned short*>(buf_p) );
 	buf_p += 2;
-	targa_header.colormap_length = LittleShort ( *(short *)buf_p );
+	targa_header.colormap_length = LittleUShort ( *reinterpret_cast<unsigned short*>(buf_p) );
 	buf_p += 2;
 	targa_header.colormap_size = *buf_p++;
-	targa_header.x_origin = LittleShort ( *(short *)buf_p );
+	targa_header.x_origin = LittleUShort ( *reinterpret_cast<unsigned short*>(buf_p) );
 	buf_p += 2;
-	targa_header.y_origin = LittleShort ( *(short *)buf_p );
+	targa_header.y_origin = LittleUShort ( *reinterpret_cast<unsigned short*>(buf_p) );
 	buf_p += 2;
-	targa_header.width = LittleShort ( *(short *)buf_p );
+	targa_header.width = LittleUShort ( *reinterpret_cast<unsigned short*>(buf_p) );
 	buf_p += 2;
-	targa_header.height = LittleShort ( *(short *)buf_p );
+	targa_header.height = LittleUShort ( *reinterpret_cast<unsigned short*>(buf_p) );
 	buf_p += 2;
 	targa_header.pixel_size = *buf_p++;
 	targa_header.attributes = *buf_p++;
@@ -203,7 +206,7 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 	}
 
 	if ( targa_header.image_type == 2 || targa_header.image_type == 3 ) {
-		numBytes = targa_header.width * targa_header.height * ( targa_header.pixel_size >> 3 );
+		numBytes = idMath::integer_cast<size_t>(targa_header.width * targa_header.height * ( targa_header.pixel_size >> 3 ));
 		if ( numBytes > fileSize - 18 - targa_header.id_length ) {
 			common->Error( "LoadTGA( %s ): incomplete file\n", name );
 		}
@@ -230,12 +233,12 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 	if ( targa_header.image_type == 2 || targa_header.image_type == 3 )
 	{ 
 		// Uncompressed RGB or gray scale image
-		for( row = rows - 1; row >= 0; row-- )
+		for( row = idMath::integer_cast<int64>(rows) - 1; row >= 0; row-- )
 		{
 			pixbuf = targa_rgba + row*columns*4;
-			for( column = 0; column < columns; column++)
+			for( column = 0; column < idMath::integer_cast<int64>(columns); column++)
 			{
-				unsigned char red,green,blue,alphabyte;
+				unsigned char red = 0, green = 0, blue = 0, alphabyte = 0;
 				switch( targa_header.pixel_size )
 				{
 					
@@ -276,16 +279,17 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 		}
 	}
 	else if ( targa_header.image_type == 10 ) {   // Runlength encoded RGB images
-		unsigned char red,green,blue,alphabyte,packetHeader,packetSize,j;
+		unsigned char red = 0, green = 0, blue = 0, alphabyte = 0, packetHeader = 0;
+		size_t packetSize = 0, j = 0;
 
 		red = 0;
 		green = 0;
 		blue = 0;
 		alphabyte = 0xff;
 
-		for( row = rows - 1; row >= 0; row-- ) {
+		for( row = idMath::integer_cast<int64>(rows) - 1; row >= 0; row-- ) {
 			pixbuf = targa_rgba + row*columns*4;
-			for( column = 0; column < columns; ) {
+			for( column = 0; column < idMath::integer_cast<int64>(columns); ) {
 				packetHeader= *buf_p++;
 				packetSize = 1 + (packetHeader & 0x7f);
 				if ( packetHeader & 0x80 ) {        // run-length packet
@@ -313,7 +317,7 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 						*pixbuf++=blue;
 						*pixbuf++=alphabyte;
 						column++;
-						if ( column == columns ) { // run spans across rows
+						if ( std::cmp_equal(column, columns) ) { // run spans across rows
 							column = 0;
 							if ( row > 0) {
 								row--;
@@ -352,7 +356,7 @@ static void LoadTGA( const char *name, byte **pic, int *width, int *height, ID_T
 								break;
 						}
 						column++;
-						if ( column == columns ) { // pixel packet run spans across rows
+						if (std::cmp_equal(column, columns)) { // pixel packet run spans across rows
 							column = 0;
 							if ( row > 0 ) {
 								row--;
@@ -392,11 +396,11 @@ Interfaces with the huge libjpeg
 LoadJPG
 =============
 */
-static void LoadJPG( const char *filename, unsigned char **pic, int *width, int *height, ID_TIME_T *timestamp ) {
+static void LoadJPG( const char *filename, unsigned char **pic, size_t *width, size_t *height, ID_TIME_T *timestamp ) {
   /* This struct contains the JPEG decompression parameters and pointers to
    * working space (which is allocated as needed by the JPEG library).
    */
-  struct jpeg_decompress_struct cinfo;
+  struct jpeg_decompress_struct cinfo = {};
   /* We use our private extension JPEG error handler.
    * Note that this struct must live as long as the main JPEG parameter
    * struct, to avoid dangling-pointer problems.
@@ -409,13 +413,13 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
    * Note that this struct must live as long as the main JPEG parameter
    * struct, to avoid dangling-pointer problems.
    */
-  struct jpeg_error_mgr jerr;
+  struct jpeg_error_mgr jerr = {};
   /* More stuff */
   JSAMPARRAY buffer;		/* Output row buffer */
-  int row_stride;		/* physical row width in output buffer */
-  unsigned char *out;
-  byte	*fbuffer;
-  byte  *bbuf;
+  size_t row_stride = 0;		/* physical row width in output buffer */
+  unsigned char *out = nullptr;
+  byte	*fbuffer = nullptr;
+  byte  *bbuf = nullptr;
 
   /* In this example we want to open the input file before doing anything else,
    * so that the setjmp() error recovery below can assume the file is open.
@@ -429,10 +433,8 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	*pic = nullptr;		// until proven otherwise
   }
   {
-		int		len;
-		idFile *f;
-
-		f = fileSystem->OpenFileRead( filename );
+		size_t	len = 0;
+		idFile *f = fileSystem->OpenFileRead( filename );
 		if ( !f ) {
 			return;
 		}
@@ -495,17 +497,17 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
    * In this example, we need to make an output work buffer of the right size.
    */ 
   /* JSAMPLEs per row in output buffer */
-  row_stride = cinfo.output_width * cinfo.output_components;
+  row_stride = idMath::integer_cast<size_t>(cinfo.output_width * cinfo.output_components);
 
   if (cinfo.output_components!=4) {
 		common->DWarning( "JPG %s is unsupported color depth (%d)", 
 			filename, cinfo.output_components);
   }
-  out = static_cast<byte*>(R_StaticAlloc(cinfo.output_width * cinfo.output_height * 4, TAG_IMAGE));
+  out = static_cast<byte*>(R_StaticAlloc(idMath::integer_cast<size_t>(cinfo.output_width * cinfo.output_height * 4), TAG_IMAGE));
 
   *pic = out;
-  *width = cinfo.output_width;
-  *height = cinfo.output_height;
+  *width = idMath::integer_cast<size_t>(cinfo.output_width);
+  *height = idMath::integer_cast<size_t>(cinfo.output_height);
 
   /* Step 6: while (scan lines remain to be read) */
   /*           jpeg_read_scanlines(...); */
@@ -525,13 +527,13 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 
   // clear all the alphas to 255
   {
-	  int	i, j;
-		byte	*buf;
+	  size_t i = 0, j = 0;
+	  byte* buf = nullptr;
 
-		buf = *pic;
+	  buf = *pic;
 
-	  j = cinfo.output_width * cinfo.output_height * 4;
-	  for ( i = 3 ; i < j ; i+=4 ) {
+	  j = idMath::integer_cast<size_t>(cinfo.output_width * cinfo.output_height * 4);
+	  for (i = 3; i < j; i += 4) {
 		  buf[i] = 255;
 	  }
   }
@@ -588,7 +590,7 @@ If pic is NULL, the image won't actually be loaded, it will just find the
 timestamp.
 =================
 */
-void R_LoadImage( const char *cname, byte **pic, int *width, int *height, ID_TIME_T *timestamp, bool makePowerOf2 ) {
+void R_LoadImage( const char *cname, byte **pic, size_t *width, size_t *height, ID_TIME_T *timestamp, bool makePowerOf2 ) {
 	idStr name = cname;
 
 	if ( pic ) {
@@ -668,15 +670,15 @@ R_LoadCubeImages
 Loads six files with proper extensions
 =======================
 */
-bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6], int *outSize, ID_TIME_T *timestamp ) {
-	int		i, j;
-	char	*cameraSides[6] =  { "_forward.tga", "_back.tga", "_left.tga", "_right.tga", 
+static bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6], size_t *outSize, ID_TIME_T *timestamp ) {
+	size_t  i = 0, j = 0;
+	const char	*cameraSides[6] =  { "_forward.tga", "_back.tga", "_left.tga", "_right.tga", 
 		"_up.tga", "_down.tga" };
-	char	*axisSides[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga", 
+	const char	*axisSides[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga", 
 		"_pz.tga", "_nz.tga" };
-	char	**sides;
-	char	fullName[MAX_IMAGE_NAME];
-	int		width, height, size = 0;
+	const char	**sides = nullptr;
+	char	fullName[MAX_IMAGE_NAME] = {};
+	size_t  width = 0, height = 0, size = 0;
 
 	if ( extensions == CF_CAMERA ) {
 		sides = cameraSides;
@@ -713,9 +715,7 @@ bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6
 			break;
 		}
 		if ( timestamp ) {
-			if ( thisTime > *timestamp ) {
-				*timestamp = thisTime;
-			}
+			*timestamp = std::max(thisTime, *timestamp);
 		}
 		if ( pics && extensions == CF_CAMERA ) {
 			// convert from "camera" images to native cube map images

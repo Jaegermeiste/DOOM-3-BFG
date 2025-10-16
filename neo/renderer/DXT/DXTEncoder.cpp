@@ -32,6 +32,9 @@ Contains the DxtEncoder implementation.
 */
 
 #pragma hdrstop
+#include <algorithm>
+#include <utility>
+
 #include "DXTCodec_local.h"
 #include "DXTCodec.h"
 
@@ -77,11 +80,11 @@ void idDxtEncoder::NV4XHardwareBugFix( byte *minColor, byte *maxColor ) const {
 idDxtEncoder::HasConstantValuePer4x4Block
 ========================
 */
-bool idDxtEncoder::HasConstantValuePer4x4Block( const byte *inBuf, int width, int height, int channel ) const {
+bool idDxtEncoder::HasConstantValuePer4x4Block( const byte *inBuf, const size_t width, const size_t height, const size_t channel ) const {
 	if ( width < 4 || height < 4 ) {
-		byte value = inBuf[channel];
-		for ( int k = 0; k < height; k++ ) {
-			for ( int l = 0; l < width; l++ ) {
+		const byte value = inBuf[channel];
+		for ( size_t k = 0; k < height; k++ ) {
+			for ( size_t l = 0; l < width; l++ ) {
 				if ( inBuf[(k*width+l)*4+channel] != value ) {
 					return false;
 				}
@@ -90,12 +93,12 @@ bool idDxtEncoder::HasConstantValuePer4x4Block( const byte *inBuf, int width, in
 		return true;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			const byte *inPtr = inBuf + i * 4;
-			byte value = inPtr[channel];
-			for ( int k = 0; k < 4; k++ ) {
-				for ( int l = 0; l < 4; l++ ) {
+			const byte value = inPtr[channel];
+			for ( size_t k = 0; k < 4; k++ ) {
+				for ( size_t l = 0; l < 4; l++ ) {
 					if ( inPtr[(k*width+l)*4+channel] != value ) {
 						return false;
 					}
@@ -112,14 +115,14 @@ bool idDxtEncoder::HasConstantValuePer4x4Block( const byte *inBuf, int width, in
 idDxtEncoder::WriteTinyColorDXT1
 ========================
 */
-void idDxtEncoder::WriteTinyColorDXT1( const byte *inBuf, int width, int height ) {
-	int numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-	int stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
+void idDxtEncoder::WriteTinyColorDXT1( const byte *inBuf, const size_t width, const size_t height ) {
+	const size_t numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+	const size_t stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
 	// example: 2x8 pixels
 	// numBlocks = 2
 	// stride = 32 bytes (8 pixels)
 
-	for ( int i = 0; i < numBlocks; i++ ) {
+	for ( size_t i = 0; i < numBlocks; i++ ) {
 		// FIXME: This just emits a fake block based on the color at position 0,0
 		EmitUShort( ColorTo565( inBuf ) );
 		EmitUShort( 0 );	// dummy, never used
@@ -134,14 +137,14 @@ void idDxtEncoder::WriteTinyColorDXT1( const byte *inBuf, int width, int height 
 idDxtEncoder::WriteTinyColorDXT5
 ========================
 */
-void idDxtEncoder::WriteTinyColorDXT5( const byte *inBuf, int width, int height ) {
-	int numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-	int stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
+void idDxtEncoder::WriteTinyColorDXT5( const byte *inBuf, const size_t width, const size_t height ) {
+	const size_t numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+	const size_t stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
 	// example: 2x8 pixels
 	// numBlocks = 2
 	// stride = 32 bytes (8 pixels)
 
-	for ( int i = 0; i < numBlocks; i++ ) {
+	for ( size_t i = 0; i < numBlocks; i++ ) {
 		// FIXME: This just emits a fake block based on the color at position 0,0
 		EmitByte( inBuf[3] );
 		EmitByte( 0 );		// dummy, never used
@@ -165,14 +168,14 @@ void idDxtEncoder::WriteTinyColorDXT5( const byte *inBuf, int width, int height 
 idDxtEncoder::WriteTinyColorCTX1DXT5A
 ========================
 */
-void idDxtEncoder::WriteTinyColorCTX1DXT5A( const byte *inBuf, int width, int height ) {
-	int numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-	int stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
+void idDxtEncoder::WriteTinyColorCTX1DXT5A( const byte *inBuf, const size_t width, const size_t height ) {
+	const size_t numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+	const size_t stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
 	// example: 2x8 pixels
 	// numBlocks = 2
 	// stride = 32 bytes (8 pixels)
 
-	for ( int i = 0; i < numBlocks; i++ ) {
+	for ( size_t i = 0; i < numBlocks; i++ ) {
 		// FIXME: This just emits a fake block based on the color at position 0,0
 		EmitByte( inBuf[0] );
 		EmitByte( inBuf[1] );
@@ -198,14 +201,14 @@ void idDxtEncoder::WriteTinyColorCTX1DXT5A( const byte *inBuf, int width, int he
 idDxtEncoder::WriteTinyNormalMapDXT5
 ========================
 */
-void idDxtEncoder::WriteTinyNormalMapDXT5( const byte *inBuf, int width, int height ) {
-	int numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-	int stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
+void idDxtEncoder::WriteTinyNormalMapDXT5( const byte *inBuf, const size_t width, const size_t height ) {
+	const size_t numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+	const size_t stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
 	// example: 2x8 pixels
 	// numBlocks = 2
 	// stride = 32 bytes (8 pixels)
 
-	for ( int i = 0; i < numBlocks; i++ ) {
+	for ( size_t i = 0; i < numBlocks; i++ ) {
 		// FIXME: This just emits a fake block based on the normal at position 0,0
 		EmitByte( inBuf[3] );
 		EmitByte( 0 );		// dummy, never used
@@ -229,14 +232,14 @@ void idDxtEncoder::WriteTinyNormalMapDXT5( const byte *inBuf, int width, int hei
 idDxtEncoder::WriteTinyNormalMapDXN
 ========================
 */
-void idDxtEncoder::WriteTinyNormalMapDXN( const byte *inBuf, int width, int height ) {
-	int numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-	int stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
+void idDxtEncoder::WriteTinyNormalMapDXN( const byte *inBuf, const size_t width, const size_t height ) {
+	const size_t numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+	const size_t stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
 	// example: 2x8 pixels
 	// numBlocks = 2
 	// stride = 32 bytes (8 pixels)
 
-	for ( int i = 0; i < numBlocks; i++ ) {
+	for ( size_t i = 0; i < numBlocks; i++ ) {
 		// FIXME: This just emits a fake block based on the normal at position 0,0
 		EmitByte( inBuf[0] );
 		EmitByte( 0 );		// dummy, never used
@@ -265,14 +268,14 @@ void idDxtEncoder::WriteTinyNormalMapDXN( const byte *inBuf, int width, int heig
 idDxtEncoder::WriteTinyDXT5A
 ========================
 */
-void idDxtEncoder::WriteTinyDXT5A( const byte *inBuf, int width, int height ) {
-	int numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
-	int stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
+void idDxtEncoder::WriteTinyDXT5A( const byte *inBuf, const size_t width, const size_t height ) {
+	const size_t numBlocks = ( ( width + 3 ) / 4 ) * ( ( height + 3 ) / 4 );
+	const size_t stride = ( ( width * height ) / numBlocks ) * 4;	// number of bytes from one block to the next
 	// example: 2x8 pixels
 	// numBlocks = 2
 	// stride = 32 bytes (8 pixels)
 
-	for ( int i = 0; i < numBlocks; i++ ) {
+	for ( size_t i = 0; i < numBlocks; i++ ) {
 		// FIXME: This just emits a fake block based on the normal at position 0,0
 		EmitByte( inBuf[0] );
 		EmitByte( 0 );		// dummy, never used
@@ -295,8 +298,8 @@ params:	inPtr		- input image, 4 bytes per pixel
 paramO:	colorBlock	- 4*4 output tile, 4 bytes per pixel
 ========================
 */
-ID_INLINE void idDxtEncoder::ExtractBlock( const byte *inPtr, int width, byte *colorBlock ) const {
-	for ( int j = 0; j < 4; j++ ) {
+ID_INLINE void idDxtEncoder::ExtractBlock( const byte *inPtr, const size_t width, byte *colorBlock ) const {
+	for ( size_t j = 0; j < 4; j++ ) {
 		memcpy( &colorBlock[j*4*4], inPtr, 4*4 );
 		inPtr += width * 4;
 	}
@@ -330,15 +333,15 @@ void idDxtEncoder::GetMinMaxColorsMaxDist( const byte *colorBlock, byte *minColo
 	int maxDistC = -1;
 	int maxDistA = -1;
 
-	for ( int i = 0; i < 64 - 4; i += 4 ) {
-		for ( int j = i + 4; j < 64; j += 4 ) {
-			int dc = ColorDistance( &colorBlock[i], &colorBlock[j] );
+	for ( size_t i = 0; i < 64 - 4; i += 4 ) {
+		for ( size_t j = i + 4; j < 64; j += 4 ) {
+			const int dc = ColorDistance( &colorBlock[i], &colorBlock[j] );
 			if ( dc > maxDistC ) {
 				maxDistC = dc;
 				memcpy( minColor, colorBlock+i, 3 );
 				memcpy( maxColor, colorBlock+j, 3 );
 			}
-			int da = AlphaDistance( colorBlock[i+3], colorBlock[j+3] );
+			const int da = AlphaDistance( colorBlock[i+3], colorBlock[j+3] );
 			if ( da > maxDistA ) {
 				maxDistA = da;
 				minColor[3] = colorBlock[i+3];
@@ -367,8 +370,8 @@ void idDxtEncoder::GetMinMaxColorsLuminance( const byte *colorBlock, byte *minCo
 	int maxLumC = 0, minLumC = 256 * 4;
 	int maxAlpha = 0, minAlpha = 256 * 4;
 
-	for ( int i = 0; i < 16; i++ ) {
-		int luminance = colorBlock[i*4+0] + colorBlock[i*4+1] * 2 + colorBlock[i*4+2];
+	for ( size_t i = 0; i < 16; i++ ) {
+		const int luminance = colorBlock[i*4+0] + colorBlock[i*4+1] * 2 + colorBlock[i*4+2];
 		if ( luminance > maxLumC ) {
 			maxLumC = luminance;
 			memcpy( maxColor, colorBlock+i*4, 3 );
@@ -377,7 +380,7 @@ void idDxtEncoder::GetMinMaxColorsLuminance( const byte *colorBlock, byte *minCo
 			minLumC = luminance;
 			memcpy( minColor, colorBlock+i*4, 3 );
 		}
-		int alpha = colorBlock[i*4+3];
+		const int alpha = colorBlock[i*4+3];
 		if ( alpha > maxAlpha ) {
 			maxAlpha = alpha;
 			maxColor[3] = static_cast<byte>(alpha);
@@ -402,9 +405,9 @@ paramO:	maxAlpha	- Max alpha found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::GetSquareAlphaError( const byte *colorBlock, const int alphaOffset, const byte minAlpha, const byte maxAlpha, int lastError ) const {
-	int i, j;
-	byte alphas[8];
+uint32 idDxtEncoder::GetSquareAlphaError( const byte *colorBlock, const int alphaOffset, const byte minAlpha, const byte maxAlpha, uint32 lastError ) const {
+	size_t i = 0, j = 0;
+	byte alphas[8] = {};
 
 	alphas[0] = maxAlpha;
 	alphas[1] = minAlpha;
@@ -425,15 +428,13 @@ int idDxtEncoder::GetSquareAlphaError( const byte *colorBlock, const int alphaOf
 		alphas[7] = 255;
 	}
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
 		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
-		byte a = colorBlock[i*4+alphaOffset];
+		const byte a = colorBlock[i*4+alphaOffset];
 		for ( j = 0; j < 8; j++ ) {
 			unsigned int dist = AlphaDistance( a, alphas[j] );
-			if ( dist < minDist ) {
-				minDist = dist;
-			}
+			minDist = std::min(dist, minDist);
 		}
 		error += minDist;
 
@@ -454,22 +455,15 @@ paramO:	minColor		- 4 byte min color found
 paramO:	maxColor		- 4 byte max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxAlphaHQ( const byte *colorBlock, const int alphaOffset, byte *minColor, byte *maxColor ) const {
-	int i, j;
-	byte alphaMin, alphaMax;
-	int error, bestError = MAX_TYPE( int );
-
-	alphaMin = 255;
-	alphaMax = 0;
+uint32 idDxtEncoder::GetMinMaxAlphaHQ( const byte *colorBlock, const int alphaOffset, byte *minColor, byte *maxColor ) const {
+	size_t i = 0, j = 0;
+	byte alphaMin = 255, alphaMax = 0;
+	uint32 error = 0, bestError = MAX_TYPE( int );
 
 	// get alpha min / max
 	for ( i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+alphaOffset] < alphaMin ) {
-			alphaMin = colorBlock[i*4+alphaOffset];
-		}
-		if ( colorBlock[i*4+alphaOffset] > alphaMax ) {
-			alphaMax = colorBlock[i*4+alphaOffset];
-		}
+		alphaMin = std::min(colorBlock[i * 4 + alphaOffset], alphaMin);
+		alphaMax = std::max(colorBlock[i * 4 + alphaOffset], alphaMax);
 	}
 
 	constexpr int ALPHA_EXPAND = 32;
@@ -480,18 +474,18 @@ int idDxtEncoder::GetMinMaxAlphaHQ( const byte *colorBlock, const int alphaOffse
 	for ( i = alphaMin; i <= alphaMax; i++ ) {
 		for ( j = alphaMax; j >= i; j-- ) {
 
-			error = GetSquareAlphaError( colorBlock, alphaOffset, static_cast<byte>(i), static_cast<byte>(j), bestError );
+			error = GetSquareAlphaError( colorBlock, alphaOffset, idMath::integer_cast<byte>(i), idMath::integer_cast<byte>(j), bestError );
 			if ( error < bestError ) {
 				bestError = error;
-				minColor[alphaOffset] = static_cast<byte>(i);
-				maxColor[alphaOffset] = static_cast<byte>(j);
+				minColor[alphaOffset] = idMath::integer_cast<byte>(i);
+				maxColor[alphaOffset] = idMath::integer_cast<byte>(j);
 			}
 
-			error = GetSquareAlphaError( colorBlock, alphaOffset, static_cast<byte>(j), static_cast<byte>(i), bestError );
+			error = GetSquareAlphaError( colorBlock, alphaOffset, idMath::integer_cast<byte>(j), idMath::integer_cast<byte>(i), bestError );
 			if ( error < bestError ) {
 				bestError = error;
-				minColor[alphaOffset] = static_cast<byte>(i);
-				maxColor[alphaOffset] = static_cast<byte>(j);
+				minColor[alphaOffset] = idMath::integer_cast<byte>(i);
+				maxColor[alphaOffset] = idMath::integer_cast<byte>(j);
 			}
 		}
 	}
@@ -509,9 +503,9 @@ paramO:	color1		- 4 byte max color found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::GetSquareColorsError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, int lastError ) const {
-	int i, j;
-	byte colors[4][4];
+uint32 idDxtEncoder::GetSquareColorsError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, uint32 lastError ) const {
+	size_t i = 0, j = 0;
+	byte colors[4][4] = {};
 
 	ColorFrom565( color0, colors[0] );
 	ColorFrom565( color1, colors[1] );
@@ -532,19 +526,17 @@ int idDxtEncoder::GetSquareColorsError( const byte *colorBlock, const unsigned s
 		colors[3][2] = 0;
 	}
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 		for ( j = 0; j < 4; j++ ) {
-			unsigned int dist = ColorDistance( &colorBlock[i*4], &colors[j][0] );
-			if ( dist < minDist ) {
-				minDist = dist;
-			}
+			uint32 dist = ColorDistance( &colorBlock[i*4], &colors[j][0] );
+			minDist = std::min(dist, minDist);
 		}
 		// accumulated error
 		error += minDist;
 
-		if ( error > lastError ) {
+		if (std::cmp_greater(error, lastError)) {
 			return error;
 		}
 	}
@@ -561,9 +553,9 @@ paramO:	color1		- 4 byte max color found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::GetSquareNormalYError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, int lastError, int scale ) const {
-	int i, j;
-	byte colors[4][4];
+uint32 idDxtEncoder::GetSquareNormalYError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, uint32 lastError, int scale ) const {
+	size_t i = 0, j = 0;
+	byte colors[4][4] = {};
 
 	ColorFrom565( color0, colors[0] );
 	ColorFrom565( color1, colors[1] );
@@ -584,16 +576,14 @@ int idDxtEncoder::GetSquareNormalYError( const byte *colorBlock, const unsigned 
 		colors[3][2] = 0;
 	}
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 		for ( j = 0; j < 4; j++ ) {
-			float r = static_cast<float>(colorBlock[i * 4 + 1]) / scale;
-			float s = static_cast<float>(colors[j][1]) / scale;
-			unsigned int dist = idMath::Ftoi( ( r - s ) * ( r - s ) );
-			if ( dist < minDist ) {
-				minDist = dist;
-			}
+			const float r = static_cast<float>(colorBlock[i * 4 + 1]) / scale;
+			const float s = static_cast<float>(colors[j][1]) / scale;
+			uint32 dist = idMath::Ftoi( ( r - s ) * ( r - s ) );
+			minDist = std::min(dist, minDist);
 		}
 		// accumulated error
 		error += minDist;
@@ -617,36 +607,24 @@ paramO:	minColor	- 4 byte min color found
 paramO:	maxColor	- 4 byte max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, byte *maxColor, bool noBlack ) const {
-	int i;
-	int i0, i1, i2, j0, j1, j2;
-	unsigned short minColor565, maxColor565, bestMinColor565, bestMaxColor565;
-	byte bboxMin[3], bboxMax[3], minAxisDist[3];
-	int error, bestError = MAX_TYPE( int );
+uint32 idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, byte *maxColor, bool noBlack ) const {
+	size_t i = 0;
+	int i0 = 0, i1 = 0, i2 = 0, j0 = 0, j1 = 0, j2 = 0;
+	unsigned short minColor565 = 0, maxColor565 = 0, bestMinColor565 = 0, bestMaxColor565 = 0;
+	byte bboxMin[3] = {}, bboxMax[3] = {}, minAxisDist[3] = {};
+	uint32 error = 0, bestError = MAX_TYPE( int );
 
 	bboxMin[0] = bboxMin[1] = bboxMin[2] = 255;
 	bboxMax[0] = bboxMax[1] = bboxMax[2] = 0;
 
 	// get color bbox
 	for ( i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < bboxMin[0] ) {
-			bboxMin[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < bboxMin[1] ) {
-			bboxMin[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] < bboxMin[2] ) {
-			bboxMin[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+0] > bboxMax[0] ) {
-			bboxMax[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > bboxMax[1] ) {
-			bboxMax[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] > bboxMax[2] ) {
-			bboxMax[2] = colorBlock[i*4+2];
-		}
+		bboxMin[0] = std::min(colorBlock[i * 4 + 0], bboxMin[0]);
+		bboxMin[1] = std::min(colorBlock[i * 4 + 1], bboxMin[1]);
+		bboxMin[2] = std::min(colorBlock[i * 4 + 2], bboxMin[2]);
+		bboxMax[0] = std::max(colorBlock[i * 4 + 0], bboxMax[0]);
+		bboxMax[1] = std::max(colorBlock[i * 4 + 1], bboxMax[1]);
+		bboxMax[2] = std::max(colorBlock[i * 4 + 2], bboxMax[2]);
 	}
 
 	// decrease range for 565 encoding
@@ -684,26 +662,26 @@ int idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, byt
 	bestMinColor565 = 0;
 	bestMaxColor565 = 0;
 
-	for ( i0 = bboxMin[0]; i0 <= bboxMax[0]; i0++ ) {
-		for ( j0 = bboxMax[0]; j0 >= bboxMin[0]; j0-- ) {
+	for ( i0 = bboxMin[0]; std::cmp_less_equal(i0, bboxMax[0]); i0++ ) {
+		for ( j0 = bboxMax[0]; std::cmp_greater_equal(j0, bboxMin[0]); j0-- ) {
 			if ( abs( i0 - j0 ) < minAxisDist[0] ) {
 				continue;
 			}
 
-			for ( i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
-				for ( j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
+			for ( i1 = bboxMin[1]; std::cmp_less_equal(i1, bboxMax[1]); i1++ ) {
+				for ( j1 = bboxMax[1]; std::cmp_greater_equal(j1, bboxMin[1]); j1-- ) {
 					if ( abs( i1 - j1 ) < minAxisDist[1] ) {
 						continue;
 					}
 
-					for ( i2 = bboxMin[2]; i2 <= bboxMax[2]; i2++ ) {
-						for ( j2 = bboxMax[2]; j2 >= bboxMin[2]; j2-- ) {
+					for ( i2 = bboxMin[2]; std::cmp_less_equal(i2, bboxMax[2]); i2++ ) {
+						for ( j2 = bboxMax[2]; std::cmp_greater_equal(j2, bboxMin[2]); j2-- ) {
 							if ( abs( i2 - j2 ) < minAxisDist[2] ) {
 								continue;
 							}
 
-							minColor565 = static_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0)); 
-							maxColor565 = static_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
+							minColor565 = idMath::integer_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0)); 
+							maxColor565 = idMath::integer_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
 
 							if ( !noBlack ) {
 								error = GetSquareColorsError( colorBlock, maxColor565, minColor565, bestError );
@@ -747,9 +725,9 @@ paramO:	color1		- Max color found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::GetSquareCTX1Error( const byte *colorBlock, const byte *color0, const byte *color1, int lastError ) const {
-	int i, j;
-	byte colors[4][4];
+uint32 idDxtEncoder::GetSquareCTX1Error( const byte *colorBlock, const byte *color0, const byte *color1, uint32 lastError ) const {
+	size_t i = 0, j = 0;
+	byte colors[4][4] = {};
 
 	colors[0][0] = color0[0];
 	colors[0][1] = color0[1];
@@ -761,14 +739,12 @@ int idDxtEncoder::GetSquareCTX1Error( const byte *colorBlock, const byte *color0
 	colors[3][0] = ( 1 * colors[0][0] + 2 * colors[1][0] ) / 3;
 	colors[3][1] = ( 1 * colors[0][1] + 2 * colors[1][1] ) / 3;
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 		for ( j = 0; j < 4; j++ ) {
-			unsigned int dist = CTX1Distance( &colorBlock[i*4], &colors[j][0] );
-			if ( dist < minDist ) {
-				minDist = dist;
-			}
+			uint32 dist = CTX1Distance( &colorBlock[i*4], &colors[j][0] );
+			minDist = std::min(dist, minDist);
 		}
 		// accumulated error
 		error += minDist;
@@ -792,30 +768,22 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxCTX1HQ( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
-	int i;
-	int i0, i1, j0, j1;
-	byte curMinColor[2], curMaxColor[2];
-	byte bboxMin[2], bboxMax[2], minAxisDist[2];
-	int error, bestError = MAX_TYPE( int );
+uint32 idDxtEncoder::GetMinMaxCTX1HQ( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
+	size_t i = 0;
+	int i0 = 0, i1 = 0, j0 = 0, j1 = 0;
+	byte curMinColor[2] = {}, curMaxColor[2] = {};
+	byte bboxMin[2] = {}, bboxMax[2] = {}, minAxisDist[2] = {};
+	uint32 error = 0, bestError = MAX_TYPE( int );
 
 	bboxMin[0] = bboxMin[1] = 255;
 	bboxMax[0] = bboxMax[1] = 0;
 
 	// get color bbox
 	for ( i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < bboxMin[0] ) {
-			bboxMin[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < bboxMin[1] ) {
-			bboxMin[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+0] > bboxMax[0] ) {
-			bboxMax[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > bboxMax[1] ) {
-			bboxMax[1] = colorBlock[i*4+1];
-		}
+		bboxMin[0] = std::min(colorBlock[i * 4 + 0], bboxMin[0]);
+		bboxMin[1] = std::min(colorBlock[i * 4 + 1], bboxMin[1]);
+		bboxMax[0] = std::max(colorBlock[i * 4 + 0], bboxMax[0]);
+		bboxMax[1] = std::max(colorBlock[i * 4 + 1], bboxMax[1]);
 	}
 
 	// get the minimum distance the end points of the line must be apart along each axis
@@ -840,14 +808,14 @@ int idDxtEncoder::GetMinMaxCTX1HQ( const byte *colorBlock, byte *minColor, byte 
 	bboxMax[0] = ( bboxMax[0] >= 255 - CXT1_BBOX_EXPAND ) ? 255 : bboxMax[0] + CXT1_BBOX_EXPAND;
 	bboxMax[1] = ( bboxMax[1] >= 255 - CXT1_BBOX_EXPAND ) ? 255 : bboxMax[1] + CXT1_BBOX_EXPAND;
 
-	for ( i0 = bboxMin[0]; i0 <= bboxMax[0]; i0++ ) {
-		for ( j0 = bboxMax[0]; j0 >= bboxMin[0]; j0-- ) {
+	for ( i0 = bboxMin[0]; std::cmp_less_equal(i0, bboxMax[0]); i0++ ) {
+		for ( j0 = bboxMax[0]; std::cmp_greater_equal(j0, bboxMin[0]); j0-- ) {
 			if ( abs( i0 - j0 ) < minAxisDist[0] ) {
 				continue;
 			}
 
-			for ( i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
-				for ( j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
+			for ( i1 = bboxMin[1]; std::cmp_less_equal(i1, bboxMax[1]); i1++ ) {
+				for ( j1 = bboxMax[1]; std::cmp_greater_equal(j1, bboxMin[1]); j1-- ) {
 					if ( abs( i1 - j1 ) < minAxisDist[1] ) {
 						continue;
 					}
@@ -884,22 +852,18 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, byte *maxColor, bool noBlack, int scale ) const {
-	unsigned short bestMinColor565, bestMaxColor565;
-	byte bboxMin[3], bboxMax[3];
-	int error, bestError = MAX_TYPE( int );
+uint32 idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, byte *maxColor, bool noBlack, int scale ) const {
+	unsigned short bestMinColor565 = 0, bestMaxColor565 = 0;
+	byte bboxMin[3] = {}, bboxMax[3] = {};
+	uint32 error = 0, bestError = MAX_TYPE( int );
 
 	bboxMin[1] = 255;
 	bboxMax[1] = 0;
 
 	// get color bbox
-	for ( int i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+1] < bboxMin[1] ) {
-			bboxMin[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+1] > bboxMax[1] ) {
-			bboxMax[1] = colorBlock[i*4+1];
-		}
+	for ( size_t i = 0; i < 16; i++ ) {
+		bboxMin[1] = std::min(colorBlock[i * 4 + 1], bboxMin[1]);
+		bboxMax[1] = std::max(colorBlock[i * 4 + 1], bboxMax[1]);
 	}
 
 	// decrease range for 565 encoding
@@ -915,14 +879,14 @@ int idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, by
 	bestMinColor565 = 0;
 	bestMaxColor565 = 0;
 
-	for ( int i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
-		for ( int j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
-			if ( abs( i1 - j1 ) < 0 ) {
+	for ( size_t i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
+		for ( size_t j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
+			if ( _abs64(idMath::integer_cast<int64>(i1 - j1 )) < 0 ) {
 				continue;
 			}
 
-			unsigned short minColor565 = static_cast<unsigned short>(i1) << 5;
-			unsigned short maxColor565 = static_cast<unsigned short>(j1) << 5;
+			unsigned short minColor565 = idMath::integer_cast<unsigned short>(i1 << 5);
+			unsigned short maxColor565 = idMath::integer_cast<unsigned short>(j1 << 5);
 
 			if ( !noBlack ) {
 				error = GetSquareNormalYError( colorBlock, maxColor565, minColor565, bestError, scale );
@@ -949,11 +913,11 @@ int idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, by
 	ColorFrom565( bestMinColor565, minColor );
 	ColorFrom565( bestMaxColor565, maxColor );
 
-	int bias = colorBlock[0*4+0];
-	int size = colorBlock[0*4+2];
+	const int bias = colorBlock[0*4+0];
+	const int size = colorBlock[0*4+2];
 
-	minColor[0] = maxColor[0] = static_cast<byte>(bias);
-	minColor[2] = maxColor[2] = static_cast<byte>(size);
+	minColor[0] = maxColor[0] = idMath::integer_cast<byte>(bias);
+	minColor[2] = maxColor[2] = idMath::integer_cast<byte>(size);
 
 	return bestError;
 }
@@ -1019,19 +983,19 @@ int NormalDistanceDXT1( const int *vector, const int *normalized ) {
 	}
 	return result;
 #else
-	float floatNormal[3];
-	byte intNormal[4];
+	float floatNormal[3] = {};
+	byte intNormal[4] = {};
 	floatNormal[0] = vector[0] * ( 2.0f / 255.0f ) - 1.0f;
 	floatNormal[1] = vector[1] * ( 2.0f / 255.0f ) - 1.0f;
 	floatNormal[2] = vector[2] * ( 2.0f / 255.0f ) - 1.0f;
-	float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
+	const float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
 	floatNormal[0] *= rcplen;
 	floatNormal[1] *= rcplen;
 	floatNormal[2] *= rcplen;
 	intNormal[0] = idMath::Ftob( ( floatNormal[0] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
 	intNormal[1] = idMath::Ftob( ( floatNormal[1] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
 	intNormal[2] = idMath::Ftob( ( floatNormal[2] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
-	int result =	( ( intNormal[ 0 ] - normalized[ 0 ] ) * ( intNormal[ 0 ] - normalized[ 0 ] ) ) +
+	const int result =	( ( intNormal[ 0 ] - normalized[ 0 ] ) * ( intNormal[ 0 ] - normalized[ 0 ] ) ) +
 					( ( intNormal[ 1 ] - normalized[ 1 ] ) * ( intNormal[ 1 ] - normalized[ 1 ] ) ) +
 					( ( intNormal[ 2 ] - normalized[ 2 ] ) * ( intNormal[ 2 ] - normalized[ 2 ] ) );
 	return result;
@@ -1104,19 +1068,19 @@ int NormalDistanceDXT5( const int *vector, const int *normalized ) {
 	constexpr int c1 = 2;
 	constexpr int c2 = 3;
 #endif
-	float floatNormal[3];
-	byte intNormal[4];
+	float floatNormal[3] = {};
+	byte intNormal[4] = {};
 	floatNormal[0] = vector[c0] / 255.0f * 2.0f - 1.0f;
 	floatNormal[1] = vector[c1] / 255.0f * 2.0f - 1.0f;
 	floatNormal[2] = vector[c2] / 255.0f * 2.0f - 1.0f;
-	float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
+	const float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
 	floatNormal[0] *= rcplen;
 	floatNormal[1] *= rcplen;
 	floatNormal[2] *= rcplen;
 	intNormal[c0] = idMath::Ftob( ( floatNormal[0] + 1.0f ) / 2.0f * 255.0f + 0.5f );
 	intNormal[c1] = idMath::Ftob( ( floatNormal[1] + 1.0f ) / 2.0f * 255.0f + 0.5f );
 	intNormal[c2] = idMath::Ftob( ( floatNormal[2] + 1.0f ) / 2.0f * 255.0f + 0.5f );
-	int result =	( ( intNormal[ c0 ] - normalized[ c0 ] ) * ( intNormal[ c0 ] - normalized[ c0 ] ) ) +
+	const int result =	( ( intNormal[ c0 ] - normalized[ c0 ] ) * ( intNormal[ c0 ] - normalized[ c0 ] ) ) +
 					( ( intNormal[ c1 ] - normalized[ c1 ] ) * ( intNormal[ c1 ] - normalized[ c1 ] ) ) +
 					( ( intNormal[ c2 ] - normalized[ c2 ] ) * ( intNormal[ c2 ] - normalized[ c2 ] ) );
 	return result;
@@ -1133,14 +1097,14 @@ paramO:	color1		- 4 byte Max color found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const unsigned short color0, const unsigned short color1, int lastError, unsigned int &colorIndices ) const {
-	byte byteColors[2][4];
-	ALIGN16( int colors[4][4] );
+uint32 idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const unsigned short color0, const unsigned short color1, uint32 lastError, unsigned int &colorIndices ) const {
+	byte byteColors[2][4] = {};
+	ALIGN16( int colors[4][4] {} );
 
 	ColorFrom565( color0, byteColors[0] );
 	ColorFrom565( color1, byteColors[1] );
 
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		colors[0][i] = byteColors[0][i];
 		colors[1][i] = byteColors[1][i];
 	}
@@ -1162,16 +1126,16 @@ int idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const unsign
 		colors[3][2] = 0;
 	}
 
-	int error = 0;
-	int tempColorIndices[16];
-	for ( int i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+	uint32 error = 0;
+	int tempColorIndices[16] = {};
+	for ( size_t i = 0; i < 16; i++ ) {
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 
-		for ( int j = 0; j < 4; j++ ) {
-			unsigned int dist = NormalDistanceDXT1( &colors[j][0], &colorBlock[i*4] );
+		for ( size_t j = 0; j < 4; j++ ) {
+			const uint32 dist = NormalDistanceDXT1( &colors[j][0], &colorBlock[i*4] );
 			if ( dist < minDist ) {
 				minDist = dist;
-				tempColorIndices[i] = j;
+				tempColorIndices[i] = idMath::integer_cast<int>(j);
 			}
 		}
 		// accumulated error
@@ -1183,7 +1147,7 @@ int idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const unsign
 	}
 
 	colorIndices = 0;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		colorIndices |= ( tempColorIndices[i] << static_cast<unsigned int>(i << 1) );
 	}
 
@@ -1202,42 +1166,30 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, bool noBlack ) const {
-	int i;
-	int i0, i1, i2, j0, j1, j2;
+uint32 idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, bool noBlack ) const {
+	size_t i = 0;
+	int i0 = 0, i1 = 0, i2 = 0, j0 = 0, j1 = 0, j2 = 0;
 	unsigned short bestMinColor565 = 0;
 	unsigned short bestMaxColor565 = 0;
-	byte bboxMin[3], bboxMax[3], minAxisDist[3];
-	int error, bestError = MAX_TYPE( int );
-	unsigned int tempColorIndices;
-	ALIGN16( int intColorBlock[16*4] );
+	byte bboxMin[3] = {}, bboxMax[3] = {}, minAxisDist[3] = {};
+	uint32 error = 0, bestError = MAX_TYPE( int );
+	unsigned int tempColorIndices = 0;
+	ALIGN16( int intColorBlock[16*4] {} );
 
 	bboxMin[0] = bboxMin[1] = bboxMin[2] = 128;
 	bboxMax[0] = bboxMax[1] = bboxMax[2] = 128;
 
 	// get color bbox
 	for ( i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < bboxMin[0] ) {
-			bboxMin[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < bboxMin[1] ) {
-			bboxMin[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] < bboxMin[2] ) {
-			bboxMin[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+0] > bboxMax[0] ) {
-			bboxMax[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > bboxMax[1] ) {
-			bboxMax[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] > bboxMax[2] ) {
-			bboxMax[2] = colorBlock[i*4+2];
-		}
+		bboxMin[0] = std::min(colorBlock[i * 4 + 0], bboxMin[0]);
+		bboxMin[1] = std::min(colorBlock[i * 4 + 1], bboxMin[1]);
+		bboxMin[2] = std::min(colorBlock[i * 4 + 2], bboxMin[2]);
+		bboxMax[0] = std::max(colorBlock[i * 4 + 0], bboxMax[0]);
+		bboxMax[1] = std::max(colorBlock[i * 4 + 1], bboxMax[1]);
+		bboxMax[2] = std::max(colorBlock[i * 4 + 2], bboxMax[2]);
 	}
 
-	for ( int i = 0; i < 64; i++ ) {
+	for ( size_t i = 0; i < 64; i++ ) {
 		intColorBlock[i] = colorBlock[i];
 	}
 
@@ -1264,26 +1216,26 @@ int idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minColor
 	bboxMax[1] = ( bboxMax[1] >= (255>>2)-C565_BBOX_EXPAND ) ? (255>>2) : bboxMax[1] + C565_BBOX_EXPAND;
 	bboxMax[2] = ( bboxMax[2] >= (255>>3)-C565_BBOX_EXPAND ) ? (255>>3) : bboxMax[2] + C565_BBOX_EXPAND;
 
-	for ( i0 = bboxMin[0]; i0 <= bboxMax[0]; i0++ ) {
-		for ( j0 = bboxMax[0]; j0 >= bboxMin[0]; j0-- ) {
+	for ( i0 = bboxMin[0]; std::cmp_less_equal(i0, bboxMax[0]); i0++ ) {
+		for ( j0 = bboxMax[0]; std::cmp_greater_equal(j0, bboxMin[0]); j0-- ) {
 			if ( abs( i0 - j0 ) < minAxisDist[0] ) {
 				continue;
 			}
 
-			for ( i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
-				for ( j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
+			for ( i1 = bboxMin[1]; std::cmp_less_equal(i1, bboxMax[1]); i1++ ) {
+				for ( j1 = bboxMax[1]; std::cmp_greater_equal(j1, bboxMin[1]); j1-- ) {
 					if ( abs( i1 - j1 ) < minAxisDist[1] ) {
 						continue;
 					}
 
-					for ( i2 = bboxMin[2]; i2 <= bboxMax[2]; i2++ ) {
-						for ( j2 = bboxMax[2]; j2 >= bboxMin[2]; j2-- ) {
+					for ( i2 = bboxMin[2]; std::cmp_less_equal(i2, bboxMax[2]); i2++ ) {
+						for ( j2 = bboxMax[2]; std::cmp_greater_equal(j2, bboxMin[2]); j2-- ) {
 							if ( abs( i2 - j2 ) < minAxisDist[2] ) {
 								continue;
 							}
 
-							unsigned short minColor565 = static_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0));
-							unsigned short maxColor565 = static_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
+							unsigned short minColor565 = idMath::integer_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0));
+							unsigned short maxColor565 = idMath::integer_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
 
 							if ( !noBlack ) {
 								error = GetSquareNormalsDXT1Error( intColorBlock, maxColor565, minColor565, bestError, tempColorIndices );
@@ -1328,12 +1280,12 @@ paramO:	minNormal	- Min normal found
 paramO:	maxNormal	- Max normal found
 ========================
 */
-int idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const byte *minNormal, const byte *maxNormal, int lastError, unsigned int &colorIndices, byte *alphaIndices ) const {
-	byte alphas[8];
-	byte colors[4][4];
+uint32 idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const byte *minNormal, const byte *maxNormal, uint32 lastError, unsigned int &colorIndices, byte *alphaIndices ) const {
+	byte alphas[8] = {};
+	byte colors[4][4] = {};
 
-	unsigned short smin = ColorTo565( minNormal );
-	unsigned short smax = ColorTo565( maxNormal );
+	const unsigned short smin = ColorTo565( minNormal );
+	const unsigned short smax = ColorTo565( maxNormal );
 
 	ColorFrom565( smax, colors[0] );
 	ColorFrom565( smin, colors[1] );
@@ -1374,21 +1326,21 @@ int idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const byte 
 		alphas[7] = 255;
 	}
 
-	int error = 0;
-	int tempColorIndices[16];
-	int tempAlphaIndices[16];
-	for ( int i = 0; i < 16; i++ ) {
+	uint32 error = 0;
+	int tempColorIndices[16] = {};
+	int tempAlphaIndices[16] = {};
+	for ( size_t i = 0; i < 16; i++ ) {
 		ALIGN16( int normal[4] );
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 
-		for ( int j = 0; j < 4; j++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			normal[0] = colors[j][0];
 			normal[1] = colors[j][1];
 			normal[2] = colors[j][2];
 
-			for ( int k = 0; k < 8; k++ ) {
+			for ( size_t k = 0; k < 8; k++ ) {
 				normal[3] = alphas[k];
-				unsigned int dist = NormalDistanceDXT5( normal, &normalBlock[i*4] );
+				const uint32 dist = NormalDistanceDXT5( normal, &normalBlock[i*4] );
 				if ( dist < minDist ) {
 					minDist = dist;
 					tempColorIndices[i] = j;
@@ -1414,8 +1366,8 @@ int idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const byte 
 	alphaIndices[5] = static_cast<byte>((tempAlphaIndices[13] >> 1) | (tempAlphaIndices[14] << 2) | (tempAlphaIndices[15] << 5));
 
 	colorIndices = 0;
-	for ( int i = 0; i < 16; i++ ) {
-		colorIndices |= ( tempColorIndices[i] << static_cast<unsigned int>(i << 1) );
+	for ( size_t i = 0; i < 16; i++ ) {
+		colorIndices |= ( tempColorIndices[i] << idMath::integer_cast<unsigned int>(i << 1) );
 	}
 
 	return error;
@@ -1433,48 +1385,32 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, byte *alphaIndices ) const {
-	int i;
-	int i0, i1, i3, j0, j1, j3;
-	byte bboxMin[4], bboxMax[4], minAxisDist[4];
-	byte tmin[4], tmax[4];
-	int error, bestError = MAX_TYPE( int );
-	unsigned int tempColorIndices;
-	byte tempAlphaIndices[6];
-	ALIGN16( int intColorBlock[16*4] );
+uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, byte *alphaIndices ) const {
+	size_t i = 0;
+	int i0 = 0, i1 = 0, i3 = 0, j0 = 0, j1 = 0, j3 = 0;
+	byte bboxMin[4] = {}, bboxMax[4] = {}, minAxisDist[4] = {};
+	byte tmin[4] = {}, tmax[4] = {};
+	uint32 error = 0, bestError = MAX_TYPE( int );
+	unsigned int tempColorIndices = 0;
+	byte tempAlphaIndices[6] = {};
+	ALIGN16( int intColorBlock[16*4] {} );
 
 	bboxMin[0] = bboxMin[1] = bboxMin[2] = bboxMin[3] = 255;
 	bboxMax[0] = bboxMax[1] = bboxMax[2] = bboxMax[3] = 0;
 
 	// get color bbox
 	for ( i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < bboxMin[0] ) {
-			bboxMin[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < bboxMin[1] ) {
-			bboxMin[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] < bboxMin[2] ) {
-			bboxMin[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+3] < bboxMin[3] ) {
-			bboxMin[3] = colorBlock[i*4+3];
-		}
-		if ( colorBlock[i*4+0] > bboxMax[0] ) {
-			bboxMax[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > bboxMax[1] ) {
-			bboxMax[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] > bboxMax[2] ) {
-			bboxMax[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+3] > bboxMax[3] ) {
-			bboxMax[3] = colorBlock[i*4+3];
-		}
+		bboxMin[0] = std::min(colorBlock[i * 4 + 0], bboxMin[0]);
+		bboxMin[1] = std::min(colorBlock[i * 4 + 1], bboxMin[1]);
+		bboxMin[2] = std::min(colorBlock[i * 4 + 2], bboxMin[2]);
+		bboxMin[3] = std::min(colorBlock[i * 4 + 3], bboxMin[3]);
+		bboxMax[0] = std::max(colorBlock[i * 4 + 0], bboxMax[0]);
+		bboxMax[1] = std::max(colorBlock[i * 4 + 1], bboxMax[1]);
+		bboxMax[2] = std::max(colorBlock[i * 4 + 2], bboxMax[2]);
+		bboxMax[3] = std::max(colorBlock[i * 4 + 3], bboxMax[3]);
 	}
 
-	for ( int i = 0; i < 64; i++ ) {
+	for ( size_t i = 0; i < 64; i++ ) {
 		intColorBlock[i] = colorBlock[i];
 	}
 
@@ -1500,14 +1436,14 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minColor
 	bboxMax[1] = ( bboxMax[1] >= (255>>2)-C565_BBOX_EXPAND ) ? (255>>2) : bboxMax[1] + C565_BBOX_EXPAND;
 	bboxMax[3] = ( bboxMax[3] >= (255)-ALPHA_BBOX_EXPAND ) ? (255) : bboxMax[3] + ALPHA_BBOX_EXPAND;
 
-	for ( i0 = bboxMin[0]; i0 <= bboxMax[0]; i0++ ) {
-		for ( j0 = bboxMax[0]; j0 >= bboxMin[0]; j0-- ) {
+	for ( i0 = bboxMin[0]; std::cmp_less_equal(i0, bboxMax[0]); i0++ ) {
+		for ( j0 = bboxMax[0]; std::cmp_greater_equal(j0, bboxMin[0]); j0-- ) {
 			if ( abs( i0 - j0 ) < minAxisDist[0] ) {
 				continue;
 			}
 
-			for ( i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
-				for ( j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
+			for ( i1 = bboxMin[1]; std::cmp_less_equal(i1, bboxMax[1]); i1++ ) {
+				for ( j1 = bboxMax[1]; std::cmp_greater_equal(j1, bboxMin[1]); j1-- ) {
 					if ( abs( i1 - j1 ) < minAxisDist[1] ) {
 						continue;
 					}
@@ -1520,14 +1456,14 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minColor
 					tmax[1] = static_cast<byte>(i1) << 2;
 					tmax[2] = 0;
 
-					for ( i3 = bboxMin[3]; i3 <= bboxMax[3]; i3++ ) {
-						for ( j3 = bboxMax[3]; j3 >= bboxMin[3]; j3-- ) {
+					for ( i3 = bboxMin[3]; std::cmp_less_equal(i3, bboxMax[3]); i3++ ) {
+						for ( j3 = bboxMax[3]; std::cmp_greater_equal(j3, bboxMin[3]); j3-- ) {
 							if ( abs( i3 - j3 ) < minAxisDist[3] ) {
 								continue;
 							}
 
-							tmin[3] = static_cast<byte>(j3);
-							tmax[3] = static_cast<byte>(i3);
+							tmin[3] = idMath::integer_cast<byte>(j3);
+							tmax[3] = idMath::integer_cast<byte>(i3);
 
 							error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 							if ( error < bestError ) {
@@ -1538,8 +1474,8 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minColor
 								memcpy( alphaIndices, tempAlphaIndices, 6 );
 							}
 
-							tmin[3] = static_cast<byte>(i3);
-							tmax[3] = static_cast<byte>(j3);
+							tmin[3] = idMath::integer_cast<byte>(i3);
+							tmax[3] = idMath::integer_cast<byte>(j3);
 
 							error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 							if ( error < bestError ) {
@@ -1571,47 +1507,31 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, byte *alphaIndices ) const {
-	int i0, i1, i2, i3, j0, j1, j2, j3;
-	byte bboxMin[4], bboxMax[4], minAxisDist[4];
-	byte tmin[4], tmax[4];
-	int error, bestError = MAX_TYPE( int );
-	unsigned int tempColorIndices;
-	byte tempAlphaIndices[6];
-	ALIGN16( int intColorBlock[16*4] );
+uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, byte *alphaIndices ) const {
+	int i0 = 0, i1 = 0, i2 = 0, i3 = 0, j0 = 0, j1 = 0, j2 = 0, j3 = 0;
+	byte bboxMin[4] = {}, bboxMax[4] = {}, minAxisDist[4] = {};
+	byte tmin[4] = {}, tmax[4] = {};
+	uint32 error = 0, bestError = MAX_TYPE( int );
+	unsigned int tempColorIndices = 0;
+	byte tempAlphaIndices[6] = {};
+	ALIGN16( int intColorBlock[16*4] {} );
 
 	bboxMin[0] = bboxMin[1] = bboxMin[2] = bboxMin[3] = 255;
 	bboxMax[0] = bboxMax[1] = bboxMax[2] = bboxMax[3] = 0;
 
 	// get color bbox
-	for ( int i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < bboxMin[0] ) {
-			bboxMin[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < bboxMin[1] ) {
-			bboxMin[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] < bboxMin[2] ) {
-			bboxMin[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+3] < bboxMin[3] ) {
-			bboxMin[3] = colorBlock[i*4+3];
-		}
-		if ( colorBlock[i*4+0] > bboxMax[0] ) {
-			bboxMax[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > bboxMax[1] ) {
-			bboxMax[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] > bboxMax[2] ) {
-			bboxMax[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+3] > bboxMax[3] ) {
-			bboxMax[3] = colorBlock[i*4+3];
-		}
+	for ( size_t i = 0; i < 16; i++ ) {
+		bboxMin[0] = std::min(colorBlock[i * 4 + 0], bboxMin[0]);
+		bboxMin[1] = std::min(colorBlock[i * 4 + 1], bboxMin[1]);
+		bboxMin[2] = std::min(colorBlock[i * 4 + 2], bboxMin[2]);
+		bboxMin[3] = std::min(colorBlock[i * 4 + 3], bboxMin[3]);
+		bboxMax[0] = std::max(colorBlock[i * 4 + 0], bboxMax[0]);
+		bboxMax[1] = std::max(colorBlock[i * 4 + 1], bboxMax[1]);
+		bboxMax[2] = std::max(colorBlock[i * 4 + 2], bboxMax[2]);
+		bboxMax[3] = std::max(colorBlock[i * 4 + 3], bboxMax[3]);
 	}
 
-	for ( int i = 0; i < 64; i++ ) {
+	for ( size_t i = 0; i < 64; i++ ) {
 		intColorBlock[i] = colorBlock[i];
 	}
 
@@ -1627,7 +1547,7 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minC
 	bboxMax[3] = 255;
 
 	// get the minimum distance the end points of the line must be apart along each axis
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		minAxisDist[i] = 0;
 	}
 
@@ -1653,26 +1573,26 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minC
 	bboxMin[3] = ( bboxMin[3] <= ALPHA_BBOX_EXPAND ) ? 0 : bboxMin[3] - ALPHA_BBOX_EXPAND;
 	bboxMax[3] = ( bboxMax[3] >= (255)-ALPHA_BBOX_EXPAND ) ? (255) : bboxMax[3] + ALPHA_BBOX_EXPAND;
 
-	for ( i0 = bboxMin[0]; i0 <= bboxMax[0]; i0++ ) {
-		for ( j0 = bboxMax[0]; j0 >= bboxMin[0]; j0-- ) {
+	for ( i0 = bboxMin[0]; std::cmp_less_equal(i0, bboxMax[0]); i0++ ) {
+		for ( j0 = bboxMax[0]; std::cmp_greater_equal(j0, bboxMin[0]); j0-- ) {
 			if ( abs( i0 - j0 ) < minAxisDist[0] ) {
 				continue;
 			}
 
-			for ( i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
-				for ( j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
+			for ( i1 = bboxMin[1]; std::cmp_less_equal(i1, bboxMax[1]); i1++ ) {
+				for ( j1 = bboxMax[1]; std::cmp_greater_equal(j1, bboxMin[1]); j1-- ) {
 					if ( abs( i1 - j1 ) < minAxisDist[1] ) {
 						continue;
 					}
 
-					for ( i2 = bboxMin[2]; i2 <= bboxMax[2]; i2++ ) {
-						for ( j2 = bboxMax[2]; j2 >= bboxMin[2]; j2-- ) {
+					for ( i2 = bboxMin[2]; std::cmp_less_equal(i2, bboxMax[2]); i2++ ) {
+						for ( j2 = bboxMax[2]; std::cmp_greater_equal(j2, bboxMin[2]); j2-- ) {
 							if ( abs( i2 - j2 ) < minAxisDist[2] ) {
 								continue;
 							}
 
-							unsigned short minColor565 = static_cast<unsigned short>((i0 << 11) | (i1 << 5) | i2);
-							unsigned short maxColor565 = static_cast<unsigned short>((j0 << 11) | (j1 << 5) | j2);
+							unsigned short minColor565 = idMath::integer_cast<unsigned short>((i0 << 11) | (i1 << 5) | i2);
+							unsigned short maxColor565 = idMath::integer_cast<unsigned short>((j0 << 11) | (j1 << 5) | j2);
 
 							if ( minColor565 > maxColor565 ) {
 								SwapValues( minColor565, maxColor565 );
@@ -1697,14 +1617,14 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minC
 	memcpy( tmin, minColor, 4 );
 	memcpy( tmax, maxColor, 4 );
 
-	for ( i3 = bboxMin[3]; i3 <= bboxMax[3]; i3++ ) {
-		for ( j3 = bboxMax[3]; j3 >= bboxMin[3]; j3-- ) {
+	for ( i3 = bboxMin[3]; std::cmp_less_equal(i3, bboxMax[3]); i3++ ) {
+		for ( j3 = bboxMax[3]; std::cmp_greater_equal(j3, bboxMin[3]); j3-- ) {
 			if ( abs( i3 - j3 ) < minAxisDist[3] ) {
 				continue;
 			}
 
-			tmin[3] = static_cast<byte>(j3);
-			tmax[3] = static_cast<byte>(i3);
+			tmin[3] = idMath::integer_cast<byte>(j3);
+			tmax[3] = idMath::integer_cast<byte>(i3);
 
 			error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 			if ( error < bestError ) {
@@ -1715,8 +1635,8 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *minC
 				memcpy( alphaIndices, tempAlphaIndices, 6 );
 			}
 
-			tmin[3] = static_cast<byte>(i3);
-			tmax[3] = static_cast<byte>(j3);
+			tmin[3] = idMath::integer_cast<byte>(i3);
+			tmax[3] = idMath::integer_cast<byte>(j3);
 
 			error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 			if ( error < bestError ) {
@@ -1742,10 +1662,10 @@ paramO:	color1		- Max color found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::FindColorIndices( const byte *colorBlock, const unsigned short color0, const unsigned short color1, unsigned int &result ) const {
-	int i, j;
-	unsigned int indexes[16];
-	byte colors[4][4];
+uint32 idDxtEncoder::FindColorIndices( const byte *colorBlock, const unsigned short color0, const unsigned short color1, unsigned int &result ) const {
+	size_t i = 0, j = 0;
+	unsigned int indexes[16] = {};
+	byte colors[4][4] = {};
 
 	ColorFrom565( color0, colors[0] );
 	ColorFrom565( color1, colors[1] );
@@ -1766,11 +1686,11 @@ int idDxtEncoder::FindColorIndices( const byte *colorBlock, const unsigned short
 		colors[3][2] = 0;
 	}
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 		for ( j = 0; j < 4; j++ ) {
-			unsigned int dist = ColorDistance( &colorBlock[i*4], &colors[j][0] );
+			const uint32 dist = ColorDistance( &colorBlock[i*4], &colors[j][0] );
 			if ( dist < minDist ) {
 				minDist = dist;
 				indexes[i] = j;
@@ -1782,7 +1702,7 @@ int idDxtEncoder::FindColorIndices( const byte *colorBlock, const unsigned short
 
 	result = 0;
 	for ( i = 0; i < 16; i++ ) {
-		result |= ( indexes[i] << static_cast<unsigned int>(i << 1) );
+		result |= ( indexes[i] << idMath::integer_cast<unsigned int>(i << 1) );
 	}
 
 	return error;
@@ -1799,10 +1719,10 @@ params:	rindexes	- 6 byte alpha index block
 return: error metric for this compression
 ========================
 */
-int idDxtEncoder::FindAlphaIndices( const byte *colorBlock, const int alphaOffset, const byte alpha0, const byte alpha1, byte *rindexes ) const {
-	int i, j;
-	unsigned int indexes[16];
-	byte alphas[8];
+uint32 idDxtEncoder::FindAlphaIndices( const byte *colorBlock, const int alphaOffset, const byte alpha0, const byte alpha1, byte *rindexes ) const {
+	size_t i = 0, j = 0;
+	unsigned int indexes[16] = {};
+	byte alphas[8] = {};
 
 	alphas[0] = alpha0;
 	alphas[1] = alpha1;
@@ -1822,12 +1742,12 @@ int idDxtEncoder::FindAlphaIndices( const byte *colorBlock, const int alphaOffse
 		alphas[7] = 255;
 	}
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
-		byte a = colorBlock[i*4+alphaOffset];
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
+		const byte a = colorBlock[i*4+alphaOffset];
 		for ( j = 0; j < 8; j++ ) {
-			unsigned int dist = AlphaDistance( a, alphas[j] );
+			const uint32 dist = AlphaDistance( a, alphas[j] );
 			if ( dist < minDist ) {
 				minDist = dist;
 				indexes[i] = j;
@@ -1857,10 +1777,10 @@ paramO:	color1		- Max color found
 return: 4 byte color index block
 ========================
 */
-int idDxtEncoder::FindCTX1Indices( const byte *colorBlock, const byte *color0, const byte *color1, unsigned int &result ) const {
-	int i, j;
-	unsigned int indexes[16];
-	byte colors[4][4];
+uint32 idDxtEncoder::FindCTX1Indices( const byte *colorBlock, const byte *color0, const byte *color1, unsigned int &result ) const {
+	size_t i = 0, j = 0;
+	unsigned int indexes[16] = {};
+	byte colors[4][4] = {};
 
 	colors[0][0] = color1[0];
 	colors[0][1] = color1[1];
@@ -1872,11 +1792,11 @@ int idDxtEncoder::FindCTX1Indices( const byte *colorBlock, const byte *color0, c
 	colors[3][0] = ( 1 * colors[0][0] + 2 * colors[1][0] ) / 3;
 	colors[3][1] = ( 1 * colors[0][1] + 2 * colors[1][1] ) / 3;
 
-	int error = 0;
+	uint32 error = 0;
 	for ( i = 0; i < 16; i++ ) {
-		unsigned int minDist = MAX_UNSIGNED_TYPE( int );
+		uint32 minDist = MAX_UNSIGNED_TYPE( int );
 		for ( j = 0; j < 4; j++ ) {
-			unsigned int dist = CTX1Distance( &colorBlock[i*4], &colors[j][0] );
+			const uint32 dist = CTX1Distance( &colorBlock[i*4], &colors[j][0] );
 			if ( dist < minDist ) {
 				minDist = dist;
 				indexes[i] = j;
@@ -1888,7 +1808,7 @@ int idDxtEncoder::FindCTX1Indices( const byte *colorBlock, const byte *color0, c
 
 	result = 0;
 	for ( i = 0; i < 16; i++ ) {
-		result |= ( indexes[i] << static_cast<unsigned int>(i << 1) );
+		result |= ( indexes[i] << idMath::integer_cast<unsigned int>(i << 1) );
 	}
 
 	return error;
@@ -1904,14 +1824,14 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageDXT1HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
-	ALIGN16( byte block[64] );
-	unsigned int colorIndices1;
-	unsigned int colorIndices2;
-	byte col1[4];
-	byte col2[4];
-	int error1;
-	int error2;
+void idDxtEncoder::CompressImageDXT1HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
+	ALIGN16( byte block[64] {});
+	unsigned int colorIndices1 = 0;
+	unsigned int colorIndices2 = 0;
+	byte col1[4] = {};
+	byte col2[4] = {};
+	uint32 error1 = 0;
+	uint32 error2 = 0;
 
 	this->width = width;
 	this->height = height;
@@ -1929,16 +1849,16 @@ void idDxtEncoder::CompressImageDXT1HQ( const byte *inBuf, byte *outBuf, int wid
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
 			GetMinMaxColorsHQ( block, col1, col2, false );
 
 			// Write out color data. Try and find minimum error for the two encoding methods.
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			error1 = FindColorIndices( block, scol1, scol2, colorIndices1 );
 			error2 = FindColorIndices( block, scol2, scol1, colorIndices2 );
@@ -1975,15 +1895,15 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageDXT5HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
-	ALIGN16( byte block[64] );
-	byte alphaIndices1[6];
-	byte alphaIndices2[6];
-	unsigned int colorIndices;
-	byte col1[4];
-	byte col2[4];
-	int error1;
-	int error2;
+void idDxtEncoder::CompressImageDXT5HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
+	ALIGN16( byte block[64] {});
+	byte alphaIndices1[6] = {};
+	byte alphaIndices2[6] = {};
+	unsigned int colorIndices = 0;
+	byte col1[4] = {};
+	byte col2[4] = {};
+	uint32 error1 = 0;
+	uint32 error2 = 0;
 
 	this->width = width;
 	this->height = height;
@@ -2001,8 +1921,8 @@ void idDxtEncoder::CompressImageDXT5HQ( const byte *inBuf, byte *outBuf, int wid
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -2041,8 +1961,8 @@ void idDxtEncoder::CompressImageDXT5HQ( const byte *inBuf, byte *outBuf, int wid
 #endif
 
 			// Write out color data. Always take the path with 4 interpolated values.
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			EmitUShort( scol1 );
 			EmitUShort( scol2 );
@@ -2069,11 +1989,11 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageCTX1HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
-	ALIGN16( byte block[64] );
-	unsigned int colorIndices;
-	byte col1[4];
-	byte col2[4];
+void idDxtEncoder::CompressImageCTX1HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
+	ALIGN16( byte block[64] {});
+	unsigned int colorIndices = 0;
+	byte col1[4] = {};
+	byte col2[4] = {};
 
 	this->width = width;
 	this->height = height;
@@ -2091,8 +2011,8 @@ void idDxtEncoder::CompressImageCTX1HQ( const byte *inBuf, byte *outBuf, int wid
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -2103,7 +2023,7 @@ void idDxtEncoder::CompressImageCTX1HQ( const byte *inBuf, byte *outBuf, int wid
 			EmitByte( col1[0] );
 			EmitByte( col1[1] );
 
-			FindCTX1Indices( block, col1, col2, colorIndices );
+			std::ignore = FindCTX1Indices( block, col1, col2, colorIndices );
 			EmitUInt( colorIndices );
 
 			//idLib::Printf( "\r%3d%%", ( j * width + i ) * 100 / ( width * height ) );
@@ -2123,45 +2043,37 @@ params:	colorBlock	- 16 pixel block for which find color indexes
 ========================
 */
 void idDxtEncoder::ScaleYCoCg( byte *colorBlock ) const {
-	ALIGN16( byte minColor[4] );
-	ALIGN16( byte maxColor[4] );
+	ALIGN16( byte minColor[4] {});
+	ALIGN16( byte maxColor[4] {});
 
 	minColor[0] = minColor[1] = minColor[2] = minColor[3] = 255;
 	maxColor[0] = maxColor[1] = maxColor[2] = maxColor[3] = 0;
 
-	for ( int i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < minColor[0] ) {
-			minColor[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < minColor[1] ) {
-			minColor[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+0] > maxColor[0] ) {
-			maxColor[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > maxColor[1] ) {
-			maxColor[1] = colorBlock[i*4+1];
-		}
+	for ( size_t i = 0; i < 16; i++ ) {
+		minColor[0] = std::min(colorBlock[i * 4 + 0], minColor[0]);
+		minColor[1] = std::min(colorBlock[i * 4 + 1], minColor[1]);
+		maxColor[0] = std::max(colorBlock[i * 4 + 0], maxColor[0]);
+		maxColor[1] = std::max(colorBlock[i * 4 + 1], maxColor[1]);
 	}
 
 	int m0 = abs( minColor[0] - 128 );
-	int m1 = abs( minColor[1] - 128 );
+	const int m1 = abs( minColor[1] - 128 );
 	int m2 = abs( maxColor[0] - 128 );
-	int m3 = abs( maxColor[1] - 128 );
+	const int m3 = abs( maxColor[1] - 128 );
 
-	if ( m1 > m0 ) m0 = m1;
-	if ( m3 > m2 ) m2 = m3;
-	if ( m2 > m0 ) m0 = m2;
+	m0 = std::max(m1, m0);
+	m2 = std::max(m3, m2);
+	m0 = std::max(m2, m0);
 
 	constexpr int s0 = 128 / 2 - 1;
 	constexpr int s1 = 128 / 4 - 1;
 
-	int scale = 1 + ( m0 <= s0 ) + 2 * ( m0 <= s1 );
+	const int scale = 1 + ( m0 <= s0 ) + 2 * ( m0 <= s1 );
 
-	for ( int i = 0; i < 16; i++ ) {
-		colorBlock[i*4+0] = static_cast<byte>((colorBlock[i * 4 + 0] - 128) * scale + 128);
-		colorBlock[i*4+1] = static_cast<byte>((colorBlock[i * 4 + 1] - 128) * scale + 128);
-		colorBlock[i*4+2] = static_cast<byte>((scale - 1) << 3);
+	for ( size_t i = 0; i < 16; i++ ) {
+		colorBlock[i*4+0] = idMath::integer_cast<byte>((colorBlock[i * 4 + 0] - 128) * scale + 128);
+		colorBlock[i*4+1] = idMath::integer_cast<byte>((colorBlock[i * 4 + 1] - 128) * scale + 128);
+		colorBlock[i*4+2] = idMath::integer_cast<byte>((scale - 1) << 3);
 	}
 }
 
@@ -2175,7 +2087,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressYCoCgDXT5HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressYCoCgDXT5HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	byte alphaIndices1[6];
 	byte alphaIndices2[6];
@@ -2203,8 +2115,8 @@ void idDxtEncoder::CompressYCoCgDXT5HQ( const byte *inBuf, byte *outBuf, int wid
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 			ScaleYCoCg( block );
@@ -2244,8 +2156,8 @@ void idDxtEncoder::CompressYCoCgDXT5HQ( const byte *inBuf, byte *outBuf, int wid
 #endif
 
 			// Write out color data. Always take the path with 4 interpolated values.
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			EmitUShort( scol1 );
 			EmitUShort( scol2 );
@@ -2272,7 +2184,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressYCoCgCTX1DXT5AHQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressYCoCgCTX1DXT5AHQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	byte alphaIndices1[6];
 	byte alphaIndices2[6];
@@ -2300,8 +2212,8 @@ void idDxtEncoder::CompressYCoCgCTX1DXT5AHQ( const byte *inBuf, byte *outBuf, in
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -2365,37 +2277,37 @@ void idDxtEncoder::RotateNormalsDXT1( byte *block ) const {
 	int bestError = MAX_TYPE( int );
 	int bestRotation = 0;
 
-	for ( int i = 0; i < 32; i += 1 ) {
-		int r = ( i << 3 ) | ( i >> 2 );
-		float angle = ( r / 255.0f ) * idMath::PI;
-		float s = sin( angle );
-		float c = cos( angle );
+	for ( size_t i = 0; i < 32; i += 1 ) {
+		const int r = ( i << 3 ) | ( i >> 2 );
+		const float angle = ( r / 255.0f ) * idMath::PI;
+		const float s = sin( angle );
+		const float c = cos( angle );
 
-		for ( int j = 0; j < 16; j++ ) {
-			float x = block[j*4+0] / 255.0f * 2.0f - 1.0f;
-			float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
-			float rx = c * x - s * y;
-			float ry = s * x + c * y;
+		for ( size_t j = 0; j < 16; j++ ) {
+			const float x = block[j*4+0] / 255.0f * 2.0f - 1.0f;
+			const float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
+			const float rx = c * x - s * y;
+			const float ry = s * x + c * y;
 			rotatedBlock[j*4+0] = idMath::Ftob( ( rx + 1.0f ) / 2.0f * 255.0f );
 			rotatedBlock[j*4+1] = idMath::Ftob( ( ry + 1.0f ) / 2.0f * 255.0f );
 		}
 
-		int error = GetMinMaxColorsHQ( rotatedBlock, col1, col2, true );
+		const int error = GetMinMaxColorsHQ( rotatedBlock, col1, col2, true );
 		if ( error < bestError ) {
 			bestError = error;
 			bestRotation = r;
 		}
 	}
 
-	float angle = ( bestRotation / 255.0f ) * idMath::PI;
-	float s = sin( angle );
-	float c = cos( angle );
+	const float angle = ( bestRotation / 255.0f ) * idMath::PI;
+	const float s = sin( angle );
+	const float c = cos( angle );
 
-	for ( int j = 0; j < 16; j++ ) {
-		float x = block[j*4+0] / 255.0f * 2.0f - 1.0f;
-		float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
-		float rx = c * x - s * y;
-		float ry = s * x + c * y;
+	for ( size_t j = 0; j < 16; j++ ) {
+		const float x = block[j*4+0] / 255.0f * 2.0f - 1.0f;
+		const float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
+		const float rx = c * x - s * y;
+		const float ry = s * x + c * y;
 		block[j*4+0] = idMath::Ftob( ( rx + 1.0f ) / 2.0f * 255.0f );
 		block[j*4+1] = idMath::Ftob( ( ry + 1.0f ) / 2.0f * 255.0f );
 		block[j*4+2] = static_cast<byte>(bestRotation);
@@ -2412,7 +2324,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXT1HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXT1HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	unsigned int colorIndices;
 	byte col1[4];
@@ -2434,20 +2346,20 @@ void idDxtEncoder::CompressNormalMapDXT1HQ( const byte *inBuf, byte *outBuf, int
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				block[k*4+2] = 0;
 			}
 
 			GetMinMaxColorsHQ( block, col1, col2, true );
 
 			// Write out color data. Always take the path with 4 interpolated values.
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			EmitUShort( scol1 );
 			EmitUShort( scol2 );
@@ -2474,7 +2386,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXT1RenormalizeHQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXT1RenormalizeHQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	unsigned int colorIndices;
 	byte col1[4];
@@ -2496,21 +2408,21 @@ void idDxtEncoder::CompressNormalMapDXT1RenormalizeHQ( const byte *inBuf, byte *
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
 			// clear alpha channel
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				block[k*4+3] = 0;
 			}
 
 			GetMinMaxNormalsDXT1HQ( block, col1, col2, colorIndices, true );
 
 			// Write out color data. Always take the path with 4 interpolated values.
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			EmitUShort( scol1 );
 			EmitUShort( scol2 );
@@ -2550,21 +2462,17 @@ void idDxtEncoder::BiasScaleNormalY( byte *colorBlock ) const {
 	byte minColor = 255;
 	byte maxColor = 0;
 
-	for ( int i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+1] < minColor ) {
-			minColor = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+1] > maxColor ) {
-			maxColor = colorBlock[i*4+1];
-		}
+	for ( size_t i = 0; i < 16; i++ ) {
+		minColor = std::min(colorBlock[i * 4 + 1], minColor);
+		maxColor = std::max(colorBlock[i * 4 + 1], maxColor);
 	}
 
 	int bestBias = 128;
 	int bestRange = Max( abs( minColor - bestBias ), abs( maxColor - bestBias ) );
 #if USE_BIAS
-	for ( int i = 0; i < 32; i++ ) {
-		int bias = ( ( i << 3 ) | ( i >> 2 ) ) - 4;
-		int range = Max( abs( minColor - bias ), abs( maxColor - bias ) );
+	for ( size_t i = 0; i < 32; i++ ) {
+		const int bias = ( ( i << 3 ) | ( i >> 2 ) ) - 4;
+		const int range = Max( abs( minColor - bias ), abs( maxColor - bias ) );
 		if ( range < bestRange ) {
 			bestRange = range;
 			bestBias = bias;
@@ -2576,7 +2484,7 @@ void idDxtEncoder::BiasScaleNormalY( byte *colorBlock ) const {
 	constexpr int s1 = 128 / 4 - 1;
 
 #if USE_SCALE
-	int scale = 1 + ( bestRange <= s0 ) + 2 * ( bestRange <= s1 );
+	const int scale = 1 + ( bestRange <= s0 ) + 2 * ( bestRange <= s1 );
 #else
 	int scale = 1;
 #endif
@@ -2589,8 +2497,8 @@ void idDxtEncoder::BiasScaleNormalY( byte *colorBlock ) const {
 		if ( scale == 4 ) c_scaled4x++;
 		if ( bestBias != 128 ) {
 			c_differentBias++;
-			int r = Max( abs( minColor - 128 ), abs( maxColor - 128 ) );
-			int s = 1 + ( r <= s0 ) + 2 * ( r <= s1 );
+			const int r = Max( abs( minColor - 128 ), abs( maxColor - 128 ) );
+			const int s = 1 + ( r <= s0 ) + 2 * ( r <= s1 );
 			if ( scale > s ) {
 				c_biasHelped++;
 			}
@@ -2599,7 +2507,7 @@ void idDxtEncoder::BiasScaleNormalY( byte *colorBlock ) const {
 
 	c_blocks++;
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		colorBlock[i*4+0] = static_cast<byte>(bestBias + 4);
 		colorBlock[i*4+1] = static_cast<byte>((colorBlock[i * 4 + 1] - bestBias) * scale + 128);
 		colorBlock[i*4+2] = static_cast<byte>((scale - 1) << 3);
@@ -2619,17 +2527,17 @@ void idDxtEncoder::RotateNormalsDXT5( byte *block ) const {
 	int bestRotation = 0;
 	int bestScale = 1;
 
-	for ( int i = 0; i < 32; i += 1 ) {
-		int r = ( i << 3 ) | ( i >> 2 );
-		float angle = ( r / 255.0f ) * idMath::PI;
-		float s = sin( angle );
-		float c = cos( angle );
+	for ( size_t i = 0; i < 32; i += 1 ) {
+		const int r = ( i << 3 ) | ( i >> 2 );
+		const float angle = ( r / 255.0f ) * idMath::PI;
+		const float s = sin( angle );
+		const float c = cos( angle );
 
-		for ( int j = 0; j < 16; j++ ) {
-			float x = block[j*4+3] / 255.0f * 2.0f - 1.0f;
-			float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
-			float rx = c * x - s * y;
-			float ry = s * x + c * y;
+		for ( size_t j = 0; j < 16; j++ ) {
+			const float x = block[j*4+3] / 255.0f * 2.0f - 1.0f;
+			const float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
+			const float rx = c * x - s * y;
+			const float ry = s * x + c * y;
 			rotatedBlock[j*4+3] = idMath::Ftob( ( rx + 1.0f ) / 2.0f * 255.0f );
 			rotatedBlock[j*4+1] = idMath::Ftob( ( ry + 1.0f ) / 2.0f * 255.0f );
 		}
@@ -2638,29 +2546,25 @@ void idDxtEncoder::RotateNormalsDXT5( byte *block ) const {
 		byte minColor = 255;
 		byte maxColor = 0;
 
-		for ( int j = 0; j < 16; j++ ) {
-			if ( rotatedBlock[j*4+1] < minColor ) {
-				minColor = rotatedBlock[j*4+1];
-			}
-			if ( rotatedBlock[j*4+1] > maxColor ) {
-				maxColor = rotatedBlock[j*4+1];
-			}
+		for ( size_t j = 0; j < 16; j++ ) {
+			minColor = std::min(rotatedBlock[j * 4 + 1], minColor);
+			maxColor = std::max(rotatedBlock[j * 4 + 1], maxColor);
 		}
 
 		constexpr int s0 = 128 / 2 - 1;
 		constexpr int s1 = 128 / 4 - 1;
 
-		int range = Max( abs( minColor - 128 ), abs( maxColor - 128 ) );
-		int scale = 1 + ( range <= s0 ) + 2 * ( range <= s1 );
+		const int range = Max( abs( minColor - 128 ), abs( maxColor - 128 ) );
+		const int scale = 1 + ( range <= s0 ) + 2 * ( range <= s1 );
 
-		for ( int j = 0; j < 16; j++ ) {
+		for ( size_t j = 0; j < 16; j++ ) {
 			rotatedBlock[j*4+1] = static_cast<byte>((rotatedBlock[j * 4 + 1] - 128) * scale + 128);
 		}
 #endif
 
-		int errorY = GetMinMaxNormalYHQ( rotatedBlock, col1, col2, true, scale );
-		int errorX = GetMinMaxAlphaHQ( rotatedBlock, 3, col1, col2 );
-		int error = errorX + errorY;
+		const int errorY = GetMinMaxNormalYHQ( rotatedBlock, col1, col2, true, scale );
+		const int errorX = GetMinMaxAlphaHQ( rotatedBlock, 3, col1, col2 );
+		const int error = errorX + errorY;
 		if ( error < bestError ) {
 			bestError = error;
 			bestRotation = r;
@@ -2668,15 +2572,15 @@ void idDxtEncoder::RotateNormalsDXT5( byte *block ) const {
 		}
 	}
 
-	float angle = ( bestRotation / 255.0f ) * idMath::PI;
-	float s = sin( angle );
-	float c = cos( angle );
+	const float angle = ( bestRotation / 255.0f ) * idMath::PI;
+	const float s = sin( angle );
+	const float c = cos( angle );
 
-	for ( int j = 0; j < 16; j++ ) {
-		float x = block[j*4+3] / 255.0f * 2.0f - 1.0f;
-		float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
-		float rx = c * x - s * y;
-		float ry = s * x + c * y;
+	for ( size_t j = 0; j < 16; j++ ) {
+		const float x = block[j*4+3] / 255.0f * 2.0f - 1.0f;
+		const float y = block[j*4+1] / 255.0f * 2.0f - 1.0f;
+		const float rx = c * x - s * y;
+		const float ry = s * x + c * y;
 		block[j*4+0] = static_cast<byte>(bestRotation);
 		block[j*4+1] = idMath::Ftob( ( ry + 1.0f ) / 2.0f * 255.0f );
 		block[j*4+3] = idMath::Ftob( ( rx + 1.0f ) / 2.0f * 255.0f );
@@ -2698,7 +2602,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXT5HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXT5HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	byte alphaIndices1[6];
 	byte alphaIndices2[6];
@@ -2724,13 +2628,13 @@ void idDxtEncoder::CompressNormalMapDXT5HQ( const byte *inBuf, byte *outBuf, int
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
 			// swizzle components
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				block[k*4+3] = block[k*4+0];
 				block[k*4+0] = 0;
 				block[k*4+2] = 0;
@@ -2774,8 +2678,8 @@ void idDxtEncoder::CompressNormalMapDXT5HQ( const byte *inBuf, byte *outBuf, int
 #endif
 
 			// Write out color data. Always take the path with 4 interpolated values.
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			EmitUShort( scol1 );
 			EmitUShort( scol2 );
@@ -2802,7 +2706,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXT5RenormalizeHQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXT5RenormalizeHQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	unsigned int colorIndices;
 	byte alphaIndices[6];
@@ -2825,13 +2729,13 @@ void idDxtEncoder::CompressNormalMapDXT5RenormalizeHQ( const byte *inBuf, byte *
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
 			// swizzle components
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 #if 0 // object-space
 				block[k*4+3] = block[k*4+2];
 				block[k*4+2] = 0;
@@ -2852,8 +2756,8 @@ void idDxtEncoder::CompressNormalMapDXT5RenormalizeHQ( const byte *inBuf, byte *
 			EmitByte( alphaIndices[4] );
 			EmitByte( alphaIndices[5] );
 
-			unsigned short scol1 = ColorTo565( col1 );
-			unsigned short scol2 = ColorTo565( col2 );
+			const unsigned short scol1 = ColorTo565( col1 );
+			const unsigned short scol2 = ColorTo565( col2 );
 
 			EmitUShort( scol2 );
 			EmitUShort( scol1 );
@@ -2878,7 +2782,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXN2HQ( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXN2HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	byte alphaIndices1[6];
 	byte alphaIndices2[6];
@@ -2903,12 +2807,12 @@ void idDxtEncoder::CompressNormalMapDXN2HQ( const byte *inBuf, byte *outBuf, int
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
-			for ( int k = 0; k < 2; k++ ) {
+			for ( size_t k = 0; k < 2; k++ ) {
 				GetMinMaxAlphaHQ( block, k, col1, col2 );
 
 				// Write out alpha data. Try and find minimum error for the two encoding methods.
@@ -2965,31 +2869,15 @@ ID_INLINE void idDxtEncoder::GetMinMaxBBox( const byte *colorBlock, byte *minCol
 	minColor[0] = minColor[1] = minColor[2] = minColor[3] = 255;
 	maxColor[0] = maxColor[1] = maxColor[2] = maxColor[3] = 0;
 
-	for ( int i = 0; i < 16; i++ ) {
-		if ( colorBlock[i*4+0] < minColor[0] ) {
-			minColor[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] < minColor[1] ) {
-			minColor[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] < minColor[2] ) {
-			minColor[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+3] < minColor[3] ) {
-			minColor[3] = colorBlock[i*4+3];
-		}
-		if ( colorBlock[i*4+0] > maxColor[0] ) {
-			maxColor[0] = colorBlock[i*4+0];
-		}
-		if ( colorBlock[i*4+1] > maxColor[1] ) {
-			maxColor[1] = colorBlock[i*4+1];
-		}
-		if ( colorBlock[i*4+2] > maxColor[2] ) {
-			maxColor[2] = colorBlock[i*4+2];
-		}
-		if ( colorBlock[i*4+3] > maxColor[3] ) {
-			maxColor[3] = colorBlock[i*4+3];
-		}
+	for ( size_t i = 0; i < 16; i++ ) {
+		minColor[0] = std::min(colorBlock[i * 4 + 0], minColor[0]);
+		minColor[1] = std::min(colorBlock[i * 4 + 1], minColor[1]);
+		minColor[2] = std::min(colorBlock[i * 4 + 2], minColor[2]);
+		minColor[3] = std::min(colorBlock[i * 4 + 3], minColor[3]);
+		maxColor[0] = std::max(colorBlock[i * 4 + 0], maxColor[0]);
+		maxColor[1] = std::max(colorBlock[i * 4 + 1], maxColor[1]);
+		maxColor[2] = std::max(colorBlock[i * 4 + 2], maxColor[2]);
+		maxColor[3] = std::max(colorBlock[i * 4 + 3], maxColor[3]);
 	}
 }
 
@@ -3024,16 +2912,16 @@ idDxtEncoder::SelectColorsDiagonal
 */
 void idDxtEncoder::SelectColorsDiagonal( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
 
-	byte mid0 = static_cast<byte>(((int)minColor[0] + maxColor[0] + 1) >> 1);
-	byte mid1 = static_cast<byte>(((int)minColor[1] + maxColor[1] + 1) >> 1);
-	byte mid2 = static_cast<byte>(((int)minColor[2] + maxColor[2] + 1) >> 1);
+	const byte mid0 = static_cast<byte>(((int)minColor[0] + maxColor[0] + 1) >> 1);
+	const byte mid1 = static_cast<byte>(((int)minColor[1] + maxColor[1] + 1) >> 1);
+	const byte mid2 = static_cast<byte>(((int)minColor[2] + maxColor[2] + 1) >> 1);
 
 #if 0
 
 	// using the covariance is the best way to select the diagonal
 	int side0 = 0;
 	int side1 = 0;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		int b0 = colorBlock[i*4+0] - mid0;
 		int b1 = colorBlock[i*4+1] - mid1;
 		int b2 = colorBlock[i*4+2] - mid2;
@@ -3048,10 +2936,10 @@ void idDxtEncoder::SelectColorsDiagonal( const byte *colorBlock, byte *minColor,
 	// calculating the covariance of just the sign bits is much faster and gives almost the same result
 	int side0 = 0;
 	int side1 = 0;
-	for ( int i = 0; i < 16; i++ ) {
-		byte b0 = colorBlock[i*4+0] >= mid0;
-		byte b1 = colorBlock[i*4+1] >= mid1;
-		byte b2 = colorBlock[i*4+2] >= mid2;
+	for ( size_t i = 0; i < 16; i++ ) {
+		const byte b0 = colorBlock[i*4+0] >= mid0;
+		const byte b1 = colorBlock[i*4+1] >= mid1;
+		const byte b2 = colorBlock[i*4+2] >= mid2;
 		side0 += ( b0 ^ b1 );
 		side1 += ( b1 ^ b2 );
 	}
@@ -3121,7 +3009,7 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 	colors[3][3] = 0;
 
 	// uses sum of absolute differences instead of squared distance to find the best match
-	for ( int i = 15; i >= 0; i-- ) {
+	for ( size_t i = 15; i >= 0; i-- ) {
 		int c0, c1, c2, c3, m, d0, d1, d2, d3;
 
 		c0 = colorBlock[i*4+0];
@@ -3166,15 +3054,15 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 
 		result |= ( ( !b3 & b4 ) | ( b2 & b5 ) | ( ( ( b0 & b3 ) | ( b1 & b2 ) ) << 1 ) ) << ( i << 1 );
 #else
-		bool b0 = d0 > d3;
-		bool b1 = d1 > d2;
-		bool b2 = d0 > d2;
-		bool b3 = d1 > d3;
-		bool b4 = d2 > d3;
+		const bool b0 = d0 > d3;
+		const bool b1 = d1 > d2;
+		const bool b2 = d0 > d2;
+		const bool b3 = d1 > d3;
+		const bool b4 = d2 > d3;
 
-		int x0 = b1 & b2;
-		int x1 = b0 & b3;
-		int x2 = b0 & b4;
+		const int x0 = b1 & b2;
+		const int x1 = b0 & b3;
+		const int x2 = b0 & b4;
 
 		result |= ( x2 | ( ( x0 | x1 ) << 1 ) ) << ( i << 1 );
 #endif
@@ -3204,7 +3092,7 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 	colors[3][2] = ( 1 * colors[0][2] + 2 * colors[1][2] ) / 3;
 	colors[3][3] = 0;
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		int c0, c1, c2, m, d, minDist;
 
 		c0 = colorBlock[i*4+0];
@@ -3259,7 +3147,7 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 	}
 
 	unsigned int result = 0;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		result |= ( indexes[i] << (unsigned int)( i << 1 ) );
 	}
 
@@ -3287,9 +3175,9 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 	colors[3][2] = ( 1 * colors[0][2] + 2 * colors[1][2] ) / 3;
 	colors[3][3] = 0;
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		unsigned int minDist = (255*255)*4;
-		for ( int j = 0; j < 4; j++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			unsigned int dist = ColorDistance( &colorBlock[i*4], &colors[j][0] );
 			if ( dist < minDist ) {
 				minDist = dist;
@@ -3299,7 +3187,7 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 	}
 
 	unsigned int result = 0;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		result |= ( indexes[i] << (unsigned int)( i << 1 ) );
 	}
 
@@ -3340,7 +3228,7 @@ void idDxtEncoder::EmitColorAlphaIndices( const byte *colorBlock, const byte *mi
 	colors[3][3] = 0;
 
 	// uses sum of absolute differences instead of squared distance to find the best match
-	for ( int i = 15; i >= 0; i-- ) {
+	for ( size_t i = 15; i >= 0; i-- ) {
 		int c0, c1, c2, c3, m, d0, d1, d2;
 
 		c0 = colorBlock[i*4+0];
@@ -3369,10 +3257,10 @@ void idDxtEncoder::EmitColorAlphaIndices( const byte *colorBlock, const byte *mi
 		m = colors[2][2] - c2;
 		d2 += abs( m );
 
-		unsigned int b0 = d2 > d0;
-		unsigned int b1 = d2 > d1;
-		unsigned int b2 = d1 > d0;
-		unsigned int b3 = c3 < 128;
+		const unsigned int b0 = d2 > d0;
+		const unsigned int b1 = d2 > d1;
+		const unsigned int b2 = d1 > d0;
+		const unsigned int b3 = c3 < 128;
 
 		result |= ( ( ( b0 & b1 | b3 ) << 1 ) | ( b2 ^ b1 | b3 ) ) << ( i << 1 );
 	}
@@ -3404,7 +3292,7 @@ void idDxtEncoder::EmitCTX1Indices( const byte *colorBlock, const byte *minColor
 	colors[3][0] = ( 1 * colors[0][0] + 2 * colors[1][0] ) / 3;
 	colors[3][1] = ( 1 * colors[0][1] + 2 * colors[1][1] ) / 3;
 
-	for ( int i = 15; i >= 0; i-- ) {
+	for ( size_t i = 15; i >= 0; i-- ) {
 		int c0, c1, m, d0, d1, d2, d3;
 
 		c0 = colorBlock[i*4+0];
@@ -3428,15 +3316,15 @@ void idDxtEncoder::EmitCTX1Indices( const byte *colorBlock, const byte *minColor
 		m = colors[3][1] - c1;
 		d3 += abs( m );
 
-		bool b0 = d0 > d3;
-		bool b1 = d1 > d2;
-		bool b2 = d0 > d2;
-		bool b3 = d1 > d3;
-		bool b4 = d2 > d3;
+		const bool b0 = d0 > d3;
+		const bool b1 = d1 > d2;
+		const bool b2 = d0 > d2;
+		const bool b3 = d1 > d3;
+		const bool b4 = d2 > d3;
 
-		int x0 = b1 & b2;
-		int x1 = b0 & b3;
-		int x2 = b0 & b4;
+		const int x0 = b1 & b2;
+		const int x1 = b0 & b3;
+		const int x2 = b0 & b4;
 
 		result |= ( x2 | ( ( x0 | x1 ) << 1 ) ) << ( i << 1 );
 	}
@@ -3474,16 +3362,16 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 
 	colorBlock += offset;
 
-	for ( int i = 0; i < 16; i++ ) {
-		byte a = colorBlock[i*4];
-		int b1 = ( a >= ab1 );
-		int b2 = ( a >= ab2 );
-		int b3 = ( a >= ab3 );
-		int b4 = ( a >= ab4 );
-		int b5 = ( a >= ab5 );
-		int b6 = ( a >= ab6 );
-		int b7 = ( a >= ab7 );
-		int index = ( 8 - b1 - b2 - b3 - b4 - b5 - b6 - b7 ) & 7;
+	for ( size_t i = 0; i < 16; i++ ) {
+		const byte a = colorBlock[i*4];
+		const int b1 = ( a >= ab1 );
+		const int b2 = ( a >= ab2 );
+		const int b3 = ( a >= ab3 );
+		const int b4 = ( a >= ab4 );
+		const int b5 = ( a >= ab5 );
+		const int b6 = ( a >= ab6 );
+		const int b7 = ( a >= ab7 );
+		const int index = ( 8 - b1 - b2 - b3 - b4 - b5 - b6 - b7 ) & 7;
 		indexes[i] = static_cast<byte>(index ^ (2 > index));
 	}
 
@@ -3506,7 +3394,7 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 
 	colorBlock += offset;
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		byte a = colorBlock[i*4];
 		if ( a <= bottom ) {
 			indexes[i] = 1;
@@ -3536,7 +3424,7 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 
 	colorBlock += offset;
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		byte a = colorBlock[i*4];
 		int index = (ALPHA_RANGE+1) + ( ( minAlpha - a ) * ALPHA_RANGE - half ) / delta;
 		int c0 = a > bottom;
@@ -3568,10 +3456,10 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 
 	colorBlock += offset;
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		int minDist = INT_MAX;
 		byte a = colorBlock[i*4];
-		for ( int j = 0; j < 8; j++ ) {
+		for ( size_t j = 0; j < 8; j++ ) {
 			int dist = abs( a - alphas[j] );
 			if ( dist < minDist ) {
 				minDist = dist;
@@ -3601,7 +3489,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageDXT1Fast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressImageDXT1Fast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte minColor[4] );
 	ALIGN16( byte maxColor[4] );
@@ -3613,8 +3501,8 @@ void idDxtEncoder::CompressImageDXT1Fast_Generic( const byte *inBuf, byte *outBu
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -3642,7 +3530,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageDXT1AlphaFast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressImageDXT1AlphaFast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte minColor[4] );
 	ALIGN16( byte maxColor[4] );
@@ -3654,13 +3542,13 @@ void idDxtEncoder::CompressImageDXT1AlphaFast_Generic( const byte *inBuf, byte *
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
 			GetMinMaxBBox( block, minColor, maxColor );
-			byte minAlpha = minColor[3];
+			const byte minAlpha = minColor[3];
 			//SelectColorsDiagonal( block, minColor, maxColor );
 			InsetColorsBBox( minColor, maxColor );
 
@@ -3689,7 +3577,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageDXT5Fast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressImageDXT5Fast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte minColor[4] );
 	ALIGN16( byte maxColor[4] );
@@ -3701,8 +3589,8 @@ void idDxtEncoder::CompressImageDXT5Fast_Generic( const byte *inBuf, byte *outBu
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -3736,20 +3624,20 @@ idDxtEncoder::ScaleYCoCg
 */
 void idDxtEncoder::ScaleYCoCg( byte *colorBlock, byte *minColor, byte *maxColor ) const {
 	int m0 = abs( minColor[0] - 128 );
-	int m1 = abs( minColor[1] - 128 );
+	const int m1 = abs( minColor[1] - 128 );
 	int m2 = abs( maxColor[0] - 128 );
-	int m3 = abs( maxColor[1] - 128 );
+	const int m3 = abs( maxColor[1] - 128 );
 
-	if ( m1 > m0 ) m0 = m1;
-	if ( m3 > m2 ) m2 = m3;
-	if ( m2 > m0 ) m0 = m2;
+	m0 = std::max(m1, m0);
+	m2 = std::max(m3, m2);
+	m0 = std::max(m2, m0);
 
 	constexpr int s0 = 128 / 2 - 1;
 	constexpr int s1 = 128 / 4 - 1;
 
-	int mask0 = -( m0 <= s0 );
-	int mask1 = -( m0 <= s1 );
-	int scale = 1 + ( 1 & mask0 ) + ( 2 & mask1 );
+	const int mask0 = -( m0 <= s0 );
+	const int mask1 = -( m0 <= s1 );
+	const int scale = 1 + ( 1 & mask0 ) + ( 2 & mask1 );
 
 	minColor[0] = static_cast<byte>((minColor[0] - 128) * scale + 128);
 	minColor[1] = static_cast<byte>((minColor[1] - 128) * scale + 128);
@@ -3758,7 +3646,7 @@ void idDxtEncoder::ScaleYCoCg( byte *colorBlock, byte *minColor, byte *maxColor 
 	maxColor[1] = static_cast<byte>((maxColor[1] - 128) * scale + 128);
 	maxColor[2] = static_cast<byte>((scale - 1) << 3);
 
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		colorBlock[i*4+0] = static_cast<byte>((colorBlock[i * 4 + 0] - 128) * scale + 128);
 		colorBlock[i*4+1] = static_cast<byte>((colorBlock[i * 4 + 1] - 128) * scale + 128);
 	}
@@ -3799,7 +3687,7 @@ ID_INLINE void idDxtEncoder::InsetYCoCgBBox( byte *minColor, byte *maxColor ) co
 	float minf[4];
 	float maxf[4];
 
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		minf[i] = minColor[i] / 255.0f;
 		maxf[i] = maxColor[i] / 255.0f;
 	}
@@ -3809,7 +3697,7 @@ ID_INLINE void idDxtEncoder::InsetYCoCgBBox( byte *minColor, byte *maxColor ) co
 	inset[2] = ( maxf[2] - minf[2] ) / 16.0f;
 	inset[3] = ( maxf[3] - minf[3] ) / 32.0f;
 
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		minf[i] = ( minf[i] + inset[i] <= 1.0f ) ? minf[i] + inset[i] : 1.0f;
 		maxf[i] = ( maxf[i] >= inset[i] ) ? maxf[i] - inset[i] : 0;
 	}
@@ -3962,12 +3850,12 @@ idDxtEncoder::SelectYCoCgDiagonal
 void idDxtEncoder::SelectYCoCgDiagonal( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
 	byte side = 0;
 
-	byte mid0 = static_cast<byte>(((int)minColor[0] + maxColor[0] + 1) >> 1);
-	byte mid1 = static_cast<byte>(((int)minColor[1] + maxColor[1] + 1) >> 1);
+	const byte mid0 = static_cast<byte>(((int)minColor[0] + maxColor[0] + 1) >> 1);
+	const byte mid1 = static_cast<byte>(((int)minColor[1] + maxColor[1] + 1) >> 1);
 
-	for ( int i = 0; i < 16; i++ ) {
-		byte b0 = colorBlock[i*4+0] >= mid0;
-		byte b1 = colorBlock[i*4+1] >= mid1;
+	for ( size_t i = 0; i < 16; i++ ) {
+		const byte b0 = colorBlock[i*4+0] >= mid0;
+		const byte b1 = colorBlock[i*4+1] >= mid1;
 		side += ( b0 ^ b1 );
 	}
 
@@ -3999,7 +3887,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressYCoCgDXT5Fast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressYCoCgDXT5Fast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte minColor[4] );
 	ALIGN16( byte maxColor[4] );
@@ -4013,8 +3901,8 @@ void idDxtEncoder::CompressYCoCgDXT5Fast_Generic( const byte *inBuf, byte *outBu
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -4052,7 +3940,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressYCoCgAlphaDXT5Fast( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressYCoCgAlphaDXT5Fast( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte minColor[4] );
 	ALIGN16( byte maxColor[4] );
@@ -4064,13 +3952,13 @@ void idDxtEncoder::CompressYCoCgAlphaDXT5Fast( const byte *inBuf, byte *outBuf, 
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
 			// scale down the chroma of texels that are close to gray with low luminance
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				if ( abs( block[k*4+0] - 132 ) <= 8 &&
 						abs( block[k*4+2] - 132 ) <= 8 &&
 							block[k*4+3] < 96 ) {
@@ -4112,7 +4000,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressYCoCgCTX1DXT5AFast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressYCoCgCTX1DXT5AFast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte minColor[4] );
 	ALIGN16( byte maxColor[4] );
@@ -4126,8 +4014,8 @@ void idDxtEncoder::CompressYCoCgCTX1DXT5AFast_Generic( const byte *inBuf, byte *
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -4169,20 +4057,20 @@ void idDxtEncoder::EmitGreenIndices( const byte *block, const int offset, const 
 
 #if 1
 
-	byte yb1 = ( 5 * maxGreen + 1 * minGreen + COLOR_RANGE ) / ( 2 * COLOR_RANGE );
-	byte yb2 = ( 3 * maxGreen + 3 * minGreen + COLOR_RANGE ) / ( 2 * COLOR_RANGE );
-	byte yb3 = ( 1 * maxGreen + 5 * minGreen + COLOR_RANGE ) / ( 2 * COLOR_RANGE );
+	const byte yb1 = ( 5 * maxGreen + 1 * minGreen + COLOR_RANGE ) / ( 2 * COLOR_RANGE );
+	const byte yb2 = ( 3 * maxGreen + 3 * minGreen + COLOR_RANGE ) / ( 2 * COLOR_RANGE );
+	const byte yb3 = ( 1 * maxGreen + 5 * minGreen + COLOR_RANGE ) / ( 2 * COLOR_RANGE );
 
 	unsigned int result = 0;
 
 	block += offset;
 
-	for ( int i = 15; i >= 0; i-- ) {
+	for ( size_t i = 15; i >= 0; i-- ) {
 		result <<= 2;
-		byte y = block[i*4];
-		int b1 = ( y >= yb1 );
-		int b2 = ( y >= yb2 );
-		int b3 = ( y >= yb3 );
+		const byte y = block[i*4];
+		const int b1 = ( y >= yb1 );
+		const int b2 = ( y >= yb2 );
+		const int b3 = ( y >= yb3 );
 		int index = ( 4 - b1 - b2 - b3 ) & 3;
 		index ^= ( 2 > index );
 		result |= index;
@@ -4203,12 +4091,12 @@ void idDxtEncoder::EmitGreenIndices( const byte *block, const int offset, const 
 
 	block += offset;
 
-	for ( int i = 15; i >= 0; i-- ) {
+	for ( size_t i = 15; i >= 0; i-- ) {
 		result <<= 2;
 		byte y = block[i*4];
 		int minDist = INT_MAX;
 		int index;
-		for ( int j = 0; j < 4; j++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			int dist = abs( y - green[j] );
 			if ( dist < minDist ) {
 				minDist = dist;
@@ -4297,7 +4185,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXT5Fast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXT5Fast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte normal1[4] );
 	ALIGN16( byte normal2[4] );
@@ -4309,8 +4197,8 @@ void idDxtEncoder::CompressNormalMapDXT5Fast_Generic( const byte *inBuf, byte *o
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -4342,7 +4230,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressImageDXN1Fast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressImageDXN1Fast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte min[4] );
 	ALIGN16( byte max[4] );
@@ -4354,8 +4242,8 @@ void idDxtEncoder::CompressImageDXN1Fast_Generic( const byte *inBuf, byte *outBu
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -4382,7 +4270,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::CompressNormalMapDXN2Fast_Generic( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::CompressNormalMapDXN2Fast_Generic( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte block[64] );
 	ALIGN16( byte normal1[4] );
 	ALIGN16( byte normal2[4] );
@@ -4394,8 +4282,8 @@ void idDxtEncoder::CompressNormalMapDXN2Fast_Generic( const byte *inBuf, byte *o
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 
 			ExtractBlock( inBuf + i * 4, width, block );
 
@@ -4484,12 +4372,12 @@ void idDxtEncoder::EncodeNormalRGBIndices( byte *outBuf, const byte min, const b
 
 	unsigned int result = 0;
 
-	for ( int i = 15; i >= 0; i-- ) {
+	for ( size_t i = 15; i >= 0; i-- ) {
 		result <<= 2;
-		byte y = values[i];
-		int b1 = ( y >= yb1 );
-		int b2 = ( y >= yb2 );
-		int b3 = ( y >= yb3 );
+		const byte y = values[i];
+		const int b1 = ( y >= yb1 );
+		const int b2 = ( y >= yb2 );
+		const int b3 = ( y >= yb3 );
 		int index = ( 4 - b1 - b2 - b3 ) & 3;
 		index ^= ( 2 > index );
 		result |= index;
@@ -4522,7 +4410,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::ConvertNormalMapDXN2_DXT5( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::ConvertNormalMapDXN2_DXT5( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte values[16] );
 
 	this->width = width;
@@ -4541,8 +4429,8 @@ void idDxtEncoder::ConvertNormalMapDXN2_DXT5( const byte *inBuf, byte *outBuf, i
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4, inBuf += 16, outBuf += 16 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4, inBuf += 16, outBuf += 16 ) {
 
 			// decode normal Y stored as a DXT5 alpha channel
 			DecodeDXNAlphaValues( inBuf + 0, values );
@@ -4553,13 +4441,9 @@ void idDxtEncoder::ConvertNormalMapDXN2_DXT5( const byte *inBuf, byte *outBuf, i
 			// get the min/max Y
 			byte minNormalY = 255;
 			byte maxNormalY = 0;
-			for ( int i = 0; i < 16; i++ ) {
-				if ( values[i] < minNormalY ) {
-					minNormalY = values[i];
-				}
-				if ( values[i] > maxNormalY ) {
-					maxNormalY = values[i];
-				}
+			for ( size_t i = 0; i < 16; i++ ) {
+				minNormalY = std::min(values[i], minNormalY);
+				maxNormalY = std::max(values[i], maxNormalY);
 			}
 
 			// encode normal Y into DXT5 color channels
@@ -4626,9 +4510,9 @@ void idDxtEncoder::EncodeDXNAlphaValues( byte *outBuf, const byte min, const byt
 	int error = 0;
 	for ( i = 0; i < 16; i++ ) {
 		int minDist = MAX_TYPE( int );
-		byte a = values[i];
+		const byte a = values[i];
 		for ( j = 0; j < 8; j++ ) {
-			int dist = AlphaDistance( a, alphas[j] );
+			const int dist = AlphaDistance( a, alphas[j] );
 			if ( dist < minDist ) {
 				minDist = dist;
 				indexes[i] = j;
@@ -4659,7 +4543,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::ConvertNormalMapDXT5_DXN2( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::ConvertNormalMapDXT5_DXN2( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte values[16] );
 	byte minNormalY, maxNormalY;
 
@@ -4679,8 +4563,8 @@ void idDxtEncoder::ConvertNormalMapDXT5_DXN2( const byte *inBuf, byte *outBuf, i
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4, inBuf += 16, outBuf += 16 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4, inBuf += 16, outBuf += 16 ) {
 
 			// decode normal Y stored as a DXT5 alpha channel
 			DecodeNormalYValues( inBuf + 8, minNormalY, maxNormalY, values );
@@ -4705,7 +4589,7 @@ params:	width		- width of image
 params:	height		- height of image
 ========================
 */
-void idDxtEncoder::ConvertImageDXN1_DXT1( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtEncoder::ConvertImageDXN1_DXT1( const byte *inBuf, byte *outBuf, const size_t width, const size_t height ) {
 	ALIGN16( byte values[16] );
 
 	this->width = width;
@@ -4724,8 +4608,8 @@ void idDxtEncoder::ConvertImageDXN1_DXT1( const byte *inBuf, byte *outBuf, int w
 		return;
 	}
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4, inBuf += 8, outBuf += 8 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4, inBuf += 8, outBuf += 8 ) {
 
 			// decode single channel stored as a DXT5 alpha channel
 			DecodeDXNAlphaValues( inBuf + 0, values );
@@ -4733,13 +4617,9 @@ void idDxtEncoder::ConvertImageDXN1_DXT1( const byte *inBuf, byte *outBuf, int w
 			// get the min/max
 			byte min = 255;
 			byte max = 0;
-			for ( int i = 0; i < 16; i++ ) {
-				if ( values[i] < min ) {
-					min = values[i];
-				}
-				if ( values[i] > max ) {
-					max = values[i];
-				}
+			for ( size_t i = 0; i < 16; i++ ) {
+				min = std::min(values[i], min);
+				max = std::max(values[i], max);
 			}
 
 			// encode single channel into DXT1

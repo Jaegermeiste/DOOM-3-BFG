@@ -69,11 +69,11 @@ public:
 	bool					SetString( const char * key, const char * val );	// Returns false if the key doesn't exist
 	void					AddKeyVal( const char * key, const char * val );	// Like SetString, but adds it if it doesn't already exist
 
-	size_t					GetNumKeyVals() const;
-	const idLangKeyValue *	GetKeyVal( size_t i ) const;
+	[[nodiscard]] size_t					GetNumKeyVals() const;
+	[[nodiscard]] const idLangKeyValue *	GetKeyVal( size_t i ) const;
 	bool					DeleteString( const size_t idx );
 
-	const char *			GetLocalizedString( const idStrId & strId ) const;
+	[[nodiscard]] const char *			GetLocalizedString( const idStrId & strId ) const;
 
 	// returns true if the string starts with the KEY_PREFIX string
 	static bool				IsStringId( const char * str );
@@ -138,12 +138,12 @@ public:
 	void			Set( const char * key );
 
 	void			Empty() { index = -1; }
-	bool			IsEmpty() const { return index < 0; }
+	[[nodiscard]] bool			IsEmpty() const { return index < 0; }
 
-	const char *	GetKey() const;
-	const char *	GetLocalizedString() const;
+	[[nodiscard]] const char *	GetKey() const;
+	[[nodiscard]] const char *	GetLocalizedString() const;
 
-	size_t			GetIndex() const { return idMath::integer_cast<size_t>(index); }
+	[[nodiscard]] size_t			GetIndex() const { return idMath::integer_cast<size_t>(index); }
 	
 	void			SetIndex(const Ordinal auto i) { ORDINAL_CHECK(i, INT64_MAX); index = idMath::integer_cast<int64>(i); }
 

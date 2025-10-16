@@ -203,21 +203,21 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 ========================
 PadImageTo4x4
 
-DXT Compression requres a complete 4x4 block, even if the GPU will only be sampling
+DXT Compression requires a complete 4x4 block, even if the GPU will only be sampling
 a subset of it, so pad to 4x4 with replicated texels to maximize compression.
 ========================
 */
-static void PadImageTo4x4( const byte *src, int width, int height, byte dest[64] ) {
+static void PadImageTo4x4( const byte *src, const size_t width, const size_t height, byte dest[64] ) {
 	// we probably will need to support this for non-square images, but I'll address
 	// that when needed
 	assert( width <= 4 && height <= 4 );
 	assert( width > 0 && height > 0 );
 
-	for ( int y = 0 ; y < 4 ; y++ ) {
-		int	sy = y % height;
-		for ( int x = 0 ; x < 4 ; x++ ) {
-			int	sx = x % width;
-			for ( int c = 0 ; c < 4 ; c++ ) {
+	for ( size_t y = 0 ; y < 4 ; y++ ) {
+		size_t	sy = y % height;
+		for (size_t x = 0 ; x < 4 ; x++ ) {
+			size_t	sx = x % width;
+			for (size_t c = 0 ; c < 4 ; c++ ) {
 				dest[(y*4+x)*4+c] = src[(sy*width+sx)*4+c];
 			}
 		}
@@ -229,27 +229,27 @@ static void PadImageTo4x4( const byte *src, int width, int height, byte dest[64]
 idBinaryImage::LoadCubeFromMemory
 ========================
 */
-void idBinaryImage::LoadCubeFromMemory( int width, const byte * pics[6], int numLevels, textureFormat_t & textureFormat, bool gammaMips ) {
+void idBinaryImage::LoadCubeFromMemory( const size_t width, const byte * pics[6], const size_t numLevels, textureFormat_t & textureFormat, bool gammaMips ) {
 	fileData.textureType = TT_CUBIC;
 	fileData.format = textureFormat;
 	fileData.colorFormat = CFM_DEFAULT;
-	fileData.height = fileData.width = width;
-	fileData.numLevels = numLevels;
+	fileData.height = fileData.width = idMath::integer_cast<int>(width);
+	fileData.numLevels = idMath::integer_cast<int>(numLevels);
 
-	images.SetNum( fileData.numLevels * 6 );
+	images.SetNum( fileData.numLevels * 6ULL );
 
-	for ( int side = 0; side < 6; side++ ) {
+	for ( size_t side = 0; side < 6; side++ ) {
 		const byte *orig = pics[side];
 		const byte *pic = orig;
-		int	scaledWidth = fileData.width;
-		for ( int level = 0; level < fileData.numLevels; level++ ) {
+		size_t	scaledWidth = fileData.width;
+		for ( size_t level = 0; level < idMath::integer_cast<size_t>(fileData.numLevels); level++ ) {
 			// compress data or convert floats as necessary
 			idBinaryImageData &img = images[ level * 6 + side ];
 
 			// handle padding blocks less than 4x4 for the DXT compressors
 			ALIGN16( byte padBlock[64] );
-			int		padSize;
-			const byte *padSrc;
+			size_t	padSize = 0;
+			const byte *padSrc = nullptr;
 			if ( scaledWidth < 4 && ( textureFormat == FMT_DXT1 || textureFormat == FMT_DXT5 ) ) {
 				PadImageTo4x4( pic, scaledWidth, scaledWidth, padBlock );
 				padSize = 4;
@@ -259,10 +259,10 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte * pics[6], int num
 				padSrc = pic;
 			}
 
-			img.level = level;
-			img.destZ = side;
-			img.width = padSize;
-			img.height = padSize;
+			img.level = idMath::integer_cast<int>(level);
+			img.destZ = idMath::integer_cast<int>(side);
+			img.width = idMath::integer_cast<int>(padSize);
+			img.height = idMath::integer_cast<int>(padSize);
 			if ( textureFormat == FMT_DXT1 ) {
 				img.Alloc( padSize * padSize / 2 );
 				idDxtEncoder dxt;
@@ -290,11 +290,11 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte * pics[6], int num
 			}
 			pic = shrunk;
 
-			scaledWidth = Max( 1, scaledWidth >> 1 );
+			scaledWidth = Max( 1ULL, scaledWidth >> 1 );
 		}
 		if ( pic != orig ) {
 			// free the down sampled version
-			Mem_Free( (void *)pic );
+			Mem_Free( reinterpret_cast<void *>(const_cast<byte*>(pic)) );
 			pic = nullptr;
 		}
 	}
@@ -367,6 +367,11 @@ Load the preprocessed image from the generated folder.
 ==========================
 */
 bool idBinaryImage::LoadFromGeneratedFile( idFile * bFile, ID_TIME_T sourceFileTime ) {
+	if (! bFile )
+	{
+		return false;
+	}
+
 	if ( bFile->Read( &fileData, sizeof( fileData ) ) <= 0 ) {
 		return false;
 	}
@@ -394,7 +399,7 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile * bFile, ID_TIME_T sourceFileT
 
 	images.SetNum( numImages );
 
-	for ( int i = 0; i < numImages; i++ ) {
+	for ( size_t i = 0; i < numImages; i++ ) {
 		idBinaryImageData &img = images[ i ];
 		if ( bFile->Read( &img, sizeof( bimageImage_t ) ) <= 0 ) {
 			return false;

@@ -642,7 +642,7 @@ void idMD5Anim::GetOrigin( idVec3 &offset, ID_TIME_T time, size_t cyclecount ) c
 	}
 
 	if ( frame.cycleCount ) {
-		offset += totaldelta * ( float )frame.cycleCount;
+		offset += totaldelta * static_cast<float>(frame.cycleCount);
 	}
 }
 

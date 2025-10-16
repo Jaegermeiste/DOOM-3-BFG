@@ -80,6 +80,8 @@ public:
 	virtual size_t			WriteFloatString( VERIFY_FORMAT_STRING const char *fmt, ... );
 	
 	// Endian portable alternatives to Read(...)
+	virtual size_t			ReadInt64(int64& value);
+	virtual size_t			ReadUnsignedInt64(uint64& value);
 	virtual size_t			ReadInt( int &value );
 	virtual size_t			ReadUnsignedInt( unsigned int &value );
 	virtual size_t			ReadShort( short &value );
@@ -96,6 +98,8 @@ public:
 	virtual size_t			ReadMat3( idMat3 &mat );
 	
 	// Endian portable alternatives to Write(...)
+	virtual size_t			WriteInt64(const int64 value);
+	virtual size_t			WriteUnsignedInt64(const uint64 value);
 	virtual size_t			WriteInt( const int value );
 	virtual size_t			WriteUnsignedInt( const unsigned int value );
 	virtual size_t			WriteShort( const short value );

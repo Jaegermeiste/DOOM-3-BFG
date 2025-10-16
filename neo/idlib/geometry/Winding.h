@@ -65,7 +65,7 @@ public:
 	void			AddPoint( const idVec5 &v );
 
 					// number of points on winding
-	size_t          GetNumPoints() const;
+					[[nodiscard]] size_t          GetNumPoints() const;
 	void			SetNumPoints(size_t n);
 	virtual void	Clear();
 
@@ -84,8 +84,8 @@ public:
 	bool			ClipInPlace( const idPlane &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
 
 					// returns a copy of the winding
-	idWinding *		Copy() const;
-	idWinding *		Reverse() const;
+					[[nodiscard]] idWinding *		Copy() const;
+					[[nodiscard]] idWinding *		Reverse() const;
 	void			ReverseSelf() const;
 	void			RemoveEqualPoints( const float epsilon = ON_EPSILON );
 	void			RemoveColinearPoints( const idVec3 &normal, const float epsilon = ON_EPSILON );
@@ -100,29 +100,29 @@ public:
 	void			AddToConvexHull( const idVec3 &point, const idVec3 &normal, const float epsilon = ON_EPSILON );
 					// tries to merge 'this' with the given winding, returns NULL if merge fails, both 'this' and 'w' stay intact
 					// 'keep' tells if the contacting points should stay even if they create colinear edges
-	idWinding *		TryMerge( const idWinding &w, const idVec3 &normal, int keep = false ) const;
+					[[nodiscard]] idWinding *		TryMerge( const idWinding &w, const idVec3 &normal, int keep = false ) const;
 					// check whether the winding is valid or not
-	bool			Check( bool print = true ) const;
+					[[nodiscard]] bool			Check( bool print = true ) const;
 
-	float			GetArea() const;
-	idVec3			GetCenter() const;
-	float			GetRadius( const idVec3 &center ) const;
+					[[nodiscard]] float			GetArea() const;
+					[[nodiscard]] idVec3			GetCenter() const;
+					[[nodiscard]] float			GetRadius( const idVec3 &center ) const;
 	void			GetPlane( idVec3 &normal, float &dist ) const;
 	void			GetPlane( idPlane &plane ) const;
 	void			GetBounds( idBounds &bounds ) const;
 
-	bool			IsTiny() const;
-	bool			IsHuge() const;	// base winding for a plane is typically huge
+					[[nodiscard]] bool			IsTiny() const;
+					[[nodiscard]] bool			IsHuge() const;	// base winding for a plane is typically huge
 	void			Print() const;
 
-	float			PlaneDistance( const idPlane &plane ) const;
-	int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+					[[nodiscard]] float			PlaneDistance( const idPlane &plane ) const;
+					[[nodiscard]] int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
-	bool			PlanesConcave( const idWinding &w2, const idVec3 &normal1, const idVec3 &normal2, float dist1, float dist2 ) const;
+					[[nodiscard]] bool			PlanesConcave( const idWinding &w2, const idVec3 &normal1, const idVec3 &normal2, float dist1, float dist2 ) const;
 
-	bool			PointInside( const idVec3 &normal, const idVec3 &point, const float epsilon ) const;
+					[[nodiscard]] bool			PointInside( const idVec3 &normal, const idVec3 &point, const float epsilon ) const;
 					// returns true if the line or ray intersects the winding
-	bool			LineIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
+					[[nodiscard]] bool			LineIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
 					// intersection point is start + dir * scale
 	bool			RayIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &dir, float &scale, bool backFaceCull = false ) const;
 
@@ -294,8 +294,8 @@ class idFixedWinding : public idWinding {
 
 public:
 					idFixedWinding() noexcept;
-					explicit idFixedWinding( const int n );
-					explicit idFixedWinding( const idVec3 *verts, const int n );
+					explicit idFixedWinding( const size_t n );
+					explicit idFixedWinding( const idVec3 *verts, const size_t n );
 					explicit idFixedWinding( const idVec3 &normal, const float dist );
 					explicit idFixedWinding( const idPlane &plane );
 					explicit idFixedWinding( const idWinding &winding );
@@ -322,13 +322,14 @@ ID_INLINE idFixedWinding::idFixedWinding() noexcept {
 	allocedSize = MAX_POINTS_ON_WINDING;
 }
 
-ID_INLINE idFixedWinding::idFixedWinding( int n ) {
+ID_INLINE idFixedWinding::idFixedWinding( const size_t n ) {
 	numPoints = 0;
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
+	[[maybe_unused]] auto discard = n;
 }
 
-ID_INLINE idFixedWinding::idFixedWinding( const idVec3 *verts, const int n ) {
+ID_INLINE idFixedWinding::idFixedWinding( const idVec3 *verts, const size_t n) {
 	numPoints = 0;
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;

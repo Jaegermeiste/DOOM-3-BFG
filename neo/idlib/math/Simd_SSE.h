@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idSIMD_SSE : public idSIMD_Generic {
 public:
-	const char * VPCALL GetName() const override;
+	[[nodiscard]] const char * VPCALL GetName() const override;
 
 	void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t*index, const size_t numJoints ) override;
 	void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t*index, const size_t numJoints ) override;

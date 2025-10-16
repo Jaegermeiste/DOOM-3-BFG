@@ -69,20 +69,20 @@ public:
 	idPolynomial &	operator*=( const float s );
 	idPolynomial &	operator/=( const float s );
 
-	bool			Compare( const idPolynomial &p ) const;						// exact compare, no epsilon
-	bool			Compare( const idPolynomial &p, const float epsilon ) const;// compare with epsilon
+					[[nodiscard]] bool			Compare( const idPolynomial &p ) const;						// exact compare, no epsilon
+					[[nodiscard]] bool			Compare( const idPolynomial &p, const float epsilon ) const;// compare with epsilon
 	bool			operator==(	const idPolynomial &p ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPolynomial &p ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Zero( int d );
 
-	int				GetDimension() const;									// get the degree of the polynomial
-	int				GetDegree() const;									// get the degree of the polynomial
-	float			GetValue( const float x ) const;							// evaluate the polynomial with the given real value
-	idComplex		GetValue( const idComplex &x ) const;						// evaluate the polynomial with the given complex value
-	idPolynomial	GetDerivative() const;								// get the first derivative of the polynomial
-	idPolynomial	GetAntiDerivative() const;							// get the anti derivative of the polynomial
+					[[nodiscard]] int				GetDimension() const;									// get the degree of the polynomial
+					[[nodiscard]] int				GetDegree() const;									// get the degree of the polynomial
+					[[nodiscard]] float			GetValue( const float x ) const;							// evaluate the polynomial with the given real value
+					[[nodiscard]] idComplex		GetValue( const idComplex &x ) const;						// evaluate the polynomial with the given complex value
+					[[nodiscard]] idPolynomial	GetDerivative() const;								// get the first derivative of the polynomial
+					[[nodiscard]] idPolynomial	GetAntiDerivative() const;							// get the anti derivative of the polynomial
 
 	int				GetRoots( idComplex *roots ) const;							// get all roots
 	int				GetRoots( float *roots ) const;								// get the real roots
@@ -92,9 +92,9 @@ public:
 	static int		GetRoots3( float a, float b, float c, float d, float *roots );
 	static int		GetRoots4( float a, float b, float c, float d, float e, float *roots );
 
-	const float *	ToFloatPtr() const;
+					[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 	static void		Test();
 

@@ -226,6 +226,8 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 
 // hide annoyances
 #pragma warning( disable: 4458 )	// warning C4458: declaration of <parameter> hides class member
+#pragma warning( disable: 4100 )	// warning C4100: unreferenced parameter
+#pragma warning( disable: 4127 )	// warning C4127: conditional expression is constant
 
 // disable some /analyze warnings here
 #pragma warning( disable: 6255 )	// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead. (Note: _malloca requires _freea.)

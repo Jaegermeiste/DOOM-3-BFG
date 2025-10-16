@@ -61,8 +61,8 @@ public:
 	idPluecker &	operator+=( const idPluecker &a );
 	idPluecker &	operator-=( const idPluecker &a );
 
-	bool			Compare( const idPluecker &a ) const;						// exact compare, no epsilon
-	bool			Compare( const idPluecker &a, const float epsilon ) const;	// compare with epsilon
+					[[nodiscard]] bool			Compare( const idPluecker &a ) const;						// exact compare, no epsilon
+					[[nodiscard]] bool			Compare( const idPluecker &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idPluecker &a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPluecker &a ) const;					// exact compare, no epsilon
 
@@ -75,19 +75,19 @@ public:
 	bool			ToLine( idVec3 &start, idVec3 &end ) const;					// pluecker to line
 	bool			ToRay( idVec3 &start, idVec3 &dir ) const;					// pluecker to ray
 	void			ToDir( idVec3 &dir ) const;									// pluecker to direction
-	float			PermutedInnerProduct( const idPluecker &a ) const;			// pluecker permuted inner product
-	float			Distance3DSqr( const idPluecker &a ) const;					// pluecker line distance
+					[[nodiscard]] float			PermutedInnerProduct( const idPluecker &a ) const;			// pluecker permuted inner product
+					[[nodiscard]] float			Distance3DSqr( const idPluecker &a ) const;					// pluecker line distance
 
-	float			Length() const;										// pluecker length
-	float			LengthSqr() const;									// pluecker squared length
-	idPluecker		Normalize() const;									// pluecker normalize
+					[[nodiscard]] float			Length() const;										// pluecker length
+					[[nodiscard]] float			LengthSqr() const;									// pluecker squared length
+					[[nodiscard]] idPluecker		Normalize() const;									// pluecker normalize
 	float			NormalizeSelf();										// pluecker normalize
 
-	int				GetDimension() const;
+					[[nodiscard]] int				GetDimension() const;
 
-	const float *	ToFloatPtr() const;
+					[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	float			p[6];

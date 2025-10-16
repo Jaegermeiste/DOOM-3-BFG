@@ -77,27 +77,27 @@ public:
 	friend idQuat	operator*( const float a, const idQuat &b );
 	friend idVec3	operator*( const idVec3 &a, const idQuat &b );
 
-	bool			Compare( const idQuat &a ) const;						// exact compare, no epsilon
-	bool			Compare( const idQuat &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idQuat &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idQuat &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idQuat &a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idQuat &a ) const;					// exact compare, no epsilon
 
-	idQuat			Inverse() const;
-	float			Length() const;
+	[[nodiscard]] idQuat			Inverse() const;
+	[[nodiscard]] float			Length() const;
 	idQuat &		Normalize();
 
-	float			CalcW() const;
-	int				GetDimension() const;
+	[[nodiscard]] float			CalcW() const;
+	[[nodiscard]] int				GetDimension() const;
 
-	idAngles		ToAngles() const;
-	idRotation		ToRotation() const;
-	idMat3			ToMat3() const;
-	idMat4			ToMat4() const;
-	idCQuat			ToCQuat() const;
-	idVec3			ToAngularVelocity() const;
-	const float *	ToFloatPtr() const;
+	[[nodiscard]] idAngles		ToAngles() const;
+	[[nodiscard]] idRotation		ToRotation() const;
+	[[nodiscard]] idMat3			ToMat3() const;
+	[[nodiscard]] idMat4			ToMat4() const;
+	[[nodiscard]] idCQuat			ToCQuat() const;
+	[[nodiscard]] idVec3			ToAngularVelocity() const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 	idQuat &		Slerp( const idQuat &from, const idQuat &to, float t );
 	idQuat &		Lerp( const idQuat &from, const idQuat &to, const float t );
@@ -325,21 +325,21 @@ public:
 	
 	float &			operator[]( Ordinal auto index );
 
-	bool			Compare( const idCQuat &a ) const;						// exact compare, no epsilon
-	bool			Compare( const idCQuat &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idCQuat &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idCQuat &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idCQuat &a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idCQuat &a ) const;					// exact compare, no epsilon
 
-	int				GetDimension() const;
+	[[nodiscard]] int				GetDimension() const;
 
-	idAngles		ToAngles() const;
-	idRotation		ToRotation() const;
-	idMat3			ToMat3() const;
-	idMat4			ToMat4() const;
-	idQuat			ToQuat() const;
-	const float *	ToFloatPtr() const;
+	[[nodiscard]] idAngles		ToAngles() const;
+	[[nodiscard]] idRotation		ToRotation() const;
+	[[nodiscard]] idMat3			ToMat3() const;
+	[[nodiscard]] idMat4			ToMat4() const;
+	[[nodiscard]] idQuat			ToQuat() const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 };
 
 ID_INLINE idCQuat::idCQuat() noexcept = default;

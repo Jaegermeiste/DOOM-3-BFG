@@ -44,24 +44,24 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static constexpr int NUM_DECAL_BOUNDING_PLANES	= 6;
+static constexpr size_t    NUM_DECAL_BOUNDING_PLANES	= 6;
 #ifdef ID_PC
-static constexpr int MAX_DEFERRED_DECALS		= 8;
-static constexpr int DEFFERED_DECAL_TIMEOUT		= 1000;	// don't create a decal if it wasn't visible within the first second
-static constexpr int MAX_DECALS					= 64;
+static constexpr size_t    MAX_DEFERRED_DECALS		    = 8;
+static constexpr ID_TIME_T DEFFERED_DECAL_TIMEOUT		= 1000;	// don't create a decal if it wasn't visible within the first second
+static constexpr size_t    MAX_DECALS					= 64;
 #else
-static const int MAX_DEFERRED_DECALS		= 4;
-static const int DEFFERED_DECAL_TIMEOUT		= 200;	// don't create a decal if it wasn't visible within the first 200 milliseconds
-static const int MAX_DECALS					= 32;
+static constexpr size_t    MAX_DEFERRED_DECALS		    = 4;
+static constexpr ID_TIME_T DEFFERED_DECAL_TIMEOUT		= 200;	// don't create a decal if it wasn't visible within the first 200 milliseconds
+static constexpr size_t    MAX_DECALS					= 32;
 #endif
-static constexpr int MAX_DECAL_VERTS			= 3 + NUM_DECAL_BOUNDING_PLANES + 3 + 6;	// 3 triangle verts clipped NUM_DECAL_BOUNDING_PLANES + 3 times (plus 6 for safety)
-static constexpr int MAX_DECAL_INDEXES			= ( MAX_DECAL_VERTS - 2 ) * 3;
+static constexpr size_t    MAX_DECAL_VERTS			    = 3 + NUM_DECAL_BOUNDING_PLANES + 3 + 6;	// 3 triangle verts clipped NUM_DECAL_BOUNDING_PLANES + 3 times (plus 6 for safety)
+static constexpr size_t    MAX_DECAL_INDEXES			= ( MAX_DECAL_VERTS - 2 ) * 3;
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_DECALS ) );
 // the max indices must be a multiple of 2 for copying indices to write-combined memory
 compile_time_assert( ( ( MAX_DECAL_INDEXES * sizeof( triIndex_t ) ) & 15 ) == 0 );
 
-struct decalProjectionParms_t {
+typedef struct decalProjectionParms_s {
 	idPlane					boundingPlanes[NUM_DECAL_BOUNDING_PLANES];
 	idPlane					fadePlanes[2];
 	idPlane					textureAxis[2];
@@ -69,20 +69,20 @@ struct decalProjectionParms_t {
 	idBounds				projectionBounds;
 	const idMaterial *		material;
 	float					fadeDepth;
-	int						startTime;
+	ID_TIME_T				startTime;
 	bool					parallel;
 	bool					force;
-};
+} decalProjectionParms_t;
 
-ALIGNTYPE16 struct decal_t {
+typedef ALIGNTYPE16 struct decal_s {
 	ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
 	ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
 	float					vertDepthFade[MAX_DECAL_VERTS];
-	int						numVerts;
-	int						numIndexes;
-	int						startTime;
+	size_t					numVerts;
+	size_t					numIndexes;
+	ID_TIME_T				startTime;
 	const idMaterial *		material;
-};
+} decal_t;
 
 class idRenderModelDecal {
 public:
@@ -105,27 +105,27 @@ public:
 	void						CreateDeferredDecals( const idRenderModel *model );
 
 								// Remove decals that are completely faded away.
-	void						RemoveFadedDecals( int time );
+	void						RemoveFadedDecals( ID_TIME_T time );
 
 	unsigned int				GetNumDecalDrawSurfs();
-	struct drawSurf_t *			CreateDecalDrawSurf( const struct viewEntity_t *space, unsigned int index );
+	drawSurf_t *    			CreateDecalDrawSurf( const viewEntity_t *space, const Ordinal auto index );
 
 	void						ReadFromDemoFile( class idDemoFile *f );
 	void						WriteToDemoFile( class idDemoFile *f ) const;
 
 private:
 	decal_t						decals[MAX_DECALS];
-	unsigned int				firstDecal;
-	unsigned int				nextDecal;
+	size_t		        		firstDecal;
+	size_t		        		nextDecal;
 
 	decalProjectionParms_t		deferredDecals[MAX_DEFERRED_DECALS];
-	unsigned int				firstDeferredDecal;
-	unsigned int				nextDeferredDecal;
+	size_t			        	firstDeferredDecal;
+	size_t      				nextDeferredDecal;
 
 	const idMaterial *			decalMaterials[MAX_DECALS];
-	unsigned int				numDecalMaterials;
+	size_t      				numDecalMaterials;
 
-	void						CreateDecalFromWinding( const idWinding &w, const idMaterial *decalMaterial, const idPlane fadePlanes[2], float fadeDepth, int startTime );
+	void						CreateDecalFromWinding( const idWinding &w, const idMaterial *decalMaterial, const idPlane fadePlanes[2], float fadeDepth, ID_TIME_T startTime );
 	void						CreateDecal( const idRenderModel *model, const decalProjectionParms_t &localParms );
 };
 

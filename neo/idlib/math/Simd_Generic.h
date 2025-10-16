@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idSIMD_Generic : public idSIMDProcessor {
 public:
-	const char * VPCALL GetName() const override;
+	[[nodiscard]] const char * VPCALL GetName() const override;
 
 	void VPCALL MinMax( float &min,			float &max,				const float *src,		const size_t count ) override;
 	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const size_t count ) override;

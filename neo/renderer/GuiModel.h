@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-struct guiModelSurface_t {
+typedef struct guiModelSurface_s {
 	const idMaterial *	material;
 	uint64				glState;
 	int					firstIndex;
 	int					numIndexes;
-	stereoDepthType_t		stereoType;
-};
+	stereoDepthType_t	stereoType;
+} guiModelSurface_t;
 
 class idRenderMatrix;
 
@@ -45,7 +45,7 @@ public:
 	void	WriteToDemo( idDemoFile * demo );
 	void	ReadFromDemo( idDemoFile * demo );
 	
-	// allocates memory for verts and indexes in frame-temporary buffer memory
+	// allocates memory for vertices and indexes in frame-temporary buffer memory
 	void	BeginFrame();
 
 	void	EmitToCurrentView( float modelMatrix[16], bool depthHack );
@@ -53,7 +53,7 @@ public:
 
 	// the returned pointer will be in write-combined memory, so only make contiguous
 	// 32 bit writes and never read from it.
-	idDrawVert * AllocTris( int numVerts, const triIndex_t * indexes, int numIndexes, const idMaterial * material, 
+	idDrawVert * AllocTris( const size_t numVerts, const triIndex_t * indexes, const size_t numIndexes, const idMaterial * material, 
 							const uint64 glState, const stereoDepthType_t stereoType );
 
 	//---------------------------
@@ -71,16 +71,16 @@ private:
 	static const float STEREO_DEPTH_FAR;
 
 	// if we exceed these limits we stop rendering GUI surfaces
-	static constexpr int MAX_INDEXES = ( 20000 * 6 );
-	static constexpr int MAX_VERTS	 = ( 20000 * 4 );
+	static constexpr size_t MAX_INDEXES  = ( 20000 * 6 );
+	static constexpr size_t MAX_VERTS	 = ( 20000 * 4 );
 
 	vertCacheHandle_t			vertexBlock;
 	vertCacheHandle_t			indexBlock;
 	idDrawVert *				vertexPointer;
 	triIndex_t *				indexPointer;
 
-	int		numVerts;
-	int		numIndexes;
+	size_t	numVerts;
+	size_t	numIndexes;
 
 	idList<guiModelSurface_t, TAG_MODEL>	surfaces;
 };

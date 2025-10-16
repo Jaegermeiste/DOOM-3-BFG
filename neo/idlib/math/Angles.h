@@ -83,8 +83,8 @@ public:
 
 	friend idAngles	operator*( const float a, const idAngles &b );
 
-	bool			Compare( const idAngles &a ) const;							// exact compare, no epsilon
-	bool			Compare( const idAngles &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idAngles &a ) const;							// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idAngles &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idAngles &a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idAngles &a ) const;						// exact compare, no epsilon
 
@@ -93,18 +93,18 @@ public:
 
 	void			Clamp( const idAngles &min, const idAngles &max );
 
-	int				GetDimension() const;
+	[[nodiscard]] int				GetDimension() const;
 
 	void			ToVectors( idVec3 *forward, idVec3 *right = nullptr, idVec3 *up = nullptr) const;
-	idVec3			ToForward() const;
-	idQuat			ToQuat() const;
-	idRotation		ToRotation() const;
-	idMat3			ToMat3() const;
-	idMat4			ToMat4() const;
-	idVec3			ToAngularVelocity() const;
-	const float *	ToFloatPtr() const;
+	[[nodiscard]] idVec3			ToForward() const;
+	[[nodiscard]] idQuat			ToQuat() const;
+	[[nodiscard]] idRotation		ToRotation() const;
+	[[nodiscard]] idMat3			ToMat3() const;
+	[[nodiscard]] idMat4			ToMat4() const;
+	[[nodiscard]] idVec3			ToAngularVelocity() const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 };
 
 extern idAngles ang_zero;

@@ -33,7 +33,7 @@ Event are used for scheduling tasks and for linking script commands.
 #ifndef __SYS_EVENT_H__
 #define __SYS_EVENT_H__
 
-constexpr auto D_EVENT_MAXARGS     = 8;			// if changed, enable the CREATE_EVENT_CODE define in Event.cpp to generate switch statement for idClass::ProcessEventArgPtr.
+constexpr size_t D_EVENT_MAXARGS     = 8;			// if changed, enable the CREATE_EVENT_CODE define in Event.cpp to generate switch statement for idClass::ProcessEventArgPtr.
 												// running the game will then generate c:\doom\base\events.txt, the contents of which should be copied into the switch statement.
 
 constexpr auto D_EVENT_VOID        = static_cast<char>(0);
@@ -45,7 +45,7 @@ constexpr auto D_EVENT_ENTITY      = 'e';
 constexpr auto D_EVENT_ENTITY_NULL = 'E';			// event can handle NULL entity pointers
 constexpr auto D_EVENT_TRACE       = 't';
 
-constexpr auto MAX_EVENTS          = 4096;
+constexpr size_t MAX_EVENTS          = 4096;
 
 class idClass;
 class idTypeInfo;
@@ -54,11 +54,11 @@ class idEventDef {
 private:
 	const char					*name;
 	const char					*formatspec;
-	unsigned int				formatspecIndex;
-	int							returnType;
+	size_t      				formatspecIndex;
+	char						returnType;
 	size_t						numargs;
 	size_t						argsize;
-	int							argOffset[ D_EVENT_MAXARGS ];
+	size_t						argOffset[ D_EVENT_MAXARGS ];
 	size_t						eventnum;
 	const idEventDef *			next;
 
@@ -103,14 +103,14 @@ public:
 
 								~idEvent();
 
-	static idEvent				*Alloc( const idEventDef *evdef, size_t numargs, va_list args );
-	static void					CopyArgs( const idEventDef *evdef, size_t numargs, va_list args, int data[ D_EVENT_MAXARGS ]  );
+	static idEvent				*Alloc( const idEventDef *evdef, const size_t numargs, va_list args );
+	static void					CopyArgs( const idEventDef *evdef, const size_t numargs, va_list args, address_t data[ D_EVENT_MAXARGS ]  );
 	
 	void						Free();
-	void						Schedule( idClass *object, const idTypeInfo *cls, ID_TIME_T time );
-	byte						*GetData();
+	void						Schedule( idClass *obj, const idTypeInfo *type, ID_TIME_T time );
+	byte						*GetData() const;
 
-	static void					CancelEvents( const idClass *obj, const idEventDef *evdef = NULL );
+	static void					CancelEvents( const idClass *obj, const idEventDef *evdef = nullptr);
 	static void					ClearEventList();
 	static void					ServiceEvents();
 	static void					ServiceFastEvents();
@@ -130,7 +130,8 @@ public:
 idEvent::GetData
 ================
 */
-ID_INLINE byte *idEvent::GetData() {
+ID_INLINE byte *idEvent::GetData() const
+{
 	return data;
 }
 

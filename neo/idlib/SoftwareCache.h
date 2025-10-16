@@ -201,7 +201,7 @@ public:
 		return arrayPtr[index];
 	}
 	const _type_ * Ptr() const { return arrayPtr; }
-	int Num() const { return arrayNum; }
+	[[nodiscard]] int Num() const { return arrayNum; }
 
 private:
 	const _type_ * arrayPtr;
@@ -261,7 +261,7 @@ public:
 					*outNum = localNum;
 				}
 
-	int			Num() const { return localNum; }
+				[[nodiscard]] int			Num() const { return localNum; }
 	void		Append( _type_ element ) { assert( localNum < outMax ); outArray[localNum++] = element; }
 	_type_ &	Alloc() { assert( localNum < outMax ); return outArray[localNum++]; }
 

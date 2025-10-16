@@ -47,7 +47,7 @@ hit a Target.
 class idAimAssist {
 public:
 
-				idAimAssist() : angleCorrection( ang_zero ), frictionScalar( 1.0f ), lastTargetPos( vec3_zero ), player( NULL ) {}
+				idAimAssist() : angleCorrection( ang_zero ), frictionScalar( 1.0f ), lastTargetPos( vec3_zero ), player(nullptr) {}
 
 	void		Init( idPlayer * player );
 	void		Update();

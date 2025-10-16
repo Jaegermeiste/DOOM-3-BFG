@@ -58,8 +58,11 @@ struct gameReturn_t {
 	int			vibrationHigh;
 };
 
-#define TIME_GROUP1		0
-#define TIME_GROUP2		1
+enum timeGroup_e : uint8
+{
+	TIME_GROUP1 = 0,
+	TIME_GROUP2 = 1
+};
 
 class idGame {
 public:
@@ -81,16 +84,16 @@ public:
 	virtual void				SetServerGameTimeMs( const int time ) = 0;										
 
 	// Interpolated server time
-	virtual int					GetServerGameTimeMs() const = 0;												
+	virtual ID_TIME_T			GetServerGameTimeMs() const = 0;												
 
-	virtual int					GetSSEndTime() const  = 0;
-	virtual int					GetSSStartTime() const = 0;
+	virtual ID_TIME_T			GetSSEndTime() const  = 0;
+	virtual ID_TIME_T			GetSSStartTime() const = 0;
 
 	// common calls this before moving the single player game to a new level.
-	virtual const idDict &		GetPersistentPlayerInfo( int clientNum ) = 0;
+	        const idDict &		GetPersistentPlayerInfo( const Ordinal auto clientNum );
 
 	// common calls this right before a new level is loaded.
-	virtual void				SetPersistentPlayerInfo( int clientNum, const idDict &playerInfo ) = 0;
+	        void				SetPersistentPlayerInfo( const Ordinal auto clientNum, const idDict &playerInfo );
 
 	// Loads a map and spawns all the entities.
 	virtual void				InitFromNewMap( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, int gameMode, int randseed ) = 0;
@@ -116,7 +119,7 @@ public:
 	virtual void				RunFrame( idUserCmdMgr & cmdMgr, gameReturn_t & gameReturn ) = 0;
 
 	// Makes rendering and sound system calls to display for a given clientNum.
-	virtual bool				Draw( int clientNum ) = 0;
+	        bool				Draw( const Ordinal auto clientNum );
 
 	virtual bool				HandlePlayerGuiEvent( const sysEvent_t * ev ) = 0;
 
@@ -124,9 +127,9 @@ public:
 	virtual void				ServerWriteSnapshot( idSnapShot & ss ) = 0;
 
 	// Processes a reliable message
-	virtual void				ProcessReliableMessage( int clientNum, int type, const idBitMsg &msg ) = 0;
+	        void				ProcessReliableMessage( const Ordinal auto clientNum, int type, const idBitMsg &msg );
 
-	virtual void				SetInterpolation( const float fraction, const int serverGameMS, const int ssStartTime, const int ssEndTime ) = 0;
+	virtual void				SetInterpolation( const float fraction, const ID_TIME_T serverGameMS, const ID_TIME_T ssStartTime, const ID_TIME_T ssEndTime ) = 0;
 
 	// Reads a snapshot and updates the client game state.
 	virtual void				ClientReadSnapshot( const idSnapShot & ss ) = 0;
@@ -135,21 +138,21 @@ public:
 	virtual void				ClientRunFrame( idUserCmdMgr & cmdMgr, bool lastPredictFrame, gameReturn_t & ret ) = 0;
 
 	// Used to manage divergent time-lines
-	virtual int					GetTimeGroupTime( int timeGroup ) = 0;
+	virtual ID_TIME_T			GetTimeGroupTime( timeGroup_e timeGroup ) = 0;
 
 	// Returns a list of available multiplayer game modes
-	virtual int					GetMPGameModes( const char *** gameModes, const char *** gameModesDisplay ) = 0;
+	virtual size_t				GetMPGameModes( const char *** gameModes, const char *** gameModesDisplay ) = 0;
 
 	// Returns a summary of stats for a given client
-	virtual void				GetClientStats( int clientNum, char *data, const int len ) = 0;
+	        void				GetClientStats( const Ordinal auto clientNum, char *data, const size_t len );
 
 	virtual bool				IsInGame() const = 0;
 
 	// Get the player entity number for a network peer.
-	virtual int					MapPeerToClient( int peer ) const = 0;
+	        size_t				MapPeerToClient( const Ordinal auto peer ) const;
 
 	// Get the player entity number of the local player.
-	virtual int					GetLocalClientNum() const = 0;
+	virtual size_t				GetLocalClientNum() const = 0;
 
 	// compute an angle offset to be applied to the given client's aim
 	virtual void				GetAimAssistAngles( idAngles & angles ) = 0;
@@ -177,7 +180,7 @@ public:
 	virtual void				Shell_SyncWithSession() = 0;
 	virtual void				Shell_UpdateSavedGames() = 0;
 	virtual void				Shell_SetCanContinue( bool valid ) = 0;
-	virtual void				Shell_UpdateClientCountdown( int countdown ) = 0;
+	virtual void				Shell_UpdateClientCountdown( ID_TIME_T countdown ) = 0;
 	virtual void				Shell_UpdateLeaderboard( const idLeaderboardCallback * callback ) = 0;
 	virtual void				Shell_SetGameComplete() = 0;
 };
@@ -197,7 +200,7 @@ typedef struct {
 	idSoundEmitter *			referenceSound;	// this is the interface to the sound system, created
 												// with idSoundWorld::AllocSoundEmitter() when needed
 	idVec3						origin;
-	int							listenerId;		// SSF_PRIVATE_SOUND only plays if == listenerId from PlaceListener
+	size_t						listenerId;		// SSF_PRIVATE_SOUND only plays if == listenerId from PlaceListener
 												// no spatialization will be performed if == listenerID
 	const idSoundShader *		shader;			// this really shouldn't be here, it is a holdover from single channel behavior
 	float						diversity;		// 0.0 to 1.0 value used to select which
@@ -206,7 +209,7 @@ typedef struct {
 	soundShaderParms_t			parms;			// override volume, flags, etc
 } refSound_t;
 
-enum {
+enum testParticleModel_e : uint8 {
 	TEST_PARTICLE_MODEL = 0,
 	TEST_PARTICLE_IMPACT,
 	TEST_PARTICLE_MUZZLE,

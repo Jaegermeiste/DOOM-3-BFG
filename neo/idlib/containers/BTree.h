@@ -67,16 +67,16 @@ public:
 	idBTreeNode<objType,keyType> *	Add( objType *object, keyType key );						// add an object to the tree
 	void							Remove( idBTreeNode<objType,keyType> *node );				// remove an object node from the tree
 
-	idBTreeNode<objType,keyType> *	NodeFind( keyType key ) const;								// find an object using the given key
-	idBTreeNode<objType,keyType> *	NodeFindSmallestLargerEqual( keyType key ) const;			// find an object with the smallest key larger equal the given key
-	idBTreeNode<objType,keyType> *	NodeFindLargestSmallerEqual( keyType key ) const;			// find an object with the largest key smaller equal the given key
+									[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFind( keyType key ) const;								// find an object using the given key
+									[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFindSmallestLargerEqual( keyType key ) const;			// find an object with the smallest key larger equal the given key
+									[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFindLargestSmallerEqual( keyType key ) const;			// find an object with the largest key smaller equal the given key
 
-	objType *						Find( keyType key ) const;									// find an object using the given key
-	objType *						FindSmallestLargerEqual( keyType key ) const;				// find an object with the smallest key larger equal the given key
-	objType *						FindLargestSmallerEqual( keyType key ) const;				// find an object with the largest key smaller equal the given key
+									[[nodiscard]] objType *						Find( keyType key ) const;									// find an object using the given key
+									[[nodiscard]] objType *						FindSmallestLargerEqual( keyType key ) const;				// find an object with the smallest key larger equal the given key
+									[[nodiscard]] objType *						FindLargestSmallerEqual( keyType key ) const;				// find an object with the largest key smaller equal the given key
 
-	idBTreeNode<objType,keyType> *	GetRoot() const;											// returns the root node of the tree
-	int								GetNodeCount() const;										// returns the total number of nodes in the tree
+									[[nodiscard]] idBTreeNode<objType,keyType> *	GetRoot() const;											// returns the root node of the tree
+									[[nodiscard]] int								GetNodeCount() const;										// returns the total number of nodes in the tree
 	idBTreeNode<objType,keyType> *	GetNext( idBTreeNode<objType,keyType> *node ) const;		// goes through all nodes of the tree
 	idBTreeNode<objType,keyType> *	GetNextLeaf( idBTreeNode<objType,keyType> *node ) const;	// goes through all leaf nodes of the tree
 

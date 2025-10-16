@@ -41,7 +41,7 @@ void idMenuScreen_Shell_Credits::SetupCreditList() {
 
 		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
 
-			if ( screen == NULL ) {
+			if ( screen == nullptr) {
 				return idSWFScriptVar();
 			}
 
@@ -703,7 +703,7 @@ idMenuScreen_Shell_Credits::Initialize
 void idMenuScreen_Shell_Credits::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -726,14 +726,14 @@ idMenuScreen_Shell_Credits::Update
 */
 void idMenuScreen_Shell_Credits::Update() {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+		if ( cmdBar != nullptr) {
 			cmdBar->ClearAllButtons();
 
 			idMenuHandler_Shell * shell = dynamic_cast< idMenuHandler_Shell * >( menuData );
 			bool complete = false;
-			if ( shell != NULL ) {
+			if ( shell != nullptr) {
 				complete = shell->GetGameComplete();
 			}
 
@@ -757,13 +757,13 @@ void idMenuScreen_Shell_Credits::Update() {
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
 	if ( BindSprite( root ) ) {
 		idSWFTextInstance * heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if ( heading != NULL ) {
+		if ( heading != nullptr) {
 			heading->SetText( "#str_02218" );
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 	}
 
-	if ( btnBack != NULL ) {
+	if ( btnBack != nullptr) {
 		btnBack->BindSprite( root );
 	}
 
@@ -777,10 +777,10 @@ idMenuScreen_Shell_Credits::ShowScreen
 */
 void idMenuScreen_Shell_Credits::ShowScreen( const mainMenuTransition_t transitionType ) {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuHandler_Shell * shell = dynamic_cast< idMenuHandler_Shell * >( menuData );
 		bool complete = false;
-		if ( shell != NULL ) {
+		if ( shell != nullptr) {
 			complete = shell->GetGameComplete();
 		}
 
@@ -810,7 +810,7 @@ idMenuScreen_Shell_Credits::HandleAction
 */
 bool idMenuScreen_Shell_Credits::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 
@@ -824,7 +824,7 @@ bool idMenuScreen_Shell_Credits::HandleAction( idWidgetAction & action, const id
 
 			idMenuHandler_Shell * shell = dynamic_cast< idMenuHandler_Shell * >( menuData );
 			bool complete = false;
-			if ( shell != NULL ) {
+			if ( shell != nullptr) {
 				complete = shell->GetGameComplete();
 			}
 
@@ -848,7 +848,7 @@ idMenuScreen_Shell_Credits::UpdateCredits
 */
 void idMenuScreen_Shell_Credits::UpdateCredits() {
 
-	if ( menuData == NULL || GetSWFObject() == NULL ) {
+	if ( menuData == nullptr || GetSWFObject() == nullptr) {
 		return;
 	}
 
@@ -859,7 +859,7 @@ void idMenuScreen_Shell_Credits::UpdateCredits() {
 	if ( creditIndex >= creditList.Num() + NUM_CREDIT_LINES ) {
 		idMenuHandler_Shell * shell = dynamic_cast< idMenuHandler_Shell * >( menuData );
 			bool complete = false;
-			if ( shell != NULL ) {
+			if ( shell != nullptr) {
 				complete = shell->GetGameComplete();
 			}
 
@@ -872,7 +872,7 @@ void idMenuScreen_Shell_Credits::UpdateCredits() {
 	}
 
 	idSWFScriptObject * options = GetSWFObject()->GetRootObject().GetNestedObj( "menuCredits", "info", "options" );
-	if ( options != NULL ) {
+	if ( options != nullptr) {
 		for ( int i = 15; i >= 0; --i ) {			
 			int curIndex = creditIndex - i;
 			idSWFTextInstance * heading = options->GetNestedText( va( "item%d", 15 - i ), "heading" );

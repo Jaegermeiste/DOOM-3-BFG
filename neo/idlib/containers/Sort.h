@@ -229,7 +229,7 @@ conversion for every comparison.
 template<>
 class idSort_QuickDefault< float > : public idSort_Quick< float, idSort_QuickDefault< float > > {
 public:
-	int Compare( const float & a, const float & b ) const {
+	[[nodiscard]] int Compare( const float & a, const float & b ) const {
 		if ( a < b ) {
 			return -1;
 		}

@@ -79,21 +79,21 @@ private:
 	static idThread				*currentThread;
 
 	idThread					*waitingForThread;
-	int							waitingFor;
-	int							waitingUntil;
+	size_t						waitingFor;
+	ID_TIME_T					waitingUntil;
 	idInterpreter				interpreter;
 
 	idDict						spawnArgs;
 								
-	int 						threadNum;
+	size_t 						threadNum;
 	idStr 						threadName;
 
-	int							lastExecuteTime;
-	int							creationTime;
+	ID_TIME_T					lastExecuteTime;
+	ID_TIME_T					creationTime;
 
 	bool						manualControl;
 
-	static int					threadIndex;
+	static size_t				threadIndex;
 	static idList<idThread *, TAG_THREAD>	threadList;
 
 	static trace_t				trace;
@@ -107,87 +107,87 @@ private:
 	//
 	// script callable Events
 	//
-	void						Event_TerminateThread( int num );
+	void						Event_TerminateThread( const size_t num );
 	void						Event_Pause();
 	void						Event_Wait( float time );
 	void						Event_WaitFrame();
 	void						Event_WaitFor( idEntity *ent );
-	void						Event_WaitForThread( int num );
-	void						Event_Print( const char *text );
-	void						Event_PrintLn( const char *text );
-	void						Event_Say( const char *text );
-	void						Event_Assert( float value );
-	void						Event_Trigger( idEntity *ent );
-	void						Event_SetCvar( const char *name, const char *value ) const;
-	void						Event_GetCvar( const char *name ) const;
-	void						Event_Random( float range ) const;
-	void						Event_RandomInt( int range ) const;
-	void						Event_GetTime();
-	void						Event_KillThread( const char *name );
-	void						Event_GetEntity( const char *name );
+	void						Event_WaitForThread( const size_t num );
+	static void						Event_Print( const char *text );
+	static void						Event_PrintLn( const char *text );
+	static void						Event_Say( const char *text );
+	static void						Event_Assert( float value );
+	static void						Event_Trigger( idEntity *ent );
+	static void						Event_SetCvar( const char *name, const char *value );
+	static void						Event_GetCvar( const char *name );
+	static void						Event_Random( float range );
+	static void						Event_RandomInt( int range );
+	static void						Event_GetTime();
+	static void						Event_KillThread( const char *name );
+	void						Event_GetEntity( const char *name ) const;
 	void						Event_Spawn( const char *classname );
-	void						Event_CopySpawnArgs( idEntity *ent );
+	void						Event_CopySpawnArgs(const idEntity *ent );
 	void						Event_SetSpawnArg( const char *key, const char *value );
 	void						Event_SpawnString( const char *key, const char *defaultvalue );
 	void						Event_SpawnFloat( const char *key, float defaultvalue );
-	void						Event_SpawnVector( const char *key, idVec3 &defaultvalue );
-	void						Event_ClearPersistantArgs();
-	void 						Event_SetPersistantArg( const char *key, const char *value );
-	void 						Event_GetPersistantString( const char *key );
-	void 						Event_GetPersistantFloat( const char *key );
-	void 						Event_GetPersistantVector( const char *key );
-	void						Event_AngToForward( idAngles &ang );
-	void						Event_AngToRight( idAngles &ang );
-	void						Event_AngToUp( idAngles &ang );
-	void						Event_GetSine( float angle );
-	void						Event_GetCosine( float angle );
-	void						Event_GetArcSine( float a );
-	void						Event_GetArcCosine( float a );
-	void						Event_GetSquareRoot( float theSquare );
-	void						Event_VecNormalize( idVec3 &vec );
-	void						Event_VecLength( idVec3 &vec );
-	void						Event_VecDotProduct( idVec3 &vec1, idVec3 &vec2 );
-	void						Event_VecCrossProduct( idVec3 &vec1, idVec3 &vec2 );
-	void						Event_VecToAngles( idVec3 &vec );
-	void						Event_VecToOrthoBasisAngles( idVec3 &vec );
-	void						Event_RotateVector( idVec3 &vec, idVec3 &ang );
-	void						Event_OnSignal( int signal, idEntity *ent, const char *func );
-	void						Event_ClearSignalThread( int signal, idEntity *ent );
-	void						Event_SetCamera( idEntity *ent );
-	void						Event_FirstPerson();
-	void						Event_Trace( const idVec3 &start, const idVec3 &end, const idVec3 &mins, const idVec3 &maxs, int contents_mask, idEntity *passEntity );
-	void						Event_TracePoint( const idVec3 &start, const idVec3 &end, int contents_mask, idEntity *passEntity );
-	void						Event_GetTraceFraction();
-	void						Event_GetTraceEndPos();
-	void						Event_GetTraceNormal();
-	void						Event_GetTraceEntity();
-	void						Event_GetTraceJoint();
-	void						Event_GetTraceBody();
-	void						Event_FadeIn( idVec3 &color, float time );
-	void						Event_FadeOut( idVec3 &color, float time );
-	void						Event_FadeTo( idVec3 &color, float alpha, float time );
-	void						Event_SetShaderParm( int parmnum, float value );
-	void						Event_StartMusic( const char *name );
-	void						Event_Warning( const char *text );
-	void						Event_Error( const char *text );
-	void 						Event_StrLen( const char *string );
-	void 						Event_StrLeft( const char *string, int num );
-	void 						Event_StrRight( const char *string, int num );
-	void 						Event_StrSkip( const char *string, int num );
-	void 						Event_StrMid( const char *string, int start, int num );
-	void						Event_StrToFloat( const char *string );
-	void						Event_RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEntity *attacker, idEntity *ignore, const char *damageDefName, float dmgPower );
-	void						Event_IsClient();
-	void 						Event_IsMultiplayer();
-	void 						Event_GetFrameTime();
-	void 						Event_GetTicsPerSecond();
-	void						Event_CacheSoundShader( const char *soundName );
-	void						Event_DebugLine( const idVec3 &color, const idVec3 &start, const idVec3 &end, const float lifetime );
-	void						Event_DebugArrow( const idVec3 &color, const idVec3 &start, const idVec3 &end, const int size, const float lifetime );
-	void						Event_DebugCircle( const idVec3 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const int numSteps, const float lifetime );
-	void						Event_DebugBounds( const idVec3 &color, const idVec3 &mins, const idVec3 &maxs, const float lifetime );
-	void						Event_DrawText( const char *text, const idVec3 &origin, float scale, const idVec3 &color, const int align, const float lifetime );
-	void						Event_InfluenceActive();
+	void						Event_SpawnVector( const char *key, const idVec3 &defaultvalue );
+	static void						Event_ClearPersistantArgs();
+	static void 						Event_SetPersistantArg( const char *key, const char *value );
+	static void 						Event_GetPersistantString( const char *key );
+	static void 						Event_GetPersistantFloat( const char *key );
+	static void 						Event_GetPersistantVector( const char *key );
+	static void						Event_AngToForward(const idAngles &ang );
+	static void						Event_AngToRight(const idAngles &ang );
+	static void						Event_AngToUp(const idAngles &ang );
+	static void						Event_GetSine( float angle );
+	static void						Event_GetCosine( float angle );
+	static void						Event_GetArcSine( float a );
+	static void						Event_GetArcCosine( float a );
+	static void						Event_GetSquareRoot( float theSquare );
+	static void						Event_VecNormalize(const idVec3 &vec );
+	static void						Event_VecLength(const idVec3 &vec );
+	static void						Event_VecDotProduct(const idVec3 &vec1, const idVec3 &vec2 );
+	static void						Event_VecCrossProduct(const idVec3 &vec1, const idVec3 &vec2 );
+	static void						Event_VecToAngles(const idVec3 &vec );
+	static void						Event_VecToOrthoBasisAngles(const idVec3 &vec );
+	static void						Event_RotateVector(const idVec3 &vec, const idVec3 &ang );
+	void					    	Event_OnSignal( signalNum_t signal, idEntity *ent, const char *func );
+	void					    	Event_ClearSignalThread( signalNum_t signal, idEntity *ent );
+	void					    	Event_SetCamera( idEntity *ent ) const;
+	static void						Event_FirstPerson();
+	static void						Event_Trace( const idVec3 &start, const idVec3 &end, const idVec3 &mins, const idVec3 &maxs, int contents_mask, const idEntity *passEntity );
+	static void						Event_TracePoint( const idVec3 &start, const idVec3 &end, int contents_mask, const idEntity *passEntity );
+	static void						Event_GetTraceFraction();
+	static void						Event_GetTraceEndPos();
+	static void						Event_GetTraceNormal();
+	static void						Event_GetTraceEntity();
+	static void						Event_GetTraceJoint();
+	static void						Event_GetTraceBody();
+	static void						Event_FadeIn( idVec3 &color, float time );
+	static void						Event_FadeOut( idVec3 &color, float time );
+	static void						Event_FadeTo( idVec3 &color, float alpha, float time );
+	void						    Event_SetShaderParm( const Ordinal auto parmnum, float value );
+	static void						Event_StartMusic( const char *name );
+	void						    Event_Warning( const char *text );
+	void						    Event_Error( const char *text );
+	static void 					Event_StrLen( const char *string );
+	static void 						    Event_StrLeft( const char *string, const size_t num );
+	static void 						    Event_StrRight( const char *string, const size_t num );
+	static void 						    Event_StrSkip( const char *string, const size_t num );
+	static void 						    Event_StrMid( const char *string, const size_t start, const size_t num );
+	static void						Event_StrToFloat( const char *string );
+	static void						Event_RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEntity *attacker, idEntity *ignore, const char *damageDefName, float dmgPower );
+	static void						Event_IsClient();
+	static void 					Event_IsMultiplayer();
+	static void 					Event_GetFrameTime();
+	static void 					Event_GetTicsPerSecond();
+	static void						Event_CacheSoundShader( const char *soundName );
+	static void						Event_DebugLine( const idVec3 &color, const idVec3 &start, const idVec3 &end, const float lifetime );
+	static void						Event_DebugArrow( const idVec3 &color, const idVec3 &start, const idVec3 &end, const int size, const float lifetime );
+	static void						Event_DebugCircle( const idVec3 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const int numSteps, const float lifetime );
+	static void						Event_DebugBounds( const idVec3 &color, const idVec3 &mins, const idVec3 &maxs, const float lifetime );
+	static void						Event_DrawText( const char *text, const idVec3 &origin, float scale, const idVec3 &color, const int align, const float lifetime );
+	static void						Event_InfluenceActive();
 
 public:							
 								CLASS_PROTOTYPE( idThread );
@@ -207,10 +207,10 @@ public:
 	void						Save( idSaveGame *savefile ) const;				// archives object for save game file
 	void						Restore( idRestoreGame *savefile );				// unarchives object from save game file
 
-	void						EnableDebugInfo() { interpreter.debug = true; };
-	void						DisableDebugInfo() { interpreter.debug = false; };
+	void						EnableDebugInfo() { interpreter.debug = true; }
+	void						DisableDebugInfo() { interpreter.debug = false; }
 
-	void						WaitMS( int time );
+	void						WaitMS( ID_TIME_T time );
 	void						WaitSec( float time );
 	void						WaitFrame();
 								
@@ -221,43 +221,43 @@ public:
 	void						CallFunction( idEntity *obj, const function_t *func, bool clearStack );
 
 	void						DisplayInfo();
-	static idThread				*GetThread( int num );
+	static idThread				*GetThread( const size_t num );
 	static void					ListThreads_f( const idCmdArgs &args );
 	static void					Restart();
-	static void					ObjectMoveDone( int threadnum, idEntity *obj );
+	static void					ObjectMoveDone( const size_t threadnum, idEntity *obj );
 								
 	static idList<idThread*>&	GetThreads ();
 	
-	bool						IsDoneProcessing ();
-	bool						IsDying			 ();	
+	bool						IsDoneProcessing () const;
+	bool						IsDying			 () const;	
 								
 	void						End();
 	static void					KillThread( const char *name );
-	static void					KillThread( int num );
+	static void					KillThread( const size_t num );
 	bool						Execute();
-	void						ManualControl() { manualControl = true; CancelEvents( &EV_Thread_Execute ); };
-	void						DoneProcessing() { interpreter.doneProcessing = true; };
-	void						ContinueProcessing() { interpreter.doneProcessing = false; };
-	bool						ThreadDying() { return interpreter.threadDying; };
-	void						EndThread() { interpreter.threadDying = true; };
+	void						ManualControl() { manualControl = true; CancelEvents( &EV_Thread_Execute ); }
+	void						DoneProcessing() { interpreter.doneProcessing = true; }
+	void						ContinueProcessing() { interpreter.doneProcessing = false; }
+	bool						ThreadDying() const { return interpreter.threadDying; }
+	void						EndThread() { interpreter.threadDying = true; }
 	bool						IsWaiting();
 	void						ClearWaitFor();
 	bool						IsWaitingFor( idEntity *obj );
 	void						ObjectMoveDone( idEntity *obj );
-	void						ThreadCallback( idThread *thread );
-	void						DelayedStart( int delay );
+	void						ThreadCallback(const idThread *thread );
+	void						DelayedStart( ID_TIME_T delay );
 	bool						Start();
-	idThread					*WaitingOnThread();
-	void						SetThreadNum( int num );
-	int 						GetThreadNum();
+	idThread					*WaitingOnThread() const;
+	void						SetThreadNum( const size_t num );
+	size_t 						GetThreadNum() const;
 	void						SetThreadName( const char *name );
-	const char					*GetThreadName();
+	const char					*GetThreadName() const;
 
 	void						Error( VERIFY_FORMAT_STRING const char *fmt, ... ) const;
 	void						Warning( VERIFY_FORMAT_STRING const char *fmt, ... ) const;
 								
 	static idThread				*CurrentThread();
-	static int					CurrentThreadNum();
+	static size_t				CurrentThreadNum();
 	static bool					BeginMultiFrameEvent( idEntity *ent, const idEventDef *event );
 	static void					EndMultiFrameEvent( idEntity *ent, const idEventDef *event );
 
@@ -273,7 +273,8 @@ public:
 idThread::WaitingOnThread
 ================
 */
-ID_INLINE idThread *idThread::WaitingOnThread() {
+ID_INLINE idThread *idThread::WaitingOnThread() const
+{
 	return waitingForThread;
 }
 
@@ -282,7 +283,7 @@ ID_INLINE idThread *idThread::WaitingOnThread() {
 idThread::SetThreadNum
 ================
 */
-ID_INLINE void idThread::SetThreadNum( int num ) {
+ID_INLINE void idThread::SetThreadNum( const size_t num ) {
 	threadNum = num;
 }
 
@@ -291,7 +292,8 @@ ID_INLINE void idThread::SetThreadNum( int num ) {
 idThread::GetThreadNum
 ================
 */
-ID_INLINE int idThread::GetThreadNum() {
+ID_INLINE size_t idThread::GetThreadNum() const
+{
 	return threadNum;
 }
 
@@ -300,7 +302,8 @@ ID_INLINE int idThread::GetThreadNum() {
 idThread::GetThreadName
 ================
 */
-ID_INLINE const char *idThread::GetThreadName() {
+ID_INLINE const char *idThread::GetThreadName() const
+{
 	return threadName.c_str();
 }
 
@@ -318,7 +321,8 @@ ID_INLINE idList<idThread*>& idThread::GetThreads () {
 idThread::IsDoneProcessing
 ================
 */
-ID_INLINE bool idThread::IsDoneProcessing () {
+ID_INLINE bool idThread::IsDoneProcessing () const
+{
 	return interpreter.doneProcessing;
 }
 
@@ -327,7 +331,8 @@ ID_INLINE bool idThread::IsDoneProcessing () {
 idThread::IsDying
 ================
 */
-ID_INLINE bool idThread::IsDying () {
+ID_INLINE bool idThread::IsDying () const
+{
 	return interpreter.threadDying;
 }
 

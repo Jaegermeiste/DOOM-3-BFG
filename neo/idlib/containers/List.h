@@ -127,14 +127,14 @@ public:
 					~idList();
 
 	void			Clear();											// clear the list
-	size_t			Num() const;										// returns number of elements in list
-	size_t			NumAllocated() const;								// returns number of elements allocated for
+	[[nodiscard]] size_t			Num() const;										// returns number of elements in list
+	[[nodiscard]] size_t			NumAllocated() const;								// returns number of elements allocated for
 	void			SetGranularity(size_t newgranularity );				// set new granularity
-	size_t			GetGranularity() const;								// get the current granularity
+	[[nodiscard]] size_t			GetGranularity() const;								// get the current granularity
 
-	size_t			Allocated() const;									// returns total size of allocated memory
-	size_t			Size() const;										// returns total size of allocated memory including size of list _type_
-	size_t			MemoryUsed() const;									// returns size of the used elements in the list
+	[[nodiscard]] size_t			Allocated() const;									// returns total size of allocated memory
+	[[nodiscard]] size_t			Size() const;										// returns total size of allocated memory including size of list _type_
+	[[nodiscard]] size_t			MemoryUsed() const;									// returns size of the used elements in the list
 
 	idList<_type_,_tag_> &		operator=( const idList<_type_,_tag_> &other );
 	const _type_ &	operator[](const Ordinal auto index ) const;
@@ -149,16 +149,16 @@ public:
 	void			AssureSizeAlloc(size_t newSize, new_t *allocator );	// assure the pointer list has the given number of elements and allocate any new elements
 
 	_type_ *		Ptr();												// returns a pointer to the list
-	const _type_ *	Ptr() const;										// returns a pointer to the list
+	[[nodiscard]] const _type_ *	Ptr() const;										// returns a pointer to the list
 	_type_ &		Alloc();											// returns reference to a new data element at the end of the list
 	size_t			Append( const _type_ & obj );						// append element
 	size_t			Append( const idList &other );						// append list
 	size_t			AddUnique( const _type_ & obj );					// add unique element
 	
 	size_t			Insert( const _type_ & obj, Ordinal auto index = 0 );		// insert the element at the given index
-	int64			FindIndex( const _type_ & obj ) const;				// find the index for the given element
-	_type_ *		Find( _type_ const & obj ) const;					// find pointer to the given element
-	int64			FindNull() const;									// find the index for the first NULL pointer in the list
+	[[nodiscard]] int64			FindIndex( const _type_ & obj ) const;				// find the index for the given element
+	[[nodiscard]] _type_ *		Find( _type_ const & obj ) const;					// find pointer to the given element
+	[[nodiscard]] int64			FindNull() const;									// find the index for the first NULL pointer in the list
 	size_t			IndexOf( const _type_ *obj ) const;					// returns the index for the pointer to an element in the list
 	
 	bool			RemoveIndex(Ordinal auto index );							// remove the element at the given index
@@ -192,7 +192,7 @@ public:
 	// Changing the memTag when the list has an allocated buffer will
 	// result in corruption of the memory statistics.
 	//------------------------
-	memTag_t		GetMemTag() const { return static_cast<memTag_t>(memTag); };
+	[[nodiscard]] memTag_t		GetMemTag() const { return static_cast<memTag_t>(memTag); };
 	void			SetMemTag(const memTag_t tag_ ) { memTag = static_cast<byte>(tag_); };
 
 private:

@@ -73,7 +73,7 @@ enum {
 // Signals
 // make sure to change script/doom_defs.script if you add any, or change their order
 //
-typedef enum {
+typedef enum signalNum_e : uint8 {
 	SIG_TOUCH,				// object was touched
 	SIG_USE,				// object was used
 	SIG_TRIGGER,			// object was activated
@@ -162,11 +162,11 @@ inline void	ReadFromBitMsg( netBoolEvent_t & netEvent, const idBitMsg & msg ) {
 
 class idEntity : public idClass {
 public:
-	static constexpr int		MAX_PVS_AREAS = 4;
+	static constexpr size_t		MAX_PVS_AREAS = 4;
 	static constexpr uint32		INVALID_PREDICTION_KEY = 0xFFFFFFFF;
 
-	int						entityNumber;			// index into the entity list
-	int						entityDefNumber;		// index into the entity def list
+	size_t					entityNumber;			// index into the entity list
+	size_t					entityDefNumber;		// index into the entity def list
 
 	idLinkList<idEntity>	spawnNode;				// for being linked into spawnedEntities list
 	idLinkList<idEntity>	activeNode;				// for being linked into activeEntities list

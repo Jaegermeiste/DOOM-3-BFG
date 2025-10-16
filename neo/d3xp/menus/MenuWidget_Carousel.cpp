@@ -40,7 +40,7 @@ void idMenuWidget_Carousel::Initialize( idMenuHandler * data ) {
 
 			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
 
-				if ( widget == NULL ) {
+				if ( widget == nullptr) {
 					return idSWFScriptVar();
 				}
 
@@ -72,7 +72,7 @@ void idMenuWidget_Carousel::Initialize( idMenuHandler * data ) {
 		idMenuWidget_Carousel *	widget;
 	};	
 
-	if ( GetSWFObject() != NULL ) {
+	if ( GetSWFObject() != nullptr) {
 		GetSWFObject()->SetGlobal( "refreshCarousel", new idCarouselRefresh( this ) );
 	}
 }
@@ -84,7 +84,7 @@ idMenuWidget_Carousel::Update
 */
 void idMenuWidget_Carousel::Update() {
 
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 

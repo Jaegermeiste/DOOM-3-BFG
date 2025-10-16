@@ -44,7 +44,7 @@ public:
 						idRandom( int seed = 0 ) noexcept;
 
 	void				SetSeed( int seed ) noexcept;
-	int					GetSeed() const;
+						[[nodiscard]] int					GetSeed() const;
 
 	int					RandomInt();			// random integer in the range [0, MAX_RAND]
 	int					RandomInt( int max );		// random integer in the range [0, max[
@@ -111,10 +111,12 @@ public:
 							idRandom2( unsigned long seed = 0 ) noexcept;
 
 	void					SetSeed( unsigned long seed ) noexcept;
-	unsigned long			GetSeed() const;
+	[[nodiscard]] unsigned long			GetSeed() const;
 
 	int						RandomInt();			// random integer in the range [0, MAX_RAND]
 	int						RandomInt( int max );		// random integer in the range [0, max]
+	int64					RandomInt64();			// random integer in the range [0, MAX_RAND]
+	int64					RandomInt64(int64 max);		// random integer in the range [0, max]
 	float					RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float					CRandomFloat();		// random number in the range [-1.0f, 1.0f]
 
@@ -149,6 +151,18 @@ ID_INLINE int idRandom2::RandomInt(const int max ) {
 		return 0;		// avoid divide by zero error
 	}
 	return ( RandomInt() >> ( 16 - idMath::BitsForInteger( max ) ) ) % max;
+}
+
+ID_INLINE int64 idRandom2::RandomInt64() {
+	seed = 1664525L * seed + 1013904223L;
+	return (idMath::integer_cast<int64>(seed) & idRandom2::MAX_RAND);
+}
+
+ID_INLINE int64 idRandom2::RandomInt64(const int64 max) {
+	if (max == 0) {
+		return 0;		// avoid divide by zero error
+	}
+	return (RandomInt64() >> (16 - idMath::BitsForInteger(max))) % max;
 }
 
 ID_INLINE float idRandom2::RandomFloat() {

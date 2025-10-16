@@ -50,13 +50,13 @@ Unlike idStaticList, there are no fields other than the
 actual raw data, and the size is fixed.
 ================================================
 */
-template<class T_, int numElements > class idArray {
+template<class T_, size_t numElements > class idArray {
 public:
 	// returns number of elements in list
-	int				Num() const { return numElements; }
+	[[nodiscard]] size_t			Num() const { return numElements; }
 
 	// returns the number of bytes the array takes up
-	int				ByteSize() const { return sizeof( ptr ); }
+	[[nodiscard]] size_t			ByteSize() const { return sizeof( ptr ); }
 
 	// memset the entire array to zero
 	void			Zero() { memset( ptr, 0, sizeof( ptr ) ); }
@@ -69,7 +69,7 @@ public:
 	T_ &			operator[]( Ordinal auto index ) { ORDINAL_CHECK(index, numElements); return ptr[index]; }
 
 	// returns a pointer to the list
-	const T_ *		Ptr() const { return ptr; }
+	[[nodiscard]] const T_ *		Ptr() const { return ptr; }
 	T_ *			Ptr() { return ptr; }
 
 private:

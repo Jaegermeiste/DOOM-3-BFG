@@ -159,7 +159,7 @@ void idSoundVoice_XAudio2::DestroyInternal() {
 idSoundVoice_XAudio2::Start
 ========================
 */
-void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags ) {
+void idSoundVoice_XAudio2::Start( ID_TIME_T offsetMS, int ssFlags ) {
 
 	if ( s_debugHardware.GetBool() ) {
 		idLib::Printf( "%dms: %p starting %s @ %dms\n", Sys_Milliseconds(), pSourceVoice, leadinSample ? leadinSample->GetName() : "<null>", offsetMS );
@@ -204,7 +204,7 @@ void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags ) {
 	}
 
 	assert( offsetMS >= 0 );
-	int offsetSamples = MsecToSamples( offsetMS, leadinSample->SampleRate() );
+	size_t offsetSamples = MsecToSamples( offsetMS, leadinSample->SampleRate() );
 	if ( loopingSample == nullptr && offsetSamples >= leadinSample->playLength ) {
 		return;
 	}
@@ -219,7 +219,7 @@ void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags ) {
 idSoundVoice_XAudio2::RestartAt
 ========================
 */
-int idSoundVoice_XAudio2::RestartAt( int offsetSamples ) {
+int idSoundVoice_XAudio2::RestartAt( size_t offsetSamples ) {
 	offsetSamples &= ~127;
 
 	idSoundSample_XAudio2 * sample = leadinSample;
@@ -248,7 +248,7 @@ int idSoundVoice_XAudio2::RestartAt( int offsetSamples ) {
 idSoundVoice_XAudio2::SubmitBuffer
 ======================== 
 */
-int idSoundVoice_XAudio2::SubmitBuffer( idSoundSample_XAudio2 * sample, int bufferNumber, int offset ) {
+size_t idSoundVoice_XAudio2::SubmitBuffer( idSoundSample_XAudio2 * sample, const size_t bufferNumber, const size_t offset ) {
 
 	if ( sample == nullptr || ( bufferNumber < 0 ) || ( bufferNumber >= sample->buffers.Num() ) ) {
 		return 0;
@@ -477,11 +477,11 @@ void idSoundVoice_XAudio2::SetSampleRate( uint32 newSampleRate, uint32 operation
 idSoundVoice_XAudio2::OnBufferStart
 ========================
 */
-void idSoundVoice_XAudio2::OnBufferStart( idSoundSample_XAudio2 * sample, int bufferNumber ) {
+void idSoundVoice_XAudio2::OnBufferStart( idSoundSample_XAudio2 * sample, const size_t bufferNumber ) {
 	SetSampleRate( sample->SampleRate(), XAUDIO2_COMMIT_NOW );
 
 	idSoundSample_XAudio2 * nextSample = sample;
-	int nextBuffer = bufferNumber + 1;
+	size_t nextBuffer = bufferNumber + 1;
 	if ( nextBuffer == sample->buffers.Num() ) {
 		if ( sample == leadinSample ) {
 			if ( loopingSample == nullptr) {

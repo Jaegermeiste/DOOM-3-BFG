@@ -56,35 +56,35 @@ public:
 	idBox			operator-( const idBox &a ) const;
 	idBox &			operator-=( const idBox &a );
 
-	bool			Compare( const idBox &a ) const;						// exact compare, no epsilon
-	bool			Compare( const idBox &a, const float epsilon ) const;	// compare with epsilon
+					[[nodiscard]] bool			Compare( const idBox &a ) const;						// exact compare, no epsilon
+					[[nodiscard]] bool			Compare( const idBox &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idBox &a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idBox &a ) const;						// exact compare, no epsilon
 
 	void			Clear();									// inside out box
 	void			Zero();									// single point at origin
 
-	const idVec3 &	GetCenter() const;						// returns center of the box
-	const idVec3 &	GetExtents() const;						// returns extents of the box
-	const idMat3 &	GetAxis() const;							// returns the axis of the box
-	float			GetVolume() const;						// returns the volume of the box
-	bool			IsCleared() const;						// returns true if box are inside out
+					[[nodiscard]] const idVec3 &	GetCenter() const;						// returns center of the box
+					[[nodiscard]] const idVec3 &	GetExtents() const;						// returns extents of the box
+					[[nodiscard]] const idMat3 &	GetAxis() const;							// returns the axis of the box
+					[[nodiscard]] float			GetVolume() const;						// returns the volume of the box
+					[[nodiscard]] bool			IsCleared() const;						// returns true if box are inside out
 
 	bool			AddPoint( const idVec3 &v );					// add the point, returns true if the box expanded
 	bool			AddBox( const idBox &a );						// add the box, returns true if the box expanded
-	idBox			Expand( const float d ) const;					// return box expanded in all directions with the given value
+					[[nodiscard]] idBox			Expand( const float d ) const;					// return box expanded in all directions with the given value
 	idBox &			ExpandSelf( const float d );					// expand box in all directions with the given value
-	idBox			Translate( const idVec3 &translation ) const;	// return translated box
+					[[nodiscard]] idBox			Translate( const idVec3 &translation ) const;	// return translated box
 	idBox &			TranslateSelf( const idVec3 &translation );		// translate this box
-	idBox			Rotate( const idMat3 &rotation ) const;			// return rotated box
+					[[nodiscard]] idBox			Rotate( const idMat3 &rotation ) const;			// return rotated box
 	idBox &			RotateSelf( const idMat3 &rotation );			// rotate this box
 
-	float			PlaneDistance( const idPlane &plane ) const;
-	int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+					[[nodiscard]] float			PlaneDistance( const idPlane &plane ) const;
+					[[nodiscard]] int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
-	bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
-	bool			IntersectsBox( const idBox &a ) const;			// includes touching
-	bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
+					[[nodiscard]] bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
+					[[nodiscard]] bool			IntersectsBox( const idBox &a ) const;			// includes touching
+					[[nodiscard]] bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
 					// intersection points are (start + dir * scale1) and (start + dir * scale2)
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale1, float &scale2 ) const;
 
@@ -98,7 +98,7 @@ public:
 	void			FromBoxRotation( const idBox &box, const idRotation &rotation );
 
 	void			ToPoints( idVec3 points[8] ) const;
-	idSphere		ToSphere() const;
+					[[nodiscard]] idSphere		ToSphere() const;
 
 					// calculates the projection of this box onto the given axis
 	void			AxisProjection( const idVec3 &dir, float &min, float &max ) const;
@@ -223,7 +223,9 @@ ID_INLINE const idMat3 &idBox::GetAxis() const {
 }
 
 ID_INLINE float idBox::GetVolume() const {
-	return ( extents * 2.0f ).LengthSqr();
+	auto _extents = extents;
+	_extents *= 2.0f;
+	return _extents.LengthSqr();
 }
 
 ID_INLINE bool idBox::IsCleared() const {

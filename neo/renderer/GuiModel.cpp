@@ -110,8 +110,8 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 	// If this is an in-game gui, we need to be able to find the matrix again for head mounted
 	// display bypass matrix fixup.
 	if ( linkAsEntity ) {
-		guiSpace->next = tr.viewDef->viewEntitys;
-		tr.viewDef->viewEntitys = guiSpace;
+		guiSpace->next = tr.viewDef->viewEntities;
+		tr.viewDef->viewEntities = guiSpace;
 	}
 
 	//---------------------------
@@ -316,7 +316,7 @@ void idGuiModel::AdvanceSurf() {
 AllocTris
 =============
 */
-idDrawVert * idGuiModel::AllocTris( int vertCount, const triIndex_t * tempIndexes, int indexCount, const idMaterial * material, const uint64 glState, const stereoDepthType_t stereoType ) {
+idDrawVert * idGuiModel::AllocTris( const size_t vertCount, const triIndex_t * tempIndexes, const size_t indexCount, const idMaterial * material, const uint64 glState, const stereoDepthType_t stereoType ) {
 	if ( material == nullptr) {
 		return nullptr;
 	}
@@ -348,8 +348,8 @@ idDrawVert * idGuiModel::AllocTris( int vertCount, const triIndex_t * tempIndexe
 		surf->stereoType = stereoType;
 	}
 
-	int startVert = numVerts;
-	int startIndex = numIndexes;
+	size_t startVert = numVerts;
+	size_t startIndex = numIndexes;
 
 	numVerts += vertCount;
 	numIndexes += indexCount;

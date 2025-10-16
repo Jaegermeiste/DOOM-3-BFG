@@ -688,7 +688,7 @@ void idDict::WriteToIniFile( idFile * f ) const {
 	// Scan for all the prefixes
 	for ( size_t i = 0; i < sortedArgs.Num(); i++ ) {
 		const idKeyValue * kv = &sortedArgs[i];
-		const int slashPosition = kv->GetKey().Last( '/' );
+		const int64 slashPosition = kv->GetKey().Last( '/' );
 		if ( slashPosition != idStr::INVALID_POSITION ) {
 			idStr prefix = kv->GetKey().Mid( 0, slashPosition );
 			if ( prefix != prevPrefix ) {
@@ -763,7 +763,7 @@ bool idDict::ReadFromIniFile( idFile * f ) {
 		{ "[", P_SQBRACKETOPEN },
 		{ "]", P_SQBRACKETCLOSE },
 		{ "=", P_ASSIGN },
-		{nullptr, 0 }
+		{nullptr, P_NONE }
 	};
 	parser.SetPunctuations( ini_punctuations );
 

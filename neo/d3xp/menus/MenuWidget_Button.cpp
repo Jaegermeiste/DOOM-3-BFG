@@ -72,11 +72,11 @@ static const char * ANIM_STATE_TRANSITIONS[ idMenuWidget_Button::ANIM_STATE_MAX 
 
 // script name for the control object for a given type of button
 static constexpr char * const CONTROL_SPRITE_NAMES[ MAX_MENU_OPTION_TYPES ] = {
-	NULL,
+	nullptr,
 	"sliderBar",
 	"sliderText", 
 	"sliderText",
-	NULL,
+	nullptr,
 	"sliderText",
 };
 compile_time_assert( sizeof( CONTROL_SPRITE_NAMES ) / sizeof( CONTROL_SPRITE_NAMES[ 0 ] ) == MAX_MENU_OPTION_TYPES );
@@ -88,11 +88,11 @@ idMenuWidget_Button::Update
 */
 void idMenuWidget_Button::Update() {
 
-	if ( menuData != NULL && menuData->GetGUI() != NULL ) {
+	if ( menuData != nullptr && menuData->GetGUI() != nullptr) {
 		BindSprite( menuData->GetGUI()->GetRootObject() );
 	}
 
-	if ( GetSprite() == NULL ) {
+	if ( GetSprite() == nullptr) {
 		return;
 	}
 
@@ -102,7 +102,7 @@ void idMenuWidget_Button::Update() {
 		if ( values.Num() > 0 ) {
 			for ( int val = 0; val < values.Num(); ++val ) {
 				idSWFScriptObject * const textObject = spriteObject->GetNestedObj( va( "label%d", val ), "txtVal" );
-				if ( textObject != NULL ) {
+				if ( textObject != nullptr) {
 					idSWFTextInstance * const text = textObject->GetText();
 					text->SetIgnoreColor( ignoreColor );
 					text->tooltip = ignoreColor; // ignoreColor does double duty as "allow tooltips"
@@ -110,14 +110,14 @@ void idMenuWidget_Button::Update() {
 					text->SetStrokeInfo( true, 0.75f, 2.0f );
 				}
 			}
-		} else if ( img != NULL ) {
+		} else if ( img != nullptr) {
 			idSWFSpriteInstance * btnImg = spriteObject->GetNestedSprite( "img" );
-			if ( btnImg != NULL ) {
+			if ( btnImg != nullptr) {
 				btnImg->SetMaterial( img );
 			}
 
 			btnImg = spriteObject->GetNestedSprite( "imgTop" );
-			if ( btnImg != NULL ) {
+			if ( btnImg != nullptr) {
 				btnImg->SetMaterial( img );
 			}
 		} else {
@@ -125,7 +125,7 @@ void idMenuWidget_Button::Update() {
 		}
 	} else {
 		idSWFScriptObject * const textObject = spriteObject->GetNestedObj( "label0", "txtVal" );
-		if ( textObject != NULL ) {
+		if ( textObject != nullptr) {
 			idSWFTextInstance * const text = textObject->GetText();
 			text->SetIgnoreColor( ignoreColor );
 			text->tooltip = ignoreColor; // ignoreColor does double duty as "allow tooltips"
@@ -139,7 +139,7 @@ void idMenuWidget_Button::Update() {
 	spriteObject->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
 
 	idSWFScriptObject * hitBox = spriteObject->GetObject( "hitBox" );
-	if ( hitBox == NULL ) {
+	if ( hitBox == nullptr) {
 		hitBox = spriteObject;
 	}
 
@@ -159,7 +159,7 @@ bool idMenuWidget_Button::ExecuteEvent( const idWidgetEvent & event ) {
 	if ( GetState() != WIDGET_STATE_DISABLED ) {
 		switch ( event.type ) {
 			case WIDGET_EVENT_PRESS: {
-				if ( GetMenuData() != NULL ) {
+				if ( GetMenuData() != nullptr) {
 					GetMenuData()->PlaySound( GUI_SOUND_ADVANCE );	
 				}
 				AnimateToState( ANIM_STATE_DOWN );
@@ -173,7 +173,7 @@ bool idMenuWidget_Button::ExecuteEvent( const idWidgetEvent & event ) {
 				break;
 			}
 			case WIDGET_EVENT_ROLL_OVER: {
-				if ( GetMenuData() != NULL ) {
+				if ( GetMenuData() != nullptr) {
 					GetMenuData()->PlaySound( GUI_SOUND_ROLL_OVER );	
 				}
 				AnimateToState( ANIM_STATE_OVER );
@@ -245,7 +245,7 @@ void idMenuWidget_Button::SetupTransitionInfo( widgetTransition_t & trans, const
 	if ( buttonState == WIDGET_STATE_DISABLED ) {
 		trans.animationName = "disabled";
 	} else {
-		const int animIndex = (int)destAnimState * ANIM_STATE_MAX + (int)sourceAnimState;
+		const int animIndex = static_cast<int>(destAnimState) * ANIM_STATE_MAX + static_cast<int>(sourceAnimState);
 		trans.animationName = ANIM_STATE_TRANSITIONS[ animIndex ];
 		if ( buttonState == WIDGET_STATE_SELECTING ) {
 			trans.prefixes.Append( "sel_" );
@@ -266,7 +266,7 @@ void idMenuWidget_Button::AnimateToState( const animState_t targetAnimState, con
 		return;
 	}
 
-	if ( GetSprite() != NULL ) {
+	if ( GetSprite() != nullptr) {
 		widgetTransition_t trans;
 		SetupTransitionInfo( trans, GetState(), GetAnimState(), targetAnimState );
 		if ( trans.animationName[0] != '\0' ) {
@@ -281,7 +281,7 @@ void idMenuWidget_Button::AnimateToState( const animState_t targetAnimState, con
 		}
 
 		idSWFSpriteInstance * const focusSprite = GetSprite()->GetScriptObject()->GetSprite( "focusIndicator" );
-		if ( focusSprite != NULL ) {
+		if ( focusSprite != nullptr) {
 			if ( targetAnimState == ANIM_STATE_OVER ) {
 				focusSprite->PlayFrame( "show" );
 			} else {
@@ -303,17 +303,17 @@ idMenuWidget_ControlButton::Update
 */
 void idMenuWidget_ControlButton::Update() {
 
-	if ( GetSprite() == NULL ) {
+	if ( GetSprite() == nullptr) {
 		return;
 	}
 
 	idSWFScriptObject * const spriteObject = GetSprite()->GetScriptObject()->GetNestedObj( "type" );
-	if ( spriteObject == NULL ) {
+	if ( spriteObject == nullptr) {
 		return;
 	}
 	idSWFSpriteInstance * type = spriteObject->GetSprite();
 
-	if ( type == NULL ) {
+	if ( type == nullptr) {
 		return;
 	}
 
@@ -322,14 +322,14 @@ void idMenuWidget_ControlButton::Update() {
 	}
 
 	idSWFTextInstance * text = spriteObject->GetNestedText( "label0", "txtVal" );
-	if ( text != NULL ) {
+	if ( text != nullptr) {
 		text->SetText( btnLabel );
 		text->SetStrokeInfo( true, 0.75f, 2.0f );
 	}
 
-	if ( CONTROL_SPRITE_NAMES[ GetOptionType() ] != NULL ) {
-		idSWFSpriteInstance * controlSprite = NULL;
-		if ( CONTROL_SPRITE_NAMES[ GetOptionType() ] != NULL ) {
+	if ( CONTROL_SPRITE_NAMES[ GetOptionType() ] != nullptr) {
+		idSWFSpriteInstance * controlSprite = nullptr;
+		if ( CONTROL_SPRITE_NAMES[ GetOptionType() ] != nullptr) {
 			controlSprite = type->GetScriptObject()->GetSprite( CONTROL_SPRITE_NAMES[ GetOptionType() ] );
 			if ( verify( controlSprite != NULL ) ) {
 				if ( verify( GetDataSource() != NULL ) ) {
@@ -354,7 +354,7 @@ void idMenuWidget_ControlButton::Update() {
 				idSWFScriptObject * const btnLess = GetSprite()->GetScriptObject()->GetObject( "btnLess" );
 				idSWFScriptObject * const btnMore = GetSprite()->GetScriptObject()->GetObject( "btnMore" );
 
-				if ( btnLess != NULL && btnMore != NULL ) {
+				if ( btnLess != nullptr && btnMore != nullptr) {
 					if ( disabled ) {
 						btnLess->GetSprite()->SetVisible( false );
 						btnMore->GetSprite()->SetVisible( false );
@@ -381,7 +381,7 @@ void idMenuWidget_ControlButton::Update() {
 		idSWFScriptObject * const btnLess = GetSprite()->GetScriptObject()->GetObject( "btnLess" );
 		idSWFScriptObject * const btnMore = GetSprite()->GetScriptObject()->GetObject( "btnMore" );
 
-		if ( btnLess != NULL && btnMore != NULL ) {
+		if ( btnLess != nullptr && btnMore != nullptr) {
 			btnLess->GetSprite()->SetVisible( false );
 			btnMore->GetSprite()->SetVisible( false );
 		}
@@ -392,7 +392,7 @@ void idMenuWidget_ControlButton::Update() {
 	GetSprite()->GetScriptObject()->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
 
 	idSWFScriptObject * hitBox = GetSprite()->GetScriptObject()->GetObject( "hitBox" );
-	if ( hitBox == NULL ) {
+	if ( hitBox == nullptr) {
 		hitBox = GetSprite()->GetScriptObject();
 	}
 
@@ -428,14 +428,14 @@ idMenuWidget_ServerButton::Update
 */
 void idMenuWidget_ServerButton::Update() {
 
-	if ( GetSprite() == NULL ) {
+	if ( GetSprite() == nullptr) {
 		return;
 	}
 
 	idSWFScriptObject * const spriteObject = GetSprite()->GetScriptObject();
 	idSWFTextInstance * const txtName = spriteObject->GetNestedText( "label0", "txtVal" );
 	
-	if ( txtName != NULL ) {
+	if ( txtName != nullptr) {
 		txtName->SetText( serverName );
 		txtName->SetStrokeInfo( true, 0.75f, 1.75f );
 	}
@@ -445,7 +445,7 @@ void idMenuWidget_ServerButton::Update() {
 	spriteObject->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
 
 	idSWFScriptObject * hitBox = spriteObject->GetObject( "hitBox" );
-	if ( hitBox == NULL ) {
+	if ( hitBox == nullptr) {
 		hitBox = spriteObject;
 	}
 
@@ -495,7 +495,7 @@ idMenuWidget_LobbyButton::Update
 */
 void idMenuWidget_LobbyButton::Update() {
 
-	if ( GetSprite() == NULL ) {
+	if ( GetSprite() == nullptr) {
 		return;
 	}
 
@@ -503,11 +503,11 @@ void idMenuWidget_LobbyButton::Update() {
 	idSWFTextInstance * const txtName = spriteObject->GetNestedText( "itemName", "txtVal" );
 	idSWFSpriteInstance * talkIcon = spriteObject->GetNestedSprite( "chaticon" );
 
-	if ( txtName != NULL ) {
+	if ( txtName != nullptr) {
 		txtName->SetText( name );
 	} 
 
-	if ( talkIcon != NULL ) {
+	if ( talkIcon != nullptr) {
 		talkIcon->StopFrame( voiceState + 1 );
 		talkIcon->GetScriptObject()->Set( "onPress", new (TAG_SWF) WrapWidgetSWFEvent( this, WIDGET_EVENT_COMMAND, WIDGET_ACTION_MUTE_PLAYER ) );
 	}
@@ -517,7 +517,7 @@ void idMenuWidget_LobbyButton::Update() {
 	spriteObject->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
 
 	idSWFScriptObject * hitBox = spriteObject->GetObject( "hitBox" );
-	if ( hitBox == NULL ) {
+	if ( hitBox == nullptr) {
 		hitBox = spriteObject;
 	}
 
@@ -546,7 +546,7 @@ idMenuWidget_ScoreboardButton::Update
 */
 void idMenuWidget_ScoreboardButton::Update() {
 
-	if ( GetSprite() == NULL ) {
+	if ( GetSprite() == nullptr) {
 		return;
 	}
 
@@ -560,7 +560,7 @@ void idMenuWidget_ScoreboardButton::Update() {
 	idSWFScriptObject * const spriteObject = GetSprite()->GetScriptObject();
 	for ( int val = 0; val < values.Num(); ++val ) {
 		idSWFScriptObject * const textObject = spriteObject->GetNestedObj( va( "label%d", val ), "txtVal" );
-		if ( textObject != NULL ) {
+		if ( textObject != nullptr) {
 			idSWFTextInstance * const text = textObject->GetText();
 			text->SetIgnoreColor( ignoreColor );
 			text->tooltip = ignoreColor; // ignoreColor does double duty as "allow tooltips"
@@ -570,7 +570,7 @@ void idMenuWidget_ScoreboardButton::Update() {
 	}
 
 	idSWFSpriteInstance * talkIcon = spriteObject->GetNestedSprite( "chaticon" );
-	if ( talkIcon != NULL ) {
+	if ( talkIcon != nullptr) {
 		talkIcon->StopFrame( voiceState + 1 );
 		talkIcon->GetScriptObject()->Set( "onPress", new (TAG_SWF) WrapWidgetSWFEvent( this, WIDGET_EVENT_COMMAND, WIDGET_ACTION_MUTE_PLAYER ) );
 	}
@@ -580,7 +580,7 @@ void idMenuWidget_ScoreboardButton::Update() {
 	spriteObject->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
 
 	idSWFScriptObject * hitBox = spriteObject->GetObject( "hitBox" );
-	if ( hitBox == NULL ) {
+	if ( hitBox == nullptr) {
 		hitBox = spriteObject;
 	}
 

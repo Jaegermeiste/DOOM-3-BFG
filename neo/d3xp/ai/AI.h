@@ -169,7 +169,7 @@ class idPathCorner;
 
 typedef struct particleEmitter_s {
 	particleEmitter_s() {
-		particle = NULL;
+		particle = nullptr;
 		time = 0;
 		joint = INVALID_JOINT;
 	};

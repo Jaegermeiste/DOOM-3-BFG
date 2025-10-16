@@ -472,14 +472,14 @@ bool idSoundSample_XAudio2::LoadAmplitude( const idStr & name ) {
 idSoundSample_XAudio2::GetAmplitude
 ========================
 */
-float idSoundSample_XAudio2::GetAmplitude( int timeMS ) const {
+float idSoundSample_XAudio2::GetAmplitude( ID_TIME_T timeMS ) const {
 	if ( timeMS < 0 || timeMS > LengthInMsec() ) {
 		return 0.0f;
 	}
 	if ( IsDefault() ) {
 		return 1.0f;
 	}
-	int index = timeMS * 60 / 1000;
+	const size_t index = timeMS * 60 / 1000;
 	if ( index < 0 || index >= amplitude.Num() ) {
 		return 0.0f;
 	}

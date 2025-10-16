@@ -254,7 +254,7 @@ idSoundSystemLocal::FreeSoundWorld
 ========================
 */
 void idSoundSystemLocal::FreeSoundWorld( idSoundWorld *sw ) {
-	idSoundWorldLocal *local = static_cast<idSoundWorldLocal*>( sw );
+	idSoundWorldLocal *local = dynamic_cast<idSoundWorldLocal*>( sw );
 	soundWorlds.Remove( local );
 	delete local;
 }
@@ -272,7 +272,7 @@ void idSoundSystemLocal::SetPlayingSoundWorld( idSoundWorld *soundWorld ) {
 	}
 	idSoundWorldLocal * oldSoundWorld = currentSoundWorld;
 
-	currentSoundWorld = static_cast<idSoundWorldLocal *>( soundWorld );
+	currentSoundWorld = dynamic_cast<idSoundWorldLocal *>( soundWorld );
 
 	if ( oldSoundWorld != nullptr) {
 		oldSoundWorld->Update();
@@ -356,7 +356,7 @@ void * idSoundSystemLocal::GetIXAudio2() const {
 idSoundSystemLocal::SoundTime
 ========================
 */
-int idSoundSystemLocal::SoundTime() const {
+ID_TIME_T idSoundSystemLocal::SoundTime() const {
 	return soundTime;
 }
 
@@ -445,7 +445,7 @@ void idSoundSystemLocal::StopVoicesWithSample( const idSoundSample * const sampl
 idSoundSystemLocal::FreeVoice
 ========================
 */
-cinData_t idSoundSystemLocal::ImageForTime( const int milliseconds, const bool waveform ) {
+cinData_t idSoundSystemLocal::ImageForTime( const ID_TIME_T milliseconds, const bool waveform ) {
 	cinData_t cd;
 	cd.imageY = nullptr;
 	cd.imageCr = nullptr;
@@ -463,7 +463,7 @@ idSoundSystemLocal::BeginLevelLoad
 */
 void idSoundSystemLocal::BeginLevelLoad() {
 	insideLevelLoad = true;
-	for ( int i = 0; i < samples.Num(); i++ ) {
+	for ( size_t i = 0; i < samples.Num(); i++ ) {
 		if ( samples[i]->GetNeverPurge() ) {
 			continue;
 		}
@@ -483,12 +483,12 @@ void idSoundSystemLocal::Preload( idPreloadManifest & manifest ) {
 	
 	idStrStatic< MAX_OSPATH > filename;
 	
-	int	start = Sys_Milliseconds();
-	int numLoaded = 0;
+	ID_TIME_T	start = Sys_Milliseconds();
+	size_t numLoaded = 0;
 
 	idList< preloadSort_t > preloadSort;
 	preloadSort.Resize( manifest.NumResources() );
-	for ( int i = 0; i < manifest.NumResources(); i++ ) {
+	for ( size_t i = 0; i < manifest.NumResources(); i++ ) {
 		const preloadEntry_s & p = manifest.GetPreloadByIndex( i );
 		idResourceCacheEntry rc;
 		// FIXME: write these out sorted

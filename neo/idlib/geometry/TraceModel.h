@@ -134,11 +134,11 @@ public:
 						// shrink the model m units on all sides
 	void				Shrink( const float m );
 						// compare
-	bool				Compare( const idTraceModel &trm ) const;
+	[[nodiscard]] bool				Compare( const idTraceModel &trm ) const;
 	bool				operator==(	const idTraceModel &trm ) const;
 	bool				operator!=(	const idTraceModel &trm ) const;
 						// get the area of one of the polygons
-	float				GetPolygonArea(size_t polyNum ) const;
+	[[nodiscard]] float				GetPolygonArea(size_t polyNum ) const;
 						// get the silhouette edges
 	size_t				GetProjectionSilhouetteEdges(const idVec3 &projectionOrigin, int64 silEdges[MAX_TRACEMODEL_EDGES]) const;
 	size_t				GetParallelProjectionSilhouetteEdges( const idVec3 &projectionDir, int64 silEdges[MAX_TRACEMODEL_EDGES] ) const;

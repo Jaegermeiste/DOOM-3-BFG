@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include <utility>
+#include <charconv>
 
 #include "precompiled.h"
 #pragma hdrstop
@@ -66,7 +67,8 @@ static const char *units[2][4] =
 idStr::ColorForIndex
 ============
 */
-idVec4 & idStr::ColorForIndex(const int i ) {
+idVec4 & idStr::ColorForIndex(const Ordinal auto i ) {
+	ORDINAL_CHECK(i, 16);
 	return g_color_table[ i & 15 ];
 }
 
@@ -94,11 +96,11 @@ void idStr::ReAllocate(const size_t amount, const bool keepold ) {
 #ifdef USE_STRING_DATA_ALLOCATOR
 	newbuffer = stringDataAllocator.Alloc( GetAlloced() );
 #else
-	newbuffer = new (TAG_STRING) char[ GetAlloced() ];
+	newbuffer = new (TAG_STRING) char[ GetAlloced() ]{0};
 #endif
 	if ( keepold && data ) {
 		data[ len ] = '\0';
-		strcpy( newbuffer, data );
+		strncpy_s( newbuffer, newsize, data, len );
 	}
 
 	if ( data && data != baseBuffer ) {
@@ -138,8 +140,6 @@ idStr::operator=
 ============
 */
 void idStr::operator=( const char *text ) {
-	int i;
-
 	if ( !text ) {
 		// safe behavior if NULL
 		EnsureAlloced( 1, false );
@@ -154,6 +154,7 @@ void idStr::operator=( const char *text ) {
 
 	// check if we're aliasing
 	if ( text >= data && text <= data + len ) {
+		size_t i = 0;
 		const size_t diff = text - data;
 
 		assert( strlen( text ) < (unsigned)len );
@@ -182,8 +183,11 @@ idStr::FindChar
 returns -1 if not found otherwise the index of the char
 ============
 */
-template <Ordinal StartI, Ordinal EndI>
-int64 idStr::FindChar(const char* str, const char c, const StartI start, EndI end) {
+int64 idStr::FindChar(const char* str, const char c) {
+	return FindChar(str, c, 0, -1);
+}
+
+int64 idStr::FindChar(const char* str, const char c, const Ordinal auto start, const Ordinal auto end) {
 	size_t calculated_end = 0;
 
 	if (end < 0 ) 
@@ -195,7 +199,7 @@ int64 idStr::FindChar(const char* str, const char c, const StartI start, EndI en
 		calculated_end = idMath::integer_cast<size_t>(end);
 	}
 
-	for ( size_t i = idMath::integer_cast<size_t>(start); std::cmp_less_equal(i, calculated_end); i++ ) {
+	for ( size_t i = idMath::integer_cast<size_t>(start); std::cmp_less_equal(i, calculated_end); ++i ) {
 		if ( str[i] == c ) 
 		{
 			return idMath::integer_cast<int64>(i);
@@ -211,9 +215,12 @@ idStr::FindText
 returns -1 if not found otherwise the index of the text
 ============
 */
-template <Ordinal StartI, Ordinal EndI>
-int64 idStr::FindText(const char* str, const char* text, const bool casesensitive, const StartI start, EndI end) {
-	int j;
+int64 idStr::FindText(const char* str, const char* text, const bool casesensitive) {
+	return FindText(str, text,casesensitive, 0, -1);
+}
+
+int64 idStr::FindText(const char* str, const char* text, const bool casesensitive, const Ordinal auto start, const Ordinal auto end) {
+	size_t j = 0;
 	size_t calculated_end = 0;
 
 	if (end < 0)
@@ -226,7 +233,7 @@ int64 idStr::FindText(const char* str, const char* text, const bool casesensitiv
 	}
 
 	const size_t l = calculated_end - strlen(text);
-	for (size_t i = idMath::integer_cast<size_t>(start); i <= l; i++ ) {
+	for (size_t i = idMath::integer_cast<size_t>(start); i <= l; ++i ) {
 		if ( casesensitive ) {
 			for ( j = 0; text[j]; j++ ) {
 				if ( str[i+j] != text[j] ) {
@@ -397,10 +404,10 @@ bool idStr::CheckExtension( const char *name, const char *ext ) {
 	const char *s2 = ext + Length( ext ) - 1;
 
 	do {
-		const int c1 = *s1--;
-		const int c2 = *s2--;
+		const auto c1 = *s1--;
+		const auto c2 = *s2--;
 
-		int d = c1 - c2;
+		auto d = c1 - c2;
 		while( d ) {
 			if ( c1 <= 'Z' && c1 >= 'A' ) {
 				d += ('a' - 'A');
@@ -426,10 +433,10 @@ bool idStr::CheckExtension( const char *name, const char *ext ) {
 idStr::FloatArrayToString
 =============
 */
-const char *idStr::FloatArrayToString( const float *array, const size_t length, const int precision ) {
+const char *idStr::FloatArrayToString( const float *array, const size_t length, const size_t precision ) {
 	static size_t index = 0;
-	static char str[4][16384];	// in case called by nested functions
-	char format[16];
+	static char str[4][16384] = {};	// in case called by nested functions
+	char format[16] = {};
 
 	// use an array of string so that multiple calls won't collide
 	char* s = str[index];
@@ -471,8 +478,8 @@ idStr::CStyleQuote
 */
 const char *idStr::CStyleQuote( const char *str ) {
 	static int index = 0;
-	static char buffers[4][16384];	// in case called by nested functions
-	unsigned int i;
+	static char buffers[4][16384] = {};	// in case called by nested functions
+	size_t i = 0;
 
 	char* buf = buffers[index];
 	index = ( index + 1 ) & 3;
@@ -511,16 +518,16 @@ const char *idStr::CStyleUnQuote( const char *str ) {
 		return str;
 	}
 
-	static int index = 0;
-	static char buffers[4][16384];	// in case called by nested functions
-	unsigned int i;
+	static size_t index = 0;
+	static char buffers[4][16384] = {};	// in case called by nested functions
+	size_t i = 0;
 
 	char* buf = buffers[index];
 	index = ( index + 1 ) & 3;
 
 	str++;
 	for ( i = 0; i < sizeof( buffers[0] ) - 1; i++ ) {
-		int c = *str++;
+		auto c = *str++;
 		if ( c == '\0' ) {
 			break;
 		} else if ( c == '\\' ) {
@@ -554,10 +561,10 @@ idStr::Last
 returns -1 if not found otherwise the index of the char
 ============
 */
-int idStr::Last( const char c ) const {
+int64 idStr::Last( const char c ) const {
 	for(size_t i = Length(); i > 0; i-- ) {
 		if ( data[ i - 1 ] == c ) {
-			return idMath::integer_cast<int>(i) - 1;
+			return idMath::integer_cast<int64>(i) - 1;
 		}
 	}
 
@@ -573,14 +580,14 @@ perform a threadsafe sprintf to the string
 */
 void idStr::Format( const char *fmt, ... ) {
 	va_list argptr;
-	char text[MAX_PRINT_MSG];
+	char text[MAX_PRINT_MSG] = {};
 
 	va_start( argptr, fmt );
-	const int len = idStr::vsnPrintf( text, sizeof( text ) - 1, fmt, argptr );
+	const auto len = idStr::vsnPrintf( text, sizeof( text ) - 1, fmt, argptr );
 	va_end( argptr );
 	text[ sizeof( text ) - 1 ] = '\0';
 
-	if ( static_cast<size_t>(len) >= sizeof( text ) - 1 ) {
+	if ( idMath::integer_cast<size_t>(len) >= sizeof( text ) - 1 ) {
 		idLib::common->FatalError( "Tried to set a large buffer using %s", fmt );
 	}
 	*this = text;
@@ -593,9 +600,25 @@ idStr::FormatInt
 Formats integers with commas for readability.
 ========================
 */
-idStr idStr::FormatInt( const int num, const bool isCash ) {
-	idStr val = va( "%d", num );
+idStr idStr::FormatInt( const std::integral auto num, const bool isCash ) {
+	char text[STR_ALLOC_BASE_NUM] = {};
+	
+	auto [ptr, ec] = std::to_chars(reinterpret_cast<char*>(&text), reinterpret_cast<char*>(&text) + sizeof(text) - 1, num);
+	if (ec == std::errc()) {
+		// Success
+		*ptr = '\0';  // null terminate
+	}
+	else
+	{
+		// Error handling, truncate to empty string
+		text[0] = '\0';
+		return {};
+	}
+
+	idStr val(text);
+
 	const size_t len = val.Length();
+
 	for (size_t i = 0 ; i < ( ( len - 1 ) / 3 ); i++ ) {
 		const size_t pos = val.Length() - ( ( i + 1 ) * 3 + i );
 		if ( pos > 1 || val[0] != '-' ) {
@@ -1785,7 +1808,7 @@ bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & 
 			i += 3;
 			encoding = utf8Type;
 		} else {
-			// this isnt' a valid UTF-8 character
+			// this isn't a valid UTF-8 character
 			if ( utf8Type == UTF8_ENCODED_BOM ) {
 				encoding = UTF8_INVALID_BOM;
 			} else {
@@ -1859,11 +1882,13 @@ idStr::UTF8Char
 ========================
 */
 uint32 idStr::UTF8Char( const byte * s, Ordinal auto& idx ) {
-	if ( idx >= 0 ) {
+	ORDINAL_CHECK(idx, MAX_STRING_CHARS);
+
+	if ( (idx >= 0) && (s != nullptr) ) {
 		while ( s[ idx ] != '\0' ) {
 			uint32 cindex = s[ idx ];
 			if ( cindex < 0x80 ) {
-				idx++;
+				++idx;
 				return cindex;
 			}
 			int trailing = 0;
@@ -1880,11 +1905,11 @@ uint32 idStr::UTF8Char( const byte * s, Ordinal auto& idx ) {
 				cindex <<= 6;
 				cindex += s[ ++idx ] & 0x0000003f;
 			}
-			idx++;
+			++idx;
 			return cindex;
 		}
 	}
-	idx++;
+	++idx;
 	return 0;	// return a null terminator if out of range
 }
 
@@ -1893,12 +1918,12 @@ uint32 idStr::UTF8Char( const byte * s, Ordinal auto& idx ) {
 idStr::LengthWithoutColors
 ================
 */
-int idStr::LengthWithoutColors( const char *s ) {
+size_t idStr::LengthWithoutColors( const char *s ) {
 	if ( !s ) {
 		return 0;
 	}
 
-	int len = 0;
+	size_t len = 0;
 	const char* p = s;
 	while( *p ) {
 		if ( idStr::IsColor( p ) ) {
@@ -1918,7 +1943,7 @@ idStr::RemoveColors
 ================
 */
 char *idStr::RemoveColors( char *string ) {
-	int c;
+	char c = 0;
 
 	const char* s = string;
 	char* d = string;
@@ -1942,7 +1967,7 @@ idStr::snPrintf
 ================
 */
 int64 idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
-	va_list argptr;
+	va_list argptr = nullptr;
 	char buffer[32000] = {};	// big, but small enough to fit in PPC stack
 
 	va_start( argptr, fmt );
@@ -1977,7 +2002,7 @@ idStr::vsnPrintf: always appends a trailing '\0', returns number of characters w
 or returns -1 on failure or if the buffer would be overflowed.
 ============
 */
-int idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, const va_list argptr ) {
+int64 idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, const va_list argptr ) {
 	size_t buffer_count = 0;
 
 	if (size > 0)
@@ -1985,7 +2010,7 @@ int idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, const va_l
 		buffer_count = size - 1;
 	}
 #undef _vsnprintf
-	const int ret = _vsnprintf(dest, buffer_count, fmt, argptr);
+	const int64 ret = _vsnprintf(dest, buffer_count, fmt, argptr);
 #define _vsnprintf	use_idStr_vsnPrintf
 	dest[buffer_count] = '\0';
 	if ( ret < 0 || std::cmp_greater_equal(ret, size)) {
@@ -2001,12 +2026,12 @@ sprintf
 Sets the value of the string using a printf interface.
 ============
 */
-int sprintf( idStr &string, const char *fmt, ... ) {
-	va_list argptr;
-	char buffer[32000];
+int64 sprintf( idStr &string, const char *fmt, ... ) {
+	va_list argptr = nullptr;
+	char buffer[32000] = {};
 	
 	va_start( argptr, fmt );
-	const int l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
+	const int64 l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
 	va_end( argptr );
 	buffer[sizeof(buffer)-1] = '\0';
 
@@ -2021,10 +2046,10 @@ vsprintf
 Sets the value of the string using a vprintf interface.
 ============
 */
-int vsprintf( idStr &string, const char *fmt, const va_list argptr ) {
-	char buffer[32000];
+int64 vsprintf( idStr &string, const char *fmt, const va_list argptr ) {
+	char buffer[32000] = {};
 
-	const int l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
+	const int64 l = idStr::vsnPrintf(buffer, sizeof(buffer) - 1, fmt, argptr);
 	buffer[sizeof(buffer)-1] = '\0';
 	
 	string = buffer;
@@ -2040,7 +2065,7 @@ NOTE: not thread safe
 ============
 */
 char *va( const char *fmt, ... ) {
-	va_list argptr;
+	va_list argptr = nullptr;
 	static int index = 0;
 	static char string[4][16384];	// in case called by nested functions
 
@@ -2138,26 +2163,29 @@ idStr::FormatNumber
 ================
 */
 struct formatList_t {
-	int			gran;
-	int			count;
+	uint64			gran;
+	size_t			count;
 };
 
-// elements of list need to decend in size
+// elements of list need to descend in size
 static formatList_t formatList[] = {
-	{ 1000000000, 0 },
-	{ 1000000, 0 },
-	{ 1000, 0 }
+	{.gran = 1000000000000000000, .count = 0 },
+	{.gran = 1000000000000000,    .count = 0 },
+	{.gran = 1000000000000,       .count = 0 },
+	{.gran = 1000000000,          .count = 0 },
+	{.gran = 1000000,             .count = 0 },
+	{.gran = 1000,                .count = 0 }
 };
 
-static int numFormatList = sizeof(formatList) / sizeof( formatList[0] );
+static size_t numFormatList = std::size(formatList);
 
 
-idStr idStr::FormatNumber( int number ) {
+idStr idStr::FormatNumber( std::integral auto number ) {
 	idStr string;
-	bool hit;
+	bool hit = false;
 
 	// reset
-	for ( int i = 0; i < numFormatList; i++ ) {
+	for ( size_t i = 0; i < numFormatList; i++ ) {
 		formatList_t *li = formatList + i;
 		li->count = 0;
 	}
@@ -2166,10 +2194,10 @@ idStr idStr::FormatNumber( int number ) {
 	do {
 		hit = false;
 
-		for ( int i = 0; i < numFormatList; i++ ) {
+		for ( size_t i = 0; i < numFormatList; i++ ) {
 			formatList_t *li = formatList + i;
 
-			if ( number >= li->gran ) {
+			if ( std::cmp_greater_equal(number, li->gran) ) {
 				li->count++;
 				number -= li->gran;
 				hit = true;
@@ -2181,7 +2209,7 @@ idStr idStr::FormatNumber( int number ) {
 	// print out
 	bool found = false;
 
-	for ( int i = 0; i < numFormatList; i++ ) {
+	for ( size_t i = 0; i < numFormatList; i++ ) {
 		const formatList_t *li = formatList + i;
 
 		if ( li->count ) {
@@ -2214,7 +2242,66 @@ idStr idStr::FormatNumber( int number ) {
 	return string;
 }
 
-CONSOLE_COMMAND( testStrId, "prints a localized string", 0 ) {
+size_t idStr::ItoA(char* buffer, const size_t buffer_size, const std::integral auto value)
+{
+	assert(buffer && buffer_size > 1);
+
+	auto [ptr, ec] = std::to_chars(buffer, buffer + buffer_size - 1, value, 10);
+	if (ec == std::errc()) 
+	{
+		// No error
+		*ptr = '\0';  // null terminate
+		return static_cast<size_t>(ptr - buffer);
+	}
+
+	// On failure (e.g., buffer too small), null terminate and return 0
+	*buffer = '\0';
+	return 0;
+}
+
+size_t idStr::FtoA(char* buffer, const size_t buffer_size, const std::floating_point auto value, std::chars_format fmt)
+{
+	assert(buffer && buffer_size > 1);
+
+	// Handle NaN/inf manually, since std::to_chars may not format them portably
+	if (std::isnan(value)) {
+		constexpr const char* s = "nan";
+		size_t size = 3;
+		if (size < buffer_size) {
+			std::memcpy(buffer, s, size + 1);
+			return size;
+		}
+
+		// Truncate on failure
+		*buffer = '\0';
+		return 0;
+	}
+	if (std::isinf(value)) {
+		const char* s = (value > 0) ? "inf" : "-inf";
+		size_t size = std::strlen(s);
+		if (size < buffer_size) {
+			std::memcpy(buffer, s, size + 1);
+			return size;
+		}
+
+		// Truncate on failure
+		*buffer = '\0';
+		return 0;
+	}
+
+	auto [ptr, ec] = std::to_chars(buffer, buffer + buffer_size - 1, value, fmt);
+	if (ec == std::errc()) {
+		// No error
+		*ptr = '\0';  // null terminate
+		return static_cast<size_t>(ptr - buffer);
+	}
+
+	// Truncate on failure (e.g., buffer too small)
+	*buffer = '\0';
+	return 0;
+}
+
+CONSOLE_COMMAND( testStrId, "prints a localized string", nullptr ) {
 	if ( args.Argc() != 2 ) {
 		idLib::Printf( "need a str id like 'STR_SWF_ACCEPT' without the hash, it gets parsed as a separate argument\n" );
 		return;

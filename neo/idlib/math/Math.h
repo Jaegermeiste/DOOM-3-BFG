@@ -642,7 +642,8 @@ public:
 	static int					ILog2( int i );				// integral base-2 logarithm of the integer value
 
 	static int					BitsForFloat( float f );	// minimum number of bits required to represent ceil( f )
-	static int					BitsForInteger( int i );	// minimum number of bits required to represent i
+	static int					BitsForInteger( const int i );	// minimum number of bits required to represent i
+	static int					BitsForInteger( const int64 i);	// minimum number of bits required to represent i
 	static int					MaskForFloatSign( float f );// returns 0x00000000 if x >= 0.0f and returns 0xFFFFFFFF if x <= -0.0f
 	static int					MaskForIntegerSign( int i );// returns 0x00000000 if x >= 0 and returns 0xFFFFFFFF if x < 0
 	static int					FloorPowerOfTwo( int x );	// round x down to the nearest power of 2
@@ -696,6 +697,8 @@ public:
 	static signed char			ClampChar( int i );
 	static signed short			ClampShort( int i );
 	static int					ClampInt( int min, int max, int value );
+	static int64				ClampInt64( int64 min, int64 max, int64 value );
+	static uint64				ClampUInt64( uint64 min, uint64 max, uint64 value);
 	static float				ClampFloat( float min, float max, float value );
 
 	static float				AngleNormalize360( float angle );
@@ -1335,8 +1338,12 @@ ID_INLINE int idMath::BitsForFloat(const float f ) {
 idMath::BitsForInteger
 ========================
 */
-ID_INLINE int idMath::BitsForInteger(const int i ) {
-	return ILog2( static_cast<float>(i) ) + 1;
+ID_INLINE int idMath::BitsForInteger( const int i ) {
+	return ILog2( Itof<float>(i) ) + 1;
+}
+
+ID_INLINE int idMath::BitsForInteger( const int64 i ) {
+	return ILog2( Itof<float>(i)) + 1;
 }
 
 /*
@@ -1927,6 +1934,36 @@ ID_INLINE int idMath::ClampInt(const int min, const int max, const int value ) {
 		return min;
 	}
 	if ( value > max ) {
+		return max;
+	}
+	return value;
+}
+
+/*
+========================
+idMath::ClampInt64
+========================
+*/
+ID_INLINE int64 idMath::ClampInt64(const int64 min, const int64 max, const int64 value) {
+	if (value < min) {
+		return min;
+	}
+	if (value > max) {
+		return max;
+	}
+	return value;
+}
+
+/*
+========================
+idMath::ClampUInt64
+========================
+*/
+ID_INLINE uint64 idMath::ClampUInt64(const uint64 min, const uint64 max, const uint64 value) {
+	if (value < min) {
+		return min;
+	}
+	if (value > max) {
 		return max;
 	}
 	return value;

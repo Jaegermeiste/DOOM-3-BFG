@@ -103,7 +103,7 @@ bool idTokenParser::ReadToken( idToken * tok ) {
 	return false;
 }
 int	idTokenParser::ExpectTokenString( const char *string ) {
-	idToken token;
+	idToken token = {};
 	if ( !ReadToken( &token ) ) {
 		Error( "couldn't find expected '%s'", string );
 		return 0;
@@ -115,7 +115,7 @@ int	idTokenParser::ExpectTokenString( const char *string ) {
 	return 1;
 }
 // expect a certain token type
-int	idTokenParser::ExpectTokenType( int type, uint64 subtype, idToken *token ) {
+int	idTokenParser::ExpectTokenType( tokenType_t type, uint64 subtype, idToken *token ) {
 	idStr str;
 
 	if ( !ReadToken( token ) ) {

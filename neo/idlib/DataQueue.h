@@ -14,11 +14,11 @@ public:
 	bool Append( int sequence, const byte * b1, int b1Len, const byte * b2 = nullptr, int b2Len = 0 );
 	void RemoveOlderThan( int sequence );
 
-	size_t GetDataLength() const { return dataLength; }
+	[[nodiscard]] size_t GetDataLength() const { return dataLength; }
 
-	size_t Num() const { return items.Num(); }
-	
-	int ItemSequence(Ordinal auto i) const { ORDINAL_CHECK(i, items.Num()); return items[i].sequence; }
+	[[nodiscard]] size_t Num() const { return items.Num(); }
+
+	[[nodiscard]] int ItemSequence(Ordinal auto i) const { ORDINAL_CHECK(i, items.Num()); return items[i].sequence; }
 	
 	size_t ItemLength(Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return items[i].length; }
 	

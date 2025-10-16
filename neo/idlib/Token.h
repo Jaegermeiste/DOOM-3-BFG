@@ -40,30 +40,37 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // token types
-#define TT_STRING					1		// string
-#define TT_LITERAL					2		// literal
-#define TT_NUMBER					3		// number
-#define TT_NAME						4		// name
-#define TT_PUNCTUATION				5		// punctuation
+typedef enum tokenType_e : uint8
+{
+	TT_NONE        = 0, // null token
+	TT_STRING      = 1, // string
+	TT_LITERAL     = 2, // literal
+	TT_NUMBER      = 3, // number
+	TT_NAME        = 4, // name
+	TT_PUNCTUATION = 5  // punctuation
+} tokenType_t;
 
 // number sub types
-#define TT_INTEGER					0x00001		// integer
-#define TT_DECIMAL					0x00002		// decimal number
-#define TT_HEX						0x00004		// hexadecimal number
-#define TT_OCTAL					0x00008		// octal number
-#define TT_BINARY					0x00010		// binary number
-#define TT_LONG						0x00020		// long int
-#define TT_UNSIGNED					0x00040		// unsigned int
-#define TT_FLOAT					0x00080		// floating point number
-#define TT_SINGLE_PRECISION			0x00100		// float
-#define TT_DOUBLE_PRECISION			0x00200		// double
-#define TT_EXTENDED_PRECISION		0x00400		// long double
-#define TT_INFINITE					0x00800		// infinite 1.#INF
-#define TT_INDEFINITE				0x01000		// indefinite 1.#IND
-#define TT_NAN						0x02000		// NaN
-#define TT_IPADDRESS				0x04000		// ip address
-#define TT_IPPORT					0x08000		// ip port
-#define TT_VALUESVALID				0x10000		// set if intvalue and floatvalue are valid
+enum tokenSubType_e : uint64
+{
+	TT_INTEGER            = 0x00001, // integer
+	TT_DECIMAL            = 0x00002, // decimal number
+	TT_HEX                = 0x00004, // hexadecimal number
+	TT_OCTAL              = 0x00008, // octal number
+	TT_BINARY             = 0x00010, // binary number
+	TT_LONG               = 0x00020, // long int
+	TT_UNSIGNED           = 0x00040, // unsigned int
+	TT_FLOAT              = 0x00080, // floating point number
+	TT_SINGLE_PRECISION   = 0x00100, // float
+	TT_DOUBLE_PRECISION   = 0x00200, // double
+	TT_EXTENDED_PRECISION = 0x00400, // long double
+	TT_INFINITE           = 0x00800, // infinite 1.#INF
+	TT_INDEFINITE         = 0x01000, // indefinite 1.#IND
+	TT_NAN                = 0x02000, // NaN
+	TT_IPADDRESS          = 0x04000, // ip address
+	TT_IPPORT             = 0x08000, // ip port
+	TT_VALUESVALID        = 0x10000  // set if intvalue and floatvalue are valid
+};
 
 // string sub type is the length of the string
 // literal sub type is the ASCII code
@@ -76,10 +83,10 @@ class idToken : public idStr {
 	friend class idLexer;
 
 public:
-	int				type;								// token type
+	tokenType_t		type;								// token type
 	uint64			subtype;							// token sub type
-	int				line;								// line in script the token was on
-	int				linesCrossed;						// number of lines crossed in white space before token
+	size_t			line;								// line in script the token was on
+	size_t			linesCrossed;						// number of lines crossed in white space before token
 	int				flags;								// token flags, used for recursive defines
 
 public:
@@ -96,7 +103,7 @@ public:
 	int				GetIntValue();				// int value of TT_NUMBER
 	int64			GetInt64Value();				// int value of TT_NUMBER
 	uint64			GetUnsignedInt64Value();				// int value of TT_NUMBER
-	int				WhiteSpaceBeforeToken() const;// returns length of whitespace before token
+	[[nodiscard]] size_t			WhiteSpaceBeforeToken() const;// returns length of whitespace before token
 	void			ClearTokenWhiteSpace();		// forget whitespace before token
 
 	void			NumberValue();				// calculate values for a TT_NUMBER
@@ -177,10 +184,16 @@ ID_INLINE uint64	idToken::GetUnsignedInt64Value() {
 }
 
 ID_INLINE int idToken::GetIntValue() {
-	return static_cast<int>(GetUnsignedLongValue());
+	if (type != TT_NUMBER) {
+		return 0;
+	}
+	if (!(subtype & TT_VALUESVALID)) {
+		NumberValue();
+	}
+	return idMath::integer_cast<int>(intvalue);
 }
 
-ID_INLINE int idToken::WhiteSpaceBeforeToken() const {
+ID_INLINE size_t idToken::WhiteSpaceBeforeToken() const {
 	return ( whiteSpaceEnd_p > whiteSpaceStart_p );
 }
 

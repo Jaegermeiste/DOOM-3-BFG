@@ -97,47 +97,47 @@ public:
 	idPlane			operator*( const float s ) const;		// scale plane
 	idPlane &		operator*=( const idMat3 &m );			// Normal() *= m
 
-	bool			Compare( const idPlane &p ) const;						// exact compare, no epsilon
-	bool			Compare( const idPlane &p, const float epsilon ) const;	// compare with epsilon
-	bool			Compare( const idPlane &p, const float normalEps, const float distEps ) const;	// compare with epsilon
+					[[nodiscard]] bool			Compare( const idPlane &p ) const;						// exact compare, no epsilon
+					[[nodiscard]] bool			Compare( const idPlane &p, const float epsilon ) const;	// compare with epsilon
+					[[nodiscard]] bool			Compare( const idPlane &p, const float normalEps, const float distEps ) const;	// compare with epsilon
 	bool			operator==(	const idPlane &p ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPlane &p ) const;					// exact compare, no epsilon
 
 	void			Zero();							// zero plane
 	void			SetNormal( const idVec3 &normal );		// sets the normal
-	const idVec3 &	Normal() const;					// reference to const normal
+					[[nodiscard]] const idVec3 &	Normal() const;					// reference to const normal
 	idVec3 &		Normal();							// reference to normal
 	float			Normalize( bool fixDegenerate = true );	// only normalizes the plane normal, does not adjust d
 	bool			FixDegenerateNormal();			// fix degenerate normal
 	bool			FixDegeneracies( float distEpsilon );	// fix degenerate normal and dist
-	float			Dist() const;						// returns: -d
+					[[nodiscard]] float			Dist() const;						// returns: -d
 	void			SetDist( const float dist );			// sets: d = -dist
-	int				Type() const;						// returns plane type
+					[[nodiscard]] int				Type() const;						// returns plane type
 
 	bool			FromPoints( const idVec3 &p1, const idVec3 &p2, const idVec3 &p3, bool fixDegenerate = true );
 	bool			FromVecs( const idVec3 &dir1, const idVec3 &dir2, const idVec3 &p, bool fixDegenerate = true );
 	void			FitThroughPoint( const idVec3 &p );	// assumes normal is valid
 	bool			HeightFit( const idVec3 *points, const int numPoints );
-	idPlane			Translate( const idVec3 &translation ) const;
+					[[nodiscard]] idPlane			Translate( const idVec3 &translation ) const;
 	idPlane &		TranslateSelf( const idVec3 &translation );
-	idPlane			Rotate( const idVec3 &origin, const idMat3 &axis ) const;
+					[[nodiscard]] idPlane			Rotate( const idVec3 &origin, const idMat3 &axis ) const;
 	idPlane &		RotateSelf( const idVec3 &origin, const idMat3 &axis );
 
-	float			Distance( const idVec3 &v ) const;
-	int				Side( const idVec3 &v, const float epsilon = 0.0f ) const;
+					[[nodiscard]] float			Distance( const idVec3 &v ) const;
+					[[nodiscard]] int				Side( const idVec3 &v, const float epsilon = 0.0f ) const;
 
-	bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
+					[[nodiscard]] bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
 					// intersection point is start + dir * scale
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale ) const;
 	bool			PlaneIntersection( const idPlane &plane, idVec3 &start, idVec3 &dir ) const;
 
-	int				GetDimension() const;
+					[[nodiscard]] int				GetDimension() const;
 
-	const idVec4 &	ToVec4() const;
+					[[nodiscard]] const idVec4 &	ToVec4() const;
 	idVec4 &		ToVec4();
-	const float *	ToFloatPtr() const;
+					[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	float			a;

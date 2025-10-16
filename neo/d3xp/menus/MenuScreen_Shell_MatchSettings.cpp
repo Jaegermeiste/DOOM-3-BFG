@@ -38,7 +38,7 @@ idMenuScreen_Shell_MatchSettings::Initialize
 void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -109,9 +109,9 @@ idMenuScreen_Shell_MatchSettings::Update
 */
 void idMenuScreen_Shell_MatchSettings::Update() {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+		if ( cmdBar != nullptr) {
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;			
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
@@ -128,18 +128,18 @@ void idMenuScreen_Shell_MatchSettings::Update() {
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
 	if ( BindSprite( root ) ) {
 		idSWFTextInstance * heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if ( heading != NULL ) {
+		if ( heading != nullptr) {
 			heading->SetText( "#str_swf_match_settings_heading" );	// SYSTEM SETTINGS
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 
 		idSWFSpriteInstance * gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if ( gradient != NULL && heading != NULL ) {
+		if ( gradient != nullptr && heading != nullptr) {
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 
-	if ( btnBack != NULL ) {
+	if ( btnBack != nullptr) {
 		btnBack->BindSprite( root );
 	}
 
@@ -175,7 +175,7 @@ idMenuScreen_Shell_MatchSettings::HandleAction h
 */
 bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 
@@ -188,13 +188,13 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction & action, co
 
 	switch ( actionType ) {
 		case WIDGET_ACTION_ADJUST_FIELD: {
-			if ( widget != NULL && widget->GetDataSource() != NULL && options != NULL ) {
+			if ( widget != nullptr && widget->GetDataSource() != nullptr && options != nullptr) {
 				widget->GetDataSource()->AdjustField( widget->GetDataSourceFieldIndex(), parms[ 0 ].ToInteger() );
 				widget->Update();
 
 				if ( matchData.MapChanged() ) {
 					idMenuWidget_ControlButton * button = dynamic_cast< idMenuWidget_ControlButton * >( &options->GetChildByIndex( 1 ) );
-					if ( button != NULL ) {
+					if ( button != nullptr) {
 						button->Update();
 					}
 					matchData.ClearMapChanged();
@@ -208,7 +208,7 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction & action, co
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED: {
 
-			if ( options == NULL ) {
+			if ( options == nullptr) {
 				return true;
 			}
 
@@ -228,7 +228,7 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction & action, co
 		}
 		case WIDGET_ACTION_START_REPEATER: {
 
-			if ( options == NULL ) {
+			if ( options == nullptr) {
 				return true;
 			}
 

@@ -38,10 +38,10 @@ No texture is ever used that does not have a corresponding idImage.
 ====================================================================
 */
 
-static constexpr int	MAX_TEXTURE_LEVELS = 14;
+static constexpr size_t	MAX_TEXTURE_LEVELS = 14;
 
 // How is this texture used?  Determines the storage and color format
-typedef enum {
+typedef enum textureUsage_e : uint8 {
 	TD_SPECULAR,			// may be compressed, and always zeros the alpha channel
 	TD_DIFFUSE,				// may be compressed
 	TD_DEFAULT,				// generic RGBA texture (particles, etc...)
@@ -56,7 +56,7 @@ typedef enum {
 	TD_DEPTH,				// depth buffer copy for motion blur
 } textureUsage_t;
 
-typedef enum {
+typedef enum cubeFiles_e : uint8 {
 	CF_2D,			// not a cube map
 	CF_NATIVE,		// _px, _nx, _py, etc, directly sent to GL
 	CF_CAMERA		// _forward, _back, etc, rotated and flipped as needed before sending to GL
@@ -65,13 +65,13 @@ typedef enum {
 #include "ImageOpts.h"
 #include "BinaryImage.h"
 
-#define	MAX_IMAGE_NAME	256
+constexpr size_t MAX_IMAGE_NAME = 256;
 
 class idImage {
 public:
 				idImage( const char * name );
 
-				[[nodiscard]] const char *	GetName() const { return imgName; }
+	[[nodiscard]] const char *	GetName() const { return imgName; }
 
 	// Makes this image active on the current GL texture unit.
 	// automatically enables or disables cube mapping
@@ -85,18 +85,18 @@ public:
 	// data goes from the bottom to the top line of the image, as OpenGL expects it
 	// These perform an implicit Bind() on the current texture unit
 	// FIXME: should we implement cinematics this way, instead of with explicit calls?
-	void		GenerateImage( const byte *pic, int width, int height, 
+	void		GenerateImage( const byte *pic, const size_t width, const size_t height,
 					   textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
-	void		GenerateCubeImage( const byte *pic[6], int size, 
+	void		GenerateCubeImage( const byte *pic[6], const size_t size,
 						textureFilter_t filter, textureUsage_t usage );
 
-	void		CopyFramebuffer( int x, int y, int width, int height );
-	void		CopyDepthbuffer( int x, int y, int width, int height );
+	void		CopyFramebuffer(const size_t x, const size_t y, const size_t width, const size_t height );
+	void		CopyDepthbuffer(const size_t x, const size_t y, const size_t width, const size_t height );
 
-	void		UploadScratch( const byte *pic, int width, int height );
+	void		UploadScratch( const byte *pic, size_t cols, size_t rows );
 
 	// estimates size of the GL image based on dimensions and storage type
-				[[nodiscard]] int			StorageSize() const;
+	[[nodiscard]] size_t			StorageSize() const;
 
 	// print a one line summary of the image
 	void		Print() const;
@@ -108,9 +108,9 @@ public:
 
 	void		MakeDefault();	// fill with a grid pattern
 
-				[[nodiscard]] const idImageOpts &	GetOpts() const { return opts; }
-				[[nodiscard]] int			GetUploadWidth() const { return opts.width; }
-				[[nodiscard]] int			GetUploadHeight() const { return opts.height; }
+	[[nodiscard]] const idImageOpts &	GetOpts() const { return opts; }
+	[[nodiscard]] size_t			GetUploadWidth() const { return opts.width; }
+	[[nodiscard]] size_t			GetUploadHeight() const { return opts.height; }
 
 	void		SetReferencedOutsideLevelLoad() { referencedOutsideLevelLoad = true; }
 	void		SetReferencedInsideLevelLoad() { levelLoadReferenced = true; }
@@ -131,26 +131,26 @@ public:
 	// be in OpenGL RGBA format, the consoles may have to reorganize. pixelPitch is only needed 
 	// when updating from a source subrect. Width, height, and dest* are always in pixels, so 
 	// they must be a multiple of four for dxt data.
-	void		SubImageUpload( int mipLevel, int destX, int destY, int destZ, 
-								int width, int height, const void * data, 
-								int pixelPitch = 0 ) const;
+	void		SubImageUpload(const size_t mipLevel, const size_t destX, const size_t destY, const size_t destZ,
+								size_t width, size_t height, const void * data,
+								const size_t pixelPitch = 0 ) const;
 
 	// SetPixel is assumed to be a fast memory write on consoles, degenerating to a 
 	// SubImageUpload on PCs.  Used to update the page mapping images.
 	// We could remove this now, because the consoles don't use the intermediate page mapping
 	// textures now that they can pack everything into the virtual page table images.
-	void		SetPixel( int mipLevel, int x, int y, const void * data, int dataSize ) const;
+	void		SetPixel(const size_t mipLevel, const size_t x, const size_t y, const void * data, const size_t dataSize ) const;
 
 	// some scratch images are dynamically resized based on the display window size.  This 
 	// simply purges the image and recreates it if the sizes are different, so it should not be 
 	// done under any normal circumstances, and probably not at all on consoles.
-	void		Resize( int width, int height );
+	void		Resize( const size_t width, const size_t height );
 
-				[[nodiscard]] bool		IsCompressed() const { return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 ); }
+	[[nodiscard]] bool		IsCompressed() const { return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 ); }
 
 	void		SetTexParameters();	// update aniso and trilinear
 
-				[[nodiscard]] bool		IsLoaded() const { return texnum != TEXTURE_NOT_LOADED; }
+	[[nodiscard]] bool		IsLoaded() const { return texnum != TEXTURE_NOT_LOADED; }
 
 	static void			GetGeneratedName( idStr &_name, const textureUsage_t &_usage, const cubeFiles_t &_cube );
 
@@ -212,7 +212,7 @@ ID_INLINE idImage::idImage( const char * name ) : imgName( name ) {
 
 
 // data is RGBA
-void	R_WriteTGA( const char *filename, const byte *data, int width, int height, bool flipVertical = false, const char * basePath = "fs_savepath" );
+void	R_WriteTGA( const char *filename, const byte *data, const size_t width, const size_t height, bool flipVertical = false, const char * basePath = "fs_savepath" );
 // data is in top-to-bottom raster order unless flipVertical is set
 
 
@@ -327,17 +327,17 @@ FIXME: make an "imageBlock" type to hold byte*,width,height?
 ====================================================================
 */
 
-byte *R_Dropsample( const byte *in, int inwidth, int inheight, int outwidth, int outheight );
-byte *R_ResampleTexture( const byte *in, int inwidth, int inheight, int outwidth, int outheight );
-byte *R_MipMapWithAlphaSpecularity( const byte *in, int width, int height );
-byte *R_MipMapWithGamma( const byte *in, int width, int height );
-byte *R_MipMap( const byte *in, int width, int height );
+byte *R_Dropsample( const byte *in, const size_t inwidth, const size_t inheight, int outwidth, int outheight );
+byte *R_ResampleTexture( const byte *in, const size_t inwidth, const size_t inheight, int outwidth, int outheight );
+byte *R_MipMapWithAlphaSpecularity( const byte *in, const size_t width, const size_t height );
+byte *R_MipMapWithGamma( const byte *in, const size_t width, const size_t height );
+byte *R_MipMap( const byte *in, const size_t width, const size_t height );
 
 // these operate in-place on the provided pixels
-void R_BlendOverTexture( byte *data, int pixelCount, const byte blend[4] );
-void R_HorizontalFlip( byte *data, int width, int height );
-void R_VerticalFlip( byte *data, int width, int height );
-void R_RotatePic( byte *data, int width );
+void R_BlendOverTexture( byte *data, const size_t pixelCount, const byte blend[4] );
+void R_HorizontalFlip( byte *data, const size_t width, const size_t height );
+void R_VerticalFlip( byte *data, const size_t width, const size_t height );
+void R_RotatePic( byte *data, const size_t width );
 
 /*
 ====================================================================
@@ -347,7 +347,7 @@ IMAGEFILES
 ====================================================================
 */
 
-void R_LoadImage( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamp, bool makePowerOf2 );
+void R_LoadImage( const char *name, byte **pic, size_t *width, size_t *height, ID_TIME_T *timestamp, bool makePowerOf2 );
 // pic is in top to bottom raster format
 bool R_LoadCubeImages( const char *cname, cubeFiles_t extensions, byte *pic[6], int *size, ID_TIME_T *timestamp );
 
@@ -359,6 +359,6 @@ IMAGEPROGRAM
 ====================================================================
 */
 
-void R_LoadImageProgram( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamp, textureUsage_t * usage = nullptr);
+void R_LoadImageProgram( const char *name, byte **pic, size_t *width, size_t *height, ID_TIME_T *timestamp, textureUsage_t * usage = nullptr);
 const char *R_ParsePastImageProgram( idLexer &src );
 

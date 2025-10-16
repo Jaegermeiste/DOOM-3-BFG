@@ -45,9 +45,10 @@ If you have questions concerning this license or the applicable additional terms
 idAASFileLocal::EdgeCenter
 ================
 */
-idVec3 idAASFileLocal::EdgeCenter( int edgeNum ) const {
-	const aasEdge_t *edge;
-	edge = &edges[edgeNum];
+idVec3 idAASFileLocal::EdgeCenter( Ordinal auto edgeNum ) const {
+	ORDINAL_CHECK(edgeNum, edges.Num());
+
+	const aasEdge_t* edge = &edges[edgeNum];
 	return ( vertices[edge->vertexNum[0]] + vertices[edge->vertexNum[1]] ) * 0.5f;
 }
 
@@ -56,22 +57,20 @@ idVec3 idAASFileLocal::EdgeCenter( int edgeNum ) const {
 idAASFileLocal::FaceCenter
 ================
 */
-idVec3 idAASFileLocal::FaceCenter( int faceNum ) const {
-	int i, edgeNum;
-	const aasFace_t *face;
-	const aasEdge_t *edge;
-	idVec3 center;
+idVec3 idAASFileLocal::FaceCenter( Ordinal auto faceNum ) const {
+	ORDINAL_CHECK(faceNum, faces.Num());
+	size_t i = 0;
 
-	center = vec3_origin;
+	idVec3 center = vec3_origin;
 
-	face = &faces[faceNum];
+	const aasFace_t* face = &faces[faceNum];
 	if ( face->numEdges > 0 ) {
 		for ( i = 0; i < face->numEdges; i++ ) {
-			edgeNum = edgeIndex[ face->firstEdge + i ];
-			edge = &edges[ abs( edgeNum ) ];
-			center += vertices[ edge->vertexNum[ INT32_SIGNBITSET(edgeNum) ] ];
+			auto edgeNum = edgeIndex[face->firstEdge + i];
+			const aasEdge_t* edge = &edges[_abs64(edgeNum)];
+			center += vertices[ edge->vertexNum[ INT64_SIGNBITSET(edgeNum) ] ];
 		}
-		center /= face->numEdges;
+		center /= idMath::Itof<float>(face->numEdges);
 	}
 	return center;
 }
@@ -81,20 +80,18 @@ idVec3 idAASFileLocal::FaceCenter( int faceNum ) const {
 idAASFileLocal::AreaCenter
 ================
 */
-idVec3 idAASFileLocal::AreaCenter( int areaNum ) const {
-	int i, faceNum;
-	const aasArea_t *area;
-	idVec3 center;
+idVec3 idAASFileLocal::AreaCenter( Ordinal auto areaNum ) const {
+	size_t i = 0;
 
-	center = vec3_origin;
+	idVec3 center = vec3_origin;
 
-	area = &areas[areaNum];
+	const aasArea_t* area = &areas[areaNum];
 	if ( area->numFaces > 0 ) {
 		for ( i = 0; i < area->numFaces; i++ ) {
-			faceNum = faceIndex[area->firstFace + i];
-			center += FaceCenter( abs(faceNum) );
+			auto faceNum = faceIndex[area->firstFace + i];
+			center += FaceCenter( _abs64(faceNum) );
 		}
-		center /= area->numFaces;
+		center /= idMath::Itof<float>(area->numFaces);
 	}
 	return center;
 }
@@ -104,35 +101,32 @@ idVec3 idAASFileLocal::AreaCenter( int areaNum ) const {
 idAASFileLocal::AreaReachableGoal
 ============
 */
-idVec3 idAASFileLocal::AreaReachableGoal( int areaNum ) const {
-	int i, faceNum, numFaces;
-	const aasArea_t *area;
-	idVec3 center;
-	idVec3 start, end;
+idVec3 idAASFileLocal::AreaReachableGoal( Ordinal auto areaNum ) const {
+	size_t i = 0, numFaces = 0;
 	aasTrace_t trace;
 
-	area = &areas[areaNum];
+	const aasArea_t* area = &areas[areaNum];
 
 	if ( !(area->flags & (AREA_REACHABLE_WALK|AREA_REACHABLE_FLY)) || (area->flags & AREA_LIQUID) ) {
 		return AreaCenter( areaNum );
 	}
 
-	center = vec3_origin;
+	idVec3 center = vec3_origin;
 
 	numFaces = 0;
 	for ( i = 0; i < area->numFaces; i++ ) {
-		faceNum = faceIndex[area->firstFace + i];
+		auto faceNum = faceIndex[area->firstFace + i];
 		if ( !(faces[abs(faceNum)].flags & FACE_FLOOR) ) {
 			continue;
 		}
-		center += FaceCenter( abs(faceNum) );
+		center += FaceCenter( _abs64(faceNum) );
 		numFaces++;
 	}
 	if ( numFaces > 0 ) {
-		center /= numFaces;
+		center /= idMath::Itof<float>(numFaces);
 	}
 	center[2] += 1.0f;
-	end = center;
+	idVec3 end = center;
 	end[2] -= 1024;
 	Trace( trace, center, end );
 
@@ -201,13 +195,12 @@ idBounds idAASFileLocal::AreaBounds( int areaNum ) const {
 idAASFileLocal::PointAreaNum
 ============
 */
-int idAASFileLocal::PointAreaNum( const idVec3 &origin ) const {
-	int nodeNum;
-	const aasNode_t *node;
+int64 idAASFileLocal::PointAreaNum( const idVec3 &origin ) const {
+	int64 nodeNum = 0;
 
 	nodeNum = 1;
 	do {
-		node = &nodes[nodeNum];
+		const aasNode_t* node = &nodes[nodeNum];
 		if ( planeList[node->planeNum].Side( origin ) == PLANESIDE_BACK ) {
 			nodeNum = node->children[1];
 		}

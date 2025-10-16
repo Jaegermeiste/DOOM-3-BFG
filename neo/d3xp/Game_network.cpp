@@ -139,7 +139,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 
 		for ( int j = 0; j < MAX_PLAYERS; j++ ) {
 			idPlayer * player = static_cast<idPlayer *>( entities[ j ] );
-			if ( player == NULL ) {
+			if ( player == nullptr) {
 				continue;
 			}
 			
@@ -160,7 +160,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 	// Validate connected players
 	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
 		idPlayer * player = static_cast<idPlayer *>( entities[ i ] );
-		if ( player == NULL ) {
+		if ( player == nullptr) {
 			continue;
 		}
 		
@@ -182,7 +182,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 
 		for ( int i = 0; i < MAX_PLAYERS; ++i ) {
 			idPlayer * player = static_cast<idPlayer *>( entities[ i ] );
-			if ( player == NULL ) {
+			if ( player == nullptr) {
 				freePlayerDataIndex = i;
 				break;
 			}
@@ -233,7 +233,7 @@ void idGameLocal::ServerSendNetworkSyncCvars() {
 	outMsg.BeginWriting();
 	idDict syncedCvars;
 	cvarSystem->MoveCVarsToDict( CVAR_NETWORKSYNC, syncedCvars, true );
-	outMsg.WriteDeltaDict( syncedCvars, NULL );
+	outMsg.WriteDeltaDict( syncedCvars, nullptr);
 	lobby.SendReliable( GAME_RELIABLE_MESSAGE_SYNCEDCVARS, outMsg, false );
 
 	idLib::Printf( "Sending networkSync cvars:\n" );
@@ -262,7 +262,7 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum, lobbyUserID
 	outMsg.BeginWriting();
 	idDict syncedCvars;
 	cvarSystem->MoveCVarsToDict( CVAR_NETWORKSYNC, syncedCvars, true );
-	outMsg.WriteDeltaDict( syncedCvars, NULL );
+	outMsg.WriteDeltaDict( syncedCvars, nullptr);
 	lobby.SendReliableToLobbyUser( lobbyUserID, GAME_RELIABLE_MESSAGE_SYNCEDCVARS, outMsg );
 
 	idLib::Printf( "Sending initial networkSync cvars:\n" );
@@ -343,7 +343,7 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 	idEntity * skyEnt = portalSkyEnt.GetEntity();
 	pvsHandle_t	portalSkyPVS;
 	portalSkyPVS.i = -1;
-	if ( skyEnt != NULL ) {
+	if ( skyEnt != nullptr) {
 		portalSkyPVS = pvs.SetupCurrentPVS( skyEnt->GetPVSAreas(), skyEnt->GetNumPVSAreas() );
 	}
 
@@ -351,7 +351,7 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 	pvsHandle_t pvsHandles[ MAX_PLAYERS ];
 	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
 		idPlayer * player = static_cast<idPlayer *>( entities[ i ] );
-		if ( player == NULL ) {
+		if ( player == nullptr) {
 			pvsHandles[i].i = -1;
 			continue;
 		}
@@ -385,7 +385,7 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 	}
 
 	// Add all entities to the snapshot
-	for ( idEntity * ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	for ( idEntity * ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 		if ( ent->GetSkipReplication() ) {
 			continue;
 		}
@@ -503,7 +503,7 @@ void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const i
 			msg.ReadString( name, sizeof( name ) );
 			msg.ReadString( text, sizeof( text ) );
 
-			mpGame.ProcessChatMessage( clientNum, type == GAME_RELIABLE_MESSAGE_TCHAT, name, text, NULL );
+			mpGame.ProcessChatMessage( clientNum, type == GAME_RELIABLE_MESSAGE_TCHAT, name, text, nullptr);
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_VCHAT: {
@@ -567,22 +567,22 @@ void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const i
 			const float damageScale = msg.ReadFloat();
 			const int location = msg.ReadLong();
 
-			if ( gameLocal.entities[victimNum] == NULL ) {
+			if ( gameLocal.entities[victimNum] == nullptr) {
 				break;
 			}
 
-			if ( gameLocal.entities[attackerNum] == NULL ) {
+			if ( gameLocal.entities[attackerNum] == nullptr) {
 				break;
 			}
 
 			idPlayer & victim = static_cast< idPlayer & >( *gameLocal.entities[victimNum] );
 			idPlayer & attacker = static_cast< idPlayer & >( *gameLocal.entities[attackerNum] );
 			
-			if ( victim.GetPhysics() == NULL ) {
+			if ( victim.GetPhysics() == nullptr) {
 				break;
 			}
 
-			if ( attacker.weapon.GetEntity() == NULL ) {
+			if ( attacker.weapon.GetEntity() == nullptr) {
 				break;
 			}
 
@@ -601,7 +601,7 @@ void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const i
 			idVec3 targetLocation = victim.GetRenderEntity()->origin + victim.GetRenderEntity()->joints[location].ToVec3() * victim.GetRenderEntity()->axis;
 
 			trace_t tr;
-			gameLocal.clip.Translation( tr, muzzleOrigin, targetLocation, NULL, mat3_identity, MASK_SHOT_RENDERMODEL, &attacker );
+			gameLocal.clip.Translation( tr, muzzleOrigin, targetLocation, nullptr, mat3_identity, MASK_SHOT_RENDERMODEL, &attacker );
 			
 			idEntity * hitEnt = gameLocal.entities[ tr.c.entityNum ];
 			if ( hitEnt != &victim ) {
@@ -609,8 +609,8 @@ void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const i
 			}
 			const idDeclEntityDef *damageDef = static_cast<const idDeclEntityDef *>( declManager->DeclByIndex( DECL_ENTITYDEF, damageDefIndex, false ) );
 			
-			if ( damageDef != NULL ) {
-				victim.Damage( NULL, gameLocal.entities[attackerNum], dir, damageDef->GetName(), damageScale, location );
+			if ( damageDef != nullptr) {
+				victim.Damage(nullptr, gameLocal.entities[attackerNum], dir, damageDef->GetName(), damageScale, location );
 			}
 			break;
 		}
@@ -685,7 +685,7 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 				continue;
 			}
 
-			if ( otherPlayer != NULL ) {
+			if ( otherPlayer != nullptr) {
 				otherPlayer->ReadPlayerStateFromSnapshot( msg );
 				if ( otherPlayer != entities[ GetLocalClientNum() ] ) { // This happens when we spectate another player
 					idWeapon * weap = otherPlayer->weapon.GetEntity();
@@ -735,12 +735,12 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 
 		// If there is no entity on this client, but the server's entity matches a predictionKey, move the client's
 		// predicted entity to the normal, replicated area in the entity list.
-		if ( entities[entityNumber] == NULL ) {
+		if ( entities[entityNumber] == nullptr) {
 			if ( predictedKey != idEntity::INVALID_PREDICTION_KEY ) {
 				idLib::PrintfIf( debug, "Looking for predicted key %d.\n", predictedKey );
 				idEntity * predictedEntity = FindPredictedEntity( predictedKey, typeInfo );
 
-				if ( predictedEntity != NULL ) {
+				if ( predictedEntity != nullptr) {
 					// This presentable better be in the proper place in the list or bad things will happen if we move this presentable around
 					assert( predictedEntity->GetEntityNumber() >= ENTITYNUM_FIRST_NON_REPLICATED );
 					continue;
@@ -815,7 +815,7 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 						Error( "Failed to spawn entity of type '%s'", typeInfo->classname );
 					}
 				}
-				if ( ent != NULL ) {
+				if ( ent != nullptr) {
 					// Fixme: for now, force all think flags on. We'll need to figure out how we want dormancy to work on clients
 					// (but for now since clientThink is so light weight, this is ok)
 					ent->BecomeActive( TH_ANIMATE );
@@ -916,7 +916,7 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) 
 	switch( type ) {
 		case GAME_RELIABLE_MESSAGE_SYNCEDCVARS: {
 			idDict syncedCvars;
-			msg.ReadDeltaDict( syncedCvars, NULL );
+			msg.ReadDeltaDict( syncedCvars, nullptr);
 
 			idLib::Printf( "Got networkSync cvars:\n" );
 			syncedCvars.Print();
@@ -935,7 +935,7 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) 
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_SOUND_EVENT: {
-			snd_evt_t snd_evt = (snd_evt_t)msg.ReadByte();
+			snd_evt_t snd_evt = static_cast<snd_evt_t>(msg.ReadByte());
 			mpGame.PlayGlobalSound( -1, snd_evt );
 			break;
 		}
@@ -948,7 +948,7 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) 
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_DB: {
-			idMultiplayerGame::msg_evt_t msg_evt = (idMultiplayerGame::msg_evt_t)msg.ReadByte();
+			idMultiplayerGame::msg_evt_t msg_evt = static_cast<idMultiplayerGame::msg_evt_t>(msg.ReadByte());
 			int parm1, parm2;
 			parm1 = msg.ReadByte( );
 			parm2 = msg.ReadByte( );
@@ -1065,7 +1065,7 @@ void idGameLocal::ClientRunFrame( idUserCmdMgr & cmdMgr, bool lastPredictFrame, 
 	fast.Set( time, previousTime, realClientTime );
 
 	// run prediction on all active entities
-	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+	for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() ) {
 		ent->thinkFlags |= TH_PHYSICS;
 
 		if ( ent->entityNumber != GetLocalClientNum() ) {
@@ -1109,7 +1109,7 @@ void idGameLocal::Tokenize( idStrList &out, const char *in ) {
 			token = next + 1;
 			next = strchr( token, ';' );
 		} else {
-			token = NULL;
+			token = nullptr;
 		}		
 	}
 }
@@ -1120,7 +1120,7 @@ idGameLocal::FindPredictedEntity
 ========================
 */
 idEntity *  idGameLocal::FindPredictedEntity( uint32 predictedKey, idTypeInfo * type ) {
-	for ( idEntity * predictedEntity = activeEntities.Next(); predictedEntity != NULL; predictedEntity = predictedEntity->activeNode.Next() ) {
+	for ( idEntity * predictedEntity = activeEntities.Next(); predictedEntity != nullptr; predictedEntity = predictedEntity->activeNode.Next() ) {
 		if ( !verify( predictedEntity != NULL ) ) {
 			continue;
 		}
@@ -1131,7 +1131,7 @@ idEntity *  idGameLocal::FindPredictedEntity( uint32 predictedKey, idTypeInfo * 
 			return predictedEntity;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1191,8 +1191,8 @@ idEventQueue::Alloc
 */
 entityNetEvent_t* idEventQueue::Alloc() {
 	entityNetEvent_t* event = eventAllocator.Alloc();
-	event->prev = NULL;
-	event->next = NULL;
+	event->prev = nullptr;
+	event->next = nullptr;
 	return event;
 }
 
@@ -1223,8 +1223,8 @@ idEventQueue::Init
 ===============
 */
 void idEventQueue::Init() {
-	start = NULL;
-	end = NULL;
+	start = nullptr;
+	end = nullptr;
 }
 
 /*
@@ -1235,19 +1235,19 @@ idEventQueue::Dequeue
 entityNetEvent_t* idEventQueue::Dequeue() {
 	entityNetEvent_t* event = start;
 	if ( !event ) {
-		return NULL;
+		return nullptr;
 	}
 
 	start = start->next;
 
 	if ( !start ) {
-		end = NULL;
+		end = nullptr;
 	} else {
-		start->prev = NULL;
+		start->prev = nullptr;
 	}
 
-	event->next = NULL;
-	event->prev = NULL;
+	event->next = nullptr;
+	event->prev = nullptr;
 
 	return event;
 }
@@ -1260,19 +1260,19 @@ idEventQueue::RemoveLast
 entityNetEvent_t* idEventQueue::RemoveLast() {
 	entityNetEvent_t *event = end;
 	if ( !event ) {
-		return NULL;
+		return nullptr;
 	}
 
 	end = event->prev;
 
 	if ( !end ) {
-		start = NULL;
+		start = nullptr;
 	} else {
-		end->next = NULL;		
+		end->next = nullptr;		
 	}
 
-	event->next = NULL;
-	event->prev = NULL;
+	event->next = nullptr;
+	event->prev = nullptr;
 
 	return event;
 }
@@ -1303,7 +1303,7 @@ void idEventQueue::Enqueue( entityNetEvent_t *event, outOfOrderBehaviour_t behav
 		if ( !cur ) {
 			// add to start
 			event->next = start;
-			event->prev = NULL;
+			event->prev = nullptr;
 			start = event;
 		} else {
 			// insert
@@ -1315,8 +1315,8 @@ void idEventQueue::Enqueue( entityNetEvent_t *event, outOfOrderBehaviour_t behav
 	} 
 
 	// add the new event
-	event->next = NULL;
-	event->prev = NULL;
+	event->next = nullptr;
+	event->prev = nullptr;
 
 	if ( end ) {
 		end->next = event;

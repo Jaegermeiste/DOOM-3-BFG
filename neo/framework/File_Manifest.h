@@ -161,12 +161,12 @@ struct preloadEntry_s {
 };
 
 struct preloadSort_t {
-	int idx;
-	int ofs;
+	size_t idx;
+	size_t ofs;
 };
 class idSort_Preload : public idSort_Quick< preloadSort_t, idSort_Preload > {
 public:
-	[[nodiscard]] int Compare( const preloadSort_t & a, const preloadSort_t & b ) const { return a.ofs - b.ofs; }
+	[[nodiscard]] static int64 Compare( const preloadSort_t & a, const preloadSort_t & b ) { return idMath::integer_cast<int64>(a.ofs) - idMath::integer_cast<int64>(b.ofs); }
 };
 
 class idPreloadManifest {
@@ -185,9 +185,9 @@ public:
 			return;
 		}
 		filename = outFile->GetName();
-		outFile->WriteBig ( ( int )entries.Num() );
+		outFile->WriteBig ( entries.Num() );
 		outFile->WriteString( filename );
-		for ( int i = 0; i < entries.Num(); i++ ) {
+		for ( size_t i = 0; i < entries.Num(); i++ ) {
 			entries[ i ].Write( outFile );
 		}
 	}
@@ -196,11 +196,15 @@ public:
 		return entries.Num();
 	}
 
-	[[nodiscard]] const preloadEntry_s & GetPreloadByIndex( int idx ) const {
+	[[nodiscard]] const preloadEntry_s & GetPreloadByIndex( const Ordinal auto idx ) const {
+		ORDINAL_CHECK(idx, entries.Num());
+
 		return entries[ idx ];
 	}
 
-	[[nodiscard]] const idStr & GetResourceNameByIndex( int idx ) const {
+	[[nodiscard]] const idStr & GetResourceNameByIndex( const Ordinal auto idx ) const {
+		ORDINAL_CHECK(idx, entries.Num());
+
 		return entries[ idx ].resourceName;
 	}
 
@@ -257,10 +261,10 @@ public:
 		entries.Clear();
 	}
 
-	int FindResource( const char *name ) {
-		for ( int i = 0; i < entries.Num(); i++ ) {
+	int64 FindResource( const char *name ) {
+		for ( size_t i = 0; i < entries.Num(); i++ ) {
 			if ( idStr::Icmp( name, entries[ i ].resourceName ) == 0 ) {
-				return i;
+				return idMath::integer_cast<int64>(i);
 			}
 		}
 		return -1;
@@ -270,7 +274,7 @@ public:
 	{
 		idLib::Printf( "dump for preload manifest %s\n", GetManifestName() );
 		idLib::Printf( "---------------------------------------\n" );
-		for ( int i = 0; i < NumResources(); i++ ) {
+		for ( size_t i = 0; i < NumResources(); i++ ) {
 			idLib::Printf( "%s\n", GetResourceNameByIndex( i ).c_str() );
 		}
 	}

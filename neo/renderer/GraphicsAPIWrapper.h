@@ -53,7 +53,7 @@ class idRenderModelSurface;
 class idDeclRenderProg;
 class idRenderTexture;
 
-static constexpr int MAX_OCCLUSION_QUERIES = 4096;
+static constexpr size_t MAX_OCCLUSION_QUERIES = 4096;
 // returned by GL_GetDeferredQueryResult() when the query is from too long ago and the result is no longer available
 static constexpr int OCCLUSION_QUERY_TOO_OLD				= -1;
 
@@ -70,8 +70,8 @@ static constexpr int OCCLUSION_QUERY_TOO_OLD				= -1;
 
 #define USE_CORE_PROFILE
 
-struct wrapperContext_t {
-};
+typedef struct wrapperContext_s {
+} wrapperContext_t;
 
 
 /*
@@ -79,7 +79,7 @@ struct wrapperContext_t {
 wrapperConfig_t
 ================================================
 */
-struct wrapperConfig_t {
+typedef struct wrapperConfig_s {
 	// rendering options and settings
 	bool			disableStateCaching;
 	bool			lazyBindPrograms;
@@ -97,23 +97,23 @@ struct wrapperConfig_t {
 	int				textureMipFilter;
 	float			textureAnisotropy;
 	float			textureLODBias;
-};
+} wrapperConfig_t;
 
 /*
 ================================================
 wrapperStats_t
 ================================================
 */
-struct wrapperStats_t {
-	int				c_queriesIssued;
-	int				c_queriesPassed;
-	int				c_queriesWaitTime;
-	int				c_queriesTooOld;
-	int				c_programsBound;
-	int				c_drawElements;
-	int				c_drawIndices;
-	int				c_drawVertices;
-};
+typedef struct wrapperStats_s {
+	size_t			c_queriesIssued;
+	size_t			c_queriesPassed;
+	size_t			c_queriesWaitTime;
+	size_t			c_queriesTooOld;
+	size_t			c_programsBound;
+	size_t			c_drawElements;
+	size_t			c_drawIndices;
+	size_t			c_drawVertices;
+} wrapperStats_t;
 
 /*
 ================================================================================================
@@ -127,7 +127,7 @@ void			GL_SetWrapperContext( const wrapperContext_t & context );
 void			GL_SetWrapperConfig( const wrapperConfig_t & config );
 
 void			GL_SetTimeDelta( uint64 delta );	// delta from GPU to CPU microseconds
-void			GL_StartFrame( int frame );			// inserts a timing mark for the start of the GPU frame
+void			GL_StartFrame( const size_t frame );			// inserts a timing mark for the start of the GPU frame
 void			GL_EndFrame();						// inserts a timing mark for the end of the GPU frame
 void			GL_WaitForEndFrame();				// wait for the GPU to reach the last end frame marker
 void			GL_GetLastFrameTime( uint64 & startGPUTimeMicroSec, uint64 & endGPUTimeMicroSec );	// GPU time between GL_StartFrame() and GL_EndFrame()
@@ -140,11 +140,11 @@ void			GL_State( uint64 stateVector, bool forceGlState = false );
 uint64			GL_GetCurrentState();
 uint64			GL_GetCurrentStateMinusStencil();
 void			GL_Cull( int cullType );
-void			GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h );
-void			GL_Viewport( int x /* left */, int y /* bottom */, int w, int h );
+void			GL_Scissor( int x /* left*/, int y /* bottom */, const size_t w, const size_t h );
+void			GL_Viewport( int x /* left */, int y /* bottom */, const size_t w, const size_t h);
 ID_INLINE void	GL_Scissor( const idScreenRect & rect ) { GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 ); }
 ID_INLINE void	GL_Viewport( const idScreenRect & rect ) { GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 ); }
-ID_INLINE void	GL_ViewportAndScissor( int x, int y, int w, int h ) { GL_Viewport( x, y, w, h ); GL_Scissor( x, y, w, h ); }
+ID_INLINE void	GL_ViewportAndScissor( int x, int y, const size_t w, const size_t h) { GL_Viewport( x, y, w, h ); GL_Scissor( x, y, w, h ); }
 ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect ) { GL_Viewport( rect ); GL_Scissor( rect ); }
 void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 void			GL_PolygonOffset( float scale, float bias );

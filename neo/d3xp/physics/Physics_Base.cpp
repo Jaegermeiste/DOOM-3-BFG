@@ -40,7 +40,7 @@ idPhysics_Base::idPhysics_Base
 ================
 */
 idPhysics_Base::idPhysics_Base() {
-	self = NULL;
+	self = nullptr;
 	clipMask = 0;
 	SetGravity( gameLocal.GetGravity() );
 	ClearContacts();
@@ -53,7 +53,7 @@ idPhysics_Base::~idPhysics_Base
 */
 idPhysics_Base::~idPhysics_Base() {
 	if ( self && self->GetPhysics() == this ) {
-		self->SetPhysics( NULL );
+		self->SetPhysics(nullptr);
 	}
 	idForce::DeletePhysics( this );
 	ClearContacts();
@@ -133,7 +133,7 @@ idPhysics_Base::GetClipModel
 ================
 */
 idClipModel *idPhysics_Base::GetClipModel( int id ) const {
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -572,7 +572,7 @@ void idPhysics_Base::AddContactEntity( idEntity *e ) {
 
 	for ( i = 0; i < contactEntities.Num(); i++ ) {
 		ent = contactEntities[i].GetEntity();
-		if ( ent == NULL ) {
+		if ( ent == nullptr) {
 			contactEntities.RemoveIndex( i-- );
 		}
 		if ( ent == e ) {
@@ -694,7 +694,7 @@ idPhysics_Base::GetBlockingInfo
 ================
 */
 const trace_t *idPhysics_Base::GetBlockingInfo() const {
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -703,7 +703,7 @@ idPhysics_Base::GetBlockingEntity
 ================
 */
 idEntity *idPhysics_Base::GetBlockingEntity() const {
-	return NULL;
+	return nullptr;
 }
 
 /*

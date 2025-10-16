@@ -39,7 +39,7 @@ idMenuScreen_Shell_ModeSelect::Initialize
 void idMenuScreen_Shell_ModeSelect::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -105,9 +105,9 @@ idMenuScreen_Shell_ModeSelect::Update
 */
 void idMenuScreen_Shell_ModeSelect::Update() {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+		if ( cmdBar != nullptr) {
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
@@ -127,18 +127,18 @@ void idMenuScreen_Shell_ModeSelect::Update() {
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
 	if ( BindSprite( root ) ) {
 		idSWFTextInstance * heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if ( heading != NULL ) {
+		if ( heading != nullptr) {
 			heading->SetText( "#str_swf_find_match_heading" );
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 
 		idSWFSpriteInstance * gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if ( gradient != NULL && heading != NULL ) {
+		if ( gradient != nullptr && heading != nullptr) {
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 
-	if ( btnBack != NULL ) {
+	if ( btnBack != nullptr) {
 		btnBack->BindSprite( root );
 	}
 
@@ -170,7 +170,7 @@ idMenuScreen_Shell_ModeSelect::HandleAction h
 */
 bool idMenuScreen_Shell_ModeSelect::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 
@@ -187,7 +187,7 @@ bool idMenuScreen_Shell_ModeSelect::HandleAction( idWidgetAction & action, const
 			return true;
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED: {
-			if ( options == NULL ) {
+			if ( options == nullptr) {
 				return true;
 			}
 			int selectionIndex = options->GetViewIndex();

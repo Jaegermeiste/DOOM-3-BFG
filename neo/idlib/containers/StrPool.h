@@ -66,9 +66,9 @@ public:
 
 	void				SetCaseSensitive( bool caseSensitive );
 
-	size_t				Num() const { return pool.Num(); }
-	size_t				Allocated() const;
-	size_t				Size() const;
+						[[nodiscard]] size_t				Num() const { return pool.Num(); }
+						[[nodiscard]] size_t				Allocated() const;
+						[[nodiscard]] size_t				Size() const;
 
 	
 	const idPoolStr*    operator[](const Ordinal auto index) const { ORDINAL_CHECK(index, pool.Num()); return pool[index]; }

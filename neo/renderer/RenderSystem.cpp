@@ -439,7 +439,7 @@ void idRenderSystemLocal::DrawStretchTri( const idVec2 & p1, const idVec2 & p2, 
 idRenderSystemLocal::AllocTris
 =============
 */
-idDrawVert * idRenderSystemLocal::AllocTris( int numVerts, const triIndex_t * indexes, int numIndexes, const idMaterial * material, const stereoDepthType_t stereoType ) {
+idDrawVert * idRenderSystemLocal::AllocTris( const size_t numVerts, const triIndex_t * indexes, const size_t numIndexes, const idMaterial * material, const stereoDepthType_t stereoType ) {
 	return guiModel->AllocTris( numVerts, indexes, numIndexes, material, currentGLState, stereoType );
 }
 
@@ -450,10 +450,8 @@ idRenderSystemLocal::DrawSmallChar
 small chars are drawn at native screen resolution
 =====================
 */
-void idRenderSystemLocal::DrawSmallChar( int x, int y, int ch ) {
-	int row, col;
-	float frow, fcol;
-	float size;
+void idRenderSystemLocal::DrawSmallChar( const int x, const int y, int ch ) {
+	constexpr float size = 0.0625f;
 
 	ch &= 255;
 
@@ -465,14 +463,13 @@ void idRenderSystemLocal::DrawSmallChar( int x, int y, int ch ) {
 		return;
 	}
 
-	row = ch >> 4;
-	col = ch & 15;
+	const int row = ch >> 4;
+	const int col = ch & 15;
 
-	frow = row * 0.0625f;
-	fcol = col * 0.0625f;
-	size = 0.0625f;
+	const float frow = idMath::Itof<float>(row) * size;
+	const float fcol = idMath::Itof<float>(col) * size;
 
-	DrawStretchPic( x, y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
+	DrawStretchPic( idMath::Itof<float>(x), idMath::Itof<float>(y), SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   charSetMaterial );
@@ -488,17 +485,17 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idRenderSystemLocal::DrawSmallStringExt( int x, int y, const char *string, const idVec4 &setColor, bool forceColor ) {
-	idVec4		color;
-	const unsigned char	*s;
-	int			xx;
+void idRenderSystemLocal::DrawSmallStringExt( const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) {
+	idVec4		color = {};
+	const unsigned char	*s = nullptr;
+	int			xx = 0;
 
 	// draw the colored text
-	s = (const unsigned char*)string;
+	s = reinterpret_cast<const unsigned char*>(string);
 	xx = x;
 	SetColor( setColor );
 	while ( *s ) {
-		if ( idStr::IsColor( (const char*)s ) ) {
+		if ( idStr::IsColor( reinterpret_cast<const char*>(s) ) ) {
 			if ( !forceColor ) {
 				if ( *(s+1) == C_COLOR_DEFAULT ) {
 					SetColor( setColor );
@@ -523,10 +520,8 @@ void idRenderSystemLocal::DrawSmallStringExt( int x, int y, const char *string, 
 idRenderSystemLocal::DrawBigChar
 =====================
 */
-void idRenderSystemLocal::DrawBigChar( int x, int y, int ch ) {
-	int row, col;
-	float frow, fcol;
-	float size;
+void idRenderSystemLocal::DrawBigChar( const int x, const int y, int ch ) {
+	constexpr float size = 0.0625f;
 
 	ch &= 255;
 
@@ -538,14 +533,13 @@ void idRenderSystemLocal::DrawBigChar( int x, int y, int ch ) {
 		return;
 	}
 
-	row = ch >> 4;
-	col = ch & 15;
+	const int row = ch >> 4;
+	const int col = ch & 15;
 
-	frow = row * 0.0625f;
-	fcol = col * 0.0625f;
-	size = 0.0625f;
+	const float frow = idMath::Itof<float>(row) * size;
+	const float fcol = idMath::Itof<float>(col) * size;
 
-	DrawStretchPic( x, y, BIGCHAR_WIDTH, BIGCHAR_HEIGHT,
+	DrawStretchPic( idMath::Itof<float>(x), idMath::Itof<float>(y), BIGCHAR_WIDTH, BIGCHAR_HEIGHT,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   charSetMaterial );
@@ -561,10 +555,10 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idRenderSystemLocal::DrawBigStringExt( int x, int y, const char *string, const idVec4 &setColor, bool forceColor ) {
-	idVec4		color;
-	const char	*s;
-	int			xx;
+void idRenderSystemLocal::DrawBigStringExt( const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) {
+	idVec4		color = {};
+	const char	*s = nullptr;
+	int			xx = 0;
 
 	// draw the colored text
 	s = string;
@@ -757,7 +751,7 @@ const emptyCommand_t * idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuff
 //	primaryWorld = NULL;
 
 	// set the time for shader effects in 2D rendering
-	frameShaderTime = Sys_Milliseconds() * 0.001;
+	frameShaderTime = idMath::Itof<float>(Sys_Milliseconds()) * 0.001f;
 
 	setBufferCommand_t * cmd2 = static_cast<setBufferCommand_t*>(R_GetCommandBuffer(sizeof(*cmd2)));
 	cmd2->commandId = RC_SET_BUFFER;
@@ -807,15 +801,14 @@ fill rate requirements while still allowing the GUIs to be full resolution.
 In split screen mode the rendering size is also smaller.
 ========================
 */
-void idRenderSystemLocal::PerformResolutionScaling( int& newWidth, int& newHeight ) const
+void idRenderSystemLocal::PerformResolutionScaling( size_t& newWidth, size_t& newHeight ) const
 {
-
 	float xScale = 1.0f;
 	float yScale = 1.0f;
 	resolutionScale.GetCurrentResolutionScale( xScale, yScale );
 
-	newWidth = idMath::Ftoi( GetWidth() * xScale );
-	newHeight = idMath::Ftoi( GetHeight() * yScale );
+	newWidth = idMath::Ftoi( idMath::Itof<float>(GetWidth()) * xScale );
+	newHeight = idMath::Ftoi(idMath::Itof<float>(GetHeight()) * yScale );
 }
 
 /*
@@ -823,7 +816,7 @@ void idRenderSystemLocal::PerformResolutionScaling( int& newWidth, int& newHeigh
 idRenderSystemLocal::CropRenderSize
 ================
 */
-void idRenderSystemLocal::CropRenderSize( int width, int height ) {
+void idRenderSystemLocal::CropRenderSize( const size_t width, const size_t height ) {
 	if ( !R_IsInitialized() ) {
 		return;
 	}
@@ -840,8 +833,8 @@ void idRenderSystemLocal::CropRenderSize( int width, int height ) {
 	if ( common->WriteDemo() ) {
 		common->WriteDemo()->WriteInt( DS_RENDER );
 		common->WriteDemo()->WriteInt( DC_CROP_RENDER );
-		common->WriteDemo()->WriteInt( width );
-		common->WriteDemo()->WriteInt( height );
+		common->WriteDemo()->WriteInt( idMath::integer_cast<int>(width) );
+		common->WriteDemo()->WriteInt(idMath::integer_cast<int>(height) );
 
 		if ( r_showDemo.GetBool() ) {
 			common->Printf( "write DC_CROP_RENDER\n" );
@@ -940,7 +933,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char *fileName, bool fixAlp
 		return;
 	}
 
-	idScreenRect & rc = renderCrops[currentRenderCrop];
+	const idScreenRect & rc = renderCrops[currentRenderCrop];
 
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
@@ -949,14 +942,14 @@ void idRenderSystemLocal::CaptureRenderToFile( const char *fileName, bool fixAlp
 	qglReadBuffer( GL_BACK );
 
 	// include extra space for OpenGL padding to word boundaries
-	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
+	const size_t	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
 	byte *data = static_cast<byte*>(R_StaticAlloc(c * 3));
 	
 	qglReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data ); 
 
 	byte *data2 = static_cast<byte*>(R_StaticAlloc(c * 4));
 
-	for ( int i = 0 ; i < c ; i++ ) {
+	for ( size_t i = 0 ; i < c ; i++ ) {
 		data2[ i * 4 ] = data[ i * 3 ];
 		data2[ i * 4 + 1 ] = data[ i * 3 + 1 ];
 		data2[ i * 4 + 2 ] = data[ i * 3 + 2 ];
@@ -976,7 +969,7 @@ idRenderSystemLocal::AllocRenderWorld
 ==============
 */
 idRenderWorld *idRenderSystemLocal::AllocRenderWorld() {
-	idRenderWorldLocal *rw;
+	idRenderWorldLocal *rw = nullptr;
 	rw = new (TAG_RENDER) idRenderWorldLocal;
 	worlds.Append( rw );
 	return rw;
@@ -991,7 +984,7 @@ void idRenderSystemLocal::FreeRenderWorld( idRenderWorld *rw ) {
 	if ( primaryWorld == rw ) {
 		primaryWorld = nullptr;
 	}
-	worlds.Remove( static_cast<idRenderWorldLocal *>(rw) );
+	worlds.Remove(dynamic_cast<idRenderWorldLocal *>(rw) );
 	delete rw;
 }
 
@@ -1016,7 +1009,7 @@ void idRenderSystemLocal::PrintMemInfo( MemInfo_t *mi ) {
 idRenderSystemLocal::UploadImage
 ===============
 */
-bool idRenderSystemLocal::UploadImage( const char *imageName, const byte *data, int width, int height  ) {
+bool idRenderSystemLocal::UploadImage( const char *imageName, const byte *data, const size_t width, const size_t height  ) {
 	idImage *image = globalImages->GetImage( imageName );
 	if ( !image ) {
 		return false;

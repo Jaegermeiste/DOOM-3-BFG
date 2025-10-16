@@ -122,38 +122,38 @@ public:
 
 	void				Clear();
 
-	const idVec3		GetNormal() const;
-	const idVec3		GetNormalRaw() const;		// not re-normalized for renderbump
+	[[nodiscard]] const idVec3		GetNormal() const;
+	[[nodiscard]] const idVec3		GetNormalRaw() const;		// not re-normalized for renderbump
 
 	// must be normalized already!
 	void				SetNormal( float x, float y, float z );
 	void				SetNormal( const idVec3 & n );
 
-	const idVec3		GetTangent() const;
-	const idVec3		GetTangentRaw() const;		// not re-normalized for renderbump
+	[[nodiscard]] const idVec3		GetTangent() const;
+	[[nodiscard]] const idVec3		GetTangentRaw() const;		// not re-normalized for renderbump
 
 	// must be normalized already!
 	void				SetTangent( float x, float y, float z );
 	void				SetTangent( const idVec3 & t );
 
 	// derived from normal, tangent, and tangent flag
-	const idVec3 		GetBiTangent() const;
-	const idVec3 		GetBiTangentRaw() const;	// not re-normalized for renderbump
+	[[nodiscard]] const idVec3 		GetBiTangent() const;
+	[[nodiscard]] const idVec3 		GetBiTangentRaw() const;	// not re-normalized for renderbump
 
 	void				SetBiTangent( float x, float y, float z );
 	ID_INLINE void		SetBiTangent( const idVec3 & t );
 
-	float				GetBiTangentSign() const;
-	byte				GetBiTangentSignBit() const;
+	[[nodiscard]] float				GetBiTangentSign() const;
+	[[nodiscard]] byte				GetBiTangentSignBit() const;
 
 	void				SetTexCoordNative( const halfFloat_t s, const halfFloat_t t );
 	void				SetTexCoord( const idVec2 & st );
 	void				SetTexCoord( float s, float t );
 	void				SetTexCoordS( float s );
 	void				SetTexCoordT( float t );
-	const idVec2		GetTexCoord() const;
-	      halfFloat_t	GetTexCoordNativeS() const;
-	      halfFloat_t	GetTexCoordNativeT() const;
+	[[nodiscard]] const idVec2		GetTexCoord() const;
+	[[nodiscard]] halfFloat_t	GetTexCoordNativeS() const;
+	[[nodiscard]] halfFloat_t	GetTexCoordNativeT() const;
 
 	// either 1.0f or -1.0f
 	ID_INLINE void		SetBiTangentSign( float sign );
@@ -164,12 +164,12 @@ public:
 
 	void				SetColor( dword color );
 	void				SetNativeOrderColor( dword color );
-	dword				GetColor() const;
+	[[nodiscard]] dword				GetColor() const;
 
 	void				SetColor2( dword color );
 	void				SetNativeOrderColor2( dword color );
 	void				ClearColor2();
-	dword				GetColor2() const;
+	[[nodiscard]] dword				GetColor2() const;
 
 	static idDrawVert	GetSkinnedDrawVert( const idDrawVert & vert, const idJointMat * joints );
 	static idVec3		GetSkinnedDrawVertPosition( const idDrawVert & vert, const idJointMat * joints );

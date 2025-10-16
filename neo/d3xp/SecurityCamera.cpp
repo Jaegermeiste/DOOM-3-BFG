@@ -175,7 +175,7 @@ void idSecurityCamera::Spawn() {
 	GetPhysics()->SetContents( CONTENTS_SOLID );
 	GetPhysics()->SetClipMask( MASK_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_MOVEABLECLIP );
 	// setup the physics
-	UpdateChangeableSpawnArgs( NULL );
+	UpdateChangeableSpawnArgs(nullptr);
 }
 
 /*
@@ -382,7 +382,7 @@ void idSecurityCamera::Think() {
 				}
 				sweeping = false;
 				StopSound( SND_CHANNEL_ANY, false );
-				StartSound( "snd_sight", SND_CHANNEL_BODY, 0, false, NULL );
+				StartSound( "snd_sight", SND_CHANNEL_BODY, 0, false, nullptr);
 
 				sightTime = spawnArgs.GetFloat( "sightTime", "5" );
 				PostEventSec(&EV_SecurityCam_Alert, sightTime);
@@ -447,7 +447,7 @@ void idSecurityCamera::StartSweep() {
 	speed = SEC2MS( SweepSpeed() );
 	sweepEnd = sweepStart + speed;
    	PostEventMS( &EV_SecurityCam_Pause, speed );
-	StartSound( "snd_moving", SND_CHANNEL_BODY, 0, false, NULL );
+	StartSound( "snd_moving", SND_CHANNEL_BODY, 0, false, nullptr);
 }
 
 /*
@@ -464,7 +464,7 @@ void idSecurityCamera::Event_ContinueSweep() {
 	speed = MS2SEC( SweepSpeed() );
 	sweepEnd = sweepStart + speed;
    	PostEventMS( &EV_SecurityCam_Pause, speed * (1.0 - pct));
-	StartSound( "snd_moving", SND_CHANNEL_BODY, 0, false, NULL );
+	StartSound( "snd_moving", SND_CHANNEL_BODY, 0, false, nullptr);
 	SetAlertMode(SCANNING);
 	sweeping = true;
 }
@@ -479,7 +479,7 @@ void idSecurityCamera::Event_Alert() {
 
 	SetAlertMode(ACTIVATED);
 	StopSound( SND_CHANNEL_ANY, false );
-	StartSound( "snd_activate", SND_CHANNEL_BODY, 0, false, NULL );
+	StartSound( "snd_activate", SND_CHANNEL_BODY, 0, false, nullptr);
 	ActivateTargets(this);
 	CancelEvents( &EV_SecurityCam_ContinueSweep );
 
@@ -509,7 +509,7 @@ void idSecurityCamera::Event_Pause() {
 	sweepWait = spawnArgs.GetFloat( "sweepWait", "0.5" );
 	sweeping = false;
 	StopSound( SND_CHANNEL_ANY, false );
-	StartSound( "snd_stop", SND_CHANNEL_BODY, 0, false, NULL );
+	StartSound( "snd_stop", SND_CHANNEL_BODY, 0, false, nullptr);
    	PostEventSec( &EV_SecurityCam_ReverseSweep, sweepWait );
 }
 
@@ -523,7 +523,7 @@ void idSecurityCamera::Killed( idEntity *inflictor, idEntity *attacker, int dama
 	StopSound( SND_CHANNEL_ANY, false );
 	const char *fx = spawnArgs.GetString( "fx_destroyed" );
 	if ( fx[0] != '\0' ) {
-		idEntityFx::StartFx( fx, NULL, NULL, this, true );
+		idEntityFx::StartFx( fx, nullptr, nullptr, this, true );
 	}
 
 	physicsObj.SetSelf( this );
@@ -548,7 +548,7 @@ idSecurityCamera::Pain
 bool idSecurityCamera::Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) {
 	const char *fx = spawnArgs.GetString( "fx_damage" );
 	if ( fx[0] != '\0' ) {
-		idEntityFx::StartFx( fx, NULL, NULL, this, true );
+		idEntityFx::StartFx( fx, nullptr, nullptr, this, true );
 	}
 	return true;
 }

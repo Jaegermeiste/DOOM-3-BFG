@@ -36,17 +36,17 @@ idMenuWidget_PDA_UserData::Update
 */
 void idMenuWidget_PDA_UserData::Update() {
 
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-	if ( !BindSprite( root ) || GetSprite() == NULL ) {
+	if ( !BindSprite( root ) || GetSprite() == nullptr) {
 		return;
 	}
 
 	idPlayer * player = gameLocal.GetLocalPlayer();
-	if ( player == NULL ) {
+	if ( player == nullptr) {
 		return;
 	}
 
@@ -58,7 +58,7 @@ void idMenuWidget_PDA_UserData::Update() {
 
 	idSWFScriptObject * dataObj = GetSprite()->GetScriptObject();
 
-	if ( dataObj != NULL && pda != NULL ) {
+	if ( dataObj != nullptr && pda != nullptr) {
 
 		idSWFTextInstance * txtName = dataObj->GetNestedText( "txtName" );
 		idSWFTextInstance * txtId = dataObj->GetNestedText( "txtId" );
@@ -67,7 +67,7 @@ void idMenuWidget_PDA_UserData::Update() {
 		idSWFTextInstance * txtClearance = dataObj->GetNestedText( "txtClearance" );
 		idSWFTextInstance * txtLocHeading = dataObj->GetNestedText( "txtLocHeading" );
 
-		if ( txtName != NULL ) {
+		if ( txtName != nullptr) {
 
 			if ( pdaIndex == 0 ) {
 				txtName->SetIgnoreColor( false );
@@ -78,7 +78,7 @@ void idMenuWidget_PDA_UserData::Update() {
 			}
 		}
 
-		if ( txtLocHeading != NULL ) {
+		if ( txtLocHeading != nullptr) {
 			if ( pdaIndex == 0 ) {
 				txtLocHeading->SetText( idLocalization::GetString( "#str_02516" ) );	// location 
 			} else {
@@ -86,11 +86,11 @@ void idMenuWidget_PDA_UserData::Update() {
 			}
 		}
 
-		if ( txtId != NULL ) {
+		if ( txtId != nullptr) {
 			txtId->SetText( pda->GetID() );
 		}
 
-		if ( txtLocation != NULL ) {
+		if ( txtLocation != nullptr) {
 			if ( pdaIndex == 0 ) {
 				idLocationEntity *locationEntity = gameLocal.LocationForPoint( player->GetEyePosition() );
 				if ( locationEntity ) {
@@ -103,11 +103,11 @@ void idMenuWidget_PDA_UserData::Update() {
 			}
 		}
 
-		if ( txtRank != NULL ) {
+		if ( txtRank != nullptr) {
 			txtRank->SetText( pda->GetTitle() );
 		}
 
-		if ( txtClearance != NULL ) {
+		if ( txtClearance != nullptr) {
 			const char *security = pda->GetSecurity();
 			if ( *security == NULL ) {
 				txtClearance->SetText( idLocalization::GetString( "#str_00066" ) );
@@ -125,13 +125,13 @@ idMenuWidget_Help::ObserveEvent
 */
 void idMenuWidget_PDA_UserData::ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) {
 	const idMenuWidget_Button * const button = dynamic_cast< const idMenuWidget_Button * >( &widget );
-	if ( button == NULL ) {
+	if ( button == nullptr) {
 		return;
 	}
 
 	const idMenuWidget * const listWidget = button->GetParent();
 
-	if ( listWidget == NULL ) {
+	if ( listWidget == nullptr) {
 		return;
 	}
 
@@ -139,7 +139,7 @@ void idMenuWidget_PDA_UserData::ObserveEvent( const idMenuWidget & widget, const
 		case WIDGET_EVENT_FOCUS_ON: {
 			const idMenuWidget_DynamicList * const list = dynamic_cast< const idMenuWidget_DynamicList * const >( listWidget );
 			pdaIndex = list->GetViewIndex();
-			if ( GetParent() != NULL && menuData != NULL && menuData->ActiveScreen() == PDA_AREA_USER_DATA ) {
+			if ( GetParent() != nullptr && menuData != nullptr && menuData->ActiveScreen() == PDA_AREA_USER_DATA ) {
 				GetParent()->Update();
 			} else {
 				Update();

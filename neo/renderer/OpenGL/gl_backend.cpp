@@ -538,7 +538,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t *cmds ) {
 		case RC_DRAW_VIEW_3D:
 		case RC_DRAW_VIEW_GUI:
 			RB_DrawView( cmds, 0 );
-			if ( ((const drawSurfsCommand_t *)cmds)->viewDef->viewEntitys ) {
+			if ( ((const drawSurfsCommand_t *)cmds)->viewDef->viewEntities ) {
 				c_draw3d++;
 			} else {
 				c_draw2d++;

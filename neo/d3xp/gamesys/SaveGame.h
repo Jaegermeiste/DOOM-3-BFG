@@ -48,23 +48,24 @@ public:
 	void					Resize( const int count ) { objects.Resize( count ); }
 	void					WriteObjectList();
 
-	void					Write( const void *buffer, int len );
-	void					WriteInt( const int value );
-	void					WriteJoint( const jointHandle_t value );
-	void					WriteShort( const short value );
-	void					WriteByte( const byte value );
-	void					WriteSignedChar( const signed char value );
-	void					WriteFloat( const float value );
-	void					WriteBool( const bool value );
+	void					Write( const void *buffer, size_t len ) const;
+	void					WriteInt( const int value ) const;
+	void					WriteInt( const std::integral auto &value) const;
+	void					WriteJoint( const jointHandle_t value ) const;
+	void					WriteShort( const short value ) const;
+	void					WriteByte( const byte value ) const;
+	void					WriteSignedChar( const signed char value ) const;
+	void					WriteFloat( const float value ) const;
+	void					WriteBool( const bool value ) const;
 	void					WriteString( const char *string );
-	void					WriteVec2( const idVec2 &vec );
-	void					WriteVec3( const idVec3 &vec );
-	void					WriteVec4( const idVec4 &vec );
-	void					WriteVec6( const idVec6 &vec );
-	void					WriteWinding( const idWinding &winding );
-	void					WriteBounds( const idBounds &bounds );
-	void					WriteMat3( const idMat3 &mat );
-	void					WriteAngles( const idAngles &angles );
+	void					WriteVec2( const idVec2 &vec ) const;
+	void					WriteVec3( const idVec3 &vec ) const;
+	void					WriteVec4( const idVec4 &vec ) const;
+	void					WriteVec6( const idVec6 &vec ) const;
+	void					WriteWinding( const idWinding &winding ) const;
+	void					WriteBounds( const idBounds &bounds ) const;
+	void					WriteMat3( const idMat3 &mat ) const;
+	void					WriteAngles( const idAngles &angles ) const;
 	void					WriteObject( const idClass *obj );
 	void					WriteStaticObject( const idClass &obj );
 	void					WriteDict( const idDict *dict );
@@ -85,7 +86,7 @@ public:
 	void					WriteTrace( const trace_t &trace );
 	void					WriteTraceModel( const idTraceModel &trace );
 	void					WriteClipModel( const class idClipModel *clipModel );
-	void					WriteSoundCommands();
+	void					WriteSoundCommands() const;
 
 	void					WriteBuildNumber( const int value );
 
@@ -127,25 +128,25 @@ public:
 
 	void					Error( VERIFY_FORMAT_STRING const char *fmt, ... );
 
-	void					Read( void *buffer, int len );
-	void					ReadInt( int &value );
+	void					Read( void *buffer, const size_t len ) const;
+	void					ReadInt( int &value ) const;
 	void					ReadInt( std::integral auto& value );
-	void					ReadJoint( jointHandle_t &value );
-	void					ReadShort( short &value );
+	void					ReadJoint( jointHandle_t &value ) const;
+	void					ReadShort( short &value ) const;
 	void					ReadShort( std::integral auto& value );
-	void					ReadByte( byte &value );
-	void					ReadSignedChar( signed char &value );
-	void					ReadFloat( float &value );
-	void					ReadBool( bool &value );
+	void					ReadByte( byte &value ) const;
+	void					ReadSignedChar( signed char &value ) const;
+	void					ReadFloat( float &value ) const;
+	void					ReadBool( bool &value ) const;
 	void					ReadString( idStr &string );
-	void					ReadVec2( idVec2 &vec );
-	void					ReadVec3( idVec3 &vec );
-	void					ReadVec4( idVec4 &vec );
-	void					ReadVec6( idVec6 &vec );
+	void					ReadVec2( idVec2 &vec ) const;
+	void					ReadVec3( idVec3 &vec ) const;
+	void					ReadVec4( idVec4 &vec ) const;
+	void					ReadVec6( idVec6 &vec ) const;
 	void					ReadWinding( idWinding &winding );
-	void					ReadBounds( idBounds &bounds );
-	void					ReadMat3( idMat3 &mat );
-	void					ReadAngles( idAngles &angles );
+	void					ReadBounds( idBounds &bounds ) const;
+	void					ReadMat3( idMat3 &mat ) const;
+	void					ReadAngles( idAngles &angles ) const;
 	void					ReadObject( idClass *&obj );
 	void					ReadStaticObject( idClass &obj );
 	void					ReadDict( idDict *dict );
@@ -166,17 +167,17 @@ public:
 	void					ReadTrace( trace_t &trace );
 	void					ReadTraceModel( idTraceModel &trace );
 	void					ReadClipModel( idClipModel *&clipModel );
-	void					ReadSoundCommands();
+	void					ReadSoundCommands() const;
 
 	//						Used to retrieve the saved game buildNumber from within class Restore methods
-	int						GetBuildNumber() const { return version; }
+	int64					GetBuildNumber() const { return version; }
 
 private:
 	idFile *		file;
 	idFile *		stringFile;
 	idList<idClass *, TAG_SAVEGAMES>		objects;
-	int						version;
-	int						stringTableOffset;
+	int64					version;
+	size_t					stringTableOffset;
 
 	void					CallRestore_r( const idTypeInfo *cls, idClass *obj );
 };

@@ -30,21 +30,30 @@ If you have questions concerning this license or the applicable additional terms
 
 const char * const RESULT_STRING = "<RESULT>";
 
+enum scriptPriority_e : uint8
+{
+	FUNCTION_PRIORITY = 2,
+	INT_PRIORITY = 2,
+	NOT_PRIORITY = 5,
+	TILDE_PRIORITY = 5,
+	TOP_PRIORITY = 7
+};
+
 typedef struct opcode_s {
-	char		*name;
-	char		*opname;
-	int			priority;
-	bool		rightAssociative;
-	idVarDef	*type_a;
-	idVarDef	*type_b;
-	idVarDef	*type_c;
+	const char *        name;
+	const char *        opname;
+	scriptPriority_e	priority;
+	bool		        rightAssociative;
+	idVarDef *          type_a;
+	idVarDef *          type_b;
+	idVarDef *          type_c;
 } opcode_t;
 
 // These opcodes are no longer necessary:
 // OP_PUSH_OBJ:
 // OP_PUSH_OBJENT:
 
-enum {
+enum scriptOp_e : uint8 {
 	OP_RETURN,
 
 	OP_UINC_F,
@@ -166,8 +175,8 @@ enum {
 	OP_PUSH_V,
 	OP_PUSH_S,
 	OP_PUSH_ENT,
-	OP_PUSH_OBJ,
-	OP_PUSH_OBJENT,
+	OP_PUSH_OBJ,    // Deprecated
+	OP_PUSH_OBJENT, // Deprecated
 	OP_PUSH_FTOS,
 	OP_PUSH_BTOF,
 	OP_PUSH_FTOB,
@@ -197,7 +206,7 @@ enum {
 class idCompiler {
 private:
 	static bool		punctuationValid[ 256 ];
-	static char		*punctuation[];
+	static const char *punctuation[];
 
 	idParser		parser;
 	idParser		*parserPtr;
@@ -209,11 +218,11 @@ private:
 	bool			eof;
 	bool			console;
 	bool			callthread;
-	int				braceDepth;
-	int				loopDepth;
-	int				currentLineNumber;
-	int				currentFileNumber;
-	int				errorCount;
+	size_t			braceDepth;
+	size_t			loopDepth;
+	size_t			currentLineNumber;
+	size_t			currentFileNumber;
+	size_t			errorCount;
 					
 	idVarDef		*scope;				// the function being parsed, or NULL
 	const idVarDef	*basetype;			// for accessing fields
@@ -236,13 +245,13 @@ private:
 	idVarDef		*FindImmediate( const idTypeDef *type, const eval_t *eval, const char *string ) const;
 	idVarDef		*GetImmediate( idTypeDef *type, const eval_t *eval, const char *string );
 	idVarDef		*VirtualFunctionConstant( idVarDef *func );
-	idVarDef		*SizeConstant( int size );
-	idVarDef		*JumpConstant( int value );
-	idVarDef		*JumpDef( int jumpfrom, int jumpto );
-	idVarDef		*JumpTo( int jumpto );
-	idVarDef		*JumpFrom( int jumpfrom );
+	idVarDef		*SizeConstant( size_t size );
+	idVarDef		*JumpConstant( size_t value );
+	idVarDef		*JumpDef( size_t jumpfrom, size_t jumpto );
+	idVarDef		*JumpTo( size_t jumpto );
+	idVarDef		*JumpFrom( size_t jumpfrom );
 	idVarDef		*ParseImmediate();
-	idVarDef		*EmitFunctionParms( int op, idVarDef *func, int startarg, int startsize, idVarDef *object );
+	idVarDef		*EmitFunctionParms( int op, idVarDef *func, int startarg, const size_t startsize, idVarDef *object );
 	idVarDef		*ParseFunctionCall( idVarDef *func );
 	idVarDef		*ParseObjectCall( idVarDef *object, idVarDef *func );
 	idVarDef		*ParseEventCall( idVarDef *object, idVarDef *func );
@@ -253,7 +262,7 @@ private:
 	bool			TypeMatches( etype_t type1, etype_t type2 ) const;
 	idVarDef		*GetExpression( int priority );
 	idTypeDef		*GetTypeForEventArg( char argType );
-	void			PatchLoop( int start, int continuePos );
+	void			PatchLoop( size_t start, size_t continuePos );
 	void			ParseReturnStatement();
 	void			ParseWhileStatement();
 	void			ParseForStatement();

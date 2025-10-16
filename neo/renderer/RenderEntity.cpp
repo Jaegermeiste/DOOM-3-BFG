@@ -66,7 +66,7 @@ void idRenderEntityLocal::GetRenderEntity( renderEntity_t *re ) {
 void idRenderEntityLocal::ForceUpdate() {
 }
 
-int idRenderEntityLocal::GetIndex() {
+size_t idRenderEntityLocal::GetIndex() {
 	return index;
 }
 
@@ -109,6 +109,6 @@ void idRenderLightLocal::GetRenderLight( renderLight_t *re ) {
 }
 void idRenderLightLocal::ForceUpdate() {
 }
-int idRenderLightLocal::GetIndex() {
+size_t idRenderLightLocal::GetIndex() {
 	return index;
 }

@@ -62,7 +62,7 @@ idMenuScreen_Shell_PressStart::Initialize
 void idMenuScreen_Shell_PressStart::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -113,9 +113,9 @@ idMenuScreen_Shell_Root::Update
 void idMenuScreen_Shell_PressStart::Update() {
 
 	if ( !g_demoMode.GetBool() ) {
-		if ( menuData != NULL ) {
+		if ( menuData != nullptr) {
 			idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-			if ( cmdBar != NULL ) {
+			if ( cmdBar != nullptr) {
 				cmdBar->ClearAllButtons();
 				idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;
 				buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
@@ -142,17 +142,17 @@ void idMenuScreen_Shell_PressStart::ShowScreen( const mainMenuTransition_t trans
 		if ( g_demoMode.GetBool() ) {
 
 			idList<const idMaterial *> coverIcons;
-			if ( itemList != NULL ) {
+			if ( itemList != nullptr) {
 				itemList->SetListImages( coverIcons );
 			}
 
-			if ( startButton != NULL ) {
+			if ( startButton != nullptr) {
 				startButton->BindSprite( root );
 				startButton->SetLabel( idLocalization::GetString( "#str_swf_press_start" ) );
 			}
 
 			idSWFSpriteInstance * backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
-			if ( backing != NULL ) {
+			if ( backing != nullptr) {
 				backing->SetVisible( false );
 			}
 
@@ -164,20 +164,20 @@ void idMenuScreen_Shell_PressStart::ShowScreen( const mainMenuTransition_t trans
 			coverIcons.Append( doom3Cover );
 			coverIcons.Append( doom2Cover );
 
-			if ( itemList != NULL ) {
+			if ( itemList != nullptr) {
 				itemList->SetListImages( coverIcons );
 				itemList->SetFocusIndex( 1, true );
 				itemList->SetViewIndex( 1 );
 				itemList->SetMoveToIndex( 1 );
 			}	
 
-			if ( startButton != NULL ) {
+			if ( startButton != nullptr) {
 				startButton->BindSprite( root );
 				startButton->SetLabel( "" );
 			}
 
 			idSWFSpriteInstance * backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
-			if ( backing != NULL ) {
+			if ( backing != nullptr) {
 				backing->SetVisible( true );
 			}
 
@@ -203,7 +203,7 @@ idMenuScreen_Shell_PressStart::HandleAction
 */
 bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 
@@ -216,7 +216,7 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const
 
 	switch ( actionType ) {
 		case WIDGET_ACTION_PRESS_FOCUSED: {
-			if ( itemList == NULL ) {
+			if ( itemList == nullptr) {
 				return true;
 			}
 
@@ -239,7 +239,7 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const
 			if ( itemList->GetMoveToIndex() == 0 ) {
 				common->SwitchToGame( DOOM_CLASSIC );
 			} else if ( itemList->GetMoveToIndex() == 1 ) {				
-				if ( session->GetSignInManager().GetMasterLocalUser() == NULL ) {
+				if ( session->GetSignInManager().GetMasterLocalUser() == nullptr) {
 					const int device = event.parms[ 0 ].ToInteger();
 					session->GetSignInManager().RegisterLocalUser( device );
 				} else {
@@ -265,7 +265,7 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const
 		}
 		case WIDGET_ACTION_SCROLL_HORIZONTAL: {
 
-			if ( itemList == NULL ) {
+			if ( itemList == nullptr) {
 				return true;
 			}
 

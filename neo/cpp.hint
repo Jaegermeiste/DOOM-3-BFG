@@ -16,3 +16,4 @@
 #define I2F_FORCEINLINE __attribute__((always_inline)) inline
 #define NO_RETURN __declspec(noreturn)
 #define CONSOLE_COMMAND
+#define PUNCTABLE

@@ -57,16 +57,16 @@ public:
 	void				Init( const int startTime, const int duration, const type &startValue, const type &baseSpeed, const type &speed, const extrapolation_t extrapolationType );
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
-	bool				IsDone(const int time ) const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && time >= startTime + duration ); }
+						[[nodiscard]] bool				IsDone(const int time ) const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && time >= startTime + duration ); }
 	void				SetStartTime(const int time ) { startTime = time; }
-	int					GetStartTime() const { return startTime; }
-	int					GetEndTime() const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && duration > 0 ) ? startTime + duration : 0; }
-	int					GetDuration() const { return duration; }
+						[[nodiscard]] int					GetStartTime() const { return startTime; }
+						[[nodiscard]] int					GetEndTime() const { return ( !( extrapolationType & EXTRAPOLATION_NOSTOP ) && duration > 0 ) ? startTime + duration : 0; }
+						[[nodiscard]] int					GetDuration() const { return duration; }
 	void				SetStartValue( const type &value ) { startValue = value; }
 	const type &		GetStartValue() const { return startValue; }
 	const type &		GetBaseSpeed() const { return baseSpeed; }
 	const type &		GetSpeed() const { return speed; }
-	extrapolation_t		GetExtrapolationType() const { return extrapolationType; }
+						[[nodiscard]] extrapolation_t		GetExtrapolationType() const { return extrapolationType; }
 
 private:
 	extrapolation_t		extrapolationType;

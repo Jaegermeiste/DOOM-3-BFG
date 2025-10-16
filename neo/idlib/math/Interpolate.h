@@ -51,11 +51,11 @@ public:
 	void				SetEndValue( const type &endValue ) { this->endValue = endValue; }
 
 	type				GetCurrentValue( int time ) const;
-	bool				IsDone(const int time ) const { return ( time >= startTime + duration ); }
+						[[nodiscard]] bool				IsDone(const int time ) const { return ( time >= startTime + duration ); }
 
-	int					GetStartTime() const { return startTime; }
-	int					GetEndTime() const { return startTime + duration; }
-	int					GetDuration() const { return duration; }
+						[[nodiscard]] int					GetStartTime() const { return startTime; }
+						[[nodiscard]] int					GetEndTime() const { return startTime + duration; }
+						[[nodiscard]] int					GetDuration() const { return duration; }
 	const type &		GetStartValue() const { return startValue; }
 	const type &		GetEndValue() const { return endValue; }
 

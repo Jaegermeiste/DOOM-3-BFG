@@ -45,33 +45,33 @@ idMenuWidget_InfoBox::Update
 */
 void idMenuWidget_InfoBox::Update() {
 
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-	if ( !BindSprite( root ) || GetSprite() == NULL ) {
+	if ( !BindSprite( root ) || GetSprite() == nullptr) {
 		return;
 	}
 
 	idSWFTextInstance * txtHeading = GetSprite()->GetScriptObject()->GetNestedText( "info", "heading", "txtVal" );
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
 
-	if ( txtHeading != NULL ) {
+	if ( txtHeading != nullptr) {
 		txtHeading->SetText( heading );
 	}
 
-	if ( txtBody != NULL ) {
+	if ( txtBody != nullptr) {
 		txtBody->SetText( info );
 	}
 
-	if ( scrollbar != NULL && txtBody != NULL ) {
+	if ( scrollbar != nullptr && txtBody != nullptr) {
 		txtBody->CalcMaxScroll();
 		scrollbar->Update();
 	}
 
 	idSWFScriptObject * info = GetSprite()->GetScriptObject()->GetNestedObj( "info" );
-	if ( info != NULL ) {
+	if ( info != nullptr) {
 		info->Set( "onRollOver", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
 		info->Set( "onRollOut", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
 	}
@@ -86,16 +86,16 @@ idMenuWidget_InfoBox::ObserveEvent
 void idMenuWidget_InfoBox::ResetInfoScroll() {
 
 	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-	if ( !BindSprite( root ) || GetSprite() == NULL ){
+	if ( !BindSprite( root ) || GetSprite() == nullptr){
 		return;
 	}
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
-	if ( txtBody != NULL ) {
+	if ( txtBody != nullptr) {
 		txtBody->scroll = 0;
 	}
 
-	if ( scrollbar != NULL ) {
+	if ( scrollbar != nullptr) {
 		scrollbar->Update();
 	}
 }
@@ -109,11 +109,11 @@ void idMenuWidget_InfoBox::Scroll(  int d ) {
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
 
-	if ( txtBody != NULL && txtBody->scroll + d >= 0 && txtBody->scroll + d <= txtBody->maxscroll ) {
+	if ( txtBody != nullptr && txtBody->scroll + d >= 0 && txtBody->scroll + d <= txtBody->maxscroll ) {
 		txtBody->scroll += d;
 	}
 
-	if ( scrollbar != NULL ) {
+	if ( scrollbar != nullptr) {
 		scrollbar->Update();
 	}
 
@@ -127,7 +127,7 @@ idMenuWidget_InfoBox::GetScroll
 int	idMenuWidget_InfoBox::GetScroll() {
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
-	if ( txtBody != NULL ) {
+	if ( txtBody != nullptr) {
 		return txtBody->scroll;
 	}
 
@@ -142,7 +142,7 @@ idMenuWidget_InfoBox::GetMaxScroll
 int idMenuWidget_InfoBox::GetMaxScroll() {
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
-	if ( txtBody != NULL ) {
+	if ( txtBody != nullptr) {
 		return txtBody->maxscroll;
 	}
 
@@ -158,7 +158,7 @@ void idMenuWidget_InfoBox::SetScroll( int scroll ) {
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
 
-	if ( txtBody != NULL && scroll <= txtBody->maxscroll ) {
+	if ( txtBody != nullptr && scroll <= txtBody->maxscroll ) {
 		txtBody->scroll = scroll;
 	}
 

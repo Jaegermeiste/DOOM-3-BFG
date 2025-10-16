@@ -137,7 +137,7 @@ protected:
 	FullscreenFXManager		*fxman;
 
 public:
-							FullscreenFX()							{ fxman = NULL; };
+							FullscreenFX()							{ fxman = nullptr; };
 	virtual					~FullscreenFX()							{ };
 
 	virtual void			Initialize()							= 0;

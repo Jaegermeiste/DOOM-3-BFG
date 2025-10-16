@@ -54,8 +54,8 @@ public:
 	idSphere		operator+( const idSphere &s ) const;
 	idSphere &		operator+=( const idSphere &s );
 
-	bool			Compare( const idSphere &a ) const;							// exact compare, no epsilon
-	bool			Compare( const idSphere &a, const float epsilon ) const;	// compare with epsilon
+					[[nodiscard]] bool			Compare( const idSphere &a ) const;							// exact compare, no epsilon
+					[[nodiscard]] bool			Compare( const idSphere &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idSphere &a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idSphere &a ) const;						// exact compare, no epsilon
 
@@ -64,23 +64,23 @@ public:
 	void			SetOrigin( const idVec3 &o );					// set origin of sphere
 	void			SetRadius( const float r );						// set square radius
 
-	const idVec3 &	GetOrigin() const;						// returns origin of sphere
-	float			GetRadius() const;						// returns sphere radius
-	bool			IsCleared() const;						// returns true if sphere is inside out
+					[[nodiscard]] const idVec3 &	GetOrigin() const;						// returns origin of sphere
+					[[nodiscard]] float			GetRadius() const;						// returns sphere radius
+					[[nodiscard]] bool			IsCleared() const;						// returns true if sphere is inside out
 
 	bool			AddPoint( const idVec3 &p );					// add the point, returns true if the sphere expanded
 	bool			AddSphere( const idSphere &s );					// add the sphere, returns true if the sphere expanded
-	idSphere		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
+					[[nodiscard]] idSphere		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
 	idSphere &		ExpandSelf( const float d );					// expand bounds in all directions with the given value
-	idSphere		Translate( const idVec3 &translation ) const;
+					[[nodiscard]] idSphere		Translate( const idVec3 &translation ) const;
 	idSphere &		TranslateSelf( const idVec3 &translation );
 
-	float			PlaneDistance( const idPlane &plane ) const;
-	int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+					[[nodiscard]] float			PlaneDistance( const idPlane &plane ) const;
+					[[nodiscard]] int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
-	bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
-	bool			IntersectsSphere( const idSphere &s ) const;	// includes touching
-	bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
+					[[nodiscard]] bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
+					[[nodiscard]] bool			IntersectsSphere( const idSphere &s ) const;	// includes touching
+					[[nodiscard]] bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
 					// intersection points are (start + dir * scale1) and (start + dir * scale2)
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale1, float &scale2 ) const;
 

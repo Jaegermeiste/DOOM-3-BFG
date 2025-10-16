@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __ACHIEVEMENTS_H__
 #define __ACHIEVEMENTS_H__
 
-enum achievement_t {
+enum achievement_t : int8{
 	
 	ACHIEVEMENT_INVALID = -1,
 
@@ -139,7 +139,7 @@ public:
 				idAchievementManager();
 
 	void		Init( idPlayer * player );
-	bool		IsInitialized() const { return owner != NULL; }
+	bool		IsInitialized() const { return owner != nullptr; }
 
 	// save games
 	void		Save( idSaveGame * savefile ) const;					// archives object for save game file
@@ -147,7 +147,7 @@ public:
 
 	// Debug tool to reset achievement state and counts
 	void		Reset();
-	int			GetCount( const achievement_t eventId ) const { return counts[eventId]; }
+	int			GetCount(const achievement_t eventId) const { ORDINAL_CHECK(eventId, counts.Num()); return counts[eventId]; }
 
 	// Adds a count to the tracked number of events, these events can be applied to multiple achievements
 	void		EventCompletesAchievement( const achievement_t eventId );
@@ -168,7 +168,7 @@ public:
 
 private:
 	idEntityPtr< idPlayer >	owner;
-	idArray<int, ACHIEVEMENTS_NUM> counts; // How many times has each achievement been given
+	idArray<achievement_t, ACHIEVEMENTS_NUM> counts; // How many times has each achievement been given
 
 	int				lastPlayerKilledTime;
 	int				lastImpKilledTime;

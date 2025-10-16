@@ -47,7 +47,7 @@ struct portalStack_t {
 /*
 =======================================================================
 
-Create viewLights and viewEntitys for the lights and entities that are
+Create viewLights and viewEntities for the lights and entities that are
 visible in the portal areas that can be seen from the current viewpoint.
 
 =======================================================================
@@ -107,8 +107,8 @@ viewEntity_t *R_SetEntityDefViewEntity( idRenderEntityLocal *def ) {
 	// It will remain clear if the model is only needed for shadows.
 	vModel->scissorRect.Clear();
 
-	vModel->next = tr.viewDef->viewEntitys;
-	tr.viewDef->viewEntitys = vModel;
+	vModel->next = tr.viewDef->viewEntities;
+	tr.viewDef->viewEntities = vModel;
 
 	def->viewEntity = vModel;
 
@@ -648,9 +648,9 @@ void idRenderWorldLocal::BuildConnectedAreas() {
 idRenderWorldLocal::FindViewLightsAndEntites
 
 All the modelrefs and lightrefs that are in visible areas
-will have viewEntitys and viewLights created for them.
+will have viewEntities and viewLights created for them.
 
-The scissorRects on the viewEntitys and viewLights may be empty if
+The scissorRects on the viewEntities and viewLights may be empty if
 they were considered, but not actually visible.
 
 Entities and lights can have cached viewEntities / viewLights that
@@ -667,7 +667,7 @@ void idRenderWorldLocal::FindViewLightsAndEntities() {
 
 	// clear the visible lightDef and entityDef lists
 	tr.viewDef->viewLights = nullptr;
-	tr.viewDef->viewEntitys = nullptr;
+	tr.viewDef->viewEntities = nullptr;
 
 	// all areas are initially not visible, but each portal
 	// chain that leads to them will expand the visible rectangle

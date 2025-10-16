@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 /*
@@ -41,21 +43,21 @@ Contains the Image implementation for OpenGL.
 idImage::SubImageUpload
 ========================
 */
-void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int height, const void * pic, int pixelPitch ) const {
+void idImage::SubImageUpload(const size_t mipLevel, const size_t x, const size_t y, const size_t z, size_t width, size_t height, const void * pic, const size_t pixelPitch ) const {
 	assert( x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels );
 
-	int compressedSize = 0;
+	size_t compressedSize = 0;
 
 	if ( IsCompressed() ) {
 		assert( !(x&3) && !(y&3) );
 
 		// compressed size may be larger than the dimensions due to padding to quads
-		int quadW = ( width + 3 ) & ~3;
-		int quadH = ( height + 3 ) & ~3;
+		size_t quadW = ( width + 3 ) & ~3;
+		size_t quadH = ( height + 3 ) & ~3;
 		compressedSize = quadW * quadH * BitsForFormat( opts.format ) / 8;
 
-		int padW = ( opts.width + 3 ) & ~3;
-		int padH = ( opts.height + 3 ) & ~3;
+		size_t padW = ( opts.width + 3 ) & ~3;
+		size_t padH = ( opts.height + 3 ) & ~3;
 		(void)padH;
 		(void)padW;
 		assert( x + width <= padW && y + height <= padH );
@@ -88,7 +90,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	qglBindTexture( target, texnum );
 
 	if ( pixelPitch != 0 ) {
-		qglPixelStorei( GL_UNPACK_ROW_LENGTH, pixelPitch );
+		qglPixelStorei( GL_UNPACK_ROW_LENGTH, idMath::integer_cast<GLint>(pixelPitch) );
 	}
 	if ( opts.format == FMT_RGB565 ) {
 		glPixelStorei( GL_UNPACK_SWAP_BYTES, GL_TRUE );
@@ -97,20 +99,20 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	GL_CheckErrors();
 #endif
 	if ( IsCompressed() ) {
-		qglCompressedTexSubImage2DARB( uploadTarget, mipLevel, x, y, width, height, internalFormat, compressedSize, pic );
+		qglCompressedTexSubImage2DARB( uploadTarget, idMath::integer_cast<GLint>(mipLevel), idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(width), idMath::integer_cast<GLsizei>(height), internalFormat, idMath::integer_cast<GLsizei>(compressedSize), pic );
 	} else {
 
 		// make sure the pixel store alignment is correct so that lower mips get created
 		// properly for odd shaped textures - this fixes the mip mapping issues with
 		// fonts
-		int unpackAlignment = width * BitsForFormat( (textureFormat_t)opts.format ) / 8;
+		size_t unpackAlignment = width * BitsForFormat( (textureFormat_t)opts.format ) / 8;
 		if ( ( unpackAlignment & 3 ) == 0 ) {
 			qglPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
 		} else {
 			qglPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 		}
 
-		qglTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, dataFormat, dataType, pic );
+		qglTexSubImage2D( uploadTarget, idMath::integer_cast<GLint>(mipLevel), idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(width), idMath::integer_cast<GLsizei>(height), dataFormat, dataType, pic );
 	}
 #ifdef DEBUG
 	GL_CheckErrors();
@@ -128,7 +130,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 idImage::SetPixel
 ========================
 */
-void idImage::SetPixel( int mipLevel, int x, int y, const void * data, int dataSize ) const
+void idImage::SetPixel(const size_t mipLevel, const size_t x, const size_t y, const void * data, const size_t dataSize ) const
 {
 	SubImageUpload( mipLevel, x, y, 0, 1, 1, data );
 }
@@ -224,13 +226,9 @@ void idImage::SetTexParameters() {
 	if ( glConfig.anisotropicFilterAvailable ) {
 		// only do aniso filtering on mip mapped images
 		if ( filter == TF_DEFAULT ) {
-			int aniso = r_maxAnisotropicFiltering.GetInteger();
-			if ( aniso > glConfig.maxTextureAnisotropy ) {
-				aniso = glConfig.maxTextureAnisotropy;
-			}
-			if ( aniso < 0 ) {
-				aniso = 0;
-			}
+			float aniso = idMath::Itof<float>(r_maxAnisotropicFiltering.GetInteger());
+			aniso = std::min<float>(aniso, glConfig.maxTextureAnisotropy);
+			aniso = std::max(aniso, 0.0f);
 			qglTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso );
 		} else {
 			qglTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1 );
@@ -385,7 +383,7 @@ void idImage::AllocImage() {
 	// allocate all the mip levels with NULL data
 	//----------------------------------------------------
 
-	int numSides;
+	size_t numSides = 0;
 	int target;
 	int uploadTarget;
 	if ( opts.textureType == TT_2D ) {
@@ -403,19 +401,19 @@ void idImage::AllocImage() {
 
 	qglBindTexture( target, texnum );
 
-	for ( int side = 0; side < numSides; side++ ) {
-		int w = opts.width;
-		int h = opts.height;
+	for ( size_t side = 0; side < numSides; side++ ) {
+		size_t w = opts.width;
+		size_t h = opts.height;
 		if ( opts.textureType == TT_CUBIC ) {
 			h = w;
 		}
-		for ( int level = 0; level < opts.numLevels; level++ ) {
+		for ( size_t level = 0; level < opts.numLevels; level++ ) {
 
 			// clear out any previous error
 			GL_CheckErrors();
 
 			if ( IsCompressed() ) {
-				int compressedSize = ( ((w+3)/4) * ((h+3)/4) * static_cast<int64>(16) * BitsForFormat( opts.format ) ) / 8;
+				size_t compressedSize = ( ((w+3)/4) * ((h+3)/4) * static_cast<int64>(16) * BitsForFormat( opts.format ) ) / 8;
 
 				// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
 				// drivers we actually need to upload data to get it to allocate the texture.
@@ -426,22 +424,22 @@ void idImage::AllocImage() {
 				// with the exact size otherwise large image allocation (for instance for physical page textures)
 				// may fail on Vista 32-bit.
 				void * data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
-				qglCompressedTexImage2DARB( uploadTarget+side, level, internalFormat, w, h, 0, compressedSize, data );
+				qglCompressedTexImage2DARB( uploadTarget+side, idMath::integer_cast<GLint>(level), internalFormat, idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h), 0, idMath::integer_cast<GLsizei>(compressedSize), data );
 				if ( data != nullptr) {
 					HeapFree( GetProcessHeap(), 0, data );
 				}
 			} else {
-				qglTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, nullptr);
+				qglTexImage2D(idMath::integer_cast<GLenum>(uploadTarget + side), idMath::integer_cast<GLint>(level), internalFormat, idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h), 0, dataFormat, dataType, nullptr);
 			}
 
 			GL_CheckErrors();
 
-			w = Max( 1, w >> 1 );
-			h = Max( 1, h >> 1 );
+			w = Max( 1ULL, w >> 1 );
+			h = Max( 1ULL, h >> 1 );
 		}
 	}
 
-	qglTexParameteri( target, GL_TEXTURE_MAX_LEVEL, opts.numLevels - 1 );
+	qglTexParameteri( target, GL_TEXTURE_MAX_LEVEL, idMath::integer_cast<GLint>(opts.numLevels) - 1 );
 
 	// see if we messed anything up
 	GL_CheckErrors();
@@ -462,7 +460,7 @@ void idImage::PurgeImage() {
 		texnum = TEXTURE_NOT_LOADED;
 	}
 	// clear all the current binding caches, so the next bind will do a real one
-	for ( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ ) {
+	for ( size_t i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ ) {
 		backEnd.glState.tmu[i].current2DMap = TEXTURE_NOT_LOADED;
 		backEnd.glState.tmu[i].currentCubeMap = TEXTURE_NOT_LOADED;
 	}
@@ -473,7 +471,7 @@ void idImage::PurgeImage() {
 idImage::Resize
 ========================
 */
-void idImage::Resize( int width, int height ) {
+void idImage::Resize( const size_t width, const size_t height ) {
 	if ( opts.width == width && opts.height == height ) {
 		return;
 	}

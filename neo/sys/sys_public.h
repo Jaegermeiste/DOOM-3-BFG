@@ -411,7 +411,7 @@ struct sysMemoryStats_t {
 typedef INT_PTR address_t;
 typedef HINSTANCE dllHandle_t;
 #else
-typedef unsigned long address_t;
+typedef uintptr_t address_t;
 typedef int dllHandle_t;
 #endif // defined (ID_WIN64) || defined (ID_WIN32)
 
@@ -689,9 +689,9 @@ public:
 	virtual bool	Init() { return false; }
 	virtual void	Shutdown() { }
 	virtual void	Deactivate() { }
-	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh ) { }
-	virtual int		PollInputEvents( int inputDeviceNum ) { return 0; }
-	virtual int		ReturnInputEvent( const int n, int &action, int &value ) { return 0; }
+	virtual void	SetRumble(int deviceNum, int rumbleLow, int rumbleHigh) { }
+	virtual int		PollInputEvents(int inputDeviceNum) { return 0; }
+	virtual int		ReturnInputEvent(const int n, int& action, int& value) { return 0; }
 	virtual void	EndInputEvents() { }
 };
 

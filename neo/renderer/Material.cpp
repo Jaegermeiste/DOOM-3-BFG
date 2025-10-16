@@ -2199,10 +2199,10 @@ idMaterial::Parse
 Parses the current material definition and finds all necessary images.
 =========================
 */
-bool idMaterial::Parse( const char *text, const int textLength, bool allowBinaryVersion ) {
-	idLexer	src;
-	idToken	token;
-	mtrParsingData_t parsingData;
+bool idMaterial::Parse( const char *text, const size_t textLength, bool allowBinaryVersion ) {
+	idLexer	src = {};
+	idToken	token = {};
+	mtrParsingData_t parsingData = {};
 
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( DECL_LEXER_FLAGS );
@@ -2218,15 +2218,15 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	// parse it
 	ParseMaterial( src );
 
-	// if we are doing an fs_copyfiles, also reference the editorImage
+	// if we are doing a fs_copyfiles, also reference the editorImage
 	if ( cvarSystem->GetCVarInteger( "fs_copyFiles" ) ) {
-		GetEditorImage();
+		std::ignore = GetEditorImage();
 	}
 
 	//
 	// count non-lit stages
 	numAmbientStages = 0;
-	int i;
+	size_t i = 0;
 	for ( i = 0 ; i < numStages ; i++ ) {
 		if ( pd->parseStages[i].lighting == SL_AMBIENT ) {
 			numAmbientStages++;
@@ -2234,7 +2234,7 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	}
 
 	// see if there is a subview stage
-	if ( sort == SS_SUBVIEW ) {
+	if ( std::cmp_equal(sort, SS_SUBVIEW) ) {
 		hasSubview = true;
 	} else {
 		hasSubview = false;
@@ -2285,7 +2285,7 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	}
 
 	// the sorts can make reasonable defaults
-	if ( sort == SS_BAD ) {
+	if (std::cmp_equal(sort, SS_BAD) ) {
 		if ( TestMaterialFlag(MF_POLYGONOFFSET) ) {
 			sort = SS_DECAL;
 		} else if ( coverage == MC_TRANSLUCENT ) {
@@ -2301,16 +2301,16 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	for ( i = 0 ; i < numStages ; i++ ) {
 		shaderStage_t	*pStage = &pd->parseStages[i];
 		if ( pStage->texture.image == globalImages->originalCurrentRenderImage ) {
-			if ( sort != SS_PORTAL_SKY ) {
+			if (std::cmp_not_equal(sort, SS_PORTAL_SKY) ) {
 				sort = SS_POST_PROCESS;
 				coverage = MC_TRANSLUCENT;
 			}
 			break;
 		}
 		if ( pStage->newStage ) {
-			for ( int j = 0 ; j < pStage->newStage->numFragmentProgramImages ; j++ ) {
+			for ( size_t j = 0 ; j < pStage->newStage->numFragmentProgramImages ; j++ ) {
 				if ( pStage->newStage->fragmentProgramImages[j] == globalImages->originalCurrentRenderImage ) {
-					if ( sort != SS_PORTAL_SKY ) {
+					if (std::cmp_not_equal(sort, SS_PORTAL_SKY) ) {
 						sort = SS_POST_PROCESS;
 						coverage = MC_TRANSLUCENT;
 					}
@@ -2324,7 +2324,7 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	// set the drawStateBits depth flags
 	for ( i = 0 ; i < numStages ; i++ ) {
 		shaderStage_t	*pStage = &pd->parseStages[i];
-		if ( sort == SS_POST_PROCESS ) {
+		if (std::cmp_equal(sort, SS_POST_PROCESS) ) {
 			// post-process effects fill the depth buffer as they draw, so only the
 			// topmost post-process effect is rendered
 			pStage->drawStateBits |= GLS_DEPTHFUNC_LESS;
@@ -2341,7 +2341,7 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	// determine if this surface will accept overlays / decals
 
 	if ( pd->forceOverlays ) {
-		// explicitly flaged in material definition
+		// explicitly flagged in material definition
 		allowOverlays = true;
 	} else {
 		if ( !IsDrawn() ) {
@@ -2356,15 +2356,16 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 	}
 
 	// add a tiny offset to the sort orders, so that different materials
-	// that have the same sort value will at least sort consistantly, instead
+	// that have the same sort value will at least sort consistently, instead
 	// of flickering back and forth
 /* this messed up in-game guis
-	if ( sort != SS_SUBVIEW ) {
-		int	hash, l;
+	if ( std::cmp_not_equal(sort, SS_SUBVIEW) ) {
+		int	hash = 0;
+		size_t l = 0;
 
 		l = name.Length();
 		hash = 0;
-		for ( int i = 0 ; i < l ; i++ ) {
+		for ( size_t i = 0 ; i < l ; i++ ) {
 			hash ^= name[i];
 		}
 		sort += hash * 0.01;
@@ -2408,7 +2409,7 @@ bool idMaterial::Parse( const char *text, const int textLength, bool allowBinary
 idMaterial::Print
 ===================
 */
-char *opNames[] = {
+const char *opNames[] = {
 	"OP_TYPE_ADD",
 	"OP_TYPE_SUBTRACT",
 	"OP_TYPE_MULTIPLY",
@@ -2426,7 +2427,7 @@ char *opNames[] = {
 };
 
 void idMaterial::Print() const {
-	int			i;
+	size_t	i = 0;
 
 	for ( i = EXP_REG_NUM_PREDEFINED ; i < GetNumRegisters() ; i++ ) {
 		common->Printf( "register %i: %f\n", i, expressionRegisters[i] );
@@ -2604,7 +2605,7 @@ texgen_t idMaterial::Texgen() const {
 idMaterial::GetImageWidth
 =============
 */
-int idMaterial::GetImageWidth() const {
+size_t idMaterial::GetImageWidth() const {
 	assert( GetStage(0) && GetStage(0)->texture.image );
 	return GetStage(0)->texture.image->GetUploadWidth();
 }
@@ -2614,7 +2615,7 @@ int idMaterial::GetImageWidth() const {
 idMaterial::GetImageHeight
 =============
 */
-int idMaterial::GetImageHeight() const {
+size_t idMaterial::GetImageHeight() const {
 	assert( GetStage(0) && GetStage(0)->texture.image );
 	return GetStage(0)->texture.image->GetUploadHeight();
 }
@@ -2624,7 +2625,7 @@ int idMaterial::GetImageHeight() const {
 idMaterial::CinematicLength
 =============
 */
-int	idMaterial::CinematicLength() const {
+ID_TIME_T	idMaterial::CinematicLength() const {
 	if ( !stages || !stages[0].texture.cinematic ) {
 		return 0;
 	}

@@ -55,7 +55,7 @@ idMenuWidget_Help::Update
 */
 void idMenuWidget_Help::Update() {
 	
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 
@@ -77,7 +77,7 @@ void idMenuWidget_Help::Update() {
 		}
 
 		idSWFScriptObject * const textObject = GetSprite()->GetScriptObject()->GetNestedObj( "txtOption", "txtValue" );
-		if ( textObject != NULL ) {
+		if ( textObject != nullptr) {
 			idSWFTextInstance * const text = textObject->GetText();
 			text->SetText( msg );
 			text->SetStrokeInfo( true, 0.75f, 2.0f );
@@ -99,7 +99,7 @@ idMenuWidget_Help::ObserveEvent
 */
 void idMenuWidget_Help::ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) {
 	const idMenuWidget_Button * const button = dynamic_cast< const idMenuWidget_Button * >( &widget );
-	if ( button == NULL ) {
+	if ( button == nullptr) {
 		return;
 	}
 

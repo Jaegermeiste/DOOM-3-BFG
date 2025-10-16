@@ -115,7 +115,7 @@ public:
 	ID_INLINE	idVec6 &		SubVec6(Ordinal auto index = 0 );
 	ID_INLINE	const float *	ToFloatPtr() const;
 	ID_INLINE	float *			ToFloatPtr();
-	const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	size_t			size;					// size of the vector

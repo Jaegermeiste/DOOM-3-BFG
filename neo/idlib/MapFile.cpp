@@ -246,8 +246,8 @@ bool idMapPatch::Write( idFile *fp, const Ordinal auto primitiveNum, const idVec
 idMapPatch::GetGeometryCRC
 ===============
 */
-unsigned int idMapPatch::GetGeometryCRC() const {
-	unsigned int crc = GetHorzSubdivisions() ^ GetVertSubdivisions();
+uint32 idMapPatch::GetGeometryCRC() const {
+	uint32 crc = idMath::integer_cast<uint32>(GetHorzSubdivisions()) ^ idMath::integer_cast<uint32>(GetVertSubdivisions());
 	for (size_t i = 0; i < GetWidth(); i++ ) {
 		for (size_t j = 0; j < GetHeight(); j++ ) {
 			crc ^= FloatCRC( verts[j * GetWidth() + i].xyz.x );

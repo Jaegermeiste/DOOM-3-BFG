@@ -130,7 +130,7 @@ static constexpr int WAIT_START_TIME_SHORT = 5000;
 
 struct actionRepeater_t {
 	actionRepeater_t() :
-		widget( NULL ),
+		widget(nullptr),
 			numRepetitions( 0 ),
 			nextRepeatTime( 0 ),
 			screenIndex( -1 ),
@@ -237,7 +237,7 @@ public:
 	virtual int				ActiveScreen() { return activeScreen; }
 	virtual int				NextScreen() { return nextScreen; }
 	virtual int				MenuTransition() { return transition; }
-	virtual idMenuScreen *	GetMenuScreen( int index ) { return NULL; }	
+	virtual idMenuScreen *	GetMenuScreen( int index ) { return nullptr; }	
 	virtual void			SetNextScreen( int screen, int trans ) { nextScreen = screen; transition = trans; }
 
 	virtual void			StartWidgetActionRepeater( idMenuWidget * widget, const idWidgetAction & action, const idWidgetEvent & event );
@@ -302,19 +302,19 @@ public:
 		nextPeerUpdateMs( 0 ),
 		inGame( false ),
 		waitForBinding( false ),
-		waitBind( NULL ),
+		waitBind(nullptr),
 		newGameType( 0 ),
-		menuBar( NULL ),
-		pacifier( NULL ),
+		menuBar(nullptr),
+		pacifier(nullptr),
 		showingIntro( false ),
-		introGui( NULL ),
-		doom3Intro( NULL ),
-		roeIntro( NULL ),
-		lmIntro( NULL ),
-		typeSoundShader( NULL ),
+		introGui(nullptr),
+		doom3Intro(nullptr),
+		roeIntro(nullptr),
+		lmIntro(nullptr),
+		typeSoundShader(nullptr),
 		continueWaitForEnumerate( false ),
 		gameComplete( false ),
-		marsRotation( NULL ) {
+		marsRotation(nullptr) {
 	}
 	virtual void			Update();
 	virtual void			ActivateMenu( bool show );
@@ -336,7 +336,7 @@ public:
 
 	idMenuWidget *			GetPacifier() { return pacifier; }
 	idMenuWidget_MenuBar *	GetMenuBar() { return menuBar; }
-	bool					IsPacifierVisible() const { return ( pacifier != NULL && pacifier->GetSprite() != NULL ) ? pacifier->GetSprite()->IsVisible() : false; }
+	bool					IsPacifierVisible() const { return ( pacifier != nullptr && pacifier->GetSprite() != nullptr) ? pacifier->GetSprite()->IsVisible() : false; }
 	void					ShowPacifier( const idStr & msg );
 	void					HidePacifier();
 
@@ -403,7 +403,7 @@ public:
 	idMenuHandler_PDA() : 
 		audioLogPlaying( false ),
 		videoPlaying( false ),
-		audioFile( NULL ) {
+		audioFile(nullptr) {
 	}
 	virtual ~idMenuHandler_PDA();
 

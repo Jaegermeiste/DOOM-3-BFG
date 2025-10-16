@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERER_H__
 #define __RENDERER_H__
 
+#pragma once
+
+struct emptyCommand_s;
 /*
 ===============================================================================
 
@@ -37,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===============================================================================
 */
-enum stereo3DMode_t {
+typedef enum stereo3DMode_e : uint8 {
 	STEREO3D_OFF,
 
 	// half-resolution, non-square pixel views
@@ -57,43 +60,43 @@ enum stereo3DMode_t {
 	// it definitely isn't a consumer level task.  The quad_buffer
 	// support can handle 720P-3D with apropriate driver support.
 	STEREO3D_HDMI_720
-};
+} stereo3DMode_t;
 
-typedef enum {
+typedef enum autoRenderIconType_e : uint8 {
 	AUTORENDER_DEFAULTICON = 0,
 	AUTORENDER_HELLICON,
 	AUTORENDER_DIALOGICON,
 	AUTORENDER_MAX
 } autoRenderIconType_t ;
 
-enum stereoDepthType_t {
+typedef enum stereoDepthType_e : uint8 {
 	STEREO_DEPTH_TYPE_NONE,
 	STEREO_DEPTH_TYPE_NEAR,
 	STEREO_DEPTH_TYPE_MID,
 	STEREO_DEPTH_TYPE_FAR
-};
+} stereoDepthType_t;
 
 
-enum graphicsVendor_t {
+typedef enum graphicsVendor_e : uint8 {
 	VENDOR_NVIDIA,
 	VENDOR_AMD,
 	VENDOR_INTEL
-};
+} graphicsVendor_t;
 
 // Contains variables specific to the OpenGL configuration being run right now.
 // These are constant once the OpenGL subsystem is initialized.
-struct glconfig_t {
-	const char *		renderer_string;
-	const char *		vendor_string;
-	const char *		version_string;
-	const char *		extensions_string;
-	const char *		wgl_extensions_string;
-	const char *		shading_language_string;
+typedef struct glconfig_s {
+	const char* renderer_string;
+	const char* vendor_string;
+	const char* version_string;
+	const char* extensions_string;
+	const char* wgl_extensions_string;
+	const char* shading_language_string;
 
 	float				glVersion;				// atof( version_string )
 	graphicsVendor_t	vendor;
 
-	int					maxTextureSize;			// queried from GL
+	size_t				maxTextureSize;			// queried from GL
 	int					maxTextureCoords;
 	int					maxTextureImageUnits;
 	int					uniformBufferOffsetAlignment;
@@ -139,35 +142,31 @@ struct glconfig_t {
 	// Screen separation for stereoscopic rendering is set based on this.
 	// PC vid code sets this, converting from diagonals / inches / whatever as needed.
 	// If the value can't be determined, set something reasonable, like 50cm.
-	float				physicalScreenWidthInCentimeters;	
+	float				physicalScreenWidthInCentimeters;
 
 	float				pixelAspect;
 
 	GLuint				global_vao;
-};
-
-
-
-struct emptyCommand_t;
+} glconfig_t;
 
 bool R_IsInitialized();
 
-constexpr int SMALLCHAR_WIDTH		= 8;
-constexpr int SMALLCHAR_HEIGHT		= 16;
-constexpr int BIGCHAR_WIDTH			= 16;
-constexpr int BIGCHAR_HEIGHT		= 16;
+constexpr size_t SMALLCHAR_WIDTH		= 8;
+constexpr size_t SMALLCHAR_HEIGHT		= 16;
+constexpr size_t BIGCHAR_WIDTH			= 16;
+constexpr size_t BIGCHAR_HEIGHT		= 16;
 
 // all drawing is done to a 640 x 480 virtual screen size
 // and will be automatically scaled to the real resolution
-constexpr int SCREEN_WIDTH			= 640;
-constexpr int SCREEN_HEIGHT			= 480;
+constexpr size_t SCREEN_WIDTH			= 640;
+constexpr size_t SCREEN_HEIGHT			= 480;
 
-constexpr int TITLESAFE_LEFT		= 32;
-constexpr int TITLESAFE_RIGHT		= 608;
-constexpr int TITLESAFE_TOP			= 24;
-constexpr int TITLESAFE_BOTTOM		= 456;
-constexpr int TITLESAFE_WIDTH		= TITLESAFE_RIGHT - TITLESAFE_LEFT;
-constexpr int TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
+constexpr size_t TITLESAFE_LEFT		    = 32;
+constexpr size_t TITLESAFE_RIGHT		= 608;
+constexpr size_t TITLESAFE_TOP			= 24;
+constexpr size_t TITLESAFE_BOTTOM		= 456;
+constexpr size_t TITLESAFE_WIDTH		= TITLESAFE_RIGHT - TITLESAFE_LEFT;
+constexpr size_t TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
 
 class idRenderWorld;
 
@@ -193,8 +192,8 @@ public:
 	[[nodiscard]] virtual bool			IsOpenGLRunning() const = 0;
 
 	[[nodiscard]] virtual bool			IsFullScreen() const = 0;
-	[[nodiscard]] virtual int				GetWidth() const = 0;
-	[[nodiscard]] virtual int				GetHeight() const = 0;
+	[[nodiscard]] virtual size_t		GetWidth() const = 0;
+	[[nodiscard]] virtual size_t		GetHeight() const = 0;
 
 	// return w/h of a single pixel. This will be 1.0 for normal cases.
 	// A side-by-side stereo 3D frame will have a pixel aspect of 0.5.
@@ -245,14 +244,14 @@ public:
 			void			DrawStretchPic( const idVec4 & rect, const idVec4 & st, const idMaterial * material ) { DrawStretchPic( rect.x, rect.y, rect.z, rect.w, st.x, st.y, st.z, st.w, material ); }
 	virtual void			DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material ) = 0;
 	virtual void			DrawStretchTri ( const idVec2 & p1, const idVec2 & p2, const idVec2 & p3, const idVec2 & t1, const idVec2 & t2, const idVec2 & t3, const idMaterial *material ) = 0;
-	virtual idDrawVert *	AllocTris( int numVerts, const triIndex_t * indexes, int numIndexes, const idMaterial * material, const stereoDepthType_t stereoType = STEREO_DEPTH_TYPE_NONE ) = 0;
+	virtual idDrawVert *	AllocTris( const size_t numVerts, const triIndex_t * indexes, const size_t numIndexes, const idMaterial * material, const stereoDepthType_t stereoType = STEREO_DEPTH_TYPE_NONE ) = 0;
 
 	virtual void			PrintMemInfo( MemInfo_t *mi ) = 0;
 
-	virtual void			DrawSmallChar( int x, int y, int ch ) = 0;
-	virtual void			DrawSmallStringExt( int x, int y, const char *string, const idVec4 &setColor, bool forceColor ) = 0;
-	virtual void			DrawBigChar( int x, int y, int ch ) = 0;
-	virtual void			DrawBigStringExt( int x, int y, const char *string, const idVec4 &setColor, bool forceColor ) = 0;
+	virtual void			DrawSmallChar( const int x, const int y, int ch ) = 0;
+	virtual void			DrawSmallStringExt(const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) = 0;
+	virtual void			DrawBigChar(const int x, const int y, int ch ) = 0;
+	virtual void			DrawBigStringExt(const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) = 0;
 
 	// dump all 2D drawing so far this frame to the demo file
 	virtual void			WriteDemoPics() = 0;
@@ -270,26 +269,26 @@ public:
 	//
 	// After this is called, new command buffers can be built up in parallel
 	// with the rendering of the closed off command buffers by RenderCommandBuffers()
-	virtual const emptyCommand_t *	SwapCommandBuffers( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) = 0;
+	virtual const emptyCommand_s *	SwapCommandBuffers( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) = 0;
 
 	// SwapCommandBuffers operation can be split in two parts for non-smp rendering
 	// where the GPU is idled intentionally for minimal latency.
 	virtual void			SwapCommandBuffers_FinishRendering( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) = 0;
-	virtual const emptyCommand_t *	SwapCommandBuffers_FinishCommandBuffers() = 0;
+	virtual const emptyCommand_s *	SwapCommandBuffers_FinishCommandBuffers() = 0;
 
 	// issues GPU commands to render a built up list of command buffers returned
 	// by SwapCommandBuffers().  No references should be made to the current frameData,
 	// so new scenes and GUIs can be built up in parallel with the rendering.
-	virtual void			RenderCommandBuffers( const emptyCommand_t * commandBuffers ) = 0;
+	virtual void			RenderCommandBuffers( const emptyCommand_s * commandBuffers ) = 0;
 
 	// aviDemo uses this.
-	// Will automatically tile render large screen shots if necessary
+	// Will automatically tile render large screenshots if necessary
 	// Samples is the number of jittered frames for anti-aliasing
 	// If ref == NULL, common->UpdateScreen will be used
-	// This will perform swapbuffers, so it is NOT an approppriate way to
+	// This will perform swapbuffers, so it is NOT an appropriate way to
 	// generate image files that happen during gameplay, as for savegame
 	// markers.  Use WriteRender() instead.
-	virtual void			TakeScreenshot( int width, int height, const char *fileName, int samples, struct renderView_s *ref ) = 0;
+	virtual void			TakeScreenshot(const size_t width, const size_t height, const char *fileName, const size_t samples, struct renderView_s *ref ) = 0;
 
 	// the render output can be cropped down to a subset of the real screen, as
 	// for save-game reviews and split-screen multiplayer.  Users of the renderer
@@ -300,7 +299,7 @@ public:
 	// to render to a texture, first set the crop size with makePowerOfTwo = true,
 	// then perform all desired rendering, then capture to an image
 	// if the specified physical dimensions are larger than the current cropped region, they will be cut down to fit
-	virtual void			CropRenderSize( int width, int height ) = 0;
+	virtual void			CropRenderSize( const size_t width, const size_t height ) = 0;
 	virtual void			CaptureRenderToImage( const char *imageName, bool clearColorAfterCopy = false ) = 0;
 	// fixAlpha will set all the alpha channel values to 0xff, which allows screen captures
 	// to use the default tga loading code without having dimmed down areas in many places
@@ -310,10 +309,10 @@ public:
 	// the image has to be already loaded ( most straightforward way would be through a FindMaterial )
 	// texture filter / mipmapping / repeat won't be modified by the upload
 	// returns false if the image wasn't found
-	virtual bool			UploadImage( const char *imageName, const byte *data, int width, int height ) = 0;
+	virtual bool			UploadImage( const char *imageName, const byte *data, const size_t width, const size_t height ) = 0;
 
 	// consoles switch stereo 3D eye views each 60 hz frame
-	[[nodiscard]] virtual int				GetFrameCount() const = 0;
+	[[nodiscard]] virtual size_t		GetFrameCount() const = 0;
 };
 
 extern idRenderSystem *			renderSystem;

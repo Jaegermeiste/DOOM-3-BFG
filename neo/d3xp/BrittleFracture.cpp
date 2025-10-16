@@ -48,8 +48,8 @@ idBrittleFracture::idBrittleFracture
 ================
 */
 idBrittleFracture::idBrittleFracture() {
-	material = NULL;
-	decalMaterial = NULL;
+	material = nullptr;
+	decalMaterial = nullptr;
 	decalSize = 0.0f;
 	maxShardArea = 0.0f;
 	maxShatterRadius = 0.0f;
@@ -191,7 +191,7 @@ void idBrittleFracture::Restore( idRestoreGame *savefile ) {
 		savefile->ReadVec3( restoredEvent.vector );
 
 		if ( restoredEvent.eventType == EVENT_PROJECT_DECAL ) {
-			ProjectDecal( restoredEvent.point, restoredEvent.vector, gameLocal.time, NULL );
+			ProjectDecal( restoredEvent.point, restoredEvent.vector, gameLocal.time, nullptr);
 		} else {
 			Shatter( restoredEvent.point, restoredEvent.vector, gameLocal.time );
 		}
@@ -257,7 +257,7 @@ void idBrittleFracture::Spawn() {
 	spawnArgs.SetBool( "bleed", 1 );
 
 	// check for xray surface
-	if ( renderEntity.hModel != NULL ) {
+	if ( renderEntity.hModel != nullptr) {
 		const idRenderModel *model = renderEntity.hModel;
 
 		isXraySurface = false;
@@ -378,7 +378,7 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s *renderEntity, const 
 		if ( shards[i]->droppedTime >= 0 ) {
 			msec = gameLocal.time - shards[i]->droppedTime - SHARD_FADE_START;
 			if ( msec > 0 ) {
-				fade = 1.0f - (float) msec / ( SHARD_ALIVE_TIME - SHARD_FADE_START );
+				fade = 1.0f - static_cast<float>(msec) / ( SHARD_ALIVE_TIME - SHARD_FADE_START );
 			}
 		}
 
@@ -509,7 +509,7 @@ bool idBrittleFracture::ModelCallback( renderEntity_s *renderEntity, const rende
 	const idBrittleFracture *ent;
 
 	ent = static_cast<idBrittleFracture *>(gameLocal.entities[ renderEntity->entityNum ]);
-	if ( ent == NULL ) {
+	if ( ent == nullptr) {
 		gameLocal.Error( "idBrittleFracture::ModelCallback: callback with NULL game entity" );
 		return false;
 	}
@@ -692,8 +692,8 @@ void idBrittleFracture::ProjectDecal( const idVec3 &point, const idVec3 &dir, co
 
 	if ( time >= gameLocal.time ) {
 		// try to get the sound from the damage def
-		const idDeclEntityDef *damageDef = NULL;
-		const idSoundShader *sndShader = NULL;
+		const idDeclEntityDef *damageDef = nullptr;
+		const idSoundShader *sndShader = nullptr;
 		if ( damageDefName ) {
 			damageDef = gameLocal.FindEntityDef( damageDefName, false );
 			if ( damageDef ) {
@@ -705,9 +705,9 @@ void idBrittleFracture::ProjectDecal( const idVec3 &point, const idVec3 &dir, co
 		}
 
 		if ( sndShader ) {
-			StartSoundShader( sndShader, SND_CHANNEL_ANY, 0, false, NULL );
+			StartSoundShader( sndShader, SND_CHANNEL_ANY, 0, false, nullptr);
 		} else {
-			StartSound( "snd_bullethole", SND_CHANNEL_ANY, 0, false, NULL );
+			StartSound( "snd_bullethole", SND_CHANNEL_ANY, 0, false, nullptr);
 		}
 	}
 
@@ -799,7 +799,7 @@ void idBrittleFracture::DropShard( shard_t *shard, const idVec3 &point, const id
 
 	// remove the clip model from the static physics object
 	clipModelId = shard->clipModel->GetId();
-	physicsObj.SetClipModel( NULL, 1.0f, clipModelId, false );
+	physicsObj.SetClipModel(nullptr, 1.0f, clipModelId, false );
 
 	origin = shard->clipModel->GetOrigin();
 	axis = shard->clipModel->GetAxis();
@@ -864,7 +864,7 @@ void idBrittleFracture::Shatter( const idVec3 &point, const idVec3 &impulse, con
 	storedEvents.Append( fractureEvent );
 
 	if ( time > ( gameLocal.time - SHARD_ALIVE_TIME ) ) {
-		StartSound( "snd_shatter", SND_CHANNEL_ANY, 0, false, NULL );
+		StartSound( "snd_shatter", SND_CHANNEL_ANY, 0, false, nullptr);
 	}
 
 	if ( !IsBroken() ) {
@@ -911,7 +911,7 @@ void idBrittleFracture::DropFloatingIslands( const idVec3 &point, const idVec3 &
 	dir.Normalize();
 
 	numIslands = 0;
-	queue = (shard_t **) _alloca16( shards.Num() * sizeof(shard_t **) );
+	queue = static_cast<shard_t**>(_alloca16(shards.Num() * sizeof(shard_t **)));
 	for ( i = 0; i < shards.Num(); i++ ) {
 		shards[i]->islandNum = 0;
 	}
@@ -1366,7 +1366,7 @@ bool idBrittleFracture::ClientReceiveEvent( int event, int time, const idBitMsg 
 			dir[0] = msg.ReadFloat();
 			dir[1] = msg.ReadFloat();
 			dir[2] = msg.ReadFloat();
-			ProjectDecal( point, dir, time, NULL );
+			ProjectDecal( point, dir, time, nullptr);
 			return true;
 		}
 		case EVENT_SHATTER: {

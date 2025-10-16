@@ -200,7 +200,7 @@ public:
 
 	int						HasAmmo( ammo_t type, int amount );
 	bool					UseAmmo( ammo_t type, int amount );
-	int						HasAmmo( const char *weapon_classname, bool includeClip = false, idPlayer* owner = NULL );			// _D3XP
+	int						HasAmmo( const char *weapon_classname, bool includeClip = false, idPlayer* owner = nullptr);			// _D3XP
 
 	bool					HasEmptyClipCannotRefill(const char *weapon_classname, idPlayer* owner);
 
@@ -576,7 +576,7 @@ public:
 	void					UpdatePowerupHud();
 
 	virtual bool			HandleSingleGuiCommand( idEntity *entityGui, idLexer *src );
-	bool					GuiActive() { return focusGUIent != NULL; }
+	bool					GuiActive() { return focusGUIent != nullptr; }
 
 	bool					HandleGuiEvents( const sysEvent_t * ev );
 	void					PerformImpulse( int impulse );
@@ -899,7 +899,7 @@ ID_INLINE idPhysics* idPlayer::GetPlayerPhysics() {
 }
 
 ID_INLINE bool idPlayer::IsInTeleport() {
-	return ( teleportEntity.GetEntity() != NULL );
+	return ( teleportEntity.GetEntity() != nullptr);
 }
 
 ID_INLINE void idPlayer::SetLeader( bool lead ) {

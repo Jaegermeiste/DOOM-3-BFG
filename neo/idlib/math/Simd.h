@@ -85,7 +85,7 @@ public:
 
 	cpuid_t							cpuid;
 
-	virtual const char * VPCALL		GetName() const = 0;
+									[[nodiscard]] virtual const char * VPCALL		GetName() const = 0;
 
 	virtual	void VPCALL MinMax( float &min,			float &max,				const float *src,		const size_t count ) = 0;
 	virtual	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const size_t count ) = 0;

@@ -88,7 +88,7 @@ public:
 
 #define SCOPED_PROFILE_EVENT( x ) idScopedProfileEvent scopedProfileEvent_##__LINE__( x )
 
-ID_INLINE bool BeginTraceRecording( char * szName ) noexcept {
+ID_INLINE bool BeginTraceRecording( const char * szName ) noexcept {
 	return false;
 }
 

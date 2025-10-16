@@ -334,7 +334,7 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, size_t numargs, va_list args )
 idEvent::CopyArgs
 ================
 */
-void idEvent::CopyArgs( const idEventDef *evdef, size_t numargs, va_list args, int data[ D_EVENT_MAXARGS ] ) {
+void idEvent::CopyArgs( const idEventDef *evdef, size_t numargs, va_list args, address_t data[ D_EVENT_MAXARGS ] ) {
 	size_t		i = 0;
 	const char	*format;
 	idEventArg	*arg = nullptr;
@@ -489,7 +489,7 @@ idEvent::ServiceEvents
 void idEvent::ServiceEvents() {
 	idEvent		*event = nullptr;
 	size_t		num = 0;
-	int			args[ D_EVENT_MAXARGS ];
+	address_t	args[ D_EVENT_MAXARGS ] = {};
 	size_t		i = 0;
 	size_t		numargs = 0;
 	trace_t		**tracePtr = nullptr;
@@ -586,17 +586,17 @@ idEvent::ServiceFastEvents
 ================
 */
 void idEvent::ServiceFastEvents() {
-	idEvent	*event;
-	int		num;
-	int			args[ D_EVENT_MAXARGS ];
-	int			offset;
-	int			i;
-	int			numargs;
-	const char	*formatspec;
-	trace_t		**tracePtr;
-	const idEventDef *ev;
-	byte		*data;
-	const char  *materialName;
+	idEvent	*event = nullptr;
+	size_t		num = 0;
+	address_t	args[ D_EVENT_MAXARGS ] = {};
+	size_t		offset = 0;
+	size_t		i = 0;
+	size_t		numargs = 0;
+	const char	*formatspec = nullptr;
+	trace_t		**tracePtr = nullptr;
+	const idEventDef *ev = nullptr;
+	byte		*data = nullptr;
+	const char  *materialName = nullptr;
 
 	num = 0;
 	while( !FastEventQueue.IsListEmpty() ) {
@@ -740,12 +740,12 @@ idEvent::Save
 ================
 */
 void idEvent::Save( idSaveGame *savefile ) {
-	char *str;
-	int i, size;
-	idEvent	*event;
-	byte *dataPtr;
-	bool validTrace;
-	const char	*format;
+	char *str = nullptr;
+	size_t i = 0, size = 0;
+	idEvent	*event = nullptr;
+	byte *dataPtr = nullptr;
+	bool validTrace = false;
+	const char	*format = nullptr;
 
 	savefile->WriteInt( EventQueue.Num() );
 
@@ -793,7 +793,7 @@ void idEvent::Save( idSaveGame *savefile ) {
 					break;
 			}
 		}
-		assert( size == (int)event->eventdef->GetArgSize() );
+		assert( size == event->eventdef->GetArgSize() );
 		event = event->eventNode.Next();
 	}
 
@@ -824,7 +824,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 	idStr	name;
 	byte *dataPtr = nullptr;
 	idEvent	*event = nullptr;
-	const char	*format;
+	const char	*format = nullptr;
 
 	savefile->ReadInt( num );
 

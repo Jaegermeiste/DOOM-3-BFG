@@ -927,7 +927,7 @@ public:
 
 						idCurve_Spline();
 
-	bool		IsDone( const float time ) const override;
+	[[nodiscard]] bool		IsDone( const float time ) const override;
 
 	virtual void		SetBoundaryType( const boundary_t bt ) { boundaryType = bt; this->changed = true; }
 	virtual boundary_t	GetBoundaryType() const { return boundaryType; }
@@ -943,7 +943,7 @@ protected:
 	type				ValueForIndex( const Ordinal auto index ) const;
 	
 	float				TimeForIndex( const Ordinal auto index ) const;
-	float				ClampedTime( const float t ) const;
+	[[nodiscard]] float				ClampedTime( const float t ) const;
 };
 
 /*
@@ -1807,7 +1807,7 @@ class idCurve_BSpline : public idCurve_Spline<type> {
 public:
 						idCurve_BSpline();
 
-	virtual size_t		GetOrder() const { return order; }
+						[[nodiscard]] virtual size_t		GetOrder() const { return order; }
 	
 	        void		SetOrder( const Ordinal auto i ) { assert( i > 0 && i < 10 ); order = idMath::integer_cast<uint64>(i); }
 

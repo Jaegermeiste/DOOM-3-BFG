@@ -48,7 +48,7 @@ idVec6 vec6_infinity( idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMa
 idVec2::ToString
 =============
 */
-const char *idVec2::ToString(const int precision ) const {
+const char *idVec2::ToString( const size_t precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -190,11 +190,11 @@ idVec3::ToMat3
 =============
 */
 idMat3 idVec3::ToMat3() const {
-	idMat3	mat;
+	idMat3	mat ={};
 
 	mat[0] = *this;
 	float d = x * x + y * y;
-	if ( !d ) {
+	if ( !(d == 0.0f) ) {
 		mat[1][0] = 1.0f;
 		mat[1][1] = 0.0f;
 		mat[1][2] = 0.0f;
@@ -214,7 +214,7 @@ idMat3 idVec3::ToMat3() const {
 idVec3::ToString
 =============
 */
-const char *idVec3::ToString(const int precision ) const {
+const char *idVec3::ToString( const size_t precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -300,7 +300,7 @@ void idVec3::ProjectSelfOntoSphere( const float radius ) {
 idVec4::ToString
 =============
 */
-const char *idVec4::ToString(const int precision ) const {
+const char *idVec4::ToString( const size_t precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -333,7 +333,7 @@ void idVec4::Lerp( const idVec4 &v1, const idVec4 &v2, const float l ) {
 idVec5::ToString
 =============
 */
-const char *idVec5::ToString(const int precision ) const {
+const char *idVec5::ToString( const size_t precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -368,6 +368,6 @@ void idVec5::Lerp( const idVec5 &v1, const idVec5 &v2, const float l ) {
 idVec6::ToString
 =============
 */
-const char *idVec6::ToString(const int precision ) const {
+const char *idVec6::ToString( const size_t precision ) const {
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

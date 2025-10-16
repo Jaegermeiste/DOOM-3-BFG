@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __SYS_THREADING_H__
 
 #pragma once
+#include "idlib/precompiled.h"
 
 #ifndef __TYPEINFOGEN__
 
@@ -37,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef USE_STL_MUTEX
 #include <mutex>
 #endif
+#include <idlib/precompiled.h>
 
 /*
 ================================================================================================
@@ -221,7 +223,7 @@ void				Sys_SignalCreate( signalHandle_t & handle, bool manualReset );
 void				Sys_SignalDestroy( signalHandle_t & handle );
 void				Sys_SignalRaise( signalHandle_t & handle );
 void				Sys_SignalClear( signalHandle_t & handle );
-bool				Sys_SignalWait( signalHandle_t & handle, int timeout );
+bool				Sys_SignalWait( signalHandle_t & handle, /*ID_TIME_T*/ int64 timeout );
 
 void				Sys_MutexCreate( mutexHandle_t & handle );
 void				Sys_MutexDestroy( mutexHandle_t & handle );

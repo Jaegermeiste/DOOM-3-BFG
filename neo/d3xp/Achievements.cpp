@@ -131,7 +131,7 @@ idAchievementManager::SyncAchievments
 */
 void idAchievementManager::SyncAchievments() {
 	idLocalUser * user = GetLocalUser();
-	if ( user == NULL || user->GetProfile() == NULL ) {
+	if ( user == nullptr || user->GetProfile() == nullptr) {
 		return;
 	}
 
@@ -152,7 +152,7 @@ idAchievementManager::GetLocalUser
 */
 idLocalUser * idAchievementManager::GetLocalUser() {
 	if ( !verify( owner != NULL ) ) {
-		return NULL;
+		return nullptr;
 	}
 	return session->GetGameLobbyBase().GetLocalUserFromLobbyUser( gameLocal.lobbyUserIDs[ owner->GetEntityNumber() ] );
 }
@@ -206,10 +206,10 @@ void idAchievementManager::EventCompletesAchievement( const achievement_t eventI
 	}
 
 	idLocalUser * localUser = GetLocalUser();
-	if ( localUser == NULL || localUser->GetProfile() == NULL ) {
+	if ( localUser == nullptr || localUser->GetProfile() == nullptr) {
 
 		// Send a Reliable Message to the User that needs to unlock this. 
-		if ( owner != NULL ) {
+		if ( owner != nullptr) {
 			int playerId = owner->entityNumber;
 			constexpr int bufferSize = sizeof( playerId ) + sizeof( eventId );
 			byte buffer[ bufferSize ];
@@ -299,7 +299,7 @@ void idAchievementManager::LocalUser_CompleteAchievement( achievement_t id ) {
 
 	// Check to see if we've already given the achievement.  
 	// If so, don't do again because we don't want to autosave every time a trigger is hit
-	if( localUser == NULL || localUser->GetProfile()->GetAchievement( id ) ) {
+	if( localUser == nullptr || localUser->GetProfile()->GetAchievement( id ) ) {
 		return;
 	}
 
@@ -325,13 +325,13 @@ Processed when the player finishes a level.
 */
 void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int itemcount, int secretcount, int skill, int mission, int map, int episode, int totalkills, int totalitems, int totalsecret ) {
 
-	const skill_t difficulty = (skill_t)skill;
+	const skill_t difficulty = static_cast<skill_t>(skill);
 	const currentGame_t currentGame = common->GetCurrentGame();
-	const GameMission_t expansion = (GameMission_t)mission;
+	const GameMission_t expansion = static_cast<GameMission_t>(mission);
 
 
 	idLocalUser * localUser = session->GetSignInManager().GetMasterLocalUser();
-	if ( localUser != NULL && localUser->GetProfile() != NULL ) {
+	if ( localUser != nullptr && localUser->GetProfile() != nullptr) {
 
 		// GENERAL ACHIEVEMENT UNLOCKING.
 		if( currentGame == DOOM_CLASSIC ) {
@@ -445,7 +445,7 @@ AchievementsReset
 */
 CONSOLE_COMMAND( AchievementsReset, "Lock an achievement", NULL ) {
 	idLocalUser * user = session->GetSignInManager().GetMasterLocalUser();
-	if ( user == NULL ) {
+	if ( user == nullptr) {
 		idLib::Printf( "Must be signed in\n" );
 		return;
 	}
@@ -469,7 +469,7 @@ AchievementsUnlock
 */
 CONSOLE_COMMAND( AchievementsUnlock, "Unlock an achievement", NULL ) {
 	idLocalUser * user = session->GetSignInManager().GetMasterLocalUser();
-	if ( user == NULL ) {
+	if ( user == nullptr) {
 		idLib::Printf( "Must be signed in\n" );
 		return;
 	}
@@ -493,8 +493,8 @@ AchievementsList
 */
 CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL ) {
 	idPlayer * player = gameLocal.GetLocalPlayer();
-	idLocalUser * user = ( player == NULL ) ? session->GetSignInManager().GetMasterLocalUser() : session->GetGameLobbyBase().GetLocalUserFromLobbyUser( gameLocal.lobbyUserIDs[ player->GetEntityNumber() ] );
-	if ( user == NULL ) {
+	idLocalUser * user = ( player == nullptr) ? session->GetSignInManager().GetMasterLocalUser() : session->GetGameLobbyBase().GetLocalUserFromLobbyUser( gameLocal.lobbyUserIDs[ player->GetEntityNumber() ] );
+	if ( user == nullptr) {
 		idLib::Printf( "Must be signed in\n" );
 		return;
 	}
@@ -505,7 +505,7 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL ) {
 
 	for ( int i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
 		const char * pInfo = "";
-		if ( profile == NULL ) {
+		if ( profile == nullptr) {
 			pInfo = S_COLOR_RED  "unknown" S_COLOR_DEFAULT;
 		} else if ( !profile->GetAchievement( i ) ) {
 			pInfo = S_COLOR_YELLOW "locked" S_COLOR_DEFAULT;
@@ -523,8 +523,8 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL ) {
 		int count = 0;
 		if ( achievementInfo[i].lifetime ) {
 			count = user->GetStatInt( i );
-		} else if ( player != NULL ) {
-			count = player->GetAchievementManager().GetCount( (achievement_t) i );
+		} else if ( player != nullptr) {
+			count = player->GetAchievementManager().GetCount( static_cast<achievement_t>(i) );
 		} else {
 			count = 0;
 		}

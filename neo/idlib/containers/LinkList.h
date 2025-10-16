@@ -47,9 +47,9 @@ public:
 						idLinkList();
 						~idLinkList();
 
-	bool				IsListEmpty() const;
-	bool				InList() const;
-	int					Num() const;
+	[[nodiscard]] bool				IsListEmpty() const;
+	[[nodiscard]] bool				InList() const;
+	[[nodiscard]] size_t			Num() const;
 	void				Clear();
 
 	void				InsertBefore( idLinkList &node );
@@ -85,7 +85,7 @@ Node is initialized to be the head of an empty list
 */
 template< class type >
 idLinkList<type>::idLinkList() {
-	owner	= NULL;
+	owner	= nullptr;
 	head	= this;	
 	next	= this;
 	prev	= this;
@@ -136,8 +136,8 @@ Returns the number of nodes in the list.
 ================
 */
 template< class type >
-int idLinkList<type>::Num() const {
-	int num = 0;
+size_t idLinkList<type>::Num() const {
+	size_t num = 0;
 	for( idLinkList<type>* node = head->next; node != head; node = node->next ) {
 		num++;
 	}

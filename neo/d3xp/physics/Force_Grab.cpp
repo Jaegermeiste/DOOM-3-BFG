@@ -70,7 +70,7 @@ idForce_Grab::idForce_Grab
 */
 idForce_Grab::idForce_Grab() {
 	damping			= 0.5f;
-	physics			= NULL;
+	physics			= nullptr;
 	id				= 0;
 }
 
@@ -139,7 +139,7 @@ void idForce_Grab::Evaluate( int time ) {
 
 	if ( g_grabberRandomMotion.GetBool() && !common->IsMultiplayer() ) {
 		// Jitter the objectCenter around so it doesn't remain stationary
-		float SinOffset = idMath::Sin( (float)(gameLocal.time)/66.f );
+		float SinOffset = idMath::Sin( static_cast<float>(gameLocal.time)/66.f );
 		float randScale1 = gameLocal.random.RandomFloat();
 		float randScale2 = gameLocal.random.CRandomFloat();
 		objectCenter.x += ( SinOffset * 3.5f * randScale1 ) + ( randScale2 * 1.2f );
@@ -180,7 +180,7 @@ idForce_Grab::RemovePhysics
 */
 void idForce_Grab::RemovePhysics( const idPhysics *phys ) {
 	if ( physics == phys ) {
-		physics = NULL;
+		physics = nullptr;
 	}
 }
 

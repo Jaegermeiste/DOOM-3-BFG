@@ -116,7 +116,7 @@ void idSIMD::Shutdown() {
 //
 //===============================================================
 
-constexpr auto COUNT = 999;			// data count (odd to catch edge cases)
+constexpr size_t COUNT = 999;			// data count (odd to catch edge cases)
 #define BIG_COUNT	(COUNT*5)		// Some tests need a larger count
 constexpr size_t NUMTESTS = 2048;		// number of tests
 
@@ -184,7 +184,7 @@ PrintClocks
 */
 static void PrintClocks(const char *string, const int dataCount, TIME_TYPE clocks, TIME_TYPE otherClocks = 0 ) {
 	idLib::common->Printf( string );
-	for ( int i = idStr::LengthWithoutColors(string); i < 48; i++ ) {
+	for ( size_t i = idStr::LengthWithoutColors(string); i < 48; i++ ) {
 		idLib::common->Printf(" ");
 	}
 	clocks -= baseClocks;
@@ -469,8 +469,8 @@ TestBlendJoints
 ============
 */
 static void TestBlendJoints() {
-	int i, j;
-	TIME_TYPE start, end;
+	size_t i = 0, j = 0;
+	TIME_TYPE start = 0, end = 0;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
@@ -481,7 +481,7 @@ static void TestBlendJoints() {
 	idRandom srnd( RANDOM_SEED );
 
 	for ( i = 0; i < COUNT; i++ ) {
-		idAngles angles;
+		idAngles angles = {};
 		angles[0] = srnd.CRandomFloat() * 180.0f;
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
@@ -543,7 +543,7 @@ TestBlendJoints
 */
 static void TestBlendJointsFast() {
 	size_t i = 0, j = 0;
-	TIME_TYPE start, end;
+	TIME_TYPE start = 0, end = 0;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
@@ -554,7 +554,7 @@ static void TestBlendJointsFast() {
 	idRandom srnd( RANDOM_SEED );
 
 	for ( i = 0; i < COUNT; i++ ) {
-		idAngles angles;
+		idAngles angles = {};
 		angles[0] = srnd.CRandomFloat() * 180.0f;
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
@@ -615,8 +615,8 @@ TestConvertJointQuatsToJointMats
 ============
 */
 static void TestConvertJointQuatsToJointMats() {
-	int i;
-	TIME_TYPE start, end;
+	size_t i = 0;
+	TIME_TYPE start = 0, end = 0;
 	idTempArray< idJointQuat > baseJoints( COUNT );
 	idTempArray< idJointMat > joints1( COUNT );
 	idTempArray< idJointMat > joints2( COUNT );
@@ -624,7 +624,7 @@ static void TestConvertJointQuatsToJointMats() {
 	idRandom srnd( RANDOM_SEED );
 
 	for ( i = 0; i < COUNT; i++ ) {
-		idAngles angles;
+		idAngles angles = {};
 		angles[0] = srnd.CRandomFloat() * 180.0f;
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
@@ -666,8 +666,8 @@ TestConvertJointMatsToJointQuats
 ============
 */
 static void TestConvertJointMatsToJointQuats() {
-	int i;
-	TIME_TYPE start, end;
+	size_t i = 0;
+	TIME_TYPE start = 0, end = 0;
 	idTempArray< idJointMat > baseJoints( COUNT );
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
@@ -675,7 +675,7 @@ static void TestConvertJointMatsToJointQuats() {
 	idRandom srnd( RANDOM_SEED );
 
 	for ( i = 0; i < COUNT; i++ ) {
-		idAngles angles;
+		idAngles angles = {};
 		angles[0] = srnd.CRandomFloat() * 180.0f;
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
@@ -732,12 +732,12 @@ static void TestTransformJoints() {
 	idRandom srnd( RANDOM_SEED );
 
 	for ( i = 0; i <= COUNT; i++ ) {
-		idAngles angles;
+		idAngles angles = {};
 		angles[0] = srnd.CRandomFloat() * 180.0f;
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
 		joints[i].SetRotation( angles.ToMat3() );
-		idVec3 v;
+		idVec3 v = {};
 		v[0] = srnd.CRandomFloat() * 2.0f;
 		v[1] = srnd.CRandomFloat() * 2.0f;
 		v[2] = srnd.CRandomFloat() * 2.0f;
@@ -784,7 +784,7 @@ TestUntransformJoints
 */
 static void TestUntransformJoints() {
 	size_t i = 0, j = 0;
-	TIME_TYPE start, end;
+	TIME_TYPE start = 0, end = 0;
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
@@ -793,12 +793,12 @@ static void TestUntransformJoints() {
 	idRandom srnd( RANDOM_SEED );
 
 	for ( i = 0; i <= COUNT; i++ ) {
-		idAngles angles;
+		idAngles angles = {};
 		angles[0] = srnd.CRandomFloat() * 180.0f;
 		angles[1] = srnd.CRandomFloat() * 180.0f;
 		angles[2] = srnd.CRandomFloat() * 180.0f;
 		joints[i].SetRotation( angles.ToMat3() );
-		idVec3 v;
+		idVec3 v = {};
 		v[0] = srnd.CRandomFloat() * 2.0f;
 		v[1] = srnd.CRandomFloat() * 2.0f;
 		v[2] = srnd.CRandomFloat() * 2.0f;
@@ -845,7 +845,7 @@ TestMath
 */
 static void TestMath() {
 	size_t i = 0;
-	TIME_TYPE start, end, bestClocks;
+	TIME_TYPE start = 0, end = 0, bestClocks = 0;
 
 	idLib::common->Printf("====================================\n" );
 
@@ -1019,7 +1019,7 @@ static void TestMath() {
 		tst = idMath::ASin( tst );
 		StopRecordTime( end );
 		GetBest( start, end, bestClocks );
-		testvar = ( testvar + tst ) * tst * ( 1.0f / idMath::PI );
+		testvar = ( testvar + tst ) * tst * idMath::ONEOVER_PI;
 		tst = rnd.CRandomFloat();
 	}
 	PrintClocks( "    idMath::ASin( tst )", 1, bestClocks );
@@ -1031,7 +1031,7 @@ static void TestMath() {
 		tst = idMath::ASin16( tst );
 		StopRecordTime( end );
 		GetBest( start, end, bestClocks );
-		testvar = ( testvar + tst ) * tst * ( 1.0f / idMath::PI );
+		testvar = ( testvar + tst ) * tst * idMath::ONEOVER_PI;
 		tst = rnd.CRandomFloat();
 	}
 	PrintClocks( "  idMath::ASin16( tst )", 1, bestClocks );
@@ -1043,7 +1043,7 @@ static void TestMath() {
 		tst = idMath::ACos( tst );
 		StopRecordTime( end );
 		GetBest( start, end, bestClocks );
-		testvar = ( testvar + tst ) * tst * ( 1.0f / idMath::PI );
+		testvar = ( testvar + tst ) * tst * idMath::ONEOVER_PI;
 		tst = rnd.CRandomFloat();
 	}
 	PrintClocks( "    idMath::ACos( tst )", 1, bestClocks );
@@ -1055,7 +1055,7 @@ static void TestMath() {
 		tst = idMath::ACos16( tst );
 		StopRecordTime( end );
 		GetBest( start, end, bestClocks );
-		testvar = ( testvar + tst ) * tst * ( 1.0f / idMath::PI );
+		testvar = ( testvar + tst ) * tst * idMath::ONEOVER_PI;
 		tst = rnd.CRandomFloat();
 	}
 	PrintClocks( "  idMath::ACos16( tst )", 1, bestClocks );
@@ -1160,15 +1160,13 @@ static void TestMath() {
 
 	idLib::common->Printf( "testvar = %f\n", testvar );
 
-	idMat3 resultMat3;
-	idQuat fromQuat, toQuat, resultQuat;
-	idCQuat cq;
-	idAngles ang;
+	idMat3 resultMat3 = {};
+	idQuat resultQuat = {};
 
-	fromQuat = idAngles( 30, 45, 0 ).ToQuat();
-	toQuat = idAngles( 45, 0, 0 ).ToQuat();
-	cq = idAngles( 30, 45, 0 ).ToQuat().ToCQuat();
-	ang = idAngles( 30, 40, 50 );
+	idQuat fromQuat = idAngles( 30, 45, 0 ).ToQuat();
+	idQuat toQuat = idAngles( 45, 0, 0 ).ToQuat();
+	idCQuat cq = idAngles( 30, 45, 0 ).ToQuat().ToCQuat();
+	idAngles ang = idAngles( 30, 40, 50 );
 
 	bestClocks = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {

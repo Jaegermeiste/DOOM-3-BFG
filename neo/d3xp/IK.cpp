@@ -47,8 +47,8 @@ idIK::idIK
 idIK::idIK() {
 	ik_activate = false;
 	initialized = false;
-	self = NULL;
-	animator = NULL;
+	self = nullptr;
+	animator = nullptr;
 	modifiedAnim = 0;
 	modelOffset.Zero();
 }
@@ -70,7 +70,7 @@ void idIK::Save( idSaveGame *savefile ) const {
 	savefile->WriteBool( initialized );
 	savefile->WriteBool( ik_activate );
 	savefile->WriteObject( self );
-	savefile->WriteString( animator != NULL && animator->GetAnim( modifiedAnim ) ? animator->GetAnim( modifiedAnim )->Name() : "" );
+	savefile->WriteString( animator != nullptr && animator->GetAnim( modifiedAnim ) ? animator->GetAnim( modifiedAnim )->Name() : "" );
 	savefile->WriteVec3( modelOffset );
 }
 
@@ -90,7 +90,7 @@ void idIK::Restore( idRestoreGame *savefile ) {
 
 	if ( self ) {
 		animator = self->GetAnimator();
-		if ( animator == NULL || animator->ModelDef() == NULL ) {
+		if ( animator == nullptr || animator->ModelDef() == nullptr) {
 			gameLocal.Warning( "idIK::Restore: IK for entity '%s' at (%s) has no model set.",
 								self->name.c_str(), self->GetPhysics()->GetOrigin().ToString(0) );
 			return;
@@ -101,7 +101,7 @@ void idIK::Restore( idRestoreGame *savefile ) {
 									self->name.c_str(), self->GetPhysics()->GetOrigin().ToString(0) );
 		}
 	} else {
-		animator = NULL;
+		animator = nullptr;
 		modifiedAnim = 0;
 	}
 }
@@ -123,25 +123,25 @@ idIK::Init
 bool idIK::Init( idEntity *self, const char *anim, const idVec3 &modelOffset ) {
 	idRenderModel *model;
 
-	if ( self == NULL ) {
+	if ( self == nullptr) {
 		return false;
 	}
 
 	this->self = self;
 
 	animator = self->GetAnimator();
-	if ( animator == NULL || animator->ModelDef() == NULL ) {
+	if ( animator == nullptr || animator->ModelDef() == nullptr) {
 		gameLocal.Warning( "idIK::Init: IK for entity '%s' at (%s) has no model set.",
 							self->name.c_str(), self->GetPhysics()->GetOrigin().ToString(0) );
 		return false;
 	}
-	if ( animator->ModelDef()->ModelHandle() == NULL ) {
+	if ( animator->ModelDef()->ModelHandle() == nullptr) {
 		gameLocal.Warning( "idIK::Init: IK for entity '%s' at (%s) uses default model.",
 							self->name.c_str(), self->GetPhysics()->GetOrigin().ToString(0) );
 		return false;
 	}
 	model = animator->ModelHandle();
-	if ( model == NULL ) {
+	if ( model == nullptr) {
 		gameLocal.Warning( "idIK::Init: IK for entity '%s' at (%s) has no model set.",
 							self->name.c_str(), self->GetPhysics()->GetOrigin().ToString(0) );
 		return false;
@@ -240,7 +240,7 @@ idIK_Walk::idIK_Walk() {
 	int i;
 
 	initialized = false;
-	footModel = NULL;
+	footModel = nullptr;
 	numLegs = 0;
 	enabledLegs = 0;
 	for ( i = 0; i < MAX_LEGS; i++ ) {
@@ -451,7 +451,7 @@ bool idIK_Walk::Init( idEntity *self, const char *anim, const idVec3 &modelOffse
 	}
 
 	int numJoints = animator->NumJoints();
-	idJointMat *joints = ( idJointMat * )_alloca16( numJoints * sizeof( joints[0] ) );
+	idJointMat *joints = static_cast<idJointMat*>(_alloca16(numJoints * sizeof( joints[0] )));
 
 	// create the animation frame used to setup the IK
 	gameEdit->ANIM_CreateAnimFrame( animator->ModelHandle(), animator->GetAnim( modifiedAnim )->MD5Anim( 0 ), numJoints, joints, 1, animator->ModelDef()->GetVisualOffset() + modelOffset, animator->RemoveOrigin() );
@@ -648,7 +648,7 @@ void idIK_Walk::Evaluate() {
 	bool onPlat = false;
 	for ( i = 0; i < phys->GetNumContacts(); i++ ) {
 		idEntity *ent = gameLocal.entities[ phys->GetContact( i ).entityNum ];
-		if ( ent != NULL && ent->IsType( idPlat::Type ) ) {
+		if ( ent != nullptr && ent->IsType( idPlat::Type ) ) {
 			onPlat = true;
 			break;
 		}
@@ -973,7 +973,7 @@ bool idIK_Reach::Init( idEntity *self, const char *anim, const idVec3 &modelOffs
 	}
 
 	int numJoints = animator->NumJoints();
-	idJointMat *joints = ( idJointMat * )_alloca16( numJoints * sizeof( joints[0] ) );
+	idJointMat *joints = static_cast<idJointMat*>(_alloca16(numJoints * sizeof( joints[0] )));
 
 	// create the animation frame used to setup the IK
 	gameEdit->ANIM_CreateAnimFrame( animator->ModelHandle(), animator->GetAnim( modifiedAnim )->MD5Anim( 0 ), numJoints, joints, 1, animator->ModelDef()->GetVisualOffset() + modelOffset, animator->RemoveOrigin() );

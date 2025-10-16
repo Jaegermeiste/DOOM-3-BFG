@@ -126,7 +126,7 @@ bool idPush::RotateEntityToAxial( idEntity *ent, idVec3 rotationPoint ) {
 			return true;
 		}
 		//
-		ent->GetPhysics()->ClipRotation( trace, rotation, NULL );
+		ent->GetPhysics()->ClipRotation( trace, rotation, nullptr);
 		// if the full rotation is possible
 		if ( trace.fraction >= 1.0f ) {
 			// set bbox in final axial position
@@ -730,7 +730,7 @@ int idPush::TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel 
 	// always pushed when standing on the pusher
 	if ( physics->IsGroundClipModel( clipModel->GetEntity()->entityNumber, clipModel->GetId() ) ) {
 		// rotate the entity colliding with all other entities except the pusher itself
-		ClipEntityRotation( trace, check, NULL, clipModel, rotation );
+		ClipEntityRotation( trace, check, nullptr, clipModel, rotation );
 		// if there is a collision
 		if ( trace.fraction < 1.0f ) {
 			// angle along which the entity is pushed
@@ -738,7 +738,7 @@ int idPush::TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel 
 			// test if the entity can stay at it's partly pushed position by rotating
 			// the entity in reverse only colliding with pusher
 			newRotation.Set( rotation.GetOrigin(), rotation.GetVec(), -(rotation.GetAngle() - checkAngle) );
-			ClipEntityRotation( results, check, clipModel, NULL, newRotation );
+			ClipEntityRotation( results, check, clipModel, nullptr, newRotation );
 			// if there is a collision
 			if ( results.fraction < 1.0f ) {
 
@@ -763,7 +763,7 @@ int idPush::TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel 
 		newRotation = rotation;
 		newRotation.Scale( -1 );
 		//
-		ClipEntityRotation( results, check, clipModel, NULL, newRotation );
+		ClipEntityRotation( results, check, clipModel, nullptr, newRotation );
 		// if no collision with the pusher then the entity is not pushed by the pusher
 		if ( results.fraction >= 1.0f ) {
 #ifdef ROTATIONAL_PUSH_DEBUG
@@ -783,7 +783,7 @@ int idPush::TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel 
 		checkAngle = rotation.GetAngle() * (1.0f - results.fraction);
 		// rotate the entity colliding with all other entities except the pusher itself
 		newRotation.Set( rotation.GetOrigin(), rotation.GetVec(), checkAngle );
-		ClipEntityRotation( trace, check, NULL, clipModel, newRotation );
+		ClipEntityRotation( trace, check, nullptr, clipModel, newRotation );
 		// if there is a collision
 		if ( trace.fraction < 1.0f ) {
 
@@ -887,13 +887,13 @@ int idPush::TryTranslatePushEntity( trace_t &results, idEntity *check, idClipMod
 	// always pushed when standing on the pusher
 	if ( physics->IsGroundClipModel( clipModel->GetEntity()->entityNumber, clipModel->GetId() ) ) {
 		// move the entity colliding with all other entities except the pusher itself
-		ClipEntityTranslation( trace, check, NULL, clipModel, move );
+		ClipEntityTranslation( trace, check, nullptr, clipModel, move );
 		// if there is a collision
 		if ( trace.fraction < 1.0f ) {
 			// vector along which the entity is pushed
 			checkMove = move * trace.fraction;
 			// test if the entity can stay at it's partly pushed position by moving the entity in reverse only colliding with pusher
-			ClipEntityTranslation( results, check, clipModel, NULL, -(move - checkMove) );
+			ClipEntityTranslation( results, check, clipModel, nullptr, -(move - checkMove) );
 			// if there is a collision
 			if ( results.fraction < 1.0f ) {
 
@@ -913,7 +913,7 @@ int idPush::TryTranslatePushEntity( trace_t &results, idEntity *check, idClipMod
 	}
 	else {
 		// move entity in reverse only colliding with pusher
-		ClipEntityTranslation( results, check, clipModel, NULL, -move );
+		ClipEntityTranslation( results, check, clipModel, nullptr, -move );
 		// if no collision with the pusher then the entity is not pushed by the pusher
 		if ( results.fraction >= 1.0f ) {
 			return PUSH_NO;
@@ -921,7 +921,7 @@ int idPush::TryTranslatePushEntity( trace_t &results, idEntity *check, idClipMod
 		// vector along which the entity is pushed
 		checkMove = move * (1.0f - results.fraction);
 		// move the entity colliding with all other entities except the pusher itself
-		ClipEntityTranslation( trace, check, NULL, clipModel, checkMove );
+		ClipEntityTranslation( trace, check, nullptr, clipModel, checkMove );
 		// if there is a collisions
 		if ( trace.fraction < 1.0f ) {
 
@@ -1095,7 +1095,7 @@ float idPush::ClipTranslationalPush( trace_t &results, idEntity *pusher, const i
 			entityList[i]->GetPhysics()->DisableClip();
 		}
 
-		gameLocal.clip.Translation( results, clipModel->GetOrigin(), clipModel->GetOrigin() + translation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), NULL );
+		gameLocal.clip.Translation( results, clipModel->GetOrigin(), clipModel->GetOrigin() + translation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), nullptr);
 
 		// enable to be pushed entities for collision detection
 		for ( i = 0; i < listedEntities; i++ ) {
@@ -1271,7 +1271,7 @@ float idPush::ClipRotationalPush( trace_t &results, idEntity *pusher, const int 
 			entityList[i]->GetPhysics()->DisableClip();
 		}
 
-		gameLocal.clip.Rotation( results, clipModel->GetOrigin(), rotation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), NULL );
+		gameLocal.clip.Rotation( results, clipModel->GetOrigin(), rotation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), nullptr);
 
 		// enable to be pushed entities for collision detection
 		for ( i = 0; i < listedEntities; i++ ) {

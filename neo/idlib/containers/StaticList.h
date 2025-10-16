@@ -51,16 +51,16 @@ public:
 						~idStaticList<type,size>();
 
 	void				Clear();										// marks the list as empty.  does not deallocate or initialize data.
-	size_t				Num() const;									// returns number of elements in list
-	size_t				Max() const;									// returns the maximum number of elements in the list
+						[[nodiscard]] size_t				Num() const;									// returns number of elements in list
+						[[nodiscard]] size_t				Max() const;									// returns the maximum number of elements in the list
 	void				SetNum(size_t newnum );								// set number of elements in list
 
 	// sets the number of elements in list and initializes any newly allocated elements to the given value
 	void				SetNum(size_t newNum, const type & initValue );
 
-	size_t				Allocated() const;							// returns total size of allocated memory
-	size_t				Size() const;									// returns total size of allocated memory including size of list type
-	size_t				MemoryUsed() const;							// returns size of the used elements in the list
+						[[nodiscard]] size_t				Allocated() const;							// returns total size of allocated memory
+						[[nodiscard]] size_t				Size() const;									// returns total size of allocated memory including size of list type
+						[[nodiscard]] size_t				MemoryUsed() const;							// returns size of the used elements in the list
 
 	
 	const type &		operator[](const Ordinal auto index ) const;
@@ -68,16 +68,16 @@ public:
 	type &				operator[](Ordinal auto index );
 
 	type *				Ptr();										// returns a pointer to the list
-	const type *		Ptr() const;									// returns a pointer to the list
+						[[nodiscard]] const type *		Ptr() const;									// returns a pointer to the list
 	type *				Alloc();										// returns reference to a new data element at the end of the list.  returns NULL when full.
 	int64				Append( const type & obj );							// append element
 	int64				Append( const idStaticList<type,size> &other );		// append list
 	int64				AddUnique( const type & obj );						// add unique element
 	
 	int64				Insert( const type & obj, Ordinal auto index = 0 );				// insert the element at the given index
-	int64				FindIndex( const type & obj ) const;				// find the index for the given element
-	type *				Find( type const & obj ) const;						// find pointer to the given element
-	int64				FindNull() const;								// find the index for the first NULL pointer in the list
+						[[nodiscard]] int64				FindIndex( const type & obj ) const;				// find the index for the given element
+						[[nodiscard]] type *				Find( type const & obj ) const;						// find pointer to the given element
+						[[nodiscard]] int64				FindNull() const;								// find the index for the first NULL pointer in the list
 	int64				IndexOf( const type *obj ) const;					// returns the index for the pointer to an element in the list
 	
 	bool				RemoveIndex( Ordinal auto index );							// remove the element at the given index

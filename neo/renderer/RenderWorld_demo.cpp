@@ -291,7 +291,7 @@ void	idRenderWorldLocal::WriteVisibleDefs( const viewDef_t *viewDef ) {
 	}
 
 	// make sure all necessary entities and lights are updated
-	for ( viewEntity_t *viewEnt = viewDef->viewEntitys ; viewEnt ; viewEnt = viewEnt->next ) {
+	for ( viewEntity_t *viewEnt = viewDef->viewEntities ; viewEnt ; viewEnt = viewEnt->next ) {
 		idRenderEntityLocal *ent = viewEnt->entityDef;
 
 		if ( ent->archived ) {

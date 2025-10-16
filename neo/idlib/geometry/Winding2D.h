@@ -56,7 +56,7 @@ public:
 
 	void			Clear();
 	void			AddPoint( const idVec2 &point );
-	size_t          GetNumPoints() const;
+					[[nodiscard]] size_t          GetNumPoints() const;
 
 	void			Expand( const float d );
 	void			ExpandForAxialBox( const idVec2 bounds[2] );
@@ -68,23 +68,23 @@ public:
 					// if there is nothing at the front the number of points is set to zero
 	bool			ClipInPlace( const idVec3 &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
 
-	idWinding2D *	Copy() const;
-	idWinding2D *	Reverse() const;
+					[[nodiscard]] idWinding2D *	Copy() const;
+					[[nodiscard]] idWinding2D *	Reverse() const;
 
-	float			GetArea() const;
-	idVec2			GetCenter() const;
-	float			GetRadius( const idVec2 &center ) const;
+					[[nodiscard]] float			GetArea() const;
+					[[nodiscard]] idVec2			GetCenter() const;
+					[[nodiscard]] float			GetRadius( const idVec2 &center ) const;
 	void			GetBounds( idVec2 bounds[2] ) const;
 
-	bool			IsTiny() const;
-	bool			IsHuge() const;	// base winding for a plane is typically huge
+					[[nodiscard]] bool			IsTiny() const;
+					[[nodiscard]] bool			IsHuge() const;	// base winding for a plane is typically huge
 	void			Print() const;
 
-	float			PlaneDistance( const idVec3 &plane ) const;
-	int				PlaneSide( const idVec3 &plane, const float epsilon = ON_EPSILON ) const;
+					[[nodiscard]] float			PlaneDistance( const idVec3 &plane ) const;
+					[[nodiscard]] int				PlaneSide( const idVec3 &plane, const float epsilon = ON_EPSILON ) const;
 
-	bool			PointInside( const idVec2 &point, const float epsilon ) const;
-	bool			LineIntersection( const idVec2 &start, const idVec2 &end ) const;
+					[[nodiscard]] bool			PointInside( const idVec2 &point, const float epsilon ) const;
+					[[nodiscard]] bool			LineIntersection( const idVec2 &start, const idVec2 &end ) const;
 	bool			RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, size_t *edgeNums = nullptr) const;
 
 	static idVec3	Plane2DFromPoints( const idVec2 &start, const idVec2 &end, const bool normalize = false );

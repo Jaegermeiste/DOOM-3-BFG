@@ -55,9 +55,9 @@ public:
 					~idHashIndex();
 
 					// returns total size of allocated memory
-	size_t			Allocated() const;
+	[[nodiscard]] size_t			Allocated() const;
 					// returns total size of allocated memory including size of hash index type
-	size_t			Size() const;
+	[[nodiscard]] size_t			Size() const;
 
 	idHashIndex &	operator=( const idHashIndex &other );
 					// add an index to the hash, assumes the index has not yet been added to the hash
@@ -67,13 +67,13 @@ public:
 	
 	void			Remove( const int64 key, const Ordinal auto index ) const;
 					// get the first index from the hash, returns -1 if empty hash entry
-	int64			First( const int64 key ) const;
+	[[nodiscard]] int64			First( const int64 key ) const;
 					// get the next index from the hash, returns -1 if at the end of the hash chain
 	
 	int64			Next( const Ordinal auto index ) const;
 
 	// For porting purposes...
-	int64			GetFirst( const int key ) const { return First( key ); }
+	[[nodiscard]] int64			GetFirst( const int key ) const { return First( key ); }
 	
 	int64			GetNext( const Ordinal auto index ) const { return Next( index ); }
 
@@ -90,23 +90,23 @@ public:
 					// free allocated memory
 	void			Free();
 					// get size of hash table
-	size_t			GetHashSize() const;
+	[[nodiscard]] size_t			GetHashSize() const;
 					// get size of the index
-	size_t			GetIndexSize() const;
+	[[nodiscard]] size_t			GetIndexSize() const;
 					// set granularity
 	void			SetGranularity( const size_t newGranularity );
 					// force resizing the index, current hash table stays intact
 	void			ResizeIndex( const size_t newIndexSize );
 					// returns number in the range [0-100] representing the spread over the hash table
-	uint8			GetSpread() const;
+	[[nodiscard]] uint8			GetSpread() const;
 					// returns a key for a string
 	int64			GenerateKey( const char *string, bool caseSensitive = true ) const;
 					// returns a key for a vector
-	int64			GenerateKey( const idVec3 &v ) const;
+	[[nodiscard]] int64			GenerateKey( const idVec3 &v ) const;
 					// returns a key for two integers
-	int64			GenerateKey( const int64 n1, const int64 n2 ) const;
+	[[nodiscard]] int64			GenerateKey( const int64 n1, const int64 n2 ) const;
 					// returns a key for a single integer
-	int64			GenerateKey( const int64 n ) const;
+	[[nodiscard]] int64			GenerateKey( const int64 n ) const;
 
 private:
 	size_t			hashSize;

@@ -39,26 +39,33 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#define DEFINE_FIXED			0x0001
+constexpr auto DEFINE_FIXED = 0x0001;
 
-#define BUILTIN_LINE			1
-#define BUILTIN_FILE			2
-#define BUILTIN_DATE			3
-#define BUILTIN_TIME			4
-#define BUILTIN_STDC			5
+typedef enum parserBuiltins_e : uint8
+{
+	BUILTIN_LINE = 1,
+	BUILTIN_FILE = 2,
+	BUILTIN_DATE = 3,
+	BUILTIN_TIME = 4,
+	BUILTIN_STDC = 5
+} parserBuiltins_t;
 
-#define INDENT_IF				0x0001
-#define INDENT_ELSE				0x0002
-#define INDENT_ELIF				0x0004
-#define INDENT_IFDEF			0x0008
-#define INDENT_IFNDEF			0x0010
+typedef enum parserIndentType_e : uint16
+{
+	INDENT_NONE = 0x0000,
+	INDENT_IF = 0x0001,
+	INDENT_ELSE = 0x0002,
+	INDENT_ELIF = 0x0004,
+	INDENT_IFDEF = 0x0008,
+	INDENT_IFNDEF = 0x0010
+} parserIndentType_t;
 
 // macro definitions
 typedef struct define_s {
 	char *			name;						// define name
 	int				flags;						// define flags
 	int				builtin;					// > 0 if builtin define
-	int				numparms;					// number of define parameters
+	size_t			numparms;					// number of define parameters
 	idToken *		parms;						// define parameters
 	idToken *		tokens;						// macro tokens (possibly containing parm tokens)
 	struct define_s	*next;						// next defined macro in a list
@@ -68,10 +75,10 @@ typedef struct define_s {
 // indents used for conditional compilation directives:
 // #if, #else, #elif, #ifdef, #ifndef
 typedef struct indent_s {
-	int				type;						// indent type
-	int				skip;						// true if skipping current indent
-	idLexer *		script;						// script the indent was in
-	struct indent_s	*next;						// next indent on the indent stack
+	parserIndentType_t	type;						// indent type
+	int				    skip;						// true if skipping current indent
+	idLexer *		    script;						// script the indent was in
+	struct indent_s	*   next;						// next indent on the indent stack
 } indent_t;
 
 
@@ -86,36 +93,36 @@ public:
 					// destructor
 					~idParser();
 					// load a source file
-	int				LoadFile( const char *filename, bool OSPath = false );
+	bool			LoadFile( const char *filename, bool OSPath = false );
 					// load a source from the given memory with the given length
 					// NOTE: the ptr is expected to point at a valid C string: ptr[length] == '\0'
-	int				LoadMemory( const char *ptr, size_t length, const char *name );
+	bool			LoadMemory( const char *ptr, size_t length, const char *name );
 					// free the current source
 	void			FreeSource( bool keepDefines = false );
 					// returns true if a source is loaded
-	int				IsLoaded() const { return idParser::loaded; }
+	[[nodiscard]] bool	IsLoaded() const { return idParser::loaded; }
 					// read a token from the source
-	int				ReadToken( idToken *token );
+	bool			ReadToken( idToken *token );
 					// expect a certain token, reads the token when available
-	int				ExpectTokenString( const char *string );
+	bool			ExpectTokenString( const char *string );
 					// expect a certain token type
-	int				ExpectTokenType( int type, uint64 subtype, idToken *token );
+	bool			ExpectTokenType( tokenType_t type, uint64 subtype, idToken *token );
 					// expect a token
-	int				ExpectAnyToken( idToken *token );
+	bool			ExpectAnyToken( idToken *token );
 					// returns true if the next token equals the given string and removes the token from the source
-	int				CheckTokenString( const char *string );
+	bool			CheckTokenString( const char *string );
 					// returns true if the next token equals the given type and removes the token from the source
-	int				CheckTokenType( int type, uint64 subtype, idToken *token );
+	bool			CheckTokenType( int type, uint64 subtype, idToken *token );
 					// returns true if the next token equals the given string but does not remove the token from the source
-	int				PeekTokenString( const char *string );
+	bool			PeekTokenString( const char *string );
 					// returns true if the next token equals the given type but does not remove the token from the source
-	int				PeekTokenType( int type, uint64 subtype, idToken *token );
+	bool			PeekTokenType( tokenType_t type, uint64 subtype, idToken *token );
 					// skip tokens until the given token string is read
-	int				SkipUntilString( const char *string );
+	bool			SkipUntilString( const char *string );
 					// skip the rest of the current line
-	int				SkipRestOfLine();
+	bool			SkipRestOfLine();
 					// skip the braced section
-	int				SkipBracedSection( bool parseFirstBrace = true );
+	bool			SkipBracedSection( bool parseFirstBrace = true );
 					// parse a braced section into a string
 	const char*		ParseBracedSection( idStr& out, int tabs, bool parseFirstBrace, char intro, char outro );
 					// parse a braced section into a string, maintaining indents and newlines
@@ -125,7 +132,7 @@ public:
 					// unread the given token
 	void			UnreadToken( idToken *token );
 					// read a token only if on the current line
-	int				ReadTokenOnLine( idToken *token );
+	bool			ReadTokenOnLine( idToken *token );
 					// read a signed integer
 	int				ParseInt();
 					// read a boolean
@@ -133,17 +140,17 @@ public:
 					// read a floating point number
 	float			ParseFloat();
 					// parse matrices with floats
-	int				Parse1DMatrix( int x, float *m );
-	int				Parse2DMatrix( int y, int x, float *m );
-	int				Parse3DMatrix( int z, int y, int x, float *m );
+	bool			Parse1DMatrix( int x, float *m );
+	bool			Parse2DMatrix( int y, int x, float *m );
+	bool			Parse3DMatrix( int z, int y, int x, float *m );
 					// get the white space before the last read token
-					size_t GetLastWhiteSpace(idStr& whiteSpace) const;
+	size_t          GetLastWhiteSpace(idStr& whiteSpace) const;
 					// Set a marker in the source file (there is only one marker)
 	void			SetMarker();
 					// Get the string from the marker to the current position
 	void			GetStringFromMarker( idStr& out, bool clean = false );
 					// add a define to the source
-	int				AddDefine( const char *string );
+	bool			AddDefine( const char *string );
 					// add builtin defines
 	void			AddBuiltinDefines();
 					// set the source include path
@@ -151,38 +158,38 @@ public:
 					// set the punctuation set
 	void			SetPunctuations( const punctuation_t *p );
 					// returns a pointer to the punctuation with the given id
-	const char *	GetPunctuationFromId( int id ) const;
+	[[nodiscard]] const char *	GetPunctuationFromId( const punctuationID_t id ) const;
 					// get the id for the given punctuation
 	int				GetPunctuationId( const char *p ) const;
 					// set lexer flags
 	void			SetFlags( int flags );
 					// get lexer flags
-	int				GetFlags() const;
+	[[nodiscard]] int				GetFlags() const;
 					// returns the current filename
-	const char *	GetFileName() const;
+	[[nodiscard]] const char *	GetFileName() const;
 					// get current offset in current script
-					int64 GetFileOffset() const;
+	[[nodiscard]] int64 GetFileOffset() const;
 					// get file time for current script
-					ID_TIME_T GetFileTime() const;
+	ID_TIME_T       GetFileTime() const;
 					// returns the current line number
-					int		GetLineNum() const;
+	[[nodiscard]] size_t		GetLineNum() const;
 					// print an error message
 	void			Error( VERIFY_FORMAT_STRING const char *str, ... ) const;
 					// print a warning message
 	void			Warning( VERIFY_FORMAT_STRING const char *str, ... ) const;
 	// returns true if at the end of the file
-	bool			EndOfFile() const;
+	[[nodiscard]] bool			EndOfFile() const;
 					// add a global define that will be added to all opened sources
-	static int		AddGlobalDefine( const char *string );
+	static bool		AddGlobalDefine( const char *string );
 					// remove the given global define
-	static int		RemoveGlobalDefine( const char *name );
+	static bool		RemoveGlobalDefine( const char *name );
 					// remove all global defines
 	static void		RemoveAllGlobalDefines();
 					// set the base folder to load files from
 	static void		SetBaseFolder( const char *path );
 
 private:
-	int				loaded;						// set when a source file is loaded from file or memory
+	bool			loaded;						// set when a source file is loaded from file or memory
 	idStr			filename;					// file name of the script
 	idStr			includepath;				// path to include files
 	bool			OSPath;						// true if the file was loaded from an OS path
@@ -199,18 +206,18 @@ private:
 	static define_t *globaldefines;				// list with global defines added to every source loaded
 
 private:
-	void			PushIndent( int type, int skip );
-	void			PopIndent( int *type, int *skip );
+	void			PushIndent( parserIndentType_t type, int skip );
+	void			PopIndent( parserIndentType_t *type, int *skip );
 	void			PushScript( idLexer *script );
-	int				ReadSourceToken( idToken *token );
-	int				ReadLine( idToken *token );
-	int				UnreadSourceToken( idToken *token );
-	int				ReadDefineParms( define_t *define, idToken **parms, int maxparms );
-	int				StringizeTokens( idToken *tokens, idToken *token );
-	int				MergeTokens( idToken *t1, idToken *t2 );
-	int				ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken ) const;
-	int				ExpandDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken );
-	int				ExpandDefineIntoSource( idToken *deftoken, define_t *define );
+	bool			ReadSourceToken( idToken *token );
+	bool			ReadLine( idToken *token );
+	bool			UnreadSourceToken( idToken *token );
+	bool			ReadDefineParms( define_t *define, idToken **parms, const size_t maxparms );
+	bool			StringizeTokens( idToken *tokens, idToken *token );
+	bool			MergeTokens( idToken *t1, idToken *t2 );
+	bool			ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken ) const;
+	bool			ExpandDefine( idToken *deftoken, define_t *define, idToken **firsttoken, idToken **lasttoken );
+	bool			ExpandDefineIntoSource( idToken *deftoken, define_t *define );
 	void			AddGlobalDefinesToSource();
 	define_t *		CopyDefine( define_t *define );
 	define_t *		FindHashedDefine(define_t **definehash, const char *name);
@@ -221,30 +228,30 @@ private:
 	static define_t *FindDefine( define_t *defines, const char *name );
 	static define_t *DefineFromString( const char *string);
 	define_t *		CopyFirstDefine();
-	int				Directive_include();
-	int				Directive_undef();
-	int				Directive_if_def( int type );
-	int				Directive_ifdef();
-	int				Directive_ifndef();
-	int				Directive_else();
-	int				Directive_endif();
-	int				EvaluateTokens( idToken *tokens, signed long int *intvalue, double *floatvalue, int integer );
-	int				Evaluate( signed long int *intvalue, double *floatvalue, int integer );
-	int				DollarEvaluate( signed long int *intvalue, double *floatvalue, int integer);
-	int				Directive_define();
-	int				Directive_elif();
-	int				Directive_if();
-	int				Directive_line();
-	int				Directive_error();
-	int				Directive_warning();
-	int				Directive_pragma();
+	bool			Directive_include();
+	bool			Directive_undef();
+	bool			Directive_if_def( parserIndentType_t type );
+	bool			Directive_ifdef();
+	bool			Directive_ifndef();
+	bool			Directive_else();
+	bool			Directive_endif();
+	bool			EvaluateTokens( idToken *tokens, signed long int *intvalue, double *floatvalue, int integer );
+	bool			Evaluate( signed long int *intvalue, double *floatvalue, int integer );
+	bool			DollarEvaluate( signed long int *intvalue, double *floatvalue, int integer);
+	bool			Directive_define();
+	bool			Directive_elif();
+	bool			Directive_if();
+	bool			Directive_line();
+	bool			Directive_error();
+	bool			Directive_warning();
+	bool			Directive_pragma();
 	void			UnreadSignToken();
-	int				Directive_eval();
-	int				Directive_evalfloat();
-	int				ReadDirective();
-	int				DollarDirective_evalint();
-	int				DollarDirective_evalfloat();
-	int				ReadDollarDirective();
+	bool			Directive_eval();
+	bool			Directive_evalfloat();
+	bool			ReadDirective();
+	bool			DollarDirective_evalint();
+	bool			DollarDirective_evalfloat();
+	bool			ReadDollarDirective();
 };
 
 ID_INLINE const char *idParser::GetFileName() const {
@@ -274,7 +281,7 @@ ID_INLINE ID_TIME_T idParser::GetFileTime() const {
 	}
 }
 
-ID_INLINE int idParser::GetLineNum() const {
+ID_INLINE size_t idParser::GetLineNum() const {
 	if ( idParser::scriptstack ) {
 		return idParser::scriptstack->GetLineNum();
 	}

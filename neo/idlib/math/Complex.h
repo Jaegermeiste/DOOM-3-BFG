@@ -83,20 +83,20 @@ public:
 	friend idComplex	operator+( const float a, const idComplex &b );
 	friend idComplex	operator-( const float a, const idComplex &b );
 
-	bool				Compare( const idComplex &a ) const;						// exact compare, no epsilon
-	bool				Compare( const idComplex &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool				Compare( const idComplex &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool				Compare( const idComplex &a, const float epsilon ) const;	// compare with epsilon
 	bool				operator==(	const idComplex &a ) const;						// exact compare, no epsilon
 	bool				operator!=(	const idComplex &a ) const;						// exact compare, no epsilon
 
-	idComplex			Reciprocal() const;
-	idComplex			Sqrt() const;
-	float				Abs() const;
+	[[nodiscard]] idComplex			Reciprocal() const;
+	[[nodiscard]] idComplex			Sqrt() const;
+	[[nodiscard]] float				Abs() const;
 
-	int					GetDimension() const;
+	[[nodiscard]] int					GetDimension() const;
 
-	const float *		ToFloatPtr() const;
+	[[nodiscard]] const float *		ToFloatPtr() const;
 	float *				ToFloatPtr();
-	const char *		ToString( int precision = 2 ) const;
+	[[nodiscard]] const char *		ToString( int precision = 2 ) const;
 };
 
 extern idComplex complex_origin;

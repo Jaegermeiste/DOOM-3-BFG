@@ -1,3 +1,5 @@
+#include <algorithm>
+
 /*
 ===========================================================================
 
@@ -31,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 class idBinaryToken {
 public:
 	idBinaryToken() noexcept {
-		tokenType = 0;
+		tokenType = TT_NONE;
 		tokenSubType = 0;
 	}
 	idBinaryToken( const idToken &tok ) {
@@ -53,7 +55,7 @@ public:
 		inFile->WriteBig( tokenSubType );
 	}
 	idStr token;
-	int8  tokenType;
+	tokenType_t  tokenType;
 	uint64 tokenSubType;
 };
 
@@ -130,7 +132,7 @@ public:
 	[[nodiscard]] bool IsLoaded() const { return tokens.Num() > 0; }
 	bool ReadToken( idToken * tok );
 	int	ExpectTokenString( const char *string );
-	int	ExpectTokenType( int type, int subtype, idToken *token );
+	int	ExpectTokenType( tokenType_t type, uint64 subtype, idToken *token );
 	int ExpectAnyToken( idToken *token );
 	void SetMarker() {}
 	void UnreadToken( const idToken *token );
@@ -138,11 +140,9 @@ public:
 	void Warning( VERIFY_FORMAT_STRING const char *str, ... );
 	int ParseInt();
 	bool ParseBool();
-	float ParseFloat( bool *errorFlag = nullptr);
+	float ParseFloat( bool *errorFlag = nullptr );
 	void UpdateTimeStamp( ID_TIME_T &t ) {
-		if ( t > timeStamp ) {
-			timeStamp = t;
-		}
+		timeStamp = (std::max)(t, timeStamp);
 	}
 private:
 	idList< idBinaryToken > tokens;

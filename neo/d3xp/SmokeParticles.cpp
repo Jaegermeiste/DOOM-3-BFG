@@ -43,7 +43,7 @@ idSmokeParticles::idSmokeParticles() {
 	memset( &renderEntity, 0, sizeof( renderEntity ) );
 	renderEntityHandle = -1;
 	memset( smokes, 0, sizeof( smokes ) );
-	freeSmokes = NULL;
+	freeSmokes = nullptr;
 	numActiveSmokes = 0;
 	currentParticleTime = -1;
 }
@@ -62,7 +62,7 @@ void idSmokeParticles::Init() {
 	for ( int i = 0; i < MAX_SMOKE_PARTICLES-1; i++ ) {
 		smokes[i].next = &smokes[i+1];
 	}
-	smokes[MAX_SMOKE_PARTICLES-1].next = NULL;
+	smokes[MAX_SMOKE_PARTICLES-1].next = nullptr;
 	freeSmokes = &smokes[0];
 	numActiveSmokes = 0;
 
@@ -107,9 +107,9 @@ void idSmokeParticles::Shutdown() {
 		gameRenderWorld->FreeEntityDef( renderEntityHandle );
 		renderEntityHandle = -1;
 	}
-	if ( renderEntity.hModel != NULL ) {
+	if ( renderEntity.hModel != nullptr) {
 		renderModelManager->FreeModel( renderEntity.hModel );
-		renderEntity.hModel = NULL;
+		renderEntity.hModel = nullptr;
 	}
 	initialized = false;
 }
@@ -126,20 +126,20 @@ void idSmokeParticles::FreeSmokes() {
 		activeSmokeStage_t *active = &activeStages[activeStageNum];
 		const idParticleStage *stage = active->stage;
 
-		for ( last = NULL, smoke = active->smokes; smoke; smoke = next ) {
+		for ( last = nullptr, smoke = active->smokes; smoke; smoke = next ) {
 			next = smoke->next;
 
 			float frac;
 
 			if ( smoke->timeGroup ) {
-				frac = (float)( gameLocal.fast.time - smoke->privateStartTime ) / ( stage->particleLife * 1000 );
+				frac = static_cast<float>(gameLocal.fast.time - smoke->privateStartTime) / ( stage->particleLife * 1000 );
 			}
 			else {
-				frac = (float)( gameLocal.slow.time - smoke->privateStartTime ) / ( stage->particleLife * 1000 );
+				frac = static_cast<float>(gameLocal.slow.time - smoke->privateStartTime) / ( stage->particleLife * 1000 );
 			}
 			if ( frac >= 1.0f ) {
 				// remove the particle from the stage list
-				if ( last != NULL ) {
+				if ( last != nullptr) {
 					last->next = smoke->next;
 				} else {
 					active->smokes = smoke->next;
@@ -224,11 +224,11 @@ bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemS
 				prevCount = stage->totalParticles;
 			}
 		} else {
-			nowCount = floor( ( (float)deltaMsec / finalParticleTime ) * stage->totalParticles );
+			nowCount = floor( ( static_cast<float>(deltaMsec) / finalParticleTime ) * stage->totalParticles );
 			if ( nowCount >= stage->totalParticles ) {
 				nowCount = stage->totalParticles-1;
 			}
-			prevCount = floor( ((float)( deltaMsec - ( gameLocal.time - gameLocal.previousTime ) ) / finalParticleTime) * stage->totalParticles );
+			prevCount = floor( (static_cast<float>(deltaMsec - (gameLocal.time - gameLocal.previousTime)) / finalParticleTime) * stage->totalParticles );
 			if ( prevCount < -1 ) {
 				prevCount = -1;
 			}
@@ -245,7 +245,7 @@ bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemS
 		}
 
 		// find an activeSmokeStage that matches this
-		activeSmokeStage_t	*active = NULL;
+		activeSmokeStage_t	*active = nullptr;
 		int i;
 		for ( i = 0 ; i < activeStages.Num() ; i++ ) {
 			active = &activeStages[i];
@@ -257,14 +257,14 @@ bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemS
 			// add a new one
 			activeSmokeStage_t	newActive;
 
-			newActive.smokes = NULL;
+			newActive.smokes = nullptr;
 			newActive.stage = stage;
 			i = activeStages.Append( newActive );
 			active = &activeStages[i];
 		}
 
 		// add all the required particles
-		for ( prevCount++ ; prevCount <= nowCount && active != NULL ; prevCount++ ) {
+		for ( prevCount++ ; prevCount <= nowCount && active != nullptr; prevCount++ ) {
 			if ( !freeSmokes ) {
 				gameLocal.Printf( "idSmokeParticles::EmitSmoke: no free smokes with %d active stages\n", activeStages.Num() );
 				return true;
@@ -348,18 +348,18 @@ bool idSmokeParticles::UpdateRenderEntity( renderEntity_s *renderEntity, const r
 		tri->bounds[1][2] = 99999;
 
 		tri->numVerts = 0;
-		for ( last = NULL, smoke = active->smokes; smoke; smoke = next ) {
+		for ( last = nullptr, smoke = active->smokes; smoke; smoke = next ) {
 			next = smoke->next;
 
 			if ( smoke->timeGroup ) {
-				g.frac = (float)( gameLocal.fast.time - smoke->privateStartTime ) / (stage->particleLife * 1000);
+				g.frac = static_cast<float>(gameLocal.fast.time - smoke->privateStartTime) / (stage->particleLife * 1000);
 			}
 			else {
-				g.frac = (float)( gameLocal.time - smoke->privateStartTime ) / (stage->particleLife * 1000);
+				g.frac = static_cast<float>(gameLocal.time - smoke->privateStartTime) / (stage->particleLife * 1000);
 			}
 			if ( g.frac >= 1.0f ) {
 				// remove the particle from the stage list
-				if ( last != NULL ) {
+				if ( last != nullptr) {
 					last->next = smoke->next;
 				} else {
 					active->smokes = smoke->next;

@@ -300,6 +300,28 @@ size_t idFile::WriteFloatString( const char *fmt, ... ) {
 
 /*
  =================
+ idFile::ReadInt64
+ =================
+ */
+size_t idFile::ReadInt64(int64& value) {
+	const size_t result = Read(&value, sizeof(value));
+	value = LittleLongLong(value);
+	return result;
+}
+
+/*
+ =================
+ idFile::ReadUnsignedInt64
+ =================
+ */
+size_t idFile::ReadUnsignedInt64(uint64& value) {
+	const size_t result = Read(&value, sizeof(value));
+	value = LittleULongLong(value);
+	return result;
+}
+
+/*
+ =================
  idFile::ReadInt
  =================
  */
@@ -316,7 +338,7 @@ size_t idFile::ReadInt( int &value ) {
  */
 size_t idFile::ReadUnsignedInt( unsigned int &value ) {
 	const size_t result = Read( &value, sizeof( value ) );
-	value = LittleLong(value);
+	value = LittleULong(value);
 	return result;
 }
 
@@ -338,7 +360,7 @@ size_t idFile::ReadShort( short &value ) {
  */
 size_t idFile::ReadUnsignedShort( unsigned short &value ) {
 	const size_t result = Read( &value, sizeof( value ) );
-	value = LittleShort(value);
+	value = LittleUShort(value);
 	return result;
 }
 
@@ -397,7 +419,7 @@ size_t idFile::ReadString( idStr &string ) {
 		string.Fill( ' ', len );
 		result = Read( &string[ 0 ], len );
 	}
-	return result;
+	return idMath::integer_cast<size_t>(result);
 }
 
 /*
@@ -457,6 +479,26 @@ size_t idFile::ReadMat3( idMat3 &mat ) {
 
 /*
  =================
+ idFile::WriteInt64
+ =================
+ */
+size_t idFile::WriteInt64(const int64 value) {
+	const int64 v = LittleLongLong(value);
+	return Write(&v, sizeof(v));
+}
+
+/*
+ =================
+ idFile::WriteUnsignedInt64
+ =================
+ */
+size_t idFile::WriteUnsignedInt64(const uint64 value) {
+	const uint64 v = LittleULongLong(value);
+	return Write(&v, sizeof(v));
+}
+
+/*
+ =================
  idFile::WriteInt
  =================
  */
@@ -471,7 +513,7 @@ size_t idFile::WriteInt( const int value ) {
  =================
  */
 size_t idFile::WriteUnsignedInt( const unsigned int value ) {
-	const unsigned int v = LittleLong(value);
+	const unsigned int v = LittleULong(value);
 	return Write( &v, sizeof( v ) );
 }
 
@@ -491,7 +533,7 @@ size_t idFile::WriteShort( const short value ) {
  =================
  */
 size_t idFile::WriteUnsignedShort( const unsigned short value ) {
-	const unsigned short v = LittleShort(value);
+	const unsigned short v = LittleUShort(value);
 	return Write( &v, sizeof( v ) );
 }
 
@@ -540,7 +582,7 @@ size_t idFile::WriteBool( const bool value ) {
  */
 size_t idFile::WriteString( const char *value ) {
 	const size_t len = strlen( value );
-	WriteInt( len );
+	WriteInt( idMath::integer_cast<int>(len) );
     return Write( value, len );
 }
 

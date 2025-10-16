@@ -72,7 +72,7 @@ typedef struct {
 
 // sound classes are used to fade most sounds down inside cinematics, leaving dialog
 // flagged with a non-zero class full volume
-constexpr int		SOUND_MAX_CLASSES		= 4;
+constexpr size_t		SOUND_MAX_CLASSES		= 4;
 
 // it is somewhat tempting to make this a virtual class to hide the private
 // details here, but that doesn't fit easily with the decl manager at the moment.
@@ -81,27 +81,27 @@ public:
 							idSoundShader();
 	virtual					~idSoundShader();
 
-							[[nodiscard]] virtual size_t			Size() const;
+	[[nodiscard]] virtual size_t			Size() const;
 	virtual bool			SetDefaultText();
-							[[nodiscard]] virtual const char *	DefaultDefinition() const;
+	[[nodiscard]] virtual const char *	DefaultDefinition() const;
 	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			List() const;
 
 	// so the editor can draw correct default sound spheres
 	// this is currently defined as meters, which sucks, IMHO.
-							[[nodiscard]] virtual float			GetMinDistance() const;		// FIXME: replace this with a GetSoundShaderParms()
-							[[nodiscard]] virtual float			GetMaxDistance() const;
+	[[nodiscard]] virtual float			GetMinDistance() const;		// FIXME: replace this with a GetSoundShaderParms()
+	[[nodiscard]] virtual float			GetMaxDistance() const;
 
 	// returns NULL if an AltSound isn't defined in the shader.
 	// we use this for pairing a specific broken light sound with a normal light sound
-							[[nodiscard]] virtual const idSoundShader *GetAltSound() const;
+	[[nodiscard]] virtual const idSoundShader *GetAltSound() const;
 
-							[[nodiscard]] virtual bool			HasDefaultSound() const;
+	[[nodiscard]] virtual bool			HasDefaultSound() const;
 
-							[[nodiscard]] virtual const soundShaderParms_t *GetParms() const;
-							[[nodiscard]] virtual int				GetNumSounds() const;
-							[[nodiscard]] virtual const char *	GetSound( int index ) const;
+	[[nodiscard]] virtual const soundShaderParms_t *GetParms() const;
+	[[nodiscard]] virtual int				GetNumSounds() const;
+	[[nodiscard]] virtual const char *	GetSound( int index ) const;
 
 private:
 	friend class idSoundWorldLocal;
@@ -153,7 +153,7 @@ public:
 	virtual void			UpdateEmitter( const idVec3 &origin, int listenerId, const soundShaderParms_t *parms ) = 0;
 
 	// returns the length of the started sound in msec
-	virtual int				StartSound( const idSoundShader *shader, const s_channelType channel, float diversity = 0, int shaderFlags = 0, bool allowSlow = true ) = 0;
+	virtual ID_TIME_T		StartSound( const idSoundShader *shader, const s_channelType channel, float diversity = 0, int shaderFlags = 0, bool allowSlow = true ) = 0;
 
 	// pass SCHANNEL_ANY to effect all channels
 	virtual void			ModifySound( const s_channelType channel, const soundShaderParms_t *parms ) = 0;
@@ -172,7 +172,7 @@ public:
 	virtual	float			CurrentAmplitude() = 0;
 
 	// for save games.  Index will always be > 0
-	[[nodiscard]] virtual	int				Index() const = 0;
+	[[nodiscard]] virtual	size_t				Index() const = 0;
 };
 
 /*
@@ -198,7 +198,7 @@ public:
 	virtual idSoundEmitter *AllocSoundEmitter() = 0;
 
 	// for load games, index 0 will return NULL
-	virtual idSoundEmitter *EmitterForIndex( int index ) = 0;
+	        idSoundEmitter *EmitterForIndex( const Ordinal auto index );
 
 	// query sound samples from all emitters reaching a given listener
 	virtual float			CurrentShakeAmplitude() = 0;
@@ -212,7 +212,7 @@ public:
 	virtual void			FadeSoundClasses( const int soundClass, const float to, const float over ) = 0;
 
 	// menu sounds
-	virtual	int				PlayShaderDirectly( const char * name, int channel = -1 ) = 0;
+    virtual int				PlayShaderDirectly( const char * name, const s_channelType channel = -1 ) = 0;
 
 	// dumps the current state and begins archiving commands
 	virtual void			StartWritingDemo( idDemoFile *demo ) = 0;
@@ -222,7 +222,7 @@ public:
 	virtual void			ProcessDemoCommand( idDemoFile *demo ) = 0;
 
 	// when cinematics are skipped, we need to advance sound time this much
-	virtual void			Skip( int time ) = 0;
+	virtual void			Skip( ID_TIME_T time ) = 0;
 
 	// pause and unpause the sound world
 	virtual void			Pause() = 0;
@@ -261,14 +261,14 @@ public:
 typedef struct {
 	idStr					name;
 	idStr					format;
-	int						numChannels;
-	int						numSamplesPerSecond;
-	int						num44kHzSamples;
-	int						numBytes;
+	size_t					numChannels;
+	size_t					numSamplesPerSecond;
+	size_t					num44kHzSamples;
+	size_t					numBytes;
 	bool					looping;
 	float					lastVolume;
-	int						start44kHzTime;
-	int						current44kHzTime;
+	ID_TIME_T				start44kHzTime;
+	ID_TIME_T				current44kHzTime;
 } soundDecoderInfo_t;
 
 
@@ -316,7 +316,7 @@ public:
 	[[nodiscard]] virtual void *			GetIXAudio2() const = 0;
 
 	// for the sound level meter window
-	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform ) = 0;
+	virtual cinData_t		ImageForTime( const ID_TIME_T milliseconds, const bool waveform ) = 0;
 
 	// Free all sounds loaded during the last map load
 	virtual	void			BeginLevelLoad() = 0;

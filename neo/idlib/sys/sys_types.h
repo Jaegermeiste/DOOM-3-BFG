@@ -84,133 +84,7 @@ assert_sizeof( uint64,	8 );
 #define MIN_UNSIGNED_TYPE( x )	0
 */
 
-#ifndef POSITIVE_INTEGRAL_CONCEPT
-#define POSITIVE_INTEGRAL_CONCEPT
-
-namespace idIndex
-{
-	// ============================================================================
-	// INTERNAL IMPLEMENTATION (hidden from end users)
-	// ============================================================================
-
-	// -------------------- Ordinal and OrdinalPtr concepts -----------------------
-	template <class T>
-	concept Ordinal_ =
-		(!std::same_as<std::remove_cvref_t<T>, bool>) &&
-		(std::integral<std::remove_cvref_t<T>>
-			|| std::same_as<std::remove_cvref_t<T>, long long>
-			|| std::same_as<std::remove_cvref_t<T>, unsigned long long>
-			|| std::same_as<std::remove_cvref_t<T>, __int64>
-			|| std::same_as<std::remove_cvref_t<T>, unsigned __int64>
-			|| std::same_as<std::remove_cvref_t<T>, std::size_t>);
-
-	template <class P>
-	concept OrdinalPtr_ =
-		std::is_pointer_v<std::remove_cvref_t<P>> &&
-		Ordinal_< std::remove_cv_t<std::remove_pointer_t<std::remove_cvref_t<P>>>>;
-
-	// -------------------- as_span_auto (type-deducing helper) -------------------
-	// typed pointers → span<I>
-	template <Ordinal_ I>
-	constexpr std::span<I> as_span_auto(I* ptr, std::size_t n) noexcept {
-		return ptr ? std::span<I>(ptr, n) : std::span<I>();
-	}
-	template <Ordinal_ I>
-	constexpr std::span<const I> as_span_auto(const I* ptr, std::size_t n) noexcept {
-		return ptr ? std::span<const I>(ptr, n) : std::span<const I>();
-	}
-
-	// arrays → span<I> (count ignored)
-	template <Ordinal_ I, std::size_t N>
-	constexpr std::span<I> as_span_auto(I(&arr)[N], std::size_t) noexcept {
-		return std::span<I>(arr, N);
-	}
-	template <Ordinal_ I, std::size_t N>
-	constexpr std::span<const I> as_span_auto(const I(&arr)[N], std::size_t) noexcept {
-		return std::span<const I>(arr, N);
-	}
-
-	// void* → span<std::byte>
-	constexpr std::span<std::byte> as_span_auto(void* p, std::size_t n) noexcept {
-		return p ? std::span<std::byte>(static_cast<std::byte*>(p), n) : std::span<std::byte>();
-	}
-	constexpr std::span<const std::byte> as_span_auto(const void* p, std::size_t n) noexcept {
-		return p ? std::span<const std::byte>(static_cast<const std::byte*>(p), n)
-			: std::span<const std::byte>();
-	}
-
-	// nullptr literal → empty byte span
-	constexpr std::span<std::byte> as_span_auto(std::nullptr_t, std::size_t) noexcept {
-		return std::span<std::byte>();
-	}
-
-	// passthrough for spans
-	template <class T, std::size_t Extent>
-	constexpr std::span<T, Extent> as_span_auto(std::span<T, Extent> s) noexcept {
-		return s;
-	}
-
-	// -------------------- pointer validity helper -------------------------------
-	template <typename T>
-	constexpr bool ptr_valid(const T& p) noexcept {
-		if constexpr (std::is_pointer_v<std::remove_cvref_t<T>>)
-		{
-			return static_cast<const void*>(p) != nullptr;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	// -------------------- ordinal range checker ---------------------------------
-	template <Ordinal_ V, Ordinal_ U>
-	constexpr bool ordinal_check(V value, U upperBound) noexcept {
-		using V0 = std::remove_cvref_t<V>;
-		using U0 = std::remove_cvref_t<U>;
-
-		// Negative indices are always invalid
-		if constexpr (std::is_signed_v<V0>) {
-			if (value < 0)
-			{
-				return false;
-			}
-		}
-		// Non-positive upper bounds mean no valid indices
-		if constexpr (std::is_signed_v<U0>) {
-			if (upperBound <= 0)
-			{
-				return false;
-			}
-		}
-
-		using UV = std::make_unsigned_t<V0>;
-		using UU = std::make_unsigned_t<U0>;
-		return static_cast<UV>(value) < static_cast<UU>(upperBound);
-	}
-
-} // namespace idIndex
-
-
-// ============================================================================
-// PUBLIC SURFACE (only these symbols are visible)
-// ============================================================================
-template <class T>
-concept Ordinal = idIndex::Ordinal_<T>;
-
-template <class P>
-concept OrdinalPtr = idIndex::OrdinalPtr_<P>;
-
-// auto-deducing span generator (handles nullptr, arrays, pointers, void*)
-#define AS_SPAN(expr, count) (idIndex::as_span_auto((expr), (count)))
-
-// quick pointer validity check → bool
-#define SPAN_VALID(p) (idIndex::ptr_valid(p))
-
-// simple numeric bounds check (exclusive upper bound)
-#define ORDINAL_CHECK(val, upper) assert(idIndex::ordinal_check((val), (upper)) == true)
-
-#endif
+#include "sys_type_ordinal.hpp"
 
 namespace sys_types {
 	// Strip cv from the type token you pass
@@ -336,12 +210,12 @@ typedef unsigned int triIndex_t;
 
 #endif
 
-// if writing to write-combined memroy, always write indexes as pairs for 32 bit writes
+// if writing to write-combined memory, always write indexes as pairs for 32 bit writes
 ID_INLINE void WriteIndexPair( triIndex_t * dest, const triIndex_t a, const triIndex_t b ) {
 	*reinterpret_cast<unsigned*>(dest) = static_cast<unsigned>(a) | ( static_cast<unsigned>(b)<<16 );
 }
 
-#if defined(_DEBUG) || defined(_lint)
+#if defined(_DEBUG) || defined(DEBUG) || defined(_lint)
 #define NODEFAULT	default: assert( 0 )
 #else
 #define NODEFAULT	default: __assume( 0 )

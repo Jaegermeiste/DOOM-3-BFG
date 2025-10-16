@@ -39,7 +39,7 @@ idMenuScreen_Shell_Root::Initialize
 void idMenuScreen_Shell_Root::Initialize( idMenuHandler * data ) {
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if ( data != nullptr) {
 		menuGUI = data->GetGUI();
 	}
 
@@ -89,9 +89,9 @@ idMenuScreen_Shell_Root::Update
 */
 void idMenuScreen_Shell_Root::Update() {
 
-	if ( menuData != NULL ) {
+	if ( menuData != nullptr) {
 		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+		if ( cmdBar != nullptr) {
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;
 			
@@ -133,21 +133,21 @@ idMenuScreen_Shell_Root::ShowScreen
 */
 void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionType ) {
 
-	if ( menuData != NULL && menuData->GetPlatform() != 2 ) {
+	if ( menuData != nullptr && menuData->GetPlatform() != 2 ) {
 		idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;	
 		idList< idStr > option;
 
 		int index = 0;
 
 		if ( g_demoMode.GetBool() ) {
-			idMenuWidget_Button * buttonWidget = NULL;
+			idMenuWidget_Button * buttonWidget = nullptr;
 
 			option.Append( "START DEMO" );	// START DEMO
 			menuOptions.Append( option );
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_START_DEMO );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "Launch the demo" );
 			}
 			index++;
@@ -159,7 +159,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				options->GetChildByIndex( index ).ClearEventActions();
 				options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_START_DEMO2 );
 				buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-				if ( buttonWidget != NULL ) {
+				if ( buttonWidget != nullptr) {
 					buttonWidget->SetDescription( "Launch the press demo" );
 				}
 				index++;
@@ -171,7 +171,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_SETTINGS );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_02206" );
 			}
 			index++;
@@ -182,14 +182,14 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_QUIT );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_01976" );
 			}
 			index++;
 
 		} else {
 
-			idMenuWidget_Button * buttonWidget = NULL;
+			idMenuWidget_Button * buttonWidget = nullptr;
 
 #if !defined ( ID_RETAIL ) 
 			option.Append( "DEV" );	// DEV
@@ -197,7 +197,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_DEV );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "View a list of maps available for play" );
 			}
 			index++;
@@ -209,7 +209,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_CAMPAIGN );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_swf_campaign_desc" );
 			}
 			index++;
@@ -220,7 +220,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_MULTIPLAYER );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_02215" );
 			}
 			index++;
@@ -231,7 +231,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_SETTINGS );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_02206" );
 			}
 			index++;
@@ -243,7 +243,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_CREDITS );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_02219" );
 			}
 			index++;
@@ -255,7 +255,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, ROOT_CMD_QUIT );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
-			if ( buttonWidget != NULL ) {
+			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_01976" );
 			}
 			index++;
@@ -268,11 +268,11 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 
 	idMenuScreen::ShowScreen( transitionType );
 
-	if ( menuData != NULL && menuData->GetPlatform() == 2 ) {
+	if ( menuData != nullptr && menuData->GetPlatform() == 2 ) {
 		idMenuHandler_Shell * shell = dynamic_cast< idMenuHandler_Shell * >( menuData );
-		if ( shell != NULL ) {
+		if ( shell != nullptr) {
 			idMenuWidget_MenuBar * menuBar = shell->GetMenuBar();
-			if ( menuBar != NULL ) {
+			if ( menuBar != nullptr) {
 				menuBar->SetFocusIndex( GetRootIndex() );
 			}
 		}
@@ -332,7 +332,7 @@ idMenuScreen_Shell_Root::GetRootIndex
 ========================
 */
 int idMenuScreen_Shell_Root::GetRootIndex() {
-	if ( options != NULL ) {
+	if ( options != nullptr) {
 		return options->GetFocusIndex();
 	}
 
@@ -345,7 +345,7 @@ idMenuScreen_Shell_Root::SetRootIndex
 ========================
 */
 void idMenuScreen_Shell_Root::SetRootIndex( int index ) {
-	if ( options != NULL ) {
+	if ( options != nullptr) {
 		options->SetFocusIndex( index );
 	}
 }
@@ -357,7 +357,7 @@ idMenuScreen_Shell_Root::HandleAction
 */
 bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
 
-	if ( menuData == NULL ) {
+	if ( menuData == nullptr) {
 		return true;
 	}
 
@@ -392,7 +392,7 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWid
 					return true;
 				}
 
-				idWidgetEvent pressEvent( WIDGET_EVENT_PRESS, 0, NULL, idSWFParmList() );
+				idWidgetEvent pressEvent( WIDGET_EVENT_PRESS, 0, nullptr, idSWFParmList() );
 				menuBar->ReceiveEvent( pressEvent );
 				return true;
 			} 
@@ -464,12 +464,12 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWid
 				case ROOT_CMD_MULTIPLAYER: {
 					const idLocalUser * masterUser = session->GetSignInManager().GetMasterLocalUser();
 
-					if ( masterUser == NULL ) {
+					if ( masterUser == nullptr) {
 						break;
 					}
 
 					if ( masterUser->GetOnlineCaps() & CAP_BLOCKED_PERMISSION ) {
-						common->Dialog().AddDialog( GDM_ONLINE_INCORRECT_PERMISSIONS, DIALOG_CONTINUE, NULL, NULL, true, __FUNCTION__, __LINE__, false );
+						common->Dialog().AddDialog( GDM_ONLINE_INCORRECT_PERMISSIONS, DIALOG_CONTINUE, nullptr, nullptr, true, __FUNCTION__, __LINE__, false );
 					} else if ( !masterUser->CanPlayOnline() ) { 
 						class idSWFScriptFunction_Accept : public idSWFScriptFunction_RefCounted {
 						public:

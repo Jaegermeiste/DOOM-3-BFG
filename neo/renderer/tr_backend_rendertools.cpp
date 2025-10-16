@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 
 #include "tr_local.h"
@@ -35,21 +37,21 @@ If you have questions concerning this license or the applicable additional terms
 idCVar r_showCenterOfProjection( "r_showCenterOfProjection", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a cross to show the center of projection" );
 idCVar r_showLines( "r_showLines", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = draw alternate horizontal lines, 2 = draw alternate vertical lines" );
 
-#define MAX_DEBUG_LINES			16384
+constexpr auto MAX_DEBUG_LINES = 16384;
 
 typedef struct debugLine_s {
 	idVec4		rgb;
 	idVec3		start;
 	idVec3		end;
 	bool		depthTest;
-	int			lifeTime;
+	ID_TIME_T	lifeTime;
 } debugLine_t;
 
-debugLine_t		rb_debugLines[ MAX_DEBUG_LINES ];
-int				rb_numDebugLines = 0;
-int				rb_debugLineTime = 0;
+debugLine_t		rb_debugLines[ MAX_DEBUG_LINES ] = {};
+size_t			rb_numDebugLines = 0;
+ID_TIME_T		rb_debugLineTime = 0;
 
-#define MAX_DEBUG_TEXT			512
+constexpr auto MAX_DEBUG_TEXT = 512;
 
 typedef struct debugText_s {
 	idStr		text;
@@ -58,26 +60,26 @@ typedef struct debugText_s {
 	idVec4		color;
 	idMat3		viewAxis;
 	int			align;
-	int			lifeTime;
+	ID_TIME_T	lifeTime;
 	bool		depthTest;
 } debugText_t;
 
-debugText_t		rb_debugText[ MAX_DEBUG_TEXT ];
-int				rb_numDebugText = 0;
-int				rb_debugTextTime = 0;
+debugText_t		rb_debugText[ MAX_DEBUG_TEXT ] = {};
+size_t			rb_numDebugText = 0;
+ID_TIME_T		rb_debugTextTime = 0;
 
-#define MAX_DEBUG_POLYGONS		8192
+constexpr auto MAX_DEBUG_POLYGONS = 8192;
 
 typedef struct debugPolygon_s {
 	idVec4		rgb;
 	idWinding	winding;
 	bool		depthTest;
-	int			lifeTime;
+	ID_TIME_T	lifeTime;
 } debugPolygon_t;
 
-debugPolygon_t	rb_debugPolygons[ MAX_DEBUG_POLYGONS ];
-int				rb_numDebugPolygons = 0;
-int				rb_debugPolygonTime = 0;
+debugPolygon_t	rb_debugPolygons[ MAX_DEBUG_POLYGONS ] = {};
+size_t			rb_numDebugPolygons = 0;
+ID_TIME_T		rb_debugPolygonTime = 0;
 
 static void RB_DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align );
 
@@ -208,14 +210,14 @@ Debugging tool to see what values are in the stencil buffer
 ===================
 */
 void RB_ScanStencilBuffer() {
-	int		counts[256];
-	int		i;
-	byte	*stencilReadback;
+	size_t	counts[256] = {};
+	size_t	i = 0;
+	byte	*stencilReadback = nullptr;
 
 	memset( counts, 0, sizeof( counts ) );
 
 	stencilReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS));
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
 		counts[ stencilReadback[i] ]++;
@@ -241,13 +243,13 @@ Print an overdraw count based on stencil index values
 ===================
 */
 static void RB_CountStencilBuffer() {
-	int		count;
-	int		i;
-	byte	*stencilReadback;
+	size_t	count = 0;
+	size_t	i = 0;
+	byte	*stencilReadback = nullptr;
 
 
 	stencilReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS));
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	count = 0;
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -257,7 +259,7 @@ static void RB_CountStencilBuffer() {
 	R_StaticFree( stencilReadback );
 
 	// print some stats (not supposed to do from back end in SMP...)
-	common->Printf( "overdraw: %5.1f\n", static_cast<float>(count)/(renderSystem->GetWidth() * renderSystem->GetHeight())  );
+	common->Printf( "overdraw: %5.1f\n", idMath::Itof<float>(count)/ idMath::Itof<float>(renderSystem->GetWidth() * renderSystem->GetHeight())  );
 }
 
 /*
@@ -270,7 +272,7 @@ stencil buffer.  Stencil of 0 = black, 1 = red, 2 = green,
 ===================
 */
 static void R_ColorByStencilBuffer() {
-	int		i;
+	size_t	i = 0;
 	static float	colors[8][3] = {
 		{0,0,0},
 		{1,0,0},
@@ -305,12 +307,12 @@ RB_ShowOverdraw
 ==================
 */
 void RB_ShowOverdraw() {
-	const idMaterial *	material;
-	int					i;
-	drawSurf_t * *		drawSurfs;
-	const drawSurf_t *	surf;
-	int					numDrawSurfs;
-	viewLight_t *		vLight;
+	const idMaterial *	material = nullptr;
+	size_t				i = 0;
+	drawSurf_t * *		drawSurfs = nullptr;
+	const drawSurf_t *	surf = nullptr;
+	size_t				numDrawSurfs = 0;
+	viewLight_t *		vLight = nullptr;
 
 	if ( r_showOverDraw.GetInteger() == 0 ) {
 		return;
@@ -385,33 +387,29 @@ the resulting color shading from red at 0 to green at 128 to blue at 255
 ===================
 */
 static void RB_ShowIntensity() {
-	byte	*colorReadback;
-	int		i, j, c;
+	byte	*colorReadback = nullptr;
+	size_t	i = 0, j = 0, c = 0;
 
 	if ( !r_showIntensity.GetBool() ) {
 		return;
 	}
 
 	colorReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS));
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
+	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
 
 	c = renderSystem->GetWidth() * renderSystem->GetHeight() * 4;
 	for ( i = 0; i < c; i+=4 ) {
 		j = colorReadback[i];
-		if ( colorReadback[i+1] > j ) {
-			j = colorReadback[i+1];
-		}
-		if ( colorReadback[i+2] > j ) {
-			j = colorReadback[i+2];
-		}
+		j = std::max<size_t>(colorReadback[i + 1], j);
+		j = std::max<size_t>(colorReadback[i + 2], j);
 		if ( j < 128 ) {
-			colorReadback[i+0] = 2*(128-j);
-			colorReadback[i+1] = 2*j;
+			colorReadback[i+0] = idMath::integer_cast<byte>(2*(128-j));
+			colorReadback[i+1] = idMath::integer_cast<byte>(2*j);
 			colorReadback[i+2] = 0;
 		} else {
 			colorReadback[i+0] = 0;
-			colorReadback[i+1] = 2*(255-j);
-			colorReadback[i+2] = 2*(j-128);
+			colorReadback[i+1] = idMath::integer_cast<byte>(2*(255-j));
+			colorReadback[i+2] = idMath::integer_cast<byte>(2*(j-128));
 		}
 	}
 
@@ -428,7 +426,7 @@ static void RB_ShowIntensity() {
 	globalImages->BindNull();
 	qglMatrixMode( GL_MODELVIEW );
 
-	qglDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
+	qglDrawPixels(idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
 
 	R_StaticFree( colorReadback );
 }
@@ -442,7 +440,7 @@ Draw the depth buffer as colors
 ===================
 */
 static void RB_ShowDepthBuffer() {
-	void	*depthReadback;
+	void	*depthReadback = nullptr;
 
 	if ( !r_showDepth.GetBool() ) {
 		return;
@@ -466,7 +464,7 @@ static void RB_ShowDepthBuffer() {
 	depthReadback = R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight()*4, TAG_RENDER_TOOLS );
 	memset( depthReadback, 0, renderSystem->GetWidth() * renderSystem->GetHeight()*4 );
 
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
+	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
 
 #if 0
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -477,7 +475,7 @@ static void RB_ShowDepthBuffer() {
 	}
 #endif
 
-	qglDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
+	qglDrawPixels(idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
 	R_StaticFree( depthReadback );
 }
 
@@ -2577,7 +2575,7 @@ RB_RenderDebugTools
 */
 void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	// don't do much if this was a 2D rendering
-	if ( !backEnd.viewDef->viewEntitys ) {
+	if ( !backEnd.viewDef->viewEntities ) {
 		RB_TestImage();
 		RB_ShowLines();
 		return;
@@ -2603,7 +2601,7 @@ void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	RB_ShowSurfaceInfo( drawSurfs, numDrawSurfs );
 	RB_ShowEdges( drawSurfs, numDrawSurfs );
 	RB_ShowNormals( drawSurfs, numDrawSurfs );
-	RB_ShowViewEntitys( backEnd.viewDef->viewEntitys );
+	RB_ShowViewEntitys( backEnd.viewDef->viewEntities );
 	RB_ShowLights();
 	RB_ShowTextureVectors( drawSurfs, numDrawSurfs );
 	RB_ShowDominantTris( drawSurfs, numDrawSurfs );

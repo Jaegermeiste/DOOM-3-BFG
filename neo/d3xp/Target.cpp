@@ -199,7 +199,7 @@ void idTarget_EndLevel::Event_Activate( idEntity *activator ) {
 								( idStr::FindText( gameLocal.GetMapFileName(), "mars_city2" ) >= 0 ) ||
 								( idStr::FindText( gameLocal.GetMapFileName(), "mc_underground" ) >= 0 );
 
-	if ( !isTutorialMap && player != NULL ) {
+	if ( !isTutorialMap && player != nullptr) {
 		if ( !player->GetAchievementManager().GetPlayerTookDamage() ) {
 			player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_COMPLETE_LEVEL_WITHOUT_TAKING_DMG );
 		}
@@ -208,7 +208,7 @@ void idTarget_EndLevel::Event_Activate( idEntity *activator ) {
 
 	if ( !isTutorialMap && spawnArgs.GetBool( "endOfGame" ) ) {
 
-		if ( player != NULL ) {
+		if ( player != nullptr) {
 			gameExpansionType_t expansion = player->GetExpansionType();
 			switch ( expansion ) {
 			case GAME_D3XP:
@@ -316,7 +316,7 @@ void idTarget_WaitForButton::Think() {
 
 	if ( thinkFlags & TH_THINK ) {
 		player = gameLocal.GetLocalPlayer();
-		if ( player != NULL && ( !( player->oldButtons & BUTTON_ATTACK ) ) && ( player->usercmd.buttons & BUTTON_ATTACK ) ) {
+		if ( player != nullptr && ( !( player->oldButtons & BUTTON_ATTACK ) ) && ( player->usercmd.buttons & BUTTON_ATTACK ) ) {
 			player->usercmd.buttons &= ~BUTTON_ATTACK;
 			BecomeInactive( TH_THINK );
 			ActivateTargets( player );
@@ -533,7 +533,7 @@ void idTarget_FadeEntity::Think() {
 			color = fadeTo;
 			BecomeInactive( TH_THINK );
 		} else {
-			frac = ( float )( gameLocal.time - fadeStart ) / ( float )( fadeEnd - fadeStart );
+			frac = static_cast<float>(gameLocal.time - fadeStart) / static_cast<float>(fadeEnd - fadeStart);
 			color.Lerp( fadeFrom, fadeTo, frac );
 		}
 
@@ -672,14 +672,14 @@ void idTarget_Give::Event_Activate( idEntity *activator ) {
 	static int giveNum = 0;
 	idPlayer *player = gameLocal.GetLocalPlayer();
 	if ( player ) {
-		const idKeyValue *kv = spawnArgs.MatchPrefix( "item", NULL );
+		const idKeyValue *kv = spawnArgs.MatchPrefix( "item", nullptr);
 		while ( kv ) {
 			const idDict *dict = gameLocal.FindEntityDefDict( kv->GetValue(), false );
 			if ( dict ) {
 				idDict d2;
 				d2.Copy( *dict );
 				d2.Set( "name", va( "givenitem_%i", giveNum++ ) );
-				idEntity *ent = NULL;
+				idEntity *ent = nullptr;
 				if ( gameLocal.SpawnEntityDef( d2, &ent ) && ent && ent->IsType( idItem::Type ) ) {
 					idItem *item = static_cast<idItem*>(ent);
 					item->GiveToPlayer( gameLocal.GetLocalPlayer(), ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
@@ -739,7 +739,7 @@ void idTarget_SetModel::Spawn() {
 	const char *model;
 
 	model = spawnArgs.GetString( "newmodel" );
-	if ( declManager->FindType( DECL_MODELDEF, model, false ) == NULL ) {
+	if ( declManager->FindType( DECL_MODELDEF, model, false ) == nullptr) {
 		// precache the render model
 		renderModelManager->FindModel( model );
 		// precache .cm files only
@@ -792,7 +792,7 @@ idTarget_SetInfluence::idTarget_SetInfluence() {
 	flashIn = 0.0f;
 	flashOut = 0.0f;
 	delay = 0.0f;
-	switchToCamera = NULL;
+	switchToCamera = nullptr;
 	soundFaded = false;
 	restoreOnTrigger = false;
 }
@@ -944,13 +944,13 @@ idTarget_SetInfluence::Event_Flash
 void idTarget_SetInfluence::Event_Flash( float flash, int out ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
 	player->playerView.Fade( idVec4( 1, 1, 1, 1 ), flash );
-	const idSoundShader *shader = NULL;
+	const idSoundShader *shader = nullptr;
 	if ( !out && flashInSound.Length() ){
 		shader = declManager->FindSound( flashInSound );
-		player->StartSoundShader( shader, SND_CHANNEL_VOICE, 0, false, NULL );
+		player->StartSoundShader( shader, SND_CHANNEL_VOICE, 0, false, nullptr);
 	} else if ( out && ( flashOutSound.Length() || flashInSound.Length() ) ) {
 		shader = declManager->FindSound( flashOutSound.Length() ? flashOutSound : flashInSound );
-		player->StartSoundShader( shader, SND_CHANNEL_VOICE, 0, false, NULL );
+		player->StartSoundShader( shader, SND_CHANNEL_VOICE, 0, false, nullptr);
 	}
 	PostEventSec( &EV_ClearFlash, flash, flash );
 }
@@ -1026,7 +1026,7 @@ void idTarget_SetInfluence::Event_GatherEntities() {
 	}
 	idStr temp;
 	temp = spawnArgs.GetString( "switchToView" );
-	switchToCamera = ( temp.Length() ) ? gameLocal.FindEntity( temp ) : NULL;
+	switchToCamera = ( temp.Length() ) ? gameLocal.FindEntity( temp ) : nullptr;
 
 }
 
@@ -1084,7 +1084,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 	}
 
 	parm = spawnArgs.GetString( "snd_influence" );
-	if ( parm != NULL && *parm != NULL ) {
+	if ( parm != nullptr && *parm != NULL ) {
 		PostEventSec( &EV_StartSoundShader, flashIn, parm, SND_CHANNEL_ANY );
 	}
 
@@ -1100,7 +1100,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 
 	for ( i = 0; i < genericList.Num(); i++ ) {
 		ent = gameLocal.entities[genericList[i]];
-		if ( ent == NULL ) {
+		if ( ent == nullptr) {
 			continue;
 		}
 		generic = static_cast<idStaticEntity*>( ent );
@@ -1111,7 +1111,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 
 	for ( i = 0; i < lightList.Num(); i++ ) {
 		ent = gameLocal.entities[lightList[i]];
-		if ( ent == NULL || !ent->IsType( idLight::Type ) ) {
+		if ( ent == nullptr || !ent->IsType( idLight::Type ) ) {
 			continue;
 		}
 		light = static_cast<idLight *>(ent);
@@ -1128,14 +1128,14 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 
 	for ( i = 0; i < soundList.Num(); i++ ) {
 		ent = gameLocal.entities[soundList[i]];
-		if ( ent == NULL || !ent->IsType( idSound::Type ) ) {
+		if ( ent == nullptr || !ent->IsType( idSound::Type ) ) {
 			continue;
 		}
 		sound = static_cast<idSound *>(ent);
 		parm = sound->spawnArgs.GetString( "snd_demonic" );
 		if ( parm && *parm ) {
 			if ( sound->spawnArgs.GetBool( "overlayDemonic" ) ) {
-				sound->StartSound( "snd_demonic", SND_CHANNEL_DEMONIC, 0, false, NULL );
+				sound->StartSound( "snd_demonic", SND_CHANNEL_DEMONIC, 0, false, nullptr);
 			} else {
 				sound->StopSound( SND_CHANNEL_ANY, false );
 				sound->SetSound( parm );
@@ -1145,7 +1145,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 
 	for ( i = 0; i < guiList.Num(); i++ ) {
 		ent = gameLocal.entities[guiList[i]];
-		if ( ent == NULL || ent->GetRenderEntity() == NULL ) {
+		if ( ent == nullptr || ent->GetRenderEntity() == nullptr) {
 			continue;
 		}
 		update = false;
@@ -1181,7 +1181,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 	}
 
 	parm = spawnArgs.GetString( "mtrWorld" );
-	if ( parm != NULL && *parm != NULL ) {
+	if ( parm != nullptr && *parm != NULL ) {
 		gameLocal.SetGlobalMaterial( declManager->FindMaterial( parm ) );
 	}
 
@@ -1236,7 +1236,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 
 	for ( i = 0; i < genericList.Num(); i++ ) {
 		ent = gameLocal.entities[genericList[i]];
-		if ( ent == NULL ) {
+		if ( ent == nullptr) {
 			continue;
 		}
 		generic = static_cast<idStaticEntity*>( ent );
@@ -1247,7 +1247,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 
 	for ( i = 0; i < lightList.Num(); i++ ) {
 		ent = gameLocal.entities[lightList[i]];
-		if ( ent == NULL || !ent->IsType( idLight::Type ) ) {
+		if ( ent == nullptr || !ent->IsType( idLight::Type ) ) {
 			continue;
 		}
 		light = static_cast<idLight *>(ent);
@@ -1262,7 +1262,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 
 	for ( i = 0; i < soundList.Num(); i++ ) {
 		ent = gameLocal.entities[soundList[i]];
-		if ( ent == NULL || !ent->IsType( idSound::Type ) ) {
+		if ( ent == nullptr || !ent->IsType( idSound::Type ) ) {
 			continue;
 		}
 		sound = static_cast<idSound *>(ent);
@@ -1272,7 +1272,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 
 	for ( i = 0; i < guiList.Num(); i++ ) {
 		ent = gameLocal.entities[guiList[i]];
-		if ( ent == NULL || GetRenderEntity() == NULL ) {
+		if ( ent == nullptr || GetRenderEntity() == nullptr) {
 			continue;
 		}
 		update = false;
@@ -1290,9 +1290,9 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 
 	idPlayer *player = gameLocal.GetLocalPlayer();
 	player->SetInfluenceLevel( 0 );
-	player->SetInfluenceView( NULL, NULL, 0.0f, NULL );
+	player->SetInfluenceView(nullptr, nullptr, 0.0f, nullptr);
 	player->SetInfluenceFov( 0 );
-	gameLocal.SetGlobalMaterial( NULL );
+	gameLocal.SetGlobalMaterial(nullptr);
 	float fadeTime = spawnArgs.GetFloat( "fadeWorldSounds" );
 	if ( fadeTime ) {
 		gameSoundWorld->FadeSoundClasses( 0, 0.0f, fadeTime / 2.0f );
@@ -1345,7 +1345,7 @@ void idTarget_SetKeyVal::Event_Activate( idEntity *activator ) {
 				}
 				kv = spawnArgs.MatchPrefix( "keyval", kv );
 			}
-			ent->UpdateChangeableSpawnArgs( NULL );
+			ent->UpdateChangeableSpawnArgs(nullptr);
 			ent->UpdateVisuals();
 			ent->Present();
 		}
@@ -1450,7 +1450,7 @@ idTarget_SetPrimaryObjective::Event_Activate
 */
 void idTarget_SetPrimaryObjective::Event_Activate( idEntity *activator ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
-	if ( player != NULL ) {
+	if ( player != nullptr) {
 		player->SetPrimaryObjective( this );
 	}
 }
@@ -1480,7 +1480,7 @@ void idTarget_LockDoor::Event_Activate( idEntity *activator ) {
 	lock = spawnArgs.GetInt( "locked", "1" );
 	for( i = 0; i < targets.Num(); i++ ) {
 		ent = targets[ i ].GetEntity();
-		if ( ent != NULL && ent->IsType( idDoor::Type ) ) {
+		if ( ent != nullptr && ent->IsType( idDoor::Type ) ) {
 			if ( static_cast<idDoor *>( ent )->IsLocked() ) {
 				static_cast<idDoor *>( ent )->Lock( 0 );
 			} else {
@@ -1517,9 +1517,9 @@ void idTarget_CallObjectFunction::Event_Activate( idEntity *activator ) {
 	funcName = spawnArgs.GetString( "call" );
 	for( i = 0; i < targets.Num(); i++ ) {
 		ent = targets[ i ].GetEntity();
-		if ( ent != NULL && ent->scriptObject.HasObject() ) {
+		if ( ent != nullptr && ent->scriptObject.HasObject() ) {
 			func = ent->scriptObject.GetFunction( funcName );
-			if ( func == NULL ) {
+			if ( func == nullptr) {
 				gameLocal.Error( "Function '%s' not found on entity '%s' for function call from '%s'", funcName, ent->name.c_str(), name.c_str() );
 				return;
 			}
@@ -1572,7 +1572,7 @@ void idTarget_EnableLevelWeapons::Event_Activate( idEntity *activator ) {
 		for( i = 0; i < gameLocal.numClients; i++ ) {
 			if ( gameLocal.entities[ i ] ) {
 				gameLocal.entities[ i ]->ProcessEvent( &EV_Player_EnableWeapon );
-				if ( weap != NULL && weap[ 0 ] != NULL ) {
+				if ( weap != nullptr && weap[ 0 ] != NULL ) {
 					gameLocal.entities[ i ]->PostEventSec( &EV_Player_SelectWeapon, 0.5f, weap );
 				}
 			}
@@ -1884,7 +1884,7 @@ idTarget_RumbleJoystick::Event_Activate
 */
 void idTarget_RumbleJoystick::Event_Activate( idEntity *activator ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
-	if ( player != NULL ) {
+	if ( player != nullptr) {
 		float highMagnitude = spawnArgs.GetFloat( "high_magnitude" );
 		int highDuration = spawnArgs.GetInt( "high_duration" );
 		float lowMagnitude = spawnArgs.GetFloat( "low_magnitude" );
@@ -1914,8 +1914,8 @@ idTarget_Achievement::Event_Activate
 */
 void idTarget_Achievement::Event_Activate( idEntity *activator ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
-	if ( player != NULL ) {
+	if ( player != nullptr) {
 		int achievement = spawnArgs.GetFloat( "achievement" );
-		player->GetAchievementManager().EventCompletesAchievement( (achievement_t)achievement );
+		player->GetAchievementManager().EventCompletesAchievement( static_cast<achievement_t>(achievement) );
 	}
 }

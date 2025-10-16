@@ -42,18 +42,18 @@ This is where the Binary image headers go that are also included by external too
 #define BIMAGE_VERSION 10
 #define BIMAGE_MAGIC (unsigned int)( ('B'<<0)|('I'<<8)|('M'<<16)|(BIMAGE_VERSION<<24) )
 
-struct bimageImage_t {
+typedef struct bimageImage_s {
 	int		level;
 	int		destZ;
 	int		width;
 	int		height;
 	int		dataSize;
 	// dataSize bytes follow
-};
+} bimageImage_t;
 
 #pragma pack( push, 1 )
-struct bimageFile_t {
-	ID_TIME_T	sourceFileTime;
+typedef struct bimageFile_s {
+	ID_TIME_T 	sourceFileTime;
 	int		headerMagic;
 	int		textureType;
 	int		format;
@@ -62,7 +62,7 @@ struct bimageFile_t {
 	int		height;
 	int		numLevels;
 	// one or more bimageImage_t structures follow
-};
+} bimageFile_t;
 #pragma pack( pop )
 
 #endif // __BINARYIMAGEDATA_H__

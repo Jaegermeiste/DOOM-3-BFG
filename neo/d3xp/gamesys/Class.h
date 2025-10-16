@@ -50,7 +50,7 @@ struct idEventFunc {
 };
 
 // added & so gcc could compile this
-#define EVENT( event, function )	{ &( event ), ( void ( idClass::* )() )( &function ) },
+#define EVENT( event, function )	{ &( event ), reinterpret_cast<void ( idClass::* )>( &(function) ) },
 #define END_CLASS					{ NULL, NULL } };
 
 
@@ -103,7 +103,7 @@ public:																	\
 CLASS_DECLARATION
 
 This macro must be included in the code to properly initialize variables
-used in type checking and run-time instanciation.  It also defines the list
+used in type checking and run-time instantiation.  It also defines the list
 of events that the class responds to.  Take special care to ensure that the 
 proper superclass is indicated or the run-time type information will be
 incorrect.  Use this on concrete classes only.
@@ -133,7 +133,7 @@ idEventFunc<nameofclass> nameofclass::eventCallbacks[] = {
 ABSTRACT_PROTOTYPE
 
 This macro must be included in the definition of any abstract subclass of idClass.
-It prototypes variables used in class instanciation and type checking.
+It prototypes variables used in class instantiation and type checking.
 Use this on single inheritance abstract classes only.
 ================
 */
@@ -151,7 +151,7 @@ ABSTRACT_DECLARATION
 This macro must be included in the code to properly initialize variables
 used in type checking.  It also defines the list of events that the class
 responds to.  Take special care to ensure that the proper superclass is
-indicated or the run-time tyep information will be incorrect.  Use this
+indicated or the run-time type information will be incorrect.  Use this
 on abstract classes only.
 ================
 */
@@ -184,7 +184,7 @@ public:
 
 	void						Spawn();
 	void						CallSpawn();
-	bool						IsType( const idTypeInfo &c ) const;
+	bool						IsType( const idTypeInfo &superclass ) const;
 	const char *				GetClassname() const;
 	const char *				GetSuperclass() const;
 	void						FindUninitializedMemory();
@@ -194,15 +194,15 @@ public:
 
 	bool						RespondsTo( const idEventDef &ev ) const;
 
-	bool						PostEventMS( const idEventDef *ev, int time );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2, idEventArg arg3 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7 );
-	bool						PostEventMS( const idEventDef *ev, int time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7, idEventArg arg8 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2, idEventArg arg3 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7 );
+	bool						PostEventMS( const idEventDef *ev, ID_TIME_T time, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7, idEventArg arg8 );
 
 	bool						PostEventSec( const idEventDef *ev, float time );
 	bool						PostEventSec( const idEventDef *ev, float time, idEventArg arg1 );
@@ -224,8 +224,8 @@ public:
 	bool						ProcessEvent( const idEventDef *ev, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7 );
 	bool						ProcessEvent( const idEventDef *ev, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7, idEventArg arg8 );
 
-	bool						ProcessEventArgPtr( const idEventDef *ev, int *data );
-	void						CancelEvents( const idEventDef *ev );
+	bool						ProcessEventArgPtr( const idEventDef *ev, address_t *data );
+	void						CancelEvents( const idEventDef *ev ) const;
 
 	void						Event_Remove();
 
@@ -236,15 +236,15 @@ public:
 	static void					DisplayInfo_f( const idCmdArgs &args );
 	static void					ListClasses_f( const idCmdArgs &args );
 	static idClass *			CreateInstance( const char *name );
-	static int					GetNumTypes() { return types.Num(); }
+	static size_t				GetNumTypes() { return types.Num(); }
 	static int					GetTypeNumBits() { return typeNumBits; }
-	static idTypeInfo *			GetType( int num );
+	static idTypeInfo *			GetType( const Ordinal auto num );
 
 private:
 	classSpawnFunc_t			CallSpawnFunc( idTypeInfo *cls );
 
-	bool						PostEventArgs( const idEventDef *ev, int time, int numargs, ... );
-	bool						ProcessEventArgs( const idEventDef *ev, int numargs, ... );
+	bool						PostEventArgs( const idEventDef *ev, const ID_TIME_T time, const size_t numargs, ... );
+	bool						ProcessEventArgs( const idEventDef *ev, const size_t numargs, ... );
 
 	void						Event_SafeRemove();
 
@@ -252,8 +252,8 @@ private:
 	static idList<idTypeInfo *, TAG_IDCLASS>	types;
 	static idList<idTypeInfo *, TAG_IDCLASS>	typenums;
 	static int					typeNumBits;
-	static int					memused;
-	static int					numobjects;
+	static size_t				memused;
+	static size_t				numobjects;
 };
 
 /***********************************************************************

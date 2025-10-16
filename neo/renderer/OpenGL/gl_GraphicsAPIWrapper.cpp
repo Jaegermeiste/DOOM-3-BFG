@@ -56,7 +56,7 @@ void GL_SelectTexture( int unit ) {
 GL_Cull
 
 This handles the flipping needed when the view being
-rendered is a mirored view.
+rendered is a mirrored view.
 ====================
 */
 void GL_Cull( int cullType ) {
@@ -94,8 +94,8 @@ void GL_Cull( int cullType ) {
 GL_Scissor
 ====================
 */
-void GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h ) {
-	qglScissor( x, y, w, h );
+void GL_Scissor( int x /* left*/, int y /* bottom */, const size_t w, const size_t h ) {
+	qglScissor( idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h) );
 }
 
 /*
@@ -103,8 +103,8 @@ void GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h ) {
 GL_Viewport
 ====================
 */
-void GL_Viewport( int x /* left */, int y /* bottom */, int w, int h ) {
-	qglViewport( x, y, w, h );
+void GL_Viewport( int x /* left */, int y /* bottom */, const size_t w, const size_t h ) {
+	qglViewport(idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h) );
 }
 
 /*

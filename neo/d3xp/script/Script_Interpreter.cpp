@@ -114,7 +114,7 @@ void idInterpreter::Restore( idRestoreGame *savefile ) {
 		if ( func_index >= 0 ) {
 			callStack[i].f = gameLocal.program.GetFunction( func_index );
 		} else {
-			callStack[i].f = NULL;
+			callStack[i].f = nullptr;
 		}
 
 		savefile->ReadInt( callStack[i].stackbase );
@@ -131,7 +131,7 @@ void idInterpreter::Restore( idRestoreGame *savefile ) {
 	if ( func_index >= 0 ) {
 		currentFunction = gameLocal.program.GetFunction( func_index );
 	} else {
-		currentFunction = NULL;
+		currentFunction = nullptr;
 	}
 	savefile->ReadInt( instructionPointer );
 
@@ -165,10 +165,10 @@ void idInterpreter::Reset() {
 	maxStackDepth = 0;
 
 	popParms = 0;
-	multiFrameEvent = NULL;
-	eventEntity = NULL;
+	multiFrameEvent = nullptr;
+	eventEntity = nullptr;
 
-	currentFunction = 0;
+	currentFunction = nullptr;
 	NextInstruction( 0 );
 
 	threadDying 	= false;
@@ -214,7 +214,7 @@ bool idInterpreter::GetRegisterValue( const char *name, idStr &out, int scopeDep
 	funcName = strstr( funcObject, "::" );
 	if ( funcName ) {
 		*funcName = '\0';
-		scope = gameLocal.program.GetDef( NULL, funcObject, &def_namespace );
+		scope = gameLocal.program.GetDef(nullptr, funcObject, &def_namespace );
 		funcName += 2;
 	} else {
 		funcName = funcObject;
@@ -222,21 +222,21 @@ bool idInterpreter::GetRegisterValue( const char *name, idStr &out, int scopeDep
 	}
 
 	// Get the function from the object
-	d = gameLocal.program.GetDef( NULL, funcName, scope );
+	d = gameLocal.program.GetDef(nullptr, funcName, scope );
 	if ( !d ) {
 		return false;
 	}
 	
 	// Get the variable itself and check various namespaces
-	d = gameLocal.program.GetDef( NULL, name, d );
+	d = gameLocal.program.GetDef(nullptr, name, d );
 	if ( !d ) {
 		if ( scope == &def_namespace ) {
 			return false;
 		}
 		
-		d = gameLocal.program.GetDef( NULL, name, scope );
+		d = gameLocal.program.GetDef(nullptr, name, scope );
 		if ( !d ) {
-			d = gameLocal.program.GetDef( NULL, name, &def_namespace );
+			d = gameLocal.program.GetDef(nullptr, name, &def_namespace );
 			if ( !d ) {
 				return false;
 			}
@@ -582,7 +582,7 @@ void idInterpreter::EnterFunction( const function_t *func, bool clearStack ) {
 		maxStackDepth = callStackDepth;
 	}
 
-	if ( func == NULL ) {
+	if ( func == nullptr) {
 		Error( "NULL function" );
 		return;
 	}
@@ -676,7 +676,7 @@ void idInterpreter::LeaveFunction( idVarDef *returnDef ) {
 		// all done
 		doneProcessing = true;
 		threadDying = true;
-		currentFunction = 0;
+		currentFunction = nullptr;
 	}
 }
 
@@ -685,17 +685,17 @@ void idInterpreter::LeaveFunction( idVarDef *returnDef ) {
 idInterpreter::CallEvent
 ================
 */
-void idInterpreter::CallEvent( const function_t *func, int argsize ) {
-	int 				i;
-	int					j;
-	varEval_t			var;
-	int 				pos;
-	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
-	const idEventDef	*evdef;
-	const char			*format;
+void idInterpreter::CallEvent( const function_t *func, const size_t argsize ) {
+	size_t				i = 0;
+	size_t				j = 0;
+	varEval_t			var = {};
+	size_t 				pos = 0;
+	size_t				start = 0;
+	int					data[ D_EVENT_MAXARGS ] = {};
+	const idEventDef	*evdef = nullptr;
+	const char			*format = nullptr;
 
-	if ( func == NULL ) {
+	if ( func == nullptr) {
 		Error( "NULL function" );
 		return;
 	}
@@ -704,11 +704,11 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 	evdef = func->eventdef;
 
 	start = localstackUsed - argsize;
-	var.intPtr = ( int * )&localstack[ start ];
+	var.intPtr = reinterpret_cast<int*>(&localstack[start]);
 	eventEntity = GetEntity( *var.entityNumberPtr );
 
-	if ( eventEntity == NULL || !eventEntity->RespondsTo( *evdef ) ) {
-		if ( eventEntity != NULL && developer.GetBool() ) {
+	if ( eventEntity == nullptr || !eventEntity->RespondsTo( *evdef ) ) {
+		if ( eventEntity != nullptr && developer.GetBool() ) {
 			// give a warning in developer mode
 			Warning( "Function '%s' not supported on entity '%s'", evdef->GetName(), eventEntity->name.c_str() );
 		}
@@ -732,7 +732,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 
 		case D_EVENT_ENTITY :
 		case D_EVENT_ENTITY_NULL :
-			gameLocal.program.ReturnEntity( ( idEntity * )NULL );
+			gameLocal.program.ReturnEntity( nullptr );
 			break;
 
 		case D_EVENT_TRACE :
@@ -742,7 +742,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 		}
 
 		PopParms( argsize );
-		eventEntity = NULL;
+		eventEntity = nullptr;
 		return;
 	}
 
@@ -751,7 +751,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 		switch( format[ i ] ) {
 		case D_EVENT_INTEGER :
 			var.intPtr = ( int * )&localstack[ start + pos ];
-			data[ i ] = int( *var.floatPtr );
+			data[ i ] = static_cast<int>(*var.floatPtr);
 			break;
 
 		case D_EVENT_FLOAT :
@@ -803,7 +803,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 		if ( popParms ) {
 			PopParms( popParms );
 		}
-		eventEntity = NULL;
+		eventEntity = nullptr;
 	} else {
 		doneProcessing = true;
 	}
@@ -840,7 +840,7 @@ void idInterpreter::EndMultiFrameEvent( idEntity *ent, const idEventDef *event )
 		Error( "idInterpreter::EndMultiFrameEvent called with wrong event" );
 	}
 
-	multiFrameEvent = NULL;
+	multiFrameEvent = nullptr;
 }
 
 /*
@@ -849,7 +849,7 @@ idInterpreter::MultiFrameEventInProgress
 ================
 */
 bool idInterpreter::MultiFrameEventInProgress() const {
-	return multiFrameEvent != NULL;
+	return multiFrameEvent != nullptr;
 }
 
 /*
@@ -857,17 +857,17 @@ bool idInterpreter::MultiFrameEventInProgress() const {
 idInterpreter::CallSysEvent
 ================
 */
-void idInterpreter::CallSysEvent( const function_t *func, int argsize ) {
-	int 				i;
-	int					j;
-	varEval_t			source;
-	int 				pos;
-	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
-	const idEventDef	*evdef;
-	const char			*format;
+void idInterpreter::CallSysEvent( const function_t *func, const size_t argsize ) {
+	size_t 				i = 0;
+	size_t				j = 0;
+	varEval_t			source = {};
+	size_t 				pos = 0;
+	size_t 				start = 0;
+	address_t			data[ D_EVENT_MAXARGS ] = {};
+	const idEventDef	*evdef = nullptr;
+	const char			*format = nullptr;
 
-	if ( func == NULL ) {
+	if ( func == nullptr) {
 		Error( "NULL function" );
 		return;
 	}
@@ -881,28 +881,28 @@ void idInterpreter::CallSysEvent( const function_t *func, int argsize ) {
 	for( j = 0, i = 0, pos = 0; ( pos < argsize ) || ( format[ i ] != 0 ); i++ ) {
 		switch( format[ i ] ) {
 		case D_EVENT_INTEGER :
-			source.intPtr = ( int * )&localstack[ start + pos ];
-			*( int * )&data[ i ] = int( *source.floatPtr );
+			source.intPtr = reinterpret_cast<int*>(&localstack[start + pos]);
+			*reinterpret_cast<int*>(&data[i]) = static_cast<int>(*source.floatPtr);
 			break;
 
 		case D_EVENT_FLOAT :
-			source.intPtr = ( int * )&localstack[ start + pos ];
-			*( float * )&data[ i ] = *source.floatPtr;
+			source.intPtr = reinterpret_cast<int*>(&localstack[start + pos]);
+			*reinterpret_cast<float*>(&data[i]) = *source.floatPtr;
 			break;
 
 		case D_EVENT_VECTOR :
-			source.intPtr = ( int * )&localstack[ start + pos ];
-			*( idVec3 ** )&data[ i ] = source.vectorPtr;
+			source.intPtr = reinterpret_cast<int*>(&localstack[start + pos]);
+			*reinterpret_cast<idVec3**>(&data[i]) = source.vectorPtr;
 			break;
 
 		case D_EVENT_STRING :
-			*( const char ** )&data[ i ] = ( char * )&localstack[ start + pos ];
+			*reinterpret_cast<const char**>(&data[i]) = reinterpret_cast<char*>(&localstack[start + pos]);
 			break;
 
 		case D_EVENT_ENTITY :
-			source.intPtr = ( int * )&localstack[ start + pos ];
-			*( idEntity ** )&data[ i ] = GetEntity( *source.entityNumberPtr );
-			if ( !*( idEntity ** )&data[ i ] ) {
+			source.intPtr = reinterpret_cast<int*>(&localstack[start + pos]);
+			*reinterpret_cast<idEntity**>(&data[i]) = GetEntity( *source.entityNumberPtr );
+			if ( !*reinterpret_cast<idEntity**>(&data[i]) ) {
 				Warning( "Entity not found for event '%s'. Terminating thread.", evdef->GetName() );
 				threadDying = true;
 				PopParms( argsize );
@@ -911,8 +911,8 @@ void idInterpreter::CallSysEvent( const function_t *func, int argsize ) {
 			break;
 
 		case D_EVENT_ENTITY_NULL :
-			source.intPtr = ( int * )&localstack[ start + pos ];
-			*( idEntity ** )&data[ i ] = GetEntity( *source.entityNumberPtr );
+			source.intPtr = reinterpret_cast<int*>(&localstack[start + pos]);
+			*reinterpret_cast<idEntity**>(&data[i]) = GetEntity( *source.entityNumberPtr );
 			break;
 
 		case D_EVENT_TRACE :
@@ -1285,7 +1285,7 @@ bool idInterpreter::Execute() {
 		case OP_NOT_ENT:
 			var_a = GetVariable( st->a );
 			var_c = GetVariable( st->c );
-			*var_c.floatPtr = ( GetEntity( *var_a.entityNumberPtr ) == NULL );
+			*var_c.floatPtr = ( GetEntity( *var_a.entityNumberPtr ) == nullptr);
 			break;
 
 		case OP_NEG_F:
@@ -1694,7 +1694,7 @@ bool idInterpreter::Execute() {
 			if ( obj ) {
 				var_c.evalPtr->bytePtr = &obj->data[ st->b->value.ptrOffset ];
 			} else {
-				var_c.evalPtr->bytePtr = NULL;
+				var_c.evalPtr->bytePtr = nullptr;
 			}
 			break;
 

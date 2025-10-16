@@ -115,8 +115,8 @@ public:
 	T * Ptr() { return buffer; }
 	const T* Ptr() const { return buffer; }
 
-	size_t Size( ) const { return num * sizeof( T ); }
-	size_t Num( ) const { return num; }
+	[[nodiscard]] size_t Size( ) const { return num * sizeof( T ); }
+	[[nodiscard]] size_t Num( ) const { return num; }
 
 	void Zero() { memset( Ptr(), 0, Size() ); }
 
@@ -189,10 +189,10 @@ public:
 	ID_INLINE			~idBlockAlloc();
 
 	// returns total size of allocated memory
-	size_t				Allocated() const { return total * sizeof( _type_ ); }
+	[[nodiscard]] size_t				Allocated() const { return total * sizeof( _type_ ); }
 
 	// returns total size of allocated memory including size of (*this)
-	size_t				Size() const { return sizeof( *this ) + Allocated(); }
+	[[nodiscard]] size_t				Size() const { return sizeof( *this ) + Allocated(); }
 
 	ID_INLINE void		Shutdown();
 	ID_INLINE void		SetFixedBlocks( int numBlocks );
@@ -201,9 +201,9 @@ public:
 	ID_INLINE _type_ *	Alloc();
 	ID_INLINE void		Free( _type_ *element );
 
-	int					GetTotalCount() const { return total; }
-	int					GetAllocCount() const { return active; }
-	int					GetFreeCount() const { return total - active; }
+	[[nodiscard]] int					GetTotalCount() const { return total; }
+	[[nodiscard]] int					GetAllocCount() const { return active; }
+	[[nodiscard]] int					GetFreeCount() const { return total - active; }
 
 private:
 	union element_t {
@@ -451,13 +451,13 @@ public:
 	void							Free( type *ptr );
 	const char *					CheckMemory( const type *ptr ) const;
 
-	int								GetNumBaseBlocks() const { return 0; }
-	int								GetBaseBlockMemory() const { return 0; }
-	int								GetNumUsedBlocks() const { return numUsedBlocks; }
-	int								GetUsedBlockMemory() const { return usedBlockMemory; }
-	int								GetNumFreeBlocks() const { return 0; }
-	int								GetFreeBlockMemory() const { return 0; }
-	int								GetNumEmptyBaseBlocks() const { return 0; }
+									[[nodiscard]] int								GetNumBaseBlocks() const { return 0; }
+									[[nodiscard]] int								GetBaseBlockMemory() const { return 0; }
+									[[nodiscard]] int								GetNumUsedBlocks() const { return numUsedBlocks; }
+									[[nodiscard]] int								GetUsedBlockMemory() const { return usedBlockMemory; }
+									[[nodiscard]] int								GetNumFreeBlocks() const { return 0; }
+									[[nodiscard]] int								GetFreeBlockMemory() const { return 0; }
+									[[nodiscard]] int								GetNumEmptyBaseBlocks() const { return 0; }
 
 private:
 	int								numUsedBlocks;			// number of used blocks
@@ -561,9 +561,9 @@ template<class type>
 class idDynamicBlock {
 public:
 	type *							GetMemory() const { return reinterpret_cast<type*>(reinterpret_cast<byte*>(const_cast<idDynamicBlock<type>*>(this)) + sizeof(idDynamicBlock<type>)); }
-	size_t							GetSize() const { return size; }
+	[[nodiscard]] size_t							GetSize() const { return size; }
 	void							SetSize(const int64 s, const bool isBaseBlock ) { size = isBaseBlock ? -s : s; }
-	bool							IsBaseBlock() const { return ( size < 0 ); }
+	[[nodiscard]] bool							IsBaseBlock() const { return ( size < 0 ); }
 
 #ifdef DYNAMIC_BLOCK_ALLOC_CHECK
 	int								id[3];
@@ -593,13 +593,13 @@ public:
 	void							Free( type *ptr );
 	const char *					CheckMemory( const type *ptr ) const;
 
-	int								GetNumBaseBlocks() const { return numBaseBlocks; }
-	int								GetBaseBlockMemory() const { return baseBlockMemory; }
-	int								GetNumUsedBlocks() const { return numUsedBlocks; }
-	int								GetUsedBlockMemory() const { return usedBlockMemory; }
-	int								GetNumFreeBlocks() const { return numFreeBlocks; }
-	int								GetFreeBlockMemory() const { return freeBlockMemory; }
-	int								GetNumEmptyBaseBlocks() const;
+									[[nodiscard]] int								GetNumBaseBlocks() const { return numBaseBlocks; }
+									[[nodiscard]] int								GetBaseBlockMemory() const { return baseBlockMemory; }
+									[[nodiscard]] int								GetNumUsedBlocks() const { return numUsedBlocks; }
+									[[nodiscard]] int								GetUsedBlockMemory() const { return usedBlockMemory; }
+									[[nodiscard]] int								GetNumFreeBlocks() const { return numFreeBlocks; }
+									[[nodiscard]] int								GetFreeBlockMemory() const { return freeBlockMemory; }
+									[[nodiscard]] int								GetNumEmptyBaseBlocks() const;
 
 private:
 	idDynamicBlock<type> *			firstBlock;				// first block in list in order of increasing address

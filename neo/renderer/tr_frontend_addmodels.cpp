@@ -1004,7 +1004,7 @@ frameData and vertexCache allocations to support the drawSurfs.
 void R_AddModels() {
 	SCOPED_PROFILE_EVENT( "R_AddModels" );
 
-	tr.viewDef->viewEntitys = R_SortViewEntities( tr.viewDef->viewEntitys );
+	tr.viewDef->viewEntities = R_SortViewEntities( tr.viewDef->viewEntities );
 
 	//-------------------------------------------------
 	// Go through each view entity that is either visible to the view, or to
@@ -1012,13 +1012,13 @@ void R_AddModels() {
 	//-------------------------------------------------
 
 	if ( r_useParallelAddModels.GetBool() ) {
-		for ( viewEntity_t * vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next ) {
+		for ( viewEntity_t * vEntity = tr.viewDef->viewEntities; vEntity != nullptr; vEntity = vEntity->next ) {
 			tr.frontEndJobList->AddJob( (jobRun_t)R_AddSingleModel, vEntity );
 		}
 		tr.frontEndJobList->Submit();
 		tr.frontEndJobList->Wait();
 	} else {
-		for ( viewEntity_t * vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next ) {
+		for ( viewEntity_t * vEntity = tr.viewDef->viewEntities; vEntity != nullptr; vEntity = vEntity->next ) {
 			R_AddSingleModel( vEntity );
 		}
 	}
@@ -1028,7 +1028,7 @@ void R_AddModels() {
 	//-------------------------------------------------
 
 	if ( r_useParallelAddShadows.GetInteger() == 1 ) {
-		for ( viewEntity_t * vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next ) {
+		for ( viewEntity_t * vEntity = tr.viewDef->viewEntities; vEntity != nullptr; vEntity = vEntity->next ) {
 			for ( staticShadowVolumeParms_t * shadowParms = vEntity->staticShadowVolumes; shadowParms != nullptr; shadowParms = shadowParms->next ) {
 				tr.frontEndJobList->AddJob( (jobRun_t)StaticShadowVolumeJob, shadowParms );
 			}
@@ -1044,7 +1044,7 @@ void R_AddModels() {
 	} else {
 		int start = Sys_Microseconds();
 
-		for ( viewEntity_t * vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next ) {
+		for ( viewEntity_t * vEntity = tr.viewDef->viewEntities; vEntity != nullptr; vEntity = vEntity->next ) {
 			for ( staticShadowVolumeParms_t * shadowParms = vEntity->staticShadowVolumes; shadowParms != nullptr; shadowParms = shadowParms->next ) {
 				StaticShadowVolumeJob( shadowParms );
 			}
@@ -1066,7 +1066,7 @@ void R_AddModels() {
 	tr.viewDef->numDrawSurfs = 0;	// clear the ambient surface list
 	tr.viewDef->maxDrawSurfs = 0;	// will be set to INITIAL_DRAWSURFS on R_LinkDrawSurfToView
 
-	for ( viewEntity_t * vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next ) {
+	for ( viewEntity_t * vEntity = tr.viewDef->viewEntities; vEntity != nullptr; vEntity = vEntity->next ) {
 		for ( drawSurf_t * ds = vEntity->drawSurfs; ds != nullptr; ) {
 			drawSurf_t * next = ds->nextOnLight;
 			if ( ds->linkChain == nullptr) {

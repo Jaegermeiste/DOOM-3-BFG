@@ -77,7 +77,7 @@ idMenuWidget_CommandBar::Update
 */
 void idMenuWidget_CommandBar::Update() {
 
-	if ( GetSWFObject() == NULL ) {
+	if ( GetSWFObject() == nullptr) {
 		return;
 	}
 
@@ -115,15 +115,15 @@ void idMenuWidget_CommandBar::Update() {
 		const char * const buttonName = BUTTON_NAMES[ buttonOrder[ i ] ];
 
 		idSWFSpriteInstance * const buttonSprite = GetSprite()->GetScriptObject()->GetSprite( buttonName );
-		if ( buttonSprite == NULL ) {
+		if ( buttonSprite == nullptr) {
 			continue;
 		}
 		idSWFTextInstance * const buttonText = buttonSprite->GetScriptObject()->GetText( "txt_info" );
-		if ( buttonText == NULL ) {
+		if ( buttonText == nullptr) {
 			continue;
 		}
 		idSWFSpriteInstance * const imageSprite = buttonSprite->GetScriptObject()->GetSprite( "img" );
-		if ( imageSprite == NULL ) {
+		if ( imageSprite == nullptr) {
 			continue;
 		}
 

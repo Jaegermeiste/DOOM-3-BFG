@@ -97,12 +97,12 @@ ID_FORCE_INLINE void FlushCacheLine( const void * ptr, int offset ) {
 
 constexpr auto CACHE_LINE_SIZE = 128;
 
-ID_INLINE void Prefetch( const void * ptr, int offset ) {}
+ID_INLINE void Prefetch(const void* ptr, const size_t offset) { [[maybe_unused]] auto cache = static_cast<const byte*>(ptr) + offset; }
 ID_INLINE void ZeroCacheLine( void * ptr, const size_t offset ) {
 	byte * bytePtr = reinterpret_cast<byte*>((reinterpret_cast<UINT_PTR>(ptr) + (offset)) & ~(CACHE_LINE_SIZE - 1));
 	memset( bytePtr, 0, CACHE_LINE_SIZE );
 }
-ID_INLINE void FlushCacheLine( const void * ptr, int offset ) {}
+ID_INLINE void FlushCacheLine( const void * ptr, const size_t offset ) { [[maybe_unused]] auto cache = static_cast<const byte*>(ptr) + offset; }
 
 #endif
 

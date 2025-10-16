@@ -29,18 +29,18 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __IMAGEOPTS_H__
 #define __IMAGEOPTS_H__
 
-enum textureType_t {
+typedef enum textureType_e : uint8 {
 	TT_DISABLED,
 	TT_2D,
 	TT_CUBIC
-};
+} textureType_t;
 
 /*
 ================================================
 The internal *Texture Format Types*, ::textureFormat_t, are:
 ================================================
 */
-enum textureFormat_t {
+typedef enum textureFormat_e : uint8 {
 	FMT_NONE,
 
 	//------------------------
@@ -87,7 +87,7 @@ enum textureFormat_t {
 	FMT_X16,			// 16 bpp
 	FMT_Y16_X16,		// 32 bpp
 	FMT_RGB565,			// 16 bpp
-};
+} textureFormat_t;
 
 int BitsForFormat( textureFormat_t format );
 
@@ -96,12 +96,12 @@ int BitsForFormat( textureFormat_t format );
 DXT5 color formats
 ================================================
 */
-enum textureColor_t {
+typedef enum textureColor_e : uint8 {
 	CFM_DEFAULT,			// RGBA
 	CFM_NORMAL_DXT5,		// XY format and use the fast DXT5 compressor
 	CFM_YCOCG_DXT5,			// convert RGBA to CoCg_Y format
 	CFM_GREEN_ALPHA			// Copy the alpha channel to green
-};
+} textureColor_t;
 
 /*
 ================================================
@@ -121,9 +121,9 @@ public:
 	textureType_t		textureType;
 	textureFormat_t		format;
 	textureColor_t		colorFormat;
-	int					width;
-	int					height;			// not needed for cube maps
-	int					numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
+	size_t				width;
+	size_t				height;			// not needed for cube maps
+	size_t				numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
 	bool				gammaMips;		// if true, mips will be generated with gamma correction
 	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
 };

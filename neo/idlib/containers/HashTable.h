@@ -147,8 +147,8 @@ public:
 	idHashTableT( const idHashTableT & other );
 	~idHashTableT();
 
-	size_t			Allocated() const;
-	size_t			Size() const;
+	[[nodiscard]] size_t			Allocated() const;
+	[[nodiscard]] size_t			Size() const;
 
 	_value_ &		Set( const _key_ & key, const _value_ & value );
 
@@ -160,13 +160,13 @@ public:
 	void			Clear();
 	void			DeleteContents();
 
-	size_t			Num() const;
+	[[nodiscard]] size_t			Num() const;
 	
 	_value_ *		GetIndex( const Ordinal auto index ) const;
 	
 	bool			GetIndexKey( const Ordinal auto index, _key_ & key ) const;
 
-	int				GetSpread() const;
+	[[nodiscard]] int				GetSpread() const;
 
 	idHashTableT &	operator=( const idHashTableT & other );
 
@@ -545,9 +545,9 @@ public:
 					~idHashTable();
 
 					// returns total size of allocated memory
-	size_t			Allocated() const;
+					[[nodiscard]] size_t			Allocated() const;
 					// returns total size of allocated memory including size of hash table type
-	size_t			Size() const;
+					[[nodiscard]] size_t			Size() const;
 
 	void			Set( const char *key, Type &value );
 	bool			Get( const char *key, Type **value = nullptr) const;
@@ -558,11 +558,11 @@ public:
 
 					// the entire contents can be itterated over, but note that the
 					// exact index for a given element may change when new elements are added
-	size_t			Num() const;
+					[[nodiscard]] size_t			Num() const;
 	
 	Type *			GetIndex( Ordinal auto index ) const;
 
-	int				GetSpread() const;
+					[[nodiscard]] int				GetSpread() const;
 
 private:
 	struct hashnode_s {

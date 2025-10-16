@@ -213,8 +213,8 @@ void Sys_SignalClear( signalHandle_t & handle ) {
 Sys_SignalWait
 ========================
 */
-bool Sys_SignalWait( signalHandle_t & handle, const int timeout ) {
-	const DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
+bool Sys_SignalWait( signalHandle_t & handle, const ID_TIME_T timeout ) {
+	const DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : idMath::integer_cast<DWORD>(timeout) );
 	assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
 	return ( result == WAIT_OBJECT_0 );
 }

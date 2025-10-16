@@ -105,8 +105,8 @@ float idPhysics_Player::CmdScale( const usercmd_t &cmd ) const {
 		return 0.0f;
 	}
 
-	total = idMath::Sqrt( (float) forwardmove * forwardmove + rightmove * rightmove + upmove * upmove );
-	scale = (float) playerSpeed * max / ( 127.0f * total );
+	total = idMath::Sqrt( static_cast<float>(forwardmove) * forwardmove + rightmove * rightmove + upmove * upmove );
+	scale = static_cast<float>(playerSpeed) * max / ( 127.0f * total );
 
 	return scale;
 }
@@ -886,7 +886,7 @@ void idPhysics_Player::LadderMove() {
 
 	// up down movement
 	if ( command.buttons & (BUTTON_JUMP|BUTTON_CROUCH) ) {
-		wishvel += -0.5f * gravityNormal * scale * (float)( ( ( command.buttons & BUTTON_JUMP ) ? 127 : 0 ) - ( ( command.buttons & BUTTON_CROUCH ) ? 127 : 0 ) );
+		wishvel += -0.5f * gravityNormal * scale * static_cast<float>(((command.buttons & BUTTON_JUMP) ? 127 : 0) - ((command.buttons & BUTTON_CROUCH) ? 127 : 0));
 	}
 
 	// do strafe friction
@@ -946,7 +946,7 @@ void idPhysics_Player::CorrectAllSolid( trace_t &trace, int contents ) {
 		trace.c.entityNum = ENTITYNUM_WORLD;
 		trace.c.id = 0;
 		trace.c.type = CONTACT_TRMVERTEX;
-		trace.c.material = NULL;
+		trace.c.material = nullptr;
 		trace.c.contents = contents;
 	}
 }
@@ -992,7 +992,7 @@ void idPhysics_Player::CheckGround() {
 	if ( groundTrace.fraction == 1.0f ) {
 		groundPlane = false;
 		walking = false;
-		groundEntityPtr = NULL;
+		groundEntityPtr = nullptr;
 		return;
 	}
 
@@ -1229,13 +1229,13 @@ bool idPhysics_Player::CheckWaterJump() {
 
 	spot = current.origin + 30.0f * flatforward;
 	spot -= 4.0f * gravityNormal;
-	cont = gameLocal.clip.Contents( spot, NULL, mat3_identity, -1, self );
+	cont = gameLocal.clip.Contents( spot, nullptr, mat3_identity, -1, self );
 	if ( !(cont & CONTENTS_SOLID) ) {
 		return false;
 	}
 
 	spot -= 16.0f * gravityNormal;
-	cont = gameLocal.clip.Contents( spot, NULL, mat3_identity, -1, self );
+	cont = gameLocal.clip.Contents( spot, nullptr, mat3_identity, -1, self );
 	if ( cont ) {
 		return false;
 	}
@@ -1268,7 +1268,7 @@ void idPhysics_Player::SetWaterLevel() {
 
 	// check at feet level
 	point = current.origin - ( bounds[0][2] + 1.0f ) * gravityNormal;
-	contents = gameLocal.clip.Contents( point, NULL, mat3_identity, -1, self );
+	contents = gameLocal.clip.Contents( point, nullptr, mat3_identity, -1, self );
 	if ( contents & MASK_WATER ) {
 
 		waterType = contents;
@@ -1276,14 +1276,14 @@ void idPhysics_Player::SetWaterLevel() {
 
 		// check at waist level
 		point = current.origin - ( bounds[1][2] - bounds[0][2] ) * 0.5f * gravityNormal;
-		contents = gameLocal.clip.Contents( point, NULL, mat3_identity, -1, self );
+		contents = gameLocal.clip.Contents( point, nullptr, mat3_identity, -1, self );
 		if ( contents & MASK_WATER ) {
 
 			waterLevel = WATERLEVEL_WAIST;
 
 			// check at head level
 			point = current.origin - ( bounds[1][2] - 1.0f ) * gravityNormal;
-			contents = gameLocal.clip.Contents( point, NULL, mat3_identity, -1, self );
+			contents = gameLocal.clip.Contents( point, nullptr, mat3_identity, -1, self );
 			if ( contents & MASK_WATER ) {
 				waterLevel = WATERLEVEL_HEAD;
 			}
@@ -1494,7 +1494,7 @@ idPhysics_Player::idPhysics_Player
 */
 idPhysics_Player::idPhysics_Player() {
 	debugLevel = false;
-	clipModel = NULL;
+	clipModel = nullptr;
 	clipMask = 0;
 	memset( &current, 0, sizeof( current ) );
 	saved = current;
@@ -1512,7 +1512,7 @@ idPhysics_Player::idPhysics_Player() {
 	walking = false;
 	groundPlane = false;
 	memset( &groundTrace, 0, sizeof( groundTrace ) );
-	groundMaterial = NULL;
+	groundMaterial = nullptr;
 	ladder = false;
 	ladderNormal.Zero();
 	waterLevel = WATERLEVEL_NONE;
@@ -1773,7 +1773,7 @@ bool idPhysics_Player::Interpolate( const float fraction ) {
 	}
 	
 	//current.localOrigin = Lerp( previous.localOrigin, next.localOrigin, fraction );
-	if ( self != NULL && ( self->entityNumber != gameLocal.GetLocalClientNum() ) ) {
+	if ( self != nullptr && ( self->entityNumber != gameLocal.GetLocalClientNum() ) ) {
 		current.velocity = Lerp( previous.velocity, next.velocity, fraction );
 	}
 	//current.pushVelocity = Lerp( previous.pushVelocity, next.pushVelocity, fraction );
@@ -2071,7 +2071,7 @@ bool idPhysics_Player::ClientPusherLocked( bool & justBecameUnlocked ) {
 		idEntity * ent = gameLocal.entities[ contacts[i].entityNum ];
 		if( ent ) {
 			idPhysics * p = ent->GetPhysics();
-			if ( p != NULL ) {
+			if ( p != nullptr) {
 				// Testing IsAtRest seems cleaner but there are edge cases of clients jumping right before a mover starts to move
 				if ( p->IsType( idPhysics_Static::Type ) == false && p->IsType( idPhysics_StaticMulti::Type ) == false ) {
 					hasPhysicsContact = true;
@@ -2124,7 +2124,7 @@ void idPhysics_Player::SetMaster( idEntity *master, const bool orientated ) {
 	}
 	else {
 		if ( masterEntity ) {
-			masterEntity = NULL;
+			masterEntity = nullptr;
 		}
 	}
 }

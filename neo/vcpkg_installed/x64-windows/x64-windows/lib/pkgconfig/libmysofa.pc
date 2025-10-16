@@ -1,0 +1,13 @@
+prefix=${pcfiledir}/../..
+Name: libmysofa
+Description: SOFA file reader for better HRTFs
+Version: 1.3
+Requires: 
+includedir=${prefix}/include
+libdir=${prefix}/lib
+Libs: "-L${libdir}" -lmysofa
+Cflags: "-I${includedir}"
+
+Libs.private: 
+#Requires.private:
+

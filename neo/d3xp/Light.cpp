@@ -45,8 +45,8 @@ const idEventDef EV_Light_SetLightParm( "setLightParm", "df" );
 const idEventDef EV_Light_SetLightParms( "setLightParms", "ffff" );
 const idEventDef EV_Light_SetRadiusXYZ( "setRadiusXYZ", "fff" );
 const idEventDef EV_Light_SetRadius( "setRadius", "f" );
-const idEventDef EV_Light_On( "On", NULL );
-const idEventDef EV_Light_Off( "Off", NULL );
+const idEventDef EV_Light_On( "On", nullptr);
+const idEventDef EV_Light_Off( "Off", nullptr);
 const idEventDef EV_Light_FadeOut( "fadeOutLight", "f" );
 const idEventDef EV_Light_FadeIn( "fadeInLight", "f" );
 
@@ -176,7 +176,7 @@ void idLight::UpdateChangeableSpawnArgs( const idDict *source ) {
 	FreeSoundEmitter( true );
 	gameEdit->ParseSpawnArgsToRefSound( source ? source : &spawnArgs, &refSound );
 	if ( refSound.shader && !refSound.waitfortrigger ) {
-		StartSoundShader( refSound.shader, SND_CHANNEL_ANY, 0, false, NULL );
+		StartSoundShader( refSound.shader, SND_CHANNEL_ANY, 0, false, nullptr);
 	}
 
 	gameEdit->ParseSpawnArgsToRenderLight( source ? source : &spawnArgs, &renderLight );
@@ -202,7 +202,7 @@ idLight::idLight():
 	breakOnTrigger		= false;
 	count				= 0;
 	triggercount		= 0;
-	lightParent			= NULL;
+	lightParent			= nullptr;
 	fadeFrom.Set( 1, 1, 1, 1 );
 	fadeTo.Set( 1, 1, 1, 1 );
 	fadeStart			= 0;
@@ -231,7 +231,7 @@ archives object for save game file
 void idLight::Save( idSaveGame *savefile ) const {
 	savefile->WriteRenderLight( renderLight );
 	
-	savefile->WriteBool( renderLight.prelightModel != NULL );
+	savefile->WriteBool( renderLight.prelightModel != nullptr);
 
 	savefile->WriteVec3( localLightOrigin );
 	savefile->WriteMat3( localLightAxis );
@@ -267,7 +267,7 @@ void idLight::Restore( idRestoreGame *savefile ) {
 
 	savefile->ReadBool( hadPrelightModel );
 	renderLight.prelightModel = renderModelManager->CheckModel( va( "_prelight_%s", name.c_str() ) );
-	if ( ( renderLight.prelightModel == NULL ) && hadPrelightModel ) {
+	if ( ( renderLight.prelightModel == nullptr) && hadPrelightModel ) {
 		assert( 0 );
 		if ( developer.GetBool() ) {
 			// we really want to know if this happens
@@ -332,7 +332,7 @@ void idLight::Spawn() {
 	}
 
 	// make sure the demonic shader is cached
-	if ( spawnArgs.GetString( "mat_demonic", NULL, &demonic_shader ) ) {
+	if ( spawnArgs.GetString( "mat_demonic", nullptr, &demonic_shader ) ) {
 		declManager->FindType( DECL_MATERIAL, demonic_shader );
 	}
 
@@ -349,7 +349,7 @@ void idLight::Spawn() {
 	// the renderer will ignore this value after a light has been moved,
 	// but there may still be a chance to get it wrong if the game moves
 	// a light before the first present, and doesn't clear the prelight
-	renderLight.prelightModel = 0;
+	renderLight.prelightModel = nullptr;
 	if ( name[ 0 ] ) {
 		// this will return 0 if not found
 		renderLight.prelightModel = renderModelManager->CheckModel( va( "_prelight_%s", name.c_str() ) );
@@ -435,7 +435,7 @@ void idLight::SetLightLevel() {
 	idVec3	color;
 	float	intensity;
 
-	intensity = ( float )currentLevel / ( float )levels;
+	intensity = static_cast<float>(currentLevel) / static_cast<float>(levels);
 	color = baseColor * intensity;
 	renderLight.shaderParms[ SHADERPARM_RED ]	= color[ 0 ];
 	renderLight.shaderParms[ SHADERPARM_GREEN ]	= color[ 1 ];
@@ -578,7 +578,7 @@ void idLight::On() {
 	// offset the start time of the shader to sync it to the game time
 	renderLight.shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
 	if ( ( soundWasPlaying || refSound.waitfortrigger ) && refSound.shader ) {
-		StartSoundShader( refSound.shader, SND_CHANNEL_ANY, 0, false, NULL );
+		StartSoundShader( refSound.shader, SND_CHANNEL_ANY, 0, false, nullptr);
 		soundWasPlaying = false;
 	}
 	SetLightLevel();
@@ -671,7 +671,7 @@ void idLight::BecomeBroken( idEntity *activator ) {
 
 	if ( common->IsServer() ) {
 
-		ServerSendEvent( EVENT_BECOMEBROKEN, NULL, true );
+		ServerSendEvent( EVENT_BECOMEBROKEN, nullptr, true );
 
 		if ( spawnArgs.GetString( "def_damage", "", &damageDefName ) ) {
 			idVec3 origin = renderEntity.origin + renderEntity.bounds.GetCenter() * renderEntity.axis;
@@ -692,7 +692,7 @@ void idLight::BecomeBroken( idEntity *activator ) {
 
 	// if the light has a sound, either start the alternate (broken) sound, or stop the sound
 	const char *parm = spawnArgs.GetString( "snd_broken" );
-	if ( refSound.shader || ( parm != NULL && *parm != NULL ) ) {
+	if ( refSound.shader || ( parm != nullptr && *parm != NULL ) ) {
 		StopSound( SND_CHANNEL_ANY, false );
 		const idSoundShader *alternate = refSound.shader ? refSound.shader->GetAltSound() : declManager->FindSound( parm );
 		if ( alternate ) {
@@ -702,7 +702,7 @@ void idLight::BecomeBroken( idEntity *activator ) {
 	}
 
 	parm = spawnArgs.GetString( "mtr_broken" );
-	if ( parm != NULL && *parm != NULL ) {
+	if ( parm != nullptr && *parm != NULL ) {
 		SetShader( parm );
 	}
 
@@ -786,7 +786,7 @@ void idLight::Think() {
 	if ( thinkFlags & TH_THINK ) {
 		if ( fadeEnd > 0 ) {
 			if ( gameLocal.time < fadeEnd ) {
-				color.Lerp( fadeFrom, fadeTo, ( float )( gameLocal.time - fadeStart ) / ( float )( fadeEnd - fadeStart ) );
+				color.Lerp( fadeFrom, fadeTo, static_cast<float>(gameLocal.time - fadeStart) / static_cast<float>(fadeEnd - fadeStart) );
 			} else {
 				color = fadeTo;
 				fadeEnd = 0;
@@ -1015,7 +1015,7 @@ void idLight::Event_SetSoundHandles() {
 
 	for ( i = 0; i < targets.Num(); i++ ) {
 		targetEnt = targets[ i ].GetEntity();
-		if ( targetEnt != NULL && targetEnt->IsType( idLight::Type ) ) {
+		if ( targetEnt != nullptr && targetEnt->IsType( idLight::Type ) ) {
 			idLight	*light = static_cast<idLight*>(targetEnt);
 			light->lightParent = this;
 
@@ -1172,7 +1172,7 @@ bool idLight::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_BECOMEBROKEN: {
-			BecomeBroken( NULL );
+			BecomeBroken(nullptr);
 			return true;
 		}
 		default: {

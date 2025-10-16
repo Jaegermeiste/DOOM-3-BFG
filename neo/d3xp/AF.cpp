@@ -48,8 +48,8 @@ idAF::idAF
 ================
 */
 idAF::idAF() {
-	self = NULL;
-	animator = NULL;
+	self = nullptr;
+	animator = nullptr;
 	modifiedAnim = 0;
 	baseOrigin.Zero();
 	baseAxis.Identity();
@@ -102,7 +102,7 @@ void idAF::Restore( idRestoreGame *savefile ) {
 	savefile->ReadBool( isLoaded );
 	savefile->ReadBool( isActive );
 
-	animator = NULL;
+	animator = nullptr;
 	modifiedAnim = 0;
 
 	if ( self ) {
@@ -370,7 +370,7 @@ int idAF::EntitiesTouchingAF( afTouch_t touchList[ MAX_GENTITIES ] ) const {
 				touchList[ numTouching ].touchedClipModel = cm;
 				touchList[ numTouching ].touchedEnt  = cm->GetEntity();
 				numTouching++;
-				clipModels[j] = NULL;
+				clipModels[j] = nullptr;
 			}
 		}
 	}
@@ -805,7 +805,7 @@ bool idAF::Load( idEntity *ent, const char *fileName ) {
 	self = ent;
 	physicsObj.SetSelf( self );
 
-	if ( animator == NULL ) {
+	if ( animator == nullptr) {
 		gameLocal.Warning( "Couldn't load af '%s' for entity '%s' at (%s): NULL animator\n", name.c_str(), ent->name.c_str(), ent->GetPhysics()->GetOrigin().ToString(0) );
 		return false;
 	}
@@ -826,14 +826,14 @@ bool idAF::Load( idEntity *ent, const char *fileName ) {
 	}
 
 	modelDef = animator->ModelDef();
-	if ( modelDef == NULL || modelDef->GetState() == DS_DEFAULTED ) {
+	if ( modelDef == nullptr || modelDef->GetState() == DS_DEFAULTED ) {
 		gameLocal.Warning( "idAF::Load: articulated figure '%s' for entity '%s' at (%s) has no or defaulted modelDef '%s'",
 							name.c_str(), ent->name.c_str(), ent->GetPhysics()->GetOrigin().ToString(0), modelDef ? modelDef->GetName() : "" );
 		return false;
 	}
 
 	model = animator->ModelHandle();
-	if ( model == NULL || model->IsDefaultModel() ) {
+	if ( model == nullptr || model->IsDefaultModel() ) {
 		gameLocal.Warning( "idAF::Load: articulated figure '%s' for entity '%s' at (%s) has no or defaulted model '%s'",
 							name.c_str(), ent->name.c_str(), ent->GetPhysics()->GetOrigin().ToString(0), model ? model->Name() : "" );
 		return false;
@@ -849,7 +849,7 @@ bool idAF::Load( idEntity *ent, const char *fileName ) {
 
 	// create the animation frame used to setup the articulated figure
 	numJoints = animator->NumJoints();
-	joints = ( idJointMat * )_alloca16( numJoints * sizeof( joints[0] ) );
+	joints = static_cast<idJointMat*>(_alloca16(numJoints * sizeof( joints[0] )));
 	gameEdit->ANIM_CreateAnimFrame( model, animator->GetAnim( modifiedAnim )->MD5Anim( 0 ), numJoints, joints, 1, animator->ModelDef()->GetVisualOffset(), animator->RemoveOrigin() );
 
 	// set all vector positions from model joints
@@ -893,7 +893,7 @@ bool idAF::Load( idEntity *ent, const char *fileName ) {
 		for ( j = 0; j < file->constraints.Num(); j++ ) {
 			// idADConstraint enum is a superset of declADConstraint, so the cast is valid
 			if ( file->constraints[j]->name.Icmp( constraint->GetName() ) == 0 &&
-					(constraintType_t)(file->constraints[j]->type) == constraint->GetType() ) {
+					static_cast<constraintType_t>(file->constraints[j]->type) == constraint->GetType() ) {
 				break;
 			}
 		}
@@ -1072,7 +1072,7 @@ void idAF::SetConstraintPosition( const char *name, const idVec3 &pos ) {
 		return;
 	}
 
-	if ( constraint->GetBody2() != NULL ) {
+	if ( constraint->GetBody2() != nullptr) {
 		gameLocal.Warning( "constraint '%s' does not bind to another entity", name );
 		return;
 	}
@@ -1133,7 +1133,7 @@ void idAF::LoadState( const idDict &args ) {
 	idVec3 origin;
 	idAngles angles;
 
-	kv = args.MatchPrefix( "body ", NULL );
+	kv = args.MatchPrefix( "body ", nullptr);
 	while ( kv ) {
 
 		name = kv->GetKey();
@@ -1180,7 +1180,7 @@ void idAF::AddBindConstraints() {
 	renderOrigin = origin - baseOrigin * renderAxis;
 
 	// parse all the bind constraints
-	for ( kv = args.MatchPrefix( "bindConstraint ", NULL ); kv; kv = args.MatchPrefix( "bindConstraint ", kv ) ) {
+	for ( kv = args.MatchPrefix( "bindConstraint ", nullptr); kv; kv = args.MatchPrefix( "bindConstraint ", kv ) ) {
 		name = kv->GetKey();
 		name.Strip( "bindConstraint " );
 
@@ -1198,13 +1198,13 @@ void idAF::AddBindConstraints() {
 		if ( type.Icmp( "fixed" ) == 0 ) {
 			idAFConstraint_Fixed *c;
 
-			c = new (TAG_PHYSICS_AF) idAFConstraint_Fixed( name, body, NULL );
+			c = new (TAG_PHYSICS_AF) idAFConstraint_Fixed( name, body, nullptr);
 			physicsObj.AddConstraint( c );
 		}
 		else if ( type.Icmp( "ballAndSocket" ) == 0 ) {
 			idAFConstraint_BallAndSocketJoint *c;
 
-			c = new (TAG_PHYSICS_AF) idAFConstraint_BallAndSocketJoint( name, body, NULL );
+			c = new (TAG_PHYSICS_AF) idAFConstraint_BallAndSocketJoint( name, body, nullptr);
 			physicsObj.AddConstraint( c );
 			lexer.ReadToken( &jointName );
 
@@ -1219,7 +1219,7 @@ void idAF::AddBindConstraints() {
 		else if ( type.Icmp( "universal" ) == 0 ) {
 			idAFConstraint_UniversalJoint *c;
 
-			c = new (TAG_PHYSICS_AF) idAFConstraint_UniversalJoint( name, body, NULL );
+			c = new (TAG_PHYSICS_AF) idAFConstraint_UniversalJoint( name, body, nullptr);
 			physicsObj.AddConstraint( c );
 			lexer.ReadToken( &jointName );
 
@@ -1256,7 +1256,7 @@ void idAF::RemoveBindConstraints() {
 	const idDict &args = self->spawnArgs;
 	idStr name;
 
-	kv = args.MatchPrefix( "bindConstraint ", NULL );
+	kv = args.MatchPrefix( "bindConstraint ", nullptr);
 	while ( kv ) {
 		name = kv->GetKey();
 		name.Strip( "bindConstraint " );

@@ -45,17 +45,17 @@ public:
 	[[nodiscard]] const char *		GetName() const { return imgName.c_str(); }
 	void				SetName( const char *_name ) { imgName = _name; }
 
-	void				Load2DFromMemory( int width, int height, const byte * pic_const, int numLevels, textureFormat_t & textureFormat, textureColor_t & colorFormat, bool gammaMips );
-	void				LoadCubeFromMemory( int width, const byte * pics[6], int numLevels, textureFormat_t & textureFormat, bool gammaMips );
+	void				Load2DFromMemory(const size_t width, const size_t height, const byte * pic_const, const size_t numLevels, textureFormat_t & textureFormat, textureColor_t & colorFormat, bool gammaMips );
+	void				LoadCubeFromMemory(const size_t width, const byte * pics[6], const size_t numLevels, textureFormat_t & textureFormat, bool gammaMips );
 
 	ID_TIME_T			LoadFromGeneratedFile( ID_TIME_T sourceFileTime );
 	ID_TIME_T			WriteGeneratedFile( ID_TIME_T sourceFileTime );
 
 	[[nodiscard]] const bimageFile_t &	GetFileHeader() const { return fileData; }
 
-	[[nodiscard]] int					NumImages() const { return images.Num(); }
-	[[nodiscard]] const bimageImage_t &	GetImageHeader( int i ) const { return images[i]; }
-	[[nodiscard]] const byte *			GetImageData( int i ) const { return images[i].data; }
+	[[nodiscard]] size_t NumImages() const { return images.Num(); }
+	[[nodiscard]] const bimageImage_t& GetImageHeader(const Ordinal auto i) const { ORDINAL_CHECK(i, images.Num());  return images[i]; }
+	[[nodiscard]] const byte* GetImageData(const Ordinal auto i) const { ORDINAL_CHECK(i, images.Num()); return images[i].data; }
 	static void			GetGeneratedFileName( idStr & gfn, const char *imageName );
 private:
 	idStr				imgName;			// game path, including extension (except for cube maps), may be an image program
@@ -83,9 +83,9 @@ private:
 				dataSize = 0;
 			}
 		}
-		void Alloc( int size ) {
+		void Alloc( const size_t size ) {
 			Free();
-			dataSize = size;
+			dataSize = idMath::integer_cast<int>(size);
 			data = static_cast<byte*>(Mem_Alloc(size, TAG_CRAP));
 		}
 	};

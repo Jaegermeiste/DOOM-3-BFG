@@ -84,7 +84,7 @@ bool idCinematic::InitFromFile( const char *qpath, bool looping ) {
 idCinematic::AnimationLength
 ==============
 */
-int idCinematic::AnimationLength() {
+ID_TIME_T idCinematic::AnimationLength() {
 	return 0;
 }
 
@@ -93,7 +93,7 @@ int idCinematic::AnimationLength() {
 idCinematic::GetStartTime
 ==============
 */
-int idCinematic::GetStartTime() {
+ID_TIME_T idCinematic::GetStartTime() {
 	return -1;
 }
 
@@ -102,7 +102,7 @@ int idCinematic::GetStartTime() {
 idCinematic::ResetTime
 ==============
 */
-void idCinematic::ResetTime(int milliseconds) {
+void idCinematic::ResetTime(ID_TIME_T milliseconds) {
 }
 
 /*
@@ -110,7 +110,7 @@ void idCinematic::ResetTime(int milliseconds) {
 idCinematic::ImageForTime
 ==============
 */
-cinData_t idCinematic::ImageForTime( int milliseconds ) {
+cinData_t idCinematic::ImageForTime(ID_TIME_T milliseconds ) {
 	cinData_t c;
 	memset( &c, 0, sizeof( c ) );
 	return c;
@@ -163,7 +163,7 @@ bool idSndWindow::InitFromFile( const char *qpath, bool looping ) {
 idSndWindow::ImageForTime
 ==============
 */
-cinData_t idSndWindow::ImageForTime( int milliseconds ) {
+cinData_t idSndWindow::ImageForTime(ID_TIME_T milliseconds ) {
 	return soundSystem->ImageForTime( milliseconds, showWaveform );
 }
 
@@ -172,6 +172,6 @@ cinData_t idSndWindow::ImageForTime( int milliseconds ) {
 idSndWindow::AnimationLength
 ==============
 */
-int idSndWindow::AnimationLength() {
+ID_TIME_T idSndWindow::AnimationLength() {
 	return -1;
 }

@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idJointQuat {
 public:
-	const float *	ToFloatPtr() const { return q.ToFloatPtr(); }
+	[[nodiscard]] const float *	ToFloatPtr() const { return q.ToFloatPtr(); }
 	float *			ToFloatPtr() { return q.ToFloatPtr(); }
 
 	idQuat			q;
@@ -85,9 +85,9 @@ class idJointMat {
 public:
 
 	void			SetRotation( const idMat3 &m );
-	idMat3			GetRotation() const;
+	[[nodiscard]] idMat3			GetRotation() const;
 	void			SetTranslation( const idVec3 &t );
-	idVec3			GetTranslation() const;
+	[[nodiscard]] idVec3			GetTranslation() const;
 
 	idVec3			operator*( const idVec3 &v ) const;							// only rotate
 	idVec3			operator*( const idVec4 &v ) const;							// rotate and translate
@@ -95,8 +95,8 @@ public:
 	idJointMat &	operator*=( const idJointMat &a );							// transform
 	idJointMat &	operator/=( const idJointMat &a );							// untransform
 
-	bool			Compare( const idJointMat &a ) const;						// exact compare, no epsilon
-	bool			Compare( const idJointMat &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idJointMat &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idJointMat &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idJointMat &a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idJointMat &a ) const;					// exact compare, no epsilon
 
@@ -105,12 +105,12 @@ public:
 
 	void			FromMat4( const idMat4 & m );
 
-	idMat3			ToMat3() const;
-	idMat4			ToMat4() const;
-	idVec3			ToVec3() const;
-	const float *	ToFloatPtr() const { return mat; }
+	[[nodiscard]] idMat3			ToMat3() const;
+	[[nodiscard]] idMat4			ToMat4() const;
+	[[nodiscard]] idVec3			ToVec3() const;
+	[[nodiscard]] const float *	ToFloatPtr() const { return mat; }
 	float *			ToFloatPtr() { return mat; }
-	idJointQuat		ToJointQuat() const;
+	[[nodiscard]] idJointQuat		ToJointQuat() const;
 
 	void			Transform( idVec3 &result, const idVec3 &v ) const;
 	void			Rotate( idVec3 &result, const idVec3 &v ) const;

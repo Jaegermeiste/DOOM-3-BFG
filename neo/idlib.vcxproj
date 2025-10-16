@@ -141,6 +141,9 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -348,6 +351,7 @@
     <ClInclude Include="idlib\sys\sys_intrinsics.h" />
     <ClInclude Include="idlib\sys\sys_threading.h" />
     <ClInclude Include="idlib\sys\sys_types.h" />
+    <ClInclude Include="idlib\sys\sys_type_ordinal.hpp" />
     <ClInclude Include="idlib\Thread.h" />
     <ClInclude Include="idlib\Token.h" />
     <ClInclude Include="idlib\BitMsg.h" />

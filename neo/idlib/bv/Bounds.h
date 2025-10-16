@@ -58,37 +58,37 @@ public:
 	idBounds		operator-( const idBounds &a ) const;
 	idBounds &		operator-=( const idBounds &a );
 
-	bool			Compare( const idBounds &a ) const;							// exact compare, no epsilon
-	bool			Compare( const idBounds &a, const float epsilon ) const;	// compare with epsilon
+					[[nodiscard]] bool			Compare( const idBounds &a ) const;							// exact compare, no epsilon
+					[[nodiscard]] bool			Compare( const idBounds &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idBounds &a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idBounds &a ) const;						// exact compare, no epsilon
 
 	void			Clear();									// inside out bounds
 	void			Zero();									// single point at origin
 
-	idVec3			GetCenter() const;						// returns center of bounds
-	float			GetRadius() const;						// returns the radius relative to the bounds origin
-	float			GetRadius( const idVec3 &center ) const;		// returns the radius relative to the given center
-	float			GetVolume() const;						// returns the volume of the bounds
-	bool			IsCleared() const;						// returns true if bounds are inside out
+					[[nodiscard]] idVec3			GetCenter() const;						// returns center of bounds
+					[[nodiscard]] float			GetRadius() const;						// returns the radius relative to the bounds origin
+					[[nodiscard]] float			GetRadius( const idVec3 &center ) const;		// returns the radius relative to the given center
+					[[nodiscard]] float			GetVolume() const;						// returns the volume of the bounds
+					[[nodiscard]] bool			IsCleared() const;						// returns true if bounds are inside out
 
 	bool			AddPoint( const idVec3 &v );					// add the point, returns true if the bounds expanded
 	bool			AddBounds( const idBounds &a );					// add the bounds, returns true if the bounds expanded
-	idBounds		Intersect( const idBounds &a ) const;			// return intersection of this bounds with the given bounds
+					[[nodiscard]] idBounds		Intersect( const idBounds &a ) const;			// return intersection of this bounds with the given bounds
 	idBounds &		IntersectSelf( const idBounds &a );				// intersect this bounds with the given bounds
-	idBounds		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
+					[[nodiscard]] idBounds		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
 	idBounds &		ExpandSelf( const float d );					// expand bounds in all directions with the given value
-	idBounds		Translate( const idVec3 &translation ) const;	// return translated bounds
+					[[nodiscard]] idBounds		Translate( const idVec3 &translation ) const;	// return translated bounds
 	idBounds &		TranslateSelf( const idVec3 &translation );		// translate this bounds
-	idBounds		Rotate( const idMat3 &rotation ) const;			// return rotated bounds
+					[[nodiscard]] idBounds		Rotate( const idMat3 &rotation ) const;			// return rotated bounds
 	idBounds &		RotateSelf( const idMat3 &rotation );			// rotate this bounds
 
-	float			PlaneDistance( const idPlane &plane ) const;
-	int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+					[[nodiscard]] float			PlaneDistance( const idPlane &plane ) const;
+					[[nodiscard]] int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
-	bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
-	bool			IntersectsBounds( const idBounds &a ) const;	// includes touching
-	bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
+					[[nodiscard]] bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
+					[[nodiscard]] bool			IntersectsBounds( const idBounds &a ) const;	// includes touching
+					[[nodiscard]] bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
 					// intersection point is start + dir * scale
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale ) const;
 
@@ -104,14 +104,14 @@ public:
 	void			FromBoundsRotation( const idBounds &bounds, const idVec3 &origin, const idMat3 &axis, const idRotation &rotation );
 
 	void			ToPoints( idVec3 points[8] ) const;
-	idSphere		ToSphere() const;
+					[[nodiscard]] idSphere		ToSphere() const;
 
 	void			AxisProjection( const idVec3 &dir, float &min, float &max ) const;
 	void			AxisProjection( const idVec3 &origin, const idMat3 &axis, const idVec3 &dir, float &min, float &max ) const;
 
-	int				GetDimension() const;
+					[[nodiscard]] int				GetDimension() const;
 
-	const float *	ToFloatPtr() const;
+					[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
 
 private:

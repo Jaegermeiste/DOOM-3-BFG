@@ -48,7 +48,7 @@ backEndState_t	backEnd;
 SetVertexParm
 ================
 */
-static ID_INLINE void SetVertexParm( renderParm_t rp, const float * value ) {
+static ID_INLINE void SetVertexParm(const renderParm_t rp, const float * value ) {
 	renderProgManager.SetUniformValue( rp, value );
 }
 
@@ -57,8 +57,8 @@ static ID_INLINE void SetVertexParm( renderParm_t rp, const float * value ) {
 SetVertexParms
 ================
 */
-static ID_INLINE void SetVertexParms( renderParm_t rp, const float * value, int num ) {
-	for ( int i = 0; i < num; i++ ) {
+static ID_INLINE void SetVertexParms(const renderParm_t rp, const float * value, const size_t num ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		renderProgManager.SetUniformValue( static_cast<renderParm_t>(rp + i), value + ( i * 4 ) );
 	}
 }
@@ -68,7 +68,7 @@ static ID_INLINE void SetVertexParms( renderParm_t rp, const float * value, int 
 SetFragmentParm
 ================
 */
-static ID_INLINE void SetFragmentParm( renderParm_t rp, const float * value ) {
+static ID_INLINE void SetFragmentParm(const renderParm_t rp, const float * value ) {
 	renderProgManager.SetUniformValue( rp, value );
 }
 
@@ -102,7 +102,7 @@ static constexpr float negOne[4] = { -1, -1, -1, -1 };
 RB_SetVertexColorParms
 ================
 */
-static void RB_SetVertexColorParms( stageVertexColor_t svc ) {
+static void RB_SetVertexColorParms(const stageVertexColor_t svc ) {
 	switch ( svc ) {
 		case SVC_IGNORE:
 			SetVertexParm( RENDERPARM_VERTEXCOLOR_MODULATE, zero );
@@ -182,14 +182,14 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 
 	renderProgManager.CommitUniforms();
 
-	if ( backEnd.glState.currentIndexBuffer != (GLuint)indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() ) {
-		qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, (GLuint)indexBuffer->GetAPIObject() );
-		backEnd.glState.currentIndexBuffer = (GLuint)indexBuffer->GetAPIObject();
+	if ( backEnd.glState.currentIndexBuffer != reinterpret_cast<GLuint>(indexBuffer->GetAPIObject()) || !r_useStateCaching.GetBool() ) {
+		qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, reinterpret_cast<GLuint>(indexBuffer->GetAPIObject()) );
+		backEnd.glState.currentIndexBuffer = reinterpret_cast<GLuint>(indexBuffer->GetAPIObject());
 	}
 
-	if ( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.glState.currentVertexBuffer != (GLuint)vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() ) {
-		qglBindBufferARB( GL_ARRAY_BUFFER_ARB, (GLuint)vertexBuffer->GetAPIObject() );
-		backEnd.glState.currentVertexBuffer = (GLuint)vertexBuffer->GetAPIObject();
+	if ( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.glState.currentVertexBuffer != reinterpret_cast<GLuint>(vertexBuffer->GetAPIObject()) ) || !r_useStateCaching.GetBool() ) {
+		qglBindBufferARB( GL_ARRAY_BUFFER_ARB, reinterpret_cast<GLuint>(vertexBuffer->GetAPIObject()) );
+		backEnd.glState.currentVertexBuffer = reinterpret_cast<GLuint>(vertexBuffer->GetAPIObject());
 
 		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
 		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
@@ -199,11 +199,11 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 
 		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), static_cast<void*>(nullptr) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_NORMAL_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_COLOR_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_COLOR2_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_ST_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), (void *)( DRAWVERT_TANGENT_OFFSET ) );
+		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), reinterpret_cast<void*>(DRAWVERT_NORMAL_OFFSET) );
+		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), reinterpret_cast<void*>(DRAWVERT_COLOR_OFFSET) );
+		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), reinterpret_cast<void*>(DRAWVERT_COLOR2_OFFSET) );
+		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), reinterpret_cast<void*>(DRAWVERT_ST_OFFSET) );
+		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), reinterpret_cast<void*>(DRAWVERT_TANGENT_OFFSET) );
 
 		backEnd.glState.vertexLayout = LAYOUT_DRAW_VERT;
 	}
@@ -211,7 +211,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 	qglDrawElementsBaseVertex( GL_TRIANGLES, 
 							  r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
 							  GL_INDEX_TYPE,
-							  (triIndex_t *)indexOffset,
+							  reinterpret_cast<triIndex_t*>(indexOffset),
 							  vertOffset / sizeof ( idDrawVert ) );
 							  
 
@@ -236,10 +236,10 @@ static void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textu
 	// we attempt to keep scrolls from generating incredibly large texture values, but
 	// center rotations and center scales can still generate offsets that need to be > 1
 	if ( matrix[3*4+0] < -40.0f || matrix[12] > 40.0f ) {
-		matrix[3*4+0] -= static_cast<int>(matrix[3 * 4 + 0]);
+		matrix[3*4+0] -= idMath::integer_cast<int>(matrix[3 * 4 + 0]);
 	}
 	if ( matrix[13] < -40.0f || matrix[13] > 40.0f ) {
-		matrix[13] -= static_cast<int>(matrix[13]);
+		matrix[13] -= idMath::integer_cast<int>(matrix[13]);
 	}
 
 	matrix[0*4+2] = 0.0f;
@@ -292,8 +292,8 @@ RB_BakeTextureMatrixIntoTexgen
 =====================
 */
 static void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float *textureMatrix ) {
-	float genMatrix[16];
-	float final[16];
+	float genMatrix[16] = {};
+	float final[16] = {};
 
 	genMatrix[0*4+0] = lightProject[0][0];
 	genMatrix[1*4+0] = lightProject[0][1];
@@ -337,7 +337,7 @@ Handles generating a cinematic frame if needed
 */
 static void RB_BindVariableStageImage( const textureStage_t *texture, const float *shaderRegisters ) {
 	if ( texture->cinematic ) {
-		cinData_t cin;
+		cinData_t cin = {};
 
 		if ( r_skipDynamicTextures.GetBool() ) {
 			globalImages->defaultImage->Bind();
@@ -419,10 +419,10 @@ static void RB_PrepareStageTexturing( const shaderStage_t * pStage,  const drawS
 		float wobbleSpeed = surf->shaderRegisters[ parms[1] ] * ( 2.0f * idMath::PI / 60.0f );
 		float rotateSpeed = surf->shaderRegisters[ parms[2] ] * ( 2.0f * idMath::PI / 60.0f );
 
-		idVec3 axis[3];
+		idVec3 axis[3] = {};
 		{
 			// very ad-hoc "wobble" transform
-			float s, c;
+			float s = 0.0f, c = 0.0f;
 			idMath::SinCos( wobbleSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, s, c );
 
 			float ws, wc;
@@ -445,7 +445,7 @@ static void RB_PrepareStageTexturing( const shaderStage_t * pStage,  const drawS
 		}
 
 		// add the rotate
-		float rs, rc;
+		float rs = 0.0f, rc = 0.0f;
 		idMath::SinCos( rotateSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, rs, rc );
 
 		float transform[12];
@@ -562,8 +562,8 @@ DEPTH BUFFER RENDERING
 RB_FillDepthBufferGeneric
 ==================
 */
-static void RB_FillDepthBufferGeneric( const drawSurf_t * const * drawSurfs, int numDrawSurfs ) {
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+static void RB_FillDepthBufferGeneric( const drawSurf_t * const * drawSurfs, const size_t numDrawSurfs ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		const drawSurf_t * drawSurf = drawSurfs[i];
 		const idMaterial * shader = drawSurf->material;
 
@@ -577,7 +577,7 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t * const * drawSurfs, int
 		const float * regs = drawSurf->shaderRegisters;
 
 		// if all stages of a material have been conditioned off, don't do anything
-		int stage = 0;
+		size_t stage = 0;
 		for ( ; stage < shader->GetNumStages(); stage++ ) {		
 			const shaderStage_t * pStage = shader->GetStage( stage );
 			// check the stage enable condition
@@ -605,7 +605,7 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t * const * drawSurfs, int
 		}
 
 		// subviews will just down-modulate the color buffer
-		float color[4];
+		float color[4] = {};
 		if ( shader->GetSort() == SS_SUBVIEW ) {
 			surfGLState |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS;
 			color[0] = 1.0f;
@@ -711,7 +711,7 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t * const * drawSurfs, int
 
 		// draw the entire surface solid
 		if ( drawSolid ) {
-			if ( shader->GetSort() == SS_SUBVIEW ) {
+			if ( std::cmp_equal(shader->GetSort(), SS_SUBVIEW) ) {
 				renderProgManager.BindShader_Color();
 				GL_Color( color );
 				GL_State( surfGLState );
@@ -757,13 +757,13 @@ If there are no subview surfaces, we could clear to black and use fast-Z renderi
 on the 360.
 =====================
 */
-static void RB_FillDepthBufferFast( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_FillDepthBufferFast( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	if ( numDrawSurfs == 0 ) {
 		return;
 	}
 
 	// if we are just doing 2D rendering, no need to fill the depth buffer
-	if ( backEnd.viewDef->viewEntitys == nullptr) {
+	if ( backEnd.viewDef->viewEntities == nullptr) {
 		return;
 	}
 
@@ -779,7 +779,7 @@ static void RB_FillDepthBufferFast( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	// with the general purpose path
 	GL_State( GLS_DEFAULT );
 
-	int	surfNum;
+	size_t	surfNum = 0;
 	for ( surfNum = 0; surfNum < numDrawSurfs; surfNum++ ) {
 		if ( drawSurfs[surfNum]->material->GetSort() != SS_SUBVIEW ) {
 			break;
@@ -1010,7 +1010,7 @@ RB_RenderInteractions
 With added sorting and trivial path work.
 =============
 */
-static void RB_RenderInteractions( const drawSurf_t *surfList, const viewLight_t * vLight, int depthFunc, bool performStencilTest, bool useLightDepthBounds ) {
+static void RB_RenderInteractions( const drawSurf_t *surfList, const viewLight_t * vLight, const int depthFunc, const bool performStencilTest, const bool useLightDepthBounds ) {
 	if ( surfList == nullptr) {
 		return;
 	}
@@ -1110,7 +1110,7 @@ static void RB_RenderInteractions( const drawSurf_t *surfList, const viewLight_t
 		lightStage->texture.image->Bind();
 
 		// force the light textures to not use anisotropic filtering, which is wasted on them
-		// all of the texture sampler parms should be constant for all interactions, only
+		// all the texture sampler parms should be constant for all interactions, only
 		// the actual texture image bindings will change
 
 		//----------------------------------
@@ -1817,7 +1817,7 @@ be multiplied by guiEye for polarity and screenSeparation for scale.
 static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, const int numDrawSurfs, 
 									const float guiStereoScreenOffset, const int stereoEye ) {
 	// only obey skipAmbient if we are rendering a view
-	if ( backEnd.viewDef->viewEntitys && r_skipAmbient.GetBool() ) {
+	if ( backEnd.viewDef->viewEntities && r_skipAmbient.GetBool() ) {
 		return numDrawSurfs;
 	}
 
@@ -2561,7 +2561,7 @@ void RB_DrawViewInternal( const viewDef_t * viewDef, const int stereoEye ) {
 	if ( !r_skipShaderPasses.GetBool() ) {
 		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES );
 		float guiScreenOffset;
-		if ( viewDef->viewEntitys != nullptr) {
+		if ( viewDef->viewEntities != nullptr) {
 			// guiScreenOffset will be 0 in non-gui views
 			guiScreenOffset = 0.0f;
 		} else {
@@ -2643,7 +2643,7 @@ Experimental feature
 ==================
 */
 void RB_MotionBlur() {
-	if ( !backEnd.viewDef->viewEntitys ) {
+	if ( !backEnd.viewDef->viewEntities ) {
 		// 3D views only
 		return;
 	}
@@ -2761,14 +2761,14 @@ void RB_DrawView( const void *data, const int stereoEye ) {
 
 	// skip render bypasses everything that has models, assuming
 	// them to be 3D views, but leaves 2D rendering visible
-	if ( r_skipRender.GetBool() && backEnd.viewDef->viewEntitys ) {
+	if ( r_skipRender.GetBool() && backEnd.viewDef->viewEntities ) {
 		return;
 	}
 
 	// skip render context sets the wgl context to NULL,
 	// which should factor out the API cost, under the assumption
 	// that all gl calls just return if the context isn't valid
-	if ( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys ) {
+	if ( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntities ) {
 		GLimp_DeactivateContext();
 	}
 
@@ -2782,7 +2782,7 @@ void RB_DrawView( const void *data, const int stereoEye ) {
 	RB_MotionBlur();
 
 	// restore the context for 2D drawing if we were stubbing it out
-	if ( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys ) {
+	if ( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntities ) {
 		GLimp_ActivateContext();
 		GL_SetDefaultState();
 	}

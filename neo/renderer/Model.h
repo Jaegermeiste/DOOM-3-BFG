@@ -58,7 +58,7 @@ struct dominantTri_t {
 constexpr int SHADOW_CAP_INFINITE	= 64;
 
 class idRenderModelStatic;
-struct viewDef_t;
+struct viewDef_s;
 
 // our only drawing geometry type
 struct srfTriangles_t {
@@ -228,13 +228,13 @@ public:
 	[[nodiscard]] virtual size_t				NumBaseSurfaces() const = 0;
 
 	// get a pointer to a surface
-	[[nodiscard]] virtual const modelSurface_t *Surface( size_t surfaceNum ) const = 0;
+	[[nodiscard]] virtual const modelSurface_t *Surface( const size_t surfaceNum ) const = 0;
 
 	// Allocates surface triangles.
 	// Allocates memory for srfTriangles_t::verts and srfTriangles_t::indexes
 	// The allocated memory is not initialized.
 	// srfTriangles_t::numVerts and srfTriangles_t::numIndexes are set to zero.
-	[[nodiscard]] virtual srfTriangles_t *	AllocSurfaceTriangles(size_t numVerts, size_t numIndexes ) const = 0;
+	[[nodiscard]] virtual srfTriangles_t *	AllocSurfaceTriangles(const size_t numVerts, const size_t numIndexes ) const = 0;
 
 	// Frees surfaces triangles.
 	virtual void				FreeSurfaceTriangles( srfTriangles_t *tris ) const = 0;
@@ -254,7 +254,7 @@ public:
 
 	// dynamic models should return a fast, conservative approximation
 	// static models should usually return the exact value
-	virtual idBounds			Bounds( const struct renderEntity_s *ent = nullptr) const = 0;
+	virtual idBounds			Bounds( const renderEntity_t *ent = nullptr) const = 0;
 
 	// returns value != 0.0f if the model requires the depth hack
 	[[nodiscard]] virtual float				DepthHack() const = 0;
@@ -266,7 +266,7 @@ public:
 	// The renderer will delete the returned dynamic model the next view
 	// This isn't const, because it may need to reload a purged model if it
 	// wasn't precached correctly.
-	virtual idRenderModel *		InstantiateDynamicModel( const struct renderEntity_s *ent, const viewDef_t *view, idRenderModel *cachedModel ) = 0;
+	virtual idRenderModel *		InstantiateDynamicModel( const renderEntity_t *ent, const viewDef_s *view, idRenderModel *cachedModel ) = 0;
 
 	// Returns the number of joints or 0 if the model is not an MD5
 	[[nodiscard]] virtual size_t				NumJoints() const = 0;

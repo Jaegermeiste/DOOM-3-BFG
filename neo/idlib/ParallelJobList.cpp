@@ -177,10 +177,10 @@ public:
 	void					Submit( idParallelJobList_Threads * waitForJobList_, jobListParallelism_t parallelism );
 	void					Wait();
 	bool					TryWait();
-	bool					IsSubmitted() const;
+							[[nodiscard]] bool					IsSubmitted() const;
 
-	size_t	        		GetNumExecutedJobs() const { return threadStats.numExecutedJobs; }
-	size_t      			GetNumSyncs() const { return threadStats.numExecutedSyncs; }
+							[[nodiscard]] size_t	        		GetNumExecutedJobs() const { return threadStats.numExecutedJobs; }
+							[[nodiscard]] size_t      			GetNumSyncs() const { return threadStats.numExecutedSyncs; }
 	ID_TIME_T				GetSubmitTimeMicroSec() const { return threadStats.submitTime; }
 	ID_TIME_T				GetStartTimeMicroSec() const { return threadStats.startTime; }
 	ID_TIME_T				GetFinishTimeMicroSec() const { return threadStats.endTime; }
@@ -192,11 +192,11 @@ public:
 	
 	ID_TIME_T				GetUnitWastedTimeMicroSec(Ordinal auto unit ) const;
 
-	jobListId_t				GetId() const { return listId; }
-	jobListPriority_t		GetPriority() const { return listPriority; }
-	int64					GetVersion() const { return version.GetValue(); }
+							[[nodiscard]] jobListId_t				GetId() const { return listId; }
+							[[nodiscard]] jobListPriority_t		GetPriority() const { return listPriority; }
+							[[nodiscard]] int64					GetVersion() const { return version.GetValue(); }
 
-	bool					WaitForOtherJobList() const;
+							[[nodiscard]] bool					WaitForOtherJobList() const;
 
 	//------------------------
 	// This is thread safe and called from the job threads.

@@ -140,26 +140,26 @@ dword	PackColor( const idVec4 &color );
 void	UnpackColor( const dword color, idVec4 &unpackedColor );
 
 // little/big endian conversion
-short	        BigShort( short l );
-short	        LittleShort( short l );
-unsigned short	BigUShort( unsigned short l );
-unsigned short	LittleUShort( unsigned short l );
-int		        BigLong( int l );
-int		        LittleLong( int l );
-unsigned int	BigULong( unsigned int l );
-unsigned int	LittleULong( unsigned int l );
-int64	        BigLongLong( int64 l );
-int64	        LittleLongLong( int64 l );
-uint64	        BigULongLong( uint64 l );
-uint64	        LittleULongLong( uint64 l );
-float	        BigFloat( float l );
-float	        LittleFloat( float l );
-void	        BigRevBytes( void *bp, int elsize, int elcount );
-void	        LittleRevBytes( void *bp, int elsize, int elcount );
-void	        LittleBitField( void *bp, int elsize );
-void	        Swap_Init();
+short	         BigShort( short l );
+short	         LittleShort( short l );
+unsigned short	 BigUShort( unsigned short l );
+unsigned short	 LittleUShort( unsigned short l );
+int		         BigLong( int l );
+int		         LittleLong( int l );
+unsigned int	 BigULong( unsigned int l );
+unsigned int	 LittleULong( unsigned int l );
+__int64	         BigLongLong( __int64 l );
+__int64	         LittleLongLong( __int64 l );
+unsigned __int64 BigULongLong( unsigned __int64 l );
+unsigned __int64 LittleULongLong( unsigned __int64 l );
+float	         BigFloat( float l );
+float	         LittleFloat( float l );
+void	         BigRevBytes( void *bp, int elsize, int elcount );
+void	         LittleRevBytes( void *bp, int elsize, int elcount );
+void	         LittleBitField( void *bp, int elsize );
+void	         Swap_Init();
 
-bool	        Swap_IsBigEndian();
+bool	         Swap_IsBigEndian();
 
 // for base64
 void	SixtetsForInt( byte *out, int src);

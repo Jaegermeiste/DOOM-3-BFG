@@ -345,19 +345,19 @@ idClipModel::Init
 */
 void idClipModel::Init() {
 	enabled = true;
-	entity = NULL;
+	entity = nullptr;
 	id = 0;
-	owner = NULL;
+	owner = nullptr;
 	origin.Zero();
 	axis.Identity();
 	bounds.Zero();
 	absBounds.Zero();
-	material = NULL;
+	material = nullptr;
 	contents = CONTENTS_BODY;
 	collisionModelHandle = 0;
 	renderModelHandle = -1;
 	traceModelIndex = -1;
-	clipLinks = NULL;
+	clipLinks = nullptr;
 	touchCount = -1;
 }
 
@@ -433,7 +433,7 @@ idClipModel::idClipModel( const idClipModel *model ) {
 		LoadModel( *GetCachedTraceModel( model->traceModelIndex ) );
 	}
 	renderModelHandle = model->renderModelHandle;
-	clipLinks = NULL;
+	clipLinks = nullptr;
 	touchCount = -1;
 }
 
@@ -473,7 +473,7 @@ void idClipModel::Save( idSaveGame *savefile ) const {
 	}
 	savefile->WriteInt( traceModelIndex );
 	savefile->WriteInt( renderModelHandle );
-	savefile->WriteBool( clipLinks != NULL );
+	savefile->WriteBool( clipLinks != nullptr);
 	savefile->WriteInt( touchCount );
 }
 
@@ -513,7 +513,7 @@ void idClipModel::Restore( idRestoreGame *savefile ) {
 
 	// the render model will be set when the clip model is linked
 	renderModelHandle = -1;
-	clipLinks = NULL;
+	clipLinks = nullptr;
 	touchCount = -1;
 
 	if ( linked ) {
@@ -613,7 +613,7 @@ void idClipModel::Link_r( struct clipSector_s *node ) {
 	link->clipModel = this;
 	link->sector = node;
 	link->nextInSector = node->clipLinks;
-	link->prevInSector = NULL;
+	link->prevInSector = nullptr;
 	if ( node->clipLinks ) {
 		node->clipLinks->prevInSector = link;
 	}
@@ -706,7 +706,7 @@ idClip::idClip
 */
 idClip::idClip() {
 	numClipSectors = 0;
-	clipSectors = NULL;
+	clipSectors = nullptr;
 	worldBounds.Zero();
 	numRotations = numTranslations = numMotions = numRenderModelTraces = numContents = numContacts = 0;
 }
@@ -729,7 +729,7 @@ clipSector_t *idClip::CreateClipSectors_r( const int depth, const idBounds &boun
 
 	if ( depth == MAX_SECTOR_DEPTH ) {
 		anode->axis = -1;
-		anode->children[0] = anode->children[1] = NULL;
+		anode->children[0] = anode->children[1] = nullptr;
 
 		for ( i = 0; i < 3; i++ ) {
 			if ( bounds[1][i] - bounds[0][i] > maxSector[i] ) {
@@ -799,7 +799,7 @@ idClip::Shutdown
 */
 void idClip::Shutdown() {
 	delete[] clipSectors;
-	clipSectors = NULL;
+	clipSectors = nullptr;
 
 	// free the trace model used for the temporaryClipModel
 	if ( temporaryClipModel.traceModelIndex != -1 ) {
@@ -966,7 +966,7 @@ int idClip::GetTraceClipModels( const idBounds &bounds, int contentMask, const i
 	if ( passEntity->GetPhysics()->GetNumClipModels() > 0 ) {
 		passOwner = passEntity->GetPhysics()->GetClipModel()->GetOwner();
 	} else {
-		passOwner = NULL;
+		passOwner = nullptr;
 	}
 
 	for ( i = 0; i < num; i++ ) {
@@ -975,14 +975,14 @@ int idClip::GetTraceClipModels( const idBounds &bounds, int contentMask, const i
 
 		// check if we should ignore this entity
 		if ( cm->entity == passEntity ) {
-			clipModelList[i] = NULL;			// don't clip against the pass entity
+			clipModelList[i] = nullptr;			// don't clip against the pass entity
 		} else if ( cm->entity == passOwner ) {
-			clipModelList[i] = NULL;			// missiles don't clip with their owner
+			clipModelList[i] = nullptr;			// missiles don't clip with their owner
 		} else if ( cm->owner ) {
 			if ( cm->owner == passEntity ) {
-				clipModelList[i] = NULL;		// don't clip against own missiles
+				clipModelList[i] = nullptr;		// don't clip against own missiles
 			} else if ( cm->owner == passOwner ) {
-				clipModelList[i] = NULL;		// don't clip against other missiles from same owner
+				clipModelList[i] = nullptr;		// don't clip against other missiles from same owner
 			}
 		}
 	}
@@ -1028,7 +1028,7 @@ idClip::TraceModelForClipModel
 */
 const idTraceModel *idClip::TraceModelForClipModel( const idClipModel *mdl ) const {
 	if ( !mdl ) {
-		return NULL;
+		return nullptr;
 	} else {
 		if ( !mdl->IsTraceModel() ) {
 			if ( mdl->GetEntity() ) {
@@ -1047,7 +1047,7 @@ idClip::TestHugeTranslation
 ============
 */
 ID_INLINE bool TestHugeTranslation( trace_t &results, const idClipModel *mdl, const idVec3 &start, const idVec3 &end, const idMat3 &trmAxis ) {
-	if ( mdl != NULL && ( end - start ).LengthSqr() > Square( CM_MAX_TRACE_DIST ) ) {
+	if ( mdl != nullptr && ( end - start ).LengthSqr() > Square( CM_MAX_TRACE_DIST ) ) {
 #ifndef CTF
 		// May be important: This occurs in CTF when a player connects and spawns
 		// in the PVS of a player that has a flag that is spawning the idMoveableItem
@@ -1296,7 +1296,7 @@ bool idClip::Motion( trace_t &results, const idVec3 &start, const idVec3 &end, c
 		return true;
 	}
 
-	if ( mdl != NULL && rotation.GetAngle() != 0.0f && rotation.GetVec() != vec3_origin ) {
+	if ( mdl != nullptr && rotation.GetAngle() != 0.0f && rotation.GetVec() != vec3_origin ) {
 		// if no translation
 		if ( start == end ) {
 			// pure rotation
@@ -1635,7 +1635,7 @@ bool idClip::GetModelContactFeature( const contactInfo_t &contact, const idClipM
 	handle = -1;
 	winding.Clear();
 
-	if ( clipModel == NULL ) {
+	if ( clipModel == nullptr) {
 		handle = 0;
 	} else {
 		if ( clipModel->renderModelHandle != -1 ) {

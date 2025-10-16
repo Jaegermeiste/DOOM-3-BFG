@@ -86,7 +86,7 @@ public:
 
 	// Wait returns true if the object is in a signalled state and
 	// returns false if the wait timed out. Wait also clears the signalled
-	// state when the signalled state is reached within the time out period.
+	// state when the signalled state is reached within the time-out period.
 	bool	Wait(const int timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
 
 private:
@@ -137,7 +137,7 @@ public:
 	int64				Sub(const int64 v) { return Sys_InterlockedSub(value, static_cast<interlockedInt_t>(v)); }
 
 	// returns the current value of the integer
-	int64				GetValue() const { return value; }
+						[[nodiscard]] int64				GetValue() const { return value; }
 
 	// sets a new value, Note: this operation is not atomic
 	void				SetValue(const int64 v) { value = static_cast<interlockedInt_t>(v); }
@@ -336,7 +336,7 @@ public:
 
 	virtual			~idSysWorkerThreadGroup();
 
-	size_t			GetNumThreads() const { return threadList.Num(); }
+					[[nodiscard]] size_t			GetNumThreads() const { return threadList.Num(); }
 	threadType &	GetThread( int i ) { return *threadList[i]; }
 
 	void			SignalWorkAndWait();
@@ -437,9 +437,9 @@ class idSysThreadSynchronizer {
 public:
 	static constexpr int	WAIT_INFINITE = -1;
 
-	ID_INLINE	void			SetNumThreads( unsigned int num );
-	ID_INLINE	void			Signal( unsigned int threadNum );
-	ID_INLINE	bool			Synchronize( unsigned int threadNum, int timeout = WAIT_INFINITE );
+	ID_INLINE	void			SetNumThreads( size_t num );
+	ID_INLINE	void			Signal( Ordinal auto threadNum );
+	ID_INLINE	bool			Synchronize( Ordinal auto threadNum, int timeout = WAIT_INFINITE );
 
 private:
 	idList< idSysSignal *, TAG_THREAD >		signals;
@@ -451,15 +451,15 @@ private:
 idSysThreadSynchronizer::SetNumThreads
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const unsigned int num ) {
-	assert( busyCount.GetValue() == signals.Num() );
-	if ( static_cast<int>(num) != signals.Num() ) {
+ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const size_t num ) {
+	assert( std::equal_to<>()(idMath::integer_cast<size_t>(busyCount.GetValue()), signals.Num()) );
+	if ( num != signals.Num() ) {
 		signals.DeleteContents();
-		signals.SetNum( static_cast<int>(num) );
-		for ( unsigned int i = 0; i < num; i++ ) {
+		signals.SetNum( num );
+		for ( size_t i = 0; i < num; i++ ) {
 			signals[i] = new (TAG_THREAD) idSysSignal();
 		}
-		busyCount.SetValue( num );
+		busyCount.SetValue( idMath::integer_cast<int64>(num) );
 		SYS_MEMORYBARRIER;
 	}
 }
@@ -469,11 +469,12 @@ ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const unsigned int num ) {
 idSysThreadSynchronizer::Signal
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum ) {
+ID_INLINE void idSysThreadSynchronizer::Signal( Ordinal auto threadNum ) {
+	ORDINAL_CHECK(threadNum, signals.Num());
 	if ( busyCount.Decrement() == 0 ) {
-		busyCount.SetValue( static_cast<unsigned int>(signals.Num()) );
+		busyCount.SetValue( idMath::integer_cast<int64>(signals.Num()) );
 		SYS_MEMORYBARRIER;
-		for ( int i = 0; i < signals.Num(); i++ ) {
+		for ( size_t i = 0; i < signals.Num(); i++ ) {
 			signals[i]->Raise();
 		}
 	}
@@ -484,7 +485,8 @@ ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum ) {
 idSysThreadSynchronizer::Synchronize
 ========================
 */
-ID_INLINE bool idSysThreadSynchronizer::Synchronize(const unsigned int threadNum, const int timeout ) {
+ID_INLINE bool idSysThreadSynchronizer::Synchronize(const Ordinal auto threadNum, const int timeout ) {
+	ORDINAL_CHECK(threadNum, signals.Num());
 	return signals[threadNum]->Wait( timeout );
 }
 

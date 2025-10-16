@@ -44,11 +44,11 @@ idMenuHandler::idMenuHandler() {
 	nextScreen = -1;
 	transition = -1;
 	platform = 0;
-	gui = NULL;
-	cmdBar = NULL;
+	gui = nullptr;
+	cmdBar = nullptr;
 
 	for ( int index = 0; index < MAX_SCREEN_AREAS; ++index ) {
-		menuScreens[ index ] = NULL;
+		menuScreens[ index ] = nullptr;
 	}
 
 	sounds.SetNum( NUM_GUI_SOUNDS );
@@ -97,11 +97,11 @@ idMenuHandler::GetChildFromIndex
 idMenuWidget * idMenuHandler::GetChildFromIndex( int index ) {
 
 	if ( children.Num() == 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( index > children.Num() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return children[ index ];
@@ -128,7 +128,7 @@ idMenuHandler::GetPlatform
 */
 void idMenuHandler::PlaySound( menuSounds_t type, int channel ) {
 
-	if ( gui == NULL ) {
+	if ( gui == nullptr) {
 		return;
 	}
 
@@ -171,13 +171,13 @@ void idMenuHandler::Cleanup() {
 	children.Clear();
 
 	for ( int index = 0; index < MAX_SCREEN_AREAS; ++index ) {
-		if ( menuScreens[ index ] != NULL ) {
+		if ( menuScreens[ index ] != nullptr) {
 			menuScreens[ index ]->Release();
 		}
 	}
 
 	delete gui;
-	gui = NULL;
+	gui = nullptr;
 }
 
 /*
@@ -195,7 +195,7 @@ idMenuHandler::IsActive
 ================================================
 */
 bool idMenuHandler::IsActive() {
-	if ( gui == NULL ) {
+	if ( gui == nullptr) {
 		return false;
 	}
 
@@ -209,7 +209,7 @@ idMenuHandler::ActivateMenu
 */
 void idMenuHandler::ActivateMenu( bool show ) {
 
-	if ( gui == NULL ) {
+	if ( gui == nullptr) {
 		return;
 	}
 
@@ -226,7 +226,7 @@ void idMenuHandler::ActivateMenu( bool show ) {
 			handler = _handler;
 		}
 		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
-			if ( handler != NULL ) {
+			if ( handler != nullptr) {
 				int screen = parms[0].ToInteger();
 				handler->UpdateMenuDisplay( screen );
 			}
@@ -244,7 +244,7 @@ void idMenuHandler::ActivateMenu( bool show ) {
 			handler = _handler;
 		}
 		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
-			if ( handler != NULL ) {
+			if ( handler != nullptr) {
 				handler->TriggerMenu();
 			}
 
@@ -269,7 +269,7 @@ void idMenuHandler::Update() {
 
 	PumpWidgetActionRepeater();
 
-	if ( gui != NULL && gui->IsActive() ) {
+	if ( gui != nullptr && gui->IsActive() ) {
 		gui->Render( renderSystem, Sys_Milliseconds() );
 	}
 }
@@ -281,7 +281,7 @@ idMenuHandler::UpdateChildren
 */
 void idMenuHandler::UpdateChildren() {
 	for ( int index = 0; index < children.Num(); ++index ) {
-		if ( children[ index ] != NULL ) {
+		if ( children[ index ] != nullptr) {
 			children[index]->Update();
 		}
 	}
@@ -294,7 +294,7 @@ idMenuHandler::UpdateMenuDisplay
 */
 void idMenuHandler::UpdateMenuDisplay( int menu ) {
 	
-	if ( menuScreens[ menu ] != NULL ) {
+	if ( menuScreens[ menu ] != nullptr) {
 		menuScreens[ menu ]->Update();
 	}
 
@@ -309,7 +309,7 @@ idMenuHandler::Update
 */
 bool idMenuHandler::HandleGuiEvent( const sysEvent_t * sev ) {
 
-	if ( gui != NULL && activeScreen != -1 ) {
+	if ( gui != nullptr && activeScreen != -1 ) {
 		return gui->HandleEvent( sev );
 	}
 
@@ -328,7 +328,7 @@ bool idMenuHandler::HandleAction( idWidgetAction & action, const idWidgetEvent &
 
 	switch ( actionType ) {
 		case WIDGET_ACTION_ADJUST_FIELD: {
-			if ( widget != NULL && widget->GetDataSource() != NULL ) {
+			if ( widget != nullptr && widget->GetDataSource() != nullptr) {
 				widget->GetDataSource()->AdjustField( widget->GetDataSourceFieldIndex(), parms[ 0 ].ToInteger() );
 				widget->Update();
 			}
@@ -342,7 +342,7 @@ bool idMenuHandler::HandleAction( idWidgetAction & action, const idWidgetEvent &
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED: {
 			idMenuScreen * const screen = menuScreens[ activeScreen ];
-			if ( screen != NULL ) {
+			if ( screen != nullptr) {
 				idWidgetEvent pressEvent( WIDGET_EVENT_PRESS, 0, event.thisObject, idSWFParmList() );
 				screen->ReceiveEvent( pressEvent );
 			}
@@ -368,7 +368,7 @@ bool idMenuHandler::HandleAction( idWidgetAction & action, const idWidgetEvent &
 
 	if ( !widget->GetHandlerIsParent() ) {
 		for ( int index = 0; index < children.Num(); ++index ) {
-			if ( children[index] != NULL ) {
+			if ( children[index] != nullptr) {
 				if ( children[index]->HandleAction( action, event, widget, forceHandled ) ) {
 					return true;
 				}

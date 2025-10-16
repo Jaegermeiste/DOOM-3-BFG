@@ -53,11 +53,11 @@ class idKeyValue {
 	friend class idDict;
 
 public:
-	const idStr &		GetKey() const { return *key; }
-	const idStr &		GetValue() const { return *value; }
+	[[nodiscard]] const idStr &		GetKey() const { return *key; }
+	[[nodiscard]] const idStr &		GetValue() const { return *value; }
 
-	size_t				Allocated() const { return key->Allocated() + value->Allocated(); }
-	size_t				Size() const { return sizeof( *this ) + key->Size() + value->Size(); }
+	[[nodiscard]] size_t				Allocated() const { return key->Allocated() + value->Allocated(); }
+	[[nodiscard]] size_t				Size() const { return sizeof( *this ) + key->Size() + value->Size(); }
 
 	bool				operator==( const idKeyValue &kv ) const { return ( key == kv.key && value == kv.value ); }
 
@@ -73,7 +73,7 @@ idSort_KeyValue
 */
 class idSort_KeyValue : public idSort_Quick< idKeyValue, idSort_KeyValue > {
 public:
-	int Compare( const idKeyValue & a, const idKeyValue & b ) const { return a.GetKey().Icmp( b.GetKey() ); }
+	[[nodiscard]] int Compare( const idKeyValue & a, const idKeyValue & b ) const { return a.GetKey().Icmp( b.GetKey() ); }
 };
 
 class idDict {
@@ -101,8 +101,8 @@ public:
 						// print the dict
 	void				Print() const;
 
-	size_t				Allocated() const;
-	size_t				Size() const { return sizeof( *this ) + Allocated(); }
+						[[nodiscard]] size_t				Allocated() const;
+						[[nodiscard]] size_t				Size() const { return sizeof( *this ) + Allocated(); }
 
 	void				Set( const char *key, const char *value );
 	void				SetFloat( const char *key, float val );
@@ -142,7 +142,7 @@ public:
 	bool				GetAngles( const char *key, const char *defaultString, idAngles &out ) const;
 	bool				GetMatrix( const char *key, const char *defaultString, idMat3 &out ) const;
 
-	size_t				GetNumKeyVals() const;
+						[[nodiscard]] size_t				GetNumKeyVals() const;
 	
 	const idKeyValue *	GetKeyVal( Ordinal auto index ) const;
 						// returns the key/value pair with the given key
@@ -168,7 +168,7 @@ public:
 	void				Serialize( idSerializer & ser );
 
 						// returns a unique checksum for this dictionary's content
-	int					Checksum() const;
+						[[nodiscard]] int					Checksum() const;
 
 	static void			Init();
 	static void			Shutdown();

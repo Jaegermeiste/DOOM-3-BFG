@@ -48,9 +48,9 @@ public:
 							idVectorSet( const type &mins, const type &maxs, const int boxHashSize, const int initialSize );
 
 							// returns total size of allocated memory
-	size_t					Allocated() const { return idList<type>::Allocated() + hash.Allocated(); }
+							[[nodiscard]] size_t					Allocated() const { return idList<type>::Allocated() + hash.Allocated(); }
 							// returns total size of allocated memory including size of type
-	size_t					Size() const { return sizeof( *this ) + Allocated(); }
+							[[nodiscard]] size_t					Size() const { return sizeof( *this ) + Allocated(); }
 
 	void					Init( const type &mins, const type &maxs, const int boxHashSize, const int initialSize );
 	void					ResizeIndex( const int newSize );
@@ -169,9 +169,9 @@ public:
 							idVectorSubset( const type &mins, const type &maxs, const int boxHashSize, const int initialSize );
 
 							// returns total size of allocated memory
-	size_t					Allocated() const { return idList<type>::Allocated() + hash.Allocated(); }
+							[[nodiscard]] size_t					Allocated() const { return idList<type>::Allocated() + hash.Allocated(); }
 							// returns total size of allocated memory including size of type
-	size_t					Size() const { return sizeof( *this ) + Allocated(); }
+							[[nodiscard]] size_t					Size() const { return sizeof( *this ) + Allocated(); }
 
 	void					Init( const type &mins, const type &maxs, const int boxHashSize, const int initialSize );
 	void					Clear();

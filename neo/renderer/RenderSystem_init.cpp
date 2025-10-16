@@ -318,7 +318,7 @@ void APIENTRY glBindMultiTextureEXT( GLenum texunit, GLenum target, GLuint textu
 R_CheckExtension
 =================
 */
-bool R_CheckExtension( char *name ) {
+bool R_CheckExtension( const char *name ) {
 	if ( !strstr( glConfig.extensions_string, name ) ) {
 		common->Printf( "X..%s not found\n", name );
 		return false;
@@ -1117,17 +1117,17 @@ tiling it into window-sized chunks and rendering each chunk separately
 If ref isn't specified, the full session UpdateScreen will be done.
 ====================
 */
-void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref = nullptr) {
+void R_ReadTiledPixels( const size_t width, const size_t height, byte *buffer, renderView_t *ref = nullptr) {
 	// include extra space for OpenGL padding to word boundaries
-	int sysWidth = renderSystem->GetWidth();
-	int sysHeight = renderSystem->GetHeight();
+	const size_t sysWidth = renderSystem->GetWidth();
+	const size_t sysHeight = renderSystem->GetHeight();
 	byte * temp = static_cast<byte*>(R_StaticAlloc((sysWidth + 3) * sysHeight * 3));
 
 	// disable scissor, so we don't need to adjust all those rects
 	r_useScissor.SetBool( false );
 
-	for ( int xo = 0 ; xo < width ; xo += sysWidth ) {
-		for ( int yo = 0 ; yo < height ; yo += sysHeight ) {
+	for ( size_t xo = 0 ; xo < width ; xo += sysWidth ) {
+		for ( size_t yo = 0 ; yo < height ; yo += sysHeight ) {
 			if ( ref ) {
 				// discard anything currently on the list
 				tr.SwapCommandBuffers(nullptr, nullptr, nullptr, nullptr);
@@ -1145,21 +1145,21 @@ void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref =
 				common->UpdateScreen( captureToImage );
 			}
 
-			int w = sysWidth;
+			size_t w = sysWidth;
 			if ( xo + w > width ) {
 				w = width - xo;
 			}
-			int h = sysHeight;
+			size_t h = sysHeight;
 			if ( yo + h > height ) {
 				h = height - yo;
 			}
 
 			qglReadBuffer( GL_FRONT );
-			qglReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp ); 
+			qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h), GL_RGB, GL_UNSIGNED_BYTE, temp );
 
-			int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
+			const size_t	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
 
-			for ( int y = 0 ; y < h ; y++ ) {
+			for (size_t y = 0 ; y < h ; y++ ) {
 				memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
 					temp + y * row, w * 3 );
 			}
@@ -1182,14 +1182,15 @@ Downsample is the number of steps to mipmap the image before saving it
 If ref == NULL, common->UpdateScreen will be used
 ================== 
 */  
-void idRenderSystemLocal::TakeScreenshot( int width, int height, const char *fileName, int blends, renderView_t *ref ) {
-	byte		*buffer;
-	int			i, j, c, temp;
+void idRenderSystemLocal::TakeScreenshot( const size_t width, const size_t height, const char *fileName, const size_t blends, renderView_t *ref ) {
+	byte		*buffer = nullptr;
+	size_t		i = 0, j = 0, c = 0;
+	byte        temp = 0;
 
 	takingScreenshot = true;
 
-	const int pix = width * height;
-	const int bufferSize = pix * 3 + 18;
+	const size_t pix = width * height;
+	const size_t bufferSize = pix * 3 + 18;
 
 	buffer = static_cast<byte*>(R_StaticAlloc(bufferSize));
 	memset( buffer, 0, bufferSize );
@@ -1207,13 +1208,13 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char *fil
 			R_ReadTiledPixels( width, height, buffer + 18, ref );
 
 			for ( j = 0 ; j < pix*3 ; j++ ) {
-				shortBuffer[j] += buffer[18+j];
+				shortBuffer[j] += buffer[18 + j];
 			}
 		}
 
 		// divide back to bytes
 		for ( i = 0 ; i < pix*3 ; i++ ) {
-			buffer[18+i] = shortBuffer[i] / blends;
+			buffer[18 + i] = shortBuffer[i] / blends;
 		}
 
 		R_StaticFree( shortBuffer );
@@ -1222,15 +1223,15 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char *fil
 
 	// fill in the header (this is vertically flipped, which qglReadPixels emits)
 	buffer[2] = 2;		// uncompressed type
-	buffer[12] = width & 255;
-	buffer[13] = width >> 8;
-	buffer[14] = height & 255;
-	buffer[15] = height >> 8;
+	buffer[12] = idMath::integer_cast<byte>(width & 255);
+	buffer[13] = idMath::integer_cast<byte>(width >> 8);
+	buffer[14] = idMath::integer_cast<byte>(height & 255);
+	buffer[15] = idMath::integer_cast<byte>(height >> 8);
 	buffer[16] = 24;	// pixel size
 
 	// swap rgb to bgr
 	c = 18 + width * height * 3;
-	for (i=18 ; i<c ; i+=3) {
+	for (i=18 ; i < c ; i+=3) {
 		temp = buffer[i];
 		buffer[i] = buffer[i+2];
 		buffer[i+2] = temp;
@@ -1460,16 +1461,16 @@ Saves out env/<basename>_amb_ft.tga, etc
 */  
 void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 	idStr fullname;
-	const char	*baseName;
-	int			i;
+	const char	*baseName = nullptr;
+	int64		i = 0;
 	renderView_t	ref;
 	viewDef_t	primary;
-	int			downSample;
-	char	*extensions[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga", 
+	size_t		downSample = 0;
+	const char	*extensions[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga", 
 		"_pz.tga", "_nz.tga" };
-	int			outSize;
-	byte		*buffers[6];
-	int			width = 0, height = 0;
+	size_t		outSize = 0;
+	byte		*buffers[6] = {};
+	size_t		width = 0, height = 0;
 
 	if ( args.Argc() != 2 && args.Argc() != 3 ) {
 		common->Printf( "USAGE: ambientshot <basename> [size]\n" );
@@ -1479,7 +1480,7 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 
 	downSample = 0;
 	if ( args.Argc() == 3 ) {
-		outSize = atoi( args.Argv( 2 ) );
+		outSize = idStr::AtoI<size_t>( args.Argv( 2 ) );
 	} else {
 		outSize = 32;
 	}
@@ -1509,7 +1510,7 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 	cubeAxis[5][1][0] = 1;
 	cubeAxis[5][2][1] = 1;
 
-	// read all of the images
+	// read all the images
 	for ( i = 0 ; i < 6 ; i++ ) {
 		sprintf( fullname, "env/%s%s", baseName, extensions[i] );
 		common->Printf( "loading %s\n", fullname.c_str() );
@@ -1526,16 +1527,16 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 	}
 
 	// resample with hemispherical blending
-	int	samples = 1000;
 
 	byte	*outBuffer = static_cast<byte*>(_alloca(outSize * outSize * 4));
 
-	for ( int map = 0 ; map < 2 ; map++ ) {
+	for ( size_t map = 0 ; map < 2 ; map++ ) {
 		for ( i = 0 ; i < 6 ; i++ ) {
-			for ( int x = 0 ; x < outSize ; x++ ) {
-				for ( int y = 0 ; y < outSize ; y++ ) {
+			for (size_t x = 0 ; x < outSize ; x++ ) {
+				for (size_t y = 0 ; y < outSize ; y++ ) {
+					size_t samples = 1000;
 					idVec3	dir;
-					float	total[3];
+					float	total[3] = {};
 
 					dir = cubeAxis[i][0] + -( -1 + 2.0*x/(outSize-1) ) * cubeAxis[i][1] + -( -1 + 2.0*y/(outSize-1) ) * cubeAxis[i][2];
 					dir.Normalize();
@@ -1543,12 +1544,12 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 	//samples = 1;
 					float	limit = map ? 0.95 : 0.25;		// small for specular, almost hemisphere for ambient
 
-					for ( int s = 0 ; s < samples ; s++ ) {
+					for (size_t s = 0 ; s < samples ; s++ ) {
 						// pick a random direction vector that is inside the unit sphere but not behind dir,
 						// which is a robust way to evenly sample a hemisphere
 						idVec3	test;
 						while( 1 ) {
-							for ( int j = 0 ; j < 3 ; j++ ) {
+							for (size_t j = 0 ; j < 3 ; j++ ) {
 								test[j] = -1 + 2 * (rand()&0x7fff)/static_cast<float>(0x7fff);
 							}
 							if ( test.Length() > 1.0 ) {
@@ -1559,7 +1560,7 @@ void R_MakeAmbientMap_f( const idCmdArgs &args ) {
 								break;
 							}
 						}
-						byte	result[4];
+						byte	result[4] = {};
 	//test = dir;
 						R_SampleCubeMap( test, width, buffers, result );
 						total[0] += result[0];
@@ -2399,7 +2400,7 @@ bool idRenderSystemLocal::IsFullScreen() const {
 idRenderSystemLocal::GetWidth
 ========================
 */
-int idRenderSystemLocal::GetWidth() const {
+size_t idRenderSystemLocal::GetWidth() const {
 	if ( glConfig.stereo3Dmode == STEREO3D_SIDE_BY_SIDE || glConfig.stereo3Dmode == STEREO3D_SIDE_BY_SIDE_COMPRESSED ) {
 		return glConfig.nativeScreenWidth >> 1;
 	}
@@ -2411,7 +2412,7 @@ int idRenderSystemLocal::GetWidth() const {
 idRenderSystemLocal::GetHeight
 ========================
 */
-int idRenderSystemLocal::GetHeight() const {
+size_t idRenderSystemLocal::GetHeight() const {
 	if ( glConfig.stereo3Dmode == STEREO3D_HDMI_720 ) {
 		return 720;
 	}

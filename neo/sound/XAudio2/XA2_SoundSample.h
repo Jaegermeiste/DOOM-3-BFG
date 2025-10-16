@@ -42,7 +42,7 @@ public:
 	virtual void	 LoadResource();
 
 	void			SetName( const char * n ) { name = n; }
-					[[nodiscard]] const char *	GetName() const { return name; }
+	[[nodiscard]] const char *	GetName() const { return name; }
 	ID_TIME_T		GetTimestamp() const { return timestamp; }
 
 	// turns it into a beep
@@ -51,28 +51,28 @@ public:
 	// frees all data
 	void			FreeData();
 
-					[[nodiscard]] int				LengthInMsec() const { return SamplesToMsec( NumSamples(), SampleRate() ); }
-					[[nodiscard]] int				SampleRate() const { return format.basic.samplesPerSec; }
-					[[nodiscard]] int				NumSamples() const { return playLength; }
-					[[nodiscard]] int				NumChannels() const { return format.basic.numChannels; }
-					[[nodiscard]] int				BufferSize() const { return totalBufferSize; }
+	[[nodiscard]] ID_TIME_T			LengthInMsec() const { return SamplesToMsec( NumSamples(), SampleRate() ); }
+	[[nodiscard]] uint32			SampleRate() const { return format.basic.samplesPerSec; }
+	[[nodiscard]] size_t			NumSamples() const { return playLength; }
+	[[nodiscard]] size_t			NumChannels() const { return idMath::integer_cast<size_t>(format.basic.numChannels); }
+	[[nodiscard]] size_t			BufferSize() const { return totalBufferSize; }
 
-					[[nodiscard]] bool			IsCompressed() const { return ( format.basic.formatTag != idWaveFile::FORMAT_PCM ); }
+	[[nodiscard]] bool			IsCompressed() const { return ( format.basic.formatTag != idWaveFile::FORMAT_PCM ); }
 
-					[[nodiscard]] bool			IsDefault() const { return timestamp == FILE_NOT_FOUND_TIMESTAMP; }
-					[[nodiscard]] bool			IsLoaded() const { return loaded; }
+	[[nodiscard]] bool			IsDefault() const { return timestamp == FILE_NOT_FOUND_TIMESTAMP; }
+	[[nodiscard]] bool			IsLoaded() const { return loaded; }
 
 	void			SetNeverPurge() { neverPurge = true; }
-					[[nodiscard]] bool			GetNeverPurge() const { return neverPurge; }
+	[[nodiscard]] bool			GetNeverPurge() const { return neverPurge; }
 
 	void			SetLevelLoadReferenced() { levelLoadReferenced = true; }
 	void			ResetLevelLoadReferenced() { levelLoadReferenced = false; }
-					[[nodiscard]] bool			GetLevelLoadReferenced() const { return levelLoadReferenced; }
+	[[nodiscard]] bool			GetLevelLoadReferenced() const { return levelLoadReferenced; }
 
-					[[nodiscard]] int				GetLastPlayedTime() const { return lastPlayedTime; }
-	void			SetLastPlayedTime( int t ) { lastPlayedTime = t; }
+	[[nodiscard]] ID_TIME_T		GetLastPlayedTime() const { return lastPlayedTime; }
+	void			SetLastPlayedTime( ID_TIME_T t ) { lastPlayedTime = t; }
 
-					[[nodiscard]] float			GetAmplitude( int timeMS ) const;
+	[[nodiscard]] float			GetAmplitude( ID_TIME_T timeMS ) const;
 
 protected:
 	friend class idSoundHardware_XAudio2;
@@ -88,8 +88,8 @@ protected:
 
 	struct sampleBuffer_t {
 		void * buffer;
-		int bufferSize;
-		int numSamples;
+		size_t bufferSize;
+		size_t numSamples;
 	};
 
 	idStr			name;
@@ -103,11 +103,11 @@ protected:
 
 	uint32			lastPlayedTime;
 
-	int				totalBufferSize;	// total size of all the buffers
+	size_t			totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;
 
-	int				playBegin;
-	int				playLength;
+	ID_TIME_T		playBegin;
+	size_t  		playLength;
 
 	idWaveFile::waveFmt_t	format;
 

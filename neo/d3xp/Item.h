@@ -210,7 +210,7 @@ protected:
 
 	void					Gib( const idVec3 &dir, const char *damageDefName );
 
-	void					Event_DropToFloor();
+	static void					Event_DropToFloor();
 	void					Event_Gib( const char *damageDefName );
 };
 
@@ -227,7 +227,7 @@ public:
 	virtual void			Think(void );
 
 	void					Drop( bool death = false );	// was the drop caused by death of carrier?
-	void					Return( idPlayer * player = NULL );
+	void					Return( idPlayer * player = nullptr);
 	void					Capture();
 
 	virtual void			FreeLightDef();
@@ -266,14 +266,14 @@ private:
 
 	void					Event_TakeFlag( idPlayer * player );
     void					Event_DropFlag( bool death );
-	void					Event_FlagReturn( idPlayer * player = NULL );
+	void					Event_FlagReturn( idPlayer * player = nullptr);
 	void					Event_FlagCapture();
 
 	void					PrivateReturn();
-	function_t *			LoadScript( char * script );
+	function_t *			LoadScript( const char * script ) const;
 
-	void					SpawnNugget( idVec3 pos );
-    void                    UpdateGuis();
+	void					SpawnNugget(const idVec3& pos ) const;
+    static void                    UpdateGuis();
 };
 
 class idMoveablePDAItem : public idMoveableItem {
@@ -295,8 +295,8 @@ class idItemRemover : public idEntity {
 public:
 	CLASS_PROTOTYPE( idItemRemover );
 
-	void					Spawn();
-	void					RemoveItem( idPlayer *player );
+	static void					Spawn();
+	void					RemoveItem( idPlayer *player ) const;
 
 private:
 	void					Event_Trigger( idEntity *activator );
