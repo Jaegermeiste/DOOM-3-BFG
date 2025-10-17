@@ -218,7 +218,8 @@ void idMenuScreen_Shell_Singleplayer::ContinueGame() {
 		if ( sortedSaves[0].damaged ) {
 			class idSWFScriptFunction_ContinueDamaged : public idSWFScriptFunction_RefCounted {
 			public:
-				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+				{
 					common->Dialog().ClearDialog( GDM_CORRUPT_CONTINUE );
 					return idSWFScriptVar();
 				}
@@ -283,7 +284,8 @@ bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction & action, con
 							menuData = _menuData;
 							accept = _accept;
 						}
-						idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+						idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+						{
 							common->Dialog().ClearDialog( GDM_DELETE_AUTOSAVE );
 							if ( accept ) {
 								menuData->SetNextScreen( SHELL_AREA_NEW_GAME, MENU_TRANSITION_SIMPLE );

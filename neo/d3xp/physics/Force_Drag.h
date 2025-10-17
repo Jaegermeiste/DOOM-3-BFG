@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FORCE_DRAG_H__
 #define __FORCE_DRAG_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -43,7 +45,7 @@ public:
 	CLASS_PROTOTYPE( idForce_Drag );
 
 						idForce_Drag();
-	virtual				~idForce_Drag();
+	~idForce_Drag() override;
 						// initialize the drag force
 	void				Init( float damping );
 						// set physics object being dragged
@@ -56,8 +58,8 @@ public:
 	const idVec3		GetDraggedPosition() const;
 
 public: // common force interface
-	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	void		        Evaluate( const ID_TIME_T time ) override;
+	void		        RemovePhysics( const idPhysics *phys ) override;
 
 private:
 

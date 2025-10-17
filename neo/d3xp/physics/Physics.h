@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_H__
 #define __PHYSICS_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -61,7 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#define CONTACT_EPSILON			0.25f				// maximum contact seperation distance
+constexpr auto CONTACT_EPSILON = 0.25f;				// maximum contact separation distance
 
 class idEntity;
 
@@ -78,8 +80,8 @@ class idPhysics : public idClass {
 public:
 	ABSTRACT_PROTOTYPE( idPhysics );
 
-	virtual						~idPhysics();
-	static int					SnapTimeToPhysicsFrame( int t );
+	~idPhysics() override;
+	static ID_TIME_T			SnapTimeToPhysicsFrame( ID_TIME_T t );
 
 	// Must not be virtual
 	void						Save( idSaveGame *savefile ) const;
@@ -92,7 +94,7 @@ public:	// common physics interface
 	virtual void				SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true ) = 0;
 	virtual void				SetClipBox( const idBounds &bounds, float density );
 	virtual idClipModel *		GetClipModel( int id = 0 ) const = 0;
-	virtual int					GetNumClipModels() const = 0;
+	virtual size_t				GetNumClipModels() const = 0;
 								// get/set the mass of a specific clip model or the whole physics object
 	virtual void				SetMass( float mass, int id = -1 ) = 0;
 	virtual float				GetMass( int id = -1 ) const = 0;
@@ -106,16 +108,16 @@ public:	// common physics interface
 	virtual const idBounds &	GetBounds( int id = -1 ) const = 0;
 	virtual const idBounds &	GetAbsBounds( int id = -1 ) const = 0;
 								// evaluate the physics with the given time step, returns true if the object moved
-	virtual bool				Evaluate( int timeStepMSec, int endTimeMSec ) = 0;
+	virtual bool				Evaluate( const ID_TIME_T timeStepMSec, const ID_TIME_T endTimeMSec ) = 0;
 								// Interpolate between the two known snapshots with the given fraction, used for MP clients.
 								// returns true if the object moved.
 	virtual bool				Interpolate( const float fraction ) = 0;
 								// resets the prev and next states to the parameters.
 	virtual void				ResetInterpolationState( const idVec3 & origin, const idMat3 & axis ) = 0;
 								// update the time without moving
-	virtual void				UpdateTime( int endTimeMSec ) = 0;
+	virtual void				UpdateTime( ID_TIME_T endTimeMSec ) = 0;
 								// get the last physics update time
-	virtual int					GetTime() const = 0;
+	virtual ID_TIME_T			GetTime() const = 0;
 								// collision interaction between different physics objects
 	virtual void				GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const = 0;
 	virtual void				ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) = 0;
@@ -123,7 +125,7 @@ public:	// common physics interface
 	virtual void				Activate() = 0;
 	virtual void				PutToRest() = 0;
 	virtual bool				IsAtRest() const = 0;
-	virtual int					GetRestStartTime() const = 0;
+	virtual ID_TIME_T			GetRestStartTime() const = 0;
 	virtual bool				IsPushable() const = 0;
 								// save and restore the physics state
 	virtual void				SaveState() = 0;
@@ -159,27 +161,27 @@ public:	// common physics interface
 	virtual void				LinkClip() = 0;
 								// contacts
 	virtual bool				EvaluateContacts() = 0;
-	virtual int					GetNumContacts() const = 0;
-	virtual const contactInfo_t &GetContact( int num ) const = 0;
+	virtual size_t				GetNumContacts() const = 0;
+	const   contactInfo_t &     GetContact( const Ordinal auto num ) const;
 	virtual void				ClearContacts() = 0;
 	virtual void				AddContactEntity( idEntity *e ) = 0;
 	virtual void 				RemoveContactEntity( idEntity *e ) = 0;
 								// ground contacts
 	virtual bool				HasGroundContacts() const = 0;
-	virtual bool				IsGroundEntity( int entityNum ) const = 0;
-	virtual bool				IsGroundClipModel( int entityNum, int id ) const = 0;
+	        bool				IsGroundEntity( const Ordinal auto entityNum ) const;
+	        bool				IsGroundClipModel( const Ordinal auto entityNum, int id ) const;
 								// set the master entity for objects bound to a master
 	virtual void				SetMaster( idEntity *master, const bool orientated = true ) = 0;
 								// set pushed state	
-	virtual void				SetPushed( int deltaTime ) = 0;
+	virtual void				SetPushed( ID_TIME_T deltaTime ) = 0;
 	virtual const idVec3 &		GetPushedLinearVelocity( const int id = 0 ) const = 0;
 	virtual const idVec3 &		GetPushedAngularVelocity( const int id = 0 ) const = 0;
 								// get blocking info, returns NULL if the object is not blocked
 	virtual const trace_t *		GetBlockingInfo() const = 0;
 	virtual idEntity *			GetBlockingEntity() const = 0;
 								// movement end times in msec for reached events at the end of predefined motion
-	virtual int					GetLinearEndTime() const = 0;
-	virtual int					GetAngularEndTime() const = 0;
+	virtual ID_TIME_T			GetLinearEndTime() const = 0;
+	virtual ID_TIME_T			GetAngularEndTime() const = 0;
 								// networking
 	virtual void				WriteToSnapshot( idBitMsg &msg ) const = 0;
 	virtual void				ReadFromSnapshot( const idBitMsg &msg ) = 0;

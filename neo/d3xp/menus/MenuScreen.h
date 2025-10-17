@@ -151,16 +151,16 @@ class idMenuScreen : public idMenuWidget {
 public:
 
 	idMenuScreen();
-	virtual ~idMenuScreen();
+	~idMenuScreen() override;
 
-	virtual void				Update();
+	void				Update() override;
 	virtual void				UpdateCmds();
 	virtual void				HandleMenu( const mainMenuTransition_t type );
 
 	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
 	virtual void				HideScreen( const mainMenuTransition_t transitionType );
 
-	virtual void				ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void				ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 	virtual void				SetScreenGui( idSWF * gui ) { menuGUI = gui; }
 	
 protected:
@@ -180,12 +180,12 @@ public:
 
 	idMenuScreen_PDA_UserData() {}
 
-	virtual ~idMenuScreen_PDA_UserData() {}
-	virtual void					Initialize( idMenuHandler * data );
-	virtual void					Update();
-	virtual void					ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void					HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool					HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	~idMenuScreen_PDA_UserData() override {}
+	void					Initialize( idMenuHandler * data ) override;
+	void					Update() override;
+	void					ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void					HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool					HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 	idMenuWidget_PDA_UserData *		GetUserData() { return &pdaUserData; }
 	idMenuWidget_PDA_Objective *	GetObjective() { return &pdaObjectiveSimple; }
 	idMenuWidget_PDA_AudioFiles *	GetAudioFiles() { return &pdaAudioFiles; }
@@ -208,15 +208,16 @@ public:
 		scrollEmailInfo( false ) {
 	}
 
-	virtual ~idMenuScreen_PDA_UserEmails() {
+	~idMenuScreen_PDA_UserEmails() override
+	{
 	}
 
-	virtual void					Update();
-	virtual void					Initialize( idMenuHandler * data );
-	virtual void					ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void					HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool					HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
-	virtual void					ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void					Update() override;
+	void					Initialize( idMenuHandler * data ) override;
+	void					ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void					HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool					HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
+	void					ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 	idMenuWidget_PDA_EmailInbox &	GetInbox() { return pdaInbox; }
 	
 	bool							ScrollCorrectList( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget );
@@ -241,14 +242,15 @@ public:
 		activeVideo(nullptr) {
 	}
 
-		virtual ~idMenuScreen_PDA_VideoDisks() {
+	~idMenuScreen_PDA_VideoDisks() override
+	{
 		}
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						ToggleVideoDiskPlay();
 	void						UpdateVideoDetails();
@@ -272,11 +274,12 @@ class idMenuScreen_PDA_Inventory : public idMenuScreen {
 public:
 	idMenuScreen_PDA_Inventory() {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						EquipWeapon();
 	const char *				GetWeaponName( int index );
@@ -298,11 +301,12 @@ public:
 		options(nullptr),
 		helpWidget(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						HandleExitGameBtn();
 	int							GetRootIndex();
@@ -325,11 +329,12 @@ public:
 		options(nullptr),
 		isMpPause( false ) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						HandleExitGameBtn();
 	void						HandleRestartBtn();
@@ -354,11 +359,12 @@ public:
 		doom2Cover(nullptr),
 		doom3Cover(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private: 
 	idMenuWidget_Button *		startButton;
 	idMenuWidget_DynamicList *	options;
@@ -383,11 +389,12 @@ public:
 		doom2Cover(nullptr),
 		doom3Cover(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private: 
 	idMenuWidget_Button *		startButton;
 	idMenuWidget_DynamicList *	options;
@@ -409,11 +416,12 @@ public:
 		btnBack(nullptr),
 		canContinue( false ) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						SetCanContinue( bool valid ) { canContinue = valid; }
 	void						ContinueGame();
@@ -434,11 +442,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *	options;
 	idMenuWidget_Button	*		btnBack;
@@ -471,11 +480,12 @@ public:
 		btnBack(nullptr),
 		creditIndex( 0 ) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						SetupCreditList();
 	void						UpdateCredits();
@@ -497,11 +507,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 private:
 	struct optionData_t {
@@ -548,11 +559,12 @@ public:
 		btnBack(nullptr),
 		nightmareUnlocked( false ) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	bool						nightmareUnlocked;
 	idMenuWidget_DynamicList *	options;
@@ -570,11 +582,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *	options;
 	idMenuWidget_Button	*		btnBack;
@@ -591,11 +604,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *	options;
 	idMenuWidget_Button	*		btnBack;
@@ -613,10 +627,10 @@ public:
 		btnBack(nullptr) {
 		}
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandle = false );
+	void				Initialize( idMenuHandler * data ) override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandle = false ) override;
 	
 	void						UpdateServerList();
 	void						OnServerListReady();
@@ -646,14 +660,14 @@ public:
 		btnPageDwn(nullptr),
 		btnPageUp(nullptr) {
 	}
-		
-	virtual ~idMenuScreen_Shell_Leaderboards();
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	~idMenuScreen_Shell_Leaderboards() override;
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						UpdateLeaderboard( const idLeaderboardCallback * callback );
 	void						PumpLBCache();
@@ -701,11 +715,12 @@ public:
 		txtBlinder(nullptr),
 		bindingsChanged( false ) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						SetBinding( int keyNum );
 	void						UpdateBindingDisplay();
@@ -750,11 +765,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						SetupDevOptions();
 
@@ -775,11 +791,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *	options;
 	idMenuWidget_Button	*		btnBack;
@@ -798,11 +815,12 @@ public:
 		btnDelete(nullptr),
 		saveInfo(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 	
 	void						UpdateSaveEnumerations();
 	void						LoadDamagedGame( int index );
@@ -831,11 +849,12 @@ public:
 		btnDelete(nullptr),
 		saveInfo(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 	saveGameDetailsList_t		GetSortedSaves() const { return sortedSaves; }
 	
 	void						UpdateSaveEnumerations();
@@ -879,18 +898,18 @@ public:
 		idMenuDataSource_GameSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 
 		// retrieves a particular field for reading or updating
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const { return fields[ fieldIndex ]; }
+		idSWFScriptVar		GetField( const int fieldIndex ) const override { return fields[ fieldIndex ]; }
 
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 	private:
 		idStaticList< idSWFScriptVar, MAX_GAME_FIELDS >	fields;
@@ -901,11 +920,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *	options;
 	idMenuDataSource_GameSettings	systemData;
@@ -938,18 +958,18 @@ public:
 		idMenuDataSource_MatchSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 		
 		// retrieves a particular field for reading or updating
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const { return fields[ fieldIndex ]; }
+		idSWFScriptVar		GetField( const int fieldIndex ) const override { return fields[ fieldIndex ]; }
 
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 		bool						MapChanged() { return updateMap; }
 		void						ClearMapChanged() { updateMap = false; } 
@@ -968,11 +988,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *		options;
 	idMenuDataSource_MatchSettings	matchData;
@@ -1004,18 +1025,18 @@ public:
 		idMenuDataSource_ControlSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 
 		// retrieves a particular field for reading or updating
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const { return fields[ fieldIndex ]; }
+		idSWFScriptVar		GetField( const int fieldIndex ) const override { return fields[ fieldIndex ]; }
 
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 	private:
 		idStaticList< idSWFScriptVar, MAX_CONTROL_FIELDS >	fields;
@@ -1026,11 +1047,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *			options;
 	idMenuDataSource_ControlSettings	controlData;
@@ -1066,18 +1088,18 @@ public:
 		idMenuDataSource_GamepadSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 
 		// retrieves a particular field for reading or updating
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const { return fields[ fieldIndex ]; }
+		idSWFScriptVar		GetField( const int fieldIndex ) const override { return fields[ fieldIndex ]; }
 
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 	private:
 		idStaticList< idSWFScriptVar, MAX_GAMEPAD_FIELDS >	fields;
@@ -1088,11 +1110,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *			options;
 	idMenuDataSource_GamepadSettings	gamepadData;
@@ -1122,18 +1145,18 @@ public:
 		idMenuDataSource_LayoutSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 
 		// retrieves a particular field for reading or updating
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const { return fields[ fieldIndex ]; }
+		idSWFScriptVar		GetField( const int fieldIndex ) const override { return fields[ fieldIndex ]; }
 
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 	private:
 		idStaticList< idSWFScriptVar, MAX_LAYOUT_FIELDS >	fields;
@@ -1144,11 +1167,12 @@ public:
 		btnBack(nullptr),
 		options(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						UpdateBindingInfo();
 private:
@@ -1188,19 +1212,19 @@ public:
 		idMenuDataSource_SystemSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 
 		// retrieves a particular field for reading
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const;
+		idSWFScriptVar		GetField( const int fieldIndex ) const override;
 
 		// updates a particular field value
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 		bool						IsRestartRequired() const;
 
@@ -1219,11 +1243,12 @@ public:
 		options(nullptr),
 		btnBack(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 private:
 	idMenuWidget_DynamicList *	options;
@@ -1257,18 +1282,18 @@ public:
 		idMenuDataSource_StereoSettings();
 
 		// loads data
-		virtual void				LoadData();
+		void				LoadData() override;
 
 		// submits data
-		virtual void				CommitData();
+		void				CommitData() override;
 
 		// says whether something changed with the data
-		virtual bool				IsDataChanged() const;
+		bool				IsDataChanged() const override;
 
 		// retrieves a particular field for reading or updating
-		virtual idSWFScriptVar		GetField( const int fieldIndex ) const;
+		idSWFScriptVar		GetField( const int fieldIndex ) const override;
 
-		virtual void				AdjustField( const int fieldIndex, const int adjustAmount );
+		void				AdjustField( const int fieldIndex, const int adjustAmount ) override;
 
 		bool						IsRestartRequired() const;
 
@@ -1283,11 +1308,12 @@ public:
 		leftEyeMat(nullptr),
 		rightEyeMat(nullptr) {
 	}
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 private:
 	idMenuWidget_DynamicList *	options;
 	idMenuDataSource_StereoSettings	stereoData;
@@ -1312,11 +1338,11 @@ public:
 		inParty( false ) {
 	}
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						UpdateOptions();
 	void						UpdateLobby();
@@ -1353,11 +1379,11 @@ public:
 		btnBack(nullptr) {
 	}
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void				HideScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 	void						UpdateLobby();
 	bool						CanKickSelectedPlayer( lobbyUserID_t & luid );
 
@@ -1445,10 +1471,10 @@ public:
 		mpConnection(nullptr) {
 	}
 
-	virtual void			Initialize( idMenuHandler * data );
-	virtual void			Update();
-	virtual void			ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void			HideScreen( const mainMenuTransition_t transitionType );
+	void			Initialize( idMenuHandler * data ) override;
+	void			Update() override;
+	void			ShowScreen( const mainMenuTransition_t transitionType ) override;
+	void			HideScreen( const mainMenuTransition_t transitionType ) override;
 
 	void					UpdateHealthArmor( idPlayer * player );
 	void					UpdateStamina( idPlayer * player );
@@ -1585,10 +1611,10 @@ public:
 
 	}
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	void				ShowScreen( const mainMenuTransition_t transitionType ) override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	virtual void				SetPlayerData( idList< scoreboardInfo_t, TAG_IDLIB_LIST_MENU > data );
 	virtual void				UpdateTeamScores( int r, int b );
@@ -1608,7 +1634,7 @@ protected:
 //*/
 class idMenuScreen_Scoreboard_CTF : public idMenuScreen_Scoreboard {
 public:
-	virtual void				Initialize( idMenuHandler * data );	
+	void				Initialize( idMenuHandler * data ) override;	
 };
 
 //*
@@ -1618,7 +1644,7 @@ public:
 //*/
 class idMenuScreen_Scoreboard_Team : public idMenuScreen_Scoreboard {
 public:
-	virtual void				Initialize( idMenuHandler * data );
+	void				Initialize( idMenuHandler * data ) override;
 };
 
 

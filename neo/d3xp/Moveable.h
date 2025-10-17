@@ -45,24 +45,24 @@ public:
 	CLASS_PROTOTYPE( idMoveable );
 
 							idMoveable();
-							~idMoveable();
+							~idMoveable() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			Hide();
-	virtual void			Show();
+	void			Think() override;
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			Hide() override;
+	void			Show() override;
 
 	bool					AllowStep() const;
 	void					EnableDamage( bool enable, float duration );
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
 	void					SetAttacker( idEntity *ent );
 	const idEntity *		GetAttacker() { return attacker; }
@@ -120,9 +120,9 @@ public:
 	void					Restore( idRestoreGame *savefile );
 
 	void					BarrelThink();
-	virtual void			Think();
-	virtual bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis );
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
+	void			Think() override;
+	bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis ) override;
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
 	
 private:
 	float					radius;					// radius of barrel
@@ -149,7 +149,7 @@ public:
 	CLASS_PROTOTYPE( idExplodingBarrel );
 
 							idExplodingBarrel();
-							~idExplodingBarrel();
+							~idExplodingBarrel() override;
 
 	void					Spawn();
 
@@ -161,15 +161,15 @@ public:
 	void					StartBurning();
 	void					StopBurning();
 
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			Think();
-	virtual void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, 
-								const char *damageDefName, const float damageScale, const int location );
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			Think() override;
+	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, 
+				            const char *damageDefName, const float damageScale, const int location ) override;
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
+	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 	enum {
 		EVENT_EXPLODE = idEntity::EVENT_MAXEVENTS,

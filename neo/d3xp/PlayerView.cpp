@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -476,12 +478,8 @@ void idPlayerView::SingleView( const renderView_t *view, idMenuHandler_HUD * hud
 			health = player->health;
 		}
 		float alpha = health / 100.0f;
-		if ( alpha < 0.0f ) {
-			alpha = 0.0f;
-		}
-		if ( alpha > 1.0f ) {
-			alpha = 1.0f;
-		}
+		alpha = std::max(alpha, 0.0f);
+		alpha = std::min(alpha, 1.0f);
 
 		if ( alpha < 1.0f  ) {
 			renderSystem->SetColor4( ( player->health <= 0.0f ) ? MS2SEC( gameLocal.slow.time ) : lastDamageTime, 1.0f, 1.0f, ( player->health <= 0.0f ) ? 0.0f : alpha );
@@ -516,7 +514,7 @@ idPlayerView::Flash
 flashes the player view with the given color
 =================
 */
-void idPlayerView::Flash(idVec4 color, int time ) {
+void idPlayerView::Flash(idVec4 color, const ID_TIME_T time ) {
 	Fade( idVec4( 0.0f, 0.0f, 0.0f, 0.0f ), time);
 	fadeFromColor = colorWhite;
 }
@@ -529,7 +527,7 @@ used for level transition fades
 assumes: color.w is 0 or 1
 =================
 */
-void idPlayerView::Fade( idVec4 color, int time ) {
+void idPlayerView::Fade( idVec4 color, const ID_TIME_T time ) {
 	SetTimeState ts( player->timeGroup );
 
 	if ( !fadeTime ) {
@@ -726,7 +724,7 @@ idPlayerView::WarpVision
 ===================
 */
 int idPlayerView::AddWarp( idVec3 worldOrigin, float centerx, float centery, float initialRadius, float durationMsec ) {
-	FullscreenFX_Warp *fx = static_cast<FullscreenFX_Warp*>(fxManager->FindFX("warp"));
+	FullscreenFX_Warp *fx = dynamic_cast<FullscreenFX_Warp*>(fxManager->FindFX("warp"));
 
 	if ( fx ) {
 		fx->EnableGrabber( true );
@@ -737,7 +735,7 @@ int idPlayerView::AddWarp( idVec3 worldOrigin, float centerx, float centery, flo
 }
 
 void idPlayerView::FreeWarp( int id ) {
-	FullscreenFX_Warp *fx = static_cast<FullscreenFX_Warp*>(fxManager->FindFX("warp"));
+	FullscreenFX_Warp *fx = dynamic_cast<FullscreenFX_Warp*>(fxManager->FindFX("warp"));
 
 	if ( fx ) {
 		fx->EnableGrabber( false );

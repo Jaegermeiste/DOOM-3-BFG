@@ -82,7 +82,7 @@ void idForce::ClearForceList() {
 idForce::Evaluate
 ================
 */
-void idForce::Evaluate( int time ) {
+void idForce::Evaluate( const ID_TIME_T time ) {
 }
 
 /*

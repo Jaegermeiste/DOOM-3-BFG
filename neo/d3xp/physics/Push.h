@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PUSH_H__
 #define __PUSH_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -37,11 +39,14 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#define PUSHFL_ONLYMOVEABLE			1		// only push moveable entities
-#define PUSHFL_NOGROUNDENTITIES		2		// don't push entities the clip model rests upon
-#define PUSHFL_CLIP					4		// also clip against all non-moveable entities
-#define PUSHFL_CRUSH				8		// kill blocking entities
-#define PUSHFL_APPLYIMPULSE			16		// apply impulse to pushed entities
+enum pushFlag_e : uint8
+{
+	PUSHFL_ONLYMOVEABLE     = 1, // only push moveable entities
+	PUSHFL_NOGROUNDENTITIES = 2, // don't push entities the clip model rests upon
+	PUSHFL_CLIP             = 4, // also clip against all non-moveable entities
+	PUSHFL_CRUSH            = 8, // kill blocking entities
+	PUSHFL_APPLYIMPULSE     = 16		// apply impulse to pushed entities
+};
 
 //#define NEW_PUSH
 
@@ -74,7 +79,7 @@ private:
 		idEntity *	ent;					// pushed entity
 		idAngles	deltaViewAngles;		// actor delta view angles
 	}				pushed[MAX_GENTITIES];	// pushed entities
-	int				numPushed;				// number of pushed entities
+	size_t			numPushed;				// number of pushed entities
 
 	struct pushedGroup_s {
 		idEntity *	ent;
@@ -82,7 +87,7 @@ private:
 		bool		groundContact;
 		bool		test;
 	}				pushedGroup[MAX_GENTITIES];
-	int				pushedGroupSize;
+	size_t			pushedGroupSize;
 
 private:
 	void			SaveEntityPosition( idEntity *ent );
@@ -106,7 +111,7 @@ private:
 												const idVec3 &newOrigin, const idVec3 &move );
 	int				TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel *clipModel, const int flags,
 												const idMat3 &newAxis, const idRotation &rotation );
-	int				DiscardEntities( idEntity *entityList[], int numEntities, int flags, idEntity *pusher );
+	int				DiscardEntities( idEntity *entityList[], size_t numEntities, int flags, idEntity *pusher );
 #endif
 };
 

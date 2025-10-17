@@ -162,8 +162,8 @@ public:
 
 	void				Spawn();
 
-	virtual void		Enable();
-	virtual void		Disable();
+	void		Enable() override;
+	void		Disable() override;
 
 private:
 	float				random;
@@ -270,13 +270,13 @@ public:
 						idTrigger_Touch();
 
 	void				Spawn();
-	virtual void		Think();
+	void		Think() override;
 
 	void				Save( idSaveGame *savefile );
 	void				Restore( idRestoreGame *savefile );
 
-	virtual void		Enable();
-	virtual void		Disable();
+	void		Enable() override;
+	void		Disable() override;
 
 	void				TouchEntities();
 

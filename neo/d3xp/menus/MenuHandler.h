@@ -316,13 +316,14 @@ public:
 		gameComplete( false ),
 		marsRotation(nullptr) {
 	}
-	virtual void			Update();
-	virtual void			ActivateMenu( bool show );
-	virtual void			Initialize( const char * swfFile, idSoundWorld * sw );
-	virtual void			Cleanup();
-	virtual bool			HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
-	virtual idMenuScreen *	GetMenuScreen( int index );
-	virtual bool			HandleGuiEvent( const sysEvent_t * sev );
+
+	void			Update() override;
+	void			ActivateMenu( bool show ) override;
+	void			Initialize( const char * swfFile, idSoundWorld * sw ) override;
+	void			Cleanup() override;
+	bool			HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
+	idMenuScreen *	GetMenuScreen( int index ) override;
+	bool			HandleGuiEvent( const sysEvent_t * sev ) override;
 	
 	void					UpdateSavedGames();
 	void					ShowSmallFrame( bool show );
@@ -340,7 +341,7 @@ public:
 	void					ShowPacifier( const idStr & msg );
 	void					HidePacifier();
 
-	void					SetTimeRemaining( int time ) { timeRemaining = time; }
+	void					SetTimeRemaining( const ID_TIME_T time ) { timeRemaining = time; }
 	int						GetTimeRemaining() { return timeRemaining; }
 	void					SetNewGameType( int type ) { newGameType = type; }
 	int						GetNewGameType() { return newGameType; }
@@ -405,20 +406,21 @@ public:
 		videoPlaying( false ),
 		audioFile(nullptr) {
 	}
-	virtual ~idMenuHandler_PDA();
 
-	virtual void			Update();
-	virtual void			ActivateMenu( bool show );
-	virtual void			TriggerMenu();
-	virtual void			Initialize( const char * swfFile, idSoundWorld * sw );
-	virtual bool			HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
-	virtual idMenuScreen *	GetMenuScreen( int index );
+	~idMenuHandler_PDA() override;
+
+	void			Update() override;
+	void			ActivateMenu( bool show ) override;
+	void			TriggerMenu() override;
+	void			Initialize( const char * swfFile, idSoundWorld * sw ) override;
+	bool			HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
+	idMenuScreen *	GetMenuScreen( int index ) override;
 	void					UpdateAudioLogPlaying( bool playing );
 	void					UdpateVideoPlaying( bool playing );
 	void					ClearVideoPlaying() { videoPlaying = false; }
 	
 	bool					PlayPDAAudioLog( int pdaIndex, int audioIndex );
-	virtual void			Cleanup();
+	void			Cleanup() override;
 
 protected: 
 
@@ -448,10 +450,10 @@ public:
 		radioMessage( false ) {
 	}
 
-	virtual void			Update();
-	virtual void			ActivateMenu( bool show );
-	virtual void			Initialize( const char * swfFile, idSoundWorld * sw );
-	virtual idMenuScreen *	GetMenuScreen( int index );
+	void			Update() override;
+	void			ActivateMenu( bool show ) override;
+	void			Initialize( const char * swfFile, idSoundWorld * sw ) override;
+	idMenuScreen *	GetMenuScreen( int index ) override;
 
 	idMenuScreen_HUD *		GetHud();
 	void					ShowTip( const char * title, const char * tip, bool autoHide );
@@ -481,12 +483,12 @@ public:
 		activationScreen( SCOREBOARD_AREA_INVALID ) {
 	}
 
-	virtual void			Update();
-	virtual void			TriggerMenu();
-	virtual void			ActivateMenu( bool show );
-	virtual void			Initialize( const char * swfFile, idSoundWorld * sw );
-	virtual idMenuScreen *	GetMenuScreen( int index );
-	virtual bool			HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	void			Update() override;
+	void			TriggerMenu() override;
+	void			ActivateMenu( bool show ) override;
+	void			Initialize( const char * swfFile, idSoundWorld * sw ) override;
+	idMenuScreen *	GetMenuScreen( int index ) override;
+	bool			HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void					AddPlayerInfo( int index, voiceStateDisplay_t voiceState, int team, idStr name, int score, int wins, int ping, idStr spectateData );
 	void					UpdateScoreboard( idList< mpScoreboardInfo > & data, idStr gameInfo );

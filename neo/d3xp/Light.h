@@ -46,26 +46,26 @@ public:
 	CLASS_PROTOTYPE( idLight );
 
 					idLight();
-					~idLight();
+					~idLight() override;
 
 	void			Spawn();
 
 	void			Save( idSaveGame *savefile ) const;					// archives object for save game file
 	void			Restore( idRestoreGame *savefile );					// unarchives object from save game file
 
-	virtual void	UpdateChangeableSpawnArgs( const idDict *source );
-	virtual void	Think();
-	virtual void	ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void	FreeLightDef();
-	virtual bool	GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis );
-	void			Present();
+	void	UpdateChangeableSpawnArgs( const idDict *source ) override;
+	void	Think() override;
+	void	ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void	FreeLightDef() override;
+	bool	GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis ) override;
+	void			Present() override;
 
 	void			SaveState( idDict *args );
-	virtual void	SetColor( float red, float green, float blue );
-	virtual void	SetColor( const idVec4 &color );
-	void			SetColor( const idVec3 &color );
-	virtual void	GetColor( idVec3 &out ) const;
-	virtual void	GetColor( idVec4 &out ) const;
+	void	SetColor( float red, float green, float blue ) override;
+	void	SetColor( const idVec4 &color ) override;
+	void			SetColor( const idVec3 &color ) override;
+	void	GetColor( idVec3 &out ) const override;
+	void	GetColor( idVec4 &out ) const override;
 	const idVec3 &	GetBaseColor() const { return baseColor; }
 	void			SetShader( const char *shadername );
 	void			SetLightParm( int parmnum, float value );
@@ -77,23 +77,23 @@ public:
 	void			Fade( const idVec4 &to, float fadeTime );
 	void			FadeOut( float time );
 	void			FadeIn( float time );
-	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 	void			BecomeBroken( idEntity *activator );
 	qhandle_t		GetLightDefHandle() const { return lightDefHandle; }
 	void			SetLightParent( idEntity *lparent ) { lightParent = lparent; }
 	void			SetLightLevel();
 
-	virtual void	ShowEditingDialog();
+	void	ShowEditingDialog() override;
 
 	enum {
 		EVENT_BECOMEBROKEN = idEntity::EVENT_MAXEVENTS,
 		EVENT_MAXEVENTS
 	};
 
-	virtual void	ClientPredictionThink();
-	virtual void	WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void	ReadFromSnapshot( const idBitMsg &msg );
-	virtual bool	ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	void	ClientPredictionThink() override;
+	void	WriteToSnapshot( idBitMsg &msg ) const override;
+	void	ReadFromSnapshot( const idBitMsg &msg ) override;
+	bool	ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 private:
 	renderLight_t	renderLight;				// light presented to the renderer

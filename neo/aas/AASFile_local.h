@@ -48,18 +48,18 @@ public:
 	virtual 					~idAASFileLocal();
 
 public:
-	[[nodiscard]] virtual idVec3				EdgeCenter( Ordinal auto edgeNum ) const;
-	[[nodiscard]] virtual idVec3				FaceCenter( Ordinal auto faceNum ) const;
-	[[nodiscard]] virtual idVec3				AreaCenter( Ordinal auto areaNum ) const;
+	[[nodiscard]] idVec3				EdgeCenter( Ordinal auto edgeNum ) const;
+	[[nodiscard]] idVec3				FaceCenter( Ordinal auto faceNum ) const;
+	[[nodiscard]] idVec3				AreaCenter( Ordinal auto areaNum ) const;
 
-	[[nodiscard]] virtual idBounds			EdgeBounds( Ordinal auto edgeNum ) const;
-	[[nodiscard]] virtual idBounds			FaceBounds( Ordinal auto faceNum ) const;
-	[[nodiscard]] virtual idBounds			AreaBounds( Ordinal auto areaNum ) const;
+	[[nodiscard]] idBounds			EdgeBounds( Ordinal auto edgeNum ) const;
+	[[nodiscard]] idBounds			FaceBounds( Ordinal auto faceNum ) const;
+	[[nodiscard]] idBounds			AreaBounds( Ordinal auto areaNum ) const;
 
 	[[nodiscard]] virtual int64					PointAreaNum( const idVec3 &origin ) const;
 	[[nodiscard]] virtual int64					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const;
 	[[nodiscard]] virtual int64					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const;
-	virtual void				PushPointIntoAreaNum( Ordinal auto areaNum, idVec3 &point ) const;
+	        void				PushPointIntoAreaNum( Ordinal auto areaNum, idVec3 &point ) const;
 	virtual bool				Trace( aasTrace_t &trace, const idVec3 &start, const idVec3 &end ) const;
 	virtual void				PrintInfo() const;
 
@@ -91,7 +91,7 @@ private:
 
 private:
 	[[nodiscard]] int							BoundsReachableAreaNum_r( int nodeNum, const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const;
-	void						MaxTreeDepth_r( Ordinal auto nodeNum, int &depth, size_t &maxDepth ) const;
+	              void					    	MaxTreeDepth_r( Ordinal auto nodeNum, int &depth, size_t &maxDepth ) const;
 	[[nodiscard]] int							MaxTreeDepth() const;
 	[[nodiscard]] int							AreaContentsTravelFlags( Ordinal auto areaNum ) const;
 	[[nodiscard]] idVec3						AreaReachableGoal( Ordinal auto areaNum ) const;

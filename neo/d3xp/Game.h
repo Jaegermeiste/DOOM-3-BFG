@@ -81,7 +81,7 @@ public:
 	virtual const idDict &		GetServerInfo() = 0;
 
 	// Interpolated server time
-	virtual void				SetServerGameTimeMs( const int time ) = 0;										
+	virtual void				SetServerGameTimeMs( const ID_TIME_T time ) = 0;										
 
 	// Interpolated server time
 	virtual ID_TIME_T			GetServerGameTimeMs() const = 0;												

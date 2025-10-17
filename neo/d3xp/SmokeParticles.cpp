@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -169,7 +171,7 @@ idSmokeParticles::EmitSmoke
 Called by game code to drop another particle into the list
 ================
 */
-bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemStartTime, const float diversity, const idVec3 &origin, const idMat3 &axis, int timeGroup /*_D3XP*/ ) {
+bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemStartTime, const float diversity, const idVec3 &origin, const idMat3 &axis, const ID_TIME_T timeGroup /*_D3XP*/ ) {
 	bool	continues = false;
 	SetTimeState ts( timeGroup );
 
@@ -229,9 +231,7 @@ bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemS
 				nowCount = stage->totalParticles-1;
 			}
 			prevCount = floor( (static_cast<float>(deltaMsec - (gameLocal.time - gameLocal.previousTime)) / finalParticleTime) * stage->totalParticles );
-			if ( prevCount < -1 ) {
-				prevCount = -1;
-			}
+			prevCount = std::max(prevCount, -1);
 		}
 
 		if ( prevCount >= stage->totalParticles ) {

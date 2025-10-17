@@ -212,7 +212,7 @@ void idTarget_EndLevel::Event_Activate( idEntity *activator ) {
 			gameExpansionType_t expansion = player->GetExpansionType();
 			switch ( expansion ) {
 			case GAME_D3XP:
-				// The fall-through is done here on purpose so compleating the game on one difficulty will unlock all the easier difficulties
+				// The fall-through is done here on purpose so completing the game on one difficulty will unlock all the easier difficulties
 				switch ( g_skill.GetInteger() ) {
 				case 3: player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_ROE_COMPLETED_DIFFICULTY_3 );
 				case 2: player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_ROE_COMPLETED_DIFFICULTY_2 );
@@ -221,7 +221,7 @@ void idTarget_EndLevel::Event_Activate( idEntity *activator ) {
 				}
 				break;
 			case GAME_D3LE:
-				// The fall-through is done here on purpose so compleating the game on one difficulty will unlock all the easier difficulties
+				// The fall-through is done here on purpose so completing the game on one difficulty will unlock all the easier difficulties
 				switch ( g_skill.GetInteger() ) {
 				case 3: player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_LE_COMPLETED_DIFFICULTY_3 );
 				case 2: player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_LE_COMPLETED_DIFFICULTY_2 );
@@ -230,7 +230,7 @@ void idTarget_EndLevel::Event_Activate( idEntity *activator ) {
 				}
 				break;
 			case GAME_BASE:
-				// The fall-through is done here on purpose so compleating the game on one difficulty will unlock all the easier difficulties
+				// The fall-through is done here on purpose so completing the game on one difficulty will unlock all the easier difficulties
 				switch ( g_skill.GetInteger() ) {
 				case 3: player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_COMPLETED_DIFFICULTY_3 );
 				case 2: player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_COMPLETED_DIFFICULTY_2 );
@@ -434,7 +434,7 @@ void idTarget_SetShaderTime::Event_Activate( idEntity *activator ) {
 		if ( ent ) {
 			ent->SetShaderParm( SHADERPARM_TIMEOFFSET, time );
 			if ( ent->IsType( idLight::Type ) ) {
-				static_cast<idLight *>(ent)->SetLightParm( SHADERPARM_TIMEOFFSET, time );
+				dynamic_cast<idLight *>(ent)->SetLightParm( SHADERPARM_TIMEOFFSET, time );
 			}
 		}
 	}
@@ -584,7 +584,7 @@ void idTarget_LightFadeIn::Event_Activate( idEntity *activator ) {
 			continue;
 		}
 		if ( ent->IsType( idLight::Type ) ) {
-			light = static_cast<idLight *>( ent );
+			light = dynamic_cast<idLight *>( ent );
 			light->FadeIn( time );
 		} else {
 			gameLocal.Printf( "'%s' targets non-light '%s'", name.c_str(), ent->GetName() );
@@ -627,7 +627,7 @@ void idTarget_LightFadeOut::Event_Activate( idEntity *activator ) {
 			continue;
 		}
 		if ( ent->IsType( idLight::Type ) ) {
-			light = static_cast<idLight *>( ent );
+			light = dynamic_cast<idLight *>( ent );
 			light->FadeOut( time );
 		} else {
 			gameLocal.Printf( "'%s' targets non-light '%s'", name.c_str(), ent->GetName() );
@@ -681,7 +681,7 @@ void idTarget_Give::Event_Activate( idEntity *activator ) {
 				d2.Set( "name", va( "givenitem_%i", giveNum++ ) );
 				idEntity *ent = nullptr;
 				if ( gameLocal.SpawnEntityDef( d2, &ent ) && ent && ent->IsType( idItem::Type ) ) {
-					idItem *item = static_cast<idItem*>(ent);
+					idItem *item = dynamic_cast<idItem*>(ent);
 					item->GiveToPlayer( gameLocal.GetLocalPlayer(), ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
 				}
 			}
@@ -711,7 +711,7 @@ void idTarget_GiveEmail::Event_Activate( idEntity *activator ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
 	const idDeclPDA *pda = player->GetPDA();
 	if ( pda ) {
-		player->GiveEmail( static_cast<const idDeclEmail *>( declManager->FindType( DECL_EMAIL, spawnArgs.GetString( "email" ), false ) ) );
+		player->GiveEmail(dynamic_cast<const idDeclEmail *>( declManager->FindType( DECL_EMAIL, spawnArgs.GetString( "email" ), false ) ) );
 	} else {
 		player->ShowTip( spawnArgs.GetString( "text_infoTitle" ), spawnArgs.GetString( "text_PDANeeded" ), true );
 	}
@@ -1103,7 +1103,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 		if ( ent == nullptr) {
 			continue;
 		}
-		generic = static_cast<idStaticEntity*>( ent );
+		generic = dynamic_cast<idStaticEntity*>( ent );
 		color = generic->spawnArgs.GetVector( "color_demonic" );
 		colorTo.Set( color.x, color.y, color.z, 1.0f );
 		generic->Fade( colorTo, spawnArgs.GetFloat( "fade_time", "0.25" ) );
@@ -1114,7 +1114,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 		if ( ent == nullptr || !ent->IsType( idLight::Type ) ) {
 			continue;
 		}
-		light = static_cast<idLight *>(ent);
+		light = dynamic_cast<idLight *>(ent);
 		parm = light->spawnArgs.GetString( "mat_demonic" );
 		if ( parm && *parm ) {
 			light->SetShader( parm );
@@ -1131,7 +1131,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 		if ( ent == nullptr || !ent->IsType( idSound::Type ) ) {
 			continue;
 		}
-		sound = static_cast<idSound *>(ent);
+		sound = dynamic_cast<idSound *>(ent);
 		parm = sound->spawnArgs.GetString( "snd_demonic" );
 		if ( parm && *parm ) {
 			if ( sound->spawnArgs.GetBool( "overlayDemonic" ) ) {
@@ -1239,7 +1239,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 		if ( ent == nullptr) {
 			continue;
 		}
-		generic = static_cast<idStaticEntity*>( ent );
+		generic = dynamic_cast<idStaticEntity*>( ent );
 		color = generic->spawnArgs.GetVector( "_color", "1 1 1" );
 		colorTo.Set( color.x, color.y, color.z, 1.0f );
 		generic->Fade( colorTo, spawnArgs.GetFloat( "fade_time", "0.25" ) );
@@ -1250,7 +1250,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 		if ( ent == nullptr || !ent->IsType( idLight::Type ) ) {
 			continue;
 		}
-		light = static_cast<idLight *>(ent);
+		light = dynamic_cast<idLight *>(ent);
 		if ( !light->spawnArgs.GetBool( "leave_demonic_mat" ) ) {
 			const char *texture = light->spawnArgs.GetString( "texture", "lights/squarelight1" );
 			light->SetShader( texture );
@@ -1265,7 +1265,7 @@ void idTarget_SetInfluence::Event_RestoreInfluence() {
 		if ( ent == nullptr || !ent->IsType( idSound::Type ) ) {
 			continue;
 		}
-		sound = static_cast<idSound *>(ent);
+		sound = dynamic_cast<idSound *>(ent);
 		sound->StopSound( SND_CHANNEL_ANY, false );
 		sound->SetSound( sound->spawnArgs.GetString( "s_shader" ) );
 	}
@@ -1481,10 +1481,10 @@ void idTarget_LockDoor::Event_Activate( idEntity *activator ) {
 	for( i = 0; i < targets.Num(); i++ ) {
 		ent = targets[ i ].GetEntity();
 		if ( ent != nullptr && ent->IsType( idDoor::Type ) ) {
-			if ( static_cast<idDoor *>( ent )->IsLocked() ) {
-				static_cast<idDoor *>( ent )->Lock( 0 );
+			if (dynamic_cast<idDoor *>( ent )->IsLocked() ) {
+				dynamic_cast<idDoor *>( ent )->Lock( 0 );
 			} else {
-				static_cast<idDoor *>( ent )->Lock( lock );
+				dynamic_cast<idDoor *>( ent )->Lock( lock );
 			}
 		}
 	}

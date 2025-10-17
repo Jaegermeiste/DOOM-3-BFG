@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -665,9 +667,7 @@ void idIK_Walk::Evaluate() {
 			shift = 0.0f;
 		}
 
-		if ( shift < smallestShift ) {
-			smallestShift = shift;
-		}
+		smallestShift = std::min(shift, smallestShift);
 
 		animator->GetJointTransform( ankleJoints[i], gameLocal.time, ankleOrigin, ankleAxis[i] );
 		jointOrigins[i] = modelOrigin + ankleOrigin * modelAxis;
@@ -680,9 +680,7 @@ void idIK_Walk::Evaluate() {
 		}
 
 		newHeight = height + shift;
-		if ( newHeight > largestAnkleHeight ) {
-			largestAnkleHeight = newHeight;
-		}
+		largestAnkleHeight = std::max(newHeight, largestAnkleHeight);
 
 		oldAnkleHeights[i] = newHeight;
 

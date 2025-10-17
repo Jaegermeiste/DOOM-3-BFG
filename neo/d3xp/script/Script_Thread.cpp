@@ -890,7 +890,7 @@ void idThread::Pause() {
 idThread::WaitMS
 ================
 */
-void idThread::WaitMS( int time ) {
+void idThread::WaitMS( const ID_TIME_T time ) {
 	Pause();
 	waitingUntil = gameLocal.time + time;
 }

@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Game_local.h"
 
+#include <algorithm>
+
 #ifdef GAME_DLL
 
 idSys *						sys = nullptr;
@@ -655,7 +657,7 @@ void idGameLocal::GetSaveGameDetails( idSaveGameDetails & gameDetails ) {
 	shortMapName.StripFileExtension();
 	shortMapName.StripLeading( "maps/" );
 
-	const idDeclEntityDef * mapDef = static_cast<const idDeclEntityDef *>(declManager->FindType( DECL_MAPDEF, shortMapName, false ));
+	const idDeclEntityDef * mapDef = dynamic_cast<const idDeclEntityDef *>(declManager->FindType( DECL_MAPDEF, shortMapName, false ));
 	const char * mapPrettyName = mapDef ? idLocalization::GetString( mapDef->dict.GetString( "name", shortMapName ) ) : shortMapName.c_str();
 	idPlayer * player = GetClientByNum( 0 );
 	int playTime = player ? player->GetPlayedTime() : 0;
@@ -686,7 +688,7 @@ const idDict &idGameLocal::GetPersistentPlayerInfo( int clientNum ) {
 	persistentPlayerInfo[ clientNum ].Clear();
 	ent = entities[ clientNum ];
 	if ( ent && ent->IsType( idPlayer::Type ) ) {
-		static_cast<idPlayer *>(ent)->SavePersistantInfo();
+		dynamic_cast<idPlayer *>(ent)->SavePersistantInfo();
 	}
 
 	return persistentPlayerInfo[ clientNum ];
@@ -828,7 +830,7 @@ void gameError( const char *fmt, ... ) {
 idGameLocal::SetServerGameTimeMs
 ========================
 */
-void idGameLocal::SetServerGameTimeMs( const int time ) {
+void idGameLocal::SetServerGameTimeMs( const const ID_TIME_T time ) {
 	previousServerTime = this->serverTime;
 	this->serverTime = time;
 }
@@ -1039,7 +1041,7 @@ void idGameLocal::LocalMapRestart( ) {
 
 	for ( i = 0; i < MAX_CLIENTS; i++ ) {
 		if ( entities[ i ] && entities[ i ]->IsType( idPlayer::Type ) ) {
-			static_cast< idPlayer * >( entities[ i ] )->PrepareForRestart();
+			dynamic_cast< idPlayer * >( entities[ i ] )->PrepareForRestart();
 		}
 	}
 
@@ -1081,7 +1083,7 @@ void idGameLocal::LocalMapRestart( ) {
 	// setup the client entities again
 	for ( i = 0; i < MAX_CLIENTS; i++ ) {
 		if ( entities[ i ] && entities[ i ]->IsType( idPlayer::Type ) ) {
-			static_cast< idPlayer * >( entities[ i ] )->Restart();
+			dynamic_cast< idPlayer * >( entities[ i ] )->Restart();
 		}
 	}
 	
@@ -1925,7 +1927,7 @@ idPlayer *idGameLocal::GetClientByNum( int current ) const {
 		current = 0;
 	}
 	if ( entities[current] ) {
-		return static_cast<idPlayer *>( entities[ current ] );
+		return dynamic_cast<idPlayer *>( entities[ current ] );
 	}
 	return nullptr;
 }
@@ -1968,7 +1970,7 @@ idPlayer *idGameLocal::GetLocalPlayer() const {
 		// not fully in game yet
 		return nullptr;
 	}
-	return static_cast<idPlayer *>( entities[ GetLocalClientNum() ] );
+	return dynamic_cast<idPlayer *>( entities[ GetLocalClientNum() ] );
 }
 
 /*
@@ -2005,7 +2007,7 @@ void idGameLocal::SetupPlayerPVS() {
 			continue;
 		}
 
-		player = static_cast<idPlayer *>(ent);
+		player = dynamic_cast<idPlayer *>(ent);
 
 		if ( playerPVS.i == -1 ) {
 			playerPVS = GetClientPVS( player, PVS_NORMAL );
@@ -2551,7 +2553,7 @@ void idGameLocal::RunAllUserCmdsForPlayer( idUserCmdMgr & cmdMgr, const int play
 		return;
 	}
 
-	idPlayer & player = static_cast< idPlayer & >( *entities[ playerNumber ] );
+	idPlayer & player = dynamic_cast< idPlayer & >( *entities[ playerNumber ] );
 
 	// Only run a single userCmd each game frame for local players, otherwise when
 	// we are running < 60fps things like footstep sounds may get started right on top
@@ -2579,8 +2581,8 @@ void idGameLocal::RunAllUserCmdsForPlayer( idUserCmdMgr & cmdMgr, const int play
 	// underflows.
 	if ( cmdMgr.HasUserCmdForPlayer( player.GetEntityNumber() ) ) {
 		const int clientTimeOfNextCommand = cmdMgr.GetNextUserCmdClientTime( playerNumber );
-		const int timeDeltaBetweenClientCommands = clientTimeOfNextCommand - lastCmdRunTimeOnClient[ playerNumber ];
-		const int timeSinceServerRanLastCommand = gameLocal.time - lastCmdRunTimeOnServer[ playerNumber ];
+		const const ID_TIME_T timeDeltaBetweenClientCommands = clientTimeOfNextCommand - lastCmdRunTimeOnClient[ playerNumber ];
+		const const ID_TIME_T timeSinceServerRanLastCommand = gameLocal.time - lastCmdRunTimeOnServer[ playerNumber ];
 		int clientTimeRunSoFar = 0;
 
 		// Handle clients who may be running faster than the server. Potentiallly runs multiple
@@ -2721,7 +2723,7 @@ bool idGameLocal::Draw( int clientNum ) {
 	// chose the optimized or legacy device context code
 	uiManager->SetDrawingDC();
 
-	idPlayer *player = static_cast<idPlayer *>(entities[ clientNum ]);
+	idPlayer *player = dynamic_cast<idPlayer *>(entities[ clientNum ]);
 
 	if ( ( player == nullptr) || ( player->GetRenderView() == nullptr) ) {
 		return false;
@@ -3262,7 +3264,7 @@ idEntity *idGameLocal::SpawnEntityType( const idTypeInfo &classdef, const idDict
 	}
 	spawnArgs.Clear();
 
-	return static_cast<idEntity *>(obj);
+	return dynamic_cast<idEntity *>(obj);
 }
 
 /*
@@ -3336,7 +3338,7 @@ bool idGameLocal::SpawnEntityDef( const idDict &args, idEntity **ent, bool setDe
 		obj->CallSpawn();
 
 		if ( ent && obj->IsType( idEntity::Type ) ) {
-			*ent = static_cast<idEntity *>(obj);
+			*ent = dynamic_cast<idEntity *>(obj);
 		}
 
 		return true;
@@ -3372,7 +3374,7 @@ const idDeclEntityDef *idGameLocal::FindEntityDef( const char *name, bool makeDe
 	if ( !decl ) {
 		decl = declManager->FindType( DECL_ENTITYDEF, name, makeDefault );
 	}
-	return static_cast<const idDeclEntityDef *>( decl );
+	return dynamic_cast<const idDeclEntityDef *>( decl );
 }
 
 /*
@@ -3741,7 +3743,7 @@ void idGameLocal::KillBox( idEntity *ent, bool catch_teleport ) const
 		// nail it
 		idPlayer *otherPlayer = nullptr;
 		if ( hit->IsType( idPlayer::Type ) ) {
-			otherPlayer = static_cast< idPlayer * >( hit );
+			otherPlayer = dynamic_cast< idPlayer * >( hit );
 		}
 		if ( otherPlayer != nullptr) {
 			if ( otherPlayer->IsInTeleport() ) {
@@ -3763,7 +3765,7 @@ idGameLocal::RequirementMet
 bool idGameLocal::RequirementMet( idEntity *activator, const idStr &requirements, int removeItem ) {
 	if ( requirements.Length() ) {
 		if ( activator->IsType( idPlayer::Type ) ) {
-			idPlayer *player = static_cast<idPlayer *>(activator);
+			idPlayer *player = dynamic_cast<idPlayer *>(activator);
 			idDict *item = player->FindInventoryItem( requirements );
 			if ( item ) {
 				if ( removeItem ) {
@@ -3788,7 +3790,7 @@ void idGameLocal::AlertAI( idEntity *ent ) {
 	if ( ent && ent->IsType( idActor::Type ) ) {
 		// alert them for the next frame
 		lastAIAlertTime = time + 1;
-		lastAIAlertEntity = static_cast<idActor *>( ent );
+		lastAIAlertEntity = dynamic_cast<idActor *>( ent );
 	}
 }
 
@@ -3799,7 +3801,7 @@ idGameLocal::GetAlertEntity
 */
 idActor *idGameLocal::GetAlertEntity() const
 {
-	int timeGroup = 0;
+	const ID_TIME_T timeGroup = 0;
 	if ( lastAIAlertTime && lastAIAlertEntity.GetEntity() ) {
 		timeGroup = lastAIAlertEntity.GetEntity()->timeGroup;
 	}
@@ -3838,9 +3840,7 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 	damageDef->GetFloat( "attackerDamageScale", "0.5", attackerDamageScale );
 	damageDef->GetFloat( "attackerPushScale", "0", attackerPushScale );
 
-	if ( radius < 1 ) {
-		radius = 1;
-	}
+	radius = std::max(radius, 1);
 
 	bounds = idBounds( origin ).Expand( radius );
 
@@ -3848,13 +3848,13 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 	numListedEntities = clip.EntitiesTouchingBounds( bounds, -1, entityList, MAX_GENTITIES );
 
 	if ( inflictor && inflictor->IsType( idAFAttachment::Type ) ) {
-		inflictor = static_cast<idAFAttachment*>(inflictor)->GetBody();
+		inflictor = dynamic_cast<idAFAttachment*>(inflictor)->GetBody();
 	}
 	if ( attacker && attacker->IsType( idAFAttachment::Type ) ) {
-		attacker = static_cast<idAFAttachment*>(attacker)->GetBody();
+		attacker = dynamic_cast<idAFAttachment*>(attacker)->GetBody();
 	}
 	if ( ignoreDamage && ignoreDamage->IsType( idAFAttachment::Type ) ) {
-		ignoreDamage = static_cast<idAFAttachment*>(ignoreDamage)->GetBody();
+		ignoreDamage = dynamic_cast<idAFAttachment*>(ignoreDamage)->GetBody();
 	}
 
 	// apply damage to the entities
@@ -3866,16 +3866,17 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			continue;
 		}
 
-		if ( ent == inflictor || ( ent->IsType( idAFAttachment::Type ) && static_cast<idAFAttachment*>(ent)->GetBody() == inflictor ) ) {
+		if ( ent == inflictor || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<idAFAttachment*>(ent)->GetBody() == inflictor ) ) {
 			continue;
 		}
 
-		if ( ent == ignoreDamage || ( ent->IsType( idAFAttachment::Type ) && static_cast<idAFAttachment*>(ent)->GetBody() == ignoreDamage ) ) {
+		if ( ent == ignoreDamage || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<idAFAttachment*>(ent)->GetBody() == ignoreDamage ) ) {
 			continue;
 		}
 
 		// don't damage a dead player
-		if ( common->IsMultiplayer() && ent->entityNumber < MAX_CLIENTS && ent->IsType( idPlayer::Type ) && static_cast< idPlayer * >( ent )->health < 0 ) {
+		if ( common->IsMultiplayer() && ent->entityNumber < MAX_CLIENTS && ent->IsType( idPlayer::Type ) && dynamic_cast
+			< idPlayer * >( ent )->health < 0 ) {
 			continue;
 		}
 
@@ -3903,7 +3904,7 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 
 			// get the damage scale
 			damageScale = dmgPower * ( 1.0f - dist / radius );
-			if ( ent == attacker || ( ent->IsType( idAFAttachment::Type ) && static_cast<idAFAttachment*>(ent)->GetBody() == attacker ) ) {
+			if ( ent == attacker || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<idAFAttachment*>(ent)->GetBody() == attacker ) ) {
 				damageScale *= attackerDamageScale;
 			}
 
@@ -3920,7 +3921,7 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 			if( !common->IsMultiplayer() &&  ent->entityNumber == GetLocalClientNum() ) {
 
 				if( ent->IsType( idPlayer::Type ) ) {
-					idPlayer * player = static_cast< idPlayer* >( ent );
+					idPlayer * player = dynamic_cast< idPlayer* >( ent );
 					if( player ) {
 						player->ControllerShakeFromDamage( damage );
 					}
@@ -3932,7 +3933,7 @@ void idGameLocal::RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEnt
 				if( inflictor && inflictor->IsType( idProjectile::Type ) ) {
 					if ( attacker && attacker->IsType( idPlayer::Type ) ) {
 						if ( ent->IsType( idActor::Type ) && ent != attacker ) {
-							idPlayer *player = static_cast<idPlayer *>( attacker );
+							idPlayer *player = dynamic_cast<idPlayer *>( attacker );
 							player->AddProjectileKills();
 						}
 					}
@@ -3971,10 +3972,10 @@ void idGameLocal::RadiusPush( const idVec3 &origin, const float radius, const fl
 	numListedClipModels = clip.ClipModelsTouchingBounds( bounds, -1, clipModelList, MAX_GENTITIES );
 
 	if ( inflictor && inflictor->IsType( idAFAttachment::Type ) ) {
-		inflictor = static_cast<const idAFAttachment*>(inflictor)->GetBody();
+		inflictor = dynamic_cast<const idAFAttachment*>(inflictor)->GetBody();
 	}
 	if ( ignore && ignore->IsType( idAFAttachment::Type ) ) {
-		ignore = static_cast<const idAFAttachment*>(ignore)->GetBody();
+		ignore = dynamic_cast<const idAFAttachment*>(ignore)->GetBody();
 	}
 
 	// apply impact to all the clip models through their associated physics objects
@@ -4000,7 +4001,7 @@ void idGameLocal::RadiusPush( const idVec3 &origin, const float radius, const fl
 		}
 
 		// don't push the ignore entity
-		if ( ent == ignore || ( ent->IsType( idAFAttachment::Type ) && static_cast<idAFAttachment*>(ent)->GetBody() == ignore ) ) {
+		if ( ent == ignore || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<idAFAttachment*>(ent)->GetBody() == ignore ) ) {
 			continue;
 		}
 
@@ -4009,7 +4010,7 @@ void idGameLocal::RadiusPush( const idVec3 &origin, const float radius, const fl
 		}
 
 		// scale the push for the inflictor
-		if ( ent == inflictor || ( ent->IsType( idAFAttachment::Type ) && static_cast<idAFAttachment*>(ent)->GetBody() == inflictor ) ) {
+		if ( ent == inflictor || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<idAFAttachment*>(ent)->GetBody() == inflictor ) ) {
 			scale = inflictorScale;
 		} else {
 			scale = 1.0f;
@@ -4183,7 +4184,7 @@ void idGameLocal::SetCamera( idCamera *cam ) {
 		// hide all the player models
 		for( i = 0; i < numClients; i++ ) {
 			if ( entities[ i ] ) {
-				client = static_cast< idPlayer* >( entities[ i ] );
+				client = dynamic_cast< idPlayer* >( entities[ i ] );
 				client->EnterCinematic();
 			}
 		}
@@ -4197,7 +4198,7 @@ void idGameLocal::SetCamera( idCamera *cam ) {
 				}
 				
 				if ( ent->IsType( idAI::Type ) ) {
-					ai = static_cast<idAI *>( ent );
+					ai = dynamic_cast<idAI *>( ent );
 					if ( !ai->GetEnemy() || !ai->IsActive() ) {
 						// no enemy, or inactive, so probably safe to ignore
 						continue;
@@ -4226,7 +4227,7 @@ void idGameLocal::SetCamera( idCamera *cam ) {
 		// show all the player models
 		for( i = 0; i < numClients; i++ ) {
 			if ( entities[ i ] ) {
-				idPlayer *client = static_cast< idPlayer* >( entities[ i ] );
+				idPlayer *client = dynamic_cast< idPlayer* >( entities[ i ] );
 				client->ExitCinematic();
 			}
 		}
@@ -4276,7 +4277,7 @@ void idGameLocal::SpreadLocations() {
 				locationEntities[areaNum]->spawnArgs.GetString( "name" ) );
 			continue;
 		}
-		locationEntities[areaNum] = static_cast<idLocationEntity *>(ent);
+		locationEntities[areaNum] = dynamic_cast<idLocationEntity *>(ent);
 
 		// spread to all other connected areas
 		for ( int i = 0 ; i < numAreas ; i++ ) {
@@ -4284,7 +4285,7 @@ void idGameLocal::SpreadLocations() {
 				continue;
 			}
 			if ( gameRenderWorld->AreasAreConnected( areaNum, i, PS_BLOCK_LOCATION ) ) {
-				locationEntities[i] = static_cast<idLocationEntity *>(ent);
+				locationEntities[i] = dynamic_cast<idLocationEntity *>(ent);
 			}
 		}
 	}
@@ -4540,14 +4541,12 @@ idEntity *idGameLocal::SelectInitialSpawnPoint( idPlayer *player ) {
 				for( j = 0; j < MAX_CLIENTS; j++ ) {
 					if ( !entities[ j ] || !entities[ j ]->IsType( idPlayer::Type )
 						|| entities[ j ] == player
-						|| static_cast< idPlayer * >( entities[ j ] )->spectating ) {
+						|| dynamic_cast< idPlayer * >( entities[ j ] )->spectating ) {
 						continue;
 					}
 					
 					dist = ( pos - entities[ j ]->GetPhysics()->GetOrigin() ).LengthSqr();
-					if ( dist < teamSpawnSpots[ team ][ i ].dist ) {
-						teamSpawnSpots[ team ][ i ].dist = dist;
-					}
+					teamSpawnSpots[team][i].dist = std::min<float>(dist, teamSpawnSpots[team][i].dist);
 				}
 			}
 
@@ -4569,14 +4568,12 @@ idEntity *idGameLocal::SelectInitialSpawnPoint( idPlayer *player ) {
 			for( j = 0; j < MAX_CLIENTS; j++ ) {
 				if ( !entities[ j ] || !entities[ j ]->IsType( idPlayer::Type )
 					|| entities[ j ] == player
-					|| static_cast< idPlayer * >( entities[ j ] )->spectating ) {
+					|| dynamic_cast< idPlayer * >( entities[ j ] )->spectating ) {
 					continue;
 				}
 				
 				dist = ( pos - entities[ j ]->GetPhysics()->GetOrigin() ).LengthSqr();
-				if ( dist < spawnSpots[ i ].dist ) {
-					spawnSpots[ i ].dist = dist;
-				}
+				spawnSpots[i].dist = std::min<float>(dist, spawnSpots[i].dist);
 			}
 		}
 
@@ -4643,7 +4640,7 @@ bool idGameLocal::IsPortalSkyActive() const
 idGameLocal::SelectTimeGroup
 ============
 */
-void idGameLocal::SelectTimeGroup( int timeGroup ) {
+void idGameLocal::SelectTimeGroup( const ID_TIME_T timeGroup ) {
 	if ( timeGroup ) {
 		fast.Get( time, previousTime, realClientTime );
 	} else {
@@ -4658,7 +4655,7 @@ void idGameLocal::SelectTimeGroup( int timeGroup ) {
 idGameLocal::GetTimeGroupTime
 ============
 */
-ID_TIME_T idGameLocal::GetTimeGroupTime( int timeGroup ) {
+ID_TIME_T idGameLocal::GetTimeGroupTime( const ID_TIME_T timeGroup ) {
 	if ( timeGroup ) {
 		return fast.time;
 	} else {

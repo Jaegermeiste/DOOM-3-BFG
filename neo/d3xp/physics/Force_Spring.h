@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FORCE_SPRING_H__
 #define __FORCE_SPRING_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -43,7 +45,7 @@ public:
 	CLASS_PROTOTYPE( idForce_Spring );
 
 						idForce_Spring();
-	virtual				~idForce_Spring();
+	~idForce_Spring() override;
 						// initialize the spring
 	void				InitSpring( float Kstretch, float Kcompress, float damping, float restLength );
 						// set the entities and positions on these entities the spring is attached to
@@ -51,8 +53,8 @@ public:
 										idPhysics *physics2, int id2, const idVec3 &p2 );
 
 public: // common force interface
-	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	void		Evaluate( const ID_TIME_T time ) override;
+	void		RemovePhysics( const idPhysics *phys ) override;
 
 private:
 

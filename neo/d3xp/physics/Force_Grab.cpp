@@ -127,7 +127,7 @@ float idForce_Grab::GetDistanceToGoal() {
 idForce_Grab::Evaluate
 ================
 */
-void idForce_Grab::Evaluate( int time ) {
+void idForce_Grab::Evaluate( const ID_TIME_T time ) {
 	if ( !physics ) {
 		return;
 	}

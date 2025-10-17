@@ -429,7 +429,8 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction & action, const
 			class idSWFScriptFunction_Accept : public idSWFScriptFunction_RefCounted {
 			public:
 				idSWFScriptFunction_Accept() { }
-				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+				{
 					common->Dialog().ClearDialog( GDM_LEAVE_LOBBY_RET_MAIN );
 					session->Cancel();
 
@@ -439,7 +440,8 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction & action, const
 			class idSWFScriptFunction_Cancel : public idSWFScriptFunction_RefCounted {
 			public:
 				idSWFScriptFunction_Cancel() { }
-				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+				{
 					common->Dialog().ClearDialog( GDM_LEAVE_LOBBY_RET_MAIN );
 					return idSWFScriptVar();
 				}

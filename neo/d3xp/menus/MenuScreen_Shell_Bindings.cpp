@@ -402,7 +402,8 @@ void idMenuScreen_Shell_Bindings::HandleRestoreDefaults() {
 			accept = _accept;
 			menu = _menu;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept ) {
 				idLocalUser * user = session->GetSignInManager().GetMasterLocalUser();

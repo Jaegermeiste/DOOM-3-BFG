@@ -79,7 +79,7 @@ typedef bool(*deferredEntityCallback_t)( renderEntity_s *, const renderView_s * 
 typedef struct renderEntity_s {
 	idRenderModel *			hModel;				// this can only be null if callback is set
 
-	int						entityNum;
+	size_t					entityNum;
 	int						bodyId;
 
 	// Entities that are expensive to generate, like skeletal models, can be
@@ -130,7 +130,7 @@ typedef struct renderEntity_s {
 
 	struct renderView_s	*	remoteRenderView;		// any remote camera surfaces will use this
 
-	int						numJoints;
+	size_t					numJoints;
 	idJointMat *			joints;					// array of joints that will modify vertices.
 													// NULL if non-deformable model.  NOT freed by renderer
 
@@ -220,7 +220,7 @@ typedef struct renderView_s {
 	bool					forceUpdate;		// for an update 
 
 	// time in milliseconds for shader effects and other time dependent rendering issues
-	int						time[2];
+	ID_TIME_T				time[2];
 	float					shaderParms[MAX_GLOBAL_SHADER_PARMS];		// can be used in any way by shader
 	const idMaterial		*globalMaterial;							// used to override everything draw
 
@@ -231,7 +231,7 @@ typedef struct renderView_s {
 
 
 // exitPortal_t is returned by idRenderWorld::GetPortal()
-typedef struct {
+typedef struct exitPortal_s {
 	int					areas[2];		// areas connected by this portal
 	const idWinding	*	w;				// winding points have counter clockwise ordering seen from areas[0]
 	int					blockingBits;	// PS_BLOCK_VIEW, PS_BLOCK_AIR, etc
@@ -240,7 +240,7 @@ typedef struct {
 
 
 // guiPoint_t is returned by idRenderWorld::GuiTrace()
-typedef struct {
+typedef struct guiPoint_s {
 	float				x, y;			// 0.0 to 1.0 range if trace hit a gui, otherwise -1
 	int					guiId;			// id of gui ( 0, 1, or 2 ) that the trace happened against
 } guiPoint_t;
@@ -259,7 +259,7 @@ typedef struct modelTrace_s {
 
 static constexpr int NUM_PORTAL_ATTRIBUTES = 3;
 
-typedef enum {
+typedef enum portalConnection_e {
 	PS_BLOCK_NONE = 0,
 
 	PS_BLOCK_VIEW = 1,
@@ -312,13 +312,13 @@ public:
 	// The decals are projected onto world geometry between the winding plane and the projection origin.
 	// The decals are depth faded from the winding plane to a certain distance infront of the
 	// winding plane and the same distance from the projection origin towards the winding.
-	virtual void			ProjectDecalOntoWorld( const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime ) = 0;
+	virtual void			ProjectDecalOntoWorld( const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const ID_TIME_T startTime ) = 0;
 
 	// Creates decals on static models.
-	virtual void			ProjectDecal( qhandle_t entityHandle, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime ) = 0;
+	virtual void			ProjectDecal( qhandle_t entityHandle, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const ID_TIME_T startTime ) = 0;
 
 	// Creates overlays on dynamic models.
-	virtual void			ProjectOverlay( qhandle_t entityHandle, const idPlane localTextureAxis[2], const idMaterial *material, const int startTime ) = 0;
+	virtual void			ProjectOverlay( qhandle_t entityHandle, const idPlane localTextureAxis[2], const idMaterial *material, const ID_TIME_T startTime ) = 0;
 
 	// Removes all decals and overlays from the given entity def.
 	virtual void			RemoveDecals( qhandle_t entityHandle ) = 0;
@@ -337,7 +337,7 @@ public:
 	//-------------- Portal Area Information -----------------
 
 	// returns the number of portals
-	[[nodiscard]] virtual int				NumPortals() const = 0;
+	[[nodiscard]] virtual size_t			NumPortals() const = 0;
 
 	// returns 0 if no portal contacts the bounds
 	// This is used by the game to identify portals that are contained
@@ -356,7 +356,7 @@ public:
 
 	// returns the number of portal areas in a map, so game code can build information
 	// tables for the different areas
-	[[nodiscard]] virtual	int				NumAreas() const = 0;
+	[[nodiscard]] virtual	size_t			NumAreas() const = 0;
 
 	// Will return -1 if the point is not in an area, otherwise
 	// it will return 0 <= value < NumAreas()
@@ -402,7 +402,7 @@ public:
 	// is less than 30hz
 	// demoTimeOffset will be set if a new map load command was processed before
 	// the next renderScene
-	virtual bool			ProcessDemoCommand( idDemoFile *readDemo, renderView_t *demoRenderView, int *demoTimeOffset ) = 0;
+	virtual bool			ProcessDemoCommand( idDemoFile *readDemo, renderView_t *demoRenderView, ID_TIME_T *demoTimeOffset ) = 0;
 
 	// this is used to regenerate all interactions ( which is currently only done during influences ), there may be a less 
 	// expensive way to do it
@@ -411,23 +411,23 @@ public:
 	//-------------- Debug Visualization  -----------------
 
 	// Line drawing for debug visualization
-	virtual void			DebugClearLines( int time ) = 0;		// a time of 0 will clear all lines and text
-	virtual void			DebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const int lifetime = 0, const bool depthTest = false ) = 0;
-	virtual void			DebugArrow( const idVec4 &color, const idVec3 &start, const idVec3 &end, int size, const int lifetime = 0 ) = 0;
-	virtual void			DebugWinding( const idVec4 &color, const idWinding &w, const idVec3 &origin, const idMat3 &axis, const int lifetime = 0, const bool depthTest = false ) = 0;
-	virtual void			DebugCircle( const idVec4 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const int numSteps, const int lifetime = 0, const bool depthTest = false ) = 0;
-	virtual void			DebugSphere( const idVec4 &color, const idSphere &sphere, const int lifetime = 0, bool depthTest = false ) = 0;
-	virtual void			DebugBounds( const idVec4 &color, const idBounds &bounds, const idVec3 &org = vec3_origin, const int lifetime = 0 ) = 0;
-	virtual void			DebugBox( const idVec4 &color, const idBox &box, const int lifetime = 0 ) = 0;
-	virtual void			DebugCone( const idVec4 &color, const idVec3 &apex, const idVec3 &dir, float radius1, float radius2, const int lifetime = 0 ) = 0;
+	virtual void			DebugClearLines( ID_TIME_T time ) = 0;		// a time of 0 will clear all lines and text
+	virtual void			DebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const ID_TIME_T lifetime = 0, const bool depthTest = false ) = 0;
+	virtual void			DebugArrow( const idVec4 &color, const idVec3 &start, const idVec3 &end, int size, const ID_TIME_T lifetime = 0 ) = 0;
+	virtual void			DebugWinding( const idVec4 &color, const idWinding &w, const idVec3 &origin, const idMat3 &axis, const ID_TIME_T lifetime = 0, const bool depthTest = false ) = 0;
+	virtual void			DebugCircle( const idVec4 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const size_t numSteps, const ID_TIME_T lifetime = 0, const bool depthTest = false ) = 0;
+	virtual void			DebugSphere( const idVec4 &color, const idSphere &sphere, const ID_TIME_T lifetime = 0, bool depthTest = false ) = 0;
+	virtual void			DebugBounds( const idVec4 &color, const idBounds &bounds, const idVec3 &org = vec3_origin, const ID_TIME_T lifetime = 0 ) = 0;
+	virtual void			DebugBox( const idVec4 &color, const idBox &box, const ID_TIME_T lifetime = 0 ) = 0;
+	virtual void			DebugCone( const idVec4 &color, const idVec3 &apex, const idVec3 &dir, float radius1, float radius2, const ID_TIME_T lifetime = 0 ) = 0;
 	virtual void			DebugAxis( const idVec3 &origin, const idMat3 &axis ) = 0;
 
 	// Polygon drawing for debug visualization.
-	virtual void			DebugClearPolygons( int time ) = 0;		// a time of 0 will clear all polygons
-	virtual void			DebugPolygon( const idVec4 &color, const idWinding &winding, const int lifeTime = 0, const bool depthTest = false ) = 0;
+	virtual void			DebugClearPolygons( ID_TIME_T time ) = 0;		// a time of 0 will clear all polygons
+	virtual void			DebugPolygon( const idVec4 &color, const idWinding &winding, const ID_TIME_T lifeTime = 0, const bool depthTest = false ) = 0;
 
 	// Text drawing for debug visualization.
-	virtual void			DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align = 1, const int lifetime = 0, bool depthTest = false ) = 0;
+	virtual void			DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align = 1, const ID_TIME_T lifetime = 0, bool depthTest = false ) = 0;
 };
 
 #endif /* !__RENDERWORLD_H__ */

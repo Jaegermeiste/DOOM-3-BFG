@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 
@@ -154,9 +156,7 @@ void idAASLocal::CalculateAreaTravelTimes() {
 			for ( j = 0, rev_reach = file->GetArea( n ).rev_reach; rev_reach; rev_reach = rev_reach->rev_next, j++ ) {
 				t = AreaTravelTime( n, reach->start, rev_reach->end );
 				reach->areaTravelTimes[j] = t;
-				if ( t > maxt ) {
-					maxt = t;
-				}
+				maxt = std::max(t, maxt);
 			}
 			bytePtr += j * sizeof( unsigned short );
 		}

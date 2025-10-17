@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+#include <utility>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -423,7 +426,7 @@ void idWeapon::Save( idSaveGame *savefile ) const {
 	savefile->WriteInt( weaponAngleOffsetAverages );
 	savefile->WriteFloat( weaponAngleOffsetScale );
 	savefile->WriteFloat( weaponAngleOffsetMax );
-	savefile->WriteFloat( weaponOffsetTime );
+	savefile->WriteInt( weaponOffsetTime );
 	savefile->WriteFloat( weaponOffsetScale );
 
 	savefile->WriteBool( allowDrop );
@@ -435,7 +438,7 @@ void idWeapon::Save( idSaveGame *savefile ) const {
 	savefile->WriteJoint ( smokeJointView );
 
 	savefile->WriteInt(weaponParticles.Num());
-	for(int i = 0; i < weaponParticles.Num(); i++) {
+	for(size_t i = 0; i < weaponParticles.Num(); i++) {
 		WeaponParticle_t* part = weaponParticles.GetIndex(i);
 		savefile->WriteString( part->name );
 		savefile->WriteString( part->particlename );
@@ -448,7 +451,7 @@ void idWeapon::Save( idSaveGame *savefile ) const {
 		}
 	}
 	savefile->WriteInt(weaponLights.Num());
-	for(int i = 0; i < weaponLights.Num(); i++) {
+	for(size_t i = 0; i < weaponLights.Num(); i++) {
 		WeaponLight_t* light = weaponLights.GetIndex(i);
 		savefile->WriteString( light->name );
 		savefile->WriteBool( light->active );
@@ -467,7 +470,7 @@ idWeapon::Restore
 */
 void idWeapon::Restore( idRestoreGame *savefile ) {
 
-	savefile->ReadInt( (int &)status );
+	savefile->ReadInt( reinterpret_cast<int&>(status) );
 	savefile->ReadObject( reinterpret_cast<idClass *&>( thread ) );
 	savefile->ReadString( state );
 	savefile->ReadString( idealState );
@@ -625,7 +628,7 @@ void idWeapon::Restore( idRestoreGame *savefile ) {
 	savefile->ReadInt( weaponAngleOffsetAverages );
 	savefile->ReadFloat( weaponAngleOffsetScale );
 	savefile->ReadFloat( weaponAngleOffsetMax );
-	savefile->ReadFloat( weaponOffsetTime );
+	savefile->ReadInt( weaponOffsetTime );
 	savefile->ReadFloat( weaponOffsetScale );
 
 	savefile->ReadBool( allowDrop );
@@ -636,10 +639,10 @@ void idWeapon::Restore( idRestoreGame *savefile ) {
 
 	savefile->ReadJoint ( smokeJointView );
 
-	int particleCount;
+	size_t particleCount;
 	savefile->ReadInt( particleCount );
-	for(int i = 0; i < particleCount; i++) {
-		WeaponParticle_t newParticle;
+	for(size_t i = 0; i < particleCount; i++) {
+		WeaponParticle_t newParticle = {};
 		memset(&newParticle, 0, sizeof(newParticle));
 
 		idStr name, particlename;
@@ -654,7 +657,7 @@ void idWeapon::Restore( idRestoreGame *savefile ) {
 		savefile->ReadJoint( newParticle.joint );
 		savefile->ReadBool( newParticle.smoke );
 		if(newParticle.smoke) {
-			newParticle.particle = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, particlename, false ) );
+			newParticle.particle = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, particlename, false ) );
 		} else {
 			savefile->ReadObject(reinterpret_cast<idClass *&>(newParticle.emitter));
 		}
@@ -664,8 +667,8 @@ void idWeapon::Restore( idRestoreGame *savefile ) {
 
 	int lightCount;
 	savefile->ReadInt( lightCount );
-	for(int i = 0; i < lightCount; i++) {
-		WeaponLight_t newLight;
+	for(size_t i = 0; i < lightCount; i++) {
+		WeaponLight_t newLight = {};
 		memset(&newLight, 0, sizeof(newLight));
 		
 		idStr name;
@@ -993,7 +996,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 	// muzzle smoke
 	smokeName = weaponDef->dict.GetString( "smoke_muzzle" );
 	if ( *smokeName != '\0' ) {
-		weaponSmoke = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		weaponSmoke = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 	} else {
 		weaponSmoke = nullptr;
 	}
@@ -1002,7 +1005,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 
 	smokeName = weaponDef->dict.GetString( "smoke_strike" );
 	if ( *smokeName != '\0' ) {
-		strikeSmoke = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		strikeSmoke = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 	} else {
 		strikeSmoke = nullptr;
 	}
@@ -1150,7 +1153,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 		}
 	}
 
-	if ( ( ammoType < 0 ) || ( ammoType >= AMMO_NUMTYPES ) ) {
+	if ( ( ammoType < 0 ) || (std::cmp_greater_equal(ammoType, AMMO_NUMTYPES)) ) {
 		gameLocal.Warning( "Unknown ammotype in object '%s'", objectname );
 	}
 
@@ -1243,7 +1246,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 			strcpy(newParticle.particlename, particle.c_str());
 
 			if(newParticle.smoke) {
-				newParticle.particle = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, particle, false ) );
+				newParticle.particle = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, particle, false ) );
 			} else {
 				idDict args;
 
@@ -1254,7 +1257,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 
 				idEntity* ent;
 				gameLocal.SpawnEntityDef(args, &ent, false);
-				newParticle.emitter = static_cast<idFuncEmitter*>(ent);
+				newParticle.emitter = dynamic_cast<idFuncEmitter*>(ent);
 
 				if ( newParticle.emitter != nullptr) {
 					newParticle.emitter->BecomeActive(TH_THINK);
@@ -1345,7 +1348,8 @@ const char * idWeapon::Description() const {
 idWeapon::UpdateGUI
 ================
 */
-void idWeapon::UpdateGUI() {
+void idWeapon::UpdateGUI() const
+{
 	if ( !renderEntity.gui[ 0 ] ) {
 		return;
 	}
@@ -1363,7 +1367,7 @@ void idWeapon::UpdateGUI() {
 		// if updating the hud for a followed client
 		if ( gameLocal.GetLocalClientNum() >= 0 && gameLocal.entities[ gameLocal.GetLocalClientNum() ] && gameLocal.entities[ gameLocal.GetLocalClientNum() ]->IsType( idPlayer::Type ) ) {
 			idPlayer *p = static_cast< idPlayer * >( gameLocal.entities[ gameLocal.GetLocalClientNum() ] );
-			if ( !p->spectating || p->spectator != owner->entityNumber ) {
+			if ( !p->spectating || std::cmp_not_equal(p->spectator, owner->entityNumber)) {
 				return;
 			}
 		} else {
@@ -1741,7 +1745,8 @@ void idWeapon::ShowWeapon() {
 idWeapon::HideWorldModel
 ================
 */
-void idWeapon::HideWorldModel() {
+void idWeapon::HideWorldModel() const
+{
 	if ( worldModel.GetEntity() ) {
 		worldModel.GetEntity()->Hide();
 	}
@@ -1752,7 +1757,8 @@ void idWeapon::HideWorldModel() {
 idWeapon::ShowWorldModel
 ================
 */
-void idWeapon::ShowWorldModel() {
+void idWeapon::ShowWorldModel() const
+{
 	if ( worldModel.GetEntity() ) {
 		worldModel.GetEntity()->Show();
 	}
@@ -2103,10 +2109,8 @@ void idWeapon::MuzzleRise( idVec3 &origin, idMat3 &axis ) {
 		return;
 	}
 
-	if ( time > muzzle_kick_maxtime ) {
-		time = muzzle_kick_maxtime;
-	}
-	
+	time = std::min(time, muzzle_kick_maxtime);
+
 	amount = static_cast<float>(time) / static_cast<float>(muzzle_kick_maxtime);
 	ang		= muzzle_kick_angles * amount;
 	offset	= muzzle_kick_offset * amount;
@@ -2216,7 +2220,8 @@ void idWeapon::UpdateScript() {
 idWeapon::AlertMonsters
 ================
 */
-void idWeapon::AlertMonsters() {
+void idWeapon::AlertMonsters() const
+{
 	trace_t	tr;
 	idEntity *ent;
 	idVec3 end = muzzleFlash.origin + muzzleFlash.axis * muzzleFlash.target;
@@ -2230,7 +2235,7 @@ void idWeapon::AlertMonsters() {
 	if ( tr.fraction < 1.0f ) {
 		ent = gameLocal.GetTraceEntity( tr );
 		if ( ent->IsType( idAI::Type ) ) {
-			static_cast<idAI *>( ent )->TouchedByFlashlight( owner );
+			dynamic_cast<idAI *>( ent )->TouchedByFlashlight( owner );
 		} else if ( ent->IsType( idTrigger::Type ) ) {
 			ent->Signal( SIG_TOUCH );
 			ent->ProcessEvent( &EV_Touch, owner, &tr );
@@ -2249,7 +2254,7 @@ void idWeapon::AlertMonsters() {
 	if ( tr.fraction < 1.0f ) {
 		ent = gameLocal.GetTraceEntity( tr );
 		if ( ent->IsType( idAI::Type ) ) {
-			static_cast<idAI *>( ent )->TouchedByFlashlight( owner );
+			dynamic_cast<idAI *>( ent )->TouchedByFlashlight( owner );
 		} else if ( ent->IsType( idTrigger::Type ) ) {
 			ent->Signal( SIG_TOUCH );
 			ent->ProcessEvent( &EV_Touch, owner, &tr );
@@ -2644,7 +2649,8 @@ void idWeapon::NetCatchup() {
 idWeapon::GetZoomFov
 ================
 */
-int	idWeapon::GetZoomFov() {
+int	idWeapon::GetZoomFov() const
+{
 	return zoomFov;
 }
 
@@ -2653,7 +2659,8 @@ int	idWeapon::GetZoomFov() {
 idWeapon::GetWeaponAngleOffsets
 ================
 */
-void idWeapon::GetWeaponAngleOffsets( int *average, float *scale, float *max ) {
+void idWeapon::GetWeaponAngleOffsets( int *average, float *scale, float *max ) const
+{
 	*average = weaponAngleOffsetAverages;
 	*scale = weaponAngleOffsetScale;
 	*max = weaponAngleOffsetMax;
@@ -2664,7 +2671,8 @@ void idWeapon::GetWeaponAngleOffsets( int *average, float *scale, float *max ) {
 idWeapon::GetWeaponTimeOffsets
 ================
 */
-void idWeapon::GetWeaponTimeOffsets( float *time, float *scale ) {
+void idWeapon::GetWeaponTimeOffsets( ID_TIME_T *time, float *scale ) const
+{
 	*time = weaponOffsetTime;
 	*scale = weaponOffsetScale;
 }
@@ -2682,12 +2690,11 @@ idWeapon::GetAmmoNumForName
 ================
 */
 ammo_t idWeapon::GetAmmoNumForName( const char *ammoname ) {
-	int num;
-	const idDict *ammoDict;
+	int num = 0;
 
 	assert( ammoname );
 
-	ammoDict = gameLocal.FindEntityDefDict( "ammo_types", false );
+	const idDict* ammoDict = gameLocal.FindEntityDefDict("ammo_types", false);
 	if ( ammoDict == nullptr) {
 		gameLocal.Error( "Could not find entity definition for 'ammo_types'\n" );
 		return 0;
@@ -2701,12 +2708,12 @@ ammo_t idWeapon::GetAmmoNumForName( const char *ammoname ) {
 
 	}
 
-	if ( ( num < 0 ) || ( num >= AMMO_NUMTYPES ) ) {
+	if ( ( num < 0 ) || (std::cmp_greater_equal(num, AMMO_NUMTYPES)) ) {
 		gameLocal.Warning( "Ammo type '%s' value out of range.  Maximum ammo types is %d.\n", ammoname, AMMO_NUMTYPES );
 		num = 0;
 	}
 
-	return ( ammo_t )num;
+	return idMath::integer_cast<ammo_t>(num);
 }
 
 /*
@@ -2932,7 +2939,7 @@ void idWeapon::ReadFromSnapshot( const idBitMsg &msg ) {
 idWeapon::ClientReceiveEvent
 ================
 */
-bool idWeapon::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idWeapon::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_RELOAD: {
@@ -2954,7 +2961,7 @@ bool idWeapon::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
 		}
 		case EVENT_CHANGESKIN: {
 			int index = gameLocal.ClientRemapDecl( DECL_SKIN, msg.ReadLong() );
-			renderEntity.customSkin = ( index != -1 ) ? static_cast<const idDeclSkin *>( declManager->DeclByIndex( DECL_SKIN, index ) ) : nullptr;
+			renderEntity.customSkin = ( index != -1 ) ? dynamic_cast<const idDeclSkin *>( declManager->DeclByIndex( DECL_SKIN, index ) ) : nullptr;
 			UpdateVisuals();
 			if ( worldModel.GetEntity() ) {
 				worldModel.GetEntity()->SetSkin( renderEntity.customSkin );
@@ -2987,7 +2994,8 @@ void idWeapon::Event_Clear() {
 idWeapon::Event_GetOwner
 ===============
 */
-void idWeapon::Event_GetOwner() {
+void idWeapon::Event_GetOwner() const
+{
 	idThread::ReturnEntity( owner );
 }
 
@@ -3161,7 +3169,8 @@ void idWeapon::Event_AddToClip( int amount ) {
 idWeapon::Event_AmmoInClip
 ===============
 */
-void idWeapon::Event_AmmoInClip() {
+void idWeapon::Event_AmmoInClip() const
+{
 	int ammo = AmmoInClip();
 	idThread::ReturnFloat( ammo );	
 }
@@ -3171,7 +3180,8 @@ void idWeapon::Event_AmmoInClip() {
 idWeapon::Event_AmmoAvailable
 ===============
 */
-void idWeapon::Event_AmmoAvailable() {
+void idWeapon::Event_AmmoAvailable() const
+{
 	int ammoAvail = owner->inventory.HasAmmo( ammoType, ammoRequired );
 	ammoAvail += AmmoInClip();
 
@@ -3183,7 +3193,8 @@ void idWeapon::Event_AmmoAvailable() {
 idWeapon::Event_TotalAmmoCount
 ===============
 */
-void idWeapon::Event_TotalAmmoCount() {
+void idWeapon::Event_TotalAmmoCount() const
+{
 	int ammoAvail = owner->inventory.HasAmmo( ammoType, 1 );
 	idThread::ReturnFloat( ammoAvail );
 }
@@ -3193,7 +3204,8 @@ void idWeapon::Event_TotalAmmoCount() {
 idWeapon::Event_ClipSize
 ===============
 */
-void idWeapon::Event_ClipSize() {
+void idWeapon::Event_ClipSize() const
+{
 	idThread::ReturnFloat( clipSize );	
 }
 
@@ -3302,7 +3314,8 @@ void idWeapon::Event_PlayCycle( int channel, const char *animname ) {
 idWeapon::Event_AnimDone
 ===============
 */
-void idWeapon::Event_AnimDone( int channel, int blendFrames ) {
+void idWeapon::Event_AnimDone( int channel, int blendFrames ) const
+{
 	if ( animDoneTime - FRAME2MS( blendFrames ) <= gameLocal.time ) {
 		idThread::ReturnInt( true );
 	} else {
@@ -3324,7 +3337,8 @@ void idWeapon::Event_SetBlendFrames( int channel, int blendFrames ) {
 idWeapon::Event_GetBlendFrames
 ===============
 */
-void idWeapon::Event_GetBlendFrames( int channel ) {
+void idWeapon::Event_GetBlendFrames( int channel ) const
+{
 	idThread::ReturnInt( animBlendFrames );
 }
 
@@ -3333,7 +3347,8 @@ void idWeapon::Event_GetBlendFrames( int channel ) {
 idWeapon::Event_Next
 ================
 */
-void idWeapon::Event_Next() {
+void idWeapon::Event_Next() const
+{
 	// change to another weapon if possible
 	owner->NextBestWeapon();
 }
@@ -3394,8 +3409,9 @@ void idWeapon::Event_Flashlight( int enable ) {
 idWeapon::Event_GetLightParm
 ================
 */
-void idWeapon::Event_GetLightParm( int parmnum ) {
-	if ( ( parmnum < 0 ) || ( parmnum >= MAX_ENTITY_SHADER_PARMS ) ) {
+void idWeapon::Event_GetLightParm( int parmnum ) const
+{
+	if ( ( parmnum < 0 ) || (std::cmp_greater_equal(parmnum, MAX_ENTITY_SHADER_PARMS)) ) {
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
 	}
@@ -3409,7 +3425,7 @@ idWeapon::Event_SetLightParm
 ================
 */
 void idWeapon::Event_SetLightParm( int parmnum, float value ) {
-	if ( ( parmnum < 0 ) || ( parmnum >= MAX_ENTITY_SHADER_PARMS ) ) {
+	if ( ( parmnum < 0 ) || (std::cmp_greater_equal(parmnum, MAX_ENTITY_SHADER_PARMS)) ) {
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
 	}
@@ -3456,7 +3472,8 @@ void idWeapon::Event_Grabber( int enable ) {
 idWeapon::Event_GrabberHasTarget
 ================
 */
-void idWeapon::Event_GrabberHasTarget() {
+void idWeapon::Event_GrabberHasTarget() const
+{
 	idThread::ReturnInt( grabberState );
 }
 
@@ -3556,9 +3573,7 @@ void idWeapon::Event_LaunchProjectiles( int num_projectiles, float spread, float
 			// in the .def as opposed to just in the script so proper calcs
 			// can be done here. 
 			dmgPower = static_cast<int>(dmgPower) + 1;
-			if ( dmgPower > ammoClip.Get() ) {
-				dmgPower = ammoClip.Get();
-			}
+			dmgPower = std::min<float>(dmgPower, ammoClip.Get());
 		}
 
 		if(clipSize == 0) {
@@ -3656,7 +3671,7 @@ void idWeapon::Event_LaunchProjectiles( int num_projectiles, float spread, float
 				ent->SetPredictedKey( predictedKey );
 			}
 
-			proj = static_cast<idProjectile *>(ent);
+			proj = dynamic_cast<idProjectile *>(ent);
 			proj->Create( owner, muzzleOrigin, dir );
 
 			projBounds = proj->GetPhysics()->GetBounds().Rotate( proj->GetPhysics()->GetAxis() );
@@ -3816,7 +3831,7 @@ void idWeapon::Event_LaunchProjectilesEllipse( int num_projectiles, float spread
 				return;
 			}
 
-			proj = static_cast<idProjectile *>(ent);
+			proj = dynamic_cast<idProjectile *>(ent);
 			proj->Create( owner, muzzleOrigin, dir );
 
 			projBounds = proj->GetPhysics()->GetBounds().Rotate( proj->GetPhysics()->GetAxis() );
@@ -3906,7 +3921,8 @@ void idWeapon::Event_StopWeaponSmoke() {
 	weaponSmokeStartTime = 0;
 }
 
-void idWeapon::Event_StartWeaponParticle( const char* name) {
+void idWeapon::Event_StartWeaponParticle( const char* name) const
+{
 	WeaponParticle_t* part;
 	weaponParticles.Get(name, &part);
 	if(part) {
@@ -3921,7 +3937,8 @@ void idWeapon::Event_StartWeaponParticle( const char* name) {
 	}
 }
 
-void idWeapon::Event_StopWeaponParticle( const char* name) {
+void idWeapon::Event_StopWeaponParticle( const char* name) const
+{
 	WeaponParticle_t* part;
 	weaponParticles.Get(name, &part);
 	if(part) {
@@ -3938,7 +3955,8 @@ void idWeapon::Event_StopWeaponParticle( const char* name) {
 	}
 }
 
-void idWeapon::Event_StartWeaponLight( const char* name) {
+void idWeapon::Event_StartWeaponLight( const char* name) const
+{
 	WeaponLight_t* light;
 	weaponLights.Get(name, &light);
 	if(light) {
@@ -3947,7 +3965,8 @@ void idWeapon::Event_StartWeaponLight( const char* name) {
 	}
 }
 
-void idWeapon::Event_StopWeaponLight( const char* name) {
+void idWeapon::Event_StopWeaponLight( const char* name) const
+{
 	WeaponLight_t* light;
 	weaponLights.Get(name, &light);
 	if(light) {
@@ -4015,11 +4034,12 @@ void idWeapon::Event_Melee() {
 				&& weaponDef->dict.GetBool( "stealing" )
 				&& ent->IsType( idPlayer::Type )
 				&& !owner->PowerUpActive( BERSERK )
-				&& ( (gameLocal.gameType != GAME_TDM ) || gameLocal.serverInfo.GetBool( "si_teamDamage" ) || ( owner->team != static_cast< idPlayer * >( ent )->team ) )
+				&& ( (gameLocal.gameType != GAME_TDM ) || gameLocal.serverInfo.GetBool( "si_teamDamage" ) || ( owner->team !=
+					dynamic_cast< idPlayer * >( ent )->team ) )
 				) {
                 
                 if ( !gameLocal.mpGame.IsGametypeFlagBased() ) {
-					owner->StealWeapon( static_cast< idPlayer * >( ent ) );
+					owner->StealWeapon(dynamic_cast< idPlayer * >( ent ) );
 				}
 			}
 
@@ -4098,7 +4118,8 @@ void idWeapon::Event_Melee() {
 idWeapon::Event_GetWorldModel
 =====================
 */
-void idWeapon::Event_GetWorldModel() {
+void idWeapon::Event_GetWorldModel() const
+{
 	idThread::ReturnEntity( worldModel.GetEntity() );
 }
 
@@ -4147,7 +4168,7 @@ void idWeapon::Event_EjectBrass() {
 	if ( !ent || !ent->IsType( idDebris::Type ) ) {
 		gameLocal.Error( "'%s' is not an idDebris", weaponDef ? weaponDef->dict.GetString( "def_ejectBrass" ) : "def_ejectBrass" );
 	}
-	idDebris *debris = static_cast<idDebris *>(ent);
+	idDebris *debris = dynamic_cast<idDebris *>(ent);
 	debris->Create( owner, origin, axis );
 	debris->Launch();
 
@@ -4163,7 +4184,8 @@ void idWeapon::Event_EjectBrass() {
 idWeapon::Event_IsInvisible
 ===============
 */
-void idWeapon::Event_IsInvisible() {
+void idWeapon::Event_IsInvisible() const
+{
 	if ( !owner ) {
 		idThread::ReturnFloat( 0 );
 		return;

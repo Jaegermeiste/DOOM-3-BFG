@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_PARAMETRIC_H__
 #define __PHYSICS_PARAMETRIC_H__
 
+#pragma once
+
 /*
 ===================================================================================
 
@@ -43,8 +45,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 typedef struct parametricPState_s {
-	int										time;					// physics time
-	int										atRest;					// set when simulation is suspended
+	ID_TIME_T								time;					// physics time
+	ID_TIME_T								atRest;					// set when simulation is suspended
 	idVec3									origin;					// world origin
 	idAngles								angles;					// world angles
 	idMat3									axis;					// world axis
@@ -65,7 +67,7 @@ public:
 	CLASS_PROTOTYPE( idPhysics_Parametric );
 
 							idPhysics_Parametric();
-							~idPhysics_Parametric();
+							~idPhysics_Parametric() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
@@ -73,18 +75,18 @@ public:
 	void					SetPusher( int flags );
 	bool					IsPusher() const;
 
-	void					SetLinearExtrapolation( extrapolation_t type, int time, int duration, const idVec3 &base, const idVec3 &speed, const idVec3 &baseSpeed );
-	void					SetAngularExtrapolation( extrapolation_t type, int time, int duration, const idAngles &base, const idAngles &speed, const idAngles &baseSpeed );
+	void					SetLinearExtrapolation( extrapolation_t type, ID_TIME_T time, ID_TIME_T duration, const idVec3 &base, const idVec3 &speed, const idVec3 &baseSpeed );
+	void					SetAngularExtrapolation( extrapolation_t type, ID_TIME_T time, ID_TIME_T duration, const idAngles &base, const idAngles &speed, const idAngles &baseSpeed );
 	extrapolation_t			GetLinearExtrapolationType() const;
 	extrapolation_t			GetAngularExtrapolationType() const;
 
-	void					SetLinearInterpolation( int time, int accelTime, int decelTime, int duration, const idVec3 &startPos, const idVec3 &endPos );
-	void					SetAngularInterpolation( int time, int accelTime, int decelTime, int duration, const idAngles &startAng, const idAngles &endAng );
+	void					SetLinearInterpolation( ID_TIME_T time, ID_TIME_T accelTime, ID_TIME_T decelTime, ID_TIME_T duration, const idVec3 &startPos, const idVec3 &endPos );
+	void					SetAngularInterpolation( ID_TIME_T time, ID_TIME_T accelTime, ID_TIME_T decelTime, ID_TIME_T duration, const idAngles &startAng, const idAngles &endAng );
 
-	void					SetSpline( idCurve_Spline<idVec3> *spline, int accelTime, int decelTime, bool useSplineAngles );
+	void					SetSpline( idCurve_Spline<idVec3> *spline, ID_TIME_T accelTime, ID_TIME_T decelTime, bool useSplineAngles );
 	idCurve_Spline<idVec3> *GetSpline() const;
-	int						GetSplineAcceleration() const;
-	int						GetSplineDeceleration() const;
+	int64					GetSplineAcceleration() const;
+	int64					GetSplineDeceleration() const;
 	bool					UsingSplineAngles() const;
 
 	void					GetLocalOrigin( idVec3 &curOrigin ) const;
@@ -93,63 +95,63 @@ public:
 	void					GetAngles( idAngles &curAngles ) const;
 
 public:	// common physics interface
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true );
-	idClipModel *			GetClipModel( int id = 0 ) const;
-	int						GetNumClipModels() const;
+	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true ) override;
+	idClipModel *			GetClipModel( int id = 0 ) const override;
+	size_t					GetNumClipModels() const override;
 
-	void					SetMass( float mass, int id = -1 );
-	float					GetMass( int id = -1 ) const;
+	void					SetMass( float mass, int id = -1 ) override;
+	float					GetMass( int id = -1 ) const override;
 
-	void					SetContents( int contents, int id = -1 );
-	int						GetContents( int id = -1 ) const;
+	void					SetContents( int contents, int id = -1 ) override;
+	int						GetContents( int id = -1 ) const override;
 
-	const idBounds &		GetBounds( int id = -1 ) const;
-	const idBounds &		GetAbsBounds( int id = -1 ) const;
+	const idBounds &		GetBounds( int id = -1 ) const override;
+	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
-	bool					Evaluate( int timeStepMSec, int endTimeMSec );
-	bool					Interpolate( const float fraction );
-	void					UpdateTime( int endTimeMSec );
-	int						GetTime() const;
+	bool					Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) override;
+	bool					Interpolate( const float fraction ) override;
+	void					UpdateTime( ID_TIME_T endTimeMSec ) override;
+	ID_TIME_T				GetTime() const override;
 
-	void					Activate();
-	bool					IsAtRest() const;
-	int						GetRestStartTime() const;
-	bool					IsPushable() const;
+	void					Activate() override;
+	bool					IsAtRest() const override;
+	ID_TIME_T				GetRestStartTime() const override;
+	bool					IsPushable() const override;
 
-	void					SaveState();
-	void					RestoreState();
+	void					SaveState() override;
+	void					RestoreState() override;
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3 &newOrigin, int id = -1 ) override;
+	void					SetAxis( const idMat3 &newAxis, int id = -1 ) override;
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3 &translation, int id = -1 ) override;
+	void					Rotate( const idRotation &rotation, int id = -1 ) override;
 
-	const idVec3 &			GetOrigin( int id = 0 ) const;
-	const idMat3 &			GetAxis( int id = 0 ) const;
+	const idVec3 &			GetOrigin( int id = 0 ) const override;
+	const idMat3 &			GetAxis( int id = 0 ) const override;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
-	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 ) override;
+	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 ) override;
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
-	const idVec3 &			GetAngularVelocity( int id = 0 ) const;
+	const idVec3 &			GetLinearVelocity( int id = 0 ) const override;
+	const idVec3 &			GetAngularVelocity( int id = 0 ) const override;
 
-	void					DisableClip();
-	void					EnableClip();
+	void					DisableClip() override;
+	void					EnableClip() override;
 
-	void					UnlinkClip();
-	void					LinkClip();
+	void					UnlinkClip() override;
+	void					LinkClip() override;
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity *master, const bool orientated = true ) override;
 
-	const trace_t *			GetBlockingInfo() const;
-	idEntity *				GetBlockingEntity() const;
+	const trace_t *			GetBlockingInfo() const override;
+	idEntity *				GetBlockingEntity() const override;
 
-	int						GetLinearEndTime() const;
-	int						GetAngularEndTime() const;
+	ID_TIME_T				GetLinearEndTime() const override;
+	ID_TIME_T				GetAngularEndTime() const override;
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg &msg ) const override;
+	void					ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 	// parametric physics state

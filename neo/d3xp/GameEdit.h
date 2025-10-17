@@ -43,11 +43,11 @@ public:
 	CLASS_PROTOTYPE( idCursor3D );
 
 							idCursor3D();
-							~idCursor3D();
+							~idCursor3D() override;
 
 	void					Spawn();
-	void					Present();
-	void					Think();
+	void					Present() override;
+	void					Think() override;
 
 	idForce_Drag			drag;
 	idVec3					draggedPosition;

@@ -142,7 +142,7 @@ class idTarget_WaitForButton : public idTarget {
 public:
 	CLASS_PROTOTYPE( idTarget_WaitForButton );
 
-	void				Think();
+	void				Think() override;
 
 private:
 	void				Event_Activate( idEntity *activator );
@@ -215,7 +215,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	void				Think();
+	void				Think() override;
 
 private:
 	idVec4				fadeFrom;
@@ -341,7 +341,7 @@ private:
 	void				Event_GatherEntities();
 	void				Event_Flash( float flash, int out );
 	void				Event_ClearFlash( float flash );
-	void				Think();
+	void				Think() override;
 
 	idList<int, TAG_TARGET>			lightList;
 	idList<int, TAG_TARGET>			guiList;
@@ -393,7 +393,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	void				Think();
+	void				Think() override;
 
 private:
 	idInterpolate<float>	fovSetting;

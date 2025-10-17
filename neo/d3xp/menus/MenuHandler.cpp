@@ -225,7 +225,8 @@ void idMenuHandler::ActivateMenu( bool show ) {
 			gui = _gui;
 			handler = _handler;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			if ( handler != nullptr) {
 				int screen = parms[0].ToInteger();
 				handler->UpdateMenuDisplay( screen );
@@ -243,7 +244,8 @@ void idMenuHandler::ActivateMenu( bool show ) {
 		idSWFScriptFunction_activateMenu( idMenuHandler * _handler ) {
 			handler = _handler;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			if ( handler != nullptr) {
 				handler->TriggerMenu();
 			}

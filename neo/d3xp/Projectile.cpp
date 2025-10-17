@@ -25,7 +25,9 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
- 
+
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -428,15 +430,11 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 			PostEventMS( &EV_Remove, spawnArgs.GetInt( "remove_time", "1500" ) );
 		} else if ( spawnArgs.GetBool( "detonate_on_fuse" ) ) {
 			fuse -= timeSinceFire;
-			if ( fuse < 0.0f ) {
-				fuse = 0.0f;
-			}
+			fuse = std::max(fuse, 0.0f);
 			PostEventSec( &EV_Explode, fuse );
 		} else {
 			fuse -= timeSinceFire;
-			if ( fuse < 0.0f ) {
-				fuse = 0.0f;
-			}
+			fuse = std::max(fuse, 0.0f);
 			PostEventSec( &EV_Fizzle, fuse );
 		}
 	}
@@ -450,7 +448,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	smokeFlyTime = 0;
 	const char *smokeName = spawnArgs.GetString( "smoke_fly" );
 	if ( *smokeName != '\0' ) {
-		smokeFly = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		smokeFly = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 		smokeFlyTime = gameLocal.time;
 	}
 
@@ -489,7 +487,7 @@ void idProjectile::Think() {
 	
 	// if the projectile owner is a player
 	if ( owner.GetEntity() && owner.GetEntity()->IsType( idPlayer::Type ) ) {
-		idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
+		idPlayer *player = dynamic_cast<idPlayer *>( owner.GetEntity() );
 			
 		// Remove any projectiles spectators threw.
 		if( player != nullptr && player->spectating ) {
@@ -591,7 +589,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity ) {
 	}
 
 	// just get rid of the projectile when it hits a player in noclip
-	if ( ent->IsType( idPlayer::Type ) && static_cast<idPlayer *>( ent )->noclip ) {
+	if ( ent->IsType( idPlayer::Type ) && dynamic_cast<idPlayer *>( ent )->noclip ) {
 		PostEventMS( &EV_Remove, 0 );
 		return true;
 	}
@@ -608,13 +606,13 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity ) {
 	}
 
 	// MP: projectiles open doors
-	if ( common->IsMultiplayer() && ent->IsType( idDoor::Type ) && !static_cast< idDoor * >(ent)->IsOpen() && !ent->spawnArgs.GetBool( "no_touch" ) ) {
+	if ( common->IsMultiplayer() && ent->IsType( idDoor::Type ) && !dynamic_cast< idDoor * >(ent)->IsOpen() && !ent->spawnArgs.GetBool( "no_touch" ) ) {
 		if ( !common->IsClient() ) {
 			ent->ProcessEvent( &EV_Activate , this );
 		}
 	}
 
-	if ( ent->IsType( idActor::Type ) || ( ent->IsType( idAFAttachment::Type ) && static_cast<const idAFAttachment*>(ent)->GetBody()->IsType( idActor::Type ) ) ) {
+	if ( ent->IsType( idActor::Type ) || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<const idAFAttachment*>(ent)->GetBody()->IsType( idActor::Type ) ) ) {
 		if ( !projectileFlags.detonate_on_actor ) {
 			return false;
 		}
@@ -667,7 +665,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity ) {
 		if ( owner.GetEntity() && owner.GetEntity()->IsType( idPlayer::Type ) ) {
 			// if the projectile hit an actor
 			if ( ent->IsType( idActor::Type ) ) {
-				idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
+				idPlayer *player = dynamic_cast<idPlayer *>( owner.GetEntity() );
 				player->AddProjectileHits( 1 );
 				damageScale *= player->PowerUpModifier( PROJECTILE_DAMAGE );
 			}
@@ -695,7 +693,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity ) {
 			if( !common->IsClient() && ent->health <= 0 && killedByImpact ) {
 				if ( owner.GetEntity() && owner.GetEntity()->IsType( idPlayer::Type ) ) {
 					if ( ent->IsType( idActor::Type ) && ent != owner.GetEntity() ) {
-						idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
+						idPlayer *player = dynamic_cast<idPlayer *>( owner.GetEntity() );
 						player->AddProjectileKills();
 					}
 				}
@@ -709,7 +707,7 @@ bool idProjectile::Collide( const trace_t &collision, const idVec3 &velocity ) {
 	Explode( collision, ignore );
 
 	if ( !common->IsClient() && owner.GetEntity() != nullptr && owner.GetEntity()->IsType( idPlayer::Type ) ) {
-		idPlayer *player = static_cast<idPlayer *>( owner.GetEntity() );
+		idPlayer *player = dynamic_cast<idPlayer *>( owner.GetEntity() );
 		int kills = player->GetProjectileKills();
 
 		if( kills >= 2 && common->IsMultiplayer() && strstr( GetName(), "projectile_rocket" ) != nullptr ) {
@@ -1114,7 +1112,7 @@ void idProjectile::Explode( const trace_t &collision, idEntity *ignore ) {
 					return;
 				}
 
-				idDebris *debris = static_cast<idDebris *>(ent);
+				idDebris *debris = dynamic_cast<idDebris *>(ent);
 				debris->Create( owner.GetEntity(), physicsObj.GetOrigin(), dir.ToMat3() );
 				debris->Launch();
 			}
@@ -1136,7 +1134,7 @@ void idProjectile::Explode( const trace_t &collision, idEntity *ignore ) {
 					break;
 				}
 
-				idDebris *debris = static_cast<idDebris *>(ent);
+				idDebris *debris = dynamic_cast<idDebris *>(ent);
 				debris->Create( owner.GetEntity(), physicsObj.GetOrigin(), dir.ToMat3() );
 				debris->Launch();
 			}
@@ -1241,7 +1239,7 @@ void idProjectile::CatchProjectile( idEntity* o, const char* reflectName ) {
 	physicsObj.GetClipModel()->SetOwner( o );
 
 	if ( this->IsType( idGuidedProjectile::Type ) ) {
-		idGuidedProjectile *proj = static_cast<idGuidedProjectile*>(this);
+		idGuidedProjectile *proj = dynamic_cast<idGuidedProjectile*>(this);
 
 		proj->SetEnemy( prevowner );
 	}
@@ -1316,11 +1314,11 @@ bool idProjectile::ClientPredictionCollide( idEntity *soundEnt, const idDict &pr
 	}
 
 	// don't do anything if hitting a noclip player
-	if ( ent->IsType( idPlayer::Type ) && static_cast<idPlayer *>( ent )->noclip ) {
+	if ( ent->IsType( idPlayer::Type ) && dynamic_cast<idPlayer *>( ent )->noclip ) {
 		return false;
 	}
 
-	if ( ent->IsType( idActor::Type ) || ( ent->IsType( idAFAttachment::Type ) && static_cast<const idAFAttachment*>(ent)->GetBody()->IsType( idActor::Type ) ) ) {
+	if ( ent->IsType( idActor::Type ) || ( ent->IsType( idAFAttachment::Type ) && dynamic_cast<const idAFAttachment*>(ent)->GetBody()->IsType( idActor::Type ) ) ) {
 		if ( !projectileDef.GetBool( "detonate_on_actor" ) ) {
 			return false;
 		}
@@ -1448,7 +1446,7 @@ void idProjectile::ReadFromSnapshot( const idBitMsg &msg ) {
 idProjectile::ClientReceiveEvent
 ================
 */
-bool idProjectile::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idProjectile::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	trace_t collision;
 	idVec3 velocity;
 
@@ -1460,7 +1458,7 @@ bool idProjectile::ClientReceiveEvent( int event, int time, const idBitMsg &msg 
 			collision.c.point[2] = msg.ReadFloat();
 			collision.c.normal = msg.ReadDir( 24 );
 			int index = gameLocal.ClientRemapDecl( DECL_MATERIAL, msg.ReadLong() );
-			collision.c.material = ( index != -1 ) ? static_cast<const idMaterial *>( declManager->DeclByIndex( DECL_MATERIAL, index ) ) : nullptr;
+			collision.c.material = ( index != -1 ) ? dynamic_cast<const idMaterial *>( declManager->DeclByIndex( DECL_MATERIAL, index ) ) : nullptr;
 			velocity[0] = msg.ReadFloat( 5, 10 );
 			velocity[1] = msg.ReadFloat( 5, 10 );
 			velocity[2] = msg.ReadFloat( 5, 10 );
@@ -1633,7 +1631,7 @@ void idGuidedProjectile::GetSeekPos( idVec3 &out ) {
 	idEntity *enemyEnt = enemy.GetEntity();
 	if ( enemyEnt ) {
 		if ( enemyEnt->IsType( idActor::Type ) ) {
-			out = static_cast<idActor *>(enemyEnt)->GetEyePosition();
+			out = dynamic_cast<idActor *>(enemyEnt)->GetEyePosition();
 			out.z -= 12.0f;
 		} else {
 			out = enemyEnt->GetPhysics()->GetOrigin();
@@ -1680,9 +1678,7 @@ void idGuidedProjectile::Think() {
 
 		// make it more accurate as it gets closer
 		frac = dist / clamp_dist;
-		if ( frac > 1.0f ) {
-			frac = 1.0f;
-		}
+		frac = std::min(frac, 1.0f);
 
 		diff = dirAng - angles + rndAng * frac;
 
@@ -1729,10 +1725,10 @@ void idGuidedProjectile::Launch( const idVec3 &start, const idVec3 &dir, const i
 	idProjectile::Launch( start, dir, pushVelocity, timeSinceFire, launchPower, dmgPower );
 	if ( owner.GetEntity() ) {
 		if ( owner.GetEntity()->IsType( idAI::Type ) ) {
-			enemy = static_cast<idAI *>( owner.GetEntity() )->GetEnemy();
+			enemy = dynamic_cast<idAI *>( owner.GetEntity() )->GetEnemy();
 		} else if ( owner.GetEntity()->IsType( idPlayer::Type ) ) {
 			trace_t tr;
-			idPlayer *player = static_cast<idPlayer*>( owner.GetEntity() );
+			idPlayer *player = dynamic_cast<idPlayer*>( owner.GetEntity() );
 			idVec3 start = player->GetEyePosition();
 			idVec3 end = start + player->viewAxis[0] * 1000.0f;
 			gameLocal.clip.TracePoint( tr, start, end, MASK_SHOT_RENDERMODEL | CONTENTS_BODY, owner.GetEntity() );
@@ -1740,7 +1736,7 @@ void idGuidedProjectile::Launch( const idVec3 &start, const idVec3 &dir, const i
 				enemy = gameLocal.GetTraceEntity( tr );
 			} 
 			// ignore actors on the player's team
-			if ( enemy.GetEntity() == nullptr || !enemy.GetEntity()->IsType( idActor::Type ) || ( static_cast<idActor *>( enemy.GetEntity() )->team == player->team ) ) {
+			if ( enemy.GetEntity() == nullptr || !enemy.GetEntity()->IsType( idActor::Type ) || (dynamic_cast<idActor *>( enemy.GetEntity() )->team == player->team ) ) {
 				enemy = player->EnemyWithMostHealth();
 			}
 		}
@@ -1850,19 +1846,19 @@ void idSoulCubeMissile::KillTarget( const idVec3 &dir ) {
 
 	ReturnToOwner();
 	if ( enemy.GetEntity() && enemy.GetEntity()->IsType( idActor::Type ) ) {
-		act = static_cast<idActor*>( enemy.GetEntity() );
+		act = dynamic_cast<idActor*>( enemy.GetEntity() );
 		killPhase = true;
 		orbitOrg = act->GetPhysics()->GetAbsBounds().GetCenter();
 		orbitTime = gameLocal.time;
 		smokeKillTime = 0;
 		smokeName = spawnArgs.GetString( "smoke_kill" );
 		if ( *smokeName != '\0' ) {
-			smokeKill = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+			smokeKill = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 			smokeKillTime = gameLocal.time;
 		}
 		ownerEnt = owner.GetEntity();
 		if ( ( act->health > 0 ) && ownerEnt != nullptr && ownerEnt->IsType( idPlayer::Type ) && ( ownerEnt->health > 0 ) && !act->spawnArgs.GetBool( "boss" ) ) {
-			static_cast<idPlayer *>( ownerEnt )->GiveHealthPool( act->health );
+			dynamic_cast<idPlayer *>( ownerEnt )->GiveHealthPool( act->health );
 		}
 		act->Damage( this, owner.GetEntity(), dir,  spawnArgs.GetString( "def_damage" ), 1.0f, INVALID_JOINT );
 		act->GetAFPhysics()->SetTimeScale( 0.25 );
@@ -1905,7 +1901,7 @@ void idSoulCubeMissile::Think() {
 
 				ownerEnt = owner.GetEntity();
 				if ( ownerEnt != nullptr && ownerEnt->IsType( idPlayer::Type ) ) {
-					static_cast<idPlayer *>( ownerEnt )->SetSoulCubeProjectile(nullptr);
+					dynamic_cast<idPlayer *>( ownerEnt )->SetSoulCubeProjectile(nullptr);
 				}
 
 				state = FIZZLED;
@@ -1923,7 +1919,7 @@ idSoulCubeMissile::GetSeekPos
 */
 void idSoulCubeMissile::GetSeekPos( idVec3 &out ) {
 	if ( returnPhase && owner.GetEntity() && owner.GetEntity()->IsType( idActor::Type ) ) {
-		idActor *act = static_cast<idActor*>( owner.GetEntity() );
+		idActor *act = dynamic_cast<idActor*>( owner.GetEntity() );
 		out = act->GetEyePosition();
 		return;
 	}
@@ -1979,7 +1975,7 @@ void idSoulCubeMissile::Launch( const idVec3 &start, const idVec3 &dir, const id
 	
 	ownerEnt = owner.GetEntity();
 	if ( ownerEnt != nullptr && ownerEnt->IsType( idPlayer::Type ) ) {
-		static_cast<idPlayer *>( ownerEnt )->SetSoulCubeProjectile( this );
+		dynamic_cast<idPlayer *>( ownerEnt )->SetSoulCubeProjectile( this );
 	}
 
 }
@@ -2131,13 +2127,13 @@ void idBFGProjectile::Think() {
 			if ( beamTargets[i].target.GetEntity() == nullptr) {
 				continue;
 			}
-			idPlayer *player = ( beamTargets[i].target.GetEntity()->IsType( idPlayer::Type ) ) ? static_cast<idPlayer*>( beamTargets[i].target.GetEntity() ) : nullptr;
+			idPlayer *player = ( beamTargets[i].target.GetEntity()->IsType( idPlayer::Type ) ) ? dynamic_cast<idPlayer*>( beamTargets[i].target.GetEntity() ) : nullptr;
 			// Major hack for end boss.  :(
 			idAnimatedEntity	*beamEnt;
 			idVec3				org;
 			bool				forceDamage = false;
 
-			beamEnt = static_cast<idAnimatedEntity*>(beamTargets[i].target.GetEntity());
+			beamEnt = dynamic_cast<idAnimatedEntity*>(beamTargets[i].target.GetEntity());
 			if ( !idStr::Cmp( beamEnt->GetEntityDefName(), "monster_boss_d3xp_maledict" ) ) {
 				SetTimeState	ts( beamEnt->timeGroup );
 				idMat3			temp;
@@ -2264,7 +2260,7 @@ void idBFGProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVe
 		}
 
 		if ( ent->IsType( idPlayer::Type ) ) {
-			idPlayer *player = static_cast<idPlayer*>( ent );
+			idPlayer *player = dynamic_cast<idPlayer*>( ent );
 			player->playerView.EnableBFGVision( true );
 		}
 
@@ -2365,7 +2361,7 @@ void idBFGProjectile::Explode( const trace_t &collision, idEntity *ignore ) {
 
 	ownerEnt = owner.GetEntity();
 	if ( ownerEnt != nullptr && ownerEnt->IsType( idPlayer::Type ) ) {
-		player = static_cast< idPlayer * >( ownerEnt );
+		player = dynamic_cast< idPlayer * >( ownerEnt );
 	} else {
 		player = nullptr;
 	}
@@ -2615,15 +2611,11 @@ void idDebris::Launch() {
 			RunPhysics();
 			PostEventMS( &EV_Remove, 0 );
 		} else if ( spawnArgs.GetBool( "detonate_on_fuse" ) ) {
-			if ( fuse < 0.0f ) {
-				fuse = 0.0f;
-			}
+			fuse = std::max(fuse, 0.0f);
 			RunPhysics();
 			PostEventSec( &EV_Explode, fuse );
 		} else {
-			if ( fuse < 0.0f ) {
-				fuse = 0.0f;
-			}
+			fuse = std::max(fuse, 0.0f);
 			PostEventSec( &EV_Fizzle, fuse );
 		}
 	}
@@ -2634,7 +2626,7 @@ void idDebris::Launch() {
 	smokeFlyTime = 0;
 	const char *smokeName = spawnArgs.GetString( "smoke_fly" );
 	if ( *smokeName != '\0' ) {
-		smokeFly = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		smokeFly = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 		smokeFlyTime = gameLocal.time;
 		gameLocal.smokeParticles->EmitSmoke( smokeFly, smokeFlyTime, gameLocal.random.CRandomFloat(), GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), timeGroup /*_D3XP*/ );
 	}
@@ -2709,7 +2701,7 @@ void idDebris::Fizzle() {
 	// fizzle FX
 	const char *smokeName = spawnArgs.GetString( "smoke_fuse" );
 	if ( *smokeName != '\0' ) {
-		smokeFly = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		smokeFly = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 		smokeFlyTime = gameLocal.time;
 		gameLocal.smokeParticles->EmitSmoke( smokeFly, smokeFlyTime, gameLocal.random.CRandomFloat(), GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), timeGroup /*_D3XP*/ );
 	}
@@ -2749,7 +2741,7 @@ void idDebris::Explode() {
 	smokeFlyTime = 0;
 	const char *smokeName = spawnArgs.GetString( "smoke_detonate" );
 	if ( *smokeName != '\0' ) {
-		smokeFly = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		smokeFly = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 		smokeFlyTime = gameLocal.time;
 		gameLocal.smokeParticles->EmitSmoke( smokeFly, smokeFlyTime, gameLocal.random.CRandomFloat(), GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), timeGroup /*_D3XP*/ );
 	}
@@ -2901,9 +2893,7 @@ void idHomingProjectile::Think() {
 
 	// make it more accurate as it gets closer
 	frac = ( dist * 2.0f ) / clamp_dist;
-	if ( frac > 1.0f ) {
-		frac = 1.0f;
-	}
+	frac = std::min(frac, 1.0f);
 
 	diff = dirAng - angles * frac;
 
@@ -2949,10 +2939,10 @@ void idHomingProjectile::Launch( const idVec3 &start, const idVec3 &dir, const i
 	idProjectile::Launch( start, dir, pushVelocity, timeSinceFire, launchPower, dmgPower );
 	if ( owner.GetEntity() ) {
 		if ( owner.GetEntity()->IsType( idAI::Type ) ) {
-			enemy = static_cast<idAI *>( owner.GetEntity() )->GetEnemy();
+			enemy = dynamic_cast<idAI *>( owner.GetEntity() )->GetEnemy();
 		} else if ( owner.GetEntity()->IsType( idPlayer::Type ) ) {
 			trace_t tr;
-			idPlayer *player = static_cast<idPlayer*>( owner.GetEntity() );
+			idPlayer *player = dynamic_cast<idPlayer*>( owner.GetEntity() );
 			idVec3 start = player->GetEyePosition();
 			idVec3 end = start + player->viewAxis[0] * 1000.0f;
 			gameLocal.clip.TracePoint( tr, start, end, MASK_SHOT_RENDERMODEL | CONTENTS_BODY, owner.GetEntity() );
@@ -2960,7 +2950,7 @@ void idHomingProjectile::Launch( const idVec3 &start, const idVec3 &dir, const i
 				enemy = gameLocal.GetTraceEntity( tr );
 			} 
 			// ignore actors on the player's team
-			if ( enemy.GetEntity() == nullptr || !enemy.GetEntity()->IsType( idActor::Type ) || ( static_cast<idActor *>( enemy.GetEntity() )->team == player->team ) ) {
+			if ( enemy.GetEntity() == nullptr || !enemy.GetEntity()->IsType( idActor::Type ) || (dynamic_cast<idActor *>( enemy.GetEntity() )->team == player->team ) ) {
 				enemy = player->EnemyWithMostHealth();
 			}
 		}

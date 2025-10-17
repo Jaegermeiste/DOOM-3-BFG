@@ -2673,7 +2673,7 @@ bool idDeclModelDef::Parse( const char *text, const size_t textLength, bool allo
 				return false;
 			}
 			
-			const idDeclModelDef *copy = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, token2, false ) );
+			const idDeclModelDef *copy = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, token2, false ) );
 			if ( !copy ) {
 				common->Warning( "Unknown model definition '%s'", token2.c_str() );
 			} else if ( copy->GetState() == DS_DEFAULTED ) {
@@ -3364,7 +3364,7 @@ idRenderModel *idAnimator::SetModel( const char *modelname ) {
 		return nullptr;
 	}
 
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
 	if ( !modelDef ) {
 		return nullptr;
 	}
@@ -3990,7 +3990,7 @@ void idAnimator::SetAFPoseJointMod( const jointHandle_t jointNum, const AFJointM
 idAnimator::FinishAFPose
 =====================
 */
-void idAnimator::FinishAFPose( int animNum, const idBounds &bounds, const int time ) {
+void idAnimator::FinishAFPose( int animNum, const idBounds &bounds, const const ID_TIME_T time ) {
 	size_t				i = 0, j = 0;
 	size_t				numJoints = 0;
 	size_t				parentNum = 0;
@@ -4778,7 +4778,7 @@ const idDeclModelDef *ANIM_GetModelDefFromEntityDef( const idDict *args ) {
 	const idDeclModelDef *modelDef;
 
 	idStr name = args->GetString( "model" );
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, name, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, name, false ) );
 	if ( modelDef != nullptr && modelDef->ModelHandle() ) {
 		return modelDef;
 	}
@@ -4798,7 +4798,7 @@ idRenderModel *idGameEdit::ANIM_GetModelFromEntityDef( const idDict *args ) {
 	model = nullptr;
 
 	idStr name = args->GetString( "model" );
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, name, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, name, false ) );
 	if ( modelDef != nullptr) {
 		model = modelDef->ModelHandle();
 	}
@@ -4862,7 +4862,7 @@ idRenderModel *idGameEdit::ANIM_GetModelFromName( const char *modelName ) {
 	idRenderModel *model;
 
 	model = nullptr;
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelName, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelName, false ) );
 	if ( modelDef ) {
 		model = modelDef->ModelHandle();
 	}
@@ -4892,7 +4892,7 @@ const idMD5Anim *idGameEdit::ANIM_GetAnimFromEntityDef( const char *classname, c
 
 	md5anim = nullptr;
 	modelname = args->GetString( "model" );
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
 	if ( modelDef ) {
 		animNum = modelDef->GetAnim( animname );
 		if ( animNum ) {
@@ -4915,7 +4915,7 @@ int idGameEdit::ANIM_GetNumAnimsFromEntityDef( const idDict *args ) {
 	const idDeclModelDef *modelDef;
 
 	modelname = args->GetString( "model" );
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
 	if ( modelDef ) {
 		return modelDef->NumAnims();
 	}
@@ -4932,7 +4932,7 @@ const char *idGameEdit::ANIM_GetAnimNameFromEntityDef( const idDict *args, int a
 	const idDeclModelDef *modelDef;
 
 	modelname = args->GetString( "model" );
-	modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
+	modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelname, false ) );
 	if ( modelDef ) {
 		const idAnim* anim = modelDef->GetAnim( animNum );
 		if ( anim ) {

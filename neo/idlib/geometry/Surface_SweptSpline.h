@@ -48,7 +48,7 @@ public:
 	void					SetSweptSpline( idCurve_Spline<idVec4> *sweptSpline );
 	void					SetSweptCircle( const float radius );
 
-	void					Tessellate( const int splineSubdivisions, const int sweptSplineSubdivisions );
+	void					Tessellate( const size_t splineSubdivisions, const size_t sweptSplineSubdivisions );
 
 	void					Clear();
 

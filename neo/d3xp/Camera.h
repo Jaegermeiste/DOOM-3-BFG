@@ -44,7 +44,7 @@ public:
 
 	void					Spawn();
 	virtual void			GetViewParms( renderView_t *view ) = 0;
-	virtual renderView_t *	GetRenderView();
+	renderView_t *	GetRenderView() override;
 	virtual void			Stop(){} ;
 };
 
@@ -66,8 +66,8 @@ public:
 	void					Restore( idRestoreGame *savefile );				// unarchives object from save game file
 
 	void					Spawn( );
-	virtual void			GetViewParms( renderView_t *view );
-	virtual void			Stop();
+	void			GetViewParms( renderView_t *view ) override;
+	void			Stop() override;
 
 protected:
 	void					Event_Activate( idEntity *activator );
@@ -99,14 +99,14 @@ public:
 	CLASS_PROTOTYPE( idCameraAnim );
 
 							idCameraAnim();
-							~idCameraAnim();
+							~idCameraAnim() override;
 
 	// save games
 	void					Save( idSaveGame *savefile ) const;				// archives object for save game file
 	void					Restore( idRestoreGame *savefile );				// unarchives object from save game file
 
 	void					Spawn();
-	virtual void			GetViewParms( renderView_t *view );
+	void			GetViewParms( renderView_t *view ) override;
 
 private:
 	int						threadNum;
@@ -119,8 +119,8 @@ private:
 	idEntityPtr<idEntity>	activator;
 
 	void					Start();
-	void					Stop();
-	void					Think();
+	void					Stop() override;
+	void					Think() override;
 
 	void					LoadAnim();
 	void					Event_Start();

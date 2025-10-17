@@ -917,7 +917,7 @@ void idAFEntity_Base::DropAFs( idEntity *ent, const char *type, idList<idEntity 
 		gameLocal.SpawnEntityDef( args, &newEnt );
 
 		if ( newEnt && newEnt->IsType( idAFEntity_Base::Type ) ) {
-			af = static_cast<idAFEntity_Base *>(newEnt);
+			af = dynamic_cast<idAFEntity_Base *>(newEnt);
 			af->GetPhysics()->SetOrigin( ent->GetPhysics()->GetOrigin() );
 			af->GetPhysics()->SetAxis( ent->GetPhysics()->GetAxis() );
 			af->af.SetupPose( ent, gameLocal.time );
@@ -1046,7 +1046,7 @@ void idAFEntity_Gibbable::InitSkeletonModel() {
 
 	modelDef = nullptr;
 	if ( modelName[0] != '\0' ) {
-		modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelName, false ) );
+		modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelName, false ) );
 		if ( modelDef ) {
 			skeletonModel = modelDef->ModelHandle();
 		} else {
@@ -1706,7 +1706,7 @@ void idAFEntity_Vehicle::Spawn() {
 
 	const char *smokeName = spawnArgs.GetString( "smoke_vehicle_dust", "muzzlesmoke" );
 	if ( *smokeName != '\0' ) {
-		dustSmoke = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		dustSmoke = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 	}
 }
 
@@ -2034,7 +2034,7 @@ void idAFEntity_VehicleFourWheels::Spawn() {
 		if ( !steeringHingeName[0] ) {
 			gameLocal.Error( "idAFEntity_VehicleFourWheels '%s' no '%s' specified", name.c_str(), steeringHingeKeys[i] );
 		}
-		steering[i] = static_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( steeringHingeName ));
+		steering[i] = dynamic_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( steeringHingeName ));
 		if ( !steering[i] ) {
 			gameLocal.Error( "idAFEntity_VehicleFourWheels '%s': can't find steering hinge '%s'", name.c_str(), steeringHingeName );
 		}
@@ -2218,7 +2218,7 @@ void idAFEntity_VehicleSixWheels::Spawn() {
 		if ( !steeringHingeName[0] ) {
 			gameLocal.Error( "idAFEntity_VehicleSixWheels '%s' no '%s' specified", name.c_str(), steeringHingeKeys[i] );
 		}
-		steering[i] = static_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( steeringHingeName ));
+		steering[i] = dynamic_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( steeringHingeName ));
 		if ( !steering[i] ) {
 			gameLocal.Error( "idAFEntity_VehicleSixWheels '%s': can't find steering hinge '%s'", name.c_str(), steeringHingeName );
 		}
@@ -2613,7 +2613,7 @@ void idAFEntity_SteamPipe::InitSteamRenderEntity() {
 	temp = spawnArgs.GetString ( "model_steam" );
 	if ( *temp != '\0' ) {
 		if ( !strstr( temp, "." ) ) {
-			modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, temp, false ) );
+			modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, temp, false ) );
 			if ( modelDef ) {
 				steamRenderEntity.hModel = modelDef->ModelHandle();
 			}
@@ -2715,7 +2715,7 @@ void idAFEntity_ClawFourFingers::Restore( idRestoreGame *savefile ) {
 	int i;
 
 	for ( i = 0; i < 4; i++ ) {
-		fingers[i] = static_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( clawConstraintNames[i] ));
+		fingers[i] = dynamic_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( clawConstraintNames[i] ));
 		fingers[i]->Restore( savefile );
 	}
 
@@ -2742,7 +2742,7 @@ void idAFEntity_ClawFourFingers::Spawn() {
 	fl.takedamage = true;
 
 	for ( i = 0; i < 4; i++ ) {
-		fingers[i] = static_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( clawConstraintNames[i] ));
+		fingers[i] = dynamic_cast<idAFConstraint_Hinge *>(af.GetPhysics()->GetConstraint( clawConstraintNames[i] ));
 		if ( !fingers[i] ) {
 			gameLocal.Error( "idClaw_FourFingers '%s': can't find claw constraint '%s'", name.c_str(), clawConstraintNames[i] );
 		}
@@ -2805,7 +2805,7 @@ bool idGameEdit::AF_SpawnEntity( const char *fileName ) {
 		return false;
 	}
 
-	af = static_cast<const idDeclAF *>( declManager->FindType( DECL_AF, fileName ) );
+	af = dynamic_cast<const idDeclAF *>( declManager->FindType( DECL_AF, fileName ) );
 	if ( !af ) {
 		return false;
 	}
@@ -2853,7 +2853,7 @@ void idGameEdit::AF_UpdateEntities( const char *fileName ) {
 	// reload any idAFEntity_Generic which uses the given articulated figure file
 	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 		if ( ent->IsType( idAFEntity_Base::Type ) ) {
-			af = static_cast<idAFEntity_Base *>(ent);
+			af = dynamic_cast<idAFEntity_Base *>(ent);
 			if ( name.Icmp( af->GetAFName() ) == 0 ) {
 				af->LoadAF();
 				af->GetAFPhysics()->PutToRest();
@@ -2875,7 +2875,7 @@ void idGameEdit::AF_UndoChanges() {
 
 	c = declManager->GetNumDecls( DECL_AF );
 	for ( i = 0; i < c; i++ ) {
-		decl = static_cast<idDeclAF *>( const_cast<idDecl *>( declManager->DeclByIndex( DECL_AF, i, false ) ) );
+		decl = dynamic_cast<idDeclAF *>( const_cast<idDecl *>( declManager->DeclByIndex( DECL_AF, i, false ) ) );
 		if ( !decl->modified ) {
 			continue;
 		}
@@ -2886,7 +2886,7 @@ void idGameEdit::AF_UndoChanges() {
 		// reload all AF entities using the file
 		for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 			if ( ent->IsType( idAFEntity_Base::Type ) ) {
-				af = static_cast<idAFEntity_Base *>(ent);
+				af = dynamic_cast<idAFEntity_Base *>(ent);
 				if ( idStr::Icmp( decl->GetName(), af->GetAFName() ) == 0 ) {
 					af->LoadAF();
 				}
@@ -2974,14 +2974,14 @@ idRenderModel *idGameEdit::AF_CreateMesh( const idDict &args, idVec3 &meshOrigin
 
 	// get the articulated figure
 	afName = GetArgString( args, defArgs, "articulatedFigure" );
-	af = static_cast<const idDeclAF *>( declManager->FindType( DECL_AF, afName ) );
+	af = dynamic_cast<const idDeclAF *>( declManager->FindType( DECL_AF, afName ) );
 	if ( !af ) {
 		return nullptr;
 	}
 
 	// get the md5 model
 	modelName = GetArgString( args, defArgs, "model" );
-	modelDef = static_cast< const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelName, false ) );
+	modelDef = dynamic_cast< const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, modelName, false ) );
 	if ( !modelDef ) {
 		return nullptr;
 	}
@@ -3205,11 +3205,11 @@ void idHarvestable::Init(idEntity* parent) {
 	
 	idEntity* head = nullptr;
 	if(parent->IsType(idActor::Type)) {
-		idActor* withHead = static_cast<idActor*>(parent);
+		idActor* withHead = dynamic_cast<idActor*>(parent);
 		head = withHead->GetHeadEntity();
 	}
 	if(parent->IsType(idAFEntity_WithAttachedHead::Type)) {
-		idAFEntity_WithAttachedHead* withHead = static_cast<idAFEntity_WithAttachedHead*>(parent);
+		idAFEntity_WithAttachedHead* withHead = dynamic_cast<idAFEntity_WithAttachedHead*>(parent);
 		head = withHead->head.GetEntity();
 	}
 	if(head) {
@@ -3348,11 +3348,11 @@ void idHarvestable::BeginBurn() {
 
 	idEntity* head = nullptr;
 	if(parent->IsType(idActor::Type)) {
-		idActor* withHead = static_cast<idActor*>(parent);
+		idActor* withHead = dynamic_cast<idActor*>(parent);
 		head = withHead->GetHeadEntity();
 	}
 	if(parent->IsType(idAFEntity_WithAttachedHead::Type)) {
-		idAFEntity_WithAttachedHead* withHead = static_cast<idAFEntity_WithAttachedHead*>(parent);
+		idAFEntity_WithAttachedHead* withHead = dynamic_cast<idAFEntity_WithAttachedHead*>(parent);
 		head = withHead->head.GetEntity();
 	}
 	if(head) {
@@ -3511,14 +3511,14 @@ void idHarvestable::Event_Touch( idEntity *other, trace_t *trace ) {
 		return;
 	}
 	if(parent->IsType(idAFEntity_Gibbable::Type)) {
-		idAFEntity_Gibbable* gibParent = static_cast<idAFEntity_Gibbable*>(parent);
+		idAFEntity_Gibbable* gibParent = dynamic_cast<idAFEntity_Gibbable*>(parent);
 		if(gibParent->IsGibbed())
 			return;
 	}
 
 
 	if(!startTime && other && other->IsType(idPlayer::Type)) {
-		idPlayer *thePlayer = static_cast<idPlayer *>(other);
+		idPlayer *thePlayer = dynamic_cast<idPlayer *>(other);
 
 		if(thePlayer->harvest_lock) {
 			//Don't harvest if the player is in mid harvest
@@ -3656,7 +3656,7 @@ void idAFEntity_Harvest::Event_SpawnHarvestEntity() {
 	if ( harvestDef ) {
 		idEntity *temp;
 		gameLocal.SpawnEntityDef( *harvestDef, &temp, false );
-		harvestEnt = static_cast<idHarvestable *>(temp);
+		harvestEnt = dynamic_cast<idHarvestable *>(temp);
 	}
 
 	if(harvestEnt.GetEntity()) {

@@ -78,14 +78,14 @@ class idIK_Walk : public idIK {
 public:
 
 							idIK_Walk();
-	virtual					~idIK_Walk();
+							~idIK_Walk() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset );
-	virtual void			Evaluate();
-	virtual void			ClearJointMods();
+							bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset ) override;
+							void			Evaluate() override;
+							void			ClearJointMods() override;
 
 	void					EnableAll();
 	void					DisableAll();
@@ -149,14 +149,14 @@ class idIK_Reach : public idIK {
 public:
 
 							idIK_Reach();
-	virtual					~idIK_Reach();
+							~idIK_Reach() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset );
-	virtual void			Evaluate();
-	virtual void			ClearJointMods();
+							bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset ) override;
+							void			Evaluate() override;
+							void			ClearJointMods() override;
 
 private:
 

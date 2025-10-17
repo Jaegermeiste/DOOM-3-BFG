@@ -163,11 +163,11 @@ class idRenderLightLocal : public idRenderLight {
 public:
 							idRenderLightLocal();
 
-	virtual void			FreeRenderLight();
-	virtual void			UpdateRenderLight( const renderLight_t *re, bool forceUpdate = false );
-	virtual void			GetRenderLight( renderLight_t *re );
-	virtual void			ForceUpdate();
-	virtual size_t			GetIndex();
+							void			FreeRenderLight() override;
+							void			UpdateRenderLight( const renderLight_t *re, bool forceUpdate = false ) override;
+							void			GetRenderLight( renderLight_t *re ) override;
+							void			ForceUpdate() override;
+							size_t			GetIndex() override;
 
 	[[nodiscard]] bool		LightCastsShadows() const { return parms.forceShadows || ( !parms.noShadows && lightShader->LightCastsShadows() ); }
 
@@ -213,15 +213,15 @@ class idRenderEntityLocal : public idRenderEntity {
 public:
 							idRenderEntityLocal();
 
-	virtual void			FreeRenderEntity();
-	virtual void			UpdateRenderEntity( const renderEntity_t *re, bool forceUpdate = false );
-	virtual void			GetRenderEntity( renderEntity_t *re );
-	virtual void			ForceUpdate();
-	virtual size_t			GetIndex();
+							void			FreeRenderEntity() override;
+							void			UpdateRenderEntity( const renderEntity_t *re, bool forceUpdate = false ) override;
+							void			GetRenderEntity( renderEntity_t *re ) override;
+							void			ForceUpdate() override;
+							size_t			GetIndex() override;
 
 	// overlays are extra polygons that deform with animating models for blood and damage marks
-	virtual void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material );
-	virtual void			RemoveDecals();
+							void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material ) override;
+							void			RemoveDecals() override;
 
 	[[nodiscard]] bool		IsDirectlyVisible() const;
 
@@ -363,7 +363,7 @@ typedef struct viewEntity_s {
 } viewEntity_t;
 
 
-constexpr size_t	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
+constexpr size_t	MAX_CLIP_PLANES_RENDER	= 6;				// we may expand this to six for some subview issues
 
 // viewDefs are allocated on the frame temporary stack memory
 typedef struct viewDef_s {
@@ -393,8 +393,8 @@ typedef struct viewDef_s {
 	bool				isEditor;
 	bool				is2Dgui;
 
-	int					numClipPlanes;			// mirrors will often use a single clip plane
-	idPlane				clipPlanes[MAX_CLIP_PLANES];		// in world space, the positive side
+	size_t				numClipPlanes;			// mirrors will often use a single clip plane
+	idPlane				clipPlanes[MAX_CLIP_PLANES_RENDER];		// in world space, the positive side
 												// of the plane is the visible side
 	idScreenRect		viewport;				// in real pixels and proper Y flip
 
@@ -683,75 +683,75 @@ static constexpr size_t MAX_RENDER_CROPS = 8;
 class idRenderSystemLocal : public idRenderSystem {
 public:
 	// external functions
-	virtual void			Init();
-	virtual void			Shutdown();
-	virtual void			ResetGuiModels();
-	virtual void			InitOpenGL();
-	virtual void			ShutdownOpenGL();
-	[[nodiscard]] virtual bool			IsOpenGLRunning() const;
-	[[nodiscard]] virtual bool			IsFullScreen() const;
-	[[nodiscard]] virtual stereo3DMode_t	GetStereo3DMode() const;
-	[[nodiscard]] virtual bool			HasQuadBufferSupport() const;
-	[[nodiscard]] virtual bool			IsStereoScopicRenderingSupported() const;
-	[[nodiscard]] virtual stereo3DMode_t	GetStereoScopicRenderingMode() const;
-	virtual void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const;
-	[[nodiscard]] virtual size_t		GetWidth() const;
-	[[nodiscard]] virtual size_t		GetHeight() const;
-	[[nodiscard]] virtual float			GetPixelAspect() const;
-	[[nodiscard]] virtual float			GetPhysicalScreenWidthInCentimeters() const;
-	virtual idRenderWorld *	AllocRenderWorld();
-	virtual void			FreeRenderWorld( idRenderWorld *rw );
-	virtual void			BeginLevelLoad();
-	virtual void			EndLevelLoad();
-	virtual void			LoadLevelImages();
-	virtual void			Preload( const idPreloadManifest &manifest, const char *mapName );
-	virtual void			BeginAutomaticBackgroundSwaps( autoRenderIconType_t icon = AUTORENDER_DEFAULTICON );
-	virtual void			EndAutomaticBackgroundSwaps();
-	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t * usingAlternateIcon = nullptr) const;
+	void			Init() override;
+	void			Shutdown() override;
+	void			ResetGuiModels() override;
+	void			InitOpenGL() override;
+	void			ShutdownOpenGL() override;
+	[[nodiscard]] bool			IsOpenGLRunning() const override;
+	[[nodiscard]] bool			IsFullScreen() const override;
+	[[nodiscard]] stereo3DMode_t	GetStereo3DMode() const override;
+	[[nodiscard]] bool			HasQuadBufferSupport() const override;
+	[[nodiscard]] bool			IsStereoScopicRenderingSupported() const override;
+	[[nodiscard]] stereo3DMode_t	GetStereoScopicRenderingMode() const override;
+	void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const override;
+	[[nodiscard]] size_t		GetWidth() const override;
+	[[nodiscard]] size_t		GetHeight() const override;
+	[[nodiscard]] float			GetPixelAspect() const override;
+	[[nodiscard]] float			GetPhysicalScreenWidthInCentimeters() const override;
+	idRenderWorld *	AllocRenderWorld() override;
+	void			FreeRenderWorld( idRenderWorld *rw ) override;
+	void			BeginLevelLoad() override;
+	void			EndLevelLoad() override;
+	void			LoadLevelImages() override;
+	void			Preload( const idPreloadManifest &manifest, const char *mapName ) override;
+	void			BeginAutomaticBackgroundSwaps( autoRenderIconType_t icon = AUTORENDER_DEFAULTICON ) override;
+	void			EndAutomaticBackgroundSwaps() override;
+	bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t * usingAlternateIcon = nullptr) const override;
 
-	virtual idFont *		RegisterFont( const char * fontName );
-	virtual void			ResetFonts();
-	virtual void			PrintMemInfo( MemInfo_t *mi );
+	idFont *		RegisterFont( const char * fontName ) override;
+	void			ResetFonts() override;
+	void			PrintMemInfo( MemInfo_t *mi ) override;
 
-	virtual void			SetColor( const idVec4 & color );
-	virtual uint32			GetColor();
-	virtual void			SetGLState( const uint64 glState ) ;
-	virtual void			DrawFilled( const idVec4 & color, float x, float y, float w, float h );
-	virtual void			DrawStretchPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material );
-	virtual void			DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material );
-	virtual void			DrawStretchTri ( const idVec2 & p1, const idVec2 & p2, const idVec2 & p3, const idVec2 & t1, const idVec2 & t2, const idVec2 & t3, const idMaterial *material );
-	virtual idDrawVert *	AllocTris(const size_t numVerts, const triIndex_t * indexes, const size_t numIndexes, const idMaterial * material, const stereoDepthType_t stereoType = STEREO_DEPTH_TYPE_NONE );
-	virtual void			DrawSmallChar(const int x, const int y, int ch );
-	virtual void			DrawSmallStringExt(const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor );
-	virtual void			DrawBigChar(const int x, const int y, int ch );
-	virtual void			DrawBigStringExt(const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor );
+	void			SetColor( const idVec4 & color ) override;
+	uint32			GetColor() override;
+	void			SetGLState( const uint64 glState ) override;
+	void			DrawFilled( const idVec4 & color, float x, float y, float w, float h ) override;
+	void			DrawStretchPic ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) override;
+	void			DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material ) override;
+	void			DrawStretchTri ( const idVec2 & p1, const idVec2 & p2, const idVec2 & p3, const idVec2 & t1, const idVec2 & t2, const idVec2 & t3, const idMaterial *material ) override;
+	idDrawVert *	AllocTris(const size_t numVerts, const triIndex_t * indexes, const size_t numIndexes, const idMaterial * material, const stereoDepthType_t stereoType = STEREO_DEPTH_TYPE_NONE ) override;
+	void			DrawSmallChar(const int x, const int y, int ch ) override;
+	void			DrawSmallStringExt(const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) override;
+	void			DrawBigChar(const int x, const int y, int ch ) override;
+	void			DrawBigStringExt(const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) override;
 
-	virtual void			WriteDemoPics();
-	virtual void			DrawDemoPics();
-	virtual const emptyCommand_t *	SwapCommandBuffers( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec );
+	void			WriteDemoPics() override;
+	void			DrawDemoPics() override;
+	const emptyCommand_t *	SwapCommandBuffers( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) override;
 
-	virtual void			SwapCommandBuffers_FinishRendering( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec );
-	virtual const emptyCommand_t *	SwapCommandBuffers_FinishCommandBuffers();
+	void			SwapCommandBuffers_FinishRendering( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) override;
+	const emptyCommand_t *	SwapCommandBuffers_FinishCommandBuffers() override;
 
-	virtual void			RenderCommandBuffers( const emptyCommand_t * commandBuffers );
-	virtual void			TakeScreenshot( const size_t width, const size_t height, const char *fileName, const size_t downSample, renderView_t *ref );
-	virtual void			CropRenderSize(const size_t width, const size_t height );
-	virtual void			CaptureRenderToImage( const char *imageName, bool clearColorAfterCopy = false );
-	virtual void			CaptureRenderToFile( const char *fileName, bool fixAlpha );
-	virtual void			UnCrop();
-	virtual bool			UploadImage( const char *imageName, const byte *data, const size_t width, const size_t height );
+	void			RenderCommandBuffers( const emptyCommand_t * commandBuffers ) override;
+	void			TakeScreenshot( const size_t width, const size_t height, const char *fileName, const size_t downSample, renderView_t *ref ) override;
+	void			CropRenderSize(const size_t width, const size_t height ) override;
+	void			CaptureRenderToImage( const char *imageName, bool clearColorAfterCopy = false ) override;
+	void			CaptureRenderToFile( const char *fileName, bool fixAlpha ) override;
+	void			UnCrop() override;
+	bool			UploadImage( const char *imageName, const byte *data, const size_t width, const size_t height ) override;
 
 	
 
 public:
 	// internal functions
 							idRenderSystemLocal();
-							~idRenderSystemLocal();
+							~idRenderSystemLocal() override;
 
 	void					Clear();
 	void					GetCroppedViewport( idScreenRect * viewport ) const;
 	void					PerformResolutionScaling( size_t& newWidth, size_t& newHeight ) const;
-	[[nodiscard]] size_t	GetFrameCount() const { return frameCount; };
+	[[nodiscard]] size_t	GetFrameCount() const override { return frameCount; };
 
 public:
 	// renderer globals

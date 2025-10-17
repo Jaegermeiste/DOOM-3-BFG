@@ -77,7 +77,7 @@ public:
 
 	// spits out a particle, returning false if the system will not emit any more particles in the future
 	bool						EmitSmoke( const idDeclParticle *smoke, const int startTime, const float diversity,
-											const idVec3 &origin, const idMat3 &axis, int timeGroup /*_D3XP*/ );
+											const idVec3 &origin, const idMat3 &axis, const ID_TIME_T timeGroup /*_D3XP*/ );
 
 	// free old smokes
 	void						FreeSmokes();

@@ -56,27 +56,27 @@ public:
 	CLASS_PROTOTYPE( idEntityFx );
 
 							idEntityFx();
-	virtual					~idEntityFx();
+	~idEntityFx() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 	void					Setup( const char *fx );
-	void					Run( int time );
-	void					Start( int time );
+	void					Run( const ID_TIME_T time );
+	void					Start( const ID_TIME_T time );
 	void					Stop();
 	const int				Duration();
 	const char *			EffectName();
 	const char *			Joint();
 	const bool				Done();
 
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			ClientPredictionThink();
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientPredictionThink() override;
 
 	static idEntityFx *		StartFx( const char *fx, const idVec3 *useOrigin, const idMat3 *useAxis, idEntity *ent, bool bind );
 
@@ -86,7 +86,7 @@ protected:
 
 	void					CleanUp();
 	void					CleanUpSingleAction( const idFXSingleAction& fxaction, idFXLocalAction& laction );
-	void					ApplyFade( const idFXSingleAction& fxaction, idFXLocalAction& laction, const int time, const int actualStart );
+	void					ApplyFade( const idFXSingleAction& fxaction, idFXLocalAction& laction, const const ID_TIME_T time, const int actualStart );
 
 	int						started;
 	int						nextTriggerTime;

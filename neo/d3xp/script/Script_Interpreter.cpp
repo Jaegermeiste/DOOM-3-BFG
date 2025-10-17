@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 
@@ -511,9 +513,7 @@ Copys the args from the calling thread's stack
 void idInterpreter::ThreadCall( idInterpreter *source, const function_t *func, int args ) {
 	Reset();
 
-	if ( args > LOCALSTACK_SIZE ) {
-		args = LOCALSTACK_SIZE;
-	}
+	args = std::min(args, LOCALSTACK_SIZE);
 	memcpy( localstack, &source->localstack[ source->localstackUsed - args ], args );
 
 	localstackUsed = args;
@@ -578,9 +578,7 @@ void idInterpreter::EnterFunction( const function_t *func, bool clearStack ) {
 	stack->stackbase	= localstackBase;
 
 	callStackDepth++;
-	if ( callStackDepth > maxStackDepth ) {
-		maxStackDepth = callStackDepth;
-	}
+	maxStackDepth = std::max(callStackDepth, maxStackDepth);
 
 	if ( func == nullptr) {
 		Error( "NULL function" );
@@ -615,9 +613,7 @@ void idInterpreter::EnterFunction( const function_t *func, bool clearStack ) {
 	localstackUsed += c;
 	localstackBase = localstackUsed - func->locals;
 
-	if ( localstackUsed > maxLocalstackUsed ) {
-		maxLocalstackUsed = localstackUsed ;
-	}
+	maxLocalstackUsed = std::max(localstackUsed, maxLocalstackUsed);
 }
 
 /*

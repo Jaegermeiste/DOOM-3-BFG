@@ -1016,7 +1016,7 @@ void idLight::Event_SetSoundHandles() {
 	for ( i = 0; i < targets.Num(); i++ ) {
 		targetEnt = targets[ i ].GetEntity();
 		if ( targetEnt != nullptr && targetEnt->IsType( idLight::Type ) ) {
-			idLight	*light = static_cast<idLight*>(targetEnt);
+			idLight	*light = dynamic_cast<idLight*>(targetEnt);
 			light->lightParent = this;
 
 			// explicitly delete any sounds on the entity
@@ -1168,7 +1168,7 @@ void idLight::ReadFromSnapshot( const idBitMsg &msg ) {
 idLight::ClientReceiveEvent
 ================
 */
-bool idLight::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idLight::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_BECOMEBROKEN: {

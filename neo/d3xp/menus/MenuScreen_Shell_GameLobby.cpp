@@ -392,7 +392,8 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction & action, const 
 			class idSWFScriptFunction_Accept : public idSWFScriptFunction_RefCounted {
 			public:
 				idSWFScriptFunction_Accept() { }
-				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+				{
 					common->Dialog().ClearDialog( GDM_LEAVE_LOBBY_RET_NEW_PARTY );
 					session->Cancel();
 
@@ -402,7 +403,8 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction & action, const 
 			class idSWFScriptFunction_Cancel : public idSWFScriptFunction_RefCounted {
 			public:
 				idSWFScriptFunction_Cancel() { }
-				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+				{
 					common->Dialog().ClearDialog( GDM_LEAVE_LOBBY_RET_NEW_PARTY );
 					return idSWFScriptVar();
 				}
@@ -559,14 +561,14 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby() {
 			if ( handler != nullptr) {
 				if ( session->GetActivePlatformLobbyBase().IsLobbyFull() ) {
 					longCountdown = Sys_Milliseconds() + longCountRemaining;
-					int timeRemaining = shortCountdown - Sys_Milliseconds();
+					const ID_TIME_T timeRemaining = shortCountdown - Sys_Milliseconds();
 					if ( timeRemaining < 0 ) {
 						timeRemaining = 0;
 					}
 					ms = static_cast<int>(ceilf(timeRemaining / 1000.0f));
 					handler->SetTimeRemaining( timeRemaining );
 				} else if ( session->GetActivePlatformLobbyBase().GetNumLobbyUsers() > 1 ) {
-					int timeRemaining = longCountdown - Sys_Milliseconds();
+					const ID_TIME_T timeRemaining = longCountdown - Sys_Milliseconds();
 					if ( timeRemaining > WAIT_START_TIME_SHORT ) {
 						shortCountdown = Sys_Milliseconds() + WAIT_START_TIME_SHORT;
 					} else {

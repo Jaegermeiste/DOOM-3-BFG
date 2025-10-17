@@ -47,10 +47,10 @@ public:
 	CLASS_PROTOTYPE( idMultiModelAF );
 
 	void					Spawn();
-							~idMultiModelAF();
+							~idMultiModelAF() override;
 
-	virtual void			Think();
-	virtual void			Present();
+	void			Think() override;
+	void			Present() override;
 
 protected:
 	idPhysics_AF			physicsObj;
@@ -97,7 +97,7 @@ public:
 	CLASS_PROTOTYPE( idAFAttachment );
 
 							idAFAttachment();
-	virtual					~idAFAttachment();
+	~idAFAttachment() override;
 
 	void					Spawn();
 
@@ -108,19 +108,19 @@ public:
 	void					ClearBody();
 	idEntity *				GetBody() const;
 
-	virtual void			Think();
+	void			Think() override;
 
-	virtual void			Hide();
-	virtual void			Show();
+	void			Hide() override;
+	void			Show() override;
 
 	void					PlayIdleAnim( int blendTime );
 
-	virtual void			GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info );
-	virtual void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse );
-	virtual void			AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force );
+	void			GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info ) override;
+	void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) override;
+	void			AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) override;
 
-	virtual	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location );
-	virtual void			AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName );
+	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location ) override;
+	void			AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName ) override;
 
 	void					SetCombatModel();
 	idClipModel *			GetCombatModel() const;
@@ -148,22 +148,22 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_Base );
 
 							idAFEntity_Base();
-	virtual					~idAFEntity_Base();
+	~idAFEntity_Base() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
-	virtual void			AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName );
-	virtual void			GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info );
-	virtual void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse );
-	virtual void			AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force );
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
-	virtual bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis );
-	virtual bool			UpdateAnimationControllers();
-	virtual void			FreeModelDef();
+	void			Think() override;
+	void			AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName ) override;
+	void			GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info ) override;
+	void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) override;
+	void			AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) override;
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
+	bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis ) override;
+	bool			UpdateAnimationControllers() override;
+	void			FreeModelDef() override;
 
 	virtual bool			LoadAF();
 	bool					IsActiveAF() const { return af.IsActive(); }
@@ -185,7 +185,7 @@ public:
 	void					AddBindConstraints();
 	void					RemoveBindConstraints();
 
-	virtual void			ShowEditingDialog();
+	void			ShowEditingDialog() override;
 
 	static void				DropAFs( idEntity *ent, const char *type, idList<idEntity *> *list );
 
@@ -216,15 +216,15 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_Gibbable );
 
 							idAFEntity_Gibbable();
-							~idAFEntity_Gibbable();
+							~idAFEntity_Gibbable() override;
 
 	void					Spawn();
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
-	virtual void			Present();
-	virtual	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location );
+	void			Present() override;
+	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location ) override;
 	void					SetThrown( bool isThrown );
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
 	virtual void			SpawnGibs( const idVec3 &dir, const char *damageDefName );
 
 	bool					IsGibbed() { return gibbed; };
@@ -255,14 +255,14 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_Generic );
 
 							idAFEntity_Generic();
-							~idAFEntity_Generic();
+							~idAFEntity_Generic() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 	void					KeepRunningPhysics() { keepRunningPhysics = true; }
 
 private:
@@ -285,7 +285,7 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_WithAttachedHead );
 
 							idAFEntity_WithAttachedHead();
-							~idAFEntity_WithAttachedHead();
+							~idAFEntity_WithAttachedHead() override;
 
 	void					Spawn();
 
@@ -294,17 +294,17 @@ public:
 
 	void					SetupHead();
 
-	virtual void			Think();
+	void			Think() override;
 
-	virtual void			Hide();
-	virtual void			Show();
-	virtual void			ProjectOverlay( const idVec3 &origin, const idVec3 &dir, float size, const char *material );
+	void			Hide() override;
+	void			Show() override;
+	void			ProjectOverlay( const idVec3 &origin, const idVec3 &dir, float size, const char *material ) override;
 
-	virtual void			LinkCombat();
-	virtual void			UnlinkCombat();
+	void			LinkCombat() override;
+	void			UnlinkCombat() override;
 
 protected:
-	virtual void			Gib( const idVec3 &dir, const char *damageDefName );
+	void			Gib( const idVec3 &dir, const char *damageDefName ) override;
 
 public:
 	idEntityPtr<idAFAttachment>	head;
@@ -357,10 +357,10 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_VehicleSimple );
 
 							idAFEntity_VehicleSimple();
-							~idAFEntity_VehicleSimple();
+							~idAFEntity_VehicleSimple() override;
 
 	void					Spawn();
-	virtual void			Think();
+	void			Think() override;
 
 protected:
 	idClipModel *			wheelModel;
@@ -385,7 +385,7 @@ public:
 							idAFEntity_VehicleFourWheels();
 
 	void					Spawn();
-	virtual void			Think();
+	void			Think() override;
 
 protected:
 	idAFBody *				wheels[4];
@@ -410,7 +410,7 @@ public:
 							idAFEntity_VehicleSixWheels();
 
 	void					Spawn();
-	virtual void			Think();
+	void			Think() override;
 
 	float					force;
 	float					velocity;
@@ -437,7 +437,7 @@ public:
 
 	void					Spawn();
 	void					PostSpawn();
-	virtual void			Think();
+	void			Think() override;
 
 private:
 
@@ -466,13 +466,13 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_SteamPipe );
 
 							idAFEntity_SteamPipe();
-							~idAFEntity_SteamPipe();
+							~idAFEntity_SteamPipe() override;
 
 	void					Spawn();
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 
 private:
 	int						steamBody;
@@ -522,7 +522,7 @@ public:
 	CLASS_PROTOTYPE( idHarvestable );
 
 	idHarvestable();
-	~idHarvestable();
+	~idHarvestable() override;
 
 	void				Spawn();
 	void				Init(idEntity* parent);
@@ -531,7 +531,7 @@ public:
 
 	void				SetParent(idEntity* parent);
 
-	void				Think();
+	void				Think() override;
 	void				Gib();
 
 protected:
@@ -576,16 +576,16 @@ public:
 	CLASS_PROTOTYPE( idAFEntity_Harvest );
 
 	idAFEntity_Harvest();
-	~idAFEntity_Harvest();
+	~idAFEntity_Harvest() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 
-	virtual void			Gib( const idVec3 &dir, const char *damageDefName );
+	void			Gib( const idVec3 &dir, const char *damageDefName ) override;
 
 protected:
 	idEntityPtr<idHarvestable>	harvestEnt;

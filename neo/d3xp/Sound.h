@@ -46,15 +46,15 @@ public:
 	void			Save( idSaveGame *savefile ) const;
 	void			Restore( idRestoreGame *savefile );
 
-	virtual void	UpdateChangeableSpawnArgs( const idDict *source );
+	void	UpdateChangeableSpawnArgs( const idDict *source ) override;
 
 	void			Spawn();
 
 	void			ToggleOnOff( idEntity *other, idEntity *activator );
-	void			Think();
+	void			Think() override;
 	void			SetSound( const char *sound, int channel = SND_CHANNEL_ANY );
 
-	virtual void	ShowEditingDialog();
+	void	ShowEditingDialog() override;
 
 private:
 	float			lastSoundVol;

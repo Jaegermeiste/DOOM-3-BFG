@@ -198,7 +198,7 @@ public:
 								idThread( idInterpreter *source, const function_t *func, int args );
 								idThread( idInterpreter *source, idEntity *self, const function_t *func, int args );
 
-	virtual						~idThread();
+	~idThread() override;
 
 								// tells the thread manager not to delete this thread when it ends
 	void						ManualDelete();

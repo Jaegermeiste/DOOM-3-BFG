@@ -73,6 +73,6 @@ void idPhysics::SetClipBox( const idBounds &bounds, float density ) {
 idPhysics::SnapTimeToPhysicsFrame
 ================
 */
-int idPhysics::SnapTimeToPhysicsFrame( int t ) {
+ID_TIME_T idPhysics::SnapTimeToPhysicsFrame( ID_TIME_T t ) {
 	return MSEC_ALIGN_TO_FRAME( t );
 }

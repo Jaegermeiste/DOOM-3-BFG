@@ -53,13 +53,13 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
-	virtual void			Hide();
-	virtual void			Show();
+	void			Hide() override;
+	void			Show() override;
 
 	void					SetPortalState( bool open );
 
@@ -222,13 +222,13 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual bool			HandleSingleGuiCommand( idEntity *entityGui, idLexer *src );
+	bool			HandleSingleGuiCommand( idEntity *entityGui, idLexer *src ) override;
 	void					Event_GotoFloor( int floor );
 	floorInfo_s *			GetFloorInfo( int floor );
 
 protected:
-	virtual void			DoneMoving();
-	virtual void			BeginMove( idThread *thread = nullptr);
+	void			DoneMoving() override;
+	void			BeginMove( idThread *thread = nullptr) override;
 	void					SpawnTrigger( const idVec3 &pos );
 	void					GetLocalTriggerPosition();
 	void					Event_Touch( idEntity *other, trace_t *trace );
@@ -251,7 +251,7 @@ private:
 	int						lastTouchTime;
 
 	class idDoor *			GetDoor( const char *name );
-	void					Think();
+	void					Think() override;
 	void					OpenInnerDoor();
 	void					OpenFloorDoor( int floor );
 	void					CloseAllDoors();
@@ -287,15 +287,15 @@ public:
 	CLASS_PROTOTYPE( idMover_Binary );
 
 							idMover_Binary();
-							~idMover_Binary();
+							~idMover_Binary() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			PreBind();
-	virtual void			PostBind();
+	void			PreBind() override;
+	void			PostBind() override;
 
 	void					Enable( bool b );
 	void					InitSpeed( idVec3 &mpos1, idVec3 &mpos2, float mspeed, float maccelTime, float mdecelTime );
@@ -312,8 +312,8 @@ public:
 	bool					IsBlocked();
 	idEntity *				GetActivator() const;
 
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
 	void					SetPortalState( bool open );
 
@@ -346,11 +346,11 @@ protected:
 	bool					playerOnly;
 	idList< idEntityPtr<idEntity>, TAG_MOVER >	guiTargets;
 
-	void					MatchActivateTeam( moverState_t newstate, int time );
+	void					MatchActivateTeam( moverState_t newstate, const ID_TIME_T time );
 	void					JoinActivateTeam( idMover_Binary *master );
 
 	void					UpdateMoverSound( moverState_t state );
-	void					SetMoverState( moverState_t newstate, int time );
+	void					SetMoverState( moverState_t newstate, const ID_TIME_T time );
 	moverState_t			GetMoverState() const { return moverState; }
 	void					FindGuiTargets();
 	void					SetGuiState( const char *key, const char *val ) const;
@@ -359,7 +359,7 @@ protected:
 	void					Event_ReturnToPos1();
 	void					Event_Use_BinaryMover( idEntity *activator );
 	void					Event_Reached_BinaryMover();
-	void					Event_MatchActivateTeam( moverState_t newstate, int time );
+	void					Event_MatchActivateTeam( moverState_t newstate, const ID_TIME_T time );
 	void					Event_Enable();
 	void					Event_Disable();
 	void					Event_OpenPortal();
@@ -375,19 +375,19 @@ public:
 	CLASS_PROTOTYPE( idDoor );
 
 							idDoor();
-							~idDoor();
+							~idDoor() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			Think();
-	virtual void			PreBind();
-	virtual void			PostBind();
-	virtual void			Hide();
-	virtual void			Show();
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			Think() override;
+	void			PreBind() override;
+	void			PostBind() override;
+	void			Hide() override;
+	void			Show() override;
 
 	bool					IsOpen();
 	bool					IsNoTouch();
@@ -444,17 +444,17 @@ public:
 	CLASS_PROTOTYPE( idPlat );
 	
 							idPlat();
-							~idPlat();
+							~idPlat() override;
 
 	void					Spawn();
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 	void					RunPhysics_NoBlocking();
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			Think();
-	virtual void			PreBind();
-	virtual void			PostBind();
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			Think() override;
+	void			PreBind() override;
+	void			PostBind() override;
 
 private:
 	idClipModel *			trigger;
@@ -489,10 +489,10 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
 protected:
 	idPhysics_Parametric	physicsObj;

@@ -325,7 +325,8 @@ bool idMenuHandler_Shell::HandleGuiEvent( const sysEvent_t * sev ) {
 									key = _key;
 									bind = _bind;
 								}
-								idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+								idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+								{
 									common->Dialog().ClearDialog( msg );
 									mgr->ClearWaitForBinding();
 									menu->ToggleWait( false );
@@ -522,7 +523,8 @@ void idMenuHandler_Shell::Initialize( const char * swfFile, idSoundWorld * sw ) 
 
 	class idPauseGUIClose : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			gameLocal.Shell_Show( false );
 			return idSWFScriptVar();
 		}
@@ -781,7 +783,8 @@ void idMenuHandler_Shell::HandleExitGameBtn() {
 			msg = _msg;
 			accept = _accept;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept == 1 ) {
 				common->Quit();
@@ -1240,7 +1243,8 @@ idMenuHandler_Shell::ShowIntroVideo
 						shell = _shell;
 						gui = _gui;
 					}
-					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+					{
 						if ( thisObject->GetSprite() == nullptr) {
 							return idSWFScriptVar();
 						}
@@ -1307,7 +1311,8 @@ idMenuHandler_Shell::ShowIntroVideo
 			idIntroVOStart( idSWF * gui ) {
 				introGui = gui;
 			}
-			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+			{
 				if ( introGui != nullptr) {
 					introGui->PlaySound( "gui/doomintro" );
 				}
@@ -1397,7 +1402,8 @@ void idMenuHandler_Shell::ShowROEIntro() {
 						gui = _gui;
 						startFade = 0;
 					}
-					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+					{
 						if ( thisObject->GetSprite() == nullptr) {
 							return idSWFScriptVar();
 						}
@@ -1521,7 +1527,8 @@ void idMenuHandler_Shell::ShowLEIntro() {
 					shell = _shell;
 					startFade = 0;
 				}
-				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+				idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+				{
 					if ( thisObject->GetSprite() == nullptr) {
 						return idSWFScriptVar();
 					}

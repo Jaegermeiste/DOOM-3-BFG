@@ -228,7 +228,7 @@ idAF::SetupPose
   Transforms the articulated figure to match the current animation pose of the given entity.
 ================
 */
-void idAF::SetupPose( idEntity *ent, int time ) {
+void idAF::SetupPose( idEntity *ent, const ID_TIME_T time ) {
 	int i;
 	idAFBody *body;
 	idVec3 origin;
@@ -281,7 +281,7 @@ idAF::ChangePose
    and set the velocity relative to the previous pose.
 ================
 */
-void idAF::ChangePose( idEntity *ent, int time ) {
+void idAF::ChangePose( idEntity *ent, const ID_TIME_T time ) {
 	int i;
 	float invDelta;
 	idAFBody *body;
@@ -629,7 +629,7 @@ bool idAF::LoadConstraint( const idDeclAF_Constraint *fc ) {
 	switch( fc->type ) {
 		case DECLAF_CONSTRAINT_FIXED: {
 			idAFConstraint_Fixed *c;
-			c = static_cast<idAFConstraint_Fixed *>(physicsObj.GetConstraint( fc->name ));
+			c = dynamic_cast<idAFConstraint_Fixed *>(physicsObj.GetConstraint( fc->name ));
 			if ( c ) {
 				c->SetBody1( body1 );
 				c->SetBody2( body2 );
@@ -642,7 +642,7 @@ bool idAF::LoadConstraint( const idDeclAF_Constraint *fc ) {
 		}
 		case DECLAF_CONSTRAINT_BALLANDSOCKETJOINT: {
 			idAFConstraint_BallAndSocketJoint *c;
-			c = static_cast<idAFConstraint_BallAndSocketJoint *>(physicsObj.GetConstraint( fc->name ));
+			c = dynamic_cast<idAFConstraint_BallAndSocketJoint *>(physicsObj.GetConstraint( fc->name ));
 			if ( c ) {
 				c->SetBody1( body1 );
 				c->SetBody2( body2 );
@@ -674,7 +674,7 @@ bool idAF::LoadConstraint( const idDeclAF_Constraint *fc ) {
 		}
 		case DECLAF_CONSTRAINT_UNIVERSALJOINT: {
 			idAFConstraint_UniversalJoint *c;
-			c = static_cast<idAFConstraint_UniversalJoint *>(physicsObj.GetConstraint( fc->name ));
+			c = dynamic_cast<idAFConstraint_UniversalJoint *>(physicsObj.GetConstraint( fc->name ));
 			if ( c ) {
 				c->SetBody1( body1 );
 				c->SetBody2( body2 );
@@ -707,7 +707,7 @@ bool idAF::LoadConstraint( const idDeclAF_Constraint *fc ) {
 		}
 		case DECLAF_CONSTRAINT_HINGE: {
 			idAFConstraint_Hinge *c;
-			c = static_cast<idAFConstraint_Hinge *>(physicsObj.GetConstraint( fc->name ));
+			c = dynamic_cast<idAFConstraint_Hinge *>(physicsObj.GetConstraint( fc->name ));
 			if ( c ) {
 				c->SetBody1( body1 );
 				c->SetBody2( body2 );
@@ -737,7 +737,7 @@ bool idAF::LoadConstraint( const idDeclAF_Constraint *fc ) {
 		}
 		case DECLAF_CONSTRAINT_SLIDER: {
 			idAFConstraint_Slider *c;
-			c = static_cast<idAFConstraint_Slider *>(physicsObj.GetConstraint( fc->name ));
+			c = dynamic_cast<idAFConstraint_Slider *>(physicsObj.GetConstraint( fc->name ));
 			if ( c ) {
 				c->SetBody1( body1 );
 				c->SetBody2( body2 );
@@ -751,7 +751,7 @@ bool idAF::LoadConstraint( const idDeclAF_Constraint *fc ) {
 		}
 		case DECLAF_CONSTRAINT_SPRING: {
 			idAFConstraint_Spring *c;
-			c = static_cast<idAFConstraint_Spring *>(physicsObj.GetConstraint( fc->name ));
+			c = dynamic_cast<idAFConstraint_Spring *>(physicsObj.GetConstraint( fc->name ));
 			if ( c ) {
 				c->SetBody1( body1 );
 				c->SetBody2( body2 );
@@ -813,7 +813,7 @@ bool idAF::Load( idEntity *ent, const char *fileName ) {
 	name = fileName;
 	name.StripFileExtension();
 
-	file = static_cast<const idDeclAF *>( declManager->FindType( DECL_AF, name ) );
+	file = dynamic_cast<const idDeclAF *>( declManager->FindType( DECL_AF, name ) );
 	if ( !file ) {
 		gameLocal.Warning( "Couldn't load af '%s' for entity '%s' at (%s)\n", name.c_str(), ent->name.c_str(), ent->GetPhysics()->GetOrigin().ToString(0) );
 		return false;
@@ -1079,17 +1079,17 @@ void idAF::SetConstraintPosition( const char *name, const idVec3 &pos ) {
 
 	switch( constraint->GetType() ) {
 		case CONSTRAINT_BALLANDSOCKETJOINT: {
-			idAFConstraint_BallAndSocketJoint *bs = static_cast<idAFConstraint_BallAndSocketJoint *>(constraint);
+			idAFConstraint_BallAndSocketJoint *bs = dynamic_cast<idAFConstraint_BallAndSocketJoint *>(constraint);
 			bs->Translate( pos - bs->GetAnchor() );
 			break;
 		}
 		case CONSTRAINT_UNIVERSALJOINT: {
-			idAFConstraint_UniversalJoint *uj = static_cast<idAFConstraint_UniversalJoint *>(constraint);
+			idAFConstraint_UniversalJoint *uj = dynamic_cast<idAFConstraint_UniversalJoint *>(constraint);
 			uj->Translate( pos - uj->GetAnchor() );
 			break;
 		}
 		case CONSTRAINT_HINGE: {
-			idAFConstraint_Hinge *hinge = static_cast<idAFConstraint_Hinge *>(constraint);
+			idAFConstraint_Hinge *hinge = dynamic_cast<idAFConstraint_Hinge *>(constraint);
 			hinge->Translate( pos - hinge->GetAnchor() );
 			break;
 		}

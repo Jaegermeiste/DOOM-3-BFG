@@ -58,21 +58,21 @@ public:
 	CLASS_PROTOTYPE( idBrittleFracture );
 
 								idBrittleFracture();
-	virtual						~idBrittleFracture();
+	~idBrittleFracture() override;
 
 	void						Save( idSaveGame *savefile ) const;
 	void						Restore( idRestoreGame *savefile );
 
 	void						Spawn();
 
-	virtual void				Present();
-	virtual void				Think();
-	virtual void				ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse );
-	virtual void				AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force );
-	virtual void				AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName );
-	virtual void				Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	void				Present() override;
+	void				Think() override;
+	void				ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) override;
+	void				AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) override;
+	void				AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName ) override;
+	void				Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 
-	void						ProjectDecal( const idVec3 &point, const idVec3 &dir, const int time, const char *damageDefName );
+	void						ProjectDecal( const idVec3 &point, const idVec3 &dir, const const ID_TIME_T time, const char *damageDefName );
 	bool						IsBroken() const;
 
 	enum {
@@ -81,9 +81,9 @@ public:
 		EVENT_MAXEVENTS
 	};
 
-	virtual void				ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void				ClientPredictionThink();
-	virtual bool				ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	void				ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void				ClientPredictionThink() override;
+	bool				ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 private:
 	// setttings
@@ -126,9 +126,9 @@ private:
 
 	void						AddShard( idClipModel *clipModel, idFixedWinding &w );
 	void						RemoveShard( int index );
-	void						DropShard( shard_t *shard, const idVec3 &point, const idVec3 &dir, const float impulse, const int time );
-	void						Shatter( const idVec3 &point, const idVec3 &impulse, const int time );
-	void						DropFloatingIslands( const idVec3 &point, const idVec3 &impulse, const int time );
+	void						DropShard( shard_t *shard, const idVec3 &point, const idVec3 &dir, const float impulse, const const ID_TIME_T time );
+	void						Shatter( const idVec3 &point, const idVec3 &impulse, const const ID_TIME_T time );
+	void						DropFloatingIslands( const idVec3 &point, const idVec3 &impulse, const const ID_TIME_T time );
 	void						Break();
 	void						Fracture_r( idFixedWinding &w, idRandom2 & random );
 	void						CreateFractures( const idRenderModel *renderModel );

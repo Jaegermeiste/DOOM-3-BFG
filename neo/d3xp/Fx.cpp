@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -158,7 +160,7 @@ void idEntityFx::Setup( const char *fx ) {
 	systemName = fx;
 	started = 0;
 
-	fxEffect = static_cast<const idDeclFX *>( declManager->FindType( DECL_FX, systemName.c_str() ) );
+	fxEffect = dynamic_cast<const idDeclFX *>( declManager->FindType( DECL_FX, systemName.c_str() ) );
 
 	if ( fxEffect ) {
 		idFXLocalAction localAction;
@@ -243,7 +245,7 @@ void idEntityFx::CleanUpSingleAction( const idFXSingleAction& fxaction, idFXLoca
 idEntityFx::Start
 ================
 */
-void idEntityFx::Start( int time ) {
+void idEntityFx::Start( const ID_TIME_T time ) {
 	if ( !fxEffect ) {
 		return;
 	}
@@ -283,9 +285,7 @@ const int idEntityFx::Duration() {
 	for( int i = 0; i < fxEffect->events.Num(); i++ ) {
 		const idFXSingleAction& fxaction = fxEffect->events[i];
 		int d = ( fxaction.delay + fxaction.duration ) * 1000.0f;
-		if ( d > max ) {
-			max = d;
-		}
+		max = std::max(d, max);
 	}
 
 	return max;
@@ -309,12 +309,10 @@ const bool idEntityFx::Done() {
 idEntityFx::ApplyFade
 ================
 */
-void idEntityFx::ApplyFade( const idFXSingleAction& fxaction, idFXLocalAction& laction, const int time, const int actualStart ) {
+void idEntityFx::ApplyFade( const idFXSingleAction& fxaction, idFXLocalAction& laction, const const ID_TIME_T time, const int actualStart ) {
 	if ( fxaction.fadeInTime || fxaction.fadeOutTime ) {
 		float fadePct = static_cast<float>(time - actualStart) / ( 1000.0f * ( ( fxaction.fadeInTime != 0 ) ? fxaction.fadeInTime : fxaction.fadeOutTime ) );
-		if (fadePct > 1.0) {
-			fadePct = 1.0;
-		}
+		fadePct = std::min<double>(fadePct, 1.0);
 		if ( laction.modelDefHandle != -1 ) {
 			laction.renderEntity.shaderParms[SHADERPARM_RED] = (fxaction.fadeInTime) ? fadePct : 1.0f - fadePct;
 			laction.renderEntity.shaderParms[SHADERPARM_GREEN] = (fxaction.fadeInTime) ? fadePct : 1.0f - fadePct;
@@ -337,7 +335,7 @@ void idEntityFx::ApplyFade( const idFXSingleAction& fxaction, idFXLocalAction& l
 idEntityFx::Run
 ================
 */
-void idEntityFx::Run( int time ) {
+void idEntityFx::Run( const ID_TIME_T time ) {
 	int ieff, j;
 	idEntity *ent = nullptr;
 	const idDict *projectileDef = nullptr;
@@ -532,7 +530,7 @@ void idEntityFx::Run( int time ) {
 					} else {
 						gameLocal.SpawnEntityDef( *projectileDef, &ent, false );
 						if ( ent && ent->IsType( idProjectile::Type ) ) {
-							projectile = static_cast<idProjectile*>(ent);
+							projectile = dynamic_cast<idProjectile*>(ent);
 							projectile->Create( this, GetPhysics()->GetOrigin(), GetPhysics()->GetAxis()[0] );
 							projectile->Launch( GetPhysics()->GetOrigin(), GetPhysics()->GetAxis()[0], vec3_origin );
 						}
@@ -769,7 +767,7 @@ void idEntityFx::ReadFromSnapshot( const idBitMsg &msg ) {
 			started = 0;
 			return;
 		}
-		const idDeclFX *fx = static_cast<const idDeclFX *>( declManager->DeclByIndex( DECL_FX, fx_index ) );
+		const idDeclFX *fx = dynamic_cast<const idDeclFX *>( declManager->DeclByIndex( DECL_FX, fx_index ) );
 		if ( !fx ) {
 			gameLocal.Error( "FX at index %d not found", fx_index );
 		}

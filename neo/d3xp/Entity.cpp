@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -238,7 +240,7 @@ void idGameEdit::ParseSpawnArgsToRenderEntity( const idDict *args, renderEntity_
 
 	modelDef = nullptr;
 	if ( temp[0] != '\0' ) {
-		modelDef = static_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, temp, false ) );
+		modelDef = dynamic_cast<const idDeclModelDef *>( declManager->FindType( DECL_MODELDEF, temp, false ) );
 		if ( modelDef ) {
 			renderEntity->hModel = modelDef->ModelHandle();
 		}
@@ -1838,7 +1840,7 @@ bool idEntity::InitBind( idEntity *master ) {
 
 	// add any bind constraints to an articulated figure
 	if ( master && IsType( idAFEntity_Base::Type ) ) {
-		static_cast<idAFEntity_Base *>(this)->AddBindConstraints();
+		dynamic_cast<idAFEntity_Base *>(this)->AddBindConstraints();
 	}
 
 	if ( !master || master == gameLocal.world ) {
@@ -2003,7 +2005,7 @@ void idEntity::Unbind() {
 
 	// remove any bind constraints from an articulated figure
 	if ( IsType( idAFEntity_Base::Type ) ) {
-		static_cast<idAFEntity_Base *>(this)->RemoveBindConstraints();
+		dynamic_cast<idAFEntity_Base *>(this)->RemoveBindConstraints();
 	}
 
 	if ( !bindMaster ) {
@@ -2725,7 +2727,7 @@ bool idEntity::RunPhysics() {
 				renderEntity.skipMotionBlur = true;
 			}
 			if ( useAbnormalVelocityHack ) {
-				idPhysics_Player * physics = static_cast< idPhysics_Player * >( ent->physics );
+				idPhysics_Player * physics = dynamic_cast< idPhysics_Player * >( ent->physics );
 				physics->SetPushedWithAbnormalVelocityHack( GetPhysicsTimeStep() );
 			} else {
 				ent->physics->SetPushed( endTime - startTime );
@@ -2932,15 +2934,15 @@ idEntity::UpdateFromPhysics
 void idEntity::UpdateFromPhysics( bool moveBack ) {
 
 	if ( IsType( idActor::Type ) ) {
-		idActor *actor = static_cast<idActor *>( this );
+		idActor *actor = dynamic_cast<idActor *>( this );
 
 		// set master delta angles for actors
 		if ( GetBindMaster() ) {
 			idAngles delta = actor->GetDeltaViewAngles();
 			if ( moveBack ) {
-				delta.yaw -= static_cast<idPhysics_Actor *>(physics)->GetMasterDeltaYaw();
+				delta.yaw -= dynamic_cast<idPhysics_Actor *>(physics)->GetMasterDeltaYaw();
 			} else {
-				delta.yaw += static_cast<idPhysics_Actor *>(physics)->GetMasterDeltaYaw();
+				delta.yaw += dynamic_cast<idPhysics_Actor *>(physics)->GetMasterDeltaYaw();
 			}
 			actor->SetDeltaViewAngles( delta );
 		}
@@ -2978,7 +2980,7 @@ idEntity::SetAxis
 void idEntity::SetAxis( const idMat3 &axis ) {
 
 	if ( GetPhysics()->IsType( idPhysics_Actor::Type ) ) {
-		static_cast<idActor *>(this)->viewAxis = axis;
+		dynamic_cast<idActor *>(this)->viewAxis = axis;
 	} else {
 		GetPhysics()->SetAxis( axis );
 	}
@@ -3270,9 +3272,7 @@ void idEntity::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 		// do the damage
 		health -= damage;
 		if ( health <= 0 ) {
-			if ( health < -999 ) {
-				health = -999;
-			}
+			health = std::max(health, -999);
 
 			Killed( inflictor, attacker, damage, dir, location );
 		} else {
@@ -3710,7 +3710,7 @@ bool idEntity::HandleGuiCommands( idEntity *entityGui, const char *cmds ) {
 					entityGui->renderEntity.gui[0]->SetStateInt( "score", score );
 					if ( gameLocal.GetLocalPlayer() && score >= 25000 ) {
 						gameLocal.GetLocalPlayer()->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_SCORE_25000_TURKEY_PUNCHER );
-						gameLocal.GetLocalPlayer()->GiveEmail( static_cast<const idDeclEmail *>( declManager->FindType( DECL_EMAIL, "highScore", false ) ) );
+						gameLocal.GetLocalPlayer()->GiveEmail(dynamic_cast<const idDeclEmail *>( declManager->FindType( DECL_EMAIL, "highScore", false ) ) );
 					}
 				}
 				continue;
@@ -3718,7 +3718,7 @@ bool idEntity::HandleGuiCommands( idEntity *entityGui, const char *cmds ) {
 
 
 			if ( !token.Icmp( "martianbuddycomplete" ) ) {
-				gameLocal.GetLocalPlayer()->GiveEmail( static_cast<const idDeclEmail *>( declManager->FindType( DECL_EMAIL, "MartianBuddyGameComplete", false ) ) );
+				gameLocal.GetLocalPlayer()->GiveEmail(dynamic_cast<const idDeclEmail *>( declManager->FindType( DECL_EMAIL, "MartianBuddyGameComplete", false ) ) );
 				continue;
 			}
 
@@ -4363,7 +4363,7 @@ idEntity::Event_StartSound
 ================
 */
 void idEntity::Event_StartSound( const char *soundName, int channel, int netSync ) {
-	int time;
+	const ID_TIME_T time;
 	
 	StartSound( soundName, ( s_channelType )channel, 0, ( netSync != 0 ), &time );
 	idThread::ReturnFloat( MS2SEC( time ) );
@@ -4693,7 +4693,7 @@ void idEntity::Event_RestorePosition() {
 			continue;
 		}
 		if ( part->GetPhysics()->IsType( idPhysics_Parametric::Type ) ) {
-			if ( static_cast<idPhysics_Parametric *>(part->GetPhysics())->IsPusher() ) {
+			if (dynamic_cast<idPhysics_Parametric *>(part->GetPhysics())->IsPusher() ) {
 				gameLocal.Warning( "teleported '%s' which has the pushing mover '%s' bound to it\n", GetName(), part->GetName() );
 			}
 		} else if ( part->GetPhysics()->IsType( idPhysics_AF::Type ) ) {
@@ -5198,7 +5198,7 @@ void idEntity::ClientSendEvent( int eventId, const idBitMsg *msg ) const {
 idEntity::ServerReceiveEvent
 ================
 */
-bool idEntity::ServerReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idEntity::ServerReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	switch( event ) {
 		case 0: {
 		}
@@ -5213,7 +5213,7 @@ bool idEntity::ServerReceiveEvent( int event, int time, const idBitMsg &msg ) {
 idEntity::ClientReceiveEvent
 ================
 */
-bool idEntity::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idEntity::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	int					index;
 	const idSoundShader	*shader;
 	s_channelType		channel;
@@ -5291,9 +5291,7 @@ void idEntity::DecayOriginAndAxisDelta() {
 
 	if ( length > 0.01f ) {
 		length *= net_errorSmoothingDecay.GetFloat();
-		if ( length > net_errorSmoothingMaxDecay.GetFloat() ) {
-			length = net_errorSmoothingMaxDecay.GetFloat();
-		}
+		length = std::min(length, net_errorSmoothingMaxDecay.GetFloat());
 		delta.Normalize();
 		delta *= length;
 	
@@ -5682,7 +5680,7 @@ void idAnimatedEntity::AddLocalDamageEffect( jointHandle_t jointNum, const idVec
 		de->jointNum = jointNum;
 		de->localOrigin = localOrigin;
 		de->localNormal = localNormal;
-		de->type = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, bleed ) );
+		de->type = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, bleed ) );
 		de->time = gameLocal.time;
 	}
 }
@@ -5731,7 +5729,7 @@ void idAnimatedEntity::UpdateDamageEffects() {
 idAnimatedEntity::ClientReceiveEvent
 ================
 */
-bool idAnimatedEntity::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idAnimatedEntity::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	int damageDefIndex;
 	int materialIndex;
 	jointHandle_t jointNum;
@@ -5747,8 +5745,8 @@ bool idAnimatedEntity::ClientReceiveEvent( int event, int time, const idBitMsg &
 			localDir = msg.ReadDir( 24 );
 			damageDefIndex = gameLocal.ClientRemapDecl( DECL_ENTITYDEF, msg.ReadLong() );
 			materialIndex = gameLocal.ClientRemapDecl( DECL_MATERIAL, msg.ReadLong() );
-			const idDeclEntityDef *damageDef = static_cast<const idDeclEntityDef *>( declManager->DeclByIndex( DECL_ENTITYDEF, damageDefIndex ) );
-			const idMaterial *collisionMaterial = static_cast<const idMaterial *>( declManager->DeclByIndex( DECL_MATERIAL, materialIndex ) );
+			const idDeclEntityDef *damageDef = dynamic_cast<const idDeclEntityDef *>( declManager->DeclByIndex( DECL_ENTITYDEF, damageDefIndex ) );
+			const idMaterial *collisionMaterial = dynamic_cast<const idMaterial *>( declManager->DeclByIndex( DECL_MATERIAL, materialIndex ) );
 			AddLocalDamageEffect( jointNum, localOrigin, localNormal, localDir, damageDef, collisionMaterial );
 			return true;
 		}

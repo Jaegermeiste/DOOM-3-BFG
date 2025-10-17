@@ -3246,8 +3246,8 @@ int idAI::ReactionTo( const idEntity *ent ) {
 		return ATTACK_IGNORE;
 	}
 
-	const idActor *actor = static_cast<const idActor *>( ent );
-	if ( actor->IsType( idPlayer::Type ) && static_cast<const idPlayer *>(actor)->noclip ) {
+	const idActor *actor = dynamic_cast<const idActor *>( ent );
+	if ( actor->IsType( idPlayer::Type ) && dynamic_cast<const idPlayer *>(actor)->noclip ) {
 		// ignore players in noclip mode
 		return ATTACK_IGNORE;
 	}
@@ -3294,7 +3294,7 @@ bool idAI::Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVe
 		}
 
 		if ( enemy.GetEntity() != attacker && attacker->IsType( idActor::Type ) ) {
-			actor = static_cast<idActor*>(attacker);
+			actor = dynamic_cast<idActor*>(attacker);
 			if ( ReactionTo( actor ) & ATTACK_ON_DAMAGE ) {
 				gameLocal.AlertAI( actor );
 				SetEnemy( actor );
@@ -3365,7 +3365,7 @@ const idDeclParticle *idAI::SpawnParticlesOnJoint( particleEmitter_t &pe, const 
 		} else {
 			pe.time = gameLocal.time;
 		}
-		pe.particle = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, particleName ) );
+		pe.particle = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, particleName ) );
 		gameLocal.smokeParticles->EmitSmoke( pe.particle, pe.time, gameLocal.random.CRandomFloat(), origin, axis, timeGroup /*_D3XP*/ );
 	}
 
@@ -3479,7 +3479,7 @@ void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const id
 	}
 
 	if ( ( attacker && attacker->IsType( idPlayer::Type ) ) && ( inflictor && !inflictor->IsType( idSoulCubeMissile::Type ) ) ) {
-		static_cast< idPlayer* >( attacker )->AddAIKill();
+		dynamic_cast< idPlayer* >( attacker )->AddAIKill();
 	}
 
 	if(spawnArgs.GetBool("harvest_on_death")) {
@@ -3487,7 +3487,7 @@ void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const id
 		if ( harvestDef ) {
 			idEntity *temp;
 			gameLocal.SpawnEntityDef( *harvestDef, &temp, false );
-			harvestEnt = static_cast<idHarvestable *>(temp);
+			harvestEnt = dynamic_cast<idHarvestable *>(temp);
 			
 		}
 
@@ -3603,7 +3603,7 @@ void idAI::Activate( idEntity *activator ) {
 		if ( !activator || !activator->IsType( idPlayer::Type ) ) {
 			player = gameLocal.GetLocalPlayer();
 		} else {
-			player = static_cast<idPlayer *>( activator );
+			player = dynamic_cast<idPlayer *>( activator );
 		}
 
 		if ( ReactionTo( player ) & ATTACK_ON_ACTIVATE ) {
@@ -4102,9 +4102,9 @@ bool idAI::GetAimDir( const idVec3 &firePos, idEntity *aimAtEnt, const idEntity 
 	}
 
 	if ( aimAtEnt == enemy.GetEntity() ) {
-		static_cast<idActor *>( aimAtEnt )->GetAIAimTargets( lastVisibleEnemyPos, targetPos1, targetPos2 );
+		dynamic_cast<idActor *>( aimAtEnt )->GetAIAimTargets( lastVisibleEnemyPos, targetPos1, targetPos2 );
 	} else if ( aimAtEnt->IsType( idActor::Type ) ) {
-		static_cast<idActor *>( aimAtEnt )->GetAIAimTargets( aimAtEnt->GetPhysics()->GetOrigin(), targetPos1, targetPos2 );
+		dynamic_cast<idActor *>( aimAtEnt )->GetAIAimTargets( aimAtEnt->GetPhysics()->GetOrigin(), targetPos1, targetPos2 );
 	} else {
 		targetPos1 = aimAtEnt->GetPhysics()->GetAbsBounds().GetCenter();
 		targetPos2 = targetPos1;
@@ -4171,7 +4171,7 @@ idProjectile *idAI::CreateProjectile( const idVec3 &pos, const idVec3 &dir ) {
 			clsname = ent->GetClassname();
 			gameLocal.Error( "'%s' is not an idProjectile", clsname );
 		}
-		projectile = static_cast<idProjectile*>(ent);
+		projectile = dynamic_cast<idProjectile*>(ent);
 	}
 
 	projectile.GetEntity()->Create( this, pos, dir );
@@ -4479,11 +4479,11 @@ bool idAI::AttackMelee( const char *meleeDefName ) {
 	bool forceMiss = false;
 	if ( enemyEnt->IsType( idPlayer::Type ) && g_skill.GetInteger() < 2 ) {
 		int	damage, armor;
-		idPlayer *player = static_cast<idPlayer*>( enemyEnt );
+		idPlayer *player = dynamic_cast<idPlayer*>( enemyEnt );
 		player->CalcDamagePoints( this, this, meleeDef, 1.0f, INVALID_JOINT, &damage, &armor );
 
 		if ( enemyEnt->health <= damage ) {
-			int	t = gameLocal.time - player->lastSavingThrowTime;
+			const ID_TIME_T t = gameLocal.time - player->lastSavingThrowTime;
 			if ( t > SAVING_THROW_TIME ) {
 				player->lastSavingThrowTime = gameLocal.time;
 				t = 0;
@@ -4898,7 +4898,7 @@ idEntity* idAI::StartEmitter( const char* name, const char* joint, const char* p
 	//Keep a reference to the emitter so we can track it
 	funcEmitter_t newEmitter;
 	strcpy(newEmitter.name, name);
-	newEmitter.particle = static_cast<idFuncEmitter*>(ent);
+	newEmitter.particle = dynamic_cast<idFuncEmitter*>(ent);
 	newEmitter.joint = jointNum;
 	funcEmitters.Set(newEmitter.name, newEmitter);
 
@@ -5012,7 +5012,7 @@ bool idAI::UpdateAnimationControllers() {
 	} else if ( focusEnt == enemy.GetEntity() ) {
 		focusPos = lastVisibleEnemyPos + lastVisibleEnemyEyeOffset - eyeVerticalOffset * enemy.GetEntity()->GetPhysics()->GetGravityNormal();
 	} else if ( focusEnt->IsType( idActor::Type ) ) {
-		focusPos = static_cast<idActor *>( focusEnt )->GetEyePosition() - eyeVerticalOffset * focusEnt->GetPhysics()->GetGravityNormal();
+		focusPos = dynamic_cast<idActor *>( focusEnt )->GetEyePosition() - eyeVerticalOffset * focusEnt->GetPhysics()->GetGravityNormal();
 	} else {
 		focusPos = focusEnt->GetPhysics()->GetOrigin();
 	}
@@ -5242,7 +5242,7 @@ void idCombatNode::DrawDebugInfo() {
 			continue;
 		}
 
-		node = static_cast<idCombatNode *>( ent );
+		node = dynamic_cast<idCombatNode *>( ent );
 		if ( node->disabled ) {
 			color = colorMdGrey;
 		} else if ( player != nullptr && node->EntityInView( player, player->GetPhysics()->GetOrigin() ) ) {

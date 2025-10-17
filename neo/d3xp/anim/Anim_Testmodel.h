@@ -42,14 +42,14 @@ public:
 	CLASS_PROTOTYPE( idTestModel );
 
 							idTestModel();
-							~idTestModel();
+							~idTestModel() override;
 
 	void					Save( idSaveGame *savefile );
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
 
-	virtual bool			ShouldConstructScriptObjectAtSpawn() const;
+	bool			ShouldConstructScriptObjectAtSpawn() const override;
 
 	void					NextAnim( const idCmdArgs &args );
 	void					PrevAnim( const idCmdArgs &args );
@@ -87,7 +87,7 @@ private:
 
 	idList<copyJoints_t>	copyJoints;
 
-	virtual void			Think();
+	void			Think() override;
 
 	void					Event_Footstep();
 };

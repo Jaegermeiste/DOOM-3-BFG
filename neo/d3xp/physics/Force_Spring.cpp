@@ -91,7 +91,7 @@ void idForce_Spring::SetPosition( idPhysics *physics1, int id1, const idVec3 &p1
 idForce_Spring::Evaluate
 ================
 */
-void idForce_Spring::Evaluate( int time ) {
+void idForce_Spring::Evaluate( const ID_TIME_T time ) {
 	float length;
 	idMat3 axis;
 	idVec3 pos1, pos2, velocity1, velocity2, force, dampingForce;

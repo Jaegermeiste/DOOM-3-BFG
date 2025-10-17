@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_PLAYER_H__
 #define __PHYSICS_PLAYER_H__
 
+#pragma once
+
 /*
 ===================================================================================
 
@@ -49,14 +51,14 @@ typedef enum {
 	PM_NOCLIP				// flying without collision detection nor gravity
 } pmtype_t;
 
-typedef enum {
+typedef enum waterLevel_e : uint8 {
 	WATERLEVEL_NONE,
 	WATERLEVEL_FEET,
 	WATERLEVEL_WAIST,
 	WATERLEVEL_HEAD
 } waterLevel_t;
 
-#define	MAXTOUCH					32
+constexpr size_t MAXTOUCH = 32;
 
 typedef struct playerPState_s {
 	idVec3					origin;
@@ -66,7 +68,7 @@ typedef struct playerPState_s {
 	float					stepUp;
 	int						movementType;
 	int						movementFlags;
-	int						movementTime;
+	ID_TIME_T				movementTime;
 
 	playerPState_s() :
 		origin( vec3_zero ),
@@ -97,7 +99,7 @@ public:
 	void					SetMaxJumpHeight( const float newMaxJumpHeight );
 	void					SetMovementType( const pmtype_t type );
 	void					SetPlayerInput( const usercmd_t &cmd, const idVec3 &forwardVector );
-	void					SetKnockBack( const int knockBackTime );
+	void					SetKnockBack( const ID_TIME_T knockBackTime );
 	void					SetDebugLevel( bool set );
 							// feed back from last physics frame
 	waterLevel_t			GetWaterLevel() const;
@@ -110,39 +112,39 @@ public:
 	const idVec3 &			PlayerGetOrigin() const;	// != GetOrigin
 
 public:	// common physics interface
-	bool					Evaluate( int timeStepMSec, int endTimeMSec );
-	bool					Interpolate( const float fraction );
-	void					UpdateTime( int endTimeMSec );
-	int						GetTime() const;
+	bool					Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) override;
+	bool					Interpolate( const float fraction ) override;
+	void					UpdateTime( ID_TIME_T endTimeMSec ) override;
+	ID_TIME_T				GetTime() const override;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse );
-	bool					IsAtRest() const;
-	int						GetRestStartTime() const;
+	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;
+	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) override;
+	bool					IsAtRest() const override;
+	ID_TIME_T				GetRestStartTime() const override;
 
-	void					SaveState();
-	void					RestoreState();
+	void					SaveState() override;
+	void					RestoreState() override;
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3 &newOrigin, int id = -1 ) override;
+	void					SetAxis( const idMat3 &newAxis, int id = -1 ) override;
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3 &translation, int id = -1 ) override;
+	void					Rotate( const idRotation &rotation, int id = -1 ) override;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 ) override;
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
+	const idVec3 &			GetLinearVelocity( int id = 0 ) const override;
 
 	bool					ClientPusherLocked( bool & justBecameUnlocked );
-	void					SetPushed( int deltaTime );
-	void					SetPushedWithAbnormalVelocityHack( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const;
+	void					SetPushed( ID_TIME_T deltaTime ) override;
+	void					SetPushedWithAbnormalVelocityHack( ID_TIME_T deltaTime );
+	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const override;
 	void					ClearPushedVelocity();
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity *master, const bool orientated = true ) override;
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg &msg ) const override;
+	void					ReadFromSnapshot( const idBitMsg &msg ) override;
 
 	void					SnapToNextState() { current = next; previous = current; }
 
@@ -167,7 +169,7 @@ private:
 	idVec3					commandForward;		// can't use cmd.angles cause of the delta_angles and head tracking
 
 	// run-time variables
-	int						framemsec;
+	ID_TIME_T				framemsec;
 	float					frametime;
 	float					playerSpeed;
 	idVec3					viewForward;
@@ -203,7 +205,7 @@ private:
 	void					NoclipMove();
 	void					SpectatorMove();
 	void					LadderMove();
-	void					CorrectAllSolid( trace_t &trace, int contents );
+	void					CorrectAllSolid( trace_t &trace, int contents ) const;
 	void					CheckGround();
 	void					CheckDuck();
 	void					CheckLadder();
@@ -211,7 +213,7 @@ private:
 	bool					CheckWaterJump();
 	void					SetWaterLevel();
 	void					DropTimers();
-	void					MovePlayer( int msec );
+	void					MovePlayer( ID_TIME_T msec );
 };
 
 #endif /* !__PHYSICS_PLAYER_H__ */

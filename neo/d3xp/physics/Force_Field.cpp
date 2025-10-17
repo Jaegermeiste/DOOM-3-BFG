@@ -151,7 +151,7 @@ void idForce_Field::RandomTorque( float force ) {
 idForce_Field::Evaluate
 ================
 */
-void idForce_Field::Evaluate( int time ) {
+void idForce_Field::Evaluate( const ID_TIME_T time ) {
 	int numClipModels, i;
 	idBounds bounds;
 	idVec3 force, torque, angularVelocity;

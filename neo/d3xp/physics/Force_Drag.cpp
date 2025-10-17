@@ -110,7 +110,7 @@ const idVec3 idForce_Drag::GetDraggedPosition() const {
 idForce_Drag::Evaluate
 ================
 */
-void idForce_Drag::Evaluate( int time ) {
+void idForce_Drag::Evaluate( const ID_TIME_T time ) {
 	float l1, l2, mass;
 	idVec3 dragOrigin, dir1, dir2, velocity, centerOfMass;
 	idMat3 inertiaTensor;

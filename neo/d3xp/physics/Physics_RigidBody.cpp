@@ -827,7 +827,7 @@ idPhysics_RigidBody::Evaluate
   the remaining time after the collision is ignored.
 ================
 */
-bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec ) {
+bool idPhysics_RigidBody::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
 	rigidBodyPState_t next_step;
 	idAngles angles;
 	trace_t collision;

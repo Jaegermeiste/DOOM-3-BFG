@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 #include "../Game_local.h"
@@ -3265,9 +3267,7 @@ bool idAFConstraint_ContactFriction::Add( idPhysics_AF *phys, float invTimeStep 
 			c2.SetSize( 2 );
 			c2[0] = c2[1] = 0.0f;
 
-			if ( body2->GetContactFriction() < friction ) {
-				friction = body2->GetContactFriction();
-			}
+			friction = std::min(body2->GetContactFriction(), friction);
 		}
 
 		lo[0] = -friction;
@@ -4783,9 +4783,7 @@ void idAFTree::SetMaxSubTreeAuxiliaryIndex() {
 		body->maxSubTreeAuxiliaryIndex = body->maxAuxiliaryIndex;
 		for ( j = 0; j < body->children.Num(); j++ ) {
 			child = body->children[j];
-			if ( child->maxSubTreeAuxiliaryIndex > body->maxSubTreeAuxiliaryIndex ) {
-				body->maxSubTreeAuxiliaryIndex = child->maxSubTreeAuxiliaryIndex;
-			}
+			body->maxSubTreeAuxiliaryIndex = std::max(child->maxSubTreeAuxiliaryIndex, body->maxSubTreeAuxiliaryIndex);
 		}
 	}
 }
@@ -5082,9 +5080,7 @@ void idPhysics_AF::AuxiliaryForces( float timeStep ) {
 		for ( k = 0, i = 0; i < auxiliaryConstraints.Num(); i++ ) {
 			constraint = auxiliaryConstraints[i];
 			for ( j = 0; j < constraint->J1.GetNumRows(); j++, k++ ) {
-				if ( k > constraint->body1->maxAuxiliaryIndex ) {
-					constraint->body1->maxAuxiliaryIndex = k;
-				}
+				constraint->body1->maxAuxiliaryIndex = std::max(k, constraint->body1->maxAuxiliaryIndex);
 				if ( constraint->body2 && k > constraint->body2->maxAuxiliaryIndex ) {
 					constraint->body2->maxAuxiliaryIndex = k;
 				}
@@ -5945,13 +5941,9 @@ bool idPhysics_AF::TestIfAtRest( float timeStep ) {
 			body = bodies[i];
 
 			translationSqr = ( body->current->worldOrigin - body->atRestOrigin ).LengthSqr();
-			if ( translationSqr > maxTranslationSqr ) {
-				maxTranslationSqr = translationSqr;
-			}
+			maxTranslationSqr = std::max(translationSqr, maxTranslationSqr);
 			rotation = ( body->atRestAxis.Transpose() * body->current->worldAxis ).ToRotation().GetAngle();
-			if ( rotation > maxRotation ) {
-				maxRotation = rotation;
-			}
+			maxRotation = std::max(rotation, maxRotation);
 		}
 
 		if ( maxTranslationSqr < Square( noMoveTranslation ) && maxRotation < noMoveRotation ) {
@@ -6217,7 +6209,7 @@ const idBounds &idPhysics_AF::GetAbsBounds( int id ) const {
 idPhysics_AF::Evaluate
 ================
 */
-bool idPhysics_AF::Evaluate( int timeStepMSec, int endTimeMSec ) {
+bool idPhysics_AF::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
 	float timeStep;
 
 	if ( timeScaleRampStart < MS2SEC( endTimeMSec ) && timeScaleRampEnd > MS2SEC( endTimeMSec ) ) {

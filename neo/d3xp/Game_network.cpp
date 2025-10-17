@@ -96,8 +96,8 @@ void idGameLocal::ShutdownAsyncNetwork() {
 idGameLocal::ServerRemapDecl
 ================
 */
-int idGameLocal::ServerRemapDecl( int clientNum, declType_t type, int index ) {
-	return index;
+int idGameLocal::ServerRemapDecl( const Ordinal auto clientNum, declType_t type, const Ordinal auto index ) {
+	return idMath::integer_cast<int>(index);
 }
 
 /*
@@ -105,8 +105,8 @@ int idGameLocal::ServerRemapDecl( int clientNum, declType_t type, int index ) {
 idGameLocal::ClientRemapDecl
 ================
 */
-int idGameLocal::ClientRemapDecl( declType_t type, int index ) {
-	return index;
+int idGameLocal::ClientRemapDecl( declType_t type, const Ordinal auto index ) {
+	return idMath::integer_cast<int>(index);
 }
 
 /*
@@ -138,7 +138,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 		bool found = false;
 
 		for ( int j = 0; j < MAX_PLAYERS; j++ ) {
-			idPlayer * player = static_cast<idPlayer *>( entities[ j ] );
+			idPlayer * player = dynamic_cast<idPlayer *>( entities[ j ] );
 			if ( player == nullptr) {
 				continue;
 			}
@@ -159,7 +159,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 
 	// Validate connected players
 	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
-		idPlayer * player = static_cast<idPlayer *>( entities[ i ] );
+		idPlayer * player = dynamic_cast<idPlayer *>( entities[ i ] );
 		if ( player == nullptr) {
 			continue;
 		}
@@ -181,7 +181,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 		int freePlayerDataIndex = -1;
 
 		for ( int i = 0; i < MAX_PLAYERS; ++i ) {
-			idPlayer * player = static_cast<idPlayer *>( entities[ i ] );
+			idPlayer * player = dynamic_cast<idPlayer *>( entities[ i ] );
 			if ( player == nullptr) {
 				freePlayerDataIndex = i;
 				break;
@@ -350,14 +350,14 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 	// Build PVS data for each player and write their player state to the snapshot as well
 	pvsHandle_t pvsHandles[ MAX_PLAYERS ];
 	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
-		idPlayer * player = static_cast<idPlayer *>( entities[ i ] );
+		idPlayer * player = dynamic_cast<idPlayer *>( entities[ i ] );
 		if ( player == nullptr) {
 			pvsHandles[i].i = -1;
 			continue;
 		}
 		idPlayer * spectated = player;
 		if ( player->spectating && player->spectator != i && entities[ player->spectator ] ) {
-			spectated = static_cast< idPlayer * >( entities[ player->spectator ] );
+			spectated = dynamic_cast< idPlayer * >( entities[ player->spectator ] );
 		}
 
 		msg.InitWrite( buffer, sizeof( buffer ) );
@@ -607,7 +607,7 @@ void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const i
 			if ( hitEnt != &victim ) {
 				break;
 			}
-			const idDeclEntityDef *damageDef = static_cast<const idDeclEntityDef *>( declManager->DeclByIndex( DECL_ENTITYDEF, damageDefIndex, false ) );
+			const idDeclEntityDef *damageDef = dynamic_cast<const idDeclEntityDef *>( declManager->DeclByIndex( DECL_ENTITYDEF, damageDefIndex, false ) );
 			
 			if ( damageDef != nullptr) {
 				victim.Damage(nullptr, gameLocal.entities[attackerNum], dir, damageDef->GetName(), damageScale, location );
@@ -677,7 +677,7 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 		}
 		if ( snapObjectNum >= SNAP_PLAYERSTATE && snapObjectNum < SNAP_PLAYERSTATE_END ) {
 			int playerNumber = snapObjectNum - SNAP_PLAYERSTATE;
-			idPlayer * otherPlayer = static_cast< idPlayer * >( entities[ playerNumber ] );
+			idPlayer * otherPlayer = dynamic_cast< idPlayer * >( entities[ playerNumber ] );
 
 			// Don't process Player Snapshots that are disconnected.
 			const int lobbyIndex = session->GetActingGameStateLobbyBase().GetLobbyUserIndexFromLobbyUserID( lobbyUserIDs[ playerNumber ] );
@@ -981,7 +981,7 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) 
 		}
 		case GAME_RELIABLE_MESSAGE_TOURNEYLINE: {
 			int line = msg.ReadByte( );
-			idPlayer * p = static_cast< idPlayer * >( entities[ GetLocalClientNum() ] );
+			idPlayer * p = dynamic_cast< idPlayer * >( entities[ GetLocalClientNum() ] );
 			if ( !p ) {
 				break;
 			}
@@ -997,12 +997,12 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) 
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_LOBBY_COUNTDOWN: {
-			int timeRemaining = msg.ReadLong();
+			const ID_TIME_T timeRemaining = msg.ReadLong();
 			Shell_UpdateClientCountdown( timeRemaining );
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_RESPAWN_AVAILABLE: {
-			idPlayer * p = static_cast< idPlayer * >( entities[ GetLocalClientNum() ] );
+			idPlayer * p = dynamic_cast< idPlayer * >( entities[ GetLocalClientNum() ] );
 			if ( p ) {
 				p->ShowRespawnHudMessage();
 			}
@@ -1036,7 +1036,7 @@ void idGameLocal::ClientRunFrame( idUserCmdMgr & cmdMgr, bool lastPredictFrame, 
 	framenum++;
 	time = FRAME_TO_MSEC( framenum );
 
-	idPlayer * player = static_cast<idPlayer *>( entities[GetLocalClientNum()] );
+	idPlayer * player = dynamic_cast<idPlayer *>( entities[GetLocalClientNum()] );
 	if ( !player ) {
 
 		// service any pending events

@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FORCE_GRAB_H__
 #define __FORCE_GRAB_H__
 
+#pragma once
 
 /*
 ===============================================================================
@@ -47,7 +48,7 @@ public:
 	void				Restore( idRestoreGame *savefile );
 
 						idForce_Grab();
-	virtual				~idForce_Grab();
+	~idForce_Grab() override;
 						// initialize the drag force
 	void				Init( float damping );
 						// set physics object being dragged
@@ -57,8 +58,8 @@ public:
 
 
 public: // common force interface
-	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	void		Evaluate( const ID_TIME_T time ) override;
+	void		RemovePhysics( const idPhysics *phys ) override;
 
 	// Get the distance from object to goal position
 	float				GetDistanceToGoal();

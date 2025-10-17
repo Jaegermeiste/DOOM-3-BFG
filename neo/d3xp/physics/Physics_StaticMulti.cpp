@@ -369,7 +369,7 @@ const idBounds &idPhysics_StaticMulti::GetAbsBounds( int id ) const {
 idPhysics_StaticMulti::Evaluate
 ================
 */
-bool idPhysics_StaticMulti::Evaluate( int timeStepMSec, int endTimeMSec ) {
+bool idPhysics_StaticMulti::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
 	int i;
 	idVec3 masterOrigin;
 	idMat3 masterAxis;

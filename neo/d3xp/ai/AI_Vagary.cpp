@@ -143,7 +143,7 @@ void idAI_Vagary::Event_ThrowObjectAtEnemy( idEntity *ent, float speed ) {
 	entPhys->SetLinearVelocity( vel );
 
 	if ( ent->IsType( idMoveable::Type ) ) {
-		idMoveable *ment = static_cast<idMoveable*>( ent );
+		idMoveable *ment = dynamic_cast<idMoveable*>( ent );
 		ment->EnableDamage( true, 2.5f );
 	}
 }

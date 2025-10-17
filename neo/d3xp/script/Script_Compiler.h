@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SCRIPT_COMPILER_H__
 #define __SCRIPT_COMPILER_H__
 
+#pragma once
+
 const char * const RESULT_STRING = "<RESULT>";
 
 enum scriptPriority_e : uint8
@@ -53,7 +55,7 @@ typedef struct opcode_s {
 // OP_PUSH_OBJ:
 // OP_PUSH_OBJENT:
 
-enum scriptOp_e : uint8 {
+typedef enum scriptOp_e : uint8 {
 	OP_RETURN,
 
 	OP_UINC_F,
@@ -201,7 +203,7 @@ enum scriptOp_e : uint8 {
 	OP_CONTINUE,		// placeholder op.  not used in final code
 
 	NUM_OPCODES
-};
+} scriptOp_t;
 
 class idCompiler {
 private:
@@ -246,12 +248,12 @@ private:
 	idVarDef		*GetImmediate( idTypeDef *type, const eval_t *eval, const char *string );
 	idVarDef		*VirtualFunctionConstant( idVarDef *func );
 	idVarDef		*SizeConstant( size_t size );
-	idVarDef		*JumpConstant( size_t value );
-	idVarDef		*JumpDef( size_t jumpfrom, size_t jumpto );
-	idVarDef		*JumpTo( size_t jumpto );
-	idVarDef		*JumpFrom( size_t jumpfrom );
+	idVarDef		*JumpConstant( int64 value );
+	idVarDef		*JumpDef(int64 jumpfrom, int64 jumpto );
+	idVarDef		*JumpTo(int64 jumpto );
+	idVarDef		*JumpFrom(int64 jumpfrom );
 	idVarDef		*ParseImmediate();
-	idVarDef		*EmitFunctionParms( int op, idVarDef *func, int startarg, const size_t startsize, idVarDef *object );
+	idVarDef		*EmitFunctionParms( scriptOp_t op, idVarDef *func, const size_t startarg, const size_t startsize, idVarDef *object );
 	idVarDef		*ParseFunctionCall( idVarDef *func );
 	idVarDef		*ParseObjectCall( idVarDef *object, idVarDef *func );
 	idVarDef		*ParseEventCall( idVarDef *object, idVarDef *func );
@@ -259,10 +261,10 @@ private:
 	idVarDef		*LookupDef( const char *name, const idVarDef *baseobj );
 	idVarDef		*ParseValue();
 	idVarDef		*GetTerm();
-	bool			TypeMatches( etype_t type1, etype_t type2 ) const;
+	static bool			TypeMatches( etype_t type1, etype_t type2 );
 	idVarDef		*GetExpression( int priority );
-	idTypeDef		*GetTypeForEventArg( char argType );
-	void			PatchLoop( size_t start, size_t continuePos );
+	static idTypeDef		*GetTypeForEventArg( char argType );
+	void			PatchLoop( int64 start, int64 continuePos );
 	void			ParseReturnStatement();
 	void			ParseWhileStatement();
 	void			ParseForStatement();

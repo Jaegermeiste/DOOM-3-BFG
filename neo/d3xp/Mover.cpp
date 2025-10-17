@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -1824,7 +1826,7 @@ void idElevator::Event_TeamBlocked( idEntity *blockedEntity, idEntity *blockingE
 		Event_GotoFloor( lastFloor );
 	} else if ( blockedEntity && blockedEntity->IsType( idDoor::Type ) ) {
 		// open the inner doors if one is blocked
-		idDoor *blocked = static_cast<idDoor *>( blockedEntity );
+		idDoor *blocked = dynamic_cast<idDoor *>( blockedEntity );
 		idDoor *door = GetDoor( spawnArgs.GetString( "innerdoor" ) );
 		if ( door != nullptr && blocked->GetMoveMaster() == door->GetMoveMaster() ) {
 			door->SetBlocked(true);
@@ -1976,11 +1978,11 @@ idDoor *idElevator::GetDoor( const char *name ) {
 	if ( name && *name ) {
 		ent = gameLocal.FindEntity( name );
 		if ( ent && ent->IsType( idDoor::Type ) ) {
-			doorEnt = static_cast<idDoor*>( ent );
+			doorEnt = dynamic_cast<idDoor*>( ent );
 			master = doorEnt->GetMoveMaster();
 			if ( master != doorEnt ) {
 				if ( master->IsType( idDoor::Type ) ) {
-					doorEnt = static_cast<idDoor*>( master );
+					doorEnt = dynamic_cast<idDoor*>( master );
 				} else {
 					doorEnt = nullptr;
 				}
@@ -2345,7 +2347,7 @@ void idMover_Binary::Spawn() {
 	} else {
 		// find the first entity spawned on this team (which could be us)
 		for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
-			if ( ent->IsType( idMover_Binary::Type ) && !idStr::Icmp( static_cast<idMover_Binary *>(ent)->team.c_str(), temp ) ) {
+			if ( ent->IsType( idMover_Binary::Type ) && !idStr::Icmp(dynamic_cast<idMover_Binary *>(ent)->team.c_str(), temp ) ) {
 				break;
 			}
 		}
@@ -2353,7 +2355,7 @@ void idMover_Binary::Spawn() {
 			ent = this;
 		}
 	}
-	moveMaster = static_cast<idMover_Binary *>(ent);
+	moveMaster = dynamic_cast<idMover_Binary *>(ent);
 
 	// create a physics team for the binary mover parts
 	if ( ent != this ) {
@@ -2459,7 +2461,7 @@ void idMover_Binary::UpdateMoverSound( moverState_t state ) {
 idMover_Binary::SetMoverState
 ===============
 */
-void idMover_Binary::SetMoverState( moverState_t newstate, int time ) {
+void idMover_Binary::SetMoverState( moverState_t newstate, const ID_TIME_T time ) {
 	idVec3 	delta;
 
 	moverState = newstate;
@@ -2510,7 +2512,7 @@ All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
 */
-void idMover_Binary::MatchActivateTeam( moverState_t newstate, int time ) {
+void idMover_Binary::MatchActivateTeam( moverState_t newstate, const ID_TIME_T time ) {
 	idMover_Binary *slave;
 
 	for ( slave = this; slave != nullptr; slave = slave->activateChain ) {
@@ -2532,7 +2534,7 @@ void idMover_Binary::Enable( bool b ) {
 idMover_Binary::Event_MatchActivateTeam
 ================
 */
-void idMover_Binary::Event_MatchActivateTeam( moverState_t newstate, int time ) {
+void idMover_Binary::Event_MatchActivateTeam( moverState_t newstate, const ID_TIME_T time ) {
 	MatchActivateTeam( newstate, time );
 }
 
@@ -2735,9 +2737,7 @@ void idMover_Binary::GotoPosition1() {
 		// use the physics times because this might be executed during the physics simulation
 		partial = physicsObj.GetLinearEndTime() - physicsObj.GetTime();
 		assert( partial >= 0 );
-		if ( partial < 0 ) {
-			partial = 0;
-		}
+		partial = std::max(partial, 0);
 		MatchActivateTeam( MOVER_2TO1, physicsObj.GetTime() - partial );
 		// if already at at position 1 (partial == duration) execute the reached event
 		if ( partial >= duration ) {
@@ -2781,9 +2781,7 @@ void idMover_Binary::GotoPosition2() {
 		// use the physics times because this might be executed during the physics simulation
 		partial = physicsObj.GetLinearEndTime() - physicsObj.GetTime();
 		assert( partial >= 0 );
-		if ( partial < 0 ) {
-			partial = 0;
-		}
+		partial = std::max(partial, 0);
 		MatchActivateTeam( MOVER_1TO2, physicsObj.GetTime() - partial );
 		// if already at at position 2 (partial == duration) execute the reached event
 		if ( partial >= duration ) {
@@ -3473,7 +3471,7 @@ void idDoor::Hide() {
 	} else {
 		for ( slave = this; slave != nullptr; slave = slave->GetActivateChain() ) {
 			if ( slave->IsType( idDoor::Type ) ) {
-				slaveDoor = static_cast<idDoor *>( slave );
+				slaveDoor = dynamic_cast<idDoor *>( slave );
 				companion = slaveDoor->companionDoor;
 				if ( companion && ( companion != master ) && ( companion->GetMoveMaster() != master ) ) {
 					companion->Hide();
@@ -3512,7 +3510,7 @@ void idDoor::Show() {
 	} else {
 		for ( slave = this; slave != nullptr; slave = slave->GetActivateChain() ) {
 			if ( slave->IsType( idDoor::Type ) ) {
-				slaveDoor = static_cast<idDoor *>( slave );
+				slaveDoor = dynamic_cast<idDoor *>( slave );
 				companion = slaveDoor->companionDoor;
 				if ( companion && ( companion != master ) && ( companion->GetMoveMaster() != master ) ) {
 					companion->Show();
@@ -3562,7 +3560,7 @@ void idDoor::Use( idEntity *other, idEntity *activator ) {
 		if ( syncLock.Length() ) {
 			idEntity *sync = gameLocal.FindEntity( syncLock );
 			if ( sync != nullptr && sync->IsType( idDoor::Type ) ) {
-				if ( static_cast<idDoor *>( sync )->IsOpen() ) {
+				if (dynamic_cast<idDoor *>( sync )->IsOpen() ) {
 					return;
 				}
 			}
@@ -3601,7 +3599,7 @@ void idDoor::Lock( int f ) {
 	// lock all the doors on the team
 	for( other = moveMaster; other != nullptr; other = other->GetActivateChain() ) {
 		if ( other->IsType( idDoor::Type ) ) {
-			idDoor *door = static_cast<idDoor *>( other );
+			idDoor *door = dynamic_cast<idDoor *>( other );
 			if ( other == moveMaster ) {
 				if ( door->sndTrigger == nullptr) {
 					// in this case the sound trigger never got spawned
@@ -3920,9 +3918,9 @@ void idDoor::Event_SpectatorTouch( idEntity *other, trace_t *trace ) {
 	idBounds	bounds;
 	idPlayer	*p;
 
-	assert( other && other->IsType( idPlayer::Type ) && static_cast< idPlayer * >( other )->spectating );
+	assert( other && other->IsType( idPlayer::Type ) && dynamic_cast< idPlayer * >( other )->spectating );
 
-	p = static_cast< idPlayer * >( other );
+	p = dynamic_cast< idPlayer * >( other );
 	// avoid flicker when stopping right at clip box boundaries
 	if ( p->lastSpectateTeleport > gameLocal.slow.time - 1000 ) {
 		return;
@@ -3974,7 +3972,7 @@ void idDoor::Event_Activate( idEntity *activator ) {
   	if ( syncLock.Length() ) {
 		idEntity *sync = gameLocal.FindEntity( syncLock );
 		if ( sync != nullptr && sync->IsType( idDoor::Type ) ) {
-			if ( static_cast<idDoor *>( sync )->IsOpen() ) {
+			if (dynamic_cast<idDoor *>( sync )->IsOpen() ) {
   				return;
   			}
   		}
@@ -4049,7 +4047,7 @@ void idDoor::Event_OpenPortal() {
 
 	for ( slave = this; slave != nullptr; slave = slave->GetActivateChain() ) {
 		if ( slave->IsType( idDoor::Type ) ) {
-			slaveDoor = static_cast<idDoor *>( slave );
+			slaveDoor = dynamic_cast<idDoor *>( slave );
 			if ( slaveDoor->areaPortal ) {
 				slaveDoor->SetPortalState( true );
 			}
@@ -4072,7 +4070,7 @@ void idDoor::Event_ClosePortal() {
 	for ( slave = this; slave != nullptr; slave = slave->GetActivateChain() ) {
 		if ( !slave->IsHidden() ) {
 			if ( slave->IsType( idDoor::Type ) ) {
-				slaveDoor = static_cast<idDoor *>( slave );
+				slaveDoor = dynamic_cast<idDoor *>( slave );
 				if ( slaveDoor->areaPortal ) {
 					slaveDoor->SetPortalState( false );
 				}
@@ -4763,9 +4761,7 @@ void idPendulum::Spawn() {
 	} else {
 		// find pendulum length
 		length = idMath::Fabs( GetPhysics()->GetBounds()[0][2] );
-		if ( length < 8 ) {
-			length = 8;
-		}
+		length = std::max<float>(length, 8);
 
 		freq = 1 / ( idMath::TWO_PI ) * idMath::Sqrt( g_gravity.GetFloat() / ( 3 * length ) );
 	}

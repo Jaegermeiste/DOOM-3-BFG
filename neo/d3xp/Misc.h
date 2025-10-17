@@ -79,7 +79,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	virtual bool		ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	bool		ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 private:
 	int					teleportStage;
@@ -110,7 +110,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	virtual void		Think();
+	void		Think() override;
 
 private:
 	bool				stay_on;
@@ -159,10 +159,10 @@ public:
 	void				Restore( idRestoreGame *savefile );
 
 	void				Spawn();
-	void				Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	void				Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 
-	virtual void		Hide();
-	virtual void		Show();
+	void		Hide() override;
+	void		Show() override;
 
 private:
 	int					count;
@@ -207,7 +207,7 @@ public:
 
 	void				Spawn();
 
-	virtual void		Think();
+	void		Think() override;
 
 private:
 	idEntity *			ent1;
@@ -239,8 +239,8 @@ public:
 
 	void				Spawn();
 
-	virtual void		Think();
-	virtual void		ClientThink( const int curTime, const float fraction, const bool predict ) ;
+	void		Think() override;
+	void		ClientThink( const int curTime, const float fraction, const bool predict ) override;
 private:
 	idForce_Field		forceField;
 
@@ -265,15 +265,15 @@ public:
 	CLASS_PROTOTYPE( idAnimated );
 
 							idAnimated();
-							~idAnimated();
+							~idAnimated() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual bool			LoadAF();
+	bool			LoadAF() override;
 	bool					StartRagdoll();
-	virtual bool			GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis );
+	bool			GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis ) override;
 
 private:
 	int						num_anims;
@@ -317,14 +317,14 @@ public:
 	void				Restore( idRestoreGame *savefile );
 
 	void				Spawn();
-	void				ShowEditingDialog();
-	virtual void		Hide();
-	virtual void		Show();
+	void				ShowEditingDialog() override;
+	void		Hide() override;
+	void		Show() override;
 	void				Fade( const idVec4 &to, float fadeTime );
-	virtual void		Think();
+	void		Think() override;
 
-	virtual void		WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void		ReadFromSnapshot( const idBitMsg &msg );
+	void		WriteToSnapshot( idBitMsg &msg ) const override;
+	void		ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 	void				Event_Activate( idEntity *activator );
@@ -359,8 +359,8 @@ public:
 	void				Spawn();
 	void				Event_Activate( idEntity *activator );
 
-	virtual void		WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void		ReadFromSnapshot( const idBitMsg &msg );
+	void		WriteToSnapshot( idBitMsg &msg ) const override;
+	void		ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 	bool				hidden;
@@ -388,10 +388,10 @@ public:
 	void						Spawn();
 	void						Event_Activate( idEntity *activator );
 
-	virtual void				Think();
+	void				Think() override;
 
-	virtual void				WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void				ReadFromSnapshot( const idBitMsg &msg );
+	void				WriteToSnapshot( idBitMsg &msg ) const override;
+	void				ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 	int							mRespawnDelay;
@@ -423,7 +423,7 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 	void					Event_Activate( idEntity *activator );
 
 private:
@@ -472,7 +472,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	virtual void		Think();
+	void		Think() override;
 
 private:
 	idStr				text;
@@ -554,15 +554,15 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	virtual void		Think();
+	void		Think() override;
 
 	void				SetMaster( idBeam *masterbeam );
 	void				SetBeamTarget( const idVec3 &origin );
 
-	virtual void		Show();
+	void		Show() override;
 
-	virtual void		WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void		ReadFromSnapshot( const idBitMsg &msg );
+	void		WriteToSnapshot( idBitMsg &msg ) const override;
+	void		ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 	void				Event_MatchTarget();
@@ -647,7 +647,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	virtual void		Think();
+	void		Think() override;
 
 private:
 	int					nextTriggerTime;
@@ -785,7 +785,7 @@ public:
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
 
-	virtual void		Think();
+	void		Think() override;
 
 private:
 	void				Event_Activate( idEntity *activator );
@@ -816,10 +816,10 @@ public:
 	CLASS_PROTOTYPE( idShockwave );
 
 	idShockwave();
-	~idShockwave();
+	~idShockwave() override;
 
 	void				Spawn();
-	void				Think();
+	void				Think() override;
 
 	void				Save( idSaveGame *savefile ) const;
 	void				Restore( idRestoreGame *savefile );
@@ -855,10 +855,10 @@ public:
 	CLASS_PROTOTYPE( idFuncMountedObject );
 
 	idFuncMountedObject();
-	~idFuncMountedObject();
+	~idFuncMountedObject() override;
 
 	void				Spawn();
-	void				Think();
+	void				Think() override;
 
 	void				GetAngleRestrictions( int &yaw_min, int &yaw_max, int &pitch );
 
@@ -881,10 +881,10 @@ public:
 	CLASS_PROTOTYPE( idFuncMountedWeapon );
 
 	idFuncMountedWeapon();
-	~idFuncMountedWeapon();
+	~idFuncMountedWeapon() override;
 
 	void				Spawn();
-	void				Think();
+	void				Think() override;
 
 private:
 
@@ -917,7 +917,7 @@ public:
 	CLASS_PROTOTYPE( idPortalSky );
 
 	idPortalSky();
-	~idPortalSky();
+	~idPortalSky() override;
 
 	void				Spawn();
 	void				Event_PostSpawn();

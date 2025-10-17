@@ -47,12 +47,12 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Think();
+	void			Think() override;
 
-	virtual renderView_t *	GetRenderView();
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual void			Present();
+	renderView_t *	GetRenderView() override;
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
+	bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
+	void			Present() override;
 
 
 private:

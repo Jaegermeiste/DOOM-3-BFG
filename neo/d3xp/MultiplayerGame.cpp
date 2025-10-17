@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -278,7 +280,7 @@ void idMultiplayerGame::UpdatePlayerRanks() {
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		player = static_cast< idPlayer * >( ent );
+		player = dynamic_cast< idPlayer * >( ent );
 		if ( !CanPlay( player ) ) {
 			continue;
 		}
@@ -391,7 +393,7 @@ void idMultiplayerGame::UpdateScoreboard( idMenuHandler_Scoreboard * scoreboard,
 			if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 				continue;
 			}
-			idPlayer *player = static_cast<idPlayer *>(ent);
+			idPlayer *player = dynamic_cast<idPlayer *>(ent);
 			if ( !player ) {
 				continue;
 			}
@@ -480,7 +482,7 @@ void idMultiplayerGame::UpdateScoreboard( idMenuHandler_Scoreboard * scoreboard,
 
 	idStr gameInfo;
 	if ( gameState == GAMEREVIEW ) {		
-		int timeRemaining = nextStateSwitch - gameLocal.serverTime;
+		const ID_TIME_T timeRemaining = nextStateSwitch - gameLocal.serverTime;
 		int ms = static_cast<int>(ceilf(timeRemaining / 1000.0f));
 		if ( ms == 1 ) {
 			gameInfo = idLocalization::GetString( "#str_online_game_starts_in_second" );
@@ -549,16 +551,14 @@ const char *idMultiplayerGame::GameTime() {
 			sprintf( buff, "WMP %i", s );
 		}
 	} else {
-		int timeLimit = gameLocal.serverInfo.GetInt( "si_timeLimit" );
+		const ID_TIME_T timeLimit = gameLocal.serverInfo.GetInt( "si_timeLimit" );
 		if ( timeLimit ) {
 			ms = ( timeLimit * 60000 ) - ( gameLocal.serverTime - matchStartedTime );
 		} else {
 			ms = gameLocal.serverTime - matchStartedTime;
 		}
-		if ( ms < 0 ) {
-			ms = 0;
-		}
-	
+		ms = std::max(ms, 0);
+
 		s = ms / 1000;
 		m = s / 60;
 		s -= m * 60;
@@ -587,7 +587,7 @@ int idMultiplayerGame::NumActualClients( bool countSpectators, int *teamcounts )
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		p = static_cast< idPlayer * >( ent );
+		p = dynamic_cast< idPlayer * >( ent );
 		if ( countSpectators || CanPlay( p ) ) {
 			c++;
 		}
@@ -645,7 +645,7 @@ idPlayer *idMultiplayerGame::FragLimitHit() {
 			if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 				continue;
 			}
-			if ( !CanPlay( static_cast< idPlayer * >( ent ) ) ) {
+			if ( !CanPlay(dynamic_cast< idPlayer * >( ent ) ) ) {
 				continue;
 			}
 			if ( ent == leader ) {
@@ -676,7 +676,7 @@ idMultiplayerGame::TimeLimitHit
 ================
 */
 bool idMultiplayerGame::TimeLimitHit() {	
-	int timeLimit = gameLocal.serverInfo.GetInt( "si_timeLimit" );
+	const ID_TIME_T timeLimit = gameLocal.serverInfo.GetInt( "si_timeLimit" );
 	if ( timeLimit ) {
 		if ( gameLocal.serverTime >= matchStartedTime + timeLimit * 60000 ) {
 			return true;
@@ -746,20 +746,18 @@ idPlayer *idMultiplayerGame::FragLeader() {
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		if ( !CanPlay( static_cast< idPlayer * >( ent ) ) ) {
+		if ( !CanPlay(dynamic_cast< idPlayer * >( ent ) ) ) {
 			continue;
 		}
 		if ( gameLocal.gameType == GAME_TOURNEY && ent->entityNumber != currentTourneyPlayer[ 0 ] && ent->entityNumber != currentTourneyPlayer[ 1 ] ) {
 			continue;
 		}
-		if ( static_cast< idPlayer * >( ent )->lastManOver ) {
+		if (dynamic_cast< idPlayer * >( ent )->lastManOver ) {
 			continue;
 		}
 
 		int fragc = ( IsGametypeTeamBased() ) ? playerState[i].teamFragCount : playerState[i].fragCount; /* CTF */
-		if ( fragc > high ) {
-			high = fragc;
-		}
+		high = std::max(fragc, high);
 
 		frags[ i ] = fragc;
 	}
@@ -769,7 +767,7 @@ idPlayer *idMultiplayerGame::FragLeader() {
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		p = static_cast< idPlayer * >( ent );
+		p = dynamic_cast< idPlayer * >( ent );
 		p->SetLeader( false );
 
 		if ( !CanPlay( p ) ) {
@@ -824,7 +822,7 @@ void idMultiplayerGame::UpdateWinsLosses( idPlayer *winner ) {
 			if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 				continue;
 			}
-			idPlayer *player = static_cast<idPlayer *>(ent);
+			idPlayer *player = dynamic_cast<idPlayer *>(ent);
 			if ( IsGametypeTeamBased() ) { /* CTF */
 				if ( player == winner || ( player != winner && player->team == winner->team ) ) {
 					playerState[ i ].wins++;
@@ -864,7 +862,7 @@ void idMultiplayerGame::UpdateWinsLosses( idPlayer *winner ) {
 			if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 				continue;
 			}
-			idPlayer *player = static_cast<idPlayer *>(ent);
+			idPlayer *player = dynamic_cast<idPlayer *>(ent);
 
 			if ( player->team == winteam ) {
 				PlayGlobalSound( i, SND_YOUWIN );
@@ -923,7 +921,7 @@ int	idMultiplayerGame::GetFlagCarrier( int team ) {
 			continue;
 		}
 
-		idPlayer * player = static_cast<idPlayer *>( ent );
+		idPlayer * player = dynamic_cast<idPlayer *>( ent );
 		if ( player->team != team )
 			continue;
 
@@ -949,7 +947,7 @@ void idMultiplayerGame::TeamScore( int entityNumber, int team, int delta ) {
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		idPlayer *player = static_cast<idPlayer *>(ent);
+		idPlayer *player = dynamic_cast<idPlayer *>(ent);
 		if ( player->team == team ) {
 			playerState[ player->entityNumber ].teamFragCount += delta;
 		}
@@ -1037,7 +1035,7 @@ void idMultiplayerGame::PlayerStats( int clientNum, char *data, const int len ) 
 	// find which team this player is on
 	ent = gameLocal.entities[ clientNum ]; 
 	if ( ent && ent->IsType( idPlayer::Type ) ) {
-		team = static_cast< idPlayer * >(ent)->team;
+		team = dynamic_cast< idPlayer * >(ent)->team;
 	} else {
 		return;
 	}
@@ -1101,7 +1099,7 @@ void idMultiplayerGame::NewState( gameState_t news, idPlayer *player ) {
 				if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 					continue;
 				}
-				idPlayer *p = static_cast<idPlayer *>( ent );
+				idPlayer *p = dynamic_cast<idPlayer *>( ent );
 				p->wantSpectate = false; // Make sure everyone is in the game.
 				p->SetLeader( false ); // don't carry the flag from previous games
 				if ( gameLocal.gameType == GAME_TOURNEY && currentTourneyPlayer[ 0 ] != i && currentTourneyPlayer[ 1 ] != i ) {
@@ -1113,8 +1111,8 @@ void idMultiplayerGame::NewState( gameState_t news, idPlayer *player ) {
 					int startingCount = ( gameLocal.gameType == GAME_LASTMAN ) ? fragLimit : 0;
 					playerState[ i ].fragCount = startingCount;
 					playerState[ i ].teamFragCount = startingCount;
-					if ( !static_cast<idPlayer *>(ent)->wantSpectate ) {
-						static_cast<idPlayer *>(ent)->ServerSpectate( false );
+					if ( !dynamic_cast<idPlayer *>(ent)->wantSpectate ) {
+						dynamic_cast<idPlayer *>(ent)->ServerSpectate( false );
 						idLib::Printf( "TOURNEY NewState :> Player %d On Deck \n", ent->entityNumber  );
 						if ( gameLocal.gameType == GAME_TOURNEY ) {
 							p->tourneyRank = 0;
@@ -1139,7 +1137,7 @@ void idMultiplayerGame::NewState( gameState_t news, idPlayer *player ) {
 				if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 					continue;
 				}
-				static_cast<idPlayer *>(ent)->ServerSpectate( true );
+				dynamic_cast<idPlayer *>(ent)->ServerSpectate( true );
 				idLib::Printf( "TOURNEY NewState GAMEREVIEW :> Player %d Benched \n", ent->entityNumber  );
 			}
 			UpdateWinsLosses( player );
@@ -1269,7 +1267,7 @@ void idMultiplayerGame::FillTourneySlots( ) {
 				continue;
 			}
 
-			p = static_cast< idPlayer * >( ent );
+			p = dynamic_cast< idPlayer * >( ent );
 			if ( p->wantSpectate ) {
 				idLib::Printf( "FillTourneySlots: Skipping Player %d ( Wants Spectate )\n", p->entityNumber );
 				continue;
@@ -1284,7 +1282,7 @@ void idMultiplayerGame::FillTourneySlots( ) {
 						continue;
 					}
 				}
-				rankmax = static_cast< idPlayer * >( ent )->tourneyRank;
+				rankmax = dynamic_cast< idPlayer * >( ent )->tourneyRank;
 				rankmaxindex = j;
 			}
 		}
@@ -1501,8 +1499,8 @@ void idMultiplayerGame::Run() {
 				for ( i = 0; i < gameLocal.numClients; i++ ) {
 					idEntity *ent = gameLocal.entities[ i ];
 					if ( ent && ent->IsType( idPlayer::Type ) ) {
-						if ( !static_cast< idPlayer * >( ent )->wantSpectate ) {
-							CheckRespawns( static_cast<idPlayer *>( ent ) );
+						if ( !dynamic_cast< idPlayer * >( ent )->wantSpectate ) {
+							CheckRespawns(dynamic_cast<idPlayer *>( ent ) );
 						}
 					}
 				}
@@ -1792,7 +1790,7 @@ void idMultiplayerGame::UpdateHud( idPlayer *player, idMenuHandler_HUD * hudMana
 						continue;
 					}
 
-					idPlayer * player = static_cast< idPlayer * >( ent );
+					idPlayer * player = dynamic_cast< idPlayer * >( ent );
 					hud->SetTeamScore( player->team, playerState[ player->entityNumber ].teamFragCount );
 				}
 			}
@@ -2068,7 +2066,7 @@ void idMultiplayerGame::PlayTeamSound( int toTeam, snd_evt_t evt, const char *sh
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		idPlayer * player = static_cast<idPlayer*>(ent);
+		idPlayer * player = dynamic_cast<idPlayer*>(ent);
 		if ( player->team != toTeam )
 			continue;
 		PlayGlobalSound( i, evt, shader );
@@ -2249,7 +2247,7 @@ void idMultiplayerGame::CheckRespawns( idPlayer *spectator ) {
 		if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 			continue;
 		}
-		idPlayer *p = static_cast<idPlayer *>(ent);
+		idPlayer *p = dynamic_cast<idPlayer *>(ent);
 		// once we hit sudden death, nobody respawns till game has ended
 		if ( WantRespawn( p ) || p == spectator ) {
 			if ( gameState == SUDDENDEATH && gameLocal.gameType != GAME_LASTMAN ) {
@@ -2365,7 +2363,7 @@ void idMultiplayerGame::DropWeapon( int clientNum ) {
 	if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 		return;
 	}
-	static_cast< idPlayer* >( ent )->DropWeapon( false );
+	dynamic_cast< idPlayer* >( ent )->DropWeapon( false );
 }
 
 /*
@@ -2404,7 +2402,7 @@ void idMultiplayerGame::MessageMode( const idCmdArgs &args ) {
 	if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 		return;
 	}
-	idPlayer * player = static_cast< idPlayer* >( ent );
+	idPlayer * player = dynamic_cast< idPlayer* >( ent );
 	if ( player && !player->spectating ) {
 		if ( args.Argc() != 2 ) {
 			player->isChatting = 1;
@@ -2602,7 +2600,7 @@ void idMultiplayerGame::SwitchToTeam( int clientNum, int oldteam, int newteam ) 
 			continue;
 		}
 		idEntity * ent = gameLocal.entities[ i ]; 
-		if ( ent && ent->IsType( idPlayer::Type ) && static_cast< idPlayer * >(ent)->team == newteam ) {
+		if ( ent && ent->IsType( idPlayer::Type ) && dynamic_cast< idPlayer * >(ent)->team == newteam ) {
 			playerState[ clientNum ].teamFragCount = playerState[ i ].teamFragCount;
 			break;
 		}	
@@ -2691,7 +2689,7 @@ void idMultiplayerGame::ProcessChatMessage( int clientNum, bool team, const char
 			if ( !ent || !ent->IsType( idPlayer::Type ) ) {
 				continue;
 			}
-			idPlayer * pent = static_cast< idPlayer * >( ent );
+			idPlayer * pent = dynamic_cast< idPlayer * >( ent );
 			if ( send_to == 1 && pent->spectating ) {
 				if ( sound ) {
 					PlayGlobalSound( i, SND_COUNT, sound );
@@ -2921,8 +2919,8 @@ void idMultiplayerGame::ServerWriteInitialReliableMessages( int clientNum, lobby
 		idEntity * ent = gameLocal.entities[ i ]; 
 		if ( i != clientNum && ent && ent->IsType( idPlayer::Type ) ) {
 			outMsg.WriteByte( i );
-			outMsg.WriteBits( static_cast< idPlayer * >( ent )->inventory.powerups, 15 );
-			outMsg.WriteBits( static_cast< idPlayer * >( ent )->spectating, 1 );
+			outMsg.WriteBits(dynamic_cast< idPlayer * >( ent )->inventory.powerups, 15 );
+			outMsg.WriteBits(dynamic_cast< idPlayer * >( ent )->spectating, 1 );
 		}
 	}
 	outMsg.WriteByte( MAX_CLIENTS );
@@ -3093,7 +3091,7 @@ void idMultiplayerGame::FindTeamFlags() {
 			if ( entity == nullptr)
 				return;
 
-			idItemTeam * flag = static_cast<idItemTeam *>(entity);
+			idItemTeam * flag = dynamic_cast<idItemTeam *>(entity);
 
 			if ( flag->team == i )
 			{

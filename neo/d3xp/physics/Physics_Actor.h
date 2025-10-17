@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_ACTOR_H__
 #define __PHYSICS_ACTOR_H__
 
+#pragma once
+
 /*
 ===================================================================================
 
@@ -47,7 +49,7 @@ public:
 	CLASS_PROTOTYPE( idPhysics_Actor );
 
 							idPhysics_Actor();
-							~idPhysics_Actor();
+							~idPhysics_Actor() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
@@ -60,38 +62,38 @@ public:
 	void					SetClipModelAxis();
 
 public:	// common physics interface
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true );
-	idClipModel *			GetClipModel( int id = 0 ) const;
-	int						GetNumClipModels() const;
+	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true ) override;
+	idClipModel *			GetClipModel( int id = 0 ) const override;
+	size_t					GetNumClipModels() const override;
 
-	void					SetMass( float mass, int id = -1 );
-	float					GetMass( int id = -1 ) const;
+	void					SetMass( float mass, int id = -1 ) override;
+	float					GetMass( int id = -1 ) const override;
 
-	void					SetContents( int contents, int id = -1 );
-	int						GetContents( int id = -1 ) const;
+	void					SetContents( int contents, int id = -1 ) override;
+	int						GetContents( int id = -1 ) const override;
 
-	const idBounds &		GetBounds( int id = -1 ) const;
-	const idBounds &		GetAbsBounds( int id = -1 ) const;
+	const idBounds &		GetBounds( int id = -1 ) const override;
+	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
-	bool					IsPushable() const;
+	bool					IsPushable() const override;
 
-	const idVec3 &			GetOrigin( int id = 0 ) const;
-	const idMat3 &			GetAxis( int id = 0 ) const;
+	const idVec3 &			GetOrigin( int id = 0 ) const override;
+	const idMat3 &			GetAxis( int id = 0 ) const override;
 
-	void					SetGravity( const idVec3 &newGravity );
+	void					SetGravity( const idVec3 &newGravity ) override;
 	const idMat3 &			GetGravityAxis() const;
 
-	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const;
-	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const;
-	int						ClipContents( const idClipModel *model ) const;
+	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const override;
+	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const override;
+	int						ClipContents( const idClipModel *model ) const override;
 
-	void					DisableClip();
-	void					EnableClip();
+	void					DisableClip() override;
+	void					EnableClip() override;
 
-	void					UnlinkClip();
-	void					LinkClip();
+	void					UnlinkClip() override;
+	void					LinkClip() override;
 
-	bool					EvaluateContacts();
+	bool					EvaluateContacts() override;
 
 protected:
 	idClipModel *			clipModel;			// clip model used for collision detection

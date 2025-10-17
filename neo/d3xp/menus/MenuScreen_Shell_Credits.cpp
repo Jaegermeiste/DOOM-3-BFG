@@ -39,7 +39,8 @@ void idMenuScreen_Shell_Credits::SetupCreditList() {
 			screen( _screen ) {
 		}
 
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 
 			if ( screen == nullptr) {
 				return idSWFScriptVar();

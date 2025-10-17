@@ -351,7 +351,8 @@ void idMenuScreen_Shell_Save::SaveGame( int index ) {
 				index = _index;
 				screen = _screen;
 			}
-			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+			{
 				common->Dialog().ClearDialog( msg );
 				if ( accept && screen != nullptr) {
 					// Replace the save
@@ -396,7 +397,8 @@ void idMenuScreen_Shell_Save::DeleteGame( int index ) {
 			index = _index;
 			screen = _screen;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept && screen != nullptr) {
 				if ( index < screen->GetSortedSaves().Num() ) {

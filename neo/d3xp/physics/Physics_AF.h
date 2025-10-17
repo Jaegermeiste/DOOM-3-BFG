@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_AF_H__
 #define __PHYSICS_AF_H__
 
+#pragma once
+
 /*
 ===================================================================================
 
@@ -157,22 +159,22 @@ public:
 							idAFConstraint_Fixed( const idStr &name, idAFBody *body1, idAFBody *body2 );
 	void					SetRelativeOrigin( const idVec3 &origin ) { this->offset = origin; }
 	void					SetRelativeAxis( const idMat3 &axis ) { this->relAxis = axis; }
-	virtual void			SetBody1( idAFBody *body );
-	virtual void			SetBody2( idAFBody *body );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			SetBody1( idAFBody *body ) override;
+							void			SetBody2( idAFBody *body ) override;
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					offset;						// offset of body1 relative to body2 in body2 space
 	idMat3					relAxis;					// rotation of body1 relative to body2
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 	void					InitOffset();
 };
 
@@ -182,7 +184,7 @@ class idAFConstraint_BallAndSocketJoint : public idAFConstraint {
 
 public:
 							idAFConstraint_BallAndSocketJoint( const idStr &name, idAFBody *body1, idAFBody *body2 );
-							~idAFConstraint_BallAndSocketJoint();
+							~idAFConstraint_BallAndSocketJoint() override;
 	void					SetAnchor( const idVec3 &worldPosition );
 	idVec3					GetAnchor() const;
 	void					SetNoLimit();
@@ -192,13 +194,13 @@ public:
 	void					SetLimitEpsilon( const float e );
 	void					SetFriction( const float f ) { friction = f; }
 	float					GetFriction() const;
-	virtual void			DebugDraw();
-	virtual void			GetForce( idAFBody *body, idVec6 &force );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			GetForce( idAFBody *body, idVec6 &force ) override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					anchor1;					// anchor in body1 space
@@ -209,8 +211,8 @@ protected:
 	idAFConstraint_BallAndSocketJointFriction *fc;		// friction constraint
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // ball and socket joint friction
@@ -220,15 +222,15 @@ public:
 							idAFConstraint_BallAndSocketJointFriction();
 	void					Setup( idAFConstraint_BallAndSocketJoint *cc );
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 	idAFConstraint_BallAndSocketJoint *joint;
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // universal, Cardan or Hooke joint which allows 2 degrees of freedom
@@ -237,7 +239,7 @@ class idAFConstraint_UniversalJoint : public idAFConstraint {
 
 public:
 							idAFConstraint_UniversalJoint( const idStr &name, idAFBody *body1, idAFBody *body2 );
-							~idAFConstraint_UniversalJoint();
+							~idAFConstraint_UniversalJoint() override;
 	void					SetAnchor( const idVec3 &worldPosition );
 	idVec3					GetAnchor() const;
 	void					SetShafts( const idVec3 &cardanShaft1, const idVec3 &cardanShaft2 );
@@ -249,13 +251,13 @@ public:
 	void					SetLimitEpsilon( const float e );
 	void					SetFriction( const float f ) { friction = f; }
 	float					GetFriction() const;
-	virtual void			DebugDraw();
-	virtual void			GetForce( idAFBody *body, idVec6 &force );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			GetForce( idAFBody *body, idVec6 &force ) override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					anchor1;					// anchor in body1 space
@@ -270,8 +272,8 @@ protected:
 	idAFConstraint_UniversalJointFriction *fc;			// friction constraint
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // universal joint friction
@@ -281,15 +283,15 @@ public:
 							idAFConstraint_UniversalJointFriction();
 	void					Setup( idAFConstraint_UniversalJoint *cc );
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 	idAFConstraint_UniversalJoint *joint;			// universal joint
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // cylindrical joint which allows 2 degrees of freedom
@@ -298,15 +300,15 @@ class idAFConstraint_CylindricalJoint : public idAFConstraint {
 
 public:
 							idAFConstraint_CylindricalJoint( const idStr &name, idAFBody *body1, idAFBody *body2 );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // hinge, revolute or pin joint which allows 1 degree of freedom
@@ -315,7 +317,7 @@ class idAFConstraint_Hinge : public idAFConstraint {
 
 public:
 							idAFConstraint_Hinge( const idStr &name, idAFBody *body1, idAFBody *body2 );
-							~idAFConstraint_Hinge();
+							~idAFConstraint_Hinge() override;
 	void					SetAnchor( const idVec3 &worldPosition );
 	idVec3					GetAnchor() const;
 	void					SetAxis( const idVec3 &axis );
@@ -329,13 +331,13 @@ public:
 	void					SetSteerSpeed( const float speed );
 	void					SetFriction( const float f ) { friction = f; }
 	float					GetFriction() const;
-	virtual void			DebugDraw();
-	virtual void			GetForce( idAFBody *body, idVec6 &force );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			GetForce( idAFBody *body, idVec6 &force ) override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					anchor1;					// anchor in body1 space
@@ -349,8 +351,8 @@ protected:
 	idAFConstraint_HingeFriction *fc;					// friction constraint
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // hinge joint friction
@@ -360,15 +362,15 @@ public:
 							idAFConstraint_HingeFriction();
 	void					Setup( idAFConstraint_Hinge *cc );
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 	idAFConstraint_Hinge *	hinge;						// hinge
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // constrains two bodies attached to each other with a hinge to get a specified relative orientation
@@ -381,11 +383,11 @@ public:
 	void					SetSteerSpeed( const float speed ) { steerSpeed = speed; }
 	void					SetEpsilon( const float e ) { epsilon = e; }
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idAFConstraint_Hinge *	hinge;						// hinge
@@ -394,8 +396,8 @@ protected:
 	float					epsilon;					// lcp epsilon
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // slider, prismatic or translational constraint which allows 1 degree of freedom
@@ -405,12 +407,12 @@ class idAFConstraint_Slider : public idAFConstraint {
 public:
 							idAFConstraint_Slider( const idStr &name, idAFBody *body1, idAFBody *body2 );
 	void					SetAxis( const idVec3 &ax );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					axis;						// axis along which body1 slides in body2 space
@@ -418,8 +420,8 @@ protected:
 	idMat3					relAxis;					// rotation of body1 relative to body2
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // line constraint which allows 4 degrees of freedom
@@ -428,15 +430,15 @@ class idAFConstraint_Line : public idAFConstraint {
 
 public:
 							idAFConstraint_Line( const idStr &name, idAFBody *body1, idAFBody *body2 );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // plane constraint which allows 5 degrees of freedom
@@ -446,11 +448,11 @@ class idAFConstraint_Plane : public idAFConstraint {
 public:
 							idAFConstraint_Plane( const idStr &name, idAFBody *body1, idAFBody *body2 );
 	void					SetPlane( const idVec3 &normal, const idVec3 &anchor );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					anchor1;					// anchor in body1 space
@@ -458,8 +460,8 @@ protected:
 	idVec3					planeNormal;				// plane normal in body2 space
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // spring constraint which allows 6 or 5 degrees of freedom based on the spring limits
@@ -471,12 +473,12 @@ public:
 	void					SetAnchor( const idVec3 &worldAnchor1, const idVec3 &worldAnchor2 );
 	void					SetSpring( const float stretch, const float compress, const float damping, const float restLength );
 	void					SetLimit( const float minLength, const float maxLength );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					anchor1;					// anchor in body1 space
@@ -489,8 +491,8 @@ protected:
 	float					maxLength;					// maximum spring length
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // constrains body1 to either be in contact with or move away from body2
@@ -498,21 +500,21 @@ class idAFConstraint_Contact : public idAFConstraint {
 
 public:
 							idAFConstraint_Contact();
-							~idAFConstraint_Contact();
+							~idAFConstraint_Contact() override;
 	void					Setup( idAFBody *b1, idAFBody *b2, contactInfo_t &c );
 	const contactInfo_t &	GetContact() const { return contact; }
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			GetCenter( idVec3 &center );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			GetCenter( idVec3 &center ) override;
 
 protected:
 	contactInfo_t			contact;					// contact information
 	idAFConstraint_ContactFriction *fc;					// contact friction
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // contact friction
@@ -522,16 +524,16 @@ public:
 							idAFConstraint_ContactFriction();
 	void					Setup( idAFConstraint_Contact *cc );
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 	idAFConstraint_Contact *cc;							// contact constraint
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // constrains an axis attached to body1 to be inside a cone relative to body2
@@ -545,11 +547,11 @@ public:
 	void					SetBody1Axis( const idVec3 &body1Axis );
 	void					SetEpsilon( const float e ) { epsilon = e; }
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					coneAnchor;					// top of the cone in body2 space
@@ -561,8 +563,8 @@ protected:
 	float					epsilon;					// lcp epsilon
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // constrains an axis attached to body1 to be inside a pyramid relative to body2
@@ -577,11 +579,11 @@ public:
 	void					SetBody1Axis( const idVec3 &body1Axis );
 	void					SetEpsilon( const float e ) { epsilon = e; }
 	bool					Add( idPhysics_AF *phys, float invTimeStep );
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
-	virtual void			Save( idSaveGame *saveFile ) const;
-	virtual void			Restore( idRestoreGame *saveFile );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
+							void			Save( idSaveGame *saveFile ) const override;
+							void			Restore( idRestoreGame *saveFile ) override;
 
 protected:
 	idVec3					pyramidAnchor;				// top of the pyramid in body2 space
@@ -593,8 +595,8 @@ protected:
 	float					epsilon;					// lcp epsilon
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 // vehicle suspension
@@ -613,9 +615,9 @@ public:
 	void					SetEpsilon( const float e ) { epsilon = e; }
 	const idVec3			GetWheelOrigin() const;
 
-	virtual void			DebugDraw();
-	virtual void			Translate( const idVec3 &translation );
-	virtual void			Rotate( const idRotation &rotation );
+							void			DebugDraw() override;
+							void			Translate( const idVec3 &translation ) override;
+							void			Rotate( const idRotation &rotation ) override;
 
 protected:
 	idVec3					localOrigin;				// position of suspension relative to body1
@@ -635,8 +637,8 @@ protected:
 	float					epsilon;					// lcp epsilon
 
 protected:
-	virtual void			Evaluate( float invTimeStep );
-	virtual void			ApplyFriction( float invTimeStep );
+							void			Evaluate( float invTimeStep ) override;
+							void			ApplyFriction( float invTimeStep ) override;
 };
 
 
@@ -815,7 +817,7 @@ public:
 	CLASS_PROTOTYPE( idPhysics_AF );
 
 							idPhysics_AF();
-							~idPhysics_AF();
+							~idPhysics_AF() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
@@ -890,70 +892,70 @@ public:
 	void					UpdateClipModels();
 
 public:	// common physics interface
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true );
-	idClipModel *			GetClipModel( int id = 0 ) const;
-	int						GetNumClipModels() const;
+	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true ) override;
+	idClipModel *			GetClipModel( int id = 0 ) const override;
+	int						GetNumClipModels() const override;
 
-	void					SetMass( float mass, int id = -1 );
-	float					GetMass( int id = -1 ) const;
+	void					SetMass( float mass, int id = -1 ) override;
+	float					GetMass( int id = -1 ) const override;
 
-	void					SetContents( int contents, int id = -1 );
-	int						GetContents( int id = -1 ) const;
+	void					SetContents( int contents, int id = -1 ) override;
+	int						GetContents( int id = -1 ) const override;
 
-	const idBounds &		GetBounds( int id = -1 ) const;
-	const idBounds &		GetAbsBounds( int id = -1 ) const;
+	const idBounds &		GetBounds( int id = -1 ) const override;
+	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
-	bool					Evaluate( int timeStepMSec, int endTimeMSec );
+	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
 	void					UpdateTime( int endTimeMSec );
-	int						GetTime() const;
+	int						GetTime() const override;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse );
-	void					AddForce( const int id, const idVec3 &point, const idVec3 &force );
-	bool					IsAtRest() const;
-	int						GetRestStartTime() const;
-	void					Activate();
-	void					PutToRest();
-	bool					IsPushable() const;
+	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;
+	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) override;
+	void					AddForce( const int id, const idVec3 &point, const idVec3 &force ) override;
+	bool					IsAtRest() const override;
+	int						GetRestStartTime() const override;
+	void					Activate() override;
+	void					PutToRest() override;
+	bool					IsPushable() const override;
 
-	void					SaveState();
-	void					RestoreState();
+	void					SaveState() override;
+	void					RestoreState() override;
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3 &newOrigin, int id = -1 ) override;
+	void					SetAxis( const idMat3 &newAxis, int id = -1 ) override;
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3 &translation, int id = -1 ) override;
+	void					Rotate( const idRotation &rotation, int id = -1 ) override;
 
-	const idVec3 &			GetOrigin( int id = 0 ) const;
-	const idMat3 &			GetAxis( int id = 0 ) const;
+	const idVec3 &			GetOrigin( int id = 0 ) const override;
+	const idMat3 &			GetAxis( int id = 0 ) const override;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
-	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 ) override;
+	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 ) override;
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
-	const idVec3 &			GetAngularVelocity( int id = 0 ) const;
+	const idVec3 &			GetLinearVelocity( int id = 0 ) const override;
+	const idVec3 &			GetAngularVelocity( int id = 0 ) const override;
 
-	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const;
-	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const;
-	int						ClipContents( const idClipModel *model ) const;
+	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const override;
+	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const override;
+	int						ClipContents( const idClipModel *model ) const override;
 
-	void					DisableClip();
-	void					EnableClip();
+	void					DisableClip() override;
+	void					EnableClip() override;
 
-	void					UnlinkClip();
-	void					LinkClip();
+	void					UnlinkClip() override;
+	void					LinkClip() override;
 
-	bool					EvaluateContacts();
+	bool					EvaluateContacts() override;
 
 	void					SetPushed( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const;
-	const idVec3 &			GetPushedAngularVelocity( const int id = 0 ) const;
+	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const override;
+	const idVec3 &			GetPushedAngularVelocity( const int id = 0 ) const override;
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity *master, const bool orientated = true ) override;
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg &msg ) const override;
+	void					ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 							// articulated figure

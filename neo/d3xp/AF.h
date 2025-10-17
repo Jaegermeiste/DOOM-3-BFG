@@ -64,8 +64,8 @@ public:
 	bool					Load( idEntity *ent, const char *fileName );
 	bool					IsLoaded() const { return isLoaded && self != nullptr; }
 	const char *			GetName() const { return name.c_str(); }
-	void					SetupPose( idEntity *ent, int time );
-	void					ChangePose( idEntity *ent, int time );
+	void					SetupPose( idEntity *ent, const ID_TIME_T time );
+	void					ChangePose( idEntity *ent, const ID_TIME_T time );
 	int						EntitiesTouchingAF( afTouch_t touchList[ MAX_GENTITIES ] ) const;
 	void					Start();
 	void					StartFromCurrentPose( int inheritVelocityTime );

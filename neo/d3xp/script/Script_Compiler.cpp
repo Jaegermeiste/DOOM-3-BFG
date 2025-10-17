@@ -239,14 +239,15 @@ idCompiler::Error
 Aborts the current file load
 ============
 */
-void idCompiler::Error( const char *message, ... ) const {
-	va_list	argptr;
-	char	string[ 1024 ];
+void idCompiler::Error( const char *error, ... ) const {
+	va_list	argptr = {};
+	char	string[ 1024 ] = {};
 
-	va_start( argptr, message );
-	vsprintf( string, message, argptr );
+	va_start( argptr, error );
+	std::ignore = vsnprintf_s( string, sizeof(string), error, argptr );
 	va_end( argptr );
 
+	parserPtr->Error("%s", string);
 	throw idCompileError( string );
 }
 
@@ -258,11 +259,11 @@ Prints a warning about the current line
 ============
 */
 void idCompiler::Warning( const char *message, ... ) const {
-	va_list	argptr;
-	char	string[ 1024 ];
+	va_list	argptr = {};
+	char	string[ 1024 ] = {};
 
 	va_start( argptr, message );
-	vsprintf( string, message, argptr );
+	std::ignore = vsnprintf_s(string, sizeof(string), message, argptr);
 	va_end( argptr );
 
 	parserPtr->Warning( "%s", string );
@@ -298,7 +299,7 @@ ID_INLINE idVarDef *idCompiler::SizeConstant( size_t size ) {
 	eval_t eval = {};
 
 	memset( &eval, 0, sizeof( eval ) );
-	eval._int = size;
+	eval._int = idMath::integer_cast<int64>(size);
 	return GetImmediate( &type_argsize, &eval, "" );
 }
 
@@ -309,8 +310,8 @@ idCompiler::JumpConstant
 Creates a def for a jump constant
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpConstant( int value ) {
-	eval_t eval;
+ID_INLINE idVarDef *idCompiler::JumpConstant( int64 value ) {
+	eval_t eval = {};
 
 	memset( &eval, 0, sizeof( eval ) );
 	eval._int = value;
@@ -324,7 +325,7 @@ idCompiler::JumpDef
 Creates a def for a relative jump from one code location to another
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpDef( int jumpfrom, int jumpto ) {
+ID_INLINE idVarDef *idCompiler::JumpDef( int64 jumpfrom, int64 jumpto ) {
 	return JumpConstant( jumpto - jumpfrom );
 }
 
@@ -335,7 +336,7 @@ idCompiler::JumpTo
 Creates a def for a relative jump from current code location
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpTo( int jumpto ) {
+ID_INLINE idVarDef *idCompiler::JumpTo( int64 jumpto ) {
 	return JumpDef( gameLocal.program.NumStatements(), jumpto );
 }
 
@@ -346,7 +347,7 @@ idCompiler::JumpFrom
 Creates a def for a relative jump from code location to current code location
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpFrom( int jumpfrom ) {
+ID_INLINE idVarDef *idCompiler::JumpFrom( int64 jumpfrom ) {
 	return JumpDef( jumpfrom, gameLocal.program.NumStatements() );
 }
 
@@ -922,13 +923,13 @@ idVarDef *idCompiler::ParseImmediate() {
 idCompiler::EmitFunctionParms
 ============
 */
-idVarDef *idCompiler::EmitFunctionParms( int op, idVarDef *func, size_t startarg, size_t startsize, idVarDef *object ) {
+idVarDef *idCompiler::EmitFunctionParms( scriptOp_t op, idVarDef *func, size_t startarg, size_t startsize, idVarDef *object ) {
 	idVarDef		*e = nullptr;
 	idVarDef		*returnDef = nullptr;
 	idTypeDef		*returnType = nullptr;
 	size_t 			arg = 0;
 	size_t 			size = 0;
-	int				resultOp = 0;
+	scriptOp_t		resultOp = OP_RETURN;
 
 	const idTypeDef* type = func->TypeDef();
 	if ( func->Type() != ev_function ) {
@@ -972,7 +973,7 @@ idVarDef *idCompiler::EmitFunctionParms( int op, idVarDef *func, size_t startarg
 	} else if ( ( op == OP_OBJECTCALL ) || ( op == OP_OBJTHREAD ) ) {
 		EmitOpcode( op, object, VirtualFunctionConstant( func ) );
 
-		// need arg size seperate since script object may be NULL
+		// need arg size separate since script object may be NULL
 		statement_t &statement = gameLocal.program.GetStatement( gameLocal.program.NumStatements() - 1 );
 		statement.c = SizeConstant( func->value.functionPtr->parmTotal );
 	} else {
@@ -1153,18 +1154,16 @@ idCompiler::LookupDef
 ============
 */
 idVarDef *idCompiler::LookupDef( const char *name, const idVarDef *baseobj ) {
-	idVarDef	*def;
-	idVarDef	*field;
-	etype_t		type_b;
-	etype_t		type_c;
-	opcode_t	*op;
+	idVarDef	*def = nullptr;
+	idVarDef	*field = nullptr;
+	etype_t		type_b = ev_void;
+	etype_t		type_c = ev_void;
+	opcode_t	*op = nullptr;
 
 	// check if we're accessing a field
 	if ( baseobj && ( baseobj->Type() == ev_object ) ) {
-		const idVarDef *tdef;
-
 		def = nullptr;
-		for( tdef = baseobj; tdef != &def_object; tdef = tdef->TypeDef()->SuperClass()->def ) {
+		for( const idVarDef* tdef = baseobj; tdef != &def_object; tdef = tdef->TypeDef()->SuperClass()->def ) {
 			def = gameLocal.program.GetDef(nullptr, name, tdef );
 			if ( def ) {
 				break;
@@ -1244,13 +1243,13 @@ Returns the def for the current token
 ============
 */
 idVarDef *idCompiler::ParseValue() {
-	idVarDef	*def;
-	idVarDef	*namespaceDef;
+	idVarDef	*def = nullptr;
+	idVarDef	*namespaceDef = nullptr;
 	idStr		name;
 	
 	if ( immediateType == &type_entity ) {
 		// if an immediate entity ($-prefaced name) then create or lookup a def for it.
-		// when entities are spawned, they'll lookup the def and point it to them.
+		// when entities are spawned, they'll look up the def and point it to them.
 		def = gameLocal.program.GetDef( &type_entity, "$" + token, &def_namespace );
 		if ( !def ) {
 			def = gameLocal.program.AllocDef( &type_entity, "$" + token, &def_namespace, true );
@@ -1298,8 +1297,8 @@ idCompiler::GetTerm
 ============
 */
 idVarDef *idCompiler::GetTerm() {
-	idVarDef	*e;
-	int 		op;
+	idVarDef	*e = nullptr;
+	scriptOp_t	op = OP_RETURN;
 	
 	if ( !immediateType && CheckToken( "~" ) ) {
 		e = GetExpression( TILDE_PRIORITY );
@@ -1429,7 +1428,8 @@ idVarDef *idCompiler::GetTerm() {
 idCompiler::TypeMatches
 ==============
 */
-bool idCompiler::TypeMatches( etype_t type1, etype_t type2 ) const {
+bool idCompiler::TypeMatches( etype_t type1, etype_t type2 )
+{
 	if ( type1 == type2 ) {
 		return true;
 	}
@@ -1451,14 +1451,14 @@ idCompiler::GetExpression
 ==============
 */
 idVarDef *idCompiler::GetExpression( int priority ) {
-	opcode_t		*op;
-	opcode_t		*oldop;
-	idVarDef		*e;
-	idVarDef		*e2;
-	const idVarDef	*oldtype;
-	etype_t 		type_a;
-	etype_t 		type_b;
-	etype_t 		type_c;
+	opcode_t		*op = nullptr;
+	opcode_t		*oldop = nullptr;
+	idVarDef		*e = nullptr;
+	idVarDef		*e2 = nullptr;
+	const idVarDef	*oldtype = nullptr;
+	etype_t 		type_a = ev_void;
+	etype_t 		type_b = ev_void;
+	etype_t 		type_c = ev_void;
 	
 	if ( priority == 0 ) {
 		return GetTerm();
@@ -1466,7 +1466,7 @@ idVarDef *idCompiler::GetExpression( int priority ) {
 		
 	e = GetExpression( priority - 1 );
 	if ( token == ";" ) {
-		// save us from searching through the opcodes unneccesarily
+		// save us from searching through the opcodes unnecessarily
 		return e;
 	}
 
@@ -1563,14 +1563,6 @@ idVarDef *idCompiler::GetExpression( int priority ) {
 			break;
 
 		case OP_OBJECTCALL :
-			ExpectToken( "(" );
-			if ( ( e2->initialized != idVarDef::uninitialized ) && e2->value.functionPtr->eventdef ) {
-				e = ParseEventCall( e, e2 );
-			} else {
-				e = ParseObjectCall( e, e2 );
-			}
-			break;
-		
 		case OP_EVENTCALL :
 			ExpectToken( "(" );
 			if ( ( e2->initialized != idVarDef::uninitialized ) && e2->value.functionPtr->eventdef ) {
@@ -1640,9 +1632,9 @@ idVarDef *idCompiler::GetExpression( int priority ) {
 idCompiler::PatchLoop
 ================
 */
-void idCompiler::PatchLoop( int start, int continuePos ) {
-	int			i;
-	statement_t	*pos;
+void idCompiler::PatchLoop( int64 start, int64 continuePos ) {
+	int64		i = 0;
+	statement_t	*pos = nullptr;
 
 	pos = &gameLocal.program.GetStatement( start );
 	for( i = start; i < gameLocal.program.NumStatements(); i++, pos++ ) {
@@ -1662,10 +1654,10 @@ idCompiler::ParseReturnStatement
 ================
 */
 void idCompiler::ParseReturnStatement() {
-	idVarDef	*e;
-	etype_t 	type_a;
-	etype_t 	type_b;
-	opcode_t	*op;
+	idVarDef	*e = nullptr;
+	etype_t 	type_a = ev_void;
+	etype_t 	type_b = ev_void;
+	opcode_t	*op = nullptr;
 
 	if ( CheckToken( ";" ) ) {
 		if ( scope->TypeDef()->ReturnType()->Type() != ev_void ) {
@@ -1718,15 +1710,15 @@ idCompiler::ParseWhileStatement
 ================
 */
 void idCompiler::ParseWhileStatement() {
-	idVarDef	*e;
-	int			patch1;
-	int			patch2;
+	idVarDef	*e = nullptr;
+	int64		patch1 = 0;
+	int64		patch2 = 0;
 
 	loopDepth++;
 
 	ExpectToken( "(" );
 	
-	patch2 = gameLocal.program.NumStatements();
+	patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 	e = GetExpression( TOP_PRIORITY );
 	ExpectToken( ")" );
 
@@ -1735,7 +1727,7 @@ void idCompiler::ParseWhileStatement() {
 		ParseStatement();
 		EmitOpcode( OP_GOTO, JumpTo( patch2 ), nullptr );
 	} else {
-		patch1 = gameLocal.program.NumStatements();
+		patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
         EmitOpcode( OP_IFNOT, e, nullptr );
 		ParseStatement();
 		EmitOpcode( OP_GOTO, JumpTo( patch2 ), nullptr );
@@ -1788,16 +1780,16 @@ end:
 ================
 */
 void idCompiler::ParseForStatement() {
-	idVarDef	*e;
-	int			start;
-	int			patch1;
-	int			patch2;
-	int			patch3;
-	int			patch4;
+	idVarDef	*e = nullptr;
+	int64		start = 0;
+	int64		patch1 = 0;
+	int64		patch2 = 0;
+	int64		patch3 = 0;
+	int64		patch4 = 0;
 
 	loopDepth++;
 
-	start = gameLocal.program.NumStatements();
+	start = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 
 	ExpectToken( "(" );
 	
@@ -1811,22 +1803,22 @@ void idCompiler::ParseForStatement() {
 	}
 
 	// condition
-	patch2 = gameLocal.program.NumStatements();
+	patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 
 	e = GetExpression( TOP_PRIORITY );
 	ExpectToken( ";" );
 
 	//FIXME: add check for constant expression
-	patch1 = gameLocal.program.NumStatements();
+	patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 	EmitOpcode( OP_IFNOT, e, nullptr );
 
 	// counter
 	if ( !CheckToken( ")" ) ) {
-		patch3 = gameLocal.program.NumStatements();
+		patch3 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 		EmitOpcode( OP_IF, e, nullptr );
 
 		patch4 = patch2;
-		patch2 = gameLocal.program.NumStatements();
+		patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 		do {
 			GetExpression( TOP_PRIORITY );
 		} while( CheckToken( "," ) );
@@ -1860,12 +1852,12 @@ idCompiler::ParseDoWhileStatement
 ================
 */
 void idCompiler::ParseDoWhileStatement() {
-	idVarDef	*e;
-	int			patch1;
+	idVarDef	*e = nullptr;
+	int64		patch1 = 0;
 
 	loopDepth++;
 
-	patch1 = gameLocal.program.NumStatements();
+	patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 	ParseStatement();
 	ExpectToken( "while" );
 	ExpectToken( "(" );
@@ -1887,22 +1879,22 @@ idCompiler::ParseIfStatement
 ================
 */
 void idCompiler::ParseIfStatement() {
-	idVarDef	*e;
-	int			patch1;
-	int			patch2;
+	idVarDef	*e = nullptr;
+	int64		patch1 = 0;
+	int64		patch2 = 0;
 
 	ExpectToken( "(" );
 	e = GetExpression( TOP_PRIORITY );
 	ExpectToken( ")" );
 
 	//FIXME: add check for constant expression
-	patch1 = gameLocal.program.NumStatements();
+	patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 	EmitOpcode( OP_IFNOT, e, nullptr );
 
 	ParseStatement();
 	
 	if ( CheckToken( "else" ) ) {
-		patch2 = gameLocal.program.NumStatements();
+		patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
 		EmitOpcode( OP_GOTO, nullptr, nullptr );
 		gameLocal.program.GetStatement( patch1 ).b = JumpFrom( patch1 );
 		ParseStatement();
@@ -1963,7 +1955,7 @@ void idCompiler::ParseStatement() {
 	if ( CheckToken( "continue" ) ) {
 		ExpectToken( ";" );
 		if ( !loopDepth ) {
-			Error( "cannot contine outside of a loop" );
+			Error( "cannot continue outside of a loop" );
 		}
 		EmitOpcode( OP_CONTINUE, nullptr, nullptr );
 		return;
@@ -1989,16 +1981,16 @@ idCompiler::ParseObjectDef
 ================
 */
 void idCompiler::ParseObjectDef( const char *objname ) {
-	idTypeDef	*objtype;
-	idTypeDef	*type;
-	idTypeDef	*parentType;
-	idTypeDef	*fieldtype;
+	idTypeDef	*objtype = nullptr;
+	idTypeDef   *type = nullptr;
+	idTypeDef	*parentType = nullptr;
+	idTypeDef	*fieldtype = nullptr;
 	idStr		name;
-	const char  *fieldname;
+	const char  *fieldname = nullptr;
 	idTypeDef	newtype( ev_field, nullptr, "", 0, nullptr);
-	idVarDef	*oldscope;
-	int			num;
-	int			i;
+	idVarDef	*oldscope = nullptr;
+	int64		num = 0;
+	size_t		i = 0;
 
 	oldscope = scope;
 	if ( scope->Type() != ev_namespace ) {

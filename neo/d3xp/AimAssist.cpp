@@ -168,7 +168,7 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos ) {
 		}
 
 		if ( entity->IsType( idActor::Type ) ) {
-			idActor * actor = static_cast<idActor *>( entity );
+			idActor * actor = dynamic_cast<idActor *>( entity );
 			if ( actor->team == player->team ) {
 				// In DM, LMS, and Tourney, all players are on the same team
 				if ( gameLocal.gameType == GAME_CTF || gameLocal.gameType == GAME_TDM || gameLocal.gameType == GAME_SP ) {
@@ -178,7 +178,7 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos ) {
 		}
 
 		if ( entity->IsType( idAI::Type ) ) {
-			idAI * aiEntity = static_cast<idAI *>( entity );
+			idAI * aiEntity = dynamic_cast<idAI *>( entity );
 			if ( aiEntity->ReactionTo( player ) == ATTACK_IGNORE ) {
 				continue;
 			}
@@ -405,7 +405,7 @@ bool idAimAssist::ComputeTargetPos( idEntity* entity, idVec3& primaryTargetPos, 
 	// The target point on actors can now be either the head or the torso
 	idActor * actor = nullptr;
 	if ( entity->IsType( idActor::Type ) ) {
-		actor = static_cast<idActor*>(entity);
+		actor = dynamic_cast<idActor*>(entity);
 	}
 	if ( actor != nullptr) {
 		// Actor AimPoint

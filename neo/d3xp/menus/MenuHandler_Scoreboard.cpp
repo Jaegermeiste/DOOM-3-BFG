@@ -123,7 +123,8 @@ void idMenuHandler_Scoreboard::ActivateMenu( bool show ) {
 		idSWFScriptFunction_activateMenu( idMenuHandler * _handler ) {
 			handler = _handler;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			if ( handler != nullptr) {
 				handler->TriggerMenu();
 			}
@@ -173,7 +174,8 @@ void idMenuHandler_Scoreboard::Initialize( const char * swfFile, idSoundWorld * 
 
 	class idScoreboardGUIClose : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			gameLocal.mpGame.SetScoreboardActive( false );
 			return idSWFScriptVar();
 		}

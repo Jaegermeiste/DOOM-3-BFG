@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -1027,7 +1029,7 @@ void idActor::Hide() {
 		if ( ent->GetBindMaster() == this ) {
 			ent->Hide();
 			if ( ent->IsType( idLight::Type ) ) {
-				static_cast<idLight *>( ent )->Off();
+				dynamic_cast<idLight *>( ent )->Off();
 			}
 		}
 	}
@@ -1053,7 +1055,7 @@ void idActor::Show() {
 			ent->Show();
 			if ( ent->IsType( idLight::Type ) ) {
 				if(!spawnArgs.GetBool("lights_off", "0")) {
-					static_cast<idLight *>( ent )->On();
+					dynamic_cast<idLight *>( ent )->On();
 				}
 				
 
@@ -1498,7 +1500,7 @@ bool idActor::CanSee( idEntity *ent, bool useFov ) const {
 	}
 
 	if ( ent->IsType( idActor::Type ) ) {
-		toPos = static_cast<idActor*>(ent)->GetEyePosition();
+		toPos = dynamic_cast<idActor*>(ent)->GetEyePosition();
 	} else {
 		toPos = ent->GetPhysics()->GetOrigin();
 	}
@@ -2250,14 +2252,12 @@ void idActor::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir
 		}
 
 		if ( health <= 0 ) {
-			if ( health < -999 ) {
-				health = -999;
-			}
+			health = std::max(health, -999);
 
 			if ( oldHealth > 0 ) {
 				idPlayer *player = nullptr;
 				if ( ( attacker && attacker->IsType( idPlayer::Type ) ) ) {
-					player = static_cast< idPlayer* >( attacker );
+					player = dynamic_cast< idPlayer* >( attacker );
 				}
 
 				if ( player != nullptr) {
@@ -2295,7 +2295,7 @@ void idActor::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir
 						player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_USE_SOUL_CUBE_TO_DEFEAT_20_ENEMY );
 					}
 					if ( inflictor && inflictor->IsType( idMoveable::Type ) ) {
-						idMoveable * moveable = static_cast< idMoveable * >( inflictor );
+						idMoveable * moveable = dynamic_cast< idMoveable * >( inflictor );
 						// if a moveable is doing damage
 						// AND it has an attacker (set when the grabber picks up a moveable )
 						// AND the moveable's attacker is the attacker here (the player)
@@ -2307,7 +2307,7 @@ void idActor::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir
 
 					idProjectile *projectile = nullptr;
 					if ( inflictor != nullptr && inflictor->IsType( idProjectile::Type ) ) {
-						projectile = static_cast< idProjectile* >( inflictor );
+						projectile = dynamic_cast< idProjectile* >( inflictor );
 						if ( projectile != nullptr) {
 							if ( projectile->GetLaunchedFromGrabber() && player->GetExpansionType() == GAME_D3XP && team != player->team ) {
 								player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_GRABBER_KILL_20_ENEMY );
@@ -3331,7 +3331,7 @@ void idActor::Event_NextEnemy( idEntity *ent ) {
 			gameLocal.Error( "'%s' cannot be an enemy", ent->name.c_str() );
 		}
 
-		actor = static_cast<idActor *>( ent );
+		actor = dynamic_cast<idActor *>( ent );
 		if ( actor->enemyNode.ListHead() != &enemyList ) {
 			gameLocal.Error( "'%s' is not in '%s' enemy list", actor->name.c_str(), name.c_str() );
 		}

@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Game_local.h"
 #include "Leaderboards.h"
+
+#include <algorithm>
 #include "MultiplayerGame.h"
 
 /*
@@ -188,9 +190,7 @@ void LeaderboardLocal_Upload( lobbyUserID_t lobbyUserID,int gameType, leaderboar
 
 	// Calculate LMS score.
 	int lmsFrags = stats.frags;
-	if( lmsFrags < 0 ) {
-		lmsFrags = 0;  // LMS NO LIVES LEFT = -20 on fragCount.
-	}
+	lmsFrags = std::max(lmsFrags, 0);
 
 	int lmsScore = lmsFrags * FRAG_MULTIPLIER + stats.wins * ( WINS_MULTIPLIER * 10 ) ;
 	const column_t lmsStats[] = { lmsScore };
@@ -241,7 +241,8 @@ void LeaderboardLocal_Upload( lobbyUserID_t lobbyUserID,int gameType, leaderboar
 }
 
 class idLeaderboardCallbackTest : public idLeaderboardCallback {
-	void Call() {
+	void Call() override
+	{
 		idLib::Printf( "Leaderboard information retrieved in user callback.\n" );
 		idLib::Printf( "%d total entries in leaderboard %d.\n", numRowsInLeaderboard, def->id );
 		for ( int i = 0; i < rows.Num(); i++ ) {
@@ -252,7 +253,8 @@ class idLeaderboardCallbackTest : public idLeaderboardCallback {
 			idLib::Printf( "\n" );
 		}
 	}
-	idLeaderboardCallback * Clone() const {
+	idLeaderboardCallback * Clone() const override
+	{
 		return new (TAG_PSN) idLeaderboardCallbackTest( *this );
 	}
 };

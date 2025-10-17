@@ -373,7 +373,8 @@ public:
 			targetEventArg( eventArg ) {
 		}
 
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 				targetWidget->ReceiveEvent( idWidgetEvent( targetEvent, targetEventArg, thisObject, parms ) );
 			return idSWFScriptVar();
 		}
@@ -533,10 +534,10 @@ public:
 		ignoreColor( false ) {
 	}
 
-	virtual ~idMenuWidget_Button() {}
+	~idMenuWidget_Button() override {}
 
-	virtual bool			ExecuteEvent( const idWidgetEvent & event );
-	virtual void			Update();
+	bool			ExecuteEvent( const idWidgetEvent & event ) override;
+	void			Update() override;
 
 	//---------------
 	// Model
@@ -580,7 +581,7 @@ public:
 		voiceState( VOICECHAT_DISPLAY_NONE ) {
 	}
 
-	virtual void			Update();
+	void			Update() override;
 	void					SetButtonInfo( idStr name_, voiceStateDisplay_t voiceState_ );
 	bool					IsValid() { return !name.IsEmpty(); }
 
@@ -601,7 +602,7 @@ public:
 		index( -1 ) {
 	}
 
-	virtual void			Update();
+	void			Update() override;
 	void					SetButtonInfo( int index_, idList< idStr > & list, voiceStateDisplay_t voiceState_ );
 
 protected:
@@ -621,7 +622,7 @@ public:
 		disabled( false ) {
 	}
 
-	virtual void			Update();
+	void			Update() override;
 	void					SetOptionType( const menuOption_t type ) { optionType = type; }
 	menuOption_t			GetOptionType() const { return optionType; }
 	void					SetupEvents( int delay, int index );
@@ -648,7 +649,7 @@ public:
 		validMap( false ) {
 	}
 
-	virtual void			Update();
+	void			Update() override;
 	void					SetButtonInfo( idStr name_, idStrId mapName_, idStr modeName_, int index_ = 0, int players_ = 0, int maxPlayers_ = 0, bool joinable_ = false, bool validMap_ = false );
 	bool					IsValid() { return !serverName.IsEmpty(); }
 	bool					CanJoin() { return ( joinable && validMap ); }
@@ -683,8 +684,8 @@ public:
 		xPos( 0 ) {
 	}
 
-	virtual bool			ExecuteEvent( const idWidgetEvent & event );
-	virtual void			Update();
+	bool			ExecuteEvent( const idWidgetEvent & event ) override;
+	void			Update() override;
 
 	void					SetNavIndex( int i, const navWidgetState_t type ) { navIndex = i; navState = type; }
 	void					SetPosition( float pos ) { xPos = pos; }
@@ -709,7 +710,7 @@ public:
 		xPos( 0 ) {
 	}
 
-	virtual void			Update();
+	void			Update() override;
 	void					SetPosition( float pos ) { xPos = pos; }
 
 private:
@@ -735,9 +736,9 @@ public:
 
 	}
 
-	virtual void				Update();
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
-	virtual void				ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void				Update() override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
+	void				ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 	virtual void				Scroll( const int scrollIndexAmount, const bool wrapAround = false );
 	virtual void				ScrollOffset( const int scrollIndexAmount );
 	virtual int					GetTotalNumberOfOptions() const { return GetChildren().Num(); }
@@ -784,9 +785,9 @@ idMenuWidget_GameBrowserList
 */
 class idMenuWidget_GameBrowserList : public idMenuWidget_List {
 public:
-	virtual void				Update();
-	virtual bool				PrepareListElement( idMenuWidget & widget, const int childIndex );
-	virtual int					GetTotalNumberOfOptions() const;
+	void				Update() override;
+	bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) override;
+	int					GetTotalNumberOfOptions() const override;
 	void						ClearGames();
 	void						AddGame( idStr name_, idStrId mapName_, idStr modeName_, int index_ = 0, int players_ = 0, int maxPlayers_ = 0, bool joinable_ = false, bool validMap_ = false );
 	int							GetServerIndex();
@@ -812,9 +813,9 @@ public:
 		moveDiff( 0 ) {
 	}
 
-	virtual void				Initialize( idMenuHandler * data );
-	virtual void				Update();
-	virtual bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
+	void				Initialize( idMenuHandler * data ) override;
+	void				Update() override;
+	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 	virtual int					GetTotalNumberOfOptions() const { return imgList.Num(); }
 	virtual bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) { return true; }
 
@@ -854,8 +855,8 @@ Knows how to display help tooltips by observing events from other widgets
 */
 class idMenuWidget_Help : public idMenuWidget {
 public:
-	virtual void Update();
-	virtual void ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void Update() override;
+	void ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 
 private:
 	idStr		lastFocusedMessage;		// message from last widget that had focus
@@ -896,8 +897,8 @@ public:
 		buttons.SetNum( MAX_BUTTONS );
 	}
 
-	virtual void		Update();
-	virtual bool		ExecuteEvent( const idWidgetEvent & event );
+	void		Update() override;
+	bool		ExecuteEvent( const idWidgetEvent & event ) override;
 
 	buttonInfo_t *		GetButton( const button_t button ) { return &buttons[ button ]; }
 	void				ClearAllButtons();
@@ -920,10 +921,10 @@ public:
 	idMenuWidget_LobbyList() :
 		numEntries( 0 ) {
 	}
-	  
-	virtual void				Update();
-	virtual bool				PrepareListElement( idMenuWidget & widget, const int childIndex );
-	virtual int					GetTotalNumberOfOptions() const { return numEntries; }
+
+	void				Update() override;
+	bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) override;
+	int					GetTotalNumberOfOptions() const override { return numEntries; }
 	void						SetEntryData( int index, idStr name, voiceStateDisplay_t voiceState );
 	void						SetHeadingInfo( idList< idStr > & list );
 	void						SetNumEntries( int num ) { numEntries = num; }
@@ -947,10 +948,10 @@ public:
 		ignoreColor( false ) {
 	}
 
-	virtual void				Update();
-	virtual void				Initialize( idMenuHandler * data );
-	virtual int					GetTotalNumberOfOptions() const;
-	virtual bool				PrepareListElement( idMenuWidget & widget, const int childIndex );
+	void				Update() override;
+	void				Initialize( idMenuHandler * data ) override;
+	int					GetTotalNumberOfOptions() const override;
+	bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) override;
 
 	virtual void				Recalculate();
 	virtual void				SetListData( idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > & list );
@@ -971,8 +972,8 @@ idMenuWidget_ScoreboardList
 */
 class idMenuWidget_ScoreboardList : public idMenuWidget_DynamicList {
 public:
-	  virtual void				Update();
-	  virtual int				GetTotalNumberOfOptions() const;
+	void				Update() override;
+	int				GetTotalNumberOfOptions() const override;
 };
 
 /*
@@ -993,13 +994,13 @@ public:
 				selectedSpacer( 0.0f ) {		
 			}
 
-	virtual void				Update();
-	virtual void				Initialize( idMenuHandler * data );
+			void				Update() override;
+			void				Initialize( idMenuHandler * data ) override;
 	virtual void				SetInitialXPos( float pos ) { initialPos = pos; }
 	virtual void				SetButtonSpacing( float lSpace, float rSpace, float sSpace ) { leftSpacer = lSpace; rightSpacer = rSpace; selectedSpacer = sSpace; }
-	virtual bool				PrepareListElement( idMenuWidget & widget, const int navIndex );
+			bool				PrepareListElement( idMenuWidget & widget, const int navIndex ) override;
 	virtual void				SetListHeadings( idList< idStr > & list );
-	virtual int					GetTotalNumberOfOptions() const;
+			int					GetTotalNumberOfOptions() const override;
 
 private:
 
@@ -1028,12 +1029,12 @@ public:
 		rightSpacer( 0.0f ) {
 	}
 
-	virtual void				Update();
-	virtual void				Initialize( idMenuHandler * data );
+	void				Update() override;
+	void				Initialize( idMenuHandler * data ) override;
 	virtual void				SetButtonSpacing( float rSpace ) { rightSpacer = rSpace; }
-	virtual bool				PrepareListElement( idMenuWidget & widget, const int navIndex );
+	bool				PrepareListElement( idMenuWidget & widget, const int navIndex ) override;
 	virtual void				SetListHeadings( idList< idStr > & list );
-	virtual int					GetTotalNumberOfOptions() const;
+	int					GetTotalNumberOfOptions() const override;
 
 private: 
 
@@ -1054,9 +1055,10 @@ public:
 					idMenuWidget_PDA_UserData() : 
 						pdaIndex( 0 ) {
 					}
-virtual ~idMenuWidget_PDA_UserData() {}
-	virtual void	Update();
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+
+					~idMenuWidget_PDA_UserData() override {}
+					void	Update() override;
+					void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 
 private:
 	int		pdaIndex;
@@ -1075,10 +1077,10 @@ public:
 		dragging( false ) {
 	}
 
-	virtual void	Initialize( idMenuHandler * data );
-	virtual void	Update();
-	virtual bool	HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void	Initialize( idMenuHandler * data ) override;
+	void	Update() override;
+	bool	HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 
 	void			CalcTopAndBottom();
 	void			CalculatePosition( float x, float y );
@@ -1099,10 +1101,10 @@ public:
 		scrollbar(nullptr) {
 	}
 
-	virtual void	Initialize( idMenuHandler * data );
-	virtual void	Update();
-	virtual bool	HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false );
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void	Initialize( idMenuHandler * data ) override;
+	void	Update() override;
+	bool	HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 	void			SetHeading( idStr val ) { heading = val; }
 	void			SetBody( idStr val ) { info = val; }
 	void			ResetInfoScroll();
@@ -1127,8 +1129,9 @@ public:
 	idMenuWidget_PDA_Objective() :
 		pdaIndex( 0 ) {
 		}
-	virtual void	Update();
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+
+	void	Update() override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 private:
 	int		pdaIndex;
 };
@@ -1144,8 +1147,9 @@ public:
 		loadIndex( 0 ),
 		forSaveScreen( false ) {
 	}
-	virtual void	Update();
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+
+	void	Update() override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 
 	void			SetForSaveScreen( bool val ) { forSaveScreen = val; }
 private:
@@ -1163,10 +1167,11 @@ public:
 	idMenuWidget_PDA_AudioFiles() :
 		pdaIndex( 0 ) {
 		}
-	virtual ~idMenuWidget_PDA_AudioFiles();
-	virtual void	Update();
-	virtual void	Initialize( idMenuHandler * data );
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+
+	~idMenuWidget_PDA_AudioFiles() override;
+	void	Update() override;
+	void	Initialize( idMenuHandler * data ) override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 private:
 	int								pdaIndex;
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU >		audioFileNames;
@@ -1184,9 +1189,10 @@ public:
 		emailList(nullptr),
 		scrollbar(nullptr) {
 	}
-	virtual void	Update();
-	virtual void	Initialize( idMenuHandler * data );
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+
+	void	Update() override;
+	void	Initialize( idMenuHandler * data ) override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 
 	idMenuWidget_DynamicList *	GetEmailList() { return emailList; }
 	idMenuWidget_ScrollBar *	GetScrollbar() { return scrollbar; }
@@ -1208,7 +1214,7 @@ public:
 		slotIndex( 0 ) {
 	}
 
-	virtual void	Update();
+	void	Update() override;
 	void			SetIcon( int index, const idMaterial * icon );
 	void			FindFreeSpot();
 	int				GetSlotIndex() { return slotIndex; }
@@ -1227,8 +1233,8 @@ idMenuWidget_PDA_AudioFiles
 */
 class idMenuWidget_PDA_VideoInfo: public idMenuWidget {
 public:
-	virtual void	Update();
-	virtual void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event );
+	void	Update() override;
+	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 private:
 	int				videoIndex;
 };
@@ -1248,7 +1254,8 @@ public:
 
 	}
 
-	idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+	idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+	{
 
 		idWidgetAction action;
 		bool handled = false;

@@ -67,14 +67,14 @@ class idEditEntities;
 class idLocationEntity;
 class idMenuHandler_Shell;
 
-constexpr int MAX_CLIENTS			= MAX_PLAYERS;
-constexpr int MAX_CLIENTS_IN_PVS	= MAX_CLIENTS >> 3;
-constexpr int GENTITYNUM_BITS		= 12;
-constexpr int MAX_GENTITIES			= 1 << GENTITYNUM_BITS;
-constexpr int ENTITYNUM_NONE		= MAX_GENTITIES - 1;
-constexpr int ENTITYNUM_WORLD		= MAX_GENTITIES - 2;
-constexpr int ENTITYNUM_MAX_NORMAL	= MAX_GENTITIES - 2;
-constexpr int ENTITYNUM_FIRST_NON_REPLICATED	= ENTITYNUM_MAX_NORMAL - 256;
+constexpr size_t MAX_CLIENTS			= MAX_PLAYERS;
+constexpr size_t MAX_CLIENTS_IN_PVS	    = MAX_CLIENTS >> 3;
+constexpr size_t GENTITYNUM_BITS		= 12;
+constexpr size_t MAX_GENTITIES			= 1 << GENTITYNUM_BITS;
+constexpr size_t ENTITYNUM_NONE		    = MAX_GENTITIES - 1;
+constexpr size_t ENTITYNUM_WORLD		= MAX_GENTITIES - 2;
+constexpr size_t ENTITYNUM_MAX_NORMAL	= MAX_GENTITIES - 2;
+constexpr size_t ENTITYNUM_FIRST_NON_REPLICATED	= ENTITYNUM_MAX_NORMAL - 256;
 
 //============================================================================
 
@@ -321,8 +321,8 @@ public:
 
 	bool					quickSlowmoReset;
 
-	virtual void			SelectTimeGroup( int timeGroup );
-	virtual ID_TIME_T		GetTimeGroupTime( int timeGroup );
+	virtual void			SelectTimeGroup( const ID_TIME_T timeGroup );
+	virtual ID_TIME_T		GetTimeGroupTime( const ID_TIME_T timeGroup );
 
 	void					ComputeSlowScale();
 	void					RunTimeGroup2( idUserCmdMgr & userCmdMgr );
@@ -337,43 +337,43 @@ public:
 
 							idGameLocal();
 
-	virtual void			Init();
-	virtual void			Shutdown();
-	virtual void			SetServerInfo( const idDict &serverInfo );
-	virtual const idDict &	GetServerInfo();
+	void			Init() override;
+	void			Shutdown() override;
+	void			SetServerInfo( const idDict &serverInfo ) override;
+	const idDict &	GetServerInfo() override;
 
 	virtual const idDict &	GetPersistentPlayerInfo( const Ordinal auto clientNum );
 	virtual void			SetPersistentPlayerInfo( const Ordinal auto clientNum, const idDict &playerInfo );
-	virtual void			InitFromNewMap( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, int gameType, int randSeed );
-	virtual bool			InitFromSaveGame( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, idFile * saveGameFile, idFile * stringTableFile, int saveGameVersion );
-	virtual void			SaveGame( idFile *saveGameFile, idFile *stringTableFile );
-	virtual void			GetSaveGameDetails( idSaveGameDetails & gameDetails );
-	virtual void			MapShutdown();
-	virtual void			CacheDictionaryMedia( const idDict *dict );
-	virtual void			Preload( const idPreloadManifest &manifest );
-	virtual void			RunFrame( idUserCmdMgr & cmdMgr, gameReturn_t & gameReturn );
+	void			InitFromNewMap( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, int gameType, int randSeed ) override;
+	bool			InitFromSaveGame( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, idFile * saveGameFile, idFile * stringTableFile, int saveGameVersion ) override;
+	void			SaveGame( idFile *saveGameFile, idFile *stringTableFile ) override;
+	void			GetSaveGameDetails( idSaveGameDetails & gameDetails ) override;
+	void			MapShutdown() override;
+	void			CacheDictionaryMedia( const idDict *dict ) override;
+	void			Preload( const idPreloadManifest &manifest ) override;
+	void			RunFrame( idUserCmdMgr & cmdMgr, gameReturn_t & gameReturn ) override;
 	void					RunAllUserCmdsForPlayer( idUserCmdMgr & cmdMgr, const Ordinal auto playerNumber );
 	void					RunSingleUserCmd( usercmd_t & cmd, idPlayer & player );
 	void					RunEntityThink( idEntity & ent, idUserCmdMgr & userCmdMgr );
 	virtual bool			Draw( const Ordinal auto clientNum );
-	virtual bool			HandlePlayerGuiEvent( const sysEvent_t * ev );
-	virtual void			ServerWriteSnapshot( idSnapShot & ss );
+	bool			HandlePlayerGuiEvent( const sysEvent_t * ev ) override;
+	void			ServerWriteSnapshot( idSnapShot & ss ) override;
 	virtual void			ProcessReliableMessage( const Ordinal auto clientNum, int type, const idBitMsg &msg );
-	virtual void			ClientReadSnapshot( const idSnapShot & ss );
-	virtual void			ClientRunFrame( idUserCmdMgr & cmdMgr, bool lastPredictFrame, gameReturn_t & ret  );
+	void			ClientReadSnapshot( const idSnapShot & ss ) override;
+	void			ClientRunFrame( idUserCmdMgr & cmdMgr, bool lastPredictFrame, gameReturn_t & ret  ) override;
 	void					BuildReturnValue( gameReturn_t & ret );
 
-	virtual int				GetMPGameModes( const char *** gameModes, const char *** gameModesDisplay );
+	int				GetMPGameModes( const char *** gameModes, const char *** gameModesDisplay ) override;
 
 	virtual void			GetClientStats( const Ordinal auto clientNum, char *data, const size_t len );
 
-	virtual bool			IsInGame() const { return GameState() == GAMESTATE_ACTIVE; }
+	bool			IsInGame() const override { return GameState() == GAMESTATE_ACTIVE; }
 
 	virtual size_t			MapPeerToClient( const Ordinal auto peer ) const;
-	virtual size_t			GetLocalClientNum() const;
+	size_t			GetLocalClientNum() const override;
 
-	virtual void			GetAimAssistAngles( idAngles & angles );
-	virtual float			GetAimAssistSensitivity();
+	void			GetAimAssistAngles( idAngles & angles ) override;
+	float			GetAimAssistSensitivity() override;
 
 	// ---------------------- Public idGameLocal Interface -------------------
 
@@ -480,11 +480,11 @@ public:
 	void					ClientProcessReliableMessage( int type, const idBitMsg &msg );
 
 	// Snapshot times - track exactly what times we are interpolating from and to
-	ID_TIME_T				GetSSEndTime() const { return netInterpolationInfo.ssEndTime; }
-	ID_TIME_T				GetSSStartTime() const { return netInterpolationInfo.ssStartTime; }
+	ID_TIME_T				GetSSEndTime() const override { return netInterpolationInfo.ssEndTime; }
+	ID_TIME_T				GetSSStartTime() const override { return netInterpolationInfo.ssStartTime; }
 
-	virtual void			SetServerGameTimeMs( const ID_TIME_T time );
-	virtual ID_TIME_T		GetServerGameTimeMs() const;
+	void			SetServerGameTimeMs( const ID_TIME_T time ) override;
+	ID_TIME_T GetServerGameTimeMs() const override;
 
 	idEntity *				FindPredictedEntity( uint32 predictedKey, idTypeInfo * type );
 	uint32					GeneratePredictionKey( idWeapon * weapon, idPlayer * playerAttacker, int overrideKey );
@@ -497,30 +497,30 @@ public:
 	void					SetGibTime( ID_TIME_T _time ) { nextGibTime = _time; };
 	ID_TIME_T				GetGibTime() { return nextGibTime; };
 
-	virtual bool				InhibitControls();
-	virtual bool				IsPDAOpen() const;
-	virtual bool				IsPlayerChatting() const;
+	bool				InhibitControls() override;
+	bool				IsPDAOpen() const override;
+	bool				IsPlayerChatting() const override;
 
 	// Creates leaderboards for each map/mode defined.
-	virtual void				Leaderboards_Init();
-	virtual void				Leaderboards_Shutdown();
+	void				Leaderboards_Init() override;
+	void				Leaderboards_Shutdown() override;
 
 	// MAIN MENU FUNCTIONS
-	virtual void					Shell_Init( const char * filename, idSoundWorld * sw );
-	virtual void					Shell_Cleanup();
-	virtual void					Shell_Show( bool show );
-	virtual void					Shell_ClosePause();
-	virtual void					Shell_CreateMenu( bool inGame );
-	virtual bool					Shell_IsActive() const;
-	virtual bool					Shell_HandleGuiEvent( const sysEvent_t * sev );
-	virtual void					Shell_Render();
-	virtual void					Shell_ResetMenu();
-	virtual void					Shell_SyncWithSession() ;
-	virtual void					Shell_SetCanContinue( bool valid );
-	virtual void					Shell_UpdateSavedGames();
-	virtual void					Shell_UpdateClientCountdown( ID_TIME_T countdown );
-	virtual void					Shell_UpdateLeaderboard( const idLeaderboardCallback * callback );
-	virtual void					Shell_SetGameComplete();
+	void					Shell_Init( const char * filename, idSoundWorld * sw ) override;
+	void					Shell_Cleanup() override;
+	void					Shell_Show( bool show ) override;
+	void					Shell_ClosePause() override;
+	void					Shell_CreateMenu( bool inGame ) override;
+	bool					Shell_IsActive() const override;
+	bool					Shell_HandleGuiEvent( const sysEvent_t * sev ) override;
+	void					Shell_Render() override;
+	void					Shell_ResetMenu() override;
+	void					Shell_SyncWithSession() override;
+	void					Shell_SetCanContinue( bool valid ) override;
+	void					Shell_UpdateSavedGames() override;
+	void					Shell_UpdateClientCountdown( ID_TIME_T countdown ) override;
+	void					Shell_UpdateLeaderboard( const idLeaderboardCallback * callback ) override;
+	void					Shell_SetGameComplete() override;
 
 	void					Shell_ClearRepeater() const;
 

@@ -326,7 +326,7 @@ bool idMoveable::Collide( const trace_t &collision, const idVec3 &velocity ) {
 	}
 
 	if ( this->IsType( idExplodingBarrel::Type ) ) {
-		idExplodingBarrel *ebarrel = static_cast<idExplodingBarrel*>(this);
+		idExplodingBarrel *ebarrel = dynamic_cast<idExplodingBarrel*>(this);
 
 		if ( !ebarrel->IsStable() ) {
 			PostEventSec( &EV_Explode, 0.04f );
@@ -1187,7 +1187,7 @@ void idExplodingBarrel::Killed( idEntity *inflictor, idEntity *attacker, int dam
 				break;
 			}
 
-			debris = static_cast<idDebris *>(ent);
+			debris = dynamic_cast<idDebris *>(ent);
 			debris->Create( this, physicsObj.GetOrigin(), dir.ToMat3() );
 			debris->Launch();
 			debris->GetRenderEntity()->shaderParms[ SHADERPARM_TIME_OF_DEATH ] = ( gameLocal.time + 1500 ) * 0.001f;
@@ -1339,7 +1339,7 @@ void idExplodingBarrel::ReadFromSnapshot( const idBitMsg &msg ) {
 idExplodingBarrel::ClientReceiveEvent
 ================
 */
-bool idExplodingBarrel::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idExplodingBarrel::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_EXPLODE: {

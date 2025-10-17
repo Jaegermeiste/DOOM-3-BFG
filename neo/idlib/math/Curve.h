@@ -47,16 +47,16 @@ public:
 						idCurve();
 	virtual				~idCurve();
 
-	virtual size_t		AddValue( const float time, const type &value );
+	virtual size_t		AddValue( const ID_TIME_T time, const type &value );
 	
 	        void		RemoveIndex( const Ordinal auto index ) { values.RemoveIndex(index); times.RemoveIndex(index); changed = true; }
 	virtual void		Clear() { values.Clear(); times.Clear(); currentIndex = UINT64_MAX; changed = true; }
 
-	virtual type		GetCurrentValue( const float time ) const;
-	virtual type		GetCurrentFirstDerivative( const float time ) const;
-	virtual type		GetCurrentSecondDerivative( const float time ) const;
+	virtual type		GetCurrentValue( const ID_TIME_T time ) const;
+	virtual type		GetCurrentFirstDerivative( const ID_TIME_T time ) const;
+	virtual type		GetCurrentSecondDerivative( const ID_TIME_T time ) const;
 
-	virtual bool		IsDone( const float time ) const;
+	virtual bool		IsDone( const ID_TIME_T time ) const;
 
 	size_t				GetNumValues() const { return values.Num(); }
 	
@@ -66,34 +66,33 @@ public:
 	
 	type *				GetValueAddress( const Ordinal auto index ) { ORDINAL_CHECK(index, values.Num()); return &values[index]; }
 	
-	float				GetTime(const Ordinal auto index) const { ORDINAL_CHECK(index, times.Num()); return times[index]; }
+	ID_TIME_T			GetTime(const Ordinal auto index) const { ORDINAL_CHECK(index, times.Num()); return times[index]; }
 
-	float				GetLengthForTime( const float time ) const;
-	float				GetTimeForLength( const float length, const float epsilon = 0.1f ) const;
-	template <Ordinal I1, Ordinal I2>
-	float				GetLengthBetweenKnots( const I1 i0, const I2 i1 ) const;
+	float				GetLengthForTime( const ID_TIME_T time ) const;
+	ID_TIME_T			GetTimeForLength( const float length, const float epsilon = 0.1f ) const;
+	float				GetLengthBetweenKnots( const Ordinal auto i0, const Ordinal auto i1 ) const;
 
-	void				MakeUniform( const float totalTime );
-	void				SetConstantSpeed( const float totalTime );
-	void				ShiftTime( const float deltaTime );
+	void				MakeUniform( const ID_TIME_T totalTime );
+	void				SetConstantSpeed( const ID_TIME_T totalTime );
+	void				ShiftTime( const ID_TIME_T deltaTime );
 	void				Translate( const type &translation );
 
 protected:
 
-	idList<float>		times;			// knots
+	idList<ID_TIME_T>	times;			// knots
 	idList<type>		values;			// knot values
 	
 	mutable size_t		currentIndex;	// cached index for fast lookup
 	mutable bool		changed;		// set whenever the curve changes
 
-	size_t				IndexForTime( const float time ) const;
+	size_t				IndexForTime( const ID_TIME_T time ) const;
 	
-	float				TimeForIndex( const Ordinal auto index ) const;
+	ID_TIME_T			TimeForIndex( const Ordinal auto index ) const;
 	
 	type				ValueForIndex( const Ordinal auto index ) const;
 
-	float				GetSpeed( const float time ) const;
-	float				RombergIntegral( const float t0, const float t1, const uint64 order ) const;
+	float				GetSpeed( const ID_TIME_T time ) const;
+	float				RombergIntegral( const ID_TIME_T t0, const ID_TIME_T t1, const uint64 order ) const;
 };
 
 /*
@@ -124,7 +123,7 @@ idCurve::AddValue
 ====================
 */
 template< class type >
-ID_INLINE size_t idCurve<type>::AddValue( const float time, const type &value ) {
+ID_INLINE size_t idCurve<type>::AddValue( const ID_TIME_T time, const type &value ) {
 	size_t i = IndexForTime(time);
 	times.Insert( time, i );
 	values.Insert( value, i );
@@ -140,7 +139,7 @@ idCurve::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	size_t i = IndexForTime(time);
 	if ( i >= values.Num() ) {
 		return values[values.Num() - 1];
@@ -157,7 +156,7 @@ idCurve::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	return ( values[0] - values[0] ); //-V501
 }
 
@@ -169,7 +168,7 @@ idCurve::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	return ( values[0] - values[0] ); //-V501
 }
 
@@ -179,7 +178,7 @@ idCurve::IsDone
 ====================
 */
 template< class type >
-ID_INLINE bool idCurve<type>::IsDone( const float time ) const {
+ID_INLINE bool idCurve<type>::IsDone( const ID_TIME_T time ) const {
 	return ( time >= times[ times.Num() - 1 ] );
 }
 
@@ -189,7 +188,7 @@ idCurve::GetSpeed
 ====================
 */
 template< class type >
-ID_INLINE float idCurve<type>::GetSpeed( const float time ) const {
+ID_INLINE float idCurve<type>::GetSpeed( const ID_TIME_T time ) const {
 	size_t i = 0;
 	float speed = 0.0f;
 	type value;
@@ -207,14 +206,14 @@ idCurve::RombergIntegral
 ====================
 */
 template< class type >
-ID_INLINE float idCurve<type>::RombergIntegral( const float t0, const float t1, const uint64 order ) const {
+ID_INLINE float idCurve<type>::RombergIntegral( const ID_TIME_T t0, const ID_TIME_T t1, const uint64 order ) const {
 	size_t i = 0, j = 0, k = 0, m = 0, n = 0;
 	float *temp[2] = {};
 
 	temp[0] = static_cast<float*>(_alloca16(order * sizeof( float )));
 	temp[1] = static_cast<float*>(_alloca16(order * sizeof( float )));
 
-	float delta = t1 - t0;
+	float delta = idMath::Itof<float>(t1 - t0);
 	temp[0][0] = 0.5f * delta * ( GetSpeed( t0 ) + GetSpeed( t1 ) );
 
 	for ( i = 2, m = 1; i <= order; i++, m *= 2, delta *= 0.5f ) {
@@ -222,7 +221,7 @@ ID_INLINE float idCurve<type>::RombergIntegral( const float t0, const float t1, 
 		// approximate using the trapezoid rule
 		float sum = 0.0f;
 		for ( j = 1; j <= m; j++ ) {
-			sum += GetSpeed( t0 + delta * ( idMath::Itof<float>(j) - 0.5f ) );
+			sum += GetSpeed( idMath::Itof<float>(t0) + delta * ( idMath::Itof<float>(j) - 0.5f ) );
 		}
 
 		// Richardson extrapolation
@@ -244,12 +243,11 @@ idCurve::GetLengthBetweenKnots
 ====================
 */
 template< class type >
-template <Ordinal I1, Ordinal I2>
-ID_INLINE float idCurve<type>::GetLengthBetweenKnots( const I1 i0, const I2 i1 ) const {
+ID_INLINE float idCurve<type>::GetLengthBetweenKnots( const Ordinal auto i0, const Ordinal auto i1 ) const {
 	ORDINAL_CHECK(i0, times.Num());
 	ORDINAL_CHECK(i1, times.Num());
 	float length = 0.0f;
-	for ( size_t i = i0; i < i1; i++ ) {
+	for ( size_t i = i0; i < i1; ++i ) {
 		length += RombergIntegral( times[i], times[i+1], 5 );
 	}
 	return length;
@@ -261,7 +259,7 @@ idCurve::GetLengthForTime
 ====================
 */
 template< class type >
-ID_INLINE float idCurve<type>::GetLengthForTime( const float time ) const {
+ID_INLINE float idCurve<type>::GetLengthForTime( const ID_TIME_T time ) const {
 	float length = 0.0f;
 	const size_t index = IndexForTime( time );
 	for (size_t i = 0; i < index; i++ ) {
@@ -277,7 +275,7 @@ idCurve::GetTimeForLength
 ====================
 */
 template< class type >
-ID_INLINE float idCurve<type>::GetTimeForLength( const float length, const float epsilon ) const {
+ID_INLINE ID_TIME_T idCurve<type>::GetTimeForLength( const float length, const float epsilon ) const {
 	size_t index = 0;
 	float len0 = 0.0f, len1 = 0.0f;
 
@@ -286,7 +284,7 @@ ID_INLINE float idCurve<type>::GetTimeForLength( const float length, const float
 	}
 
 	float* accumLength = static_cast<float*>(_alloca16(values.Num() * sizeof( float )));
-	float totalLength = 0.0f;
+	ID_TIME_T totalLength = 0.0f;
 	for ( index = 0; index < values.Num() - 1; index++ ) {
 		totalLength += GetLengthBetweenKnots( index, index + 1 );
 		accumLength[index] = totalLength;
@@ -308,7 +306,7 @@ ID_INLINE float idCurve<type>::GetTimeForLength( const float length, const float
 	}
 
 	// invert the arc length integral using Newton's method
-	float t = (times[index + 1] - times[index]) * len0 / len1;
+	ID_TIME_T t = idMath::Itof<float>(times[index + 1] - times[index]) * len0 / len1;
 	for ( size_t i = 0; i < 32; i++ ) {
 		const float diff = RombergIntegral(times[index], times[index] + t, 5) - len0;
 		if ( idMath::Fabs( diff ) <= epsilon ) {
@@ -325,10 +323,10 @@ idCurve::MakeUniform
 ====================
 */
 template< class type >
-ID_INLINE void idCurve<type>::MakeUniform( const float totalTime ) {
+ID_INLINE void idCurve<type>::MakeUniform( const ID_TIME_T totalTime ) {
 	const size_t n = times.Num() - 1;
 	for (size_t i = 0; i <= n; i++ ) {
-		times[i] = idMath::Itof<float>(i) * totalTime / idMath::Itof<float>(n);
+		times[i] = i * totalTime / n;
 	}
 	changed = true;
 }
@@ -339,20 +337,20 @@ idCurve::SetConstantSpeed
 ====================
 */
 template< class type >
-ID_INLINE void idCurve<type>::SetConstantSpeed( const float totalTime ) {
+ID_INLINE void idCurve<type>::SetConstantSpeed( const ID_TIME_T totalTime ) {
 	size_t i = 0, j = 0;
-	float t = 0.0f;
+	ID_TIME_T t = 0;
 
 	float* length = static_cast<float*>(_alloca16(values.Num() * sizeof( float )));
-	float totalLength = 0.0f;
+	ID_TIME_T totalLength = 0.0f;
 	for ( i = 0; i < values.Num() - 1; i++ ) {
 		length[i] = GetLengthBetweenKnots( i, i + 1 );
 		totalLength += length[i];
 	}
-	const float scale = totalTime / totalLength;
+	const float scale = idMath::Itof<float>(totalTime) / totalLength;
 	for ( t = 0.0f, i = 0; i < times.Num() - 1; i++ ) {
 		times[i] = t;
-		t += scale * length[i];
+		t += idMath::integer_cast<ID_TIME_T>(scale * length[i]);
 	}
 	times[times.Num() - 1] = totalTime;
 	changed = true;
@@ -364,7 +362,7 @@ idCurve::ShiftTime
 ====================
 */
 template< class type >
-ID_INLINE void idCurve<type>::ShiftTime( const float deltaTime ) {
+ID_INLINE void idCurve<type>::ShiftTime( const ID_TIME_T deltaTime ) {
 	for (size_t i = 0; i < times.Num(); i++ ) {
 		times[i] += deltaTime;
 	}
@@ -392,7 +390,7 @@ idCurve::IndexForTime
 ====================
 */
 template< class type >
-ID_INLINE size_t idCurve<type>::IndexForTime( const float time ) const {
+ID_INLINE size_t idCurve<type>::IndexForTime( const ID_TIME_T time ) const {
 	if ( currentIndex != UINT64_MAX && currentIndex <= times.Num() ) {
 		// use the cached index if it is still valid
 		if ( currentIndex == 0 ) {
@@ -463,7 +461,7 @@ idCurve::TimeForIndex
 */
 template< class type >
 
-ID_INLINE float idCurve<type>::TimeForIndex( const Ordinal auto index ) const {
+ID_INLINE ID_TIME_T idCurve<type>::TimeForIndex( const Ordinal auto index ) const {
 	const size_t n = times.Num()-1;
 
 	if ( index < 0 ) {
@@ -489,14 +487,14 @@ class idCurve_Bezier : public idCurve<type> {
 public:
 						idCurve_Bezier();
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+			type		GetCurrentValue( const ID_TIME_T time ) const override;
+			type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+			type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
-	void				Basis( const uint64 order, const float t, float *bvals ) const;
-	void				BasisFirstDerivative( const uint64 order, const float t, float *bvals ) const;
-	void				BasisSecondDerivative( const uint64 order, const float t, float *bvals ) const;
+	void				Basis( const uint64 order, const ID_TIME_T t, float *bvals ) const;
+	void				BasisFirstDerivative( const uint64 order, const ID_TIME_T t, float *bvals ) const;
+	void				BasisSecondDerivative( const uint64 order, const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -515,7 +513,7 @@ idCurve_Bezier::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_Bezier<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_Bezier<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	type v;
 
 	float* bvals = static_cast<float*>(_alloca16(this->values.Num() * sizeof( float )));
@@ -536,7 +534,7 @@ idCurve_Bezier::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_Bezier<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_Bezier<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	type v;
 
 	float* bvals = static_cast<float*>(_alloca16(this->values.Num() * sizeof( float )));
@@ -547,7 +545,7 @@ ID_INLINE type idCurve_Bezier<type>::GetCurrentFirstDerivative( const float time
 		v += bvals[i] * this->values[i];
 	}
 	const float d = (this->times[this->times.Num() - 1] - this->times[0]);
-	return ( static_cast<float>(this->values.Num() - 1) / d ) * v;
+	return ( idMath::Itof<float>(this->values.Num() - 1) / d ) * v;
 }
 
 /*
@@ -558,7 +556,7 @@ idCurve_Bezier::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_Bezier<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_Bezier<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	type v;
 
 	float* bvals = static_cast<float*>(_alloca16(this->values.Num() * sizeof( float )));
@@ -569,7 +567,7 @@ ID_INLINE type idCurve_Bezier<type>::GetCurrentSecondDerivative( const float tim
 		v += bvals[i] * this->values[i];
 	}
 	const float d = (this->times[this->times.Num() - 1] - this->times[0]);
-	return ( static_cast<float>(this->values.Num() - 2) * (this->values.Num()-1) / ( d * d ) ) * v;
+	return ( idMath::Itof<float>(this->values.Num() - 2) * (this->values.Num()-1) / ( d * d ) ) * v;
 }
 
 /*
@@ -580,7 +578,7 @@ idCurve_Bezier::Basis
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_Bezier<type>::Basis( const uint64 order, const float t, float *bvals ) const {
+ID_INLINE void idCurve_Bezier<type>::Basis( const uint64 order, const ID_TIME_T t, float *bvals ) const {
 	int64 i = 0;
 
 	bvals[0] = 1.0f;
@@ -590,7 +588,7 @@ ID_INLINE void idCurve_Bezier<type>::Basis( const uint64 order, const float t, f
 	}
 
 	float* c = static_cast<float*>(_alloca16((d+1) * sizeof( float )));
-	const float s = static_cast<float>(t - this->times[0]) / (this->times[this->times.Num() - 1] - this->times[0]);
+	const float s = idMath::Itof<float>(t - this->times[0]) / (this->times[this->times.Num() - 1] - this->times[0]);
     const float o = 1.0f - s;
 	float ps = s;
 	float po = o;
@@ -625,7 +623,7 @@ idCurve_Bezier::BasisFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_Bezier<type>::BasisFirstDerivative( const uint64 order, const float t, float *bvals ) const {
+ID_INLINE void idCurve_Bezier<type>::BasisFirstDerivative( const uint64 order, const ID_TIME_T t, float *bvals ) const {
 	Basis( order-1, t, bvals+1 );
 	bvals[0] = 0.0f;
 	for (size_t i = 0; i < order-1; i++ ) {
@@ -641,7 +639,7 @@ idCurve_Bezier::BasisSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_Bezier<type>::BasisSecondDerivative( const uint64 order, const float t, float *bvals ) const {
+ID_INLINE void idCurve_Bezier<type>::BasisSecondDerivative( const uint64 order, const ID_TIME_T t, float *bvals ) const {
 	BasisFirstDerivative( order-1, t, bvals+1 );
 	bvals[0] = 0.0f;
 	for (size_t i = 0; i < order-1; i++ ) {
@@ -665,14 +663,14 @@ class idCurve_QuadraticBezier : public idCurve<type> {
 public:
 						idCurve_QuadraticBezier();
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+						type		GetCurrentValue( const ID_TIME_T time ) const override;
+						type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+						type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
-	void				Basis( const float t, float *bvals ) const;
-	void				BasisFirstDerivative( const float t, float *bvals ) const;
-	void				BasisSecondDerivative( const float t, float *bvals ) const;
+	void				Basis( const ID_TIME_T t, float *bvals ) const;
+	void				BasisFirstDerivative( const ID_TIME_T t, float *bvals ) const;
+	void				BasisSecondDerivative( const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -692,7 +690,7 @@ idCurve_QuadraticBezier::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_QuadraticBezier<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_QuadraticBezier<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	float bvals[3] = {};
 	assert( this->values.Num() == 3 );
 	Basis( time, bvals );
@@ -707,7 +705,7 @@ idCurve_QuadraticBezier::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_QuadraticBezier<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_QuadraticBezier<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	float bvals[3] = {};
 	assert( this->values.Num() == 3 );
 	BasisFirstDerivative( time, bvals );
@@ -723,7 +721,7 @@ idCurve_QuadraticBezier::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_QuadraticBezier<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_QuadraticBezier<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	float bvals[3] = {};
 	assert( this->values.Num() == 3 );
 	BasisSecondDerivative( time, bvals );
@@ -739,8 +737,8 @@ idCurve_QuadraticBezier::Basis
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_QuadraticBezier<type>::Basis( const float t, float *bvals ) const {
-	const float s1 = static_cast<float>(t - this->times[0]) / ( this->times[2] - this->times[0] );
+ID_INLINE void idCurve_QuadraticBezier<type>::Basis( const ID_TIME_T t, float *bvals ) const {
+	const float s1 = idMath::Itof<float>(t - this->times[0]) / ( this->times[2] - this->times[0] );
 	const float s2 = s1 * s1;
 	bvals[0] = s2 - 2.0f * s1 + 1.0f;
 	bvals[1] = -2.0f * s2 + 2.0f * s1;
@@ -755,8 +753,8 @@ idCurve_QuadraticBezier::BasisFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_QuadraticBezier<type>::BasisFirstDerivative( const float t, float *bvals ) const {
-	const float s1 = static_cast<float>(t - this->times[0]) / ( this->times[2] - this->times[0] );
+ID_INLINE void idCurve_QuadraticBezier<type>::BasisFirstDerivative( const ID_TIME_T t, float *bvals ) const {
+	const float s1 = idMath::Itof<float>(t - this->times[0]) / ( this->times[2] - this->times[0] );
 	bvals[0] = 2.0f * s1 - 2.0f;
 	bvals[1] = -4.0f * s1 + 2.0f;
 	bvals[2] = 2.0f * s1;
@@ -770,8 +768,8 @@ idCurve_QuadraticBezier::BasisSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_QuadraticBezier<type>::BasisSecondDerivative( const float t, float *bvals ) const {
-	float s1 = static_cast<float>(t - this->times[0]) / ( this->times[2] - this->times[0] );
+ID_INLINE void idCurve_QuadraticBezier<type>::BasisSecondDerivative( const ID_TIME_T t, float *bvals ) const {
+	float s1 = idMath::Itof<float>(t - this->times[0]) / ( this->times[2] - this->times[0] );
 	bvals[0] = 2.0f;
 	bvals[1] = -4.0f;
 	bvals[2] = 2.0f;
@@ -793,14 +791,14 @@ class idCurve_CubicBezier : public idCurve<type> {
 public:
 						idCurve_CubicBezier();
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+						type		GetCurrentValue( const ID_TIME_T time ) const override;
+						type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+						type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
-	void				Basis( const float t, float *bvals ) const;
-	void				BasisFirstDerivative( const float t, float *bvals ) const;
-	void				BasisSecondDerivative( const float t, float *bvals ) const;
+	void				Basis( const ID_TIME_T t, float *bvals ) const;
+	void				BasisFirstDerivative( const ID_TIME_T t, float *bvals ) const;
+	void				BasisSecondDerivative( const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -820,7 +818,7 @@ idCurve_CubicBezier::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_CubicBezier<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_CubicBezier<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	assert( this->values.Num() == 4 );
 	Basis( time, bvals );
@@ -835,7 +833,7 @@ idCurve_CubicBezier::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_CubicBezier<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_CubicBezier<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	assert( this->values.Num() == 4 );
 	BasisFirstDerivative( time, bvals );
@@ -851,7 +849,7 @@ idCurve_CubicBezier::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_CubicBezier<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_CubicBezier<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	assert( this->values.Num() == 4 );
 	BasisSecondDerivative( time, bvals );
@@ -867,8 +865,8 @@ idCurve_CubicBezier::Basis
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_CubicBezier<type>::Basis( const float t, float *bvals ) const {
-	const float s1 = static_cast<float>(t - this->times[0]) / ( this->times[3] - this->times[0] );
+ID_INLINE void idCurve_CubicBezier<type>::Basis( const ID_TIME_T t, float *bvals ) const {
+	const float s1 = idMath::Itof<float>(t - this->times[0]) / ( this->times[3] - this->times[0] );
 	const float s2 = s1 * s1;
 	const float s3 = s2 * s1;
 	bvals[0] = -s3 + 3.0f * s2 - 3.0f * s1 + 1.0f;
@@ -885,8 +883,8 @@ idCurve_CubicBezier::BasisFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_CubicBezier<type>::BasisFirstDerivative( const float t, float *bvals ) const {
-	const float s1 = static_cast<float>(t - this->times[0]) / ( this->times[3] - this->times[0] );
+ID_INLINE void idCurve_CubicBezier<type>::BasisFirstDerivative( const ID_TIME_T t, float *bvals ) const {
+	const float s1 = idMath::Itof<float>(t - this->times[0]) / ( this->times[3] - this->times[0] );
 	const float s2 = s1 * s1;
 	bvals[0] = -3.0f * s2 + 6.0f * s1 - 3.0f;
 	bvals[1] = 9.0f * s2 - 12.0f * s1 + 3.0f;
@@ -902,8 +900,8 @@ idCurve_CubicBezier::BasisSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE void idCurve_CubicBezier<type>::BasisSecondDerivative( const float t, float *bvals ) const {
-	const float s1 = static_cast<float>(t - this->times[0]) / ( this->times[3] - this->times[0] );
+ID_INLINE void idCurve_CubicBezier<type>::BasisSecondDerivative( const ID_TIME_T t, float *bvals ) const {
+	const float s1 = idMath::Itof<float>(t - this->times[0]) / ( this->times[3] - this->times[0] );
 	bvals[0] = -6.0f * s1 + 6.0f;
 	bvals[1] = 18.0f * s1 - 12.0f;
 	bvals[2] = -18.0f * s1 + 6.0f;
@@ -923,27 +921,27 @@ template< class type >
 class idCurve_Spline : public idCurve<type> {
 
 public:
-	enum				boundary_t { BT_FREE, BT_CLAMPED, BT_CLOSED };
+	typedef enum		boundary_e { BT_FREE, BT_CLAMPED, BT_CLOSED } boundary_t;
 
 						idCurve_Spline();
 
-	[[nodiscard]] bool		IsDone( const float time ) const override;
+	[[nodiscard]] bool	IsDone( const ID_TIME_T time ) const override;
 
 	virtual void		SetBoundaryType( const boundary_t bt ) { boundaryType = bt; this->changed = true; }
 	virtual boundary_t	GetBoundaryType() const { return boundaryType; }
 
-	virtual void		SetCloseTime( const float t ) { closeTime = t; this->changed = true; }
-	virtual float		GetCloseTime() { return boundaryType == BT_CLOSED ? closeTime : 0.0f; }
+	virtual void		SetCloseTime( const ID_TIME_T t ) { closeTime = t; this->changed = true; }
+	virtual ID_TIME_T	GetCloseTime() { return boundaryType == BT_CLOSED ? closeTime : 0; }
 
 protected:
 	boundary_t			boundaryType;
-	float				closeTime;
+	ID_TIME_T			closeTime;
 
 	
 	type				ValueForIndex( const Ordinal auto index ) const;
 	
-	float				TimeForIndex( const Ordinal auto index ) const;
-	[[nodiscard]] float				ClampedTime( const float t ) const;
+	ID_TIME_T			TimeForIndex( const Ordinal auto index ) const;
+	[[nodiscard]] ID_TIME_T	ClampedTime( const ID_TIME_T t ) const;
 };
 
 /*
@@ -954,7 +952,7 @@ idCurve_Spline::idCurve_Spline
 template< class type >
 ID_INLINE idCurve_Spline<type>::idCurve_Spline() {
 	boundaryType = BT_FREE;
-	closeTime = 0.0f;
+	closeTime = 0;
 }
 
 /*
@@ -983,7 +981,7 @@ ID_INLINE type idCurve_Spline<type>::ValueForIndex( const Ordinal auto index ) c
 			return this->values[ index % this->values.Num() ];
 		}
 		else {
-			return this->values[n] + ( static_cast<float>( index - n ) * ( this->values[n] - this->values[n-1] ));
+			return this->values[n] + ( idMath::Itof<float>( index - n ) * ( this->values[n] - this->values[n-1] ));
 		}
 	}
 	return this->values[index];
@@ -998,7 +996,7 @@ idCurve_Spline::TimeForIndex
 */
 template< class type >
 
-ID_INLINE float idCurve_Spline<type>::TimeForIndex( const Ordinal auto index ) const {
+ID_INLINE ID_TIME_T idCurve_Spline<type>::TimeForIndex( const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	size_t n = this->times.Num()-1;
 
@@ -1029,7 +1027,7 @@ idCurve_Spline::ClampedTime
 ====================
 */
 template< class type >
-ID_INLINE float idCurve_Spline<type>::ClampedTime( const float t ) const {
+ID_INLINE ID_TIME_T idCurve_Spline<type>::ClampedTime( const ID_TIME_T t ) const {
 	if ( boundaryType == BT_CLAMPED ) {
 		if ( t < this->times[0] ) {
 			return this->times[0];
@@ -1047,7 +1045,7 @@ idCurve_Spline::IsDone
 ====================
 */
 template< class type >
-ID_INLINE bool idCurve_Spline<type>::IsDone( const float time ) const {
+ID_INLINE bool idCurve_Spline<type>::IsDone( const ID_TIME_T time ) const {
 	return ( boundaryType != BT_CLOSED && time >= this->times[ this->times.Num() - 1 ] );
 }
 
@@ -1069,9 +1067,9 @@ public:
 						void		Clear() override
 						{ idCurve_Spline<type>::Clear(); this->values.Clear(); b.Clear(); c.Clear(); d.Clear(); }
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+						type		GetCurrentValue( const ID_TIME_T time ) const override;
+						type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+						type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	mutable idList<type>b;
@@ -1100,10 +1098,10 @@ idCurve_NaturalCubicSpline::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NaturalCubicSpline<type>::GetCurrentValue( const float time ) const {
-	float clampedTime = this->ClampedTime( time );
+ID_INLINE type idCurve_NaturalCubicSpline<type>::GetCurrentValue( const ID_TIME_T time ) const {
+	ID_TIME_T clampedTime = this->ClampedTime( time );
 	size_t i = this->IndexForTime( clampedTime );
-	float s = time - this->TimeForIndex( i );
+	float s = idMath::Itof<float>(time - this->TimeForIndex( i ));
 	Setup();
 	return ( this->values[i] + s * ( b[i] + s * ( c[i] + s * d[i] ) ) );
 }
@@ -1116,10 +1114,10 @@ idCurve_NaturalCubicSpline::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NaturalCubicSpline<type>::GetCurrentFirstDerivative( const float time ) const {
-	float clampedTime = this->ClampedTime( time );
+ID_INLINE type idCurve_NaturalCubicSpline<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
+	ID_TIME_T clampedTime = this->ClampedTime( time );
 	size_t i = this->IndexForTime( clampedTime );
-	float s = time - this->TimeForIndex( i );
+	float s = idMath::Itof<float>(time - this->TimeForIndex( i ));
 	Setup();
 	return ( b[i] + s * ( 2.0f * c[i] + 3.0f * s * d[i] ) );
 }
@@ -1132,10 +1130,10 @@ idCurve_NaturalCubicSpline::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NaturalCubicSpline<type>::GetCurrentSecondDerivative( const float time ) const {
-	float clampedTime = this->ClampedTime( time );
+ID_INLINE type idCurve_NaturalCubicSpline<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
+	ID_TIME_T clampedTime = this->ClampedTime( time );
 	size_t i = this->IndexForTime( clampedTime );
-	const float s = time - this->TimeForIndex( i );
+	const float s = idMath::Itof<float>(time - this->TimeForIndex( i ));
 	Setup();
 	return ( 2.0f * c[i] + 6.0f * s * d[i] );
 }
@@ -1362,17 +1360,17 @@ class idCurve_CatmullRomSpline : public idCurve_Spline<type> {
 public:
 						idCurve_CatmullRomSpline();
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+						type		GetCurrentValue( const ID_TIME_T time ) const override;
+						type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+						type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	
-	void				Basis( const Ordinal auto index, const float t, float *bvals ) const;
+	void				Basis( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 	
-	void				BasisFirstDerivative( const Ordinal auto index, const float t, float *bvals ) const;
+	void				BasisFirstDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 	
-	void				BasisSecondDerivative( const Ordinal auto index, const float t, float *bvals ) const;
+	void				BasisSecondDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -1391,7 +1389,7 @@ idCurve_CatmullRomSpline::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v;
 
@@ -1399,7 +1397,7 @@ ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentValue( const float time
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	Basis( i-1, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -1418,7 +1416,7 @@ idCurve_CatmullRomSpline::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v;
 
@@ -1426,7 +1424,7 @@ ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentFirstDerivative( const 
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	BasisFirstDerivative( i-1, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -1434,7 +1432,7 @@ ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentFirstDerivative( const 
 		size_t k = i + j - 2;
 		v += bvals[j] * this->ValueForIndex( k );
 	}
-	float d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
+	const ID_TIME_T d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
 	return v / d;
 }
 
@@ -1446,7 +1444,7 @@ idCurve_CatmullRomSpline::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v;
 
@@ -1454,7 +1452,7 @@ ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentSecondDerivative( const
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	BasisSecondDerivative( i-1, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -1462,7 +1460,7 @@ ID_INLINE type idCurve_CatmullRomSpline<type>::GetCurrentSecondDerivative( const
 		size_t k = i + j - 2;
 		v += bvals[j] * this->ValueForIndex( k );
 	}
-	const float d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
+	const ID_TIME_T d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
 	return v / ( d * d );
 }
 
@@ -1475,9 +1473,9 @@ idCurve_CatmullRomSpline::Basis
 */
 template< class type >
 
-ID_INLINE void idCurve_CatmullRomSpline<type>::Basis( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_CatmullRomSpline<type>::Basis( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = ( ( -s + 2.0f ) * s - 1.0f ) * s * 0.5f;				// -0.5f s * s * s + s * s - 0.5f * s
 	bvals[1] = ( ( ( 3.0f * s - 5.0f ) * s ) * s + 2.0f ) * 0.5f;	// 1.5f * s * s * s - 2.5f * s * s + 1.0f
 	bvals[2] = ( ( -3.0f * s + 4.0f ) * s + 1.0f ) * s * 0.5f;		// -1.5f * s * s * s - 2.0f * s * s + 0.5f s
@@ -1493,9 +1491,9 @@ idCurve_CatmullRomSpline::BasisFirstDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_CatmullRomSpline<type>::BasisFirstDerivative( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_CatmullRomSpline<type>::BasisFirstDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = ( -1.5f * s + 2.0f ) * s - 0.5f;						// -1.5f * s * s + 2.0f * s - 0.5f
 	bvals[1] = ( 4.5f * s - 5.0f ) * s;								// 4.5f * s * s - 5.0f * s
 	bvals[2] = ( -4.5 * s + 4.0f ) * s + 0.5f;						// -4.5 * s * s + 4.0f * s + 0.5f
@@ -1511,9 +1509,9 @@ idCurve_CatmullRomSpline::BasisSecondDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_CatmullRomSpline<type>::BasisSecondDerivative( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_CatmullRomSpline<type>::BasisSecondDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = -3.0f * s + 2.0f;
 	bvals[1] = 9.0f * s - 5.0f;
 	bvals[2] = -9.0f * s + 4.0f;
@@ -1538,35 +1536,31 @@ class idCurve_KochanekBartelsSpline : public idCurve_Spline<type> {
 public:
 						idCurve_KochanekBartelsSpline();
 
-						size_t			AddValue( const float time, const type &value ) override;
-	virtual size_t			AddValue( const float time, const type &value, const float tension, const float continuity, const float bias );
+			size_t		AddValue( const ID_TIME_T time, const type &value ) override;
+	virtual size_t		AddValue( const ID_TIME_T time, const type &value, const float tension, const float continuity, const float bias );
 	
-						void		RemoveIndex( const Ordinal auto index )
+			void		RemoveIndex( const Ordinal auto index )
 						{
 							ORDINAL_CHECK(index, this->times.Num());  this->values.RemoveIndex(index); this->times.RemoveIndex(index); tension.RemoveIndex(index); continuity.RemoveIndex(index); bias.RemoveIndex(index);
 						}
 
-						void		Clear() override
+			void		Clear() override
 						{ this->values.Clear(); this->times.Clear(); tension.Clear(); continuity.Clear(); bias.Clear(); this->currentIndex = -1; }
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+			type		GetCurrentValue( const ID_TIME_T time ) const override;
+			type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+			type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	idList<float>		tension;
 	idList<float>		continuity;
 	idList<float>		bias;
 
-	
 	void				TangentsForIndex( const Ordinal auto index, type &t0, type &t1 ) const;
 
-	
-	void				Basis( const Ordinal auto index, const float t, float *bvals ) const;
-	
-	void				BasisFirstDerivative( const Ordinal auto index, const float t, float *bvals ) const;
-	
-	void				BasisSecondDerivative( const Ordinal auto index, const float t, float *bvals ) const;
+	void				Basis( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
+	void				BasisFirstDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
+	void				BasisSecondDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -1586,7 +1580,7 @@ idCurve_KochanekBartelsSpline::AddValue
 ====================
 */
 template< class type >
-ID_INLINE size_t idCurve_KochanekBartelsSpline<type>::AddValue( const float time, const type &value ) {
+ID_INLINE size_t idCurve_KochanekBartelsSpline<type>::AddValue( const ID_TIME_T time, const type &value ) {
 	size_t i = this->IndexForTime(time);
 	this->times.Insert( time, i );
 	this->values.Insert( value, i );
@@ -1605,7 +1599,7 @@ idCurve_KochanekBartelsSpline::AddValue
 ====================
 */
 template< class type >
-ID_INLINE size_t idCurve_KochanekBartelsSpline<type>::AddValue( const float time, const type &value, const float tension, const float continuity, const float bias ) {
+ID_INLINE size_t idCurve_KochanekBartelsSpline<type>::AddValue( const ID_TIME_T time, const type &value, const float tension, const float continuity, const float bias ) {
 	size_t i = this->IndexForTime(time);
 	this->times.Insert( time, i );
 	this->values.Insert( value, i );
@@ -1623,7 +1617,7 @@ idCurve_KochanekBartelsSpline::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v, t0, t1;
 
@@ -1631,7 +1625,7 @@ ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentValue( const float
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	TangentsForIndex( i - 1, t0, t1 );
 	Basis( i - 1, clampedTime, bvals );
@@ -1650,7 +1644,7 @@ idCurve_KochanekBartelsSpline::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v, t0, t1;
 
@@ -1658,7 +1652,7 @@ ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentFirstDerivative( c
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	TangentsForIndex( i - 1, t0, t1 );
 	BasisFirstDerivative( i - 1, clampedTime, bvals );
@@ -1666,7 +1660,7 @@ ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentFirstDerivative( c
 	v += bvals[1] * this->ValueForIndex( i );
 	v += bvals[2] * t0;
 	v += bvals[3] * t1;
-	float d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
+	const ID_TIME_T d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
 	return v / d;
 }
 
@@ -1678,7 +1672,7 @@ idCurve_KochanekBartelsSpline::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v, t0, t1;
 
@@ -1686,7 +1680,7 @@ ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentSecondDerivative( 
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	TangentsForIndex( i - 1, t0, t1 );
 	BasisSecondDerivative( i - 1, clampedTime, bvals );
@@ -1694,7 +1688,7 @@ ID_INLINE type idCurve_KochanekBartelsSpline<type>::GetCurrentSecondDerivative( 
 	v += bvals[1] * this->ValueForIndex( i );
 	v += bvals[2] * t0;
 	v += bvals[3] * t1;
-	const float d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
+	const ID_TIME_T d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
 	return v / ( d * d );
 }
 
@@ -1710,7 +1704,7 @@ ID_INLINE void idCurve_KochanekBartelsSpline<type>::TangentsForIndex( const Ordi
 	type delta;
 
 	delta = this->ValueForIndex( index + 1 ) - this->ValueForIndex( index );
-	const float dt = this->TimeForIndex(index + 1) - this->TimeForIndex(index);
+	const float dt = idMath::Itof<float>(this->TimeForIndex(index + 1) - this->TimeForIndex(index));
 
 	float omt = 1.0f - tension[index];
 	float omc = 1.0f - continuity[index];
@@ -1746,9 +1740,9 @@ idCurve_KochanekBartelsSpline::Basis
 */
 template< class type >
 
-ID_INLINE void idCurve_KochanekBartelsSpline<type>::Basis( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_KochanekBartelsSpline<type>::Basis( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = ( ( 2.0f * s - 3.0f ) * s ) * s + 1.0f;				// 2.0f * s * s * s - 3.0f * s * s + 1.0f
 	bvals[1] = ( ( -2.0f * s + 3.0f ) * s ) * s;					// -2.0f * s * s * s + 3.0f * s * s
 	bvals[2] = ( ( s - 2.0f ) * s ) * s + s;						// s * s * s - 2.0f * s * s + s
@@ -1764,9 +1758,9 @@ idCurve_KochanekBartelsSpline::BasisFirstDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_KochanekBartelsSpline<type>::BasisFirstDerivative( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_KochanekBartelsSpline<type>::BasisFirstDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = ( 6.0f * s - 6.0f ) * s;								// 6.0f * s * s - 6.0f * s
 	bvals[1] = ( -6.0f * s + 6.0f ) * s;							// -6.0f * s * s + 6.0f * s
 	bvals[2] = ( 3.0f * s - 4.0f ) * s + 1.0f;						// 3.0f * s * s - 4.0f * s + 1.0f
@@ -1782,9 +1776,9 @@ idCurve_KochanekBartelsSpline::BasisSecondDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_KochanekBartelsSpline<type>::BasisSecondDerivative( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_KochanekBartelsSpline<type>::BasisSecondDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = 12.0f * s - 6.0f;
 	bvals[1] = -12.0f * s + 6.0f;
 	bvals[2] = 6.0f * s - 4.0f;
@@ -1807,23 +1801,20 @@ class idCurve_BSpline : public idCurve_Spline<type> {
 public:
 						idCurve_BSpline();
 
-						[[nodiscard]] virtual size_t		GetOrder() const { return order; }
+	[[nodiscard]] virtual size_t		GetOrder() const { return order; }
 	
 	        void		SetOrder( const Ordinal auto i ) { assert( i > 0 && i < 10 ); order = idMath::integer_cast<uint64>(i); }
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+						type		GetCurrentValue( const ID_TIME_T time ) const override;
+						type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+						type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	uint64				order;
 
-	
-	float				Basis( const Ordinal auto index, const uint64 order, const float t ) const;
-	
-	float				BasisFirstDerivative( const Ordinal auto index, const uint64 order, const float t ) const;
-	
-	float				BasisSecondDerivative( const Ordinal auto index, const uint64 order, const float t ) const;
+	float				Basis( const Ordinal auto index, const uint64 order, const ID_TIME_T t ) const;
+	float				BasisFirstDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t ) const;
+	float				BasisSecondDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t ) const;
 };
 
 /*
@@ -1844,14 +1835,14 @@ idCurve_BSpline::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_BSpline<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_BSpline<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	type v;
 
 	if ( this->times.Num() == 1 ) {
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	v = this->values[0] - this->values[0]; //-V501
 	for ( size_t j = 0; j < order; j++ ) {
@@ -1869,14 +1860,14 @@ idCurve_BSpline::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_BSpline<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_BSpline<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	type v;
 
 	if ( this->times.Num() == 1 ) {
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	v = this->values[0] - this->values[0]; //-V501
 	for ( size_t j = 0; j < order; j++ ) {
@@ -1894,14 +1885,14 @@ idCurve_BSpline::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_BSpline<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_BSpline<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	type v;
 
 	if ( this->times.Num() == 1 ) {
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	v = this->values[0] - this->values[0]; //-V501
 	for ( size_t j = 0; j < order; j++ ) {
@@ -1920,7 +1911,7 @@ idCurve_BSpline::Basis
 */
 template< class type >
 
-ID_INLINE float idCurve_BSpline<type>::Basis( const Ordinal auto index, const uint64 order, const float t ) const {
+ID_INLINE float idCurve_BSpline<type>::Basis( const Ordinal auto index, const uint64 order, const ID_TIME_T t ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	if ( order <= 1 ) {
 		if ( this->TimeForIndex( index ) < t && t <= this->TimeForIndex( index + 1 ) ) {
@@ -1930,14 +1921,14 @@ ID_INLINE float idCurve_BSpline<type>::Basis( const Ordinal auto index, const ui
 		}
 	} else {
 		float sum = 0.0f;
-		const float d1 = this->TimeForIndex( index+order-1 ) - this->TimeForIndex( index );
-		if ( d1 != 0.0f ) {
-			sum += static_cast<float>(t - this->TimeForIndex(index)) * Basis( index, order-1, t ) / d1;
+		const ID_TIME_T d1 = this->TimeForIndex( index+order-1 ) - this->TimeForIndex( index );
+		if ( d1 != 0 ) {
+			sum += idMath::Itof<float>(t - this->TimeForIndex(index)) * Basis( index, order-1, t ) / d1;
 		}
 
-		const float d2 = this->TimeForIndex( index+order ) - this->TimeForIndex( index+1 );
-		if ( d2 != 0.0f ) {
-			sum += static_cast<float>(this->TimeForIndex(index + order) - t) * Basis( index+1, order-1, t ) / d2;
+		const ID_TIME_T d2 = this->TimeForIndex( index+order ) - this->TimeForIndex( index+1 );
+		if ( d2 != 0 ) {
+			sum += idMath::Itof<float>(this->TimeForIndex(index + order) - t) * Basis( index+1, order-1, t ) / d2;
 		}
 		return sum;
 	}
@@ -1952,10 +1943,10 @@ idCurve_BSpline::BasisFirstDerivative
 */
 template< class type >
 
-ID_INLINE float idCurve_BSpline<type>::BasisFirstDerivative( const Ordinal auto index, const uint64 order, const float t ) const {
+ID_INLINE float idCurve_BSpline<type>::BasisFirstDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	return ( Basis( index, order-1, t ) - Basis( index+1, order-1, t ) ) *
-			static_cast<float>(order - 1) / ( this->TimeForIndex( index + ( order - 1 ) - 2 ) - this->TimeForIndex( index - 2 ) );
+			idMath::Itof<float>(order - 1) / ( this->TimeForIndex( index + ( order - 1 ) - 2 ) - this->TimeForIndex( index - 2 ) );
 }
 
 /*
@@ -1967,10 +1958,10 @@ idCurve_BSpline::BasisSecondDerivative
 */
 template< class type >
 
-ID_INLINE float idCurve_BSpline<type>::BasisSecondDerivative( const Ordinal auto index, const uint64 order, const float t ) const {
+ID_INLINE float idCurve_BSpline<type>::BasisSecondDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	return ( BasisFirstDerivative( index, order-1, t ) - BasisFirstDerivative( index+1, order-1, t ) ) *
-			static_cast<float>(order - 1) / ( this->TimeForIndex( index + ( order - 1 ) - 2 ) - this->TimeForIndex( index - 2 ) );
+			idMath::Itof<float>(order - 1) / ( this->TimeForIndex( index + ( order - 1 ) - 2 ) - this->TimeForIndex( index - 2 ) );
 }
 
 
@@ -1988,17 +1979,17 @@ class idCurve_UniformCubicBSpline : public idCurve_BSpline<type> {
 public:
 						idCurve_UniformCubicBSpline();
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+						type		GetCurrentValue( const ID_TIME_T time ) const override;
+						type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+						type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	
-	void				Basis( const Ordinal auto index, const float t, float *bvals ) const;
+	void				Basis( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 	
-	void				BasisFirstDerivative( const Ordinal auto index, const float t, float *bvals ) const;
+	void				BasisFirstDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 	
-	void				BasisSecondDerivative( const Ordinal auto index, const float t, float *bvals ) const;
+	void				BasisSecondDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -2019,7 +2010,7 @@ idCurve_UniformCubicBSpline::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v;
 
@@ -2027,7 +2018,7 @@ ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentValue( const float t
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	Basis( i-1, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2046,7 +2037,7 @@ idCurve_UniformCubicBSpline::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v;
 
@@ -2054,7 +2045,7 @@ ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentFirstDerivative( con
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	BasisFirstDerivative( i-1, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2062,7 +2053,7 @@ ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentFirstDerivative( con
 		size_t k = i + j - 2;
 		v += bvals[j] * this->ValueForIndex( k );
 	}
-	float d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
+	const ID_TIME_T d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
 	return v / d;
 }
 
@@ -2074,7 +2065,7 @@ idCurve_UniformCubicBSpline::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	float bvals[4] = {};
 	type v;
 
@@ -2082,7 +2073,7 @@ ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentSecondDerivative( co
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	size_t i = this->IndexForTime(clampedTime);
 	BasisSecondDerivative( i-1, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2090,7 +2081,7 @@ ID_INLINE type idCurve_UniformCubicBSpline<type>::GetCurrentSecondDerivative( co
 		size_t k = i + j - 2;
 		v += bvals[j] * this->ValueForIndex( k );
 	}
-	const float d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
+	const ID_TIME_T d = (this->TimeForIndex(i) - this->TimeForIndex(i - 1));
 	return v / ( d * d );
 }
 
@@ -2103,9 +2094,9 @@ idCurve_UniformCubicBSpline::Basis
 */
 template< class type >
 
-ID_INLINE void idCurve_UniformCubicBSpline<type>::Basis( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_UniformCubicBSpline<type>::Basis( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = ( ( ( -s + 3.0f ) * s - 3.0f ) * s + 1.0f ) * ( 1.0f / 6.0f );
 	bvals[1] = ( ( ( 3.0f * s - 6.0f ) * s ) * s + 4.0f ) * ( 1.0f / 6.0f );
 	bvals[2] = ( ( ( -3.0f * s + 3.0f ) * s + 3.0f ) * s + 1.0f ) * ( 1.0f / 6.0f );
@@ -2121,9 +2112,9 @@ idCurve_UniformCubicBSpline::BasisFirstDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_UniformCubicBSpline<type>::BasisFirstDerivative( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_UniformCubicBSpline<type>::BasisFirstDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = -0.5f * s * s + s - 0.5f;
 	bvals[1] = 1.5f * s * s - 2.0f * s;
 	bvals[2] = -1.5f * s * s + s + 0.5f;
@@ -2139,9 +2130,9 @@ idCurve_UniformCubicBSpline::BasisSecondDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_UniformCubicBSpline<type>::BasisSecondDerivative( const Ordinal auto index, const float t, float *bvals ) const {
+ID_INLINE void idCurve_UniformCubicBSpline<type>::BasisSecondDerivative( const Ordinal auto index, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
-	const float s = static_cast<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
+	const float s = idMath::Itof<float>(t - this->TimeForIndex(index)) / ( this->TimeForIndex( index+1 ) - this->TimeForIndex( index ) );
 	bvals[0] = -s + 1.0f;
 	bvals[1] = 3.0f * s - 2.0f;
 	bvals[2] = -3.0f * s + 1.0f;
@@ -2163,17 +2154,15 @@ class idCurve_NonUniformBSpline : public idCurve_BSpline<type> {
 public:
 						idCurve_NonUniformBSpline();
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+			type		GetCurrentValue( const ID_TIME_T time ) const override;
+			type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+			type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	
-	void				Basis( const Ordinal auto index, const uint64 order, const float t, float *bvals ) const;
-	
-	void				BasisFirstDerivative( const Ordinal auto index, const uint64 order, const float t, float *bvals ) const;
-	
-	void				BasisSecondDerivative( const Ordinal auto index, const uint64 order, const float t, float *bvals ) const;
+	void				Basis( const Ordinal auto index, const uint64 order, const ID_TIME_T t, float *bvals ) const;
+	void				BasisFirstDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t, float *bvals ) const;
+	void				BasisSecondDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t, float *bvals ) const;
 };
 
 /*
@@ -2192,7 +2181,7 @@ idCurve_NonUniformBSpline::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	type v;
 	float *bvals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 
@@ -2200,7 +2189,7 @@ ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentValue( const float tim
 		return this->values[0];
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	Basis( i-1, this->order, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2219,7 +2208,7 @@ idCurve_NonUniformBSpline::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	type v;
 	float *bvals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 
@@ -2227,7 +2216,7 @@ ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentFirstDerivative( const
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	BasisFirstDerivative( i-1, this->order, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2246,7 +2235,7 @@ idCurve_NonUniformBSpline::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	type v;
 	float *bvals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 
@@ -2254,7 +2243,7 @@ ID_INLINE type idCurve_NonUniformBSpline<type>::GetCurrentSecondDerivative( cons
 		return ( this->values[0] - this->values[0] ); //-V501
 	}
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	BasisSecondDerivative( i-1, this->order, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2274,16 +2263,15 @@ idCurve_NonUniformBSpline::Basis
 */
 template< class type >
 
-ID_INLINE void idCurve_NonUniformBSpline<type>::Basis( const Ordinal auto index, const uint64 order, const float t, float *bvals ) const {
+ID_INLINE void idCurve_NonUniformBSpline<type>::Basis( const Ordinal auto index, const uint64 order, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	bvals[order-1] = 1.0f;
     for ( size_t r = 2; std::cmp_less_equal(r, order); r++ ) {
 		size_t i = index - r + 1;
 		bvals[order - r] = 0.0f;
 		for ( size_t s = order - r + 1; std::cmp_less(s, order); s++ ) {
-			i++;
-			const float omega = static_cast<float>(t - this->TimeForIndex(i)) / (this->TimeForIndex(i + r - 1) - this->
-				TimeForIndex(i));
+			++i;
+			const float omega = idMath::Itof<float>(t - this->TimeForIndex(i)) / (this->TimeForIndex(i + r - 1) - this->TimeForIndex(i));
 			bvals[s - 1] += ( 1.0f - omega ) * bvals[s];
 			bvals[s] *= omega;
 		}
@@ -2299,7 +2287,7 @@ idCurve_NonUniformBSpline::BasisFirstDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_NonUniformBSpline<type>::BasisFirstDerivative( const Ordinal auto index, const uint64 order, const float t, float *bvals ) const {
+ID_INLINE void idCurve_NonUniformBSpline<type>::BasisFirstDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	size_t i = 0;
 
@@ -2307,9 +2295,9 @@ ID_INLINE void idCurve_NonUniformBSpline<type>::BasisFirstDerivative( const Ordi
 	bvals[0] = 0.0f;
 	for ( i = 0; i < order-1; i++ ) {
 		bvals[i] -= bvals[i+1];
-		bvals[i] *= static_cast<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
+		bvals[i] *= idMath::Itof<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
 	}
-	bvals[i] *= static_cast<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
+	bvals[i] *= idMath::Itof<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
 }
 
 /*
@@ -2321,7 +2309,7 @@ idCurve_NonUniformBSpline::BasisSecondDerivative
 */
 template< class type >
 
-ID_INLINE void idCurve_NonUniformBSpline<type>::BasisSecondDerivative( const Ordinal auto index, const uint64 order, const float t, float *bvals ) const {
+ID_INLINE void idCurve_NonUniformBSpline<type>::BasisSecondDerivative( const Ordinal auto index, const uint64 order, const ID_TIME_T t, float *bvals ) const {
 	ORDINAL_CHECK(index, this->times.Num());
 	size_t i = 0;
 
@@ -2329,9 +2317,9 @@ ID_INLINE void idCurve_NonUniformBSpline<type>::BasisSecondDerivative( const Ord
 	bvals[0] = 0.0f;
 	for ( i = 0; i < order-1; i++ ) {
 		bvals[i] -= bvals[i+1];
-		bvals[i] *= static_cast<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
+		bvals[i] *= idMath::Itof<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
 	}
-	bvals[i] *= static_cast<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
+	bvals[i] *= idMath::Itof<float>(order - 1) / ( this->TimeForIndex( index + i + (order-1) - 2 ) - this->TimeForIndex( index + i - 2 ) );
 }
 
 
@@ -2349,23 +2337,22 @@ class idCurve_NURBS : public idCurve_NonUniformBSpline<type> {
 public:
 						idCurve_NURBS();
 
-						size_t		AddValue( const float time, const type &value ) override;
-	virtual             size_t		AddValue( const float time, const type &value, const float weight );
+			size_t		AddValue( const ID_TIME_T time, const type &value ) override;
+	virtual size_t		AddValue( const ID_TIME_T time, const type &value, const float weight );
 	
-	                    void		RemoveIndex(const Ordinal auto index)
+	        void		RemoveIndex(const Ordinal auto index)
 						{ this->values.RemoveIndex(index); this->times.RemoveIndex(index); weights.RemoveIndex(index); }
 
-						void		Clear() override
+			void		Clear() override
 						{ this->values.Clear(); this->times.Clear(); weights.Clear(); this->currentIndex = -1; }
 
-						type		GetCurrentValue( const float time ) const override;
-						type		GetCurrentFirstDerivative( const float time ) const override;
-						type		GetCurrentSecondDerivative( const float time ) const override;
+			type		GetCurrentValue( const ID_TIME_T time ) const override;
+			type		GetCurrentFirstDerivative( const ID_TIME_T time ) const override;
+			type		GetCurrentSecondDerivative( const ID_TIME_T time ) const override;
 
 protected:
 	idList<float>		weights;
 
-	
 	float				WeightForIndex( const Ordinal auto index ) const;
 };
 
@@ -2386,7 +2373,7 @@ idCurve_NURBS::AddValue
 ====================
 */
 template< class type >
-ID_INLINE size_t idCurve_NURBS<type>::AddValue( const float time, const type &value ) {
+ID_INLINE size_t idCurve_NURBS<type>::AddValue( const ID_TIME_T time, const type &value ) {
 	size_t i = this->IndexForTime(time);
 	this->times.Insert( time, i );
 	this->values.Insert( value, i );
@@ -2403,7 +2390,7 @@ idCurve_NURBS::AddValue
 ====================
 */
 template< class type >
-ID_INLINE size_t idCurve_NURBS<type>::AddValue( const float time, const type &value, const float weight ) {
+ID_INLINE size_t idCurve_NURBS<type>::AddValue( const ID_TIME_T time, const type &value, const float weight ) {
 	size_t i = this->IndexForTime(time);
 	this->times.Insert( time, i );
 	this->values.Insert( value, i );
@@ -2419,7 +2406,7 @@ idCurve_NURBS::GetCurrentValue
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NURBS<type>::GetCurrentValue( const float time ) const {
+ID_INLINE type idCurve_NURBS<type>::GetCurrentValue( const ID_TIME_T time ) const {
 	type v;
 
 	if ( this->times.Num() == 1 ) {
@@ -2428,7 +2415,7 @@ ID_INLINE type idCurve_NURBS<type>::GetCurrentValue( const float time ) const {
 
 	float* bvals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	this->Basis( i-1, this->order, clampedTime, bvals );
 	v = this->values[0] - this->values[0]; //-V501
@@ -2450,7 +2437,7 @@ idCurve_NURBS::GetCurrentFirstDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NURBS<type>::GetCurrentFirstDerivative( const float time ) const {
+ID_INLINE type idCurve_NURBS<type>::GetCurrentFirstDerivative( const ID_TIME_T time ) const {
 	float wd1 = 0.0f;
 	type v, vb, vd1;
 
@@ -2461,7 +2448,7 @@ ID_INLINE type idCurve_NURBS<type>::GetCurrentFirstDerivative( const float time 
 	float* bvals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 	float* d1vals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	this->Basis( i-1, this->order, clampedTime, bvals );
 	this->BasisFirstDerivative( i-1, this->order, clampedTime, d1vals );
@@ -2489,7 +2476,7 @@ idCurve_NURBS::GetCurrentSecondDerivative
 ====================
 */
 template< class type >
-ID_INLINE type idCurve_NURBS<type>::GetCurrentSecondDerivative( const float time ) const {
+ID_INLINE type idCurve_NURBS<type>::GetCurrentSecondDerivative( const ID_TIME_T time ) const {
 	float wd1 = 0.0f, wd2 = 0.0f;
 	type v, vb, vd1, vd2;
 
@@ -2501,7 +2488,7 @@ ID_INLINE type idCurve_NURBS<type>::GetCurrentSecondDerivative( const float time
 	float* d1vals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 	float* d2vals = static_cast<float*>(_alloca16(this->order * sizeof(float)));
 
-	float clampedTime = this->ClampedTime(time);
+	ID_TIME_T clampedTime = this->ClampedTime(time);
 	const size_t i = this->IndexForTime(clampedTime);
 	this->Basis( i-1, this->order, clampedTime, bvals );
 	this->BasisFirstDerivative( i-1, this->order, clampedTime, d1vals );

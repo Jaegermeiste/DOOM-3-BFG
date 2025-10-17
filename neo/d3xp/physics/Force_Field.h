@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FORCE_FIELD_H__
 #define __FORCE_FIELD_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -58,7 +60,7 @@ public:
 	void				Restore( idRestoreGame *savefile );
 
 						idForce_Field();
-	virtual				~idForce_Field();
+	~idForce_Field() override;
 						// uniform constant force
 	void				Uniform( const idVec3 &force );
 						// explosion from clip model origin
@@ -77,7 +79,7 @@ public:
 	void				SetClipModel( idClipModel *clipModel );
 
 public: // common force interface
-	virtual void		Evaluate( int time );
+	void		Evaluate( const ID_TIME_T time ) override;
 
 private:
 	// force properties

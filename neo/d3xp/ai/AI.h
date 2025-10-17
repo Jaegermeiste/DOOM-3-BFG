@@ -215,9 +215,9 @@ public:
 class idAASFindCover : public idAASCallback {
 public:
 						idAASFindCover( const idVec3 &hideFromPos );
-						~idAASFindCover();
+						~idAASFindCover() override;
 
-	virtual bool		TestArea( const idAAS *aas, int areaNum );
+						bool		TestArea( const idAAS *aas, int areaNum ) override;
 
 private:
 	pvsHandle_t			hidePVS;
@@ -228,7 +228,7 @@ class idAASFindAreaOutOfRange : public idAASCallback {
 public:
 						idAASFindAreaOutOfRange( const idVec3 &targetPos, float maxDist );
 
-	virtual bool		TestArea( const idAAS *aas, int areaNum );
+						bool		TestArea( const idAAS *aas, int areaNum ) override;
 
 private:
 	idVec3				targetPos;
@@ -238,9 +238,9 @@ private:
 class idAASFindAttackPosition : public idAASCallback {
 public:
 						idAASFindAttackPosition( const idAI *self, const idMat3 &gravityAxis, idEntity *target, const idVec3 &targetPos, const idVec3 &fireOffset );
-						~idAASFindAttackPosition();
+						~idAASFindAttackPosition() override;
 
-	virtual bool		TestArea( const idAAS *aas, int areaNum );
+						bool		TestArea( const idAAS *aas, int areaNum ) override;
 
 private:
 	const idAI			*self;
@@ -258,7 +258,7 @@ public:
 	CLASS_PROTOTYPE( idAI );
 
 							idAI();
-							~idAI();
+							~idAI() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
@@ -287,7 +287,7 @@ public:
 							// Finds the best collision free trajectory for a clip model.
 	static bool				PredictTrajectory( const idVec3 &firePos, const idVec3 &target, float projectileSpeed, const idVec3 &projGravity, const idClipModel *clip, int clipmask, float max_height, const idEntity *ignore, const idEntity *targetEntity, int drawtime, idVec3 &aimDir );
 
-	virtual void			Gib( const idVec3 &dir, const char *damageDefName );
+	void			Gib( const idVec3 &dir, const char *damageDefName ) override;
 
 protected:
 	// navigation
@@ -440,26 +440,26 @@ protected:
 	// ai/ai.cpp
 	//
 	void					SetAAS();
-	virtual	void			DormantBegin();	// called when entity becomes dormant
-	virtual	void			DormantEnd();		// called when entity wakes from being dormant
-	void					Think();
+	void			DormantBegin() override;	// called when entity becomes dormant
+	void			DormantEnd() override;		// called when entity wakes from being dormant
+	void					Think() override;
 	void					Activate( idEntity *activator );
 public:
 	int						ReactionTo( const idEntity *ent );
 protected:
 	bool					CheckForEnemy();
 	void					EnemyDead();
-	virtual bool			CanPlayChatterSounds() const;
+	bool			CanPlayChatterSounds() const override;
 	void					SetChatSound();
 	void					PlayChatter();
-	virtual void			Hide();
-	virtual void			Show();
+	void			Hide() override;
+	void			Show() override;
 	idVec3					FirstVisiblePointOnPath( const idVec3 origin, const idVec3 &target, int travelFlags ) const;
 	void					CalculateAttackOffsets();
 	void					PlayCinematic();
 
 	// movement
-	virtual void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse );
+	void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) override;
 	void					GetMoveDelta( const idMat3 &oldaxis, const idMat3 &axis, idVec3 &delta );
 	void					CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &newPos );
 	void					DeadMove();
@@ -475,8 +475,8 @@ protected:
 	void					StaticMove();
 
 	// damage
-	virtual bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 
 	// navigation
 	void					KickObstacles( const idVec3 &dir, float force, idEntity *alwaysKick );
@@ -530,7 +530,7 @@ protected:
 	idProjectile			*CreateProjectile( const idVec3 &pos, const idVec3 &dir );
 	void					RemoveProjectile();
 	idProjectile			*LaunchProjectile( const char *jointname, idEntity *target, bool clampToAttackCone );
-	virtual void			DamageFeedback( idEntity *victim, idEntity *inflictor, int &damage );
+	void			DamageFeedback( idEntity *victim, idEntity *inflictor, int &damage ) override;
 	void					DirectDamage( const char *meleeDefName, idEntity *ent );
 	bool					TestMelee() const;
 	bool					AttackMelee( const char *meleeDefName );
@@ -543,7 +543,7 @@ protected:
 	void					InitMuzzleFlash();
 	void					TriggerWeaponEffects( const idVec3 &muzzle );
 	void					UpdateMuzzleFlash();
-	virtual bool			UpdateAnimationControllers();
+	bool			UpdateAnimationControllers() override;
 	void					UpdateParticles();
 	void					TriggerParticles( const char *jointName );
 

@@ -687,11 +687,13 @@ class LBCallback : public idLeaderboardCallback
 public:
 	LBCallback() {}
 
-	void Call() {
+	void Call() override
+	{
 		gameLocal.Shell_UpdateLeaderboard( this );
 	}
 
-	LBCallback * Clone() const {
+	LBCallback * Clone() const override
+	{
 		return new LBCallback( *this );
 	}	
 };

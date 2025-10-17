@@ -262,7 +262,8 @@ bool idMenuScreen_Shell_Resolution::HandleAction( idWidgetAction & action, const
 							optionData = _optionData;
 							accept = _accept;
 						}
-						idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+						idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+						{
 							common->Dialog().ClearDialog( msg );
 							if ( accept ) {
 								cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );

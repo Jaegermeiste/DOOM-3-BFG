@@ -226,7 +226,7 @@ public:
 	ABSTRACT_PROTOTYPE( idEntity );
 
 							idEntity();
-							~idEntity();
+							~idEntity() override;
 
 	void					Spawn();
 
@@ -423,8 +423,8 @@ public:
 	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
 	void					ReadFromSnapshot_Ex( const idBitMsg &msg );
 	virtual void			ReadFromSnapshot( const idBitMsg &msg );
-	virtual bool			ServerReceiveEvent( int event, int time, const idBitMsg &msg );
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	virtual bool			ServerReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg );
+	virtual bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg );
 
 	void					WriteBindToSnapshot( idBitMsg &msg ) const;
 	void					ReadBindFromSnapshot( const idBitMsg &msg );
@@ -609,29 +609,29 @@ public:
 	CLASS_PROTOTYPE( idAnimatedEntity );
 
 							idAnimatedEntity();
-							~idAnimatedEntity();
+							~idAnimatedEntity() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			ClientPredictionThink();
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			Think();
+	void			ClientPredictionThink() override;
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			Think() override;
 
 	void					UpdateAnimation();
 
-	virtual idAnimator *	GetAnimator();
-	virtual void			SetModel( const char *modelname );
+	idAnimator *	GetAnimator() override;
+	void			SetModel( const char *modelname ) override;
 
 	bool					GetJointWorldTransform( jointHandle_t jointHandle, int currentTime, idVec3 &offset, idMat3 &axis );
 	bool					GetJointTransformForAnim( jointHandle_t jointHandle, int animNum, int currentTime, idVec3 &offset, idMat3 &axis ) const;
 
 	virtual int				GetDefaultSurfaceType() const;
-	virtual void			AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName );
+	void			AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName ) override;
 	void					AddLocalDamageEffect( jointHandle_t jointNum, const idVec3 &localPoint, const idVec3 &localNormal, const idVec3 &localDir, const idDeclEntityDef *def, const idMaterial *collisionMaterial );
 	void					UpdateDamageEffects();
 
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 	enum {
 		EVENT_ADD_DAMAGE_EFFECT = idEntity::EVENT_MAXEVENTS,
@@ -660,22 +660,22 @@ class SetTimeState {
 
 public:
 							SetTimeState();
-							SetTimeState( int timeGroup );
+							SetTimeState( const ID_TIME_T timeGroup );
 							~SetTimeState();
 
-	void					PushState( int timeGroup );
+	void					PushState( const ID_TIME_T timeGroup );
 };
 
 ID_INLINE SetTimeState::SetTimeState() {
 	activated = false;
 }
 
-ID_INLINE SetTimeState::SetTimeState( int timeGroup ) {
+ID_INLINE SetTimeState::SetTimeState( const ID_TIME_T timeGroup ) {
 	activated = false;
 	PushState( timeGroup );
 }
 
-ID_INLINE void SetTimeState::PushState( int timeGroup ) {
+ID_INLINE void SetTimeState::PushState( const ID_TIME_T timeGroup ) {
 
 	// Don't mess with time in Multiplayer
 	if ( !common->IsMultiplayer() ) {

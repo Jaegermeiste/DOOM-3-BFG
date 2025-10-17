@@ -53,29 +53,29 @@ extern const idEventDef EV_Player_ExitTeleporter;
 extern const idEventDef EV_Player_SelectWeapon;
 extern const idEventDef EV_SpectatorTouch;
 
-constexpr float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
-constexpr int	LAND_DEFLECT_TIME = 150;
-constexpr int	LAND_RETURN_TIME = 300;
-constexpr int	FOCUS_TIME = 300;
-constexpr int	FOCUS_GUI_TIME = 500;
-constexpr int	NUM_QUICK_SLOTS = 4;
+constexpr float     THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
+constexpr ID_TIME_T	LAND_DEFLECT_TIME = 150;
+constexpr ID_TIME_T	LAND_RETURN_TIME = 300;
+constexpr ID_TIME_T	FOCUS_TIME = 300;
+constexpr ID_TIME_T	FOCUS_GUI_TIME = 500;
+constexpr size_t	NUM_QUICK_SLOTS = 4;
 
-constexpr int MAX_WEAPONS = 32;
+constexpr size_t    MAX_WEAPONS = 32;
 
-constexpr int DEAD_HEARTRATE = 0;			// fall to as you die
-constexpr int LOWHEALTH_HEARTRATE_ADJ = 20; // 
-constexpr int DYING_HEARTRATE = 30;			// used for volumen calc when dying/dead
-constexpr int BASE_HEARTRATE = 70;			// default
-constexpr int ZEROSTAMINA_HEARTRATE = 115;  // no stamina
-constexpr int MAX_HEARTRATE = 130;			// maximum
-constexpr int ZERO_VOLUME = -40;			// volume at zero
-constexpr int DMG_VOLUME = 5;				// volume when taking damage
-constexpr int DEATH_VOLUME = 15;			// volume at death
+constexpr uint8     DEAD_HEARTRATE = 0;			// fall to as you die
+constexpr uint8     LOWHEALTH_HEARTRATE_ADJ = 20; // 
+constexpr uint8     DYING_HEARTRATE = 30;			// used for volume calc when dying/dead
+constexpr uint8     BASE_HEARTRATE = 70;			// default
+constexpr uint8     ZEROSTAMINA_HEARTRATE = 115;  // no stamina
+constexpr uint8     MAX_HEARTRATE = 130;			// maximum
+constexpr int       ZERO_VOLUME = -40;			// volume at zero
+constexpr int       DMG_VOLUME = 5;				// volume when taking damage
+constexpr int       DEATH_VOLUME = 15;			// volume at death
 
-constexpr int SAVING_THROW_TIME = 5000;		// maximum one "saving throw" every five seconds
+constexpr ID_TIME_T SAVING_THROW_TIME = 5000;		// maximum one "saving throw" every five seconds
 
-const int ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 3000 );
-constexpr int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
+const size_t ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 3000 );
+constexpr int64 ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
 
 enum gameExpansionType_t {
 	GAME_BASE,
@@ -149,12 +149,12 @@ public:
 	RechargeAmmo_t			rechargeAmmo[ AMMO_NUMTYPES ];
 
 	// mp
-	int						ammoPredictTime; // Unused now but kept for save file compatibility.
+	ID_TIME_T				ammoPredictTime; // Unused now but kept for save file compatibility.
 
 	int						deplete_armor;
 	float					deplete_rate;
 	int						deplete_ammount;
-	int						nextArmorDepleteTime;
+	ID_TIME_T				nextArmorDepleteTime;
 
 	int						pdasViewed[4]; // 128 bit flags for indicating if a pda has been viewed
 
@@ -172,7 +172,7 @@ public:
 	bool					ammoPulse;
 	bool					weaponPulse;
 	bool					armorPulse;
-	int						lastGiveTime;
+	ID_TIME_T				lastGiveTime;
 
 	idList<idLevelTriggerInfo, TAG_IDLIB_LIST_PLAYER> levelTriggers;
 
@@ -191,11 +191,11 @@ public:
 	bool					Give( idPlayer *owner, const idDict &spawnArgs, const char *statname, const char *value,
 								  idPredictedValue< int > * idealWeapon, bool updateHud, unsigned int giveFlags );
 	void					Drop( const idDict &spawnArgs, const char *weapon_classname, int weapon_index );
-	ammo_t					AmmoIndexForAmmoClass( const char *ammo_classname ) const;
-	int						MaxAmmoForAmmoClass( const idPlayer *owner, const char *ammo_classname ) const;
-	int						WeaponIndexForAmmoClass( const idDict & spawnArgs, const char *ammo_classname ) const;
-	ammo_t					AmmoIndexForWeaponClass( const char *weapon_classname, int *ammoRequired );
-	const char *			AmmoPickupNameForIndex( ammo_t ammonum ) const;
+	static ammo_t					AmmoIndexForAmmoClass( const char *ammo_classname );
+	static int						MaxAmmoForAmmoClass( const idPlayer *owner, const char *ammo_classname );
+	static int						WeaponIndexForAmmoClass( const idDict & spawnArgs, const char *ammo_classname );
+	ammo_t					AmmoIndexForWeaponClass( const char *weapon_classname, int *ammoRequired ) const;
+	static const char *			AmmoPickupNameForIndex( ammo_t ammonum );
 	void					AddPickupName( const char * name, idPlayer * owner ); //_D3XP
 
 	int						HasAmmo( ammo_t type, int amount );
@@ -219,7 +219,7 @@ public:
 
 	int						nextItemPickup;
 	int						nextItemNum;
-	int						onePickupTime;
+	ID_TIME_T				onePickupTime;
 	idList<idStr>			pickupItemNames;
 	idList<idObjectiveInfo>	objectiveNames;
 
@@ -232,19 +232,19 @@ private:
 	idArray< idPredictedValue< int >, MAX_WEAPONS >			clip;
 };
 
-typedef struct {
-	int		time;
-	idVec3	dir;		// scaled larger for running
+typedef struct loggedAccel_s {
+	ID_TIME_T	time;
+	idVec3	    dir;		// scaled larger for running
 } loggedAccel_t;
 
-typedef struct {
+typedef struct aasLocation_s {
 	int		areaNum;
 	idVec3	pos;
 } aasLocation_t;
 
 class idPlayer : public idActor {
 public:
-	enum {
+	enum playerEvent_e {
 		EVENT_IMPULSE = idEntity::EVENT_MAXEVENTS,
 		EVENT_EXIT_TELEPORTER,
 		EVENT_ABORT_TELEPORTER,
@@ -256,10 +256,10 @@ public:
 		EVENT_MAXEVENTS
 	};
 
-	static constexpr int MAX_PLAYER_PDA = 100;
-	static constexpr int MAX_PLAYER_VIDEO = 100;
-	static constexpr int MAX_PLAYER_AUDIO = 100;
-	static constexpr int MAX_PLAYER_AUDIO_ENTRIES = 2;
+	static constexpr size_t MAX_PLAYER_PDA = 100;
+	static constexpr size_t MAX_PLAYER_VIDEO = 100;
+	static constexpr size_t MAX_PLAYER_AUDIO = 100;
+	static constexpr size_t MAX_PLAYER_AUDIO_ENTRIES = 2;
 
 	usercmd_t				oldCmd;
 	usercmd_t				usercmd;
@@ -286,9 +286,9 @@ public:
 	int						oldButtons;
 	int						oldImpulseSequence;
 
-	int						lastHitTime;			// last time projectile fired by player hit target
-	int						lastSndHitTime;			// MP hit sound - != lastHitTime because we throttle
-	int						lastSavingThrowTime;	// for the "free miss" effect
+	ID_TIME_T				lastHitTime;			// last time projectile fired by player hit target
+	ID_TIME_T				lastSndHitTime;			// MP hit sound - != lastHitTime because we throttle
+	ID_TIME_T				lastSavingThrowTime;	// for the "free miss" effect
 
 	bool					pdaHasBeenRead[ MAX_PLAYER_PDA ];
 	bool					videoHasBeenViewed[ MAX_PLAYER_VIDEO ];
@@ -342,28 +342,28 @@ public:
 
 	int						heartRate;
 	idInterpolate<float>	heartInfo;
-	int						lastHeartAdjust;
-	int						lastHeartBeat;
-	int						lastDmgTime;
-	int						deathClearContentsTime;
+	ID_TIME_T				lastHeartAdjust;
+	ID_TIME_T				lastHeartBeat;
+	ID_TIME_T				lastDmgTime;
+	ID_TIME_T				deathClearContentsTime;
 	bool					doingDeathSkin;
-	int						lastArmorPulse;		// lastDmgTime if we had armor at time of hit
+	ID_TIME_T				lastArmorPulse;		// lastDmgTime if we had armor at time of hit
 	float					stamina;
 	float					healthPool;			// amount of health to give over time
-	int						nextHealthPulse;
+	ID_TIME_T				nextHealthPulse;
 	bool					healthPulse;
 	bool					healthTake;
-	int						nextHealthTake;
+	ID_TIME_T				nextHealthTake;
 
 	//-----------------------------------------------------------------
 	// controller shake parms
 	//-----------------------------------------------------------------
 
-	static constexpr int		MAX_SHAKE_BUFFER = 3;
+	static constexpr size_t	MAX_SHAKE_BUFFER = 3;
 	float					controllerShakeHighMag[ MAX_SHAKE_BUFFER ];		// magnitude of the high frequency controller shake
 	float					controllerShakeLowMag[ MAX_SHAKE_BUFFER ];		// magnitude of the low frequency controller shake
-	int						controllerShakeHighTime[ MAX_SHAKE_BUFFER ];	// time the controller shake ends for high frequency.
-	int						controllerShakeLowTime[ MAX_SHAKE_BUFFER ];		// time the controller shake ends for low frequency.
+	ID_TIME_T				controllerShakeHighTime[ MAX_SHAKE_BUFFER ];	// time the controller shake ends for high frequency.
+	ID_TIME_T				controllerShakeLowTime[ MAX_SHAKE_BUFFER ];		// time the controller shake ends for low frequency.
 	int						controllerShakeTimeGroup;
 
 	bool					hiddenWeapon;		// if the weapon is hidden ( in noWeapons maps )
@@ -375,14 +375,14 @@ public:
 	bool					forceScoreBoard;
 	bool					forceRespawn;
 	bool					spectating;
-	int						lastSpectateTeleport;
+	ID_TIME_T				lastSpectateTeleport;
 	bool					lastHitToggle;
 	bool					wantSpectate;		// from userInfo
 	bool					weaponGone;			// force stop firing
 	bool					useInitialSpawns;	// toggled by a map restart to be active for the first game spawn
 	int						tourneyRank;		// for tourney cycling - the higher, the more likely to play next - server
 	int						tourneyLine;		// client side - our spot in the wait line. 0 means no info.
-	int						spawnedTime;		// when client first enters the game
+	ID_TIME_T				spawnedTime;		// when client first enters the game
 
 	bool					carryingFlag;		// is the player carrying the flag?
     
@@ -395,8 +395,8 @@ public:
 	int						isChatting;			// replicated from server, true if the player is chatting.
 
 	// timers
-	int						minRespawnTime;		// can respawn when time > this, force after g_forcerespawn
-	int						maxRespawnTime;		// force respawn after this time
+	ID_TIME_T				minRespawnTime;		// can respawn when time > this, force after g_forcerespawn
+	ID_TIME_T				maxRespawnTime;		// force respawn after this time
 
 	// the first person view values are always calculated, even
 	// if a third person view is used
@@ -409,7 +409,7 @@ public:
 	idEntityPtr<idLight>	enviroSuitLight;
 
 	bool					healthRecharge;
-	int						lastHealthRechargeTime;
+	ID_TIME_T				lastHealthRechargeTime;
 	int						rechargeSpeed;
 
 	float					new_g_damageScale;
@@ -422,10 +422,10 @@ public:
 	CLASS_PROTOTYPE( idPlayer );
 
 							idPlayer();
-	virtual					~idPlayer();
+	~idPlayer() override;
 
 	void					Spawn();
-	void					Think();
+	void					Think() override;
 
 	void					UpdateLaserSight();
 
@@ -433,12 +433,12 @@ public:
 	void					Save( idSaveGame *savefile ) const;					// archives object for save game file
 	void					Restore( idRestoreGame *savefile );					// unarchives object from save game file
 
-	virtual void			Hide();
-	virtual void			Show();
+	void			Hide() override;
+	void			Show() override;
 
 	void					Init();
 	void					PrepareForRestart();
-	virtual void			Restart();
+	void			Restart() override;
 	void					LinkScriptVariables();
 	void					SetupWeaponEntity();
 	void					SelectInitialSpawnPoint( idVec3 &origin, idAngles &angles );
@@ -460,7 +460,7 @@ public:
 
 	// Controller Shake
 	void					ControllerShakeFromDamage( int damage );
-	void					SetControllerShake( float highMagnitude, int highDuration, float lowMagnitude, int lowDuration );
+	void					SetControllerShake( float highMagnitude, ID_TIME_T highDuration, float lowMagnitude, ID_TIME_T lowDuration );
 	void					ResetControllerShake();
 	void					GetControllerShake( int & highMagnitude, int & lowMagnitude ) const;
 
@@ -469,48 +469,48 @@ public:
 							// delta view angles to allow movers to rotate the view of the player
 	void					UpdateDeltaViewAngles( const idAngles &angles );
 
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
 
-	virtual void			GetAASLocation( idAAS *aas, idVec3 &pos, int &areaNum ) const;
-	virtual void			GetAIAimTargets( const idVec3 &lastSightPos, idVec3 &headPos, idVec3 &chestPos );
-	virtual void			DamageFeedback( idEntity *victim, idEntity *inflictor, int &damage );
+	void			GetAASLocation( idAAS *aas, idVec3 &pos, int &areaNum ) const override;
+	void			GetAIAimTargets( const idVec3 &lastSightPos, idVec3 &headPos, idVec3 &chestPos ) override;
+	void			DamageFeedback( idEntity *victim, idEntity *inflictor, int &damage ) override;
 	void					CalcDamagePoints(  idEntity *inflictor, idEntity *attacker, const idDict *damageDef,
 							   const float damageScale, const int location, int *health, int *armor );
-	virtual	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location );
+	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location ) override;
 
 	// New damage path for instant client feedback.
 	void					ServerDealDamage( int damage, idEntity & inflictor, idEntity & attacker, const idVec3 & dir, const char * damageDefName, const int location ); // Actually updates the player's health independent of feedback.
 	int						AdjustDamageAmount( const int inputDamage );
 
 							// use exitEntityNum to specify a teleport with private camera view and delayed exit
-	virtual void			Teleport( const idVec3 &origin, const idAngles &angles, idEntity *destination );
+	void			Teleport( const idVec3 &origin, const idAngles &angles, idEntity *destination ) override;
 
 	void					Kill( bool delayRespawn, bool nodamage );
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 	void					StartFxOnBone(const char *fx, const char *bone);
 
-	renderView_t *			GetRenderView();
+	renderView_t *			GetRenderView() override;
 	void					CalculateRenderView();	// called every tic by player code
 	void					CalculateFirstPersonView();
 
-	void					AddChatMessage( int index, int alpha, const idStr & message );
+	void					AddChatMessage( int index, int alpha, const idStr & message ) const;
 	void					UpdateSpectatingText();
-	void					ClearChatMessage( int index );
+	void					ClearChatMessage( int index ) const;
 
 	void					DrawHUD( idMenuHandler_HUD * hudManager );
 
 	void					WeaponFireFeedback( const idDict *weaponDef );
 
-	float					DefaultFov() const;
-	float					CalcFov( bool honorZoom );
+	static float					DefaultFov();
+	float					CalcFov( bool honorZoom ) const;
 	void					CalculateViewWeaponPos( idVec3 &origin, idMat3 &axis );
 	idVec3					GetEyePosition() const;
-	void					GetViewPos( idVec3 &origin, idMat3 &axis ) const;
-	void					OffsetThirdPersonView( float angle, float range, float height, bool clip );
+	void					GetViewPos( idVec3 &origin, idMat3 &axis ) const override;
+	void					OffsetThirdPersonView( float angle, float range, float height, bool clip ) const;
 
 	bool					Give( const char *statname, const char *value, unsigned int giveFlags );
 	bool					GiveItem( idItem *item, unsigned int giveFlags );
-	void					GiveItem( const char *name );
+	void					GiveItem( const char *name ) const;
 	void					GiveHealthPool( float amt );
 
 	void							SetPrimaryObjective( idTarget_SetPrimaryObjective * target ) { primaryObjective = target; }
@@ -519,11 +519,11 @@ public:
 	idInventory &			GetInventory() { return inventory; }
 	bool					GiveInventoryItem( idDict *item, unsigned int giveFlags );
 	void					RemoveInventoryItem( idDict *item );
-	bool					GiveInventoryItem( const char *name );
+	bool					GiveInventoryItem( const char *name ) const;
 	void					RemoveInventoryItem( const char *name );
 	idDict *				FindInventoryItem( const char *name );
 	idDict *				FindInventoryItem( int index );
-	int						GetNumInventoryItems();
+	int						GetNumInventoryItems() const;
 	void					PlayAudioLog( const idSoundShader * sound );
 	void					EndAudioLog();
 	void					PlayVideoDisk( const idDeclVideo * decl );
@@ -531,22 +531,22 @@ public:
 	const idMaterial *		GetVideoMaterial() { return pdaVideoMat; }
 
 	void					SetQuickSlot( int index, int val );
-	int						GetQuickSlot( int index );
+	int						GetQuickSlot( int index ) const;
 
 	void					GivePDA( const idDeclPDA * pda, const char * securityItem );
 	void					GiveVideo( const idDeclVideo * video, const char * itemName );
 	void					GiveEmail( const idDeclEmail * email );
-	void					GiveSecurity( const char * security );
+	void					GiveSecurity( const char * security ) const;
 	void					GiveObjective( const char * title, const char * text, const idMaterial * screenshot );
 	void					CompleteObjective( const char * title );
 
-	bool					GivePowerUp( int powerup, int time, unsigned int giveFlags );
+	bool					GivePowerUp( int powerup, const ID_TIME_T time, unsigned int giveFlags );
 	void					ClearPowerUps();
 	bool					PowerUpActive( int powerup ) const;
 	float					PowerUpModifier( int type );
 
-	int						SlotForWeapon( const char *weaponName );
-	void					Reload();
+	int						SlotForWeapon( const char *weaponName ) const;
+	void					Reload() const;
 	void					NextWeapon();
 	void					NextBestWeapon();
 	void					PrevWeapon();
@@ -556,29 +556,29 @@ public:
 	void					StealWeapon( idPlayer *player );
 	void					AddProjectilesFired( int count );
 	void					AddProjectileHits( int count );
-	void					SetLastHitTime( int time );
-	void					LowerWeapon();
-	void					RaiseWeapon();
+	void					SetLastHitTime( const ID_TIME_T time );
+	void					LowerWeapon() const;
+	void					RaiseWeapon() const;
 	void					WeaponLoweringCallback();
 	void					WeaponRisingCallback();
 	void					RemoveWeapon( const char *weap );
 	void					RemoveAllButEssentialWeapons();
-	bool					CanShowWeaponViewmodel() const;
+	static bool					CanShowWeaponViewmodel();
 
 	void					AddAIKill();
 	void					SetSoulCubeProjectile( idProjectile *projectile );
 
 	void					AdjustHeartRate( int target, float timeInSecs, float delay, bool force );
 	void					SetCurrentHeartRate();
-	int						GetBaseHeartRate();
+	int						GetBaseHeartRate() const;
 	void					UpdateAir();
 
 	void					UpdatePowerupHud();
 
-	virtual bool			HandleSingleGuiCommand( idEntity *entityGui, idLexer *src );
+	bool			HandleSingleGuiCommand( idEntity *entityGui, idLexer *src ) override;
 	bool					GuiActive() { return focusGUIent != nullptr; }
 
-	bool					HandleGuiEvents( const sysEvent_t * ev );
+	bool					HandleGuiEvents( const sysEvent_t * ev ) const;
 	void					PerformImpulse( int impulse );
 	void					Spectate( bool spectate, bool force = false );
 	void					TogglePDA();
@@ -597,25 +597,25 @@ public:
 	void					UpdateHudWeapon( bool flashWeapon = true );
 	void					UpdateChattingHud();
 	void					UpdateHudStats( idMenuHandler_HUD * hudManager );
-	void					Event_StopAudioLog();
-	bool					IsSoundChannelPlaying( const s_channelType channel = SND_CHANNEL_ANY );
+	static void					Event_StopAudioLog();
+	bool					IsSoundChannelPlaying( const s_channelType channel = SND_CHANNEL_ANY ) const;
 	void					ShowTip( const char *title, const char *tip, bool autoHide );
 	void					HideTip();
 	bool					IsTipVisible() { return tipUp; };
 	void					HideObjective();
 
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 	void					WritePlayerStateToSnapshot( idBitMsg &msg ) const;
 	void					ReadPlayerStateFromSnapshot( const idBitMsg &msg );
 
-	virtual bool			ServerReceiveEvent( int event, int time, const idBitMsg &msg );
+	bool			ServerReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
-	virtual bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis );
-	virtual bool			GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis );
+	bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis ) override;
+	bool			GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis ) override;
 
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 	bool					IsRespawning();
 	bool					IsInTeleport();
 
@@ -635,17 +635,17 @@ public:
 
 	void					UpdateSkinSetup();
 
-	bool					OnLadder() const;
+	bool					OnLadder() const override;
 
 	virtual	void			UpdatePlayerIcons();
 	virtual	void			DrawPlayerIcons();
 	virtual	void			HidePlayerIcons();
-	bool					NeedsIcon();
+	bool					NeedsIcon() const;
 
 	void					StartHealthRecharge(int speed);
 	void					StopHealthRecharge();
 
-	idStr					GetCurrentWeapon();
+	idStr					GetCurrentWeapon() const;
 	int						GetCurrentWeaponSlot() { return currentWeapon; }
 	int						GetIdealWeapon() { return idealWeapon.Get(); }
 	idHashTable<WeaponToggle_t>	GetWeaponToggles() const { return weaponToggles; }
@@ -657,7 +657,7 @@ public:
 
 	void					DropFlag();	// drop CTF item
 	void					ReturnFlag();
-	virtual void			FreeModelDef();
+	void			FreeModelDef() override;
 
 	bool					SelfSmooth();
 	void					SetSelfSmooth( bool b );
@@ -675,8 +675,8 @@ public:
 	int						GetClientFireCount() const { return clientFireCount; }
 	void					IncrementFireCount() { ++clientFireCount; }
 	
-	void					ShowRespawnHudMessage();
-	void					HideRespawnHudMessage();
+	void					ShowRespawnHudMessage() const;
+	void					HideRespawnHudMessage() const;
 
 	bool					IsLocallyControlled() const { return entityNumber == gameLocal.GetLocalClientNum(); }
 
@@ -820,13 +820,13 @@ private:
 	void					Weapon_GUI();
 	void					UpdateWeapon();
 	void					UpdateFlashlight();
-	void					FlashlightOn();
-	void					FlashlightOff();
+	void					FlashlightOn() const;
+	void					FlashlightOff() const;
 	void					UpdateSpectating();
 	void					SpectateFreeFly( bool force );	// ignore the timeout to force when followed spec is no longer valid
 	void					SpectateCycle();
-	idAngles				GunTurningOffset();
-	idVec3					GunAcceleratingOffset();
+	idAngles				GunTurningOffset() const;
+	idVec3					GunAcceleratingOffset() const;
 
 	void					UseObjects();
 	void					CrashLand( const idVec3 &oldOrigin, const idVec3 &oldVelocity );
@@ -844,46 +844,46 @@ private:
 	void					UpdateDeathSkin( bool state_hitch );
 	void					ClearPowerup( int i );
 	void					SetSpectateOrigin();
-	bool					AllowClientAuthPhysics();
-	virtual int				GetPhysicsTimeStep() const;
+	bool					AllowClientAuthPhysics() const;
+	int				GetPhysicsTimeStep() const override;
 
 	void					ClearFocus();
 	void					UpdateFocus();
 	void					UpdateLocation();
-	idUserInterface *		ActiveGui();
+	idUserInterface *		ActiveGui() const;
 
 	// mp
 	void					Respawn_Shared();
 
-	bool					WeaponAvailable( const char* name );
+	bool					WeaponAvailable( const char* name ) const;
 
 	void					UseVehicle();
 
-	void					Event_GetButtons();
-	void					Event_GetMove();
+	void					Event_GetButtons() const;
+	void					Event_GetMove() const;
 	void					Event_GetViewAngles();
 	void					Event_StopFxFov();
 	void					Event_EnableWeapon();	
 	void					Event_DisableWeapon();
-	void					Event_GetCurrentWeapon();
-	void					Event_GetPreviousWeapon();
+	void					Event_GetCurrentWeapon() const;
+	void					Event_GetPreviousWeapon() const;
 	void					Event_SelectWeapon( const char *weaponName );
-	void					Event_GetWeaponEntity();
+	void					Event_GetWeaponEntity() const;
 	void					Event_OpenPDA();
 	void					Event_PDAAvailable();
-	void					Event_InPDA();
+	void					Event_InPDA() const;
 	void					Event_ExitTeleporter();
 	void					Event_HideTip();
 	void					Event_LevelTrigger();
-	void					Event_Gibbed();
+	static void					Event_Gibbed();
 	void					Event_ForceOrigin( idVec3 & origin, idAngles & angles );
 	void					Event_GiveInventoryItem( const char* name );
 	void					Event_RemoveInventoryItem( const char* name );
 
-	void					Event_GetIdealWeapon();
+	void					Event_GetIdealWeapon() const;
 	void					Event_WeaponAvailable( const char* name );
-	void					Event_SetPowerupTime( int powerup, int time );
-	void					Event_IsPowerupActive( int powerup );
+	void					Event_SetPowerupTime( int powerup, const ID_TIME_T time );
+	void					Event_IsPowerupActive( int powerup ) const;
 	void					Event_StartWarp();
 	void					Event_StopHelltime( int mode );
 	void					Event_ToggleBloom( int on );

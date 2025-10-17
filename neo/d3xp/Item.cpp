@@ -486,7 +486,7 @@ void idItem::ReadFromSnapshot( const idBitMsg &msg ) {
 idItem::ClientReceiveEvent
 ================
 */
-bool idItem::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idItem::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_RESPAWN: {
@@ -884,7 +884,7 @@ bool idItemTeam::Pickup( idPlayer *player ) {
 idItemTeam::ClientReceiveEvent
 ===============
 */
-bool idItemTeam::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idItemTeam::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
     gameLocal.DPrintf("ClientRecieveEvent: %i\n", event );
 
 	switch ( event ) {

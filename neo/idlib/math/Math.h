@@ -641,15 +641,13 @@ public:
 	static int					ILog2( float f );			// integral base-2 logarithm of the floating point value
 	static int					ILog2( int i );				// integral base-2 logarithm of the integer value
 
-	static int					BitsForFloat( float f );	// minimum number of bits required to represent ceil( f )
-	static int					BitsForInteger( const int i );	// minimum number of bits required to represent i
-	static int					BitsForInteger( const int64 i);	// minimum number of bits required to represent i
+	static size_t				BitsForFloat( const std::floating_point auto f );	// minimum number of bits required to represent ceil( f )
+	static size_t				BitsForInteger( const std::integral auto i );	// minimum number of bits required to represent i
 	static int					MaskForFloatSign( float f );// returns 0x00000000 if x >= 0.0f and returns 0xFFFFFFFF if x <= -0.0f
 	static int					MaskForIntegerSign( int i );// returns 0x00000000 if x >= 0 and returns 0xFFFFFFFF if x < 0
-	static int					FloorPowerOfTwo( int x );	// round x down to the nearest power of 2
-	static int					CeilPowerOfTwo( int x );	// round x up to the nearest power of 2
-	template <class T>
-	static constexpr bool       IsPowerOfTwo(T v) noexcept; // returns true if x is a power of 2
+	static auto					FloorPowerOfTwo(const Numeric auto v) noexcept;	// round v down to the nearest power of 2
+	static auto					CeilPowerOfTwo(const Numeric auto v) noexcept;	// round v up to the nearest power of 2
+	static constexpr bool       IsPowerOfTwo( const Numeric auto v ) noexcept; // returns true if v is a power of 2
 	static int					BitCount( int x );			// returns the number of 1 bits in x
 	static int					BitReverse( int x );		// returns the bit reverse of x
 
@@ -1329,8 +1327,43 @@ ID_INLINE int idMath::ILog2(const int i ) {
 idMath::BitsForFloat
 ========================
 */
-ID_INLINE int idMath::BitsForFloat(const float f ) {
-	return ILog2( f ) + 1;
+
+ID_INLINE size_t idMath::BitsForFloat( const std::floating_point auto f ) {
+	//return ILog2( f ) + 1;
+
+	// Minimal number of bits of a *signed* two's-complement integer type
+	// required to represent `f` after rounding it away from zero.
+	// Returns 1 for 0, 0 for NaN/inf (you can choose a different policy).
+
+	if (!std::isfinite(f))
+	{
+		return 0;
+	}
+
+	const auto absVal  = std::fabs(f);
+
+	if (absVal == 0)
+	{
+		return 1;
+	}
+
+	// Round magnitude away from zero
+	const auto rounded = std::ceil(absVal);
+
+	long double log2v = 0.0;
+
+	// compute base-2 logarithm and derive bit width directly in log domain
+	if (f < 0) {
+		// negative values: need ceil(log2(|x|)) + 1 bits (sign included)
+		log2v = std::log2(rounded);
+	}
+	else {
+		// positive values: need ceil(log2(|x| + 1)) + 1 bits
+		// (+1 ensures we can represent +x even at exact powers of two)
+		log2v = std::log2(rounded + 1.0L);
+	}
+
+	return static_cast<size_t>(std::ceil(log2v)) + 1u;
 }
 
 /*
@@ -1338,12 +1371,23 @@ ID_INLINE int idMath::BitsForFloat(const float f ) {
 idMath::BitsForInteger
 ========================
 */
-ID_INLINE int idMath::BitsForInteger( const int i ) {
-	return ILog2( Itof<float>(i) ) + 1;
-}
+ID_INLINE size_t idMath::BitsForInteger( const std::integral auto i ) {
+	//return ILog2( Itof<float>(i) ) + 1;
 
-ID_INLINE int idMath::BitsForInteger( const int64 i ) {
-	return ILog2( Itof<float>(i)) + 1;
+	using T = decltype(i);
+	using U = std::make_unsigned_t<T>;
+
+	if constexpr (std::is_signed_v<T>) {
+		if (i < 0) {
+			return std::bit_width(static_cast<U>(~i)) + 1u; // two's complement
+		}
+		else {
+			return i == 0 ? 1u : std::bit_width(static_cast<U>(i));
+		}
+	}
+	else {
+		return i == 0 ? 1u : std::bit_width(static_cast<U>(i));
+	}
 }
 
 /*
@@ -1369,14 +1413,74 @@ ID_INLINE int idMath::MaskForIntegerSign(const int i ) {
 idMath::FloorPowerOfTwo
 ========================
 */
-ID_INLINE int idMath::FloorPowerOfTwo( int x ) {
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	x++;
-	return x >> 1;
+ID_INLINE auto idMath::FloorPowerOfTwo(const Numeric auto v) noexcept {
+	/*
+	 	x |= x >> 1;
+		x |= x >> 2;
+		x |= x >> 4;
+		x |= x >> 8;
+		x |= x >> 16;
+		x++;
+		return x >> 1;
+	*/
+
+	// Returns largest power of two <= v.
+	// Integral inputs -> unsigned counterpart type; floating -> int64.
+	// On overflow/invalid -> 0.
+
+	using D = std::remove_cv_t<decltype(v)>;
+	constexpr bool is_int = std::is_integral_v<D>;
+	constexpr bool is_fp = std::is_floating_point_v<D>;
+
+	// -------- Integral path --------
+	if constexpr (is_int) {
+		using U = std::conditional_t<std::is_signed_v<D>, std::make_unsigned_t<D>, D>;
+		if constexpr (std::is_same_v<D, bool>) {
+			return static_cast<U>(v ? 1 : 0);
+		}
+		else {
+			if (v <= 0)
+			{
+				return static_cast<U>(0);
+			}
+			const U u = static_cast<U>(v);
+			// bit_width(u) == floor(log2(u)) + 1 for u>0
+			const int bw = std::bit_width(u);
+			return U(1) << (bw - 1);
+		}
+	}
+
+	// -------- Floating path --------
+	if constexpr (is_fp) {
+		// Reject non-positive or non-finite
+		if (!(v > D(0)) || !std::isfinite(static_cast<long double>(v)))
+		{
+			return uint64{ 0 };
+		}
+
+		// Quick small/large cutoffs
+		if (v < D(1))
+		{
+			return uint64{ 0 }; // floor power-of-two < 1 is 0 for integer return
+		}
+
+		// Use frexp: v = m * 2^e with 0.5 <= m < 1
+		int e = 0;
+		const auto m = std::frexp(v, &e);
+
+		// For v >= 1, floor power is 2^(e-1) (and equals v if v is exact power-of-two)
+		const int shift = e - 1;
+
+		if (shift < 0 || shift >= 64)
+		{
+			return uint64{ 0 }; // overflow or underflow
+		}
+
+		return uint64{ 1 } << shift;
+	}
+
+	// Not reachable, but keeps compilers happy on exotic types
+	return 0u;
 }
 
 /*
@@ -1384,15 +1488,82 @@ ID_INLINE int idMath::FloorPowerOfTwo( int x ) {
 idMath::CeilPowerOfTwo
 ========================
 */
-ID_INLINE int idMath::CeilPowerOfTwo( int x ) {
-	x--;
+ID_INLINE auto idMath::CeilPowerOfTwo( const Numeric auto v ) noexcept {
+/*	x--;
 	x |= x >> 1;
 	x |= x >> 2;
 	x |= x >> 4;
 	x |= x >> 8;
 	x |= x >> 16;
 	x++;
-	return x;
+	return x;*/
+
+	// Returns smallest power of two >= v.
+	// Integral inputs -> unsigned counterpart type; floating -> uint64.
+	// On overflow/invalid -> 0.
+
+	using D = std::remove_cv_t<decltype(v)>;
+	constexpr bool is_int = std::is_integral_v<D>;
+	constexpr bool is_fp = std::is_floating_point_v<D>;
+
+	// -------- Integral path --------
+	if constexpr (is_int) {
+		using U = std::conditional_t<std::is_signed_v<D>, std::make_unsigned_t<D>, D>;
+		if constexpr (std::is_same_v<D, bool>) {
+			// ceil_pow2(false)=0, ceil_pow2(true)=1
+			return static_cast<U>(v ? 1 : 0);
+		}
+		else {
+			if (v <= 0)
+			{
+				return static_cast<U>(0);
+			}
+			const U u = static_cast<U>(v);
+			if (u <= U(1))
+			{
+				return u;
+			}
+
+			// Next power of two: 1 << bit_width(u-1)
+			const int bw = std::bit_width(static_cast<U>(u - U{ 1 }));
+
+			// Overflow if target shift >= number of value bits
+			if (bw >= std::numeric_limits<U>::digits)
+			{
+				return static_cast<U>(0);
+			}
+
+			return U(1) << bw;
+		}
+	}
+
+	// -------- Floating path --------
+	if constexpr (is_fp) {
+		if (!(v > D(0)) || !std::isfinite(static_cast<long double>(v)))
+		{
+			return uint64{ 0 };
+		}
+		if (v <= D(1))
+		{
+			return uint64{ 1 };
+		}
+
+		int e = 0;
+		const auto m = std::frexp(v, &e);  // v = m * 2^e, 0.5 <= m < 1
+
+		// If v is exactly a power of two, frexp gives m==0.5 and e==k+1.
+		const bool is_exact_pow2 = std::equal_to<>{}(m, decltype(m){0.5});
+		const int target_shift = is_exact_pow2 ? (e - 1) : e;
+
+		if (target_shift < 0 || target_shift >= 64)
+		{
+			return uint64_t{ 0 }; // overflow/underflow
+		}
+
+		return uint64_t{ 1 } << target_shift;
+	}
+
+	return 0u;
 }
 
 /*
@@ -1400,29 +1571,28 @@ ID_INLINE int idMath::CeilPowerOfTwo( int x ) {
 idMath::IsPowerOfTwo
 ========================
 */
-template <class T>
-ID_INLINE constexpr bool idMath::IsPowerOfTwo(T v) noexcept {
-	using D = std::remove_cv_t<T>;
+// Monolithic power-of-two check (integral + floating)
+ID_INLINE constexpr bool idMath::IsPowerOfTwo( const Numeric auto v ) noexcept {
+	using D = std::remove_cv_t<decltype(v)>;
 
-	// --- classify types (robust to buggy stdlib trait behavior) ---
+	// Be robust to quirky trait behavior; explicitly include these common types
 	constexpr bool is_integral_like =
 		std::is_integral_v<D> ||
-		std::is_same_v<D, int64> ||
-		std::is_same_v<D, uint64> ||
-		std::is_same_v<D, size_t>;
+		std::is_same_v<D, std::int64_t> ||
+		std::is_same_v<D, std::uint64_t> ||
+		std::is_same_v<D, std::size_t>;
 
 	constexpr bool is_float_like =
 		std::is_floating_point_v<D> ||
 		std::is_same_v<D, long double>;
 
 	static_assert(is_integral_like || is_float_like,
-		"IsPowerOfTwo<T>: T must be an integer or floating-point type");
+		"IsPowerOfTwo: Numeric must be an integer or floating type");
 
 	// ========================= INTEGRAL PATH =========================
 	if constexpr (is_integral_like && !is_float_like) {
-		// Handle bool explicitly: true == 1 is a power of two
 		if constexpr (std::is_same_v<D, bool>) {
-			return v;
+			return v; // only true (1) is a power of two
 		}
 		else if constexpr (std::is_signed_v<D>) {
 			if (v <= 0)
@@ -1430,52 +1600,47 @@ ID_INLINE constexpr bool idMath::IsPowerOfTwo(T v) noexcept {
 				return false;
 			}
 			using U = std::make_unsigned_t<D>;
-			U u = static_cast<U>(v);
+			const U u = static_cast<U>(v);
 			return (u & (u - U{ 1 })) == U{ 0 };
 		}
 		else {
-			// Unsigned (covers size_t, uint64_t, etc.)
 			if (v == 0)
 			{
 				return false;
 			}
-			using U = D;
-			return (v & (v - U{ 1 })) == U{ 0 };
+			return (v & (v - D{ 1 })) == D{ 0 };
 		}
 	}
 
 	// ======================= FLOATING-POINT PATH =====================
-	// Common fast rejects first
+	// Fast rejects
 	if (!(v > D(0)) || !std::isfinite(static_cast<long double>(v)))
 	{
 		return false;
 	}
 
-	// IEEE-754 fast paths for float and double using bit patterns
 	if constexpr (std::is_same_v<D, float>) {
-		const uint32 u = std::bit_cast<uint32>(v);
-		constexpr uint32 EXP = 0x7F80'0000u;
-		constexpr uint32 MAN = 0x007F'FFFFu;
-		const uint32 exp = u & EXP;
-		const uint32 man = u & MAN;
-		// normalized: mantissa==0; subnormal: exactly one bit in mantissa
-		return (exp ? (man == 0u) : (man != 0u && (man & (man - 1u)) == 0u));
+		const std::uint32_t u = std::bit_cast<std::uint32_t>(v);
+		constexpr std::uint32_t EXP = 0x7F80'0000u;
+		constexpr std::uint32_t MAN = 0x007F'FFFFu;
+		const std::uint32_t exp = u & EXP;
+		const std::uint32_t man = u & MAN;
+		// normalized: mantissa==0; subnormal: mantissa has exactly one bit
+		return exp ? (man == 0u) : (man != 0u && (man & (man - 1u)) == 0u);
 	}
 	else if constexpr (std::is_same_v<D, double>) {
-		const uint64 u = std::bit_cast<uint64>(v);
-		constexpr uint64 EXP = 0x7FF0'0000'0000'0000ull;
-		constexpr uint64 MAN = 0x000F'FFFF'FFFF'FFFFull;
-		const uint64 exp = u & EXP;
-		const uint64 man = u & MAN;
-		return (exp ? (man == 0ull) : (man != 0ull && (man & (man - 1ull)) == 0ull));
+		const std::uint64_t u = std::bit_cast<std::uint64_t>(v);
+		constexpr std::uint64_t EXP = 0x7FF0'0000'0000'0000ull;
+		constexpr std::uint64_t MAN = 0x000F'FFFF'FFFF'FFFFull;
+		const std::uint64_t exp = u & EXP;
+		const std::uint64_t man = u & MAN;
+		return exp ? (man == 0ull) : (man != 0ull && (man & (man - 1ull)) == 0ull);
 	}
 	else {
-		// Portable fallback (covers long double and others):
-		// x is a power of two iff frexp(x,&e) returns mantissa exactly 0.5
+		// Portable fallback: power of two iff frexp mantissa is exactly 0.5
 		int e = 0;
-		const auto m = std::frexp(v, &e);       // m is float/double/long double as appropriate, v == m * 2^e, with 0.5 <= m < 1
-		using MantissaT = decltype(m);
-		return std::equal_to<MantissaT>()(m, MantissaT{ 0.5 });
+		const auto m = std::frexp(v, &e);                    // v == m * 2^e, 0.5 <= m < 1
+		return std::equal_to<>{}(m, decltype(m){0.5});       // avoids float-== warning
 	}
 }
 

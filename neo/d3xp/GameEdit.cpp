@@ -195,8 +195,8 @@ void idDragEntity::Update( idPlayer *player ) {
 						newEnt = newEnt->GetBindMaster();
 					}
 
-					if ( newEnt->IsType( idAFEntity_Base::Type ) && static_cast<idAFEntity_Base *>(newEnt)->IsActiveAF() ) {
-						idAFEntity_Base *af = static_cast<idAFEntity_Base *>(newEnt);
+					if ( newEnt->IsType( idAFEntity_Base::Type ) && dynamic_cast<idAFEntity_Base *>(newEnt)->IsActiveAF() ) {
+						idAFEntity_Base *af = dynamic_cast<idAFEntity_Base *>(newEnt);
 
 						// joint being dragged
 						newJoint = CLIPMODEL_ID_TO_JOINT_HANDLE( trace.c.id );
@@ -322,7 +322,7 @@ void idDragEntity::BindSelected() {
 	const idKeyValue *kv;
 	idAFEntity_Base *af;
 
-	af = static_cast<idAFEntity_Base *>(dragEnt.GetEntity());
+	af = dynamic_cast<idAFEntity_Base *>(dragEnt.GetEntity());
 
 	if ( !af || !af->IsType( idAFEntity_Base::Type ) || !af->IsActiveAF() ) {
 		return;
@@ -374,7 +374,7 @@ void idDragEntity::UnbindSelected() {
 	const idKeyValue *kv;
 	idAFEntity_Base *af;
 
-	af = static_cast<idAFEntity_Base *>(selected.GetEntity());
+	af = dynamic_cast<idAFEntity_Base *>(selected.GetEntity());
 
 	if ( !af || !af->IsType( idAFEntity_Base::Type ) || !af->IsActiveAF() ) {
 		return;
@@ -602,7 +602,7 @@ void idEditEntities::DisplayEntities() {
 
 		bool drawArrows = false;
 		if ( ent->GetType() == &idAFEntity_Base::Type ) {
-			if ( !static_cast<idAFEntity_Base *>(ent)->IsActiveAF() ) {
+			if ( !dynamic_cast<idAFEntity_Base *>(ent)->IsActiveAF() ) {
 				continue;
 			}
 		} else if ( ent->GetType() == &idSound::Type ) {

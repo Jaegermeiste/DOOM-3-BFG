@@ -174,13 +174,13 @@ class FullscreenFX_Helltime : public FullscreenFX {
 	int						DetermineLevel();
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
-	virtual void			AccumPass( const renderView_t *view );
-	virtual bool			HasAccum()		{ return true; };
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
+	void			AccumPass( const renderView_t *view ) override;
+	bool			HasAccum() override { return true; };
 
-	virtual void			Restore( idRestoreGame *savefile );
+	void			Restore( idRestoreGame *savefile ) override;
 };
 
 /*
@@ -197,13 +197,13 @@ class FullscreenFX_Multiplayer : public FullscreenFX {
 	int						DetermineLevel();
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
-	virtual void			AccumPass( const renderView_t *view );
-	virtual bool			HasAccum()		{ return true; };
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
+	void			AccumPass( const renderView_t *view ) override;
+	bool			HasAccum() override { return true; };
 
-	virtual void			Restore( idRestoreGame *savefile );
+	void			Restore( idRestoreGame *savefile ) override;
 };
 
 /*
@@ -219,14 +219,14 @@ class FullscreenFX_Warp : public FullscreenFX {
 	void					DrawWarp( WarpPolygon_t wp, float interp );
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
 
 	void					EnableGrabber( bool active )			{ grabberEnabled = active; startWarpTime = gameLocal.slow.time; };
 
-	virtual void			Save( idSaveGame *savefile );
-	virtual void			Restore( idRestoreGame *savefile );
+	void			Save( idSaveGame *savefile ) override;
+	void			Restore( idRestoreGame *savefile ) override;
 };
 
 /*
@@ -238,9 +238,9 @@ class FullscreenFX_EnviroSuit : public FullscreenFX {
 	const idMaterial*		material;
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
 };
 
 /*
@@ -252,9 +252,9 @@ class FullscreenFX_DoubleVision : public FullscreenFX {
 	const idMaterial*		material;
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
 };
 
 /*
@@ -265,9 +265,9 @@ FullscreenFX_InfluenceVision
 class FullscreenFX_InfluenceVision : public FullscreenFX {
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
 };
 
 /*
@@ -283,12 +283,12 @@ class FullscreenFX_Bloom : public FullscreenFX {
 	float					targetIntensity;
 
 public:
-	virtual void			Initialize();
-	virtual bool			Active();
-	virtual void			HighQuality();
+	void			Initialize() override;
+	bool			Active() override;
+	void			HighQuality() override;
 
-	virtual void			Save( idSaveGame *savefile );
-	virtual void			Restore( idRestoreGame *savefile );
+	void			Save( idSaveGame *savefile ) override;
+	void			Restore( idRestoreGame *savefile ) override;
 };
 
 
@@ -362,9 +362,9 @@ public:
 	void				RenderPlayerView( idMenuHandler_HUD * hudManager );
 	void				EmitStereoEyeView( const int eye, idMenuHandler_HUD * hudManager );
 
-	void				Fade( idVec4 color, int time );
+	void				Fade( idVec4 color, const ID_TIME_T time );
 
-	void				Flash( idVec4 color, int time );
+	void				Flash( idVec4 color, const ID_TIME_T time );
 
 	// temp for view testing
 	void				EnableBFGVision( bool b ) { bfgVision = b; };

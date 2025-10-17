@@ -44,7 +44,7 @@ public :
 	CLASS_PROTOTYPE( idProjectile );
 
 							idProjectile();
-	virtual					~idProjectile();
+	~idProjectile() override;
 
 	void					Spawn();
 
@@ -53,7 +53,7 @@ public :
 
 	void					Create( idEntity *owner, const idVec3 &start, const idVec3 &dir );
 	virtual void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f );
-	virtual void			FreeLightDef();
+	void			FreeLightDef() override;
 
 	idEntity *				GetOwner() const;
 	void					CatchProjectile( idEntity* o, const char* reflectName );
@@ -62,9 +62,9 @@ public :
 	void					Event_LaunchProjectile( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity );
 	void					Event_SetGravity( float gravity );
 
-	virtual void			Think();
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
+	void			Think() override;
+	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
 	virtual void			Explode( const trace_t &collision, idEntity *ignore );
 	void					Fizzle();
 
@@ -81,11 +81,11 @@ public :
 
 	static void				DefaultDamageEffect( idEntity *soundEnt, const idDict &projectileDef, const trace_t &collision, const idVec3 &velocity );
 	static bool				ClientPredictionCollide( idEntity *soundEnt, const idDict &projectileDef, const trace_t &collision, const idVec3 &velocity, bool addDamageEffect );
-	virtual void			ClientPredictionThink();
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	void			ClientPredictionThink() override;
+	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
+	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 	void					QueueToSimulate( int startTime );
 	virtual void			SimulateProjectileFrame( int msec, int endTime );
@@ -167,14 +167,14 @@ public :
 	CLASS_PROTOTYPE( idGuidedProjectile );
 
 							idGuidedProjectile();
-							~idGuidedProjectile();
+							~idGuidedProjectile() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual void			Think();
-	virtual void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f );
+	void			Think() override;
+	void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f ) override;
 	void					SetEnemy( idEntity *ent );
 	void					Event_SetEnemy(idEntity *ent);
 
@@ -199,16 +199,16 @@ private:
 class idSoulCubeMissile : public idGuidedProjectile {
 public:
 	CLASS_PROTOTYPE ( idSoulCubeMissile );
-	~idSoulCubeMissile();
+	~idSoulCubeMissile() override;
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual void			Think();
-	virtual void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float power = 1.0f, const float dmgPower = 1.0f );
+	void			Think() override;
+	void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float power = 1.0f, const float dmgPower = 1.0f ) override;
 
 protected:
-	virtual void			GetSeekPos( idVec3 &out );
+	void			GetSeekPos( idVec3 &out ) override;
 	void					ReturnToOwner();
 	void					KillTarget( const idVec3 &dir );
 
@@ -237,15 +237,15 @@ public :
 	CLASS_PROTOTYPE( idBFGProjectile );
 
 							idBFGProjectile();
-							~idBFGProjectile();
+							~idBFGProjectile() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual void			Think();
-	virtual void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f );
-	virtual void			Explode( const trace_t &collision, idEntity *ignore );
+	void			Think() override;
+	void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f ) override;
+	void			Explode( const trace_t &collision, idEntity *ignore ) override;
 
 private:
 	idList<beamTarget_t, TAG_PROJECTILE>	beamTargets;
@@ -264,14 +264,14 @@ public :
 	CLASS_PROTOTYPE( idHomingProjectile );
 
 	idHomingProjectile();
-	~idHomingProjectile();
+	~idHomingProjectile() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual void			Think();
-	virtual void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f );
+	void			Think() override;
+	void			Launch( const idVec3 &start, const idVec3 &dir, const idVec3 &pushVelocity, const float timeSinceFire = 0.0f, const float launchPower = 1.0f, const float dmgPower = 1.0f ) override;
 	void					SetEnemy( idEntity *ent );
 	void					SetSeekPos( idVec3 pos );
 	void					Event_SetEnemy(idEntity *ent);
@@ -307,7 +307,7 @@ public :
 	CLASS_PROTOTYPE( idDebris );
 
 							idDebris();
-							~idDebris();
+							~idDebris() override;
 
 	// save games
 	void					Save( idSaveGame *savefile ) const;					// archives object for save game file
@@ -317,11 +317,11 @@ public :
 
 	void					Create( idEntity *owner, const idVec3 &start, const idMat3 &axis );
 	void					Launch();
-	void					Think();
-	void					Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	void					Think() override;
+	void					Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 	void					Explode();
 	void					Fizzle();
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
 
 
 private:

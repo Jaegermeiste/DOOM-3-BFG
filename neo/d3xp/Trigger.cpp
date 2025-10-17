@@ -89,7 +89,7 @@ void idTrigger::DrawDebugInfo() {
 				gameRenderWorld->DrawText( ent->name.c_str(), ent->GetPhysics()->GetAbsBounds().GetCenter(), 0.1f, colorWhite, axis, 1 );
 				gameRenderWorld->DrawText( ent->GetEntityDefName(), ent->GetPhysics()->GetAbsBounds().GetCenter() + up, 0.1f, colorWhite, axis, 1 );
 				if ( ent->IsType( idTrigger::Type ) ) {
-					func = static_cast<idTrigger *>( ent )->GetScriptFunction();
+					func = dynamic_cast<idTrigger *>( ent )->GetScriptFunction();
 				} else {
 					func = nullptr;
 				}
@@ -374,7 +374,7 @@ bool idTrigger_Multi::CheckFacing( idEntity *activator ) {
 		if ( !activator->IsType( idPlayer::Type ) ) {
 			return true;
 		}
-		idPlayer *player = static_cast< idPlayer* >( activator );
+		idPlayer *player = dynamic_cast< idPlayer* >( activator );
 		float dot = player->viewAngles.ToForward() * GetPhysics()->GetAxis()[0];
 		float angle = RAD2DEG( idMath::ACos( dot ) );
 		if ( angle  > spawnArgs.GetFloat( "angleLimit", "30" ) ) {
@@ -476,7 +476,7 @@ void idTrigger_Multi::Event_Touch( idEntity *other, trace_t *trace ) {
 		if ( !touchClient ) {
 			return;
 		}
-		if ( static_cast< idPlayer * >( other )->spectating ) {
+		if (dynamic_cast< idPlayer * >( other )->spectating ) {
 			return;
 		}
 	} else if ( !touchOther ) {
@@ -1292,7 +1292,7 @@ void idTrigger_Flag::Event_Touch( idEntity *other, trace_t *trace ) {
 		if ( !other->IsType( idPlayer::Type ) )
 			return;
 
-		idPlayer * player = static_cast<idPlayer *>(other);
+		idPlayer * player = dynamic_cast<idPlayer *>(other);
 		if ( player->carryingFlag == false )
 			return;
 
@@ -1319,7 +1319,7 @@ void idTrigger_Flag::Event_Touch( idEntity *other, trace_t *trace ) {
 		if ( !other->IsType( idItemTeam::Type ) )
 			return;
 
-		idItemTeam * item = static_cast<idItemTeam *>( other );
+		idItemTeam * item = dynamic_cast<idItemTeam *>( other );
 
 		if ( item->team == team || team == -1 ) {
 			flag = item;

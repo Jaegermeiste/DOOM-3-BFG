@@ -142,7 +142,8 @@ void idMenuScreen_HUD::ShowScreen( const mainMenuTransition_t transitionType ) {
 		  screen( _screen ) {
 		  }
 
-		  idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		  idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		  {
 
 			  if ( screen == nullptr) {
 				  return idSWFScriptVar();
@@ -1914,7 +1915,8 @@ void idMenuScreen_HUD::UpdateChattingHud( idPlayer * player ) {
 						player = _player;
 						text = _text;
 					}
-					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+					{
 						if ( !player || !text ) {
 							return idSWFScriptVar();
 						}
@@ -1943,7 +1945,8 @@ void idMenuScreen_HUD::UpdateChattingHud( idPlayer * player ) {
 					idCancelTextChat( idPlayer * _player ) {
 						player = _player;
 					}
-					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+					idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+					{
 						if ( !player ) {
 							return idSWFScriptVar();
 						}

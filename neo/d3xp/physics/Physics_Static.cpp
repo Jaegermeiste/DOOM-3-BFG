@@ -242,7 +242,7 @@ const idBounds &idPhysics_Static::GetAbsBounds( int id ) const {
 idPhysics_Static::Evaluate
 ================
 */
-bool idPhysics_Static::Evaluate( int timeStepMSec, int endTimeMSec ) {
+bool idPhysics_Static::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
 	idVec3 masterOrigin, oldOrigin;
 	idMat3 masterAxis, oldAxis;
 

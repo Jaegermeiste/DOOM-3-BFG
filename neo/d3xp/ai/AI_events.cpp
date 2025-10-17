@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 
@@ -352,7 +354,7 @@ void idAI::Event_FindEnemy( int useFOV ) {
 				continue;
 			}
 
-			actor = static_cast<idActor *>( ent );
+			actor = dynamic_cast<idActor *>( ent );
 			if ( ( actor->health <= 0 ) || !( ReactionTo( actor ) & ATTACK_ON_SIGHT ) ) {
 				continue;
 			}
@@ -390,7 +392,7 @@ void idAI::Event_FindEnemyAI( int useFOV ) {
 			continue;
 		}
 
-		actor = static_cast<idActor *>( ent );
+		actor = dynamic_cast<idActor *>( ent );
 		if ( ( actor->health <= 0 ) || !( ReactionTo( actor ) & ATTACK_ON_SIGHT ) ) {
 			continue;
 		}
@@ -436,7 +438,7 @@ void idAI::Event_FindEnemyInCombatNodes() {
 			continue;
 		}
 
-		actor = static_cast<idActor *>( ent );
+		actor = dynamic_cast<idActor *>( ent );
 		if ( ( actor->health <= 0 ) || !( ReactionTo( actor ) & ATTACK_ON_SIGHT ) ) {
 			continue;
 		}
@@ -447,7 +449,7 @@ void idAI::Event_FindEnemyInCombatNodes() {
 				continue;
 			}
 
-			node = static_cast<idCombatNode *>( targetEnt );
+			node = dynamic_cast<idCombatNode *>( targetEnt );
 			if ( !node->IsDisabled() && node->EntityInView( actor, actor->GetPhysics()->GetOrigin() ) ) {
 				idThread::ReturnEntity( actor );
 				return;
@@ -478,7 +480,7 @@ void idAI::Event_ClosestReachableEnemyOfEntity( idEntity *team_mate ) {
 		gameLocal.Error( "Entity '%s' is not an AI character or player", team_mate->GetName() );
 	}
 
-	actor = static_cast<idActor *>( team_mate );
+	actor = dynamic_cast<idActor *>( team_mate );
 
 	const idVec3 &origin = physicsObj.GetOrigin();
 	areaNum = PointReachableAreaNum( origin );
@@ -536,7 +538,7 @@ void idAI::Event_SetEnemy( idEntity *ent ) {
 	} else if ( !ent->IsType( idActor::Type ) ) {
 		gameLocal.Error( "'%s' is not an idActor (player or ai controlled character)", ent->name.c_str() );
 	} else {
-		SetEnemy( static_cast<idActor *>( ent ) );
+		SetEnemy(dynamic_cast<idActor *>( ent ) );
 	}
 }
 
@@ -704,7 +706,7 @@ void idAI::Event_LaunchProjectile( const char *entityDefName ) {
 		clsname = ent->GetClassname();
 		gameLocal.Error( "'%s' is not an idProjectile", clsname );
 	}
-	proj = static_cast<idProjectile*>(ent);
+	proj = dynamic_cast<idProjectile*>(ent);
 
 	GetMuzzle( "pistol", muzzle, axis );
 	proj->Create( this, muzzle, axis[0] );
@@ -1225,7 +1227,7 @@ void idAI::Event_GetCombatNode() {
 					continue;
 				}
 
-				node = static_cast<idCombatNode *>( targetEnt );
+				node = dynamic_cast<idCombatNode *>( targetEnt );
 				if ( !node->IsDisabled() ) {
 					idVec3 org = node->GetPhysics()->GetOrigin();
 					dist = ( playerPos - org ).LengthSqr();
@@ -1254,7 +1256,7 @@ void idAI::Event_GetCombatNode() {
 			continue;
 		}
 
-		node = static_cast<idCombatNode *>( targetEnt );
+		node = dynamic_cast<idCombatNode *>( targetEnt );
 		if ( !node->IsDisabled() && node->EntityInView( enemyEnt, lastVisibleEnemyPos ) ) {
 			idVec3 org = node->GetPhysics()->GetOrigin();
 			dist = ( myPos - org ).LengthSqr();
@@ -1303,7 +1305,7 @@ void idAI::Event_EnemyInCombatCone( idEntity *ent, int use_current_enemy_locatio
 		return;
 	}
 
-	node = static_cast<idCombatNode *>( ent );
+	node = dynamic_cast<idCombatNode *>( ent );
 	if ( use_current_enemy_location ) {
 		const idVec3 &pos = enemyEnt->GetPhysics()->GetOrigin();
 		result = node->EntityInView( enemyEnt, pos );
@@ -1422,7 +1424,7 @@ void idAI::Event_SetTalkTarget( idEntity *target ) {
 	if ( target && !target->IsType( idActor::Type ) ) {
 		gameLocal.Error( "Cannot set talk target to '%s'.  Not a character or player.", target->GetName() );
 	}
-	talkTarget = static_cast<idActor *>( target );
+	talkTarget = dynamic_cast<idActor *>( target );
 	if ( target ) {
 		AI_TALK = true;
 	} else {
@@ -1574,7 +1576,7 @@ void idAI::Event_CanHitEnemy() {
 	if ( tr.fraction >= 1.0f || ( hit == enemyEnt ) ) {
 		lastHitCheckResult = true;
 	} else if ( ( tr.fraction < 1.0f ) && ( hit->IsType( idAI::Type ) ) && 
-		( static_cast<idAI *>( hit )->team != team ) ) {
+		(dynamic_cast<idAI *>( hit )->team != team ) ) {
 		lastHitCheckResult = true;
 	} else {
 		lastHitCheckResult = false;
@@ -1963,7 +1965,7 @@ idAI::Event_SetSmokeVisibility
 */
 void idAI::Event_SetSmokeVisibility( int num, int on ) {
 	int i;
-	int time;
+	const ID_TIME_T time;
 
 	if ( num >= particles.Num() ) {
 		gameLocal.Warning( "Particle #%d out of range (%d particles) on entity '%s'", num, particles.Num(), name.c_str() );
@@ -2666,9 +2668,7 @@ void idAI::Event_AnimTurn( float angles ) {
 	if ( angles ) {
 		anim_turn_yaw = current_yaw;
 		anim_turn_amount = idMath::Fabs( idMath::AngleNormalize180( current_yaw - ideal_yaw ) );
-		if ( anim_turn_amount > anim_turn_angles ) {
-			anim_turn_amount = anim_turn_angles;
-		}
+		anim_turn_amount = std::min(anim_turn_amount, anim_turn_angles);
 	} else {
 		anim_turn_amount = 0.0f;
 		animator.CurrentAnim( ANIMCHANNEL_LEGS )->SetSyncedAnimWeight( 0, 1.0f );
@@ -2759,7 +2759,7 @@ void idAI::Event_CanReachEntity( idEntity *ent ) {
 			idThread::ReturnInt( false );
 			return;
 		}
-		if ( ent->IsType( idActor::Type ) && static_cast<idActor *>( ent )->OnLadder() ) {
+		if ( ent->IsType( idActor::Type ) && dynamic_cast<idActor *>( ent )->OnLadder() ) {
 			idThread::ReturnInt( false );
 			return;
 		}
@@ -2839,7 +2839,7 @@ void idAI::Event_GetReachableEntityPosition( idEntity *ent ) {
 			// NOTE: not a good way to return 'false'
 			return idThread::ReturnVector( vec3_zero );
 		}
-		if ( ent->IsType( idActor::Type ) && static_cast<idActor *>( ent )->OnLadder() ) {
+		if ( ent->IsType( idActor::Type ) && dynamic_cast<idActor *>( ent )->OnLadder() ) {
 			// NOTE: not a good way to return 'false'
 			return idThread::ReturnVector( vec3_zero );
 		}
@@ -2929,7 +2929,7 @@ void idAI::Event_LaunchHomingMissile() {
 //	axis = ( goal - org ).ToMat3();
 //	axis.Identity();
 	if ( !projectile.GetEntity() ) {
-		idHomingProjectile *homing = static_cast<idHomingProjectile*>(CreateProjectile(org, idVec3(0.0f, 0.0f, 1.0f)));
+		idHomingProjectile *homing = dynamic_cast<idHomingProjectile*>(CreateProjectile(org, idVec3(0.0f, 0.0f, 1.0f)));
 		if ( homing != nullptr) {
 			homing->SetEnemy( enemy );
 			homing->SetSeekPos( homingMissileGoal );

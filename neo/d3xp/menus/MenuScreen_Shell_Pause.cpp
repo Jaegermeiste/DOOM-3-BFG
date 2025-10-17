@@ -359,7 +359,8 @@ void idMenuScreen_Shell_Pause::HandleExitGameBtn() {
 			msg = _msg;
 			accept = _accept;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept ) {
 				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "disconnect\n" );
@@ -398,7 +399,8 @@ void idMenuScreen_Shell_Pause::HandleRestartBtn() {
 			msg = _msg;
 			accept = _accept;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept ) {
 				cmdSystem->AppendCommandText( "restartMap\n" );

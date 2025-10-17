@@ -31,6 +31,8 @@ Various utility objects and functions.
 
 */
 
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -116,7 +118,7 @@ void idPlayerStart::Restore( idRestoreGame *savefile ) {
 idPlayerStart::ClientReceiveEvent
 ================
 */
-bool idPlayerStart::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
+bool idPlayerStart::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	int entityNumber;
 
 	switch( event ) {
@@ -147,7 +149,7 @@ void idPlayerStart::Event_TeleportStage( idEntity *_player ) {
 		common->Warning( "idPlayerStart::Event_TeleportStage: entity is not an idPlayer\n" );
 		return;
 	}
-	player = static_cast<idPlayer*>(_player);
+	player = dynamic_cast<idPlayer*>(_player);
 	float teleportDelay = spawnArgs.GetFloat( "teleportDelay" );
 	switch ( teleportStage ) {
 		case 0:
@@ -194,7 +196,7 @@ void idPlayerStart::TeleportPlayer( idPlayer *player ) {
 		// the entity needs to teleport to where the camera view is to have the PVS right
 		player->Teleport( ent->GetPhysics()->GetOrigin(), ang_zero, this );
 		player->StartSound( "snd_teleport_enter", SND_CHANNEL_ANY, 0, false, nullptr);
-		player->SetPrivateCameraView( static_cast<idCamera*>(ent) );
+		player->SetPrivateCameraView(dynamic_cast<idCamera*>(ent) );
 		// the player entity knows where to spawn from the previous Teleport call
 		if ( !common->IsClient() ) {
 			player->PostEventSec( &EV_Player_ExitTeleporter, f );
@@ -219,7 +221,7 @@ void idPlayerStart::Event_TeleportPlayer( idEntity *activator ) {
 	idPlayer *player;
 
 	if ( activator->IsType( idPlayer::Type ) ) {
-		player = static_cast<idPlayer*>( activator );
+		player = dynamic_cast<idPlayer*>( activator );
 	} else {
 		player = gameLocal.GetLocalPlayer();
 	}
@@ -385,7 +387,7 @@ idPathCorner *idPathCorner::RandomPath( const idEntity *source, const idEntity *
 	for( i = 0; i < source->targets.Num(); i++ ) {
 		ent = source->targets[ i ].GetEntity();
 		if ( ent != nullptr && ( ent != ignore ) && ent->IsType( idPathCorner::Type ) ) {
-			path[ num++ ] = static_cast<idPathCorner *>( ent );
+			path[ num++ ] = dynamic_cast<idPathCorner *>( ent );
 			if ( num >= MAX_GENTITIES ) {
 				break;
 			}
@@ -1340,7 +1342,7 @@ void idAnimated::Event_LaunchMissilesUpdate( int launchjoint, int targetjoint, i
 		gameLocal.Error( "idAnimated '%s' at (%s): in 'launchMissiles' call '%s' is not an idProjectile", name.c_str(), GetPhysics()->GetOrigin().ToString(0), projectilename );
 		return;
 	}
-	projectile = static_cast<idProjectile*>(ent);
+	projectile = dynamic_cast<idProjectile*>(ent);
 	projectile->Create( this, launchPos, dir );
 	projectile->Launch( launchPos, dir, vec3_origin );
 
@@ -1807,7 +1809,7 @@ void idFuncShootProjectile::Think() {
 			idEntity *ent = nullptr;
 			gameLocal.SpawnEntityDef( *dict, &ent );
 			if ( ent != nullptr) {
-				idProjectile *proj = static_cast<idProjectile *>(ent);
+				idProjectile *proj = dynamic_cast<idProjectile *>(ent);
 
 				idVec3 pushVel = mShootDir * mShootSpeed;
 				proj->Create( this, GetPhysics()->GetOrigin(), mShootDir );
@@ -2031,7 +2033,7 @@ idFuncSmoke::Spawn
 void idFuncSmoke::Spawn() {
 	const char *smokeName = spawnArgs.GetString( "smoke" );
 	if ( *smokeName != '\0' ) {
-		smoke = static_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
+		smoke = dynamic_cast<const idDeclParticle *>( declManager->FindType( DECL_PARTICLE, smokeName ) );
 	} else {
 		smoke = nullptr;
 	}
@@ -2466,7 +2468,7 @@ void idBeam::Event_MatchTarget() {
 	for( i = 0; i < targets.Num(); i++ ) {
 		targetEnt = targets[ i ].GetEntity();
 		if ( targetEnt != nullptr && targetEnt->IsType( idBeam::Type ) ) {
-			targetBeam = static_cast<idBeam *>( targetEnt );
+			targetBeam = dynamic_cast<idBeam *>( targetEnt );
 			break;
 		}
 	}
@@ -3122,7 +3124,7 @@ idFuncRadioChatter::Event_ResetRadioHud
 ================
 */
 void idFuncRadioChatter::Event_ResetRadioHud( idEntity *activator ) {
-	idPlayer *player = ( activator->IsType( idPlayer::Type ) ) ? static_cast<idPlayer *>( activator ) : gameLocal.GetLocalPlayer();
+	idPlayer *player = ( activator->IsType( idPlayer::Type ) ) ? dynamic_cast<idPlayer *>( activator ) : gameLocal.GetLocalPlayer();
 
 	if ( player != nullptr && player->hudManager ) {
 		player->hudManager->SetRadioMessage( false );
@@ -3229,9 +3231,7 @@ void idPhantomObjects::Spawn() {
 	speed = spawnArgs.GetFloat( "speed", "1200" );
 	shake_time = spawnArgs.GetFloat( "shake_time", "1" );
 	throw_time -= shake_time;
-	if ( throw_time < 0.0f ) {
-		throw_time = 0.0f;
-	}
+	throw_time = std::max(throw_time, 0.0f);
 	min_wait = SEC2MS( spawnArgs.GetFloat( "min_wait", "1" ) );
 	max_wait = SEC2MS( spawnArgs.GetFloat( "max_wait", "3" ) );
 
@@ -3264,7 +3264,7 @@ void idPhantomObjects::Event_Activate( idEntity *activator ) {
 	if ( !activator || !activator->IsType( idActor::Type ) ) {
 		target = gameLocal.GetLocalPlayer();
 	} else {
-		target = static_cast<idActor *>( activator );
+		target = dynamic_cast<idActor *>( activator );
 	}
 	
 	end_time = gameLocal.time + SEC2MS( spawnArgs.GetFloat( "end_time", "0" ) );
@@ -3370,7 +3370,7 @@ void idPhantomObjects::Think() {
 				targetTime[ i ] = gameLocal.time + gameLocal.random.RandomInt( max_wait - min_wait ) + min_wait;
 			}
 			if ( ent->IsType( idMoveable::Type ) ) {
-				idMoveable *ment = static_cast<idMoveable*>( ent );
+				idMoveable *ment = dynamic_cast<idMoveable*>( ent );
 				ment->EnableDamage( true, 2.5f );
 			}
 		} else {
@@ -3567,7 +3567,7 @@ void idShockwave::Think() {
 						if(damageDef.Length() > 0 && !playerDamaged) {
 
 							playerDamaged = true;	//Only damage once per shockwave
-							idPlayer* player = static_cast< idPlayer* >( ent );
+							idPlayer* player = dynamic_cast< idPlayer* >( ent );
 							idVec3 dir = ent->GetPhysics()->GetOrigin() - pos;
 							dir.NormalizeFast();
 							player->Damage(nullptr, nullptr, dir, damageDef, 1.0f, INVALID_JOINT);
@@ -3733,7 +3733,7 @@ idFuncMountedObject::Event_Activate
 */
 void idFuncMountedObject::Event_Activate( idEntity *activator ) {
 	if ( !isMounted && activator->IsType( idPlayer::Type ) ) {
-		idPlayer *client = static_cast<idPlayer*>(activator);
+		idPlayer *client = dynamic_cast<idPlayer*>(activator);
 
 		mountedPlayer = client;
 
@@ -3839,7 +3839,7 @@ void idFuncMountedWeapon::Think() {
 
 			dir = muzzleAxis[0];
 
-			proj = static_cast<idProjectile *>(ent);
+			proj = dynamic_cast<idProjectile *>(ent);
 			proj->Create( this, muzzleOrigin, dir );
 
 			projBounds = proj->GetPhysics()->GetBounds().Rotate( proj->GetPhysics()->GetAxis() );

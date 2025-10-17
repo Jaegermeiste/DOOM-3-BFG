@@ -305,12 +305,12 @@ public:
 class idDeclModelDef : public idDecl {
 public:
 								idDeclModelDef();
-								~idDeclModelDef();
+								~idDeclModelDef() override;
 
-	virtual size_t				Size() const;
-	virtual const char *		DefaultDefinition() const;
+								size_t				Size() const override;
+								const char *		DefaultDefinition() const override;
 	virtual bool				Parse( const char *text, const size_t textLength, bool allowBinaryVersion );
-	virtual void				FreeData();
+								void				FreeData() override;
 
 	void						Touch() const;
 

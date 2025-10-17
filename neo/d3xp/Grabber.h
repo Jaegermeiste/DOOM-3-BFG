@@ -42,7 +42,7 @@ public:
 	CLASS_PROTOTYPE( idGrabber );
 
 							idGrabber();
-							~idGrabber();
+							~idGrabber() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );

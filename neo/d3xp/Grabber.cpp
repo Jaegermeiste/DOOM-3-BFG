@@ -245,7 +245,7 @@ void idGrabber::StartDrag( idEntity *grabEnt, int id ) {
 
 	// Handle specific class types
 	if ( grabEnt->IsType( idProjectile::Type ) ) {
-		idProjectile* p = static_cast<idProjectile*>(grabEnt);
+		idProjectile* p = dynamic_cast<idProjectile*>(grabEnt);
 
 		p->CatchProjectile( thePlayer, "_catch" );
 
@@ -261,7 +261,7 @@ void idGrabber::StartDrag( idEntity *grabEnt, int id ) {
 		grabEnt->GetPhysics()->SetClipMask( CONTENTS_SOLID|CONTENTS_BODY );
 
 	} else if ( grabEnt->IsType( idExplodingBarrel::Type ) ) {
-		idExplodingBarrel *ebarrel = static_cast<idExplodingBarrel*>(grabEnt);
+		idExplodingBarrel *ebarrel = dynamic_cast<idExplodingBarrel*>(grabEnt);
 
 		ebarrel->StartBurning();
 
@@ -270,7 +270,7 @@ void idGrabber::StartDrag( idEntity *grabEnt, int id ) {
 		clipModelId = 0;
 
 		if ( grabbableAI( grabEnt->spawnArgs.GetString( "classname" ) ) ) {
-			idAI *aiEnt = static_cast<idAI*>(grabEnt);
+			idAI *aiEnt = dynamic_cast<idAI*>(grabEnt);
 
 			aiEnt->StartRagdoll();
 		}
@@ -332,11 +332,11 @@ void idGrabber::StopDrag( bool dropOnly ) {
 		ent->timeGroup = TIME_GROUP1;
 
 		if ( holdingAF ) {
-			idAFEntity_Gibbable *af = static_cast<idAFEntity_Gibbable *>(ent);
+			idAFEntity_Gibbable *af = dynamic_cast<idAFEntity_Gibbable *>(ent);
 			idPhysics_AF	*af_Phys = static_cast<idPhysics_AF*>(af->GetPhysics());
 
 			if ( grabbableAI( ent->spawnArgs.GetString( "classname" ) ) ) {
-				idAI *aiEnt = static_cast<idAI*>(ent);
+				idAI *aiEnt = dynamic_cast<idAI*>(ent);
 
 				aiEnt->Damage( thePlayer, thePlayer, vec3_origin, "damage_suicide", 1.0f, INVALID_JOINT );
 			}
@@ -356,7 +356,7 @@ void idGrabber::StopDrag( bool dropOnly ) {
 			thePlayer->StartSoundShader( declManager->FindSound( "grabber_maindrop" ), SND_CHANNEL_WEAPON, 0, false, nullptr);
 
 			if ( ent->IsType( idExplodingBarrel::Type ) ) {
-				idExplodingBarrel *ebarrel = static_cast<idExplodingBarrel*>(ent);
+				idExplodingBarrel *ebarrel = dynamic_cast<idExplodingBarrel*>(ent);
 
 				ebarrel->SetStability( true );
 				ebarrel->StopBurning();
@@ -379,19 +379,19 @@ void idGrabber::StopDrag( bool dropOnly ) {
 				ent->GetPhysics()->SetContents( savedContents );
 				ent->GetPhysics()->SetClipMask( savedClipmask );
 
-				idProjectile *projectile = static_cast< idProjectile* >( ent );
+				idProjectile *projectile = dynamic_cast< idProjectile* >( ent );
 				if ( projectile != nullptr) {
 					projectile->SetLaunchedFromGrabber( true );
 				}
 
 			} else if ( ent->IsType( idMoveable::Type ) ) {
 				// Turn on damage for this object
-				idMoveable *obj = static_cast<idMoveable*>(ent);
+				idMoveable *obj = dynamic_cast<idMoveable*>(ent);
 				obj->EnableDamage( true, 2.5f );
 				obj->SetAttacker( thePlayer );
 
 				if ( ent->IsType( idExplodingBarrel::Type ) ) {
-					idExplodingBarrel *ebarrel = static_cast<idExplodingBarrel*>(ent);
+					idExplodingBarrel *ebarrel = dynamic_cast<idExplodingBarrel*>(ent);
 					ebarrel->SetStability( false );
 				}
 
@@ -442,7 +442,7 @@ int idGrabber::Update( idPlayer *player, bool hide ) {
 		bool abort = !dragEnt.IsValid();
 
 		if ( !abort && dragEnt.GetEntity()->IsType( idProjectile::Type ) ) {
-			idProjectile *proj = static_cast<idProjectile*>(dragEnt.GetEntity());
+			idProjectile *proj = dynamic_cast<idProjectile*>(dragEnt.GetEntity());
 
 			if ( proj->GetProjectileState() >= 3 ) {
 				abort = true;
@@ -495,7 +495,7 @@ int idGrabber::Update( idPlayer *player, bool hide ) {
 				bool validAF = true;
 
 				if ( newEnt->IsType( idAFEntity_Gibbable::Type ) ) {
-					idAFEntity_Gibbable *afEnt = static_cast<idAFEntity_Gibbable*>(newEnt);
+					idAFEntity_Gibbable *afEnt = dynamic_cast<idAFEntity_Gibbable*>(newEnt);
 
 					if ( grabbableAI( newEnt->spawnArgs.GetString( "classname" ) ) ) {
 						// Make sure it's also active

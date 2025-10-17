@@ -67,7 +67,7 @@ void idPush::SaveEntityPosition( idEntity *ent ) {
 	// if the entity is an actor
 	if ( ent->IsType( idActor::Type ) ) {
 		// save the delta view angles
-		pushed[numPushed].deltaViewAngles = static_cast<idActor *>(ent)->GetDeltaViewAngles();
+		pushed[numPushed].deltaViewAngles = dynamic_cast<idActor *>(ent)->GetDeltaViewAngles();
 	}
 
 	// save the physics state
@@ -89,7 +89,7 @@ void idPush::RestorePushedEntityPositions() {
 		// if the entity is an actor
 		if ( pushed[i].ent->IsType( idActor::Type ) ) {
 			// set back the delta view angles
-			static_cast<idActor *>(pushed[i].ent)->SetDeltaViewAngles( pushed[i].deltaViewAngles );
+			dynamic_cast<idActor *>(pushed[i].ent)->SetDeltaViewAngles( pushed[i].deltaViewAngles );
 		}
 
 		// restore the physics state
@@ -844,7 +844,7 @@ int idPush::TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel 
 		// if the entity is standing ontop of the pusher
 		if ( physics->IsGroundClipModel( clipModel->GetEntity()->entityNumber, clipModel->GetId() ) ) {
 			// rotate actor view
-			idActor *actor = static_cast<idActor *>(check);
+			idActor *actor = dynamic_cast<idActor *>(check);
 			idAngles delta = actor->GetDeltaViewAngles();
 			delta.yaw += newRotation.ToMat3()[0].ToYaw();
 			actor->SetDeltaViewAngles( delta );
@@ -990,9 +990,9 @@ int idPush::TryTranslatePushEntity( trace_t &results, idEntity *check, idClipMod
 idPush::DiscardEntities
 ============
 */
-int idPush::DiscardEntities( idEntity *entityList[], int numEntities, int flags, idEntity *pusher ) {
-	int i, num;
-	idEntity *check;
+int idPush::DiscardEntities( idEntity *entityList[], size_t numEntities, int flags, idEntity *pusher ) {
+	size_t i = 0, num = 0;
+	idEntity *check = nullptr;
 
 	// remove all entities we cannot or should not push from the list
 	for ( num = i = 0; i < numEntities; i++ ) {
@@ -1009,7 +1009,7 @@ int idPush::DiscardEntities( idEntity *entityList[], int numEntities, int flags,
 		}
 
 		// don't push players in noclip mode
-		if ( check->IsType( idPlayer::Type ) && static_cast<idPlayer *>(check)->noclip ) {
+		if ( check->IsType( idPlayer::Type ) && dynamic_cast<idPlayer *>(check)->noclip ) {
 			continue;
 		}
 
@@ -1180,7 +1180,7 @@ float idPush::ClipTranslationalPush( trace_t &results, idEntity *pusher, const i
 
 		// if the entity is an active articulated figure and gibs
 		if ( check->IsType( idAFEntity_Base::Type ) && check->spawnArgs.GetBool( "gib" ) ) {
-			if ( static_cast<idAFEntity_Base *>(check)->IsActiveAF() ) {
+			if (dynamic_cast<idAFEntity_Base *>(check)->IsActiveAF() ) {
 				check->ProcessEvent( &EV_Gib, "damage_Gib" );
 			}
 		}
@@ -1350,7 +1350,7 @@ float idPush::ClipRotationalPush( trace_t &results, idEntity *pusher, const int 
 
 		// if the entity is an active articulated figure and gibs
 		if ( check->IsType( idAFEntity_Base::Type ) && check->spawnArgs.GetBool( "gib" ) ) {
-			if ( static_cast<idAFEntity_Base *>(check)->IsActiveAF() ) {
+			if (dynamic_cast<idAFEntity_Base *>(check)->IsActiveAF() ) {
 				check->ProcessEvent( &EV_Gib, "damage_Gib" );
 			}
 		}

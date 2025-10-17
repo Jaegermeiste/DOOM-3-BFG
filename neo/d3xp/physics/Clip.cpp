@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 
@@ -732,9 +734,7 @@ clipSector_t *idClip::CreateClipSectors_r( const int depth, const idBounds &boun
 		anode->children[0] = anode->children[1] = nullptr;
 
 		for ( i = 0; i < 3; i++ ) {
-			if ( bounds[1][i] - bounds[0][i] > maxSector[i] ) {
-				maxSector[i] = bounds[1][i] - bounds[0][i];
-			}
+			maxSector[i] = std::max(bounds[1][i] - bounds[0][i], maxSector[i]);
 		}
 		return anode;
 	}

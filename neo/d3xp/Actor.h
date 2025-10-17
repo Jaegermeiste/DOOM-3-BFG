@@ -119,7 +119,7 @@ public:
 
 public:
 							idActor();
-	virtual					~idActor();
+	~idActor() override;
 
 	void					Spawn();
 	virtual void			Restart();
@@ -127,23 +127,23 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	virtual void			Hide();
-	virtual void			Show();
-	virtual int				GetDefaultSurfaceType() const;
-	virtual void			ProjectOverlay( const idVec3 &origin, const idVec3 &dir, float size, const char *material );
+	void			Hide() override;
+	void			Show() override;
+	int				GetDefaultSurfaceType() const override;
+	void			ProjectOverlay( const idVec3 &origin, const idVec3 &dir, float size, const char *material ) override;
 
-	virtual bool			LoadAF();
+	bool			LoadAF() override;
 	void					SetupBody();
 
 	void					CheckBlink();
 
-	virtual bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis );
-	virtual bool			GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis );
+	bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis ) override;
+	bool			GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis ) override;
 
 							// script state management
 	void					ShutdownThreads();
-	virtual bool			ShouldConstructScriptObjectAtSpawn() const;
-	virtual idThread *		ConstructScriptObject();
+	bool			ShouldConstructScriptObjectAtSpawn() const override;
+	idThread *		ConstructScriptObject() override;
 	void					UpdateScript();
 	const function_t		*GetScriptFunction( const char *funcname );
 	void					SetState( const function_t *newState );
@@ -163,20 +163,20 @@ public:
 
 							// damage
 	void					SetupDamageGroups();
-	virtual	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location );
+	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location ) override;
 	int						GetDamageForLocation( int damage, int location );
 	const char *			GetDamageGroup( int location );
 	void					ClearPain();
-	virtual bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
 
 							// model/combat model/ragdoll
 	void					SetCombatModel();
 	idClipModel *			GetCombatModel() const;
-	virtual void			LinkCombat();
-	virtual void			UnlinkCombat();
+	void			LinkCombat() override;
+	void			UnlinkCombat() override;
 	bool					StartRagdoll();
 	void					StopRagdoll();
-	virtual bool			UpdateAnimationControllers();
+	bool			UpdateAnimationControllers() override;
 
 							// delta view angles to allow movers to rotate the view of the actor
 	const idAngles &		GetDeltaViewAngles() const;
@@ -192,9 +192,9 @@ public:
 
 	void					Attach( idEntity *ent );
 
-	virtual void			Teleport( const idVec3 &origin, const idAngles &angles, idEntity *destination );
+	void			Teleport( const idVec3 &origin, const idAngles &angles, idEntity *destination ) override;
 
-	virtual	renderView_t *	GetRenderView();	
+	renderView_t *	GetRenderView() override;	
 	
 							// animation state control
 	int						GetAnim( int channel, const char *name );
@@ -205,7 +205,7 @@ public:
 	const char *			WaitState() const;
 	void					SetWaitState( const char *_waitstate );
 	bool					AnimDone( int channel, int blendFrames ) const;
-	virtual void			SpawnGibs( const idVec3 &dir, const char *damageDefName );
+	void			SpawnGibs( const idVec3 &dir, const char *damageDefName ) override;
 
 	idEntity*				GetHeadEntity() { return head.GetEntity(); };
 
@@ -267,7 +267,7 @@ protected:
 
 	int						damageCap;
 
-	virtual void			Gib( const idVec3 &dir, const char *damageDefName );
+	void			Gib( const idVec3 &dir, const char *damageDefName ) override;
 
 							// removes attachments with "remove" set for when character dies
 	void					RemoveAttachments();

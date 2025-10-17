@@ -398,7 +398,7 @@ void idEvent::Schedule( idClass *obj, const idTypeInfo *type, ID_TIME_T time ) {
 
 	eventNode.Remove();
 
-	if ( obj->IsType( idEntity::Type ) && ( static_cast<idEntity*>(obj)->timeGroup == TIME_GROUP2 ) ) {
+	if ( obj->IsType( idEntity::Type ) && (dynamic_cast<idEntity*>(obj)->timeGroup == TIME_GROUP2 ) ) {
 		event = FastEventQueue.Next();
 		while( ( event != nullptr) && ( this->time >= event->time ) ) {
 			event = event->eventNode.Next();

@@ -212,7 +212,8 @@ void idMenuScreen_Shell_SystemOptions::HideScreen( const mainMenuTransition_t tr
 				msg = _msg;
 				restart = _restart;
 			}
-			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+			{
 				common->Dialog().ClearDialog( msg );
 				if ( restart ) {
 					idStr cmdLine = Sys_GetCmdLine();

@@ -38,7 +38,8 @@ void idMenuWidget_Carousel::Initialize( idMenuHandler * data ) {
 			widget( _widget ) {
 			}
 
-			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+			{
 
 				if ( widget == nullptr) {
 					return idSWFScriptVar();

@@ -111,7 +111,7 @@ void idForce_Constant::SetPhysics( idPhysics *physics ) {
 idForce_Constant::Evaluate
 ================
 */
-void idForce_Constant::Evaluate( int time ) {
+void idForce_Constant::Evaluate( const ID_TIME_T time ) {
 	idVec3 p;
 
 	if ( !physics ) {

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FORCE_CONSTANT_H__
 #define __FORCE_CONSTANT_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -43,7 +45,7 @@ public:
 	CLASS_PROTOTYPE( idForce_Constant );
 
 						idForce_Constant();
-	virtual				~idForce_Constant();
+	~idForce_Constant() override;
 
 
 	void				Save( idSaveGame *savefile ) const;
@@ -57,8 +59,8 @@ public:
 	void				SetPhysics( idPhysics *physics );
 
 public: // common force interface
-	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	void		        Evaluate( const ID_TIME_T time ) override;
+	void		        RemovePhysics( const idPhysics *phys ) override;
 
 private:
 	// force properties

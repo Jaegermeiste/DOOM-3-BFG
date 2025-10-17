@@ -280,7 +280,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::LoadData(
 	GetModeName( matchParameters.gameMode, val );
 	fields[ MATCH_FIELD_MODE  ].SetString( val );
 
-	int time = matchParameters.serverInfo.GetInt( "si_timeLimit" );
+	const ID_TIME_T time = matchParameters.serverInfo.GetInt( "si_timeLimit" );
 	if ( time == 0 ) {
 		fields[ MATCH_FIELD_TIME ].SetString( "#str_02844" );	// none
 	} else {
@@ -401,7 +401,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 		}
 
 	} else if ( fieldIndex == MATCH_FIELD_TIME ) {
-		int time = si_timeLimit.GetInteger() + ( adjustAmount * 5 );
+		const ID_TIME_T time = si_timeLimit.GetInteger() + ( adjustAmount * 5 );
 		if ( time < 0 ) {
 			time = 60;
 		} else if ( time > 60 ) {

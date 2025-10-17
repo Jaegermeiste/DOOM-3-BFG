@@ -183,8 +183,12 @@ idClipModel *idPhysics_Actor::GetClipModel( int id ) const {
 idPhysics_Actor::GetNumClipModels
 ================
 */
-int idPhysics_Actor::GetNumClipModels() const {
-	return 1;
+size_t idPhysics_Actor::GetNumClipModels() const {
+	if (clipModel != nullptr) {
+		return 1;
+	}
+
+	return 0;
 }
 
 /*

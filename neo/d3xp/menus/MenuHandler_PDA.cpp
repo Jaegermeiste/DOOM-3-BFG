@@ -290,7 +290,8 @@ void idMenuHandler_PDA::Initialize( const char * swfFile, idSoundWorld * sw ) {
 
 	class idPDAGGUIClose : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			idPlayer * player = gameLocal.GetLocalPlayer();
 			if ( player != nullptr) {
 				player->TogglePDA();

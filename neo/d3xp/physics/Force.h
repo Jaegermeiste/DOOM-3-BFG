@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FORCE_H__
 #define __FORCE_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -48,13 +50,13 @@ public:
 	CLASS_PROTOTYPE( idForce );
 
 						idForce();
-	virtual				~idForce();
+	~idForce() override;
 	static void			DeletePhysics( const idPhysics *phys );
 	static void			ClearForceList();
 
 public: // common force interface
-						// evalulate the force up to the given time
-	virtual void		Evaluate( int time );
+						// evaluate the force up to the given time
+	virtual void		Evaluate( const ID_TIME_T time );
 						// removes any pointers to the physics object
 	virtual void		RemovePhysics( const idPhysics *phys );
 

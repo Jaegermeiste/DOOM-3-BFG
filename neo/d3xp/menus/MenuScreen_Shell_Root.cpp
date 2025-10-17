@@ -300,7 +300,8 @@ void idMenuScreen_Shell_Root::HandleExitGameBtn() {
 			msg = _msg;
 			accept = _accept;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept == 1 ) {
 				common->Quit();
@@ -474,7 +475,8 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWid
 						class idSWFScriptFunction_Accept : public idSWFScriptFunction_RefCounted {
 						public:
 							idSWFScriptFunction_Accept() { }
-							idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+							idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+							{
 								common->Dialog().ClearDialog( GDM_PLAY_ONLINE_NO_PROFILE );
 								session->ShowOnlineSignin();
 								return idSWFScriptVar();
@@ -483,7 +485,8 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWid
 						class idSWFScriptFunction_Cancel : public idSWFScriptFunction_RefCounted {
 						public:
 							idSWFScriptFunction_Cancel() { }
-							idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+							idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+							{
 								common->Dialog().ClearDialog( GDM_PLAY_ONLINE_NO_PROFILE );
 								return idSWFScriptVar();
 							}

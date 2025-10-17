@@ -136,7 +136,7 @@ void function_t::Clear() {
 idTypeDef::idTypeDef
 ================
 */
-idTypeDef::idTypeDef( etype_t etype, idVarDef *edef, const char *ename, int esize, idTypeDef *aux ) {
+idTypeDef::idTypeDef( etype_t etype, idVarDef *edef, const char *ename, size_t esize, idTypeDef *aux ) {
 	name		= ename;
 	type		= etype;
 	def			= edef;
@@ -356,7 +356,7 @@ etype_t idTypeDef::Type() const {
 idTypeDef::Size
 ================
 */
-int idTypeDef::Size() const {
+size_t idTypeDef::Size() const {
 	return size;
 }
 
@@ -470,7 +470,7 @@ void idTypeDef::SetPointerType( idTypeDef *pointertype ) {
 idTypeDef::NumParameters
 ================
 */
-int idTypeDef::NumParameters() const {
+size_t idTypeDef::NumParameters() const {
 	return parmTypes.Num();
 }
 
@@ -479,9 +479,8 @@ int idTypeDef::NumParameters() const {
 idTypeDef::GetParmType
 ================
 */
-idTypeDef *idTypeDef::GetParmType( int parmNumber ) const {
-	assert( parmNumber >= 0 );
-	assert( parmNumber < parmTypes.Num() );
+idTypeDef *idTypeDef::GetParmType( const Ordinal auto parmNumber ) const {
+	ORDINAL_CHECK( parmNumber, parmTypes.Num() );
 	return parmTypes[ parmNumber ];
 }
 
@@ -490,9 +489,8 @@ idTypeDef *idTypeDef::GetParmType( int parmNumber ) const {
 idTypeDef::GetParmName
 ================
 */
-const char *idTypeDef::GetParmName( int parmNumber ) const {
-	assert( parmNumber >= 0 );
-	assert( parmNumber < parmTypes.Num() );
+const char *idTypeDef::GetParmName( const Ordinal auto parmNumber ) const {
+	ORDINAL_CHECK(parmNumber, parmTypes.Num());
 	return parmNames[ parmNumber ];
 }
 
@@ -501,7 +499,7 @@ const char *idTypeDef::GetParmName( int parmNumber ) const {
 idTypeDef::NumFunctions
 ================
 */
-int idTypeDef::NumFunctions() const {
+size_t idTypeDef::NumFunctions() const {
 	return functions.Num();
 }
 
@@ -510,10 +508,8 @@ int idTypeDef::NumFunctions() const {
 idTypeDef::GetFunctionNumber
 ================
 */
-int idTypeDef::GetFunctionNumber( const function_t *func ) const {
-	int i;
-
-	for( i = 0; i < functions.Num(); i++ ) {
+int64 idTypeDef::GetFunctionNumber( const function_t *func ) const {
+	for( int64 i = 0; i < functions.Num(); i++ ) {
 		if ( functions[ i ] == func ) {
 			return i;
 		}
@@ -526,9 +522,8 @@ int idTypeDef::GetFunctionNumber( const function_t *func ) const {
 idTypeDef::GetFunction
 ================
 */
-const function_t *idTypeDef::GetFunction( int funcNumber ) const {
-	assert( funcNumber >= 0 );
-	assert( funcNumber < functions.Num() );
+const function_t *idTypeDef::GetFunction( const Ordinal auto funcNumber ) const {
+	ORDINAL_CHECK(funcNumber, functions.Num());
 	return functions[ funcNumber ];
 }
 
@@ -611,9 +606,9 @@ const char *idVarDef::GlobalName() const {
 idVarDef::DepthOfScope
 ============
 */
-int idVarDef::DepthOfScope( const idVarDef *otherScope ) const {
-	const idVarDef *def;
-	int depth;
+size_t idVarDef::DepthOfScope( const idVarDef *otherScope ) const {
+	const idVarDef *def = nullptr;
+	size_t depth = 0;
 
 	depth = 1;
 	for( def = otherScope; def != nullptr; def = def->scope ) {
@@ -988,7 +983,8 @@ idScriptObject::ClearObject
 Resets the memory for the script object without changing its type.
 ============
 */
-void idScriptObject::ClearObject() {
+void idScriptObject::ClearObject() const
+{
 	size_t size;
 
 	if ( type != &type_object ) {
@@ -1129,7 +1125,7 @@ idTypeDef *idProgram::AllocType( idTypeDef &type ) {
 idProgram::AllocType
 ============
 */
-idTypeDef *idProgram::AllocType( etype_t etype, idVarDef *edef, const char *ename, int esize, idTypeDef *aux ) {
+idTypeDef *idProgram::AllocType( etype_t etype, idVarDef *edef, const char *ename, size_t esize, idTypeDef *aux ) {
 	idTypeDef * newtype	= new (TAG_SCRIPT) idTypeDef( etype, edef, ename, esize, aux );
 	typesHash.Add( idStr::Hash( ename ), types.Append( newtype ) );
 	return newtype;
@@ -1145,7 +1141,7 @@ a new one and copies it out.
 */
 idTypeDef *idProgram::GetType( idTypeDef &type, bool allocate ) {
 
-	for ( int i = typesHash.First( idStr::Hash( type.Name() ) ); i != -1; i = typesHash.Next( i ) ) {
+	for ( int64 i = typesHash.First( idStr::Hash( type.Name() ) ); i != -1; i = typesHash.Next( i ) ) {
 		if ( types[ i ]->MatchesType( type ) && !strcmp( types[ i ]->Name(), type.Name() ) ) {
 			return types[ i ];
 		}
@@ -1168,7 +1164,7 @@ Returns a preexisting complex type that matches the name, or returns NULL if not
 */
 idTypeDef *idProgram::FindType( const char *name ) {
 
-	for ( int i = typesHash.First( idStr::Hash( name ) ); i != -1; i = typesHash.Next( i ) ) {
+	for ( int64 i = typesHash.First( idStr::Hash( name ) ); i != -1; i = typesHash.Next( i ) ) {
 		idTypeDef * check = types[ i ];
 		if ( !strcmp( check->Name(), name ) ) {
 			return check;
@@ -1184,7 +1180,7 @@ idProgram::GetDefList
 ============
 */
 idVarDef *idProgram::GetDefList( const char *name ) const {
-	int i, hash;
+	int64 i = 0, hash = 0;
 
 	hash = varDefNameHash.GenerateKey( name, true );
 	for ( i = varDefNameHash.First( hash ); i != -1; i = varDefNameHash.Next( i ) ) {
@@ -1201,7 +1197,7 @@ idProgram::AddDefToNameList
 ============
 */
 void idProgram::AddDefToNameList( idVarDef *def, const char *name ) {
-	int i, hash;
+	int64 i = 0, hash = 0;
 
 	hash = varDefNameHash.GenerateKey( name, true );
 	for ( i = varDefNameHash.First( hash ); i != -1; i = varDefNameHash.Next( i ) ) {
@@ -1222,11 +1218,11 @@ idProgram::AllocDef
 ============
 */
 idVarDef *idProgram::AllocDef( idTypeDef *type, const char *name, idVarDef *scope, bool constant ) {
-	idVarDef	*def;
+	idVarDef	*def = nullptr;
 	idStr		element;
-	idVarDef	*def_x;
-	idVarDef	*def_y;
-	idVarDef	*def_z;
+	idVarDef	*def_x = nullptr;
+	idVarDef	*def_y = nullptr;
+	idVarDef	*def_z = nullptr;
 
 	// allocate a new def
 	def = new (TAG_SCRIPT) idVarDef( type );
@@ -1256,26 +1252,26 @@ idVarDef *idProgram::AllocDef( idTypeDef *type, const char *name, idVarDef *scop
 
 			// make automatic defs for the vectors elements
 			// origin can be accessed as origin_x, origin_y, and origin_z
-			sprintf( element, "%s_x", def->Name() );
+			std::ignore = sprintf( element, "%s_x", def->Name() );
 			def_x = AllocDef( type, element, scope, constant );
 
-			sprintf( element, "%s_y", def->Name() );
+			std::ignore = sprintf( element, "%s_y", def->Name() );
 			def_y = AllocDef( type, element, scope, constant );
 			def_y->value.ptrOffset = def_x->value.ptrOffset + type_float.Size();
 
-			sprintf( element, "%s_z", def->Name() );
+			std::ignore = sprintf( element, "%s_z", def->Name() );
 			def_z = AllocDef( type, element, scope, constant );
 			def_z->value.ptrOffset = def_y->value.ptrOffset + type_float.Size();
 		} else {
 			// make automatic defs for the vectors elements
 			// origin can be accessed as origin_x, origin_y, and origin_z
-			sprintf( element, "%s_x", def->Name() );
+			std::ignore = sprintf( element, "%s_x", def->Name() );
 			def_x = AllocDef( &type_float, element, scope, constant );
 
-			sprintf( element, "%s_y", def->Name() );
+			std::ignore = sprintf( element, "%s_y", def->Name() );
 			def_y = AllocDef( &type_float, element, scope, constant );
 
-			sprintf( element, "%s_z", def->Name() );
+			std::ignore = sprintf( element, "%s_z", def->Name() );
 			def_z = AllocDef( &type_float, element, scope, constant );
 
 			// point the vector def to the x coordinate
@@ -1327,10 +1323,10 @@ If type is NULL, it will match any type
 ============
 */
 idVarDef *idProgram::GetDef( const idTypeDef *type, const char *name, const idVarDef *scope ) const {
-	idVarDef		*def;
-	idVarDef		*bestDef;
-	int				bestDepth;
-	int				depth;
+	idVarDef		*def = nullptr;
+	idVarDef		*bestDef = nullptr;
+	size_t			bestDepth = 0;
+	size_t			depth = 0;
 
 	bestDepth = 0;
 	bestDef = nullptr;
@@ -1368,25 +1364,24 @@ idProgram::FreeDef
 ============
 */
 void idProgram::FreeDef( idVarDef *def, const idVarDef *scope ) {
-	idVarDef *e;
-	int i;
+	idVarDef *e = nullptr;
 
 	if ( def->Type() == ev_vector ) {
 		idStr name;
 
-		sprintf( name, "%s_x", def->Name() );
+		std::ignore = sprintf( name, "%s_x", def->Name() );
 		e = GetDef(nullptr, name, scope );
 		if ( e ) {
 			FreeDef( e, scope );
 		}
 
-		sprintf( name, "%s_y", def->Name() );
+		std::ignore = sprintf( name, "%s_y", def->Name() );
 		e = GetDef(nullptr, name, scope );
 		if ( e ) {
 			FreeDef( e, scope );
 		}
 
-		sprintf( name, "%s_z", def->Name() );
+		std::ignore = sprintf( name, "%s_z", def->Name() );
 		e = GetDef(nullptr, name, scope );
 		if ( e ) {
 			FreeDef( e, scope );
@@ -1394,7 +1389,7 @@ void idProgram::FreeDef( idVarDef *def, const idVarDef *scope ) {
 	}
 
 	varDefs.RemoveIndex( def->num );
-	for( i = def->num; i < varDefs.Num(); i++ ) {
+	for( size_t i = def->num; i < varDefs.Num(); i++ ) {
 		varDefs[ i ]->num = i;
 	}
 
@@ -1407,9 +1402,7 @@ idProgram::FindFreeResultDef
 ============
 */
 idVarDef *idProgram::FindFreeResultDef( idTypeDef *type, const char *name, idVarDef *scope, const idVarDef *a, const idVarDef *b ) {
-	idVarDef *def;
-	
-	for( def = GetDefList( name ); def != nullptr; def = def->Next() ) {
+	for( idVarDef* def = GetDefList(name); def != nullptr; def = def->Next() ) {
 		if ( def == a || def == b ) {
 			continue;
 		}
@@ -1494,12 +1487,9 @@ Returns >0 if function found.
 ================
 */
 function_t *idProgram::FindFunction( const char *name, const idTypeDef *type ) const {
-	const idVarDef	*tdef;
-	const idVarDef	*def;
-
 	// look for the function
-	def = nullptr;
-	for( tdef = type->def; tdef != &def_object; tdef = tdef->TypeDef()->SuperClass()->def ) {
+	const idVarDef* def = nullptr;
+	for( const idVarDef* tdef = type->def; tdef != &def_object; tdef = tdef->TypeDef()->SuperClass()->def ) {
 		def = GetDef(nullptr, name, tdef );
 		if ( def ) {
 			return def->value.functionPtr;
@@ -1542,13 +1532,13 @@ function_t &idProgram::AllocFunction( idVarDef *def ) {
 idProgram::SetEntity
 ================
 */
-void idProgram::SetEntity( const char *name, idEntity *ent ) {
-	idVarDef	*def;
+void idProgram::SetEntity( const char *name, idEntity *ent ) const
+{
 	idStr		defName( "$" );
 
 	defName += name;
 
-	def = GetDef( &type_entity, defName, &def_namespace );
+	idVarDef* def = GetDef(&type_entity, defName, &def_namespace);
 	if ( def != nullptr && ( def->initialized != idVarDef::stackVariable ) ) {
 		// 0 is reserved for NULL entity
 		if ( !ent ) {
@@ -1579,7 +1569,7 @@ called before compiling a batch of files, clears the pr struct
 ==============
 */
 void idProgram::BeginCompilation() {
-	statement_t	*statement;
+	statement_t	*statement = nullptr;
 
 	FreeData();
 
@@ -1616,9 +1606,11 @@ void idProgram::BeginCompilation() {
 idProgram::DisassembleStatement
 ==============
 */
-void idProgram::DisassembleStatement( idFile *file, int instructionPointer ) const {
-	opcode_t			*op;
-	const statement_t	*statement;
+void idProgram::DisassembleStatement( idFile *file, const Ordinal auto instructionPointer ) const {
+	ORDINAL_CHECK(instructionPointer, statements.Num());
+
+	opcode_t			*op = nullptr;
+	const statement_t	*statement = nullptr;
 
 	statement = &statements[ instructionPointer ];
 	op = &idCompiler::opcodes[ statement->op ];
@@ -1648,10 +1640,10 @@ idProgram::Disassemble
 ==============
 */
 void idProgram::Disassemble() const {
-	int					i;
-	int					instructionPointer;
-	const function_t	*func;
-	idFile				*file;
+	size_t				i = 0;
+	size_t				instructionPointer = 0;
+	const function_t	*func = nullptr;
+	idFile				*file = nullptr;
 
 	file = fileSystem->OpenFileByMode( "script/disasm.txt", FS_WRITE );
 
@@ -1682,7 +1674,7 @@ Called after all files are compiled to check for errors
 ==============
 */
 void idProgram::FinishCompilation() {
-	int	i;
+	size_t	i = 0;
 
 	top_functions	= functions.Num();
 	top_statements	= statements.Num();
@@ -1760,9 +1752,9 @@ idProgram::CompileText
 ================
 */
 bool idProgram::CompileText( const char *source, const char *text, bool console ) {
-	idCompiler	compiler;
-	int			i;
-	idVarDef	*def;
+	idCompiler	compiler = {};
+	size_t		i = 0;
+	idVarDef	*def = nullptr;
 	idStr		ospath;
 
 	// use a full os path for GetFilenum since it calls OSPathToRelativePath to convert filenames from the parser
@@ -1805,7 +1797,7 @@ idProgram::CompileFunction
 ================
 */
 const function_t *idProgram::CompileFunction( const char *functionName, const char *text ) {
-	bool result;
+	bool result = false;
 
 	result = CompileText( functionName, text, false );
 
@@ -1826,10 +1818,10 @@ idProgram::CompileFile
 ================
 */
 void idProgram::CompileFile( const char *filename ) {
-	char *src;
-	bool result;
+	char *src = nullptr;
+	bool result = false;
 
-	if ( fileSystem->ReadFile( filename, ( void ** )&src, nullptr) < 0 ) {
+	if ( fileSystem->ReadFile( filename, reinterpret_cast<void**>(&src), nullptr) < 0 ) {
 		gameLocal.Error( "Couldn't load %s\n", filename );
 	}
 
@@ -1852,7 +1844,7 @@ idProgram::FreeData
 ================
 */
 void idProgram::FreeData() {
-	int i;
+	size_t i = 0;
 
 	// free the defs
 	varDefs.DeleteContents( true );
@@ -1919,8 +1911,8 @@ idProgram::Save
 ================
 */
 void idProgram::Save( idSaveGame *savefile ) const {
-	int i;
-	int currentFileNum = top_files;
+	size_t i = 0;
+	size_t currentFileNum = top_files;
 
 	savefile->WriteInt( (fileList.Num() - currentFileNum) );
 	while ( currentFileNum < fileList.Num() ) {
@@ -1952,7 +1944,8 @@ idProgram::Restore
 ================
 */
 bool idProgram::Restore( idRestoreGame *savefile ) {
-	int i, num, index;
+	size_t i = 0, num = 0;
+	int64 index = 0;
 	bool result = true;
 	idStr scriptname;
 
@@ -1973,7 +1966,7 @@ bool idProgram::Restore( idRestoreGame *savefile ) {
 		savefile->ReadByte( variables[i] );
 	}
 
-	int saved_checksum, checksum;
+	int saved_checksum = 0, checksum = 0;
 
 	savefile->ReadInt( saved_checksum );
 	checksum = CalculateChecksum();
@@ -1991,14 +1984,15 @@ idProgram::CalculateChecksum
 ================
 */
 int idProgram::CalculateChecksum() const {
-	int i, result;
+	size_t i = 0;
+	int result = 0;
 
-	typedef struct {
+	typedef struct statementBlock_s {
 		unsigned short	op;
-		int				a;
-		int				b;
-		int				c;
-		unsigned short	linenumber;
+		int64			a;
+		int64			b;
+		int64			c;
+		size_t          linenumber;
 		unsigned short	file;
 	} statementBlock_t;
 
@@ -2011,17 +2005,17 @@ int idProgram::CalculateChecksum() const {
 		statementList[i].op = statements[i].op;
 
 		if ( statements[i].a ) {
-			statementList[i].a = statements[i].a->num;
+			statementList[i].a = idMath::integer_cast<int64>(statements[i].a->num);
 		} else {
 			statementList[i].a = -1;
 		}
 		if ( statements[i].b ) {
-			statementList[i].b = statements[i].b->num;
+			statementList[i].b = idMath::integer_cast<int64>(statements[i].b->num);
 		} else {
 			statementList[i].b = -1;
 		}
 		if ( statements[i].c ) {
-			statementList[i].c = statements[i].c->num;
+			statementList[i].c = idMath::integer_cast<int64>(statements[i].c->num);
 		} else {
 			statementList[i].c = -1;
 		}
@@ -2030,7 +2024,7 @@ int idProgram::CalculateChecksum() const {
 		statementList[i].file = statements[i].file;
 	}
 
-	result = MD4_BlockChecksum( statementList, ( sizeof(statementBlock_t) * statements.Num() ) );
+	result = static_cast<int>(MD4_BlockChecksum( statementList, ( sizeof(statementBlock_t) * statements.Num() ) ));
 
 	delete [] statementList;
 
@@ -2045,7 +2039,7 @@ Restores all variables to their initial value
 ==============
 */
 void idProgram::Restart() {
-	int i;
+	size_t i = 0;
 
 	idThread::Restart();
 
@@ -2090,14 +2084,13 @@ void idProgram::Restart() {
 idProgram::GetFilenum
 ================
 */
-int idProgram::GetFilenum( const char *name ) {
+size_t idProgram::GetFilenum( const char *name ) {
 	if ( filename == name ) {
 		return filenum;
 	}
 
-	idStr strippedName;
-	strippedName = fileSystem->OSPathToRelativePath( name );
-	if ( !strippedName.Length() ) {
+	idStr strippedName = fileSystem->OSPathToRelativePath(name);
+	if ( strippedName.Length() == 0 ) {
 		// not off the base path so just use the full path
 		filenum = fileList.AddUnique( name );
 	} else {
@@ -2136,7 +2129,8 @@ idProgram::~idProgram() {
 idProgram::ReturnEntity
 ================
 */
-void idProgram::ReturnEntity( idEntity *ent ) {
+void idProgram::ReturnEntity( idEntity *ent ) const
+{
 	if ( ent ) {
 		*returnDef->value.entityNumberPtr = ent->entityNumber + 1;
 	} else {

@@ -63,7 +63,7 @@ public:
 	CLASS_PROTOTYPE( idItem );
 
 							idItem();
-	virtual					~idItem();
+	~idItem() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
@@ -72,8 +72,8 @@ public:
 	void					GetAttributes( idDict &attributes ) const;
 	virtual bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags );
 	virtual bool			Pickup( idPlayer *player );
-	virtual void			Think();
-	virtual void			Present();
+	void			Think() override;
+	void			Present() override;
 
 	enum {
 		EVENT_PICKUP = idEntity::EVENT_MAXEVENTS,
@@ -86,13 +86,13 @@ public:
 		EVENT_MAXEVENTS
 	};
 
-	void					ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual void			ClientPredictionThink();
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	void					ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientPredictionThink() override;
+	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 	// networking
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
 protected:
 	int						GetPredictPickupMilliseconds() const { return clientPredictPickupMilliseconds; }
@@ -136,7 +136,7 @@ public:
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags );
+	bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags ) override;
 
 private:
 	int						time;
@@ -167,14 +167,14 @@ class idVideoCDItem : public idItem {
 public:
 	CLASS_PROTOTYPE( idVideoCDItem );
 
-	virtual bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags );
+	bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags ) override;
 };
 
 class idPDAItem : public idItem {
 public:
 	CLASS_PROTOTYPE( idPDAItem );
 
-	virtual bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags );
+	bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags ) override;
 };
 
 class idMoveableItem : public idItem {
@@ -182,22 +182,22 @@ public:
 	CLASS_PROTOTYPE( idMoveableItem );
 
 							idMoveableItem();
-	virtual					~idMoveableItem();
+	~idMoveableItem() override;
 
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
 	void					Spawn();
-	virtual void			Think();
-	void					ClientThink( const int curTime, const float fraction, const bool predict );
-	virtual bool			Collide( const trace_t &collision, const idVec3 &velocity );
-	virtual bool			Pickup( idPlayer *player );
+	void			Think() override;
+	void					ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
+	bool			Pickup( idPlayer *player ) override;
 
 	static void				DropItems( idAnimatedEntity *ent, const char *type, idList<idEntity *> *list );
 	static idEntity	*		DropItem( const char *classname, const idVec3 &origin, const idMat3 &axis, const idVec3 &velocity, int activateDelay, int removeDelay );
 
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	void			WriteToSnapshot( idBitMsg &msg ) const override;
+	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
 protected:
 	idPhysics_RigidBody		physicsObj;
@@ -219,23 +219,23 @@ public:
     CLASS_PROTOTYPE( idItemTeam );
 
                             idItemTeam();
-	virtual					~idItemTeam();
+    ~idItemTeam() override;
 
     void                    Spawn();
-	virtual bool			Pickup( idPlayer *player );
-	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg &msg );    
-	virtual void			Think(void );
+    bool			Pickup( idPlayer *player ) override;
+    bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
+    void			Think(void ) override;
 
 	void					Drop( bool death = false );	// was the drop caused by death of carrier?
 	void					Return( idPlayer * player = nullptr);
 	void					Capture();
 
-	virtual void			FreeLightDef();
-	virtual void			Present();
+    void			FreeLightDef() override;
+    void			Present() override;
 
 	// networking
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+    void			WriteToSnapshot( idBitMsg &msg ) const override;
+    void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
 public:
     int                     team;
@@ -280,7 +280,7 @@ class idMoveablePDAItem : public idMoveableItem {
 public:
 	CLASS_PROTOTYPE( idMoveablePDAItem );
 
-	virtual bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags );
+	bool			GiveToPlayer( idPlayer *player, unsigned int giveFlags ) override;
 };
 
 /*

@@ -41,7 +41,7 @@ class idWorldspawn : public idEntity {
 public:
 	CLASS_PROTOTYPE( idWorldspawn );
 
-					~idWorldspawn();
+					~idWorldspawn() override;
 
 	void			Spawn();
 

@@ -274,7 +274,8 @@ void idMenuScreen_Shell_Load::LoadDamagedGame( int index ) {
 			index = _index;
 			screen = _screen;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept ) {
 				screen->DeleteGame( index );
@@ -330,7 +331,8 @@ void idMenuScreen_Shell_Load::LoadGame( int index ) {
 				accept = _accept;
 				name = _name;
 			}
-			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+			{
 				common->Dialog().ClearDialog( msg );
 				if ( accept && name != nullptr) {
 
@@ -373,7 +375,8 @@ void idMenuScreen_Shell_Load::DeleteGame( int index ) {
 			index = _index;
 			screen = _screen;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			common->Dialog().ClearDialog( msg );
 			if ( accept && screen != nullptr) {
 				if ( index < screen->GetSortedSaves().Num() ) {

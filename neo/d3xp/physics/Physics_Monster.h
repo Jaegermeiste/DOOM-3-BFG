@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_MONSTER_H__
 #define __PHYSICS_MONSTER_H__
 
+#pragma once
+
 /*
 ===================================================================================
 
@@ -91,37 +93,37 @@ public:
 	void					DisableImpact();
 
 public:	// common physics interface
-	bool					Evaluate( int timeStepMSec, int endTimeMSec );
+	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
 	void					UpdateTime( int endTimeMSec );
-	int						GetTime() const;
+	int						GetTime() const override;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse );
-	void					Activate();
-	void					PutToRest();
-	bool					IsAtRest() const;
-	int						GetRestStartTime() const;
+	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;
+	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) override;
+	void					Activate() override;
+	void					PutToRest() override;
+	bool					IsAtRest() const override;
+	int						GetRestStartTime() const override;
 
-	void					SaveState();
-	void					RestoreState();
+	void					SaveState() override;
+	void					RestoreState() override;
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3 &newOrigin, int id = -1 ) override;
+	void					SetAxis( const idMat3 &newAxis, int id = -1 ) override;
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3 &translation, int id = -1 ) override;
+	void					Rotate( const idRotation &rotation, int id = -1 ) override;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 ) override;
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
+	const idVec3 &			GetLinearVelocity( int id = 0 ) const override;
 
 	void					SetPushed( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const;
+	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const override;
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity *master, const bool orientated = true ) override;
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg &msg ) const override;
+	void					ReadFromSnapshot( const idBitMsg &msg ) override;
 
 private:
 	// monster physics state

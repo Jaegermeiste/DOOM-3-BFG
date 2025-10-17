@@ -41,7 +41,8 @@ namespace {
 	*/
 	class UICmd_RegisterUser : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) override
+		{
 			if ( parms.Num() != 1 ) {
 				idLib::Warning( "No device specified when registering mouse user" );
 				return idSWFScriptVar();

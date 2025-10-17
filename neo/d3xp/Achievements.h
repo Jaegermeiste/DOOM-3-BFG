@@ -153,9 +153,9 @@ public:
 	void		EventCompletesAchievement( const achievement_t eventId );
 
 	int			GetLastImpKilledTime() { return lastImpKilledTime; }
-	void		SetLastImpKilledTime( int time) { lastImpKilledTime = time; }
+	void		SetLastImpKilledTime( const ID_TIME_T time) { lastImpKilledTime = time; }
 	int			GetLastPlayerKilledTime() { return lastPlayerKilledTime; }
-	void		SetLastPlayerKilledTime( int time ) { lastPlayerKilledTime = time; }
+	void		SetLastPlayerKilledTime( const ID_TIME_T time ) { lastPlayerKilledTime = time; }
 	bool		GetPlayerTookDamage() { return playerTookDamage; }
 	void		SetPlayerTookDamage( bool bl ) { playerTookDamage = bl; }
 	void		IncrementHellTimeKills();

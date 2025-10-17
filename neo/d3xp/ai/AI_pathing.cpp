@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 
 
@@ -675,9 +677,7 @@ pathNode_t *BuildPathTree( const obstacle_t *obstacles, int numObstacles, const 
 
 			// there is a free path towards goal
 			if ( node->edgeNum == -1 ) {
-				if ( node->numNodes < bestNumNodes ) {
-					bestNumNodes = node->numNodes;
-				}
+				bestNumNodes = std::min(node->numNodes, bestNumNodes);
 				continue;
 			}
 

@@ -446,7 +446,7 @@ void idPhysics_Monster::DisableImpact() {
 idPhysics_Monster::Evaluate
 ================
 */
-bool idPhysics_Monster::Evaluate( int timeStepMSec, int endTimeMSec ) {
+bool idPhysics_Monster::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
 	idVec3 masterOrigin, oldOrigin;
 	idMat3 masterAxis;
 	float timeStep;

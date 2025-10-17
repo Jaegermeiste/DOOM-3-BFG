@@ -98,7 +98,7 @@ public:
 		if ( writing ) {
 			msg->WriteBits( value - minSize, idMath::integer_cast<int16>(idMath::BitsForInteger( maxSize-minSize )) );
 		} else {
-			value = minSize + msg->ReadBits( idMath::BitsForInteger( maxSize-minSize ) );
+			value = minSize + msg->ReadBits( idMath::integer_cast<int>(idMath::BitsForInteger( maxSize-minSize )) );
 		}
 		assert( value >= minSize && value <= maxSize );
 	}
@@ -109,7 +109,7 @@ public:
 		if ( writing ) {
 			msg->WriteBits( value, idMath::integer_cast<int16>(idMath::BitsForInteger( maxSize ) ));
 		} else {
-			value = msg->ReadBits( idMath::BitsForInteger( maxSize ) );
+			value = msg->ReadBits(idMath::integer_cast<int>(idMath::BitsForInteger( maxSize )));
 		}
 		assert( value <= maxSize );
 	}
@@ -120,7 +120,7 @@ public:
 		if ( writing ) {
 			msg->WriteBits(value, idMath::integer_cast<int16>(idMath::BitsForInteger( maxSize )) );
 		} else {
-			value = msg->ReadBits( idMath::BitsForInteger( maxSize ) );
+			value = msg->ReadBits(idMath::integer_cast<int>(idMath::BitsForInteger( maxSize )));
 		}
 		assert( value <= maxSize );
 		return value;

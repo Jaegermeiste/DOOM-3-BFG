@@ -239,10 +239,11 @@ public:
 	static ID_INLINE bool	IsValidUTF8( const uint8 * s, const size_t maxLen );
 	static ID_INLINE bool	IsValidUTF8( const char * s, const size_t maxLen ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen ); }
 
-						[[nodiscard]] int64               Find( const char c ) const;
+	[[nodiscard]] int64               Find( const char c ) const;
 	int64               Find( const char c, const Ordinal auto start = 0, const Ordinal auto end = -1 ) const;
 	int64               Find( const char* text, bool casesensitive = true ) const;
-	int64               Find( const char* text, bool casesensitive, const Ordinal auto start, const Ordinal auto end = -1 ) const;
+	int64               Find( const char* text, bool casesensitive, const Ordinal auto start ) const;
+	int64               Find( const char* text, bool casesensitive, const Ordinal auto start, const Ordinal auto end ) const;
 	bool				Filter( const char *filter, bool casesensitive ) const;
 						[[nodiscard]] int64				Last( const char c ) const;						// return the index to the last occurrence of 'c', returns -1 if not found
 	const char *		Left( size_t len, idStr &result ) const;			// store the leftmost 'len' characters in the result
@@ -1084,6 +1085,10 @@ ID_INLINE int64 idStr::Find(const char c, const Ordinal auto start, const Ordina
 
 ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive) const {
 	return idStr::FindText(data, text, casesensitive, 0, -1);
+}
+
+ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive, const Ordinal auto start) const {
+	return idStr::FindText(data, text, casesensitive, start, -1);
 }
 
 ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive, const Ordinal auto start, const Ordinal auto end) const {

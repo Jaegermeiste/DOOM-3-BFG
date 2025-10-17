@@ -65,7 +65,7 @@ idPhysics_Base::Save
 ================
 */
 void idPhysics_Base::Save( idSaveGame *savefile ) const {
-	int i;
+	size_t i = 0;
 
 	savefile->WriteObject( self );
 	savefile->WriteInt( clipMask );
@@ -89,7 +89,7 @@ idPhysics_Base::Restore
 ================
 */
 void idPhysics_Base::Restore( idRestoreGame *savefile ) {
-	int i, num;
+	size_t i = 0, num = 0;
 
 	savefile->ReadObject( reinterpret_cast<idClass *&>( self ) );
 	savefile->ReadInt( clipMask );
@@ -141,7 +141,7 @@ idClipModel *idPhysics_Base::GetClipModel( int id ) const {
 idPhysics_Base::GetNumClipModels
 ================
 */
-int idPhysics_Base::GetNumClipModels() const {
+size_t idPhysics_Base::GetNumClipModels() const {
 	return 0;
 }
 
@@ -220,7 +220,7 @@ const idBounds &idPhysics_Base::GetAbsBounds( int id ) const {
 idPhysics_Base::Evaluate
 ================
 */
-bool idPhysics_Base::Evaluate( int timeStepMSec, int endTimeMSec ) {
+bool idPhysics_Base::Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) {
 	return false;
 }
 
@@ -247,7 +247,7 @@ void idPhysics_Base::ResetInterpolationState( const idVec3 & origin, const idMat
 idPhysics_Base::UpdateTime
 ================
 */
-void idPhysics_Base::UpdateTime( int endTimeMSec ) {
+void idPhysics_Base::UpdateTime( ID_TIME_T endTimeMSec ) {
 }
 
 /*
@@ -255,7 +255,7 @@ void idPhysics_Base::UpdateTime( int endTimeMSec ) {
 idPhysics_Base::GetTime
 ================
 */
-int idPhysics_Base::GetTime() const {
+ID_TIME_T idPhysics_Base::GetTime() const {
 	return 0;
 }
 
@@ -265,7 +265,7 @@ idPhysics_Base::GetImpactInfo
 ================
 */
 void idPhysics_Base::GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const {
-	memset( info, 0, sizeof( *info ) );
+	std::ignore = memset( info, 0, sizeof( *info ) );
 }
 
 /*
@@ -462,7 +462,7 @@ idPhysics_Base::ClipTranslation
 ================
 */
 void idPhysics_Base::ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const {
-	memset( &results, 0, sizeof( trace_t ) );
+	std::ignore = memset( &results, 0, sizeof( trace_t ) );
 }
 
 /*
@@ -471,7 +471,7 @@ idPhysics_Base::ClipRotation
 ================
 */
 void idPhysics_Base::ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const {
-	memset( &results, 0, sizeof( trace_t ) );
+	std::ignore = memset( &results, 0, sizeof( trace_t ) );
 }
 
 /*
@@ -529,7 +529,7 @@ bool idPhysics_Base::EvaluateContacts() {
 idPhysics_Base::GetNumContacts
 ================
 */
-int idPhysics_Base::GetNumContacts() const {
+size_t idPhysics_Base::GetNumContacts() const {
 	return contacts.Num();
 }
 
@@ -538,7 +538,8 @@ int idPhysics_Base::GetNumContacts() const {
 idPhysics_Base::GetContact
 ================
 */
-const contactInfo_t &idPhysics_Base::GetContact( int num ) const {
+const contactInfo_t &idPhysics_Base::GetContact( const Ordinal auto num ) const {
+	ORDINAL_CHECK(num, contacts.Num());
 	return contacts[num];
 }
 
@@ -548,8 +549,8 @@ idPhysics_Base::ClearContacts
 ================
 */
 void idPhysics_Base::ClearContacts() {
-	int i;
-	idEntity *ent;
+	size_t i = 0;
+	idEntity *ent = nullptr;
 
 	for ( i = 0; i < contacts.Num(); i++ ) {
 		ent = gameLocal.entities[ contacts[i].entityNum ];
@@ -566,8 +567,8 @@ idPhysics_Base::AddContactEntity
 ================
 */
 void idPhysics_Base::AddContactEntity( idEntity *e ) {
-	int i;
-	idEntity *ent;
+	size_t i = 0;
+	idEntity *ent = nullptr;
 	bool found = false;
 
 	for ( i = 0; i < contactEntities.Num(); i++ ) {
@@ -590,8 +591,8 @@ idPhysics_Base::RemoveContactEntity
 ================
 */
 void idPhysics_Base::RemoveContactEntity( idEntity *e ) {
-	int i;
-	idEntity *ent;
+	size_t i = 0;
+	idEntity *ent = nullptr;
 
 	for ( i = 0; i < contactEntities.Num(); i++ ) {
 		ent = contactEntities[i].GetEntity();
@@ -612,7 +613,7 @@ idPhysics_Base::HasGroundContacts
 ================
 */
 bool idPhysics_Base::HasGroundContacts() const {
-	int i;
+	size_t i = 0;
 
 	for ( i = 0; i < contacts.Num(); i++ ) {
 		if ( contacts[i].normal * -gravityNormal > 0.0f ) {
@@ -627,8 +628,9 @@ bool idPhysics_Base::HasGroundContacts() const {
 idPhysics_Base::IsGroundEntity
 ================
 */
-bool idPhysics_Base::IsGroundEntity( int entityNum ) const {
-	int i;
+bool idPhysics_Base::IsGroundEntity( const Ordinal auto entityNum ) const {
+	ORDINAL_CHECK(entityNum, contacts.Num());
+	size_t i = 0;
 
 	for ( i = 0; i < contacts.Num(); i++ ) {
 		if ( contacts[i].entityNum == entityNum && ( contacts[i].normal * -gravityNormal > 0.0f ) ) {
@@ -643,8 +645,9 @@ bool idPhysics_Base::IsGroundEntity( int entityNum ) const {
 idPhysics_Base::IsGroundClipModel
 ================
 */
-bool idPhysics_Base::IsGroundClipModel( int entityNum, int id ) const {
-	int i;
+bool idPhysics_Base::IsGroundClipModel( const Ordinal auto entityNum, int id ) const {
+	ORDINAL_CHECK(entityNum, contacts.Num());
+	size_t i = 0;
 
 	for ( i = 0; i < contacts.Num(); i++ ) {
 		if ( contacts[i].entityNum == entityNum && contacts[i].id == id && ( contacts[i].normal * -gravityNormal > 0.0f ) ) {
@@ -659,7 +662,7 @@ bool idPhysics_Base::IsGroundClipModel( int entityNum, int id ) const {
 idPhysics_Base::SetPushed
 ================
 */
-void idPhysics_Base::SetPushed( int deltaTime ) {
+void idPhysics_Base::SetPushed( ID_TIME_T deltaTime ) {
 }
 
 /*
@@ -711,7 +714,7 @@ idEntity *idPhysics_Base::GetBlockingEntity() const {
 idPhysics_Base::GetLinearEndTime
 ================
 */
-int idPhysics_Base::GetLinearEndTime() const {
+ID_TIME_T idPhysics_Base::GetLinearEndTime() const {
 	return 0;
 }
 
@@ -720,7 +723,7 @@ int idPhysics_Base::GetLinearEndTime() const {
 idPhysics_Base::GetAngularEndTime
 ================
 */
-int idPhysics_Base::GetAngularEndTime() const {
+ID_TIME_T idPhysics_Base::GetAngularEndTime() const {
 	return 0;
 }
 
@@ -730,8 +733,8 @@ idPhysics_Base::AddGroundContacts
 ================
 */
 void idPhysics_Base::AddGroundContacts( const idClipModel *clipModel ) {
-	idVec6 dir;
-	int index, num;
+	idVec6 dir = {};
+	size_t index = 0, num = 0;
 
 	index = contacts.Num();
 	contacts.SetNum( index + 10 );
@@ -749,8 +752,8 @@ idPhysics_Base::AddContactEntitiesForContacts
 ================
 */
 void idPhysics_Base::AddContactEntitiesForContacts() {
-	int i;
-	idEntity *ent;
+	size_t i = 0;
+	idEntity *ent = nullptr;
 
 	for ( i = 0; i < contacts.Num(); i++ ) {
 		ent = gameLocal.entities[ contacts[i].entityNum ];
@@ -766,8 +769,8 @@ idPhysics_Base::ActivateContactEntities
 ================
 */
 void idPhysics_Base::ActivateContactEntities() {
-	int i;
-	idEntity *ent;
+	size_t i = 0;
+	idEntity *ent = nullptr;
 
 	for ( i = 0; i < contactEntities.Num(); i++ ) {
 		ent = contactEntities[i].GetEntity();
@@ -797,9 +800,9 @@ idPhysics_Base::DrawVelocity
 ================
 */
 void idPhysics_Base::DrawVelocity( int id, float linearScale, float angularScale ) const {
-	idVec3 dir, org, vec, start, end;
-	idMat3 axis;
-	float length, a;
+	idVec3 dir = {}, org = {}, vec = {}, start = {}, end = {};
+	idMat3 axis = {};
+	float length = 0.0f, a = 0.0f;
 
 	dir = GetLinearVelocity( id );
 	dir *= linearScale;
