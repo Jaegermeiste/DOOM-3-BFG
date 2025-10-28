@@ -26,7 +26,7 @@ structs.h
 
 #include <stdint.h>
 
-typedef struct {
+typedef struct MidiEvent_s {
 	int32_t time;
 	uint8_t channel, type, a, b;
 } MidiEvent;

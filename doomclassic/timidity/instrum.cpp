@@ -136,8 +136,8 @@ static  int32_t convert_vibrato_sweep(const uint8_t sweep, const int32_t vib_con
 		return 0;
 
 	return
-		(int32_t) (FSCALE((double) (vib_control_ratio) * SWEEP_TUNING, SWEEP_SHIFT)
-		/ (double)(play_mode->rate * sweep));
+		static_cast<int32_t>((FSCALE((double) (vib_control_ratio) * SWEEP_TUNING, SWEEP_SHIFT)
+			/ (double)(play_mode->rate * sweep)));
 
 	/* this was overflowing with seashore.pat
 
@@ -194,10 +194,10 @@ static Instrument *load_instrument(char *name, int percussion,
 	idFile * fp;
 	uint8_t tmp[1024];
 	int i,j,noluck=0;
-	char *path;
-	char filename[1024];
+	const char *path;
+	char filename[1024] = {};
 #ifdef PATCH_EXT_LIST
-	static char *patch_ext[] = PATCH_EXT_LIST;
+	static const char *patch_ext[] = PATCH_EXT_LIST;
 #endif
 
 	if (!name) return 0;
@@ -270,9 +270,9 @@ static Instrument *load_instrument(char *name, int percussion,
 		return 0;
 	}
 
-	ip=(Instrument *)safe_malloc(sizeof(Instrument));
+	ip=static_cast<Instrument*>(safe_malloc(sizeof(Instrument)));
 	ip->samples = tmp[198];
-	ip->sample = (Sample *)safe_malloc(sizeof(Sample) * ip->samples);
+	ip->sample = static_cast<Sample*>(safe_malloc(sizeof(Sample) * ip->samples));
 	for (i=0; i<ip->samples; i++)
 	{
 
@@ -320,7 +320,7 @@ fail:
 		if (panning==-1)
 			sp->panning = (tmp[0] * 8 + 4) & 0x7f;
 		else
-			sp->panning=(uint8)(panning & 0x7F);
+			sp->panning=static_cast<uint8>(panning & 0x7F);
 
 		/* envelope, tremolo, and vibrato */
 		if (18 != fp->Read(tmp, 18)) goto fail; 
@@ -368,7 +368,7 @@ fail:
 
 		/* Mark this as a fixed-pitch instrument if such a deed is desired. */
 		if (note_to_use!=-1)
-			sp->note_to_use=(uint8)(note_to_use);
+			sp->note_to_use=static_cast<uint8>(note_to_use);
 		else
 			sp->note_to_use=0;
 
@@ -436,7 +436,7 @@ fail:
 		}
 
 		/* Then read the sample data */
-		sp->data = (sample_t*)safe_malloc(sp->data_length);
+		sp->data = static_cast<sample_t*>(safe_malloc(sp->data_length));
 		if ( static_cast< size_t >( sp->data_length ) != fp->Read(sp->data, sp->data_length ))
 			goto fail;
 
@@ -445,9 +445,9 @@ fail:
 			 int32_t i=sp->data_length;
 			uint8_t *cp=(uint8_t *)(sp->data);
 			uint16_t *tmp,*anew;
-			tmp=anew=(uint16*)safe_malloc(sp->data_length*2);
+			tmp=anew=static_cast<uint16*>(safe_malloc(sp->data_length * 2));
 			while (i--)
-				*tmp++ = (uint16)(*cp++) << 8;
+				*tmp++ = static_cast<uint16>(*cp++) << 8;
 			cp=(uint8_t *)(sp->data);
 			sp->data = (sample_t *)anew;
 			Real_Tim_Free(cp);
@@ -502,7 +502,7 @@ fail:
 
 #ifdef ADJUST_SAMPLE_VOLUMES
 		if (amp!=-1)
-			sp->volume=(float)((amp) / 100.0);
+			sp->volume=static_cast<float>((amp) / 100.0);
 		else
 		{
 			/* Try to determine a volume scaling factor for the sample.
@@ -518,7 +518,7 @@ fail:
 				if (a>maxamp)
 					maxamp=a;
 			}
-			sp->volume=(float)(32768.0 / maxamp);
+			sp->volume=static_cast<float>(32768.0 / maxamp);
 			ctl->cmsg(CMSG_INFO, VERB_DEBUG, " * volume comp: %f", sp->volume);
 		}
 #else

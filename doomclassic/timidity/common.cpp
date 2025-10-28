@@ -99,7 +99,7 @@ idFile * open_file(const char *name, const int decompress, const int noise_mode)
 			if ((fp=try_to_open(current_filename, decompress, noise_mode)))
 				return fp;
 
-			plp=(PathList*)plp->next;
+			plp=static_cast<PathList*>(plp->next);
 		}
 
 		/* Nothing could be opened. */
@@ -158,8 +158,8 @@ void *safe_malloc(const size_t count)
 /* This adds a directory to the path list */
 void add_to_pathlist(char *s)
 {
-	PathList *plp=(PathList*)safe_malloc(sizeof(PathList));
-	strcpy((plp->path=(char *)safe_malloc(strlen(s)+1)),s);
+	PathList *plp=static_cast<PathList*>(safe_malloc(sizeof(PathList)));
+	strcpy((plp->path=static_cast<char*>(safe_malloc(strlen(s) + 1))),s);
 	plp->next=pathlist;
 	pathlist=plp;
 }

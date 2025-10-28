@@ -336,14 +336,14 @@ static  int32_t update_vibrato(Voice *vp, const int sign)
 		}
 	}
 
-	a = FSCALE(((double)(vp->sample->sample_rate) *
-		(double)(vp->frequency)) /
-		((double)(vp->sample->root_freq) *
-		(double)(play_mode->rate)),
+	a = FSCALE((static_cast<double>(vp->sample->sample_rate) *
+		           static_cast<double>(vp->frequency)) /
+		(static_cast<double>(vp->sample->root_freq) *
+			static_cast<double>(play_mode->rate)),
 		FRACTION_BITS);
 
-	pb=(int)((sine(vp->vibrato_phase * 
-		(SINE_CYCLE_LENGTH/(2*VIBRATO_SAMPLE_INCREMENTS)))
+	pb=static_cast<int>((sine(vp->vibrato_phase *
+			(SINE_CYCLE_LENGTH/(2*VIBRATO_SAMPLE_INCREMENTS)))
 		* (double)(depth) * VIBRATO_AMPLITUDE_TUNING));
 
 	if (pb<0)
@@ -356,12 +356,12 @@ static  int32_t update_vibrato(Voice *vp, const int sign)
 
 	/* If the sweep's over, we can store the newly computed sample_increment */
 	if (!vp->vibrato_sweep)
-		vp->vibrato_sample_increment[phase]=(int32_t) a;
+		vp->vibrato_sample_increment[phase]=static_cast<int32_t>(a);
 
 	if (sign)
 		a = -a; /* need to preserve the loop direction */
 
-	return (int32_t) a;
+	return static_cast<int32_t>(a);
 }
 
 static sample_t *rs_vib_plain(const int v,  int32_t *countptr)
@@ -694,10 +694,10 @@ void pre_resample(Sample * sp)
 		sp->note_to_use,
 		note_name[sp->note_to_use % 12], (sp->note_to_use & 0x7F) / 12);
 
-	a = ((double) (sp->sample_rate) * freq_table[(int) (sp->note_to_use)]) /
-		((double) (sp->root_freq) * play_mode->rate);
-	newlen = (int32_t)(sp->data_length / a);
-	dest = newdata = (int16_t*)safe_malloc(newlen >> (FRACTION_BITS - 1));
+	a = (static_cast<double>(sp->sample_rate) * freq_table[static_cast<int>(sp->note_to_use)]) /
+		(static_cast<double>(sp->root_freq) * play_mode->rate);
+	newlen = static_cast<int32_t>(sp->data_length / a);
+	dest = newdata = static_cast<int16_t*>(safe_malloc(newlen >> (FRACTION_BITS - 1)));
 
 	count = (newlen >> FRACTION_BITS) - 1;
 	ofs = incr = (sp->data_length - (1 << FRACTION_BITS)) / count;
@@ -715,7 +715,7 @@ void pre_resample(Sample * sp)
 		v3 = *(vptr + 1);
 		v4 = *(vptr + 2);
 		xdiff = FSCALENEG(ofs & FRACTION_MASK, FRACTION_BITS);
-		*dest++ = (int16_t)(v2 + (xdiff / 6.0) * (-2 * v1 - 3 * v2 + 6 * v3 - v4 +
+		*dest++ = static_cast<int16_t>(v2 + (xdiff / 6.0) * (-2 * v1 - 3 * v2 + 6 * v3 - v4 +
 			xdiff * (3 * (v1 - 2 * v2 + v3) + xdiff * (-v1 + 3 * (v2 - v3) + v4))));
 		ofs += incr;
 	}
@@ -730,8 +730,8 @@ void pre_resample(Sample * sp)
 		*dest++ = src[ofs >> FRACTION_BITS];
 
 	sp->data_length = newlen;
-	sp->loop_start = (int32_t)(sp->loop_start / a);
-	sp->loop_end = (int32_t)(sp->loop_end / a);
+	sp->loop_start = static_cast<int32_t>(sp->loop_start / a);
+	sp->loop_end = static_cast<int32_t>(sp->loop_end / a);
 	Real_Tim_Free(sp->data);
 	sp->data = (sample_t *) newdata;
 	sp->sample_rate = 0;

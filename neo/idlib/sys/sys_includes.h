@@ -132,7 +132,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <locale>
 #include <codecvt>
 
-#include <magic_enum/magic_enum.hpp>
+#include "magic_enum/magic_enum.hpp"
 //-----------------------------------------------------
 
 // Hacked stuff we may want to consider implementing later

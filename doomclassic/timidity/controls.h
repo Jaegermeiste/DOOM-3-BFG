@@ -21,6 +21,10 @@ controls.h
 */
 
 /* Return values for ControlMode.read */
+#ifndef __CONTROLS_H__
+#define __CONTROLS_H__
+
+#pragma once
 
 #define RC_ERROR -1
 #define RC_NO_RETURN_VALUE 0
@@ -57,15 +61,15 @@ song if we're less than a second into this one. */
 #define VERB_DEBUG	3
 #define VERB_DEBUG_SILLY	4
 
-typedef struct {
-	char *id_name, id_character;
+typedef struct ControlMode_s {
+	const char *id_name, id_character;
 	int verbosity, trace_playing, opened;
 
 	int (*open)(int using_stdin, int using_stdout);
 	void (*pass_playing_list)(size_t number_of_files, char *list_of_files[]);
 	void (*close)(void);
 	int (*read)(int *valp);
-	int (*cmsg)(int type, int verbosity_level, char *fmt, ...);
+	int (*cmsg)(int type, int verbosity_level, const char *fmt, ...);
 
 	void (*refresh)(void);
 	void (*reset)(void);
@@ -85,5 +89,7 @@ typedef struct {
 } ControlMode;
 
 extern ControlMode *ctl_list[], *ctl; 
-const int TIMIDITY_ERROR_MAX_CHARS = 1024;
+constexpr size_t TIMIDITY_ERROR_MAX_CHARS = 1024;
 extern char timidity_error[];
+
+#endif // __CONTROLS_H__

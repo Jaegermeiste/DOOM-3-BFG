@@ -55,11 +55,11 @@ static  int32_t sample_increment, sample_correction; /*samples per MIDI delta-t*
 static  int32_t read_local(void* buffer, const size_t len, const size_t count)
 {
 	if (fp && len > 0) {
-		return (int32_t)fp->Read(buffer, len * count ) / len;
+		return static_cast<int32_t>(fp->Read(buffer, len * count)) / len;
 	} else if( local_buffer != NULL ) {
 		if (len * count + local_buffer_cur > local_buffer_length) {
 			memcpy(buffer, &local_buffer[local_buffer_cur], local_buffer_length - local_buffer_cur);
-			return(int32_t)(local_buffer_length - local_buffer_cur)/len;
+			return static_cast<int32_t>(local_buffer_length - local_buffer_cur)/len;
 		} else {
 			memcpy(buffer, &local_buffer[local_buffer_cur], len * count);
 			local_buffer_cur += len * count;
@@ -87,11 +87,11 @@ static void skip_local(const size_t len)
 static void compute_sample_increment(const int32_t tempo, const int32_t divisions)
 {
 	double a;
-	a = (double) (tempo) * (double) (play_mode->rate) * (65536.0/1000000.0) /
-		(double)(divisions);
+	a = static_cast<double>(tempo) * static_cast<double>(play_mode->rate) * (65536.0/1000000.0) /
+		static_cast<double>(divisions);
 
-	sample_correction = (int32_t)(a) & 0xFFFF;
-	sample_increment = (int32_t)(a) >> 16;
+	sample_correction = static_cast<int32_t>(a) & 0xFFFF;
+	sample_increment = static_cast<int32_t>(a) >> 16;
 
 	ctl->cmsg(CMSG_INFO, VERB_DEBUG, "Samples per delta-t: %d (correction %d)",
 		sample_increment, sample_correction);
@@ -113,9 +113,9 @@ static  int32_t getvl(void)
 
 /* Print a string from the file, followed by a newline. Any non-ASCII
 or unprintable characters will be converted to periods. */
-static int dumpstring( int32_t len, char *label)
+static int dumpstring( int32_t len, const char *label)
 {
-	signed char *s=(signed char *)safe_malloc(len+1);
+	signed char *s=static_cast<signed char*>(safe_malloc(len + 1));
 	if (len != (int32_t)read_local(s, 1, len))
 	{
 		Real_Tim_Free(s);
@@ -171,7 +171,7 @@ static MidiEventList *read_midi_event(void)
 			len=getvl();
 			if (type>0 && type<16)
 			{
-				static char *label[]={
+				static const char *label[]={
 					"Text event: ", "Text: ", "Copyright: ", "Track name: ",
 						"Instrument: ", "Lyric: ", "Marker: ", "Cue point: "};
 					dumpstring(len, label[(type>7) ? 0 : type]);
@@ -335,7 +335,7 @@ static int read_track(const int append)
 	if (append && meep)
 	{
 		/* find the last event in the list */
-		for (; meep->next; meep=(MidiEventList *)meep->next)
+		for (; meep->next; meep=static_cast<MidiEventList*>(meep->next))
 			;
 		at=meep->event.time;
 	}
@@ -368,11 +368,11 @@ static int read_track(const int append)
 			return 0;
 		}
 
-		next=(MidiEventList *)meep->next;
+		next=static_cast<MidiEventList*>(meep->next);
 		while (next && (next->event.time < newEventList->event.time))
 		{
 			meep=next;
-			next=(MidiEventList *)meep->next;
+			next=static_cast<MidiEventList*>(meep->next);
 		}
 
 		newEventList->next=next;
@@ -390,7 +390,7 @@ static void free_midi_list(void)
 	if (!(meep=evlist)) return;
 	while (meep)
 	{
-		next=(MidiEventList *)meep->next;
+		next=static_cast<MidiEventList*>(meep->next);
 		Real_Tim_Free(meep);
 		meep=next;
 	}
@@ -422,7 +422,7 @@ static MidiEvent *groom_list(const int32_t divisions, int32_t *eventsp, int32_t 
 	compute_sample_increment(tempo, divisions);
 
 	/* This may allocate a bit more than we need */
-	groomed_list=lp=(MidiEvent*)safe_malloc(sizeof(MidiEvent) * (event_count+1));
+	groomed_list=lp=static_cast<MidiEvent*>(safe_malloc(sizeof(MidiEvent) * (event_count + 1)));
 	meep=evlist;
 
 	our_event_count=0;
@@ -543,7 +543,7 @@ static MidiEvent *groom_list(const int32_t divisions, int32_t *eventsp, int32_t 
 			our_event_count++;
 		}
 		at=meep->event.time;
-		meep=(MidiEventList *)meep->next;
+		meep=static_cast<MidiEventList*>(meep->next);
 	}
 	/* Add an End-of-Track event */
 	lp->time=st;
@@ -606,7 +606,7 @@ MidiEvent *read_midi_file(idFile * mfp,  int32_t *count,  int32_t *sp)
 		divisions=
 			(int32_t)(-(divisions_tmp/256)) * (int32_t)(divisions_tmp & 0xFF);
 	}
-	else divisions=(int32_t)(divisions_tmp);
+	else divisions=static_cast<int32_t>(divisions_tmp);
 
 	if (len > 6)
 	{
@@ -625,7 +625,7 @@ MidiEvent *read_midi_file(idFile * mfp,  int32_t *count,  int32_t *sp)
 	//	"Format: %d  Tracks: %d  Divisions: %d", format, tracks, divisions);
 
 	/* Put a do-nothing event first in the list for easier processing */
-	evlist=(MidiEventList *)safe_malloc(sizeof(MidiEventList));
+	evlist=static_cast<MidiEventList*>(safe_malloc(sizeof(MidiEventList)));
 	evlist->event.time=0;
 	evlist->event.type=ME_NONE;
 	evlist->next=0;
@@ -701,7 +701,7 @@ MidiEvent *read_midi_buffer(unsigned char* buffer, const size_t length,  int32_t
 		/* SMPTE time -- totally untested. Got a MIDI file that uses this? */
 		divisions= (int32_t)(-(divisions_tmp/256)) * (int32_t)(divisions_tmp & 0xFF);
 	}
-	else divisions=(int32_t)(divisions_tmp);
+	else divisions=static_cast<int32_t>(divisions_tmp);
 
 	if (len > 6)
 	{
@@ -720,7 +720,7 @@ MidiEvent *read_midi_buffer(unsigned char* buffer, const size_t length,  int32_t
 	//	"Format: %d  Tracks: %d  Divisions: %d", format, tracks, divisions);
 
 	/* Put a do-nothing event first in the list for easier processing */
-	evlist=(MidiEventList *)safe_malloc(sizeof(MidiEventList));
+	evlist=static_cast<MidiEventList*>(safe_malloc(sizeof(MidiEventList)));
 	evlist->event.time=0;
 	evlist->event.type=ME_NONE;
 	evlist->next=0;

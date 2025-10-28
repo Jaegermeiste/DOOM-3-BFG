@@ -52,30 +52,30 @@ static float ino(const float x)
 	de = 1.0;
 	i = 1;
 	do {
-		de = de * y / (float) i;
+		de = de * y / static_cast<float>(i);
 		sde = de * de;
 		e += sde;
 	} while (!( (e * 1.0e-08 - sde > 0) || (i++ > 25) ));
 	return(e);
 }	
 
-/* Kaiser Window (symetric) */
+/* Kaiser Window (symmetric) */
 static void kaiser(float *w, const int n, const float beta)
 {
 	float xind, xi;
 	int i;
 
-	xind = (float)((2*n - 1) * (2*n - 1));
+	xind = static_cast<float>((2 * n - 1) * (2 * n - 1));
 	for (i =0; i<n ; i++) 
 	{
-		xi = (float)(i + 0.5);
-		w[i] = ino((float)(beta * sqrt((double)(1. - 4 * xi * xi / xind))))
+		xi = static_cast<float>(i + 0.5);
+		w[i] = ino(static_cast<float>(beta * sqrt((double)(1. - 4 * xi * xi / xind))))
 			/ ino((float)beta);
 	}
 }
 
 /*
-* fir coef in g, cuttoff frequency in fc
+* fir coef in g, cutoff frequency in fc
 */
 static void designfir(float *g , const float fc)
 {
@@ -85,13 +85,13 @@ static void designfir(float *g , const float fc)
 
 	for (i =0; i < ORDER2 ;i++) 
 	{
-		xi = (float) (i + 0.5);
+		xi = static_cast<float>(i + 0.5);
 		omega = (float)(PI * xi);
-		g[i] = (float)(sin( (double) omega * fc) / omega);
+		g[i] = static_cast<float>(sin(static_cast<double>(omega) * fc) / omega);
 	}
 
 	att = 40.; /* attenuation  in  db */
-	beta = (float) (exp(log((double)0.58417 * (att - 20.96)) * 0.4) + 0.07886 
+	beta = static_cast<float>(exp(log((double)0.58417 * (att - 20.96)) * 0.4) + 0.07886
 		* (att - 20.96));
 	kaiser( w, ORDER2, beta);
 
@@ -118,13 +118,13 @@ static void filter(sample_t *result,sample_t *data, const int32_t  length,float 
 		sample_window= sample - ORDER2;
 
 		for (i = 0; i < ORDER ;i++) 
-			sum += (float)(coef[i] *
-			((sample_window<0)? 0.0 : data[sample_window++])) ;
+			sum += static_cast<float>(coef[i] *
+				((sample_window < 0) ? 0.0 : data[sample_window++])) ;
 
 		/* Saturation ??? */
 		if (sum> 32767.) { sum=32767.; peak++; }
 		if (sum< -32768.) { sum=-32768; peak++; }
-		result[sample] = (sample_t) sum;
+		result[sample] = static_cast<sample_t>(sum);
 	}
 
 	/* The core of the buffer  */
@@ -139,7 +139,7 @@ static void filter(sample_t *result,sample_t *data, const int32_t  length,float 
 		/* Saturation ??? */
 		if (sum> 32767.) { sum=32767.; peak++; }
 		if (sum< -32768.) { sum=-32768; peak++; }
-		result[sample] = (sample_t) sum;
+		result[sample] = static_cast<sample_t>(sum);
 	}
 
 	/* Simulate 0 at the end of the buffer */
@@ -149,18 +149,18 @@ static void filter(sample_t *result,sample_t *data, const int32_t  length,float 
 		sample_window= sample - ORDER2;
 
 		for (i = 0; i < ORDER ;i++) 
-			sum += (float)(coef[i] *
-			((sample_window>=length)? 0.0 : data[sample_window++])) ;
+			sum += static_cast<float>(coef[i] *
+				((sample_window >= length) ? 0.0 : data[sample_window++])) ;
 
 		/* Saturation ??? */
 		if (sum> 32767.) { sum=32767.; peak++; }
 		if (sum< -32768.) { sum=-32768; peak++; }
-		result[sample] = (sample_t) sum;
+		result[sample] = static_cast<sample_t>(sum);
 	}
 
 	if (peak)
 		ctl->cmsg(CMSG_ERROR, VERB_NORMAL, 
-		"Saturation %2.3f %%.", 100.0*peak/ (float) length);
+		"Saturation %2.3f %%.", 100.0*peak/ static_cast<float>(length));
 }
 
 /***********************************************************************/
@@ -185,7 +185,7 @@ void antialiasing(Sample *sp, const int32_t  output_rate )
 	if (output_rate>=sp->sample_rate)
 		return;
 
-	freq_cut= (float) output_rate / (float) sp->sample_rate;
+	freq_cut= static_cast<float>(output_rate) / static_cast<float>(sp->sample_rate);
 	ctl->cmsg(CMSG_INFO, VERB_NOISY, "Antialiasing: cutoff=%f%%",
 		freq_cut*100.);
 
@@ -196,7 +196,7 @@ void antialiasing(Sample *sp, const int32_t  output_rate )
 		fir_symetric[ORDER-1 - i] = fir_symetric[i] = fir_coef[ORDER2-1 - i];
 
 	/* We apply the filter we have designed on a copy of the patch */
-	temp = (sample_t*)safe_malloc(sp->data_length);
+	temp = static_cast<sample_t*>(safe_malloc(sp->data_length));
 	memcpy(temp,sp->data,sp->data_length);
 
 	filter(sp->data,temp,sp->data_length/sizeof(sample_t),fir_symetric);

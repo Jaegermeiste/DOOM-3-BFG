@@ -68,7 +68,7 @@ static  int32_t sample_count, current_sample;
 
 static void adjust_amplification(void)
 { 
-	master_volume = (float)(amplification) / (float)100.0;
+	master_volume = static_cast<float>(amplification) / static_cast<float>(100.0);
 }
 
 static void reset_voices(void)
@@ -192,28 +192,28 @@ static void recompute_freq(const int v)
 			if (pb<0)
 				i=-i;
 			channel[voice[v].channel].pitchfactor=
-				(float)(bend_fine[(i>>5) & 0xFF] * bend_coarse[i>>13]);
+				static_cast<float>(bend_fine[(i >> 5) & 0xFF] * bend_coarse[i >> 13]);
 		}
 		if (pb>0)
 			voice[v].frequency=
-			(int32_t)(channel[voice[v].channel].pitchfactor *
-			(double)(voice[v].orig_frequency));
+			static_cast<int32_t>(channel[voice[v].channel].pitchfactor *
+				(double)(voice[v].orig_frequency));
 		else
 			voice[v].frequency=
-			(int32_t)((double)(voice[v].orig_frequency) /
-			channel[voice[v].channel].pitchfactor);
+			static_cast<int32_t>((double)(voice[v].orig_frequency) /
+				channel[voice[v].channel].pitchfactor);
 	}
 
-	a = FSCALE(((double)(voice[v].sample->sample_rate) *
-		(double)(voice[v].frequency)) /
-		((double)(voice[v].sample->root_freq) *
-		(double)(play_mode->rate)),
+	a = FSCALE((static_cast<double>(voice[v].sample->sample_rate) *
+		           static_cast<double>(voice[v].frequency)) /
+		(static_cast<double>(voice[v].sample->root_freq) *
+			static_cast<double>(play_mode->rate)),
 		FRACTION_BITS);
 
 	if (sign) 
 		a = -a; /* need to preserve the loop direction */
 
-	voice[v].sample_increment = (int32_t)(a);
+	voice[v].sample_increment = static_cast<int32_t>(a);
 }
 
 static void recompute_amp(const int v)
@@ -233,7 +233,7 @@ static void recompute_amp(const int v)
 			voice[v].panned=PANNED_CENTER;
 
 			voice[v].left_amp=
-				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
+				FSCALENEG(static_cast<double>(tempamp) * voice[v].sample->volume * master_volume,
 				21);
 		}
 		else if (voice[v].panning<5)
@@ -241,7 +241,7 @@ static void recompute_amp(const int v)
 			voice[v].panned = PANNED_LEFT;
 
 			voice[v].left_amp=
-				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
+				FSCALENEG(static_cast<double>(tempamp) * voice[v].sample->volume * master_volume,
 				20);
 		}
 		else if (voice[v].panning>123)
@@ -249,7 +249,7 @@ static void recompute_amp(const int v)
 			voice[v].panned = PANNED_RIGHT;
 
 			voice[v].left_amp= /* left_amp will be used */
-				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
+				FSCALENEG(static_cast<double>(tempamp) * voice[v].sample->volume * master_volume,
 				20);
 		}
 		else
@@ -257,10 +257,10 @@ static void recompute_amp(const int v)
 			voice[v].panned = PANNED_MYSTERY;
 
 			voice[v].left_amp=
-				FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
+				FSCALENEG(static_cast<double>(tempamp) * voice[v].sample->volume * master_volume,
 				27);
 			voice[v].right_amp=voice[v].left_amp * (voice[v].panning);
-			voice[v].left_amp *= (float)(127-voice[v].panning);
+			voice[v].left_amp *= static_cast<float>(127 - voice[v].panning);
 		}
 	}
 	else
@@ -268,7 +268,7 @@ static void recompute_amp(const int v)
 		voice[v].panned=PANNED_CENTER;
 
 		voice[v].left_amp=
-			FSCALENEG((double)(tempamp) * voice[v].sample->volume * master_volume,
+			FSCALENEG(static_cast<double>(tempamp) * voice[v].sample->volume * master_volume,
 			21);
 	}
 }
@@ -292,7 +292,7 @@ static void start_note(MidiEvent *e, const int i)
 		}
 
 		if (ip->sample->note_to_use) /* Do we have a fixed pitch? */
-			voice[i].orig_frequency=freq_table[(int)(ip->sample->note_to_use)];
+			voice[i].orig_frequency=freq_table[static_cast<int>(ip->sample->note_to_use)];
 		else
 			voice[i].orig_frequency=freq_table[e->a & 0x7F];
 
@@ -311,7 +311,7 @@ static void start_note(MidiEvent *e, const int i)
 		}
 
 		if (ip->sample->note_to_use) /* Fixed-pitch instrument? */
-			voice[i].orig_frequency=freq_table[(int)(ip->sample->note_to_use)];
+			voice[i].orig_frequency=freq_table[static_cast<int>(ip->sample->note_to_use)];
 		else
 			voice[i].orig_frequency=freq_table[e->a & 0x7F];
 		select_sample(i, ip);
@@ -939,7 +939,7 @@ MidiSong *Timidity_LoadSong(char *midifile)
 	idFile * fp;
 
 	/* Allocate memory for the song */
-	song = (MidiSong *)safe_malloc(sizeof(*song));
+	song = static_cast<MidiSong*>(safe_malloc(sizeof(*song)));
 	memset(song, 0, sizeof(*song));
 
 	/* Open the file */
@@ -963,7 +963,7 @@ MidiSong *Timidity_LoadSongMem(unsigned char* buffer, const size_t length)
 	MidiSong *song;
 	 int32_t events;
 
-	song = (MidiSong *)safe_malloc(sizeof(*song));
+	song = static_cast<MidiSong*>(safe_malloc(sizeof(*song)));
 	memset(song, 0, sizeof(*song));
 
 	song->events = read_midi_buffer(buffer, length, &events, &song->samples);

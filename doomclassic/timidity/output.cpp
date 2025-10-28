@@ -48,59 +48,59 @@ PlayMode *play_mode=DEFAULT_PLAY_MODE;
 
 void s32tos8(void *dp,  int32_t *lp,  int32_t c)
 {
-	int8_t *cp=(int8_t *)(dp);
+	int8_t *cp=static_cast<int8_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
 		l=(*lp++)>>(32-8-GUARD_BITS);
 		if (l>127) l=127;
 		else if (l<-128) l=-128;
-		*cp++ = (int8_t) (l);
+		*cp++ = static_cast<int8_t>(l);
 	}
 }
 
 void s32tou8(void *dp,  int32_t *lp,  int32_t c)
 {
-	uint8_t *cp=(uint8_t *)(dp);
+	uint8_t *cp=static_cast<uint8_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
 		l=(*lp++)>>(32-8-GUARD_BITS);
 		if (l>127) l=127;
 		else if (l<-128) l=-128;
-		*cp++ = 0x80 ^ ((uint8_t) l);
+		*cp++ = 0x80 ^ static_cast<uint8_t>(l);
 	}
 }
 
 void s32tos16(void *dp,  int32_t *lp,  int32_t c)
 {
-	int16_t *sp=(int16_t *)(dp);
+	int16_t *sp=static_cast<int16_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
 		l=(*lp++)>>(32-16-GUARD_BITS);
 		if (l > 32767) l=32767;
 		else if (l<-32768) l=-32768;
-		*sp++ = (int16_t)(l);
+		*sp++ = static_cast<int16_t>(l);
 	}
 }
 
 void s32tou16(void *dp,  int32_t *lp,  int32_t c)
 {
-	uint16_t *sp=(uint16_t *)(dp);
+	uint16_t *sp=static_cast<uint16_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
 		l=(*lp++)>>(32-16-GUARD_BITS);
 		if (l > 32767) l=32767;
 		else if (l<-32768) l=-32768;
-		*sp++ = 0x8000 ^ (uint16_t)(l);
+		*sp++ = 0x8000 ^ static_cast<uint16_t>(l);
 	}
 }
 
 void s32tos16x(void *dp,  int32_t *lp,  int32_t c)
 {
-	int16_t *sp=(int16_t *)(dp);
+	int16_t *sp=static_cast<int16_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
@@ -113,7 +113,7 @@ void s32tos16x(void *dp,  int32_t *lp,  int32_t c)
 
 void s32tou16x(void *dp,  int32_t *lp,  int32_t c)
 {
-	uint16_t *sp=(uint16_t *)(dp);
+	uint16_t *sp=static_cast<uint16_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
@@ -126,7 +126,7 @@ void s32tou16x(void *dp,  int32_t *lp,  int32_t c)
 
 void s32toulaw(void *dp,  int32_t *lp,  int32_t c)
 {
-	uint8_t *up=(uint8_t *)(dp);
+	uint8_t *up=static_cast<uint8_t*>(dp);
 	 int32_t l;
 	while (c--)
 	{
