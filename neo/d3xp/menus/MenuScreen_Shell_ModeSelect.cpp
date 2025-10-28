@@ -57,7 +57,7 @@ void idMenuScreen_Shell_ModeSelect::Initialize( idMenuHandler * data ) {
 
 	const idStrList & modes = common->GetModeDisplayList();
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;	
-	for ( int i = 0; i < modes.Num(); ++i ) {
+	for ( size_t i = 0; i < modes.Num(); ++i ) {
 		idList< idStr > option;
 		option.Append( modes[i] );
 		menuOptions.Append( option );
@@ -168,7 +168,7 @@ void idMenuScreen_Shell_ModeSelect::HideScreen( const mainMenuTransition_t trans
 idMenuScreen_Shell_ModeSelect::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_ModeSelect::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_ModeSelect::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

@@ -81,54 +81,54 @@ public:
 public:	// common physics interface
 	void					SetSelf( idEntity *e ) override;
 
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true ) override;
-	idClipModel *			GetClipModel( int id = 0 ) const override;
-	int						GetNumClipModels() const override;
+	void					SetClipModel( idClipModel *model, float density, const index_t id = 0, bool freeOld = true ) override;
+	idClipModel *			GetClipModel( const index_t id = 0 ) const override;
+	size_t					GetNumClipModels() const override;
 
-	void					SetMass( float mass, int id = -1 ) override;
-	float					GetMass( int id = -1 ) const override;
+	void					SetMass( float mass, const index_t id = -1 ) override;
+	float					GetMass( const index_t id = -1 ) const override;
 
-	void					SetContents( int contents, int id = -1 ) override;
-	int						GetContents( int id = -1 ) const override;
+	void					SetContents( int contents, const index_t id = -1 ) override;
+	int						GetContents( const index_t id = -1 ) const override;
 
-	void					SetClipMask( int mask, int id = -1 ) override;
-	int						GetClipMask( int id = -1 ) const override;
+	void					SetClipMask( int mask, const index_t id = -1 ) override;
+	int						GetClipMask( const index_t id = -1 ) const override;
 
-	const idBounds &		GetBounds( int id = -1 ) const override;
-	const idBounds &		GetAbsBounds( int id = -1 ) const override;
+	const idBounds &		GetBounds( const index_t id = -1 ) const override;
+	const idBounds &		GetAbsBounds( const index_t id = -1 ) const override;
 
-	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
-	bool					Interpolate( const float fraction ) override;
+	bool					Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec );
+	bool					Interpolate( const double fraction ) override;
 	void					ResetInterpolationState( const idVec3 & origin, const idMat3 & axis ) override {}
-	void					UpdateTime( int endTimeMSec );
-	int						GetTime() const override;
+	void					UpdateTime( ID_TIME_T endTimeMSec );
+	ID_TIME_T				GetTime() const override;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) override;
-	void					AddForce( const int id, const idVec3 &point, const idVec3 &force ) override;
+	void					GetImpactInfo( const index_t id, const idVec3 &point, impactInfo_t *info ) const override;
+	void					ApplyImpulse( const index_t id, const idVec3 &point, const idVec3 &impulse ) override;
+	void					AddForce( const index_t id, const idVec3 &point, const idVec3 &force ) override;
 	void					Activate() override;
 	void					PutToRest() override;
 	bool					IsAtRest() const override;
-	int						GetRestStartTime() const override;
+	ID_TIME_T				GetRestStartTime() const override;
 	bool					IsPushable() const override;
 
 	void					SaveState() override;
 	void					RestoreState() override;
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 ) override;
-	void					SetAxis( const idMat3 &newAxis, int id = -1 ) override;
+	void					SetOrigin( const idVec3 &newOrigin, const index_t id = -1 ) override;
+	void					SetAxis( const idMat3 &newAxis, const index_t id = -1 ) override;
 
-	void					Translate( const idVec3 &translation, int id = -1 ) override;
-	void					Rotate( const idRotation &rotation, int id = -1 ) override;
+	void					Translate( const idVec3 &translation, const index_t id = -1 ) override;
+	void					Rotate( const idRotation &rotation, const index_t id = -1 ) override;
 
-	const idVec3 &			GetOrigin( int id = 0 ) const override;
-	const idMat3 &			GetAxis( int id = 0 ) const override;
+	const idVec3 &			GetOrigin( const index_t id = 0 ) const override;
+	const idMat3 &			GetAxis( const index_t id = 0 ) const override;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 ) override;
-	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 ) override;
+	void					SetLinearVelocity( const idVec3 &newLinearVelocity, const index_t id = 0 ) override;
+	void					SetAngularVelocity( const idVec3 &newAngularVelocity, const index_t id = 0 ) override;
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const override;
-	const idVec3 &			GetAngularVelocity( int id = 0 ) const override;
+	const idVec3 &			GetLinearVelocity( const index_t id = 0 ) const override;
+	const idVec3 &			GetAngularVelocity( const index_t id = 0 ) const override;
 
 	void					SetGravity( const idVec3 &newGravity ) override;
 	const idVec3 &			GetGravity() const override;
@@ -145,27 +145,27 @@ public:	// common physics interface
 	void					LinkClip() override;
 
 	bool					EvaluateContacts() override;
-	int						GetNumContacts() const override;
-	const contactInfo_t &	GetContact( int num ) const;
+	size_t					GetNumContacts() const override;
+	const contactInfo_t &	GetContact( size_t num ) const;
 	void					ClearContacts() override;
 	void					AddContactEntity( idEntity *e ) override;
 	void					RemoveContactEntity( idEntity *e ) override;
 
 	bool					HasGroundContacts() const override;
-	bool					IsGroundEntity( int entityNum ) const;
-	bool					IsGroundClipModel( int entityNum, int id ) const;
+	bool					IsGroundEntity( const index_t entityNum ) const;
+	bool					IsGroundClipModel( const index_t entityNum, const index_t id ) const;
 
-	void					SetPushed( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const override;
-	const idVec3 &			GetPushedAngularVelocity( const int id = 0 ) const override;
+	void					SetPushed( ID_TIME_T deltaTime );
+	const idVec3 &			GetPushedLinearVelocity( const index_t id = 0 ) const override;
+	const idVec3 &			GetPushedAngularVelocity( const index_t id = 0 ) const override;
 
 	void					SetMaster( idEntity *master, const bool orientated = true ) override;
 
 	const trace_t *			GetBlockingInfo() const override;
 	idEntity *				GetBlockingEntity() const override;
 
-	int						GetLinearEndTime() const override;
-	int						GetAngularEndTime() const override;
+	ID_TIME_T				GetLinearEndTime() const override;
+	ID_TIME_T				GetAngularEndTime() const override;
 
 	void					WriteToSnapshot( idBitMsg &msg ) const override;
 	void					ReadFromSnapshot( const idBitMsg &msg ) override;
@@ -186,6 +186,6 @@ protected:
 
 staticPState_t InterpolateStaticPState( const staticInterpolatePState_t & previous,
 										const staticInterpolatePState_t & next,
-										float fraction );
+										double fraction );
 
 #endif /* !__PHYSICS_STATIC_H__ */

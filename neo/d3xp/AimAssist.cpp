@@ -335,7 +335,7 @@ void idAimAssist::UpdateAdhesion( idEntity* pTarget, const idVec3& targetPos ) {
 idAimAssist::ComputeFrictionRadius
 ========================
 */
-float idAimAssist::ComputeFrictionRadius( float distanceToTarget ) {
+float idAimAssist::ComputeFrictionRadius(const float distanceToTarget ) {
 
 	if ( ( distanceToTarget <= idMath::FLT_SMALLEST_NON_DENORMAL ) || distanceToTarget > aa_targetFrictionMaxDistance.GetFloat() ) {
 		return aa_targetFrictionRadius.GetFloat();

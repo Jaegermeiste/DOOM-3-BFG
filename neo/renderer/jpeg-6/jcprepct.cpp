@@ -75,7 +75,7 @@ typedef my_prep_controller * my_prep_ptr;
  */
 
 METHODDEF void
-start_pass_prep( j_compress_ptr cinfo, J_BUF_MODE pass_mode ) {
+start_pass_prep(const j_compress_ptr cinfo, const J_BUF_MODE pass_mode ) {
     my_prep_ptr prep = (my_prep_ptr) cinfo->prep;
 
     if ( pass_mode != JBUF_PASS_THRU ) {
@@ -103,8 +103,8 @@ start_pass_prep( j_compress_ptr cinfo, J_BUF_MODE pass_mode ) {
  */
 
 LOCAL void
-expand_bottom_edge( JSAMPARRAY image_data, JDIMENSION num_cols,
-                    int input_rows, int output_rows ) {
+expand_bottom_edge(const JSAMPARRAY image_data, const JDIMENSION num_cols,
+                    const int input_rows, const int output_rows ) {
     register int row;
 
     for ( row = input_rows; row < output_rows; row++ ) {
@@ -124,13 +124,13 @@ expand_bottom_edge( JSAMPARRAY image_data, JDIMENSION num_cols,
  */
 
 METHODDEF void
-pre_process_data( j_compress_ptr cinfo,
-                  JSAMPARRAY input_buf, JDIMENSION * in_row_ctr,
-                  JDIMENSION in_rows_avail,
-                  JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr,
-                  JDIMENSION out_row_groups_avail ) {
+pre_process_data(const j_compress_ptr cinfo,
+                  const JSAMPARRAY input_buf, JDIMENSION * in_row_ctr,
+                  const JDIMENSION in_rows_avail,
+                  const JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr,
+                  const JDIMENSION out_row_groups_avail ) {
     my_prep_ptr prep = (my_prep_ptr) cinfo->prep;
-    int numrows, ci;
+    size_t numrows, ci;
     JDIMENSION inrows;
     jpeg_component_info * compptr;
 
@@ -190,13 +190,13 @@ pre_process_data( j_compress_ptr cinfo,
  */
 
 METHODDEF void
-pre_process_context( j_compress_ptr cinfo,
-                     JSAMPARRAY input_buf, JDIMENSION * in_row_ctr,
-                     JDIMENSION in_rows_avail,
-                     JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr,
-                     JDIMENSION out_row_groups_avail ) {
+pre_process_context(const j_compress_ptr cinfo,
+                     const JSAMPARRAY input_buf, JDIMENSION * in_row_ctr,
+                     const JDIMENSION in_rows_avail,
+                     const JSAMPIMAGE output_buf, JDIMENSION * out_row_group_ctr,
+                     const JDIMENSION out_row_groups_avail ) {
     my_prep_ptr prep = (my_prep_ptr) cinfo->prep;
-    int numrows, ci;
+    size_t numrows, ci;
     int buf_height = cinfo->max_v_samp_factor * 3;
     JDIMENSION inrows;
     jpeg_component_info * compptr;
@@ -281,7 +281,7 @@ pre_process_context( j_compress_ptr cinfo,
  */
 
 LOCAL void
-create_context_buffer( j_compress_ptr cinfo ) {
+create_context_buffer(const j_compress_ptr cinfo ) {
     my_prep_ptr prep = (my_prep_ptr) cinfo->prep;
     int rgroup_height = cinfo->max_v_samp_factor;
     int ci, i;
@@ -328,7 +328,7 @@ create_context_buffer( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_c_prep_controller( j_compress_ptr cinfo, boolean need_full_buffer ) {
+jinit_c_prep_controller( j_compress_ptr cinfo, const boolean need_full_buffer ) {
     my_prep_ptr prep;
     int ci;
     jpeg_component_info * compptr;

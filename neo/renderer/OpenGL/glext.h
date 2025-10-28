@@ -4739,11 +4739,11 @@ extern "C" {
 #define GL_TRANSFORM_FEEDBACK_BUFFER_NV   0x8C8E
 #define GL_TRANSFORM_FEEDBACK_BUFFER_BINDING_NV 0x8C8F
 #define GL_LAYER_NV                       0x8DAA
-#define GL_NEXT_BUFFER_NV                 -2
-#define GL_SKIP_COMPONENTS4_NV            -3
-#define GL_SKIP_COMPONENTS3_NV            -4
-#define GL_SKIP_COMPONENTS2_NV            -5
-#define GL_SKIP_COMPONENTS1_NV            -6
+#define GL_NEXT_BUFFER_NV                 (-2)
+#define GL_SKIP_COMPONENTS4_NV            (-3)
+#define GL_SKIP_COMPONENTS3_NV            (-4)
+#define GL_SKIP_COMPONENTS2_NV            (-5)
+#define GL_SKIP_COMPONENTS1_NV            (-6)
 #endif
 
 #ifndef GL_EXT_bindable_uniform
@@ -6523,7 +6523,7 @@ typedef void (APIENTRYP PFNGLVERTEXBLENDARBPROC) (GLint count);
 #ifndef GL_ARB_matrix_palette
 #define GL_ARB_matrix_palette 1
 #ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glCurrentPaletteMatrixARB (GLint index);
+GLAPI void APIENTRY glCurrentPaletteMatrixARB (GLindex_t index);
 GLAPI void APIENTRY glMatrixIndexubvARB (GLint size, const GLubyte *indices);
 GLAPI void APIENTRY glMatrixIndexusvARB (GLint size, const GLushort *indices);
 GLAPI void APIENTRY glMatrixIndexuivARB (GLint size, const GLuint *indices);

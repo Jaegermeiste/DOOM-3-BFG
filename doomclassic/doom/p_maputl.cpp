@@ -55,7 +55,9 @@ P_AproxDistance
     dx = abs(dx);
     dy = abs(dy);
     if (dx < dy)
-	return dx+dy-(dx>>1);
+    {
+	    return dx+dy-(dx>>1);
+    }
     return dx+dy-(dy>>1);
 }
 
@@ -66,8 +68,8 @@ P_AproxDistance
 //
 int
 P_PointOnLineSide
-( fixed_t	x,
-  fixed_t	y,
+(const fixed_t	x,
+  const fixed_t	y,
   line_t*	line )
 {
     fixed_t	dx;
@@ -78,15 +80,19 @@ P_PointOnLineSide
     if (!line->dx)
     {
 	if (x <= line->v1->x)
-	    return line->dy > 0;
-	
+	{
+		return line->dy > 0;
+	}
+
 	return line->dy < 0;
     }
     if (!line->dy)
     {
 	if (y <= line->v1->y)
-	    return line->dx < 0;
-	
+	{
+		return line->dx < 0;
+	}
+
 	return line->dx > 0;
     }
 	
@@ -97,7 +103,9 @@ P_PointOnLineSide
     right = FixedMul ( dy , line->dx>>FRACBITS );
 	
     if (right < left)
-	return 0;		// front side
+    {
+	    return 0; // front side
+    }
     return 1;			// back side
 }
 
@@ -150,7 +158,9 @@ P_BoxOnLineSide
     }
 
     if (p1 == p2)
-	return p1;
+    {
+	    return p1;
+    }
     return -1;
 }
 
@@ -161,8 +171,8 @@ P_BoxOnLineSide
 //
 int
 P_PointOnDivlineSide
-( fixed_t	x,
-  fixed_t	y,
+(const fixed_t	x,
+  const fixed_t	y,
   divline_t*	line )
 {
     fixed_t	dx;
@@ -173,14 +183,18 @@ P_PointOnDivlineSide
     if (!line->dx)
     {
 	if (x <= line->x)
-	    return line->dy > 0;
-	
+	{
+		return line->dy > 0;
+	}
+
 	return line->dy < 0;
     }
     if (!line->dy)
     {
 	if (y <= line->y)
-	    return line->dx < 0;
+	{
+		return line->dx < 0;
+	}
 
 	return line->dx > 0;
     }
@@ -192,7 +206,9 @@ P_PointOnDivlineSide
     if ( (line->dy ^ line->dx ^ dx ^ dy)&0x80000000 )
     {
 	if ( (line->dy ^ dx) & 0x80000000 )
-	    return 1;		// (left is negative)
+	{
+		return 1; // (left is negative)
+	}
 	return 0;
     }
 	
@@ -200,7 +216,9 @@ P_PointOnDivlineSide
     right = FixedMul ( dy>>8 , line->dx>>8 );
 	
     if (right < left)
-	return 0;		// front side
+    {
+	    return 0; // front side
+    }
     return 1;			// back side
 }
 
@@ -242,7 +260,9 @@ P_InterceptVector
     den = FixedMul (v1->dy>>8,v2->dx) - FixedMul(v1->dx>>8,v2->dy);
 
     if (den == 0)
-	return 0;
+    {
+	    return 0;
+    }
     //	I_Error ("P_InterceptVector: parallel");
     
     num =
@@ -277,8 +297,10 @@ P_InterceptVector
     den = v1dy*v2dx - v1dx*v2dy;
 
     if (den == 0)
-	return 0;	// parallel
-    
+    {
+	    return 0; // parallel
+    }
+
     num = (v1x - v2x)*v1dy + (v2y - v1y)*v1dx;
     frac = num / den;
 
@@ -311,9 +333,13 @@ void P_LineOpening (line_t* maputil_linedef)
     back = maputil_linedef->backsector;
 	
     if (front->ceilingheight < back->ceilingheight)
-	::g->opentop = front->ceilingheight;
+    {
+	    ::g->opentop = front->ceilingheight;
+    }
     else
-	::g->opentop = back->ceilingheight;
+    {
+	    ::g->opentop = back->ceilingheight;
+    }
 
     if (front->floorheight > back->floorheight)
     {
@@ -352,12 +378,18 @@ void P_UnsetThingPosition (mobj_t* thing)
 	// inert things don't need to be in blockmap?
 	// unlink from subsector
 	if (thing->snext)
-	    thing->snext->sprev = thing->sprev;
+	{
+		thing->snext->sprev = thing->sprev;
+	}
 
 	if (thing->sprev)
-	    thing->sprev->snext = thing->snext;
+	{
+		thing->sprev->snext = thing->snext;
+	}
 	else
-	    thing->subsector->sector->thinglist = thing->snext;
+	{
+		thing->subsector->sector->thinglist = thing->snext;
+	}
     }
 	
     if ( ! (thing->flags & MF_NOBLOCKMAP) )
@@ -365,10 +397,14 @@ void P_UnsetThingPosition (mobj_t* thing)
 	// inert things don't need to be in ::g->blockmap
 	// unlink from block map
 	if (thing->bnext)
-	    thing->bnext->bprev = thing->bprev;
-	
+	{
+		thing->bnext->bprev = thing->bprev;
+	}
+
 	if (thing->bprev)
-	    thing->bprev->bnext = thing->bnext;
+	{
+		thing->bprev->bnext = thing->bnext;
+	}
 	else
 	{
 	    blockx = (thing->x - ::g->bmaporgx)>>MAPBLOCKSHIFT;
@@ -409,11 +445,13 @@ P_SetThingPosition (mobj_t* thing)
 	// invisible things don't go into the sector links
 	sec = ss->sector;
 	
-	thing->sprev = NULL;
+	thing->sprev = nullptr;
 	thing->snext = sec->thinglist;
 
 	if (sec->thinglist)
-	    sec->thinglist->sprev = thing;
+	{
+		sec->thinglist->sprev = thing;
+	}
 
 	sec->thinglist = thing;
     }
@@ -432,17 +470,19 @@ P_SetThingPosition (mobj_t* thing)
 	    && blocky < ::g->bmapheight)
 	{
 	    link = &::g->blocklinks[blocky*::g->bmapwidth+blockx];
-	    thing->bprev = NULL;
+	    thing->bprev = nullptr;
 	    thing->bnext = *link;
 	    if (*link)
-		(*link)->bprev = thing;
+	    {
+		    (*link)->bprev = thing;
+	    }
 
 	    *link = thing;
 	}
 	else
 	{
 	    // thing is off the map
-	    thing->bnext = thing->bprev = NULL;
+	    thing->bnext = thing->bprev = nullptr;
 	}
     }
 }
@@ -468,8 +508,8 @@ P_SetThingPosition (mobj_t* thing)
 //
 qboolean
 P_BlockLinesIterator
-( int			x,
-  int			y,
+(const int			x,
+  const int			y,
   qboolean(*func)(line_t*) )
 {
     int			offset;
@@ -493,12 +533,16 @@ P_BlockLinesIterator
 	ld = &::g->lines[*list];
 
 	if (ld->validcount == ::g->validcount)
-	    continue; 	// line has already been checked
+	{
+		continue; // line has already been checked
+	}
 
 	ld->validcount = ::g->validcount;
 
 	if ( !func(ld) )
-	    return false;
+	{
+		return false;
+	}
     }
     return true;	// everything was checked
 }
@@ -509,8 +553,8 @@ P_BlockLinesIterator
 //
 qboolean
 P_BlockThingsIterator
-( int			x,
-  int			y,
+(const int			x,
+  const int			y,
   qboolean(*func)(mobj_t*) )
 {
     mobj_t*		mobj;
@@ -529,7 +573,9 @@ P_BlockThingsIterator
 	 mobj = mobj->bnext)
     {
 	if (!func( mobj ) )
-	    return false;
+	{
+		return false;
+	}
     }
     return true;
 }
@@ -551,7 +597,7 @@ P_BlockThingsIterator
 // are on opposite ::g->sides of the ::g->trace.
 // Returns true if ::g->earlyout and a solid line hit.
 //
-qboolean
+static qboolean
 PIT_AddLineIntercepts (line_t* ld)
 {
     int			s1;
@@ -575,15 +621,19 @@ PIT_AddLineIntercepts (line_t* ld)
     }
     
     if (s1 == s2)
-	return true;	// line isn't crossed
-    
+    {
+	    return true; // line isn't crossed
+    }
+
     // hit the line
     P_MakeDivline (ld, &dl);
     frac = P_InterceptVector (&::g->trace, &dl);
 
     if (frac < 0)
-	return true;	// behind source
-	
+    {
+	    return true; // behind source
+    }
+
     // try to early out the check
     if (::g->earlyout
 	&& frac < FRACUNIT
@@ -606,7 +656,7 @@ PIT_AddLineIntercepts (line_t* ld)
 //
 // PIT_AddThingIntercepts
 //
-qboolean PIT_AddThingIntercepts (mobj_t* thing)
+static qboolean PIT_AddThingIntercepts (mobj_t* thing)
 {
     fixed_t		x1;
     fixed_t		y1;
@@ -646,8 +696,10 @@ qboolean PIT_AddThingIntercepts (mobj_t* thing)
     s2 = P_PointOnDivlineSide (x2, y2, &::g->trace);
 
     if (s1 == s2)
-	return true;		// line isn't crossed
-	
+    {
+	    return true; // line isn't crossed
+    }
+
     dl.x = x1;
     dl.y = y1;
     dl.dx = x2-x1;
@@ -656,7 +708,9 @@ qboolean PIT_AddThingIntercepts (mobj_t* thing)
     frac = P_InterceptVector (&::g->trace, &dl);
 
     if (frac < 0)
-	return true;		// behind source
+    {
+	    return true; // behind source
+    }
 
     ::g->intercept_p->frac = frac;
     ::g->intercept_p->isaline = false;
@@ -672,10 +726,10 @@ qboolean PIT_AddThingIntercepts (mobj_t* thing)
 // Returns true if the traverser function returns true
 // for all ::g->lines.
 // 
-qboolean
+static qboolean
 P_TraverseIntercepts
-( traverser_t	func,
-  fixed_t	maxfrac )
+(const traverser_t	func,
+  const fixed_t	maxfrac )
 {
     int			count;
     fixed_t		dist;
@@ -684,7 +738,7 @@ P_TraverseIntercepts
 	
     count = ::g->intercept_p - ::g->intercepts;
     
-    in = 0;			// shut up compiler warning
+    in = nullptr;			// shut up compiler warning
 	
     while (count--)
     {
@@ -699,22 +753,30 @@ P_TraverseIntercepts
 	}
 	
 	if (dist > maxfrac)
-	    return true;	// checked everything in range		
+	{
+		return true; // checked everything in range		
+	}
 
 #if 0  // UNUSED
     {
 	// don't check these yet, there may be others inserted
 	in = scan = ::g->intercepts;
 	for ( scan = ::g->intercepts ; scan<::g->intercept_p ; scan++)
-	    if (scan->frac > maxfrac)
-		*in++ = *scan;
+	{
+		if (scan->frac > maxfrac)
+		{
+			*in++ = *scan;
+		}
+	}
 	::g->intercept_p = in;
 	return false;
     }
 #endif
 
         if ( !func (in) )
-	    return false;	// don't bother going farther
+        {
+	        return false; // don't bother going farther
+        }
 
 	in->frac = MAXINT;
     }
@@ -738,7 +800,7 @@ P_PathTraverse
   fixed_t		y1,
   fixed_t		x2,
   fixed_t		y2,
-  int			flags,
+  const int			flags,
   qboolean (*trav) (intercept_t *))
 {
     fixed_t	xt1;
@@ -768,10 +830,14 @@ P_PathTraverse
     ::g->intercept_p = ::g->intercepts;
 	
     if ( ((x1-::g->bmaporgx)&(MAPBLOCKSIZE-1)) == 0)
-	x1 += FRACUNIT;	// don't side exactly on a line
-    
+    {
+	    x1 += FRACUNIT; // don't side exactly on a line
+    }
+
     if ( ((y1-::g->bmaporgy)&(MAPBLOCKSIZE-1)) == 0)
-	y1 += FRACUNIT;	// don't side exactly on a line
+    {
+	    y1 += FRACUNIT; // don't side exactly on a line
+    }
 
     ::g->trace.x = x1;
     ::g->trace.y = y1;
@@ -841,13 +907,17 @@ P_PathTraverse
 	if (flags & PT_ADDLINES)
 	{
 	    if (!P_BlockLinesIterator (mapx, mapy,PIT_AddLineIntercepts))
-		return false;	// early out
+	    {
+		    return false; // early out
+	    }
 	}
 	
 	if (flags & PT_ADDTHINGS)
 	{
 	    if (!P_BlockThingsIterator (mapx, mapy,PIT_AddThingIntercepts))
-		return false;	// early out
+	    {
+		    return false; // early out
+	    }
 	}
 		
 	if (mapx == xt2

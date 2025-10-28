@@ -160,8 +160,8 @@ void idSurface_Patch::ResizeExpanded(const size_t newHeight, const size_t newWid
 		verts.SetNum( newHeight * newWidth );
 	}
 	// space out verts for new height and width
-	for ( int64 j = idMath::integer_cast<int64>(maxHeight) - 1; j >= 0; j-- ) {
-		for (int64 i = idMath::integer_cast<int64>(maxWidth) - 1; i >= 0; i-- ) {
+	for ( int64 j = numeric_cast<int64>(maxHeight) - 1; j >= 0; j-- ) {
+		for (int64 i = numeric_cast<int64>(maxWidth) - 1; i >= 0; i-- ) {
 			verts[j * newWidth + i] = verts[j * maxWidth + i];
 		}
 	}
@@ -180,8 +180,8 @@ void idSurface_Patch::Collapse() {
 	}
 	expanded = false;
 	if ( width != maxWidth ) {
-		for ( int j = 0; std::cmp_less(j, height); j++ ) {
-			for ( int i = 0; std::cmp_less(i, width); i++ ) {
+		for ( size_t j = 0; std::cmp_less(j, height); j++ ) {
+			for ( size_t i = 0; std::cmp_less(i, width); i++ ) {
 				verts[j*width + i] = verts[j*maxWidth + i];
 			}
 		}
@@ -201,8 +201,8 @@ void idSurface_Patch::Expand() {
 	expanded = true;
 	verts.SetNum( maxWidth * maxHeight );
 	if ( width != maxWidth ) {
-		for ( int64 j = idMath::integer_cast<int64>(height) - 1; j >= 0; j-- ) {
-			for ( int64 i = idMath::integer_cast<int64>(width) - 1; i >= 0; i-- ) {
+		for ( int64 j = numeric_cast<int64>(height) - 1; j >= 0; j-- ) {
+			for ( int64 i = numeric_cast<int64>(width) - 1; i >= 0; i-- ) {
 				verts[j*maxWidth + i] = verts[j*width + i];
 			}
 		}
@@ -459,8 +459,8 @@ void idSurface_Patch::SampleSinglePatch( const idDrawVert ctrl[3][3], const size
 	vertSub++;
 	for (size_t i = 0; i < horzSub; i++ ) {
 		for (size_t j = 0; j < vertSub; j++ ) {
-			const float u = idMath::Itof<float>(i) / idMath::Itof<float>(horzSub - 1);
-			const float v = idMath::Itof<float>(j) / idMath::Itof<float>(vertSub - 1);
+			const float u = numeric_cast<float>(i) / numeric_cast<float>(horzSub - 1);
+			const float v = numeric_cast<float>(j) / numeric_cast<float>(vertSub - 1);
 			SampleSinglePatchPoint( ctrl, u, v, &outVerts[((baseRow + j) * width) + i + baseCol] );
 		}
 	}

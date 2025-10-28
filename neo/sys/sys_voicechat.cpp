@@ -54,7 +54,7 @@ void idVoiceChatMgr::Shutdown() {
 idVoiceChatMgr::RegisterTalker
 ================================================
 */
-void idVoiceChatMgr::RegisterTalker( lobbyUser_t * user, int lobbyType, bool isLocal ) {
+void idVoiceChatMgr::RegisterTalker( lobbyUser_t * user, const int lobbyType, const bool isLocal ) {
 	
 	int i = FindTalkerIndex( user, lobbyType );
 	
@@ -91,7 +91,7 @@ void idVoiceChatMgr::RegisterTalker( lobbyUser_t * user, int lobbyType, bool isL
 idVoiceChatMgr::UnregisterTalker
 ================================================
 */
-void idVoiceChatMgr::UnregisterTalker( lobbyUser_t * user, int lobbyType, bool isLocal ) {
+void idVoiceChatMgr::UnregisterTalker( lobbyUser_t * user, const int lobbyType, const bool isLocal ) {
 	int i = FindTalkerIndex( user, lobbyType );
 	
 	if ( !verify( i != -1 ) ) {
@@ -124,7 +124,7 @@ void idVoiceChatMgr::GetActiveLocalTalkers( idStaticList< int, MAX_PLAYERS > & l
 	
 	localTalkers.Clear();
 
-	for ( int i = 0; i < talkers.Num(); i++ ) {
+	for ( size_t i = 0; i < talkers.Num(); i++ ) {
 		
 		if ( !talkers[i].IsLocal() ) {
 			continue;
@@ -147,7 +147,7 @@ void idVoiceChatMgr::GetActiveLocalTalkers( idStaticList< int, MAX_PLAYERS > & l
 idVoiceChatMgr::GetRecipientsForTalker
 ================================================
 */
-void idVoiceChatMgr::GetRecipientsForTalker( int talkerIndex, idStaticList< const lobbyAddress_t *, MAX_PLAYERS > & recipients ) {
+void idVoiceChatMgr::GetRecipientsForTalker(const int talkerIndex, idStaticList< const lobbyAddress_t *, MAX_PLAYERS > & recipients ) {
 	
 	recipients.Clear();
 	
@@ -159,7 +159,7 @@ void idVoiceChatMgr::GetRecipientsForTalker( int talkerIndex, idStaticList< cons
 	
 	sendFrame++;
 	
-	for ( int i = 0; i < talkers.Num(); i++ ) {
+	for ( size_t i = 0; i < talkers.Num(); i++ ) {
 		if ( !talkers[i].registeredSuccess ) {
 			continue;
 		}
@@ -198,7 +198,7 @@ void idVoiceChatMgr::GetRecipientsForTalker( int talkerIndex, idStaticList< cons
 idVoiceChatMgr::SetTalkerGroup
 ================================================
 */
-void idVoiceChatMgr::SetTalkerGroup( const lobbyUser_t * user, int lobbyType, int groupIndex ) {
+void idVoiceChatMgr::SetTalkerGroup( const lobbyUser_t * user, const int lobbyType, const int groupIndex ) {
 	int i = FindTalkerIndex( user, lobbyType );
 	
 	if ( !verify( i != -1 ) ) {
@@ -219,7 +219,7 @@ void idVoiceChatMgr::SetTalkerGroup( const lobbyUser_t * user, int lobbyType, in
 idVoiceChatMgr::SetActiveLobby
 ================================================
 */
-void idVoiceChatMgr::SetActiveLobby( int lobbyType ) {
+void idVoiceChatMgr::SetActiveLobby(const int lobbyType ) {
 	if ( activeLobbyType != lobbyType ) {
 		activeLobbyType = lobbyType;
 		// When the active session changes, we need to immediately call UpdateRegisteredTalkers, 
@@ -233,7 +233,7 @@ void idVoiceChatMgr::SetActiveLobby( int lobbyType ) {
 idVoiceChatMgr::SetActiveChatGroup
 ================================================
 */
-void idVoiceChatMgr::SetActiveChatGroup( int groupIndex ) {
+void idVoiceChatMgr::SetActiveChatGroup(const int groupIndex ) {
 	if ( activeGroupIndex != groupIndex ) {
 		activeGroupIndex = groupIndex;
 		// When the active group changes, we need to immediately call UpdateRegisteredTalkers, 
@@ -247,8 +247,8 @@ void idVoiceChatMgr::SetActiveChatGroup( int groupIndex ) {
 idVoiceChatMgr::FindTalkerByUserId
 ================================================
 */
-int idVoiceChatMgr::FindTalkerByUserId( lobbyUserID_t userID, int lobbyType ) {
-	for ( int i = 0; i < talkers.Num(); i++ ) {
+int idVoiceChatMgr::FindTalkerByUserId(const lobbyUserID_t userID, const int lobbyType ) {
+	for ( size_t i = 0; i < talkers.Num(); i++ ) {
 		if ( talkers[i].user->lobbyUserID == userID && talkers[i].lobbyType == lobbyType ) {
 			return i;
 		}
@@ -262,7 +262,7 @@ int idVoiceChatMgr::FindTalkerByUserId( lobbyUserID_t userID, int lobbyType ) {
 idVoiceChatMgr::GetLocalChatData
 ================================================
 */
-bool idVoiceChatMgr::GetLocalChatData( int talkerIndex, byte * data, int & dataSize ) {
+bool idVoiceChatMgr::GetLocalChatData(const int talkerIndex, byte * data, int & dataSize ) {
 	talker_t & talker = talkers[talkerIndex];
 
 	if ( !talker.IsLocal() ) {
@@ -302,7 +302,7 @@ bool idVoiceChatMgr::GetLocalChatData( int talkerIndex, byte * data, int & dataS
 idVoiceChatMgr::SubmitIncomingChatData
 ================================================
 */
-void idVoiceChatMgr::SubmitIncomingChatData( const byte * data, int dataSize ) {		
+void idVoiceChatMgr::SubmitIncomingChatData( const byte * data, const int dataSize ) {		
 	lobbyUserID_t lobbyUserID;
 	
 	idBitMsg voiceMsg;
@@ -363,7 +363,7 @@ voiceState_t idVoiceChatMgr::GetVoiceState( const lobbyUser_t * user ) {
 idVoiceChatMgr::CanSendVoiceTo
 ========================
 */
-bool idVoiceChatMgr::CanSendVoiceTo( int talkerFromIndex, int talkerToIndex ) { 
+bool idVoiceChatMgr::CanSendVoiceTo(const int talkerFromIndex, const int talkerToIndex ) { 
 	talker_t & talkerFrom = talkers[talkerFromIndex];
 
 	if ( !talkerFrom.IsLocal() ) {
@@ -421,8 +421,8 @@ void idVoiceChatMgr::ToggleMuteLocal( const lobbyUser_t * src, const lobbyUser_t
 idVoiceChatMgr::FindTalkerIndex
 ================================================
 */
-int idVoiceChatMgr::FindTalkerIndex( const lobbyUser_t * user, int lobbyType ) {
-	for ( int i = 0; i < talkers.Num(); i++ ) {
+int idVoiceChatMgr::FindTalkerIndex( const lobbyUser_t * user, const int lobbyType ) {
+	for ( size_t i = 0; i < talkers.Num(); i++ ) {
 		if ( talkers[i].user == user && talkers[i].lobbyType == lobbyType ) {
 			return i;
 		}
@@ -436,8 +436,8 @@ int idVoiceChatMgr::FindTalkerIndex( const lobbyUser_t * user, int lobbyType ) {
 idVoiceChatMgr::FindMachine
 ================================================
 */
-int idVoiceChatMgr::FindMachine( const lobbyAddress_t & address, int lobbyType ) {	
-	for ( int i = 0; i < remoteMachines.Num(); i++ ) {
+int idVoiceChatMgr::FindMachine( const lobbyAddress_t & address, const int lobbyType ) {	
+	for ( size_t i = 0; i < remoteMachines.Num(); i++ ) {
 		if ( remoteMachines[i].refCount == 0 ) {
 			continue;
 		}
@@ -453,7 +453,7 @@ int idVoiceChatMgr::FindMachine( const lobbyAddress_t & address, int lobbyType )
 idVoiceChatMgr::AddMachine
 ================================================
 */
-int idVoiceChatMgr::AddMachine( const lobbyAddress_t & address, int lobbyType ) {
+int idVoiceChatMgr::AddMachine( const lobbyAddress_t & address, const int lobbyType ) {
 		
 	int machineIndex = FindMachine( address, lobbyType );
 	
@@ -468,9 +468,9 @@ int idVoiceChatMgr::AddMachine( const lobbyAddress_t & address, int lobbyType ) 
 	//
 
 	// First, see if there is a free machine slot to take
-	int index = -1;
+	index_t index = -1;
 
-	for ( int i = 0; i < remoteMachines.Num(); i++ ) {
+	for ( size_t i = 0; i < remoteMachines.Num(); i++ ) {
 		if ( remoteMachines[i].refCount == 0 ) {
 			index = i;
 			break;
@@ -500,7 +500,7 @@ int idVoiceChatMgr::AddMachine( const lobbyAddress_t & address, int lobbyType ) 
 idVoiceChatMgr::RemoveMachine
 ================================================
 */
-void idVoiceChatMgr::RemoveMachine( int machineIndex, int lobbyType ) {
+void idVoiceChatMgr::RemoveMachine(const int machineIndex, const int lobbyType ) {
 	
 	assert( remoteMachines[machineIndex].refCount > 0 );
 	assert( remoteMachines[machineIndex].lobbyType == lobbyType );
@@ -517,7 +517,7 @@ idVoiceChatMgr::UpdateRegisteredTalkers
 */
 void idVoiceChatMgr::UpdateRegisteredTalkers() {	
 	for ( int pass = 0; pass < 2; pass++ ) {
-		for ( int i = 0; i < talkers.Num(); i++ ) {
+		for ( size_t i = 0; i < talkers.Num(); i++ ) {
 			talker_t & talker = talkers[i];
 		
 			bool shouldBeRegistered = ( talker.lobbyType != -1 && disableVoiceReasons == 0 && talker.lobbyType == activeLobbyType );
@@ -545,7 +545,7 @@ void idVoiceChatMgr::UpdateRegisteredTalkers() {
 idVoiceChatMgr::SetDisableVoiceReason
 ================================================
 */
-void idVoiceChatMgr::SetDisableVoiceReason( disableVoiceReason_t reason ) {	
+void idVoiceChatMgr::SetDisableVoiceReason(const disableVoiceReason_t reason ) {	
 	if ( ( disableVoiceReasons & reason ) == 0 ) {
 		disableVoiceReasons |= reason;
 		UpdateRegisteredTalkers();
@@ -557,7 +557,7 @@ void idVoiceChatMgr::SetDisableVoiceReason( disableVoiceReason_t reason ) {
 idVoiceChatMgr::ClearDisableVoiceReason
 ================================================
 */
-void idVoiceChatMgr::ClearDisableVoiceReason( disableVoiceReason_t reason ) {	
+void idVoiceChatMgr::ClearDisableVoiceReason(const disableVoiceReason_t reason ) {	
 	if ( ( disableVoiceReasons & reason ) != 0 ) {
 		disableVoiceReasons &= ~reason;
 		UpdateRegisteredTalkers();
@@ -569,7 +569,7 @@ void idVoiceChatMgr::ClearDisableVoiceReason( disableVoiceReason_t reason ) {
 idVoiceChatMgr::SetHeadsetState
 ================================================
 */
-void idVoiceChatMgr::SetHeadsetState( int talkerIndex, bool state ) {
+void idVoiceChatMgr::SetHeadsetState(const int talkerIndex, const bool state ) {
 	talker_t & talker = talkers[ talkerIndex ];
 
 	talker.hasHeadset = state;
@@ -580,7 +580,7 @@ void idVoiceChatMgr::SetHeadsetState( int talkerIndex, bool state ) {
 idVoiceChatMgr::HasHeadsetStateChanged
 ================================================
 */
-bool idVoiceChatMgr::HasHeadsetStateChanged( int talkerIndex )
+bool idVoiceChatMgr::HasHeadsetStateChanged(const int talkerIndex )
 {
 	talker_t & talker = talkers[ talkerIndex ];
 	

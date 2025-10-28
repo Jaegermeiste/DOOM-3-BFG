@@ -25,8 +25,14 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+#ifndef __BUILDVERSION_H__
+#define __BUILDVERSION_H__
+
+#pragma once
 
 constexpr int BUILD_NUMBER_SAVE_VERSION_CHANGE			= 1400;		// Altering saves so that the version goes in the Details file that we read in during the enumeration phase
 
-constexpr int BUILD_NUMBER = BUILD_NUMBER_SAVE_VERSION_CHANGE;
-constexpr int BUILD_NUMBER_MINOR = 0;
+constexpr int BUILD_NUMBER                              = BUILD_NUMBER_SAVE_VERSION_CHANGE;
+constexpr int BUILD_NUMBER_MINOR                        = 0;
+
+#endif // __BUILDVERSION_H__

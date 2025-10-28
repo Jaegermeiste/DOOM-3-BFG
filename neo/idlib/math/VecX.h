@@ -57,12 +57,12 @@ class idVecX {
 
 public:	
 	ID_INLINE					idVecX() noexcept;
-	ID_INLINE					explicit idVecX(size_t length );
-	ID_INLINE					explicit idVecX(size_t length, float *data );
+	ID_INLINE					explicit idVecX( size_t length );
+	ID_INLINE					explicit idVecX( size_t length, float *data );
 	ID_INLINE					~idVecX();
 
-	ID_INLINE	float			Get(Ordinal auto index ) const;
-	ID_INLINE	float &			Get(Ordinal auto index );
+	ID_INLINE	float			Get( const Ordinal auto index ) const;
+	ID_INLINE	float &			Get( const Ordinal auto index );
 	ID_INLINE	float			operator[]( const Ordinal auto index ) const;
 	ID_INLINE	float &			operator[]( const Ordinal auto index );
 	ID_INLINE	idVecX			operator-() const;
@@ -84,35 +84,35 @@ public:
 	ID_INLINE	bool			operator==(	const idVecX &a ) const;						// exact compare, no epsilon
 	ID_INLINE	bool			operator!=(	const idVecX &a ) const;						// exact compare, no epsilon
 
-	ID_INLINE	void			SetSize(size_t size);
-	ID_INLINE	void			ChangeSize(size_t size, bool makeZero = false);
+	ID_INLINE	void			SetSize( size_t size );
+	ID_INLINE	void			ChangeSize( size_t size, bool makeZero = false );
 	ID_INLINE	size_t			GetSize() const { return size; }
-	ID_INLINE	void			SetData(size_t length, float *data);
+	ID_INLINE	void			SetData( size_t length, float *data );
 	ID_INLINE	void			Zero() const;
-	ID_INLINE	void			Zero(size_t length );
+	ID_INLINE	void			Zero( size_t length );
 	ID_INLINE	void			Random( int seed, float l = 0.0f, float u = 1.0f ) const;
-	ID_INLINE	void			Random(size_t length, int seed, float l = 0.0f, float u = 1.0f );
+	ID_INLINE	void			Random( size_t length, int seed, float l = 0.0f, float u = 1.0f );
 	ID_INLINE	void			Negate();
 	ID_INLINE	void			Clamp( float min, float max ) const;
-	ID_INLINE	idVecX &		SwapElements(size_t e1, size_t e2 );
+	ID_INLINE	idVecX &		SwapElements( size_t e1, size_t e2 );
 
 	ID_INLINE	float			Length() const;
 	ID_INLINE	float			LengthSqr() const;
 	ID_INLINE	idVecX			Normalize() const;
 	ID_INLINE	float			NormalizeSelf() const;
 
-	ID_INLINE size_t GetDimension() const;
+	[[nodiscard]] ID_INLINE size_t GetDimension() const;
 
 	ID_INLINE	void			AddScaleAdd( const float scale, const idVecX & v0, const idVecX & v1 );
 
 	
-	ID_INLINE	const idVec3 &	SubVec3(Ordinal auto index ) const;
+	ID_INLINE	const idVec3 &	SubVec3( const Ordinal auto index ) const;
 	
-	ID_INLINE	idVec3 &		SubVec3(Ordinal auto index );
+	ID_INLINE	idVec3 &		SubVec3( const Ordinal auto index );
 	
-	ID_INLINE	const idVec6 &	SubVec6(Ordinal auto index = 0 ) const;
+	ID_INLINE	const idVec6 &	SubVec6( const Ordinal auto index = 0 ) const;
 	
-	ID_INLINE	idVec6 &		SubVec6(Ordinal auto index = 0 );
+	ID_INLINE	idVec6 &		SubVec6( const Ordinal auto index = 0 );
 	ID_INLINE	const float *	ToFloatPtr() const;
 	ID_INLINE	float *			ToFloatPtr();
 	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
@@ -180,7 +180,7 @@ idVecX::Get
 ========================
 */
 
-ID_INLINE float idVecX::Get(const Ordinal auto index ) const {
+ID_INLINE float idVecX::Get( const Ordinal auto index ) const {
 	assert( index >= 0 && std::cmp_less(index, size ) );
 	return p[index];
 }
@@ -191,7 +191,7 @@ idVecX::Get
 ========================
 */
 
-ID_INLINE float & idVecX::Get(const Ordinal auto index ) {
+ID_INLINE float & idVecX::Get( const Ordinal auto index ) {
 	assert( index >= 0 && std::cmp_less(index, size ) );
 	return p[index];
 }
@@ -202,7 +202,7 @@ idVecX::operator[]
 ========================
 */
 
-ID_INLINE float idVecX::operator[](const Ordinal auto index ) const {
+ID_INLINE float idVecX::operator[]( const Ordinal auto index ) const {
 	return Get( index );
 }
 
@@ -212,7 +212,7 @@ idVecX::operator[]
 ========================
 */
 
-ID_INLINE float & idVecX::operator[](const Ordinal auto index ) {
+ID_INLINE float & idVecX::operator[]( const Ordinal auto index ) {
 	return Get( index );
 }
 
@@ -487,7 +487,7 @@ ID_INLINE void idVecX::SetSize(const size_t newSize) {
 				Mem_Free16( p );
 			}
 			p = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
-			alloced = idMath::integer_cast<int64>(alloc);
+			alloced = numeric_cast<int64>(alloc);
 		}
 
 		if (p)
@@ -509,7 +509,7 @@ ID_INLINE void idVecX::ChangeSize(const size_t newSize, const bool makeZero) {
 		if (std::cmp_greater(alloc, alloced) && alloced != -1 ) {
 			float *oldVec = p;
 			p = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
-			alloced = idMath::integer_cast<int64>(alloc);
+			alloced = numeric_cast<int64>(alloc);
 			if ( oldVec ) {
 				for ( size_t i = 0; std::cmp_less(i, size); i++ ) {
 					p[i] = oldVec[i];
@@ -533,9 +533,9 @@ ID_INLINE void idVecX::ChangeSize(const size_t newSize, const bool makeZero) {
 idVecX::SetTempSize
 ========================
 */
-ID_INLINE void idVecX::SetTempSize(size_t newSize) {
+ID_INLINE void idVecX::SetTempSize(const size_t newSize) {
 	size = newSize;
-	alloced = idMath::integer_cast<int64>(( newSize + 3 ) & ~3);
+	alloced = numeric_cast<int64>(( newSize + 3 ) & ~3);
 	assert( alloced < VECX_MAX_TEMP );
 	if ( idVecX::tempIndex + alloced > VECX_MAX_TEMP ) {
 		idVecX::tempIndex = 0;
@@ -748,7 +748,7 @@ idVecX::SubVec3
 ========================
 */
 
-ID_INLINE idVec3 &idVecX::SubVec3(const Ordinal auto index ) {
+ID_INLINE idVec3 &idVecX::SubVec3( const Ordinal auto index ) {
 	assert( index >= 0 && std::cmp_less_equal(index * 3 + 3, size ) );
 	return *reinterpret_cast<idVec3 *>(p + index * 3);
 }
@@ -759,7 +759,7 @@ idVecX::SubVec3
 ========================
 */
 
-ID_INLINE const idVec3 &idVecX::SubVec3(const Ordinal auto index ) const {
+ID_INLINE const idVec3 &idVecX::SubVec3( const Ordinal auto index ) const {
 	assert( index >= 0 && std::cmp_less_equal(index * 3 + 3, size ) );
 	return *reinterpret_cast<const idVec3 *>(p + index * 3);
 }
@@ -770,7 +770,7 @@ idVecX::SubVec6
 ========================
 */
 
-ID_INLINE idVec6 &idVecX::SubVec6(const Ordinal auto index ) {
+ID_INLINE idVec6 &idVecX::SubVec6( const Ordinal auto index ) {
 	assert( index >= 0 && std::cmp_less_equal(index * 6 + 6, size ) );
 	return *reinterpret_cast<idVec6 *>(p + index * 6);
 }
@@ -781,7 +781,7 @@ idVecX::SubVec6
 ========================
 */
 
-ID_INLINE const idVec6 &idVecX::SubVec6(const Ordinal auto index ) const {
+ID_INLINE const idVec6 &idVecX::SubVec6( const Ordinal auto index ) const {
 	assert( index >= 0 && std::cmp_less_equal(index * 6 + 6, size ) );
 	return *reinterpret_cast<const idVec6 *>(p + index * 6);
 }

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __AAS_LOCAL_H__
 #define __AAS_LOCAL_H__
 
+#pragma once
+
 #include "AAS.h"
 #include "../Pvs.h"
 
@@ -37,14 +39,14 @@ class idRoutingCache {
 	friend class idAASLocal;
 
 public:
-								idRoutingCache( int size );
+								idRoutingCache( size_t size );
 								~idRoutingCache();
 
 	int							Size() const;
 
 private:
 	int							type;					// portal or area cache
-	int							size;					// size of cache
+	size_t						size;					// size of cache
 	int							cluster;				// cluster of the cache
 	int							areaNum;				// area of the cache
 	int							travelFlags;			// combinations of the travel flags
@@ -64,8 +66,8 @@ class idRoutingUpdate {
 private:
 	int							cluster;				// cluster number of this update
 	int							areaNum;				// area number of this update
-	unsigned short				tmpTravelTime;			// temporary travel time
-	unsigned short *			areaTravelTimes;		// travel times within the area
+	ID_TIME_T    				tmpTravelTime;			// temporary travel time
+	ID_TIME_T *     			areaTravelTimes;		// travel times within the area
 	idVec3						start;					// start point into area
 	idRoutingUpdate *			next;					// next in list
 	idRoutingUpdate *			prev;					// prev in list
@@ -79,7 +81,7 @@ class idRoutingObstacle {
 
 private:
 	idBounds					bounds;					// obstacle bounds
-	idList<int, TAG_AAS>					areas;					// areas the bounds are in
+	idList<int, TAG_AAS>		areas;					// areas the bounds are in
 };
 
 
@@ -95,29 +97,29 @@ public:
 								int					PointAreaNum( const idVec3 &origin ) const override;
 								int					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags ) const override;
 								int					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags ) const override;
-								void				PushPointIntoAreaNum( int areaNum, idVec3 &origin ) const override;
-								idVec3				AreaCenter( int areaNum ) const override;
-								int					AreaFlags( int areaNum ) const override;
-								int					AreaTravelFlags( int areaNum ) const override;
+								void				PushPointIntoAreaNum( index_t areaNum, idVec3 &origin ) const override;
+								idVec3				AreaCenter( index_t areaNum ) const override;
+								int					AreaFlags( index_t areaNum ) const override;
+								int					AreaTravelFlags( index_t areaNum ) const override;
 								bool				Trace( aasTrace_t &trace, const idVec3 &start, const idVec3 &end ) const override;
-								const idPlane &		GetPlane( int planeNum ) const override;
-								int					GetWallEdges( int areaNum, const idBounds &bounds, int travelFlags, int *edges, int maxEdges ) const override;
-								void				SortWallEdges( int *edges, int numEdges ) const override;
-								void				GetEdgeVertexNumbers( int edgeNum, int verts[2] ) const override;
-								void				GetEdge( int edgeNum, idVec3 &start, idVec3 &end ) const override;
+								const idPlane &		GetPlane( index_t planeNum ) const override;
+								int					GetWallEdges( index_t areaNum, const idBounds &bounds, int travelFlags, int *edges, size_t maxEdges ) const override;
+								void				SortWallEdges( int *edges, size_t numEdges ) const override;
+								void				GetEdgeVertexNumbers( index_t edgeNum, int verts[2] ) const override;
+								void				GetEdge( index_t edgeNum, idVec3 &start, idVec3 &end ) const override;
 								bool				SetAreaState( const idBounds &bounds, const int areaContents, bool disabled ) override;
 								aasHandle_t			AddObstacle( const idBounds &bounds ) override;
 								void				RemoveObstacle( const aasHandle_t handle ) override;
 								void				RemoveAllObstacles() override;
-								int					TravelTimeToGoalArea( int areaNum, const idVec3 &origin, int goalAreaNum, int travelFlags ) const override;
-								bool				RouteToGoalArea( int areaNum, const idVec3 origin, int goalAreaNum, int travelFlags, int &travelTime, idReachability **reach ) const override;
-								bool				WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const override;
-								bool				WalkPathValid( int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, int &endAreaNum ) const override;
-								bool				FlyPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const override;
-								bool				FlyPathValid( int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, int &endAreaNum ) const override;
-								void				ShowWalkPath( const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const override;
-								void				ShowFlyPath( const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const override;
-								bool				FindNearestGoal( aasGoal_t &goal, int areaNum, const idVec3 origin, const idVec3 &target, int travelFlags, aasObstacle_t *obstacles, int numObstacles, idAASCallback &callback ) const override;
+								ID_TIME_T			TravelTimeToGoalArea( index_t areaNum, const idVec3 &origin, index_t goalAreaNum, int travelFlags ) const override;
+								bool				RouteToGoalArea( index_t areaNum, const idVec3 origin, index_t goalAreaNum, int travelFlags, int &travelTime, idReachability **reach ) const override;
+								bool				WalkPathToGoal( aasPath_t &path, index_t areaNum, const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const override;
+								bool				WalkPathValid( index_t areaNum, const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, index_t &endAreaNum ) const override;
+								bool				FlyPathToGoal( aasPath_t &path, index_t areaNum, const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const override;
+								bool				FlyPathValid( index_t areaNum, const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, index_t &endAreaNum ) const override;
+								void				ShowWalkPath( const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin ) const override;
+								void				ShowFlyPath( const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin ) const override;
+								bool				FindNearestGoal( aasGoal_t &goal, index_t areaNum, const idVec3 origin, const idVec3 &target, int travelFlags, aasObstacle_t *obstacles, size_t numObstacles, idAASCallback &callback ) const override;
 
 private:
 	idAASFile *					file;
@@ -141,7 +143,7 @@ private:	// routing data
 private:	// routing
 	bool						SetupRouting();
 	void						ShutdownRouting();
-	unsigned short				AreaTravelTime( int areaNum, const idVec3 &start, const idVec3 &end ) const;
+	unsigned short				AreaTravelTime( index_t areaNum, const idVec3 &start, const idVec3 &end ) const;
 	void						CalculateAreaTravelTimes();
 	void						DeleteAreaTravelTimes();
 	void						SetupRoutingCache();
@@ -152,31 +154,31 @@ private:	// routing
 	void						LinkCache( idRoutingCache *cache ) const;
 	void						UnlinkCache( idRoutingCache *cache ) const;
 	void						DeleteOldestCache() const;
-	idReachability *			GetAreaReachability( int areaNum, int reachabilityNum ) const;
-	int							ClusterAreaNum( int clusterNum, int areaNum ) const;
+	idReachability *			GetAreaReachability( index_t areaNum, int reachabilityNum ) const;
+	int							ClusterAreaNum( int clusterNum, index_t areaNum ) const;
 	void						UpdateAreaRoutingCache( idRoutingCache *areaCache ) const;
-	idRoutingCache *			GetAreaRoutingCache( int clusterNum, int areaNum, int travelFlags ) const;
+	idRoutingCache *			GetAreaRoutingCache( int clusterNum, index_t areaNum, int travelFlags ) const;
 	void						UpdatePortalRoutingCache( idRoutingCache *portalCache ) const;
-	idRoutingCache *			GetPortalRoutingCache( int clusterNum, int areaNum, int travelFlags ) const;
-	void						RemoveRoutingCacheUsingArea( int areaNum );
-	void						DisableArea( int areaNum );
-	void						EnableArea( int areaNum );
-	bool						SetAreaState_r( int nodeNum, const idBounds &bounds, const int areaContents, bool disabled );
-	void						GetBoundsAreas_r( int nodeNum, const idBounds &bounds, idList<int> &areas ) const;
+	idRoutingCache *			GetPortalRoutingCache( int clusterNum, index_t areaNum, int travelFlags ) const;
+	void						RemoveRoutingCacheUsingArea( index_t areaNum );
+	void						DisableArea( index_t areaNum );
+	void						EnableArea( index_t areaNum );
+	bool						SetAreaState_r( index_t nodeNum, const idBounds &bounds, const int areaContents, bool disabled );
+	void						GetBoundsAreas_r( index_t nodeNum, const idBounds &bounds, idList<int> &areas ) const;
 	void						SetObstacleState( const idRoutingObstacle *obstacle, bool enable );
 
 private:	// pathing
-	bool						EdgeSplitPoint( idVec3 &split, int edgeNum, const idPlane &plane ) const;
-	bool						FloorEdgeSplitPoint( idVec3 &split, int areaNum, const idPlane &splitPlane, const idPlane &frontPlane, bool closest ) const;
-	idVec3						SubSampleWalkPath( int areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, int &endAreaNum ) const;
-	idVec3						SubSampleFlyPath( int areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, int &endAreaNum ) const;
+	bool						EdgeSplitPoint( idVec3 &split, index_t edgeNum, const idPlane &plane ) const;
+	bool						FloorEdgeSplitPoint( idVec3 &split, index_t areaNum, const idPlane &splitPlane, const idPlane &frontPlane, bool closest ) const;
+	idVec3						SubSampleWalkPath( index_t areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, index_t &endAreaNum ) const;
+	idVec3						SubSampleFlyPath( index_t areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, index_t &endAreaNum ) const;
 
 private:	// debug
 	const idBounds &			DefaultSearchBounds() const;
 	void						DrawCone( const idVec3 &origin, const idVec3 &dir, float radius, const idVec4 &color ) const;
-	void						DrawArea( int areaNum ) const;
-	void						DrawFace( int faceNum, bool side ) const;
-	void						DrawEdge( int edgeNum, bool arrow ) const;
+	void						DrawArea( index_t areaNum ) const;
+	void						DrawFace( index_t faceNum, bool side ) const;
+	void						DrawEdge( index_t edgeNum, bool arrow ) const;
 	void						DrawReachability( const idReachability *reach ) const;
 	void						ShowArea( const idVec3 &origin ) const;
 	void						ShowWallEdges( const idVec3 &origin ) const;

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __AI_H__
 #define __AI_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -217,7 +219,7 @@ public:
 						idAASFindCover( const idVec3 &hideFromPos );
 						~idAASFindCover() override;
 
-						bool		TestArea( const idAAS *aas, int areaNum ) override;
+						bool		TestArea( const idAAS *aas, index_t areaNum ) override;
 
 private:
 	pvsHandle_t			hidePVS;
@@ -228,7 +230,7 @@ class idAASFindAreaOutOfRange : public idAASCallback {
 public:
 						idAASFindAreaOutOfRange( const idVec3 &targetPos, float maxDist );
 
-						bool		TestArea( const idAAS *aas, int areaNum ) override;
+						bool		TestArea( const idAAS *aas, index_t areaNum ) override;
 
 private:
 	idVec3				targetPos;
@@ -240,7 +242,7 @@ public:
 						idAASFindAttackPosition( const idAI *self, const idMat3 &gravityAxis, idEntity *target, const idVec3 &targetPos, const idVec3 &fireOffset );
 						~idAASFindAttackPosition() override;
 
-						bool		TestArea( const idAAS *aas, int areaNum ) override;
+						bool		TestArea( const idAAS *aas, index_t areaNum ) override;
 
 private:
 	const idAI			*self;
@@ -483,7 +485,7 @@ protected:
 	bool					ReachedPos( const idVec3 &pos, const moveCommand_t moveCommand ) const;
 	float					TravelDistance( const idVec3 &start, const idVec3 &end ) const;
 	int						PointReachableAreaNum( const idVec3 &pos, const float boundsScale = 2.0f ) const;
-	bool					PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
+	bool					PathToGoal( aasPath_t &path, index_t areaNum, const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin ) const;
 	void					DrawRoute() const;
 	bool					GetMovePos( idVec3 &seekPos );
 	bool					MoveDone() const;
@@ -640,7 +642,7 @@ protected:
 	void					Event_Burn();
 	void					Event_PreBurn();
 	void					Event_ClearBurn();
-	void					Event_SetSmokeVisibility( int num, int on );
+	void					Event_SetSmokeVisibility( size_t num, int on );
 	void					Event_NumSmokeEmitters();
 	void					Event_StopThinking();
 	void					Event_GetTurnDelta();

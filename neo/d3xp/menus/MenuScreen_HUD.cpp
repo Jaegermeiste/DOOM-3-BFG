@@ -290,7 +290,7 @@ void idMenuScreen_HUD::UpdateStamina( idPlayer * player ) {
 				stamSprite->SetVisible( false );
 			} else {
 				stamSprite->SetVisible( true );
-				float staminaPercent = idMath::Ftoi( 100.0f * player->stamina / max_stamina );
+				float staminaPercent = numeric_cast<int>( 100.0f * player->stamina / max_stamina );
 				stamSprite->StopFrame( staminaPercent + 1 );
 			}
 		}
@@ -453,7 +453,7 @@ void idMenuScreen_HUD::UpdateWeaponInfo( idPlayer * player ) {
 idMenuScreen_HUD::GiveWeapon
 ========================
 */
-void idMenuScreen_HUD::GiveWeapon( idPlayer * player, int weaponIndex ) {
+void idMenuScreen_HUD::GiveWeapon( idPlayer * player, const int weaponIndex ) {
 
 	if ( common->IsMultiplayer() ) {
 		return;
@@ -492,7 +492,7 @@ void idMenuScreen_HUD::GiveWeapon( idPlayer * player, int weaponIndex ) {
 idMenuScreen_HUD::UpdateWeaponStates
 ========================
 */
-void idMenuScreen_HUD::UpdatePickupInfo( int index, const idStr & name ) {
+void idMenuScreen_HUD::UpdatePickupInfo(const index_t index, const idStr & name ) {
 
 	if ( !pickupInfo ) {
 		return;
@@ -544,7 +544,7 @@ void idMenuScreen_HUD::ShowPickups() {
 idMenuScreen_HUD::SetCursorState
 ========================
 */
-void idMenuScreen_HUD::SetCursorState( idPlayer * player, cursorState_t state, int set ) {
+void idMenuScreen_HUD::SetCursorState( idPlayer * player, const cursorState_t state, const int set ) {
 
 	switch ( state ) {
 		case CURSOR_TALK: {
@@ -797,7 +797,7 @@ void idMenuScreen_HUD::UpdateCursorState() {
 idMenuScreen_HUD::UpdateSoulCube
 ========================
 */
-void idMenuScreen_HUD::UpdateSoulCube( bool ready ) {
+void idMenuScreen_HUD::UpdateSoulCube(const bool ready ) {
 
 	if ( !soulcubeInfo ) {
 		return;
@@ -817,7 +817,7 @@ void idMenuScreen_HUD::UpdateSoulCube( bool ready ) {
 idMenuScreen_HUD::ShowRespawnMessage
 ========================
 */
-void idMenuScreen_HUD::ShowRespawnMessage( bool show ) {
+void idMenuScreen_HUD::ShowRespawnMessage(const bool show ) {
 
 	if ( !respawnMessage ) {
 		return;
@@ -846,7 +846,7 @@ void idMenuScreen_HUD::ShowRespawnMessage( bool show ) {
 idMenuScreen_HUD::UpdateWeaponStates
 ========================
 */
-void idMenuScreen_HUD::UpdateWeaponStates( idPlayer * player, bool weaponChanged ) {
+void idMenuScreen_HUD::UpdateWeaponStates( idPlayer * player, const bool weaponChanged ) {
 
 	if ( !weaponPills ) {
 		return;
@@ -881,8 +881,8 @@ void idMenuScreen_HUD::UpdateWeaponStates( idPlayer * player, bool weaponChanged
 				}
 			}
 
-			int numRightWeapons = 0;
-			int numLeftWeapons = 0;
+			size_t numRightWeapons = 0;
+			size_t numLeftWeapons = 0;
 			
 			if ( weaponDefNames.Num() == 2 ) {
 				numRightWeapons = 1 - weaponDefIndex;
@@ -907,7 +907,7 @@ void idMenuScreen_HUD::UpdateWeaponStates( idPlayer * player, bool weaponChanged
 					hide = true;
 				}
 
-				int index = i;
+				index_t index = i;
 				if ( i < 0 ) {
 					index = 2 + idMath::Abs( i );
 				}
@@ -985,7 +985,7 @@ void idMenuScreen_HUD::UpdateWeaponStates( idPlayer * player, bool weaponChanged
 		bool hasWeapons = false;
 		const idMaterial * hudIcon = nullptr;
 
-		for ( int i = 0; i < MAX_WEAPONS; i++ ) {
+		for ( size_t i = 0; i < MAX_WEAPONS; i++ ) {
 			const char *weapnum = va( "def_weapon%d", i );
 			int weapstate = 0;
 			if ( player->inventory.weapons & ( 1 << i ) ) {
@@ -1108,7 +1108,7 @@ void idMenuScreen_HUD::ShowTip( const char * title, const char * tip ) {
 		txtTip->SetText( tip );
 		txtTip->tooltip = true;
 		txtTip->SetStrokeInfo( true, 0.75f, 1.5f );
-		int numLines = txtTip->CalcNumLines();
+		size_t numLines = txtTip->CalcNumLines();
 		if ( numLines == 0 ) {
 			numLines = 1;
 		}
@@ -1146,7 +1146,7 @@ void idMenuScreen_HUD::HideTip() {
 idMenuScreen_HUD::DownloadPDA
 ========================
 */
-void idMenuScreen_HUD::DownloadPDA( const idDeclPDA * pda, bool newSecurity ) {
+void idMenuScreen_HUD::DownloadPDA( const idDeclPDA * pda, const bool newSecurity ) {
 
 	if ( newPDADownload ) {
 		newPDADownload->SetVisible( true );
@@ -1236,7 +1236,7 @@ void idMenuScreen_HUD::ClearNewPDAInfo() {
 idMenuScreen_HUD::UpdatedSecurity
 ========================
 */
-void  idMenuScreen_HUD::ToggleNewVideo( bool show ) {
+void  idMenuScreen_HUD::ToggleNewVideo(const bool show ) {
 
 	if ( !newVideo ) {
 		return;
@@ -1256,7 +1256,7 @@ void  idMenuScreen_HUD::ToggleNewVideo( bool show ) {
 idMenuScreen_HUD::UpdatedSecurity
 ========================
 */
-void  idMenuScreen_HUD::ToggleNewPDA( bool show ) {
+void  idMenuScreen_HUD::ToggleNewPDA(const bool show ) {
 
 	if ( !newPDA ) {
 		return;
@@ -1276,7 +1276,7 @@ void  idMenuScreen_HUD::ToggleNewPDA( bool show ) {
 idMenuScreen_HUD::UpdatedSecurity
 ========================
 */
-void  idMenuScreen_HUD::UpdateAudioLog( bool show ) {
+void  idMenuScreen_HUD::UpdateAudioLog(const bool show ) {
 
 	if ( !audioLog ) {
 		return;
@@ -1286,7 +1286,7 @@ void  idMenuScreen_HUD::UpdateAudioLog( bool show ) {
 		audioLog->SetVisible( true );
 		audioLog->StopFrame( "2" );
 
-		for ( int index = 0; index < 13; ++index  ) {
+		for ( index_t index = 0; index < 13; ++index  ) {
 			idSWFSpriteInstance * node = audioLog->GetScriptObject()->GetNestedSprite( "bar", va( "node%d", index ) );
 			if ( node != nullptr) {
 				int frame = gameLocal.random.RandomInt( 100 );
@@ -1306,7 +1306,7 @@ void  idMenuScreen_HUD::UpdateAudioLog( bool show ) {
 			audioLogPrevTime = gameLocal.time;
 		}
 
-		for ( int index = 0; index < 13; ++index  ) {
+		for ( index_t index = 0; index < 13; ++index  ) {
 			idSWFSpriteInstance * node = audioLog->GetScriptObject()->GetNestedSprite( "bar", va( "node%d", index ) );
 			if ( node != nullptr) {				
 				float diff = gameLocal.time - audioLogPrevTime;
@@ -1327,26 +1327,26 @@ void  idMenuScreen_HUD::UpdateAudioLog( bool show ) {
 idMenuScreen_HUD::UpdatedSecurity
 ========================
 */
-void  idMenuScreen_HUD::UpdateCommunication( bool show, idPlayer * player ) {
+void  idMenuScreen_HUD::UpdateCommunication(const bool show, idPlayer * player ) {
 
 	if ( !communication || !player ) {
 		return;
 	}
 
 	bool oxygenChanged = false;
-	if ( inVaccuum != oxygenComm ) {
+	if ( inVacuum != oxygenComm ) {
 		oxygenChanged = true;
 	}
 
 	if ( show && !communication->IsVisible() ) {
 		communication->SetVisible( true );
-		if ( inVaccuum ) {
+		if ( inVacuum ) {
 			communication->StopFrame( "oxygen" );
 		} else {
 			communication->StopFrame( "2" );
 		}
 
-		for ( int index = 0; index < 16; ++index  ) {
+		for ( index_t index = 0; index < 16; ++index  ) {
 			idSWFSpriteInstance * node = communication->GetScriptObject()->GetNestedSprite( "info", "bar", va( "node%d", index ) );
 			if ( node != nullptr) {
 				int frame = gameLocal.random.RandomInt( 100 );
@@ -1360,7 +1360,7 @@ void  idMenuScreen_HUD::UpdateCommunication( bool show, idPlayer * player ) {
 	} else if ( show ) {
 
 		if ( oxygenChanged ) {
-			if ( inVaccuum ) {
+			if ( inVacuum ) {
 				communication->PlayFrame( "rollUp" );
 			} else {
 				communication->PlayFrame( "rollDown" );
@@ -1371,7 +1371,7 @@ void  idMenuScreen_HUD::UpdateCommunication( bool show, idPlayer * player ) {
 			commPrevTime = gameLocal.time;
 		}
 
-		for ( int index = 0; index < 16; ++index  ) {
+		for ( index_t index = 0; index < 16; ++index  ) {
 			idSWFSpriteInstance * node = communication->GetScriptObject()->GetNestedSprite( "info", "bar", va( "node%d", index ) );
 			if ( node != nullptr) {				
 				float diff = gameLocal.time - commPrevTime;
@@ -1387,7 +1387,7 @@ void  idMenuScreen_HUD::UpdateCommunication( bool show, idPlayer * player ) {
 		commPrevTime = gameLocal.time;
 	}
 	
-	oxygenComm = inVaccuum;
+	oxygenComm = inVacuum;
 }
 
 /*
@@ -1395,7 +1395,7 @@ void  idMenuScreen_HUD::UpdateCommunication( bool show, idPlayer * player ) {
 idMenuScreen_HUD::UpdateOxygen
 ========================
 */
-void  idMenuScreen_HUD::UpdateOxygen( bool show, int val ) {
+void  idMenuScreen_HUD::UpdateOxygen(const bool show, const int val ) {
 
 	if ( !oxygen ) {
 		return;
@@ -1403,7 +1403,7 @@ void  idMenuScreen_HUD::UpdateOxygen( bool show, int val ) {
 
 	if ( show ) {
 		if ( !oxygen->IsVisible() ) {
-			inVaccuum = true;
+			inVacuum = true;
 			oxygen->SetVisible( true );
 			oxygen->PlayFrame( "rollOn" );
 		}
@@ -1439,7 +1439,7 @@ void  idMenuScreen_HUD::UpdateOxygen( bool show, int val ) {
 		}
 		
 	} else if ( !show ) {
-		inVaccuum = false;
+		inVacuum = false;
 		oxygen->StopFrame( 1 );
 	} 
 }
@@ -1471,7 +1471,7 @@ void idMenuScreen_HUD::SetupObjectiveComplete( const idStr & title ) {
 idMenuScreen_HUD::ShowObjective
 ========================
 */
-void idMenuScreen_HUD::ShowObjective( bool complete ) {	
+void idMenuScreen_HUD::ShowObjective(const bool complete ) {	
 
 	if ( complete ) {
 
@@ -1544,7 +1544,7 @@ void idMenuScreen_HUD::ShowObjective( bool complete ) {
 idMenuScreen_HUD::HideObjective
 ========================
 */
-void idMenuScreen_HUD::HideObjective( bool complete ) {
+void idMenuScreen_HUD::HideObjective(const bool complete ) {
 
 	if ( complete ) {
 
@@ -1576,7 +1576,7 @@ void idMenuScreen_HUD::HideObjective( bool complete ) {
 idMenuScreen_HUD::ToggleMPInfo
 ========================
 */
-void idMenuScreen_HUD::ToggleMPInfo( bool show, bool showTeams, bool isCTF ) {
+void idMenuScreen_HUD::ToggleMPInfo(const bool show, const bool showTeams, const bool isCTF ) {
 
 	if ( !mpInfo ) {
 		return;
@@ -1628,7 +1628,7 @@ void idMenuScreen_HUD::ToggleMPInfo( bool show, bool showTeams, bool isCTF ) {
 idMenuScreen_HUD::SetFlagState
 ========================
 */
-void idMenuScreen_HUD::SetFlagState( int team, int state ) {
+void idMenuScreen_HUD::SetFlagState(const index_t team, const int state ) {
 
 	if ( !mpInfo ) {
 		return;
@@ -1658,7 +1658,7 @@ void idMenuScreen_HUD::SetFlagState( int team, int state ) {
 idMenuScreen_HUD::SetTeamScore
 ========================
 */
-void idMenuScreen_HUD::SetTeamScore( int team, int score ) {
+void idMenuScreen_HUD::SetTeamScore(const index_t team, const int score ) {
 
 	if ( !mpInfo ) {
 		return;
@@ -1684,7 +1684,7 @@ void idMenuScreen_HUD::SetTeamScore( int team, int score ) {
 idMenuScreen_HUD::SetTeam
 ========================
 */
-void idMenuScreen_HUD::SetTeam( int team ) {
+void idMenuScreen_HUD::SetTeam(const index_t team ) {
 
 	if ( !mpInfo ) {
 		return;
@@ -1707,7 +1707,7 @@ void idMenuScreen_HUD::SetTeam( int team ) {
 idMenuScreen_HUD::TriggerHitTarget
 ========================
 */
-void idMenuScreen_HUD::TriggerHitTarget( bool show, const idStr & target, int color ) {
+void idMenuScreen_HUD::TriggerHitTarget(const bool show, const idStr & target, int color ) {
 
 	if ( !mpHitInfo ) {
 		return;
@@ -1741,7 +1741,7 @@ void idMenuScreen_HUD::TriggerHitTarget( bool show, const idStr & target, int co
 idMenuScreen_HUD::ToggleLagged 
 ========================
 */
-void idMenuScreen_HUD::ToggleLagged( bool show ) {
+void idMenuScreen_HUD::ToggleLagged(const bool show ) {
 
 	if ( !mpConnection ) {
 		return;
@@ -1773,7 +1773,7 @@ void idMenuScreen_HUD::UpdateGameTime( const char * time ) {
 idMenuScreen_HUD::UpdateMessage
 ========================
 */
-void idMenuScreen_HUD::UpdateMessage( bool show, const idStr & message ) {
+void idMenuScreen_HUD::UpdateMessage(const bool show, const idStr & message ) {
 
 	if ( !mpMessage ) {
 		return;
@@ -1880,7 +1880,7 @@ void idMenuScreen_HUD::UpdateChattingHud( idPlayer * player ) {
 			gui->ForceInhibitControl( true );
 
 			idSWFTextInstance * txtType = mpChatObject->GetScriptObject()->GetNestedText( "info", "saybox" );
-			int length = 0;
+			size_t length = 0;
 			if ( txtType ) {
 				if ( player->isChatting == 1 ) {
 					txtType->SetText( "#str_swf_talk_all" );

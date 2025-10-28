@@ -61,7 +61,7 @@ private:
 
 	struct swfFrameLabel_t {
 		idStr frameLabel;
-		uint32 frameNum;
+		index_t frameNum;
 	};
 	idList< swfFrameLabel_t, TAG_SWF > frameLabels;
 

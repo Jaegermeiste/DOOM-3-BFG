@@ -120,7 +120,7 @@ void idPhysics_Static::SetSelf( idEntity *e ) {
 idPhysics_Static::SetClipModel
 ================
 */
-void idPhysics_Static::SetClipModel( idClipModel *model, float density, int id, bool freeOld ) {
+void idPhysics_Static::SetClipModel( idClipModel *model, float density, const index_t id, const bool freeOld ) {
 	assert( self );
 
 	if ( clipModel && clipModel != model && freeOld ) {
@@ -137,7 +137,7 @@ void idPhysics_Static::SetClipModel( idClipModel *model, float density, int id, 
 idPhysics_Static::GetClipModel
 ================
 */
-idClipModel *idPhysics_Static::GetClipModel( int id ) const {
+idClipModel *idPhysics_Static::GetClipModel( const index_t id ) const {
 	if ( clipModel ) {
 		return clipModel;
 	}
@@ -149,7 +149,7 @@ idClipModel *idPhysics_Static::GetClipModel( int id ) const {
 idPhysics_Static::GetNumClipModels
 ================
 */
-int idPhysics_Static::GetNumClipModels() const {
+size_t idPhysics_Static::GetNumClipModels() const {
 	return ( clipModel != nullptr);
 }
 
@@ -158,7 +158,7 @@ int idPhysics_Static::GetNumClipModels() const {
 idPhysics_Static::SetMass
 ================
 */
-void idPhysics_Static::SetMass( float mass, int id ) {
+void idPhysics_Static::SetMass( float mass, const index_t id ) {
 }
 
 /*
@@ -166,7 +166,7 @@ void idPhysics_Static::SetMass( float mass, int id ) {
 idPhysics_Static::GetMass
 ================
 */
-float idPhysics_Static::GetMass( int id ) const {
+float idPhysics_Static::GetMass( const index_t id ) const {
 	return 0.0f;
 }
 
@@ -175,7 +175,7 @@ float idPhysics_Static::GetMass( int id ) const {
 idPhysics_Static::SetContents
 ================
 */
-void idPhysics_Static::SetContents( int contents, int id ) {
+void idPhysics_Static::SetContents( const int contents, const index_t id ) {
 	if ( clipModel ) {
 		clipModel->SetContents( contents );
 	}
@@ -186,7 +186,7 @@ void idPhysics_Static::SetContents( int contents, int id ) {
 idPhysics_Static::GetContents
 ================
 */
-int idPhysics_Static::GetContents( int id ) const {
+int idPhysics_Static::GetContents( const index_t id ) const {
 	if ( clipModel ) {
 		return clipModel->GetContents();
 	}
@@ -198,7 +198,7 @@ int idPhysics_Static::GetContents( int id ) const {
 idPhysics_Static::SetClipMask
 ================
 */
-void idPhysics_Static::SetClipMask( int mask, int id ) {
+void idPhysics_Static::SetClipMask( int mask, const index_t id ) {
 }
 
 /*
@@ -206,7 +206,7 @@ void idPhysics_Static::SetClipMask( int mask, int id ) {
 idPhysics_Static::GetClipMask
 ================
 */
-int idPhysics_Static::GetClipMask( int id ) const {
+int idPhysics_Static::GetClipMask( const index_t id ) const {
 	return 0;
 }
 
@@ -215,7 +215,7 @@ int idPhysics_Static::GetClipMask( int id ) const {
 idPhysics_Static::GetBounds
 ================
 */
-const idBounds &idPhysics_Static::GetBounds( int id ) const {
+const idBounds &idPhysics_Static::GetBounds( const index_t id ) const {
 	if ( clipModel ) {
 		return clipModel->GetBounds();
 	}
@@ -227,7 +227,7 @@ const idBounds &idPhysics_Static::GetBounds( int id ) const {
 idPhysics_Static::GetAbsBounds
 ================
 */
-const idBounds &idPhysics_Static::GetAbsBounds( int id ) const {
+const idBounds &idPhysics_Static::GetAbsBounds( const index_t id ) const {
 	static idBounds absBounds;
 
 	if ( clipModel ) {
@@ -242,9 +242,9 @@ const idBounds &idPhysics_Static::GetAbsBounds( int id ) const {
 idPhysics_Static::Evaluate
 ================
 */
-bool idPhysics_Static::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
-	idVec3 masterOrigin, oldOrigin;
-	idMat3 masterAxis, oldAxis;
+bool idPhysics_Static::Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) {
+	idVec3 masterOrigin = {}, oldOrigin = {};
+	idMat3 masterAxis = {}, oldAxis = {};
 
 
 	if ( hasMaster ) {
@@ -272,7 +272,7 @@ bool idPhysics_Static::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec )
 idPhysics_Static::Interpolate
 ================
 */
-bool idPhysics_Static::Interpolate( const float fraction ) {
+bool idPhysics_Static::Interpolate( const double fraction ) {
 	
 	// We only interpolate if we actually get snapshots.
 	if( self->GetNumSnapshotsReceived() >= 1 ) {
@@ -287,7 +287,7 @@ bool idPhysics_Static::Interpolate( const float fraction ) {
 idPhysics_Static::UpdateTime
 ================
 */
-void idPhysics_Static::UpdateTime( int endTimeMSec ) {
+void idPhysics_Static::UpdateTime( ID_TIME_T endTimeMSec ) {
 }
 
 /*
@@ -295,7 +295,7 @@ void idPhysics_Static::UpdateTime( int endTimeMSec ) {
 idPhysics_Static::GetTime
 ================
 */
-int idPhysics_Static::GetTime() const {
+ID_TIME_T idPhysics_Static::GetTime() const {
 	return 0;
 }
 
@@ -304,8 +304,8 @@ int idPhysics_Static::GetTime() const {
 idPhysics_Static::GetImpactInfo
 ================
 */
-void idPhysics_Static::GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const {
-	memset( info, 0, sizeof( *info ) );
+void idPhysics_Static::GetImpactInfo( const index_t id, const idVec3 &point, impactInfo_t *info ) const {
+	memset( static_cast<void*>(info), 0, sizeof( *info ) );
 }
 
 /*
@@ -313,7 +313,7 @@ void idPhysics_Static::GetImpactInfo( const int id, const idVec3 &point, impactI
 idPhysics_Static::ApplyImpulse
 ================
 */
-void idPhysics_Static::ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) {
+void idPhysics_Static::ApplyImpulse( const index_t id, const idVec3 &point, const idVec3 &impulse ) {
 }
 
 /*
@@ -321,7 +321,7 @@ void idPhysics_Static::ApplyImpulse( const int id, const idVec3 &point, const id
 idPhysics_Static::AddForce
 ================
 */
-void idPhysics_Static::AddForce( const int id, const idVec3 &point, const idVec3 &force ) {
+void idPhysics_Static::AddForce( const index_t id, const idVec3 &point, const idVec3 &force ) {
 }
 
 /*
@@ -354,7 +354,7 @@ bool idPhysics_Static::IsAtRest() const {
 idPhysics_Static::GetRestStartTime
 ================
 */
-int idPhysics_Static::GetRestStartTime() const {
+ID_TIME_T idPhysics_Static::GetRestStartTime() const {
 	return 0;
 }
 
@@ -388,9 +388,9 @@ void idPhysics_Static::RestoreState() {
 idPhysics_Static::SetOrigin
 ================
 */
-void idPhysics_Static::SetOrigin( const idVec3 &newOrigin, int id ) {
-	idVec3 masterOrigin;
-	idMat3 masterAxis;
+void idPhysics_Static::SetOrigin( const idVec3 &newOrigin, const index_t id ) {
+	idVec3 masterOrigin = {};
+	idMat3 masterAxis = {};
 
 	current.localOrigin = newOrigin;
 
@@ -414,9 +414,9 @@ void idPhysics_Static::SetOrigin( const idVec3 &newOrigin, int id ) {
 idPhysics_Static::SetAxis
 ================
 */
-void idPhysics_Static::SetAxis( const idMat3 &newAxis, int id ) {
-	idVec3 masterOrigin;
-	idMat3 masterAxis;
+void idPhysics_Static::SetAxis( const idMat3 &newAxis, const index_t id ) {
+	idVec3 masterOrigin = {};
+	idMat3 masterAxis = {};
 
 	current.localAxis = newAxis;
 
@@ -442,7 +442,7 @@ void idPhysics_Static::SetAxis( const idMat3 &newAxis, int id ) {
 idPhysics_Static::Translate
 ================
 */
-void idPhysics_Static::Translate( const idVec3 &translation, int id ) {
+void idPhysics_Static::Translate( const idVec3 &translation, const index_t id ) {
 	current.localOrigin += translation;
 	current.origin += translation;
 
@@ -456,9 +456,9 @@ void idPhysics_Static::Translate( const idVec3 &translation, int id ) {
 idPhysics_Static::Rotate
 ================
 */
-void idPhysics_Static::Rotate( const idRotation &rotation, int id ) {
-	idVec3 masterOrigin;
-	idMat3 masterAxis;
+void idPhysics_Static::Rotate( const idRotation &rotation, const index_t id ) {
+	idVec3 masterOrigin = {};
+	idMat3 masterAxis = {};
 
 	current.origin *= rotation;
 	current.axis *= rotation.ToMat3();
@@ -482,7 +482,7 @@ void idPhysics_Static::Rotate( const idRotation &rotation, int id ) {
 idPhysics_Static::GetOrigin
 ================
 */
-const idVec3 &idPhysics_Static::GetOrigin( int id ) const {
+const idVec3 &idPhysics_Static::GetOrigin( const index_t id ) const {
 	return current.origin;
 }
 
@@ -491,7 +491,7 @@ const idVec3 &idPhysics_Static::GetOrigin( int id ) const {
 idPhysics_Static::GetAxis
 ================
 */
-const idMat3 &idPhysics_Static::GetAxis( int id ) const {
+const idMat3 &idPhysics_Static::GetAxis( const index_t id ) const {
 	return current.axis;
 }
 
@@ -500,7 +500,7 @@ const idMat3 &idPhysics_Static::GetAxis( int id ) const {
 idPhysics_Static::SetLinearVelocity
 ================
 */
-void idPhysics_Static::SetLinearVelocity( const idVec3 &newLinearVelocity, int id ) {
+void idPhysics_Static::SetLinearVelocity( const idVec3 &newLinearVelocity, const index_t id ) {
 }
 
 /*
@@ -508,7 +508,7 @@ void idPhysics_Static::SetLinearVelocity( const idVec3 &newLinearVelocity, int i
 idPhysics_Static::SetAngularVelocity
 ================
 */
-void idPhysics_Static::SetAngularVelocity( const idVec3 &newAngularVelocity, int id ) {
+void idPhysics_Static::SetAngularVelocity( const idVec3 &newAngularVelocity, const index_t id ) {
 }
 
 /*
@@ -516,7 +516,7 @@ void idPhysics_Static::SetAngularVelocity( const idVec3 &newAngularVelocity, int
 idPhysics_Static::GetLinearVelocity
 ================
 */
-const idVec3 &idPhysics_Static::GetLinearVelocity( int id ) const {
+const idVec3 &idPhysics_Static::GetLinearVelocity( const index_t id ) const {
 	return vec3_origin;
 }
 
@@ -525,7 +525,7 @@ const idVec3 &idPhysics_Static::GetLinearVelocity( int id ) const {
 idPhysics_Static::GetAngularVelocity
 ================
 */
-const idVec3 &idPhysics_Static::GetAngularVelocity( int id ) const {
+const idVec3 &idPhysics_Static::GetAngularVelocity( const index_t id ) const {
 	return vec3_origin;
 }
 
@@ -661,7 +661,7 @@ bool idPhysics_Static::EvaluateContacts() {
 idPhysics_Static::GetNumContacts
 ================
 */
-int idPhysics_Static::GetNumContacts() const {
+size_t idPhysics_Static::GetNumContacts() const {
 	return 0;
 }
 
@@ -670,9 +670,9 @@ int idPhysics_Static::GetNumContacts() const {
 idPhysics_Static::GetContact
 ================
 */
-const contactInfo_t &idPhysics_Static::GetContact( int num ) const {
-	static contactInfo_t info;
-	memset( &info, 0, sizeof( info ) );
+const contactInfo_t &idPhysics_Static::GetContact( const size_t num ) const {
+	static contactInfo_t info = {};
+	memset( static_cast<void*>(&info), 0, sizeof( info ) );
 	return info;
 }
 
@@ -714,7 +714,7 @@ bool idPhysics_Static::HasGroundContacts() const {
 idPhysics_Static::IsGroundEntity
 ================
 */
-bool idPhysics_Static::IsGroundEntity( int entityNum ) const {
+bool idPhysics_Static::IsGroundEntity( const index_t entityNum ) const {
 	return false;
 }
 
@@ -723,7 +723,7 @@ bool idPhysics_Static::IsGroundEntity( int entityNum ) const {
 idPhysics_Static::IsGroundClipModel
 ================
 */
-bool idPhysics_Static::IsGroundClipModel( int entityNum, int id ) const {
+bool idPhysics_Static::IsGroundClipModel( const index_t entityNum, const index_t id ) const {
 	return false;
 }
 
@@ -732,7 +732,7 @@ bool idPhysics_Static::IsGroundClipModel( int entityNum, int id ) const {
 idPhysics_Static::SetPushed
 ================
 */
-void idPhysics_Static::SetPushed( int deltaTime ) {
+void idPhysics_Static::SetPushed( ID_TIME_T deltaTime ) {
 }
 
 /*
@@ -740,7 +740,7 @@ void idPhysics_Static::SetPushed( int deltaTime ) {
 idPhysics_Static::GetPushedLinearVelocity
 ================
 */
-const idVec3 &idPhysics_Static::GetPushedLinearVelocity( const int id ) const {
+const idVec3 &idPhysics_Static::GetPushedLinearVelocity( const index_t id ) const {
 	return vec3_origin;
 }
 
@@ -749,7 +749,7 @@ const idVec3 &idPhysics_Static::GetPushedLinearVelocity( const int id ) const {
 idPhysics_Static::GetPushedAngularVelocity
 ================
 */
-const idVec3 &idPhysics_Static::GetPushedAngularVelocity( const int id ) const {
+const idVec3 &idPhysics_Static::GetPushedAngularVelocity( const index_t id ) const {
 	return vec3_origin;
 }
 
@@ -759,8 +759,8 @@ idPhysics_Static::SetMaster
 ================
 */
 void idPhysics_Static::SetMaster( idEntity *master, const bool orientated ) {
-	idVec3 masterOrigin;
-	idMat3 masterAxis;
+	idVec3 masterOrigin = {};
+	idMat3 masterAxis = {};
 
 	if ( master ) {
 		if ( !hasMaster ) {
@@ -805,7 +805,7 @@ idEntity *idPhysics_Static::GetBlockingEntity() const {
 idPhysics_Static::GetLinearEndTime
 ================
 */
-int idPhysics_Static::GetLinearEndTime() const {
+ID_TIME_T idPhysics_Static::GetLinearEndTime() const {
 	return 0;
 }
 
@@ -814,7 +814,7 @@ int idPhysics_Static::GetLinearEndTime() const {
 idPhysics_Static::GetAngularEndTime
 ================
 */
-int idPhysics_Static::GetAngularEndTime() const {
+ID_TIME_T idPhysics_Static::GetAngularEndTime() const {
 	return 0;
 }
 
@@ -824,10 +824,8 @@ idPhysics_Static::WriteToSnapshot
 ================
 */
 void idPhysics_Static::WriteToSnapshot( idBitMsg &msg ) const {
-	idCQuat quat, localQuat;
-
-	quat = current.axis.ToCQuat();
-	localQuat = current.localAxis.ToCQuat();
+	idCQuat quat = current.axis.ToCQuat();
+	idCQuat localQuat = current.localAxis.ToCQuat();
 
 	msg.WriteFloat( current.origin[0] );
 	msg.WriteFloat( current.origin[1] );
@@ -849,8 +847,6 @@ idPhysics_Base::ReadFromSnapshot
 ================
 */
 void idPhysics_Static::ReadFromSnapshot( const idBitMsg &msg ) {
-	idCQuat quat, localQuat;
-
 	previous = next;
 
 	next = ReadStaticInterpolatePStateFromSnapshot( msg );
@@ -911,7 +907,7 @@ staticInterpolatePState_t ReadStaticInterpolatePStateFromSnapshot( const idBitMs
 InterpolateStaticPState
 ================
 */
-staticPState_t InterpolateStaticPState( const staticInterpolatePState_t & previous, const staticInterpolatePState_t & next, float fraction ) {
+staticPState_t InterpolateStaticPState( const staticInterpolatePState_t & previous, const staticInterpolatePState_t & next, const double fraction ) {
 	staticPState_t result;
 	
 	result.origin = Lerp( previous.origin, next.origin, fraction );

@@ -338,7 +338,7 @@ int idAF::EntitiesTouchingAF( afTouch_t touchList[ MAX_GENTITIES ] ) const {
 	idAFBody *body;
 	idClipModel *cm;
 	idClipModel *clipModels[ MAX_GENTITIES ];
-	int numTouching;
+	size_t numTouching;
 
 	if ( !IsLoaded() ) {
 		return 0;
@@ -411,7 +411,7 @@ void idAF::GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis ) const {
 idAF::GetImpactInfo
 ================
 */
-void idAF::GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info ) {
+void idAF::GetImpactInfo( idEntity *ent, const int id, const idVec3 &point, impactInfo_t *info ) {
 	SetupPose( self, gameLocal.time );
 	physicsObj.GetImpactInfo( BodyForClipModelId( id ), point, info );
 }
@@ -421,7 +421,7 @@ void idAF::GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo
 idAF::ApplyImpulse
 ================
 */
-void idAF::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) {
+void idAF::ApplyImpulse( idEntity *ent, const int id, const idVec3 &point, const idVec3 &impulse ) {
 	SetupPose( self, gameLocal.time );
 	physicsObj.ApplyImpulse( BodyForClipModelId( id ), point, impulse );
 }
@@ -431,7 +431,7 @@ void idAF::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec
 idAF::AddForce
 ================
 */
-void idAF::AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) {
+void idAF::AddForce( idEntity *ent, const int id, const idVec3 &point, const idVec3 &force ) {
 	SetupPose( self, gameLocal.time );
 	physicsObj.AddForce( BodyForClipModelId( id ), point, force );
 }
@@ -444,7 +444,7 @@ idAF::AddBody
 ================
 */
 void idAF::AddBody( idAFBody *body, const idJointMat *joints, const char *jointName, const AFJointModType_t mod ) {
-	int index;
+	index_t index;
 	jointHandle_t handle;
 	idVec3 origin;
 	idMat3 axis;
@@ -793,11 +793,11 @@ idAF::Load
 ================
 */
 bool idAF::Load( idEntity *ent, const char *fileName ) {
-	int i, j;
+	size_t i = 0, j = 0;
 	const idDeclAF *file;
 	const idDeclModelDef *modelDef;
 	idRenderModel *model;
-	int numJoints;
+	size_t numJoints;
 	idJointMat *joints;
 
 	assert( ent );
@@ -997,7 +997,7 @@ bool idAF::TestSolid() const {
 idAF::StartFromCurrentPose
 ================
 */
-void idAF::StartFromCurrentPose( int inheritVelocityTime ) {
+void idAF::StartFromCurrentPose(const int inheritVelocityTime ) {
 
 	if ( !IsLoaded() ) {
 		return;

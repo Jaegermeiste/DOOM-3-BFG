@@ -26,21 +26,23 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <utility>
+
 #include "../idlib/precompiled.h"
 
 #include "snd_local.h"
 
 idCVar s_subFraction( "s_subFraction", "0.5", CVAR_ARCHIVE | CVAR_FLOAT, "Amount of each sound to send to the LFE channel" );
 
-idVec2 idSoundVoice_Base::speakerPositions[idWaveFile::CHANNEL_INDEX_MAX];
-int idSoundVoice_Base::speakerLeft[idWaveFile::CHANNEL_INDEX_MAX] = {0 };
-int idSoundVoice_Base::speakerRight[idWaveFile::CHANNEL_INDEX_MAX] = {0 };
-int idSoundVoice_Base::dstChannels = 0;
-int idSoundVoice_Base::dstMask = 0;
-int idSoundVoice_Base::dstCenter = -1;
-int idSoundVoice_Base::dstLFE = -1;
-int idSoundVoice_Base::dstMap[MAX_CHANNELS_PER_VOICE] = { 0 };
-int idSoundVoice_Base::invMap[idWaveFile::CHANNEL_INDEX_MAX] = { 0 };
+idVec3 idSoundVoice_Base::speakerPositions[idWaveFile::CHANNEL_INDEX_MAX];
+index_t idSoundVoice_Base::speakerLeft[idWaveFile::CHANNEL_INDEX_MAX] = {0 };
+index_t idSoundVoice_Base::speakerRight[idWaveFile::CHANNEL_INDEX_MAX] = {0 };
+size_t idSoundVoice_Base::dstChannels = 0;
+unsigned int idSoundVoice_Base::dstMask = 0;
+index_t idSoundVoice_Base::dstCenter = -1;
+index_t idSoundVoice_Base::dstLFE = -1;
+index_t idSoundVoice_Base::dstMap[MAX_CHANNELS_PER_VOICE] = { 0 };
+index_t idSoundVoice_Base::invMap[idWaveFile::CHANNEL_INDEX_MAX] = { 0 };
 float idSoundVoice_Base::omniLevel = 1.0f;
 
 /*
@@ -66,20 +68,32 @@ outerSampleRangeSqr( 0.0f )
 idSoundVoice_Base::InitSurround
 ========================
 */
-void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
+void idSoundVoice_Base::InitSurround(const size_t outputChannels, const unsigned int channelMask ) {
+	static constexpr float UNIT_SPHERE_30_DEGREES       = 0.86602540378443864676372317075294f; // √3/2
+	static constexpr float UNIT_SPHERE_45_DEGREES       = 0.70710678118654752440084436210485f;
+	static constexpr float UNIT_SPHERE_COS_22_5_DEGREES = 0.92387953251128675612818318939679f; // cos(22.5)
+	static constexpr float UNIT_SPHERE_SIN_22_5_DEGREES = 0.3826834323650897717284599840304f;  // sin(22.5)
 
-	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_LEFT			].Set(  0.70710678118654752440084436210485f,  0.70710678118654752440084436210485f );	// 45 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT			].Set(  0.70710678118654752440084436210485f, -0.70710678118654752440084436210485f );	// 315 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_CENTER			].Set(  0.0f,								  0.0f );									// 0 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY		].Set(  0.0f,								  0.0f );									// -
-	speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_LEFT			].Set( -0.70710678118654752440084436210485f,  0.70710678118654752440084436210485f );	// 135 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_RIGHT			].Set( -0.70710678118654752440084436210485f, -0.70710678118654752440084436210485f );	// 225 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_LEFT_CENTER	].Set(  0.92387953251128675612818318939679f,  0.3826834323650897717284599840304f );		// 22.5 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT_CENTER	].Set(  0.92387953251128675612818318939679f, -0.3826834323650897717284599840304f );		// 337.5 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_CENTER			].Set( -1.0f,								  0.0f );									// 180 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_SIDE_LEFT			].Set(  0.0f,								  1.0f );									// 90 degrees
-	speakerPositions[idWaveFile::CHANNEL_INDEX_SIDE_RIGHT			].Set( 0.0f,								 -1.0f );									// 270 degrees
+	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_LEFT			].Set(  UNIT_SPHERE_30_DEGREES,                                  UNIT_SPHERE_30_DEGREES,                                   0.0f );	                // 30 degrees XY,    base plane Z; used to be 45 degrees XY
+	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT			].Set(  UNIT_SPHERE_30_DEGREES,                                 -UNIT_SPHERE_30_DEGREES,                                   0.0f );	                // 330 degrees XY,   base plane Z; used to be 315 degrees XY
+	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_CENTER			].Set(  0.0f,							                           1.0f,                                                     0.0f );	                // 0 degrees XY,     base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY		].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_CENTER].x, speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_CENTER].y,-UNIT_SPHERE_30_DEGREES );	// 0 degrees XY,     below center front Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_LEFT			].Set( -UNIT_SPHERE_30_DEGREES,                                  UNIT_SPHERE_30_DEGREES,                                   0.0f );	                // 135 degrees XY,   base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_RIGHT			].Set( -UNIT_SPHERE_30_DEGREES,                                 -UNIT_SPHERE_30_DEGREES,                                   0.0f );	                // 225 degrees XY,   base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_LEFT_CENTER	].Set(  UNIT_SPHERE_COS_22_5_DEGREES,                            UNIT_SPHERE_SIN_22_5_DEGREES,                             0.0f );	                // 22.5 degrees XY,  base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT_CENTER	].Set(  UNIT_SPHERE_COS_22_5_DEGREES,                           -UNIT_SPHERE_SIN_22_5_DEGREES,                             0.0f );	                // 337.5 degrees XY, base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_CENTER			].Set( -1.0f,							                           0.0f,                                                     0.0f );	                // 180 degrees XY,   base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_SIDE_LEFT			].Set(  0.0f,						                               1.0f,                                                     0.0f );	                // 90 degrees XY,    base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_SIDE_RIGHT			].Set(  0.0f,					                            	  -1.0f,                                                     0.0f );	                // 270 degrees XY,   base plane Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_CENTER           ].Set(  0.0f,                                                    0.0f,                                                     1.0f);	                // 0 degrees XY,     directly overhead Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_FRONT_LEFT       ].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_LEFT  ].x, speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_LEFT  ].y, UNIT_SPHERE_45_DEGREES);	// above FL XY,      45 degrees overhead Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_FRONT_CENTER     ].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_CENTER].x, speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_CENTER].y, UNIT_SPHERE_45_DEGREES);	// above FC XY,      45 degrees overhead Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_FRONT_RIGHT      ].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT ].x, speakerPositions[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT ].y, UNIT_SPHERE_45_DEGREES);	// above FR XY,      45 degrees overhead Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_BACK_LEFT        ].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_LEFT   ].x, speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_LEFT   ].y, UNIT_SPHERE_45_DEGREES);	// above BL XY,      45 degrees overhead Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_BACK_CENTER      ].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_CENTER ].x, speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_CENTER ].y, UNIT_SPHERE_45_DEGREES);	// above BC XY,      45 degrees overhead Z
+	speakerPositions[idWaveFile::CHANNEL_INDEX_TOP_BACK_RIGHT       ].Set(  speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_RIGHT  ].x, speakerPositions[idWaveFile::CHANNEL_INDEX_BACK_RIGHT  ].y, UNIT_SPHERE_45_DEGREES);	// above BR XY,      45 degrees overhead Z
 
+	// Rotate left one position
 	speakerLeft[idWaveFile::CHANNEL_INDEX_FRONT_LEFT_CENTER] = idWaveFile::CHANNEL_INDEX_FRONT_LEFT;
 	speakerLeft[idWaveFile::CHANNEL_INDEX_FRONT_LEFT] = idWaveFile::CHANNEL_INDEX_SIDE_LEFT;
 	speakerLeft[idWaveFile::CHANNEL_INDEX_SIDE_LEFT] = idWaveFile::CHANNEL_INDEX_BACK_LEFT;
@@ -93,6 +107,15 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 	speakerLeft[idWaveFile::CHANNEL_INDEX_FRONT_CENTER] = idWaveFile::CHANNEL_INDEX_FRONT_CENTER;
 	speakerLeft[idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY] = idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY;
 
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_CENTER] = idWaveFile::CHANNEL_INDEX_TOP_CENTER;
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_FRONT_CENTER] = idWaveFile::CHANNEL_INDEX_TOP_FRONT_LEFT;
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_FRONT_LEFT] = idWaveFile::CHANNEL_INDEX_TOP_BACK_LEFT;
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_BACK_LEFT] = idWaveFile::CHANNEL_INDEX_TOP_BACK_CENTER;
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_BACK_CENTER] = idWaveFile::CHANNEL_INDEX_TOP_BACK_RIGHT;
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_BACK_RIGHT] = idWaveFile::CHANNEL_INDEX_TOP_FRONT_RIGHT;
+	speakerLeft[idWaveFile::CHANNEL_INDEX_TOP_FRONT_RIGHT] = idWaveFile::CHANNEL_INDEX_TOP_FRONT_CENTER;
+
+	// Rotate right one position
 	speakerRight[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT_CENTER] = idWaveFile::CHANNEL_INDEX_FRONT_RIGHT;
 	speakerRight[idWaveFile::CHANNEL_INDEX_FRONT_RIGHT] = idWaveFile::CHANNEL_INDEX_SIDE_RIGHT;
 	speakerRight[idWaveFile::CHANNEL_INDEX_SIDE_RIGHT] = idWaveFile::CHANNEL_INDEX_BACK_RIGHT;
@@ -106,6 +129,14 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 	speakerRight[idWaveFile::CHANNEL_INDEX_FRONT_CENTER] = idWaveFile::CHANNEL_INDEX_FRONT_CENTER;
 	speakerRight[idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY] = idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY;
 
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_CENTER] = idWaveFile::CHANNEL_INDEX_TOP_CENTER;
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_FRONT_CENTER] = idWaveFile::CHANNEL_INDEX_TOP_FRONT_RIGHT;
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_FRONT_RIGHT] = idWaveFile::CHANNEL_INDEX_TOP_BACK_RIGHT;
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_BACK_RIGHT] = idWaveFile::CHANNEL_INDEX_TOP_BACK_CENTER;
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_BACK_CENTER] = idWaveFile::CHANNEL_INDEX_TOP_BACK_LEFT;
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_BACK_LEFT] = idWaveFile::CHANNEL_INDEX_TOP_FRONT_LEFT;
+	speakerRight[idWaveFile::CHANNEL_INDEX_TOP_FRONT_LEFT] = idWaveFile::CHANNEL_INDEX_TOP_FRONT_CENTER;
+
 	dstChannels = outputChannels;
 	dstMask = channelMask;
 
@@ -115,7 +146,7 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 	dstCenter = -1;
 	memset( dstMap, 0, sizeof( dstMap ) );
 	memset( invMap, 0, sizeof( invMap ) );
-	for ( int i = 0, c = 0; i < idWaveFile::CHANNEL_INDEX_MAX && c < MAX_CHANNELS_PER_VOICE; i++ ) {
+	for (index_t i = 0, c = 0; i < idWaveFile::CHANNEL_INDEX_MAX && std::cmp_less(c, MAX_CHANNELS_PER_VOICE); i++ ) {
 		if ( dstMask & BIT(i) ) {
 			if ( i == idWaveFile::CHANNEL_INDEX_LOW_FREQUENCY ) {
 				dstLFE = c;
@@ -127,8 +158,8 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 			invMap[i] = c++;
 		} else {
 			// Remove this speaker from the chain
-			int right = speakerRight[i];
-			int left = speakerLeft[i];
+			const index_t right = speakerRight[i];
+			const index_t left = speakerLeft[i];
 			speakerRight[left] = right;
 			speakerLeft[right] = left;
 		}
@@ -136,7 +167,7 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 	assert( ( dstLFE == -1 ) || ( ( dstMask & idWaveFile::CHANNEL_MASK_LOW_FREQUENCY ) != 0 ) );
 	assert( ( dstCenter == -1 ) || ( ( dstMask & idWaveFile::CHANNEL_MASK_FRONT_CENTER ) != 0 ) );
 
-	float omniChannels = static_cast<float>(dstChannels);
+	float omniChannels = numeric_cast<float>(dstChannels);
 	if ( dstMask & idWaveFile::CHANNEL_MASK_LOW_FREQUENCY ) {
 		omniChannels -= 1.0f;
 	}
@@ -156,7 +187,7 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask ) {
 idSoundVoice_Base::CalculateSurround
 ========================
 */
-void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], float scale ) {
+void idSoundVoice_Base::CalculateSurround(const size_t srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], const float scale ) {
 	// Hack for mono
 	if ( dstChannels == 1 ) {
 		if ( srcChannels == 1 ) {
@@ -168,24 +199,25 @@ void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ 
 		return;
 	}
 
-#define MATINDEX( src, dst ) ( srcChannels * dst + src )
+#define MATINDEX( src, dst ) ( srcChannels * (dst) + (src) )
 
-	float subFraction = s_subFraction.GetFloat();
+	const float subFraction = s_subFraction.GetFloat();
 
 	if ( srcChannels == 1 ) {
-		idVec2 p2 = position.ToVec2();
+		//idVec2 p2 = position.ToVec2();
+		idVec3 p2 = position;
 
 		float centerFraction = centerChannel;
 
-		float sqrLength = p2.LengthSqr();
+		const float sqrLength = p2.LengthSqr();
 		if ( sqrLength <= 0.01f ) {
 			// If we are on top of the listener, simply route all channels to each speaker equally
-			for ( int i = 0; i < dstChannels; i++ ) {
+			for ( size_t i = 0; i < dstChannels; i++ ) {
 				pLevelMatrix[MATINDEX( 0, i )] = omniLevel;
 			}
 		} else {
-			float invLength = idMath::InvSqrt( sqrLength );
-			float distance = ( invLength * sqrLength );
+			const float invLength = idMath::InvSqrt( sqrLength );
+			const float distance = ( invLength * sqrLength );
 			p2 *= invLength;
 
 			float spatialize = 1.0f;
@@ -201,37 +233,37 @@ void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ 
 			}
 
 			float channelDots[MAX_CHANNELS_PER_VOICE] = { 0 };
-			for ( int i = 0; i < dstChannels; i++ ) {
+			for ( size_t i = 0; i < dstChannels; i++ ) {
 				// Calculate the contribution to each destination channel
 				channelDots[i] = speakerPositions[dstMap[i]] * p2;
 			}
 			// Find the speaker nearest to the sound
 			int channelA = 0;
-			for ( int i = 1; i < dstChannels; i++ ) {
+			for ( size_t i = 1; i < dstChannels; i++ ) {
 				if ( channelDots[i] > channelDots[channelA] ) {
 					channelA = i;
 				}
 			}
-			int speakerA = dstMap[channelA];
+			const index_t speakerA = dstMap[channelA];
 
 			// Find the 2nd nearest speaker
-			int speakerB;
-			float speakerACross = ( speakerPositions[speakerA].x * p2.y ) - ( speakerPositions[speakerA].y * p2.x );
+			index_t speakerB = 0;
+			const float speakerACross = ( speakerPositions[speakerA].x * p2.y ) - ( speakerPositions[speakerA].y * p2.x );
 			if ( speakerACross > 0.0f ) {
 				speakerB = speakerLeft[speakerA];
 			} else {
 				speakerB = speakerRight[speakerA];
 			}
-			int channelB = invMap[speakerB];
+			const index_t channelB = invMap[speakerB];
 
 			// Divide the amplitude between the 2 closest speakers
-			float distA = ( speakerPositions[speakerA] - p2 ).Length();
-			float distB = ( speakerPositions[speakerB] - p2 ).Length();
-			float distCinv = 1.0f / ( distA + distB );
+			const float distA = ( speakerPositions[speakerA] - p2 ).Length();
+			const float distB = ( speakerPositions[speakerB] - p2 ).Length();
+			const float distCinv = 1.0f / ( distA + distB );
 			float volumes[MAX_CHANNELS_PER_VOICE] = { 0 };
 			volumes[channelA] = ( distB * distCinv );
 			volumes[channelB] = ( distA * distCinv );
-			for ( int i = 0; i < dstChannels; i++ ) {
+			for ( size_t i = 0; i < dstChannels; i++ ) {
 				pLevelMatrix[MATINDEX( 0, i )] = ( volumes[i] * spatialize ) + omni;
 			}
 		}
@@ -251,7 +283,7 @@ void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ 
 	} else {
 		idLib::Warning( "We don't support %d channel sound files", srcChannels );
 	}
-	for ( int i = 0; i < srcChannels * dstChannels; i++ ) {
+	for ( size_t i = 0; i < srcChannels * dstChannels; i++ ) {
 		pLevelMatrix[ i ] *= scale;
 	}
 }

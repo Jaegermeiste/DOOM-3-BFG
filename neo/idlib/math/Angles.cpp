@@ -42,7 +42,7 @@ returns angles normalized to the range [0 <= angle < 360]
 =================
 */
 idAngles& idAngles::Normalize360() {
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		if ( ( (*this)[i] >= 360.0f ) || ( (*this)[i] < 0.0f ) ) {
 			(*this)[i] -= floor( (*this)[i] / 360.0f ) * 360.0f;
 

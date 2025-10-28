@@ -96,8 +96,8 @@ void idGameLocal::ShutdownAsyncNetwork() {
 idGameLocal::ServerRemapDecl
 ================
 */
-int idGameLocal::ServerRemapDecl( const Ordinal auto clientNum, declType_t type, const Ordinal auto index ) {
-	return idMath::integer_cast<int>(index);
+int idGameLocal::ServerRemapDecl( index_t clientNum, declType_t type, const index_t index ) {
+	return numeric_cast<int>(index);
 }
 
 /*
@@ -105,8 +105,8 @@ int idGameLocal::ServerRemapDecl( const Ordinal auto clientNum, declType_t type,
 idGameLocal::ClientRemapDecl
 ================
 */
-int idGameLocal::ClientRemapDecl( declType_t type, const Ordinal auto index ) {
-	return idMath::integer_cast<int>(index);
+int idGameLocal::ClientRemapDecl( declType_t type, const index_t index ) {
+	return numeric_cast<int>(index);
 }
 
 /*
@@ -114,7 +114,7 @@ int idGameLocal::ClientRemapDecl( declType_t type, const Ordinal auto index ) {
 idGameLocal::SyncPlayersWithLobbyUsers
 ================
 */
-void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
+void idGameLocal::SyncPlayersWithLobbyUsers(const bool initial ) {
 	idLobbyBase & lobby = session->GetActingGameStateLobbyBase();
 	if ( !lobby.IsHost() ) {
 		return;
@@ -123,7 +123,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 	idStaticList< lobbyUserID_t, MAX_CLIENTS > newLobbyUsers;
 
 	// First, loop over lobby users, and see if we find a lobby user that we haven't registered
-	for ( int i = 0; i < lobby.GetNumLobbyUsers(); i++ ) {	
+	for ( size_t i = 0; i < lobby.GetNumLobbyUsers(); i++ ) {	
 		lobbyUserID_t lobbyUserID1 = lobby.GetLobbyUserIdByOrdinal( i );
 
 		if ( !lobbyUserID1.IsValid() ) {
@@ -137,7 +137,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 		// Now, see if we find this lobby user in our list
 		bool found = false;
 
-		for ( int j = 0; j < MAX_PLAYERS; j++ ) {
+		for ( size_t j = 0; j < MAX_PLAYERS; j++ ) {
 			idPlayer * player = dynamic_cast<idPlayer *>( entities[ j ] );
 			if ( player == nullptr) {
 				continue;
@@ -158,7 +158,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 	}
 
 	// Validate connected players
-	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
+	for ( size_t i = 0; i < MAX_PLAYERS; i++ ) {
 		idPlayer * player = dynamic_cast<idPlayer *>( entities[ i ] );
 		if ( player == nullptr) {
 			continue;
@@ -180,7 +180,7 @@ void idGameLocal::SyncPlayersWithLobbyUsers( bool initial ) {
 		// Find a free player data slot to use for this new player
 		int freePlayerDataIndex = -1;
 
-		for ( int i = 0; i < MAX_PLAYERS; ++i ) {
+		for ( size_t i = 0; i < MAX_PLAYERS; ++i ) {
 			idPlayer * player = dynamic_cast<idPlayer *>( entities[ i ] );
 			if ( player == nullptr) {
 				freePlayerDataIndex = i;
@@ -247,7 +247,7 @@ idGameLocal::ServerWriteInitialReliableMessages
   Send reliable messages to initialize the client game up to a certain initial state.
 ================
 */
-void idGameLocal::ServerWriteInitialReliableMessages( int clientNum, lobbyUserID_t lobbyUserID ) {
+void idGameLocal::ServerWriteInitialReliableMessages(const index_t clientNum, const lobbyUserID_t lobbyUserID ) {
 	if ( clientNum == GetLocalClientNum() ) {
 		// We don't need to send messages to ourself
 		return;
@@ -290,7 +290,7 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum, lobbyUserID
 idGameLocal::SaveEntityNetworkEvent
 ================
 */
-void idGameLocal::SaveEntityNetworkEvent( const idEntity *ent, int eventId, const idBitMsg *msg ) {
+void idGameLocal::SaveEntityNetworkEvent( const idEntity *ent, const int eventId, const idBitMsg *msg ) {
 	entityNetEvent_t * event = savedEventQueue.Alloc();
 	event->spawnId = GetSpawnId( ent );
 	event->event = eventId;
@@ -326,16 +326,16 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 
 	// Update global shader parameters
 	msg.InitWrite( buffer, sizeof( buffer ) );
-	for ( int i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ ) {
+	for ( size_t i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ ) {
 		msg.WriteFloat( globalShaderParms[i] );
 	}
 	ss.S_AddObject( SNAP_SHADERPARMS, ~0U, msg, "Shader Parms" );
 
 	// update portals for opened doors
 	msg.InitWrite( buffer, sizeof( buffer ) );
-	int numPortals = gameRenderWorld->NumPortals();
+	size_t numPortals = gameRenderWorld->NumPortals();
 	msg.WriteLong( numPortals );
-	for ( int i = 0; i < numPortals; i++ ) {
+	for ( size_t i = 0; i < numPortals; i++ ) {
 		msg.WriteBits( gameRenderWorld->GetPortalState( (qhandle_t) (i+1) ) , NUM_RENDER_PORTAL_BITS );
 	}
 	ss.S_AddObject( SNAP_PORTALS, ~0U, msg, "Portal State" );
@@ -349,7 +349,7 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 
 	// Build PVS data for each player and write their player state to the snapshot as well
 	pvsHandle_t pvsHandles[ MAX_PLAYERS ];
-	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
+	for ( size_t i = 0; i < MAX_PLAYERS; i++ ) {
 		idPlayer * player = dynamic_cast<idPlayer *>( entities[ i ] );
 		if ( player == nullptr) {
 			pvsHandles[i].i = -1;
@@ -365,7 +365,7 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 		ss.S_AddObject( SNAP_PLAYERSTATE + i, ~0U, msg, "Player State" );
 
 		int sourceAreas[ idEntity::MAX_PVS_AREAS ];
-		int numSourceAreas = gameRenderWorld->BoundsInAreas( spectated->GetPlayerPhysics()->GetAbsBounds(), sourceAreas, idEntity::MAX_PVS_AREAS );
+		size_t numSourceAreas = gameRenderWorld->BoundsInAreas( spectated->GetPlayerPhysics()->GetAbsBounds(), sourceAreas, idEntity::MAX_PVS_AREAS );
 		pvsHandles[i] = pvs.SetupCurrentPVS( sourceAreas, numSourceAreas, PVS_NORMAL );
 		if ( portalSkyPVS.i >= 0 ) {
 			pvsHandle_t	tempPVS = pvs.MergeCurrentPVS( pvsHandles[i], portalSkyPVS );
@@ -406,7 +406,7 @@ void idGameLocal::ServerWriteSnapshot( idSnapShot & ss ) {
 	}
 
 	// Free PVS handles for all the players
-	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
+	for ( size_t i = 0; i < MAX_PLAYERS; i++ ) {
 		if ( pvsHandles[i].i < 0 ) {
 			continue;
 		}
@@ -421,7 +421,7 @@ idGameLocal::NetworkEventWarning
 */
 void idGameLocal::NetworkEventWarning( const entityNetEvent_t *event, const char *fmt, ... ) {
 	char buf[1024];
-	int length = 0;
+	size_t length = 0;
 	va_list argptr;
 
 	int entityNum	= event->spawnId & ( ( 1 << GENTITYNUM_BITS ) - 1 );
@@ -477,7 +477,7 @@ void idGameLocal::ServerProcessEntityNetworkEventQueue() {
 idGameLocal::ProcessReliableMessage
 ================
 */
-void idGameLocal::ProcessReliableMessage( int clientNum, int type, const idBitMsg &msg ) {
+void idGameLocal::ProcessReliableMessage(const index_t clientNum, const int type, const idBitMsg &msg ) {
 	if ( session->GetActingGameStateLobbyBase().IsPeer() ) {
 		ClientProcessReliableMessage( type, msg );
 	} else {
@@ -490,7 +490,7 @@ void idGameLocal::ProcessReliableMessage( int clientNum, int type, const idBitMs
 idGameLocal::ServerProcessReliableMessage
 ================
 */
-void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const idBitMsg &msg ) {
+void idGameLocal::ServerProcessReliableMessage(const index_t clientNum, const int type, const idBitMsg &msg ) {
 	if ( clientNum < 0 ) {
 		return;
 	}
@@ -507,7 +507,7 @@ void idGameLocal::ServerProcessReliableMessage( int clientNum, int type, const i
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_VCHAT: {
-			int index = msg.ReadLong();
+			index_t index = msg.ReadLong();
 			bool team = msg.ReadBits( 1 ) != 0;
 			mpGame.ProcessVoiceChat( clientNum, team, index );
 			break;
@@ -661,16 +661,16 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 			continue;
 		}
 		if ( snapObjectNum == SNAP_SHADERPARMS ) {
-			for ( int i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ ) {
+			for ( size_t i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ ) {
 				globalShaderParms[i] = msg.ReadFloat();
 			}
 			continue;
 		}
 		if ( snapObjectNum == SNAP_PORTALS ) {
 			// update portals for opened doors
-			int numPortals = msg.ReadLong();
+			size_t numPortals = msg.ReadLong();
 			assert( numPortals == gameRenderWorld->NumPortals() );
-			for ( int i = 0; i < numPortals; i++ ) {
+			for ( size_t i = 0; i < numPortals; i++ ) {
 				gameRenderWorld->SetPortalState( (qhandle_t) (i+1), msg.ReadBits( NUM_RENDER_PORTAL_BITS ) );
 			}
 			continue;
@@ -714,7 +714,7 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 			continue;
 		}
 
-		int entityNumber = snapObjectNum - SNAP_ENTITIES;
+		index_t entityNumber = snapObjectNum - SNAP_ENTITIES;
 
 		if ( msg.GetSize() == 0 ) {
 			delete entities[entityNumber];
@@ -747,7 +747,7 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot & ss ) {
 #if 0
 					idProjectile * predictedProjectile = idProjectile::CastTo( predictedEntity );
 					if ( predictedProjectile != NULL ) {
-						for ( int i = 0; i < MAX_PLAYERS; i++ ) {
+						for ( size_t i = 0; i < MAX_PLAYERS; i++ ) {
 							if ( entities[i] == NULL ) {
 								continue;
 							}
@@ -912,7 +912,7 @@ void idGameLocal::ClientProcessEntityNetworkEventQueue() {
 idGameLocal::ClientProcessReliableMessage
 ================
 */
-void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) {
+void idGameLocal::ClientProcessReliableMessage(const int type, const idBitMsg &msg ) {
 	switch( type ) {
 		case GAME_RELIABLE_MESSAGE_SYNCEDCVARS: {
 			idDict syncedCvars;
@@ -940,7 +940,7 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg &msg ) 
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_SOUND_INDEX: {
-			int index = gameLocal.ClientRemapDecl( DECL_SOUND, msg.ReadLong() );
+			index_t index = gameLocal.ClientRemapDecl( DECL_SOUND, msg.ReadLong() );
 			if ( index >= 0 && index < declManager->GetNumDecls( DECL_SOUND ) ) {
 				const idSoundShader *shader = declManager->SoundByIndex( index );
 				mpGame.PlayGlobalSound( -1, SND_COUNT, shader->GetName() );
@@ -1119,7 +1119,7 @@ void idGameLocal::Tokenize( idStrList &out, const char *in ) {
 idGameLocal::FindPredictedEntity
 ========================
 */
-idEntity *  idGameLocal::FindPredictedEntity( uint32 predictedKey, idTypeInfo * type ) {
+idEntity *  idGameLocal::FindPredictedEntity(const uint32 predictedKey, idTypeInfo * type ) {
 	for ( idEntity * predictedEntity = activeEntities.Next(); predictedEntity != nullptr; predictedEntity = predictedEntity->activeNode.Next() ) {
 		if ( !verify( predictedEntity != NULL ) ) {
 			continue;
@@ -1139,7 +1139,7 @@ idEntity *  idGameLocal::FindPredictedEntity( uint32 predictedKey, idTypeInfo * 
 idGameLocal::GeneratePredictionKey
 ========================
 */
-uint32  idGameLocal::GeneratePredictionKey( idWeapon * weapon, idPlayer * playerAttacker, int overrideKey ) {
+uint32  idGameLocal::GeneratePredictionKey( idWeapon * weapon, idPlayer * playerAttacker, const int overrideKey ) {
 	if ( overrideKey != -1 ) {
 		uint32 predictedKey = overrideKey;
 		int peerIndex		= -1;
@@ -1282,7 +1282,7 @@ entityNetEvent_t* idEventQueue::RemoveLast() {
 idEventQueue::Enqueue
 ===============
 */
-void idEventQueue::Enqueue( entityNetEvent_t *event, outOfOrderBehaviour_t behaviour ) {
+void idEventQueue::Enqueue( entityNetEvent_t *event, const outOfOrderBehaviour_t behaviour ) {
 	if ( behaviour == OUTOFORDER_DROP ) {
 		// go backwards through the queue and determine if there are
 		// any out-of-order events

@@ -54,8 +54,8 @@ public:
 	[[nodiscard]] const bimageFile_t &	GetFileHeader() const { return fileData; }
 
 	[[nodiscard]] size_t NumImages() const { return images.Num(); }
-	[[nodiscard]] const bimageImage_t& GetImageHeader(const Ordinal auto i) const { ORDINAL_CHECK(i, images.Num());  return images[i]; }
-	[[nodiscard]] const byte* GetImageData(const Ordinal auto i) const { ORDINAL_CHECK(i, images.Num()); return images[i].data; }
+	[[nodiscard]] const bimageImage_t& GetImageHeader(const index_t i) const { ORDINAL_CHECK(i, images.Num());  return images[i]; }
+	[[nodiscard]] const byte* GetImageData(const index_t i) const { ORDINAL_CHECK(i, images.Num()); return images[i].data; }
 	static void			GetGeneratedFileName( idStr & gfn, const char *imageName );
 private:
 	idStr				imgName;			// game path, including extension (except for cube maps), may be an image program
@@ -85,7 +85,7 @@ private:
 		}
 		void Alloc( const size_t size ) {
 			Free();
-			dataSize = idMath::integer_cast<int>(size);
+			dataSize = numeric_cast<int>(size);
 			data = static_cast<byte*>(Mem_Alloc(size, TAG_CRAP));
 		}
 	};

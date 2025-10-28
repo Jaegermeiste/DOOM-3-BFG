@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -54,11 +56,11 @@ If you have questions concerning this license or the applicable additional terms
 // P_Thrust
 // Moves the given origin along a given angle.
 //
-void
+static void
 P_Thrust
 ( player_t*	player,
  angle_t	angle,
- fixed_t	move ) 
+ const fixed_t	move ) 
 {
 	angle >>= ANGLETOFINESHIFT;
 
@@ -73,7 +75,7 @@ P_Thrust
 // P_CalcHeight
 // Calculate the walking / running height adjustment
 //
-void P_CalcHeight (player_t* player) 
+static void P_CalcHeight (player_t* player) 
 {
 	int		angle;
 	fixed_t	bob;
@@ -91,16 +93,14 @@ void P_CalcHeight (player_t* player)
 	player->bob >>= 2;
 
 	// DHM - NERVE :: player bob reduced by 25%, MAXBOB reduced by 25% as well
-	player->bob = (fixed_t)( (float)(player->bob) * 0.75f );
-	if (player->bob>MAXBOB)
-		player->bob = MAXBOB;
+	player->bob = static_cast<fixed_t>((float)(player->bob) * 0.75f);
+	player->bob = Min(player->bob, MAXBOB);
 
 	if ((player->cheats & CF_NOMOMENTUM) || !::g->onground)
 	{
 		player->viewz = player->mo->z + VIEWHEIGHT;
 
-		if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
-			player->viewz = player->mo->ceilingz-4*FRACUNIT;
+		player->viewz = Min(player->viewz, player->mo->ceilingz - 4 * FRACUNIT);
 
 		player->viewz = player->mo->z + player->viewheight;
 		return;
@@ -125,20 +125,23 @@ void P_CalcHeight (player_t* player)
 		{
 			player->viewheight = VIEWHEIGHT/2;
 			if (player->deltaviewheight <= 0)
+			{
 				player->deltaviewheight = 1;
+			}
 		}
 
 		if (player->deltaviewheight)	
 		{
 			player->deltaviewheight += FRACUNIT/4;
 			if (!player->deltaviewheight)
+			{
 				player->deltaviewheight = 1;
+			}
 		}
 	}
 	player->viewz = player->mo->z + player->viewheight + bob;
 
-	if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
-		player->viewz = player->mo->ceilingz-4*FRACUNIT;
+	player->viewz = Min(player->viewz, player->mo->ceilingz - 4 * FRACUNIT);
 }
 
 
@@ -146,7 +149,7 @@ void P_CalcHeight (player_t* player)
 //
 // P_MovePlayer
 //
-void P_MovePlayer (player_t* player)
+static void P_MovePlayer (player_t* player)
 {
 	ticcmd_t*		cmd;
 
@@ -159,10 +162,14 @@ void P_MovePlayer (player_t* player)
 	::g->onground = (player->mo->z <= player->mo->floorz);
 
 	if (cmd->forwardmove && ::g->onground)
+	{
 		P_Thrust (player, player->mo->angle, cmd->forwardmove*2048);
+	}
 
 	if (cmd->sidemove && ::g->onground)
+	{
 		P_Thrust (player, player->mo->angle-ANG90, cmd->sidemove*2048);
+	}
 
 	if ( (cmd->forwardmove || cmd->sidemove) 
 		&& player->mo->state == &::g->states[S_PLAY] )
@@ -180,7 +187,7 @@ void P_MovePlayer (player_t* player)
 //
 extern byte demoversion;
 
-void P_DeathThink (player_t* player)
+static void P_DeathThink (player_t* player)
 {
 	angle_t		angle;
 	angle_t		delta;
@@ -189,10 +196,11 @@ void P_DeathThink (player_t* player)
 
 	// fall to the ground
 	if (player->viewheight > 6*FRACUNIT)
+	{
 		player->viewheight -= FRACUNIT;
+	}
 
-	if (player->viewheight < 6*FRACUNIT)
-		player->viewheight = 6*FRACUNIT;
+	player->viewheight = Max(player->viewheight, 6 * FRACUNIT);
 
 	player->deltaviewheight = 0;
 	::g->onground = (player->mo->z <= player->mo->floorz);
@@ -214,19 +222,29 @@ void P_DeathThink (player_t* player)
 			player->mo->angle = angle;
 
 			if (player->damagecount)
+			{
 				player->damagecount--;
+			}
 		}
 		else if (delta < ANG180)
+		{
 			player->mo->angle += ANG5;
+		}
 		else
+		{
 			player->mo->angle -= ANG5;
+		}
 	}
 	else if (player->damagecount)
+	{
 		player->damagecount--;
+	}
 
 
 	if (player->cmd.buttons & BT_USE)
+	{
 		player->playerstate = PST_REBORN;
+	}
 }
 
 
@@ -241,9 +259,13 @@ void P_PlayerThink (player_t* player)
 
 	// fixme: do this in the cheat code
 	if (player->cheats & CF_NOCLIP)
+	{
 		player->mo->flags |= MF_NOCLIP;
+	}
 	else
+	{
 		player->mo->flags &= ~MF_NOCLIP;
+	}
 
 	// chain saw run forward
 	cmd = &player->cmd;
@@ -266,20 +288,28 @@ void P_PlayerThink (player_t* player)
 	// Reactiontime is used to prevent movement
 	//  for a bit after a teleport.
 	if (player->mo->reactiontime)
+	{
 		player->mo->reactiontime--;
+	}
 	else
+	{
 		P_MovePlayer (player);
+	}
 
 	P_CalcHeight (player);
 
 	if (player->mo->subsector->sector->special)
+	{
 		P_PlayerInSpecialSector (player);
+	}
 
 	// Check for weapon change.
 
 	// A special event has no other buttons.
 	if (cmd->buttons & BT_SPECIAL)
-		cmd->buttons = 0;			
+	{
+		cmd->buttons = 0;
+	}
 
 	if (::g->demoplayback && demoversion < VERSION )
 	{
@@ -288,7 +318,7 @@ void P_PlayerThink (player_t* player)
 			// The actual changing of the weapon is done
 			//  when the weapon psprite can do it
 			//  (read: not in the middle of an attack).
-			newweapon = (weapontype_t)((cmd->buttons&BT_WEAPONMASK)>>BT_WEAPONSHIFT);
+			newweapon = static_cast<weapontype_t>((cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT);
 
 			if (newweapon == wp_fist
 				&& player->weaponowned[wp_chainsaw]
@@ -334,19 +364,25 @@ void P_PlayerThink (player_t* player)
 
 			for ( k = 0; k < NUMWEAPONS; ++k) 
 			{
-				newweapon = (weapontype_t)( (cmd->nextPrevWeapon - 1) ? (newweapon + 1) : (newweapon - 1));
+				newweapon = static_cast<weapontype_t>((cmd->nextPrevWeapon - 1) ? (newweapon + 1) : (newweapon - 1));
 
 				if (newweapon == wp_nochange)
+				{
 					continue;
+				}
 
-				weapontype_t maxweapon = (::g->gamemode == retail) ? wp_chainsaw : wp_supershotgun;
+				const weapontype_t maxweapon = (::g->gamemode == retail) ? wp_chainsaw : wp_supershotgun;
 
 				if (newweapon < 0)
+				{
 					newweapon = maxweapon;
+				}
 
 				if (newweapon > maxweapon)
+				{
 					newweapon = wp_fist;
-				
+				}
+
 
 				if (player->weaponowned[newweapon] && newweapon != player->readyweapon)
 				{
@@ -357,7 +393,7 @@ void P_PlayerThink (player_t* player)
 		}
 		else {
 
-			newweapon = (weapontype_t)((cmd->buttons&BT_WEAPONMASK)>>BT_WEAPONSHIFT);
+			newweapon = static_cast<weapontype_t>((cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT);
 
 			if (newweapon == wp_fist
 				&& player->weaponowned[wp_chainsaw]
@@ -391,7 +427,9 @@ void P_PlayerThink (player_t* player)
 		}
 	}
 	else
+	{
 		player->usedown = false;
+	}
 
 	// cycle psprites
 	P_MovePsprites (player);
@@ -400,26 +438,42 @@ void P_PlayerThink (player_t* player)
 
 	// Strength counts up to diminish fade.
 	if (player->powers[pw_strength])
-		player->powers[pw_strength]++;	
+	{
+		player->powers[pw_strength]++;
+	}
 
 	if (player->powers[pw_invulnerability])
+	{
 		player->powers[pw_invulnerability]--;
+	}
 
 	if (player->powers[pw_invisibility])
+	{
 		if (! --player->powers[pw_invisibility] )
+		{
 			player->mo->flags &= ~MF_SHADOW;
+		}
+	}
 
 	if (player->powers[pw_infrared])
+	{
 		player->powers[pw_infrared]--;
+	}
 
 	if (player->powers[pw_ironfeet])
+	{
 		player->powers[pw_ironfeet]--;
+	}
 
 	if (player->damagecount)
+	{
 		player->damagecount--;
+	}
 
 	if (player->bonuscount)
+	{
 		player->bonuscount--;
+	}
 
 
 	// Handling ::g->colormaps.
@@ -427,9 +481,13 @@ void P_PlayerThink (player_t* player)
 	{
 		if (player->powers[pw_invulnerability] > 4*32
 			|| (player->powers[pw_invulnerability]&8) )
+		{
 			player->fixedcolormap = INVERSECOLORMAP;
+		}
 		else
+		{
 			player->fixedcolormap = 0;
+		}
 	}
 	else if (player->powers[pw_infrared])	
 	{
@@ -440,10 +498,14 @@ void P_PlayerThink (player_t* player)
 			player->fixedcolormap = 1;
 		}
 		else
+		{
 			player->fixedcolormap = 0;
+		}
 	}
 	else
+	{
 		player->fixedcolormap = 0;
+	}
 }
 
 

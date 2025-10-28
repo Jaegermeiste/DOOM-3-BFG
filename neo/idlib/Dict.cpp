@@ -69,7 +69,7 @@ idDict::Copy
 */
 void idDict::Copy( const idDict &other ) {
 	size_t i = 0;
-	int64 *found = nullptr;
+	index_t *found = nullptr;
 	idKeyValue kv = {};
 
 	// check for assignment to self
@@ -80,9 +80,12 @@ void idDict::Copy( const idDict &other ) {
 	const size_t n = other.args.Num();
 
 	if ( args.Num() ) {
-		found = static_cast<int64*>(_alloca16(other.args.Num() * sizeof( int64 )));
-        for ( i = 0; i < n; i++ ) {
-			found[i] = FindKeyIndex( other.args[i].GetKey() );
+		found = static_cast<index_t*>(_alloca16(other.args.Num() * sizeof( index_t )));
+		if (found)
+		{
+			for (i = 0; i < n; i++) {
+				found[i] = FindKeyIndex(other.args[i].GetKey());
+			}
 		}
 	} else {
 		found = nullptr;
@@ -195,7 +198,7 @@ idDict::Clear
 ================
 */
 void idDict::Clear() {
-	for( int i = 0; i < args.Num(); i++ ) {
+	for ( size_t i = 0; i < args.Num(); i++ ) {
 		globalKeys.FreeString( args[i].key );
 		globalValues.FreeString( args[i].value );
 	}
@@ -237,7 +240,7 @@ int	idDict::Checksum() const {
 		CRC32_UpdateChecksum( ret, sorted[i].GetValue().c_str(), sorted[i].GetValue().Length() );
 	}
 	CRC32_FinishChecksum( ret );
-	return idMath::integer_cast<int>(ret);
+	return numeric_cast<int>(ret);
 }
 
 /*
@@ -266,7 +269,7 @@ void idDict::Set(const char* key, const char* value) {
 		return;
 	}
 
-	const int64 i = FindKeyIndex(key);
+	const index_t i = FindKeyIndex(key);
 	if ( i != -1 ) {
 		// first set the new value and then free the old value to allow proper self copying
 		const idPoolStr *oldValue = args[i].value;
@@ -285,10 +288,23 @@ idDict::GetFloat
 ================
 */
 bool idDict::GetFloat( const char *key, const char *defaultString, float &out ) const {
-	const char	*s;
+	const char	*s = nullptr;
 
 	const bool found = GetString(key, defaultString, &s);
 	out = idStr::AtoF<float>( s );
+	return found;
+}
+
+/*
+================
+idDict::GetDouble
+================
+*/
+bool idDict::GetDouble(const char* key, const char* defaultString, double& out) const {
+	const char* s = nullptr;
+
+	const bool found = GetString(key, defaultString, &s);
+	out = idStr::AtoF<double>(s);
 	return found;
 }
 
@@ -302,6 +318,19 @@ bool idDict::GetInt( const char *key, const char *defaultString, int &out ) cons
 
 	const bool found = GetString(key, defaultString, &s);
 	out = idStr::AtoI<int>( s );
+	return found;
+}
+
+/*
+================
+idDict::GetInt64
+================
+*/
+bool idDict::GetInt64(const char* key, const char* defaultString, int64& out) const {
+	const char* s;
+
+	const bool found = GetString(key, defaultString, &s);
+	out = idStr::AtoI<int64>(s);
 	return found;
 }
 
@@ -336,6 +365,23 @@ bool idDict::GetFloat( const char *key, const float defaultFloat, float &out ) c
 
 /*
 ================
+idDict::GetDouble
+================
+*/
+bool idDict::GetDouble( const char* key, const double defaultDouble, double& out) const {
+	const idKeyValue* kv = FindKey(key);
+	if (kv) {
+		out = idStr::AtoF<double>(kv->GetValue());
+		return true;
+	}
+	else {
+		out = defaultDouble;
+		return false;
+	}
+}
+
+/*
+================
 idDict::GetInt
 ================
 */
@@ -345,6 +391,23 @@ bool idDict::GetInt( const char *key, const int defaultInt, int &out ) const {
 		out = atoi( kv->GetValue() );
 		return true;
 	} else {
+		out = defaultInt;
+		return false;
+	}
+}
+
+/*
+================
+idDict::GetInt64
+================
+*/
+bool idDict::GetInt64(const char* key, const int64 defaultInt, int64& out) const {
+	const idKeyValue* kv = FindKey(key);
+	if (kv) {
+		out = _atoi64(kv->GetValue());
+		return true;
+	}
+	else {
 		out = defaultInt;
 		return false;
 	}
@@ -463,7 +526,7 @@ WriteString
 */
 static void WriteString( const char *s, idFile *f ) {
 	const size_t	len = strlen( s );
-	if (len >= static_cast<unsigned long long>(MAX_STRING_CHARS) - 1) {
+	if (len >= MAX_STRING_CHARS - 1) {
 		idLib::common->Error( "idDict::WriteToFileHandle: bad string" );
 	}
 	f->Write( s, strlen(s) + 1 );
@@ -625,7 +688,7 @@ idDict::ReadFromFileHandle
 ================
 */
 void idDict::ReadFromFileHandle( idFile *f ) {
-	int c;
+	int c = 0;
 
 	Clear();
 
@@ -648,7 +711,7 @@ void idDict::Serialize( idSerializer & ser ) {
 		Clear();
 	}
 
-	int num = idMath::integer_cast<int>(args.Num());
+	int32 num = numeric_cast<int32>(args.Num());
 	ser.SerializePacked( num );
 	for (size_t i = 0; std::cmp_less(i, num); i++ ) {
 		idStr key;

@@ -66,8 +66,8 @@ private:
 	void				SetString( idVarDef *def, const char *from );
 	const char			*GetString( idVarDef *def );
 	varEval_t			GetVariable( idVarDef *def );
-	idEntity			*GetEntity( const Ordinal auto entnum ) const;
-	idScriptObject		*GetScriptObject( const Ordinal auto entnum ) const;
+	idEntity			*GetEntity( index_t entnum ) const;
+	idScriptObject		*GetScriptObject( index_t entnum ) const;
 	void				NextInstruction( address_t position );
 
 	void				LeaveFunction( idVarDef *returnDef );
@@ -135,7 +135,7 @@ ID_INLINE void idInterpreter::PopParms( const size_t numParms ) {
 idInterpreter::Push
 ====================
 */
-ID_INLINE void idInterpreter::Push( int value ) {
+ID_INLINE void idInterpreter::Push(const int value ) {
 	if ( localstackUsed + sizeof( int ) > LOCALSTACK_SIZE ) {
 		Error( "Push: locals stack overflow\n" );
 	}
@@ -165,7 +165,7 @@ ID_INLINE const char *idInterpreter::FloatToString( float value ) {
 	static char	text[ 32 ] = {};
 
 	if ( std::equal_to<>()(value, std::trunc(value)) ) {
-		sprintf( text, "%lld", idMath::integer_cast<int64>(value) );
+		sprintf( text, "%lld", numeric_cast<int64>(value) );
 	} else {
 		sprintf( text, "%f", value );
 	}
@@ -231,7 +231,7 @@ ID_INLINE varEval_t idInterpreter::GetVariable( idVarDef *def ) {
 idInterpreter::GetEntity
 ================
 */
-ID_INLINE idEntity *idInterpreter::GetEntity( const Ordinal auto entnum ) const{
+ID_INLINE idEntity *idInterpreter::GetEntity(const index_t entnum ) const{
 	ORDINAL_CHECK( entnum, MAX_GENTITIES + 1 );  // Offset 0-base
 	if ( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) ) {
 		return gameLocal.entities[ entnum - 1 ];
@@ -244,7 +244,7 @@ ID_INLINE idEntity *idInterpreter::GetEntity( const Ordinal auto entnum ) const{
 idInterpreter::GetScriptObject
 ================
 */
-ID_INLINE idScriptObject *idInterpreter::GetScriptObject( const Ordinal auto entnum ) const {
+ID_INLINE idScriptObject *idInterpreter::GetScriptObject(const index_t entnum ) const {
 	ORDINAL_CHECK(entnum, MAX_GENTITIES + 1);  // Offset 0-base
 
 	if ( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) ) {
@@ -261,7 +261,7 @@ ID_INLINE idScriptObject *idInterpreter::GetScriptObject( const Ordinal auto ent
 idInterpreter::NextInstruction
 ====================
 */
-ID_INLINE void idInterpreter::NextInstruction( address_t position ) {
+ID_INLINE void idInterpreter::NextInstruction(const address_t position ) {
 	// Before we execute an instruction, we increment instructionPointer,
 	// therefore we need to compensate for that here.
 	instructionPointer = position - 1;

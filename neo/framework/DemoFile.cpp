@@ -63,7 +63,7 @@ idDemoFile::~idDemoFile() {
 idDemoFile::AllocCompressor
 ================
 */
-idCompressor *idDemoFile::AllocCompressor( int type ) {
+idCompressor *idDemoFile::AllocCompressor(const int type ) {
 	switch ( type ) {
 	case 0: return idCompressor::AllocNoCompression();
 	default:
@@ -127,7 +127,7 @@ bool idDemoFile::OpenForReading( const char *fileName ) {
 idDemoFile::SetLog
 ================
 */
-void idDemoFile::SetLog(bool b, const char *p) {
+void idDemoFile::SetLog(const bool b, const char *p) {
 	log = b;
 	if (p) {
 		logStr = p;
@@ -252,7 +252,7 @@ void idDemoFile::WriteHashString( const char *str ) {
 		fLog->Write( text, strlen( text ) );
 	}
 	// see if it is already in the has table
-	for ( int i = 0 ; i < demoStrings.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < demoStrings.Num() ; i++ ) {
 		if ( !strcmp( demoStrings[i]->c_str(), str ) ) {
 			WriteInt( i );
 			return;
@@ -307,7 +307,7 @@ void idDemoFile::WriteDict( const idDict &dict ) {
  idDemoFile::Read
  ================
  */
-int idDemoFile::Read( void *buffer, int len ) const
+int idDemoFile::Read( void *buffer, const size_t len ) const
 {
 	int read = compressor->Read( buffer, len );
 	if ( read == 0 && len >= 4 ) {
@@ -321,7 +321,7 @@ int idDemoFile::Read( void *buffer, int len ) const
  idDemoFile::Write
  ================
  */
-int idDemoFile::Write( const void *buffer, int len ) const
+int idDemoFile::Write( const void *buffer, const size_t len ) const
 {
 	return compressor->Write( buffer, len );
 }

@@ -76,7 +76,7 @@ typedef struct define_s {
 // #if, #else, #elif, #ifdef, #ifndef
 typedef struct indent_s {
 	parserIndentType_t	type;						// indent type
-	int				    skip;						// true if skipping current indent
+	bool			    skip;						// true if skipping current indent
 	idLexer *		    script;						// script the indent was in
 	struct indent_s	*   next;						// next indent on the indent stack
 } indent_t;
@@ -137,7 +137,7 @@ public:
 	int				ParseInt();
 					// read a boolean
 	bool			ParseBool();
-					// read a floating point number
+					// read a floating posize_t number
 	float			ParseFloat();
 					// parse matrices with floats
 	bool			Parse1DMatrix( int x, float *m );
@@ -221,8 +221,8 @@ private:
 	void			AddGlobalDefinesToSource();
 	define_t *		CopyDefine( define_t *define );
 	define_t *		FindHashedDefine(define_t **definehash, const char *name);
-	int				FindDefineParm( define_t *define, const char *name );
-	void			AddDefineToHash(define_t *define, define_t **definehash);
+	index_t			FindDefineParm( define_t *define, const char *name );
+	void			AddDefineToHash( define_t *define, define_t **definehash );
 	static void		PrintDefine( define_t *define );
 	static void		FreeDefine( define_t *define );
 	static define_t *FindDefine( define_t *defines, const char *name );
@@ -235,9 +235,9 @@ private:
 	bool			Directive_ifndef();
 	bool			Directive_else();
 	bool			Directive_endif();
-	bool			EvaluateTokens( idToken *tokens, signed long int *intvalue, double *floatvalue, int integer );
-	bool			Evaluate( signed long int *intvalue, double *floatvalue, int integer );
-	bool			DollarEvaluate( signed long int *intvalue, double *floatvalue, int integer);
+	bool			EvaluateTokens( idToken *tokens, int64 *intvalue, double *floatvalue, int integer );
+	bool			Evaluate( int64 *intvalue, double *floatvalue, int integer );
+	bool			DollarEvaluate( int64 *intvalue, double *floatvalue, int integer);
 	bool			Directive_define();
 	bool			Directive_elif();
 	bool			Directive_if();

@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <utility>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -41,7 +43,7 @@ typedef struct {
 #define ALIASKEY( alias, code ) { K_##code, alias, "" }
 
 // names not in this list can either be lowercase ascii, or '0xnn' hex sequences
-keyname_t keynames[] =
+static keyname_t keynames[] =
 {
 	NAMEKEY( ESCAPE, "#str_07020" ),
 	NAMEKEY2( 1 ),
@@ -256,11 +258,11 @@ public:
 	bool			down;
 	int				repeats;		// if > 1, it is autorepeating
 	idStr			binding;
-	int				usercmdAction;	// for testing by the asyncronous usercmd generation
+	int				usercmdAction;	// for testing by the asynchronous usercmd generation
 };
 
-bool		key_overstrikeMode = false;
-idKey *		keys = nullptr;
+static bool		key_overstrikeMode = false;
+static idKey *		keys = nullptr;
 
 
 /*
@@ -269,7 +271,7 @@ idKeyInput::ArgCompletion_KeyName
 ===================
 */
 void idKeyInput::ArgCompletion_KeyName( const idCmdArgs &args, void(*callback)( const char *s ) ) {
-	for ( keyname_t * kn = keynames; kn->name; kn++ ) {
+	for (const keyname_t * kn = keynames; kn->name; kn++ ) {
 		callback( va( "%s %s", args.Argv( 0 ), kn->name ) );
 	}
 }
@@ -288,7 +290,7 @@ bool idKeyInput::GetOverstrikeMode() {
 idKeyInput::SetOverstrikeMode
 ===================
 */
-void idKeyInput::SetOverstrikeMode( bool state ) {
+void idKeyInput::SetOverstrikeMode( const bool state ) {
 	key_overstrikeMode = state;
 }
 
@@ -297,8 +299,8 @@ void idKeyInput::SetOverstrikeMode( bool state ) {
 idKeyInput::IsDown
 ===================
 */
-bool idKeyInput::IsDown( int keynum ) {
-	if ( keynum == -1 ) {
+bool idKeyInput::IsDown( const keyNum_t keynum ) {
+	if ( keynum <= K_INVALID ) {
 		return false;
 	}
 
@@ -317,7 +319,7 @@ keyNum_t idKeyInput::StringToKeyNum( const char * str ) {
 	}
 
 	// scan for a text match
-	for ( keyname_t * kn = keynames; kn->name; kn++ ) {
+	for (const keyname_t * kn = keynames; kn->name; kn++ ) {
 		if ( !idStr::Icmp( str, kn->name ) ) {
 			return kn->keynum;
 		}
@@ -331,9 +333,9 @@ keyNum_t idKeyInput::StringToKeyNum( const char * str ) {
 idKeyInput::KeyNumToString
 ========================
 */
-const char * idKeyInput::KeyNumToString( keyNum_t keynum ) {
+const char * idKeyInput::KeyNumToString( const keyNum_t keynum ) {
 	// check for a key string
-	for ( keyname_t * kn = keynames; kn->name; kn++ ) {
+	for (const keyname_t * kn = keynames; kn->name; kn++ ) {
 		if ( keynum == kn->keynum ) {
 			return kn->name;
 		}
@@ -347,17 +349,17 @@ const char * idKeyInput::KeyNumToString( keyNum_t keynum ) {
 idKeyInput::LocalizedKeyName
 ========================
 */
-const char * idKeyInput::LocalizedKeyName( keyNum_t keynum ) {
+const char * idKeyInput::LocalizedKeyName( const keyNum_t keynum ) {
 	if ( keynum < K_JOY1 ) {
 		// On the PC, we want to turn the scan code in to a key label that matches the currently selected keyboard layout
-		unsigned char keystate[256] = { 0 };
+		constexpr unsigned char keystate[256] = { 0 };
 		WCHAR temp[5];
 
-		int scancode = (int)keynum;
-		int vkey = MapVirtualKey( keynum, MAPVK_VSC_TO_VK_EX );
+		const int scancode = keynum;
+		const int vkey = MapVirtualKey( keynum, MAPVK_VSC_TO_VK_EX );
 		int result = -1;
 		while ( result < 0 ) {
-			result = ToUnicode( vkey, scancode, keystate, temp, sizeof( temp ) / sizeof( temp[0] ), 0 );
+			result = ToUnicode( vkey, scancode, keystate, temp, numeric_cast<int>(sizeof(temp)), 0 );
 		}
 		if ( result > 0 && temp[0] > ' ' && iswprint( temp[0] ) ) {
 			static idStr bindStr;
@@ -368,7 +370,7 @@ const char * idKeyInput::LocalizedKeyName( keyNum_t keynum ) {
 	}
 
 	// check for a key string
-	for ( keyname_t * kn = keynames; kn->name; kn++ ) {
+	for (const keyname_t * kn = keynames; kn->name; kn++ ) {
 		if ( keynum == kn->keynum ) {
 			return idLocalization::GetString( kn->strId );
 		}
@@ -381,8 +383,8 @@ const char * idKeyInput::LocalizedKeyName( keyNum_t keynum ) {
 idKeyInput::SetBinding
 ===================
 */
-void idKeyInput::SetBinding( int keynum, const char *binding ) {
-	if ( keynum == -1 ) {
+void idKeyInput::SetBinding( const keyNum_t keynum, const char *binding ) {
+	if ( keynum <= K_INVALID ) {
 		return;
 	}
 
@@ -406,8 +408,8 @@ void idKeyInput::SetBinding( int keynum, const char *binding ) {
 idKeyInput::GetBinding
 ===================
 */
-const char *idKeyInput::GetBinding( int keynum ) {
-	if ( keynum == -1 ) {
+const char *idKeyInput::GetBinding( const keyNum_t keynum ) {
+	if ( keynum <= K_INVALID ) {
 		return "";
 	}
 
@@ -419,7 +421,11 @@ const char *idKeyInput::GetBinding( int keynum ) {
 idKeyInput::GetUsercmdAction
 ===================
 */
-int idKeyInput::GetUsercmdAction( int keynum ) {
+int idKeyInput::GetUsercmdAction( const keyNum_t keynum ) {
+	if (keynum <= K_INVALID) {
+		return -1;
+	}
+
 	return keys[ keynum ].usercmdAction;
 }
 
@@ -428,8 +434,8 @@ int idKeyInput::GetUsercmdAction( int keynum ) {
 Key_Unbind_f
 ===================
 */
-void Key_Unbind_f( const idCmdArgs &args ) {
-	int		b;
+static void Key_Unbind_f( const idCmdArgs &args ) {
+	keyNum_t		b = K_NONE;
 
 	if ( args.Argc() != 2 ) {
 		common->Printf( "unbind <key> : remove commands from a key\n" );
@@ -437,7 +443,7 @@ void Key_Unbind_f( const idCmdArgs &args ) {
 	}
 	
 	b = idKeyInput::StringToKeyNum( args.Argv(1) );
-	if ( b == -1 ) {
+	if ( b <= K_INVALID ) {
 		// If it wasn't a key, it could be a command
 		if ( !idKeyInput::UnbindBinding( args.Argv(1) ) ) {
 			common->Printf( "\"%s\" isn't a valid key\n", args.Argv(1) );
@@ -452,9 +458,9 @@ void Key_Unbind_f( const idCmdArgs &args ) {
 Key_Unbindall_f
 ===================
 */
-void Key_Unbindall_f( const idCmdArgs &args ) {
-	for ( int i = 0; i < K_LAST_KEY; i++ ) {
-		idKeyInput::SetBinding( i, "" );
+static void Key_Unbindall_f( const idCmdArgs &args ) {
+	for ( size_t i = K_NONE; i < K_LAST_KEY; i++ ) {
+		idKeyInput::SetBinding( static_cast<keyNum_t>(i), "" );
 	}
 }
 
@@ -463,18 +469,17 @@ void Key_Unbindall_f( const idCmdArgs &args ) {
 Key_Bind_f
 ===================
 */
-void Key_Bind_f( const idCmdArgs &args ) {
-	int			i, c, b;
-	char		cmd[MAX_STRING_CHARS];
-	
-	c = args.Argc();
+static void Key_Bind_f( const idCmdArgs &args ) {
+	char		cmd[MAX_STRING_CHARS] = {};
+
+	const auto c = args.Argc();
 
 	if ( c < 2 ) {
 		common->Printf( "bind <key> [command] : attach a command to a key\n" );
 		return;
 	}
-	b = idKeyInput::StringToKeyNum( args.Argv(1) );
-	if ( b == -1 ) {
+	const auto b = idKeyInput::StringToKeyNum(args.Argv(1));
+	if ( b <= K_INVALID ) {
 		common->Printf( "\"%s\" isn't a valid key\n", args.Argv(1) );
 		return;
 	}
@@ -491,9 +496,9 @@ void Key_Bind_f( const idCmdArgs &args ) {
 	
 	// copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
-	for ( i = 2; i < c; i++ ) {
+	for ( size_t i = 2; std::cmp_less(i, c); i++ ) {
 		strcat( cmd, args.Argv( i ) );
-		if ( i != (c-1) ) {
+		if (std::not_equal_to<>()(i, (c-1))) {
 			strcat( cmd, " " );
 		}
 	}
@@ -508,18 +513,18 @@ Key_BindUnBindTwo_f
 binds keynum to bindcommand and unbinds if there are already two binds on the key
 ============
 */
-void Key_BindUnBindTwo_f( const idCmdArgs &args ) {
-	int c = args.Argc();
+static void Key_BindUnBindTwo_f( const idCmdArgs &args ) {
+	const auto c = args.Argc();
 	if ( c < 3 ) {
 		common->Printf( "bindunbindtwo <keynum> [command]\n" );
 		return;
 	}
-	int key = atoi( args.Argv( 1 ) );
+	auto key = idStr::AtoI<int>( args.Argv( 1 ) );
 	idStr bind = args.Argv( 2 );
-	if ( idKeyInput::NumBinds( bind ) >= 2 && !idKeyInput::KeyIsBoundTo( key, bind ) ) {
+	if ( idKeyInput::NumBinds( bind ) >= 2 && !idKeyInput::KeyIsBoundTo( static_cast<keyNum_t>(key), bind ) ) {
 		idKeyInput::UnbindBinding( bind );
 	}
-	idKeyInput::SetBinding( key, bind );
+	idKeyInput::SetBinding( static_cast<keyNum_t>(key), bind );
 }
 
 
@@ -534,7 +539,7 @@ Writes lines containing "bind key value"
 void idKeyInput::WriteBindings( idFile *f ) {
 	f->Printf( "unbindall\n" );
 
-	for ( int i = 0; i < K_LAST_KEY; i++ ) {
+	for ( size_t i = 0; i < K_LAST_KEY; i++ ) {
 		if ( keys[i].binding.Length() ) {
 			const char *name = KeyNumToString( static_cast<keyNum_t>(i) );
 			f->Printf( "bind \"%s\" \"%s\"\n", name, keys[i].binding.c_str() );
@@ -547,8 +552,8 @@ void idKeyInput::WriteBindings( idFile *f ) {
 Key_ListBinds_f
 ============
 */
-void Key_ListBinds_f( const idCmdArgs &args ) {
-	for ( int i = 0; i < K_LAST_KEY; i++ ) {
+static void Key_ListBinds_f( const idCmdArgs &args ) {
+	for ( size_t i = 0; i < K_LAST_KEY; i++ ) {
 		if ( keys[i].binding.Length() ) {
 			common->Printf( "%s \"%s\"\n", idKeyInput::KeyNumToString( static_cast<keyNum_t>(i) ), keys[i].binding.c_str() );
 		}
@@ -562,11 +567,11 @@ returns the localized name of the key for the binding
 ============
 */
 const char *idKeyInput::KeysFromBinding( const char *bind ) {
-	static char keyName[MAX_STRING_CHARS];
+	static char keyName[MAX_STRING_CHARS] = {};
 	keyName[0] = 0;
 
 	if ( bind && *bind ) {
-		for ( int i = 0; i < K_LAST_KEY; i++ ) {
+		for ( size_t i = 0; i < K_LAST_KEY; i++ ) {
 			if ( keys[i].binding.Icmp( bind ) == 0 ) {
 				if ( keyName[0] != '\0' ) {
 					idStr::Append( keyName, sizeof( keyName ), idLocalization::GetString( "#str_07183" ) );
@@ -589,13 +594,13 @@ idKeyInput::KeyBindingsFromBinding
 return: bindings for keyboard mouse and gamepad
 ========================
 */
-keyBindings_t idKeyInput::KeyBindingsFromBinding( const char * bind, bool firstOnly, bool localized ) {
-	idStr keyboard;
-	idStr mouse;
-	idStr gamepad;
+keyBindings_t idKeyInput::KeyBindingsFromBinding( const char * bind, const bool firstOnly, const bool localized ) {
+	idStr keyboard = {};
+	idStr mouse = {};
+	idStr gamepad = {};
 
 	if ( bind && *bind ) {
-		for ( int i = 0; i < K_LAST_KEY; i++ ) {
+		for ( size_t i = 0; i < K_LAST_KEY; i++ ) {
 			if ( keys[i].binding.Icmp( bind ) == 0 ) {
 				if ( i >= K_JOY1 && i <= K_JOY_DPAD_RIGHT ) {
 					const char * gamepadKey = ""; 
@@ -680,9 +685,9 @@ idKeyInput::UnbindBinding
 bool idKeyInput::UnbindBinding( const char *binding ) {
 	bool unbound = false;
 	if ( binding && *binding ) {
-		for ( int i = 0; i < K_LAST_KEY; i++ ) {
+		for ( size_t i = 0; i < K_LAST_KEY; i++ ) {
 			if ( keys[i].binding.Icmp( binding ) == 0 ) {
-				SetBinding( i, "" );
+				SetBinding( static_cast<keyNum_t>(i), "" );
 				unbound = true;
 			}
 		}
@@ -699,7 +704,7 @@ int idKeyInput::NumBinds( const char *binding ) {
 	int count = 0;
 
 	if ( binding && *binding ) {
-		for ( int i = 0; i < K_LAST_KEY; i++ ) {
+		for ( size_t i = 0; i < K_LAST_KEY; i++ ) {
 			if ( keys[i].binding.Icmp( binding ) == 0 ) {
 				count++;
 			}
@@ -713,8 +718,8 @@ int idKeyInput::NumBinds( const char *binding ) {
 idKeyInput::KeyIsBountTo
 ============
 */
-bool idKeyInput::KeyIsBoundTo( int keynum, const char *binding ) {
-	if ( keynum >= 0 && keynum < K_LAST_KEY ) {
+bool idKeyInput::KeyIsBoundTo(const keyNum_t keynum, const char *binding ) {
+	if ( keynum >= K_NONE && keynum < K_LAST_KEY ) {
 		return ( keys[keynum].binding.Icmp( binding ) == 0 );
 	}
 	return false;
@@ -728,8 +733,10 @@ Tracks global key up/down state
 Called by the system for both key up and key down events
 ===================
 */
-void idKeyInput::PreliminaryKeyEvent( int keynum, bool down ) {
-	keys[keynum].down = down;
+void idKeyInput::PreliminaryKeyEvent(const keyNum_t keynum, const bool down ) {
+	if (keynum >= K_NONE && keynum < K_LAST_KEY) {
+		keys[keynum].down = down;
+	}
 }
 
 /*
@@ -737,19 +744,23 @@ void idKeyInput::PreliminaryKeyEvent( int keynum, bool down ) {
 idKeyInput::ExecKeyBinding
 =================
 */
-bool idKeyInput::ExecKeyBinding( int keynum ) {
-	// commands that are used by the async thread
-	// don't add text
-	if ( keys[keynum].usercmdAction ) {
-		return false;
+bool idKeyInput::ExecKeyBinding(const keyNum_t keynum ) {
+	if (keynum >= K_NONE && keynum < K_LAST_KEY) {
+		// commands that are used by the async thread
+		// don't add text
+		if (keys[keynum].usercmdAction) {
+			return false;
+		}
+
+		// send the bound action
+		if (keys[keynum].binding.Length()) {
+			cmdSystem->BufferCommandText(CMD_EXEC_APPEND, keys[keynum].binding.c_str());
+			cmdSystem->BufferCommandText(CMD_EXEC_APPEND, "\n");
+		}
+		return true;
 	}
 
-	// send the bound action
-	if ( keys[keynum].binding.Length() ) {
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, keys[keynum].binding.c_str() );
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "\n" );
-	}
-	return true;
+	return false;
 }
 
 /*
@@ -758,9 +769,9 @@ idKeyInput::ClearStates
 ===================
 */
 void idKeyInput::ClearStates() {
-	for ( int i = 0; i < K_LAST_KEY; i++ ) {
+	for ( size_t i = K_NONE; i < K_LAST_KEY; i++ ) {
 		if ( keys[i].down ) {
-			PreliminaryKeyEvent( i, false );
+			PreliminaryKeyEvent( static_cast<keyNum_t>(i), false );
 		}
 		keys[i].down = false;
 	}
@@ -803,9 +814,9 @@ Key_CovertHIDCode
 Converts from a USB HID code to a K_ code
 ========================
 */
-int Key_CovertHIDCode( int hid ) {
+int Key_CovertHIDCode(const int hid ) {
 	if ( hid >= 0 && hid <= 106 ) {
-		int table[] = {
+		constexpr int table[] = {
 			K_NONE, K_NONE, K_NONE, K_NONE,
 			K_A, K_B, K_C, K_D, K_E, K_F, K_G, K_H, K_I, K_J, K_K, K_L, K_M, K_N, K_O, K_P, K_Q, K_R, K_S, K_T, K_U, K_V, K_W, K_X, K_Y, K_Z,
 			K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0,
@@ -821,7 +832,7 @@ int Key_CovertHIDCode( int hid ) {
 		return table[hid];
 	}
 	if ( hid >= 224 && hid <= 231 ) {
-		int table[] = {
+		constexpr int table[] = {
 			K_LCTRL, K_LSHIFT, K_LALT, K_LWIN,
 			K_RCTRL, K_RSHIFT, K_RALT, K_RWIN
 		};

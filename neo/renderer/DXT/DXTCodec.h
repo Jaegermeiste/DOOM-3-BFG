@@ -55,8 +55,8 @@ public:
 			idDxtEncoder() { srcPadding = dstPadding = 0; }
 			~idDxtEncoder() {}
 
-	void	SetSrcPadding( int pad ) { srcPadding = pad; }
-	void	SetDstPadding( int pad ) { dstPadding = pad; }
+	void	SetSrcPadding(const int pad ) { srcPadding = pad; }
+	void	SetDstPadding(const int pad ) { dstPadding = pad; }
 
 	// high quality DXT1 compression (no alpha), uses exhaustive search to find a line through color space and is very slow
 	void	CompressImageDXT1HQ( const byte *inBuf, byte *outBuf, const size_t width, const size_t height );
@@ -233,9 +233,9 @@ private:
 	void				EmitColorIndices_SSE2( const byte *colorBlock, const byte *minColor, const byte *maxColor );
 	void				EmitColorAlphaIndices_SSE2( const byte *colorBlock, const byte *minColor, const byte *maxColor );
 	void				EmitCoCgIndices_SSE2( const byte *colorBlock, const byte *minColor, const byte *maxColor );
-	void				EmitAlphaIndices_SSE2( const byte *colorBlock, const int minAlpha, const int maxAlpha );
-	void				EmitAlphaIndices_SSE2( const byte *colorBlock, const int channelBitOffset, const int minAlpha, const int maxAlpha );
-	void				EmitGreenIndices_SSE2( const byte *block, const int channelBitOffset, const int minGreen, const int maxGreen );
+	void				EmitAlphaIndices_SSE2( const byte *colorBlock, const int minAlpha, const size_t maxAlpha );
+	void				EmitAlphaIndices_SSE2( const byte *colorBlock, const int channelBitOffset, const int minAlpha, const size_t maxAlpha );
+	void				EmitGreenIndices_SSE2( const byte *block, const int channelBitOffset, const int minGreen, const size_t maxGreen );
 	void				ScaleYCoCg_SSE2( byte *colorBlock, byte *minColor, byte *maxColor ) const;
 	void				InsetYCoCgBBox_SSE2( byte *minColor, byte *maxColor ) const;
 	void				SelectYCoCgDiagonal_SSE2( const byte *colorBlock, byte *minColor, byte *maxColor ) const;
@@ -349,7 +349,7 @@ ID_INLINE void idDxtEncoder::CompressNormalMapDXN2Fast( const byte *inBuf, byte 
 idDxtEncoder::EmitByte
 ========================
 */
-ID_INLINE void idDxtEncoder::EmitByte( byte b ) {
+ID_INLINE void idDxtEncoder::EmitByte(const byte b ) {
 	*outData = b;
 	outData += 1;
 }
@@ -359,7 +359,7 @@ ID_INLINE void idDxtEncoder::EmitByte( byte b ) {
 idDxtEncoder::EmitUShort
 ========================
 */
-ID_INLINE void idDxtEncoder::EmitUShort( unsigned short s ) {
+ID_INLINE void idDxtEncoder::EmitUShort(const unsigned short s ) {
 	*((unsigned short *)outData) = s;
 	outData += 2;
 }
@@ -369,7 +369,7 @@ ID_INLINE void idDxtEncoder::EmitUShort( unsigned short s ) {
 idDxtEncoder::EmitUInt
 ========================
 */
-ID_INLINE void idDxtEncoder::EmitUInt( unsigned int i ) {
+ID_INLINE void idDxtEncoder::EmitUInt(const unsigned int i ) {
 	*((unsigned int *)outData) = i;
 	outData += 4;
 }
@@ -432,7 +432,7 @@ ID_INLINE unsigned short idDxtEncoder::ColorTo565( const byte *color ) const {
 idDxtEncoder::ColorFrom565
 ========================
 */
-ID_INLINE void idDxtEncoder::ColorFrom565( unsigned short c565, byte *color ) const {
+ID_INLINE void idDxtEncoder::ColorFrom565(const unsigned short c565, byte *color ) const {
 	color[0] = static_cast<byte>(((c565 >> 8) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 13) & ((1 << 3) - 1)));
 	color[1] = static_cast<byte>(((c565 >> 3) & (((1 << (8 - 2)) - 1) << 2)) | ((c565 >> 9) & ((1 << 2) - 1)));
 	color[2] = static_cast<byte>(((c565 << 3) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 2) & ((1 << 3) - 1)));
@@ -443,7 +443,7 @@ ID_INLINE void idDxtEncoder::ColorFrom565( unsigned short c565, byte *color ) co
 idDxtEncoder::ColorTo565
 ========================
 */
-ID_INLINE unsigned short idDxtEncoder::ColorTo565( byte r, byte g, byte b ) const {
+ID_INLINE unsigned short idDxtEncoder::ColorTo565(const byte r, const byte g, const byte b ) const {
 	return ( ( r >> 3 ) << 11 ) | ( ( g >> 2 ) << 5 ) | ( b >> 3 );
 }
 
@@ -452,7 +452,7 @@ ID_INLINE unsigned short idDxtEncoder::ColorTo565( byte r, byte g, byte b ) cons
 idDxtEncoder::GreenFrom565
 ========================
 */
-ID_INLINE byte idDxtEncoder::GreenFrom565( unsigned short c565 ) const {
+ID_INLINE byte idDxtEncoder::GreenFrom565(const unsigned short c565 ) const {
 	byte c = static_cast<byte>((c565 & (((1 << 6) - 1) << 5)) >> 3);
 	return ( c | ( c >> 6 ) );
 }
@@ -576,7 +576,7 @@ ID_INLINE unsigned short idDxtDecoder::ColorTo565( const byte *color ) const {
 idDxtDecoder::ColorFrom565
 ========================
 */
-ID_INLINE void idDxtDecoder::ColorFrom565( unsigned short c565, byte *color ) const {
+ID_INLINE void idDxtDecoder::ColorFrom565(const unsigned short c565, byte *color ) const {
 	color[0] = static_cast<byte>(((c565 >> 8) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 13) & ((1 << 3) - 1)));
 	color[1] = static_cast<byte>(((c565 >> 3) & (((1 << (8 - 2)) - 1) << 2)) | ((c565 >> 9) & ((1 << 2) - 1)));
 	color[2] = static_cast<byte>(((c565 << 3) & (((1 << (8 - 3)) - 1) << 3)) | ((c565 >> 2) & ((1 << 3) - 1)));
@@ -587,7 +587,7 @@ ID_INLINE void idDxtDecoder::ColorFrom565( unsigned short c565, byte *color ) co
 idDxtDecoder::NormalYTo565
 ========================
 */
-ID_INLINE unsigned short idDxtDecoder::NormalYTo565( byte y ) const {
+ID_INLINE unsigned short idDxtDecoder::NormalYTo565(const byte y ) const {
 	return ( ( y >> 2 ) << 5 );
 }
 
@@ -596,7 +596,7 @@ ID_INLINE unsigned short idDxtDecoder::NormalYTo565( byte y ) const {
 idDxtDecoder::NormalYFrom565
 ========================
 */
-ID_INLINE byte idDxtDecoder::NormalYFrom565( unsigned short c565 ) const {
+ID_INLINE byte idDxtDecoder::NormalYFrom565(const unsigned short c565 ) const {
 	byte c = static_cast<byte>((c565 & (((1 << 6) - 1) << 5)) >> 3);
 	return ( c | ( c >> 6 ) );
 }
@@ -606,7 +606,7 @@ ID_INLINE byte idDxtDecoder::NormalYFrom565( unsigned short c565 ) const {
 idDxtDecoder::NormalBiasFrom565
 ========================
 */
-ID_INLINE byte idDxtDecoder::NormalBiasFrom565( unsigned short c565 ) const {
+ID_INLINE byte idDxtDecoder::NormalBiasFrom565(const unsigned short c565 ) const {
 	byte c = static_cast<byte>((c565 & (((1 << 5) - 1) << 11)) >> 8);
 	return ( c | ( c >> 5 ) );
 }
@@ -616,7 +616,7 @@ ID_INLINE byte idDxtDecoder::NormalBiasFrom565( unsigned short c565 ) const {
 idDxtDecoder::NormalScaleFrom565
 ========================
 */
-ID_INLINE byte idDxtDecoder::NormalScaleFrom565( unsigned short c565 ) const {
+ID_INLINE byte idDxtDecoder::NormalScaleFrom565(const unsigned short c565 ) const {
 	byte c = static_cast<byte>((c565 & (((1 << 5) - 1) << 0)) << 3);
 	return ( c | ( c >> 5 ) );
 }

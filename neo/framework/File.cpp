@@ -41,7 +41,7 @@ int FS_WriteFloatString( char *buf, const char *fmt, va_list argPtr ) {
 	unsigned long u;
 	double f;
 	char *str;
-	int index;
+	index_t index;
 	idStr tmp, format;
 
 	index = 0;
@@ -64,7 +64,7 @@ int FS_WriteFloatString( char *buf, const char *fmt, va_list argPtr ) {
 					case 'G':
 						f = va_arg( argPtr, double );
 						if ( format.Length() <= 2 ) {
-							// high precision floating point number without trailing zeros
+							// high precision floating posize_t number without trailing zeros
 							sprintf( tmp, "%1.10f", f );
 							tmp.StripTrailing( '0' );
 							tmp.StripTrailing( '.' );
@@ -237,7 +237,7 @@ void idFile::Flush() {
 idFile::Seek
 =================
 */
-short idFile::Seek(size_t offset, fsOrigin_t origin ) {
+int64 idFile::Seek(size_t offset, fsOrigin_t origin ) {
 	return -1;
 }
 
@@ -419,7 +419,7 @@ size_t idFile::ReadString( idStr &string ) {
 		string.Fill( ' ', len );
 		result = Read( &string[ 0 ], len );
 	}
-	return idMath::integer_cast<size_t>(result);
+	return numeric_cast<size_t>(result);
 }
 
 /*
@@ -582,7 +582,7 @@ size_t idFile::WriteBool( const bool value ) {
  */
 size_t idFile::WriteString( const char *value ) {
 	const size_t len = strlen( value );
-	WriteInt( idMath::integer_cast<int>(len) );
+	WriteInt( numeric_cast<int>(len) );
     return Write( value, len );
 }
 
@@ -689,7 +689,7 @@ idFile_Memory::idFile_Memory( const char *name ) {
 idFile_Memory::idFile_Memory
 =================
 */
-idFile_Memory::idFile_Memory( const char *name, char *data, const int length ) {
+idFile_Memory::idFile_Memory( const char *name, char *data, const size_t length ) {
 	this->name = name;
 	maxSize = length;
 	fileSize = 0;
@@ -706,7 +706,7 @@ idFile_Memory::idFile_Memory( const char *name, char *data, const int length ) {
 idFile_Memory::idFile_Memory
 =================
 */
-idFile_Memory::idFile_Memory( const char *name, const char *data, const int length ) {
+idFile_Memory::idFile_Memory( const char *name, const char *data, const size_t length ) {
 	this->name = name;
 	maxSize = 0;
 	fileSize = length;
@@ -781,7 +781,7 @@ idFile_Memory::Write
 */
 idHashTableT< int, int > histogram;
 CONSOLE_COMMAND( outputHistogram, "", 0 ) {
-	for ( int i = 0; i < histogram.Num(); i++ ) {
+	for ( size_t i = 0; i < histogram.Num(); i++ ) {
 		int key;
 		histogram.GetIndexKey( i, key );
 		const int * value = histogram.GetIndex( i );
@@ -935,7 +935,7 @@ idFile_Memory::Seek
   returns zero on success and -1 on failure
 =================
 */
-short idFile_Memory::Seek(const size_t offset, const fsOrigin_t origin ) {
+int64 idFile_Memory::Seek(const size_t offset, const fsOrigin_t origin ) {
 
 	switch( origin ) {
 		case FS_SEEK_CUR: {
@@ -1023,7 +1023,7 @@ void idFile_Memory::Clear(const bool freeMemory ) {
 idFile_Memory::SetData
 =================
 */
-void idFile_Memory::SetData( const char *data, const int length ) {
+void idFile_Memory::SetData( const char *data, const size_t length ) {
 	maxSize = 0;
 	fileSize = length;
 	allocated = 0;
@@ -1170,7 +1170,7 @@ idFile_BitMsg::Seek
   returns zero on success and -1 on failure
 =================
 */
-short idFile_BitMsg::Seek(size_t offset, fsOrigin_t origin ) {
+int64 idFile_BitMsg::Seek(size_t offset, fsOrigin_t origin ) {
 	return -1;
 }
 
@@ -1360,14 +1360,16 @@ idFile_Permanent::Seek
   returns zero on success and -1 on failure
 =================
 */
-short idFile_Permanent::Seek(const size_t offset, const fsOrigin_t origin ) {
-	DWORD retVal = INVALID_SET_FILE_POINTER;
+int64 idFile_Permanent::Seek(const size_t offset, const fsOrigin_t origin ) {
+	bool retVal = false;
+	LARGE_INTEGER liOffset = {};
+	liOffset.QuadPart = numeric_cast<int64>(offset);
 	switch( origin ) {
-		case FS_SEEK_CUR: retVal = SetFilePointer( o, offset, nullptr, FILE_CURRENT ); break;
-		case FS_SEEK_END: retVal = SetFilePointer( o, offset, nullptr, FILE_END ); break;
-		case FS_SEEK_SET: retVal = SetFilePointer( o, offset, nullptr, FILE_BEGIN ); break;
+		case FS_SEEK_CUR: retVal = SetFilePointerEx( o, liOffset, nullptr, FILE_CURRENT ); break;
+		case FS_SEEK_END: retVal = SetFilePointerEx( o, liOffset, nullptr, FILE_END ); break;
+		case FS_SEEK_SET: retVal = SetFilePointerEx( o, liOffset, nullptr, FILE_BEGIN ); break;
 	}
-	return ( retVal == INVALID_SET_FILE_POINTER ) ? -1 : 0;
+	return retVal ? 0 : -1;
 }
 
 #if 1
@@ -1459,14 +1461,14 @@ idFile_Cached::Seek
   returns zero on success and -1 on failure
 =================
 */
-short idFile_Cached::Seek(const size_t offset, const fsOrigin_t origin ) {
+int64 idFile_Cached::Seek(const size_t offset, const fsOrigin_t origin ) {
 	if ( origin == FS_SEEK_SET && offset >= bufferedStartOffset && offset < bufferedEndOffset ) {
 		// don't do anything to the actual file ptr, just update or internal position
 		internalFilePos = offset;
 		return 0;
 	}
 
-	const int retVal = idFile_Permanent::Seek( offset, origin );
+	const int64 retVal = idFile_Permanent::Seek( offset, origin );
 	internalFilePos = idFile_Permanent::Tell();
 	return retVal;
 }
@@ -1578,7 +1580,7 @@ idFile_InZip::Seek
 */
 #define ZIP_SEEK_BUF_SIZE	(1<<15)
 
-short idFile_InZip::Seek(size_t offset, const fsOrigin_t origin ) {
+int64 idFile_InZip::Seek(size_t offset, const fsOrigin_t origin ) {
 	char *buf = nullptr;
 
 	switch( origin ) {
@@ -1699,7 +1701,7 @@ idFile_InnerResource::Seek
 =================
 */
 
-short idFile_InnerResource::Seek(const size_t offset, const fsOrigin_t origin ) {
+int64 idFile_InnerResource::Seek(const size_t offset, const fsOrigin_t origin ) {
 	switch( origin ) {
 		case FS_SEEK_END: {
 			internalFilePos = length - offset - 1;
@@ -1761,7 +1763,7 @@ struct testEndianNess_t {
 		f = idVec3( 1.0f, 2.0f, -3.0f );
 		g = false;
 		h = true;
-		for ( int index = 0; index < sizeof( i ); index++ ) {
+		for ( index_t index = 0; index < sizeof( i ); index++ ) {
 			i[index] = 0x37;
 		}
 	}

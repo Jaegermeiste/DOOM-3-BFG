@@ -3,7 +3,7 @@
 
 #pragma once
 
-template< int maxItems, int maxBuffer >
+template< size_t maxItems, size_t maxBuffer >
 class idDataQueue {
 public:
 	idDataQueue() noexcept : data{}
@@ -11,18 +11,18 @@ public:
 		dataLength = 0;
 	}
 
-	bool Append( int sequence, const byte * b1, int b1Len, const byte * b2 = nullptr, int b2Len = 0 );
+	bool Append( int sequence, const byte * b1, size_t b1Len, const byte * b2 = nullptr, size_t b2Len = 0 );
 	void RemoveOlderThan( int sequence );
 
 	[[nodiscard]] size_t GetDataLength() const { return dataLength; }
 
 	[[nodiscard]] size_t Num() const { return items.Num(); }
 
-	[[nodiscard]] int ItemSequence(Ordinal auto i) const { ORDINAL_CHECK(i, items.Num()); return items[i].sequence; }
-	
-	size_t ItemLength(Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return items[i].length; }
-	
-	const byte * ItemData(Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return &data[items[i].dataOffset]; }
+	[[nodiscard]] int ItemSequence( const Ordinal auto i) const { ORDINAL_CHECK(i, items.Num()); return items[i].sequence; }
+
+	[[nodiscard]] size_t ItemLength( const Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return items[i].length; }
+
+	[[nodiscard]] const byte * ItemData( const Ordinal auto i ) const { ORDINAL_CHECK(i, items.Num()); return &data[items[i].dataOffset]; }
 
 	void Clear() { dataLength = 0; items.Clear(); memset( data, 0, sizeof( data ) ); }
 
@@ -42,7 +42,7 @@ private:
 idDataQueue::RemoveOlderThan
 ========================
 */
-template< int maxItems, int maxBuffer >
+template< size_t maxItems, size_t maxBuffer >
 void idDataQueue< maxItems, maxBuffer >::RemoveOlderThan( int sequence ) {
 	size_t length = 0;
 	while ( items.Num() > 0 && items[0].sequence < sequence ) {
@@ -70,8 +70,8 @@ void idDataQueue< maxItems, maxBuffer >::RemoveOlderThan( int sequence ) {
 idDataQueue::Append
 ========================
 */
-template< int maxItems, int maxBuffer >
-bool idDataQueue< maxItems, maxBuffer >::Append( int sequence, const byte * b1, const int b1Len, const byte * b2, const int b2Len ) {
+template< size_t maxItems, size_t maxBuffer >
+bool idDataQueue< maxItems, maxBuffer >::Append( int sequence, const byte * b1, const size_t b1Len, const byte * b2, const size_t b2Len ) {
 	if ( items.Num() == items.Max() ) {
 		return false;
 	}

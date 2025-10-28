@@ -172,7 +172,7 @@ void idEventLoop::ProcessEvent( sysEvent_t ev ) {
 idEventLoop::RunEventLoop
 ===============
 */
-int idEventLoop::RunEventLoop( bool commandExecution ) {
+int idEventLoop::RunEventLoop(const bool commandExecution ) {
 	sysEvent_t	ev;
 
 	while ( 1 ) {

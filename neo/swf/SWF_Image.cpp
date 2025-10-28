@@ -52,7 +52,7 @@ void swf_jpeg_init_source( jpeg_decompress_struct * cinfo ) {
 boolean swf_jpeg_fill_input_buffer( jpeg_decompress_struct * cinfo ) {
 	return TRUE;
 }
-void swf_jpeg_skip_input_data( jpeg_decompress_struct * cinfo, long num_bytes ) {
+void swf_jpeg_skip_input_data( jpeg_decompress_struct * cinfo, const long num_bytes ) {
 	cinfo->src->next_input_byte += num_bytes;
 	cinfo->src->bytes_in_buffer -= num_bytes;
 }
@@ -97,7 +97,7 @@ idSWF::idDecompressJPEG::~idDecompressJPEG() {
 idSWF::idDecompressJPEG::Load
 ========================
 */
-byte * idSWF::idDecompressJPEG::Load( const byte * input, int inputSize, int & width, int & height ) const
+byte * idSWF::idDecompressJPEG::Load( const byte * input, const int inputSize, int & width, int & height ) const
 {
 	jpeg_decompress_struct * cinfo = static_cast<jpeg_decompress_struct*>(vinfo);
 
@@ -170,7 +170,7 @@ float RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i tota
 void idSWF::WriteSwfImageAtlas( const char *filename ) {
 	idList<idVec2i>	inputSizes;
 	inputSizes.SetNum( packImages.Num() );
-	for ( int i = 0 ; i < packImages.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < packImages.Num() ; i++ ) {
 		// these are in DXT blocks, not pixels
 		inputSizes[i] = packImages[i].allocSize;
 	}
@@ -194,7 +194,7 @@ void idSWF::WriteSwfImageAtlas( const char *filename ) {
 	idTempArray<byte> swfAtlas( atlasWidth * atlasHeight * 4 );
 
 	// fill everything with solid red
-	for ( int i = 0; i < atlasWidth * atlasHeight; i++ ) {
+	for ( size_t i = 0; i < atlasWidth * atlasHeight; i++ ) {
 		swfAtlas[i*4+0] = 255;
 		swfAtlas[i*4+1] = 0;
 		swfAtlas[i*4+2] = 0;
@@ -202,7 +202,7 @@ void idSWF::WriteSwfImageAtlas( const char *filename ) {
 	}
 
 	// allocate the blocks and copy the texels
-	for ( int i = 0 ; i < packImages.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < packImages.Num() ; i++ ) {
 		imageToPack_t & pack = packImages[i];
 		assert( pack.imageData != NULL );
 
@@ -216,7 +216,7 @@ void idSWF::WriteSwfImageAtlas( const char *filename ) {
 		// for better compression
 		int	minV[4] = { 255, 255, 255, 255 };
 		int	maxV[4] = { 0, 0, 0, 0 };
-		for ( int j = 0 ; j < pack.trueSize.x * pack.trueSize.y * 4 ; j++ ) {
+		for ( size_t j = 0 ; j < pack.trueSize.x * pack.trueSize.y * 4 ; j++ ) {
 			int	v = pack.imageData[ j ];
 			int	x = j & 3;
 			if ( v < minV[x] ) {
@@ -244,7 +244,7 @@ void idSWF::WriteSwfImageAtlas( const char *filename ) {
 		// a bias as well as a scale to enable us to take advantage of the
 		// min values as well as the max, but very few gui images don't go to black,
 		// and just doing a scale avoids changing more code.
-		for ( int j = 0; j < pack.trueSize.x * pack.trueSize.y * 4; j++ ) {
+		for ( size_t j = 0; j < pack.trueSize.x * pack.trueSize.y * 4; j++ ) {
 			int	v = pack.imageData[ j ];
 			int	x = j & 3;
 			v = v * 255 / maxV[x];
@@ -286,7 +286,7 @@ void idSWF::WriteSwfImageAtlas( const char *filename ) {
 		entry->imageSize.y = pack.trueSize.y;
 		entry->imageAtlasOffset.x = x + 1;
 		entry->imageAtlasOffset.y = y + 1;
-		for ( int i = 0; i < 4; i++ ) {
+		for ( size_t i = 0; i < 4; i++ ) {
 			entry->channelScale[i] = maxV[i] / 255.0f;
 		}
 
@@ -304,7 +304,7 @@ idSWF::LoadImage
 Loads RGBA data into an image at the specificied character id in the dictionary
 ========================
 */
-void idSWF::LoadImage( int characterID, const byte * imageData, int width, int height ) {
+void idSWF::LoadImage(const int characterID, const byte * imageData, const int width, const int height ) {
 	idSWFDictionaryEntry * entry = AddDictionaryEntry( characterID, SWF_DICT_IMAGE );
 	if ( entry == nullptr) {
 		return;
@@ -318,7 +318,7 @@ void idSWF::LoadImage( int characterID, const byte * imageData, int width, int h
 	memcpy( pack.imageData, imageData, width*height*4 );
 	pack.trueSize.x = width;
 	pack.trueSize.y = height;
-	for ( int i = 0 ; i < 2 ; i++ ) {
+	for ( size_t i = 0 ; i < 2 ; i++ ) {
 		int	v = pack.trueSize[i];
 		// Swf images are usually completely random in size, but perform all allocations in
 		// DXT blocks of 4.  If we choose to DCT / HDP encode the image block, we should probably
@@ -426,7 +426,7 @@ void idSWF::DefineBitsJPEG3( idSWFBitStream & bitstream ) {
 			Mem_Free( imageData );
 			return;
 		}
-		for ( int i = 0; i < width * height; i++ ) {
+		for ( size_t i = 0; i < width * height; i++ ) {
 			imageData[i*4+3] = alphaMap[i];
 		}
 	}

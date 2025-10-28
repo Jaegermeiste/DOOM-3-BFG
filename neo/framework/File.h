@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#pragma once
+
 /*
 ==============================================================
 
@@ -38,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // mode parm for Seek
-typedef enum {
+typedef enum fsOrigin_e : uint8 {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
@@ -69,14 +71,14 @@ public:
 							// Causes any buffered data to be written to the file.
 	virtual void			Flush();
 							// Seek on a file.
-	virtual short			Seek(size_t offset, fsOrigin_t origin );
+	virtual int64			Seek(size_t offset, fsOrigin_t origin );
 							// Go back to the beginning of the file.
 	virtual void			Rewind();
 							// Like fprintf.
 	virtual size_t			Printf( VERIFY_FORMAT_STRING const char *fmt, ... );
 							// Like fprintf but with argument pointer
 	virtual size_t			VPrintf( const char *fmt, va_list arg );
-							// Write a string with high precision floating point numbers to the file.
+							// Write a string with high precision floating posize_t numbers to the file.
 	virtual size_t			WriteFloatString( VERIFY_FORMAT_STRING const char *fmt, ... );
 	
 	// Endian portable alternatives to Read(...)
@@ -116,13 +118,13 @@ public:
 	virtual size_t			WriteMat3( const idMat3 &mat );
 
 	template<class type> ID_INLINE size_t ReadBig( type &c ) {
-		size_t r = Read( &c, sizeof( c ) );
+		const size_t r = Read( &c, sizeof( c ) );
 		idSwap::Big( c );
 		return r;
 	}
 
 	template<class type> ID_INLINE size_t ReadBigArray( type *c, size_t count ) {
-		size_t r = Read( c, sizeof( c[0] ) * count );
+		const size_t r = Read( c, sizeof( c[0] ) * count );
 		idSwap::BigArray( c, count );
 		return r;
 	}
@@ -133,7 +135,7 @@ public:
 		return Write( &b, sizeof( b ) );
 	}
 
-	template<class type> ID_INLINE size_t WriteBigArray( const type *c, size_t count ) {
+	template<class type> ID_INLINE size_t WriteBigArray( const type *c, const size_t count ) {
 		size_t r = 0;
 		for (size_t i = 0; i < count; i++ ) {
 			r += WriteBig( c[i] );
@@ -153,8 +155,8 @@ class idFile_Memory : public idFile {
 public:
 							idFile_Memory();	// file for writing without name
 							idFile_Memory( const char *name );	// file for writing
-							idFile_Memory( const char *name, char *data, int length );	// file for writing
-							idFile_Memory( const char *name, const char *data, int length );	// file for reading
+							idFile_Memory( const char *name, char *data, size_t length );	// file for writing
+							idFile_Memory( const char *name, const char *data, size_t length );	// file for reading
 	~idFile_Memory() override;
 
 	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
@@ -167,7 +169,7 @@ public:
 	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
-	short			Seek(size_t offset, fsOrigin_t origin ) override;
+	int64			Seek(size_t offset, fsOrigin_t origin ) override;
 
 	// Set the given length and don't allow the file to grow.
 	void					SetMaxLength( size_t len );
@@ -178,13 +180,13 @@ public:
 							// clear the file
 	virtual void			Clear( bool freeMemory = true );
 							// set data for reading
-	void					SetData( const char *data, int length );
+	void					SetData( const char *data, size_t length );
 							// returns const pointer to the memory buffer
 	[[nodiscard]] const char *			GetDataPtr() const noexcept { return filePtr; }
 							// returns pointer to the memory buffer
 	char *					GetDataPtr() noexcept { return filePtr; }
 							// set the file granularity
-	void					SetGranularity( int g ) { assert( g > 0 ); granularity = g; }
+	void					SetGranularity(const int g ) { assert( g > 0 ); granularity = g; }
 	void					PreAllocate( size_t len );
 
 	// Doesn't change how much is allocated, but allows you to set the size of the file to smaller than it should be.
@@ -226,7 +228,7 @@ public:
 	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
-	virtual short	Seek(size_t offset, fsOrigin_t origin );
+	virtual int64	Seek(size_t offset, fsOrigin_t origin );
 
 private:
 	idStr					name;			// name of the file
@@ -251,7 +253,7 @@ public:
 	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
-	virtual short	Seek(size_t offset, fsOrigin_t origin );
+	virtual int64	Seek(size_t offset, fsOrigin_t origin );
 
 	// returns file pointer
 	[[nodiscard]] idFileHandle			GetFilePtr() const noexcept { return o; }
@@ -276,7 +278,7 @@ public:
 	size_t			Read( void *buffer, size_t len ) override;
 
 	[[nodiscard]] size_t			Tell() const override;
-	short			Seek(size_t offset, fsOrigin_t origin ) override;
+	int64			Seek(size_t offset, fsOrigin_t origin ) override;
 
 private:
 	size_t				internalFilePos;
@@ -302,7 +304,7 @@ public:
 	[[nodiscard]] size_t			Tell() const override;
 	void			ForceFlush() override;
 	void			Flush() override;
-	virtual short	Seek(size_t offset, fsOrigin_t origin );
+	virtual int64	Seek(size_t offset, fsOrigin_t origin );
 
 private:
 	idStr					name;			// name of the file in the pak
@@ -329,7 +331,7 @@ public:
 	[[nodiscard]] size_t			Length() const noexcept override { return length; }
 	ID_TIME_T       Timestamp() const noexcept override { return 0; }
 	[[nodiscard]] size_t			Tell() const override;
-	short			Seek(size_t offset, fsOrigin_t origin ) override;
+	int64			Seek(size_t offset, fsOrigin_t origin ) override;
 	void					SetResourceBuffer( byte * buf ) noexcept {
 		resourceBuffer = buf;
 		internalFilePos = 0;

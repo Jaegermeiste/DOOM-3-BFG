@@ -64,7 +64,7 @@ file be unloadable in some way (for example, due to script changes).
 idSaveGame::idSaveGame()
 ================
 */
-idSaveGame::idSaveGame( idFile *savefile, idFile *stringTableFile, int saveVersion ) {
+idSaveGame::idSaveGame( idFile *savefile, idFile *stringTableFile, const int saveVersion ) {
 	//compressor = idCompressor::AllocLZW();
 	//compressor->Init( savefile, true, 8 );
 	//file = compressor;
@@ -111,7 +111,7 @@ void idSaveGame::Close() {
 	objects.Clear();
 
 	// Save out the string table at the end of the file
-	for ( int i = 0; i < stringTable.Num(); ++i ) {
+	for ( size_t i = 0; i < stringTable.Num(); ++i ) {
 		stringFile->WriteString( stringTable[i].string );
 	}
 
@@ -195,7 +195,7 @@ void idSaveGame::AddObject( const idClass *obj ) {
 idSaveGame::Write
 ================
 */
-void idSaveGame::Write( const void *buffer, size_t len ) const
+void idSaveGame::Write( const void *buffer, const size_t len ) const
 {
 	file->Write( buffer, len );
 }
@@ -222,7 +222,7 @@ idSaveGame::WriteJoint
 */
 void idSaveGame::WriteJoint( const jointHandle_t value ) const
 {
-	file->WriteBig( idMath::integer_cast<int64>(value) );
+	file->WriteBig( numeric_cast<int64>(value) );
 }
 
 /*
@@ -428,7 +428,7 @@ void idSaveGame::WriteDict( const idDict *dict ) {
 		WriteInt64( -1 );
 	} else {
 		size_t num = dict->GetNumKeyVals();
-		WriteInt64( idMath::integer_cast<int64>(num) );
+		WriteInt64( numeric_cast<int64>(num) );
 		for( size_t i = 0; i < num; i++ ) {
 			const idKeyValue* kv = dict->GetKeyVal(i);
 			WriteString( kv->GetKey() );
@@ -535,7 +535,7 @@ void idSaveGame::WriteModel( const idRenderModel *model ) {
 idSaveGame::WriteUserInterface
 ================
 */
-void idSaveGame::WriteUserInterface( const idUserInterface *ui, bool unique ) {
+void idSaveGame::WriteUserInterface( const idUserInterface *ui, const bool unique ) {
 	if ( !ui ) {
 		WriteString( "" );
 	} else {
@@ -832,7 +832,7 @@ void idSaveGame::WriteBuildNumber( const int value ) {
 idRestoreGame::RestoreGame
 ================
 */
-idRestoreGame::idRestoreGame( idFile * savefile, idFile * stringTableFile, int saveVersion ) {
+idRestoreGame::idRestoreGame( idFile * savefile, idFile * stringTableFile, const int saveVersion ) {
 	file = savefile;
 	stringFile = stringTableFile;
 	version = saveVersion;
@@ -1002,7 +1002,7 @@ void idRestoreGame::ReadInt( int &value ) const
 void idRestoreGame::ReadInt( std::integral auto& value ) {
 	int temp = 0;
 	file->ReadInt(temp);
-	value = idMath::integer_cast<decltype(value)>(temp);
+	value = numeric_cast<decltype(value)>(temp);
 }
 
 /*
@@ -1028,7 +1028,7 @@ void idRestoreGame::ReadShort( short &value ) const
 void idRestoreGame::ReadShort(std::integral auto& value) {
 	short temp = 0;
 	file->ReadShort(temp);
-	value = idMath::integer_cast<decltype(value)>(temp);
+	value = numeric_cast<decltype(value)>(temp);
 }
 
 /*

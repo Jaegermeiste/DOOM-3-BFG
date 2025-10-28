@@ -59,20 +59,20 @@ void idMenuWidget_NavBar::Update() {
 
 	buttonPos = initialPos;
 
-	for ( int index = 0; index < GetNumVisibleOptions() - 1; ++index ) {
+	for ( index_t index = 0; index < GetNumVisibleOptions() - 1; ++index ) {
 		idSWFSpriteInstance * const rightOption = GetSprite()->GetScriptObject()->GetSprite( va( "optionRight%d", index ) );
 		rightOption->SetVisible( false );
 		idSWFSpriteInstance * const leftOption = GetSprite()->GetScriptObject()->GetSprite( va( "optionLeft%d", index ) );
 		leftOption->SetVisible( false );
 	}
 
-	for ( int index = 0; index < GetTotalNumberOfOptions(); ++index ) {
+	for ( index_t index = 0; index < GetTotalNumberOfOptions(); ++index ) {
 		idMenuWidget & child = GetChildByIndex( index );
 		idMenuWidget_NavButton * const button = dynamic_cast< idMenuWidget_NavButton * >( &child );
 		button->SetLabel( "" );
 	}
 
-	for ( int index = 0; index < GetNumVisibleOptions(); ++index ) {
+	for ( index_t index = 0; index < GetNumVisibleOptions(); ++index ) {
 		if ( index < GetFocusIndex() ) {
 			idMenuWidget & child = GetChildByIndex( index );
 			child.SetSpritePath( GetSpritePath(), va( "optionLeft%d", index ) );
@@ -113,7 +113,7 @@ idMenuWidget_NavBar::SetListHeadings
 */
 void idMenuWidget_NavBar::SetListHeadings( idList< idStr > & list ) {
 	headings.Clear();
-	for ( int index = 0; index < list.Num(); ++index ) {
+	for ( index_t index = 0; index < list.Num(); ++index ) {
 		headings.Append( list[ index ] );
 	}
 }

@@ -112,8 +112,8 @@ void R_MatrixMultiply( const float a[16], const float b[16], float out[16] ) {
 #else
 
 	/*
-	for ( int i = 0; i < 4; i++ ) {
-		for ( int j = 0; j < 4; j++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			out[ i * 4 + j ] =
 				a[ i * 4 + 0 ] * b[ 0 * 4 + j ] +
 				a[ i * 4 + 1 ] * b[ 1 * 4 + j ] +
@@ -152,8 +152,8 @@ R_MatrixTranspose
 ======================
 */
 void R_MatrixTranspose( const float in[16], float out[16] ) {
-	for ( int i = 0; i < 4; i++ ) {
-		for ( int j = 0; j < 4; j++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			out[i*4+j] = in[j*4+i];
 		}
 	}
@@ -165,14 +165,14 @@ R_TransformModelToClip
 ==========================
 */
 void R_TransformModelToClip( const idVec3 &src, const float *modelMatrix, const float *projectionMatrix, idPlane &eye, idPlane &dst ) {
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		eye[i] = 	modelMatrix[i + 0 * 4] * src[0] +
 					modelMatrix[i + 1 * 4] * src[1] +
 					modelMatrix[i + 2 * 4] * src[2] +
 					modelMatrix[i + 3 * 4];
 	}
 
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		dst[i] = 	projectionMatrix[i + 0 * 4] * eye[0] +
 					projectionMatrix[i + 1 * 4] * eye[1] +
 					projectionMatrix[i + 2 * 4] * eye[2] +
@@ -208,14 +208,14 @@ void R_GlobalToNormalizedDeviceCoordinates( const idVec3 &global, idVec3 &ndc ) 
 	// _D3XP use tr.primaryView when there is no tr.viewDef
 	const viewDef_t * viewDef = ( tr.viewDef != nullptr) ? tr.viewDef : tr.primaryView;
 
-	for ( int i = 0; i < 4; i ++ ) {
+	for ( size_t i = 0; i < 4; i ++ ) {
 		view[i] = 	viewDef->worldSpace.modelViewMatrix[i + 0 * 4] * global[0] +
 					viewDef->worldSpace.modelViewMatrix[i + 1 * 4] * global[1] +
 					viewDef->worldSpace.modelViewMatrix[i + 2 * 4] * global[2] +
 					viewDef->worldSpace.modelViewMatrix[i + 3 * 4];
 	}
 
-	for ( int i = 0; i < 4; i ++ ) {
+	for ( size_t i = 0; i < 4; i ++ ) {
 		clip[i] = 	viewDef->projectionMatrix[i + 0 * 4] * view[0] +
 					viewDef->projectionMatrix[i + 1 * 4] * view[1] +
 					viewDef->projectionMatrix[i + 2 * 4] * view[2] +

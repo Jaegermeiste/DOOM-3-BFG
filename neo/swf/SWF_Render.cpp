@@ -42,15 +42,15 @@ extern idCVar in_useJoystick;
 
 #define ALPHA_EPSILON	0.001f
 
-#define STENCIL_DECR -1
-#define STENCIL_INCR -2
+#define STENCIL_DECR (-1)
+#define STENCIL_INCR (-2)
 
 /*
 ========================
 idSWF::DrawStretchPic
 ========================
 */
-void idSWF::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) const
+void idSWF::DrawStretchPic(const float x, const float y, const float w, const float h, const float s1, const float t1, const float s2, const float t2, const idMaterial *material ) const
 {
 	renderSystem->DrawStretchPic( x * scaleToVirtual.x, y * scaleToVirtual.y, w * scaleToVirtual.x, h * scaleToVirtual.y, s1, t1, s2, t2, material );
 }
@@ -75,7 +75,7 @@ void idSWF::DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, con
 idSWF::Render
 ========================
 */
-void idSWF::Render( idRenderSystem * gui, int time, bool isSplitscreen ) {
+void idSWF::Render( idRenderSystem * gui, ID_TIME_T time, const bool isSplitscreen ) {
 	if ( !IsLoaded() ) {
 		return;
 	}
@@ -88,7 +88,7 @@ void idSWF::Render( idRenderSystem * gui, int time, bool isSplitscreen ) {
 		}
 	}
 
-	int currentTime = Sys_Milliseconds();
+	ID_TIME_T currentTime = Sys_Milliseconds();
 	int framesToRun = 0;
 
 	if ( paused ) {
@@ -102,13 +102,13 @@ void idSWF::Render( idRenderSystem * gui, int time, bool isSplitscreen ) {
 		} else {
 			float deltaTime = ( currentTime - lastRenderTime );
 			float fr = ( static_cast<float>(frameRate) / 256.0f ) * swf_timescale.GetFloat();
-			framesToRun = idMath::Ftoi( ( fr * deltaTime ) / 1000.0f );
+			framesToRun = numeric_cast<int>( ( fr * deltaTime ) / 1000.0f );
 			lastRenderTime += ( framesToRun * ( 1000.0f / fr ) );
 			if ( framesToRun > 10 ) {
 				framesToRun = 10;
 			}
 		}
-		for ( int i = 0; i < framesToRun; i++ ) {
+		for ( size_t i = 0; i < framesToRun; i++ ) {
 			mainspriteInstance->Run();
 			mainspriteInstance->RunActions();
 		}
@@ -190,7 +190,7 @@ void idSWF::RenderMask( idRenderSystem * gui, const swfDisplayEntry_t * mask, co
 idSWF::RenderSprite
 ========================
 */
-void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, int time, bool isSplitscreen ) {
+void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, ID_TIME_T time, bool isSplitscreen ) {
 
 	if ( spriteInstance == nullptr) {
 		idLib::Warning( "%s: RenderSprite: spriteInstance == NULL", filename.c_str() );
@@ -205,10 +205,10 @@ void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInst
 
 	idStaticList<const swfDisplayEntry_t *, 256> activeMasks;
 
-	for ( int i = 0; i < spriteInstance->displayList.Num(); i++ ) {
+	for ( size_t i = 0; i < spriteInstance->displayList.Num(); i++ ) {
 		const swfDisplayEntry_t & display = spriteInstance->displayList[i];
 
-		for ( int j = 0; j < activeMasks.Num(); j++ ) {
+		for ( size_t j = 0; j < activeMasks.Num(); j++ ) {
 			const swfDisplayEntry_t * mask = activeMasks[ j ];
 			if ( display.depth > mask->clipDepth ) {
 				RenderMask( gui, mask, renderState, STENCIL_DECR );
@@ -371,7 +371,7 @@ void idSWF::RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * spriteInst
 			//idLib::Warning( "%s: Tried to render an unrenderable character %d", filename.c_str(), entry->type );
 		}
 	}
-	for ( int j = 0; j < activeMasks.Num(); j++ ) {
+	for ( size_t j = 0; j < activeMasks.Num(); j++ ) {
 		const swfDisplayEntry_t * mask = activeMasks[ j ];
 		RenderMask( gui, mask, renderState, STENCIL_DECR );
 	}
@@ -431,7 +431,7 @@ void idSWF::RenderMorphShape( idRenderSystem * gui, const idSWFShape * shape, co
 		return;
 	}
 
-	for ( int i = 0; i < shape->fillDraws.Num(); i++ ) {
+	for ( size_t i = 0; i < shape->fillDraws.Num(); i++ ) {
 		const idSWFShapeDrawFill & fill = shape->fillDraws[i];
 		const idMaterial * material = nullptr;
 		swfColorXform_t color;
@@ -488,7 +488,7 @@ void idSWF::RenderMorphShape( idRenderSystem * gui, const idSWFShape * shape, co
 			continue;
 		}
 
-		for ( int j = 0; j < fill.startVerts.Num(); j++ ) {
+		for ( size_t j = 0; j < fill.startVerts.Num(); j++ ) {
 			idVec2 xy = Lerp( fill.startVerts[j], fill.endVerts[j], renderState.ratio );
 
 			idVec2 st;
@@ -521,7 +521,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 		return;
 	}
 
-	for ( int i = 0; i < shape->fillDraws.Num(); i++ ) {
+	for ( size_t i = 0; i < shape->fillDraws.Num(); i++ ) {
 		const idSWFShapeDrawFill & fill = shape->fillDraws[i];
 		const idMaterial * material = nullptr;
 		swfColorXform_t color;
@@ -544,7 +544,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 			idSWFDictionaryEntry * entry = &dictionary[ fill.style.bitmapID ];
 			material = atlasMaterial;
 			idVec2i	atlasSize( material->GetImageWidth(), material->GetImageHeight() );
-			for ( int i = 0 ; i < 2 ; i++ ) {
+			for ( size_t i = 0 ; i < 2 ; i++ ) {
 				size[i] = entry->imageSize[i];
 				atlasScale[i] = (float)size[i] / atlasSize[i];
 				atlasBias[i] = static_cast<float>(entry->imageAtlasOffset[i]) / atlasSize[i];
@@ -587,7 +587,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 		}
 
 		ALIGNTYPE16 idDrawVert tempVerts[4];
-		for ( int j = 0; j < fill.startVerts.Num(); j++ ) {
+		for ( size_t j = 0; j < fill.startVerts.Num(); j++ ) {
 			const idVec2 & xy = fill.startVerts[j];
 
 			idDrawVert & vert = tempVerts[j & 3];
@@ -628,7 +628,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 		WriteDrawVerts16( & verts[fill.startVerts.Num() & ~3], tempVerts, fill.startVerts.Num() & 3 );
 	}
 
-	for ( int i = 0; i < shape->lineDraws.Num(); i++ ) {
+	for ( size_t i = 0; i < shape->lineDraws.Num(); i++ ) {
 		const idSWFShapeDrawLine & line = shape->lineDraws[i];
 		swfColorXform_t color;
 		color.mul = line.style.startColor.ToVec4();
@@ -650,7 +650,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 			continue;
 		}
 
-		for ( int j = 0; j < line.startVerts.Num(); j++ ) {
+		for ( size_t j = 0; j < line.startVerts.Num(); j++ ) {
 			const idVec2 & xy = line.startVerts[j];
 
 			ALIGNTYPE16 idDrawVert tempVert;
@@ -672,7 +672,7 @@ void idSWF::RenderShape( idRenderSystem * gui, const idSWFShape * shape, const s
 idSWF::DrawEditCursor
 ========================
 */
-void idSWF::DrawEditCursor( idRenderSystem * gui, float x, float y, float w, float h, const swfMatrix_t & matrix ) {
+void idSWF::DrawEditCursor( idRenderSystem * gui, const float x, const float y, const float w, const float h, const swfMatrix_t & matrix ) {
 	idVec2 topl = matrix.Transform( idVec2( x, y ) );
 	idVec2 topr = matrix.Transform( idVec2( x + w, y ) );
 	idVec2 br = matrix.Transform( idVec2( x + w, y + h ) );
@@ -685,7 +685,7 @@ void idSWF::DrawEditCursor( idRenderSystem * gui, float x, float y, float w, flo
 idSWF::RenderEditText
 ========================
 */
-void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstance, const swfRenderState_t & renderState, int time, bool isSplitscreen ) {
+void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstance, const swfRenderState_t & renderState, ID_TIME_T time, bool isSplitscreen ) {
 	if ( textInstance == nullptr) {
 		idLib::Warning( "%s: RenderEditText: textInstance == NULL", filename.c_str() );
 		return;
@@ -848,7 +848,7 @@ void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstan
 	float x = bounds.tl.x;
 	float y = bounds.tl.y;
 
-	int maxLines = idMath::Ftoi( ( bounds.br.y - bounds.tl.y ) / linespacing );
+	size_t maxLines = numeric_cast<int>( ( bounds.br.y - bounds.tl.y ) / linespacing );
 	if ( maxLines == 0 ) {
 		maxLines = 1;
 	}
@@ -961,7 +961,7 @@ void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstan
 
 			int wordCount = 0;
 			bool earlyOut = false;
-			for ( int index = 0; index < textLines[0].Length(); ++index ) {
+			for ( index_t index = 0; index < textLines[0].Length(); ++index ) {
 				if ( textLines[0][index] == ' ' || textLines[0][index] == '-' ) {
 					if ( index != 0 ) {
 						if ( wordCount == lastWordIndex ) {
@@ -1040,7 +1040,7 @@ void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstan
 	// END SCROLL CALCULATION
 	//*************************************************
 
-	int index = 0;
+	index_t index = 0;
 
 	int startCharacter = 0;
 	int endCharacter = 0;
@@ -1429,7 +1429,7 @@ void idSWF::RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstan
 				idVec4 strokeColor = colorBlack;
 				strokeColor.w = textInstance->GetStrokeStrength() * defaultColor.w;
 				gui->SetColor( strokeColor );
-				for ( int index = 0; index < 4; ++index ) {
+				for ( index_t index = 0; index < 4; ++index ) {
 					float xPos = glyphX + ( ( strokeXOffsets[ index ] * textInstance->GetStrokeWeight() ) * glyphScale );
 					float yPos = glyphY + ( ( strokeYOffsets[ index ] * textInstance->GetStrokeWeight() ) * glyphScale );
 					idVec2 topLeft = matrix.Transform( idVec2( xPos, yPos ) );
@@ -1499,7 +1499,7 @@ void idSWF::FindTooltipIcons( idStr * text ) {
 	}
 
 	for ( int count = 0; count < tooltipButtonImage.Num(); ++count ) {
-		int index = -1;
+		index_t index = -1;
 		while ( ( index = idStr::FindText( text->c_str(), tooltipButtonImage[count].key, false, index + 1 ) ) != idStr::INVALID_POSITION ) {
 			tooltipIcon_t icon;
 			icon.startIndex = index;
@@ -1519,7 +1519,7 @@ void idSWF::FindTooltipIcons( idStr * text ) {
 
 			bool inserted = false;
 			if ( tooltipIconList.Num() > 0 ) {
-				for ( int i = 0; i < tooltipIconList.Num(); ++i ) {
+				for ( size_t i = 0; i < tooltipIconList.Num(); ++i ) {
 					if ( tooltipIconList[i].startIndex > icon.startIndex ) {
 						tooltipIconList.Insert( icon, i );
 						inserted = true;

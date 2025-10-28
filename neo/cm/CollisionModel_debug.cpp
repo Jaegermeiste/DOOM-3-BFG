@@ -150,7 +150,7 @@ const char *idCollisionModelManagerLocal::StringFromContents( const int contents
 idCollisionModelManagerLocal::DrawEdge
 ================
 */
-void idCollisionModelManagerLocal::DrawEdge( cm_model_t *model, int edgeNum, const idVec3 &origin, const idMat3 &axis ) {
+void idCollisionModelManagerLocal::DrawEdge( cm_model_t *model, const index_t edgeNum, const idVec3 &origin, const idMat3 &axis ) {
 	int side;
 	cm_edge_t *edge;
 	idVec3 start, end, mid;
@@ -309,7 +309,7 @@ void idCollisionModelManagerLocal::DrawNodePolygons( cm_model_t *model, cm_node_
 idCollisionModelManagerLocal::DrawModel
 ================
 */
-void idCollisionModelManagerLocal::DrawModel( cmHandle_t handle, const idVec3 &modelOrigin, const idMat3 &modelAxis,
+void idCollisionModelManagerLocal::DrawModel(const cmHandle_t handle, const idVec3 &modelOrigin, const idMat3 &modelAxis,
 					const idVec3 &viewOrigin, const float radius ) {
 
 	cm_model_t *model;
@@ -354,12 +354,12 @@ static idCVar cm_testAngle(			"cm_testAngle",			"60",					CVAR_GAME | CVAR_FLOAT
 
 static int total_translation;
 static int min_translation = 999999;
-static int max_translation = -999999;
-static int num_translation = 0;
+static size_t max_translation = -999999;
+static size_t num_translation = 0;
 static int total_rotation;
 static int min_rotation = 999999;
-static int max_rotation = -999999;
-static int num_rotation = 0;
+static size_t max_rotation = -999999;
+static size_t num_rotation = 0;
 static idVec3 start;
 static idVec3 *testend;
 

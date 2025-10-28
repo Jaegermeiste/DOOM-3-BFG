@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -49,10 +51,10 @@ If you have questions concerning this license or the applicable additional terms
 // P_DivlineSide
 // Returns side 0 (front), 1 (back), or 2 (on).
 //
-int
+static int
 P_DivlineSide
-( fixed_t	x,
-  fixed_t	y,
+(const fixed_t	x,
+  const fixed_t	y,
   divline_t*	node )
 {
     fixed_t	dx;
@@ -63,10 +65,14 @@ P_DivlineSide
     if (!node->dx)
     {
 	if (x==node->x)
-	    return 2;
-	
+	{
+		return 2;
+	}
+
 	if (x <= node->x)
-	    return node->dy > 0;
+	{
+		return node->dy > 0;
+	}
 
 	return node->dy < 0;
     }
@@ -74,10 +80,14 @@ P_DivlineSide
     if (!node->dy)
     {
 	if (x==node->y)
-	    return 2;
+	{
+		return 2;
+	}
 
 	if (y <= node->y)
-	    return node->dx < 0;
+	{
+		return node->dx < 0;
+	}
 
 	return node->dx > 0;
     }
@@ -89,10 +99,14 @@ P_DivlineSide
     right = (dy>>FRACBITS) * (node->dx>>FRACBITS);
 	
     if (right < left)
-	return 0;	// front side
-    
+    {
+	    return 0; // front side
+    }
+
     if (left == right)
-	return 2;
+    {
+	    return 2;
+    }
     return 1;		// back side
 }
 
@@ -103,7 +117,7 @@ P_DivlineSide
 // along the first divline.
 // This is only called by the addthings and addlines traversers.
 //
-fixed_t
+static fixed_t
 P_InterceptVector2
 ( divline_t*	v2,
   divline_t*	v1 )
@@ -115,7 +129,9 @@ P_InterceptVector2
     den = FixedMul (v1->dy>>8,v2->dx) - FixedMul(v1->dx>>8,v2->dy);
 
     if (den == 0)
-	return 0;
+    {
+	    return 0;
+    }
     //	I_Error ("P_InterceptVector: parallel");
     
     num = FixedMul ( (v1->x - v2->x)>>8 ,v1->dy) + 
@@ -130,7 +146,7 @@ P_InterceptVector2
 // Returns true
 //  if ::g->strace crosses the given subsector successfully.
 //
-qboolean P_CrossSubsector (int num)
+static qboolean P_CrossSubsector (size_t num)
 {
     seg_t*		seg;
     line_t*		line;
@@ -150,9 +166,11 @@ qboolean P_CrossSubsector (int num)
 	
 #ifdef RANGECHECK
     if (num>=::g->numsubsectors)
-	I_Error ("P_CrossSubsector: ss %i with numss = %i",
-		 num,
-		 ::g->numsubsectors);
+    {
+	    I_Error ("P_CrossSubsector: ss %i with numss = %i",
+	             num,
+	             ::g->numsubsectors);
+    }
 #endif
 
     sub = &::g->subsectors[num];
@@ -167,8 +185,10 @@ qboolean P_CrossSubsector (int num)
 
 	// allready checked other side?
 	if (line->validcount == ::g->validcount)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	line->validcount = ::g->validcount;
 		
 	v1 = line->v1;
@@ -178,8 +198,10 @@ qboolean P_CrossSubsector (int num)
 
 	// line isn't crossed?
 	if (s1 == s2)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	divl.x = v1->x;
 	divl.y = v1->y;
 	divl.dx = v2->x - v1->x;
@@ -189,13 +211,17 @@ qboolean P_CrossSubsector (int num)
 
 	// line isn't crossed?
 	if (s1 == s2)
-	    continue;	
+	{
+		continue;
+	}
 
 	// stop because it is not two sided anyway
 	// might do this after updating validcount?
 	if ( !(line->flags & ML_TWOSIDED) )
-	    return false;
-	
+	{
+		return false;
+	}
+
 	// crosses a two sided line
 	front = seg->frontsector;
 	back = seg->backsector;
@@ -203,43 +229,55 @@ qboolean P_CrossSubsector (int num)
 	// no wall to block sight with?
 	if (front->floorheight == back->floorheight
 	    && front->ceilingheight == back->ceilingheight)
-	    continue;	
+	{
+		continue;
+	}
 
 	// possible occluder
 	// because of ceiling height differences
 	if (front->ceilingheight < back->ceilingheight)
-	    psight_opentop = front->ceilingheight;
+	{
+		psight_opentop = front->ceilingheight;
+	}
 	else
-	    psight_opentop = back->ceilingheight;
+	{
+		psight_opentop = back->ceilingheight;
+	}
 
 	// because of ceiling height differences
 	if (front->floorheight > back->floorheight)
-	    psight_openbottom = front->floorheight;
+	{
+		psight_openbottom = front->floorheight;
+	}
 	else
-	    psight_openbottom = back->floorheight;
-		
+	{
+		psight_openbottom = back->floorheight;
+	}
+
 	// quick test for totally closed doors
-	if (psight_openbottom >= psight_opentop)	
-	    return false;		// stop
-	
+	if (psight_openbottom >= psight_opentop)
+	{
+		return false; // stop
+	}
+
 	frac = P_InterceptVector2 (&::g->strace, &divl);
 		
 	if (front->floorheight != back->floorheight)
 	{
 	    slope = FixedDiv (psight_openbottom - ::g->sightzstart , frac);
-	    if (slope > ::g->bottomslope)
-		::g->bottomslope = slope;
+	    ::g->bottomslope = Max(slope, ::g->bottomslope);
 	}
 		
 	if (front->ceilingheight != back->ceilingheight)
 	{
 	    slope = FixedDiv (psight_opentop - ::g->sightzstart , frac);
-	    if (slope < ::g->topslope)
-		::g->topslope = slope;
+	    ::g->topslope = Min(slope, ::g->topslope);
 	}
 		
 	if (::g->topslope <= ::g->bottomslope)
-	    return false;		// stop				
+	{
+		return false; // stop				
+	}
     }
     // passed the subsector ok
     return true;		
@@ -252,7 +290,7 @@ qboolean P_CrossSubsector (int num)
 // Returns true
 //  if ::g->strace crosses the given node successfully.
 //
-qboolean P_CrossBSPNode (int bspnum)
+static qboolean P_CrossBSPNode (const int bspnum)
 {
     node_t*	bsp;
     int		side;
@@ -260,9 +298,13 @@ qboolean P_CrossBSPNode (int bspnum)
     if (bspnum & NF_SUBSECTOR)
     {
 	if (bspnum == -1)
-	    return P_CrossSubsector (0);
+	{
+		return P_CrossSubsector (0);
+	}
 	else
-	    return P_CrossSubsector (bspnum&(~NF_SUBSECTOR));
+	{
+		return P_CrossSubsector (bspnum&(~NF_SUBSECTOR));
+	}
     }
 		
     bsp = &::g->nodes[bspnum];
@@ -270,12 +312,16 @@ qboolean P_CrossBSPNode (int bspnum)
     // decide which side the start point is on
     side = P_DivlineSide (::g->strace.x, ::g->strace.y, (divline_t *)bsp);
     if (side == 2)
-	side = 0;	// an "on" should cross both ::g->sides
+    {
+	    side = 0; // an "on" should cross both ::g->sides
+    }
 
     // cross the starting side
     if (!P_CrossBSPNode (bsp->children[side]) )
-	return false;
-	
+    {
+	    return false;
+    }
+
     // the partition plane is crossed here
     if (side == P_DivlineSide (::g->t2x, ::g->t2y,(divline_t *)bsp))
     {

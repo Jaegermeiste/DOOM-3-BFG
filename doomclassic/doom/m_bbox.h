@@ -29,11 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __M_BBOX__
 #define __M_BBOX__
 
+#pragma once
+
 #include "m_fixed.h"
 
 
 // Bounding box coordinate storage.
-enum
+enum bbox_e : uint8
 {
     BOXTOP,
     BOXBOTTOM,
@@ -47,8 +49,8 @@ void M_ClearBox (fixed_t*	box);
 void
 M_AddToBox
 ( fixed_t*	box,
-  fixed_t	x,
-  fixed_t	y );
+  const std::integral auto x,
+  const std::integral auto y );
 
 
 #endif

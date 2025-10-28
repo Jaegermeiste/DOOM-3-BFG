@@ -60,7 +60,7 @@ const char * idSIMD_SSE::GetName() const {
 idSIMD_SSE::BlendJoints
 ============
 */
-void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) {
+void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const jointHandle_t*index, const size_t numJoints ) {
 
 	if ( lerp <= 0.0f ) {
 		return;
@@ -303,7 +303,7 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 idSIMD_SSE::BlendJointsFast
 ============
 */
-void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t* index, const size_t numJoints ) {
+void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const jointHandle_t* index, const size_t numJoints ) {
 	assert_16_byte_aligned( joints );
 	assert_16_byte_aligned( blendJoints );
 	assert_16_byte_aligned( JOINTQUAT_Q_OFFSET );
@@ -827,7 +827,7 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, c
 idSIMD_SSE::TransformJoints
 ============
 */
-void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const size_t* parents, const size_t firstJoint, const size_t lastJoint ) {
+void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const jointHandle_t* parents, const jointHandle_t firstJoint, const jointHandle_t lastJoint ) {
 	const __m128 vector_float_mask_keep_last	= __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 
 	const float *__restrict firstMatrix = jointMats->ToFloatPtr() + ( firstJoint + firstJoint + firstJoint - 3 ) * 4;
@@ -836,8 +836,8 @@ void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const size_t* pa
 	__m128 pmb = _mm_load_ps( firstMatrix + 4 );
 	__m128 pmc = _mm_load_ps( firstMatrix + 8 );
 
-	for (size_t joint = firstJoint; joint <= lastJoint; joint++ ) {
-		const size_t parent = parents[joint];
+	for ( jointHandle_t joint = firstJoint; joint <= lastJoint; joint++ ) {
+		const jointHandle_t parent = parents[joint];
 		const float *__restrict parentMatrix = jointMats->ToFloatPtr() + ( parent + parent + parent ) * 4;
 		float *__restrict childMatrix = jointMats->ToFloatPtr() + ( joint + joint + joint ) * 4;
 
@@ -886,12 +886,12 @@ void VPCALL idSIMD_SSE::TransformJoints( idJointMat *jointMats, const size_t* pa
 idSIMD_SSE::UntransformJoints
 ============
 */
-void VPCALL idSIMD_SSE::UntransformJoints( idJointMat *jointMats, const size_t* parents, const size_t firstJoint, const size_t lastJoint ) {
+void VPCALL idSIMD_SSE::UntransformJoints( idJointMat *jointMats, const jointHandle_t* parents, const jointHandle_t firstJoint, const jointHandle_t lastJoint ) {
 	const __m128 vector_float_mask_keep_last	= __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 
-	for ( size_t joint = lastJoint; std::cmp_greater_equal(joint, firstJoint); joint-- ) {
+	for ( jointHandle_t joint = lastJoint; std::cmp_greater_equal(joint, firstJoint); joint-- ) {
 		assert(std::cmp_less(parents[joint], joint ));
-		const size_t parent = parents[joint];
+		const jointHandle_t parent = parents[joint];
 		const float *__restrict parentMatrix = jointMats->ToFloatPtr() + ( parent + parent + parent ) * 4;
 		float *__restrict childMatrix = jointMats->ToFloatPtr() + ( joint + joint + joint ) * 4;
 

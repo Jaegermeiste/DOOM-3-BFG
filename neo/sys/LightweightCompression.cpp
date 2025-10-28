@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 HashIndex
 ========================
 */
-static int HashIndex( int w, int k ) {
+static int HashIndex(const int w, const int k ) {
 	return ( w ^ k ) & idLZWCompressor::HASH_MASK;
 }
 
@@ -43,7 +43,7 @@ static int HashIndex( int w, int k ) {
 idLZWCompressor::Start
 ========================
 */
-void idLZWCompressor::Start( uint8 * data_, int maxSize_, bool append ) {
+void idLZWCompressor::Start( uint8 * data_, const size_t maxSize_, const bool append ) {
 	// Clear hash
 	ClearHash();
 	
@@ -61,7 +61,7 @@ void idLZWCompressor::Start( uint8 * data_, int maxSize_, bool append ) {
 	
 		assert( originalNextCode == lzwData->nextCode );
 	} else {
-		for ( int i = 0; i < LZW_FIRST_CODE; i++ ) {
+		for ( size_t i = 0; i < LZW_FIRST_CODE; i++ ) {
 			lzwData->dictionaryK[i] = static_cast<uint8>(i);
 			lzwData->dictionaryW[i] = 0xFFFF;
 		}
@@ -97,7 +97,7 @@ void idLZWCompressor::Start( uint8 * data_, int maxSize_, bool append ) {
 idLZWCompressor::ReadBits
 ========================
 */
-int idLZWCompressor::ReadBits( int bits ) {
+int idLZWCompressor::ReadBits(const int bits ) {
 	int bitsToRead = bits - lzwData->tempBits;
 	
 	while ( bitsToRead > 0 ) {
@@ -121,7 +121,7 @@ int idLZWCompressor::ReadBits( int bits ) {
 idLZWCompressor::WriteBits
 ========================
 */
-void idLZWCompressor::WriteBits( uint32 value, int bits ) {
+void idLZWCompressor::WriteBits(const uint32 value, const int bits ) {
 
 	// Queue up bits into temp value
 	lzwData->tempValue |= static_cast<uint64>(value) << lzwData->tempBits;
@@ -149,12 +149,12 @@ reverse.
 ========================
 */
 int idLZWCompressor::WriteChain( int code ) {
-	byte chain[lzwCompressionData_t::LZW_DICT_SIZE];
+	byte chain[lzwCompressionData_t::LZW_DICT_SIZE] = {};
 	int firstChar = 0;
 	int i = 0;
 	do {
 		assert( i < lzwCompressionData_t::LZW_DICT_SIZE && code < lzwCompressionData_t::LZW_DICT_SIZE && code >= 0 );
-		chain[i++] = (byte)lzwData->dictionaryK[code];
+		chain[i++] = static_cast<byte>(lzwData->dictionaryK[code]);
 		code = lzwData->dictionaryW[code];
 	} while ( code != 0xFFFF );
 	firstChar = chain[--i];
@@ -170,14 +170,14 @@ idLZWCompressor::DecompressBlock
 ========================
 */
 void idLZWCompressor::DecompressBlock() {
-	assert( blockIndex == blockSize );		// Make sure we've read all we can
+	assert( std::equal_to<>()(blockIndex, blockSize) );		// Make sure we've read all we can
 	
 	blockIndex = 0;
 	blockSize = 0;
 	
 	int firstChar = -1;
 	while ( blockSize < LZW_BLOCK_SIZE - lzwCompressionData_t::LZW_DICT_SIZE ) {
-		assert( lzwData->codeBits <= lzwCompressionData_t::LZW_DICT_BITS );
+		assert( std::cmp_less_equal(lzwData->codeBits, lzwCompressionData_t::LZW_DICT_BITS) );
 
 		int code = ReadBits( lzwData->codeBits );
 		if ( code == -1 ) {
@@ -213,7 +213,7 @@ void idLZWCompressor::DecompressBlock() {
 idLZWCompressor::ReadByte
 ========================
 */
-int idLZWCompressor::ReadByte( bool ignoreOverflow ) {
+uint8 idLZWCompressor::ReadByte(const bool ignoreOverflow ) {
 	if ( blockIndex == blockSize ) {
 		DecompressBlock();
 	}
@@ -235,7 +235,7 @@ int idLZWCompressor::ReadByte( bool ignoreOverflow ) {
 idLZWCompressor::WriteByte
 ========================
 */
-void idLZWCompressor::WriteByte( uint8 value ) {
+void idLZWCompressor::WriteByte(const uint8 value ) {
 	int code = Lookup( lzwData->codeWord, value );
 	if ( code >= 0 ) {
 		lzwData->codeWord = code;
@@ -258,7 +258,7 @@ void idLZWCompressor::WriteByte( uint8 value ) {
 idLZWCompressor::Lookup 
 ========================
 */
-int idLZWCompressor::Lookup( int w, int k ) const
+int idLZWCompressor::Lookup(const int w, const int k ) const
 {
 	if ( w == -1 ) {
 		return k;
@@ -280,7 +280,7 @@ int idLZWCompressor::Lookup( int w, int k ) const
 idLZWCompressor::AddToDict 
 ========================
 */
-int idLZWCompressor::AddToDict( int w, int k ) {
+int idLZWCompressor::AddToDict(const int w, const int k ) {
 	assert( w < 0xFFFF - 1 );
 	assert( k < 256 );
 	assert( lzwData->nextCode < lzwCompressionData_t::LZW_DICT_SIZE );
@@ -387,7 +387,7 @@ Simple zero based run length encoder/decoder
 ========================
 */
 
-void idZeroRunLengthCompressor::Start( uint8 * dest_, idLZWCompressor * comp_, int maxSize_ ) {
+void idZeroRunLengthCompressor::Start( uint8 * dest_, idLZWCompressor * comp_, const size_t maxSize_ ) {
 	zeroCount	= 0;
 	dest		= dest_;
 	comp		= comp_;
@@ -415,7 +415,7 @@ bool idZeroRunLengthCompressor::WriteRun() {
 	return true;
 }
 
-bool idZeroRunLengthCompressor::WriteByte( uint8 value ) {
+bool idZeroRunLengthCompressor::WriteByte(const uint8 value ) {
 	if ( value != 0 || zeroCount >= 255 ) {
 		if ( !WriteRun() ) {
 			maxSize = -1;
@@ -461,14 +461,14 @@ byte idZeroRunLengthCompressor::ReadByte() {
 	return 0;
 }
 
-void idZeroRunLengthCompressor::ReadBytes( byte * dest, int count ) {
-	for ( int i = 0; i < count; i++ ) {
+void idZeroRunLengthCompressor::ReadBytes( byte * dest, const int count ) {
+	for ( size_t i = 0; i < count; i++ ) {
 		*dest++ = ReadByte();
 	}
 }
 
-void idZeroRunLengthCompressor::WriteBytes( uint8 * src, int count ) {
-	for ( int i = 0; i < count; i++ ) {
+void idZeroRunLengthCompressor::WriteBytes( uint8 * src, const int count ) {
+	for ( size_t i = 0; i < count; i++ ) {
 		WriteByte( *src++ );
 	}
 }

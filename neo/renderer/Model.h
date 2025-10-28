@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MODEL_H__
 #define __MODEL_H__
 
+#pragma once
+#include "VertexCache.h"
+
 /*
 ===============================================================================
 
@@ -38,11 +41,11 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // shared between the renderer, game, and Maya export DLL
-#define MD5_VERSION_STRING		"MD5Version"
-#define MD5_MESH_EXT			"md5mesh"
-#define MD5_ANIM_EXT			"md5anim"
-#define MD5_CAMERA_EXT			"md5camera"
-#define MD5_VERSION				10
+constexpr auto MD5_VERSION_STRING = "MD5Version";
+constexpr auto MD5_MESH_EXT       = "md5mesh";
+constexpr auto MD5_ANIM_EXT       = "md5anim";
+constexpr auto MD5_CAMERA_EXT     = "md5camera";
+constexpr auto MD5_VERSION        = 10;
 
 #include "jobs/ShadowShared.h"
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
@@ -50,10 +53,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "jobs/dynamicshadowvolume/DynamicShadowVolume.h"
 
 // this is used for calculating unsmoothed normals and tangents for deformed models
-struct dominantTri_t {
+typedef struct dominantTri_s {
 	triIndex_t					v2, v3;
 	float						normalizationScale[3];
-};
+} dominantTri_t;
 
 constexpr int SHADOW_CAP_INFINITE	= 64;
 
@@ -61,8 +64,8 @@ class idRenderModelStatic;
 struct viewDef_s;
 
 // our only drawing geometry type
-struct srfTriangles_t {
-	srfTriangles_t() noexcept = default;
+typedef struct srfTriangles_s {
+	srfTriangles_s() noexcept = default;
 
 	idBounds					bounds;         					// for culling
 
@@ -103,10 +106,10 @@ struct srfTriangles_t {
 	idShadowVert *				preLightShadowVertexes = nullptr;	// shadow vertices in CPU memory for pre-light shadow volumes
 	idShadowVert *				staticShadowVertexes = nullptr; 	// shadow vertices in CPU memory for static shadow volumes
 
-	srfTriangles_t *			ambientSurface = nullptr;			// for light interactions, point back at the original surface that generated
+	srfTriangles_s *			ambientSurface = nullptr;			// for light interactions, point back at the original surface that generated
 												            		// the interaction, which we will get the ambientCache from
 
-	srfTriangles_t *			nextDeferredFree = nullptr;	    	// chain of tris to free next frame
+	srfTriangles_s *			nextDeferredFree = nullptr;	    	// chain of tris to free next frame
 
 	// for deferred normal / tangent transformations by joints
 	// the jointsInverted list / buffer object on md5WithJoints may be
@@ -118,8 +121,8 @@ struct srfTriangles_t {
 	vertCacheHandle_t			ambientCache;			// idDrawVert
 	vertCacheHandle_t			shadowCache;			// idVec4
 
-	DISALLOW_COPY_AND_ASSIGN( srfTriangles_t );
-};
+	DISALLOW_COPY_AND_ASSIGN( srfTriangles_s );
+} srfTriangles_t;
 
 typedef idList<srfTriangles_t *, TAG_IDLIB_LIST_TRIANGLES> idTriList;
 
@@ -135,7 +138,6 @@ enum dynamicModel_t {
 	DM_CONTINUOUS	// must be recreated for every single view (time dependent things like particles)
 };
 
-typedef int64 jointHandle_t;
 constexpr jointHandle_t INVALID_JOINT = -1;
 
 class idMD5Joint {
@@ -171,14 +173,14 @@ public:
 
 	// dynamic model instantiations will be created with this
 	// the geometry data will be owned by the model, and freed when it is freed
-	// the geoemtry should be raw triangles, with no extra processing
+	// the geometry should be raw triangles, with no extra processing
 	virtual void				AddSurface( modelSurface_t surface ) = 0;
 
 	// cleans all the geometry and performs cross-surface processing
 	// like shadow hulls
-	// Creates the duplicated back side geometry for two sided, alpha tested, lit materials
+	// Creates the duplicated back side geometry for two-sided, alpha tested, lit materials
 	// This does not need to be called if none of the surfaces added with AddSurface require
-	// light interaction, and all the triangles are already well formed.
+	// light interaction, and all the triangles are already well-formed.
 	virtual void				FinishSurfaces() = 0;
 
 	// frees all the data, but leaves the class around for dangling references,

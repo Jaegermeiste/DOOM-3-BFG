@@ -99,7 +99,7 @@ idMD5Mesh::~idMD5Mesh() {
 idMD5Mesh::ParseMesh
 ====================
 */
-void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joints ) {
+void idMD5Mesh::ParseMesh( idLexer &parser, size_t numJoints, const idJointMat *joints ) {
 	idToken		token;
 	idToken		name;
 
@@ -141,9 +141,9 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	firstWeightForVertex.SetNum( count );
 	numWeightsForVertex.SetNum( count );
 
-	int numWeights = 0;
-	int maxweight = 0;
-	for ( int i = 0; i < texCoords.Num(); i++ ) {
+	size_t numWeights = 0;
+	size_t maxweight = 0;
+	for ( size_t i = 0; i < texCoords.Num(); i++ ) {
 		parser.ExpectTokenString( "vert" );
 		parser.ParseInt();
 
@@ -174,7 +174,7 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	idList<int> tris;
 	tris.SetNum( count * 3 );
 	numTris = count;
-	for ( int i = 0; i < count; i++ ) {
+	for ( size_t i = 0; i < count; i++ ) {
 		parser.ExpectTokenString( "tri" );
 		parser.ParseInt();
 
@@ -200,13 +200,13 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	tempWeights.SetNum( count );
 	assert( numJoints < 256 );		// so we can pack into bytes
 
-	for ( int i = 0; i < count; i++ ) {
+	for ( size_t i = 0; i < count; i++ ) {
 		parser.ExpectTokenString( "weight" );
 		parser.ParseInt();
 
 		int jointnum = parser.ParseInt();
 		if ( ( jointnum < 0 ) || ( jointnum >= numJoints ) ) {
-			parser.Error( "Joint Index out of range(%d): %d", numJoints, jointnum );
+			parser.Error( "Joindex_t index out of range(%d): %d", numJoints, jointnum );
 		}
 
 		tempWeights[ i ].joint			= jointnum;
@@ -221,8 +221,8 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	memset( weightIndex, 0, numWeights * 2 * sizeof( weightIndex[0] ) );
 
 	count = 0;
-	for ( int i = 0; i < texCoords.Num(); i++ ) {
-		int num = firstWeightForVertex[i];
+	for ( size_t i = 0; i < texCoords.Num(); i++ ) {
+		size_t num = firstWeightForVertex[i];
 		for( int j = 0; j < numWeightsForVertex[i]; j++, num++, count++ ) {
 			scaledWeights[count].ToVec3() = tempWeights[num].offset * tempWeights[num].jointWeight;
 			scaledWeights[count].w = tempWeights[num].jointWeight;
@@ -237,7 +237,7 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	c_numVerts += texCoords.Num();
 	c_numWeights += numWeights;
 	c_numWeightJoints++;
-	for ( int i = 0; i < numWeights; i++ ) {
+	for ( size_t i = 0; i < numWeights; i++ ) {
 		c_numWeightJoints += weightIndex[i*2+1];
 	}
 
@@ -261,14 +261,14 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	// build the weights and bone indexes into the verts, so they will be duplicated
 	// as necessary at mirror seems
 
-	static int maxWeightsPerVert;
+	static size_t maxWeightsPerVert;
 	static float maxResidualWeight;
 
 	constexpr int MAX_VERTEX_WEIGHTS = 4;
 
 	idList< bool > jointIsUsed;
 	jointIsUsed.SetNum( numJoints );
-	for ( int i = 0; i < jointIsUsed.Num(); i++ ) {
+	for ( size_t i = 0; i < jointIsUsed.Num(); i++ ) {
 		jointIsUsed[i] = false;
 	}
 
@@ -281,20 +281,20 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	// Several important models have >25% residual weight in joints after the
 	// first four, which is worrisome for using a fixed four joint deformation.
 	//-----------------------------------------
-	for ( int i = 0; i < texCoords.Num(); i++ ) {
+	for ( size_t i = 0; i < texCoords.Num(); i++ ) {
 		idDrawVert & dv = basePose[i];
 
 		// some models do have >4 joint weights, so it is necessary to sort and renormalize
 
 		// sort the weights and take the four largest
 		int	weights[256];
-		const int numWeights = numWeightsForVertex[ i ];
-		for ( int j = 0; j < numWeights; j++ ) {
+		const size_t numWeights = numWeightsForVertex[ i ];
+		for ( size_t j = 0; j < numWeights; j++ ) {
 			weights[j] = firstWeightForVertex[i] + j;
 		}
 		// bubble sort
-		for ( int j = 0; j < numWeights; j++ ) {
-			for ( int k = 0; k < numWeights - 1 - j; k++ ) {
+		for ( size_t j = 0; j < numWeights; j++ ) {
+			for ( size_t k = 0; k < numWeights - 1 - j; k++ ) {
 				if ( tempWeights[weights[k]].jointWeight < tempWeights[weights[k+1]].jointWeight ) {
 					SwapValues( weights[k], weights[k+1] );
 				}
@@ -308,13 +308,13 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 		const int usedWeights = Min( MAX_VERTEX_WEIGHTS, numWeights );
 
 		float totalWeight = 0;
-		for ( int j = 0; j < numWeights; j++ ) {
+		for ( size_t j = 0; j < numWeights; j++ ) {
 			totalWeight += tempWeights[weights[j]].jointWeight;
 		}
 		assert( totalWeight > 0.999f && totalWeight < 1.001f );
 
 		float usedWeight = 0;
-		for ( int j = 0; j < usedWeights; j++ ) {
+		for ( size_t j = 0; j < usedWeights; j++ ) {
 			usedWeight += tempWeights[weights[j]].jointWeight;
 		}
 
@@ -325,7 +325,7 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 
 		byte finalWeights[MAX_VERTEX_WEIGHTS] = { 0 };
 		byte finalJointIndecies[MAX_VERTEX_WEIGHTS] = { 0 };
-		for ( int j = 0; j < usedWeights; j++ ) {
+		for ( size_t j = 0; j < usedWeights; j++ ) {
 			const vertexWeight_t & weight = tempWeights[weights[j]];
 			const int jointIndex = weight.joint;
 			const float fw = weight.jointWeight;
@@ -336,7 +336,7 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 		}
 
 		// Sort the weights and indices for hardware skinning
-		for ( int k = 0; k < 3; ++k ) {
+		for ( size_t k = 0; k < 3; ++k ) {
 			for ( int l = k + 1; l < 4; ++l ) {
 				if ( finalWeights[l] > finalWeights[k] ) {
 					SwapValues( finalWeights[k], finalWeights[l] );
@@ -362,7 +362,7 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 			assert( dv.color2[j] == 0 );
 		}
 
-		for ( int j = 0; j < usedWeights; j++ ) {
+		for ( size_t j = 0; j < usedWeights; j++ ) {
 			if ( !jointIsUsed[finalJointIndecies[j]] ) {
 				jointIsUsed[finalJointIndecies[j]] = true;
 				numMeshJoints++;
@@ -377,7 +377,7 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 
 	meshJoints = static_cast<byte*>(Mem_Alloc(numMeshJoints * sizeof(meshJoints[0]), TAG_MODEL));
 	numMeshJoints = 0;
-	for ( int i = 0; i < numJoints; i++ ) {
+	for ( size_t i = 0; i < numJoints; i++ ) {
 		if ( jointIsUsed[i] ) {
 			meshJoints[numMeshJoints++] = i;
 		}
@@ -388,10 +388,10 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 	deformInfo = R_BuildDeformInfo( texCoords.Num(), basePose, tris.Num(), tris.Ptr(),
 										shader->UseUnsmoothedTangents() );
 
-	for ( int i = 0; i < deformInfo->numOutputVerts; i++ ) {
-		for ( int j = 0; j < 4; j++ ) {
+	for ( size_t i = 0; i < deformInfo->numOutputVerts; i++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			if ( deformInfo->verts[i].color[j] >= numJoints ) {
-				idLib::FatalError( "Bad joint index" );
+				idLib::FatalError( "Bad joindex_t index" );
 			}
 		}
 	}
@@ -404,8 +404,8 @@ void idMD5Mesh::ParseMesh( idLexer &parser, int numJoints, const idJointMat *joi
 TransformVertsAndTangents
 ============
 */
-void TransformVertsAndTangents( idDrawVert * targetVerts, const int numVerts, const idDrawVert *baseVerts, const idJointMat *joints ) {
-	for( int i = 0; i < numVerts; i++ ) {
+void TransformVertsAndTangents( idDrawVert * targetVerts, const size_t numVerts, const idDrawVert *baseVerts, const idJointMat *joints ) {
+	for ( size_t i = 0; i < numVerts; i++ ) {
 		const idDrawVert & base = baseVerts[i];
 
 		const idJointMat & j0 = joints[base.color[0]];
@@ -512,7 +512,7 @@ void idMD5Mesh::CalculateBounds( const idJointMat * entJoints, idBounds & bounds
 	__m128 maxX = vector_float_negInfinity;
 	__m128 maxY = vector_float_negInfinity;
 	__m128 maxZ = vector_float_negInfinity;
-	for ( int i = 0; i < numMeshJoints; i++ ) {
+	for ( size_t i = 0; i < numMeshJoints; i++ ) {
 		const idJointMat & joint = entJoints[meshJoints[i]];
 		__m128 x = _mm_load_ps( joint.ToFloatPtr() + 0 * 4 );
 		__m128 y = _mm_load_ps( joint.ToFloatPtr() + 1 * 4 );
@@ -541,7 +541,7 @@ void idMD5Mesh::CalculateBounds( const idJointMat * entJoints, idBounds & bounds
 #else
 
 	bounds.Clear();
-	for ( int i = 0; i < numMeshJoints; i++ ) {
+	for ( size_t i = 0; i < numMeshJoints; i++ ) {
 		const idJointMat & joint = entJoints[meshJoints[i]];
 		bounds.AddPoint( joint.GetTranslation() );
 	}
@@ -555,7 +555,7 @@ void idMD5Mesh::CalculateBounds( const idJointMat * entJoints, idBounds & bounds
 idMD5Mesh::NearestJoint
 ====================
 */
-int idMD5Mesh::NearestJoint( int a, int b, int c ) const {
+int idMD5Mesh::NearestJoint(const int a, const int b, const int c ) const {
 	// duplicated vertices might not have weights
 	int vertNum;
 	if ( a >= 0 && a < numVerts ) {
@@ -573,7 +573,7 @@ int idMD5Mesh::NearestJoint( int a, int b, int c ) const {
 
 	int bestWeight = 0;
 	int bestJoint = 0;
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		if ( v.color2[i] > bestWeight ) {
 			bestWeight = v.color2[i];
 			bestJoint = v.color[i];
@@ -605,7 +605,7 @@ void idRenderModelMD5::ParseJoint( idLexer &parser, idMD5Joint *joint, idJointQu
 	//
 	// parse parent
 	//
-	int num = parser.ParseInt();
+	size_t num = parser.ParseInt();
 	if ( num < 0 ) {
 		joint->parent = nullptr;
 	} else {
@@ -653,7 +653,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile * file, const ID_TIME_T sourceTim
 	int tempNum;
 	file->ReadBig( tempNum );
 	joints.SetNum( tempNum );
-	for ( int i = 0; i < joints.Num(); i++ ) {
+	for ( size_t i = 0; i < joints.Num(); i++ ) {
 		file->ReadString( joints[i].name );
 		int offset;
 		file->ReadBig( offset );
@@ -666,7 +666,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile * file, const ID_TIME_T sourceTim
 
 	file->ReadBig( tempNum );
 	defaultPose.SetNum( tempNum );
-	for ( int i = 0; i < defaultPose.Num(); i++ ) {
+	for ( size_t i = 0; i < defaultPose.Num(); i++ ) {
 		file->ReadBig( defaultPose[i].q.x );
 		file->ReadBig( defaultPose[i].q.y );
 		file->ReadBig( defaultPose[i].q.z );
@@ -676,14 +676,14 @@ bool idRenderModelMD5::LoadBinaryModel( idFile * file, const ID_TIME_T sourceTim
 
 	file->ReadBig( tempNum );
 	invertedDefaultPose.SetNum( tempNum );
-	for ( int i = 0; i < invertedDefaultPose.Num(); i++ ) {
+	for ( size_t i = 0; i < invertedDefaultPose.Num(); i++ ) {
 		file->ReadBigArray( invertedDefaultPose[ i ].ToFloatPtr(), JOINTMAT_TYPESIZE );
 	}
 	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr(), joints.Num() );
 
 	file->ReadBig( tempNum );
 	meshes.SetNum( tempNum );
-	for ( int i = 0; i < meshes.Num(); i++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++ ) {
 
 		idStr materialName;
 		file->ReadString( materialName );
@@ -745,7 +745,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile * file, const ID_TIME_T sourceTim
 			R_AllocStaticTriSurfSilEdges( &tri, deform.numSilEdges );
 			deform.silEdges = tri.silEdges;
 			assert( deform.silEdges != NULL );
-			for ( int j = 0; j < deform.numSilEdges; j++ ) {
+			for ( size_t j = 0; j < deform.numSilEdges; j++ ) {
 				file->ReadBig( deform.silEdges[j].p1 );
 				file->ReadBig( deform.silEdges[j].p2 );
 				file->ReadBig( deform.silEdges[j].v1 );
@@ -785,7 +785,7 @@ void idRenderModelMD5::WriteBinaryModel( idFile * file, ID_TIME_T *_timeStamp ) 
 	file->WriteBig( MD5B_MAGIC );
 
 	file->WriteBig( joints.Num() );
-	for ( int i = 0; i < joints.Num(); i++ ) {
+	for ( size_t i = 0; i < joints.Num(); i++ ) {
 		file->WriteString( joints[i].name );
 		int offset = -1;
 		if ( joints[i].parent != nullptr) {
@@ -795,7 +795,7 @@ void idRenderModelMD5::WriteBinaryModel( idFile * file, ID_TIME_T *_timeStamp ) 
 	}
 
 	file->WriteBig( defaultPose.Num() );
-	for ( int i = 0; i < defaultPose.Num(); i++ ) {
+	for ( size_t i = 0; i < defaultPose.Num(); i++ ) {
 		file->WriteBig( defaultPose[i].q.x );
 		file->WriteBig( defaultPose[i].q.y );
 		file->WriteBig( defaultPose[i].q.z );
@@ -804,12 +804,12 @@ void idRenderModelMD5::WriteBinaryModel( idFile * file, ID_TIME_T *_timeStamp ) 
 	}
 
 	file->WriteBig( invertedDefaultPose.Num() );
-	for ( int i = 0; i < invertedDefaultPose.Num(); i++ ) {
+	for ( size_t i = 0; i < invertedDefaultPose.Num(); i++ ) {
 		file->WriteBigArray( invertedDefaultPose[ i ].ToFloatPtr(), JOINTMAT_TYPESIZE );
 	}
 
 	file->WriteBig( meshes.Num() );
-	for ( int i = 0; i < meshes.Num(); i++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++ ) {
 
 		if ( meshes[i].shader != nullptr && meshes[i].shader->GetName() != nullptr) {
 			file->WriteString( meshes[i].shader->GetName() );
@@ -851,7 +851,7 @@ void idRenderModelMD5::WriteBinaryModel( idFile * file, ID_TIME_T *_timeStamp ) 
 		}
 
 		if ( deform.numSilEdges > 0 ) {
-			for ( int j = 0; j < deform.numSilEdges; j++ ) {
+			for ( size_t j = 0; j < deform.numSilEdges; j++ ) {
 				file->WriteBig( deform.silEdges[j].p1 );
 				file->WriteBig( deform.silEdges[j].p2 );
 				file->WriteBig( deform.silEdges[j].v1 );
@@ -925,7 +925,7 @@ void idRenderModelMD5::LoadModel() {
 	parser.ExpectTokenString( "joints" );
 	parser.ExpectTokenString( "{" );
 	idJointMat *poseMat = static_cast<idJointMat*>(_alloca16(joints.Num() * sizeof( poseMat[0] )));
-	for( int i = 0; i < joints.Num(); i++ ) {
+	for ( size_t i = 0; i < joints.Num(); i++ ) {
 		idMD5Joint * joint = &joints[i];
 		idJointQuat	* pose = &defaultPose[i];
 
@@ -948,20 +948,20 @@ void idRenderModelMD5::LoadModel() {
 	// When the joints are in another pose, it gives the animated vertex position
 	//-----------------------------------------
 	invertedDefaultPose.SetNum( SIMD_ROUND_JOINTS( joints.Num() ) );
-	for ( int i = 0; i < joints.Num(); i++ ) {
+	for ( size_t i = 0; i < joints.Num(); i++ ) {
 		invertedDefaultPose[i] = poseMat[i];
 		invertedDefaultPose[i].Invert();
 	}
 	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr(), joints.Num() );
 
-	for ( int i = 0; i < meshes.Num(); i++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++ ) {
 		parser.ExpectTokenString( "mesh" );
 		meshes[i].ParseMesh( parser, defaultPose.Num(), poseMat );
 	}
 
 	// calculate the bounds of the model
 	bounds.Clear();
-	for ( int i = 0; i < meshes.Num(); i++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++ ) {
 		idBounds meshBounds;
 		meshes[i].CalculateBounds( poseMat, meshBounds );
 		bounds.AddBounds( meshBounds );
@@ -986,7 +986,7 @@ void idRenderModelMD5::Print() const {
 	int	totalVerts = 0;
 	int	totalTris = 0;
 	const idMD5Mesh * mesh = meshes.Ptr();
-	for ( int i = 0; i < meshes.Num(); i++, mesh++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++, mesh++ ) {
 		totalVerts += mesh->NumVerts();
 		totalTris += mesh->NumTris();
 		common->Printf( "%2i: %5i %5i %s\n", i, mesh->NumVerts(), mesh->NumTris(), mesh->shader->GetName() );
@@ -1090,7 +1090,7 @@ void idRenderModelMD5::DrawJoints( const renderEntity_t *ent, const viewDef_t *v
 TransformJoints
 ====================
 */
-static void TransformJoints( idJointMat *__restrict outJoints, const int numJoints, const idJointMat *__restrict inJoints1, const idJointMat *__restrict inJoints2 ) {
+static void TransformJoints( idJointMat *__restrict outJoints, const size_t numJoints, const idJointMat *__restrict inJoints1, const idJointMat *__restrict inJoints2 ) {
 
 	float * outFloats = outJoints->ToFloatPtr();
 	const float * inFloats1 = inJoints1->ToFloatPtr();
@@ -1104,7 +1104,7 @@ static void TransformJoints( idJointMat *__restrict outJoints, const int numJoin
 
 	const __m128 mask_keep_last = __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 
-	for ( int i = 0; i < numJoints; i += 2, inFloats1 += 2 * 12, inFloats2 += 2 * 12, outFloats += 2 * 12 ) {
+	for ( size_t i = 0; i < numJoints; i += 2, inFloats1 += 2 * 12, inFloats2 += 2 * 12, outFloats += 2 * 12 ) {
 		__m128 m1a0 = _mm_load_ps( inFloats1 + 0 * 12 + 0 );
 		__m128 m1b0 = _mm_load_ps( inFloats1 + 0 * 12 + 4 );
 		__m128 m1c0 = _mm_load_ps( inFloats1 + 0 * 12 + 8 );
@@ -1178,7 +1178,7 @@ static void TransformJoints( idJointMat *__restrict outJoints, const int numJoin
 
 #else
 
-	for ( int i = 0; i < numJoints; i++ ) {
+	for ( size_t i = 0; i < numJoints; i++ ) {
 		idJointMat::Multiply( outJoints[i], inJoints1[i], inJoints2[i] );
 	}
 
@@ -1239,7 +1239,7 @@ idRenderModel *idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 	}
 
 	// update the GPU joints array
-	const int numInvertedJoints = SIMD_ROUND_JOINTS( joints.Num() );
+	const size_t numInvertedJoints = SIMD_ROUND_JOINTS( joints.Num() );
 	if ( staticModel->jointsInverted == nullptr) {
 		staticModel->numInvertedJoints = numInvertedJoints;
 		const int alignment = glConfig.uniformBufferOffsetAlignment;
@@ -1253,7 +1253,7 @@ idRenderModel *idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 
 	// create all the surfaces
 	idMD5Mesh * mesh = meshes.Ptr();
-	for ( int i = 0; i < meshes.Num(); i++, mesh++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++, mesh++ ) {
 		// avoid deforming the surface if it will be a nodraw due to a skin remapping
 		const idMaterial *shader = mesh->shader;
 		
@@ -1334,7 +1334,7 @@ idRenderModelMD5::GetJointHandle
 */
 jointHandle_t idRenderModelMD5::GetJointHandle( const char *name ) const {
 	const idMD5Joint *joint = joints.Ptr();
-	for ( int i = 0; i < joints.Num(); i++, joint++ ) {
+	for ( size_t i = 0; i < joints.Num(); i++, joint++ ) {
 		if ( idStr::Icmp( joint->name.c_str(), name ) == 0 ) {
 			return static_cast<jointHandle_t>(i);
 		}
@@ -1348,7 +1348,7 @@ jointHandle_t idRenderModelMD5::GetJointHandle( const char *name ) const {
 idRenderModelMD5::GetJointName
 =====================
 */
-const char *idRenderModelMD5::GetJointName( jointHandle_t handle ) const {
+const char *idRenderModelMD5::GetJointName(const jointHandle_t handle ) const {
 	if ( ( handle < 0 ) || ( handle >= joints.Num() ) ) {
 		return "<invalid joint>";
 	}
@@ -1361,13 +1361,13 @@ const char *idRenderModelMD5::GetJointName( jointHandle_t handle ) const {
 idRenderModelMD5::NearestJoint
 ====================
 */
-int idRenderModelMD5::NearestJoint( int surfaceNum, int a, int b, int c ) const {
+int idRenderModelMD5::NearestJoint(const int surfaceNum, const int a, const int b, const int c ) const {
 	if ( surfaceNum > meshes.Num() ) {
 		common->Error( "idRenderModelMD5::NearestJoint: surfaceNum > meshes.Num()" );
 	}
 
 	const idMD5Mesh *mesh = meshes.Ptr();
-	for ( int i = 0; i < meshes.Num(); i++, mesh++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++, mesh++ ) {
 		if ( mesh->surfaceNum == surfaceNum ) {
 			return mesh->NearestJoint( a, b, c );
 		}
@@ -1385,7 +1385,7 @@ are kept loaded
 ====================
 */
 void idRenderModelMD5::TouchData() {
-	for ( int i = 0; i < meshes.Num(); i++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++ ) {
 		declManager->FindMaterial( meshes[i].shader->GetName() );
 	}
 }
@@ -1415,12 +1415,12 @@ int	idRenderModelMD5::Memory() const {
 	total += joints.MemoryUsed() + defaultPose.MemoryUsed() + meshes.MemoryUsed();
 
 	// count up strings
-	for ( int i = 0; i < joints.Num(); i++ ) {
+	for ( size_t i = 0; i < joints.Num(); i++ ) {
 		total += joints[i].name.DynamicMemoryUsed();
 	}
 
 	// count up meshes
-	for ( int i = 0; i < meshes.Num(); i++ ) {
+	for ( size_t i = 0; i < meshes.Num(); i++ ) {
 		const idMD5Mesh *mesh = &meshes[i];
 
 		total += mesh->numMeshJoints * sizeof( mesh->meshJoints[0] );

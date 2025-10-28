@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -69,8 +71,10 @@ void T_PlatRaise(plat_t* plat)
 	    || plat->type == raiseToNearestAndChange)
 	{
 	    if (!(::g->leveltime&7))
-		S_StartSound( &plat->sector->soundorg,
-			     sfx_stnmov);
+	    {
+		    S_StartSound( &plat->sector->soundorg,
+		                  sfx_stnmov);
+	    }
 	}
 	
 				
@@ -124,9 +128,13 @@ void T_PlatRaise(plat_t* plat)
 	if (!--plat->count)
 	{
 	    if (plat->sector->floorheight == plat->low)
-		plat->status = up;
+	    {
+		    plat->status = up;
+	    }
 	    else
-		plat->status = down;
+	    {
+		    plat->status = down;
+	    }
 	    S_StartSound( &plat->sector->soundorg,sfx_pstart);
 	}
       case	in_stasis:
@@ -142,8 +150,8 @@ void T_PlatRaise(plat_t* plat)
 int
 EV_DoPlat
 ( line_t*	line,
-  plattype_e	type,
-  int		amount )
+  const plattype_e	type,
+  const int		amount )
 {
     plat_t*	plat;
     int		secnum;
@@ -170,11 +178,13 @@ EV_DoPlat
 	sec = &::g->sectors[secnum];
 
 	if (sec->specialdata)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	// Find lowest & highest floors around sector
 	rtn = 1;
-	plat = (plat_t*)DoomLib::Z_Malloc( sizeof(*plat), PU_LEVEL, 0);
+	plat = static_cast<plat_t*>(DoomLib::Z_Malloc(sizeof(*plat), PU_LEVEL, nullptr));
 	P_AddThinker(&plat->thinker);
 		
 	plat->type = type;
@@ -212,8 +222,7 @@ EV_DoPlat
 	    plat->speed = PLATSPEED * 4;
 	    plat->low = P_FindLowestFloorSurrounding(sec);
 
-	    if (plat->low > sec->floorheight)
-		plat->low = sec->floorheight;
+	    plat->low = Min(plat->low, sec->floorheight);
 
 	    plat->high = sec->floorheight;
 	    plat->wait = TICRATE*PLATWAIT;
@@ -225,8 +234,7 @@ EV_DoPlat
 	    plat->speed = PLATSPEED * 8;
 	    plat->low = P_FindLowestFloorSurrounding(sec);
 
-	    if (plat->low > sec->floorheight)
-		plat->low = sec->floorheight;
+	    plat->low = Min(plat->low, sec->floorheight);
 
 	    plat->high = sec->floorheight;
 	    plat->wait = TICRATE*PLATWAIT;
@@ -238,16 +246,14 @@ EV_DoPlat
 	    plat->speed = PLATSPEED;
 	    plat->low = P_FindLowestFloorSurrounding(sec);
 
-	    if (plat->low > sec->floorheight)
-		plat->low = sec->floorheight;
+	    plat->low = Min(plat->low, sec->floorheight);
 
 	    plat->high = P_FindHighestFloorSurrounding(sec);
 
-	    if (plat->high < sec->floorheight)
-		plat->high = sec->floorheight;
+	    plat->high = Max(plat->high, sec->floorheight);
 
 	    plat->wait = TICRATE*PLATWAIT;
-	    plat->status = (plat_e)(P_Random()&1);
+	    plat->status = static_cast<plat_e>(P_Random() & 1);
 
 	    S_StartSound( &sec->soundorg,sfx_pstart);
 	    break;
@@ -259,19 +265,21 @@ EV_DoPlat
 
 
 
-void P_ActivateInStasis(int tag)
+void P_ActivateInStasis(const int tag)
 {
     int		i;
 	
     for (i = 0;i < MAXPLATS;i++)
-	if (::g->activeplats[i]
-	    && (::g->activeplats[i])->tag == tag
-	    && (::g->activeplats[i])->status == in_stasis)
-	{
-	    (::g->activeplats[i])->status = (::g->activeplats[i])->oldstatus;
-	    (::g->activeplats[i])->thinker.function.acp1
-	      = (actionf_p1) T_PlatRaise;
-	}
+    {
+	    if (::g->activeplats[i]
+		    && (::g->activeplats[i])->tag == tag
+		    && (::g->activeplats[i])->status == in_stasis)
+	    {
+		    (::g->activeplats[i])->status = (::g->activeplats[i])->oldstatus;
+		    (::g->activeplats[i])->thinker.function.acp1
+			    = (actionf_p1) T_PlatRaise;
+	    }
+    }
 }
 
 void EV_StopPlat(line_t* line)
@@ -279,14 +287,16 @@ void EV_StopPlat(line_t* line)
     int		j;
 	
     for (j = 0;j < MAXPLATS;j++)
-	if (::g->activeplats[j]
-	    && ((::g->activeplats[j])->status != in_stasis)
-	    && ((::g->activeplats[j])->tag == line->tag))
-	{
-	    (::g->activeplats[j])->oldstatus = (::g->activeplats[j])->status;
-	    (::g->activeplats[j])->status = in_stasis;
-	    (::g->activeplats[j])->thinker.function.acv = (actionf_v)NULL;
-	}
+    {
+	    if (::g->activeplats[j]
+		    && ((::g->activeplats[j])->status != in_stasis)
+		    && ((::g->activeplats[j])->tag == line->tag))
+	    {
+		    (::g->activeplats[j])->oldstatus = (::g->activeplats[j])->status;
+		    (::g->activeplats[j])->status = in_stasis;
+		    (::g->activeplats[j])->thinker.function.acv = static_cast<actionf_v>(nullptr);
+	    }
+    }
 }
 
 void P_AddActivePlat(plat_t* plat)
@@ -294,11 +304,13 @@ void P_AddActivePlat(plat_t* plat)
     int		i;
     
     for (i = 0;i < MAXPLATS;i++)
-	if (::g->activeplats[i] == NULL)
-	{
-	    ::g->activeplats[i] = plat;
-	    return;
-	}
+    {
+	    if (::g->activeplats[i] == nullptr)
+	    {
+		    ::g->activeplats[i] = plat;
+		    return;
+	    }
+    }
     I_Error ("P_AddActivePlat: no more plats!");
 }
 
@@ -306,14 +318,16 @@ void P_RemoveActivePlat(plat_t* plat)
 {
     int		i;
     for (i = 0;i < MAXPLATS;i++)
-	if (plat == ::g->activeplats[i])
-	{
-	    (::g->activeplats[i])->sector->specialdata = NULL;
-	    P_RemoveThinker(&(::g->activeplats[i])->thinker);
-	    ::g->activeplats[i] = NULL;
+    {
+	    if (plat == ::g->activeplats[i])
+	    {
+		    (::g->activeplats[i])->sector->specialdata = nullptr;
+		    P_RemoveThinker(&(::g->activeplats[i])->thinker);
+		    ::g->activeplats[i] = nullptr;
 	    
-	    return;
-	}
+		    return;
+	    }
+    }
     I_Error ("P_RemoveActivePlat: can't find plat!");
 }
 

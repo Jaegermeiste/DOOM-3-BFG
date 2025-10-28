@@ -157,10 +157,10 @@ bool idSWF::LoadBinary( const char * bfilename, ID_TIME_T sourceTime ) {
 
 	mainsprite->Read( f );
 
-	int num = 0;
+	size_t num = 0;
 	f->ReadBig( num );
 	dictionary.SetNum( num );
-	for ( int i = 0; i < dictionary.Num(); i++ ) {
+	for ( size_t i = 0; i < dictionary.Num(); i++ ) {
 		f->ReadBig( dictionary[i].type );
 		switch ( dictionary[i].type ) {
 			case SWF_DICT_IMAGE: {
@@ -172,11 +172,11 @@ bool idSWF::LoadBinary( const char * bfilename, ID_TIME_T sourceTime ) {
 				} else {
 					dictionary[i].material = declManager->FindMaterial( imageName );
 				}
-				for ( int j = 0 ; j < 2 ; j++ ) {
+				for ( size_t j = 0 ; j < 2 ; j++ ) {
 					f->ReadBig( dictionary[i].imageSize[j] );
 					f->ReadBig( dictionary[i].imageAtlasOffset[j] );
 				}
-				for ( int j = 0 ; j < 4 ; j++ ) {
+				for ( size_t j = 0 ; j < 4 ; j++ ) {
 					f->ReadBig( dictionary[i].channelScale[j] );
 				}
 				break;
@@ -325,7 +325,7 @@ void idSWF::WriteBinary( const char * bfilename ) {
 	mainsprite->Write( file );
 
 	file->WriteBig( dictionary.Num() );
-	for ( int i = 0; i < dictionary.Num(); i++ ) {
+	for ( size_t i = 0; i < dictionary.Num(); i++ ) {
 		file->WriteBig( dictionary[i].type );
 		switch ( dictionary[i].type ) {
 			case SWF_DICT_IMAGE: {
@@ -334,11 +334,11 @@ void idSWF::WriteBinary( const char * bfilename ) {
 				} else {
 					file->WriteString( "." );
 				}
-				for ( int j = 0 ; j < 2 ; j++ ) {
+				for ( size_t j = 0 ; j < 2 ; j++ ) {
 					file->WriteBig( dictionary[i].imageSize[j] );
 					file->WriteBig( dictionary[i].imageAtlasOffset[j] );
 				}
-				for ( int j = 0 ; j < 4 ; j++ ) {
+				for ( size_t j = 0 ; j < 4 ; j++ ) {
 					file->WriteBig( dictionary[i].channelScale[j] );
 				}
 				break;

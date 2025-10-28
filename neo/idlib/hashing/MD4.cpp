@@ -32,14 +32,14 @@ documentation and/or software.
 */
 
 /* MD4 context. */
-typedef struct {
-	UINT4 state[4];				/* state (ABCD) */
-	UINT4 count[2];				/* number of bits, modulo 2^64 (lsb first) */
-	unsigned char buffer[64]; 	/* input buffer */
+typedef struct MD4_CTX_s {
+	uint32 state[4];				/* state (ABCD) */
+	uint32 count[2];				/* number of bits, modulo 2^64 (lsb first) */
+	byte buffer[64]; 	/* input buffer */
 } MD4_CTX;
 
 /* Constants for MD4Transform routine.  */
-enum
+enum S_constants_e : uint8
 {
 	S11 = 3,
 	S12 = 7,
@@ -57,13 +57,13 @@ enum
 
 #ifndef _MD_PADDING
 #define _MD_PADDING
-static unsigned char PADDING[64] = {
+static byte PADDING[64] = {
 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 #endif // _MD_PADDING
 
 /* F, G and H are basic MD4 functions. */
-#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
+#define F(x, y, z) (((x) & (y)) | ((~(x)) & (z)))
 #define G(x, y, z) (((x) & (y)) | ((x) & (z)) | ((y) & (z)))
 #define H(x, y, z) ((x) ^ (y) ^ (z))
 
@@ -74,34 +74,38 @@ static unsigned char PADDING[64] = {
 /* Rotation is separate from addition to prevent recomputation */
 #define FF(a, b, c, d, x, s) {(a) += F ((b), (c), (d)) + (x); (a) = ROTATE_LEFT ((a), (s));}
 
-#define GG(a, b, c, d, x, s) {(a) += G ((b), (c), (d)) + (x) + (UINT4)0x5a827999; (a) = ROTATE_LEFT ((a), (s));}
+constexpr uint32 GG_MAGIC_NUMBER = 0x5a827999;
 
-#define HH(a, b, c, d, x, s) {(a) += H ((b), (c), (d)) + (x) + (UINT4)0x6ed9eba1; (a) = ROTATE_LEFT ((a), (s));}
+#define GG(a, b, c, d, x, s) {(a) += G ((b), (c), (d)) + (x) + GG_MAGIC_NUMBER; (a) = ROTATE_LEFT ((a), (s));}
 
-/* Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 4. */
-static void MD4_Encode( unsigned char *output, const UINT4 *input, const size_t len ) {
-	unsigned int i, j;
+constexpr uint32 HH_MAGIC_NUMBER = 0x6ed9eba1;
+
+#define HH(a, b, c, d, x, s) {(a) += H ((b), (c), (d)) + (x) + HH_MAGIC_NUMBER; (a) = ROTATE_LEFT ((a), (s));}
+
+/* Encodes input (UINT4) into output (byte). Assumes len is a multiple of 4. */
+static void MD4_Encode( byte *output, const uint32 *input, const size_t len ) {
+	size_t i = 0, j = 0;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
- 		output[j] = static_cast<unsigned char>(input[i] & 0xff);
- 		output[j+1] = static_cast<unsigned char>((input[i] >> 8) & 0xff);
- 		output[j+2] = static_cast<unsigned char>((input[i] >> 16) & 0xff);
- 		output[j+3] = static_cast<unsigned char>((input[i] >> 24) & 0xff);
+ 		output[j]   = numeric_cast<byte>(  input[i]         & 0xff);
+ 		output[j+1] = numeric_cast<byte>(( input[i] >> 8 )  & 0xff);
+ 		output[j+2] = numeric_cast<byte>(( input[i] >> 16 ) & 0xff);
+ 		output[j+3] = numeric_cast<byte>(( input[i] >> 24 ) & 0xff);
 	}
 }
 
-/* Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 4. */
-static void MD4_Decode( UINT4 *output, const unsigned char *input, const size_t len ) {
-	unsigned int i, j;
+/* Decodes input (byte) into output (uint32). Assumes len is a multiple of 4. */
+static void MD4_Decode( uint32 *output, const byte *input, const size_t len ) {
+	size_t i = 0, j = 0;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
- 		output[i] = static_cast<UINT4>(input[j]) | (static_cast<UINT4>(input[j + 1]) << 8) | (static_cast<UINT4>(input[j + 2]) << 16) | (static_cast<UINT4>(input[j + 3]) << 24);
+ 		output[i] = numeric_cast<uint32>(input[j]) | (numeric_cast<uint32>(input[j + 1]) << 8) | (numeric_cast<uint32>(input[j + 2]) << 16) | (numeric_cast<uint32>(input[j + 3]) << 24);
 	}
 }
 
 /* MD4 basic transformation. Transforms state based on block. */
-static void MD4_Transform( UINT4 state[4], const unsigned char block[64] ) {
-	UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+static void MD4_Transform( uint32 state[4], const byte block[64] ) {
+	uint32 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
 	MD4_Decode (x, block, 64);
 
@@ -164,7 +168,7 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] ) {
 	state[2] += c;
 	state[3] += d;
 
-	/* Zeroize sensitive information.*/
+	/* Zero sensitive information.*/
 	memset (x, 0, sizeof (x));
 }
 
@@ -180,20 +184,22 @@ static void MD4_Init( MD4_CTX *context ) noexcept {
 }
 
 /* MD4 block update operation. Continues an MD4 message-digest operation, processing another message block, and updating the context. */
-static void MD4_Update( MD4_CTX *context, const unsigned char *input, const size_t inputLen ) {
-	size_t i;
+static void MD4_Update( MD4_CTX *context, const byte *input, const size_t inputLen ) {
+	size_t i = 0;
 
 	/* Compute number of bytes mod 64 */
-	unsigned int index = static_cast<unsigned int>((context->count[0] >> 3) & 0x3F);
+	size_t index = static_cast<size_t>((context->count[0] >> 3) & 0x3F);
+
+	const auto inputLen_ui32 = numeric_cast<uint32>(inputLen);
 
 	/* Update number of bits */
-	if ((context->count[0] += (static_cast<UINT4>(inputLen) << 3))< (static_cast<UINT4>(inputLen) << 3)) {
+	if ((context->count[0] += (inputLen_ui32 << 3))< (inputLen_ui32 << 3)) {
 		context->count[1]++;
 	}
 
-	context->count[1] += (static_cast<UINT4>(inputLen) >> 29);
+	context->count[1] += (inputLen_ui32 >> 29);
 
-	const size_t partLen = 64 - static_cast<size_t>(index);
+	const size_t partLen = 64 - index;
 
 	/* Transform as many times as possible.*/
 	if ( inputLen >= partLen ) {
@@ -213,16 +219,16 @@ static void MD4_Update( MD4_CTX *context, const unsigned char *input, const size
 	memcpy (&context->buffer[index], &input[i], inputLen-i);
 }
 
-/* MD4 finalization. Ends an MD4 message-digest operation, writing the message digest and zeroizing the context. */
-static void MD4_Final( MD4_CTX *context, unsigned char digest[16] ) {
-	unsigned char bits[8];
+/* MD4 finalization. Ends an MD4 message-digest operation, writing the message digest and zeroing the context. */
+static void MD4_Final( MD4_CTX *context, byte digest[16] ) {
+	byte bits[8] = {};
 
 	/* Save number of bits */
 	MD4_Encode( bits, context->count, 8 );
 
 	/* Pad out to 56 mod 64.*/
-	const unsigned int index = static_cast<unsigned int>((context->count[0] >> 3) & 0x3f);
-	const unsigned int padLen = (index < 56) ? (56 - index) : (120 - index);
+	const size_t index = numeric_cast<size_t>((context->count[0] >> 3) & 0x3f);
+	const size_t padLen = (index < 56) ? (56 - index) : (120 - index);
 	MD4_Update (context, PADDING, padLen);
 
 	/* Append length (before padding) */
@@ -240,15 +246,15 @@ static void MD4_Final( MD4_CTX *context, unsigned char digest[16] ) {
 MD4_BlockChecksum
 ===============
 */
-unsigned long MD4_BlockChecksum( const void *data, const size_t length ) {
-	unsigned long	digest[4] = {};
-	MD4_CTX			ctx = {};
+uint32 MD4_BlockChecksum( const void *data, const size_t length ) {
+	uint32  digest[4] = {};
+	MD4_CTX ctx = {};
 
 	MD4_Init( &ctx );
-	MD4_Update( &ctx, static_cast<const unsigned char*>(data), length );
-	MD4_Final( &ctx, reinterpret_cast<unsigned char*>(digest) );
+	MD4_Update( &ctx, static_cast<const byte*>(data), length );
+	MD4_Final( &ctx, reinterpret_cast<byte*>(digest) );
 
-	const unsigned long val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
+	const uint32 val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
 
 	return val;
 }

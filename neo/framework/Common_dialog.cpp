@@ -186,7 +186,7 @@ bool DialogMsgShouldWait
 There are a few dialog types that should pause so the user has the ability to read what's going on
 ========================
 */
-bool DialogMsgShouldWait( gameDialogMessages_t msg ) {
+bool DialogMsgShouldWait(const gameDialogMessages_t msg ) {
 	switch ( msg ) {
 		case GDM_SAVING:
 		case GDM_QUICK_SAVE:
@@ -204,9 +204,9 @@ bool DialogMsgShouldWait( gameDialogMessages_t msg ) {
 idCommonDialog::ClearDialogs
 ================================================
 */
-void idCommonDialog::ClearDialogs( bool forceClear ) {
+void idCommonDialog::ClearDialogs(const bool forceClear ) {
 	bool topMessageCleared = false;
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		if ( !messageList[index].leaveOnClear || forceClear ) {
 			ReleaseCallBacks( index );
 			messageList.RemoveIndex( index );
@@ -228,7 +228,7 @@ void idCommonDialog::ClearDialogs( bool forceClear ) {
 idCommonDialog::AddDialogIntVal
 ================================================
 */
-void idCommonDialog::AddDialogIntVal( const char * name, int val ) const
+void idCommonDialog::AddDialogIntVal( const char * name, const int val ) const
 {
 	if ( dialog != nullptr) {
 		dialog->SetGlobal( name, val );
@@ -240,9 +240,9 @@ void idCommonDialog::AddDialogIntVal( const char * name, int val ) const
 idCommonDialog::AddDialog
 ================================================
 */
-void idCommonDialog::AddDialog( gameDialogMessages_t msg, dialogType_t type, idSWFScriptFunction * acceptCallback, 
-								idSWFScriptFunction * cancelCallback, bool pause, const char * location, int lineNumber,
-								bool leaveOnMapHeapReset, bool waitOnAtlas, bool renderDuringLoad ) {
+void idCommonDialog::AddDialog(const gameDialogMessages_t msg, const dialogType_t type, idSWFScriptFunction * acceptCallback, 
+								idSWFScriptFunction * cancelCallback, const bool pause, const char * location, const int lineNumber,
+								const bool leaveOnMapHeapReset, bool waitOnAtlas, const bool renderDuringLoad ) {
 
 	idKeyInput::ClearStates();
 	
@@ -275,9 +275,9 @@ void idCommonDialog::AddDialog( gameDialogMessages_t msg, dialogType_t type, idS
 idCommonDialog::AddDynamicDialog
 ========================
 */
-void idCommonDialog::AddDynamicDialog( gameDialogMessages_t msg, const idStaticList< idSWFScriptFunction *, 4 > & callbacks, 
-										const idStaticList< idStrId, 4 > & optionText, bool pause, idStrStatic< 256 > overrideMsg,
-										bool leaveOnMapHeapReset, bool waitOnAtlas, bool renderDuringLoad ) {
+void idCommonDialog::AddDynamicDialog(const gameDialogMessages_t msg, const idStaticList< idSWFScriptFunction *, 4 > & callbacks, 
+										const idStaticList< idStrId, 4 > & optionText, const bool pause, idStrStatic< 256 > overrideMsg,
+										const bool leaveOnMapHeapReset, bool waitOnAtlas, const bool renderDuringLoad ) {
 	
 	if ( dialog == nullptr) {
 		return;
@@ -376,7 +376,7 @@ void idCommonDialog::AddDialogInternal( idDialogInfo & info ) {
 idCommonDialog::ActivateDialog
 ========================
 */
-void idCommonDialog::ActivateDialog( bool activate ) {
+void idCommonDialog::ActivateDialog(const bool activate ) {
 	dialogInUse = activate;
 	if ( dialog != nullptr) {
 		dialog->Activate( activate );
@@ -416,7 +416,7 @@ void idCommonDialog::ShowDialog( const idDialogInfo & info ) {
 	if ( info.acceptCB == nullptr && ( info.type != DIALOG_WAIT && info.type != DIALOG_WAIT_BLACKOUT ) ) {
 		class idSWFScriptFunction_Accept : public idSWFScriptFunction_RefCounted {
 		public:
-			idSWFScriptFunction_Accept( gameDialogMessages_t _msg ) {
+			idSWFScriptFunction_Accept(const gameDialogMessages_t _msg ) {
 				msg = _msg;
 			}
 			idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
@@ -450,7 +450,7 @@ idCommonDialog::ShowNextDialog
 ================================================
 */
 void idCommonDialog::ShowNextDialog() {
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		if ( !messageList[index].clear ) {
 			idDialogInfo info = messageList[index];
 			ShowDialog( info );
@@ -464,7 +464,7 @@ void idCommonDialog::ShowNextDialog() {
 idCommonDialog::ShowSaveIndicator
 ================================================
 */
-void idCommonDialog::ShowSaveIndicator( bool show ) {
+void idCommonDialog::ShowSaveIndicator(const bool show ) {
 	idLib::PrintfIf( popupDialog_debug.GetBool(), "[%s]\n", __FUNCTION__ );
 
 	if ( show ) {
@@ -490,7 +490,7 @@ Games must display a message during storage writes for the following conditions 
 */
 void idCommonDialog::RemoveWaitDialogs() {
 	bool topMessageCleared = false;
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		if ( DialogMsgShouldWait( messageList[index].msg ) ) {
 			if ( Sys_Milliseconds() >= messageList[index].killTime && messageList[index].waitClear ) {
 				messageList[index].clear = true;
@@ -513,7 +513,7 @@ idCommonDialog::ClearAllDialogHack
 ================================================
 */
 void idCommonDialog::ClearAllDialogHack() {
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		messageList[index].clear = true;
 		messageList[index].waitClear = false;
 	}
@@ -524,8 +524,8 @@ void idCommonDialog::ClearAllDialogHack() {
 idCommonDialog::HasDialogMsg
 ================================================
 */
-bool idCommonDialog::HasDialogMsg( gameDialogMessages_t msg, bool * isNowActive ) {
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+bool idCommonDialog::HasDialogMsg(const gameDialogMessages_t msg, bool * isNowActive ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		idDialogInfo & info = messageList[index];
 
 		if ( info.msg == msg && !info.clear ) {
@@ -548,10 +548,10 @@ bool idCommonDialog::HasDialogMsg( gameDialogMessages_t msg, bool * isNowActive 
 idCommonDialog::ClearDialog
 ================================================
 */
-void idCommonDialog::ClearDialog( gameDialogMessages_t msg, const char * location, int lineNumber ) {
+void idCommonDialog::ClearDialog(const gameDialogMessages_t msg, const char * location, const int lineNumber ) {
 	bool topMessageCleared = false;
 
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		idDialogInfo & info = messageList[index];
 
 		if ( info.msg == msg && !info.clear ) {
@@ -563,7 +563,7 @@ void idCommonDialog::ClearDialog( gameDialogMessages_t msg, const char * locatio
 					continue;
 				}
 
-				int timeShown = Sys_Milliseconds() - messageList[index].startTime;
+				ID_TIME_T timeShown = Sys_Milliseconds() - messageList[index].startTime;
 				
 				// for the time being always use the long saves
 				if ( timeShown < dialog_saveClearLevel.GetInteger() ) {
@@ -600,7 +600,7 @@ void idCommonDialog::ClearDialog( gameDialogMessages_t msg, const char * locatio
 idCommonDialog::ReleaseCallBacks
 ================================================
 */
-void idCommonDialog::ReleaseCallBacks( int index ) {
+void idCommonDialog::ReleaseCallBacks(const index_t index ) {
 
 	if ( index < messageList.Num() ) {
 		if ( messageList[index].acceptCB != nullptr) {
@@ -630,7 +630,7 @@ void idCommonDialog::ReleaseCallBacks( int index ) {
 idCommonDialog::Render
 ================================================
 */
-void idCommonDialog::Render( bool loading ) {
+void idCommonDialog::Render(const bool loading ) {
 
 	dialogPause = false;
 
@@ -641,7 +641,7 @@ void idCommonDialog::Render( bool loading ) {
 	RemoveWaitDialogs();
 
 	bool pauseCheck = false;
-	for ( int index = 0; index < messageList.Num(); ++index ) {
+	for ( index_t index = 0; index < messageList.Num(); ++index ) {
 		if ( messageList[index].clear ) {
 			idLib::PrintfIf( popupDialog_debug.GetBool(), "[%s] removing %s\n", __FUNCTION__, dialogStateToString[messageList[index].msg] );
 			ReleaseCallBacks( index );
@@ -670,9 +670,9 @@ void idCommonDialog::Render( bool loading ) {
 	}
 
 	if ( messageList.Num() > 0 && messageList[0].type == DIALOG_TIMER_ACCEPT_REVERT ) {
-		int startTime = messageList[0].startTime;
-		int endTime = startTime + PC_KEYBOARD_WAIT;
-		int timeRemaining = ( endTime - Sys_Milliseconds() ) / 1000;
+		ID_TIME_T startTime = messageList[0].startTime;
+		ID_TIME_T endTime = startTime + PC_KEYBOARD_WAIT;
+		ID_TIME_T timeRemaining = ( endTime - Sys_Milliseconds() ) / 1000;
 		
 		if ( timeRemaining <= 0 ) {
 			if ( messageList[0].cancelCB != nullptr) {

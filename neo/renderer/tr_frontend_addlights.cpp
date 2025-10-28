@@ -54,7 +54,7 @@ Pure function.
 ============================
 */
 void R_ShadowBounds( const idBounds & modelBounds, const idBounds & lightBounds, const idVec3 & lightOrigin, idBounds & shadowBounds ) {
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		shadowBounds[0][i] = __fsels( modelBounds[0][i] - lightOrigin[i], modelBounds[0][i], lightBounds[0][i] );
 		shadowBounds[1][i] = __fsels( lightOrigin[i] - modelBounds[1][i], modelBounds[1][i], lightBounds[1][i] );
 	}
@@ -218,10 +218,10 @@ static void R_AddSingleLight( viewLight_t * vLight ) {
 		float screenHeight = static_cast<float>(viewDef->viewport.y2) - static_cast<float>(viewDef->viewport.y1);
 
 		idScreenRect lightScissorRect;
-		lightScissorRect.x1 = idMath::Ftoi( projected[0][0] * screenWidth );
-		lightScissorRect.x2 = idMath::Ftoi( projected[1][0] * screenWidth );
-		lightScissorRect.y1 = idMath::Ftoi( projected[0][1] * screenHeight );
-		lightScissorRect.y2 = idMath::Ftoi( projected[1][1] * screenHeight );
+		lightScissorRect.x1 = numeric_cast<int>( projected[0][0] * screenWidth );
+		lightScissorRect.x2 = numeric_cast<int>( projected[1][0] * screenWidth );
+		lightScissorRect.y1 = numeric_cast<int>( projected[0][1] * screenHeight );
+		lightScissorRect.y2 = numeric_cast<int>( projected[1][1] * screenHeight );
 		lightScissorRect.Expand();
 
 		vLight->scissorRect.Intersect( lightScissorRect );
@@ -534,7 +534,7 @@ R_OptimizeViewLightsList
 */
 void R_OptimizeViewLightsList() {
 	// go through each visible light
-	int numViewLights = 0;
+	size_t numViewLights = 0;
 	for ( viewLight_t * vLight = tr.viewDef->viewLights; vLight != nullptr; vLight = vLight->next ) {
 		numViewLights++;
 		// If the light didn't have any lit surfaces visible, there is no need to
@@ -602,7 +602,7 @@ void R_OptimizeViewLightsList() {
 
 	// rebuild the linked list in order
 	tr.viewDef->viewLights = nullptr;
-	for ( int i = 0; i < numSortLightsFilled; i++ ) {
+	for ( size_t i = 0; i < numSortLightsFilled; i++ ) {
 		sortLights[i].vLight->next = tr.viewDef->viewLights;
 		tr.viewDef->viewLights = sortLights[i].vLight;
 	}

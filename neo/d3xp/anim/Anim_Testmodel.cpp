@@ -824,7 +824,7 @@ idTestModel::ArgCompletion_TestAnim
 void idTestModel::ArgCompletion_TestAnim( const idCmdArgs &args, void(*callback)( const char *s ) ) {
 	if ( gameLocal.testmodel ) {
 		idAnimator *animator = gameLocal.testmodel->GetAnimator();
-		for( int i = 0; i < animator->NumAnims(); i++ ) {
+		for ( size_t i = 0; i < animator->NumAnims(); i++ ) {
 			callback( va( "%s %s", args.Argv( 0 ), animator->AnimFullName( i ) ) );
 		}
 	}

@@ -54,7 +54,7 @@ public:
 	void					Restore( idRestoreGame *savefile );
 
 	void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			WriteToSnapshot( idBitMsg &msg ) const override;
 	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 
@@ -382,7 +382,7 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			Think() override;
 	void			PreBind() override;
 	void			PostBind() override;
@@ -451,7 +451,7 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 	void					RunPhysics_NoBlocking();
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			Think() override;
 	void			PreBind() override;
 	void			PostBind() override;

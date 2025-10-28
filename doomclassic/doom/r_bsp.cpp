@@ -88,10 +88,10 @@ void R_ClearDrawSegs (void)
 //  e.g. single sided LineDefs (middle texture)
 //  that entirely block the view.
 // 
-void
+static void
 R_ClipSolidWallSegment
-( int			first,
-  int			last )
+(const int			first,
+  const int			last )
 {
     cliprange_t*	next;
     cliprange_t*	start;
@@ -100,7 +100,9 @@ R_ClipSolidWallSegment
     //  (adjacent pixels are touching).
     start = ::g->solidsegs;
     while (start->last < first-1)
-		start++;
+    {
+	    start++;
+    }
 
     if (first < start->first)
     {
@@ -130,8 +132,10 @@ R_ClipSolidWallSegment
 
     // Bottom contained in start?
     if (last <= start->last)
-	return;			
-		
+    {
+	    return;
+    }
+
     next = start;
     while (last >= (next+1)->first-1)
     {
@@ -181,10 +185,10 @@ R_ClipSolidWallSegment
 // Does handle windows,
 //  e.g. LineDefs with upper and lower texture.
 //
-void
+static void
 R_ClipPassWallSegment
-( int	first,
-  int	last )
+(const int	first,
+  const int	last )
 {
     cliprange_t*	start;
 
@@ -192,7 +196,9 @@ R_ClipPassWallSegment
     //  (adjacent pixels are touching).
     start = ::g->solidsegs;
     while (start->last < first-1)
-	start++;
+    {
+	    start++;
+    }
 
     if (first < start->first)
     {
@@ -209,8 +215,10 @@ R_ClipPassWallSegment
 
     // Bottom contained in start?
     if (last <= start->last)
-	return;			
-		
+    {
+	    return;
+    }
+
     while (last >= (start+1)->first-1)
     {
 	// There is a fragment between two posts.
@@ -218,7 +226,9 @@ R_ClipPassWallSegment
 	start++;
 	
 	if (last <= start->last)
-	    return;
+	{
+		return;
+	}
     }
 	
     // There is a fragment after *next.
@@ -244,7 +254,7 @@ void R_ClearClipSegs (void)
 // Clips the given segment
 // and adds any visible pieces to the line list.
 //
-void R_AddLine (seg_t*	line)
+static void R_AddLine (seg_t*	line)
 {
     int			x1;
     int			x2;
@@ -265,9 +275,11 @@ void R_AddLine (seg_t*	line)
     
     // Back side? I.e. backface culling?
     if (span >= ANG180)
-		return;		
+    {
+	    return;
+    }
 
-	extern angle_t GetViewAngle();
+    extern angle_t GetViewAngle();
     // Global angle needed by segcalc.
     ::g->rw_angle1 = angle1;
     angle1 -= GetViewAngle();
@@ -280,8 +292,10 @@ void R_AddLine (seg_t*	line)
 
 		// Totally off the left edge?
 		if (tspan >= span)
+		{
 			return;
-		
+		}
+
 		angle1 = ::g->clipangle;
     }
     tspan = ::g->clipangle - angle2;
@@ -291,7 +305,9 @@ void R_AddLine (seg_t*	line)
 
 		// Totally off the left edge?
 		if (tspan >= span)
-			return;	
+		{
+			return;
+		}
 		angle2 = -::g->clipangle; // ALANHACK UNSIGNED
     }
     
@@ -304,24 +320,32 @@ void R_AddLine (seg_t*	line)
 
     // Does not cross a pixel?
     if (x1 == x2)
-		return;				
-	
+    {
+	    return;
+    }
+
     ::g->backsector = line->backsector;
 
     // Single sided line?
     if (!::g->backsector)
-		goto clipsolid;		
+    {
+	    goto clipsolid;
+    }
 
     // Closed door.
     if (::g->backsector->ceilingheight <= ::g->frontsector->floorheight
 	|| ::g->backsector->floorheight >= ::g->frontsector->ceilingheight)
-		goto clipsolid;		
+    {
+	    goto clipsolid;
+    }
 
     // Window.
     if (::g->backsector->ceilingheight != ::g->frontsector->ceilingheight
 	|| ::g->backsector->floorheight != ::g->frontsector->floorheight)
-		goto clippass;	
-		
+    {
+	    goto clippass;
+    }
+
     // Reject empty ::g->lines used for triggers
     //  and special ::g->events.
     // Identical floor and ceiling on both ::g->sides,
@@ -353,7 +377,7 @@ void R_AddLine (seg_t*	line)
 //
 
 
-qboolean R_CheckBBox (fixed_t*	bspcoord)
+static qboolean R_CheckBBox (fixed_t*	bspcoord)
 {
     int			boxx;
     int			boxy;
@@ -378,23 +402,37 @@ qboolean R_CheckBBox (fixed_t*	bspcoord)
     // Find the corners of the box
     // that define the edges from current viewpoint.
     if (GetViewX() <= bspcoord[BOXLEFT])
-	boxx = 0;
+    {
+	    boxx = 0;
+    }
     else if (GetViewX() < bspcoord[BOXRIGHT])
-	boxx = 1;
+    {
+	    boxx = 1;
+    }
     else
-	boxx = 2;
-		
+    {
+	    boxx = 2;
+    }
+
     if (GetViewY() >= bspcoord[BOXTOP])
-	boxy = 0;
+    {
+	    boxy = 0;
+    }
     else if (GetViewY() > bspcoord[BOXBOTTOM])
-	boxy = 1;
+    {
+	    boxy = 1;
+    }
     else
-	boxy = 2;
-		
+    {
+	    boxy = 2;
+    }
+
     boxpos = (boxy<<2)+boxx;
     if (boxpos == 5)
-	return true;
-	
+    {
+	    return true;
+    }
+
     x1 = bspcoord[::g->checkcoord[boxpos][0]];
     y1 = bspcoord[::g->checkcoord[boxpos][1]];
     x2 = bspcoord[::g->checkcoord[boxpos][2]];
@@ -409,8 +447,10 @@ qboolean R_CheckBBox (fixed_t*	bspcoord)
 
     // Sitting on a line?
     if (span >= ANG180)
-	return true;
-    
+    {
+	    return true;
+    }
+
     tspan = angle1 + ::g->clipangle;
 
     if (tspan > 2*::g->clipangle)
@@ -419,7 +459,9 @@ qboolean R_CheckBBox (fixed_t*	bspcoord)
 
 	// Totally off the left edge?
 	if (tspan >= span)
-	    return false;	
+	{
+		return false;
+	}
 
 	angle1 = ::g->clipangle;
     }
@@ -430,8 +472,10 @@ qboolean R_CheckBBox (fixed_t*	bspcoord)
 
 	// Totally off the left edge?
 	if (tspan >= span)
-	    return false;
-	
+	{
+		return false;
+	}
+
 	angle2 = -::g->clipangle;// ALANHACK UNSIGNED
     }
 
@@ -446,13 +490,17 @@ qboolean R_CheckBBox (fixed_t*	bspcoord)
 
     // Does not cross a pixel.
     if (sx1 == sx2)
-	return false;			
+    {
+	    return false;
+    }
     sx2--;
 	
     start = ::g->solidsegs;
     while (start->last < sx2)
-	start++;
-    
+    {
+	    start++;
+    }
+
     if (sx1 >= start->first
 	&& sx2 <= start->last)
     {
@@ -471,7 +519,7 @@ qboolean R_CheckBBox (fixed_t*	bspcoord)
 // Add ::g->sprites of things in sector.
 // Draw one or more line segments.
 //
-void R_Subsector (int num)
+static void R_Subsector (size_t num)
 {
     int			count;
     seg_t*		line;
@@ -479,9 +527,11 @@ void R_Subsector (int num)
 	
 #ifdef RANGECHECK
     if (num>=::g->numsubsectors)
-	I_Error ("R_Subsector: ss %i with numss = %i",
-		 num,
-		 ::g->numsubsectors);
+    {
+	    I_Error ("R_Subsector: ss %i with numss = %i",
+	             num,
+	             ::g->numsubsectors);
+    }
 #endif
 
     ::g->sscount++;
@@ -497,8 +547,10 @@ void R_Subsector (int num)
 					::g->frontsector->lightlevel);
     }
     else
-		::g->floorplane = NULL;
-    
+    {
+	    ::g->floorplane = nullptr;
+    }
+
     if (::g->frontsector->ceilingheight > ::g->viewz 
 	|| ::g->frontsector->ceilingpic == ::g->skyflatnum)
     {
@@ -507,8 +559,10 @@ void R_Subsector (int num)
 						::g->frontsector->lightlevel);
     }
     else
-		::g->ceilingplane = NULL;
-		
+    {
+	    ::g->ceilingplane = nullptr;
+    }
+
     R_AddSprites (::g->frontsector);	
 
     while (count--)
@@ -526,7 +580,7 @@ void R_Subsector (int num)
 // Renders all ::g->subsectors below a given node,
 //  traversing subtree recursively.
 // Just call with BSP root.
-void R_RenderBSPNode (int bspnum)
+void R_RenderBSPNode (const int bspnum)
 {
     node_t*	bsp;
     int		side;
@@ -534,10 +588,14 @@ void R_RenderBSPNode (int bspnum)
     // Found a subsector?
     if (bspnum & NF_SUBSECTOR)
     {
-	if (bspnum == -1)			
-	    R_Subsector (0);
+	if (bspnum == -1)
+	{
+		R_Subsector (0);
+	}
 	else
-	    R_Subsector (bspnum&(~NF_SUBSECTOR));
+	{
+		R_Subsector (bspnum&(~NF_SUBSECTOR));
+	}
 	return;
     }
 		
@@ -551,8 +609,10 @@ void R_RenderBSPNode (int bspnum)
     R_RenderBSPNode (bsp->children[side]); 
 
     // Possibly divide back space.
-    if (R_CheckBBox (bsp->bbox[side^1]))	
-	R_RenderBSPNode (bsp->children[side^1]);
+    if (R_CheckBBox (bsp->bbox[side^1]))
+    {
+	    R_RenderBSPNode (bsp->children[side^1]);
+    }
 }
 
 

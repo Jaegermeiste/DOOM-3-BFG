@@ -111,7 +111,7 @@ public:
 	// Gets a vertex of a model.
 	virtual bool			GetModelVertex( cmHandle_t model, int vertexNum, idVec3 &vertex ) const = 0;
 	// Gets an edge of a model.
-	virtual bool			GetModelEdge( cmHandle_t model, int edgeNum, idVec3 &start, idVec3 &end ) const = 0;
+	virtual bool			GetModelEdge( cmHandle_t model, index_t edgeNum, idVec3 &start, idVec3 &end ) const = 0;
 	// Gets a polygon of a model.
 	virtual bool			GetModelPolygon( cmHandle_t model, int polygonNum, idFixedWinding &winding ) const = 0;
 
@@ -128,7 +128,7 @@ public:
 								const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
 								cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) = 0;
 	// Stores all contact points of the trace model with the model, returns the number of contacts.
-	virtual int				Contacts( contactInfo_t *contacts, const int maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
+	virtual int				Contacts( contactInfo_t *contacts, const size_t maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
 								const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
 								cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) = 0;
 

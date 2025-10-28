@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_EVENT__
 #define __D_EVENT__
 
+#pragma once
 
 #include "doomtype.h"
 
@@ -38,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 // Input event types.
-typedef enum
+typedef enum evtype_e : uint8
 {
     ev_keydown,
     ev_keyup,
@@ -48,7 +49,7 @@ typedef enum
 } evtype_t;
 
 // Event structure.
-typedef struct
+typedef struct event_s
 {
     evtype_t	type;
     int		data1;		// keys / mouse/joystick buttons
@@ -57,7 +58,7 @@ typedef struct
 } event_t;
 
  
-typedef enum
+typedef enum gameaction_e : uint8
 {
     ga_nothing,
     ga_loadlevel,
@@ -76,7 +77,7 @@ typedef enum
 //
 // Button/action code definitions.
 //
-typedef enum
+typedef enum buttoncode_e : uint8
 {
     // Press "Fire".
     BT_ATTACK		= 1,
@@ -112,7 +113,7 @@ typedef enum
 //
 // GLOBAL VARIABLES
 //
-#define MAXEVENTS		64
+constexpr auto MAXEVENTS = 64;
 
 extern  event_t		events[MAXEVENTS];
 extern  int             eventhead;

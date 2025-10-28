@@ -52,9 +52,9 @@ class idFile_SaveGame : public idFile_Memory {
 public:
 	idFile_SaveGame() noexcept : type( SAVEGAMEFILE_NONE ), error( false ) {}
 	idFile_SaveGame( const char * _name ) : idFile_Memory( _name ), type( SAVEGAMEFILE_NONE ), error( false ) {}
-	idFile_SaveGame( const char * _name, int type_ ) : idFile_Memory( _name ), type( type_ ), error( false ) {}
+	idFile_SaveGame( const char * _name, const int type_ ) : idFile_Memory( _name ), type( type_ ), error( false ) {}
 
-	virtual ~idFile_SaveGame() { }
+	~idFile_SaveGame() override { }
 
 	bool operator==( const idFile_SaveGame & other ) const {
 		return idStr::Icmp( GetName(), other.GetName() ) == 0;
@@ -62,7 +62,7 @@ public:
 	bool operator==( const char * _name ) const {
 		return idStr::Icmp( GetName(), _name ) == 0;
 	}
-	void SetNameAndType( const char *_name, int _type ) {
+	void SetNameAndType( const char *_name, const int _type ) {
 		name = _name;
 		type = _type;
 	}
@@ -98,7 +98,7 @@ public:
 
 
 							idFile_SaveGamePipelined();
-	virtual					~idFile_SaveGamePipelined();
+	~idFile_SaveGamePipelined() override;
 
 	bool					OpenForReading( const char * const filename, bool useNativeFile );
 	bool					OpenForWriting( const char * const filename, bool useNativeFile );
@@ -120,24 +120,27 @@ public:
 	
 	bool					ReadSaveFormatVersion();
 	[[nodiscard]] int						GetSaveFormatVersion() const { return saveFormatVersion; }
-	[[nodiscard]] int						GetPointerSize() const;
+	[[nodiscard]] size_t	GetPointerSize() const;
 
 	//------------------------
 	// idFile Interface
 	//------------------------
 
-	[[nodiscard]] virtual const char *	GetName() const { return name.c_str(); }
-	[[nodiscard]] virtual const char *	GetFullPath() const	{ return name.c_str(); }
-	virtual int				Read( void * buffer, int len );
-	virtual int				Write( const void * buffer, int len );
+	[[nodiscard]] const char *	GetName() const override { return name.c_str(); }
+	[[nodiscard]] const char *	GetFullPath() const override { return name.c_str(); }
+	size_t				Read( void * buffer, size_t len ) override;
+	size_t				Write( const void * buffer, size_t len ) override;
 
 	// this file is strictly streaming, you can't seek at all
-	[[nodiscard]] virtual size_t			Length() const  { return compressedLength; }
-	virtual void			SetLength( size_t len ) { compressedLength = len; }
-	[[nodiscard]] virtual size_t			Tell() const { assert( 0 ); return 0; }
-	virtual int				Seek( long offset, fsOrigin_t origin ) { assert( 0 ); return 0; }
+	[[nodiscard]] size_t			Length() const override { return compressedLength; }
+	virtual void			SetLength(const size_t len ) { compressedLength = len; }
+	[[nodiscard]] size_t			Tell() const override
+	{ assert( 0 ); return 0; }
 
-	[[nodiscard]] virtual ID_TIME_T		Timestamp()	const { return 0; }
+	int64				Seek( size_t offset, fsOrigin_t origin ) override
+	{ assert( 0 ); return 0; }
+
+	[[nodiscard]] ID_TIME_T Timestamp()	const override { return 0; }
 
 	//------------------------
 	// These can be used by a background thread to read/write data
@@ -230,7 +233,7 @@ private:
 	idSysSignal				blockFinished;
 
 	idStrStatic< 32 >		buildVersion;		// build version this file was saved with
-	int16					pointerSize;		// the number of bytes in a pointer, because different pointer sizes mean different offsets into objects a 64 bit build cannot load games saved from a 32 bit build or vice version (a value of 0 is interpreted as 4 bytes)
+	size_t					pointerSize;		// the number of bytes in a pointer, because different pointer sizes mean different offsets into objects a 64 bit build cannot load games saved from a 32 bit build or vice version (a value of 0 is interpreted as 4 bytes)
 	int16					saveFormatVersion;	// version number specific to save games (for maintaining save compatibility across builds)
 
 	//------------------------

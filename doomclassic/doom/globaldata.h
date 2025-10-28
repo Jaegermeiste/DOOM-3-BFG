@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _GLOBAL_DATA_H
 #define _GLOBAL_DATA_H
 
+#pragma once
 
 #include "doomtype.h"
 #include "d_net.h"

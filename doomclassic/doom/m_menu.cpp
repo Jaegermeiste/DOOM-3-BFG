@@ -124,7 +124,7 @@ const char gammamsg[5][26] =
 
 // graphic name of skulls
 // warning: initializer-string for array of chars is too long
-char    skullName[2][/*8*/9] = 
+static char    skullName[2][/*8*/9] = 
 {
 	"M_SKULL1","M_SKULL2"
 };
@@ -134,62 +134,62 @@ char    skullName[2][/*8*/9] =
 //
 // PROTOTYPES
 //
-void M_NewGame(int choice);
-void M_Episode(int choice);
-void M_Expansion(int choice);
-void M_ChooseSkill(int choice);
-void M_LoadGame(int choice);
-void M_LoadExpansion(int choice);
-void M_SaveGame(int choice);
-void M_Options(int choice);
-void M_EndGame(int choice);
-void M_ReadThis(int choice);
-void M_ReadThis2(int choice);
-void M_QuitDOOM(int choice);
-void M_ExitGame(int choice);
-void M_GameSelection(int choice);
-void M_CancelExit(int choice);
-void M_ChangeMessages(int choice);
-void M_ChangeGPad(int choice);
-void M_FullScreen(int choice);
-void M_ChangeSensitivity(int choice);
-void M_SfxVol(int choice);
-void M_MusicVol(int choice);
-void M_ChangeDetail(int choice);
-void M_SizeDisplay(int choice);
+static void M_NewGame(int choice);
+static void M_Episode(int choice);
+static void M_Expansion(int choice);
+static void M_ChooseSkill(int choice);
+static void M_LoadGame(int choice);
+static void M_LoadExpansion(int choice);
+static void M_SaveGame(int choice);
+static void M_Options(int choice);
+static void M_EndGame(int choice);
+static void M_ReadThis(int choice);
+static void M_ReadThis2(int choice);
+static void M_QuitDOOM(int choice);
+static void M_ExitGame(int choice);
+static void M_GameSelection(int choice);
+static void M_CancelExit(int choice);
+static void M_ChangeMessages(int choice);
+static void M_ChangeGPad(int choice);
+static void M_FullScreen(int choice);
+static void M_ChangeSensitivity(int choice);
+static void M_SfxVol(int choice);
+static void M_MusicVol(int choice);
+static void M_ChangeDetail(int choice);
+static void M_SizeDisplay(int choice);
 void M_StartGame(int choice);
-void M_Sound(int choice);
+static void M_Sound(int choice);
 
-void M_FinishReadThis(int choice);
-void M_LoadSelect(int choice);
-void M_SaveSelect(int choice);
-void M_ReadSaveStrings(void);
-void M_QuickSave(void);
-void M_QuickLoad(void);
+static void M_FinishReadThis(int choice);
+static void M_LoadSelect(int choice);
+static void M_SaveSelect(int choice);
+static void M_ReadSaveStrings(void);
+static void M_QuickSave(void);
+static void M_QuickLoad(void);
 
-void M_DrawMainMenu(void);
-void M_DrawQuit(void);
-void M_DrawReadThis1(void);
-void M_DrawReadThis2(void);
-void M_DrawNewGame(void);
-void M_DrawEpisode(void);
-void M_DrawOptions(void);
-void M_DrawSound(void);
-void M_DrawLoad(void);
-void M_DrawSave(void);
+static void M_DrawMainMenu(void);
+static void M_DrawQuit(void);
+static void M_DrawReadThis1(void);
+static void M_DrawReadThis2(void);
+static void M_DrawNewGame(void);
+static void M_DrawEpisode(void);
+static void M_DrawOptions(void);
+static void M_DrawSound(void);
+static void M_DrawLoad(void);
+static void M_DrawSave(void);
 
-void M_DrawSaveLoadBorder(int x,int y);
-void M_SetupNextMenu(menu_t *menudef);
-void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
-void M_DrawEmptyCell(menu_t *menu,int item);
-void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, char *string);
-int  M_StringWidth(char *string);
-int  M_StringHeight(char *string);
+static void M_DrawSaveLoadBorder(int x,int y);
+static void M_SetupNextMenu(menu_t *menudef);
+static void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
+static void M_DrawEmptyCell(menu_t *menu,int item);
+static void M_DrawSelCell(menu_t *menu,int item);
+static void M_WriteText(int x, int y, char *string);
+static int  M_StringWidth(char *string);
+static int  M_StringHeight(char *string);
 void M_StartControlPanel(void);
-void M_StartMessage(char *string,messageRoutine_t routine,qboolean input);
-void M_StopMessage(void);
-void M_ClearMenus (void);
+static void M_StartMessage(char *string,messageRoutine_t routine,qboolean input);
+static void M_StopMessage(void);
+static void M_ClearMenus (void);
 
 
 
@@ -271,7 +271,7 @@ void M_ReadSaveStrings(void)
 		}
 
 		handle = fileSystem->OpenFileRead ( name, false );
-		if (handle == NULL)
+		if (handle == nullptr)
 		{
 			strcpy(&::g->savegamestrings[i][0],EMPTYSTRING);
 			::g->LoadMenu[i].status = 0;
@@ -292,7 +292,7 @@ void M_DrawLoad(void)
 {
 	int             i;
 
-	V_DrawPatchDirect (72,28,0,(patch_t*)W_CacheLumpName("M_LOADG",PU_CACHE_SHARED));
+	V_DrawPatchDirect (72,28,0,static_cast<patch_t*>(W_CacheLumpName("M_LOADG",PU_CACHE_SHARED)));
 	for (i = 0;i < load_end; i++)
 	{
 		M_DrawSaveLoadBorder(::g->LoadDef.x,::g->LoadDef.y+LINEHEIGHT*i);
@@ -305,19 +305,19 @@ void M_DrawLoad(void)
 //
 // Draw border for the savegame description
 //
-void M_DrawSaveLoadBorder(int x,int y)
+void M_DrawSaveLoadBorder(int x, const int y)
 {
 	int             i;
 
-	V_DrawPatchDirect (x-8,y+7,0,(patch_t*)W_CacheLumpName("M_LSLEFT",PU_CACHE_SHARED));
+	V_DrawPatchDirect (x-8,y+7,0,static_cast<patch_t*>(W_CacheLumpName("M_LSLEFT",PU_CACHE_SHARED)));
 
 	for (i = 0;i < 28;i++)
 	{
-		V_DrawPatchDirect (x,y+7,0,(patch_t*)W_CacheLumpName("M_LSCNTR",PU_CACHE_SHARED));
+		V_DrawPatchDirect (x,y+7,0,static_cast<patch_t*>(W_CacheLumpName("M_LSCNTR",PU_CACHE_SHARED)));
 		x += 8;
 	}
 
-	V_DrawPatchDirect (x,y+7,0,(patch_t*)W_CacheLumpName("M_LSRGHT",PU_CACHE_SHARED));
+	V_DrawPatchDirect (x,y+7,0,static_cast<patch_t*>(W_CacheLumpName("M_LSRGHT",PU_CACHE_SHARED)));
 }
 
 
@@ -325,7 +325,7 @@ void M_DrawSaveLoadBorder(int x,int y)
 //
 // User wants to load this game
 //
-void M_LoadSelect(int choice)
+void M_LoadSelect(const int choice)
 {
 	if( ::g->gamemode != commercial ) {
 		G_LoadGame ( ::g->savegamepaths[ choice ] );
@@ -338,7 +338,7 @@ void M_LoadSelect(int choice)
 }
 
 
-void M_LoadExpansion(int choice)
+void M_LoadExpansion(const int choice)
 {
 	::g->exp = choice;
 
@@ -359,7 +359,7 @@ void M_LoadGame (int choice)
 {
 	if (::g->netgame)
 	{
-		M_StartMessage(LOADNET,NULL,false);
+		M_StartMessage(LOADNET, nullptr,false);
 		return;
 	}
 
@@ -380,7 +380,7 @@ void M_DrawSave(void)
 {
 	int             i;
 
-	V_DrawPatchDirect (72,28,0,(patch_t*)W_CacheLumpName("M_SAVEG",PU_CACHE_SHARED));
+	V_DrawPatchDirect (72,28,0,static_cast<patch_t*>(W_CacheLumpName("M_SAVEG",PU_CACHE_SHARED)));
 	for (i = 0;i < load_end; i++)
 	{
 		M_DrawSaveLoadBorder(::g->LoadDef.x,::g->LoadDef.y+LINEHEIGHT*i);
@@ -397,14 +397,16 @@ void M_DrawSave(void)
 //
 // M_Responder calls this when user is finished
 //
-void M_DoSave(int slot)
+static void M_DoSave(const int slot)
 {
 	G_SaveGame (slot,::g->savegamestrings[slot]);
 	M_ClearMenus ();
 
 	// PICK QUICKSAVE SLOT YET?
 	if (::g->quickSaveSlot == -2)
+	{
 		::g->quickSaveSlot = slot;
+	}
 }
 
 //
@@ -415,7 +417,7 @@ void M_DoSave(int slot)
 //
 extern const char* mapnames[];
 extern const char* mapnames2[];
-void M_SaveSelect(int choice)
+void M_SaveSelect(const int choice)
 {
 	const char* s;
 	const ExpansionData* exp = DoomLib::GetCurrentExpansion();
@@ -445,7 +447,7 @@ void M_SaveGame (int choice)
 {
 	if (!::g->usergame)
 	{
-		M_StartMessage(SAVEDEAD,NULL,false);
+		M_StartMessage(SAVEDEAD, nullptr,false);
 		return;
 	}
 	else if( ::g->plyr && ::g->plyr->mo && ::g->plyr->mo->health <= 0 ) {
@@ -455,7 +457,9 @@ void M_SaveGame (int choice)
 
 
 	if (::g->gamestate != GS_LEVEL)
+	{
 		return;
+	}
 
 	// Reset back to what expansion we are currently playing.
 	DoomLib::SetIdealExpansion( DoomLib::expansionSelected );
@@ -470,12 +474,12 @@ void M_SaveGame (int choice)
 //      M_QuickSave
 //
 
-void M_QuickSaveResponse(int ch)
+static void M_QuickSaveResponse(const int ch)
 {
 	if (ch == KEY_ENTER)
 	{
 		M_DoSave(::g->quickSaveSlot);
-		S_StartSound(NULL,sfx_swtchx);
+		S_StartSound(nullptr,sfx_swtchx);
 	}
 }
 
@@ -483,12 +487,14 @@ void M_QuickSave(void)
 {
 	if (!::g->usergame)
 	{
-		S_StartSound(NULL,sfx_oof);
+		S_StartSound(nullptr,sfx_oof);
 		return;
 	}
 
 	if (::g->gamestate != GS_LEVEL)
+	{
 		return;
+	}
 
 	if (::g->quickSaveSlot < 0)
 	{
@@ -507,12 +513,12 @@ void M_QuickSave(void)
 //
 // M_QuickLoad
 //
-void M_QuickLoadResponse(int ch)
+static void M_QuickLoadResponse(const int ch)
 {
 	if (ch == KEY_ENTER)
 	{
 		M_LoadSelect(::g->quickSaveSlot);
-		S_StartSound(NULL,sfx_swtchx);
+		S_StartSound(nullptr,sfx_swtchx);
 	}
 }
 
@@ -521,13 +527,13 @@ void M_QuickLoad(void)
 {
 	if (::g->netgame)
 	{
-		M_StartMessage(QLOADNET,NULL,false);
+		M_StartMessage(QLOADNET, nullptr,false);
 		return;
 	}
 
 	if (::g->quickSaveSlot < 0)
 	{
-		M_StartMessage(QSAVESPOT,NULL,false);
+		M_StartMessage(QSAVESPOT, nullptr,false);
 		return;
 	}
 	sprintf(::g->tempstring,QLPROMPT,::g->savegamestrings[::g->quickSaveSlot]);
@@ -547,12 +553,12 @@ void M_DrawReadThis1(void)
 	switch ( ::g->gamemode )
 	{
 	case commercial:
-		V_DrawPatchDirect (0,0,0,(patch_t*)W_CacheLumpName("HELP",PU_CACHE_SHARED));
+		V_DrawPatchDirect (0,0,0,static_cast<patch_t*>(W_CacheLumpName("HELP",PU_CACHE_SHARED)));
 		break;
 	case shareware:
 	case registered:
 	case retail:
-		V_DrawPatchDirect (0,0,0,(patch_t*)W_CacheLumpName("HELP1",PU_CACHE_SHARED));
+		V_DrawPatchDirect (0,0,0,static_cast<patch_t*>(W_CacheLumpName("HELP1",PU_CACHE_SHARED)));
 		break;
 	default:
 		break;
@@ -573,11 +579,11 @@ void M_DrawReadThis2(void)
 	case retail:
 	case commercial:
 		// This hack keeps us from having to change menus.
-		V_DrawPatchDirect (0,0,0,(patch_t*)W_CacheLumpName("CREDIT",PU_CACHE_SHARED));
+		V_DrawPatchDirect (0,0,0,static_cast<patch_t*>(W_CacheLumpName("CREDIT",PU_CACHE_SHARED)));
 		break;
 	case shareware:
 	case registered:
-		V_DrawPatchDirect (0,0,0,(patch_t*)W_CacheLumpName("HELP2",PU_CACHE_SHARED));
+		V_DrawPatchDirect (0,0,0,static_cast<patch_t*>(W_CacheLumpName("HELP2",PU_CACHE_SHARED)));
 		break;
 	default:
 		break;
@@ -591,7 +597,7 @@ void M_DrawReadThis2(void)
 //
 void M_DrawSound(void)
 {
-	V_DrawPatchDirect (60,38,0,(patch_t*)W_CacheLumpName("M_SVOL",PU_CACHE_SHARED));
+	V_DrawPatchDirect (60,38,0,static_cast<patch_t*>(W_CacheLumpName("M_SVOL",PU_CACHE_SHARED)));
 
 	M_DrawThermo( ::g->SoundDef.x,::g->SoundDef.y+LINEHEIGHT*(sfx_vol+1),
 		16, s_volume_sound.GetInteger() );
@@ -605,7 +611,7 @@ void M_Sound(int choice)
 	M_SetupNextMenu(&::g->SoundDef);
 }
 
-void M_SfxVol(int choice)
+void M_SfxVol(const int choice)
 {
 	switch(choice)
 	{
@@ -620,7 +626,7 @@ void M_SfxVol(int choice)
 	S_SetSfxVolume( s_volume_sound.GetInteger() );
 }
 
-void M_MusicVol(int choice)
+void M_MusicVol(const int choice)
 {
 	switch(choice)
 	{
@@ -643,14 +649,14 @@ void M_MusicVol(int choice)
 //
 void M_DrawMainMenu(void)
 {
-	V_DrawPatchDirect (94,2,0,(patch_t*)W_CacheLumpName("M_DOOM",PU_CACHE_SHARED));
+	V_DrawPatchDirect (94,2,0,static_cast<patch_t*>(W_CacheLumpName("M_DOOM",PU_CACHE_SHARED)));
 }
 
 //
 // M_DrawQuit
 //
 void M_DrawQuit(void) {
-	V_DrawPatchDirect (54,38,0,(patch_t*)W_CacheLumpName("M_EXITO",PU_CACHE_SHARED));
+	V_DrawPatchDirect (54,38,0,static_cast<patch_t*>(W_CacheLumpName("M_EXITO",PU_CACHE_SHARED)));
 }
 
 
@@ -660,22 +666,26 @@ void M_DrawQuit(void) {
 //
 void M_DrawNewGame(void)
 {
-	V_DrawPatchDirect (96,14,0,(patch_t*)W_CacheLumpName("M_NEWG",PU_CACHE_SHARED));
-	V_DrawPatchDirect (54,38,0,(patch_t*)W_CacheLumpName("M_SKILL",PU_CACHE_SHARED));
+	V_DrawPatchDirect (96,14,0,static_cast<patch_t*>(W_CacheLumpName("M_NEWG",PU_CACHE_SHARED)));
+	V_DrawPatchDirect (54,38,0,static_cast<patch_t*>(W_CacheLumpName("M_SKILL",PU_CACHE_SHARED)));
 }
 
 void M_NewGame(int choice)
 {
 	if (::g->netgame && !::g->demoplayback)
 	{
-		M_StartMessage(NEWGAME,NULL,false);
+		M_StartMessage(NEWGAME, nullptr,false);
 		return;
 	}
 
 	if ( ::g->gamemode == commercial )
-		M_SetupNextMenu(&::g->ExpDef); 
+	{
+		M_SetupNextMenu(&::g->ExpDef);
+	}
 	else
+	{
 		M_SetupNextMenu(&::g->EpiDef);
+	}
 }
 
 
@@ -685,15 +695,17 @@ void M_NewGame(int choice)
 
 void M_DrawEpisode(void)
 {
-	V_DrawPatchDirect (54,38,0,(patch_t*)W_CacheLumpName("M_EPISOD",PU_CACHE_SHARED));
+	V_DrawPatchDirect (54,38,0,static_cast<patch_t*>(W_CacheLumpName("M_EPISOD",PU_CACHE_SHARED)));
 }
 
-void M_VerifyNightmare(int ch)
+static void M_VerifyNightmare(const int ch)
 {
 	if (ch != KEY_ENTER)
+	{
 		return;
+	}
 
-	G_DeferedInitNew((skill_t)nightmare,::g->epi+1, 1);
+	G_DeferedInitNew(static_cast<skill_t>(nightmare),::g->epi+1, 1);
 	M_ClearMenus ();
 }
 
@@ -708,7 +720,7 @@ void M_ChooseSkill(int choice)
 	*/
 	if ( ::g->gamemode != commercial ) {
 		static int startLevel = 1;
-		G_DeferedInitNew((skill_t)choice,::g->epi+1, startLevel);
+		G_DeferedInitNew(static_cast<skill_t>(choice),::g->epi+1, startLevel);
 		M_ClearMenus ();
 	} else {
 		DoomLib::SetCurrentExpansion( DoomLib::idealExpansion );
@@ -732,7 +744,7 @@ void M_Episode(int choice)
 	M_SetupNextMenu(&::g->NewDef);
 }
 
-void M_Expansion(int choice)
+void M_Expansion(const int choice)
 {
 	::g->exp = choice;
 
@@ -748,17 +760,17 @@ void M_Expansion(int choice)
 //
 // M_Options
 //
-char    detailNames[2][9]	= 
+static char    detailNames[2][9]	= 
 {
 "M_GDHIGH","M_GDLOW"
 };
 
-char	msgNames[2][9]		= 
+static char	msgNames[2][9]		= 
 {
 "M_MSGOFF","M_MSGON"
 };
 
-int M_GetMouseSpeedForMenu( float cvarValue ) {
+static int M_GetMouseSpeedForMenu(const float cvarValue ) {
 	const float shiftedMouseSpeed = cvarValue - 0.25f;
 	const float normalizedMouseSpeed = shiftedMouseSpeed / ( 4.0f - 0.25 );
 	const float scaledMouseSpeed = normalizedMouseSpeed * 15.0f;
@@ -769,21 +781,21 @@ int M_GetMouseSpeedForMenu( float cvarValue ) {
 
 void M_DrawOptions(void)
 {
-	V_DrawPatchDirect (108,15,0,(patch_t*)W_CacheLumpName("M_OPTTTL",PU_CACHE_SHARED));
+	V_DrawPatchDirect (108,15,0,static_cast<patch_t*>(W_CacheLumpName("M_OPTTTL",PU_CACHE_SHARED)));
 
 	//V_DrawPatchDirect (::g->OptionsDef.x + 175,::g->OptionsDef.y+LINEHEIGHT*detail,0,
 	//	(patch_t*)W_CacheLumpName(detailNames[::g->detailLevel],PU_CACHE_SHARED));
 
-	int fullscreenOnOff = r_fullscreen.GetInteger() >= 1 ? 1 : 0;
+	const int fullscreenOnOff = r_fullscreen.GetInteger() >= 1 ? 1 : 0;
 
 	V_DrawPatchDirect (::g->OptionsDef.x + 150,::g->OptionsDef.y+LINEHEIGHT*endgame,0,
-		(patch_t*)W_CacheLumpName(msgNames[fullscreenOnOff],PU_CACHE_SHARED));
+		static_cast<patch_t*>(W_CacheLumpName(msgNames[fullscreenOnOff],PU_CACHE_SHARED)));
 
 	V_DrawPatchDirect (::g->OptionsDef.x + 120,::g->OptionsDef.y+LINEHEIGHT*scrnsize,0,
-		(patch_t*)W_CacheLumpName(msgNames[in_useJoystick.GetInteger()],PU_CACHE_SHARED));
+		static_cast<patch_t*>(W_CacheLumpName(msgNames[in_useJoystick.GetInteger()],PU_CACHE_SHARED)));
 
 	V_DrawPatchDirect (::g->OptionsDef.x + 120,::g->OptionsDef.y+LINEHEIGHT*messages,0,
-		(patch_t*)W_CacheLumpName(msgNames[m_show_messages.GetInteger()],PU_CACHE_SHARED));
+		static_cast<patch_t*>(W_CacheLumpName(msgNames[m_show_messages.GetInteger()],PU_CACHE_SHARED)));
 
 	extern idCVar in_mouseSpeed;
 	const int roundedMouseSpeed = M_GetMouseSpeedForMenu( in_mouseSpeed.GetFloat() );
@@ -811,9 +823,13 @@ void M_ChangeMessages(int choice)
 	m_show_messages.SetBool( !m_show_messages.GetBool() );
 
 	if (!m_show_messages.GetBool())
+	{
 		::g->players[::g->consoleplayer].message = MSGOFF;
+	}
 	else
+	{
 		::g->players[::g->consoleplayer].message = MSGON ;
+	}
 
 	::g->message_dontfuckwithme = true;
 }
@@ -842,10 +858,12 @@ void M_FullScreen( int choice ) {
 //
 // M_EndGame
 //
-void M_EndGameResponse(int ch)
+static void M_EndGameResponse(const int ch)
 {
 	if (ch != KEY_ENTER)
+	{
 		return;
+	}
 
 	::g->currentMenu->lastOn = ::g->itemOn;
 	M_ClearMenus ();
@@ -857,13 +875,13 @@ void M_EndGame(int choice)
 	choice = 0;
 	if (!::g->usergame)
 	{
-		S_StartSound(NULL,sfx_oof);
+		S_StartSound(nullptr,sfx_oof);
 		return;
 	}
 
 	if (::g->netgame)
 	{
-		M_StartMessage(NETEND,NULL,false);
+		M_StartMessage(NETEND, nullptr,false);
 		return;
 	}
 
@@ -898,7 +916,7 @@ void M_FinishReadThis(int choice)
 //
 // M_QuitDOOM
 //
-void M_QuitResponse(int ch)
+static void M_QuitResponse(int ch)
 {
 	// Exceptions disabled by default on PS3
 	//throw "";
@@ -925,7 +943,7 @@ void M_GameSelection(int choice)
 	common->SwitchToGame( DOOM3_BFG );
 }
 
-void M_ChangeSensitivity(int choice)
+void M_ChangeSensitivity(const int choice)
 {
 	extern idCVar in_mouseSpeed;
 
@@ -974,7 +992,7 @@ void M_ChangeDetail(int choice)
 
 
 
-void M_SizeDisplay(int choice)
+void M_SizeDisplay(const int choice)
 {
 	switch(choice)
 	{
@@ -1006,26 +1024,26 @@ void M_SizeDisplay(int choice)
 //
 void
 M_DrawThermo
-( int	x,
- int	y,
- int	thermWidth,
- int	thermDot )
+(const int	x,
+ const int	y,
+ const int	thermWidth,
+ const int	thermDot )
 {
 	int		xx;
 	int		i;
 
 	xx = x;
-	V_DrawPatchDirect (xx,y,0,(patch_t*)W_CacheLumpName("M_THERML",PU_CACHE_SHARED));
+	V_DrawPatchDirect (xx,y,0,static_cast<patch_t*>(W_CacheLumpName("M_THERML",PU_CACHE_SHARED)));
 	xx += 8;
 	for (i=0;i<thermWidth;i++)
 	{
-		V_DrawPatchDirect (xx,y,0,(patch_t*)W_CacheLumpName("M_THERMM",PU_CACHE_SHARED));
+		V_DrawPatchDirect (xx,y,0,static_cast<patch_t*>(W_CacheLumpName("M_THERMM",PU_CACHE_SHARED)));
 		xx += 8;
 	}
-	V_DrawPatchDirect (xx,y,0,(patch_t*)W_CacheLumpName("M_THERMR",PU_CACHE_SHARED));
+	V_DrawPatchDirect (xx,y,0,static_cast<patch_t*>(W_CacheLumpName("M_THERMR",PU_CACHE_SHARED)));
 
 	V_DrawPatchDirect ((x+8) + thermDot*8,y,
-		0,(patch_t*)W_CacheLumpName("M_THERMO",PU_CACHE_SHARED));
+		0,static_cast<patch_t*>(W_CacheLumpName("M_THERMO",PU_CACHE_SHARED)));
 }
 
 
@@ -1033,32 +1051,32 @@ M_DrawThermo
 void
 M_DrawEmptyCell
 ( menu_t*	menu,
- int		item )
+ const int		item )
 {
 	V_DrawPatchDirect (menu->x - 10,        menu->y+item*LINEHEIGHT - 1, 0,
-		(patch_t*)W_CacheLumpName("M_CELL1",PU_CACHE_SHARED));
+		static_cast<patch_t*>(W_CacheLumpName("M_CELL1",PU_CACHE_SHARED)));
 }
 
 void
 M_DrawSelCell
 ( menu_t*	menu,
- int		item )
+ const int		item )
 {
 	V_DrawPatchDirect (menu->x - 10,        menu->y+item*LINEHEIGHT - 1, 0,
-		(patch_t*)W_CacheLumpName("M_CELL2",PU_CACHE_SHARED));
+		static_cast<patch_t*>(W_CacheLumpName("M_CELL2",PU_CACHE_SHARED)));
 }
 
 
 void
 M_StartMessage
 ( char*		string,
- messageRoutine_t routine,
- qboolean	input )
+ const messageRoutine_t routine,
+ const qboolean	input )
 {
 	::g->messageLastMenuActive = ::g->menuactive;
 	::g->messageToPrint = 1;
 	::g->messageString = string;
-	::g->messageRoutine = (messageRoutine_t)routine;
+	::g->messageRoutine = static_cast<messageRoutine_t>(routine);
 	::g->messageNeedsInput = input;
 	::g->menuactive = true;
 	return;
@@ -1087,9 +1105,13 @@ int M_StringWidth(char* string)
 	{
 		c = toupper(string[i]) - HU_FONTSTART;
 		if (c < 0 || c >= HU_FONTSIZE)
+		{
 			w += 4;
+		}
 		else
+		{
 			w += SHORT (::g->hu_font[c]->width);
+		}
 	}
 
 	return w;
@@ -1104,12 +1126,16 @@ int M_StringHeight(char* string)
 {
 	unsigned int             i;
 	int             h;
-	int             height = SHORT(::g->hu_font[0]->height);
+	const int             height = SHORT(::g->hu_font[0]->height);
 
 	h = height;
 	for (i = 0;i < strlen(string);i++)
+	{
 		if (string[i] == '\n')
+		{
 			h += height;
+		}
+	}
 
 	return h;
 }
@@ -1120,8 +1146,8 @@ int M_StringHeight(char* string)
 //
 void
 M_WriteText
-( int		x,
- int		y,
+(const int		x,
+ const int		y,
  char*		string)
 {
 	int		w;
@@ -1135,11 +1161,13 @@ M_WriteText
 	cx = x;
 	cy = y;
 
-	while(1)
+	while(true)
 	{
 		c = *ch++;
 		if (!c)
+		{
 			break;
+		}
 		if (c == '\n')
 		{
 			cx = x;
@@ -1156,7 +1184,9 @@ M_WriteText
 
 		w = SHORT (::g->hu_font[c]->width);
 		if (cx+w > SCREENWIDTH)
+		{
 			break;
+		}
 		V_DrawPatchDirect(cx, cy, 0, ::g->hu_font[c]);
 		cx+=w;
 	}
@@ -1264,7 +1294,9 @@ qboolean M_Responder (event_t* ev)
 	}
 
 	if (ch == -1)
+	{
 		return false;
+	}
 
 
 	// Save Game string input
@@ -1288,14 +1320,20 @@ qboolean M_Responder (event_t* ev)
 		case KEY_ENTER:
 			::g->saveStringEnter = 0;
 			if (::g->savegamestrings[::g->saveSlot][0])
+			{
 				M_DoSave(::g->saveSlot);
+			}
 			break;
 
 		default:
 			ch = toupper(ch);
 			if (ch != 32)
+			{
 				if (ch-HU_FONTSTART < 0 || ch-HU_FONTSTART >= HU_FONTSIZE)
+				{
 					break;
+				}
+			}
 			if (ch >= 32 && ch <= 127 &&
 				::g->saveCharIndex < SAVESTRINGSIZE-1 &&
 				M_StringWidth(::g->savegamestrings[::g->saveSlot]) <
@@ -1314,14 +1352,18 @@ qboolean M_Responder (event_t* ev)
 	{
 		if (::g->messageNeedsInput == true &&
 			!(ch == KEY_ENTER || ch == KEY_BACKSPACE || ch == KEY_ESCAPE))
+		{
 			return false;
+		}
 
 		::g->menuactive = ::g->messageLastMenuActive;
 		::g->messageToPrint = 0;
 		if (::g->messageRoutine)
+		{
 			::g->messageRoutine(ch);
+		}
 
-		S_StartSound(NULL,sfx_swtchx);
+		S_StartSound(nullptr,sfx_swtchx);
 		return true;
 	}
 /*
@@ -1428,7 +1470,7 @@ qboolean M_Responder (event_t* ev)
 		{
 			M_StartControlPanel ();
 
-			S_StartSound(NULL,sfx_swtchn);
+			S_StartSound(nullptr,sfx_swtchn);
 			return true;
 		}
 		
@@ -1442,9 +1484,14 @@ qboolean M_Responder (event_t* ev)
 		do
 		{
 			if (::g->itemOn+1 > ::g->currentMenu->numitems-1)
+			{
 				::g->itemOn = 0;
-			else ::g->itemOn++;
-			S_StartSound(NULL,sfx_pstop);
+			}
+			else
+			{
+				::g->itemOn++;
+			}
+			S_StartSound(nullptr,sfx_pstop);
 		} while(::g->currentMenu->menuitems[::g->itemOn].status==-1);
 		return true;
 
@@ -1452,9 +1499,14 @@ qboolean M_Responder (event_t* ev)
 		do
 		{
 			if (!::g->itemOn)
+			{
 				::g->itemOn = ::g->currentMenu->numitems-1;
-			else ::g->itemOn--;
-			S_StartSound(NULL,sfx_pstop);
+			}
+			else
+			{
+				::g->itemOn--;
+			}
+			S_StartSound(nullptr,sfx_pstop);
 		} while(::g->currentMenu->menuitems[::g->itemOn].status==-1);
 		return true;
 
@@ -1462,7 +1514,7 @@ qboolean M_Responder (event_t* ev)
 		if (::g->currentMenu->menuitems[::g->itemOn].routine &&
 			::g->currentMenu->menuitems[::g->itemOn].status == 2)
 		{
-			S_StartSound(NULL,sfx_stnmov);
+			S_StartSound(nullptr,sfx_stnmov);
 			::g->currentMenu->menuitems[::g->itemOn].routine(0);
 		}
 		return true;
@@ -1471,7 +1523,7 @@ qboolean M_Responder (event_t* ev)
 		if (::g->currentMenu->menuitems[::g->itemOn].routine &&
 			::g->currentMenu->menuitems[::g->itemOn].status == 2)
 		{
-			S_StartSound(NULL,sfx_stnmov);
+			S_StartSound(nullptr,sfx_stnmov);
 			::g->currentMenu->menuitems[::g->itemOn].routine(1);
 		}
 		return true;
@@ -1484,12 +1536,12 @@ qboolean M_Responder (event_t* ev)
 			if (::g->currentMenu->menuitems[::g->itemOn].status == 2)
 			{
 				::g->currentMenu->menuitems[::g->itemOn].routine(1);      // right arrow
-				S_StartSound(NULL,sfx_stnmov);
+				S_StartSound(nullptr,sfx_stnmov);
 			}
 			else
 			{
 				::g->currentMenu->menuitems[::g->itemOn].routine(::g->itemOn);
-				S_StartSound(NULL,sfx_pistol);
+				S_StartSound(nullptr,sfx_pistol);
 			}
 		}
 		return true;
@@ -1501,7 +1553,7 @@ qboolean M_Responder (event_t* ev)
 		{
 			::g->currentMenu = ::g->currentMenu->prevMenu;
 			::g->itemOn = ::g->currentMenu->lastOn;
-			S_StartSound(NULL,sfx_swtchn);
+			S_StartSound(nullptr,sfx_swtchn);
 		} else if ( ::g->currentMenu == &::g->MainDef && ( !::g->demoplayback && ::g->gamestate != GS_DEMOSCREEN ) ) {
 			M_ClearMenus();
 			::g->paused = false;
@@ -1510,20 +1562,24 @@ qboolean M_Responder (event_t* ev)
 
 	default:
 		for (i = ::g->itemOn+1;i < ::g->currentMenu->numitems;i++)
+		{
 			if (::g->currentMenu->menuitems[i].alphaKey == ch)
 			{
 				::g->itemOn = i;
-				S_StartSound(NULL,sfx_pstop);
+				S_StartSound(nullptr,sfx_pstop);
 				return true;
 			}
-			for (i = 0;i <= ::g->itemOn;i++)
-				if (::g->currentMenu->menuitems[i].alphaKey == ch)
-				{
-					::g->itemOn = i;
-					S_StartSound(NULL,sfx_pstop);
-					return true;
-				}
-				break;
+		}
+		for (i = 0;i <= ::g->itemOn;i++)
+		{
+			if (::g->currentMenu->menuitems[i].alphaKey == ch)
+			{
+				::g->itemOn = i;
+				S_StartSound(nullptr,sfx_pstop);
+				return true;
+			}
+		}
+		break;
 
 	}
 
@@ -1539,9 +1595,11 @@ void M_StartControlPanel (void)
 {
 	// intro might call this repeatedly
 	if (::g->menuactive)
+	{
 		return;
+	}
 
-	::g->menuactive = 1;
+	::g->menuactive = true;
 	::g->currentMenu = &::g->MainDef;
 	::g->itemOn = ::g->currentMenu->lastOn;
 }
@@ -1570,6 +1628,7 @@ void M_Drawer (void)
 		while(*(::g->messageString+start))
 		{
 			for (i = 0;i < strlen(::g->messageString+start);i++)
+			{
 				if (*(::g->messageString+start+i) == '\n')
 				{
 					memset(string,0,40);
@@ -1577,8 +1636,9 @@ void M_Drawer (void)
 					start += i+1;
 					break;
 				}
+			}
 
-				if (i == strlen(::g->messageString+start))
+			if (i == strlen(::g->messageString+start))
 				{
 					strcpy(string,::g->messageString+start);
 					start += i;
@@ -1593,10 +1653,14 @@ void M_Drawer (void)
 
 
 	if (!::g->menuactive)
+	{
 		return;
+	}
 
 	if (::g->currentMenu->routine)
-		::g->currentMenu->routine();         // call Draw routine
+	{
+		::g->currentMenu->routine(); // call Draw routine
+	}
 
 	// DRAW MENU
 	::g->md_x = ::g->currentMenu->x;
@@ -1606,15 +1670,17 @@ void M_Drawer (void)
 	for (i=0;i<max;i++)
 	{
 		if (::g->currentMenu->menuitems[i].name[0])
+		{
 			V_DrawPatchDirect (::g->md_x,::g->md_y,0,
-			(patch_t*)W_CacheLumpName(::g->currentMenu->menuitems[i].name ,PU_CACHE_SHARED));
+			                   static_cast<patch_t*>(W_CacheLumpName(::g->currentMenu->menuitems[i].name,PU_CACHE_SHARED)));
+		}
 		::g->md_y += LINEHEIGHT;
 	}
 
 
 	// DRAW SKULL
 	V_DrawPatchDirect(::g->md_x + SKULLXOFF,::g->currentMenu->y - 5 + ::g->itemOn*LINEHEIGHT, 0,
-		(patch_t*)W_CacheLumpName(skullName[::g->whichSkull],PU_CACHE_SHARED));
+		static_cast<patch_t*>(W_CacheLumpName(skullName[::g->whichSkull],PU_CACHE_SHARED)));
 }
 
 
@@ -1623,7 +1689,7 @@ void M_Drawer (void)
 //
 void M_ClearMenus (void)
 {
-	::g->menuactive = 0;
+	::g->menuactive = false;
 	// if (!::g->netgame && ::g->usergame && ::g->paused)
 	//       ::g->sendpause = true;
 }
@@ -1661,13 +1727,13 @@ void M_Init (void)
 {	
 
 	::g->currentMenu = &::g->MainDef;
-	::g->menuactive = 1;
+	::g->menuactive = true;
 	::g->itemOn = ::g->currentMenu->lastOn;
 	::g->whichSkull = 0;
 	::g->skullAnimCounter = 10;
 	::g->screenSize = ::g->screenblocks - 3;
 	::g->messageToPrint = 0;
-	::g->messageString = NULL;
+	::g->messageString = nullptr;
 	::g->messageLastMenuActive = ::g->menuactive;
 	::g->quickSaveSlot = -1;
 

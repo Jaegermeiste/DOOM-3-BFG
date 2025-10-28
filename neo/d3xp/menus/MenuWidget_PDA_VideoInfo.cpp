@@ -48,7 +48,7 @@ void idMenuWidget_PDA_VideoInfo::Update() {
 	idSWFTextInstance * txtHeading = GetSprite()->GetScriptObject()->GetNestedText( "txtName" );
 	idSWFTextInstance * txtInfo = GetSprite()->GetScriptObject()->GetNestedText( "txtInfo" );
 	
-	int numVideos = player->GetInventory().videos.Num();
+	size_t numVideos = player->GetInventory().videos.Num();
 	if ( numVideos != 0 ) {
 		const idDeclVideo * video = player->GetVideo( videoIndex );
 		if( video != nullptr) {

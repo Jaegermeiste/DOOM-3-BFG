@@ -95,7 +95,7 @@ void idChoiceWindow::RunNamedEvent( const char* eventName ) {
 	}
 }
 
-void idChoiceWindow::UpdateVars( bool read, bool force ) {
+void idChoiceWindow::UpdateVars(const bool read, const bool force ) {
 	if ( force || liveUpdate ) {
 		if ( cvar && cvarStr.NeedsUpdate() ) {
 			if ( read ) {
@@ -154,7 +154,7 @@ const char *idChoiceWindow::HandleEvent(const sysEvent_t *event, bool *updateVis
 		key = event->evValue;
 
 		int potentialChoice = -1;
-		for ( int i = 0; i < choices.Num(); i++ ) {
+		for ( size_t i = 0; i < choices.Num(); i++ ) {
 			if ( toupper(key) == toupper(choices[i][0]) ) {
 				if ( i < currentChoice && potentialChoice < 0 ) {
 					potentialChoice = i;
@@ -249,7 +249,7 @@ bool idChoiceWindow::ParseInternalVar(const char *_name, idTokenParser *src) {
 }
 
 
-idWinVar *idChoiceWindow::GetWinVarByName(const char *_name, bool fixup, drawWin_t** owner) {
+idWinVar *idChoiceWindow::GetWinVarByName(const char *_name, const bool fixup, drawWin_t** owner) {
 	if ( idStr::Icmp( _name, "choices" ) == 0 ) {
 		return &choicesStr;
 	}
@@ -355,7 +355,7 @@ void idChoiceWindow::PostParse() {
 	flags |= WIN_CANFOCUS;
 }
 
-void idChoiceWindow::Draw(int time, float x, float y) {
+void idChoiceWindow::Draw(ID_TIME_T time, float x, float y) {
 	idVec4 color = foreColor;
 
 	UpdateChoicesAndVals();
@@ -387,7 +387,7 @@ void idChoiceWindow::Draw(int time, float x, float y) {
 	dc->DrawText( choices[currentChoice], textScale, textAlign, color, textRect, false, -1 );
 }
 
-void idChoiceWindow::Activate( bool activate, idStr &act ) {
+void idChoiceWindow::Activate(const bool activate, idStr &act ) {
 	idWindow::Activate( activate, act );
 	if ( activate ) {
 		// sets the gui state based on the current choice the window contains

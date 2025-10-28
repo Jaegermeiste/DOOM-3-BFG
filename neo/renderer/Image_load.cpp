@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 BitsForFormat
 ================
 */
-int BitsForFormat( textureFormat_t format ) {
+int BitsForFormat(const textureFormat_t format ) {
 	switch ( format ) {
 		case FMT_NONE:		return 0;
 		case FMT_RGBA8:		return 32;
@@ -147,7 +147,7 @@ ID_INLINE void idImage::DeriveOpts() {
 idImage::AllocImage
 ========================
 */
-void idImage::AllocImage( const idImageOpts &imgOpts, textureFilter_t tf, textureRepeat_t tr ) {
+void idImage::AllocImage( const idImageOpts &imgOpts, const textureFilter_t tf, const textureRepeat_t tr ) {
 	filter = tf;
 	repeat = tr;
 	opts = imgOpts;
@@ -160,7 +160,7 @@ void idImage::AllocImage( const idImageOpts &imgOpts, textureFilter_t tf, textur
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte *pic, const size_t width, const size_t height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm ) {
+void idImage::GenerateImage( const byte *pic, const size_t width, const size_t height, const textureFilter_t filterParm, const textureRepeat_t repeatParm, const textureUsage_t usageParm ) {
 	PurgeImage();
 
 	filter = filterParm;
@@ -201,7 +201,7 @@ GenerateCubeImage
 Non-square cube sides are not allowed
 ====================
 */
-void idImage::GenerateCubeImage( const byte *pic[6], const size_t size, textureFilter_t filterParm, textureUsage_t usageParm ) {
+void idImage::GenerateCubeImage( const byte *pic[6], const size_t size, const textureFilter_t filterParm, const textureUsage_t usageParm ) {
 	PurgeImage();
 
 	filter = filterParm;
@@ -374,7 +374,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd ) {
 			im.LoadCubeFromMemory( size, (const byte **)pics, opts.numLevels, opts.format, opts.gammaMips );
 			repeat = TR_CLAMP;
 
-			for ( int i = 0; i < 6; i++ ) {
+			for ( size_t i = 0; i < 6; i++ ) {
 				if ( pics[i] ) {
 					Mem_Free( pics[i] );
 				}
@@ -419,7 +419,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd ) {
 	AllocImage();
 
 
-	for ( int i = 0; i < im.NumImages(); i++ ) {
+	for ( size_t i = 0; i < im.NumImages(); i++ ) {
 		const bimageImage_t & img = im.GetImageHeader( i );
 		const byte * data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
@@ -466,7 +466,7 @@ void idImage::Bind() {
 MakePowerOfTwo
 ================
 */
-int MakePowerOfTwo( int num ) {
+int MakePowerOfTwo(const size_t num ) {
 	int	pot;
 	for ( pot = 1; pot < num; pot <<= 1 ) {
 	}
@@ -487,7 +487,7 @@ void idImage::CopyFramebuffer( const size_t x, const size_t y, const size_t imag
 
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(imageWidth), idMath::integer_cast<GLsizei>(imageHeight), 0 );
+	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, numeric_cast<GLint>(x), numeric_cast<GLint>(y), numeric_cast<GLsizei>(imageWidth), numeric_cast<GLsizei>(imageHeight), 0 );
 
 	// these shouldn't be necessary if the image was initialized properly
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -509,7 +509,7 @@ void idImage::CopyDepthbuffer(const size_t x, const size_t y, const size_t image
 
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(imageWidth), idMath::integer_cast<GLsizei>(imageHeight), 0);
+	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, numeric_cast<GLint>(x), numeric_cast<GLint>(y), numeric_cast<GLsizei>(imageWidth), numeric_cast<GLsizei>(imageHeight), 0);
 
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -521,7 +521,7 @@ RB_UploadScratchImage
 if rows = cols * 6, assume it is a cube map animation
 =============
 */
-void idImage::UploadScratch( const byte * data, size_t cols, size_t rows ) {
+void idImage::UploadScratch( const byte * data, const size_t cols, size_t rows ) {
 
 	// if rows = cols * 6, assume it is a cube map animation
 	if ( rows == cols * 6 ) {
@@ -669,7 +669,7 @@ void idImage::Print() const {
 idImage::Reload
 ===============
 */
-void idImage::Reload( bool force ) {
+void idImage::Reload(const bool force ) {
 	// always regenerate functional images
 	if ( generatorFunction ) {
 		common->DPrintf( "regenerating %s.\n", GetName() );
@@ -704,7 +704,7 @@ void idImage::Reload( bool force ) {
 idImage::SetSamplerState
 ========================
 */
-void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr ) {
+void idImage::SetSamplerState(const textureFilter_t tf, const textureRepeat_t tr ) {
 	if ( tf == filter && tr == repeat ) {
 		return;
 	}

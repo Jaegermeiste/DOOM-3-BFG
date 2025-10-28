@@ -29,41 +29,46 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __Z_ZONE__
 #define __Z_ZONE__
 
+#pragma once
+
 #include <stdio.h>
 
 //
 // ZONE MEMORY
 // PU - purge tags.
 // Tags < 100 are not overwritten until freed.
-#define PU_STATIC		1	// static entire execution time
-#define PU_SOUND		2	// static while playing
-#define PU_MUSIC		3	// static while playing
-#define PU_LEVEL		50	// static until level exited
-#define PU_LEVSPEC		51      // a special thinker in a level
-// Tags >= 100 are purgable whenever needed.
-#define PU_PURGELEVEL	100
-#define PU_CACHE 101
+enum purgeTags_e : uint8
+{
+	PU_STATIC         = 1,	// static entire execution time
+	PU_SOUND          = 2,	// static while playing
+	PU_MUSIC          = 3,	// static while playing
+	PU_LEVEL          = 50,	// static until level exited
+	PU_LEVSPEC        = 51,      // a special thinker in a level
+	// Tags >= 100 are purgeable whenever needed.
+	PU_PURGELEVEL     = 100,
+	PU_CACHE          = 101,
 
-/*
-#define PU_STATIC_SHARED		4	// static entire execution time
-#define PU_SOUND_SHARED		5	// static while playing
-#define PU_MUSIC_SHARED		6	// static while playing
-#define PU_LEVEL_SHARED		52	// static until level exited
-#define PU_LEVSPEC_SHARED		53      // a special thinker in a level
-#define PU_CACHE_SHARED		102
-*/
-#define PU_STATIC_SHARED		PU_STATIC	// static entire execution time
-#define PU_SOUND_SHARED		PU_SOUND	// static while playing
-#define PU_MUSIC_SHARED		PU_MUSIC	// static while playing
-#define PU_LEVEL_SHARED		PU_LEVEL	// static until level exited
-#define PU_LEVSPEC_SHARED		PU_LEVSPEC      // a special thinker in a level
-#define PU_CACHE_SHARED		PU_CACHE
+	/*
+	PU_STATIC_SHARED  = 4,	// static entire execution time
+	PU_SOUND_SHARED	  = 5,	// static while playing
+	PU_MUSIC_SHARED	  = 6,	// static while playing
+	PU_LEVEL_SHARED	  = 52,	// static until level exited
+	PU_LEVSPEC_SHARED = 53,      // a special thinker in a level
+	PU_CACHE_SHARED	  = 102,
+	*/
 
+	PU_STATIC_SHARED  = PU_STATIC,	// static entire execution time
+	PU_SOUND_SHARED   = PU_SOUND,	// static while playing
+	PU_MUSIC_SHARED   = PU_MUSIC,	// static while playing
+	PU_LEVEL_SHARED   = PU_LEVEL,	// static until level exited
+	PU_LEVSPEC_SHARED = PU_LEVSPEC,      // a special thinker in a level
+	PU_CACHE_SHARED   = PU_CACHE
+};
 
 bool Z_IsStatic( int tag );
 
 void	Z_Init (void);
-void*	Z_Malloc (int size, int tag, void *ptr);
+void*	Z_Malloc (size_t size, int tag, void *ptr);
 void    Z_Free (void *ptr);
 void    Z_FreeTag(int lowtag );
 void    Z_FreeTags(int lowtag, int hightag );
@@ -71,15 +76,15 @@ void    Z_DumpHeap (int lowtag, int hightag);
 void    Z_FileDumpHeap (FILE *f);
 void    Z_CheckHeap (void);
 void Z_ChangeTag2 (void **ptr, int tag);
-int     Z_FreeMemory (void);
+size_t     Z_FreeMemory (void);
 
 
 //bool MallocForLump( int lump, size_t size, void **ptr, int tag );
 
 
 template< class _type_ >
-bool MallocForLump( int lump, size_t size, _type_ * & ptr, int tag ) {
-	ptr = static_cast< _type_ * >( Z_Malloc( size, tag, 0 ) );
+bool MallocForLump( int lump, const size_t size, _type_ * & ptr, const int tag ) {
+	ptr = static_cast< _type_ * >( Z_Malloc( size, tag, nullptr ) );
 
 	return true;
 }
@@ -87,7 +92,7 @@ bool MallocForLump( int lump, size_t size, _type_ * & ptr, int tag ) {
 
 typedef struct memblock_s
 {
-    int			size;	// including the header and possibly tiny fragments
+	size_t		size;	// including the header and possibly tiny fragments
     void**		user;	// NULL if a free block
     int			tag;	// purgelevel
     int			id;	// should be ZONEID

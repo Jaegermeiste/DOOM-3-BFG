@@ -90,7 +90,7 @@ ListSamples_f
 void ListSamples_f( const idCmdArgs & args ) {
 	idLib::Printf( "Sound samples\n-------------\n" );
 	int totSize = 0;
-	for ( int i = 0; i < soundSystemLocal.samples.Num(); i++ ) {
+	for ( size_t i = 0; i < soundSystemLocal.samples.Num(); i++ ) {
 		idLib::Printf( "%05dkb\t%s\n", soundSystemLocal.samples[ i ]->BufferSize() / 1024, soundSystemLocal.samples[ i ]->GetName() );
 		totSize += soundSystemLocal.samples[ i ]->BufferSize();
 	}
@@ -106,7 +106,7 @@ idSoundSystemLocal::Restart
 void idSoundSystemLocal::Restart() {
 
 	// Mute all channels in all worlds
-	for ( int i = 0; i < soundWorlds.Num(); i++ ) {
+	for ( size_t i = 0; i < soundWorlds.Num(); i++ ) {
 		idSoundWorldLocal * sw = soundWorlds[i];
 		for ( int e = 0; e < sw->emitters.Num(); e++ ) {
 			idSoundEmitterLocal * emitter = sw->emitters[e];
@@ -162,11 +162,11 @@ void idSoundSystemLocal::InitStreamBuffers() {
 	const bool empty = ( bufferContexts.Num() == 0 );
 	if ( empty ) {
 		bufferContexts.SetNum( MAX_SOUND_BUFFERS );
-		for ( int i = 0; i < MAX_SOUND_BUFFERS; i++ ) {
+		for ( size_t i = 0; i < MAX_SOUND_BUFFERS; i++ ) {
 			freeStreamBufferContexts.Append( &( bufferContexts[ i ] ) );
 		}
 	} else {
-		for ( int i = 0; i < activeStreamBufferContexts.Num(); i++ ) {
+		for ( size_t i = 0; i < activeStreamBufferContexts.Num(); i++ ) {
 			freeStreamBufferContexts.Append( activeStreamBufferContexts[ i ] );
 		}
 		activeStreamBufferContexts.Clear();
@@ -322,7 +322,7 @@ idSoundSystemLocal::OnReloadSound
 ========================
 */
 void idSoundSystemLocal::OnReloadSound( const idDecl* sound ) {
-	for ( int i = 0; i < soundWorlds.Num(); i++ ) {
+	for ( size_t i = 0; i < soundWorlds.Num(); i++ ) {
 		soundWorlds[i]->OnReloadSound( sound );
 	}
 }
@@ -333,7 +333,7 @@ idSoundSystemLocal::StopAllSounds
 ========================
 */
 void idSoundSystemLocal::StopAllSounds() {
-	for ( int i = 0; i < soundWorlds.Num(); i++ ) {
+	for ( size_t i = 0; i < soundWorlds.Num(); i++ ) {
 		idSoundWorld *sw = soundWorlds[i];
 		if ( sw ) {
 			sw->StopAllSounds();
@@ -431,7 +431,7 @@ void idSoundSystemLocal::StopVoicesWithSample( const idSoundSample * const sampl
 			if ( emitter == nullptr) {
 				continue;
 			}
-			for ( int i = 0; i < emitter->channels.Num(); i++ ) {
+			for ( size_t i = 0; i < emitter->channels.Num(); i++ ) {
 				if ( emitter->channels[i]->leadinSample == sample || emitter->channels[i]->loopingSample == sample ) {
 					emitter->channels[i]->Mute();
 				}
@@ -510,7 +510,7 @@ void idSoundSystemLocal::Preload( idPreloadManifest & manifest ) {
 
 	preloadSort.SortWithTemplate( idSort_Preload() );
 
-	for ( int i = 0; i < preloadSort.Num(); i++ ) {
+	for ( size_t i = 0; i < preloadSort.Num(); i++ ) {
 		const preloadSort_t & ps = preloadSort[ i ];
 		const preloadEntry_s & p = manifest.GetPreloadByIndex( ps.idx );
 		filename = p.resourceName;
@@ -545,7 +545,7 @@ void idSoundSystemLocal::EndLevelLoad() {
 	idList< preloadSort_t > preloadSort;
 	preloadSort.Resize( samples.Num() );
 
-	for ( int i = 0; i < samples.Num(); i++ ) {
+	for ( size_t i = 0; i < samples.Num(); i++ ) {
 		common->UpdateLevelLoadPacifier();
 
 
@@ -573,7 +573,7 @@ void idSoundSystemLocal::EndLevelLoad() {
 		}
 	}
 	preloadSort.SortWithTemplate( idSort_Preload() );
-	for ( int i = 0; i < preloadSort.Num(); i++ ) {
+	for ( size_t i = 0; i < preloadSort.Num(); i++ ) {
 		common->UpdateLevelLoadPacifier();
 
 

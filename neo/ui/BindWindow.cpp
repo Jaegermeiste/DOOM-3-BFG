@@ -78,7 +78,7 @@ const char *idBindWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 	return "";
 }
 
-idWinVar *idBindWindow::GetWinVarByName(const char *_name, bool fixup, drawWin_t** owner) {
+idWinVar *idBindWindow::GetWinVarByName(const char *_name, const bool fixup, drawWin_t** owner) {
 
 	if (idStr::Icmp(_name, "bind") == 0) {
 		return &bindName;
@@ -95,7 +95,7 @@ void idBindWindow::PostParse() {
 	flags |= (WIN_HOLDCAPTURE | WIN_CANFOCUS);
 }
 
-void idBindWindow::Draw(int time, float x, float y) {
+void idBindWindow::Draw(ID_TIME_T time, float x, float y) {
 	idVec4 color = foreColor;
 
 	idStr str;
@@ -116,7 +116,7 @@ void idBindWindow::Draw(int time, float x, float y) {
 	dc->DrawText(str, textScale, textAlign, color, textRect, false, -1);
 }
 
-void idBindWindow::Activate( bool activate, idStr &act ) {
+void idBindWindow::Activate(const bool activate, idStr &act ) {
 	idWindow::Activate( activate, act );
 	bindName.Update();
 }

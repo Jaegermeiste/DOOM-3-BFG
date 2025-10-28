@@ -341,7 +341,7 @@ void idAI::Event_Touch( idEntity *other, trace_t *trace ) {
 idAI::Event_FindEnemy
 =====================
 */
-void idAI::Event_FindEnemy( int useFOV ) {
+void idAI::Event_FindEnemy(const int useFOV ) {
 	int			i;
 	idEntity	*ent;
 	idActor		*actor;
@@ -374,7 +374,7 @@ void idAI::Event_FindEnemy( int useFOV ) {
 idAI::Event_FindEnemyAI
 =====================
 */
-void idAI::Event_FindEnemyAI( int useFOV ) {
+void idAI::Event_FindEnemyAI(const int useFOV ) {
 	idEntity	*ent;
 	idActor		*actor;
 	idActor		*bestEnemy;
@@ -511,7 +511,7 @@ void idAI::Event_ClosestReachableEnemyOfEntity( idEntity *team_mate ) {
 idAI::Event_HeardSound
 =====================
 */
-void idAI::Event_HeardSound( int ignore_team ) {
+void idAI::Event_HeardSound(const int ignore_team ) {
 	// check if we heard any sounds in the last frame
 	idActor	*actor = gameLocal.GetAlertEntity();
 	if ( actor != nullptr && ( !ignore_team || ( ReactionTo( actor ) & ATTACK_ON_SIGHT ) ) && gameLocal.InPlayerPVS( this ) ) {
@@ -950,7 +950,7 @@ void idAI::Event_StopRagdoll() {
 idAI::Event_SetHealth
 =====================
 */
-void idAI::Event_SetHealth( float newHealth ) {
+void idAI::Event_SetHealth(const float newHealth ) {
 	health = newHealth;
 	fl.takedamage = true;
 	if ( health > 0 ) {
@@ -1001,7 +1001,7 @@ void idAI::Event_GetCurrentYaw() {
 idAI::Event_TurnTo
 =====================
 */
-void idAI::Event_TurnTo( float angle ) {
+void idAI::Event_TurnTo(const float angle ) {
 	TurnToward( angle );
 }
 
@@ -1084,7 +1084,7 @@ void idAI::Event_MoveToEnemyHeight() {
 idAI::Event_MoveOutOfRange
 =====================
 */
-void idAI::Event_MoveOutOfRange( idEntity *entity, float range ) {
+void idAI::Event_MoveOutOfRange( idEntity *entity, const float range ) {
 	StopMove( MOVE_STATUS_DEST_NOT_FOUND );
 	MoveOutOfRange( entity, range );
 }
@@ -1134,7 +1134,7 @@ void idAI::Event_MoveToPosition( const idVec3 &pos ) {
 idAI::Event_SlideTo
 =====================
 */
-void idAI::Event_SlideTo( const idVec3 &pos, float time ) {
+void idAI::Event_SlideTo( const idVec3 &pos, const float time ) {
 	SlideToPosition( pos, time );
 }
 /*
@@ -1275,7 +1275,7 @@ void idAI::Event_GetCombatNode() {
 idAI::Event_EnemyInCombatCone
 =====================
 */
-void idAI::Event_EnemyInCombatCone( idEntity *ent, int use_current_enemy_location ) {
+void idAI::Event_EnemyInCombatCone( idEntity *ent, const int use_current_enemy_location ) {
 	idCombatNode	*node;
 	bool			result;
 	idActor			*enemyEnt = enemy.GetEntity();
@@ -1334,7 +1334,7 @@ void idAI::Event_WaitMove() {
 idAI::Event_GetJumpVelocity
 =====================
 */
-void idAI::Event_GetJumpVelocity( const idVec3 &pos, float speed, float max_height ) {
+void idAI::Event_GetJumpVelocity( const idVec3 &pos, const float speed, const float max_height ) {
 	idVec3 start;
 	idVec3 end;
 	idVec3 dir;
@@ -1524,7 +1524,7 @@ void idAI::Event_GetEnemyEyePos() {
 idAI::Event_PredictEnemyPos
 =====================
 */
-void idAI::Event_PredictEnemyPos( float time ) {
+void idAI::Event_PredictEnemyPos(const float time ) {
 	predictedPath_t path;
 	idActor *enemyEnt = enemy.GetEntity();
 
@@ -1963,7 +1963,7 @@ void idAI::Event_ClearBurn() {
 idAI::Event_SetSmokeVisibility
 =====================
 */
-void idAI::Event_SetSmokeVisibility( int num, int on ) {
+void idAI::Event_SetSmokeVisibility(const size_t num, const int on ) {
 	int i;
 	const ID_TIME_T time;
 
@@ -2137,7 +2137,7 @@ void idAI::Event_RestoreMove() {
 idAI::Event_AllowMovement
 =====================
 */
-void idAI::Event_AllowMovement( float flag ) {
+void idAI::Event_AllowMovement(const float flag ) {
 	allowMove = ( flag != 0.0f );
 }
 
@@ -2211,7 +2211,7 @@ void idAI::Event_DisableAFPush() {
 idAI::Event_SetFlySpeed
 =====================
 */
-void idAI::Event_SetFlySpeed( float speed ) {
+void idAI::Event_SetFlySpeed(const float speed ) {
 	if ( move.speed == fly_speed ) {
 		move.speed = speed;
 	}
@@ -2223,7 +2223,7 @@ void idAI::Event_SetFlySpeed( float speed ) {
 idAI::Event_SetFlyOffset
 ================
 */
-void idAI::Event_SetFlyOffset( int offset ) {
+void idAI::Event_SetFlyOffset(const int offset ) {
 	fly_offset = offset;
 }
 
@@ -2373,7 +2373,7 @@ void idAI::Event_TravelDistanceBetweenEntities( idEntity *source, idEntity *dest
 idAI::Event_LookAtEntity
 =====================
 */
-void idAI::Event_LookAtEntity( idEntity *ent, float duration ) {
+void idAI::Event_LookAtEntity( idEntity *ent, const float duration ) {
 	if ( ent == this ) {
 		ent = nullptr;
 	}
@@ -2393,7 +2393,7 @@ void idAI::Event_LookAtEntity( idEntity *ent, float duration ) {
 idAI::Event_LookAtEnemy
 =====================
 */
-void idAI::Event_LookAtEnemy( float duration ) {
+void idAI::Event_LookAtEnemy(const float duration ) {
 	idActor *enemyEnt;
 
 	enemyEnt = enemy.GetEntity();
@@ -2412,7 +2412,7 @@ void idAI::Event_LookAtEnemy( float duration ) {
 idAI::Event_SetJointMod
 ===============
 */
-void idAI::Event_SetJointMod( int allow ) {
+void idAI::Event_SetJointMod(const int allow ) {
 	allowJointMod = ( allow != 0 );
 }
 
@@ -2563,7 +2563,7 @@ void idAI::Event_Kill() {
 idAI::Event_WakeOnFlashlight
 ================
 */
-void idAI::Event_WakeOnFlashlight( int enable ) {
+void idAI::Event_WakeOnFlashlight(const int enable ) {
 	wakeOnFlashlight = ( enable != 0 );
 }
 
@@ -2574,7 +2574,7 @@ idAI::Event_LocateEnemy
 */
 void idAI::Event_LocateEnemy() {
 	idActor *enemyEnt;
-	int areaNum;
+	index_t areaNum;
 	
 	enemyEnt = enemy.GetEntity();
 	if ( !enemyEnt ) {
@@ -2591,7 +2591,7 @@ void idAI::Event_LocateEnemy() {
 idAI::Event_KickObstacles
 ================
 */
-void idAI::Event_KickObstacles( idEntity *kickEnt, float force ) {
+void idAI::Event_KickObstacles( idEntity *kickEnt, const float force ) {
 	idVec3 dir;
 	idEntity *obEnt;
 	
@@ -2653,7 +2653,7 @@ void idAI::Event_GetTurnRate() {
 idAI::Event_SetTurnRate
 ================
 */
-void idAI::Event_SetTurnRate( float rate ) {
+void idAI::Event_SetTurnRate(const float rate ) {
 	turnRate = rate;
 }
 
@@ -2662,7 +2662,7 @@ void idAI::Event_SetTurnRate( float rate ) {
 idAI::Event_AnimTurn
 ================
 */
-void idAI::Event_AnimTurn( float angles ) {
+void idAI::Event_AnimTurn(const float angles ) {
 	turnVel = 0.0f;
 	anim_turn_angles = angles;
 	if ( angles ) {
@@ -2683,7 +2683,7 @@ void idAI::Event_AnimTurn( float angles ) {
 idAI::Event_AllowHiddenMovement
 ================
 */
-void idAI::Event_AllowHiddenMovement( int enable ) {
+void idAI::Event_AllowHiddenMovement(const int enable ) {
 	allowHiddenMovement = ( enable != 0 );
 }
 
@@ -2870,7 +2870,7 @@ void idAI::Event_MoveToPositionDirect( const idVec3 &pos ) {
 idAI::Event_AvoidObstacles
 ================
 */
-void idAI::Event_AvoidObstacles( int ignore) {
+void idAI::Event_AvoidObstacles(const int ignore) {
 	ignore_obstacles = (ignore == 1) ? false : true;
 }
 

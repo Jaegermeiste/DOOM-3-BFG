@@ -118,7 +118,7 @@ void idAnimState::Restore( idRestoreGame *savefile ) {
 idAnimState::Init
 =====================
 */
-void idAnimState::Init( idActor *owner, idAnimator *_animator, int animchannel ) {
+void idAnimState::Init( idActor *owner, idAnimator *_animator, const int animchannel ) {
 	assert( owner );
 	assert( _animator );
 	self = owner;
@@ -148,7 +148,7 @@ void idAnimState::Shutdown() {
 idAnimState::SetState
 =====================
 */
-void idAnimState::SetState( const char *statename, int blendFrames ) {
+void idAnimState::SetState( const char *statename, const int blendFrames ) {
 	const function_t *func;
 
 	func = self->scriptObject.GetFunction( statename );
@@ -178,7 +178,7 @@ void idAnimState::SetState( const char *statename, int blendFrames ) {
 idAnimState::StopAnim
 =====================
 */
-void idAnimState::StopAnim( int frames ) {
+void idAnimState::StopAnim(const int frames ) {
 	animBlendFrames = 0;
 	animator->Clear( channel, gameLocal.time, FRAME2MS( frames ) );
 }
@@ -188,7 +188,7 @@ void idAnimState::StopAnim( int frames ) {
 idAnimState::PlayAnim
 =====================
 */
-void idAnimState::PlayAnim( int anim ) {
+void idAnimState::PlayAnim(const int anim ) {
 	if ( anim ) {
 		animator->PlayAnim( channel, anim, gameLocal.time, FRAME2MS( animBlendFrames ) );
 	}
@@ -200,7 +200,7 @@ void idAnimState::PlayAnim( int anim ) {
 idAnimState::CycleAnim
 =====================
 */
-void idAnimState::CycleAnim( int anim ) {
+void idAnimState::CycleAnim(const int anim ) {
 	if ( anim ) {
 		animator->CycleAnim( channel, anim, gameLocal.time, FRAME2MS( animBlendFrames ) );
 	}
@@ -230,7 +230,7 @@ bool idAnimState::Disabled() const {
 idAnimState::AnimDone
 =====================
 */
-bool idAnimState::AnimDone( int blendFrames ) const {
+bool idAnimState::AnimDone(const int blendFrames ) const {
 	int animDoneTime;
 	
 	animDoneTime = animator->CurrentAnim( channel )->GetEndTime();
@@ -274,7 +274,7 @@ animFlags_t idAnimState::GetAnimFlags() const {
 idAnimState::Enable
 =====================
 */
-void idAnimState::Enable( int blendFrames ) {
+void idAnimState::Enable(const int blendFrames ) {
 	if ( disabled ) {
 		disabled = false;
 		animBlendFrames = blendFrames;
@@ -1079,7 +1079,7 @@ int	idActor::GetDefaultSurfaceType() const {
 idActor::ProjectOverlay
 ================
 */
-void idActor::ProjectOverlay( const idVec3 &origin, const idVec3 &dir, float size, const char *material ) {
+void idActor::ProjectOverlay( const idVec3 &origin, const idVec3 &dir, const float size, const char *material ) {
 	idEntity *ent;
 	idEntity *next;
 
@@ -1408,7 +1408,7 @@ void idActor::UpdateScript() {
 idActor::setFov
 =====================
 */
-void idActor::SetFOV( float fov ) {
+void idActor::SetFOV(const float fov ) {
 	fovDot = (float)cos( DEG2RAD( fov * 0.5f ) );
 }
 
@@ -1417,7 +1417,7 @@ void idActor::SetFOV( float fov ) {
 idActor::SetEyeHeight
 =====================
 */
-void idActor::SetEyeHeight( float height ) {
+void idActor::SetEyeHeight(const float height ) {
 	eyeOffset.z = height;
 }
 
@@ -1490,7 +1490,7 @@ bool idActor::CheckFOV( const idVec3 &pos ) const {
 idActor::CanSee
 =====================
 */
-bool idActor::CanSee( idEntity *ent, bool useFov ) const {
+bool idActor::CanSee( idEntity *ent, const bool useFov ) const {
 	trace_t		tr;
 	idVec3		eye;
 	idVec3		toPos;
@@ -1927,7 +1927,7 @@ void idActor::GetAASLocation( idAAS *aas, idVec3 &pos, int &areaNum ) const {
 idActor::SetAnimState
 =====================
 */
-void idActor::SetAnimState( int channel, const char *statename, int blendFrames ) {
+void idActor::SetAnimState(const int channel, const char *statename, const int blendFrames ) {
 	const function_t *func;
 
 	func = scriptObject.GetFunction( statename );
@@ -1967,7 +1967,7 @@ void idActor::SetAnimState( int channel, const char *statename, int blendFrames 
 idActor::GetAnimState
 =====================
 */
-const char *idActor::GetAnimState( int channel ) const {
+const char *idActor::GetAnimState(const int channel ) const {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		return headAnim.state;
@@ -1993,7 +1993,7 @@ const char *idActor::GetAnimState( int channel ) const {
 idActor::InAnimState
 =====================
 */
-bool idActor::InAnimState( int channel, const char *statename ) const {
+bool idActor::InAnimState(const int channel, const char *statename ) const {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		if ( headAnim.state == statename ) {
@@ -2059,7 +2059,7 @@ void idActor::UpdateAnimState() {
 idActor::GetAnim
 =====================
 */
-int idActor::GetAnim( int channel, const char *animname ) {
+int idActor::GetAnim(const int channel, const char *animname ) {
 	int			anim;
 	const char *temp;
 	idAnimator *animatorPtr;
@@ -2091,7 +2091,7 @@ int idActor::GetAnim( int channel, const char *animname ) {
 idActor::SyncAnimChannels
 ===============
 */
-void idActor::SyncAnimChannels( int channel, int syncToChannel, int blendFrames ) {
+void idActor::SyncAnimChannels(const int channel, const int syncToChannel, const int blendFrames ) {
 	idAnimator		*headAnimator;
 	idAFAttachment	*headEnt;
 	int				anim;
@@ -2365,7 +2365,7 @@ void idActor::ClearPain() {
 idActor::Pain
 =====================
 */
-bool idActor::Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) {
+bool idActor::Pain( idEntity *inflictor, idEntity *attacker, const int damage, const idVec3 &dir, const int location ) {
 	if ( af.IsLoaded() ) {
 		// clear impacts
 		af.Rest();
@@ -2509,7 +2509,7 @@ void idActor::SetupDamageGroups() {
 idActor::GetDamageForLocation
 =====================
 */
-int idActor::GetDamageForLocation( int damage, int location ) {
+int idActor::GetDamageForLocation(const int damage, const int location ) {
 	if ( ( location < 0 ) || ( location >= damageScale.Num() ) ) {
 		return damage;
 	}
@@ -2522,7 +2522,7 @@ int idActor::GetDamageForLocation( int damage, int location ) {
 idActor::GetDamageGroup
 =====================
 */
-const char *idActor::GetDamageGroup( int location ) {
+const char *idActor::GetDamageGroup(const int location ) {
 	if ( ( location < 0 ) || ( location >= damageGroups.Num() ) ) {
 		return "";
 	}
@@ -2621,7 +2621,7 @@ void idActor::Event_DisableWalkIK() {
 idActor::Event_EnableLegIK
 =====================
 */
-void idActor::Event_EnableLegIK( int num ) {
+void idActor::Event_EnableLegIK(const size_t num ) {
 	walkIK.EnableLeg( num );
 }
 
@@ -2630,7 +2630,7 @@ void idActor::Event_EnableLegIK( int num ) {
 idActor::Event_DisableLegIK
 =====================
 */
-void idActor::Event_DisableLegIK( int num ) {
+void idActor::Event_DisableLegIK(const size_t num ) {
 	walkIK.DisableLeg( num );
 }
 
@@ -2639,7 +2639,7 @@ void idActor::Event_DisableLegIK( int num ) {
 idActor::Event_PreventPain
 =====================
 */
-void idActor::Event_PreventPain( float duration ) {
+void idActor::Event_PreventPain(const float duration ) {
 	painTime = gameLocal.time + SEC2MS( duration );
 }
 
@@ -2688,7 +2688,7 @@ void idActor::Event_SetAnimPrefix( const char *prefix ) {
 idActor::Event_StopAnim
 ===============
 */
-void idActor::Event_StopAnim( int channel, int frames ) {
+void idActor::Event_StopAnim(const int channel, const int frames ) {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		headAnim.StopAnim( frames );
@@ -2713,7 +2713,7 @@ void idActor::Event_StopAnim( int channel, int frames ) {
 idActor::Event_PlayAnim
 ===============
 */
-void idActor::Event_PlayAnim( int channel, const char *animname ) {
+void idActor::Event_PlayAnim(const int channel, const char *animname ) {
 	animFlags_t	flags;
 	idEntity *headEnt;
 	int	anim;
@@ -2793,7 +2793,7 @@ void idActor::Event_PlayAnim( int channel, const char *animname ) {
 idActor::Event_PlayCycle
 ===============
 */
-void idActor::Event_PlayCycle( int channel, const char *animname ) {
+void idActor::Event_PlayCycle(const int channel, const char *animname ) {
 	animFlags_t	flags;
 	int			anim;
 	
@@ -2867,7 +2867,7 @@ void idActor::Event_PlayCycle( int channel, const char *animname ) {
 idActor::Event_IdleAnim
 ===============
 */
-void idActor::Event_IdleAnim( int channel, const char *animname ) {
+void idActor::Event_IdleAnim(const int channel, const char *animname ) {
 	int anim;
 	
 	anim = GetAnim( channel, animname );	
@@ -2974,7 +2974,7 @@ void idActor::Event_IdleAnim( int channel, const char *animname ) {
 idActor::Event_SetSyncedAnimWeight
 ================
 */
-void idActor::Event_SetSyncedAnimWeight( int channel, int anim, float weight ) {
+void idActor::Event_SetSyncedAnimWeight(const int channel, const int anim, const float weight ) {
 	idEntity *headEnt;
 
 	headEnt = head.GetEntity();
@@ -3023,7 +3023,7 @@ void idActor::Event_SetSyncedAnimWeight( int channel, int anim, float weight ) {
 idActor::Event_OverrideAnim
 ===============
 */
-void idActor::Event_OverrideAnim( int channel ) {
+void idActor::Event_OverrideAnim(const int channel ) {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		headAnim.Disable();
@@ -3058,7 +3058,7 @@ void idActor::Event_OverrideAnim( int channel ) {
 idActor::Event_EnableAnim
 ===============
 */
-void idActor::Event_EnableAnim( int channel, int blendFrames ) {
+void idActor::Event_EnableAnim(const int channel, const int blendFrames ) {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		headAnim.Enable( blendFrames );
@@ -3083,7 +3083,7 @@ void idActor::Event_EnableAnim( int channel, int blendFrames ) {
 idActor::Event_SetBlendFrames
 ===============
 */
-void idActor::Event_SetBlendFrames( int channel, int blendFrames ) {
+void idActor::Event_SetBlendFrames(const int channel, const int blendFrames ) {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		headAnim.animBlendFrames = blendFrames;
@@ -3111,7 +3111,7 @@ void idActor::Event_SetBlendFrames( int channel, int blendFrames ) {
 idActor::Event_GetBlendFrames
 ===============
 */
-void idActor::Event_GetBlendFrames( int channel ) {
+void idActor::Event_GetBlendFrames(const int channel ) {
 	switch( channel ) {
 	case ANIMCHANNEL_HEAD :
 		idThread::ReturnInt( headAnim.animBlendFrames );
@@ -3136,7 +3136,7 @@ void idActor::Event_GetBlendFrames( int channel ) {
 idActor::Event_AnimState
 ===============
 */
-void idActor::Event_AnimState( int channel, const char *statename, int blendFrames ) {
+void idActor::Event_AnimState(const int channel, const char *statename, const int blendFrames ) {
 	SetAnimState( channel, statename, blendFrames );
 }
 
@@ -3145,7 +3145,7 @@ void idActor::Event_AnimState( int channel, const char *statename, int blendFram
 idActor::Event_GetAnimState
 ===============
 */
-void idActor::Event_GetAnimState( int channel ) {
+void idActor::Event_GetAnimState(const int channel ) {
 	const char *state;
 
 	state = GetAnimState( channel );
@@ -3157,7 +3157,7 @@ void idActor::Event_GetAnimState( int channel ) {
 idActor::Event_InAnimState
 ===============
 */
-void idActor::Event_InAnimState( int channel, const char *statename ) {
+void idActor::Event_InAnimState(const int channel, const char *statename ) {
 	bool instate;
 
 	instate = InAnimState( channel, statename );
@@ -3180,7 +3180,7 @@ void idActor::Event_FinishAction( const char *actionname ) {
 idActor::Event_AnimDone
 ===============
 */
-void idActor::Event_AnimDone( int channel, int blendFrames ) {
+void idActor::Event_AnimDone(const int channel, const int blendFrames ) {
 	bool result;
 
 	switch( channel ) {
@@ -3209,7 +3209,7 @@ void idActor::Event_AnimDone( int channel, int blendFrames ) {
 idActor::Event_HasAnim
 ================
 */
-void idActor::Event_HasAnim( int channel, const char *animname ) {
+void idActor::Event_HasAnim(const int channel, const char *animname ) {
 	if ( GetAnim( channel, animname ) != NULL ) {
 		idThread::ReturnFloat( 1.0f );
 	} else {
@@ -3222,7 +3222,7 @@ void idActor::Event_HasAnim( int channel, const char *animname ) {
 idActor::Event_CheckAnim
 ================
 */
-void idActor::Event_CheckAnim( int channel, const char *animname ) {
+void idActor::Event_CheckAnim(const int channel, const char *animname ) {
 	if ( !GetAnim( channel, animname ) ) {
 		if ( animPrefix.Length() ) {
 			gameLocal.Error( "Can't find anim '%s_%s' for '%s'", animPrefix.c_str(), animname, name.c_str() );
@@ -3237,7 +3237,7 @@ void idActor::Event_CheckAnim( int channel, const char *animname ) {
 idActor::Event_ChooseAnim
 ================
 */
-void idActor::Event_ChooseAnim( int channel, const char *animname ) {
+void idActor::Event_ChooseAnim(const int channel, const char *animname ) {
 	int anim;
 
 	anim = GetAnim( channel, animname );
@@ -3261,7 +3261,7 @@ void idActor::Event_ChooseAnim( int channel, const char *animname ) {
 idActor::Event_AnimLength
 ================
 */
-void idActor::Event_AnimLength( int channel, const char *animname ) {
+void idActor::Event_AnimLength(const int channel, const char *animname ) {
 	int anim;
 
 	anim = GetAnim( channel, animname );
@@ -3285,7 +3285,7 @@ void idActor::Event_AnimLength( int channel, const char *animname ) {
 idActor::Event_AnimDistance
 ================
 */
-void idActor::Event_AnimDistance( int channel, const char *animname ) {
+void idActor::Event_AnimDistance(const int channel, const char *animname ) {
 	int anim;
 
 	anim = GetAnim( channel, animname );
@@ -3362,7 +3362,7 @@ void idActor::Event_ClosestEnemyToPoint( const idVec3 &pos ) {
 idActor::Event_StopSound
 ================
 */
-void idActor::Event_StopSound( int channel, int netSync ) {
+void idActor::Event_StopSound(const int channel, const int netSync ) {
 	if ( channel == SND_CHANNEL_VOICE ) {
 		idEntity *headEnt = head.GetEntity();
 		if ( headEnt ) {
@@ -3424,9 +3424,9 @@ void idActor::Event_GetHead() {
 idActor::Event_SetDamageGroupScale
 ================
 */
-void idActor::Event_SetDamageGroupScale( const char* groupName, float scale) {
+void idActor::Event_SetDamageGroupScale( const char* groupName, const float scale) {
 
-	for( int i = 0; i < damageScale.Num(); i++ ) {
+	for ( size_t i = 0; i < damageScale.Num(); i++ ) {
 		if ( damageGroups[ i ] == groupName ) {
 			damageScale[ i ] = scale;
 		}
@@ -3438,16 +3438,16 @@ void idActor::Event_SetDamageGroupScale( const char* groupName, float scale) {
 idActor::Event_SetDamageGroupScaleAll
 ================
 */
-void idActor::Event_SetDamageGroupScaleAll( float scale ) {
+void idActor::Event_SetDamageGroupScaleAll(const float scale ) {
 
-	for( int i = 0; i < damageScale.Num(); i++ ) {
+	for ( size_t i = 0; i < damageScale.Num(); i++ ) {
 		damageScale[ i ] = scale;
 	}
 }
 
 void idActor::Event_GetDamageGroupScale( const char* groupName ) {
 
-	for( int i = 0; i < damageScale.Num(); i++ ) {
+	for ( size_t i = 0; i < damageScale.Num(); i++ ) {
 		if ( damageGroups[ i ] == groupName ) {
 			idThread::ReturnFloat(damageScale[i]);
 			return;
@@ -3457,7 +3457,7 @@ void idActor::Event_GetDamageGroupScale( const char* groupName ) {
 	idThread::ReturnFloat(0);
 }
 
-void idActor::Event_SetDamageCap( float _damageCap ) {
+void idActor::Event_SetDamageCap(const float _damageCap ) {
 	damageCap = _damageCap;
 }
 

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar com_logFile( "logFile", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "1 = buffer log, 2 = flush after each print", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
 idCVar com_logFileName( "logFileName", "qconsole.log", CVAR_SYSTEM | CVAR_NOCHEAT, "name of log file, if empty, qconsole.log will be used" );
-idCVar com_timestampPrints( "com_timestampPrints", "0", CVAR_SYSTEM, "print time with each console print, 1 = msec, 2 = sec", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
+idCVar com_timestampPrints( "com_timestampPrints", "0", CVAR_SYSTEM, "prID_TIME_T time with each console print, 1 = msec, 2 = sec", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
 
 #ifndef ID_RETAIL
 idCVar com_printFilter( "com_printFilter", "", CVAR_SYSTEM, "only print lines that contain this, add multiple filters with a ; delimeter");
@@ -44,7 +44,7 @@ idCVar com_printFilter( "com_printFilter", "", CVAR_SYSTEM, "only print lines th
 idCommonLocal::BeginRedirect
 ==================
 */
-void idCommonLocal::BeginRedirect( char *buffer, int buffersize, void (*flush)( const char *) ) {
+void idCommonLocal::BeginRedirect( char *buffer, const size_t buffersize, void (*flush)( const char *) ) {
 	if ( !buffer || !buffersize || !flush ) {
 		return;
 	}
@@ -88,7 +88,7 @@ void idCommonLocal::CloseLogFile() {
 idCommonLocal::SetRefreshOnPrint
 ==================
 */
-void idCommonLocal::SetRefreshOnPrint( bool set ) {
+void idCommonLocal::SetRefreshOnPrint(const bool set ) {
 	com_refreshOnPrint = set;
 }
 
@@ -99,7 +99,7 @@ idCommonLocal::VPrintf
 A raw string should NEVER be passed as fmt, because of "%f" type crashes.
 ==================
 */
-void idCommonLocal::VPrintf( const char *fmt, va_list args ) {
+void idCommonLocal::VPrintf( const char *fmt, const va_list args ) {
 	static bool	logFileFailed = false;
 
 	// if the cvar system is not initialized
@@ -108,7 +108,7 @@ void idCommonLocal::VPrintf( const char *fmt, va_list args ) {
 	}
 	// optionally put a timestamp at the beginning of each print,
 	// so we can see how long different init sections are taking
-	int timeLength = 0;
+	ID_TIME_T timeLength = 0;
 	char msg[MAX_PRINT_MSG_SIZE];
 	msg[ 0 ] = '\0';
 	if ( com_timestampPrints.GetInteger() ) {

@@ -86,7 +86,7 @@ public:
 	void						CreateDeferredOverlays( const idRenderModel * model );
 
 	unsigned int				GetNumOverlayDrawSurfs();
-	drawSurf_t *    			CreateOverlayDrawSurf( const viewEntity_t *space, const idRenderModel *baseModel, const Ordinal auto index );
+	drawSurf_t *    			CreateOverlayDrawSurf( const viewEntity_t *space, const idRenderModel *baseModel, index_t index );
 
 	void						ReadFromDemoFile( class idDemoFile *f );
 	void						WriteToDemoFile( class idDemoFile *f ) const;

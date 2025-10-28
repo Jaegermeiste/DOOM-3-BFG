@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_PLAYER__
 #define __D_PLAYER__
 
+#pragma once
 
 // The player data structure depends on a number
 // of other structs: items (internal inventory),
@@ -56,7 +57,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // Player states.
 //
-typedef enum
+typedef enum playerstate_e : uint8
 {
     // Playing or camping.
     PST_LIVE,
@@ -71,7 +72,7 @@ typedef enum
 //
 // Player internal flags, for cheats and debug.
 //
-typedef enum
+typedef enum cheat_e : uint8
 {
     // No clipping, walk through barriers.
     CF_NOCLIP		= 1,
@@ -120,7 +121,7 @@ typedef struct player_s
     qboolean		backpack;
     
     // Frags, kills of other players.
-    int			frags[MAXPLAYERS];
+    size_t			frags[MAXPLAYERS];
     weapontype_t	readyweapon;
     
     // Is wp_nochange if not changing.
@@ -131,8 +132,8 @@ typedef struct player_s
     int			maxammo[NUMAMMO];
 
     // True if button down last tic.
-    int			attackdown;
-    int			usedown;
+    bool		attackdown;
+    bool		usedown;
 
     // Bit flags, for cheats and debug.
     // See cheat_t, above.
@@ -142,19 +143,19 @@ typedef struct player_s
     int			refire;		
 
      // For intermission stats.
-    int			killcount;
-    int			itemcount;
-    int			secretcount;
+	size_t		killcount;
+	size_t		itemcount;
+	size_t		secretcount;
 
-	int			chainsawKills;
-	int			berserkKills;
+	size_t		chainsawKills;
+	size_t		berserkKills;
 
     // Hint messages.
     const char*		message;	
     
     // For screen flashing (red or bright).
-    int			damagecount;
-    int			bonuscount;
+	size_t		damagecount;
+	size_t		bonuscount;
 
     // Who did damage (NULL for floors/ceilings).
     mobj_t*		attacker;
@@ -164,11 +165,11 @@ typedef struct player_s
 
     // Current PLAYPAL, ???
     //  can be set to REDCOLORMAP for pain, etc.
-    int			fixedcolormap;
+    index_t		fixedcolormap;
 
     // Player skin colorshift,
     //  0-3 for which color to draw player.
-    int			colormap;	
+	index_t		colormap;
 
     // Overlay view sprites (gun, etc).
     pspdef_t		psprites[NUMPSPRITES];
@@ -183,7 +184,7 @@ typedef struct player_s
 // INTERMISSION
 // Structure passed e.g. to WI_Start(wb)
 //
-typedef struct
+typedef struct wbplayerstruct_s
 {
     qboolean	in;	// whether the player is in game
     
@@ -191,7 +192,7 @@ typedef struct
     int		skills;
     int		sitems;
     int		ssecret;
-    int		stime; 
+    ID_TIME_T		stime; 
     int		frags[4];
     int		score;	// current score on entry, modified on return
   

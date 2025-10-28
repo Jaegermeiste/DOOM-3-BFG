@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../precompiled.h"
 #include "Winding2D.h"
 
+#include <algorithm>
 #include <utility>
 
 /*
@@ -74,8 +75,8 @@ idWinding2D::ExpandForAxialBox
 */
 void idWinding2D::ExpandForAxialBox( const idVec2 bounds[2] ) {
 	size_t i = 0, numPlanes = 0;
-	idVec2 v;
-	idVec3 planes[MAX_POINTS_ON_WINDING_2D], bevel;
+	idVec2 v = {};
+	idVec3 planes[MAX_POINTS_ON_WINDING_2D] = {}, bevel = {};
 
 	// get planes for the edges and add bevels
 	for ( numPlanes = i = 0; i < numPoints; i++ ) {
@@ -219,9 +220,9 @@ int idWinding2D::Split( const idVec3 &plane, const float epsilon, idWinding2D **
 			dot = dists[i] / ( dists[i] - dists[i+1] );
 			for ( j = 0; j < 2; j++ ) {
 				// avoid round off error when possible
-				if ( plane[j] == 1.0f ) {
+				if ( std::equal_to<>()(plane[j], 1.0f)) {
 					mid[j] = plane.z;
-				} else if ( plane[j] == -1.0f ) {
+				} else if ( std::equal_to<>()(plane[j], -1.0f)) {
 					mid[j] = -plane.z;
 				} else {
 					mid[j] = (*p1)[j] + dot * ((*p2)[j] - (*p1)[j]);
@@ -231,9 +232,9 @@ int idWinding2D::Split( const idVec3 &plane, const float epsilon, idWinding2D **
 			dot = dists[i+1] / ( dists[i+1] - dists[i] );
 			for ( j = 0; j < 2; j++ ) {
 				// avoid round off error when possible
-				if ( plane[j] == 1.0f ) {
+				if ( std::equal_to<>()(plane[j], 1.0f) ) {
 					mid[j] = plane.z;
-				} else if ( plane[j] == -1.0f ) {
+				} else if ( std::equal_to<>()(plane[j], -1.0f) ) {
 					mid[j] = -plane.z;
 				} else {
 					mid[j] = (*p2)[j] + dot * ( (*p1)[j] - (*p2)[j] );
@@ -322,11 +323,11 @@ bool idWinding2D::ClipInPlace( const idVec3 &plane, const float epsilon, const b
 		idVec2* p2 = &p[(i + 1) % numPoints];
 		
 		dot = dists[i] / (dists[i] - dists[i+1]);
-		for ( int j = 0; j < 2; j++ ) {
+		for ( size_t j = 0; j < 2; j++ ) {
 			// avoid round off error when possible
-			if ( plane[j] == 1.0f ) {
+			if (std::equal_to<>()(plane[j], 1.0f)) {
 				mid[j] = plane.z;
-			} else if ( plane[j] == -1.0f ) {
+			} else if ( std::equal_to<>()(plane[j], -1.0f) ) {
 				mid[j] = -plane.z;
 			} else {
 				mid[j] = (*p1)[j] + dot * ((*p2)[j] - (*p1)[j]);
@@ -367,7 +368,7 @@ idWinding2D::Reverse
 idWinding2D *idWinding2D::Reverse() const {
 	idWinding2D* w = new(TAG_IDLIB_WINDING) idWinding2D;
 	w->numPoints = numPoints;
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		w->p[ numPoints - i - 1 ] = p[i];
 	}
 	return w;
@@ -394,13 +395,13 @@ idWinding2D::GetCenter
 ============
 */
 idVec2 idWinding2D::GetCenter() const {
-	idVec2 center;
+	idVec2 center  = {};
 
 	center.Zero();
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		center += p[i];
 	}
-	center *= ( 1.0f / numPoints );
+	center *= ( 1.0f / numeric_cast<float>(numPoints) );
 	return center;
 }
 
@@ -411,12 +412,10 @@ idWinding2D::GetRadius
 */
 float idWinding2D::GetRadius( const idVec2 &center ) const {
 	float radius = 0.0f;
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		idVec2 dir = p[i] - center;
 		const float r = dir * dir;
-		if ( r > radius ) {
-			radius = r;
-		}
+		radius = Max(r, radius);
 	}
 	return idMath::Sqrt( radius );
 }
@@ -474,8 +473,8 @@ idWinding2D::IsHuge
 =============
 */
 bool idWinding2D::IsHuge() const {
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
-		for ( int j = 0; j < 2; j++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
+		for ( size_t j = 0; j < 2; j++ ) {
 			if ( p[i][j] <= MIN_WORLD_COORD || p[i][j] >= MAX_WORLD_COORD ) {
 				return true;
 			}
@@ -490,7 +489,7 @@ idWinding2D::Print
 =============
 */
 void idWinding2D::Print() const {
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		idLib::common->Printf( "(%5.1f, %5.1f)\n", p[i][0], p[i][1] );
 	}
 }
@@ -503,7 +502,7 @@ idWinding2D::PlaneDistance
 float idWinding2D::PlaneDistance( const idVec3 &plane ) const {
 	float min = idMath::INFINITY;
 	float max = -min;
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		const float d = plane.x * p[i].x + plane.y * p[i].y + plane.z;
 		if ( d < min ) {
 			min = d;
@@ -535,7 +534,7 @@ idWinding2D::PlaneSide
 int idWinding2D::PlaneSide( const idVec3 &plane, const float epsilon ) const {
 	bool front = false;
 	bool back = false;
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		const float d = plane.x * p[i].x + plane.y * p[i].y + plane.z;
 		if ( d < -epsilon ) {
 			if ( front ) {
@@ -645,9 +644,9 @@ bool idWinding2D::LineIntersection( const idVec2 &start, const idVec2 &end ) con
 idWinding2D::RayIntersection
 ============
 */
-bool idWinding2D::RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, size_t *edgeNums ) const {
+bool idWinding2D::RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, index_t *edgeNums ) const {
 	size_t i = 0;
-	size_t localEdgeNums[2] = {};
+	index_t localEdgeNums[2] = {};
 	int sides[MAX_POINTS_ON_WINDING_2D + 1] = {}, counts[3] = {};
 	float d1, epsilon = 0.1f;
 	idVec3 edges[2] = {};
@@ -681,7 +680,7 @@ bool idWinding2D::RayIntersection( const idVec2 &start, const idVec2 &dir, float
 	size_t numEdges = 0;
 	for ( i = 0; i < numPoints; i++ ) {
 		if ( sides[i] != sides[i+1] && sides[i+1] != SIDE_ON ) {
-			localEdgeNums[numEdges] = i;
+			localEdgeNums[numEdges] = numeric_cast<BASE_TYPE(localEdgeNums)>(i);
 			edges[numEdges++] = Plane2DFromPoints( p[i], p[(i+1)%numPoints] );
 			if ( numEdges >= 2 ) {
 				break;

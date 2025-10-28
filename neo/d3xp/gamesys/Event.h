@@ -33,6 +33,8 @@ Event are used for scheduling tasks and for linking script commands.
 #ifndef __SYS_EVENT_H__
 #define __SYS_EVENT_H__
 
+#pragma once
+
 constexpr size_t D_EVENT_MAXARGS     = 8;			// if changed, enable the CREATE_EVENT_CODE define in Event.cpp to generate switch statement for idClass::ProcessEventArgPtr.
 												// running the game will then generate c:\doom\base\events.txt, the contents of which should be copied into the switch statement.
 
@@ -75,7 +77,7 @@ public:
 	size_t						GetEventNum() const;
 	size_t						GetNumArgs() const;
 	size_t						GetArgSize() const;
-	int							GetArgOffset( Ordinal auto arg ) const;
+	size_t						GetArgOffset( index_t arg ) const;
 
 	static size_t				NumEventCommands();
 	static const idEventDef		*GetEventCommand( size_t eventnum );
@@ -194,7 +196,7 @@ ID_INLINE size_t idEventDef::GetArgSize() const {
 idEventDef::GetArgOffset
 ================
 */
-ID_INLINE int idEventDef::GetArgOffset( Ordinal auto arg ) const {
+ID_INLINE size_t idEventDef::GetArgOffset(const index_t arg ) const {
 	assert( ( arg >= 0 ) && ( arg < D_EVENT_MAXARGS ) );
 	return argOffset[ arg ];
 }

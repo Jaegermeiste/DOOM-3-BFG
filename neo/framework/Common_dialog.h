@@ -298,7 +298,7 @@ protected:
 	void	ShowNextDialog();
 	void	ActivateDialog( bool activate );
 	void	AddDialogInternal( idDialogInfo & info );
-	void	ReleaseCallBacks( int index );
+	void	ReleaseCallBacks( index_t index );
 
 private:
 	bool	dialogPause;

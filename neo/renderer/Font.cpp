@@ -39,7 +39,7 @@ static constexpr float old_scale1 = 0.3f;
 Old_SelectValueForScale
 ==============================
 */
-ID_INLINE float Old_SelectValueForScale( float scale, float v0, float v1, float v2 ) {
+ID_INLINE float Old_SelectValueForScale(const float scale, const float v0, const float v1, const float v2 ) {
 	return ( scale >= old_scale2 ) ? v2 : ( scale >= old_scale1 ) ? v1 : v0;
 }
 
@@ -139,7 +139,7 @@ bool LoadOldGlyphData( const char * filename, oldGlyphInfo_t glyphInfo[GLYPHS_PE
 		return false;
 	}
 	fd->Read( glyphInfo, GLYPHS_PER_FONT * sizeof( oldGlyphInfo_t ) );
-	for ( int i = 0; i < GLYPHS_PER_FONT; i++ ) {
+	for ( size_t i = 0; i < GLYPHS_PER_FONT; i++ ) {
 		idSwap::Little( glyphInfo[i].height );
 		idSwap::Little( glyphInfo[i].top );
 		idSwap::Little( glyphInfo[i].bottom );
@@ -201,7 +201,7 @@ bool idFont::LoadFont() {
 
 	fd->Read( fontInfo->glyphData, fontInfo->numGlyphs * sizeof( glyphInfo_t ) );
 
-	for( int i = 0; i < fontInfo->numGlyphs; i++ ) {
+	for ( size_t i = 0; i < fontInfo->numGlyphs; i++ ) {
 		idSwap::Little( fontInfo->glyphData[i].width );
 		idSwap::Little( fontInfo->glyphData[i].height );
 		idSwap::Little( fontInfo->glyphData[i].top );
@@ -215,7 +215,7 @@ bool idFont::LoadFont() {
 	idSwap::LittleArray( fontInfo->charIndex, fontInfo->numGlyphs );
 
 	memset( fontInfo->ascii, -1, sizeof( fontInfo->ascii ) );
-	for ( int i = 0; i < fontInfo->numGlyphs; i++ ) {
+	for ( size_t i = 0; i < fontInfo->numGlyphs; i++ ) {
 		if ( fontInfo->charIndex[i] < 128 ) {
 			fontInfo->ascii[fontInfo->charIndex[i]] = i;
 		} else {
@@ -233,7 +233,7 @@ bool idFont::LoadFont() {
 	// Load the old glyph data because we want our new fonts to fit in the old glyph metrics
 	int pointSizes[3] = { 12, 24, 48 };
 	float scales[3] = { 4.0f, 2.0f, 1.0f };
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		oldGlyphInfo_t oldGlyphInfo[GLYPHS_PER_FONT];
 		const char * oldFileName = va( "newfonts/%s/old_%d.dat", GetName(), pointSizes[i] );
 		if ( LoadOldGlyphData( oldFileName, oldGlyphInfo ) ) {
@@ -273,7 +273,7 @@ bool idFont::LoadFont() {
 idFont::GetGlyphIndex
 ==============================
 */
-int	idFont::GetGlyphIndex( uint32 idx ) const {
+int	idFont::GetGlyphIndex(const uint32 idx ) const {
 	if ( idx < 128 ) {
 		return fontInfo->ascii[idx];
 	}
@@ -283,7 +283,7 @@ int	idFont::GetGlyphIndex( uint32 idx ) const {
 	if ( fontInfo->charIndex == nullptr) {
 		return idx;
 	}
-	int len = fontInfo->numGlyphs;
+	size_t len = fontInfo->numGlyphs;
 	int mid = fontInfo->numGlyphs;
 	int offset = 0;
 	while ( mid > 0 ) {
@@ -301,7 +301,7 @@ int	idFont::GetGlyphIndex( uint32 idx ) const {
 idFont::GetLineHeight
 ==============================
 */
-float idFont::GetLineHeight( float scale ) const {
+float idFont::GetLineHeight(const float scale ) const {
 	if ( alias != nullptr) {
 		return alias->GetLineHeight( scale );
 	}
@@ -316,7 +316,7 @@ float idFont::GetLineHeight( float scale ) const {
 idFont::GetAscender
 ==============================
 */
-float idFont::GetAscender( float scale ) const {
+float idFont::GetAscender(const float scale ) const {
 	if ( alias != nullptr) {
 		return alias->GetAscender( scale );
 	}
@@ -331,7 +331,7 @@ float idFont::GetAscender( float scale ) const {
 idFont::GetMaxCharWidth
 ==============================
 */
-float idFont::GetMaxCharWidth( float scale ) const {
+float idFont::GetMaxCharWidth(const float scale ) const {
 	if ( alias != nullptr) {
 		return alias->GetMaxCharWidth( scale );
 	}
@@ -346,7 +346,7 @@ float idFont::GetMaxCharWidth( float scale ) const {
 idFont::GetGlyphWidth
 ==============================
 */
-float idFont::GetGlyphWidth( float scale, uint32 idx ) const {
+float idFont::GetGlyphWidth(const float scale, const uint32 idx ) const {
 	if ( alias != nullptr) {
 		return alias->GetGlyphWidth( scale, idx );
 	}
@@ -368,7 +368,7 @@ float idFont::GetGlyphWidth( float scale, uint32 idx ) const {
 idFont::GetScaledGlyph
 ==============================
 */
-void idFont::GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t & glyphInfo ) const {
+void idFont::GetScaledGlyph(const float scale, const uint32 idx, scaledGlyphInfo_t & glyphInfo ) const {
 	if ( alias != nullptr) {
 		return alias->GetScaledGlyph( scale, idx, glyphInfo );
 	}

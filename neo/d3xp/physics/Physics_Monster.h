@@ -93,8 +93,8 @@ public:
 	void					DisableImpact();
 
 public:	// common physics interface
-	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
-	void					UpdateTime( int endTimeMSec );
+	bool					Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec );
+	void					UpdateTime( ID_TIME_T endTimeMSec );
 	int						GetTime() const override;
 
 	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;

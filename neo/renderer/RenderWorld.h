@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERWORLD_H__
 #define __RENDERWORLD_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -64,14 +66,14 @@ constexpr int SHADERPARM_BEAM_WIDTH		= 11;
 constexpr int SHADERPARM_SPRITE_WIDTH		= 8;
 constexpr int SHADERPARM_SPRITE_HEIGHT		= 9;
 
-constexpr int SHADERPARM_PARTICLE_STOPTIME = 8;	// don't spawn any more particles after this time
+constexpr ID_TIME_T SHADERPARM_PARTICLE_STOPTIME = 8;	// don't spawn any more particles after this time
 
 // guis
-constexpr int MAX_RENDERENTITY_GUI		= 3;
+constexpr size_t MAX_RENDERENTITY_GUI		= 3;
 
 // the renderEntity_s::joints array needs to point at enough memory to store the number of joints rounded up to two for SIMD
-ID_INLINE int SIMD_ROUND_JOINTS( int numJoints )							{ return ( ( numJoints + 1 ) & ~1 ); }
-ID_INLINE void SIMD_INIT_LAST_JOINT( idJointMat * joints, int numJoints )	{ if ( numJoints & 1 ) { joints[numJoints] = joints[numJoints - 1]; } }
+ID_INLINE size_t SIMD_ROUND_JOINTS(const size_t numJoints )							{ return ( ( numJoints + 1 ) & ~1 ); }
+ID_INLINE void SIMD_INIT_LAST_JOINT( idJointMat * joints, const size_t numJoints )	{ if ( numJoints & 1 ) { joints[numJoints] = joints[numJoints - 1]; } }
 
 typedef bool(*deferredEntityCallback_t)( renderEntity_s *, const renderView_s * );
 
@@ -79,8 +81,8 @@ typedef bool(*deferredEntityCallback_t)( renderEntity_s *, const renderView_s * 
 typedef struct renderEntity_s {
 	idRenderModel *			hModel;				// this can only be null if callback is set
 
-	size_t					entityNum;
-	int						bodyId;
+	index_t					entityNum;
+	index_t					bodyId;
 
 	// Entities that are expensive to generate, like skeletal models, can be
 	// deferred until their bounds are found to be in view, in the frustum
@@ -257,14 +259,14 @@ typedef struct modelTrace_s {
 } modelTrace_t;
 
 
-static constexpr int NUM_PORTAL_ATTRIBUTES = 3;
+static constexpr size_t NUM_PORTAL_ATTRIBUTES = 3;
 
-typedef enum portalConnection_e {
+typedef enum portalConnection_e : uint8 {
 	PS_BLOCK_NONE = 0,
 
 	PS_BLOCK_VIEW = 1,
 	PS_BLOCK_LOCATION = 2,		// game map location strings often stop in hallways
-	PS_BLOCK_AIR = 4,			// windows between pressurized and unpresurized areas
+	PS_BLOCK_AIR = 4,			// windows between pressurized and unpressurized areas
 
 	PS_BLOCK_ALL = (1<<NUM_PORTAL_ATTRIBUTES)-1
 } portalConnection_t;
@@ -303,7 +305,7 @@ public:
 	virtual	void			GenerateAllInteractions() = 0;
 
 	// returns true if this area model needs portal sky to draw
-	virtual bool			CheckAreaForPortalSky( int areaNum ) = 0;
+	virtual bool			CheckAreaForPortalSky( index_t areaNum ) = 0;
 
 	//-------------- Decals and Overlays  -----------------
 
@@ -352,7 +354,7 @@ public:
 
 	// returns true only if a chain of portals without the given connection bits set
 	// exists between the two areas (a door doesn't separate them, etc)
-	[[nodiscard]] virtual	bool			AreasAreConnected( int areaNum1, int areaNum2, portalConnection_t connection ) const = 0;
+	[[nodiscard]] virtual	bool			AreasAreConnected( index_t areaNum1, index_t areaNum2, portalConnection_t connection ) const = 0;
 
 	// returns the number of portal areas in a map, so game code can build information
 	// tables for the different areas
@@ -364,13 +366,13 @@ public:
 
 	// fills the *areas array with the numbers of the areas the bounds cover
 	// returns the total number of areas the bounds cover
-	virtual int				BoundsInAreas( const idBounds &bounds, int *areas, int maxAreas ) const = 0;
+	virtual int				BoundsInAreas( const idBounds &bounds, int *areas, size_t maxAreas ) const = 0;
 
 	// Used by the sound system to do area flowing
-	virtual	int				NumPortalsInArea( int areaNum ) = 0;
+	virtual	size_t			NumPortalsInArea( index_t areaNum ) = 0;
 
 	// returns one portal from an area
-	virtual exitPortal_t	GetPortal( int areaNum, int portalNum ) = 0;
+	virtual exitPortal_t	GetPortal( index_t areaNum, int portalNum ) = 0;
 
 	//-------------- Tracing  -----------------
 
@@ -413,7 +415,7 @@ public:
 	// Line drawing for debug visualization
 	virtual void			DebugClearLines( ID_TIME_T time ) = 0;		// a time of 0 will clear all lines and text
 	virtual void			DebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const ID_TIME_T lifetime = 0, const bool depthTest = false ) = 0;
-	virtual void			DebugArrow( const idVec4 &color, const idVec3 &start, const idVec3 &end, int size, const ID_TIME_T lifetime = 0 ) = 0;
+	virtual void			DebugArrow( const idVec4 &color, const idVec3 &start, const idVec3 &end, const size_t size, const ID_TIME_T lifetime = 0 ) = 0;
 	virtual void			DebugWinding( const idVec4 &color, const idWinding &w, const idVec3 &origin, const idMat3 &axis, const ID_TIME_T lifetime = 0, const bool depthTest = false ) = 0;
 	virtual void			DebugCircle( const idVec4 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const size_t numSteps, const ID_TIME_T lifetime = 0, const bool depthTest = false ) = 0;
 	virtual void			DebugSphere( const idVec4 &color, const idSphere &sphere, const ID_TIME_T lifetime = 0, bool depthTest = false ) = 0;

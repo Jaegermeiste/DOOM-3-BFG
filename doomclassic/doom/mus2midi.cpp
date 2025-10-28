@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // reads a variable length integer
-unsigned long ReadVarLen( char* buffer ) {
+static unsigned long ReadVarLen( char* buffer ) {
 	unsigned long value;
 	byte c;
 
@@ -50,9 +50,9 @@ unsigned long ReadVarLen( char* buffer ) {
 }
 
 // Writes a variable length integer to a buffer, and returns bytes written
-int WriteVarLen( long value, byte* out ) 
+static int WriteVarLen( long value, byte* out ) 
 {
-	long buffer, count = 0;
+	long buffer = 0, count = 0;
 
 	buffer = value & 0x7f;
 	while ((value >>= 7) > 0) {
@@ -61,37 +61,41 @@ int WriteVarLen( long value, byte* out )
 		buffer += (value & 0x7f);
 	}
 
-	while (1) {
+	while (true) {
 		++count;
-		*out = (byte)buffer;
+		*out = static_cast<byte>(buffer);
 		++out;
 		if (buffer & 0x80)
+		{
 			buffer >>= 8;
+		}
 		else
+		{
 			break;
+		}
 	}
 	return count;
 }
 
 // writes a byte, and returns the buffer
-unsigned char* WriteByte(void* buf, byte b)
+static unsigned char* WriteByte(void* buf, const byte b)
 {
-	unsigned char* buffer = (unsigned char*)buf;
+	unsigned char* buffer = static_cast<unsigned char*>(buf);
 	*buffer++ = b;
 	return buffer;
 }
 
-unsigned char* WriteShort(void* b, unsigned short s)
+static unsigned char* WriteShort(void* b, const unsigned short s)
 {
-	unsigned char* buffer = (unsigned char*)b;
+	unsigned char* buffer = static_cast<unsigned char*>(b);
 	*buffer++ = (s >> 8);
 	*buffer++ = (s & 0x00FF);
 	return buffer;
 }
 
-unsigned char* WriteInt(void* b, unsigned int i)
+static unsigned char* WriteInt(void* b, const unsigned int i)
 {
-	unsigned char* buffer = (unsigned char*)b;
+	unsigned char* buffer = static_cast<unsigned char*>(b);
 	*buffer++ = (i & 0xff000000) >> 24;
 	*buffer++ = (i & 0x00ff0000) >> 16;
 	*buffer++ = (i & 0x0000ff00) >> 8;
@@ -100,7 +104,7 @@ unsigned char* WriteInt(void* b, unsigned int i)
 }
 
 // Format - 0(1 track only), 1(1 or more tracks, each play same time), 2(1 or more, each play seperatly)
-void Midi_CreateHeader(MidiHeaderChunk_t* header, short format, short track_count,  short division)
+static void Midi_CreateHeader(MidiHeaderChunk_t* header, const short format, const short track_count, const short division)
 {
 	WriteInt(header->name, 'MThd');
 	WriteInt(&header->length, 6);
@@ -109,7 +113,7 @@ void Midi_CreateHeader(MidiHeaderChunk_t* header, short format, short track_coun
 	WriteShort(&header->division, division);
 }
 
-unsigned char* Midi_WriteTempo(unsigned char* buffer, int tempo)
+static unsigned char* Midi_WriteTempo(unsigned char* buffer, const int tempo)
 {
 	buffer = WriteByte(buffer, 0x00);	// delta time
 	buffer = WriteByte(buffer, 0xff);	// sys command
@@ -122,7 +126,7 @@ unsigned char* Midi_WriteTempo(unsigned char* buffer, int tempo)
 	return buffer;
 }
 
-int Midi_UpdateBytesWritten(int* bytes_written, int to_add, int max)
+static int Midi_UpdateBytesWritten(int* bytes_written, const int to_add, const size_t max)
 {
 	*bytes_written += to_add;
 	if (max && *bytes_written > max)
@@ -133,7 +137,7 @@ int Midi_UpdateBytesWritten(int* bytes_written, int to_add, int max)
 	return 1;
 }
 
-unsigned char MidiMap[] = 
+static unsigned char MidiMap[] = 
 {
 	0,				// prog change
 	0,				// bank sel
@@ -159,7 +163,7 @@ namespace {
 	}
 }
 
-int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
+static int Mus2Midi(unsigned char* bytes, unsigned char* out, size_t* len)
 {
 	// mus header and instruments
 	MUSheader_t header;
@@ -195,7 +199,9 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	
 	// only 15 supported
 	if (header.channels > MIDI_MAXCHANNELS - 1)
+	{
 		return 0;
+	}
 
 	// Map channel 15 to 9(percussions)
 	for (temp = 0; temp < MIDI_MAXCHANNELS; ++temp) {
@@ -224,7 +230,7 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	Midi_UpdateBytesWritten(&bytes_written, 7, *len);
 	out = Midi_WriteTempo(out, 0x001aa309);
 	
-	// Percussions channel starts out at full volume
+	// Percussion channel starts out at full volume
 	Midi_UpdateBytesWritten(&bytes_written, 4, *len);
 	out = WriteByte(out, 0x00);
 	out = WriteByte(out, 0xB9);
@@ -255,7 +261,9 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 
 			channelMap[channel] = currentChannel++;
 			if (currentChannel == 9)
+			{
 				++currentChannel;
+			}
 		}
 
 		status = channelMap[channel];
@@ -275,7 +283,9 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 			status |= 0x90;
 			bit1 = *cur & 127;
 			if (*cur++ & 128)	// volume bit?
+			{
 				channel_volume[channelMap[channel]] = *cur++;
+			}
 			bit2 = channel_volume[channelMap[channel]];
 			break;
 		case MUSEVENT_PITCHWHEEL:
@@ -319,9 +329,11 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 		// Write it out
 		out_local = WriteByte(out_local, status);
 		out_local = WriteByte(out_local, bit1);
-		if (bitc == 2) 
+		if (bitc == 2)
+		{
 			out_local = WriteByte(out_local, bit2);
-			
+		}
+
 
 		// Write out temp stuff
 		if (out_local != temp_buffer)

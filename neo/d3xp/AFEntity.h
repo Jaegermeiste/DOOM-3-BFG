@@ -80,7 +80,7 @@ public:
 	void					Spawn();
 
 protected:
-	void					BuildChain( const idStr &name, const idVec3 &origin, float linkLength, float linkWidth, float density, int numLinks, bool bindToWorld = true );
+	void					BuildChain( const idStr &name, const idVec3 &origin, float linkLength, float linkWidth, float density, size_t numLinks, bool bindToWorld = true );
 };
 
 

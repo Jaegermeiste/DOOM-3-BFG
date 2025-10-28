@@ -122,7 +122,7 @@ Returns true if the value was set, false if not.
 ===============
 */
 template< class type_ >
-bool idPredictedValue< type_ >::UpdateFromSnapshot( const type_ & valueFromSnapshot, int clientNumber ) {
+bool idPredictedValue< type_ >::UpdateFromSnapshot( const type_ & valueFromSnapshot, const index_t clientNumber ) {
 	if ( clientNumber != gameLocal.GetLocalClientNum() ) {
 		value = valueFromSnapshot;
 		return true;

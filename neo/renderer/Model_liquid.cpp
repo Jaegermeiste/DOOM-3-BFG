@@ -64,7 +64,7 @@ idRenderModelLiquid::idRenderModelLiquid() {
 idRenderModelLiquid::GenerateSurface
 ====================
 */
-modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp ) {
+modelSurface_t idRenderModelLiquid::GenerateSurface(const float lerp ) {
 	srfTriangles_t	*tri;
 	int				i, base;
 	idDrawVert		*vert;

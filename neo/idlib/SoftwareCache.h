@@ -189,23 +189,23 @@ private:
 idODSArray
 ================================================
 */
-template< typename _type_, int max >
+template< typename _type_, size_t max >
 class idODSArray {
 public:
-	idODSArray( const _type_ * array, const int num ) : arrayPtr( array ), arrayNum( num ) {
+	idODSArray( const _type_ * array, const size_t num ) : arrayPtr( array ), arrayNum( num ) {
 		assert( num <= max );
 		Prefetch( array, 0 );
 	}
-	const _type_ & operator[]( int index ) const {
+	const _type_ & operator[]( const Ordinal auto index ) const {
 		assert( index >= 0 && index < arrayNum );
 		return arrayPtr[index];
 	}
 	const _type_ * Ptr() const { return arrayPtr; }
-	[[nodiscard]] int Num() const { return arrayNum; }
+	[[nodiscard]] size_t Num() const { return arrayNum; }
 
 private:
 	const _type_ * arrayPtr;
-	int arrayNum;
+	size_t arrayNum;
 };
 
 /*
@@ -213,17 +213,17 @@ private:
 idODSIndexedArray
 ================================================
 */
-template< typename _elemType_, typename _indexType_, int max >
+template< typename _elemType_, typename _indexType_, size_t max >
 class idODSIndexedArray {
 public:
-	idODSIndexedArray( const _elemType_ * array, const _indexType_ * index, const int num ) : arrayNum( num ) {
+	idODSIndexedArray( const _elemType_ * array, const _indexType_ * index, const size_t num ) : arrayNum( num ) {
 		assert( num <= max );
-		for ( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			Prefetch( arrayPtr, abs( index[i] ) * sizeof( _elemType_ ) );
 			arrayPtr[i] = array + abs( index[i] );
 		}
 	}
-	const _elemType_ & operator[]( int index ) const {
+	const _elemType_ & operator[]( const Ordinal auto index ) const {
 		assert( index >= 0 && index < arrayNum );
 		return * arrayPtr[index];
 	}
@@ -236,7 +236,7 @@ public:
 
 private:
 	const _elemType_ * arrayPtr[max];
-	int arrayNum;
+	size_t arrayNum;
 };
 
 /*
@@ -247,7 +247,7 @@ idODSStreamedOutputArray
 template< typename _type_, size_t _bufferSize_ >
 class ALIGNTYPE16 idODSStreamedOutputArray {
 public:
-				idODSStreamedOutputArray( _type_ * array, int * numElements, const int maxElements ) :
+				idODSStreamedOutputArray( _type_ * array, int * numElements, const size_t maxElements ) :
 						localNum( 0 ),
 						outArray( array ),
 						outNum( numElements ),
@@ -280,7 +280,7 @@ idODSStreamedArray
 template< typename _type_, size_t _bufferSize_, streamBufferType_t _sbt_ = SBT_DOUBLE, int _roundUpToMultiple_ = 1 >
 class ALIGNTYPE16 idODSStreamedArray {
 public:
-					idODSStreamedArray( const _type_ * array, const int numElements ) :
+					idODSStreamedArray( const _type_ * array, const size_t numElements ) :
 							cachedArrayStart( 0 ),
 							cachedArrayEnd( 0 ),
 							streamArrayEnd( 0 ),
@@ -339,8 +339,8 @@ public:
 	// This is useful when the algorithm needs to successively access an odd number of elements
 	// at the same time that may cross a single buffer boundary.
 	
-	const _type_ &	operator[]( Ordinal auto index ) const {
-		assert( ( index >= cachedArrayStart && index < cachedArrayEnd ) || ( cachedArrayEnd == inArrayNum && index >= inArrayNum && index < inArrayNumRoundedUp ) );
+	const _type_ &	operator[]( Ordinal auto &index ) const {
+		assert( ( std::cmp_greater_equal(index, cachedArrayStart) && std::cmp_less(index, cachedArrayEnd) ) || ( cachedArrayEnd == inArrayNum && std::cmp_greater_equal(index, inArrayNum) && std::cmp_less(index, inArrayNumRoundedUp) ) );
 		if ( _roundUpToMultiple_ > 1 ) {
 			index &= ( index - inArrayNum ) >> 31;
 		}
@@ -355,7 +355,7 @@ private:
 	size_t			inArrayNum;
 	size_t			inArrayNumRoundedUp;
 
-	static void FlushArray( const void * flushArray, int flushStart, int flushEnd ) {
+	static void FlushArray( const void * flushArray, size_t flushStart, size_t flushEnd ) {
 #if 0
 		// arrayFlushBase is rounded up so we do not flush anything before the array.
 		// arrayFlushStart is rounded down so we start right after the last cache line that was previously flushed.
@@ -388,7 +388,7 @@ An index with offsets and more complex logic is needed to support other sizes.
 template< typename _elemType_, typename _indexType_, size_t _bufferSize_, streamBufferType_t _sbt_ = SBT_DOUBLE, int _roundUpToMultiple_ = 1 >
 class ALIGNTYPE16 idODSStreamedIndexedArray {
 public:
-					idODSStreamedIndexedArray( const _elemType_ * array, const int numElements, const _indexType_ * index, const int numIndices ) :
+					idODSStreamedIndexedArray( const _elemType_ * array, const size_t numElements, const _indexType_ * index, const size_t numIndices ) :
 							cachedArrayStart( 0 ),
 							cachedArrayEnd( 0 ),
 							streamArrayEnd( 0 ),
@@ -478,7 +478,7 @@ public:
 	// at the same time that may cross a single buffer boundary.
 	
 	const _elemType_ & operator[]( Ordinal auto index ) const {
-		assert( ( index >= cachedArrayStart && index < cachedArrayEnd ) || ( cachedArrayEnd == inIndexNum && index >= inIndexNum && index < inIndexNumRoundedUp ) );
+		assert( ( std::cmp_greater_equal(index, cachedArrayStart) && std::cmp_less(index, cachedArrayEnd) ) || ( cachedArrayEnd == inIndexNum && std::cmp_greater_equal(index, inIndexNum) && std::cmp_less(index, inIndexNumRoundedUp) ) );
 		if ( _roundUpToMultiple_ > 1 ) {
 			index &= ( index - inIndexNum ) >> 31;
 		}

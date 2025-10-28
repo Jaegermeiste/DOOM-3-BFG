@@ -49,13 +49,13 @@ public:
 	idBTreeNode *					parent;			// parent node
 	idBTreeNode *					next;			// next sibling
 	idBTreeNode *					prev;			// prev sibling
-	int								numChildren;	// number of children
+	size_t							numChildren;	// number of children
 	idBTreeNode *					firstChild;		// first child
 	idBTreeNode *					lastChild;		// last child
 };
 
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 class idBTree {
 public:
 									idBTree();
@@ -67,16 +67,16 @@ public:
 	idBTreeNode<objType,keyType> *	Add( objType *object, keyType key );						// add an object to the tree
 	void							Remove( idBTreeNode<objType,keyType> *node );				// remove an object node from the tree
 
-									[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFind( keyType key ) const;								// find an object using the given key
-									[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFindSmallestLargerEqual( keyType key ) const;			// find an object with the smallest key larger equal the given key
-									[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFindLargestSmallerEqual( keyType key ) const;			// find an object with the largest key smaller equal the given key
+	[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFind( keyType key ) const;								// find an object using the given key
+	[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFindSmallestLargerEqual( keyType key ) const;			// find an object with the smallest key larger equal the given key
+	[[nodiscard]] idBTreeNode<objType,keyType> *	NodeFindLargestSmallerEqual( keyType key ) const;			// find an object with the largest key smaller equal the given key
 
-									[[nodiscard]] objType *						Find( keyType key ) const;									// find an object using the given key
-									[[nodiscard]] objType *						FindSmallestLargerEqual( keyType key ) const;				// find an object with the smallest key larger equal the given key
-									[[nodiscard]] objType *						FindLargestSmallerEqual( keyType key ) const;				// find an object with the largest key smaller equal the given key
+	[[nodiscard]] objType *						Find( keyType key ) const;									// find an object using the given key
+	[[nodiscard]] objType *						FindSmallestLargerEqual( keyType key ) const;				// find an object with the smallest key larger equal the given key
+	[[nodiscard]] objType *						FindLargestSmallerEqual( keyType key ) const;				// find an object with the largest key smaller equal the given key
 
-									[[nodiscard]] idBTreeNode<objType,keyType> *	GetRoot() const;											// returns the root node of the tree
-									[[nodiscard]] int								GetNodeCount() const;										// returns the total number of nodes in the tree
+	[[nodiscard]] idBTreeNode<objType,keyType> *	GetRoot() const;											// returns the root node of the tree
+	[[nodiscard]] size_t							GetNodeCount() const;										// returns the total number of nodes in the tree
 	idBTreeNode<objType,keyType> *	GetNext( idBTreeNode<objType,keyType> *node ) const;		// goes through all nodes of the tree
 	idBTreeNode<objType,keyType> *	GetNextLeaf( idBTreeNode<objType,keyType> *node ) const;	// goes through all leaf nodes of the tree
 
@@ -94,29 +94,29 @@ private:
 };
 
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTree<objType,keyType,maxChildrenPerNode>::idBTree() {
 	assert( maxChildrenPerNode >= 4 );
 	root = NULL;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTree<objType,keyType,maxChildrenPerNode>::~idBTree() {
 	Shutdown();
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::Init() {
 	root = AllocNode();
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::Shutdown() {
 	nodeAllocator.Shutdown();
 	root = NULL;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::Add( objType *object, keyType key ) {
 	idBTreeNode<objType,keyType> *child = nullptr, *newNode = nullptr;
 
@@ -209,7 +209,7 @@ ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNo
 	return newNode;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::Remove( idBTreeNode<objType,keyType> *node ) {
 	idBTreeNode<objType,keyType> *parent;
 
@@ -226,25 +226,32 @@ ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::Remove( idBTreeNode<
 	} else {
 		node->parent->lastChild = node->prev;
 	}
-	node->parent->numChildren--;
+	--node->parent->numChildren;
 
 	// make sure there are no parent nodes with a single child
 	for ( parent = node->parent; parent != root && parent->numChildren <= 1; parent = parent->parent ) {
 
-		if ( parent->next ) {
-			parent = MergeNodes( parent, parent->next );
-		} else if ( parent->prev ) {
-			parent = MergeNodes( parent->prev, parent );
-		}
+		if (parent)
+		{
+			if (parent->next) {
+				parent = MergeNodes(parent, parent->next);
+			}
+			else if (parent->prev) {
+				parent = MergeNodes(parent->prev, parent);
+			}
 
-		// a parent may not use a key higher than the key of it's last child
-		if ( parent->key > parent->lastChild->key ) {
-			parent->key = parent->lastChild->key;
-		}
+			// a parent may not use a key higher than the key of it's last child
+			if (parent->lastChild)
+			{
+				if (parent->key > parent->lastChild->key) {
+					parent->key = parent->lastChild->key;
+				}
+			}
 
-		if ( parent->numChildren > maxChildrenPerNode ) {
-			SplitNode( parent );
-			break;
+			if (parent->numChildren > maxChildrenPerNode) {
+				SplitNode(parent);
+				break;
+			}
 		}
 	}
 	for ( ; parent != nullptr && parent->lastChild != NULL; parent = parent->parent ) {
@@ -270,7 +277,7 @@ ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::Remove( idBTreeNode<
 #endif
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> * idBTree<objType,keyType,maxChildrenPerNode>::NodeFind( keyType key ) const {
 	for ( idBTreeNode<objType, keyType>* node = root->firstChild; node != nullptr; node = node->firstChild ) {
 		while( node->next ) {
@@ -290,7 +297,7 @@ ID_INLINE idBTreeNode<objType,keyType> * idBTree<objType,keyType,maxChildrenPerN
 	return nullptr;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> * idBTree<objType,keyType,maxChildrenPerNode>::NodeFindSmallestLargerEqual( keyType key ) const {
 	if ( root == nullptr) {
 		return nullptr;
@@ -314,7 +321,7 @@ ID_INLINE idBTreeNode<objType,keyType> * idBTree<objType,keyType,maxChildrenPerN
 	return nullptr;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> * idBTree<objType,keyType,maxChildrenPerNode>::NodeFindLargestSmallerEqual( keyType key ) const {
 	if ( root == nullptr) {
 		return nullptr;
@@ -345,7 +352,7 @@ ID_INLINE idBTreeNode<objType,keyType> * idBTree<objType,keyType,maxChildrenPerN
 	return nullptr;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE objType *idBTree<objType,keyType,maxChildrenPerNode>::Find( keyType key ) const {
 	idBTreeNode<objType,keyType> * node = NodeFind( key );
 	if ( node == nullptr) {
@@ -355,7 +362,7 @@ ID_INLINE objType *idBTree<objType,keyType,maxChildrenPerNode>::Find( keyType ke
 	}
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE objType *idBTree<objType,keyType,maxChildrenPerNode>::FindSmallestLargerEqual( keyType key ) const {
 	idBTreeNode<objType,keyType> * node = NodeFindSmallestLargerEqual( key );
 	if ( node == nullptr) {
@@ -365,7 +372,7 @@ ID_INLINE objType *idBTree<objType,keyType,maxChildrenPerNode>::FindSmallestLarg
 	}
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE objType *idBTree<objType,keyType,maxChildrenPerNode>::FindLargestSmallerEqual( keyType key ) const {
 	idBTreeNode<objType,keyType> * node = NodeFindLargestSmallerEqual( key );
 	if ( node == nullptr) {
@@ -375,17 +382,17 @@ ID_INLINE objType *idBTree<objType,keyType,maxChildrenPerNode>::FindLargestSmall
 	}
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::GetRoot() const {
 	return root;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
-ID_INLINE int idBTree<objType,keyType,maxChildrenPerNode>::GetNodeCount() const {
+template< class objType, class keyType, size_t maxChildrenPerNode >
+ID_INLINE size_t idBTree<objType,keyType,maxChildrenPerNode>::GetNodeCount() const {
 	return nodeAllocator.GetAllocCount();
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::GetNext( idBTreeNode<objType,keyType> *node ) const {
 	if ( node->firstChild ) {
 		return node->firstChild;
@@ -397,7 +404,7 @@ ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNo
 	}
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::GetNextLeaf( idBTreeNode<objType,keyType> *node ) const {
 	if ( node->firstChild ) {
 		while ( node->firstChild ) {
@@ -420,7 +427,7 @@ ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNo
 	}
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::AllocNode() {
 	idBTreeNode<objType,keyType> *node = nodeAllocator.Alloc();
 	node->key = 0;
@@ -434,12 +441,12 @@ ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNo
 	return node;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::FreeNode( idBTreeNode<objType,keyType> *node ) {
 	nodeAllocator.Free( node );
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::SplitNode( idBTreeNode<objType,keyType> *node ) {
 	// allocate a new node
 	idBTreeNode<objType, keyType>* newNode = AllocNode();
@@ -479,7 +486,7 @@ ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::SplitNode( idBTreeNo
 	node->parent->numChildren++;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNode>::MergeNodes( idBTreeNode<objType,keyType> *node1, idBTreeNode<objType,keyType> *node2 ) {
 	idBTreeNode<objType,keyType> *child;
 
@@ -511,7 +518,7 @@ ID_INLINE idBTreeNode<objType,keyType> *idBTree<objType,keyType,maxChildrenPerNo
 	return node2;
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::CheckTree_r( idBTreeNode<objType,keyType> *node, int &numNodes ) const {
 	numNodes++;
 
@@ -520,7 +527,7 @@ ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::CheckTree_r( idBTree
 	// the key of a node may never be larger than the key of it's last child
 	assert( ( node->lastChild == NULL ) || ( node->key <= node->lastChild->key ) );
 
-	int numChildren = 0;
+	size_t numChildren = 0;
 	for ( idBTreeNode<objType, keyType>* child = node->firstChild; child; child = child->next ) {
 		numChildren++;
 		// make sure the children are properly linked
@@ -541,9 +548,9 @@ ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::CheckTree_r( idBTree
 	assert( numChildren == node->numChildren );
 }
 
-template< class objType, class keyType, int maxChildrenPerNode >
+template< class objType, class keyType, size_t maxChildrenPerNode >
 ID_INLINE void idBTree<objType,keyType,maxChildrenPerNode>::CheckTree() const {
-	int numNodes = 0;
+	size_t numNodes = 0;
 
 	CheckTree_r( root, numNodes );
 

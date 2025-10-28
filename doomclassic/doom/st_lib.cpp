@@ -59,7 +59,7 @@ If you have questions concerning this license or the applicable additional terms
 
 void STlib_init(void)
 {
-    ::g->sttminus = (patch_t *) W_CacheLumpName("STTMINUS", PU_STATIC_SHARED);
+    ::g->sttminus = static_cast<patch_t*>(W_CacheLumpName("STTMINUS", PU_STATIC_SHARED));
 }
 
 
@@ -67,12 +67,12 @@ void STlib_init(void)
 void
 STlib_initNum
 ( st_number_t*		n,
-  int			x,
-  int			y,
+  const int			x,
+  const int			y,
   patch_t**		pl,
   int*			num,
   qboolean*		on,
-  int			width )
+  const int			width )
 {
     n->x	= x;
     n->y	= y;
@@ -89,7 +89,7 @@ STlib_initNum
 //  based on differences from the old number.
 // Note: worth the trouble?
 //
-void
+static void
 STlib_drawNum
 ( st_number_t*	n,
   qboolean	refresh )
@@ -97,9 +97,9 @@ STlib_drawNum
 
     int		numdigits = n->width;
     int		num = *n->num;
-    
-    int		w = SHORT(n->p[0]->width);
-    int		h = SHORT(n->p[0]->height);
+
+    const int		w = SHORT(n->p[0]->width);
+    const int		h = SHORT(n->p[0]->height);
     int		x = n->x;
     
     int		neg;
@@ -111,10 +111,14 @@ STlib_drawNum
     if (neg)
     {
 	if (numdigits == 2 && num < -9)
-	    num = -9;
+	{
+		num = -9;
+	}
 	else if (numdigits == 3 && num < -99)
-	    num = -99;
-	
+	{
+		num = -99;
+	}
+
 	num = -num;
     }
 
@@ -122,19 +126,25 @@ STlib_drawNum
     x = n->x - numdigits*w;
 
     if (n->y - ST_Y < 0)
-	I_Error("drawNum: n->y - ST_Y < 0");
+    {
+	    I_Error("drawNum: n->y - ST_Y < 0");
+    }
 
     V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG);
 
     // if non-number, do not draw it
     if (num == 1994)
-	return;
+    {
+	    return;
+    }
 
     x = n->x;
 
     // in the special case of 0, you draw 0
     if (!num)
-	V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
+    {
+	    V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
+    }
 
     // draw the new number
     while (num && numdigits--)
@@ -146,7 +156,9 @@ STlib_drawNum
 
     // draw a minus sign if necessary
     if (neg)
-	V_DrawPatch(x - 8, n->y, FG, ::g->sttminus);
+    {
+	    V_DrawPatch(x - 8, n->y, FG, ::g->sttminus);
+    }
 }
 
 
@@ -154,9 +166,12 @@ STlib_drawNum
 void
 STlib_updateNum
 ( st_number_t*		n,
-  qboolean		refresh )
+  const qboolean		refresh )
 {
-    if (*n->on) STlib_drawNum(n, refresh);
+    if (*n->on)
+    {
+	    STlib_drawNum(n, refresh);
+    }
 }
 
 
@@ -164,8 +179,8 @@ STlib_updateNum
 void
 STlib_initPercent
 ( st_percent_t*		p,
-  int			x,
-  int			y,
+  const int			x,
+  const int			y,
   patch_t**		pl,
   int*			num,
   qboolean*		on,
@@ -181,11 +196,13 @@ STlib_initPercent
 void
 STlib_updatePercent
 ( st_percent_t*		per,
-  int			refresh )
+  const int			refresh )
 {
     if (refresh && *per->n.on)
-	V_DrawPatch(per->n.x, per->n.y, FG, per->p);
-    
+    {
+	    V_DrawPatch(per->n.x, per->n.y, FG, per->p);
+    }
+
     STlib_updateNum(&per->n, refresh);
 }
 
@@ -194,8 +211,8 @@ STlib_updatePercent
 void
 STlib_initMultIcon
 ( st_multicon_t*	i,
-  int			x,
-  int			y,
+  const int			x,
+  const int			y,
   patch_t**		il,
   int*			inum,
   qboolean*		on )
@@ -213,7 +230,7 @@ STlib_initMultIcon
 void
 STlib_updateMultIcon
 ( st_multicon_t*	mi,
-  qboolean		refresh )
+  const qboolean		refresh )
 {
     int			w;
     int			h;
@@ -232,7 +249,9 @@ STlib_updateMultIcon
 	    h = SHORT(mi->p[mi->oldinum]->height);
 
 	    if (y - ST_Y < 0)
-			I_Error("updateMultIcon: y - ST_Y < 0");
+	    {
+		    I_Error("updateMultIcon: y - ST_Y < 0");
+	    }
 
 	    V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
 	}
@@ -246,8 +265,8 @@ STlib_updateMultIcon
 void
 STlib_initBinIcon
 ( st_binicon_t*		b,
-  int			x,
-  int			y,
+  const int			x,
+  const int			y,
   patch_t*		i,
   qboolean*		val,
   qboolean*		on )
@@ -265,7 +284,7 @@ STlib_initBinIcon
 void
 STlib_updateBinIcon
 ( st_binicon_t*		bi,
-  qboolean		refresh )
+  const qboolean		refresh )
 {
     int			x;
     int			y;
@@ -281,12 +300,18 @@ STlib_updateBinIcon
 	h = SHORT(bi->p->height);
 
 	if (y - ST_Y < 0)
-	    I_Error("updateBinIcon: y - ST_Y < 0");
+	{
+		I_Error("updateBinIcon: y - ST_Y < 0");
+	}
 
 	if (*bi->val)
-	    V_DrawPatch(bi->x, bi->y, FG, bi->p);
+	{
+		V_DrawPatch(bi->x, bi->y, FG, bi->p);
+	}
 	else
-	    V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
+	{
+		V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
+	}
 
 	bi->oldval = *bi->val;
     }

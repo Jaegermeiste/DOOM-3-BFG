@@ -181,7 +181,7 @@ void idMenuScreen_PDA_UserData::HideScreen( const mainMenuTransition_t transitio
 idMenuScreen_PDA_UserData::HandleAction
 ========================
 */
-bool idMenuScreen_PDA_UserData::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_PDA_UserData::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -212,7 +212,7 @@ bool idMenuScreen_PDA_UserData::HandleAction( idWidgetAction & action, const idW
 				player->EndAudioLog();
 			} else {
 				if ( menuData != nullptr && pdaAudioFiles.GetChildren().Num() > 0 ) {
-					int index = pdaAudioFiles.GetChildByIndex( 0 ).GetFocusIndex();					
+					index_t index = pdaAudioFiles.GetChildByIndex( 0 ).GetFocusIndex();					
 					idMenuHandler_PDA * pdaHandler = dynamic_cast< idMenuHandler_PDA * const >( menuData );
 					if ( pdaHandler != nullptr) {
 						pdaHandler->PlayPDAAudioLog( pdaIndex, index );

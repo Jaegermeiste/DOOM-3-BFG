@@ -42,7 +42,7 @@ April 95
 void Real_Tim_Free( void *pt );
 
 /*  bessel  function   */
-static float ino(float x)
+static float ino(const float x)
 {
 	float y, de, e, sde;
 	int i;
@@ -60,7 +60,7 @@ static float ino(float x)
 }	
 
 /* Kaiser Window (symetric) */
-static void kaiser(float *w,int n,float beta)
+static void kaiser(float *w, const int n, const float beta)
 {
 	float xind, xi;
 	int i;
@@ -77,7 +77,7 @@ static void kaiser(float *w,int n,float beta)
 /*
 * fir coef in g, cuttoff frequency in fc
 */
-static void designfir(float *g , float fc)
+static void designfir(float *g , const float fc)
 {
 	int i;
 	float xi, omega, att, beta ;
@@ -105,7 +105,7 @@ static void designfir(float *g , float fc)
 * Note that we simulate leading and trailing 0 at the border of the 
 * data buffer
 */
-static void filter(sample_t *result,sample_t *data,  int32_t  length,float coef[])
+static void filter(sample_t *result,sample_t *data, const int32_t  length,float coef[])
 {
 	 int32_t  sample,i,sample_window;
 	int16_t peak = 0;
@@ -169,7 +169,7 @@ static void filter(sample_t *result,sample_t *data,  int32_t  length,float coef[
 /* I don't worry about looping point -> they will remain soft if they  */
 /* were already                                                        */
 /***********************************************************************/
-void antialiasing(Sample *sp,  int32_t  output_rate )
+void antialiasing(Sample *sp, const int32_t  output_rate )
 {
 	sample_t *temp;
 	int i;

@@ -208,7 +208,7 @@ void idMenuScreen_Shell_SystemOptions::HideScreen( const mainMenuTransition_t tr
 	if ( systemData.IsRestartRequired() ) {
 		class idSWFScriptFunction_Restart : public idSWFScriptFunction_RefCounted {
 		public:
-			idSWFScriptFunction_Restart( gameDialogMessages_t _msg, bool _restart ) {
+			idSWFScriptFunction_Restart(const gameDialogMessages_t _msg, const bool _restart ) {
 				msg = _msg;
 				restart = _restart;
 			}
@@ -249,7 +249,7 @@ void idMenuScreen_Shell_SystemOptions::HideScreen( const mainMenuTransition_t tr
 idMenuScreen_Shell_SystemOptions::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_SystemOptions::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_SystemOptions::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -387,9 +387,9 @@ AdjustOption
 Given a current value in an array of possible values, returns the next n value
 ========================
 */
-int AdjustOption( int currentValue, const int values[], int numValues, int adjustment ) {
-	int index = 0;
-	for ( int i = 0; i < numValues; i++ ) {
+int AdjustOption(const int currentValue, const int values[], const size_t numValues, const int adjustment ) {
+	index_t index = 0;
+	for ( size_t i = 0; i < numValues; i++ ) {
 		if ( currentValue == values[i] ) {
 			index = i;
 			break;
@@ -409,7 +409,7 @@ LinearAdjust
 Linearly converts a float from one scale to another
 ========================
 */
-float LinearAdjust( float input, float currentMin, float currentMax, float desiredMin, float desiredMax ) {
+float LinearAdjust(const float input, const float currentMin, const float currentMax, const float desiredMin, const float desiredMax ) {
 	return ( ( input - currentMin ) / ( currentMax - currentMin ) ) * ( desiredMax - desiredMin ) + desiredMin;
 }
 
@@ -421,25 +421,25 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustField
 void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustField( const int fieldIndex, const int adjustAmount ) {
 	switch ( fieldIndex ) {
 		case SYSTEM_FIELD_FRAMERATE: {
-			static constexpr int numValues = 2;
+			static constexpr size_t numValues = 2;
 			static constexpr int values[numValues] = { 60, 120 };
 			com_engineHz.SetInteger( AdjustOption( com_engineHz.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_VSYNC: {
-			static constexpr int numValues = 3;
+			static constexpr size_t numValues = 3;
 			static constexpr int values[numValues] = { 0, 1, 2 };
 			r_swapInterval.SetInteger( AdjustOption( r_swapInterval.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_ANTIALIASING: {
-			static constexpr int numValues = 5;
+			static constexpr size_t numValues = 5;
 			static const int values[numValues] = { 0, 2, 4, 8, 16 };
 			r_multiSamples.SetInteger( AdjustOption( r_multiSamples.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_MOTIONBLUR: {
-			static constexpr int numValues = 5;
+			static constexpr size_t numValues = 5;
 			static const int values[numValues] = { 0, 2, 3, 4, 5 };
 			r_motionBlur.SetInteger( AdjustOption( r_motionBlur.GetInteger(), values, numValues, adjustAmount ) );
 			break;

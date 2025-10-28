@@ -60,8 +60,8 @@ public:
 
 	void 			Set( float x, float y, float z, float w );
 
-	float			operator[]( Ordinal auto index ) const;
-	float &			operator[]( Ordinal auto index );
+	float			operator[]( const Ordinal auto index ) const;
+	float &			operator[]( const Ordinal auto index );
 	idQuat			operator-() const;
 	idQuat &		operator=( const idQuat &a );
 	idQuat			operator+( const idQuat &a ) const;
@@ -87,25 +87,25 @@ public:
 	idQuat &		Normalize();
 
 	[[nodiscard]] float			CalcW() const;
-	[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t	GetDimension();
 
 	[[nodiscard]] idAngles		ToAngles() const;
-	[[nodiscard]] idRotation		ToRotation() const;
-	[[nodiscard]] idMat3			ToMat3() const;
-	[[nodiscard]] idMat4			ToMat4() const;
-	[[nodiscard]] idCQuat			ToCQuat() const;
-	[[nodiscard]] idVec3			ToAngularVelocity() const;
+	[[nodiscard]] idRotation	ToRotation() const;
+	[[nodiscard]] idMat3		ToMat3() const;
+	[[nodiscard]] idMat4		ToMat4() const;
+	[[nodiscard]] idCQuat		ToCQuat() const;
+	[[nodiscard]] idVec3		ToAngularVelocity() const;
 	[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
+	[[nodiscard]] float *		ToFloatPtr();
 	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
-	idQuat &		Slerp( const idQuat &from, const idQuat &to, float t );
-	idQuat &		Lerp( const idQuat &from, const idQuat &to, const float t );
+	idQuat &		Slerp( const idQuat &from, const idQuat &to, const std::floating_point auto t );
+	idQuat &		Lerp( const idQuat &from, const idQuat &to, const std::floating_point auto t );
 };
 
 // A non-member slerp function allows constructing a const idQuat object with the result of a slerp,
-// but without having to explicity create a temporary idQuat object.
-idQuat Slerp( const idQuat & from, const idQuat & to, const float t );
+// but without having to explicitly create a temporary idQuat object.
+idQuat Slerp( const idQuat & from, const idQuat & to, const std::floating_point auto t );
 
 ID_INLINE idQuat::idQuat(const float x, const float y, const float z, const float w ) {
 	this->x = x;
@@ -115,13 +115,13 @@ ID_INLINE idQuat::idQuat(const float x, const float y, const float z, const floa
 }
 
 
-ID_INLINE float idQuat::operator[](const Ordinal auto index ) const {
+ID_INLINE float idQuat::operator[] (const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index < 4 ) );
 	return ( &x )[ index ];
 }
 
 
-ID_INLINE float& idQuat::operator[](const Ordinal auto index ) {
+ID_INLINE float& idQuat::operator[]( const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index < 4 ) );
 	return ( &x )[ index ];
 }
@@ -217,7 +217,7 @@ ID_INLINE idQuat& idQuat::operator*=(const float a ) {
 }
 
 ID_INLINE bool idQuat::Compare( const idQuat &a ) const {
-	return ( ( x == a.x ) && ( y == a.y ) && ( z == a.z ) && ( w == a.w ) );
+	return ( std::equal_to<>()( x, a.x ) && std::equal_to<>()( y, a.y ) && std::equal_to<>()( z, a.z ) && std::equal_to<>()( w, a.w ) );
 }
 
 ID_INLINE bool idQuat::Compare( const idQuat &a, const float epsilon ) const {
@@ -277,7 +277,7 @@ ID_INLINE float idQuat::CalcW() const {
 	return sqrt( fabs( 1.0f - ( x * x + y * y + z * z ) ) );
 }
 
-ID_INLINE int idQuat::GetDimension() const {
+ID_INLINE size_t idQuat::GetDimension() {
 	return 4;
 }
 
@@ -298,7 +298,7 @@ ID_INLINE float *idQuat::ToFloatPtr() {
 */
 template<>
 struct idTupleSize< idQuat > {
-	enum { value = 4 };
+	enum idQuatTupleSize_e : uint8 { value = 4 };
 };
 
 /*
@@ -321,24 +321,24 @@ public:
 	void 			Set( float x, float y, float z );
 
 	
-	float			operator[]( Ordinal auto index ) const;
+	float			operator[]( const Ordinal auto index ) const;
 	
-	float &			operator[]( Ordinal auto index );
+	float &			operator[]( const Ordinal auto index );
 
 	[[nodiscard]] bool			Compare( const idCQuat &a ) const;						// exact compare, no epsilon
 	[[nodiscard]] bool			Compare( const idCQuat &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idCQuat &a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idCQuat &a ) const;					// exact compare, no epsilon
 
-	[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t		GetDimension();
 
 	[[nodiscard]] idAngles		ToAngles() const;
-	[[nodiscard]] idRotation		ToRotation() const;
-	[[nodiscard]] idMat3			ToMat3() const;
-	[[nodiscard]] idMat4			ToMat4() const;
-	[[nodiscard]] idQuat			ToQuat() const;
+	[[nodiscard]] idRotation	ToRotation() const;
+	[[nodiscard]] idMat3		ToMat3() const;
+	[[nodiscard]] idMat4		ToMat4() const;
+	[[nodiscard]] idQuat		ToQuat() const;
 	[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
+	[[nodiscard]] float *		ToFloatPtr();
 	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 };
 
@@ -357,13 +357,13 @@ ID_INLINE void idCQuat::Set(const float x, const float y, const float z ) {
 }
 
 
-ID_INLINE float idCQuat::operator[](const Ordinal auto index ) const {
+ID_INLINE float idCQuat::operator[]( const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &x )[ index ];
 }
 
 
-ID_INLINE float& idCQuat::operator[](const Ordinal auto index ) {
+ID_INLINE float& idCQuat::operator[]( const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &x )[ index ];
 }
@@ -393,7 +393,7 @@ ID_INLINE bool idCQuat::operator!=( const idCQuat &a ) const {
 	return !Compare( a );
 }
 
-ID_INLINE int idCQuat::GetDimension() const {
+ID_INLINE size_t idCQuat::GetDimension() {
 	return 3;
 }
 
@@ -419,7 +419,7 @@ ID_INLINE float *idCQuat::ToFloatPtr() {
 */
 template<>
 struct idTupleSize< idCQuat > {
-	enum { value = 3 };
+	enum idCQuatTupleSize_e : uint8 { value = 3 };
 };
 
 #endif /* !__MATH_QUAT_H__ */

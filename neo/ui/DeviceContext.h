@@ -73,7 +73,7 @@ public:
 	void				SetSize( float width, float height );
 	void				SetOffset( float x, float y );
 
-	[[nodiscard]] const idMaterial *	GetScrollBarImage(int index) const;
+	[[nodiscard]] const idMaterial *	GetScrollBarImage(index_t index) const;
 
 	void				DrawCursor(float *x, float *y, float size);
 	void				SetCursor(int n);
@@ -86,7 +86,7 @@ public:
 
 	void				SetFont( idFont * font ) { activeFont = font; }
 
-	void				SetOverStrike(bool b) { overStrikeMode = b; }
+	void				SetOverStrike(const bool b) { overStrikeMode = b; }
 
 	[[nodiscard]] bool				GetOverStrike() const { return overStrikeMode; }
 

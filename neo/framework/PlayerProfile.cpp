@@ -60,7 +60,7 @@ the data can be shared across computers.
 idPlayerProfile * CreatePlayerProfile
 ========================
 */
-idPlayerProfile * idPlayerProfile::CreatePlayerProfile( int deviceIndex ) {
+idPlayerProfile * idPlayerProfile::CreatePlayerProfile(const int deviceIndex ) {
 	playerProfiles[deviceIndex].SetDefaults();
 	playerProfiles[deviceIndex].deviceNum = deviceIndex;
 	return &playerProfiles[deviceIndex];
@@ -93,7 +93,7 @@ void idPlayerProfile::SetDefaults() {
 	dlcReleaseVersion	= 0;
 
 	stats.SetNum( MAX_PLAYER_PROFILE_STATS );
-	for ( int i = 0; i < MAX_PLAYER_PROFILE_STATS; ++i ) {
+	for ( size_t i = 0; i < MAX_PLAYER_PROFILE_STATS; ++i ) {
 		stats[i].i = 0;
 	}
 
@@ -162,10 +162,10 @@ bool idPlayerProfile::Serialize( idSerializer & ser ) {
 
 	// Check to map sure we are on a valid map before we save, this helps prevent someone from creating a test map and
 	// gaining a bunch of achievements from it
-	int numStats = stats.Num();
+	size_t numStats = stats.Num();
 	ser.SerializePacked( numStats );
 	stats.SetNum( numStats );
-	for ( int i = 0; i < numStats; ++i ) {
+	for ( size_t i = 0; i < numStats; ++i ) {
 		ser.SerializePacked( stats[i].i );
 	}
 
@@ -179,7 +179,7 @@ bool idPlayerProfile::Serialize( idSerializer & ser ) {
 		ExecConfig( false );
 		
 		if ( customConfig ) {
-			for ( int i = 0; i < K_LAST_KEY; ++i ) {
+			for ( size_t i = 0; i < K_LAST_KEY; ++i ) {
 				idStr bind;		
 				ser.SerializeString( bind );
 				idKeyInput::SetBinding( i, bind.c_str() );
@@ -194,7 +194,7 @@ bool idPlayerProfile::Serialize( idSerializer & ser ) {
 		customConfig = true;
 		ser.Serialize( customConfig );
 
-		for ( int i = 0; i < K_LAST_KEY; ++i ) {
+		for ( size_t i = 0; i < K_LAST_KEY; ++i ) {
 			idStr bind = idKeyInput::GetBinding( i );
 			ser.SerializeString( bind );
 		}
@@ -208,7 +208,7 @@ bool idPlayerProfile::Serialize( idSerializer & ser ) {
 idPlayerProfile::StatSetInt
 ========================
 */
-void idPlayerProfile::StatSetInt( int s, int v ) {
+void idPlayerProfile::StatSetInt(const int s, const int v ) {
 	stats[s].i = v;
 	MarkDirty( true );
 }
@@ -218,7 +218,7 @@ void idPlayerProfile::StatSetInt( int s, int v ) {
 idPlayerProfile::StatSetFloat
 ========================
 */
-void idPlayerProfile::StatSetFloat( int s, float v ) {
+void idPlayerProfile::StatSetFloat(const int s, const float v ) {
 	stats[s].f = v;
 	MarkDirty( true );
 }
@@ -228,7 +228,7 @@ void idPlayerProfile::StatSetFloat( int s, float v ) {
 idPlayerProfile::StatGetInt
 ========================
 */
-int	idPlayerProfile::StatGetInt( int s ) const { 
+int	idPlayerProfile::StatGetInt(const int s ) const { 
 	return stats[s].i;
 }
 
@@ -237,7 +237,7 @@ int	idPlayerProfile::StatGetInt( int s ) const {
 idPlayerProfile::StatGetFloat
 ========================
 */
-float idPlayerProfile::StatGetFloat( int s ) const {
+float idPlayerProfile::StatGetFloat(const int s ) const {
 	return stats[s].f;
 }
 
@@ -246,7 +246,7 @@ float idPlayerProfile::StatGetFloat( int s ) const {
 idPlayerProfile::SaveSettings
 ========================
 */
-void idPlayerProfile::SaveSettings( bool forceDirty ) {
+void idPlayerProfile::SaveSettings(const bool forceDirty ) {
 	if ( state != SAVING ) {
 		if ( forceDirty ) {
 			MarkDirty( true );
@@ -341,7 +341,7 @@ bool idPlayerProfile::GetAchievement( const int id ) const {
 idPlayerProfile::SetConfig
 ========================
 */
-void idPlayerProfile::SetConfig( int config, bool save ) {
+void idPlayerProfile::SetConfig(const int config, const bool save ) {
 	configSet = config;
 	ExecConfig( save );
 }
@@ -360,7 +360,7 @@ void idPlayerProfile::RestoreDefault() {
 idPlayerProfile::SetLeftyFlip
 ========================
 */
-void idPlayerProfile::SetLeftyFlip( bool lf ) {
+void idPlayerProfile::SetLeftyFlip(const bool lf ) {
 	leftyFlip = lf;
 	ExecConfig( true );
 }
@@ -370,7 +370,7 @@ void idPlayerProfile::SetLeftyFlip( bool lf ) {
 idPlayerProfile::ExecConfig
 ========================
 */
-void idPlayerProfile::ExecConfig( bool save, bool forceDefault ) const
+void idPlayerProfile::ExecConfig(const bool save, const bool forceDefault ) const
 {
 
 	int flags = 0;

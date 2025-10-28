@@ -115,7 +115,7 @@ idSWFScriptObject::Clear
 */
 void idSWFScriptObject::Clear() {
 	variables.Clear();
-	for ( int i = 0; i < VARIABLE_HASH_BUCKETS; i++ ) {
+	for ( size_t i = 0; i < VARIABLE_HASH_BUCKETS; i++ ) {
 		variablesHash[i] = -1;
 	}
 }
@@ -175,7 +175,7 @@ idSWFScriptVar idSWFScriptObject::Get( const char * name ) {
 idSWFScriptObject::Get
 ========================
 */
-idSWFScriptVar idSWFScriptObject::Get( int index ) {
+idSWFScriptVar idSWFScriptObject::Get(const index_t index ) {
 	swfNamedVar_t * variable = GetVariable( index, false );
 	if ( variable == nullptr) {
 		return idSWFScriptVar();
@@ -193,7 +193,7 @@ idSWFScriptVar idSWFScriptObject::Get( int index ) {
 idSWFScriptObject::GetSprite
 ========================
 */
-idSWFSpriteInstance * idSWFScriptObject::GetSprite( int index ) {
+idSWFSpriteInstance * idSWFScriptObject::GetSprite(const index_t index ) {
 	idSWFScriptVar var = Get( index );
 	return var.ToSprite();
 }
@@ -213,7 +213,7 @@ idSWFSpriteInstance * idSWFScriptObject::GetSprite( const char * name ) {
 idSWFScriptObject::GetObject
 ========================
 */
-idSWFScriptObject * idSWFScriptObject::GetObject( int index ) {
+idSWFScriptObject * idSWFScriptObject::GetObject(const index_t index ) {
 	idSWFScriptVar var = Get( index );
 	if ( var.IsObject() ) {
 		return var.GetObject();
@@ -239,7 +239,7 @@ idSWFScriptObject * idSWFScriptObject::GetObject( const char * name ) {
 idSWFScriptObject::GetText
 ========================
 */
-idSWFTextInstance * idSWFScriptObject::GetText( int index ) {
+idSWFTextInstance * idSWFScriptObject::GetText(const index_t index ) {
 	idSWFScriptVar var = Get( index );
 	if ( var.IsObject() ) {
 		return var.GetObject()->GetText();
@@ -269,17 +269,17 @@ void idSWFScriptObject::Set( const char * name, const idSWFScriptVar & value ) {
 	if ( objectType == SWF_OBJECT_ARRAY ) {
 		if ( idStr::Cmp( name, "length" ) == 0 ) {
 			int newLength = value.ToInteger();
-			for ( int i = 0; i < variables.Num(); i++ ) {
+			for ( size_t i = 0; i < variables.Num(); i++ ) {
 				if ( variables[i].index >= newLength ) {
 					variables.RemoveIndexFast( i );
 					i--;
 				}
 			}
 			// rebuild the hash table
-			for ( int i = 0; i < VARIABLE_HASH_BUCKETS; i++ ) {
+			for ( size_t i = 0; i < VARIABLE_HASH_BUCKETS; i++ ) {
 				variablesHash[i] = -1;
 			}
-			for ( int i = 0; i < variables.Num(); i++ ) {
+			for ( size_t i = 0; i < variables.Num(); i++ ) {
 				int hash = idStr::Hash( variables[i].name.c_str() ) & ( VARIABLE_HASH_BUCKETS - 1 );
 				variables[i].hashNext = variablesHash[hash];
 				variablesHash[hash] = i;
@@ -308,7 +308,7 @@ void idSWFScriptObject::Set( const char * name, const idSWFScriptVar & value ) {
 idSWFScriptObject::Set
 ========================
 */
-void idSWFScriptObject::Set( int index, const idSWFScriptVar & value ) {
+void idSWFScriptObject::Set(const index_t index, const idSWFScriptVar & value ) {
 	if ( index < 0 ) {
 		extern idCVar swf_debug;
 		if ( swf_debug.GetBool() ) {
@@ -350,12 +350,12 @@ void idSWFScriptObject::SetNative( const char * name, idSWFScriptNativeVariable 
 idSWFScriptObject::DefaultValue
 ========================
 */
-idSWFScriptVar idSWFScriptObject::DefaultValue( bool stringHint ) {
+idSWFScriptVar idSWFScriptObject::DefaultValue(const bool stringHint ) {
 	const char * methods[2] = { "toString", "valueOf" };
 	if ( !stringHint ) {
 		SwapValues( methods[0], methods[1] );
 	}
-	for ( int i = 0; i < 2; i++ ) {
+	for ( size_t i = 0; i < 2; i++ ) {
 		idSWFScriptVar method = Get( methods[i] );
 		if ( method.IsFunction() ) {
 			idSWFScriptVar value = method.GetFunction()->Call( this, idSWFParmList() );
@@ -402,8 +402,8 @@ idSWFScriptVar idSWFScriptObject::DefaultValue( bool stringHint ) {
 idSWFScriptObject::GetVariable
 ========================
 */
-idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( int index, bool create ) {
-	for ( int i = 0; i < variables.Num(); i++ ) {
+idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable(const index_t index, const bool create ) {
+	for ( size_t i = 0; i < variables.Num(); i++ ) {
 		if ( variables[i].index == index ) {
 			return &variables[i];
 		}
@@ -427,7 +427,7 @@ idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( int index, bo
 idSWFScriptObject::GetVariable
 ========================
 */
-idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( const char * name, bool create ) {
+idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( const char * name, const bool create ) {
 	int hash = idStr::Hash( name ) & ( VARIABLE_HASH_BUCKETS - 1 );
 	for ( int i = variablesHash[hash]; i >= 0; i = variables[i].hashNext ) {
 		if ( variables[i].name == name ) {
@@ -478,17 +478,17 @@ idSWFScriptObject::GetNestedVar
 */
 idSWFScriptVar idSWFScriptObject::GetNestedVar( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
 	const char * const args[] = { arg1, arg2, arg3, arg4, arg5, arg6 };
-	constexpr int numArgs = sizeof( args ) / sizeof( const char * );
+	constexpr size_t numArgs = sizeof( args ) / sizeof( const char * );
 
 	idStaticList< const char *, numArgs > vars;	
-	for ( int i = 0; i < numArgs && args[ i ] != nullptr; ++i ) {
+	for ( size_t i = 0; i < numArgs && args[ i ] != nullptr; ++i ) {
 		vars.Append( args[ i ] );
 	}
 
 	idSWFScriptObject * baseObject = this;
 	idSWFScriptVar retVal;
 
-	for ( int i = 0; i < vars.Num(); ++i ) {
+	for ( size_t i = 0; i < vars.Num(); ++i ) {
 		idSWFScriptVar var = baseObject->Get( vars[ i ] );
 
 		// when at the end of object path just use the latest value as result
@@ -554,9 +554,9 @@ idSWFScriptObject::PrintToConsole
 void idSWFScriptObject::PrintToConsole() const {
 	if ( variables.Num() > 0 ) {
 		idLib::Printf( "%d subelements:\n", variables.Num() );
-		int maxVarLength = 0;
+		size_t maxVarLength = 0;
 
-		for ( int i = 0; i < variables.Num(); ++i ) {
+		for ( size_t i = 0; i < variables.Num(); ++i ) {
 			const idSWFScriptObject::swfNamedVar_t & nv = variables[ i ];
 			const int nameLength = idStr::Length( nv.name );
 			if ( maxVarLength < nameLength ) {
@@ -569,7 +569,7 @@ void idSWFScriptObject::PrintToConsole() const {
 		const char * const fmt = va( "%%-%ds %%-10s %%-s\n", maxVarLength );
 		idLib::Printf( fmt, "Name", "Type", "Value" );
 		idLib::Printf( "------------------------------------------------------------\n" );
-		for ( int i = 0; i < variables.Num(); ++i ) {
+		for ( size_t i = 0; i < variables.Num(); ++i ) {
 			const idSWFScriptObject::swfNamedVar_t & nv = variables[ i ];
 			idLib::Printf( fmt, nv.name.c_str(), nv.value.TypeOf(),
 				nv.value.ToString().c_str() );

@@ -122,7 +122,7 @@ Sys_AllocHook
 	called for every malloc/new/free/delete
 ==================
 */
-static int Sys_AllocHook( int nAllocType, void *pvData, size_t nSize, int nBlockUse, long lRequest, const unsigned char * szFileName, int nLine ) 
+static int Sys_AllocHook(const int nAllocType, void *pvData, const size_t nSize, const int nBlockUse, long lRequest, const unsigned char * szFileName, int nLine ) 
 {
 	CrtMemBlockHeader	*pHead = nullptr;
 	byte				*temp = nullptr;
@@ -365,7 +365,7 @@ static void Sys_DebugPrintf( const char *fmt, ... ) {
 Sys_DebugVPrintf
 ==============
 */
-static void Sys_DebugVPrintf( const char *fmt, va_list arg ) {
+static void Sys_DebugVPrintf( const char *fmt, const va_list arg ) {
 	char msg[MAXPRINTMSG] = {};
 
 	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, arg );
@@ -388,7 +388,7 @@ static void Sys_Sleep(const uint32 msec ) {
 Sys_ShowWindow
 ==============
 */
-static void Sys_ShowWindow( bool show ) {
+static void Sys_ShowWindow(const bool show ) {
 	::ShowWindow( win32.hWnd, show ? SW_SHOW : SW_HIDE );
 }
 
@@ -415,7 +415,7 @@ void Sys_Mkdir( const char *path ) {
 Sys_FileTimeStamp
 =================
 */
-ID_TIME_T Sys_FileTimeStamp( idFileHandle fp ) {
+ID_TIME_T Sys_FileTimeStamp(const idFileHandle fp ) {
 	FILETIME writeTime = {};
 	GetFileTime( fp, nullptr, nullptr, &writeTime );
 
@@ -601,7 +601,7 @@ static int64 Sys_ListFiles( const char *directory, const char *extension, idStrL
 
 	_findclose( findhandle );
 
-	return idMath::integer_cast<int64>(list.Num());
+	return numeric_cast<int64>(list.Num());
 }
 
 
@@ -687,8 +687,8 @@ If waitMsec is -1, don't wait for the process to exit
 Other waitMsec values will allow the workFn to be called at those intervals.
 ========================
 */
-bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args, 
-	execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const uint32 waitMS,
+bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args,
+	const execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const uint32 waitMS,
 	unsigned int & exitCode ) {
 		exitCode = 0;
 		SECURITY_ATTRIBUTES secAttr = {};
@@ -790,8 +790,8 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 					if ( ok && bytesRead > 0 ) {
 						buffer[ bytesRead ] = '\0';
 						if ( outputFn != nullptr) {
-							int length = 0;
-							for ( int i = 0; buffer[i] != '\0'; i++ ) {
+							size_t length = 0;
+							for ( size_t i = 0; buffer[i] != '\0'; i++ ) {
 								if ( buffer[i] != '\r' ) {
 									buffer[length++] = buffer[i];
 								}
@@ -854,7 +854,7 @@ dllHandle_t Sys_DLL_Load( const char *dllName ) {
 Sys_DLL_GetProcAddress
 =====================
 */
-address_t Sys_DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName ) {
+address_t Sys_DLL_GetProcAddress(const dllHandle_t dllHandle, const char *procName ) {
 	return reinterpret_cast<address_t>(GetProcAddress(dllHandle, procName)); 
 }
 
@@ -863,7 +863,7 @@ address_t Sys_DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName ) 
 Sys_DLL_Unload
 =====================
 */
-void Sys_DLL_Unload( dllHandle_t dllHandle ) {
+void Sys_DLL_Unload(const dllHandle_t dllHandle ) {
 	if (!dllHandle) {
 		return;
 	}
@@ -891,12 +891,12 @@ EVENT LOOP
 ========================================================================
 */
 
-constexpr auto MAX_QUEUED_EVENTS = 256;
-#define	MASK_QUEUED_EVENTS	( MAX_QUEUED_EVENTS - 1 )
+constexpr size_t MAX_QUEUED_EVENTS = 256;
+constexpr auto	 MASK_QUEUED_EVENTS = (MAX_QUEUED_EVENTS - 1);
 
 static sysEvent_t	eventQueue[MAX_QUEUED_EVENTS];
-static int			eventHead = 0;
-static int			eventTail = 0;
+static index_t		eventHead = 0;
+static index_t		eventTail = 0;
 
 /*
 ================
@@ -906,7 +906,7 @@ Ptr should either be null, or point to a block of data that can
 be freed by the game later.
 ================
 */
-void Sys_QueueEvent( sysEventType_t type, int value, int value2, size_t ptrLength, void *ptr, int inputDeviceNum ) {
+void Sys_QueueEvent(const sysEventType_t type, const int value, const int value2, const size_t ptrLength, void *ptr, const index_t inputDeviceNum ) {
 	sysEvent_t * ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
 
 	if ( eventHead - eventTail >= MAX_QUEUED_EVENTS ) {
@@ -936,7 +936,7 @@ This allows windows to be moved during renderbump
 =============
 */
 static void Sys_PumpEvents() {
-    MSG msg;
+    MSG msg = {};
 
 	// pump the message loop
 	while( PeekMessage( &msg, nullptr, 0, 0, PM_NOREMOVE ) ) {
@@ -945,7 +945,7 @@ static void Sys_PumpEvents() {
 		}
 
 		// save the msg time, because wndprocs don't have access to the timestamp
-		if ( win32.sysMsgTime && win32.sysMsgTime > static_cast<int>(msg.time) ) {
+		if ( win32.sysMsgTime && win32.sysMsgTime > msg.time ) {
 			// don't ever let the event times run backwards	
 //			common->Printf( "Sys_PumpEvents: win32.sysMsgTime (%i) > msg.time (%i)\n", win32.sysMsgTime, msg.time );
 		} else {
@@ -1282,10 +1282,10 @@ void Sys_Init() {
 		Sys_Error( "Couldn't get OS info" );
 
 	if ( win32.osversion.dwMajorVersion < 4 ) {
-		Sys_Error( GAME_NAME " requires Windows version 4 (NT) or greater" );
+		Sys_Error( "%s requires Windows version 4 (NT) or greater", GAME_NAME);
 	}
 	if ( win32.osversion.dwPlatformId == VER_PLATFORM_WIN32s ) {
-		Sys_Error( GAME_NAME " doesn't run on Win32s" );
+		Sys_Error( "%s doesn't run on Win32s", GAME_NAME);
 	}
 
 	DWORD dwProductType = 0;
@@ -1667,7 +1667,7 @@ static void HackChkStk() {
 GetExceptionCodeInfo
 ====================
 */
-static const char *GetExceptionCodeInfo( UINT code ) {
+static const char *GetExceptionCodeInfo(const UINT code ) {
 	switch( code ) {
 		case EXCEPTION_ACCESS_VIOLATION: return "The thread tried to read from or write to a virtual address for which it does not have the appropriate access.";
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return "The thread tried to access an array element that is out of bounds and the underlying hardware supports bounds checking.";
@@ -1700,7 +1700,7 @@ EmailCrashReport
   emailer originally from Raven/Quake 4
 ====================
 */
-static void EmailCrashReport( LPSTR messageText ) {
+static void EmailCrashReport(const LPSTR messageText ) {
 	static ID_TIME_T lastEmailTime = 0;
 
 	if ( Sys_Milliseconds() < lastEmailTime + 10000 ) {
@@ -1861,7 +1861,7 @@ static EXCEPTION_DISPOSITION __cdecl _except_handler(const struct _EXCEPTION_REC
 WinMain
 ==================
 */
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
+int WINAPI WinMain(const HINSTANCE hInstance, HINSTANCE hPrevInstance, const LPSTR lpCmdLine, int nCmdShow ) {
 
 	const HCURSOR hcurSave = ::SetCursor( LoadCursor( nullptr, IDC_WAIT ) );
 
@@ -1997,7 +1997,7 @@ __declspec( naked ) void clrstk() {
 idSysLocal::OpenURL
 ==================
 */
-void idSysLocal::OpenURL( const char *url, bool doexit ) {
+void idSysLocal::OpenURL( const char *url, const bool doexit ) {
 	static bool doexit_spamguard = false;
 	HWND wnd;
 
@@ -2029,7 +2029,7 @@ void idSysLocal::OpenURL( const char *url, bool doexit ) {
 idSysLocal::StartProcess
 ==================
 */
-void idSysLocal::StartProcess( const char *exePath, bool doexit ) {
+void idSysLocal::StartProcess( const char *exePath, const bool doexit ) {
 	TCHAR				szPathOrig[_MAX_PATH];
 	STARTUPINFO			si;
 	PROCESS_INFORMATION	pi;

@@ -40,7 +40,7 @@ void idToken::NumberValue() {
 	const char* p = c_str();
 	floatvalue = 0;
 	intvalue = 0;
-	// floating point number
+	// floating posize_t number
 	if ( subtype & TT_FLOAT ) {
 		if ( subtype & ( TT_INFINITE | TT_INDEFINITE | TT_NAN ) ) {
 			if ( subtype & TT_INFINITE ) {			// 1.#INF
@@ -99,14 +99,14 @@ void idToken::NumberValue() {
 				}
 			}
 		}
-		intvalue = idMath::Ftoi( floatvalue );
+		intvalue = numeric_cast<int>( floatvalue );
 	}
 	else if ( subtype & TT_DECIMAL ) {
 		while( *p ) {
-			intvalue = intvalue * 10 + idMath::integer_cast<int64>(*p - '0');
+			intvalue = intvalue * 10 + numeric_cast<int64>(*p - '0');
 			p++;
 		}
-		floatvalue = idMath::Itof<double>(intvalue);
+		floatvalue = numeric_cast<double>(intvalue);
 	}
 	else if ( subtype & TT_IPADDRESS ) {
 		int c = 0;
@@ -119,7 +119,7 @@ void idToken::NumberValue() {
 				c = 0;
 			}
 			else {
-				intvalue = intvalue * 10 + idMath::integer_cast<int64>(*p - '0');
+				intvalue = intvalue * 10 + numeric_cast<int64>(*p - '0');
 				c++;
 			}
 			p++;
@@ -128,16 +128,16 @@ void idToken::NumberValue() {
 			intvalue = intvalue * 10;
 			c++;
 		}
-		floatvalue = idMath::Itof<double>(intvalue);
+		floatvalue = numeric_cast<double>(intvalue);
 	}
 	else if ( subtype & TT_OCTAL ) {
 		// step over the first zero
 		p += 1;
 		while( *p ) {
-			intvalue = (intvalue << 3) + idMath::integer_cast<int64>(*p - '0');
+			intvalue = (intvalue << 3) + numeric_cast<int64>(*p - '0');
 			p++;
 		}
-		floatvalue = idMath::Itof<double>(intvalue);
+		floatvalue = numeric_cast<double>(intvalue);
 	}
 	else if ( subtype & TT_HEX ) {
 		// step over the leading 0x or 0X
@@ -146,28 +146,28 @@ void idToken::NumberValue() {
 			intvalue <<= 4;
 			if (*p >= 'a' && *p <= 'f')
 			{
-				intvalue += idMath::integer_cast<int64>(*p - 'a' + 10);
+				intvalue += numeric_cast<int64>(*p - 'a' + 10);
 			}
 			else if (*p >= 'A' && *p <= 'F')
 			{
-				intvalue += idMath::integer_cast<int64>(*p - 'A' + 10);
+				intvalue += numeric_cast<int64>(*p - 'A' + 10);
 			}
 			else
 			{
-				intvalue += idMath::integer_cast<int64>(*p - '0');
+				intvalue += numeric_cast<int64>(*p - '0');
 			}
 			p++;
 		}
-		floatvalue = idMath::Itof<double>(intvalue);
+		floatvalue = numeric_cast<double>(intvalue);
 	}
 	else if ( subtype & TT_BINARY ) {
 		// step over the leading 0b or 0B
 		p += 2;
 		while( *p ) {
-			intvalue = (intvalue << 1) + idMath::integer_cast<int64>(*p - '0');
+			intvalue = (intvalue << 1) + numeric_cast<int64>(*p - '0');
 			p++;
 		}
-		floatvalue = idMath::Itof<double>(intvalue);
+		floatvalue = numeric_cast<double>(intvalue);
 	}
 	subtype |= TT_VALUESVALID;
 }

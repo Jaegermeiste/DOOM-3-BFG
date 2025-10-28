@@ -64,7 +64,7 @@ idMenuWidget_CommandBar::ClearAllButtons
 ========================
 */
 void idMenuWidget_CommandBar::ClearAllButtons() {
-	for ( int index = 0; index < MAX_BUTTONS; ++index ) {
+	for ( index_t index = 0; index < MAX_BUTTONS; ++index ) {
 		buttons[index].label.Clear();
 		buttons[index].action.Set( WIDGET_ACTION_NONE );
 	}
@@ -95,7 +95,7 @@ void idMenuWidget_CommandBar::Update() {
 
 	// Setup the button order.
 	idStaticList< button_t, MAX_BUTTONS > buttonOrder;
-	for ( int i = 0; i < buttonOrder.Max(); ++i ) {
+	for ( size_t i = 0; i < buttonOrder.Max(); ++i ) {
 		buttonOrder.Append( static_cast< button_t >( i ) );
 	}
 
@@ -111,7 +111,7 @@ void idMenuWidget_CommandBar::Update() {
 	GetSprite()->SetVisible( true );
 
 	idStr shortcutName;
-	for ( int i = 0; i < buttonOrder.Num(); ++i ) {
+	for ( size_t i = 0; i < buttonOrder.Num(); ++i ) {
 		const char * const buttonName = BUTTON_NAMES[ buttonOrder[ i ] ];
 
 		idSWFSpriteInstance * const buttonSprite = GetSprite()->GetScriptObject()->GetSprite( buttonName );

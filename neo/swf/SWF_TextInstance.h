@@ -35,7 +35,7 @@ struct subTimingWordData_t {
 	}
 
 	idStr phrase;
-	int startTime;
+	ID_TIME_T startTime;
 	bool forceBreak;
 };
 
@@ -55,34 +55,34 @@ public:
 
 	// used for when text has random render mode set 
 	[[nodiscard]] bool	IsGeneratingRandomText() const { return generatingText; }
-	void	StartRandomText( int time );	
-	idStr	GetRandomText( int time );
-	void	StartParagraphText( int time );
-	idStr	GetParagraphText( int time );
+	void	StartRandomText( ID_TIME_T time );	
+	idStr	GetRandomText( ID_TIME_T time );
+	void	StartParagraphText( ID_TIME_T time );
+	idStr	GetParagraphText( ID_TIME_T time );
 	[[nodiscard]] bool	NeedsGenerateRandomText() const { return triggerGenerate; }
 	[[nodiscard]] bool	NeedsSoundPlayed() const;
 	void	ClearPlaySound() { needsSoundUpdate = false; }
 	idStr	GetSoundClip() { return soundClip; }
-	void	SetIgnoreColor( bool ignore ) { ignoreColor = ignore; }
+	void	SetIgnoreColor(const bool ignore ) { ignoreColor = ignore; }
 
 	void	SetStrokeInfo( bool use, float strength = 0.75f, float weight = 1.75f );
-	int		CalcMaxScroll( int numLines = -1 );
+	int		CalcMaxScroll( size_t numLines = -1 );
 	int		CalcNumLines();
 
 	// subtitle functions
-	void	SwitchSubtitleText( int time );
-	bool	UpdateSubtitle( int time );
+	void	SwitchSubtitleText( ID_TIME_T time );
+	bool	UpdateSubtitle( ID_TIME_T time );
 	[[nodiscard]] bool	IsSubtitle() const { return isSubtitle; }
 	[[nodiscard]] bool	IsUpdatingSubtitle() const { return subUpdating; }
-	void	SetSubEndIndex( int endChar, int time );
+	void	SetSubEndIndex( int endChar, ID_TIME_T time );
 	[[nodiscard]] int		GetLastWordIndex() const { return subLastWordIndex; }
 	[[nodiscard]] int		GetPrevLastWordIndex() const { return subPrevLastWordIndex; }
-	void	LastWordChanged( int wordCount, int time );
-	void	SetSubStartIndex( int value ) { subCharStartIndex = value; }
+	void	LastWordChanged( int wordCount, ID_TIME_T time );
+	void	SetSubStartIndex(const int value ) { subCharStartIndex = value; }
 	[[nodiscard]] int		GetSubEndIndex() const { return subCharEndIndex; }
 	[[nodiscard]] int		GetSubStartIndex() const { return subCharStartIndex; }
 	void	SetSubNextStartIndex( int value );
-	int		GetApporoximateSubtitleBreak( int time );
+	int		GetApporoximateSubtitleBreak( ID_TIME_T time );
 	[[nodiscard]] bool	SubNeedsSwitch() const { return subNeedsSwitch; }
 	[[nodiscard]] idStr	GetPreviousText() const { return subtitleText.c_str(); }
 	void	SubtitleComplete();
@@ -91,7 +91,7 @@ public:
 	void	SubtitleCleanup();
 	float	GetTextLength();
 	[[nodiscard]] int		GetInputStartChar( ) const { return inputTextStartChar; }
-	void	SetInputStartCharacter( int c ) { inputTextStartChar = c; }
+	void	SetInputStartCharacter(const int c ) { inputTextStartChar = c; }
 
 	[[nodiscard]] const idSWFEditText * GetEditText() const { return editText; }
 	void	SetText( idStr val ) { text = val; lengthCalculated = false; }
@@ -121,8 +121,8 @@ public:
 
 	int scroll;
 	int scrollTime;
-	int maxscroll;
-	int maxLines;
+	size_t maxscroll;
+	size_t maxLines;
 	float glyphScale;
 	swfRect_t bounds;
 	float linespacing;

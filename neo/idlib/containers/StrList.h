@@ -140,7 +140,7 @@ idStrList::Size
 template<>
 ID_INLINE size_t idStrList::Size() const {
 	size_t s = sizeof(*this);
-	for( int i = 0; i < Num(); i++ ) {
+	for ( size_t i = 0; i < Num(); i++ ) {
 		s += ( *this )[ i ].Size();
 	}
 

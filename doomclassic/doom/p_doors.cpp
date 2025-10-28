@@ -122,7 +122,7 @@ void T_VerticalDoor (vldoor_t* door)
 	    {
 	      case blazeRaise:
 	      case blazeClose:
-		door->sector->specialdata = NULL;
+		door->sector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);  // unlink and free
 		S_StartSound( &door->sector->soundorg,
 			     sfx_bdcls);
@@ -130,7 +130,7 @@ void T_VerticalDoor (vldoor_t* door)
 		
 	      case normal:
 	      case closed:
-		door->sector->specialdata = NULL;
+		door->sector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);  // unlink and free
 		break;
 		
@@ -180,7 +180,7 @@ void T_VerticalDoor (vldoor_t* door)
 	      case close30ThenOpen:
 	      case blazeOpen:
 	      case opened:
-		door->sector->specialdata = NULL;
+		door->sector->specialdata = nullptr;
 		P_RemoveThinker (&door->thinker);  // unlink and free
 		break;
 		
@@ -201,7 +201,7 @@ void T_VerticalDoor (vldoor_t* door)
 int
 EV_DoLockedDoor
 ( line_t*	line,
-  vldoor_e	type,
+  const vldoor_e	type,
   mobj_t*	thing )
 {
     player_t*	p;
@@ -209,19 +209,25 @@ EV_DoLockedDoor
     p = thing->player;
 	
     if (!p)
-	return 0;
-		
+    {
+	    return 0;
+    }
+
     switch(line->special)
     {
       case 99:	// Blue Lock
       case 133:
 	if ( !p )
-	    return 0;
+	{
+		return 0;
+	}
 	if (!p->cards[it_bluecard] && !p->cards[it_blueskull])
 	{
 	    p->message = PD_BLUEO;
 		if (p == &::g->players[::g->consoleplayer])
-			S_StartSound(NULL,sfx_oof);
+		{
+			S_StartSound(nullptr,sfx_oof);
+		}
 	    return 0;
 	}
 	break;
@@ -229,12 +235,16 @@ EV_DoLockedDoor
       case 134: // Red Lock
       case 135:
 	if ( !p )
-	    return 0;
+	{
+		return 0;
+	}
 	if (!p->cards[it_redcard] && !p->cards[it_redskull])
 	{
 	    p->message = PD_REDO;
 		if (p == &::g->players[::g->consoleplayer])
-			S_StartSound(NULL,sfx_oof);
+		{
+			S_StartSound(nullptr,sfx_oof);
+		}
 	    return 0;
 	}
 	break;
@@ -242,13 +252,17 @@ EV_DoLockedDoor
       case 136:	// Yellow Lock
       case 137:
 	if ( !p )
-	    return 0;
+	{
+		return 0;
+	}
 	if (!p->cards[it_yellowcard] &&
 	    !p->cards[it_yellowskull])
 	{
 	    p->message = PD_YELLOWO;
 		if (p == &::g->players[::g->consoleplayer])
-			S_StartSound(NULL,sfx_oof);
+		{
+			S_StartSound(nullptr,sfx_oof);
+		}
 	    return 0;
 	}
 	break;	
@@ -261,7 +275,7 @@ EV_DoLockedDoor
 int
 EV_DoDoor
 ( line_t*	line,
-  vldoor_e	type )
+  const vldoor_e	type )
 {
     int		secnum,rtn;
     sector_t*	sec;
@@ -274,12 +288,14 @@ EV_DoDoor
     {
 	sec = &::g->sectors[secnum];
 	if (sec->specialdata)
-	    continue;
-		
-	
+	{
+		continue;
+	}
+
+
 	// new door thinker
 	rtn = 1;
-	door = (vldoor_t*)DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, 0);
+	door = static_cast<vldoor_t*>(DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, nullptr));
 	P_AddThinker (&door->thinker);
 	sec->specialdata = door;
 
@@ -322,8 +338,10 @@ EV_DoDoor
 	    door->topheight -= 4*FRACUNIT;
 	    door->speed = VDOORSPEED * 4;
 	    if (door->topheight != sec->ceilingheight)
-		S_StartSound( &door->sector->soundorg,
-			     sfx_bdopn);
+	    {
+		    S_StartSound( &door->sector->soundorg,
+		                  sfx_bdopn);
+	    }
 	    break;
 	    
 	  case normal:
@@ -332,8 +350,10 @@ EV_DoDoor
 	    door->topheight = P_FindLowestCeilingSurrounding(sec);
 	    door->topheight -= 4*FRACUNIT;
 	    if (door->topheight != sec->ceilingheight)
-		S_StartSound( &door->sector->soundorg,
-			     sfx_doropn);
+	    {
+		    S_StartSound( &door->sector->soundorg,
+		                  sfx_doropn);
+	    }
 	    break;
 	    
 	  default:
@@ -369,13 +389,17 @@ EV_VerticalDoor
       case 26: // Blue Lock
       case 32:
 	if ( !player )
-	    return;
-	
+	{
+		return;
+	}
+
 	if (!player->cards[it_bluecard] && !player->cards[it_blueskull])
 	{
 	    player->message = PD_BLUEK;
 		if (globalNetworking || (player == &::g->players[::g->consoleplayer]))
+		{
 			S_StartSound(player->mo,sfx_oof);
+		}
 	    return;
 	}
 	break;
@@ -383,14 +407,18 @@ EV_VerticalDoor
       case 27: // Yellow Lock
       case 34:
 	if ( !player )
-	    return;
-	
+	{
+		return;
+	}
+
 	if (!player->cards[it_yellowcard] &&
 	    !player->cards[it_yellowskull])
 	{
 	    player->message = PD_YELLOWK;
 		if (globalNetworking || (player == &::g->players[::g->consoleplayer]))
+		{
 			S_StartSound(player->mo,sfx_oof);
+		}
 	    return;
 	}
 	break;
@@ -398,13 +426,17 @@ EV_VerticalDoor
       case 28: // Red Lock
       case 33:
 	if ( !player )
-	    return;
-	
+	{
+		return;
+	}
+
 	if (!player->cards[it_redcard] && !player->cards[it_redskull])
 	{
 	    player->message = PD_REDK;
 		if (globalNetworking || (player == &::g->players[::g->consoleplayer]))
+		{
 			S_StartSound(player->mo,sfx_oof);
+		}
 	    return;
 	}
 	break;
@@ -416,7 +448,7 @@ EV_VerticalDoor
 
     if (sec->specialdata)
     {
-	door = (vldoor_t*)sec->specialdata;
+	door = static_cast<vldoor_t*>(sec->specialdata);
 	switch(line->special)
 	{
 	  case	1: // ONLY FOR "RAISE" DOORS, NOT "OPEN"s
@@ -425,12 +457,16 @@ EV_VerticalDoor
 	  case	28:
 	  case	117:
 	    if (door->direction == -1)
-		door->direction = 1;	// go back up
+	    {
+		    door->direction = 1; // go back up
+	    }
 	    else
 	    {
 		if (!thing->player)
-		    return;		// JDC: bad guys never close doors
-		
+		{
+			return; // JDC: bad guys never close doors
+		}
+
 		door->direction = -1;	// start going down immediately
 	    }
 	    return;
@@ -459,7 +495,7 @@ EV_VerticalDoor
 	
     
     // new door thinker
-    door = (vldoor_t*)DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, 0);
+    door = static_cast<vldoor_t*>(DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, nullptr));
     P_AddThinker (&door->thinker);
     sec->specialdata = door;
     door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
@@ -509,7 +545,7 @@ void P_SpawnDoorCloseIn30 (sector_t* sec)
 {
     vldoor_t*	door;
 	
-    door = (vldoor_t*)DoomLib::Z_Malloc( sizeof(*door), PU_LEVEL, 0);
+    door = static_cast<vldoor_t*>(DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, nullptr));
 
     P_AddThinker (&door->thinker);
 
@@ -534,7 +570,7 @@ P_SpawnDoorRaiseIn5Mins
 {
     vldoor_t*	door;
 	
-    door = (vldoor_t*)DoomLib::Z_Malloc( sizeof(*door), PU_LEVEL, 0);
+    door = static_cast<vldoor_t*>(DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, nullptr));
     
     P_AddThinker (&door->thinker);
 

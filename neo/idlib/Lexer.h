@@ -195,9 +195,10 @@ public:
 
 					// read a signed integer
 	int				ParseInt();
+	int64			ParseInt64();
 					// read a boolean
 	bool			ParseBool();
-					// read a floating point number.  If errorFlag is NULL, a non-numeric token will
+					// read a floating posize_t number.  If errorFlag is NULL, a non-numeric token will
 					// issue an Error().  If it isn't NULL, it will issue a Warning() and set *errorFlag = true
 	float			ParseFloat( bool *errorFlag = nullptr);
 					// parse matrices with floats

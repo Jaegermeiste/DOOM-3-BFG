@@ -62,7 +62,7 @@ void Real_Tim_Free( void *pt );
 
 /*************** resampling with fixed increment *****************/
 
-static sample_t *rs_plain(int v,  int32_t *countptr)
+static sample_t *rs_plain(const int v,  int32_t *countptr)
 {
 
 	/* Play sample until end, then free the voice. */
@@ -290,7 +290,7 @@ static sample_t *rs_bidir(Voice *vp,  int32_t count)
 /*********************** vibrato versions ***************************/
 
 /* We only need to compute one half of the vibrato sine cycle */
-static int vib_phase_to_inc_ptr(int phase)
+static int vib_phase_to_inc_ptr(const int phase)
 {
 	if (phase < VIBRATO_SAMPLE_INCREMENTS/2)
 		return VIBRATO_SAMPLE_INCREMENTS/2-1-phase;
@@ -300,7 +300,7 @@ static int vib_phase_to_inc_ptr(int phase)
 		return phase-VIBRATO_SAMPLE_INCREMENTS/2;
 }
 
-static  int32_t update_vibrato(Voice *vp, int sign)
+static  int32_t update_vibrato(Voice *vp, const int sign)
 {
 	 int32_t depth;
 	int phase, pb;
@@ -364,7 +364,7 @@ static  int32_t update_vibrato(Voice *vp, int sign)
 	return (int32_t) a;
 }
 
-static sample_t *rs_vib_plain(int v,  int32_t *countptr)
+static sample_t *rs_vib_plain(const int v,  int32_t *countptr)
 {
 
 	/* Play sample until end, then free the voice. */
@@ -619,7 +619,7 @@ static sample_t *rs_vib_bidir(Voice *vp,  int32_t count)
 		return resample_buffer;
 }
 
-sample_t *resample_voice(int v,  int32_t *countptr)
+sample_t *resample_voice(const int v,  int32_t *countptr)
 {
 	 int32_t ofs;
 	uint8_t modes;

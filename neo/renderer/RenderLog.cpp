@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <chrono>
+
 #include "tr_local.h"
 
 /*
@@ -60,7 +62,7 @@ static const char * renderLogMainBlockLabels[] = {
 	ASSERT_ENUM_STRING( MRB_MAX,							15 )
 };
 
-extern ID_TIME_T Sys_Microseconds();
+extern uint64 Sys_Microseconds();
 /*
 ================================================================================================
 
@@ -83,11 +85,11 @@ struct pixEvent_t {
 
 static idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
 
-static constexpr int	MAX_PIX_EVENTS = 256;
+static constexpr size_t	MAX_PIX_EVENTS = 256;
 // defer allocation of this until needed, so we don't waste lots of memory
 static pixEvent_t *		pixEvents;	// [MAX_PIX_EVENTS]
-static int					numPixEvents;
-static int					numPixLevels;
+static size_t			numPixEvents;
+static size_t			numPixLevels;
 static GLuint		timeQueryIds[MAX_PIX_EVENTS];
 
 /*
@@ -175,7 +177,7 @@ static void PC_EndFrame() {
 	int64 totalCPU = 0;
 
 	idLib::Printf( "----- GPU Events -----\n" );
-	for ( int i = 0 ; i < numPixEvents ; i++ ) {
+	for ( size_t i = 0 ; i < numPixEvents ; i++ ) {
 		pixEvent_t *ev = &pixEvents[i];
 
 		int64 gpuTime = 0;
@@ -212,7 +214,8 @@ idRenderLog	renderLog;
 idRenderLog::idRenderLog
 ========================
 */
-idRenderLog::idRenderLog() {
+idRenderLog::idRenderLog() : indentLabel{}, lastLabel(nullptr), lastMainBlock(), logStats{}
+{
 	activeLevel = 0;
 	indentString[0] = '\0';
 	indentLevel = 0;
@@ -238,17 +241,14 @@ void idRenderLog::StartFrame() {
 	indentString[0] = '\0';
 	activeLevel = r_logLevel.GetInteger();
 
-	struct tm		*newtime;
-	time_t			aclock;
+	char ospath[ MAX_OSPATH ] = {};
 
-	char ospath[ MAX_OSPATH ];
-
-	char qpath[128];
+	char qpath[128] = {};
 	sprintf( qpath, "renderlogPC_%04i.txt", r_logFile.GetInteger() );
 	idStr finalPath = fileSystem->RelativePathToOSPath( qpath );		
 	sprintf( ospath, "%s", finalPath.c_str() );
 	/*
-	for ( int i = 0; i < 9999 ; i++ ) {
+	for ( size_t i = 0; i < 9999 ; i++ ) {
 		char qpath[128];
 		sprintf( qpath, "renderlog_%04i.txt", r_logFile.GetInteger() );
 		idStr finalPath = fileSystem->RelativePathToOSPath( qpath );
@@ -273,11 +273,9 @@ void idRenderLog::StartFrame() {
 	}
 	idLib::Printf( "Opened logfile %s\n", ospath );
 
-	// write the time out to the top of the file
-	time( &aclock );
-	newtime = localtime( &aclock );
-	const char *str = asctime( newtime );
-	logFile->Printf( "// %s", str );
+	// write the time to the top of the file
+	const auto local_time = std::chrono::zoned_time{std::chrono::current_zone(), std::chrono::system_clock::now() };
+	logFile->Printf( "// %s", std::format("{:%Y-%m-%d %H:%M:%S %Z}", local_time).c_str());
 	logFile->Printf( "// %s\n\n", com_version.GetString() );
 
 	frameStartTime = Sys_Microseconds();
@@ -389,13 +387,13 @@ void idRenderLog::Printf( const char *fmt, ... ) {
 idRenderLog::LogOpenBlock
 ========================
 */
-void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char * fmt, va_list args ) {
+void idRenderLog::LogOpenBlock(const renderLogIndentLabel_t label, const char * fmt, const va_list args ) {
 
 	uint64 now = Sys_Microseconds();
 
 	if ( logFile != nullptr) {
 		if ( now - closeBlockTime >= 1000 ) {
-			logFile->Printf( "%s%1.1f msec gap from last closeblock\n", indentString, ( now - closeBlockTime ) * ( 1.0f / 1000.0f ) );
+			logFile->Printf( "%s%1.1f msec gap from last closeblock\n", indentString, numeric_cast<float>( now - closeBlockTime ) * ( 1.0f / 1000.0f ) );
 		}
 		logFile->Printf( "%s", indentString );
 		logFile->VPrintf( fmt, args );
@@ -417,7 +415,7 @@ void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char * fmt, 
 idRenderLog::LogCloseBlock
 ========================
 */
-void idRenderLog::LogCloseBlock( renderLogIndentLabel_t label ) {
+void idRenderLog::LogCloseBlock(const renderLogIndentLabel_t label ) {
 	closeBlockTime = Sys_Microseconds();
 
 	assert( logLevel > 0 );

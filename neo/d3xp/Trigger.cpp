@@ -1166,7 +1166,7 @@ idTrigger_Touch::TouchEntities
 ================
 */
 void idTrigger_Touch::TouchEntities() {
-	int numClipModels, i;
+	size_t numClipModels, i;
 	idBounds bounds;
 	idClipModel *cm, *clipModelList[ MAX_GENTITIES ];
 

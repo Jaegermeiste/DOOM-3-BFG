@@ -198,6 +198,19 @@ bool idAASSettings::ParseInt( idLexer &src, int &i ) {
 
 /*
 ============
+idAASSettings::ParseInt64
+============
+*/
+bool idAASSettings::ParseInt64(idLexer& src, int64& i) {
+	if (!src.ExpectTokenString("=")) {
+		return false;
+	}
+	i = src.ParseInt64();
+	return true;
+}
+
+/*
+============
 idAASSettings::ParseFloat
 ============
 */
@@ -318,16 +331,16 @@ bool idAASSettings::FromParser( idLexer &src ) {
 			if ( !ParseFloat( src, minFloorCos ) ) { return false; }
 		}
 		else if ( token == "tt_barrierJump" ) {
-			if ( !ParseInt( src, tt_barrierJump ) ) { return false; }
+			if ( !ParseInt64( src, tt_barrierJump ) ) { return false; }
 		}
 		else if ( token == "tt_startCrouching" ) {
-			if ( !ParseInt( src, tt_startCrouching ) ) { return false; }
+			if ( !ParseInt64( src, tt_startCrouching ) ) { return false; }
 		}
 		else if ( token == "tt_waterJump" ) {
-			if ( !ParseInt( src, tt_waterJump ) ) { return false; }
+			if ( !ParseInt64( src, tt_waterJump ) ) { return false; }
 		}
 		else if ( token == "tt_startWalkOffLedge" ) {
-			if ( !ParseInt( src, tt_startWalkOffLedge ) ) { return false; }
+			if ( !ParseInt64( src, tt_startWalkOffLedge ) ) { return false; }
 		}
 		else {
 			src.Error( "invalid token '%s'", token.c_str() );
@@ -441,19 +454,19 @@ bool idAASSettings::FromDict( const char *name, const idDict *dict ) {
 		common->Error( "Missing 'minFloorCos' in entityDef '%s'", name );
 	}
 
-	if ( !dict->GetInt( "tt_barrierJump", "0", tt_barrierJump ) ) {
+	if ( !dict->GetInt64( "tt_barrierJump", "0", tt_barrierJump ) ) {
 		common->Error( "Missing 'tt_barrierJump' in entityDef '%s'", name );
 	}
 
-	if ( !dict->GetInt( "tt_startCrouching", "0", tt_startCrouching ) ) {
+	if ( !dict->GetInt64( "tt_startCrouching", "0", tt_startCrouching ) ) {
 		common->Error( "Missing 'tt_startCrouching' in entityDef '%s'", name );
 	}
 
-	if ( !dict->GetInt( "tt_waterJump", "0", tt_waterJump ) ) {
+	if ( !dict->GetInt64( "tt_waterJump", "0", tt_waterJump ) ) {
 		common->Error( "Missing 'tt_waterJump' in entityDef '%s'", name );
 	}
 
-	if ( !dict->GetInt( "tt_startWalkOffLedge", "0", tt_startWalkOffLedge ) ) {
+	if ( !dict->GetInt64( "tt_startWalkOffLedge", "0", tt_startWalkOffLedge ) ) {
 		common->Error( "Missing 'tt_startWalkOffLedge' in entityDef '%s'", name );
 	}
 
@@ -625,7 +638,7 @@ void idAASFileLocal::Clear() {
 idAASFileLocal::Write
 ================
 */
-bool idAASFileLocal::Write( const idStr &fileName, unsigned int mapFileCRC ) {
+bool idAASFileLocal::Write( const idStr &fileName, const unsigned int mapFileCRC ) {
 	int i, num;
 	idFile *aasFile;
 	idReachability *reach;
@@ -758,7 +771,7 @@ idAASFileLocal::ParseIndex
 ================
 */
 bool idAASFileLocal::ParseIndex( idLexer &src, idList<aasIndex_t> &indexes ) {
-	int numIndexes, i;
+	size_t numIndexes, i;
 	aasIndex_t index;
 
 	numIndexes = src.ParseInt();
@@ -785,7 +798,7 @@ idAASFileLocal::ParsePlanes
 ================
 */
 bool idAASFileLocal::ParsePlanes( idLexer &src ) {
-	int numPlanes, i;
+	size_t numPlanes, i;
 	idPlane plane;
 	idVec4 vec;
 
@@ -815,7 +828,7 @@ idAASFileLocal::ParseVertices
 ================
 */
 bool idAASFileLocal::ParseVertices( idLexer &src ) {
-	int numVertices, i;
+	size_t numVertices, i;
 	idVec3 vec;
 
 	numVertices = src.ParseInt();
@@ -842,7 +855,7 @@ idAASFileLocal::ParseEdges
 ================
 */
 bool idAASFileLocal::ParseEdges( idLexer &src ) {
-	int numEdges = 0, i = 0;
+	size_t numEdges = 0, i = 0;
 	aasEdge_t edge = {};
 
 	numEdges = src.ParseInt();
@@ -870,7 +883,7 @@ idAASFileLocal::ParseFaces
 ================
 */
 bool idAASFileLocal::ParseFaces( idLexer &src ) {
-	int numFaces = 0, i = 0;
+	size_t numFaces = 0, i = 0;
 	aasFace_t face = {};
 
 	numFaces = src.ParseInt();
@@ -901,8 +914,8 @@ bool idAASFileLocal::ParseFaces( idLexer &src ) {
 idAASFileLocal::ParseReachabilities
 ================
 */
-bool idAASFileLocal::ParseReachabilities( idLexer &src, int areaNum ) {
-	int num, j;
+bool idAASFileLocal::ParseReachabilities( idLexer &src, const index_t areaNum ) {
+	size_t num, j;
 	aasArea_t *area;
 	idReachability reach, *newReach;
 	idReachability_Special *special;
@@ -958,7 +971,7 @@ idAASFileLocal::ParseAreas
 ================
 */
 bool idAASFileLocal::ParseAreas( idLexer &src ) {
-	int numAreas, i;
+	size_t numAreas, i;
 	aasArea_t area;
 
 	numAreas = src.ParseInt();
@@ -994,7 +1007,7 @@ idAASFileLocal::ParseNodes
 ================
 */
 bool idAASFileLocal::ParseNodes( idLexer &src ) {
-	int numNodes = 0, i = 0;
+	size_t numNodes = 0, i = 0;
 	aasNode_t node = {};
 
 	numNodes = src.ParseInt();
@@ -1023,7 +1036,7 @@ idAASFileLocal::ParsePortals
 ================
 */
 bool idAASFileLocal::ParsePortals( idLexer &src ) {
-	int numPortals = 0, i = 0;
+	size_t numPortals = 0, i = 0;
 	aasPortal_t portal = {};
 
 	numPortals = src.ParseInt();
@@ -1054,7 +1067,7 @@ idAASFileLocal::ParseClusters
 ================
 */
 bool idAASFileLocal::ParseClusters( idLexer &src ) {
-	int numClusters = 0, i = 0;
+	size_t numClusters = 0, i = 0;
 	aasCluster_t cluster = {};
 
 	numClusters = src.ParseInt();
@@ -1097,7 +1110,7 @@ void idAASFileLocal::FinishAreas() {
 idAASFileLocal::Load
 ================
 */
-bool idAASFileLocal::Load( const idStr &fileName, unsigned int mapFileCRC ) {
+bool idAASFileLocal::Load( const idStr &fileName, const unsigned int mapFileCRC ) {
 	idLexer src( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWPATHNAMES );
 	idToken token;
 	int depth;
@@ -1204,8 +1217,8 @@ bool idAASFileLocal::Load( const idStr &fileName, unsigned int mapFileCRC ) {
 idAASFileLocal::MemorySize
 ================
 */
-int idAASFileLocal::MemorySize() const {
-	int size;
+size_t idAASFileLocal::MemorySize() const {
+	size_t size = 0;
 
 	size = planeList.Size();
 	size += vertices.Size();
@@ -1240,9 +1253,9 @@ void idAASFileLocal::PrintInfo() const {
 idAASFileLocal::NumReachabilities
 ================
 */
-int idAASFileLocal::NumReachabilities() const {
-	int i, num;
-	idReachability *reach;
+size_t idAASFileLocal::NumReachabilities() const {
+	size_t i = 0, num = 0;
+	idReachability *reach = nullptr;
 
 	num = 0;
 	for ( i = 0; i < areas.Num(); i++ ) {
@@ -1259,10 +1272,8 @@ idAASFileLocal::ReportRoutingEfficiency
 ================
 */
 void idAASFileLocal::ReportRoutingEfficiency() const {
-	int numReachableAreas, total, i, n;
+	size_t numReachableAreas = 0, total = 0, i = 0, n = 0;
 
-	numReachableAreas = 0;
-	total = 0;
 	for ( i = 0; i < clusters.Num(); i++ ) {
 		n = clusters[i].numReachableAreas;
 		numReachableAreas += n;
@@ -1281,7 +1292,7 @@ idAASFileLocal::DeleteReachabilities
 ================
 */
 void idAASFileLocal::DeleteReachabilities() {
-	int i = 0;
+	size_t i = 0;
 	idReachability *reach = nullptr, *nextReach = nullptr;
 
 	for ( i = 0; i < areas.Num(); i++ ) {

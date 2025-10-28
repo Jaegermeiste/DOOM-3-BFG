@@ -84,7 +84,7 @@ static void jpg_Printf( const char *fmt, ... ) {
 R_WriteTGA
 ================
 */
-static void R_WriteTGA( const char *filename, const byte *data, int width, int height, bool flipVertical, const char * basePath ) {
+static void R_WriteTGA( const char *filename, const byte *data, const int width, const int height, const bool flipVertical, const char * basePath ) {
 	byte	*buffer;
 	int		i;
 	int		bufferSize = width*height*4 + 18;
@@ -206,7 +206,7 @@ static void LoadTGA( const char *name, byte **pic, size_t *width, size_t*height,
 	}
 
 	if ( targa_header.image_type == 2 || targa_header.image_type == 3 ) {
-		numBytes = idMath::integer_cast<size_t>(targa_header.width * targa_header.height * ( targa_header.pixel_size >> 3 ));
+		numBytes = numeric_cast<size_t>(targa_header.width * targa_header.height * ( targa_header.pixel_size >> 3 ));
 		if ( numBytes > fileSize - 18 - targa_header.id_length ) {
 			common->Error( "LoadTGA( %s ): incomplete file\n", name );
 		}
@@ -233,10 +233,10 @@ static void LoadTGA( const char *name, byte **pic, size_t *width, size_t*height,
 	if ( targa_header.image_type == 2 || targa_header.image_type == 3 )
 	{ 
 		// Uncompressed RGB or gray scale image
-		for( row = idMath::integer_cast<int64>(rows) - 1; row >= 0; row-- )
+		for( row = numeric_cast<int64>(rows) - 1; row >= 0; row-- )
 		{
 			pixbuf = targa_rgba + row*columns*4;
-			for( column = 0; column < idMath::integer_cast<int64>(columns); column++)
+			for( column = 0; column < numeric_cast<int64>(columns); column++)
 			{
 				unsigned char red = 0, green = 0, blue = 0, alphabyte = 0;
 				switch( targa_header.pixel_size )
@@ -287,9 +287,9 @@ static void LoadTGA( const char *name, byte **pic, size_t *width, size_t*height,
 		blue = 0;
 		alphabyte = 0xff;
 
-		for( row = idMath::integer_cast<int64>(rows) - 1; row >= 0; row-- ) {
+		for( row = numeric_cast<int64>(rows) - 1; row >= 0; row-- ) {
 			pixbuf = targa_rgba + row*columns*4;
-			for( column = 0; column < idMath::integer_cast<int64>(columns); ) {
+			for( column = 0; column < numeric_cast<int64>(columns); ) {
 				packetHeader= *buf_p++;
 				packetSize = 1 + (packetHeader & 0x7f);
 				if ( packetHeader & 0x80 ) {        // run-length packet
@@ -497,17 +497,17 @@ static void LoadJPG( const char *filename, unsigned char **pic, size_t *width, s
    * In this example, we need to make an output work buffer of the right size.
    */ 
   /* JSAMPLEs per row in output buffer */
-  row_stride = idMath::integer_cast<size_t>(cinfo.output_width * cinfo.output_components);
+  row_stride = numeric_cast<size_t>(cinfo.output_width * cinfo.output_components);
 
   if (cinfo.output_components!=4) {
 		common->DWarning( "JPG %s is unsupported color depth (%d)", 
 			filename, cinfo.output_components);
   }
-  out = static_cast<byte*>(R_StaticAlloc(idMath::integer_cast<size_t>(cinfo.output_width * cinfo.output_height * 4), TAG_IMAGE));
+  out = static_cast<byte*>(R_StaticAlloc(numeric_cast<size_t>(cinfo.output_width * cinfo.output_height * 4), TAG_IMAGE));
 
   *pic = out;
-  *width = idMath::integer_cast<size_t>(cinfo.output_width);
-  *height = idMath::integer_cast<size_t>(cinfo.output_height);
+  *width = numeric_cast<size_t>(cinfo.output_width);
+  *height = numeric_cast<size_t>(cinfo.output_height);
 
   /* Step 6: while (scan lines remain to be read) */
   /*           jpeg_read_scanlines(...); */
@@ -532,7 +532,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, size_t *width, s
 
 	  buf = *pic;
 
-	  j = idMath::integer_cast<size_t>(cinfo.output_width * cinfo.output_height * 4);
+	  j = numeric_cast<size_t>(cinfo.output_width * cinfo.output_height * 4);
 	  for (i = 3; i < j; i += 4) {
 		  buf[i] = 255;
 	  }
@@ -670,7 +670,7 @@ R_LoadCubeImages
 Loads six files with proper extensions
 =======================
 */
-static bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6], size_t *outSize, ID_TIME_T *timestamp ) {
+static bool R_LoadCubeImages( const char *imgName, const cubeFiles_t extensions, byte *pics[6], size_t *outSize, ID_TIME_T *timestamp ) {
 	size_t  i = 0, j = 0;
 	const char	*cameraSides[6] =  { "_forward.tga", "_back.tga", "_left.tga", "_right.tga", 
 		"_up.tga", "_down.tga" };

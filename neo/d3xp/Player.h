@@ -493,9 +493,9 @@ public:
 	void					CalculateRenderView();	// called every tic by player code
 	void					CalculateFirstPersonView();
 
-	void					AddChatMessage( int index, int alpha, const idStr & message ) const;
+	void					AddChatMessage( index_t index, int alpha, const idStr & message ) const;
 	void					UpdateSpectatingText();
-	void					ClearChatMessage( int index ) const;
+	void					ClearChatMessage( index_t index ) const;
 
 	void					DrawHUD( idMenuHandler_HUD * hudManager );
 
@@ -522,7 +522,7 @@ public:
 	bool					GiveInventoryItem( const char *name ) const;
 	void					RemoveInventoryItem( const char *name );
 	idDict *				FindInventoryItem( const char *name );
-	idDict *				FindInventoryItem( int index );
+	idDict *				FindInventoryItem( index_t index );
 	int						GetNumInventoryItems() const;
 	void					PlayAudioLog( const idSoundShader * sound );
 	void					EndAudioLog();
@@ -530,8 +530,8 @@ public:
 	void					EndVideoDisk();
 	const idMaterial *		GetVideoMaterial() { return pdaVideoMat; }
 
-	void					SetQuickSlot( int index, int val );
-	int						GetQuickSlot( int index ) const;
+	void					SetQuickSlot( index_t index, int val );
+	int						GetQuickSlot( index_t index ) const;
 
 	void					GivePDA( const idDeclPDA * pda, const char * securityItem );
 	void					GiveVideo( const idDeclVideo * video, const char * itemName );
@@ -550,8 +550,8 @@ public:
 	void					NextWeapon();
 	void					NextBestWeapon();
 	void					PrevWeapon();
-	void					SetPreviousWeapon( int num ) { previousWeapon = num; }
-	void					SelectWeapon( int num, bool force );
+	void					SetPreviousWeapon(const size_t num ) { previousWeapon = num; }
+	void					SelectWeapon( size_t num, bool force );
 	void					DropWeapon( bool died ) ;
 	void					StealWeapon( idPlayer *player );
 	void					AddProjectilesFired( int count );
@@ -586,7 +586,7 @@ public:
 	void					UpdateHud();
 	const idDeclPDA *		GetPDA() const;
 	bool					GetPDAOpen() const { return objectiveSystemOpen; }
-	const idDeclVideo *		GetVideo( int index );
+	const idDeclVideo *		GetVideo( index_t index );
 	void					SetInfluenceFov( float fov );
 	void					SetInfluenceView( const char *mtr, const char *skinname, float radius, idEntity *ent );
 	void					SetInfluenceLevel( int level );
@@ -604,7 +604,7 @@ public:
 	bool					IsTipVisible() { return tipUp; };
 	void					HideObjective();
 
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			WriteToSnapshot( idBitMsg &msg ) const override;
 	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 	void					WritePlayerStateToSnapshot( idBitMsg &msg ) const;
@@ -838,7 +838,7 @@ private:
 	void					InitAASLocation();
 	void					SetAASLocation();
 	void					Move();
-	void					Move_Interpolated( float fraction );
+	void					Move_Interpolated( double fraction );
 	void					RunPhysics_RemoteClientCorrection();
 	void					UpdatePowerUps();
 	void					UpdateDeathSkin( bool state_hitch );
@@ -902,7 +902,7 @@ ID_INLINE bool idPlayer::IsInTeleport() {
 	return ( teleportEntity.GetEntity() != nullptr);
 }
 
-ID_INLINE void idPlayer::SetLeader( bool lead ) {
+ID_INLINE void idPlayer::SetLeader(const bool lead ) {
 	leader = lead;
 }
 
@@ -914,7 +914,7 @@ ID_INLINE bool idPlayer::SelfSmooth() {
 	return selfSmooth;
 }
 
-ID_INLINE void idPlayer::SetSelfSmooth( bool b ) {
+ID_INLINE void idPlayer::SetSelfSmooth(const bool b ) {
 	selfSmooth = b;
 }
 

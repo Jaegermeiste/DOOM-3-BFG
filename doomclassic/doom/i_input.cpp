@@ -49,9 +49,9 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-extern int PLAYERCOUNT;
+extern size_t PLAYERCOUNT;
 
-#define NUM_BUTTONS 4
+constexpr size_t NUM_BUTTONS = 4;
 
 static bool Cheat_God( void ) {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
@@ -61,13 +61,17 @@ static bool Cheat_God( void ) {
 	if (::g->plyr->cheats & CF_GODMODE)
 	{
 		if (::g->plyr->mo)
+		{
 			::g->plyr->mo->health = 100;
+		}
 
 		::g->plyr->health = 100;
 		::g->plyr->message = STSTR_DQDON;
 	}
-	else 
+	else
+	{
 		::g->plyr->message = STSTR_DQDOFF;
+	}
 	return true;
 }
 
@@ -91,13 +95,19 @@ static bool Cheat_GiveAll( void ) {
 
 	int i;
 	for (i=0;i<NUMWEAPONS;i++)
+	{
 		::g->plyr->weaponowned[i] = true;
+	}
 
 	for (i=0;i<NUMAMMO;i++)
+	{
 		::g->plyr->ammo[i] = ::g->plyr->maxammo[i];
+	}
 
 	for (i=0;i<NUMCARDS;i++)
+	{
 		::g->plyr->cards[i] = true;
+	}
 
 	::g->plyr->message = STSTR_KFAADDED;
 	return true;
@@ -112,10 +122,14 @@ static bool Cheat_GiveAmmo( void ) {
 
 	int i;
 	for (i=0;i<NUMWEAPONS;i++)
+	{
 		::g->plyr->weaponowned[i] = true;
+	}
 
 	for (i=0;i<NUMAMMO;i++)
+	{
 		::g->plyr->ammo[i] = ::g->plyr->maxammo[i];
+	}
 
 	::g->plyr->message = STSTR_KFAADDED;
 	return true;
@@ -132,13 +146,19 @@ static bool Cheat_Choppers( void ) {
 
 extern qboolean P_GivePower ( player_t*	player, int /*powertype_t*/	power );
 
-static void TogglePowerUp( int i ) {
+static void TogglePowerUp(const int i ) {
 	if (!::g->plyr->powers[i])
+	{
 		P_GivePower( ::g->plyr, i);
+	}
 	else if (i!=pw_strength)
+	{
 		::g->plyr->powers[i] = 1;
+	}
 	else
+	{
 		::g->plyr->powers[i] = 0;
+	}
 
 	::g->plyr->message = STSTR_BEHOLDX;
 }
@@ -203,7 +223,7 @@ static bool Cheat_GiveLight( void ) {
 
 static bool			tracking		= false;
 static int			currentCode[NUM_BUTTONS];
-static int			currentCheatLength;
+static size_t		currentCheatLength;
 
 #endif
 
@@ -228,10 +248,10 @@ static cheatcode_t codes[] = {
 	{ {3, 3, 3, 2}, Cheat_GiveLight}, // y y y x
 };
 
-const static int numberOfCodes = sizeof(codes) / sizeof(codes[0]);
+static constexpr size_t numberOfCodes = sizeof(codes) / sizeof(codes[0]);
 
 
-void BeginTrackingCheat( void ) {
+static void BeginTrackingCheat( void ) {
 #if ALLOW_CHEATS
 	tracking = true;
 	currentCheatLength = 0;
@@ -239,7 +259,7 @@ void BeginTrackingCheat( void ) {
 #endif
 }
 
-void EndTrackingCheat( void ) {
+static void EndTrackingCheat( void ) {
 #if ALLOW_CHEATS
 	tracking = false;
 #endif
@@ -247,17 +267,17 @@ void EndTrackingCheat( void ) {
 
 extern void S_StartSound ( void*		origin, int		sfx_id );
 
-void CheckCheat( int button ) {
+static void CheckCheat(const int button ) {
 #if ALLOW_CHEATS
 	if( tracking && !::g->netgame ) {
 
 		currentCode[ currentCheatLength++ ] = button;
 
 		if( currentCheatLength == NUM_BUTTONS ) {
-			for( int i = 0; i < numberOfCodes; ++i) {
+			for ( size_t i = 0; i < numberOfCodes; ++i) {
 				if( memcmp( &codes[i].code[0], &currentCode[0], sizeof(currentCode) ) == 0 ) {
 					if(codes[i].function()) {
-						S_StartSound(0, sfx_cybsit);
+						S_StartSound(nullptr, sfx_cybsit);
 					}
 				}
 			}
@@ -270,8 +290,7 @@ void CheckCheat( int button ) {
 }
 
 
-
-float xbox_deadzone = 0.28f;
+static float xbox_deadzone = 0.28f;
 
 // input event storage
 //PRIVATE TO THE INPUT THREAD!
@@ -287,7 +306,7 @@ void I_ShutdownInput( void )
 }
 
 
-static float _joyAxisConvert(short x, float xbxScale, float dScale, float deadZone)
+static float _joyAxisConvert(const short x, const float xbxScale, const float dScale, const float deadZone)
 {
 	//const float signConverted = x - 127;
 	float y = x - 127;
@@ -296,9 +315,9 @@ static float _joyAxisConvert(short x, float xbxScale, float dScale, float deadZo
 }
 
 
-int I_PollMouseInputEvents( controller_t *con) 
+size_t I_PollMouseInputEvents( controller_t *con) 
 {
-	int numEvents = 0;
+	const size_t numEvents = 0;
 
 	return numEvents;
 }
@@ -326,8 +345,8 @@ int I_ReturnMouseInputEvent( const int n, event_t* e) {
 	return 0;
 }
 
-int I_PollJoystickInputEvents( controller_t *con ) {
-	int numEvents	= 0;
+size_t I_PollJoystickInputEvents( controller_t *con ) {
+	const size_t numEvents	= 0;
 
 	return numEvents;
 }
@@ -335,7 +354,7 @@ int I_PollJoystickInputEvents( controller_t *con ) {
 //
 //  Translates the key currently in X_event
 //
-static int xlatekey(int key)
+static int xlatekey(const int key)
 {
 	int rc = KEY_F1;
 	
@@ -449,10 +468,14 @@ int I_ReturnJoystickInputEvent( const int n, event_t* e) {
 		return 1;
 	case IETButtonAnalog:
 	case IETButtonDigital:
-		if (::g->joyEvents[n].data) 
+		if (::g->joyEvents[n].data)
+		{
 			e->type = ev_keydown;
+		}
 		else
+		{
 			e->type = ev_keyup;
+		}
 		e->data1 = xlatekey(::g->joyEvents[n].action);
 		return 1;
 
@@ -464,8 +487,7 @@ int I_ReturnJoystickInputEvent( const int n, event_t* e) {
 }
 
 void I_EndJoystickInputEvents( void ) {
-	int i;
-	for(i = 0; i < 18; i++)
+	for(size_t i = 0; i < 18; i++)
 	{
 		::g->joyEvents[i].type = IETNone;
 	}

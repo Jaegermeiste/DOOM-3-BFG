@@ -53,7 +53,7 @@ public:
 
 	localUserHandle_t() noexcept : handle( 0 ) {}
 
-	explicit localUserHandle_t( userHandleType_t handle_ ) : handle( handle_ ) {}
+	explicit localUserHandle_t(const userHandleType_t handle_ ) : handle( handle_ ) {}
 
 	bool operator == ( const localUserHandle_t & other ) const {
 		return handle == other.handle;
@@ -124,13 +124,13 @@ public:
 	idProfileMgr &				GetProfileMgr() { return profileMgr; }
 
 	// Helper state to determine if the user is joining a party lobby or not
-	void						SetJoiningLobby( int lobbyType, bool value ) { joiningLobby[lobbyType] = value; }
-								[[nodiscard]] bool						IsJoiningLobby( int lobbyType ) const { return joiningLobby[lobbyType]; }
+	void						SetJoiningLobby(const int lobbyType, const bool value ) { joiningLobby[lobbyType] = value; }
+								[[nodiscard]] bool						IsJoiningLobby(const int lobbyType ) const { return joiningLobby[lobbyType]; }
 
 								[[nodiscard]] bool						CanPlayOnline() const { return ( GetOnlineCaps() & CAP_CAN_PLAY_ONLINE ) > 0; }
 
 								[[nodiscard]] localUserHandle_t			GetLocalUserHandle() const { return localUserHandle; }
-	void						SetLocalUserHandle( localUserHandle_t newHandle ) { localUserHandle = newHandle; }
+	void						SetLocalUserHandle(const localUserHandle_t newHandle ) { localUserHandle = newHandle; }
 
 	// Creates a new profile if one not already there
 	void						LoadProfileSettings();

@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 idAASLocal::DrawCone
 ============
 */
-void idAASLocal::DrawCone( const idVec3 &origin, const idVec3 &dir, float radius, const idVec4 &color ) const {
+void idAASLocal::DrawCone( const idVec3 &origin, const idVec3 &dir, const float radius, const idVec4 &color ) const {
 	int i;
 	idMat3 axis;
 	idVec3 center, top, p, lastp;
@@ -87,7 +87,7 @@ void idAASLocal::DrawReachability( const idReachability *reach ) const {
 idAASLocal::DrawEdge
 ============
 */
-void idAASLocal::DrawEdge( int edgeNum, bool arrow ) const {
+void idAASLocal::DrawEdge(const index_t edgeNum, const bool arrow ) const {
 	const aasEdge_t *edge;
 	idVec4 *color;
 
@@ -113,7 +113,7 @@ void idAASLocal::DrawEdge( int edgeNum, bool arrow ) const {
 idAASLocal::DrawFace
 ============
 */
-void idAASLocal::DrawFace( int faceNum, bool side ) const {
+void idAASLocal::DrawFace(const index_t faceNum, const bool side ) const {
 	int i, j, numEdges, firstEdge;
 	const aasFace_t *face;
 	idVec3 mid, end;
@@ -147,7 +147,7 @@ void idAASLocal::DrawFace( int faceNum, bool side ) const {
 idAASLocal::DrawArea
 ============
 */
-void idAASLocal::DrawArea( int areaNum ) const {
+void idAASLocal::DrawArea(const index_t areaNum ) const {
 	int i, numFaces, firstFace;
 	const aasArea_t *area;
 	idReachability *reach;
@@ -185,7 +185,7 @@ idAASLocal::ShowArea
 */
 void idAASLocal::ShowArea( const idVec3 &origin ) const {
 	static int lastAreaNum;
-	int areaNum;
+	index_t areaNum;
 	const aasArea_t *area;
 	idVec3 org;
 
@@ -241,7 +241,7 @@ void idAASLocal::ShowArea( const idVec3 &origin ) const {
 idAASLocal::ShowWalkPath
 ============
 */
-void idAASLocal::ShowWalkPath( const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const {
+void idAASLocal::ShowWalkPath( const idVec3 &origin, const index_t goalAreaNum, const idVec3 &goalOrigin ) const {
 	int i, areaNum, curAreaNum, travelTime;
 	idReachability *reach;
 	idVec3 org, areaCenter;
@@ -287,7 +287,7 @@ void idAASLocal::ShowWalkPath( const idVec3 &origin, int goalAreaNum, const idVe
 idAASLocal::ShowFlyPath
 ============
 */
-void idAASLocal::ShowFlyPath( const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const {
+void idAASLocal::ShowFlyPath( const idVec3 &origin, const index_t goalAreaNum, const idVec3 &goalOrigin ) const {
 	int i, areaNum, curAreaNum, travelTime;
 	idReachability *reach;
 	idVec3 org, areaCenter;
@@ -357,8 +357,8 @@ void idAASLocal::ShowWallEdges( const idVec3 &origin ) const {
 idAASLocal::ShowHideArea
 ============
 */
-void idAASLocal::ShowHideArea( const idVec3 &origin, int targetAreaNum ) const {
-	int areaNum, numObstacles;
+void idAASLocal::ShowHideArea( const idVec3 &origin, const int targetAreaNum ) const {
+	index_t areaNum, numObstacles;
 	idVec3 target;
 	aasGoal_t goal;
 	aasObstacle_t obstacles[10];
@@ -385,8 +385,8 @@ void idAASLocal::ShowHideArea( const idVec3 &origin, int targetAreaNum ) const {
 idAASLocal::PullPlayer
 ============
 */
-bool idAASLocal::PullPlayer( const idVec3 &origin, int toAreaNum ) const {
-	int areaNum;
+bool idAASLocal::PullPlayer( const idVec3 &origin, const int toAreaNum ) const {
+	index_t areaNum;
 	idVec3 areaCenter, dir, vel;
 	idAngles delta;
 	aasPath_t path;
@@ -460,7 +460,7 @@ idAASLocal::ShowPushIntoArea
 ============
 */
 void idAASLocal::ShowPushIntoArea( const idVec3 &origin ) const {
-	int areaNum;
+	index_t areaNum;
 	idVec3 target;
 
 	target = origin;

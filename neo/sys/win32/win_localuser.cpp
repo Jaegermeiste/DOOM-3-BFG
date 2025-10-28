@@ -40,7 +40,7 @@ extern idCVar win_partyCount;
 idLocalUserWin::Init
 ========================
 */
-void idLocalUserWin::Init( int inputDevice_, const char * gamertag_, int numLocalUsers ) {
+void idLocalUserWin::Init(const int inputDevice_, const char * gamertag_, const size_t numLocalUsers ) {
 	if ( numLocalUsers == 1 ) {  // Check for 1, since this is now incremented before we get in here
 		// This is the master user
 		gamertag = gamertag_;

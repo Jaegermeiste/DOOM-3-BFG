@@ -44,15 +44,15 @@ void idTokenParser::LoadFromFile( const char *filename ) {
 	Clear();
 	idFile *inFile = fileSystem->OpenFileReadMemory( filename );
 	if ( inFile != nullptr) {
-		int num;
+		size_t num;
 		inFile->ReadBig( num );
 		guiTokenIndexes.SetNum( num );
-		for ( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			guiTokenIndexes[ i ].Read( inFile );
 		}
 		inFile->ReadBig( num );
 		tokens.SetNum( num );
-		for ( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			tokens[ i ].Read( inFile );
 		}
 	}
@@ -67,11 +67,11 @@ void idTokenParser::WriteToFile ( const char *filename ) {
 	idFile *outFile = fileSystem->OpenFileWrite( filename, "fs_basepath" );
 	if ( outFile != nullptr) {
 		outFile->WriteBig( ( int )guiTokenIndexes.Num() );
-		for ( int i = 0; i < guiTokenIndexes.Num(); i++ ) {
+		for ( size_t i = 0; i < guiTokenIndexes.Num(); i++ ) {
 			guiTokenIndexes[ i ].Write( outFile );
 		}
 		outFile->WriteBig( ( int )tokens.Num() );
-		for ( int i = 0; i < tokens.Num(); i++ ) {
+		for ( size_t i = 0; i < tokens.Num(); i++ ) {
 			tokens[ i ].Write( outFile );
 		}
 	}
@@ -80,7 +80,7 @@ void idTokenParser::WriteToFile ( const char *filename ) {
 
 bool idTokenParser::StartParsing( const char * filename ) {
 	currentTokenList = -1;
-	for ( int i = 0; i < guiTokenIndexes.Num(); i++ ) {
+	for ( size_t i = 0; i < guiTokenIndexes.Num(); i++ ) {
 		if ( idStr::Icmp( filename, guiTokenIndexes[ i ].GetName() ) == 0 ) {
 			currentTokenList = i;
 			break;
@@ -115,7 +115,7 @@ int	idTokenParser::ExpectTokenString( const char *string ) {
 	return 1;
 }
 // expect a certain token type
-int	idTokenParser::ExpectTokenType( tokenType_t type, uint64 subtype, idToken *token ) {
+int	idTokenParser::ExpectTokenType(const tokenType_t type, const uint64 subtype, idToken *token ) {
 	idStr str;
 
 	if ( !ReadToken( token ) ) {
@@ -246,7 +246,7 @@ bool idTokenParser::ParseBool() {
 	}
 	return ( token.GetIntValue() != 0 );
 }
-// read a floating point number.  If errorFlag is NULL, a non-numeric token will
+// read a floating posize_t number.  If errorFlag is NULL, a non-numeric token will
 // issue an Error().  If it isn't NULL, it will issue a Warning() and set *errorFlag = true
 float idTokenParser::ParseFloat( bool *errorFlag ) {
 	idToken token;
@@ -255,10 +255,10 @@ float idTokenParser::ParseFloat( bool *errorFlag ) {
 	}
 	if ( !ReadToken( &token ) ) {
 		if ( errorFlag ) {
-			Warning( "couldn't read expected floating point number" );
+			Warning( "couldn't read expected floating posize_t number" );
 			*errorFlag = true;
 		} else {
-			Error( "couldn't read expected floating point number" );
+			Error( "couldn't read expected floating posize_t number" );
 		}
 		return 0;
 	}

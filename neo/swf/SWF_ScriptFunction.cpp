@@ -41,7 +41,7 @@ idSWFConstantPool::Clear
 ========================
 */
 void idSWFConstantPool::Clear() {
-	for ( int i = 0; i < pool.Num(); i++ ) {
+	for ( size_t i = 0; i < pool.Num(); i++ ) {
 		pool[i]->Release();
 	}
 	pool.Clear();
@@ -55,7 +55,7 @@ idSWFConstantPool::Copy
 void idSWFConstantPool::Copy( const idSWFConstantPool & other ) {
 	Clear();
 	pool.SetNum( other.pool.Num() );
-	for ( int i = 0; i < pool.Num(); i++ ) {
+	for ( size_t i = 0; i < pool.Num(); i++ ) {
 		pool[i] = other.pool[i];
 		pool[i]->AddRef();
 	}
@@ -67,7 +67,7 @@ idSWFScriptFunction_Script::~idSWFScriptFunction_Script
 ========================
 */
 idSWFScriptFunction_Script::~idSWFScriptFunction_Script() {
-	for ( int i = 0; i < scope.Num(); i++ ) {
+	for ( size_t i = 0; i < scope.Num(); i++ ) {
 		if ( verify( scope[i] ) ) {
 			scope[i]->Release();
 		}
@@ -84,14 +84,14 @@ idSWFScriptFunction_Script::Call
 */
 void idSWFScriptFunction_Script::SetScope( idList<idSWFScriptObject *> & newScope ) {
 	assert( scope.Num() == 0 );
-	for ( int i = 0; i < scope.Num(); i++ ) {
+	for ( size_t i = 0; i < scope.Num(); i++ ) {
 		if ( verify( scope[i] ) ) {
 			scope[i]->Release();
 		}
 	}
 	scope.Clear();
 	scope.Append( newScope );
-	for ( int i = 0; i < newScope.Num(); i++ ) {
+	for ( size_t i = 0; i < newScope.Num(); i++ ) {
 		if ( verify( scope[i] ) ) {
 			scope[i]->AddRef();
 		}
@@ -117,7 +117,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject * thisObject,
 
 	idSWFStack stack;
 	stack.SetNum( parms.Num() + 1 );
-	for ( int i = 0; i < parms.Num(); i++ ) {
+	for ( size_t i = 0; i < parms.Num(); i++ ) {
 		stack[ parms.Num() - i - 1 ] = parms[i];
 
 		// Unfortunately at this point we don't have the function name anymore, so our warning messages aren't very detailed
@@ -152,9 +152,9 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject * thisObject,
 		// load "arguments" into a register
 		arguments->MakeArray();
 
-		int numElements = parms.Num();
+		size_t numElements = parms.Num();
 
-		for ( int i = 0; i < numElements; i++ ) {
+		for ( size_t i = 0; i < numElements; i++ ) {
 			arguments->Set( i, parms[i] );
 		}
 
@@ -169,9 +169,9 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject * thisObject,
 		// create "arguments"
 		arguments->MakeArray();
 
-		int numElements = parms.Num();
+		size_t numElements = parms.Num();
 
-		for ( int i = 0; i < numElements; i++ ) {
+		for ( size_t i = 0; i < numElements; i++ ) {
 			arguments->Set( i, parms[i] );
 		}
 
@@ -234,7 +234,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject * thisObject,
 ========================
 */
 namespace {
-	const char * GetPropertyName( int index ) {
+	const char * GetPropertyName(const index_t index ) {
 		switch ( index ) {
 		case 0: return "_x";
 		case 1: return "_y";
@@ -262,7 +262,7 @@ namespace {
 		return "";
 	}
 
-	const char *GetSwfActionName(swfAction_t code)
+	const char *GetSwfActionName(const swfAction_t code)
 	{
 		switch (code)
 		{
@@ -416,7 +416,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 					idLib::Printf("  %c: %s (%s)\n", static_cast<char>(64 + stack.Num() - i), stack[i].ToString().c_str(), stack[i].TypeOf());
 				}
 
-				for ( int i = 0; i < registers.Num(); i++ ) {
+				for ( size_t i = 0; i < registers.Num(); i++ ) {
 					if ( !registers[i].IsUndefined() ) {
 						idLib::Printf(" R%d: %s (%s)\n", i, registers[i].ToString().c_str(), registers[i].TypeOf());
 					}
@@ -697,7 +697,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				idSWFParmList parms;
 				parms.SetNum( stack.A().ToInteger() );
 				stack.Pop( 1 );
-				for ( int i = 0; i < parms.Num(); i++ ) {
+				for ( size_t i = 0; i < parms.Num(); i++ ) {
 					parms[i] = stack.A();
 					stack.Pop( 1 );
 				}
@@ -734,7 +734,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				idSWFParmList parms;
 				parms.SetNum( stack.A().ToInteger() );
 				stack.Pop( 1 );
-				for ( int i = 0; i < parms.Num(); i++ ) {
+				for ( size_t i = 0; i < parms.Num(); i++ ) {
 					parms[i] = stack.A();
 					stack.Pop( 1 );
 				}
@@ -749,7 +749,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 			case Action_ConstantPool: {
 				constants.Clear();
 				uint16 numConstants = bitstream.ReadU16();
-				for ( int i = 0; i < numConstants; i++ ) {
+				for ( size_t i = 0; i < numConstants; i++ ) {
 					constants.Append( idSWFScriptString::Alloc( bitstream.ReadString() ) );
 				}
 				break;
@@ -764,7 +764,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 
 				uint16 numParms = bitstream.ReadU16();
 				newFunction->AllocParameters( numParms );
-				for ( int i = 0; i < numParms; i++ ) {
+				for ( size_t i = 0; i < numParms; i++ ) {
 					newFunction->SetParameter( i, 0, bitstream.ReadString() );
 				}
 				uint16 codeSize = bitstream.ReadU16();
@@ -801,7 +801,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				newFunction->AllocRegisters( numRegs );
 				newFunction->SetFlags( flags );
 
-				for ( int i = 0; i < numParms; i++ ) {
+				for ( size_t i = 0; i < numParms; i++ ) {
 					uint8 reg = bitstream.ReadU8();
 					const char * name = bitstream.ReadString();
 					if ( reg >= numRegs ) {
@@ -836,7 +836,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 					idSWFScriptObject * object = stack.A().GetObject();
 					object->AddRef();
 					stack.A().SetNULL();
-					for ( int i = 0; i < object->NumVariables(); i++ ) {
+					for ( size_t i = 0; i < object->NumVariables(); i++ ) {
 						stack.Alloc().SetString( object->EnumVariable( i ) );
 					}
 					object->Release();
@@ -850,7 +850,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 					idSWFScriptObject * object = stack.A().GetObject();
 					object->AddRef();
 					stack.A().SetNULL();
-					for ( int i = 0; i < object->NumVariables(); i++ ) {
+					for ( size_t i = 0; i < object->NumVariables(); i++ ) {
 						stack.Alloc().SetString( object->EnumVariable( i ) );
 					}
 					object->Release();
@@ -933,10 +933,10 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				idSWFScriptObject * object = idSWFScriptObject::Alloc();
 				object->MakeArray();
 
-				int numElements = stack.A().ToInteger();
+				size_t numElements = stack.A().ToInteger();
 				stack.Pop( 1 );
 
-				for ( int i = 0; i < numElements; i++ ) {
+				for ( size_t i = 0; i < numElements; i++ ) {
 					object->Set( i, stack.A() );
 					stack.Pop( 1 );
 				}
@@ -949,10 +949,10 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 			case Action_InitObject: {
 				idSWFScriptObject * object = idSWFScriptObject::Alloc();
 
-				int numElements = stack.A().ToInteger();
+				size_t numElements = stack.A().ToInteger();
 				stack.Pop( 1 );
 
-				for ( int i = 0; i < numElements; i++ ) {
+				for ( size_t i = 0; i < numElements; i++ ) {
 					object->Set( stack.B().ToString(), stack.A() );
 					stack.Pop( 2 );
 				}
@@ -971,10 +971,10 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				if ( functionName.Cmp( "Array" ) == 0 ) {
 					object->MakeArray();
 
-					int numElements = stack.A().ToInteger();
+					size_t numElements = stack.A().ToInteger();
 					stack.Pop( 1 );
 
-					for ( int i = 0; i < numElements; i++ ) {
+					for ( size_t i = 0; i < numElements; i++ ) {
 						object->Set( i, stack.A() );
 						stack.Pop( 1 );
 					}
@@ -987,7 +987,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 					idSWFParmList parms;
 					parms.SetNum( stack.A().ToInteger() );
 					stack.Pop( 1 );
-					for ( int i = 0; i < parms.Num(); i++ ) {
+					for ( size_t i = 0; i < parms.Num(); i++ ) {
 						parms[i] = stack.A();
 						stack.Pop( 1 );
 					}

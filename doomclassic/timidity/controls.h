@@ -62,7 +62,7 @@ typedef struct {
 	int verbosity, trace_playing, opened;
 
 	int (*open)(int using_stdin, int using_stdout);
-	void (*pass_playing_list)(int number_of_files, char *list_of_files[]);
+	void (*pass_playing_list)(size_t number_of_files, char *list_of_files[]);
 	void (*close)(void);
 	int (*read)(int *valp);
 	int (*cmsg)(int type, int verbosity_level, char *fmt, ...);

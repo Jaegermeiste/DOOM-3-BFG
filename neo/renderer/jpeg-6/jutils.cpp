@@ -65,7 +65,7 @@ const int jpeg_natural_order[DCTSIZE2 + 16] = {
  */
 
 GLOBAL long
-jdiv_round_up( long a, long b ) {
+jdiv_round_up(const long a, const long b ) {
 /* Compute a/b rounded up to next integer, ie, ceil(a/b) */
 /* Assumes a >= 0, b > 0 */
     return ( a + b - 1L ) / b;
@@ -73,7 +73,7 @@ jdiv_round_up( long a, long b ) {
 
 
 GLOBAL long
-jround_up( long a, long b ) {
+jround_up( long a, const long b ) {
 /* Compute a rounded up to next multiple of b, ie, ceil(a/b)*b */
 /* Assumes a >= 0, b > 0 */
     a += b - 1L;
@@ -102,9 +102,9 @@ jround_up( long a, long b ) {
 
 
 GLOBAL void
-jcopy_sample_rows( JSAMPARRAY input_array, int source_row,
-                   JSAMPARRAY output_array, int dest_row,
-                   int num_rows, JDIMENSION num_cols ) {
+jcopy_sample_rows( JSAMPARRAY input_array, const int source_row,
+                   JSAMPARRAY output_array, const int dest_row,
+                   const size_t num_rows, const JDIMENSION num_cols ) {
 /* Copy some rows of samples from one place to another.
  * num_rows rows are copied from input_array[source_row++]
  * to output_array[dest_row++]; these areas may overlap for duplication.
@@ -136,8 +136,8 @@ jcopy_sample_rows( JSAMPARRAY input_array, int source_row,
 
 
 GLOBAL void
-jcopy_block_row( JBLOCKROW input_row, JBLOCKROW output_row,
-                 JDIMENSION num_blocks ) {
+jcopy_block_row(const JBLOCKROW input_row, const JBLOCKROW output_row,
+                 const JDIMENSION num_blocks ) {
 /* Copy a row of coefficient blocks from one place to another. */
 #ifdef FMEMCOPY
     FMEMCOPY( output_row, input_row, num_blocks * ( DCTSIZE2 * SIZEOF( JCOEF ) ) );
@@ -155,7 +155,7 @@ jcopy_block_row( JBLOCKROW input_row, JBLOCKROW output_row,
 
 
 GLOBAL void
-jzero_far( void FAR * target, size_t bytestozero ) {
+jzero_far( void FAR * target, const size_t bytestozero ) {
 /* Zero out a chunk of FAR memory. */
 /* This might be sample-array data, block-array data, or alloc_large data. */
 #ifdef FMEMZERO

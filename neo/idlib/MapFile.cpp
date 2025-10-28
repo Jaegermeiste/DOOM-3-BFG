@@ -57,7 +57,7 @@ static ID_INLINE unsigned int StringCRC( const char *str ) {
 =================
 ComputeAxisBase
 
-WARNING : special case behaviour of atan2(y,x) <-> atan(y/x) might not be the same everywhere when x == 0
+WARNING : special case behavior of atan2(y,x) <-> atan(y/x) might not be the same everywhere when x == 0
 rotation by (0,RotY,RotZ) assigns X to normal
 =================
 */
@@ -75,7 +75,7 @@ static void ComputeAxisBase( const idVec3 &normal, idVec3 &texS, idVec3 &texT ) 
 	texS[0] = -sin(RotZ);
 	texS[1] = cos(RotZ);
 	texS[2] = 0;
-	// the texT vector is along -Z ( T texture coorinates axis )
+	// the texT vector is along -Z ( T texture coordinates axis )
 	texT[0] = -sin(RotY) * cos(RotZ);
 	texT[1] = -sin(RotY) * sin(RotZ);
 	texT[2] = -cos(RotY);
@@ -130,9 +130,9 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool pa
 		}
 	}
 
-	idMapPatch *patch = new (TAG_IDLIB) idMapPatch(idMath::Ftoi(info[0]), idMath::Ftoi(info[1]) );
+	idMapPatch *patch = new (TAG_IDLIB) idMapPatch(numeric_cast<int>(info[0]), numeric_cast<int>(info[1]) );
 
-	patch->SetSize(idMath::Ftoi(info[0]), idMath::Ftoi(info[1]));
+	patch->SetSize(numeric_cast<int>(info[0]), numeric_cast<int>(info[1]));
 	if ( version < 2.0f ) {
 		patch->SetMaterial( "textures/" + token );
 	} else {
@@ -140,8 +140,8 @@ idMapPatch *idMapPatch::Parse( idLexer &src, const idVec3 &origin, const bool pa
 	}
 
 	if ( patchDef3 ) {
-		patch->SetHorzSubdivisions(idMath::Ftoi(info[2]) );
-		patch->SetVertSubdivisions(idMath::Ftoi(info[3]) );
+		patch->SetHorzSubdivisions(numeric_cast<int>(info[2]) );
+		patch->SetVertSubdivisions(numeric_cast<int>(info[3]) );
 		patch->SetExplicitlySubdivided( true );
 	}
 
@@ -247,7 +247,7 @@ idMapPatch::GetGeometryCRC
 ===============
 */
 uint32 idMapPatch::GetGeometryCRC() const {
-	uint32 crc = idMath::integer_cast<uint32>(GetHorzSubdivisions()) ^ idMath::integer_cast<uint32>(GetVertSubdivisions());
+	uint32 crc = numeric_cast<uint32>(GetHorzSubdivisions()) ^ numeric_cast<uint32>(GetVertSubdivisions());
 	for (size_t i = 0; i < GetWidth(); i++ ) {
 		for (size_t j = 0; j < GetHeight(); j++ ) {
 			crc ^= FloatCRC( verts[j * GetWidth() + i].xyz.x );
@@ -645,13 +645,19 @@ bool idMapEntity::Write( idFile *fp, const Ordinal auto entityNum ) const {
 	for ( i = 0; i < GetNumPrimitives(); i++ ) {
 		idMapPrimitive* mapPrim = GetPrimitive(i);
 
-		switch( mapPrim->GetType() ) {
+		if (mapPrim)
+		{
+			switch (mapPrim->GetType()) {
 			case idMapPrimitive::TYPE_BRUSH:
-				dynamic_cast<idMapBrush*>(mapPrim)->Write( fp, i, origin );
+				dynamic_cast<idMapBrush*>(mapPrim)->Write(fp, i, origin);
 				break;
 			case idMapPrimitive::TYPE_PATCH:
-				dynamic_cast<idMapPatch*>(mapPrim)->Write( fp, i, origin );
+				dynamic_cast<idMapPatch*>(mapPrim)->Write(fp, i, origin);
 				break;
+			case idMapPrimitive::TYPE_INVALID:
+			default:
+				break;
+			}
 		}
 	}
 
@@ -679,13 +685,19 @@ unsigned int idMapEntity::GetGeometryCRC() const {
 	for (size_t i = 0; i < GetNumPrimitives(); i++ ) {
 		idMapPrimitive* mapPrim = GetPrimitive(i);
 
-		switch( mapPrim->GetType() ) {
+		if (mapPrim)
+		{
+			switch (mapPrim->GetType()) {
 			case idMapPrimitive::TYPE_BRUSH:
-				crc ^= static_cast<idMapBrush*>(mapPrim)->GetGeometryCRC();
+				crc ^= dynamic_cast<idMapBrush*>(mapPrim)->GetGeometryCRC();
 				break;
 			case idMapPrimitive::TYPE_PATCH:
-				crc ^= static_cast<idMapPatch*>(mapPrim)->GetGeometryCRC();
+				crc ^= dynamic_cast<idMapPatch*>(mapPrim)->GetGeometryCRC();
 				break;
+			case idMapPrimitive::TYPE_INVALID:
+			default:
+				break;
+			}
 		}
 	}
 
@@ -702,7 +714,6 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
 	idToken token;
 	idMapEntity *mapEnt = nullptr;
-	size_t i = 0;
 
 	name = filename;
 	name.StripFileExtension();
@@ -739,13 +750,18 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		if ( !mapEnt ) {
 			break;
 		}
-		entities.Append( mapEnt );
+
+		if (mapEnt)
+		{
+			entities.Append(mapEnt);
+		}
 	}
 
 	SetGeometryCRC();
 
 	// if the map has a worldspawn
 	if ( entities.Num() ) {
+		size_t i = 0;
 
 		// "removeEntities" "classname" can be set in the worldspawn to remove all entities with the given classname
 		const idKeyValue *removeEntities = entities[0]->epairs.MatchPrefix( "removeEntities", nullptr);
@@ -755,22 +771,29 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		}
 
 		// "overrideMaterial" "material" can be set in the worldspawn to reset all materials
-		idStr material;
+		idStr material = {};
 		if ( entities[0]->epairs.GetString( "overrideMaterial", "", material ) ) {
 			for ( i = 0; i < entities.Num(); i++ ) {
 				mapEnt = entities[i];
-				for (size_t j = 0; j < mapEnt->GetNumPrimitives(); j++ ) {
-					idMapPrimitive *mapPrimitive = mapEnt->GetPrimitive( j );
-					switch( mapPrimitive->GetType() ) {
+
+				if (mapEnt)
+				{
+					for (size_t j = 0; j < mapEnt->GetNumPrimitives(); j++) {
+						idMapPrimitive* mapPrimitive = mapEnt->GetPrimitive(j);
+						switch (mapPrimitive->GetType()) {
 						case idMapPrimitive::TYPE_BRUSH: {
-							const idMapBrush *mapBrush = static_cast<idMapBrush *>(mapPrimitive);
-							for (size_t k = 0; k < mapBrush->GetNumSides(); k++ ) {
-								mapBrush->GetSide( k )->SetMaterial( material );
+							const idMapBrush* mapBrush = dynamic_cast<idMapBrush*>(mapPrimitive);
+							for (size_t k = 0; k < mapBrush->GetNumSides(); k++) {
+								mapBrush->GetSide(k)->SetMaterial(material);
 							}
 							break;
 						}
 						case idMapPrimitive::TYPE_PATCH: {
-							dynamic_cast<idMapPatch *>(mapPrimitive)->SetMaterial( material );
+							dynamic_cast<idMapPatch*>(mapPrimitive)->SetMaterial(material);
+							break;
+						}
+						case idMapPrimitive::TYPE_INVALID:
+						default:
 							break;
 						}
 					}
@@ -782,8 +805,11 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		if ( entities[0]->epairs.GetBool( "forceEntityNames" ) ) {
 			for ( i = 1; i < entities.Num(); i++ ) {
 				mapEnt = entities[i];
-				if ( !mapEnt->epairs.FindKey( "name" ) ) {
-					mapEnt->epairs.Set( "name", va( "%s%d", mapEnt->epairs.GetString( "classname", "forcedName" ), i ) );
+				if (mapEnt)
+				{
+					if (!mapEnt->epairs.FindKey("name")) {
+						mapEnt->epairs.Set("name", va("%s%d", mapEnt->epairs.GetString("classname", "forcedName"), i));
+					}
 				}
 			}
 		}
@@ -792,9 +818,12 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		if ( entities[0]->epairs.GetBool( "moveFuncGroups" ) ) {
 			for ( i = 1; i < entities.Num(); i++ ) {
 				mapEnt = entities[i];
-				if ( idStr::Icmp( mapEnt->epairs.GetString( "classname" ), "func_group" ) == 0 ) {
-					entities[0]->primitives.Append( mapEnt->primitives );
-					mapEnt->primitives.Clear();
+				if (mapEnt)
+				{
+					if (idStr::Icmp(mapEnt->epairs.GetString("classname"), "func_group") == 0) {
+						entities[0]->primitives.Append(mapEnt->primitives);
+						mapEnt->primitives.Clear();
+					}
 				}
 			}
 		}

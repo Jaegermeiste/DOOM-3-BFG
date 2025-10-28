@@ -71,14 +71,14 @@ static aseMesh_t *ASE_GetCurrentMesh()
 	return ase.currentMesh;
 }
 
-static int CharIsTokenDelimiter( int ch )
+static int CharIsTokenDelimiter(const int ch )
 {
 	if ( ch <= 32 )
 		return 1;
 	return 0;
 }
 
-static int ASE_GetToken( bool restOfLine )
+static int ASE_GetToken(const bool restOfLine )
 {
 	int i = 0;
 
@@ -396,7 +396,7 @@ static void ASE_KeyCFACE_LIST( const char *token )
 	{
 		ASE_GetToken( false );
 
-		for ( int i = 0 ; i < 3 ; i++ ) {
+		for ( size_t i = 0 ; i < 3 ; i++ ) {
 			ASE_GetToken( false );
 			int a = atoi( ase.token );
 
@@ -421,7 +421,7 @@ static void ASE_KeyMESH_TVERTLIST( const char *token )
 
 	if ( !strcmp( token, "*MESH_TVERT" ) )
 	{
-		constexpr int maxLength = 80;
+		constexpr size_t maxLength = 80;
 		char u[maxLength], v[maxLength], w[maxLength];
 
 		ASE_GetToken( false );
@@ -732,12 +732,12 @@ static void ASE_KeyGEOMOBJECT( const char *token )
 	{
 		ase.currentMesh = &ase.currentObject->mesh;
 		idVec3	transforms[ 4 ];
-		for ( int i = 0; i < 4; ++i ) {
+		for ( size_t i = 0; i < 4; ++i ) {
 			transforms[ i ] = ase.currentMesh->transform[ i ];
 		}
 
 		memset( ase.currentMesh, 0, sizeof( *ase.currentMesh ) );
-		for ( int i = 0; i < 4; ++i ) {
+		for ( size_t i = 0; i < 4; ++i ) {
 			ase.currentMesh->transform[ i ] = transforms[ i ];
 		}
 
@@ -794,7 +794,7 @@ static void ASE_KeyGROUP( const char *token )
 ASE_Parse
 =================
 */
-aseModel_t *ASE_Parse( const char *buffer, bool verbose ) {
+aseModel_t *ASE_Parse( const char *buffer, const bool verbose ) {
 	memset( &ase, 0, sizeof( ase ) );
 
 	ase.verbose = verbose;

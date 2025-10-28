@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <utility>
+
 #include "../precompiled.h"
 
 idBox box_zero( vec3_zero, vec3_zero, mat3_identity );
@@ -626,7 +628,7 @@ idBox::FromPoints
   Tight box for a collection of points.
 ============
 */
-void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
+void idBox::FromPoints( const idVec3 *points, const size_t numPoints ) {
 	int i;
 	idBounds bounds;
 	idMatX eigenVectors;
@@ -634,7 +636,7 @@ void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
 
 	// compute mean of points
 	center = points[0];
-	for ( i = 1; i < numPoints; i++ ) {
+	for ( i = 1; std::cmp_less(i, numPoints); i++ ) {
 		center += points[i];
 	}
 	const float invNumPoints = 1.0f / numPoints;
@@ -643,7 +645,7 @@ void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
 	// compute covariances of points
 	float sumXX = 0.0f; float sumXY = 0.0f; float sumXZ = 0.0f;
 	float sumYY = 0.0f; float sumYZ = 0.0f; float sumZZ = 0.0f;
-	for ( i = 0; i < numPoints; i++ ) {
+	for ( i = 0; std::cmp_less(i, numPoints); i++ ) {
 		const idVec3 dir = points[i] - center;
 		sumXX += dir.x * dir.x;
 		sumXY += dir.x * dir.y;
@@ -691,7 +693,7 @@ void idBox::FromPoints( const idVec3 *points, const int numPoints ) {
 
 	// refine by calculating the bounds of the points projected onto the axis and adjusting the center and extents
 	bounds.Clear();
-    for ( i = 0; i < numPoints; i++ ) {
+    for ( i = 0; std::cmp_less(i, numPoints); i++ ) {
 		bounds.AddPoint( idVec3( points[i] * axis[0], points[i] * axis[1], points[i] * axis[2] ) );
     }
 	center = ( bounds[0] + bounds[1] ) * 0.5f;
@@ -795,7 +797,7 @@ int idBox::GetProjectionSilhouetteVerts( const idVec3 &projectionOrigin, idVec3 
 	planeBits |= IEEE_FLT_SIGNBITSET( f ) << 5;
 
 	const int* index = boxPlaneBitsSilVerts[planeBits];
-	for ( int i = 0; i < index[0]; i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, index[0]); i++ ) {
 		silVerts[i] = points[index[i+1]];
 	}
 
@@ -827,7 +829,7 @@ int idBox::GetParallelProjectionSilhouetteVerts( const idVec3 &projectionDir, id
 	}
 
 	const int* index = boxPlaneBitsSilVerts[planeBits];
-	for ( int i = 0; i < index[0]; i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, index[0]); i++ ) {
 		silVerts[i] = points[index[i+1]];
 	}
 

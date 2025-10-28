@@ -61,8 +61,8 @@ public:
 	idPluecker &	operator+=( const idPluecker &a );
 	idPluecker &	operator-=( const idPluecker &a );
 
-					[[nodiscard]] bool			Compare( const idPluecker &a ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idPluecker &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idPluecker &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idPluecker &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idPluecker &a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPluecker &a ) const;					// exact compare, no epsilon
 
@@ -75,19 +75,19 @@ public:
 	bool			ToLine( idVec3 &start, idVec3 &end ) const;					// pluecker to line
 	bool			ToRay( idVec3 &start, idVec3 &dir ) const;					// pluecker to ray
 	void			ToDir( idVec3 &dir ) const;									// pluecker to direction
-					[[nodiscard]] float			PermutedInnerProduct( const idPluecker &a ) const;			// pluecker permuted inner product
-					[[nodiscard]] float			Distance3DSqr( const idPluecker &a ) const;					// pluecker line distance
+	[[nodiscard]] float			PermutedInnerProduct( const idPluecker &a ) const;			// pluecker permuted inner product
+	[[nodiscard]] float			Distance3DSqr( const idPluecker &a ) const;					// pluecker line distance
 
-					[[nodiscard]] float			Length() const;										// pluecker length
-					[[nodiscard]] float			LengthSqr() const;									// pluecker squared length
-					[[nodiscard]] idPluecker		Normalize() const;									// pluecker normalize
+	[[nodiscard]] float			Length() const;										// pluecker length
+	[[nodiscard]] float			LengthSqr() const;									// pluecker squared length
+	[[nodiscard]] idPluecker		Normalize() const;									// pluecker normalize
 	float			NormalizeSelf();										// pluecker normalize
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t		GetDimension();
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] float *		ToFloatPtr();
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	float			p[6];
@@ -196,8 +196,12 @@ ID_INLINE idPluecker &idPluecker::operator-=( const idPluecker &a ) {
 }
 
 ID_INLINE bool idPluecker::Compare( const idPluecker &a ) const {
-	return ( ( p[0] == a[0] ) && ( p[1] == a[1] ) && ( p[2] == a[2] ) &&
-			( p[3] == a[3] ) && ( p[4] == a[4] ) && ( p[5] == a[5] ) );
+	return (std::equal_to<>()(p[0], a[0] )
+		&& std::equal_to<>()(p[1], a[1] ) 
+		&& std::equal_to<>()(p[2], a[2] ) 
+		&& std::equal_to<>()(p[3], a[3] ) 
+		&& std::equal_to<>()(p[4], a[4] ) 
+		&& std::equal_to<>()(p[5], a[5] ) );
 }
 
 ID_INLINE bool idPluecker::Compare( const idPluecker &a, const float epsilon ) const {
@@ -350,7 +354,7 @@ ID_INLINE idPluecker idPluecker::Normalize() const {
 	return idPluecker( p[0]*d, p[1]*d, p[2]*d, p[3]*d, p[4]*d, p[5]*d );
 }
 
-ID_INLINE int idPluecker::GetDimension() const {
+ID_INLINE size_t idPluecker::GetDimension() {
 	return 6;
 }
 

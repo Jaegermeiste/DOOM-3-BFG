@@ -108,14 +108,14 @@ public:
 	virtual	void			FreeLightDef( qhandle_t lightHandle );
 							[[nodiscard]] virtual const renderLight_t *GetRenderLight( qhandle_t lightHandle ) const;
 
-	virtual bool			CheckAreaForPortalSky( int areaNum );
+	virtual bool			CheckAreaForPortalSky( index_t areaNum );
 
 	virtual	void			GenerateAllInteractions();
 	virtual void			RegenerateWorld();
 
-	virtual void			ProjectDecalOntoWorld( const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime );
-	virtual void			ProjectDecal( qhandle_t entityHandle, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime );
-	virtual void			ProjectOverlay( qhandle_t entityHandle, const idPlane localTextureAxis[2], const idMaterial *material, const int startTime );
+	virtual void			ProjectDecalOntoWorld( const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const ID_TIME_T startTime );
+	virtual void			ProjectDecal( qhandle_t entityHandle, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const ID_TIME_T startTime );
+	virtual void			ProjectOverlay( qhandle_t entityHandle, const idPlane localTextureAxis[2], const idMaterial *material, const ID_TIME_T startTime );
 	virtual void			RemoveDecals( qhandle_t entityHandle );
 
 	virtual void			SetRenderView( const renderView_t *renderView );
@@ -123,20 +123,20 @@ public:
 
 							[[nodiscard]] virtual	int				NumAreas() const;
 							[[nodiscard]] virtual int				PointInArea( const idVec3 &point ) const;
-	virtual int				BoundsInAreas( const idBounds &bounds, int *areas, int maxAreas ) const;
-	virtual	int				NumPortalsInArea( int areaNum );
-	virtual exitPortal_t	GetPortal( int areaNum, int portalNum );
+	virtual int				BoundsInAreas( const idBounds &bounds, int *areas, size_t maxAreas ) const;
+	virtual	int				NumPortalsInArea( index_t areaNum );
+	virtual exitPortal_t	GetPortal( index_t areaNum, int portalNum );
 
 							[[nodiscard]] virtual	guiPoint_t		GuiTrace( qhandle_t entityHandle, const idVec3 start, const idVec3 end ) const;
 	virtual bool			ModelTrace( modelTrace_t &trace, qhandle_t entityHandle, const idVec3 &start, const idVec3 &end, const float radius ) const;
 	virtual bool			Trace( modelTrace_t &trace, const idVec3 &start, const idVec3 &end, const float radius, bool skipDynamic = true, bool skipPlayer = false ) const;
 	virtual bool			FastWorldTrace( modelTrace_t &trace, const idVec3 &start, const idVec3 &end ) const;
 
-	virtual void			DebugClearLines( int time );
+	virtual void			DebugClearLines( ID_TIME_T time );
 	virtual void			DebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const int lifetime = 0, const bool depthTest = false );
 	virtual void			DebugArrow( const idVec4 &color, const idVec3 &start, const idVec3 &end, int size, const int lifetime = 0 );
 	virtual void			DebugWinding( const idVec4 &color, const idWinding &w, const idVec3 &origin, const idMat3 &axis, const int lifetime = 0, const bool depthTest = false );
-	virtual void			DebugCircle( const idVec4 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const int numSteps, const int lifetime = 0, const bool depthTest = false );
+	virtual void			DebugCircle( const idVec4 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const size_t numSteps, const int lifetime = 0, const bool depthTest = false );
 	virtual void			DebugSphere( const idVec4 &color, const idSphere &sphere, const int lifetime = 0, bool depthTest = false );
 	virtual void			DebugBounds( const idVec4 &color, const idBounds &bounds, const idVec3 &org = vec3_origin, const int lifetime = 0 );
 	virtual void			DebugBox( const idVec4 &color, const idBox &box, const int lifetime = 0 );
@@ -144,7 +144,7 @@ public:
 	virtual void			DebugScreenRect( const idVec4 &color, const idScreenRect &rect, const viewDef_t *viewDef, const int lifetime = 0 );
 	virtual void			DebugAxis( const idVec3 &origin, const idMat3 &axis );
 
-	virtual void			DebugClearPolygons( int time );
+	virtual void			DebugClearPolygons( ID_TIME_T time );
 	virtual void			DebugPolygon( const idVec4 &color, const idWinding &winding, const int lifeTime = 0, const bool depthTest = false );
 
 	virtual void			DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align = 1, const int lifetime = 0, bool depthTest = false );
@@ -217,28 +217,28 @@ public:
 	// RenderWorld_portals.cpp
 
 	bool					CullEntityByPortals( const idRenderEntityLocal *entity, const portalStack_t *ps );
-	void					AddAreaViewEntities( int areaNum, const portalStack_t *ps );
+	void					AddAreaViewEntities( index_t areaNum, const portalStack_t *ps );
 	bool					CullLightByPortals( const idRenderLightLocal *light, const portalStack_t *ps );
-	void					AddAreaViewLights( int areaNum, const portalStack_t *ps );
-	void					AddAreaToView( int areaNum, const portalStack_t *ps );
+	void					AddAreaViewLights( index_t areaNum, const portalStack_t *ps );
+	void					AddAreaToView( index_t areaNum, const portalStack_t *ps );
 	idScreenRect			ScreenRectFromWinding( const idWinding *w, const viewEntity_t *space );
 	bool					PortalIsFoggedOut( const portal_t *p );
-	void					FloodViewThroughArea_r( const idVec3 & origin, int areaNum, const portalStack_t *ps );
-	void					FlowViewThroughPortals( const idVec3 & origin, int numPlanes, const idPlane *planes );
-	void					BuildConnectedAreas_r( int areaNum );
+	void					FloodViewThroughArea_r( const idVec3 & origin, index_t areaNum, const portalStack_t *ps );
+	void					FlowViewThroughPortals( const idVec3 & origin, size_t numPlanes, const idPlane *planes );
+	void					BuildConnectedAreas_r( index_t areaNum );
 	void					BuildConnectedAreas();
 	void					FindViewLightsAndEntities();
 
-	void					FloodLightThroughArea_r( idRenderLightLocal *light, int areaNum, const portalStack_t *ps );
+	void					FloodLightThroughArea_r( idRenderLightLocal *light, index_t areaNum, const portalStack_t *ps );
 	void					FlowLightThroughPortals( idRenderLightLocal *light );
 
 							[[nodiscard]] int						NumPortals() const;
 							[[nodiscard]] qhandle_t				FindPortal( const idBounds &b ) const;
 	void					SetPortalState( qhandle_t portal, int blockingBits );
 	int						GetPortalState( qhandle_t portal );
-							[[nodiscard]] bool					AreasAreConnected( int areaNum1, int areaNum2, portalConnection_t connection ) const;
+							[[nodiscard]] bool					AreasAreConnected( index_t areaNum1, index_t areaNum2, portalConnection_t connection ) const;
 	void					FloodConnectedAreas( portalArea_t *area, int portalAttributeIndex );
-							[[nodiscard]] idScreenRect &			GetAreaScreenRect( int areaNum ) const { return areaScreenRect[areaNum]; }
+							[[nodiscard]] idScreenRect &			GetAreaScreenRect(const index_t areaNum ) const { return areaScreenRect[areaNum]; }
 	void					ShowPortals() const;
 
 	//--------------------------
@@ -267,18 +267,18 @@ public:
 	void					AddEntityRefToArea( idRenderEntityLocal *def, portalArea_t *area );
 	void					AddLightRefToArea( idRenderLightLocal *light, portalArea_t *area );
 
-	void					RecurseProcBSP_r( modelTrace_t *results, int parentNodeNum, int nodeNum, float p1f, float p2f, const idVec3 &p1, const idVec3 &p2 ) const;
-	void					BoundsInAreas_r( int nodeNum, const idBounds &bounds, int *areas, int *numAreas, int maxAreas ) const;
+	void					RecurseProcBSP_r( modelTrace_t *results, int parentNodeNum, index_t nodeNum, float p1f, float p2f, const idVec3 &p1, const idVec3 &p2 ) const;
+	void					BoundsInAreas_r( index_t nodeNum, const idBounds &bounds, int *areas, int *numAreas, size_t maxAreas ) const;
 
-	float					DrawTextLength( const char *text, float scale, int len = 0 );
+	float					DrawTextLength( const char *text, float scale, size_t len = 0 );
 
 	void					FreeInteractions();
 
-	void					PushFrustumIntoTree_r( idRenderEntityLocal *def, idRenderLightLocal *light, const frustumCorners_t & corners, int nodeNum );
+	void					PushFrustumIntoTree_r( idRenderEntityLocal *def, idRenderLightLocal *light, const frustumCorners_t & corners, index_t nodeNum );
 	void					PushFrustumIntoTree( idRenderEntityLocal *def, idRenderLightLocal *light, const idRenderMatrix & frustumTransform, const idBounds & frustumBounds );
 
-	idRenderModelDecal *	AllocDecal( qhandle_t newEntityHandle, int startTime );
-	idRenderModelOverlay *	AllocOverlay( qhandle_t newEntityHandle, int startTime );
+	idRenderModelDecal *	AllocDecal( qhandle_t newEntityHandle, ID_TIME_T startTime );
+	idRenderModelOverlay *	AllocOverlay( qhandle_t newEntityHandle, ID_TIME_T startTime );
 
 	//-------------------------------
 	// tr_light.c

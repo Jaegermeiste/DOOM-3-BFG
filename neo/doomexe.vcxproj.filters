@@ -1145,6 +1145,7 @@
       <Filter>Sys\RC\res</Filter>
     </None>
     <None Include="cpp.hint" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="sys\win32\rc\doom.rc">

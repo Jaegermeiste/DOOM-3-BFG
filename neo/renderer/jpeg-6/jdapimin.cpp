@@ -27,7 +27,7 @@
  */
 
 GLOBAL void
-jpeg_create_decompress( j_decompress_ptr cinfo ) {
+jpeg_create_decompress(const j_decompress_ptr cinfo ) {
     int i;
 
     /* For debugging purposes, zero the whole master structure.
@@ -74,7 +74,7 @@ jpeg_create_decompress( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_destroy_decompress( j_decompress_ptr cinfo ) {
+jpeg_destroy_decompress(const j_decompress_ptr cinfo ) {
     jpeg_destroy( (j_common_ptr) cinfo );/* use common routine */
 }
 
@@ -85,7 +85,7 @@ jpeg_destroy_decompress( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_abort_decompress( j_decompress_ptr cinfo ) {
+jpeg_abort_decompress(const j_decompress_ptr cinfo ) {
     jpeg_abort( (j_common_ptr) cinfo );/* use common routine */
 }
 
@@ -95,8 +95,8 @@ jpeg_abort_decompress( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_set_marker_processor( j_decompress_ptr cinfo, int marker_code,
-                           jpeg_marker_parser_method routine ) {
+jpeg_set_marker_processor(const j_decompress_ptr cinfo, const int marker_code,
+                           const jpeg_marker_parser_method routine ) {
     if ( marker_code == JPEG_COM ) {
         cinfo->marker->process_COM = routine;
     } else if ( marker_code >= JPEG_APP0 && marker_code <= JPEG_APP0 + 15 ) {
@@ -112,7 +112,7 @@ jpeg_set_marker_processor( j_decompress_ptr cinfo, int marker_code,
  */
 
 LOCAL void
-default_decompress_parms( j_decompress_ptr cinfo ) {
+default_decompress_parms(const j_decompress_ptr cinfo ) {
     /* Guess the input colorspace, and set output colorspace accordingly. */
     /* (Wish JPEG committee had provided a real way to specify this...) */
     /* Note application may override our guesses. */
@@ -240,7 +240,7 @@ default_decompress_parms( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL int
-jpeg_read_header( j_decompress_ptr cinfo, boolean require_image ) {
+jpeg_read_header(const j_decompress_ptr cinfo, const boolean require_image ) {
     int retcode;
 
     if ( ( cinfo->global_state != DSTATE_START ) &&
@@ -287,7 +287,7 @@ jpeg_read_header( j_decompress_ptr cinfo, boolean require_image ) {
  */
 
 GLOBAL int
-jpeg_consume_input( j_decompress_ptr cinfo ) {
+jpeg_consume_input(const j_decompress_ptr cinfo ) {
     int retcode = JPEG_SUSPENDED;
 
     /* NB: every possible DSTATE value should be listed in this switch */
@@ -333,7 +333,7 @@ jpeg_consume_input( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL boolean
-jpeg_input_complete( j_decompress_ptr cinfo ) {
+jpeg_input_complete(const j_decompress_ptr cinfo ) {
     /* Check for valid jpeg object */
     if ( ( cinfo->global_state < DSTATE_START ) ||
         ( cinfo->global_state > DSTATE_STOPPING ) ) {
@@ -348,7 +348,7 @@ jpeg_input_complete( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL boolean
-jpeg_has_multiple_scans( j_decompress_ptr cinfo ) {
+jpeg_has_multiple_scans(const j_decompress_ptr cinfo ) {
     /* Only valid after jpeg_read_header completes */
     if ( ( cinfo->global_state < DSTATE_READY ) ||
         ( cinfo->global_state > DSTATE_STOPPING ) ) {
@@ -368,7 +368,7 @@ jpeg_has_multiple_scans( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL boolean
-jpeg_finish_decompress( j_decompress_ptr cinfo ) {
+jpeg_finish_decompress(const j_decompress_ptr cinfo ) {
     if ( ( ( cinfo->global_state == DSTATE_SCANNING ) ||
           ( cinfo->global_state == DSTATE_RAW_OK ) && !cinfo->buffered_image ) ) {
         /* Terminate final pass of non-buffered mode */

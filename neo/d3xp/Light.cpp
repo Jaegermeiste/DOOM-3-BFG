@@ -475,7 +475,7 @@ void idLight::GetColor( idVec4 &out ) const {
 idLight::SetColor
 ================
 */
-void idLight::SetColor( float red, float green, float blue ) {
+void idLight::SetColor(const float red, const float green, const float blue ) {
 	baseColor.Set( red, green, blue );
 	SetLightLevel();
 }
@@ -518,7 +518,7 @@ void idLight::SetShader( const char *shadername ) {
 idLight::SetLightParm
 ================
 */
-void idLight::SetLightParm( int parmnum, float value ) {
+void idLight::SetLightParm(const int parmnum, const float value ) {
 	if ( ( parmnum < 0 ) || ( parmnum >= MAX_ENTITY_SHADER_PARMS ) ) {
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
@@ -533,7 +533,7 @@ void idLight::SetLightParm( int parmnum, float value ) {
 idLight::SetLightParms
 ================
 */
-void idLight::SetLightParms( float parm0, float parm1, float parm2, float parm3 ) {
+void idLight::SetLightParms(const float parm0, const float parm1, const float parm2, const float parm3 ) {
 	renderLight.shaderParms[ SHADERPARM_RED ]		= parm0;
 	renderLight.shaderParms[ SHADERPARM_GREEN ]		= parm1;
 	renderLight.shaderParms[ SHADERPARM_BLUE ]		= parm2;
@@ -551,7 +551,7 @@ void idLight::SetLightParms( float parm0, float parm1, float parm2, float parm3 
 idLight::SetRadiusXYZ
 ================
 */
-void idLight::SetRadiusXYZ( float x, float y, float z ) {
+void idLight::SetRadiusXYZ(const float x, const float y, const float z ) {
 	renderLight.lightRadius[0] = x;
 	renderLight.lightRadius[1] = y;
 	renderLight.lightRadius[2] = z;
@@ -563,7 +563,7 @@ void idLight::SetRadiusXYZ( float x, float y, float z ) {
 idLight::SetRadius
 ================
 */
-void idLight::SetRadius( float radius ) {
+void idLight::SetRadius(const float radius ) {
 	renderLight.lightRadius[0] = renderLight.lightRadius[1] = renderLight.lightRadius[2] = radius;
 	PresentLightDefChange();
 }
@@ -606,7 +606,7 @@ void idLight::Off() {
 idLight::Fade
 ================
 */
-void idLight::Fade( const idVec4 &to, float fadeTime ) {
+void idLight::Fade( const idVec4 &to, const float fadeTime ) {
 	GetColor( fadeFrom );
 	fadeTo = to;
 	fadeStart = gameLocal.time;
@@ -619,7 +619,7 @@ void idLight::Fade( const idVec4 &to, float fadeTime ) {
 idLight::FadeOut
 ================
 */
-void idLight::FadeOut( float time ) {
+void idLight::FadeOut(const float time ) {
 	Fade( colorBlack, time );
 }
 
@@ -628,7 +628,7 @@ void idLight::FadeOut( float time ) {
 idLight::FadeIn
 ================
 */
-void idLight::FadeIn( float time ) {
+void idLight::FadeIn(const float time ) {
 	idVec3 color;
 	idVec4 color4;
 
@@ -805,7 +805,7 @@ void idLight::Think() {
 idLight::ClientThink
 ================
 */
-void idLight::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idLight::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	
 	InterpolatePhysics( fraction );
 	
@@ -879,7 +879,7 @@ void idLight::Event_SetShader( const char *shadername ) {
 idLight::Event_GetLightParm
 ================
 */
-void idLight::Event_GetLightParm( int parmnum ) {
+void idLight::Event_GetLightParm(const int parmnum ) {
 	if ( ( parmnum < 0 ) || ( parmnum >= MAX_ENTITY_SHADER_PARMS ) ) {
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
@@ -893,7 +893,7 @@ void idLight::Event_GetLightParm( int parmnum ) {
 idLight::Event_SetLightParm
 ================
 */
-void idLight::Event_SetLightParm( int parmnum, float value ) {
+void idLight::Event_SetLightParm(const int parmnum, const float value ) {
 	SetLightParm( parmnum, value );
 }
 
@@ -902,7 +902,7 @@ void idLight::Event_SetLightParm( int parmnum, float value ) {
 idLight::Event_SetLightParms
 ================
 */
-void idLight::Event_SetLightParms( float parm0, float parm1, float parm2, float parm3 ) {
+void idLight::Event_SetLightParms(const float parm0, const float parm1, const float parm2, const float parm3 ) {
 	SetLightParms( parm0, parm1, parm2, parm3 );
 }
 
@@ -911,7 +911,7 @@ void idLight::Event_SetLightParms( float parm0, float parm1, float parm2, float 
 idLight::Event_SetRadiusXYZ
 ================
 */
-void idLight::Event_SetRadiusXYZ( float x, float y, float z ) {
+void idLight::Event_SetRadiusXYZ(const float x, const float y, const float z ) {
 	SetRadiusXYZ( x, y, z );
 }
 
@@ -920,7 +920,7 @@ void idLight::Event_SetRadiusXYZ( float x, float y, float z ) {
 idLight::Event_SetRadius
 ================
 */
-void idLight::Event_SetRadius( float radius ) {
+void idLight::Event_SetRadius(const float radius ) {
 	SetRadius( radius );
 }
 
@@ -1036,7 +1036,7 @@ void idLight::Event_SetSoundHandles() {
 idLight::Event_FadeOut
 ================
 */
-void idLight::Event_FadeOut( float time ) {
+void idLight::Event_FadeOut(const float time ) {
 	FadeOut( time );
 }
 
@@ -1045,7 +1045,7 @@ void idLight::Event_FadeOut( float time ) {
 idLight::Event_FadeIn
 ================
 */
-void idLight::Event_FadeIn( float time ) {
+void idLight::Event_FadeIn(const float time ) {
 	FadeIn( time );
 }
 
@@ -1168,7 +1168,7 @@ void idLight::ReadFromSnapshot( const idBitMsg &msg ) {
 idLight::ClientReceiveEvent
 ================
 */
-bool idLight::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idLight::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_BECOMEBROKEN: {

@@ -86,7 +86,7 @@ public:
 		EVENT_MAXEVENTS
 	};
 
-	void					ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void					ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			ClientPredictionThink() override;
 	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
@@ -189,7 +189,7 @@ public:
 
 	void					Spawn();
 	void			Think() override;
-	void					ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void					ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	bool			Collide( const trace_t &collision, const idVec3 &velocity ) override;
 	bool			Pickup( idPlayer *player ) override;
 

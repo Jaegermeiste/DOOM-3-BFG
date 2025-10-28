@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 GL_SelectTexture
 ====================
 */
-void GL_SelectTexture( int unit ) {
+void GL_SelectTexture(const int unit ) {
 	if ( backEnd.glState.currenttmu == unit ) {
 		return;
 	}
@@ -59,7 +59,7 @@ This handles the flipping needed when the view being
 rendered is a mirrored view.
 ====================
 */
-void GL_Cull( int cullType ) {
+void GL_Cull(const int cullType ) {
 	if ( backEnd.glState.faceCulling == cullType ) {
 		return;
 	}
@@ -94,8 +94,8 @@ void GL_Cull( int cullType ) {
 GL_Scissor
 ====================
 */
-void GL_Scissor( int x /* left*/, int y /* bottom */, const size_t w, const size_t h ) {
-	qglScissor( idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h) );
+void GL_Scissor(const int x /* left*/, const int y /* bottom */, const size_t w, const size_t h ) {
+	qglScissor( numeric_cast<GLint>(x), numeric_cast<GLint>(y), numeric_cast<GLsizei>(w), numeric_cast<GLsizei>(h) );
 }
 
 /*
@@ -103,8 +103,8 @@ void GL_Scissor( int x /* left*/, int y /* bottom */, const size_t w, const size
 GL_Viewport
 ====================
 */
-void GL_Viewport( int x /* left */, int y /* bottom */, const size_t w, const size_t h ) {
-	qglViewport(idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h) );
+void GL_Viewport(const int x /* left */, const int y /* bottom */, const size_t w, const size_t h ) {
+	qglViewport(numeric_cast<GLint>(x), numeric_cast<GLint>(y), numeric_cast<GLsizei>(w), numeric_cast<GLsizei>(h) );
 }
 
 /*
@@ -112,7 +112,7 @@ void GL_Viewport( int x /* left */, int y /* bottom */, const size_t w, const si
 GL_PolygonOffset
 ====================
 */
-void GL_PolygonOffset( float scale, float bias ) {
+void GL_PolygonOffset(const float scale, const float bias ) {
 	backEnd.glState.polyOfsScale = scale;
 	backEnd.glState.polyOfsBias = bias;
 	if ( backEnd.glState.glStateBits & GLS_POLYGON_OFFSET ) {
@@ -180,7 +180,7 @@ void GL_Color( float * color ) {
 GL_Color
 ====================
 */
-void GL_Color( float r, float g, float b ) {
+void GL_Color(const float r, const float g, const float b ) {
 	GL_Color( r, g, b, 1.0f );
 }
 
@@ -189,7 +189,7 @@ void GL_Color( float r, float g, float b ) {
 GL_Color
 ====================
 */
-void GL_Color( float r, float g, float b, float a ) {
+void GL_Color(const float r, const float g, const float b, const float a ) {
 	float parm[4];
 	parm[0] = idMath::ClampFloat( 0.0f, 1.0f, r );
 	parm[1] = idMath::ClampFloat( 0.0f, 1.0f, g );
@@ -203,7 +203,7 @@ void GL_Color( float r, float g, float b, float a ) {
 GL_Clear
 ========================
 */
-void GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a ) {
+void GL_Clear(const bool color, const bool depth, const bool stencil, const byte stencilValue, const float r, const float g, const float b, const float a ) {
 	int clearFlags = 0;
 	if ( color ) {
 		qglClearColor( r, g, b, a );
@@ -270,7 +270,7 @@ GL_State
 This routine is responsible for setting the most commonly changed state
 ====================
 */
-void GL_State( uint64 stateBits, bool forceGlState ) {
+void GL_State(const uint64 stateBits, const bool forceGlState ) {
 	uint64 diff = stateBits ^ backEnd.glState.glStateBits;
 	
 	if ( !r_useStateCaching.GetBool() || forceGlState ) {

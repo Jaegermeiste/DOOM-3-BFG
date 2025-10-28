@@ -85,7 +85,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs &args ) {
 	int frameMilliseconds = 16;
 	for ( int swapInterval = 2 ; swapInterval >= -1 ; swapInterval-- ) {
 		wglSwapIntervalEXT( swapInterval );
-		for ( int i = 0 ; i < MAX_FRAMES ; i++ ) {
+		for ( size_t i = 0 ; i < MAX_FRAMES ; i++ ) {
 			if ( swapInterval == -1 ) {
 				Sys_Sleep( frameMilliseconds );
 			}
@@ -205,10 +205,10 @@ Only used to get wglExtensions
 ====================
 */
 LONG WINAPI FakeWndProc (
-    HWND    hWnd,
-    UINT    uMsg,
-    WPARAM  wParam,
-    LPARAM  lParam) {
+    const HWND    hWnd,
+    const UINT    uMsg,
+    const WPARAM  wParam,
+    const LPARAM  lParam) {
 
 	if ( uMsg == WM_DESTROY ) {
         PostQuitMessage(0);
@@ -261,7 +261,7 @@ LONG WINAPI FakeWndProc (
 GLW_GetWGLExtensionsWithFakeWindow
 ==================
 */
-void GLW_CheckWGLExtensions( HDC hDC ) {
+void GLW_CheckWGLExtensions(const HDC hDC ) {
 	wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
 							  GLimp_ExtensionPointer("wglGetExtensionsStringARB");
 	if ( wglGetExtensionsStringARB ) {
@@ -340,7 +340,7 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext ) {
 	int useOpenGL32 = r_useOpenGL32.GetInteger();
 	HGLRC m_hrc = nullptr;
 
-	for ( int i = 0; i < 2; i++ ) {
+	for ( size_t i = 0; i < 2; i++ ) {
 		const int glMajorVersion = ( useOpenGL32 != 0 ) ? 3 : 2;
 		const int glMinorVersion = ( useOpenGL32 != 0 ) ? 2 : 0;
 		const int glDebugFlag = debugContext ? WGL_CONTEXT_DEBUG_BIT_ARB : 0;
@@ -687,7 +687,7 @@ static bool GetDisplayCoordinates( const int deviceNum, int & x, int & y, int & 
 DMDFO
 ====================
 */
-static const char * DMDFO( int dmDisplayFixedOutput ) {
+static const char * DMDFO(const int dmDisplayFixedOutput ) {
 	switch( dmDisplayFixedOutput ) {
 	case DMDFO_DEFAULT: return "DMDFO_DEFAULT";
 	case DMDFO_CENTER: return "DMDFO_CENTER";
@@ -1029,7 +1029,7 @@ static bool GLW_CreateWindow( glimpParms_t parms ) {
 PrintCDSError
 ===================
 */
-static void PrintCDSError( int value ) {
+static void PrintCDSError(const int value ) {
 	switch ( value ) {
 	case DISP_CHANGE_RESTART:
 		common->Printf( "restart required\n" );

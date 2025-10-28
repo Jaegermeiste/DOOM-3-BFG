@@ -63,7 +63,7 @@ void idLobbyBackendDirect::StartHosting( const idMatchParameters & p, float skil
 idLobbyBackendDirect::StartFinding
 ========================
 */
-void idLobbyBackendDirect::StartFinding( const idMatchParameters & p, int numPartyUsers, float skillLevel ) {
+void idLobbyBackendDirect::StartFinding( const idMatchParameters & p, size_t numPartyUsers, float skillLevel ) {
 	isLocal = MatchTypeIsLocal( p.matchFlags );
 	isHost	= false;
 
@@ -117,7 +117,7 @@ void idLobbyBackendDirect::Shutdown() {
 idLobbyBackendDirect::BecomeHost
 ========================
 */
-void idLobbyBackendDirect::BecomeHost( int numInvites ) {
+void idLobbyBackendDirect::BecomeHost( size_t numInvites ) {
 }
 
 /*

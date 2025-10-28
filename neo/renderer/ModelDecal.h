@@ -90,7 +90,7 @@ public:
 								~idRenderModelDecal();
 
 								// Creates decal projection parameters.
-	static bool					CreateProjectionParms( decalProjectionParms_t &parms, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime );
+	static bool					CreateProjectionParms( decalProjectionParms_t &parms, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const ID_TIME_T startTime );
 
 								// Transform the projection parameters from global space to local.
 	static void					GlobalProjectionParmsToLocal( decalProjectionParms_t &localParms, const decalProjectionParms_t &globalParms, const idVec3 &origin, const idMat3 &axis );
@@ -108,7 +108,7 @@ public:
 	void						RemoveFadedDecals( ID_TIME_T time );
 
 	unsigned int				GetNumDecalDrawSurfs();
-	drawSurf_t *    			CreateDecalDrawSurf( const viewEntity_t *space, const Ordinal auto index );
+	drawSurf_t *    			CreateDecalDrawSurf( const viewEntity_t *space, index_t index );
 
 	void						ReadFromDemoFile( class idDemoFile *f );
 	void						WriteToDemoFile( class idDemoFile *f ) const;

@@ -56,7 +56,7 @@ public:
 	virtual float		Evaluate( const float *state, float *newState, float t0, float t1 ) = 0;
 
 protected:
-	int					dimension;		// dimension in floats allocated for
+	size_t				dimension;		// dimension in floats allocated for
 	deriveFunction_t	derive;			// derive function
 	const void *		userData;		// client data
 };
@@ -70,7 +70,7 @@ protected:
 class idODE_Euler : public idODE {
 
 public:
-						idODE_Euler( const int dim, const deriveFunction_t dr, const void *ud );
+						idODE_Euler( const size_t dim, const deriveFunction_t dr, const void *ud );
 						~idODE_Euler() override;
 
 						float		Evaluate( const float *state, float *newState, float t0, float t1 ) override;
@@ -88,7 +88,7 @@ protected:
 class idODE_Midpoint : public idODE {
 
 public:
-						idODE_Midpoint( const int dim, const deriveFunction_t dr, const void *ud );
+						idODE_Midpoint( const size_t dim, const deriveFunction_t dr, const void *ud );
 						~idODE_Midpoint() override;
 
 						float		Evaluate( const float *state, float *newState, float t0, float t1 ) override;
@@ -107,7 +107,7 @@ protected:
 class idODE_RK4 : public idODE {
 
 public:
-						idODE_RK4( const int dim, const deriveFunction_t dr, const void *ud );
+						idODE_RK4( const size_t dim, const deriveFunction_t dr, const void *ud );
 						~idODE_RK4() override;
 
 						float		Evaluate( const float *state, float *newState, float t0, float t1 ) override;
@@ -129,7 +129,7 @@ protected:
 class idODE_RK4Adaptive : public idODE {
 
 public:
-						idODE_RK4Adaptive( const int dim, const deriveFunction_t dr, const void *ud );
+						idODE_RK4Adaptive( const size_t dim, const deriveFunction_t dr, const void *ud );
 						~idODE_RK4Adaptive() override;
 
 						float		Evaluate( const float *state, float *newState, float t0, float t1 ) override;

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #include "ParallelJobList.h"
 
+#include <utility>
+
 /*
 ================================================================================================
 
@@ -43,7 +45,7 @@ static const char * jobNames[] = {
 	ASSERT_ENUM_STRING( JOBLIST_UTILITY,			9 ),
 };
 
-static constexpr int MAX_REGISTERED_JOBS = 128;
+static constexpr size_t MAX_REGISTERED_JOBS = 128;
 
 static struct registeredJob {
 	jobRun_t		function;
@@ -148,20 +150,20 @@ struct threadJobListState_t {
 									nextJobIndex( -1 ) {}
 	idParallelJobList_Threads *	jobList;
 	int64						version;
-	int64						signalIndex;
-	int64						lastJobIndex;
-	int64						nextJobIndex;
+	index_t						signalIndex;
+	index_t						lastJobIndex;
+	index_t						nextJobIndex;
 };
 
 struct threadStats_t {
 	size_t       	numExecutedJobs;
 	size_t      	numExecutedSyncs;
-	ID_TIME_T		submitTime;
-	ID_TIME_T		startTime;
-	ID_TIME_T		endTime;
-	ID_TIME_T		waitTime;
-	ID_TIME_T		threadExecTime[MAX_THREADS];
-	ID_TIME_T		threadTotalTime[MAX_THREADS];
+	ID_MICROSEC_T	submitTime;
+	ID_MICROSEC_T  	startTime;
+	ID_MICROSEC_T  	endTime;
+	ID_MICROSEC_T  	waitTime;
+	ID_MICROSEC_T  	threadExecTime[MAX_THREADS];
+	ID_MICROSEC_T   threadTotalTime[MAX_THREADS];
 };
 
 class idParallelJobList_Threads {
@@ -172,31 +174,29 @@ public:
 	//------------------------
 	// These are called from the one thread that manages this list.
 	//------------------------
-	ID_INLINE void			AddJob( jobRun_t function, void * data );
+	ID_INLINE void			PushJob( jobRun_t function, void * data ); // AddJob is now taken by WinAPI
 	ID_INLINE void			InsertSyncPoint( jobSyncType_t syncType );
 	void					Submit( idParallelJobList_Threads * waitForJobList_, jobListParallelism_t parallelism );
 	void					Wait();
 	bool					TryWait();
-							[[nodiscard]] bool					IsSubmitted() const;
+	[[nodiscard]] bool		IsSubmitted() const;
 
-							[[nodiscard]] size_t	        		GetNumExecutedJobs() const { return threadStats.numExecutedJobs; }
-							[[nodiscard]] size_t      			GetNumSyncs() const { return threadStats.numExecutedSyncs; }
-	ID_TIME_T				GetSubmitTimeMicroSec() const { return threadStats.submitTime; }
-	ID_TIME_T				GetStartTimeMicroSec() const { return threadStats.startTime; }
-	ID_TIME_T				GetFinishTimeMicroSec() const { return threadStats.endTime; }
-	ID_TIME_T				GetWaitTimeMicroSec() const { return threadStats.waitTime; }
-	ID_TIME_T				GetTotalProcessingTimeMicroSec() const;
-	ID_TIME_T				GetTotalWastedTimeMicroSec() const;
-	
-	ID_TIME_T				GetUnitProcessingTimeMicroSec(Ordinal auto unit ) const;
-	
-	ID_TIME_T				GetUnitWastedTimeMicroSec(Ordinal auto unit ) const;
+	[[nodiscard]] size_t	GetNumExecutedJobs() const { return threadStats.numExecutedJobs; }
+	[[nodiscard]] size_t    GetNumSyncs() const { return threadStats.numExecutedSyncs; }
+	[[nodiscard]] ID_MICROSEC_T	GetSubmitTimeMicroSec() const { return threadStats.submitTime; }
+	[[nodiscard]] ID_MICROSEC_T	GetStartTimeMicroSec() const { return threadStats.startTime; }
+	[[nodiscard]] ID_MICROSEC_T	GetFinishTimeMicroSec() const { return threadStats.endTime; }
+	[[nodiscard]] ID_MICROSEC_T	GetWaitTimeMicroSec() const { return threadStats.waitTime; }
+	[[nodiscard]] ID_MICROSEC_T	GetTotalProcessingTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T  	GetTotalWastedTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T	GetUnitProcessingTimeMicroSec( const Ordinal auto unit ) const;
+	[[nodiscard]] ID_MICROSEC_T   GetUnitWastedTimeMicroSec( const Ordinal auto unit ) const;
 
-							[[nodiscard]] jobListId_t				GetId() const { return listId; }
-							[[nodiscard]] jobListPriority_t		GetPriority() const { return listPriority; }
-							[[nodiscard]] int64					GetVersion() const { return version.GetValue(); }
+	[[nodiscard]] jobListId_t			GetId() const { return listId; }
+	[[nodiscard]] jobListPriority_t		GetPriority() const { return listPriority; }
+	[[nodiscard]] int64					GetVersion() const { return version.GetValue(); }
 
-							[[nodiscard]] bool					WaitForOtherJobList() const;
+	[[nodiscard]] bool					WaitForOtherJobList() const;
 
 	//------------------------
 	// This is thread safe and called from the job threads.
@@ -209,10 +209,10 @@ public:
 	};
 
 	
-	int						RunJobs(Ordinal auto threadNum, threadJobListState_t & state, bool singleJob );
+	int						RunJobs( const Ordinal auto threadNum, threadJobListState_t & state, bool singleJob );
 
 private:
-	static constexpr int		NUM_DONE_GUARDS = 4;	// cycle through 4 guards so we can cyclically chain job lists
+	static constexpr size_t		NUM_DONE_GUARDS = 4;	// cycle through 4 guards so we can cyclically chain job lists
 
 	bool					threaded;
 	bool					done;
@@ -242,7 +242,7 @@ private:
 	threadStats_t						threadStats;
 
 	
-	int				        RunJobsInternal(Ordinal auto threadNum, threadJobListState_t& state, bool singleJob);
+	int				        RunJobsInternal( const Ordinal auto threadNum, threadJobListState_t& state, bool singleJob);
 
 	static void				Nop( void * data ) {}
 
@@ -260,7 +260,7 @@ int idParallelJobList_Threads::JOB_LIST_DONE;
 idParallelJobList_Threads::idParallelJobList_Threads
 ========================
 */
-idParallelJobList_Threads::idParallelJobList_Threads(const jobListId_t id, const jobListPriority_t priority, const size_t maxJobs, const size_t maxSyncs ) :
+idParallelJobList_Threads::idParallelJobList_Threads( const jobListId_t id, const jobListPriority_t priority, const size_t maxJobs, const size_t maxSyncs ) :
 	threaded( true ),
 	done( true ),
 	hasSignal( false ),
@@ -299,7 +299,7 @@ idParallelJobList_Threads::~idParallelJobList_Threads() {
 idParallelJobList_Threads::AddJob
 ========================
 */
-ID_INLINE void idParallelJobList_Threads::AddJob(const jobRun_t function, void * data ) {
+ID_INLINE void idParallelJobList_Threads::PushJob( const jobRun_t function, void * data ) {
 	assert( done );
 #if defined( _DEBUG )
 	// make sure there isn't already a job with the same function and data in the list
@@ -309,7 +309,7 @@ ID_INLINE void idParallelJobList_Threads::AddJob(const jobRun_t function, void *
 		}
 	}
 #endif
-	if ( 1 ) { // JDC: this never worked in tech5!  !jobList.IsFull() ) {
+	if ( true ) { // JDC: this never worked in tech5!  !jobList.IsFull() ) {
 		job_t & job = jobList.Alloc();
 		job.function = function;
 		job.data = data;
@@ -318,9 +318,9 @@ ID_INLINE void idParallelJobList_Threads::AddJob(const jobRun_t function, void *
 		// debug output to show us what is overflowing
 		int currentJobCount[MAX_REGISTERED_JOBS] = {};
 		
-		for ( int i = 0; i < jobList.Num(); ++i ) {
+		for ( size_t i = 0; i < jobList.Num(); ++i ) {
 			const char * jobName = GetJobName( jobList[ i ].function );
-			for ( int j = 0; j < numRegisteredJobs; ++j ) {
+			for ( size_t j = 0; j < numRegisteredJobs; ++j ) {
 				if ( jobName == registeredJobs[ j ].name ) {
 					currentJobCount[ j ]++;
 					break;
@@ -329,7 +329,7 @@ ID_INLINE void idParallelJobList_Threads::AddJob(const jobRun_t function, void *
 		}
 
 		// print the quantity of each job type
-		for ( int i = 0; i < numRegisteredJobs; ++i ) {
+		for ( size_t i = 0; i < numRegisteredJobs; ++i ) {
 			if ( currentJobCount[ i ] > 0 ) {
 				idLib::Printf( "Job: %s, # %d", registeredJobs[ i ].name, currentJobCount[ i ] );
 			}
@@ -351,7 +351,7 @@ ID_INLINE void idParallelJobList_Threads::InsertSyncPoint(const jobSyncType_t sy
 		if (jobList.Num()) {
 			assert(!hasSignal);
 			signalJobCount.Alloc();
-			signalJobCount[signalJobCount.Num() - 1].SetValue(jobList.Num() - lastSignalJob);
+			signalJobCount[signalJobCount.Num() - 1].SetValue(numeric_cast<int64>(jobList.Num() - lastSignalJob));
 			lastSignalJob = jobList.Num();
 			job_t& job = jobList.Alloc();
 			job.function = Nop;
@@ -408,11 +408,11 @@ void idParallelJobList_Threads::Submit( idParallelJobList_Threads * waitForJobLi
 		waitForGuard = nullptr;
 	}
 
-	currentDoneGuard = ( currentDoneGuard + 1 ) & ( NUM_DONE_GUARDS - 1 );
+	currentDoneGuard = numeric_cast<BASE_TYPE(currentDoneGuard)>(( numeric_cast<BASE_TYPE(NUM_DONE_GUARDS)>(currentDoneGuard) + 1 ) & ( NUM_DONE_GUARDS - 1 ));
 	doneGuards[currentDoneGuard].SetValue( 1 );
 
 	signalJobCount.Alloc();
-	signalJobCount[signalJobCount.Num() - 1].SetValue( jobList.Num() - lastSignalJob );
+	signalJobCount[signalJobCount.Num() - 1].SetValue( numeric_cast<int64>(jobList.Num() - lastSignalJob) );
 
 	job_t & job = jobList.Alloc();
 	job.function = Nop;
@@ -442,7 +442,7 @@ void idParallelJobList_Threads::Wait() {
 		}
 
 		bool waited = false;
-		const uint64 waitStart = Sys_Microseconds();
+		const ID_MICROSEC_T waitStart = Sys_Microseconds();
 
 		while ( signalJobCount[signalJobCount.Num() - 1].GetValue() > 0 ) {
 			Sys_Yield();
@@ -459,7 +459,7 @@ void idParallelJobList_Threads::Wait() {
 		numSyncs = 0;
 		lastSignalJob = 0;
 
-		const uint64 waitEnd = Sys_Microseconds();
+		const ID_MICROSEC_T waitEnd = Sys_Microseconds();
 		deferredThreadStats.waitTime = waited ? ( waitEnd - waitStart ) : 0;
 	}
 	memcpy( & threadStats, & deferredThreadStats, sizeof( threadStats ) );
@@ -493,11 +493,11 @@ bool idParallelJobList_Threads::IsSubmitted() const {
 idParallelJobList_Threads::GetTotalProcessingTimeMicroSec
 ========================
 */
-ID_TIME_T idParallelJobList_Threads::GetTotalProcessingTimeMicroSec() const {
-	ID_TIME_T total = 0;
-	for (const ID_TIME_T unit : threadStats.threadExecTime)
+ID_MICROSEC_T idParallelJobList_Threads::GetTotalProcessingTimeMicroSec() const {
+	ID_MICROSEC_T total = 0;
+	for (const ID_MICROSEC_T unitTime : threadStats.threadExecTime)
 	{
-		total += unit;
+		total += unitTime;
 	}
 	return total;
 }
@@ -507,8 +507,8 @@ ID_TIME_T idParallelJobList_Threads::GetTotalProcessingTimeMicroSec() const {
 idParallelJobList_Threads::GetTotalWastedTimeMicroSec
 ========================
 */
-ID_TIME_T idParallelJobList_Threads::GetTotalWastedTimeMicroSec() const {
-	ID_TIME_T total = 0;
+ID_MICROSEC_T idParallelJobList_Threads::GetTotalWastedTimeMicroSec() const {
+	ID_MICROSEC_T total = 0;
 	for ( size_t unit = 0; unit < MAX_THREADS; unit++ ) {
 		total += threadStats.threadTotalTime[unit] - threadStats.threadExecTime[unit];
 	}
@@ -521,8 +521,8 @@ idParallelJobList_Threads::GetUnitProcessingTimeMicroSec
 ========================
 */
 
-ID_TIME_T idParallelJobList_Threads::GetUnitProcessingTimeMicroSec(const Ordinal auto unit ) const {
-	if ( unit < 0 || unit >= MAX_THREADS ) {
+ID_MICROSEC_T idParallelJobList_Threads::GetUnitProcessingTimeMicroSec( const Ordinal auto unit ) const {
+	if (unit < 0 || std::cmp_greater_equal(unit, MAX_THREADS)) {
 		return 0;
 	}
 	return threadStats.threadExecTime[unit];
@@ -534,8 +534,8 @@ idParallelJobList_Threads::GetUnitWastedTimeMicroSec
 ========================
 */
 
-ID_TIME_T idParallelJobList_Threads::GetUnitWastedTimeMicroSec(const Ordinal auto unit ) const {
-	if ( unit < 0 || unit >= MAX_THREADS ) {
+ID_MICROSEC_T idParallelJobList_Threads::GetUnitWastedTimeMicroSec( const Ordinal auto unit ) const {
+	if ( unit < 0 || std::cmp_greater_equal(unit, MAX_THREADS) ) {
 		return 0;
 	}
 	return threadStats.threadTotalTime[unit] - threadStats.threadExecTime[unit];
@@ -553,7 +553,7 @@ idParallelJobList_Threads::RunJobsInternal
 ========================
 */
 
-int idParallelJobList_Threads::RunJobsInternal(const Ordinal auto threadNum, threadJobListState_t & state, const bool singleJob ) {
+int idParallelJobList_Threads::RunJobsInternal( const Ordinal auto threadNum, threadJobListState_t & state, const bool singleJob ) {
 	if ( state.version != version.GetValue() ) {
 		// trying to run an old version of this list that is already done
 		return RUN_DONE;
@@ -639,12 +639,12 @@ int idParallelJobList_Threads::RunJobsInternal(const Ordinal auto threadNum, thr
 
 		// execute the next job
 		{
-			const uint64 jobStart = Sys_Microseconds();
+			const ID_MICROSEC_T jobStart = Sys_Microseconds();
 
 			jobList[state.nextJobIndex].function( jobList[state.nextJobIndex].data );
 			jobList[state.nextJobIndex].executed = 1;
 
-			const uint64 jobEnd = Sys_Microseconds();
+			const ID_MICROSEC_T jobEnd = Sys_Microseconds();
 			deferredThreadStats.threadExecTime[threadNum] += jobEnd - jobStart;
 
 #ifndef _DEBUG
@@ -667,7 +667,7 @@ int idParallelJobList_Threads::RunJobsInternal(const Ordinal auto threadNum, thr
 		// decrease the job count for the current signal
 		if ( signalJobCount[state.signalIndex].Decrement() == 0 ) {
 			// if this was the very last job of the job list
-			if ( state.signalIndex == signalJobCount.Num() - 1 ) {
+			if ( std::equal_to<>()(state.signalIndex, signalJobCount.Num() - 1) ) {
 				deferredThreadStats.endTime = Sys_Microseconds();
 				return ( result | RUN_DONE );
 			}
@@ -684,8 +684,8 @@ idParallelJobList_Threads::RunJobs
 ========================
 */
 
-int idParallelJobList_Threads::RunJobs(const Ordinal auto threadNum, threadJobListState_t & state, const bool singleJob ) {
-	const ID_TIME_T start = Sys_Microseconds();
+int idParallelJobList_Threads::RunJobs( const Ordinal auto threadNum, threadJobListState_t & state, const bool singleJob ) {
+	const ID_MICROSEC_T start = Sys_Microseconds();
 
 	numThreadsExecuting.Increment();
 
@@ -746,10 +746,10 @@ idParallelJobList::~idParallelJobList() {
 idParallelJobList::AddJob
 ========================
 */
-void idParallelJobList::AddJob(const jobRun_t function, void * data ) const
+void idParallelJobList::PushJob( const jobRun_t function, void * data ) const
 {
 	assert( IsRegisteredJob( function ) );
-	jobListThreads->AddJob( function, data );
+	jobListThreads->PushJob( function, data );
 }
 
 /*
@@ -766,7 +766,7 @@ CellSpursJob128 * idParallelJobList::AddJobSPURS() {
 idParallelJobList::InsertSyncPoint
 ========================
 */
-void idParallelJobList::InsertSyncPoint(const jobSyncType_t syncType ) const
+void idParallelJobList::InsertSyncPoint( const jobSyncType_t syncType ) const
 {
 	jobListThreads->InsertSyncPoint( syncType );
 }
@@ -778,7 +778,7 @@ idParallelJobList::Wait
 */
 void idParallelJobList::Wait() const
 {
-	if ( jobListThreads != nullptr) {
+	if ( jobListThreads != nullptr ) {
 		jobListThreads->Wait();
 	}
 }
@@ -791,7 +791,7 @@ idParallelJobList::TryWait
 bool idParallelJobList::TryWait() const
 {
 	bool done = true;
-	if ( jobListThreads != nullptr) {
+	if ( jobListThreads != nullptr ) {
 		done &= jobListThreads->TryWait();
 	}
 	return done;
@@ -802,7 +802,7 @@ bool idParallelJobList::TryWait() const
 idParallelJobList::Submit
 ========================
 */
-void idParallelJobList::Submit( idParallelJobList * waitForJobList, const jobListParallelism_t parallelism ) const
+void idParallelJobList::Submit(const idParallelJobList * waitForJobList, const jobListParallelism_t parallelism ) const
 {
 	assert( waitForJobList != this );
 	jobListThreads->Submit( ( waitForJobList != nullptr) ? waitForJobList->jobListThreads : nullptr, parallelism );
@@ -840,7 +840,7 @@ size_t idParallelJobList::GetNumSyncs() const {
 idParallelJobList::GetSubmitTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetSubmitTimeMicroSec() const {
+ID_MICROSEC_T idParallelJobList::GetSubmitTimeMicroSec() const {
 	return jobListThreads->GetSubmitTimeMicroSec();
 }
 
@@ -849,7 +849,7 @@ uint64 idParallelJobList::GetSubmitTimeMicroSec() const {
 idParallelJobList::GetStartTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetStartTimeMicroSec() const {
+ID_MICROSEC_T idParallelJobList::GetStartTimeMicroSec() const {
 	return jobListThreads->GetStartTimeMicroSec();
 }
 
@@ -858,7 +858,7 @@ uint64 idParallelJobList::GetStartTimeMicroSec() const {
 idParallelJobList::GetFinishTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetFinishTimeMicroSec() const {
+ID_MICROSEC_T idParallelJobList::GetFinishTimeMicroSec() const {
 	return jobListThreads->GetFinishTimeMicroSec();
 }
 
@@ -867,7 +867,7 @@ uint64 idParallelJobList::GetFinishTimeMicroSec() const {
 idParallelJobList::GetWaitTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetWaitTimeMicroSec() const {
+ID_MICROSEC_T idParallelJobList::GetWaitTimeMicroSec() const {
 	return jobListThreads->GetWaitTimeMicroSec();
 }
 
@@ -876,7 +876,7 @@ uint64 idParallelJobList::GetWaitTimeMicroSec() const {
 idParallelJobList::GetTotalProcessingTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetTotalProcessingTimeMicroSec() const {
+ID_MICROSEC_T idParallelJobList::GetTotalProcessingTimeMicroSec() const {
 	return jobListThreads->GetTotalProcessingTimeMicroSec();
 }
 
@@ -885,7 +885,7 @@ uint64 idParallelJobList::GetTotalProcessingTimeMicroSec() const {
 idParallelJobList::GetTotalWastedTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetTotalWastedTimeMicroSec() const {
+ID_MICROSEC_T idParallelJobList::GetTotalWastedTimeMicroSec() const {
 	return jobListThreads->GetTotalWastedTimeMicroSec();
 }
 
@@ -894,7 +894,7 @@ uint64 idParallelJobList::GetTotalWastedTimeMicroSec() const {
 idParallelJobList::GetUnitProcessingTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetUnitProcessingTimeMicroSec(const int unit ) const {
+ID_MICROSEC_T idParallelJobList::GetUnitProcessingTimeMicroSec( const Ordinal auto unit ) const {
 	return jobListThreads->GetUnitProcessingTimeMicroSec( unit );
 }
 
@@ -903,7 +903,7 @@ uint64 idParallelJobList::GetUnitProcessingTimeMicroSec(const int unit ) const {
 idParallelJobList::GetUnitWastedTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetUnitWastedTimeMicroSec(const int unit ) const {
+ID_MICROSEC_T idParallelJobList::GetUnitWastedTimeMicroSec( const Ordinal auto unit ) const {
 	return jobListThreads->GetUnitWastedTimeMicroSec( unit );
 }
 
@@ -924,7 +924,7 @@ idJobThread
 ================================================================================================
 */
 
-constexpr int JOB_THREAD_STACK_SIZE		= 256 * 1024;	// same size as the SPU local store
+constexpr size_t JOB_THREAD_STACK_SIZE		= 256ULL * 1024ULL;	// same size as the SPU local store
 
 struct threadJobList_t {
 	idParallelJobList_Threads *	jobList;
@@ -938,19 +938,19 @@ public:
 								idJobThread();
 								~idJobThread() override;
 
-	void						Start( core_t core, unsigned int threadNum );
+	void						Start( core_t core, const Ordinal auto threadNum );
 
 	void						AddJobList( idParallelJobList_Threads * jobList );
 
 private:
 	threadJobList_t				jobLists[MAX_JOBLISTS];	// cyclic buffer with job lists
-	unsigned int				firstJobList;			// index of the last job list the thread grabbed
-	unsigned int				lastJobList;			// index where the next job list to work on will be added
+	index_t     				firstJobList;			// index of the last job list the thread grabbed
+	index_t				        lastJobList;			// index where the next job list to work on will be added
 	idSysMutex					addJobMutex;
 
-	unsigned int				threadNum;
+	index_t				        threadNum;
 
-								int					Run() override;
+	int     					Run() override;
 };
 
 /*
@@ -977,7 +977,9 @@ idJobThread::~idJobThread() = default;
 idJobThread::Start
 ========================
 */
-void idJobThread::Start(const core_t core, const unsigned int threadNum ) {
+void idJobThread::Start( const core_t core, const Ordinal auto threadNum ) {
+	ORDINAL_CHECK(threadNum, MAX_THREADS);
+
 	this->threadNum = threadNum;
 	StartWorkerThread( va( "JobListProcessor_%d", threadNum ), core, THREAD_NORMAL, JOB_THREAD_STACK_SIZE );
 }
@@ -995,8 +997,8 @@ void idJobThread::AddJobList( idParallelJobList_Threads * jobList ) {
 		Sys_Yield();
 	}
 	assert( lastJobList - firstJobList < MAX_JOBLISTS );
-	jobLists[lastJobList & ( MAX_JOBLISTS - 1 )].jobList = jobList;
-	jobLists[lastJobList & ( MAX_JOBLISTS - 1 )].version = jobList->GetVersion();
+	jobLists[lastJobList & numeric_cast<BASE_TYPE(lastJobList)>( MAX_JOBLISTS - 1 )].jobList = jobList;
+	jobLists[lastJobList & numeric_cast<BASE_TYPE(lastJobList)>( MAX_JOBLISTS - 1 )].version = jobList->GetVersion();
 	lastJobList++;
 	addJobMutex.Unlock();
 }
@@ -1008,15 +1010,15 @@ idJobThread::Run
 */
 int idJobThread::Run() {
 	threadJobListState_t threadJobListState[MAX_JOBLISTS];
-	int numJobLists = 0;
-	int lastStalledJobList = -1;
+	size_t numJobLists = 0;
+	index_t lastStalledJobList = -1;
 
 	while ( !IsTerminating() ) {
 
 		// fetch any new job lists and add them to the local list
 		if ( numJobLists < MAX_JOBLISTS && firstJobList < lastJobList ) {
-			threadJobListState[numJobLists].jobList = jobLists[firstJobList & ( MAX_JOBLISTS - 1 )].jobList;
-			threadJobListState[numJobLists].version = jobLists[firstJobList & ( MAX_JOBLISTS - 1 )].version;
+			threadJobListState[numJobLists].jobList = jobLists[firstJobList & numeric_cast<BASE_TYPE(firstJobList)>( MAX_JOBLISTS - 1 )].jobList;
+			threadJobListState[numJobLists].version = jobLists[firstJobList & numeric_cast<BASE_TYPE(firstJobList)>( MAX_JOBLISTS - 1 )].version;
 			threadJobListState[numJobLists].signalIndex = 0;
 			threadJobListState[numJobLists].lastJobIndex = 0;
 			threadJobListState[numJobLists].nextJobIndex = -1;
@@ -1027,11 +1029,11 @@ int idJobThread::Run() {
 			break;
 		}
 
-		int currentJobList = 0;
+		index_t currentJobList = 0;
 		jobListPriority_t priority = JOBLIST_PRIORITY_NONE;
 		if ( lastStalledJobList < 0 ) {
 			// find the job list with the highest priority
-			for ( int i = 0; i < numJobLists; i++ ) {
+			for ( index_t i = 0; std::cmp_less(i, numJobLists); i++ ) {
 				if ( threadJobListState[i].jobList->GetPriority() > priority && !threadJobListState[i].jobList->WaitForOtherJobList() ) {
 					priority = threadJobListState[i].jobList->GetPriority();
 					currentJobList = i;
@@ -1041,7 +1043,7 @@ int idJobThread::Run() {
 			// try to hide the stall with a job from a list that has equal or higher priority
 			currentJobList = lastStalledJobList;
 			priority = threadJobListState[lastStalledJobList].jobList->GetPriority();
-			for ( int i = 0; i < numJobLists; i++ ) {
+			for ( index_t i = 0; std::cmp_less(i, numJobLists); i++ ) {
 				if ( i != lastStalledJobList && threadJobListState[i].jobList->GetPriority() >= priority && !threadJobListState[i].jobList->WaitForOtherJobList() ) {
 					priority = threadJobListState[i].jobList->GetPriority();
 					currentJobList = i;
@@ -1058,7 +1060,7 @@ int idJobThread::Run() {
 
 		if ( ( result & idParallelJobList_Threads::RUN_DONE ) != 0 ) {
 			// done with this job list so remove it from the local list
-			for ( int i = currentJobList; i < numJobLists - 1; i++ ) {
+			for ( index_t i = currentJobList; std::cmp_less(i, numJobLists - 1); i++ ) {
 				threadJobListState[i] = threadJobListState[i + 1];
 			}
 			numJobLists--;
@@ -1107,10 +1109,10 @@ extern void Sys_CPUCount( size_t & logicalNum, size_t& coreNum, size_t& packageN
 // Windows 7 Professional					2			32/64
 //
 //
-// Hyperthreading is not dead yet.  Intel's Core i7 Processor is quad-core with HT for 8 logicals.
+// Hyperthreading is not dead yet.  Intel's Core i7 Processor is quad-core with HT for 8 logical.
 
 // DOOM3: We don't have that many jobs, so just set this fairly low so we don't spin up a ton of idle threads
-constexpr auto MAX_JOB_THREADS = 32;
+constexpr size_t MAX_JOB_THREADS = 32;
 constexpr auto NUM_JOB_THREADS = "2";
 #define JOB_THREAD_CORES	{	CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
 								CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
@@ -1137,20 +1139,20 @@ public:
 	size_t				GetNumJobLists() const override;
 	size_t				GetNumFreeJobLists() const override;
 	
-	idParallelJobList *	GetJobList( Ordinal auto index );
+	idParallelJobList *	GetJobList( const Ordinal auto index );
 
 	size_t				GetNumProcessingUnits() override;
 
 	void				WaitForAllJobLists() override;
 
-	void						Submit( idParallelJobList_Threads * jobList, int parallelism );
+	void				Submit( idParallelJobList_Threads * jobList, const short parallelism );
 
 private:
 	idJobThread						threads[MAX_JOB_THREADS];
-	size_t      					maxThreads;
-	size_t							numPhysicalCpuCores;
-	size_t							numLogicalCpuCores;
-	size_t							numCpuPackages;
+	size_t      					maxThreads = 0;
+	size_t							numPhysicalCpuCores = 0;
+	size_t							numLogicalCpuCores = 0;
+	size_t							numCpuPackages = 0;
 	idStaticList< idParallelJobList *, MAX_JOBLISTS >	jobLists;
 };
 
@@ -1162,7 +1164,7 @@ idParallelJobManager * parallelJobManager = &parallelJobManagerLocal;
 SubmitJobList
 ========================
 */
-static void SubmitJobList( idParallelJobList_Threads * jobList, const int parallelism ) {
+static void SubmitJobList( idParallelJobList_Threads * jobList, const short parallelism ) {
 	parallelJobManagerLocal.Submit( jobList, parallelism );
 }
 
@@ -1176,7 +1178,7 @@ void idParallelJobManagerLocal::Init() {
 	constexpr core_t cores[] = JOB_THREAD_CORES;
 	assert( sizeof( cores ) / sizeof( cores[0] ) >= MAX_JOB_THREADS );
 
-	for ( int i = 0; i < MAX_JOB_THREADS; i++ ) {
+	for ( size_t i = 0; i < MAX_JOB_THREADS; i++ ) {
 		threads[i].Start( cores[i], i );
 	}
 	maxThreads = jobs_numThreads.GetInteger();
@@ -1190,8 +1192,9 @@ idParallelJobManagerLocal::Shutdown
 ========================
 */
 void idParallelJobManagerLocal::Shutdown() {
-	for ( int i = 0; i < MAX_JOB_THREADS; i++ ) {
-		threads[i].StopThread();
+	for (auto& thread : threads)
+	{
+		thread.StopThread();
 	}
 }
 
@@ -1221,10 +1224,10 @@ void idParallelJobManagerLocal::FreeJobList( idParallelJobList * jobList ) {
 		return;
 	}
 	// wait for all job threads to finish because job list deletion is not thread safe
-	for ( unsigned int i = 0; i < maxThreads; i++ ) {
+	for ( size_t i = 0; i < maxThreads; i++ ) {
 		threads[i].WaitForThread();
 	}
-	const auto index = jobLists.FindIndex( jobList );
+	const index_t index = jobLists.FindIndex( jobList );
 	assert( index >= 0 && jobLists[index] == jobList );
 	jobLists[index]->Wait();
 	delete jobLists[index];
@@ -1255,7 +1258,9 @@ idParallelJobManagerLocal::GetJobList
 ========================
 */
 
-idParallelJobList * idParallelJobManagerLocal::GetJobList(const Ordinal auto index ) {
+idParallelJobList * idParallelJobManagerLocal::GetJobList( const Ordinal auto index ) {
+	ORDINAL_CHECK(index, jobLists.Num());
+
 	return jobLists[index];
 }
 
@@ -1275,7 +1280,7 @@ idParallelJobManagerLocal::WaitForAllJobLists
 */
 void idParallelJobManagerLocal::WaitForAllJobLists() {
 	// wait for all job lists to complete
-	for ( int i = 0; i < jobLists.Num(); i++ ) {
+	for ( size_t i = 0; i < jobLists.Num(); i++ ) {
 		jobLists[i]->Wait();
 	}
 }
@@ -1285,9 +1290,9 @@ void idParallelJobManagerLocal::WaitForAllJobLists() {
 idParallelJobManagerLocal::Submit
 ========================
 */
-void idParallelJobManagerLocal::Submit( idParallelJobList_Threads * jobList, const int parallelism ) {
+void idParallelJobManagerLocal::Submit( idParallelJobList_Threads * jobList, const short parallelism ) {
 	if ( jobs_numThreads.IsModified() ) {
-		maxThreads = idMath::ClampInt( 0, MAX_JOB_THREADS, jobs_numThreads.GetInteger() );
+		maxThreads = Clamp( 0, MAX_JOB_THREADS, jobs_numThreads.GetInteger() );
 		jobs_numThreads.ClearModified();
 	}
 
@@ -1299,7 +1304,7 @@ void idParallelJobManagerLocal::Submit( idParallelJobList_Threads * jobList, con
 		numThreads = numLogicalCpuCores;
 	} else if ( parallelism == JOBLIST_PARALLELISM_MAX_THREADS ) {
 		numThreads = MAX_JOB_THREADS;
-	} else if ( parallelism > MAX_JOB_THREADS ) {
+	} else if (std::cmp_greater(parallelism, MAX_JOB_THREADS)) {
 		numThreads = MAX_JOB_THREADS;
 	} else {
 		numThreads = parallelism;
@@ -1311,7 +1316,7 @@ void idParallelJobManagerLocal::Submit( idParallelJobList_Threads * jobList, con
 		return;
 	}
 
-	for ( int i = 0; i < numThreads; i++ ) {
+	for ( size_t i = 0; i < numThreads; i++ ) {
 		threads[i].AddJobList( jobList );
 		threads[i].SignalWork();
 	}

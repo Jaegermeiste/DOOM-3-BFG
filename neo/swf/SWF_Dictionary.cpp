@@ -90,7 +90,7 @@ idSWFDictionaryEntry & idSWFDictionaryEntry::operator=( idSWFDictionaryEntry & o
 idSWF::AddDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry * idSWF::AddDictionaryEntry( int characterID, swfDictType_t type ) {
+idSWFDictionaryEntry * idSWF::AddDictionaryEntry(const int characterID, const swfDictType_t type ) {
 
 	if ( dictionary.Num() < characterID + 1 ) {
 		dictionary.SetNum( characterID + 1 );
@@ -123,7 +123,7 @@ idSWFDictionaryEntry * idSWF::AddDictionaryEntry( int characterID, swfDictType_t
 FindDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID, swfDictType_t type ) {
+idSWFDictionaryEntry * idSWF::FindDictionaryEntry(const int characterID, const swfDictType_t type ) {
 
 	if ( dictionary.Num() < characterID + 1 ) {
 		idLib::Warning( "%s: Could not find character %d", filename.c_str(), characterID );
@@ -144,7 +144,7 @@ idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID, swfDictType_
 FindDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID ) {
+idSWFDictionaryEntry * idSWF::FindDictionaryEntry(const int characterID ) {
 
 	if ( dictionary.Num() < characterID + 1 ) {
 		idLib::Warning( "%s: Could not find character %d", filename.c_str(), characterID );

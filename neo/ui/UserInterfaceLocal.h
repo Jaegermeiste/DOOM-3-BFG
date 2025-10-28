@@ -38,9 +38,9 @@ public:
 	[[nodiscard]] virtual const char *		Comment() const;
 	[[nodiscard]] virtual bool				IsInteractive() const;
 	virtual bool				InitFromFile( const char *qpath, bool rebuild = true, bool cache = true );
-	virtual const char *		HandleEvent( const sysEvent_t *event, int time, bool *updateVisuals );
+	virtual const char *		HandleEvent( const sysEvent_t *event, ID_TIME_T time, bool *updateVisuals );
 	virtual void				HandleNamedEvent( const char* namedEvent );
-	virtual void				Redraw( int time, bool hud );
+	virtual void				Redraw( ID_TIME_T time, bool hud );
 	virtual void				DrawCursor();
 	[[nodiscard]] virtual const idDict &		State() const;
 	virtual void				DeleteStateVar( const char *varName );
@@ -55,16 +55,16 @@ public:
 	virtual int					GetStateInt( const char *varName, const char* defaultString = "0" ) const;
 	virtual float				GetStateFloat( const char *varName, const char* defaultString = "0" ) const;
 
-	virtual void				StateChanged( int time, bool redraw );
-	virtual const char *		Activate( bool activate, int time );
-	virtual void				Trigger( int time );
+	virtual void				StateChanged( ID_TIME_T time, bool redraw );
+	virtual const char *		Activate( bool activate, ID_TIME_T time );
+	virtual void				Trigger( ID_TIME_T time );
 	virtual void				ReadFromDemoFile( class idDemoFile *f );
 	virtual void				WriteToDemoFile( class idDemoFile *f );
 	virtual bool				WriteToSaveGame( idFile *savefile ) const;
 	virtual bool				ReadFromSaveGame( idFile * savefile );
 	virtual void				SetKeyBindingNames();
 	[[nodiscard]] virtual bool				IsUniqued() const { return uniqued; };
-	virtual void				SetUniqued( bool b ) { uniqued = b; };
+	virtual void				SetUniqued(const bool b ) { uniqued = b; };
 	virtual void				SetCursor( float x, float y );
 
 	virtual float				CursorX() { return cursorX; }
@@ -81,7 +81,7 @@ public:
 	void						SetBindHandler( idWindow *win ) { bindHandler = win; }
 	[[nodiscard]] bool						Active() const { return active; }
 	[[nodiscard]] int							GetTime() const { return time; }
-	void						SetTime( int _time ) { time = _time; }
+	void						SetTime(const int _time ) { time = _time; }
 
 	void						ClearRefs() { refs = 0; }
 	void						AddRef() { refs++; }

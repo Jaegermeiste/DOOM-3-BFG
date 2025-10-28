@@ -65,7 +65,7 @@ bool idFieldWindow::ParseInternalVar(const char *_name, idTokenParser *src) {
 }
 
 
-void idFieldWindow::CalcPaintOffset(int len) {
+void idFieldWindow::CalcPaintOffset(size_t len) {
 	lastCursorPos = cursorPos;
 	lastTextLength = len;
 	paintOffset = 0;
@@ -80,9 +80,9 @@ void idFieldWindow::CalcPaintOffset(int len) {
 }
 
 
-void idFieldWindow::Draw(int time, float x, float y) {
+void idFieldWindow::Draw(ID_TIME_T time, float x, float y) {
 	float scale = textScale;
-	int len = text.Length();
+	size_t len = text.Length();
 	cursorPos = gui->State().GetInt( cursorVar );
 	if (len != lastTextLength || cursorPos != lastCursorPos) {
 		CalcPaintOffset(len);

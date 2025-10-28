@@ -62,7 +62,7 @@ static idFile * try_to_open(char *name, int decompress, int noise_mode)
 
 /* This is meant to find and open files for reading, possibly piping
 them through a decompressor. */
-idFile * open_file(const char *name, int decompress, int noise_mode)
+idFile * open_file(const char *name, const int decompress, const int noise_mode)
 {
 	idFile * fp;
 	PathList *plp=pathlist;
@@ -136,7 +136,7 @@ void skip(idFile * fp, size_t len)
 
 //extern void *Real_Tim_Malloc( size_t );
 /* This'll allocate memory or die. */
-void *safe_malloc(size_t count)
+void *safe_malloc(const size_t count)
 {
 	void *p;
 	if (count > (1<<21))
@@ -165,7 +165,7 @@ void add_to_pathlist(char *s)
 }
 
 /* Required memory management functions */
-void *Real_Tim_Malloc( int sz ) {
+void *Real_Tim_Malloc(const int sz ) {
 	return malloc( sz );
 }
 
@@ -173,6 +173,6 @@ void Real_Tim_Free( void *pt ) {
 	free( pt );
 }
 
-void* Real_Malloc( unsigned int sz ) {
+void* Real_Malloc(const unsigned int sz ) {
 	return malloc( sz );
 }

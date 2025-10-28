@@ -475,7 +475,7 @@ static void TestBlendJoints() {
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
 	idTempArray< idJointQuat > blendJoints( COUNT );
-	idTempArray< size_t > index( COUNT );
+	idTempArray< jointHandle_t > index( COUNT );
 	constexpr float lerp = 0.3f;
 
 	idRandom srnd( RANDOM_SEED );
@@ -548,7 +548,7 @@ static void TestBlendJointsFast() {
 	idTempArray< idJointQuat > joints1( COUNT );
 	idTempArray< idJointQuat > joints2( COUNT );
 	idTempArray< idJointQuat > blendJoints( COUNT );
-	idTempArray< size_t > index( COUNT );
+	idTempArray< jointHandle_t > index( COUNT );
 	constexpr float lerp = 0.3f;
 
 	idRandom srnd( RANDOM_SEED );
@@ -727,7 +727,7 @@ static void TestTransformJoints() {
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
-	idTempArray< size_t > parents( COUNT+1 );
+	idTempArray< jointHandle_t > parents( COUNT+1 );
 
 	idRandom srnd( RANDOM_SEED );
 
@@ -788,7 +788,7 @@ static void TestUntransformJoints() {
 	idTempArray< idJointMat > joints( COUNT+1 );
 	idTempArray< idJointMat > joints1( COUNT+1 );
 	idTempArray< idJointMat > joints2( COUNT+1 );
-	idTempArray< size_t > parents( COUNT+1 );
+	idTempArray< jointHandle_t > parents( COUNT+1 );
 
 	idRandom srnd( RANDOM_SEED );
 

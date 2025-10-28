@@ -72,7 +72,7 @@ static void WIN_EnableAltTab() {
 	s_alttab_disabled = false;
 }
 
-void WIN_Sizing(WORD side, RECT *rect)
+void WIN_Sizing(const WORD side, RECT *rect)
 {
 	if ( !R_IsInitialized() || renderSystem->GetWidth() <= 0 || renderSystem->GetHeight() <= 0 ) {
 		return;
@@ -100,9 +100,9 @@ void WIN_Sizing(WORD side, RECT *rect)
 	}
 
 	const int minWidth = height * 4 / 3;
-	const int maxHeight = width * 3 / 4;
+	const size_t maxHeight = width * 3 / 4;
 
-	const int maxWidth = height * 16 / 9;
+	const size_t maxWidth = height * 16 / 9;
 	const int minHeight = width * 9 / 16;
 
 	// Set the new size
@@ -143,7 +143,7 @@ MainWndProc
 main window procedure
 ====================
 */
-LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
+LONG WINAPI MainWndProc(const HWND hWnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam ) {
 	int key;
 	switch( uMsg ) {
 		case WM_WINDOWPOSCHANGED:

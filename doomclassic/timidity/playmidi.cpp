@@ -79,7 +79,7 @@ static void reset_voices(void)
 }
 
 /* Process the Reset All Controllers event */
-static void reset_controllers(int c)
+static void reset_controllers(const int c)
 {
 	channel[c].volume=90; /* Some standard says, although the SCC docs say 0. */
 	channel[c].expression=127; /* SCC-1 does this. */
@@ -88,7 +88,7 @@ static void reset_controllers(int c)
 	channel[c].pitchfactor=0; /* to be computed */
 }
 
-static void redraw_controllers(int c)
+static void redraw_controllers(const int c)
 {
 	ctl->volume(c, channel[c].volume);
 	ctl->expression(c, channel[c].expression);
@@ -111,7 +111,7 @@ static void reset_midi(void)
 	reset_voices();
 }
 
-static void select_sample(int v, Instrument *ip)
+static void select_sample(const int v, Instrument *ip)
 {
 	 int32_t f, cdiff, diff;
 	int s,i;
@@ -160,7 +160,7 @@ static void select_sample(int v, Instrument *ip)
 	return;
 }
 
-static void recompute_freq(int v)
+static void recompute_freq(const int v)
 {
 	int 
 		sign=(voice[v].sample_increment < 0), /* for bidirectional loops */
@@ -216,7 +216,7 @@ static void recompute_freq(int v)
 	voice[v].sample_increment = (int32_t)(a);
 }
 
-static void recompute_amp(int v)
+static void recompute_amp(const int v)
 {
 	 int32_t tempamp;
 
@@ -273,7 +273,7 @@ static void recompute_amp(int v)
 	}
 }
 
-static void start_note(MidiEvent *e, int i)
+static void start_note(MidiEvent *e, const int i)
 {
 	Instrument *ip;
 	int j;
@@ -360,7 +360,7 @@ static void start_note(MidiEvent *e, int i)
 	ctl->note(i);
 }
 
-static void kill_note(int i)
+static void kill_note(const int i)
 {
 	voice[i].status=VOICE_DIE;
 	ctl->note(i);
@@ -422,7 +422,7 @@ static void note_on(MidiEvent *e)
 		lost_notes++;
 }
 
-static void finish_note(int i)
+static void finish_note(const int i)
 {
 	if (voice[i].sample->modes & MODES_ENVELOPE)
 	{
@@ -462,7 +462,7 @@ static void note_off(MidiEvent *e)
 }
 
 /* Process the All Notes Off event */
-static void all_notes_off(int c)
+static void all_notes_off(const int c)
 {
 	int i=voices;
 	ctl->cmsg(CMSG_INFO, VERB_DEBUG, "All notes off on channel %d", c);
@@ -481,7 +481,7 @@ static void all_notes_off(int c)
 }
 
 /* Process the All Sounds Off event */
-static void all_sounds_off(int c)
+static void all_sounds_off(const int c)
 {
 	int i=voices;
 	while (i--)
@@ -508,7 +508,7 @@ static void adjust_pressure(MidiEvent *e)
 		}
 }
 
-static void adjust_panning(int c)
+static void adjust_panning(const int c)
 {
 	int i=voices;
 	while (i--)
@@ -521,7 +521,7 @@ static void adjust_panning(int c)
 		}
 }
 
-static void drop_sustain(int c)
+static void drop_sustain(const int c)
 {
 	int i=voices;
 	while (i--)
@@ -529,7 +529,7 @@ static void drop_sustain(int c)
 			finish_note(i);
 }
 
-static void adjust_pitchbend(int c)
+static void adjust_pitchbend(const int c)
 {
 	int i=voices;
 	while (i--)
@@ -539,7 +539,7 @@ static void adjust_pitchbend(int c)
 		}
 }
 
-static void adjust_volume(int c)
+static void adjust_volume(const int c)
 {
 	int i=voices;
 	while (i--)
@@ -551,7 +551,7 @@ static void adjust_volume(int c)
 		}
 }
 
-static void seek_forward( int32_t until_time)
+static void seek_forward(const int32_t until_time)
 {
 	reset_voices();
 	while (current_event->time < until_time)
@@ -616,7 +616,7 @@ static void seek_forward( int32_t until_time)
 	current_sample=until_time;
 }
 
-static void skip_to( int32_t until_time)
+static void skip_to(const int32_t until_time)
 {
 	if (current_sample > until_time)
 		current_sample=0;
@@ -702,7 +702,7 @@ static int apply_controls(void)
 		return rc;
 }
 
-static void do_compute_data( int32_t count)
+static void do_compute_data(const int32_t count)
 {
 	int i;
 	memset(buffer_pointer, 0, 
@@ -770,7 +770,7 @@ static int compute_data(void *stream,  int32_t count, int* bytes_written)
 	return RC_NO_RETURN_VALUE;
 }
 
-int Timidity_PlaySome(void *stream, int samples, int* bytes_written)
+int Timidity_PlaySome(void *stream, const int samples, int* bytes_written)
 {
 	int rc = RC_NO_RETURN_VALUE;
 	 int32_t end_sample;
@@ -912,7 +912,7 @@ int Timidity_PlaySome(void *stream, int samples, int* bytes_written)
 }
 
 
-void Timidity_SetVolume(int volume)
+void Timidity_SetVolume(const int volume)
 {
 	int i;
 	if (volume > MAX_AMPLIFICATION)
@@ -958,7 +958,7 @@ MidiSong *Timidity_LoadSong(char *midifile)
 	return(song);
 }
 
-MidiSong *Timidity_LoadSongMem(unsigned char* buffer, size_t length)
+MidiSong *Timidity_LoadSongMem(unsigned char* buffer, const size_t length)
 {
 	MidiSong *song;
 	 int32_t events;

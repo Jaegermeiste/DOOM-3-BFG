@@ -208,7 +208,7 @@ void idPlayerView::ClearEffects() {
 	dvFinishTime = ( gameLocal.fast.time - 99999 );
 	kickFinishTime = ( gameLocal.slow.time - 99999 );
 
-	for ( int i = 0 ; i < MAX_SCREEN_BLOBS ; i++ ) {
+	for ( size_t i = 0 ; i < MAX_SCREEN_BLOBS ; i++ ) {
 		screenBlobs[i].finishTime = gameLocal.fast.time;
 	}
 
@@ -380,7 +380,7 @@ idAngles idPlayerView::AngleOffset() const {
 
 		ang = kickAngles * offset * offset * g_kickAmplitude.GetFloat();
 
-		for ( int i = 0 ; i < 3 ; i++ ) {
+		for ( size_t i = 0 ; i < 3 ; i++ ) {
 			if ( ang[i] > 70.0f ) {
 				ang[i] = 70.0f;
 			} else if ( ang[i] < -70.0f ) {
@@ -437,7 +437,7 @@ void idPlayerView::SingleView( const renderView_t *view, idMenuHandler_HUD * hud
 	// draw screen blobs
 	if ( !pm_thirdPerson.GetBool() && !g_skipViewEffects.GetBool() ) {
 		if ( !player->spectating ) {
-			for ( int i = 0 ; i < MAX_SCREEN_BLOBS ; i++ ) {
+			for ( size_t i = 0 ; i < MAX_SCREEN_BLOBS ; i++ ) {
 				screenBlob_t	*blob = &screenBlobs[i];
 				if ( blob->finishTime <= gameLocal.fast.time ) {
 					continue;
@@ -764,7 +764,7 @@ FxFader::FxFader() {
 FxFader::SetTriggerState
 ==================
 */
-bool FxFader::SetTriggerState( bool active ) {
+bool FxFader::SetTriggerState(const bool active ) {
 
 	// handle on/off states
 	if ( active && state == FX_STATE_OFF ) {
@@ -1137,7 +1137,7 @@ void FullscreenFX_Warp::Restore( idRestoreGame *savefile ) {
 FullscreenFX_Warp::DrawWarp
 ==================
 */
-void FullscreenFX_Warp::DrawWarp( WarpPolygon_t wp, float interp ) {
+void FullscreenFX_Warp::DrawWarp( WarpPolygon_t wp, const float interp ) {
 	idVec4 mid1_uv, mid2_uv;
 	idVec4 mid1, mid2;
 	idVec2 drawPts[6];
@@ -1477,9 +1477,9 @@ void FullscreenFX_Bloom::HighQuality() {
 	}
 
 	// draw the blends
-	int num = g_testBloomNumPasses.GetInteger();
+	size_t num = g_testBloomNumPasses.GetInteger();
 
-	for ( int i = 0; i < num; i++ ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		float s1 = 0.0f, t1 = 0.0f, s2 = 1.0f, t2 = 1.0f;
 		float alpha;
 
@@ -1569,7 +1569,7 @@ FullscreenFXManager::FindFX
 ==================
 */
 FullscreenFX* FullscreenFXManager::FindFX( idStr name ) {
-	for ( int i = 0; i < fx.Num(); i++ ) {
+	for ( size_t i = 0; i < fx.Num(); i++ ) {
 		if ( fx[i]->GetName() == name ) {
 			return fx[i];
 		}
@@ -1583,7 +1583,7 @@ FullscreenFX* FullscreenFXManager::FindFX( idStr name ) {
 FullscreenFXManager::CreateFX
 ==================
 */
-void FullscreenFXManager::CreateFX( idStr name, idStr fxtype, int fade ) {
+void FullscreenFXManager::CreateFX( idStr name, idStr fxtype, const int fade ) {
 	FullscreenFX *pfx = nullptr;
 
 	if ( fxtype == "helltime" ) {
@@ -1645,7 +1645,7 @@ void FullscreenFXManager::Initialize( idPlayerView *pv ) {
 FullscreenFXManager::Blendback
 ==================
 */
-void FullscreenFXManager::Blendback( float alpha ) {
+void FullscreenFXManager::Blendback(const float alpha ) {
 	// alpha fade
 	if ( alpha < 1.f ) {
 		renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f - alpha );
@@ -1663,7 +1663,7 @@ FullscreenFXManager::Save
 ==================
 */
 void FullscreenFXManager::Save( idSaveGame *savefile ) {
-	for ( int i = 0; i < fx.Num(); i++ ) {
+	for ( size_t i = 0; i < fx.Num(); i++ ) {
 		FullscreenFX *pfx = fx[i];
 		pfx->Save( savefile );
 	}
@@ -1675,7 +1675,7 @@ FullscreenFXManager::Restore
 ==================
 */
 void FullscreenFXManager::Restore( idRestoreGame *savefile ) {
-	for ( int i = 0; i < fx.Num(); i++ ) {
+	for ( size_t i = 0; i < fx.Num(); i++ ) {
 		FullscreenFX *pfx = fx[i];
 		pfx->Restore( savefile );
 	}
@@ -1707,7 +1707,7 @@ void FullscreenFXManager::Process( const renderView_t *view ) {
 	}
 
 	// do the process
-	for ( int i = 0; i < fx.Num(); i++ ) {
+	for ( size_t i = 0; i < fx.Num(); i++ ) {
 		FullscreenFX *pfx = fx[i];
 		bool drawIt = false;
 

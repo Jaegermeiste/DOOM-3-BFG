@@ -88,7 +88,7 @@ ex. map 0 will have 0 - 4 Leaderboard id's blocked out.
 
 =====================================
 */
-int LeaderboardLocal_GetID( int mapIndex, int gametype  ) {
+int LeaderboardLocal_GetID(const int mapIndex, const int gametype  ) {
 	assert( gametype > GAME_RANDOM );
 
 	return mapIndex * ARRAY_COUNT( gameMode_columnDefs ) + gametype;
@@ -105,7 +105,7 @@ void LeaderboardLocal_Init() {
 
 	const char ** gameModes = nullptr;
 	const char ** gameModesDisplay = nullptr;
-	int numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
+	size_t numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
 
 	// Iterate through all the available maps, and generate leaderboard Defs, and IDs for each.
 	for( int mapIdx = 0; mapIdx < maps.Num(); mapIdx++ ) {
@@ -166,7 +166,7 @@ static constexpr int FRAG_MULTIPLIER  = 100;
 static constexpr int DEATH_MULTIPLIER = -50;
 static constexpr int WINS_MULTIPLIER  = 20;
 
-void LeaderboardLocal_Upload( lobbyUserID_t lobbyUserID,int gameType, leaderboardStats_t & stats   ) {
+void LeaderboardLocal_Upload(const lobbyUserID_t lobbyUserID, const int gameType, leaderboardStats_t & stats   ) {
 	assert( gameType > GAME_RANDOM );
 
 	int mapIdx = 0;
@@ -245,9 +245,9 @@ class idLeaderboardCallbackTest : public idLeaderboardCallback {
 	{
 		idLib::Printf( "Leaderboard information retrieved in user callback.\n" );
 		idLib::Printf( "%d total entries in leaderboard %d.\n", numRowsInLeaderboard, def->id );
-		for ( int i = 0; i < rows.Num(); i++ ) {
+		for ( size_t i = 0; i < rows.Num(); i++ ) {
 			idLib::Printf( "%d: %s rank:%lld", i, rows[i].name.c_str(), rows[i].rank );
-			for ( int j = 0; j < def->numColumns; j++ ) {
+			for ( size_t j = 0; j < def->numColumns; j++ ) {
 				idLib::Printf( ", score[%d]: %lld", j, rows[i].columns[j] );
 			}
 			idLib::Printf( "\n" );

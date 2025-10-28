@@ -1,8 +1,3 @@
-#include <algorithm>
-#include <utility>
-
-#include "sys/sys_types.h"
-
 /*
 ===========================================================================
 
@@ -51,7 +46,7 @@ enum utf8Encoding_t : uint8 {
 	UTF8_ENCODED_BOM,		// characters > 128 encoded with UTF8, but no byte-order-marker at the beginning
 	UTF8_ENCODED_NO_BOM,	// characters > 128 encoded with UTF8, with a byte-order-marker at the beginning
 	UTF8_INVALID,			// has values > 127 but isn't valid UTF8 
-	UTF8_INVALID_BOM		// has a byte-order-marker at the beginning, but isn't valuid UTF8 -- it's messed up
+	UTF8_INVALID_BOM		// has a byte-order-marker at the beginning, but isn't valued UTF8 -- it's messed up
 };
 
 // these library functions should not be used for cross platform compatibility
@@ -226,7 +221,7 @@ public:
 
 	ID_INLINE size_t		UTF8Length() const;
 	
-	ID_INLINE uint32		UTF8Char(Ordinal auto& idx ) const;
+	ID_INLINE uint32		UTF8Char( Ordinal auto & idx ) const;
 	static size_t			UTF8Length( const byte * s );
 	
 	static ID_INLINE uint32 UTF8Char( const char * s, Ordinal auto& idx );
@@ -239,19 +234,19 @@ public:
 	static ID_INLINE bool	IsValidUTF8( const uint8 * s, const size_t maxLen );
 	static ID_INLINE bool	IsValidUTF8( const char * s, const size_t maxLen ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen ); }
 
-	[[nodiscard]] int64               Find( const char c ) const;
-	int64               Find( const char c, const Ordinal auto start = 0, const Ordinal auto end = -1 ) const;
-	int64               Find( const char* text, bool casesensitive = true ) const;
-	int64               Find( const char* text, bool casesensitive, const Ordinal auto start ) const;
-	int64               Find( const char* text, bool casesensitive, const Ordinal auto start, const Ordinal auto end ) const;
+	[[nodiscard]] index_t   Find( const char c ) const;
+	[[nodiscard]] index_t   Find( const char c, const Ordinal auto start = 0, const Ordinal auto end = -1 ) const;
+	[[nodiscard]] index_t   Find( const char* text, bool casesensitive = true ) const;
+	[[nodiscard]] index_t   Find( const char* text, bool casesensitive, const Ordinal auto start ) const;
+	[[nodiscard]] index_t   Find( const char* text, bool casesensitive, const Ordinal auto start, const Ordinal auto end ) const;
 	bool				Filter( const char *filter, bool casesensitive ) const;
-						[[nodiscard]] int64				Last( const char c ) const;						// return the index to the last occurrence of 'c', returns -1 if not found
+	[[nodiscard]] index_t	Last( const char c ) const;						// return the index to the last occurrence of 'c', returns -1 if not found
 	const char *		Left( size_t len, idStr &result ) const;			// store the leftmost 'len' characters in the result
 	const char *		Right( size_t len, idStr &result ) const;			// store the rightmost 'len' characters in the result
-	const char *		Mid( size_t start, size_t len, idStr &result ) const;	// store 'len' characters starting at 'start' in result
-						[[nodiscard]] idStr				Left( size_t len ) const;							// return the leftmost 'len' characters
-						[[nodiscard]] idStr				Right( size_t len ) const;							// return the rightmost 'len' characters
-						[[nodiscard]] idStr				Mid( size_t start, size_t len ) const;				// return 'len' characters starting at 'start'
+	const char *		Mid( const Ordinal auto start, size_t len, idStr &result ) const;	// store 'len' characters starting at 'start' in result
+	[[nodiscard]] idStr				Left( size_t len ) const;							// return the leftmost 'len' characters
+	[[nodiscard]] idStr				Right( size_t len ) const;							// return the rightmost 'len' characters
+	[[nodiscard]] idStr				Mid( const Ordinal auto start, size_t len ) const;				// return 'len' characters starting at 'start'
 	void				Format( VERIFY_FORMAT_STRING const char *fmt, ... );					// perform a threadsafe sprintf to the string
 	static idStr		FormatInt( const std::integral auto num, bool isCash = false );			// formats an integer as a value with commas
 	static idStr		FormatCash( const std::integral auto num ) { return FormatInt( num, true ); }
@@ -266,11 +261,11 @@ public:
 	void				StripTrailingWhitespace();				// strip trailing white space characters
 	idStr &				StripQuotes();							// strip quotes around string
 	bool				Replace( const char *old, const char *nw );
-						[[nodiscard]] bool				ReplaceChar( const char old, const char nw ) const;
+	[[nodiscard]] bool	ReplaceChar( const char old, const char nw ) const;
 	ID_INLINE void		CopyRange( const char * text, const Ordinal auto start, const Ordinal auto end );
 
 	// file name methods
-						[[nodiscard]] int					FileNameHash() const;						// hash key for the filename (skips extension)
+	[[nodiscard]] int					FileNameHash() const;						// hash key for the filename (skips extension)
 	idStr &				BackSlashesToSlashes();					// convert slashes
 	idStr &				SlashesToBackSlashes();					// convert slashes
 	idStr &				SetFileExtension( const char *extension );		// set the given file extension
@@ -311,7 +306,7 @@ public:
 	static int64        FindChar(const char* str, const char c);
 	static int64        FindChar( const char* str, const char c, const Ordinal auto start = 0, const Ordinal auto end = -1 );
 	static int64        FindText(const char* str, const char* text, bool casesensitive = true);
-	static int64        FindText( const char* str, const char* text, bool casesensitive = true, const Ordinal auto start = 0, const Ordinal auto end = -1 );
+	static int64        FindText( const char* str, const char* text, bool casesensitive = true, Ordinal auto start = 0, Ordinal auto end = -1 );
 	static bool			Filter( const char *filter, const char *name, bool casesensitive );
 	static void			StripMediaName( const char *name, idStr &mediaName );
 	static bool			CheckExtension( const char *name, const char *ext );
@@ -322,6 +317,9 @@ public:
 	static T            AtoF(const char* str) noexcept;
 	template <std::integral T>
 	static T            AtoI(const char* str) noexcept;
+
+	static size_t       WideToUtf8( const wchar_t* src, char* out, const size_t capacity ) noexcept; // Convert a wide string (UTF-16) to UTF-8 in-place.
+	static size_t       WideCopy( const wchar_t* src, wchar_t* dst, const size_t capacity ) noexcept;
 
 	// hash keys
 	static int			Hash( const char *string );
@@ -339,11 +337,14 @@ public:
 	static bool			CharIsNumeric( const std::integral auto c );
 	static bool			CharIsNewLine( const std::integral auto c );
 	static bool			CharIsTab( const std::integral auto c );
-	static int			ColorIndex( const std::integral auto c );
+	static index_t		ColorIndex( const std::integral auto c );
 	static idVec4 &		ColorForIndex( const Ordinal auto i );
 
 	friend int64		sprintf( idStr &dest, const char *fmt, ... );
 	friend int64		vsprintf( idStr &dest, const char *fmt, va_list ap );
+
+	static size_t       ItoA(char* buffer, const size_t buffer_size, const std::integral auto value);
+	static size_t       FtoA(char* buffer, const size_t buffer_size, const std::floating_point auto value, std::chars_format fmt = std::chars_format::fixed);
 
 	void				ReAllocate(size_t amount, bool keepold );				// reallocate string data buffer
 	void				FreeData();									// free allocated string memory
@@ -358,7 +359,7 @@ public:
 	static void			PurgeMemory();
 	static void			ShowMemoryUsage_f( const idCmdArgs &args );
 
-						[[nodiscard]] size_t				DynamicMemoryUsed() const;
+	[[nodiscard]] size_t				DynamicMemoryUsed() const;
 	static idStr		FormatNumber( const std::integral auto number );
 
 protected:
@@ -367,7 +368,7 @@ protected:
 	uint32				allocedAndFlag;	// top bit is used to store a flag that indicates if the string data is static or not
 	char				baseBuffer[ STR_ALLOC_BASE ];
 
-	void				EnsureAlloced( size_t amount, bool keepold = true );	// ensure string data buffer is large anough
+	void				EnsureAlloced( size_t amount, bool keepold = true );	// ensure string data buffer is large enough
 
 	// sets the data point to the specified buffer... note that this ignores makes the passed buffer empty and ignores
 	// anything currently in the idStr's dynamic buffer.  This method is intended to be called only from a derived class's constructor.
@@ -387,9 +388,6 @@ private:
 
 	ID_INLINE bool		IsStatic() const { return ( allocedAndFlag & STATIC_MASK ) != 0; }
 	ID_INLINE void		SetStatic( const bool isStatic ) { allocedAndFlag = ( allocedAndFlag & ALLOCED_MASK ) | ( isStatic << STATIC_BIT ); }
-
-	ID_INLINE size_t    ItoA(char* buffer, const size_t buffer_size, const std::integral auto value);
-	ID_INLINE size_t    FtoA(char* buffer, const size_t buffer_size, const std::floating_point auto value, std::chars_format fmt = std::chars_format::fixed);
 
 public:
 	static constexpr int	INVALID_POSITION = -1;
@@ -910,7 +908,7 @@ ID_INLINE void idStr::Insert( const char a, Ordinal auto index ) {
 		index = 0;
 	}
 	else if (std::cmp_greater(index, len)) {
-		index = idMath::integer_cast<decltype(index)>(len);
+		index = numeric_cast<decltype(index)>(len);
 	}
 
 	constexpr size_t l = 1;
@@ -931,7 +929,7 @@ ID_INLINE void idStr::Insert( const char *text, Ordinal auto index ) {
 	if ( index < 0 ) {
 		index = 0;
 	} else if ( std::cmp_greater(index, len) ) {
-		index = idMath::integer_cast<decltype(index)>(len);
+		index = numeric_cast<decltype(index)>(len);
 	}
 
 	const size_t l = strlen(text);
@@ -1035,7 +1033,7 @@ idStr::UTF8Char
 ========================
 */
 
-ID_INLINE uint32 idStr::UTF8Char(Ordinal auto& idx ) const
+ID_INLINE uint32 idStr::UTF8Char( Ordinal auto& idx ) const
 {
 	ORDINAL_CHECK(idx, MAX_STRING_CHARS);
 	return UTF8Char( reinterpret_cast<byte*>(data), idx );
@@ -1071,27 +1069,27 @@ idStr::IsValidUTF8
 ========================
 */
 ID_INLINE bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen ) {
-	utf8Encoding_t encoding;
+	utf8Encoding_t encoding = {};
 	return IsValidUTF8( s, maxLen, encoding );
 }
 
-ID_INLINE int64 idStr::Find(const char c) const {
+ID_INLINE index_t idStr::Find( const char c ) const {
 	return idStr::FindChar(data, c, 0, -1);
 }
 
-ID_INLINE int64 idStr::Find(const char c, const Ordinal auto start, const Ordinal auto end) const {
+ID_INLINE index_t idStr::Find( const char c, const Ordinal auto start, const Ordinal auto end ) const {
 	return idStr::FindChar( data, c, start, end);
 }
 
-ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive) const {
+ID_INLINE index_t idStr::Find( const char* text, const bool casesensitive ) const {
 	return idStr::FindText(data, text, casesensitive, 0, -1);
 }
 
-ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive, const Ordinal auto start) const {
+ID_INLINE index_t idStr::Find( const char* text, const bool casesensitive, const Ordinal auto start ) const {
 	return idStr::FindText(data, text, casesensitive, start, -1);
 }
 
-ID_INLINE int64 idStr::Find(const char* text, const bool casesensitive, const Ordinal auto start, const Ordinal auto end) const {
+ID_INLINE index_t idStr::Find( const char* text, const bool casesensitive, const Ordinal auto start, const Ordinal auto end ) const {
 	return idStr::FindText( data, text, casesensitive, start, end );
 }
 
@@ -1099,11 +1097,11 @@ ID_INLINE bool idStr::Filter( const char *filter, const bool casesensitive ) con
 	return idStr::Filter( filter, data, casesensitive );
 }
 
-ID_INLINE const char *idStr::Left(const size_t len, idStr &result ) const {
+ID_INLINE const char *idStr::Left( const size_t len, idStr &result ) const {
 	return Mid( 0, len, result );
 }
 
-ID_INLINE const char *idStr::Right(const size_t len, idStr &result ) const {
+ID_INLINE const char *idStr::Right( const size_t len, idStr &result ) const {
 	if ( len >= Length() ) {
 		result = *this;
 		return result;
@@ -1111,11 +1109,11 @@ ID_INLINE const char *idStr::Right(const size_t len, idStr &result ) const {
 	return Mid( Length() - len, len, result );
 }
 
-ID_INLINE idStr idStr::Left(const size_t len ) const {
+ID_INLINE idStr idStr::Left( const size_t len ) const {
 	return Mid( 0, len );
 }
 
-ID_INLINE idStr idStr::Right(const size_t len ) const {
+ID_INLINE idStr idStr::Right( const size_t len ) const {
 	if ( len >= Length() ) {
 		return *this;
 	}
@@ -1179,7 +1177,7 @@ ID_INLINE int idStr::Hash( const char *string, const size_t length ) {
 
 ID_INLINE int idStr::IHash( const char *string ) {
 	int hash = 0;
-	for( int i = 0; *string != '\0'; i++ ) {
+	for ( int i = 0; *string != '\0'; i++ ) {
 		hash += ToLower( *string++ ) * ( i + 119 );
 	}
 	return hash;
@@ -1201,14 +1199,14 @@ ID_INLINE char idStr::ToLower( const std::integral auto c ) {
 	if ( c <= 'Z' && c >= 'A' ) {
 		return ( c + ( 'a' - 'A' ) );
 	}
-	return idMath::integer_cast<char>(c);
+	return numeric_cast<char>(c);
 }
 
 ID_INLINE char idStr::ToUpper( const std::integral auto c ) {
 	if ( c >= 'a' && c <= 'z' ) {
 		return ( c - ( 'a' - 'A' ) );
 	}
-	return idMath::integer_cast<char>(c);
+	return numeric_cast<char>(c);
 }
 
 ID_INLINE bool idStr::CharIsPrintable( const std::integral auto c ) {
@@ -1244,7 +1242,7 @@ ID_INLINE bool idStr::CharIsTab( const std::integral auto c ) {
 	return ( c == '\t' );
 }
 
-ID_INLINE int idStr::ColorIndex( const std::integral auto c ) {
+ID_INLINE index_t idStr::ColorIndex( const std::integral auto c ) {
 	return ( c & 15 );
 }
 
@@ -1261,7 +1259,7 @@ ID_INLINE void idStr::CopyRange( const char * text, const Ordinal auto start, co
 	ORDINAL_CHECK(start, len);
 	ORDINAL_CHECK(end, len);
 	assert(std::cmp_less_equal(start, end));
-	size_t l = idMath::integer_cast<size_t>(end - start);
+	size_t l = numeric_cast<size_t>(end - start);
 	
 	EnsureAlloced( l + 1 );
 	if (data)

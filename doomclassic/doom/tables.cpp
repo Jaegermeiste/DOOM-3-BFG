@@ -38,13 +38,15 @@ If you have questions concerning this license or the applicable additional terms
 
 int
 SlopeDiv
-( unsigned	num,
-  unsigned	den)
+(const unsigned	num,
+  const unsigned	den)
 {
     unsigned 	ans;
     
     if (den < 512)
-	return SLOPERANGE;
+    {
+	    return SLOPERANGE;
+    }
 
     ans = (num<<3)/(den>>8);
 

@@ -90,7 +90,7 @@ void idImage::SubImageUpload(const size_t mipLevel, const size_t x, const size_t
 	qglBindTexture( target, texnum );
 
 	if ( pixelPitch != 0 ) {
-		qglPixelStorei( GL_UNPACK_ROW_LENGTH, idMath::integer_cast<GLint>(pixelPitch) );
+		qglPixelStorei( GL_UNPACK_ROW_LENGTH, numeric_cast<GLint>(pixelPitch) );
 	}
 	if ( opts.format == FMT_RGB565 ) {
 		glPixelStorei( GL_UNPACK_SWAP_BYTES, GL_TRUE );
@@ -99,7 +99,7 @@ void idImage::SubImageUpload(const size_t mipLevel, const size_t x, const size_t
 	GL_CheckErrors();
 #endif
 	if ( IsCompressed() ) {
-		qglCompressedTexSubImage2DARB( uploadTarget, idMath::integer_cast<GLint>(mipLevel), idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(width), idMath::integer_cast<GLsizei>(height), internalFormat, idMath::integer_cast<GLsizei>(compressedSize), pic );
+		qglCompressedTexSubImage2DARB( uploadTarget, numeric_cast<GLint>(mipLevel), numeric_cast<GLint>(x), numeric_cast<GLint>(y), numeric_cast<GLsizei>(width), numeric_cast<GLsizei>(height), internalFormat, numeric_cast<GLsizei>(compressedSize), pic );
 	} else {
 
 		// make sure the pixel store alignment is correct so that lower mips get created
@@ -112,7 +112,7 @@ void idImage::SubImageUpload(const size_t mipLevel, const size_t x, const size_t
 			qglPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 		}
 
-		qglTexSubImage2D( uploadTarget, idMath::integer_cast<GLint>(mipLevel), idMath::integer_cast<GLint>(x), idMath::integer_cast<GLint>(y), idMath::integer_cast<GLsizei>(width), idMath::integer_cast<GLsizei>(height), dataFormat, dataType, pic );
+		qglTexSubImage2D( uploadTarget, numeric_cast<GLint>(mipLevel), numeric_cast<GLint>(x), numeric_cast<GLint>(y), numeric_cast<GLsizei>(width), numeric_cast<GLsizei>(height), dataFormat, dataType, pic );
 	}
 #ifdef DEBUG
 	GL_CheckErrors();
@@ -226,7 +226,7 @@ void idImage::SetTexParameters() {
 	if ( glConfig.anisotropicFilterAvailable ) {
 		// only do aniso filtering on mip mapped images
 		if ( filter == TF_DEFAULT ) {
-			float aniso = idMath::Itof<float>(r_maxAnisotropicFiltering.GetInteger());
+			float aniso = numeric_cast<float>(r_maxAnisotropicFiltering.GetInteger());
 			aniso = std::min<float>(aniso, glConfig.maxTextureAnisotropy);
 			aniso = std::max(aniso, 0.0f);
 			qglTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso );
@@ -424,12 +424,12 @@ void idImage::AllocImage() {
 				// with the exact size otherwise large image allocation (for instance for physical page textures)
 				// may fail on Vista 32-bit.
 				void * data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
-				qglCompressedTexImage2DARB( uploadTarget+side, idMath::integer_cast<GLint>(level), internalFormat, idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h), 0, idMath::integer_cast<GLsizei>(compressedSize), data );
+				qglCompressedTexImage2DARB( uploadTarget+side, numeric_cast<GLint>(level), internalFormat, numeric_cast<GLsizei>(w), numeric_cast<GLsizei>(h), 0, numeric_cast<GLsizei>(compressedSize), data );
 				if ( data != nullptr) {
 					HeapFree( GetProcessHeap(), 0, data );
 				}
 			} else {
-				qglTexImage2D(idMath::integer_cast<GLenum>(uploadTarget + side), idMath::integer_cast<GLint>(level), internalFormat, idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h), 0, dataFormat, dataType, nullptr);
+				qglTexImage2D(numeric_cast<GLenum>(uploadTarget + side), numeric_cast<GLint>(level), internalFormat, numeric_cast<GLsizei>(w), numeric_cast<GLsizei>(h), 0, dataFormat, dataType, nullptr);
 			}
 
 			GL_CheckErrors();
@@ -439,7 +439,7 @@ void idImage::AllocImage() {
 		}
 	}
 
-	qglTexParameteri( target, GL_TEXTURE_MAX_LEVEL, idMath::integer_cast<GLint>(opts.numLevels) - 1 );
+	qglTexParameteri( target, GL_TEXTURE_MAX_LEVEL, numeric_cast<GLint>(opts.numLevels) - 1 );
 
 	// see if we messed anything up
 	GL_CheckErrors();

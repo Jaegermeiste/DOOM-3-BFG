@@ -227,7 +227,7 @@ idCmdArgs	com_consoleLines[MAX_CONSOLE_LINES];
 idCommonLocal::ParseCommandLine
 ==================
 */
-void idCommonLocal::ParseCommandLine( int argc, const char * const * argv ) {
+void idCommonLocal::ParseCommandLine(const int argc, const char * const * argv ) {
 	int i, current_count;
 
 	com_numConsoleLines = 0;
@@ -310,7 +310,7 @@ will keep the demoloop from immediately starting
 */
 void idCommonLocal::AddStartupCommands() {
 	// quote every token, so args with semicolons can work
-	for ( int i = 0; i < com_numConsoleLines; i++ ) {
+	for ( size_t i = 0; i < com_numConsoleLines; i++ ) {
 		if ( !com_consoleLines[i].Argc() ) {
 			continue;
 		}
@@ -361,7 +361,7 @@ void idCommonLocal::WriteConfiguration() {
 		user->SaveProfileSettings();
 	}
 
-#ifdef CONFIG_FILE
+#ifdef ENABLE_CONFIG_FILE
 	// disable printing out the "Writing to:" message
 	bool developer = com_developer.GetBool();
 	com_developer.SetBool( false );
@@ -399,7 +399,7 @@ ButtonState()
 Returns the state of the button
 ===============
 */
-int	idCommonLocal::ButtonState( int key ) {
+int	idCommonLocal::ButtonState(const usercmdButton_t key ) {
 	return usercmdGen->ButtonState(key);
 }
 
@@ -409,7 +409,7 @@ ButtonState()
 Returns the state of the key
 ===============
 */
-int	idCommonLocal::KeyState( int key ) {
+int	idCommonLocal::KeyState(const keyNum_t key ) {
 	return usercmdGen->KeyState(key);
 }
 
@@ -593,10 +593,10 @@ void idCommonLocal::CheckStartupStorageRequirements() {
 		}
 	}
 
-	constexpr int MIN_SAVE_STORAGE_PROFILE		= 1024 * 1024;
-	constexpr int MIN_SAVE_STORAGE_SAVEGAME		= MIN_SAVEGAME_SIZE_BYTES;
+	constexpr size_t MIN_SAVE_STORAGE_PROFILE		= 1024ULL * 1024ULL;
+	constexpr size_t MIN_SAVE_STORAGE_SAVEGAME		= MIN_SAVEGAME_SIZE_BYTES;
 
-	uint64 requiredSizeBytes = MIN_SAVE_STORAGE_SAVEGAME + MIN_SAVE_STORAGE_PROFILE;
+	size_t requiredSizeBytes = MIN_SAVE_STORAGE_SAVEGAME + MIN_SAVE_STORAGE_PROFILE;
 
 	idLib::Printf( "requiredSizeBytes: %lld\n", requiredSizeBytes );
 
@@ -620,7 +620,7 @@ void idCommonLocal::CheckStartupStorageRequirements() {
 		// #str_dlg_space_required ~= "There is insufficient storage available.  Please free %s and try again."
 		idStr format = idStrId( "#str_dlg_startup_insufficient_storage" ).GetLocalizedString();
 		idStr size;
-		if ( requiredSizeBytes > ( 1024 * 1024 ) ) {
+		if ( requiredSizeBytes > ( 1024ULL * 1024ULL ) ) {
 			size = va( "%.1f MB", static_cast<float>(requiredSizeBytes) / ( 1024.0f * 1024.0f ) + 0.1f );	// +0.1 to avoid truncation
 		} else {
 			size = va( "%.1f KB", static_cast<float>(requiredSizeBytes) / 1024.0f + 0.1f );
@@ -651,7 +651,7 @@ idCommonLocal::FilterLangList
 void idCommonLocal::FilterLangList( idStrList* list, idStr lang ) {
 	
 	idStr temp;
-	for( int i = 0; i < list->Num(); i++ ) {
+	for ( size_t i = 0; i < list->Num(); i++ ) {
 		temp = (*list)[i];
 		temp = temp.Right(temp.Length()-strlen("strings/"));
 		temp = temp.Left(lang.Length());
@@ -692,10 +692,10 @@ void idCommonLocal::InitLanguageDict() {
 	}
 
 	idLocalization::ClearDictionary();
-	for( int i = 0; i < currentLangList.Num(); i++ ) {
+	for ( size_t i = 0; i < currentLangList.Num(); i++ ) {
 		//common->Printf("%s\n", currentLangList[i].c_str());
 		const byte * buffer = nullptr;
-		int len = fileSystem->ReadFile( currentLangList[i], (void**)&buffer );
+		size_t len = fileSystem->ReadFile( currentLangList[i], (void**)&buffer );
 		if ( len <= 0 ) {
 			assert( false && "couldn't read the language dict file" );
 			break;
@@ -945,7 +945,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		idLib::Init();
 
 		// clear warning buffer
-		ClearWarnings( GAME_NAME " initialization" );
+		ClearWarnings( va("%s initialization", GAME_NAME) );
 
 		idLib::Printf( va( "Command line: %s\n", cmdline ) );
 		//::MessageBox( NULL, cmdline, "blah", MB_OK );
@@ -1027,10 +1027,12 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		// exec the startup scripts
 		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec default.cfg\n" );
 
-#ifdef CONFIG_FILE
+#ifdef ENABLE_CONFIG_FILE
 		// skip the config file if "safe" is on the command line
 		if ( !SafeMode() && !g_demoMode.GetBool() ) {
-			cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec " CONFIG_FILE "\n" );
+			idStr command = {};
+			command.Format("exec %s \n", CONFIG_FILE);
+			cmdSystem->BufferCommandText( CMD_EXEC_APPEND, command.c_str() );
 		}
 #endif
 
@@ -1121,7 +1123,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 			// register the japanese font so it gets included
 			renderSystem->RegisterFont( "DFPHeiseiGothicW7" );
 			// Make sure all videos get touched because you can bring videos from one map to another, they need to be included in all maps
-			for ( int i = 0; i < declManager->GetNumDecls( DECL_VIDEO ); i++ ) {
+			for ( size_t i = 0; i < declManager->GetNumDecls( DECL_VIDEO ); i++ ) {
 				declManager->DeclByIndex( DECL_VIDEO, i );
 			}
 		}
@@ -1201,7 +1203,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 
 		// No longer need the splash screen
 		if ( splashScreen != nullptr) {
-			for ( int i = 0; i < splashScreen->GetNumStages(); i++ ) {
+			for ( size_t i = 0; i < splashScreen->GetNumStages(); i++ ) {
 				idImage * image = splashScreen->GetStage( i )->texture.image;
 				if ( image != nullptr) {
 					image->PurgeImage();
@@ -1346,7 +1348,7 @@ void idCommonLocal::Shutdown() {
 
 	// free any buffered warning messages
 	printf( "ClearWarnings( GAME_NAME \" shutdown\" );\n" );
-	ClearWarnings( GAME_NAME " shutdown" );
+	ClearWarnings( va("%s shutdown", GAME_NAME) );
 	printf( "warningCaption.Clear();\n" );
 	warningCaption.Clear();
 	printf( "errorList.Clear();\n" );
@@ -1391,7 +1393,7 @@ idCommonLocal::Stop
 called on errors and game exits
 ===============
 */
-void idCommonLocal::Stop( bool resetSession ) {
+void idCommonLocal::Stop(const bool resetSession ) {
 	ClearWipe();
 
 	// clear mapSpawned and demo playing flags
@@ -1430,7 +1432,7 @@ void idCommonLocal::BusyWait() {
 idCommonLocal::WaitForSessionState
 ===============
 */
-bool idCommonLocal::WaitForSessionState( idSession::sessionState_t desiredState ) {
+bool idCommonLocal::WaitForSessionState(const idSession::sessionState_t desiredState ) {
 	if ( session->GetState() == desiredState ) {
 		return true;
 	}
@@ -1524,7 +1526,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t *event ) {
 	// Let Doom classic run events.
 	if ( IsPlayingDoomClassic() ) {
 		// Translate the event to Doom classic format.
-		event_t classicEvent;
+		event_t classicEvent = {};
 		if ( event->evType == SE_KEY ) {
 
 			if( event->evValue2 == 1 ) {
@@ -1561,7 +1563,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t *event ) {
 
 	// in game, exec bindings for all key downs
 	if ( event->evType == SE_KEY && event->evValue2 == 1 ) {
-		idKeyInput::ExecKeyBinding( event->evValue );
+		idKeyInput::ExecKeyBinding( static_cast<keyNum_t>(event->evValue) );
 		return true;
 	}
 
@@ -1573,7 +1575,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t *event ) {
 idCommonLocal::ResetPlayerInput
 ========================
 */
-void idCommonLocal::ResetPlayerInput( int playerIndex ) { 
+void idCommonLocal::ResetPlayerInput( const index_t playerIndex ) { 
 	userCmdMgr.ResetPlayer( playerIndex ); 
 }
 
@@ -1582,7 +1584,7 @@ void idCommonLocal::ResetPlayerInput( int playerIndex ) {
 idCommonLocal::SwitchToGame
 ========================
 */
-void idCommonLocal::SwitchToGame( currentGame_t newGame ) {
+void idCommonLocal::SwitchToGame(const currentGame_t newGame ) {
 	idealCurrentGame = newGame;
 }
 

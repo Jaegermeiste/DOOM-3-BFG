@@ -36,12 +36,12 @@ public:
 	idFieldWindow(idUserInterfaceLocal *gui);
 	virtual ~idFieldWindow();
 
-	virtual void Draw(int time, float x, float y);
+	virtual void Draw(ID_TIME_T time, float x, float y);
 	
 private:
 	virtual bool ParseInternalVar(const char *name, idTokenParser *src);
 	void CommonInit();
-	void CalcPaintOffset(int len);
+	void CalcPaintOffset(size_t len);
 	int cursorPos;
 	int lastTextLength;
 	int lastCursorPos;

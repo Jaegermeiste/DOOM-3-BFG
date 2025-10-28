@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _DOOM_LIB_H
 #define _DOOM_LIB_H
 
+#pragma once
 
 #include "doomtype.h"
 #include "doomdef.h"
@@ -39,8 +40,8 @@ If you have questions concerning this license or the applicable additional terms
 class idSysMutex;
 class idUserCmdMgr;
 
-#define IN_NUM_DIGITAL_BUTTONS 8
-#define IN_NUM_ANALOG_BUTTONS 8
+constexpr size_t IN_NUM_DIGITAL_BUTTONS = 8;
+constexpr size_t IN_NUM_ANALOG_BUTTONS  = 8;
 // Cutoff where the analog buttons are considered to be "pressed"
 // This should be smarter.
 #define IN_ANALOG_BUTTON_THRESHOLD 64
@@ -49,12 +50,13 @@ extern idCVar s_volume_sound;
 extern idCVar s_volume_midi;
 extern idCVar m_show_messages;
 extern idCVar m_inDemoMode;
+
 struct rumble_t
 {
 	int				feedback;	// SMF			// XINPUT_FEEDBACK feedback;
-	int				endTime;
+	ID_TIME_T		endTime;
 
-	// The following values are needed, becuase a rumble
+	// The following values are needed, because a rumble
 	// can fail, if it hasn't processed the previous one yet,
 	// so, it must be stored
 	bool			waiting;
@@ -63,11 +65,10 @@ struct rumble_t
 	
 };
 
-enum gameSKU_t {
+enum gameSKU_t : uint8 {
 	GAME_SKU_DCC = 0,				// Doom Classic Complete
 	GAME_SKU_DOOM1_BFG,				// Doom 1 Ran from BFG
 	GAME_SKU_DOOM2_BFG,				// Doom 2 Ran from BFG
-
 };
 
 /*
@@ -77,7 +78,7 @@ enum gameSKU_t {
 */
 struct ExpansionData {
 
-	enum { IWAD = 0, PWAD = 1 }	type;
+	enum wadType_e : uint8 { IWAD = 0, PWAD = 1 }	type;
 	GameMode_t					gameMode;
 	GameMission_t				pack_type;
 	const char *				expansionName;
@@ -85,8 +86,6 @@ struct ExpansionData {
 	const char *				pWadFilename;
 	const char *				saveImageFile;
 	const char **				mapNames;
-
-
 };
 
 
@@ -97,32 +96,32 @@ namespace DoomLib
 	typedef int ( *SendFunc)( const char* buff, DWORD size, sockaddr_in *target, int toNode );
 	typedef int ( *SendRemoteFunc)();
 
-	void InitGlobals( void *ptr = NULL );
+	void InitGlobals( void *ptr = nullptr);
 	void InitGame( int argc, char ** argv );
 	void InitControlRemap();
 	keyNum_t RemapControl( keyNum_t key );
 	bool Poll();
 	bool Tic( idUserCmdMgr * userCmdMgr );
 	void Wipe();
-	void Frame( int realoffset = 0, int buffer = 0 );
+	void Frame( fixed_t realoffset = 0, int buffer = 0 );
 	void Draw();
 	void Shutdown();
 
 	void SetNetworking( RecvFunc rf, SendFunc sf, SendRemoteFunc sendRemote );
 	
-	void SetPlayer( int id );
-	int GetPlayer();
+	void SetPlayer( index_t id );
+	index_t GetPlayer();
 
-	byte BuildSourceDest( int toNode );
-	void GetSourceDest( byte sourceDest, int* source, int* dest );
+	byte BuildSourceDest( index_t toNode );
+	void GetSourceDest( byte sourceDest, index_t* source, index_t* dest );
 
-	int RemoteNodeToPlayerIndex( int node );
-	int PlayerIndexToRemoteNode( int index );
+	int RemoteNodeToPlayerIndex( index_t node );
+	int PlayerIndexToRemoteNode( index_t index );
 
 	void PollNetwork();
 	void SendNetwork();
 
-	void *GetGlobalData( int player );
+	void *GetGlobalData( index_t player );
 
 	void RunSound();
 
@@ -130,27 +129,27 @@ namespace DoomLib
 	extern SendFunc Send;
 	extern SendRemoteFunc SendRemote;
 
-	extern void* 	(*Z_Malloc)( int size, int tag, void* user );
+	extern void* 	(*Z_Malloc)( size_t size, int tag, void* user );
 	extern void 	(*Z_FreeTag)(int lowtag );
 
 	extern DoomInterface		Interface;
-	extern int					idealExpansion;
-	extern int					expansionSelected;
+	extern index_t				idealExpansion;
+	extern index_t				expansionSelected;
 	extern bool					expansionDirty;
 
 	extern bool					skipToLoad;
 	extern char					loadGamePath[MAX_PATH];
 
 	extern bool					skipToNew;
-	extern int					chosenSkill;
-	extern int					chosenEpisode;
+	extern index_t				chosenSkill;
+	extern index_t				chosenEpisode;
 
 	extern idMatchParameters	matchParms;
 
 	const ExpansionData *		GetCurrentExpansion();
-	void						SetCurrentExpansion( int expansion );
+	void						SetCurrentExpansion( index_t expansion );
 
-	void						SetIdealExpansion( int expansion );
+	void						SetIdealExpansion( index_t expansion );
 
 	void						SetCurrentMapName( idStr name );
 	const idStr &				GetCurrentMapName();

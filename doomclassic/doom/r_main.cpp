@@ -34,6 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 #include <stdlib.h>
 #include <math.h>
 
+#include <algorithm>
+#include <utility>
+
 
 #include "doomdef.h"
 #include "d_net.h"
@@ -102,8 +105,8 @@ void (*basecolfunc) (lighttable_t * dc_colormap,
 						byte * dc_source);
 void (*fuzzcolfunc) (lighttable_t * dc_colormap,
 						byte * dc_source);
-void (*transcolfunc) (lighttable_t * dc_colormap,
-						byte * dc_source);
+static void (*transcolfunc) (lighttable_t * dc_colormap,
+                             byte * dc_source);
 void (*spanfunc) (fixed_t xfrac,
 	fixed_t yfrac,
 	fixed_t ds_y,
@@ -123,18 +126,14 @@ void (*spanfunc) (fixed_t xfrac,
 //
 void
 R_AddPointToBox
-( int		x,
- int		y,
+(const int		x,
+ const int		y,
  fixed_t*	box )
 {
-	if (x< box[BOXLEFT])
-		box[BOXLEFT] = x;
-	if (x> box[BOXRIGHT])
-		box[BOXRIGHT] = x;
-	if (y< box[BOXBOTTOM])
-		box[BOXBOTTOM] = y;
-	if (y> box[BOXTOP])
-		box[BOXTOP] = y;
+	box[BOXLEFT] = Min(x, box[BOXLEFT]);
+	box[BOXRIGHT] = Max(x, box[BOXRIGHT]);
+	box[BOXBOTTOM] = Min(y, box[BOXBOTTOM]);
+	box[BOXTOP] = Max(y, box[BOXTOP]);
 }
 
 
@@ -146,8 +145,8 @@ R_AddPointToBox
 //
 int
 R_PointOnSide
-( fixed_t	x,
- fixed_t	y,
+(const fixed_t	x,
+ const fixed_t	y,
  node_t*	node )
 {
 	fixed_t	dx;
@@ -158,14 +157,18 @@ R_PointOnSide
 	if (!node->dx)
 	{
 		if (x <= node->x)
+		{
 			return node->dy > 0;
+		}
 
 		return node->dy < 0;
 	}
 	if (!node->dy)
 	{
 		if (y <= node->y)
+		{
 			return node->dx < 0;
+		}
 
 		return node->dx > 0;
 	}
@@ -199,8 +202,8 @@ R_PointOnSide
 
 int
 R_PointOnSegSide
-( fixed_t	x,
- fixed_t	y,
+(const fixed_t	x,
+ const fixed_t	y,
  seg_t*	line )
 {
 	fixed_t	lx;
@@ -221,14 +224,18 @@ R_PointOnSegSide
 	if (!ldx)
 	{
 		if (x <= lx)
+		{
 			return ldy > 0;
+		}
 
 		return ldy < 0;
 	}
 	if (!ldy)
 	{
 		if (y <= ly)
+		{
 			return ldx < 0;
+		}
 
 		return ldx > 0;
 	}
@@ -284,7 +291,9 @@ R_PointToAngle
 	y -= GetViewY();
 
 	if ( (!x) && (!y) )
+	{
 		return 0;
+	}
 
 	if (x>= 0)
 	{
@@ -363,10 +372,10 @@ R_PointToAngle
 
 angle_t
 R_PointToAngle2
-( fixed_t	x1,
- fixed_t	y1,
- fixed_t	x2,
- fixed_t	y2 )
+(const fixed_t	x1,
+ const fixed_t	y1,
+ const fixed_t	x2,
+ const fixed_t	y2 )
 {	
 	extern void SetViewX( fixed_t ); extern void SetViewY( fixed_t );
 	SetViewX( x1 );
@@ -378,8 +387,8 @@ R_PointToAngle2
 
 fixed_t
 R_PointToDist
-( fixed_t	x,
- fixed_t	y )
+(const fixed_t	x,
+ const fixed_t	y )
 {
 	int		angle;
 	fixed_t	dx;
@@ -412,7 +421,7 @@ R_PointToDist
 //
 // R_InitPointToAngle
 //
-void R_InitPointToAngle (void)
+static void R_InitPointToAngle (void)
 {
 	// UNUSED - now getting from tables.c
 #if 0
@@ -439,7 +448,7 @@ void R_InitPointToAngle (void)
 //  at the given angle.
 // ::g->rw_distance must be calculated first.
 //
-fixed_t R_ScaleFromGlobalAngle (angle_t visangle)
+fixed_t R_ScaleFromGlobalAngle (const angle_t visangle)
 {
 	fixed_t		scale;
 	//int			anglea;
@@ -484,12 +493,18 @@ fixed_t R_ScaleFromGlobalAngle (angle_t visangle)
 		scale = FixedDiv (num, den);
 
 		if (scale > 64*FRACUNIT)
+		{
 			scale = 64*FRACUNIT;
+		}
 		else if (scale < 256)
+		{
 			scale = 256;
+		}
 	}
 	else
+	{
 		scale = 64*FRACUNIT;
+	}
 
 	return scale;
 }
@@ -499,7 +514,7 @@ fixed_t R_ScaleFromGlobalAngle (angle_t visangle)
 //
 // R_InitTables
 //
-void R_InitTables (void)
+static void R_InitTables (void)
 {
 	// UNUSED: now getting from tables.c
 #if 0
@@ -534,12 +549,12 @@ void R_InitTables (void)
 //
 // R_InitTextureMapping
 //
-void R_InitTextureMapping (void)
+static void R_InitTextureMapping (void)
 {
-	int			i;
-	int			x;
-	int			t;
-	fixed_t		focallength;
+	size_t		i = 0;
+	size_t		x = 0;
+	size_t		t = 0;
+	fixed_t		focallength = 0;
 
 	// Use tangent table to generate viewangletox:
 	//  ::g->viewangletox will give the next greatest x
@@ -550,21 +565,29 @@ void R_InitTextureMapping (void)
 	focallength = FixedDiv (::g->centerxfrac,
 		finetangent[FINEANGLES/4+FIELDOFVIEW/2] );
 
-	for (i=0 ; i<FINEANGLES/2 ; i++)
+	for (i = 0; i < FINEANGLES/2; i++)
 	{
 		if (finetangent[i] > FRACUNIT*2)
+		{
 			t = -1;
+		}
 		else if (finetangent[i] < -FRACUNIT*2)
+		{
 			t = ::g->viewwidth+1;
+		}
 		else
 		{
 			t = FixedMul (finetangent[i], focallength);
 			t = (::g->centerxfrac - t+FRACUNIT-1)>>FRACBITS;
 
 			if (t < -1)
+			{
 				t = -1;
+			}
 			else if (t>::g->viewwidth+1)
+			{
 				t = ::g->viewwidth+1;
+			}
 		}
 		::g->viewangletox[i] = t;
 	}
@@ -572,24 +595,30 @@ void R_InitTextureMapping (void)
 	// Scan ::g->viewangletox[] to generate ::g->xtoviewangle[]:
 	//  ::g->xtoviewangle will give the smallest view angle
 	//  that maps to x.	
-	for (x=0;x<=::g->viewwidth;x++)
+	for (x = 0; x <= ::g->viewwidth;x++)
 	{
 		i = 0;
-		while (::g->viewangletox[i]>x)
+		while (std::cmp_greater(::g->viewangletox[i], x))
+		{
 			i++;
+		}
 		::g->xtoviewangle[x] = (i<<ANGLETOFINESHIFT)-ANG90;
 	}
 
 	// Take out the fencepost cases from ::g->viewangletox.
-	for (i=0 ; i<FINEANGLES/2 ; i++)
+	for (i=0 ; i < FINEANGLES/2 ; i++)
 	{
 		t = FixedMul (finetangent[i], focallength);
 		t = ::g->centerx - t;
 
 		if (::g->viewangletox[i] == -1)
+		{
 			::g->viewangletox[i] = 0;
+		}
 		else if (::g->viewangletox[i] == ::g->viewwidth+1)
+		{
 			::g->viewangletox[i]  = ::g->viewwidth;
+		}
 	}
 
 	::g->clipangle = ::g->xtoviewangle[0];
@@ -603,30 +632,31 @@ void R_InitTextureMapping (void)
 //  because the ::g->scalelight table changes with view size.
 //
 
-void R_InitLightTables (void)
+static void R_InitLightTables (void)
 {
-	int		i;
-	int		j;
-	int		level;
-	int		nocollide_startmap; 	
-	int		scale;
+	size_t	i = 0;
+	size_t	j = 0;
+	index_t	level = 0;
+	size_t	nocollide_startmap = 0;
+	int		scale = 0;
 
 	// Calculate the light levels to use
 	//  for each level / distance combination.
-	for (i=0 ; i< LIGHTLEVELS ; i++)
+	for (i = 0; i < LIGHTLEVELS; i++)
 	{
 		nocollide_startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
-		for (j=0 ; j<MAXLIGHTZ ; j++)
+		for (j = 0; j < MAXLIGHTZ; j++)
 		{
-			scale = FixedDiv ((SCREENWIDTH/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
+			scale = FixedDiv ((SCREENWIDTH/2*FRACUNIT), numeric_cast<fixed_t>((j + 1) << LIGHTZSHIFT));
 			scale >>= LIGHTSCALESHIFT;
-			level = nocollide_startmap - scale/DISTMAP;
+			level = numeric_cast<index_t>(nocollide_startmap - scale/DISTMAP);
 
-			if (level < 0)
-				level = 0;
+			level = Max(level, 0);
 
-			if (level >= NUMCOLORMAPS)
+			if (std::cmp_greater_equal(level, NUMCOLORMAPS))
+			{
 				level = NUMCOLORMAPS-1;
+			}
 
 			::g->zlight[i][j] = ::g->colormaps + level*256;
 		}
@@ -645,8 +675,8 @@ void R_InitLightTables (void)
 
 void
 R_SetViewSize
-( int		blocks,
- int		detail )
+(const size_t	blocks,
+ const int		detail )
 {
 	::g->setsizeneeded = true;
 	::g->setblocks = blocks;
@@ -657,14 +687,12 @@ R_SetViewSize
 //
 // R_ExecuteSetViewSize
 //
-void R_ExecuteSetViewSize (void)
+static void R_ExecuteSetViewSize (void)
 {
-	fixed_t	cosadj;
-	fixed_t	dy;
-	int		i;
-	int		j;
-	int		level;
-	int		nocollide_startmap; 	
+	fixed_t	cosadj = 0;
+	fixed_t	dy = 0;
+	size_t	i = 0;
+	size_t	j = 0;
 
 	::g->setsizeneeded = false;
 
@@ -716,8 +744,10 @@ void R_ExecuteSetViewSize (void)
 	::g->pspriteiscale = FRACUNIT*ORIGINAL_WIDTH/::g->viewwidth;
 
 	// thing clipping
-	for (i=0 ; i < ::g->viewwidth ; i++)
+	for (i = 0 ; std::cmp_less(i, ::g->viewwidth); i++)
+	{
 		::g->screenheightarray[i] = ::g->viewheight;
+	}
 
 	// planes
 	for (i=0 ; i < ::g->viewheight ; i++)
@@ -737,16 +767,17 @@ void R_ExecuteSetViewSize (void)
 	//  for each level / scale combination.
 	for (i=0 ; i< LIGHTLEVELS ; i++)
 	{
-		nocollide_startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
-		for (j=0 ; j<MAXLIGHTSCALE ; j++)
+		const size_t nocollide_startmap = ((LIGHTLEVELS - 1 - i) * 2) * NUMCOLORMAPS / LIGHTLEVELS;
+		for (j = 0; j < MAXLIGHTSCALE; j++)
 		{
-			level = nocollide_startmap - j*SCREENWIDTH/(::g->viewwidth << ::g->detailshift)/DISTMAP;
+			index_t level = nocollide_startmap - j * SCREENWIDTH / (::g->viewwidth << ::g->detailshift) / DISTMAP;
 
-			if (level < 0)
-				level = 0;
+			level = Max(level, 0);
 
-			if (level >= NUMCOLORMAPS)
-				level = NUMCOLORMAPS-1;
+			if (std::cmp_greater_equal(level, NUMCOLORMAPS))
+			{
+				level = NUMCOLORMAPS - 1;
+			}
 
 			::g->scalelight[i][j] = ::g->colormaps + level*256;
 		}
@@ -790,16 +821,18 @@ void R_Init (void)
 //
 subsector_t*
 R_PointInSubsector
-( fixed_t	x,
- fixed_t	y )
+(const fixed_t	x,
+ const fixed_t	y )
 {
 	node_t*	node;
 	int		side;
 	int		nodenum;
 
 	// single subsector is a special case
-	if (!::g->numnodes)				
+	if (!::g->numnodes)
+	{
 		return ::g->subsectors;
+	}
 
 	nodenum = ::g->numnodes-1;
 
@@ -813,25 +846,25 @@ R_PointInSubsector
 	return &::g->subsectors[nodenum & ~NF_SUBSECTOR];
 }
 
-
-
 //
 // R_SetupFrame
 //
-void R_SetupFrame (player_t* player)
-{		
-	int		i;
 
+extern void SetViewX(fixed_t);
+extern void SetViewY(fixed_t);
+extern void SetViewAngle(angle_t);
+extern angle_t GetViewAngle();
+
+static void R_SetupFrame (player_t* player)
+{
 	::g->viewplayer = player;
-	extern void SetViewX( fixed_t ); extern void SetViewY( fixed_t ); extern void SetViewAngle( angle_t );
+	
 	SetViewX( player->mo->x );
 	SetViewY( player->mo->y );
 	SetViewAngle( player->mo->angle + ::g->viewangleoffset );
 	::g->extralight = player->extralight;
 
 	::g->viewz = player->viewz;
-
-	extern angle_t GetViewAngle();
 
 	::g->viewsin = finesine[GetViewAngle()>>ANGLETOFINESHIFT];
 	::g->viewcos = finecosine[GetViewAngle()>>ANGLETOFINESHIFT];
@@ -840,17 +873,19 @@ void R_SetupFrame (player_t* player)
 
 	if (player->fixedcolormap)
 	{
-		::g->fixedcolormap =
-			::g->colormaps
-			+ player->fixedcolormap*256*sizeof(lighttable_t);
+		::g->fixedcolormap = ::g->colormaps	+ (player->fixedcolormap * 256 * sizeof(lighttable_t));
 
 		::g->walllights = ::g->scalelightfixed;
 
-		for (i=0 ; i<MAXLIGHTSCALE ; i++)
+		for (size_t i = 0; i < MAXLIGHTSCALE; i++)
+		{
 			::g->scalelightfixed[i] = ::g->fixedcolormap;
+		}
 	}
 	else
-		::g->fixedcolormap = 0;
+	{
+		::g->fixedcolormap = nullptr;
+	}
 
 	::g->framecount++;
 	::g->validcount++;
@@ -863,7 +898,7 @@ void R_SetupFrame (player_t* player)
 //
 void R_RenderPlayerView (player_t* player)
 {
-	if ( player->mo == NULL ) {
+	if ( player->mo == nullptr) {
 		return;
 	}
 
@@ -876,22 +911,22 @@ void R_RenderPlayerView (player_t* player)
 	R_ClearSprites ();
 
 	// check for new console commands.
-	NetUpdate ( NULL );
+	NetUpdate (nullptr);
 
 	// The head node is the last node output.
 	R_RenderBSPNode (::g->numnodes-1);
 
 	// Check for new console commands.
-	NetUpdate ( NULL );
+	NetUpdate (nullptr);
 
 	R_DrawPlanes ();
 
 	// Check for new console commands.
-	NetUpdate ( NULL );
+	NetUpdate (nullptr);
 
 	R_DrawMasked ();
 
 	// Check for new console commands.
-	NetUpdate ( NULL );				
+	NetUpdate (nullptr);				
 }
 

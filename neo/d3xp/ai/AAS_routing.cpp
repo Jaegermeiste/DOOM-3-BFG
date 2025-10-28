@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 idRoutingCache::idRoutingCache
 ============
 */
-idRoutingCache::idRoutingCache( int size ) {
+idRoutingCache::idRoutingCache(const int size ) {
 	areaNum = 0;
 	cluster = 0;
 	next = prev = nullptr;
@@ -86,7 +86,7 @@ int idRoutingCache::Size() const {
 idAASLocal::AreaTravelTime
 ============
 */
-unsigned short idAASLocal::AreaTravelTime( int areaNum, const idVec3 &start, const idVec3 &end ) const {
+unsigned short idAASLocal::AreaTravelTime(const index_t areaNum, const idVec3 &start, const idVec3 &end ) const {
 	float dist;
 
 	dist = ( end - start ).Length();
@@ -101,7 +101,7 @@ unsigned short idAASLocal::AreaTravelTime( int areaNum, const idVec3 &start, con
 	if ( dist < 1.0f ) {
 		return 1;
 	}
-	return static_cast<unsigned short>(idMath::Ftoi(dist));
+	return static_cast<unsigned short>(numeric_cast<int>(dist));
 }
 
 /*
@@ -220,7 +220,7 @@ void idAASLocal::SetupRoutingCache() {
 idAASLocal::DeleteClusterCache
 ============
 */
-void idAASLocal::DeleteClusterCache( int clusterNum ) {
+void idAASLocal::DeleteClusterCache(const int clusterNum ) {
 	int i;
 	idRoutingCache *cache;
 
@@ -310,7 +310,7 @@ idAASLocal::RoutingStats
 */
 void idAASLocal::RoutingStats() const {
 	idRoutingCache *cache;
-	int numAreaCache, numPortalCache;
+	size_t numAreaCache, numPortalCache;
 	int totalAreaCacheMemory, totalPortalCacheMemory;
 
 	numAreaCache = numPortalCache = 0;
@@ -338,7 +338,7 @@ void idAASLocal::RoutingStats() const {
 idAASLocal::RemoveRoutingCacheUsingArea
 ============
 */
-void idAASLocal::RemoveRoutingCacheUsingArea( int areaNum ) {
+void idAASLocal::RemoveRoutingCacheUsingArea(const index_t areaNum ) {
 	int clusterNum;
 
 	clusterNum = file->GetArea( areaNum ).cluster;
@@ -359,7 +359,7 @@ void idAASLocal::RemoveRoutingCacheUsingArea( int areaNum ) {
 idAASLocal::DisableArea
 ============
 */
-void idAASLocal::DisableArea( int areaNum ) {
+void idAASLocal::DisableArea(const index_t areaNum ) {
 	assert( areaNum > 0 && areaNum < file->GetNumAreas() );
 
 	if ( file->GetArea( areaNum ).travelFlags & TFL_INVALID ) {
@@ -376,7 +376,7 @@ void idAASLocal::DisableArea( int areaNum ) {
 idAASLocal::EnableArea
 ============
 */
-void idAASLocal::EnableArea( int areaNum ) {
+void idAASLocal::EnableArea(const index_t areaNum ) {
 	assert( areaNum > 0 && areaNum < file->GetNumAreas() );
 
 	if ( !( file->GetArea( areaNum ).travelFlags & TFL_INVALID ) ) {
@@ -393,7 +393,7 @@ void idAASLocal::EnableArea( int areaNum ) {
 idAASLocal::SetAreaState_r
 ============
 */
-bool idAASLocal::SetAreaState_r( int nodeNum, const idBounds &bounds, const int areaContents, bool disabled ) {
+bool idAASLocal::SetAreaState_r( index_t nodeNum, const idBounds &bounds, const int areaContents, const bool disabled ) {
 	int res;
 	const aasNode_t *node;
 	bool foundClusterPortal = false;
@@ -433,7 +433,7 @@ bool idAASLocal::SetAreaState_r( int nodeNum, const idBounds &bounds, const int 
 idAASLocal::SetAreaState
 ============
 */
-bool idAASLocal::SetAreaState( const idBounds &bounds, const int areaContents, bool disabled ) {
+bool idAASLocal::SetAreaState( const idBounds &bounds, const int areaContents, const bool disabled ) {
 	idBounds expBounds;
 
 	if ( !file ) {
@@ -452,7 +452,7 @@ bool idAASLocal::SetAreaState( const idBounds &bounds, const int areaContents, b
 idAASLocal::GetBoundsAreas_r
 ============
 */
-void idAASLocal::GetBoundsAreas_r( int nodeNum, const idBounds &bounds, idList<int> &areas ) const {
+void idAASLocal::GetBoundsAreas_r( index_t nodeNum, const idBounds &bounds, idList<int> &areas ) const {
 	int res;
 	const aasNode_t *node;
 
@@ -481,7 +481,7 @@ void idAASLocal::GetBoundsAreas_r( int nodeNum, const idBounds &bounds, idList<i
 idAASLocal::SetObstacleState
 ============
 */
-void idAASLocal::SetObstacleState( const idRoutingObstacle *obstacle, bool enable ) {
+void idAASLocal::SetObstacleState( const idRoutingObstacle *obstacle, const bool enable ) {
 	int i;
 	const aasArea_t *area;
 	idReachability *reach, *rev_reach;
@@ -675,7 +675,7 @@ void idAASLocal::DeleteOldestCache() const {
 idAASLocal::GetAreaReachability
 ============
 */
-idReachability *idAASLocal::GetAreaReachability( int areaNum, int reachabilityNum ) const {
+idReachability *idAASLocal::GetAreaReachability(const index_t areaNum, int reachabilityNum ) const {
 	idReachability *reach;
 
 	for ( reach = file->GetArea( areaNum ).reach; reach; reach = reach->next ) {
@@ -691,7 +691,7 @@ idReachability *idAASLocal::GetAreaReachability( int areaNum, int reachabilityNu
 idAASLocal::ClusterAreaNum
 ============
 */
-ID_INLINE int idAASLocal::ClusterAreaNum( int clusterNum, int areaNum ) const {
+ID_INLINE int idAASLocal::ClusterAreaNum(const int clusterNum, const index_t areaNum ) const {
 	int side, areaCluster;
 
 	areaCluster = file->GetArea( areaNum ).cluster;
@@ -827,7 +827,7 @@ void idAASLocal::UpdateAreaRoutingCache( idRoutingCache *areaCache ) const {
 idAASLocal::GetAreaRoutingCache
 ============
 */
-idRoutingCache *idAASLocal::GetAreaRoutingCache( int clusterNum, int areaNum, int travelFlags ) const {
+idRoutingCache *idAASLocal::GetAreaRoutingCache(const int clusterNum, const index_t areaNum, const int travelFlags ) const {
 	int clusterAreaNum;
 	idRoutingCache *cache, *clusterCache;
 
@@ -958,7 +958,7 @@ void idAASLocal::UpdatePortalRoutingCache( idRoutingCache *portalCache ) const {
 idAASLocal::GetPortalRoutingCache
 ============
 */
-idRoutingCache *idAASLocal::GetPortalRoutingCache( int clusterNum, int areaNum, int travelFlags ) const {
+idRoutingCache *idAASLocal::GetPortalRoutingCache(const int clusterNum, const index_t areaNum, const int travelFlags ) const {
 	idRoutingCache *cache;
 
 	// check if cache without undesired travel flags already exists
@@ -992,9 +992,9 @@ idRoutingCache *idAASLocal::GetPortalRoutingCache( int clusterNum, int areaNum, 
 idAASLocal::RouteToGoalArea
 ============
 */
-bool idAASLocal::RouteToGoalArea( int areaNum, const idVec3 origin, int goalAreaNum, int travelFlags, int &travelTime, idReachability **reach ) const {
+bool idAASLocal::RouteToGoalArea(const index_t areaNum, const idVec3 origin, const index_t goalAreaNum, const int travelFlags, ID_TIME_T &travelTime, idReachability **reach ) const {
 	int clusterNum, goalClusterNum, portalNum, i, clusterAreaNum;
-	unsigned short int t, bestTime;
+	ID_TIME_T t = 0, bestTime = 0;
 	const aasPortal_t *portal;
 	const aasCluster_t *cluster;
 	idRoutingCache *areaCache, *portalCache, *clusterCache;
@@ -1148,8 +1148,8 @@ bool idAASLocal::RouteToGoalArea( int areaNum, const idVec3 origin, int goalArea
 idAASLocal::TravelTimeToGoalArea
 ============
 */
-int idAASLocal::TravelTimeToGoalArea( int areaNum, const idVec3 &origin, int goalAreaNum, int travelFlags ) const {
-	int travelTime;
+ID_TIME_T idAASLocal::TravelTimeToGoalArea(const index_t areaNum, const idVec3 &origin, const index_t goalAreaNum, const int travelFlags ) const {
+	ID_TIME_T travelTime = 0;
 	idReachability *reach;
 
 	if ( !file ) {
@@ -1167,7 +1167,7 @@ int idAASLocal::TravelTimeToGoalArea( int areaNum, const idVec3 &origin, int goa
 idAASLocal::FindNearestGoal
 ============
 */
-bool idAASLocal::FindNearestGoal( aasGoal_t &goal, int areaNum, const idVec3 origin, const idVec3 &target, int travelFlags, aasObstacle_t *obstacles, int numObstacles, idAASCallback &callback ) const {
+bool idAASLocal::FindNearestGoal( aasGoal_t &goal, const index_t areaNum, const idVec3 origin, const idVec3 &target, const int travelFlags, aasObstacle_t *obstacles, const size_t numObstacles, idAASCallback &callback ) const {
 	int i, j, k, badTravelFlags, nextAreaNum, bestAreaNum;
 	unsigned short t, bestTravelTime;
 	idRoutingUpdate *updateListStart, *updateListEnd, *curUpdate, *nextUpdate;

@@ -53,10 +53,10 @@ typedef unsigned long		ulong;
 
 typedef signed char			int8;
 typedef unsigned char		uint8;
-typedef short int			int16;
-typedef unsigned short int	uint16;
-typedef int					int32;
-typedef unsigned int		uint32;
+typedef short    			int16;
+typedef unsigned short  	uint16;
+typedef long				int32;
+typedef unsigned long		uint32;
 typedef long long			int64;
 typedef unsigned long long	uint64;
 
@@ -83,6 +83,12 @@ assert_sizeof( uint64,	8 );
 #define MAX_UNSIGNED_TYPE( x )	( ( ( ( 1U << ( ( sizeof( x ) - 1 ) * 8 ) ) - 1 ) << 8 ) | 255U )
 #define MIN_UNSIGNED_TYPE( x )	0
 */
+
+typedef long long           index_t;
+typedef long long           jointHandle_t;
+#define ID_SECONDS_T uint64  // Seconds
+#define ID_TIME_T int64 // Ticks (D1/II) or ms (D3); Signed because -1 means "File not found" and we don't want that to compare > than any other time
+#define ID_MICROSEC_T uint64  // Microseconds
 
 #include "sys_type_ordinal.hpp"
 
@@ -143,12 +149,6 @@ bool IsSignedType( const _type_ t ) {
 	return _type_( -1 ) < 0;
 }
 
-template<class T> concept Numeric = std::is_arithmetic_v<T>;
-
-template<class T> T	Max( T x, T y ) { return ( x > y ) ? x : y; }
-template<class T> T	Min( T x, T y ) { return ( x < y ) ? x : y; }
-
-
 class idFile;
 
 struct idNullPtr {
@@ -193,8 +193,8 @@ constexpr size_t MAX_PRINT_MSG = 16384U;		// buffer size for our various printf 
 #ifndef WORLD_LIMITS
 #define WORLD_LIMITS
 // maximum world size
-constexpr auto MAX_WORLD_COORD = ( 128 * 1024 );
-constexpr auto MIN_WORLD_COORD = ( -128 * 1024 );
+constexpr int64 MAX_WORLD_COORD = ( 128LL * 1024LL );
+constexpr int64 MIN_WORLD_COORD = ( -128LL * 1024LL );
 #define MAX_WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
 #endif
 

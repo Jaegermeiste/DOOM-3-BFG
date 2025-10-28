@@ -122,17 +122,17 @@ public:
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	virtual void			AddVideo( const idDeclVideo * video, bool unique = true ) const { if ( unique ) { videos.AddUnique( video ); } else { videos.Append( video ); } }
-	virtual void			AddAudio( const idDeclAudio * audio, bool unique = true ) const { if ( unique ) { audios.AddUnique( audio ); } else { audios.Append( audio ); } }
-	virtual void			AddEmail( const idDeclEmail * email, bool unique = true ) const { if ( unique ) { emails.AddUnique( email ); } else { emails.Append( email ); } }
+	virtual void			AddVideo( const idDeclVideo * video, const bool unique = true ) const { if ( unique ) { videos.AddUnique( video ); } else { videos.Append( video ); } }
+	virtual void			AddAudio( const idDeclAudio * audio, const bool unique = true ) const { if ( unique ) { audios.AddUnique( audio ); } else { audios.Append( audio ); } }
+	virtual void			AddEmail( const idDeclEmail * email, const bool unique = true ) const { if ( unique ) { emails.AddUnique( email ); } else { emails.Append( email ); } }
 	virtual void			RemoveAddedEmailsAndVideos() const;
 
 	virtual const size_t	GetNumVideos() const { return videos.Num(); }
 	virtual const size_t	GetNumAudios() const { return audios.Num(); }
 	virtual const size_t	GetNumEmails() const { return emails.Num(); }
-	virtual const idDeclVideo *GetVideoByIndex( int index ) const { return ( index < 0 || index > videos.Num() ? nullptr : videos[index] ); }
-	virtual const idDeclAudio *GetAudioByIndex( int index ) const { return ( index < 0 || index > audios.Num() ? nullptr : audios[index] ); }
-	virtual const idDeclEmail *GetEmailByIndex( int index ) const { return ( index < 0 || index > emails.Num() ? nullptr : emails[index] ); }
+	virtual const idDeclVideo *GetVideoByIndex(const index_t index ) const { return ( index < 0 || std::cmp_greater(index, videos.Num()) ? nullptr : videos[index] ); }
+	virtual const idDeclAudio *GetAudioByIndex(const index_t index ) const { return ( index < 0 || std::cmp_greater(index, audios.Num()) ? nullptr : audios[index] ); }
+	virtual const idDeclEmail *GetEmailByIndex(const index_t index ) const { return ( index < 0 || std::cmp_greater(index, emails.Num()) ? nullptr : emails[index] ); }
 
 	virtual void			SetSecurity( const char *sec ) const;
 

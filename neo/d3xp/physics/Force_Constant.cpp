@@ -82,7 +82,7 @@ void idForce_Constant::Restore( idRestoreGame *savefile ) {
 idForce_Constant::SetPosition
 ================
 */
-void idForce_Constant::SetPosition( idPhysics *physics, int id, const idVec3 &point ) {
+void idForce_Constant::SetPosition( idPhysics *physics, const int id, const idVec3 &point ) {
 	this->physics = physics;
 	this->id = id;
 	this->point = point;

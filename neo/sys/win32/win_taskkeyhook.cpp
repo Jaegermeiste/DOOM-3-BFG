@@ -56,7 +56,7 @@ MyTaskKeyHookLL
   Trap task-switching keys by returning without passing along.
 ================
 */
-LRESULT CALLBACK MyTaskKeyHookLL( int nCode, WPARAM wp, LPARAM lp ) {
+LRESULT CALLBACK MyTaskKeyHookLL(const int nCode, const WPARAM wp, const LPARAM lp ) {
 	KBDLLHOOKSTRUCT *pkh = (KBDLLHOOKSTRUCT *) lp;
 
 	if ( nCode == HC_ACTION ) {
@@ -111,7 +111,7 @@ BOOL IsTaskMgrDisabled() {
 DisableTaskKeys
 ================
 */
-void DisableTaskKeys( BOOL bDisable, BOOL bBeep, BOOL bTaskMgr ) {
+void DisableTaskKeys(const BOOL bDisable, const BOOL bBeep, const BOOL bTaskMgr ) {
 
 	// task keys (Ctrl+Esc, Alt-Tab, etc.)
 	if ( bDisable ) {

@@ -28,7 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __XA2_SOUNDVOICE_H__
 #define __XA2_SOUNDVOICE_H__
 
-static constexpr int MAX_QUEUED_BUFFERS = 3;
+#pragma once
+
+static constexpr size_t MAX_QUEUED_BUFFERS = 3;
 
 /*
 ================================================
@@ -57,12 +59,12 @@ public:
 	bool					Update();
 
 	// returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
-							[[nodiscard]] float					GetAmplitude() const;
+	[[nodiscard]] float					GetAmplitude() const;
 
 	// returns true if we can re-use this voice
 	bool					CompatibleFormat( idSoundSample_XAudio2 * s ) const;
 
-							[[nodiscard]] uint32					GetSampleRate() const { return sampleRate; }
+	[[nodiscard]] uint32					GetSampleRate() const { return sampleRate; }
 
 	// callback function
 	void					OnBufferStart( idSoundSample_XAudio2 * sample, const size_t bufferNumber );
@@ -80,7 +82,7 @@ private:
 	void					DestroyInternal();
 
 	// Helper function used by the initial start as well as for looping a streamed buffer
-	int						RestartAt( size_t offsetSamples );
+	size_t					RestartAt( size_t offsetSamples );
 
 	// Helper function to submit a buffer
 	size_t					SubmitBuffer( idSoundSample_XAudio2 * sample, const size_t bufferNumber, const size_t offset );

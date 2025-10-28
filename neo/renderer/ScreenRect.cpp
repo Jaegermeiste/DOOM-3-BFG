@@ -56,9 +56,9 @@ void idScreenRect::Clear() {
 idScreenRect::AddPoint
 ======================
 */
-void idScreenRect::AddPoint( float x, float y ) {
-	int	ix = idMath::Ftoi( x );
-	int iy = idMath::Ftoi( y );
+void idScreenRect::AddPoint(const float x, const float y ) {
+	int	ix = numeric_cast<int>( x );
+	int iy = numeric_cast<int>( y );
 
 	if ( ix < x1 ) {
 		x1 = ix;
@@ -149,7 +149,7 @@ bool idScreenRect::IsEmpty() const {
 R_ShowColoredScreenRect
 ======================
 */
-void R_ShowColoredScreenRect( const idScreenRect &rect, int colorIndex ) {
+void R_ShowColoredScreenRect( const idScreenRect &rect, const int colorIndex ) {
 	if ( !rect.IsEmpty() ) {
 		static idVec4 colors[] = { colorRed, colorGreen, colorBlue, colorYellow, colorMagenta, colorCyan, colorWhite, colorPurple };
 		tr.viewDef->renderWorld->DebugScreenRect( colors[colorIndex & 7], rect, tr.viewDef );

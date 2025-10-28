@@ -156,7 +156,7 @@ idEntity *idPhysics_Actor::GetGroundEntity() const {
 idPhysics_Actor::SetClipModel
 ================
 */
-void idPhysics_Actor::SetClipModel( idClipModel *model, const float density, int id, bool freeOld ) {
+void idPhysics_Actor::SetClipModel( idClipModel *model, const float density, int id, const bool freeOld ) {
 	assert( self );
 	assert( model );					// a clip model is required
 	assert( model->IsTraceModel() );	// and it should be a trace model
@@ -196,7 +196,7 @@ size_t idPhysics_Actor::GetNumClipModels() const {
 idPhysics_Actor::SetMass
 ================
 */
-void idPhysics_Actor::SetMass( float _mass, int id ) {
+void idPhysics_Actor::SetMass(const float _mass, int id ) {
 	assert( _mass > 0.0f );
 	mass = _mass;
 	invMass = 1.0f / _mass;
@@ -216,7 +216,7 @@ float idPhysics_Actor::GetMass( int id ) const {
 idPhysics_Actor::SetClipMask
 ================
 */
-void idPhysics_Actor::SetContents( int contents, int id ) {
+void idPhysics_Actor::SetContents(const int contents, int id ) {
 	clipModel->SetContents( contents );
 }
 

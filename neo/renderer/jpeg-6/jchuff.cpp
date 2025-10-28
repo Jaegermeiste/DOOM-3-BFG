@@ -103,7 +103,7 @@ METHODDEF void finish_pass_gather JPP( (j_compress_ptr cinfo) );
  */
 
 METHODDEF void
-start_pass_huff( j_compress_ptr cinfo, boolean gather_statistics ) {
+start_pass_huff( j_compress_ptr cinfo, const boolean gather_statistics ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     int ci, dctbl, actbl;
     jpeg_component_info * compptr;
@@ -179,7 +179,7 @@ start_pass_huff( j_compress_ptr cinfo, boolean gather_statistics ) {
  */
 
 GLOBAL void
-jpeg_make_c_derived_tbl( j_compress_ptr cinfo, JHUFF_TBL * htbl,
+jpeg_make_c_derived_tbl(const j_compress_ptr cinfo, JHUFF_TBL * htbl,
                          c_derived_tbl ** pdtbl ) {
     c_derived_tbl * dtbl;
     int p, i, l, lastp, si;
@@ -272,7 +272,7 @@ dump_buffer( working_state * state ) {
 
 INLINE
 LOCAL boolean
-emit_bits( working_state * state, unsigned int code, int size ) {
+emit_bits( working_state * state, const unsigned int code, const int size ) {
 /* Emit some bits; return TRUE if successful, FALSE if must suspend */
 /* This routine is heavily used, so it's worth coding tightly. */
     register INT32 put_buffer = (INT32) code;
@@ -323,7 +323,7 @@ flush_bits( working_state * state ) {
 /* Encode a single block's worth of coefficients */
 
 LOCAL boolean
-encode_one_block( working_state * state, JCOEFPTR block, int last_dc_val,
+encode_one_block( working_state * state, const JCOEFPTR block, const int last_dc_val,
                   c_derived_tbl * dctbl, c_derived_tbl * actbl ) {
     register int temp, temp2;
     register int nbits;
@@ -421,7 +421,7 @@ encode_one_block( working_state * state, JCOEFPTR block, int last_dc_val,
  */
 
 LOCAL boolean
-emit_restart( working_state * state, int restart_num ) {
+emit_restart( working_state * state, const int restart_num ) {
     int ci;
 
     if ( !flush_bits( state ) ) {
@@ -447,7 +447,7 @@ emit_restart( working_state * state, int restart_num ) {
  */
 
 METHODDEF boolean
-encode_mcu_huff( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
+encode_mcu_huff(const j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     working_state state;
     int blkn, ci;
@@ -506,7 +506,7 @@ encode_mcu_huff( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
  */
 
 METHODDEF void
-finish_pass_huff( j_compress_ptr cinfo ) {
+finish_pass_huff(const j_compress_ptr cinfo ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     working_state state;
 
@@ -552,7 +552,7 @@ finish_pass_huff( j_compress_ptr cinfo ) {
 /* Process a single block's worth of coefficients */
 
 LOCAL void
-htest_one_block( JCOEFPTR block, int last_dc_val,
+htest_one_block(const JCOEFPTR block, const int last_dc_val,
                  long dc_counts[], long ac_counts[] ) {
     register int temp;
     register int nbits;
@@ -620,7 +620,7 @@ htest_one_block( JCOEFPTR block, int last_dc_val,
  */
 
 METHODDEF boolean
-encode_mcu_gather( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
+encode_mcu_gather(const j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     int blkn, ci;
     jpeg_component_info * compptr;
@@ -657,7 +657,7 @@ encode_mcu_gather( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
  */
 
 GLOBAL void
-jpeg_gen_optimal_table( j_compress_ptr cinfo, JHUFF_TBL * htbl, long freq[] ) {
+jpeg_gen_optimal_table(const j_compress_ptr cinfo, JHUFF_TBL * htbl, long freq[] ) {
 #define MAX_CLEN 32     /* assumed maximum initial code length */
     UINT8 bits[MAX_CLEN + 1];/* bits[k] = # of symbols with code length k */
     int codesize[257];      /* codesize[k] = code length of symbol k */
@@ -802,7 +802,7 @@ jpeg_gen_optimal_table( j_compress_ptr cinfo, JHUFF_TBL * htbl, long freq[] ) {
  */
 
 METHODDEF void
-finish_pass_gather( j_compress_ptr cinfo ) {
+finish_pass_gather(const j_compress_ptr cinfo ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     int ci, dctbl, actbl;
     jpeg_component_info * compptr;
@@ -848,7 +848,7 @@ finish_pass_gather( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_huff_encoder( j_compress_ptr cinfo ) {
+jinit_huff_encoder(const j_compress_ptr cinfo ) {
     huff_entropy_ptr entropy;
     int i;
 

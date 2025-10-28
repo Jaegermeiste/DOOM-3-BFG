@@ -29,11 +29,12 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DOOMTYPE__
 #define __DOOMTYPE__
 
+#pragma once
 #include <limits>
 
-#define false 0
-#define true 1
-typedef int qboolean;
+//#define false 0
+//#define true 1
+typedef bool qboolean;
 
 
 

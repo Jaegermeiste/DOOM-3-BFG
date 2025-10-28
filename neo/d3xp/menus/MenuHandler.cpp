@@ -47,7 +47,7 @@ idMenuHandler::idMenuHandler() {
 	gui = nullptr;
 	cmdBar = nullptr;
 
-	for ( int index = 0; index < MAX_SCREEN_AREAS; ++index ) {
+	for ( index_t index = 0; index < MAX_SCREEN_AREAS; ++index ) {
 		menuScreens[ index ] = nullptr;
 	}
 
@@ -94,7 +94,7 @@ void idMenuHandler::AddChild( idMenuWidget * widget ) {
 idMenuHandler::GetChildFromIndex
 ================================================
 */
-idMenuWidget * idMenuHandler::GetChildFromIndex( int index ) {
+idMenuWidget * idMenuHandler::GetChildFromIndex(const index_t index ) {
 
 	if ( children.Num() == 0 ) {
 		return nullptr;
@@ -112,7 +112,7 @@ idMenuWidget * idMenuHandler::GetChildFromIndex( int index ) {
 idMenuHandler::GetPlatform
 ================================================
 */
-int idMenuHandler::GetPlatform( bool realPlatform ) {
+int idMenuHandler::GetPlatform(const bool realPlatform ) {
 
 	if ( platform == 2 && in_useJoystick.GetBool() && !realPlatform ) {
 		return 0;
@@ -126,7 +126,7 @@ int idMenuHandler::GetPlatform( bool realPlatform ) {
 idMenuHandler::GetPlatform
 ================================================
 */
-void idMenuHandler::PlaySound( menuSounds_t type, int channel ) {
+void idMenuHandler::PlaySound(const menuSounds_t type, const int channel ) {
 
 	if ( gui == nullptr) {
 		return;
@@ -164,13 +164,13 @@ idMenuHandler::Cleanup
 ================================================
 */
 void idMenuHandler::Cleanup() {
-	for ( int index = 0; index < children.Num(); ++index ) {
+	for ( index_t index = 0; index < children.Num(); ++index ) {
 		assert( children[ index ]->GetRefCount() > 0 );
 		children[ index ]->Release();
 	}
 	children.Clear();
 
-	for ( int index = 0; index < MAX_SCREEN_AREAS; ++index ) {
+	for ( index_t index = 0; index < MAX_SCREEN_AREAS; ++index ) {
 		if ( menuScreens[ index ] != nullptr) {
 			menuScreens[ index ]->Release();
 		}
@@ -207,7 +207,7 @@ bool idMenuHandler::IsActive() {
 idMenuHandler::ActivateMenu
 ================================================
 */
-void idMenuHandler::ActivateMenu( bool show ) {
+void idMenuHandler::ActivateMenu(const bool show ) {
 
 	if ( gui == nullptr) {
 		return;
@@ -282,7 +282,7 @@ idMenuHandler::UpdateChildren
 ================================================
 */
 void idMenuHandler::UpdateChildren() {
-	for ( int index = 0; index < children.Num(); ++index ) {
+	for ( index_t index = 0; index < children.Num(); ++index ) {
 		if ( children[ index ] != nullptr) {
 			children[index]->Update();
 		}
@@ -294,7 +294,7 @@ void idMenuHandler::UpdateChildren() {
 idMenuHandler::UpdateMenuDisplay
 ================================================
 */
-void idMenuHandler::UpdateMenuDisplay( int menu ) {
+void idMenuHandler::UpdateMenuDisplay(const int menu ) {
 	
 	if ( menuScreens[ menu ] != nullptr) {
 		menuScreens[ menu ]->Update();
@@ -323,7 +323,7 @@ bool idMenuHandler::HandleGuiEvent( const sysEvent_t * sev ) {
 idMenuHandler::Update
 ================================================
 */
-bool idMenuHandler::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuHandler::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList & parms = action.GetParms();
@@ -369,7 +369,7 @@ bool idMenuHandler::HandleAction( idWidgetAction & action, const idWidgetEvent &
 	}
 
 	if ( !widget->GetHandlerIsParent() ) {
-		for ( int index = 0; index < children.Num(); ++index ) {
+		for ( index_t index = 0; index < children.Num(); ++index ) {
 			if ( children[index] != nullptr) {
 				if ( children[index]->HandleAction( action, event, widget, forceHandled ) ) {
 					return true;

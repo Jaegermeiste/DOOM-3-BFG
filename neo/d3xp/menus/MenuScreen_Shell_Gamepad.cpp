@@ -246,7 +246,7 @@ void idMenuScreen_Shell_Gamepad::HideScreen( const mainMenuTransition_t transiti
 idMenuScreen_Shell_Gamepad::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Gamepad::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Gamepad::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

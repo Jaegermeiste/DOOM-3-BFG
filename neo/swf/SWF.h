@@ -86,13 +86,13 @@ public:
 	void Pause() { mainspriteInstance->Stop(); paused = true; }
 	void Resume() { mainspriteInstance->Play(); paused = false; }
 	[[nodiscard]] bool IsPaused() const { return paused; }
-	void SetPausedRender( bool valid ) { pausedRender = valid; }
+	void SetPausedRender(const bool valid ) { pausedRender = valid; }
 	[[nodiscard]] bool GetPausedRender() const { return pausedRender; } 
 
-	void Render( idRenderSystem * gui, int time = 0, bool isSplitscreen = false );
+	void Render( idRenderSystem * gui, ID_TIME_T time = 0, bool isSplitscreen = false );
 	bool HandleEvent( const sysEvent_t * event );
 	[[nodiscard]] bool InhibitControl() const;
-	void ForceInhibitControl( bool val ) { inhibitControl = val; }
+	void ForceInhibitControl(const bool val ) { inhibitControl = val; }
 
 	void SetGlobal( const char * name, const idSWFScriptVar & value ) const { globals->Set( name, value ); }
 	void SetGlobalNative( const char * name, idSWFScriptNativeVariable * native ) const { globals->SetNative( name, native ); }
@@ -116,7 +116,7 @@ public:
 
 	bool UseCircleForAccept();
 
-	void SetSWFScale( float scale ) { swfScale = scale; }
+	void SetSWFScale(const float scale ) { swfScale = scale; }
 
 	void SetForceNonPCGetPlatform() { forceNonPCPlatform = true; }
 
@@ -131,7 +131,7 @@ public:
 	idSWFDictionaryEntry *	FindDictionaryEntry( int characterID, swfDictType_t type );
 	idSWFDictionaryEntry *	FindDictionaryEntry( int characterID );
 
-	idSWFDictionaryEntry *	GetDictionaryEntry(size_t index ) { return &dictionary[ index ];  }
+	idSWFDictionaryEntry *	GetDictionaryEntry(const size_t index ) { return &dictionary[ index ];  }
 	[[nodiscard]] size_t	GetNumDictionaryEntry() const { return dictionary.Num(); }
 
 	idSWFScriptObject * HitTest( idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, int x, int y, idSWFScriptObject * parentObject );
@@ -251,7 +251,7 @@ private:
 			baseline = 0;
 		}
 
-		keyButtonImages_t( const char* _key, const char* _xbImage, const char* _psImage, int w, int h, int _baseline ) {
+		keyButtonImages_t( const char* _key, const char* _xbImage, const char* _psImage, const int w, const int h, const int _baseline ) {
 			key = _key;
 			xbImage = _xbImage;
 			psImage = _psImage;
@@ -325,13 +325,13 @@ private:
 	//----------------------------------
 	void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) const;
 	void			DrawStretchPic( const idVec4 & topLeft, const idVec4 & topRight, const idVec4 & bottomRight, const idVec4 & bottomLeft, const idMaterial * material ) const;
-	void			RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * sprite, const swfRenderState_t & renderState, int time, bool isSplitscreen = false );
+	void			RenderSprite( idRenderSystem * gui, idSWFSpriteInstance * sprite, const swfRenderState_t & renderState, ID_TIME_T time, bool isSplitscreen = false );
 	void			RenderMask( idRenderSystem * gui, const swfDisplayEntry_t * mask, const swfRenderState_t & renderState, const int stencilMode );
 	void			RenderShape( idRenderSystem * gui, const idSWFShape * shape, const swfRenderState_t & renderState );
 	void			RenderMorphShape( idRenderSystem * gui, const idSWFShape* shape, const swfRenderState_t & renderState );
 	void			DrawEditCursor( idRenderSystem * gui, float x, float y, float w, float h, const swfMatrix_t & matrix );
 //	void			DrawLine( idRenderSystem * gui, const idVec2 & p1, const idVec2 & p2, float width, const swfMatrix_t & matrix );
-	void			RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstance, const swfRenderState_t & renderState, int time, bool isSplitscreen = false );
+	void			RenderEditText( idRenderSystem * gui, idSWFTextInstance * textInstance, const swfRenderState_t & renderState, ID_TIME_T time, bool isSplitscreen = false );
 	uint64			GLStateForRenderState( const swfRenderState_t & renderState );
 	void			FindTooltipIcons( idStr * text );
 

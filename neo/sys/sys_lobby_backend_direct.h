@@ -39,7 +39,7 @@ public:
 
 	// idLobbyBackend interface
 	virtual void				StartHosting( const idMatchParameters & p, float skillLevel, lobbyBackendType_t type );
-	virtual void				StartFinding( const idMatchParameters & p, int numPartyUsers, float skillLevel );
+	virtual void				StartFinding( const idMatchParameters & p, size_t numPartyUsers, float skillLevel );
 	virtual void				JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo );
 	virtual void				GetSearchResults( idList< lobbyConnectInfo_t > & searchResults );
 	virtual void				FillMsgWithPostConnectInfo( idBitMsg & msg ) {}
@@ -55,7 +55,7 @@ public:
 	virtual void				SetInGame( bool value );
 	virtual lobbyBackendState_t	GetState() { return state; }
 
-	virtual void				BecomeHost( int numInvites );
+	virtual void				BecomeHost( size_t numInvites );
 	virtual void				FinishBecomeHost();
 
 	virtual void			RegisterUser( lobbyUser_t * user, bool isLocal );

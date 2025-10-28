@@ -182,7 +182,7 @@ const char * types[] = {
 	"cfloat",
 	"void"
 };
-static constexpr int numTypes = sizeof( types ) / sizeof( types[0] );
+static constexpr size_t numTypes = sizeof( types ) / sizeof( types[0] );
 
 const char * typePosts[] = {
 	"1", "2", "3", "4",
@@ -191,7 +191,7 @@ const char * typePosts[] = {
 	"3x1", "3x2", "3x3", "3x4",
 	"4x1", "4x2", "4x3", "4x4"
 };
-static constexpr int numTypePosts = sizeof( typePosts ) / sizeof( typePosts[0] );
+static constexpr size_t numTypePosts = sizeof( typePosts ) / sizeof( typePosts[0] );
 
 const char * prefixes[] = {
 	"static",
@@ -213,7 +213,7 @@ const char * prefixes[] = {
 
 	"sampler2DMS",			// GLSL
 };
-static constexpr int numPrefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
+static constexpr size_t numPrefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
 
 // For GLSL we need to have the names for the renderparms so we can look up their run time indices within the renderprograms
 static const char * GLSLParmNames[] = {
@@ -313,21 +313,21 @@ idStr StripDeadCode( const idStr & in, const char * name ) {
 		// read prefix
 		while ( src.ReadToken( &token ) ) {
 			bool found = false;
-			for ( int i = 0; i < numPrefixes; i++ ) {
+			for ( size_t i = 0; i < numPrefixes; i++ ) {
 				if ( token == prefixes[i] ) {
 					found = true;
 					break;
 				}
 			}
 			if ( !found ) {
-				for ( int i = 0; i < numTypes; i++ ) {
+				for ( size_t i = 0; i < numTypes; i++ ) {
 					if ( token == types[i] ) {
 						found = true;
 						break;
 					}
 					int typeLen = idStr::Length( types[i] );
 					if ( token.Cmpn( types[i], typeLen ) == 0 ) {
-						for ( int j = 0; j < numTypePosts; j++ ) {
+						for ( size_t j = 0; j < numTypePosts; j++ ) {
 							if ( idStr::Cmp( token.c_str() + typeLen, typePosts[j] ) == 0 ) {
 								found = true;
 								break;
@@ -392,7 +392,7 @@ idStr StripDeadCode( const idStr & in, const char * name ) {
 	}
 
 	idList<int, TAG_RENDERPROG> stack;
-	for ( int i = 0; i < blocks.Num(); i++ ) {
+	for ( size_t i = 0; i < blocks.Num(); i++ ) {
 		blocks[i].used = ( ( blocks[i].name == "main" )
 			|| blocks[i].name.Right( 4 ) == "_ubo"
 			);
@@ -414,7 +414,7 @@ idStr StripDeadCode( const idStr & in, const char * name ) {
 		idLexer src( LEXFL_NOFATALERRORS );
 		src.LoadMemory( blocks[i].postfix.c_str(), blocks[i].postfix.Length(), name );
 		while ( src.ReadToken( &token ) ) {
-			for ( int j = 0; j < blocks.Num(); j++ ) {
+			for ( size_t j = 0; j < blocks.Num(); j++ ) {
 				if ( !blocks[j].used ) {
 					if ( token == blocks[j].name ) {
 						blocks[j].used = true;
@@ -427,7 +427,7 @@ idStr StripDeadCode( const idStr & in, const char * name ) {
 
 	idStr out;
 
-	for ( int i = 0; i < blocks.Num(); i++ ) {
+	for ( size_t i = 0; i < blocks.Num(); i++ ) {
 		if ( blocks[i].used ) {
 			out += blocks[i].prefix;
 			out += ' ';
@@ -572,7 +572,7 @@ struct inOutVariable_t {
 ParseInOutStruct
 ========================
 */
-void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > & inOutVars ) {
+void ParseInOutStruct( idLexer & src, const int attribType, idList< inOutVariable_t > & inOutVars ) {
 	src.ExpectTokenString( "{" );
 
 	while( !src.CheckTokenString( "}" ) ) {
@@ -594,7 +594,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 		src.ExpectTokenString( ";" );
 
 		// convert the type
-		for ( int i = 0; typeConversion[i].typeCG != nullptr; i++ ) {
+		for ( size_t i = 0; typeConversion[i].typeCG != nullptr; i++ ) {
 			if ( var.type.Cmp( typeConversion[i].typeCG ) == 0 ) {
 				var.type = typeConversion[i].typeGLSL;
 				break;
@@ -602,7 +602,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 		}
 
 		// convert the semantic to a GLSL name
-		for ( int i = 0; attribsPC[i].semantic != nullptr; i++ ) {
+		for ( size_t i = 0; attribsPC[i].semantic != nullptr; i++ ) {
 			if ( ( attribsPC[i].flags & attribType ) != 0 ) {
 				if ( var.nameGLSL.Cmp( attribsPC[i].semantic ) == 0 ) {
 					var.nameGLSL = attribsPC[i].glsl;
@@ -613,7 +613,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 
 		// check if it was defined previously
 		var.declareInOut = true;
-		for ( int i = 0; i < inOutVars.Num(); i++ ) {
+		for ( size_t i = 0; i < inOutVars.Num(); i++ ) {
 			if ( var.nameGLSL == inOutVars[i].nameGLSL ) {
 				var.declareInOut = false;
 				break;
@@ -669,7 +669,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			if ( src.CheckTokenString( "VS_IN" ) ) {
 				ParseInOutStruct( src, AT_VS_IN, varsIn );
 				program += "\n\n";
-				for ( int i = 0; i < varsIn.Num(); i++ ) {
+				for ( size_t i = 0; i < varsIn.Num(); i++ ) {
 					if ( varsIn[i].declareInOut ) {
 						program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
 					}
@@ -678,7 +678,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			} else if ( src.CheckTokenString( "VS_OUT" ) ) {
 				ParseInOutStruct( src, AT_VS_OUT, varsOut );
 				program += "\n";
-				for ( int i = 0; i < varsOut.Num(); i++ ) {
+				for ( size_t i = 0; i < varsOut.Num(); i++ ) {
 					if ( varsOut[i].declareInOut ) {
 						program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
 					}
@@ -687,7 +687,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			} else if ( src.CheckTokenString( "PS_IN" ) ) {
 				ParseInOutStruct( src, AT_PS_IN, varsIn );
 				program += "\n\n";
-				for ( int i = 0; i < varsIn.Num(); i++ ) {
+				for ( size_t i = 0; i < varsIn.Num(); i++ ) {
 					if ( varsIn[i].declareInOut ) {
 						program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
 					}
@@ -701,7 +701,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			} else if ( src.CheckTokenString( "PS_OUT" ) ) {
 				ParseInOutStruct( src, AT_PS_OUT, varsOut );
 				program += "\n";
-				for ( int i = 0; i < varsOut.Num(); i++ ) {
+				for ( size_t i = 0; i < varsOut.Num(); i++ ) {
 					if ( varsOut[i].declareInOut ) {
 						program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
 					}
@@ -752,13 +752,13 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 			program += "{";
 
-			int len = Min( idStr::Length( newline ) + 1, static_cast<int>(sizeof(newline)) - 1 );
+			size_t len = Min( idStr::Length( newline ) + 1, static_cast<int>(sizeof(newline)) - 1 );
 			newline[len - 1] = '\t';
 			newline[len - 0] = '\0';
 			continue;
 		}
 		if ( token == "}" ) {
-			int len = Max( idStr::Length( newline ) - 1, 0 );
+			size_t len = Max( idStr::Length( newline ) - 1, 0 );
 			newline[len] = '\0';
 
 			program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
@@ -768,7 +768,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 
 		// check for a type conversion
 		bool foundType = false;
-		for ( int i = 0; typeConversion[i].typeCG != nullptr; i++ ) {
+		for ( size_t i = 0; typeConversion[i].typeCG != nullptr; i++ ) {
 			if ( token.Cmp( typeConversion[i].typeCG ) == 0 ) {
 				program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 				program += typeConversion[i].typeGLSL;
@@ -783,7 +783,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 		if ( r_useUniformArrays.GetBool() ) {
 			// check for uniforms that need to be converted to the array
 			bool isUniform = false;
-			for ( int i = 0; i < uniformList.Num(); i++ ) {
+			for ( size_t i = 0; i < uniformList.Num(); i++ ) {
 				if ( token == uniformList[i] ) {
 					program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 					program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
@@ -804,7 +804,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 				src.ReadToken( &member );
 
 				bool foundInOut = false;
-				for ( int i = 0; i < varsIn.Num(); i++ ) {
+				for ( size_t i = 0; i < varsIn.Num(); i++ ) {
 					if ( member.Cmp( varsIn[i].nameCg ) == 0 ) {
 						program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 						program += varsIn[i].nameGLSL;
@@ -827,7 +827,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 				src.ReadToken( &member );
 
 				bool foundInOut = false;
-				for ( int i = 0; i < varsOut.Num(); i++ ) {
+				for ( size_t i = 0; i < varsOut.Num(); i++ ) {
 					if ( member.Cmp( varsOut[i].nameCg ) == 0 ) {
 						program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 						program += varsOut[i].nameGLSL;
@@ -853,7 +853,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 
 		// check for a function conversion
 		bool foundFunction = false;
-		for ( int i = 0; builtinConversion[i].nameCG != nullptr; i++ ) {
+		for ( size_t i = 0; builtinConversion[i].nameCG != nullptr; i++ ) {
 			if ( token.Cmp( builtinConversion[i].nameCG ) == 0 ) {
 				program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
 				program += builtinConversion[i].nameGLSL;
@@ -884,7 +884,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() );
 		} else {
 			out += "\n";
-			for ( int i = 0; i < uniformList.Num(); i++ ) {
+			for ( size_t i = 0; i < uniformList.Num(); i++ ) {
 				out += "uniform vec4 ";
 				out += uniformList[i];
 				out += ";\n";
@@ -894,7 +894,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 
 	out += program;
 
-	for ( int i = 0; i < uniformList.Num(); i++ ) {
+	for ( size_t i = 0; i < uniformList.Num(); i++ ) {
 		uniforms += uniformList[i];
 		uniforms += "\n";
 	}
@@ -952,7 +952,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		}
 
 		void * hlslFileBuffer = nullptr;
-		int len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
+		size_t len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
 		if ( len <= 0 ) {
 			return false;
 		}
@@ -968,7 +968,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 	} else {
 		// read in the glsl file
 		void * fileBufferGLSL = nullptr;
-		int lengthGLSL = fileSystem->ReadFile( outFileGLSL.c_str(), &fileBufferGLSL );
+		size_t lengthGLSL = fileSystem->ReadFile( outFileGLSL.c_str(), &fileBufferGLSL );
 		if ( lengthGLSL <= 0 ) {
 			idLib::Error( "GLSL file %s could not be loaded and may be corrupt", outFileGLSL.c_str() );
 		}
@@ -978,7 +978,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		if ( r_useUniformArrays.GetBool() ) {
 			// read in the uniform file
 			void * fileBufferUniforms = nullptr;
-			int lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
+			size_t lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
 			if ( lengthUniforms <= 0 ) {
 				idLib::Error( "uniform file %s could not be loaded and may be corrupt", outFileUniforms.c_str() );
 			}
@@ -994,14 +994,14 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
 		idToken token;
 		while ( src.ReadToken( &token ) ) {
-			int index = -1;
-			for ( int i = 0; i < RENDERPARM_TOTAL && index == -1; i++ ) {
+			index_t index = -1;
+			for ( size_t i = 0; i < RENDERPARM_TOTAL && index == -1; i++ ) {
 				const char * parmName = GetGLSLParmName( i );
 				if ( token == parmName ) {
 					index = i;
 				}
 			}
-			for ( int i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ ) {
+			for ( size_t i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ ) {
 				const char * parmName = GetGLSLParmName( RENDERPARM_USER + i );
 				if ( token == parmName ) {
 					index = RENDERPARM_USER + i;
@@ -1041,13 +1041,13 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 				lines.Clear();
 				idStr source( programGLSL );
 				lines.Append( source );
-				for ( int index = 0, ofs = lines[index].Find( separator ); ofs != -1; index++, ofs = lines[index].Find( separator ) ) {
+				for ( index_t index = 0, ofs = lines[index].Find( separator ); ofs != -1; index++, ofs = lines[index].Find( separator ) ) {
 					lines.Append( lines[index].c_str() + ofs + 1 );
 					lines[index].CapLength( ofs );
 				}
 
 				idLib::Printf( "-----------------\n" );
-				for ( int i = 0; i < lines.Num(); i++ ) {
+				for ( size_t i = 0; i < lines.Num(); i++ ) {
 					idLib::Printf( "%3d: %s\n", i+1, lines[i].c_str() );
 				}
 				idLib::Printf( "-----------------\n" );
@@ -1071,9 +1071,9 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 idRenderProgManager::FindGLSLProgram
 ================================================================================================
 */
-int	 idRenderProgManager::FindGLSLProgram( const char * name, int vIndex, int fIndex ) {
+int	 idRenderProgManager::FindGLSLProgram( const char * name, const int vIndex, const int fIndex ) {
 
-	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
+	for ( size_t i = 0; i < glslPrograms.Num(); ++i ) {
 		if ( ( glslPrograms[i].vertexShaderIndex == vIndex ) && ( glslPrograms[i].fragmentShaderIndex == fIndex ) ) {
 			LoadGLSLProgram( i, vIndex, fIndex );
 			return i;
@@ -1082,7 +1082,7 @@ int	 idRenderProgManager::FindGLSLProgram( const char * name, int vIndex, int fI
 
 	glslProgram_t program;
 	program.name = name;
-	int index = glslPrograms.Append( program );
+	index_t index = glslPrograms.Append( program );
 	LoadGLSLProgram( index, vIndex, fIndex );
 	return index;
 }
@@ -1092,7 +1092,7 @@ int	 idRenderProgManager::FindGLSLProgram( const char * name, int vIndex, int fI
 idRenderProgManager::GetGLSLParmName
 ================================================================================================
 */
-const char* idRenderProgManager::GetGLSLParmName( int rp ) const {
+const char* idRenderProgManager::GetGLSLParmName(const int rp ) const {
 	if ( rp >= RENDERPARM_USER ) {
 		int userParmIndex = rp - RENDERPARM_USER;
 		return va("rpUser%d", userParmIndex );
@@ -1107,7 +1107,7 @@ idRenderProgManager::SetUniformValue
 ================================================================================================
 */
 void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float * value ) {
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		glslUniforms[rp][i] = value[i];
 	}
 }
@@ -1127,7 +1127,7 @@ void idRenderProgManager::CommitUniforms() {
 		if ( prog.vertexShaderIndex >= 0 ) {
 			const idList<int> & vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
 			if ( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 ) {
-				for ( int i = 0; i < vertexUniforms.Num(); i++ ) {
+				for ( size_t i = 0; i < vertexUniforms.Num(); i++ ) {
 					localVectors[i] = glslUniforms[vertexUniforms[i]];
 				}
 				qglUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
@@ -1137,14 +1137,14 @@ void idRenderProgManager::CommitUniforms() {
 		if ( prog.fragmentShaderIndex >= 0 ) {
 			const idList<int> & fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
 			if ( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 ) {
-				for ( int i = 0; i < fragmentUniforms.Num(); i++ ) {
+				for ( size_t i = 0; i < fragmentUniforms.Num(); i++ ) {
 					localVectors[i] = glslUniforms[fragmentUniforms[i]];
 				}
 				qglUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
 			}
 		}
 	} else {
-		for ( int i = 0; i < prog.uniformLocations.Num(); i++ ) {
+		for ( size_t i = 0; i < prog.uniformLocations.Num(); i++ ) {
 			const glslUniformLocation_t & uniformLocation = prog.uniformLocations[i];
 			qglUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
 		}
@@ -1183,7 +1183,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		}
 
 		// bind vertex attribute locations
-		for ( int i = 0; attribsPC[i].glsl != nullptr; i++ ) {
+		for ( size_t i = 0; attribsPC[i].glsl != nullptr; i++ ) {
 			if ( ( attribsPC[i].flags & AT_VS_IN ) != 0 ) {
 				qglBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
 			}
@@ -1233,7 +1233,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	} else {
 		// store the uniform locations after we have linked the GLSL program
 		prog.uniformLocations.Clear();
-		for ( int i = 0; i < RENDERPARM_TOTAL; i++ ) {
+		for ( size_t i = 0; i < RENDERPARM_TOTAL; i++ ) {
 			const char * parmName = GetGLSLParmName( i );
 			GLint loc = qglGetUniformLocation( program, parmName );
 			if ( loc != -1 ) {
@@ -1245,7 +1245,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		}
 
 		// store the USER uniform locations
-		for ( int i = 0; i < MAX_GLSL_USER_PARMS; i++ ) {
+		for ( size_t i = 0; i < MAX_GLSL_USER_PARMS; i++ ) {
 			const char * parmName = GetGLSLParmName( RENDERPARM_USER + i );
 			GLint loc = qglGetUniformLocation( program, parmName );
 			if ( loc != -1 ) {
@@ -1268,7 +1268,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 
 	// set the texture unit locations once for the render program. We only need to do this once since we only link the program once
 	qglUseProgram( program );
-	for ( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i ) {
+	for ( size_t i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i ) {
 		GLint loc = qglGetUniformLocation( program, va( "samp%d", i ) );
 		if ( loc != -1 ) {
 			qglUniform1i( loc, i );

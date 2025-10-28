@@ -132,7 +132,7 @@ void BSEntity::SetMaterial(const char* name) {
 BSEntity::SetSize
 ======================
 */
-void BSEntity::SetSize( float _width, float _height ) {
+void BSEntity::SetSize(const float _width, const float _height ) {
 	width = _width;
 	height = _height;
 }
@@ -142,7 +142,7 @@ void BSEntity::SetSize( float _width, float _height ) {
 BSEntity::SetVisible
 ======================
 */
-void BSEntity::SetVisible( bool isVisible ) {
+void BSEntity::SetVisible(const bool isVisible ) {
 	visible = isVisible;
 }
 
@@ -151,7 +151,7 @@ void BSEntity::SetVisible( bool isVisible ) {
 BSEntity::Update
 ======================
 */
-void BSEntity::Update( float timeslice ) {
+void BSEntity::Update(const float timeslice ) {
 	
 	if ( !visible ) {
 		return;
@@ -238,14 +238,14 @@ void idGameBearShootWindow::WriteToSaveGame( idFile *savefile ) {
 	savefile->Write( &windForce, sizeof(windForce) );
 	savefile->Write( &windUpdateTime, sizeof(windUpdateTime) );
 
-	int numberOfEnts = entities.Num();
+	size_t numberOfEnts = entities.Num();
 	savefile->Write( &numberOfEnts, sizeof(numberOfEnts) );
 
 	for ( int i=0; i<numberOfEnts; i++ ) {
 		entities[i]->WriteToSaveGame( savefile );
 	}
 
-	int index;
+	index_t index;
 	index = entities.FindIndex( turret );
 	savefile->Write( &index, sizeof(index) );
 	index = entities.FindIndex( bear );
@@ -295,7 +295,7 @@ void idGameBearShootWindow::ReadFromSaveGame( idFile *savefile ) {
 	savefile->Read( &windForce, sizeof(windForce) );
 	savefile->Read( &windUpdateTime, sizeof(windUpdateTime) );
 
-	int numberOfEnts;
+	size_t numberOfEnts;
 	savefile->Read( &numberOfEnts, sizeof(numberOfEnts) );
 
 	for ( int i=0; i<numberOfEnts; i++ ) {
@@ -306,7 +306,7 @@ void idGameBearShootWindow::ReadFromSaveGame( idFile *savefile ) {
 		entities.Append( ent );
 	}
 
-	int index;
+	index_t index;
 	savefile->Read( &index, sizeof(index) );
 	turret = entities[index];
 	savefile->Read( &index, sizeof(index) );
@@ -484,7 +484,7 @@ bool idGameBearShootWindow::ParseInternalVar(const char *_name, idTokenParser *s
 idGameBearShootWindow::GetWinVarByName
 =============================
 */
-idWinVar *idGameBearShootWindow::GetWinVarByName(const char *_name, bool winLookup, drawWin_t** owner) {
+idWinVar *idGameBearShootWindow::GetWinVarByName(const char *_name, const bool winLookup, drawWin_t** owner) {
 	idWinVar *retVar = nullptr;
 
 	if ( idStr::Icmp(_name, "gamerunning") == 0 ) {
@@ -518,7 +518,7 @@ void idGameBearShootWindow::PostParse() {
 idGameBearShootWindow::Draw
 =============================
 */
-void idGameBearShootWindow::Draw(int time, float x, float y) {
+void idGameBearShootWindow::Draw(ID_TIME_T time, float x, float y) {
 	int i;
 
 	//Update the game every frame before drawing
@@ -572,7 +572,7 @@ idGameBearShootWindow::UpdateBear
 =============================
 */
 void idGameBearShootWindow::UpdateBear() {
-	int time = gui->GetTime();
+	ID_TIME_T time = gui->GetTime();
 	bool startShrink = false;
 
 	// Apply gravity

@@ -339,7 +339,7 @@ void idItem::GetAttributes( idDict &attributes ) const {
 idItem::GiveToPlayer
 ================
 */
-bool idItem::GiveToPlayer( idPlayer *player, unsigned int giveFlags ) {
+bool idItem::GiveToPlayer( idPlayer *player, const unsigned int giveFlags ) {
 	if ( player == nullptr) {
 		return false;
 	}
@@ -430,7 +430,7 @@ bool idItem::Pickup( idPlayer *player ) {
 idItem::ClientThink
 ================
 */
-void idItem::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idItem::ClientThink( const int curTime, const double fraction, const bool predict ) {
  
 	// only think forward because the state is not synced through snapshots
 	if ( !gameLocal.isNewFrame ) {
@@ -486,7 +486,7 @@ void idItem::ReadFromSnapshot( const idBitMsg &msg ) {
 idItem::ClientReceiveEvent
 ================
 */
-bool idItem::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idItem::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_RESPAWN: {
@@ -650,7 +650,7 @@ void idItemPowerup::Spawn() {
 idItemPowerup::GiveToPlayer
 ================
 */
-bool idItemPowerup::GiveToPlayer( idPlayer *player, unsigned int giveFlags ) {
+bool idItemPowerup::GiveToPlayer( idPlayer *player, const unsigned int giveFlags ) {
 	if ( player->spectating ) {
 		return false;
 	}
@@ -777,7 +777,7 @@ void idItemTeam::Spawn() {
 
 	physicsObj.SetContents( 0 );
 	physicsObj.SetClipMask( MASK_SOLID | CONTENTS_MOVEABLECLIP );
-	physicsObj.SetGravity( idVec3( 0, 0, idMath::Itof<float>(spawnArgs.GetInt("gravity", "-30" )) ) );
+	physicsObj.SetGravity( idVec3( 0, 0, numeric_cast<float>(spawnArgs.GetInt("gravity", "-30" )) ) );
 }
 
 
@@ -884,7 +884,7 @@ bool idItemTeam::Pickup( idPlayer *player ) {
 idItemTeam::ClientReceiveEvent
 ===============
 */
-bool idItemTeam::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idItemTeam::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
     gameLocal.DPrintf("ClientRecieveEvent: %i\n", event );
 
 	switch ( event ) {
@@ -934,7 +934,7 @@ bool idItemTeam::ClientReceiveEvent( int event, const ID_TIME_T time, const idBi
 idItemTeam::Drop
 ================
 */
-void idItemTeam::Drop( bool death )
+void idItemTeam::Drop(const bool death )
 {
 //	PostEventMS( &EV_DropFlag, 0, int(death == true) );
 // had to remove the delayed drop because of drop flag on disconnect
@@ -1096,7 +1096,7 @@ void idItemTeam::Event_TakeFlag( idPlayer * player ) {
 idItemTeam::Event_DropFlag
 ================
 */
-void idItemTeam::Event_DropFlag( bool death ) {
+void idItemTeam::Event_DropFlag(const bool death ) {
     gameLocal.DPrintf("Event_DropFlag()!\n");
 
 	if ( common->IsServer() ) {
@@ -1299,7 +1299,7 @@ idItemTeam::SpawnNugget
 void idItemTeam::SpawnNugget(const idVec3& pos ) const
 {
 	const idAngles angle( gameLocal.random.RandomInt(spawnArgs.GetInt("nugget_pitch", "30")),	gameLocal.random.RandomInt(spawnArgs.GetInt("nugget_yaw", "360" )),	0 );
-	float velocity = idMath::Itof<float>(gameLocal.random.RandomInt(40) + 15);
+	float velocity = numeric_cast<float>(gameLocal.random.RandomInt(40) + 15);
 
 	velocity *= spawnArgs.GetFloat("nugget_velocity", "1" );
 
@@ -1473,7 +1473,7 @@ void idObjective::Event_Trigger( idEntity *activator ) {
 				player->GiveObjective( spawnArgs.GetString( "objectivetitle" ), spawnArgs.GetString( "objectivetext" ), screenshot );
 
 				// a tad slow but keeps from having to update all objectives in all maps with a name ptr
-				for( int i = 0; i < gameLocal.num_entities; i++ ) {
+				for ( size_t i = 0; i < gameLocal.num_entities; i++ ) {
 					if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idObjectiveComplete::Type ) ) {
 						if ( idStr::Icmp( spawnArgs.GetString( "objectivetitle" ), gameLocal.entities[ i ]->spawnArgs.GetString( "objectivetitle" ) ) == 0 ){
 							gameLocal.entities[ i ]->spawnArgs.SetBool( "objEnabled", true );
@@ -1535,7 +1535,7 @@ END_CLASS
 idVideoCDItem::GiveToPlayer
 ================
 */
-bool idVideoCDItem::GiveToPlayer( idPlayer * player, unsigned int giveFlags ) {
+bool idVideoCDItem::GiveToPlayer( idPlayer * player, const unsigned int giveFlags ) {
 	if ( player == nullptr) {
 		return false;
 	}
@@ -1565,7 +1565,7 @@ END_CLASS
 idPDAItem::GiveToPlayer
 ================
 */
-bool idPDAItem::GiveToPlayer( idPlayer *player, unsigned int giveFlags ) {
+bool idPDAItem::GiveToPlayer( idPlayer *player, const unsigned int giveFlags ) {
 	if ( player == nullptr) {
 		return false;
 	}
@@ -1732,7 +1732,7 @@ void idMoveableItem::Spawn() {
 idItem::ClientThink
 ================
 */
-void idMoveableItem::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idMoveableItem::ClientThink( const int curTime, const double fraction, const bool predict ) {
 
 	InterpolatePhysicsOnly( fraction );
 
@@ -1812,7 +1812,7 @@ bool idMoveableItem::Pickup( idPlayer *player ) {
 idMoveableItem::DropItem
 ================
 */
-idEntity *idMoveableItem::DropItem( const char *classname, const idVec3 &origin, const idMat3 &axis, const idVec3 &velocity, int activateDelay, int removeDelay ) {
+idEntity *idMoveableItem::DropItem( const char *classname, const idVec3 &origin, const idMat3 &axis, const idVec3 &velocity, const int activateDelay, int removeDelay ) {
 	idDict args;
 	idEntity *item;
 
@@ -2005,7 +2005,7 @@ END_CLASS
 idMoveablePDAItem::GiveToPlayer
 ================
 */
-bool idMoveablePDAItem::GiveToPlayer( idPlayer * player, unsigned int giveFlags ) {
+bool idMoveablePDAItem::GiveToPlayer( idPlayer * player, const unsigned int giveFlags ) {
 	if ( player == nullptr) {
 		return false;
 	}

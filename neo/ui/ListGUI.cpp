@@ -67,7 +67,7 @@ int idListGUILocal::GetNumSelections() {
 idListGUILocal::GetSelection
 ====================
 */
-int idListGUILocal::GetSelection( char *s, int size, int _sel ) const {
+int idListGUILocal::GetSelection( char *s, const int size, const int _sel ) const {
 	if ( s ) {		
 		s[ 0 ] = '\0';
 	}
@@ -91,7 +91,7 @@ int idListGUILocal::GetSelection( char *s, int size, int _sel ) const {
 idListGUILocal::SetSelection
 ====================
 */
-void idListGUILocal::SetSelection( int sel ) {
+void idListGUILocal::SetSelection(const int sel ) {
 	m_pGUI->SetStateInt( va( "%s_sel_0", m_name.c_str() ), sel );
 	StateChanged();
 }
@@ -101,7 +101,7 @@ void idListGUILocal::SetSelection( int sel ) {
 idListGUILocal::Add
 ====================
 */
-void idListGUILocal::Add( int id, const idStr &s ) {
+void idListGUILocal::Add(const int id, const idStr &s ) {
 	int i = m_ids.FindIndex( id );
 	if ( i == -1 ) {
 		Append( s );
@@ -128,7 +128,7 @@ void idListGUILocal::Push( const idStr& s ) {
 idListGUILocal::Del
 ====================
 */
-bool idListGUILocal::Del(int id) {
+bool idListGUILocal::Del(const int id) {
 	int i = m_ids.FindIndex(id);
 	if ( i == -1 ) {
 		return false;
@@ -167,7 +167,7 @@ bool idListGUILocal::IsConfigured() const {
 idListGUILocal::SetStateChanges
 ====================
 */
-void idListGUILocal::SetStateChanges( bool enable ) {
+void idListGUILocal::SetStateChanges(const bool enable ) {
 	m_stateUpdates = enable;
 	StateChanged();
 }

@@ -106,7 +106,7 @@ double Sys_ClockTicksPerSecond() {
 		DWORD buflen = 0;
 		LSTATUS ret = 0;
 
-		if ( !RegOpenKeyEx( HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &hKey ) ) {
+		if ( !RegOpenKeyEx( HKEY_LOCAL_MACHINE, R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)", 0, KEY_READ, &hKey ) ) {
 			buflen = sizeof( ProcSpeed );
 			ret = RegQueryValueEx( hKey, "~MHz", nullptr, nullptr, reinterpret_cast<LPBYTE>(&ProcSpeed), &buflen );
 			// If we don't succeed, try some other spellings.
@@ -846,7 +846,7 @@ static size_t LogicalProcPerPhysicalProc() {
 		if (ex && ex->Relationship == RelationProcessorCore) {
 			const PROCESSOR_RELATIONSHIP& pr = ex->Processor;
 
-			auto popmask = [](KAFFINITY m) -> size_t {
+			auto popmask = [](const KAFFINITY m) -> size_t {
 				// KAFFINITY is ULONG_PTR; popcount the (up to) 64-bit mask per group
 				return static_cast<size_t>(std::popcount(static_cast<unsigned long long>(m)));
 				};
@@ -1037,7 +1037,7 @@ static bool HasSMT() {
 	CPUID(0, 0, regs);
 	const auto maxBasic = regs[_REG_EAX];
 
-	auto smt_from_topology = [&](uint32 leaf)->bool {
+	auto smt_from_topology = [&](const uint32 leaf)->bool {
 		memset(&regs, 0, sizeof(regs));
 		CPUID(leaf, 0, regs);
 		const uint32 levelType = (regs[_REG_ECX] >> 8) & 0xFF;   // 1 = SMT, 2 = Core
@@ -1131,7 +1131,7 @@ CountSetBits
 Helper function to count set bits in the processor mask.
 ========================
 */
-static DWORD CountSetBits( ULONG_PTR bitMask ) {
+static DWORD CountSetBits(const ULONG_PTR bitMask ) {
 	DWORD LSHIFT = sizeof( ULONG_PTR ) * 8 - 1;
 	DWORD bitSetCount = 0;
 	ULONG_PTR bitTest = static_cast<ULONG_PTR>(1) << LSHIFT;    
@@ -1261,7 +1261,7 @@ static bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 Sys_GetCPUCacheSize
 ========================
 */
-static void Sys_GetCPUCacheSize( int level, int & count, int & size, int & lineSize ) {
+static void Sys_GetCPUCacheSize(const int level, int & count, int & size, int & lineSize ) {
 	assert( level >= 1 && level <= 3 );
 	cpuInfo_t cpuInfo;
 
@@ -1557,9 +1557,9 @@ static bitFlag_t statusWordFlags[] = {
 Sys_FPU_PrintStateFlags
 ===============
 */
-static size_t Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, DWORD inof, int inse, DWORD opof, int opse ) {
+static size_t Sys_FPU_PrintStateFlags( char *ptr, const int ctrl, const int stat, const int tags, const DWORD inof, const int inse, const DWORD opof, const int opse ) {
 	size_t i = 0;
-	int length = 0;
+	size_t length = 0;
 
 	length += sprintf( ptr+length,	"CTRL = %08x\n"
 									"STAT = %08x\n"
@@ -1585,7 +1585,7 @@ static size_t Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, 
 	length += sprintf( ptr+length, "  %-30s = %d%d%d%d\n", "Condition code", (stat>>8)&1, (stat>>9)&1, (stat>>10)&1, (stat>>14)&1 );
 	length += sprintf( ptr+length, "  %-30s = %d\n", "Top of stack pointer", (stat>>11)&7 );
 
-	return idMath::integer_cast<size_t>(length);
+	return numeric_cast<size_t>(length);
 }
 
 /*

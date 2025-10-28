@@ -39,9 +39,9 @@ FindUnusedFileName
 static idStr FindUnusedFileName( const char *format ) {
 	idStr filename;
 
-	for ( int i = 0 ; i < 999 ; i++ ) {
+	for ( size_t i = 0 ; i < 999 ; i++ ) {
 		filename.Format( format, i );
-		int len = fileSystem->ReadFile( filename, nullptr, nullptr);
+		size_t len = fileSystem->ReadFile( filename, nullptr, nullptr);
 		if ( len <= 0 ) {
 			return filename;	// file doesn't exist
 		}
@@ -120,7 +120,7 @@ void idCommonLocal::StopPlayingRenderDemo() {
 	}
 
 	// Record the stop time before doing anything that could be time consuming 
-	int timeDemoStopTime = Sys_Milliseconds();
+	ID_TIME_T timeDemoStopTime = Sys_Milliseconds();
 
 	EndAVICapture();
 
@@ -213,7 +213,7 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName ) {
 idCommonLocal::TimeRenderDemo
 ================
 */
-void idCommonLocal::TimeRenderDemo( const char *demoName, bool twice, bool quit ) {
+void idCommonLocal::TimeRenderDemo( const char *demoName, const bool twice, const bool quit ) {
 	idStr demo = demoName;
 
 	StartPlayingRenderDemo( demo );

@@ -144,7 +144,7 @@ void			GL_Scissor( int x /* left*/, int y /* bottom */, const size_t w, const si
 void			GL_Viewport( int x /* left */, int y /* bottom */, const size_t w, const size_t h);
 ID_INLINE void	GL_Scissor( const idScreenRect & rect ) { GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 ); }
 ID_INLINE void	GL_Viewport( const idScreenRect & rect ) { GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 ); }
-ID_INLINE void	GL_ViewportAndScissor( int x, int y, const size_t w, const size_t h) { GL_Viewport( x, y, w, h ); GL_Scissor( x, y, w, h ); }
+ID_INLINE void	GL_ViewportAndScissor(const int x, const int y, const size_t w, const size_t h) { GL_Viewport( x, y, w, h ); GL_Scissor( x, y, w, h ); }
 ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect ) { GL_Viewport( rect ); GL_Scissor( rect ); }
 void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 void			GL_PolygonOffset( float scale, float bias );

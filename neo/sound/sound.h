@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SOUND__
 #define __SOUND__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -60,7 +62,7 @@ static constexpr int	SSF_NO_DUPS =			BIT(9);	// try not to play the same sound t
 static constexpr int	SSF_VO =				BIT(10);// VO - direct a portion of the sound through the center channel (set automatically on shaders that contain files that start with "sound/vo/")
 static constexpr int	SSF_MUSIC =				BIT(11);// Music - Muted when the player is playing his own music
 
-// these options can be overriden from sound shader defaults on a per-emitter and per-channel basis
+// these options can be overridden from sound shader defaults on a per-emitter and per-channel basis
 typedef struct {
 	float					minDistance;
 	float					maxDistance;
@@ -79,14 +81,14 @@ constexpr size_t		SOUND_MAX_CLASSES		= 4;
 class idSoundShader : public idDecl {
 public:
 							idSoundShader();
-	virtual					~idSoundShader();
+							~idSoundShader() override;
 
-	[[nodiscard]] virtual size_t			Size() const;
-	virtual bool			SetDefaultText();
-	[[nodiscard]] virtual const char *	DefaultDefinition() const;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
-	virtual void			FreeData();
-	virtual void			List() const;
+	[[nodiscard]] size_t			Size() const override;
+							bool			SetDefaultText() override;
+	[[nodiscard]] const char *	DefaultDefinition() const override;
+				bool			Parse( const char *text, const size_t textLength, const bool allowBinaryVersion ) override;
+				void			FreeData() override;
+				void			List() const override;
 
 	// so the editor can draw correct default sound spheres
 	// this is currently defined as meters, which sucks, IMHO.
@@ -100,8 +102,8 @@ public:
 	[[nodiscard]] virtual bool			HasDefaultSound() const;
 
 	[[nodiscard]] virtual const soundShaderParms_t *GetParms() const;
-	[[nodiscard]] virtual int				GetNumSounds() const;
-	[[nodiscard]] virtual const char *	GetSound( int index ) const;
+	[[nodiscard]] virtual size_t				GetNumSounds() const;
+	[[nodiscard]] virtual const char *	GetSound( index_t index ) const;
 
 private:
 	friend class idSoundWorldLocal;
@@ -182,7 +184,7 @@ public:
 
 There can be multiple independent sound worlds, just as there can be multiple
 independent render worlds.  The prime example is the editor sound preview
-option existing simultaniously with a live game.
+option existing simultaneously with a live game.
 ===============================================================================
 */
 
@@ -198,21 +200,21 @@ public:
 	virtual idSoundEmitter *AllocSoundEmitter() = 0;
 
 	// for load games, index 0 will return NULL
-	        idSoundEmitter *EmitterForIndex( const Ordinal auto index );
+	virtual idSoundEmitter *EmitterForIndex( const index_t index ) = 0;
 
 	// query sound samples from all emitters reaching a given listener
 	virtual float			CurrentShakeAmplitude() = 0;
 
 	// where is the camera/microphone
 	// listenerId allows listener-private and antiPrivate sounds to be filtered
-	virtual void			PlaceListener( const idVec3 &origin, const idMat3 &axis, const int listenerId ) = 0;
+	virtual void			PlaceListener( const idVec3 &origin, const idMat3 &axis, const index_t listenerId ) = 0;
 
 	// fade all sounds in the world with a given shader soundClass
 	// to is in Db, over is in seconds
 	virtual void			FadeSoundClasses( const int soundClass, const float to, const float over ) = 0;
 
 	// menu sounds
-    virtual int				PlayShaderDirectly( const char * name, const s_channelType channel = -1 ) = 0;
+    virtual ID_TIME_T		PlayShaderDirectly( const char * name, const s_channelType channel = -1 ) = 0;
 
 	// dumps the current state and begins archiving commands
 	virtual void			StartWritingDemo( idDemoFile *demo ) = 0;

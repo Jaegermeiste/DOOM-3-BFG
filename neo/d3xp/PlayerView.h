@@ -117,7 +117,7 @@ public:
 	virtual void			Restore( idRestoreGame *savefile );
 
 	// fader functions
-	void					SetFadeTime( int t )		{ msec = t; };
+	void					SetFadeTime(const int t )		{ msec = t; };
 	int						GetFadeTime()				{ return msec; };
 
 	// misc functions
@@ -152,8 +152,8 @@ public:
 
 	void					SetFXManager( FullscreenFXManager *fx )	{ fxman = fx; };
 
-	bool					SetTriggerState( bool state )			{ return fader.SetTriggerState( state ); };
-	void					SetFadeSpeed( int msec )				{ fader.SetFadeTime( msec ); };
+	bool					SetTriggerState(const bool state )			{ return fader.SetTriggerState( state ); };
+	void					SetFadeSpeed(const int msec )				{ fader.SetFadeTime( msec ); };
 	float					GetFadeAlpha()							{ return fader.GetAlpha(); };
 
 	virtual void			Save( idSaveGame *savefile );
@@ -223,7 +223,7 @@ public:
 	bool			Active() override;
 	void			HighQuality() override;
 
-	void					EnableGrabber( bool active )			{ grabberEnabled = active; startWarpTime = gameLocal.slow.time; };
+	void					EnableGrabber(const bool active )			{ grabberEnabled = active; startWarpTime = gameLocal.slow.time; };
 
 	void			Save( idSaveGame *savefile ) override;
 	void			Restore( idRestoreGame *savefile ) override;
@@ -319,7 +319,7 @@ public:
 	idPlayer*				GetPlayer()				{ return gameLocal.GetLocalPlayer(); };
 
 	int						GetNum()				{ return fx.Num(); };
-	FullscreenFX*			GetFX( int index )		{ return fx[index]; };
+	FullscreenFX*			GetFX(const index_t index )		{ return fx[index]; };
 	FullscreenFX*			FindFX( idStr name );
 
 	void					Save( idSaveGame *savefile );
@@ -367,7 +367,7 @@ public:
 	void				Flash( idVec4 color, const ID_TIME_T time );
 
 	// temp for view testing
-	void				EnableBFGVision( bool b ) { bfgVision = b; };
+	void				EnableBFGVision(const bool b ) { bfgVision = b; };
 
 private:
 	void				SingleView( const renderView_t *view, idMenuHandler_HUD * hudManager );

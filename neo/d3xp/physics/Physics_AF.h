@@ -696,14 +696,14 @@ public:
 
 	void					SetContactMotorDirection( const idVec3 &dir );
 	bool					GetContactMotorDirection( idVec3 &dir ) const;
-	void					SetContactMotorVelocity( float vel ) { contactMotorVelocity = vel; }
+	void					SetContactMotorVelocity(const float vel ) { contactMotorVelocity = vel; }
 	float					GetContactMotorVelocity() const { return contactMotorVelocity; }
-	void					SetContactMotorForce( float force ) { contactMotorForce = force; }
+	void					SetContactMotorForce(const float force ) { contactMotorForce = force; }
 	float					GetContactMotorForce() const { return contactMotorForce; }
 
 	void					AddForce( const idVec3 &point, const idVec3 &force );
 	void					InverseWorldSpatialInertiaMultiply( idVecX &dst, const float *v ) const;
-	idVec6 &				GetResponseForce( int index ) { return reinterpret_cast<idVec6 &>(response[ index * 8 ]); }
+	idVec6 &				GetResponseForce(const index_t index ) { return reinterpret_cast<idVec6 &>(response[ index * 8 ]); }
 
 	void					Save( idSaveGame *saveFile );
 	void					Restore( idRestoreGame *saveFile );
@@ -848,7 +848,7 @@ public:
 	void					DeleteConstraint( const char *constraintName );
 	void					DeleteConstraint( const int id );
 							// get all the contact constraints acting on the body
-	int						GetBodyContactConstraints( const int id, idAFConstraint_Contact *contacts[], int maxContacts ) const;
+	int						GetBodyContactConstraints( const int id, idAFConstraint_Contact *contacts[], size_t maxContacts ) const;
 							// set the default friction for bodies
 	void					SetDefaultFriction( float linear, float angular, float contact );
 							// suspend settings
@@ -878,7 +878,7 @@ public:
 							// enable or disable self collision
 	void					SetSelfCollision( const bool enable ) { selfCollision = enable; }
 							// enable or disable coming to a dead stop
-	void					SetComeToRest( bool enable ) { comeToRest = enable; }
+	void					SetComeToRest(const bool enable ) { comeToRest = enable; }
 							// call when structure of articulated figure changes
 	void					SetChanged() { changedAF = true; }
 							// enable/disable activation by impact
@@ -905,8 +905,8 @@ public:	// common physics interface
 	const idBounds &		GetBounds( int id = -1 ) const override;
 	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
-	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
-	void					UpdateTime( int endTimeMSec );
+	bool					Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec );
+	void					UpdateTime( ID_TIME_T endTimeMSec );
 	int						GetTime() const override;
 
 	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;

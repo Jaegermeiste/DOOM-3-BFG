@@ -132,7 +132,7 @@ void idMenuWidget_Shell_SaveInfo::ObserveEvent( const idMenuWidget & widget, con
 
 			const saveGameDetailsList_t & detailList = session->GetSaveGameManager().GetEnumeratedSavegames();
 			bool hasAutoSave = false;
-			for ( int i = 0; i < detailList.Num(); ++i ) {
+			for ( size_t i = 0; i < detailList.Num(); ++i ) {
 				if ( detailList[i].slotName.Icmp( "autosave" ) == 0 ) {
 					hasAutoSave = true;
 				}

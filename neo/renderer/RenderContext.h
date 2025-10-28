@@ -62,7 +62,7 @@ public:
 	void			InitGraphicsAPIWrapper();
 
 	// Debug Tools
-	void			RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs );
+	void			RenderDebugTools( drawSurf_t **drawSurfs, size_t numDrawSurfs );
 
 	void			SetWrapperContext( const wrapperContext_t & context );
 	void			SetWrapperConfig( const wrapperConfig_t & config );
@@ -73,9 +73,9 @@ public:
 	void			ResolveTargetColor( idImage* image, int srcMinX, int srcMinY, int srcMaxX, int srcMaxY, int dstX, int dstY );
 	void			ResolveTargetDepth( idImage* image, int srcMinX, int srcMinY, int srcMaxX, int srcMaxY, int dstX, int dstY );
 
-	void			SetDepthHackValue( float depth ) { depthHackValue = depth; }
+	void			SetDepthHackValue(const float depth ) { depthHackValue = depth; }
 					[[nodiscard]] float			GetDepthHackValue() const { return depthHackValue; }
-	void			SetWeaponDepthHackValue( float depth ) { weaponDepthHackValue = depth; }
+	void			SetWeaponDepthHackValue(const float depth ) { weaponDepthHackValue = depth; }
 					[[nodiscard]] float			GetWeaponDepthHackValue() const { return weaponDepthHackValue; }
 
 					[[nodiscard]] uint64			GetGPUFrameMicroSec() const { return GPUFrameMicroSec; }

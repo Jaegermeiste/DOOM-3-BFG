@@ -92,8 +92,8 @@ void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transiti
 	idPlayer * player = gameLocal.GetLocalPlayer();
 	if ( player != nullptr) {
 
-		int numItems = player->GetInventory().items.Num();
-		for ( int j = 0; j < numItems; j++ ) {
+		size_t numItems = player->GetInventory().items.Num();
+		for ( size_t j = 0; j < numItems; j++ ) {
 			idDict *item = player->GetInventory().items[j];
 			if ( !item->GetBool( "inv_pda" ) ) {
 				const char *iname = item->GetString( "inv_name" );
@@ -110,7 +110,7 @@ void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transiti
 		}
 
 		idList<const idMaterial *> weaponIcons;
-		for ( int j = 0; j < MAX_WEAPONS; j++ ) {
+		for ( size_t j = 0; j < MAX_WEAPONS; j++ ) {
 
 			const char * weap = GetWeaponName( j );				
 			if ( weap == nullptr || *weap == NULL ){
@@ -151,7 +151,7 @@ void idMenuScreen_PDA_Inventory::HideScreen( const mainMenuTransition_t transiti
 idMenuScreen_PDA_Inventory::GetWeaponName
 ========================
 */
-const char * idMenuScreen_PDA_Inventory::GetWeaponName( int index ) {
+const char * idMenuScreen_PDA_Inventory::GetWeaponName(const index_t index ) {
 
 	idPlayer * player = gameLocal.GetLocalPlayer();	
 	if ( player == nullptr) {
@@ -171,7 +171,7 @@ const char * idMenuScreen_PDA_Inventory::GetWeaponName( int index ) {
 idMenuScreen_PDA_Inventory::GetWeaponName
 ========================
 */
-bool idMenuScreen_PDA_Inventory::IsVisibleWeapon( int index ) {
+bool idMenuScreen_PDA_Inventory::IsVisibleWeapon(const index_t index ) {
 
 	idPlayer * player = gameLocal.GetLocalPlayer();	
 	if ( player == nullptr) {
@@ -200,7 +200,7 @@ void idMenuScreen_PDA_Inventory::Update() {
 	}
 
 	int validIndex = 0;		
-	for ( int j = 0; j < MAX_WEAPONS; j++ ) {
+	for ( size_t j = 0; j < MAX_WEAPONS; j++ ) {
 			
 		const char * weap = GetWeaponName( j );				
 		if ( weap == nullptr || *weap == NULL ){
@@ -274,7 +274,7 @@ void idMenuScreen_PDA_Inventory::EquipWeapon() {
 	}
 
 	int validIndex = 0;
-	for ( int j = 0; j < MAX_WEAPONS; j++ ) {
+	for ( size_t j = 0; j < MAX_WEAPONS; j++ ) {
 
 		const char * weap = GetWeaponName( j );				
 		if ( weap == nullptr || *weap == NULL ){
@@ -302,7 +302,7 @@ void idMenuScreen_PDA_Inventory::EquipWeapon() {
 idMenuScreen_PDA_Inventory::HandleAction
 ========================
 */
-bool idMenuScreen_PDA_Inventory::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_PDA_Inventory::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -338,7 +338,7 @@ bool idMenuScreen_PDA_Inventory::HandleAction( idWidgetAction & action, const id
 				itemList.MoveToIndex( itemList.GetMoveToIndex(), true );
 			}
 
-			int index = parms[0].ToInteger();
+			index_t index = parms[0].ToInteger();
 			if ( index != 0 ) {
 				itemList.MoveToIndex( index );
 				Update();

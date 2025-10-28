@@ -182,7 +182,7 @@ void idIK::ClearJointMods() {
 idIK::SolveTwoBones
 ================
 */
-bool idIK::SolveTwoBones( const idVec3 &startPos, const idVec3 &endPos, const idVec3 &dir, float len0, float len1, idVec3 &jointPos ) {
+bool idIK::SolveTwoBones( const idVec3 &startPos, const idVec3 &endPos, const idVec3 &dir, const float len0, const float len1, idVec3 &jointPos ) {
 	float length, lengthSqr, lengthInv, x, y;
 	idVec3 vec0, vec1;
 
@@ -452,7 +452,7 @@ bool idIK_Walk::Init( idEntity *self, const char *anim, const idVec3 &modelOffse
 		return false;
 	}
 
-	int numJoints = animator->NumJoints();
+	size_t numJoints = animator->NumJoints();
 	idJointMat *joints = static_cast<idJointMat*>(_alloca16(numJoints * sizeof( joints[0] )));
 
 	// create the animation frame used to setup the IK
@@ -634,7 +634,7 @@ void idIK_Walk::Evaluate() {
 
 		if ( ik_debug.GetBool() && footModel ) {
 			idFixedWinding w;
-			for ( int j = 0; j < footModel->GetTraceModel()->numVerts; j++ ) {
+			for ( size_t j = 0; j < footModel->GetTraceModel()->numVerts; j++ ) {
 				w += footModel->GetTraceModel()->verts[j];
 			}
 			gameRenderWorld->DebugWinding( colorRed, w, results.endpos, results.endAxis );
@@ -818,7 +818,7 @@ void idIK_Walk::DisableAll() {
 idIK_Walk::EnableLeg
 ================
 */
-void idIK_Walk::EnableLeg( int num ) {
+void idIK_Walk::EnableLeg(const size_t num ) {
 	enabledLegs |= 1 << num;
 }
 
@@ -827,7 +827,7 @@ void idIK_Walk::EnableLeg( int num ) {
 idIK_Walk::DisableLeg
 ================
 */
-void idIK_Walk::DisableLeg( int num ) {
+void idIK_Walk::DisableLeg(const size_t num ) {
 	enabledLegs &= ~( 1 << num );
 }
 
@@ -970,7 +970,7 @@ bool idIK_Reach::Init( idEntity *self, const char *anim, const idVec3 &modelOffs
 		return false;
 	}
 
-	int numJoints = animator->NumJoints();
+	size_t numJoints = animator->NumJoints();
 	idJointMat *joints = static_cast<idJointMat*>(_alloca16(numJoints * sizeof( joints[0] )));
 
 	// create the animation frame used to setup the IK

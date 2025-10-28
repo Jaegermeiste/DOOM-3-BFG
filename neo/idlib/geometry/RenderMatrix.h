@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-static constexpr int NUM_FRUSTUM_CORNERS	= 8;
+static constexpr size_t NUM_FRUSTUM_CORNERS	= 8;
 
 struct frustumCorners_t {
 	float	x[NUM_FRUSTUM_CORNERS];
@@ -38,7 +38,7 @@ struct frustumCorners_t {
 	float	z[NUM_FRUSTUM_CORNERS];
 };
 
-enum frustumCull_t {
+enum frustumCull_t  : uint8 {
 	FRUSTUM_CULL_FRONT		= 1,
 	FRUSTUM_CULL_BACK		= 2,
 	FRUSTUM_CULL_CROSS		= 3
@@ -61,9 +61,9 @@ public:
 								                         float c0, float c1, float c2, float c3,
 								                         float d0, float d1, float d2, float d3 );
 	
-	const float *			operator[](const Ordinal auto index ) const { assert( index >= 0 && index < 4 ); return &m[index*4]; }
+	const float *			operator[]( const Ordinal auto index ) const { ORDINAL_CHECK( index, 4 ); return &m[index*4]; }
 	
-	float *					operator[](const Ordinal auto index ) { assert( index >= 0 && index < 4 ); return &m[index*4]; }
+	float *					operator[]( const Ordinal auto index ) { ORDINAL_CHECK( index, 4 ); return &m[index*4]; }
 
 	void					Zero() { memset( m, 0, sizeof( m ) ); }
 	ID_INLINE void			Identity();
@@ -205,7 +205,7 @@ idRenderMatrix::IsZero
 ========================
 */
 ID_INLINE bool idRenderMatrix::IsZero(const float epsilon ) const {
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		if ( idMath::Fabs( m[i] ) > epsilon ) {
 			return false;
 		}
@@ -219,8 +219,8 @@ idRenderMatrix::IsIdentity
 ========================
 */
 ID_INLINE bool idRenderMatrix::IsIdentity(const float epsilon ) const {
-	for ( int i = 0; i < 4; i++ ) {
-		for ( int j = 0; j < 4; j++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			if ( i == j ) {
 				if ( idMath::Fabs( m[i * 4 + j] - 1.0f ) > epsilon ) {
 					return false;
@@ -407,13 +407,13 @@ idRenderMatrix::TransformModelToClip
 ========================
 */
 ID_INLINE void idRenderMatrix::TransformModelToClip( const idVec3 & src, const idRenderMatrix & modelMatrix, const idRenderMatrix & projectionMatrix, idVec4 & eye, idVec4 & clip ) {
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		eye[i] =	modelMatrix[i][0] * src[0] +
 					modelMatrix[i][1] * src[1] +
 					modelMatrix[i][2] * src[2] +
 					modelMatrix[i][3];
 	}
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		clip[i] =	projectionMatrix[i][0] * eye[0] +
 					projectionMatrix[i][1] * eye[1] +
 					projectionMatrix[i][2] * eye[2] +

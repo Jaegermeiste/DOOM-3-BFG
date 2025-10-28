@@ -213,7 +213,7 @@ idDeclPDA::RemoveAddedEmailsAndVideos
 =================
 */
 void idDeclPDA::RemoveAddedEmailsAndVideos() const {
-	int num = emails.Num();
+	size_t num = emails.Num();
 	if ( originalEmails < num ) {
 		while ( num && num > originalEmails ) {
 			emails.RemoveIndex( --num );

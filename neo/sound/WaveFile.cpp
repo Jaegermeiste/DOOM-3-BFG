@@ -80,7 +80,7 @@ bool idWaveFile::Open( const char * filename ) {
 		return false;
 	}
 
-	uint32 riffSize = header.size + 8;
+	const uint32 riffSize = header.size + 8;
 	uint32 offset = sizeof( header );
 
 	// Scan the file collecting chunks
@@ -123,8 +123,8 @@ idWaveFile::SeekToChunk
 Seeks to the specified chunk and returns the size of the chunk or 0 if the chunk wasn't found.
 ========================
 */
-uint32 idWaveFile::SeekToChunk( uint32 id ) {
-	for ( int i = 0; i < chunks.Num(); i++ ) {
+uint32 idWaveFile::SeekToChunk( const uint32 id ) {
+	for ( size_t i = 0; i < chunks.Num(); i++ ) {
 		if ( chunks[i].id == id ) {
 			file->Seek( chunks[i].offset, FS_SEEK_SET );
 			return chunks[i].size;
@@ -140,8 +140,8 @@ idWaveFile::GetChunkOffset
 Seeks to the specified chunk and returns the size of the chunk or 0 if the chunk wasn't found.
 ========================
 */
-uint32 idWaveFile::GetChunkOffset( uint32 id ) {
-	for ( int i = 0; i < chunks.Num(); i++ ) {
+uint32 idWaveFile::GetChunkOffset( const uint32 id ) {
+	for ( size_t i = 0; i < chunks.Num(); i++ ) {
 		if ( chunks[i].id == id ) {
 			return chunks[i].offset;
 		}
@@ -151,21 +151,21 @@ uint32 idWaveFile::GetChunkOffset( uint32 id ) {
 
 // Used in XMA2WAVEFORMAT for per-stream data
 typedef struct XMA2STREAMFORMAT {
-    byte Channels;			// Number of channels in the stream (1 or 2)
-    byte RESERVED;			// Reserved for future use
-    uint16 ChannelMask;		// Spatial positions of the channels in the stream
+    byte Channels;			    // Number of channels in the stream (1 or 2)
+    byte RESERVED;			    // Reserved for future use
+    uint16 ChannelMask;		    // Spatial positions of the channels in the stream
 } XMA2STREAMFORMAT;
 
 // Legacy XMA2 format structure (big-endian byte ordering)
 typedef struct XMA2WAVEFORMAT {
-    byte Version;			// XMA encoder version that generated the file.
-							// Always 3 or higher for XMA2 files.
-    byte NumStreams;		// Number of interleaved audio streams
-    byte RESERVED;			// Reserved for future use
-    byte LoopCount;			// Number of loop repetitions; 255 = infinite
-    uint32 LoopBegin;		// Loop begin point, in samples
-    uint32 LoopEnd;			// Loop end point, in samples
-    uint32 SampleRate;		// The file's decoded sample rate
+    byte Version;			    // XMA encoder version that generated the file.
+							    // Always 3 or higher for XMA2 files.
+    byte NumStreams;		    // Number of interleaved audio streams
+    byte RESERVED;			    // Reserved for future use
+    byte LoopCount;			    // Number of loop repetitions; 255 = infinite
+    uint32 LoopBegin;		    // Loop begin point, in samples
+    uint32 LoopEnd;			    // Loop end point, in samples
+    uint32 SampleRate;		    // The file's decoded sample rate
     uint32 EncodeOptions;		// Options for the XMA encoder/decoder
     uint32 PsuedoBytesPerSec;	// Used internally by the XMA encoder
     uint32 BlockSizeInBytes;	// Size in bytes of this file's XMA blocks (except
@@ -189,7 +189,7 @@ otherwise, returns a human-readable error message.
 const char * idWaveFile::ReadWaveFormat( waveFmt_t & format ) {
 	memset( &format, 0, sizeof( format ) );
 
-	uint32 formatSize = SeekToChunk( waveFmt_t::id );
+	const uint32 formatSize = SeekToChunk( waveFmt_t::id );
 	if ( formatSize == 0 ) {
 		return "No format chunk";
 	}
@@ -215,12 +215,12 @@ const char * idWaveFile::ReadWaveFormat( waveFmt_t & format ) {
 			return "Incorrect number of coefficients in ADPCM file";
 		}
 		Read( &format.extra.adpcm, sizeof( format.extra.adpcm ) );
-		idSwapClass<waveFmt_t::extra_t::adpcm_t> swap;
-		swap.Little( format.extra.adpcm.samplesPerBlock );
-		swap.Little( format.extra.adpcm.numCoef );
-		for ( int i = 0; i < format.extra.adpcm.numCoef; i++ ) {
-			swap.Little( format.extra.adpcm.aCoef[ i ].coef1 );
-			swap.Little( format.extra.adpcm.aCoef[ i ].coef2 );
+		idSwapClass<waveFmt_t::extra_t::adpcm_t> swapADPCM = {};
+		swapADPCM.Little( format.extra.adpcm.samplesPerBlock );
+		swapADPCM.Little( format.extra.adpcm.numCoef );
+		for ( size_t i = 0; i < format.extra.adpcm.numCoef; i++ ) {
+			swapADPCM.Little( format.extra.adpcm.aCoef[ i ].coef1 );
+			swapADPCM.Little( format.extra.adpcm.aCoef[ i ].coef2 );
 		}
 	} else if ( format.basic.formatTag == FORMAT_XMA2 ) {
 		Read( &format.extraSize, sizeof( format.extraSize ) );
@@ -229,18 +229,18 @@ const char * idWaveFile::ReadWaveFormat( waveFmt_t & format ) {
 			return "Incorrect chunk size in XMA2 file";
 		}
 		Read( &format.extra.xma2, sizeof( format.extra.xma2 ) );
-		idSwapClass<waveFmt_t::extra_t::xma2_t> swap;
-		swap.Little( format.extra.xma2.numStreams );
-		swap.Little( format.extra.xma2.channelMask );
-		swap.Little( format.extra.xma2.samplesEncoded );
-		swap.Little( format.extra.xma2.bytesPerBlock );
-		swap.Little( format.extra.xma2.playBegin );
-		swap.Little( format.extra.xma2.playLength );
-		swap.Little( format.extra.xma2.loopBegin );
-		swap.Little( format.extra.xma2.loopLength );
-		swap.Little( format.extra.xma2.loopCount );
-		swap.Little( format.extra.xma2.encoderVersion );
-		swap.Little( format.extra.xma2.blockCount );
+		idSwapClass<waveFmt_t::extra_t::xma2_t> swapXMA2 = {};
+		swapXMA2.Little( format.extra.xma2.numStreams );
+		swapXMA2.Little( format.extra.xma2.channelMask );
+		swapXMA2.Little( format.extra.xma2.samplesEncoded );
+		swapXMA2.Little( format.extra.xma2.bytesPerBlock );
+		swapXMA2.Little( format.extra.xma2.playBegin );
+		swapXMA2.Little( format.extra.xma2.playLength );
+		swapXMA2.Little( format.extra.xma2.loopBegin );
+		swapXMA2.Little( format.extra.xma2.loopLength );
+		swapXMA2.Little( format.extra.xma2.loopCount );
+		swapXMA2.Little( format.extra.xma2.encoderVersion );
+		swapXMA2.Little( format.extra.xma2.blockCount );
 	} else if ( format.basic.formatTag == FORMAT_EXTENSIBLE ) {
 		Read( &format.extraSize, sizeof( format.extraSize ) );
 		idSwap::Little( format.extraSize );
@@ -248,20 +248,20 @@ const char * idWaveFile::ReadWaveFormat( waveFmt_t & format ) {
 			return "Incorrect chunk size in extensible wave file";
 		}
 		Read( &format.extra.extensible, sizeof( format.extra.extensible ) );
-		idSwapClass<waveFmt_t::extra_t::extensible_t> swap;
-		swap.Little( format.extra.extensible.validBitsPerSample );
-		swap.Little( format.extra.extensible.channelMask );
-		swap.Little( format.extra.extensible.subFormat.data1 );
-		swap.Little( format.extra.extensible.subFormat.data2 );
-		swap.Little( format.extra.extensible.subFormat.data3 );
-		swap.Little( format.extra.extensible.subFormat.data4 );
-		swap.LittleArray( format.extra.extensible.subFormat.data5, 6 );
-		waveFmt_t::extra_t::extensible_t::guid_t pcmGuid = {
-			FORMAT_PCM,
-			0x0000,
-			0x0010,
-			0x8000,
-			{ 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 }
+		idSwapClass<waveFmt_t::extra_t::extensible_t> swapExtensible = {};
+		swapExtensible.Little( format.extra.extensible.validBitsPerSample );
+		swapExtensible.Little( format.extra.extensible.channelMask );
+		swapExtensible.Little( format.extra.extensible.subFormat.data1 );
+		swapExtensible.Little( format.extra.extensible.subFormat.data2 );
+		swapExtensible.Little( format.extra.extensible.subFormat.data3 );
+		swapExtensible.Little( format.extra.extensible.subFormat.data4 );
+		swapExtensible.LittleArray( format.extra.extensible.subFormat.data5, 6 );
+		constexpr waveFmt_t::extra_t::extensible_t::guid_t pcmGuid = {
+			.data1 = FORMAT_PCM,
+			.data2 = 0x0000,
+			.data3 = 0x0010,
+			.data4 = 0x8000,
+			.data5 = { 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 }
 		};
 		if ( memcmp( &pcmGuid, &format.extra.extensible.subFormat, sizeof( pcmGuid ) ) != 0 ) {
 			return "Unsupported Extensible format";
@@ -299,12 +299,12 @@ bool idWaveFile::ReadWaveFormatDirect( waveFmt_t & format, idFile *file ) {
 			return false;
 		}
 		file->Read( &format.extra.adpcm, sizeof( format.extra.adpcm ) );
-		idSwapClass<waveFmt_t::extra_t::adpcm_t> swap;
-		swap.Little( format.extra.adpcm.samplesPerBlock );
-		swap.Little( format.extra.adpcm.numCoef );
-		for ( int i = 0; i < format.extra.adpcm.numCoef; i++ ) {
-			swap.Little( format.extra.adpcm.aCoef[ i ].coef1 );
-			swap.Little( format.extra.adpcm.aCoef[ i ].coef2 );
+		idSwapClass<waveFmt_t::extra_t::adpcm_t> swapADPCM = {};
+		swapADPCM.Little( format.extra.adpcm.samplesPerBlock );
+		swapADPCM.Little( format.extra.adpcm.numCoef );
+		for ( size_t i = 0; i < format.extra.adpcm.numCoef; i++ ) {
+			swapADPCM.Little( format.extra.adpcm.aCoef[ i ].coef1 );
+			swapADPCM.Little( format.extra.adpcm.aCoef[ i ].coef2 );
 		}
 	} else if ( format.basic.formatTag == FORMAT_XMA2 ) {
 		file->Read( &format.extraSize, sizeof( format.extraSize ) );
@@ -313,18 +313,18 @@ bool idWaveFile::ReadWaveFormatDirect( waveFmt_t & format, idFile *file ) {
 			return false;
 		}
 		file->Read( &format.extra.xma2, sizeof( format.extra.xma2 ) );
-		idSwapClass<waveFmt_t::extra_t::xma2_t> swap;
-		swap.Little( format.extra.xma2.numStreams );
-		swap.Little( format.extra.xma2.channelMask );
-		swap.Little( format.extra.xma2.samplesEncoded );
-		swap.Little( format.extra.xma2.bytesPerBlock );
-		swap.Little( format.extra.xma2.playBegin );
-		swap.Little( format.extra.xma2.playLength );
-		swap.Little( format.extra.xma2.loopBegin );
-		swap.Little( format.extra.xma2.loopLength );
-		swap.Little( format.extra.xma2.loopCount );
-		swap.Little( format.extra.xma2.encoderVersion );
-		swap.Little( format.extra.xma2.blockCount );
+		idSwapClass<waveFmt_t::extra_t::xma2_t> swapXMA2 = {};
+		swapXMA2.Little( format.extra.xma2.numStreams );
+		swapXMA2.Little( format.extra.xma2.channelMask );
+		swapXMA2.Little( format.extra.xma2.samplesEncoded );
+		swapXMA2.Little( format.extra.xma2.bytesPerBlock );
+		swapXMA2.Little( format.extra.xma2.playBegin );
+		swapXMA2.Little( format.extra.xma2.playLength );
+		swapXMA2.Little( format.extra.xma2.loopBegin );
+		swapXMA2.Little( format.extra.xma2.loopLength );
+		swapXMA2.Little( format.extra.xma2.loopCount );
+		swapXMA2.Little( format.extra.xma2.encoderVersion );
+		swapXMA2.Little( format.extra.xma2.blockCount );
 	} else if ( format.basic.formatTag == FORMAT_EXTENSIBLE ) {
 		file->Read( &format.extraSize, sizeof( format.extraSize ) );
 		idSwap::Little( format.extraSize );
@@ -332,20 +332,20 @@ bool idWaveFile::ReadWaveFormatDirect( waveFmt_t & format, idFile *file ) {
 			return false;
 		}
 		file->Read( &format.extra.extensible, sizeof( format.extra.extensible ) );
-		idSwapClass<waveFmt_t::extra_t::extensible_t> swap;
-		swap.Little( format.extra.extensible.validBitsPerSample );
-		swap.Little( format.extra.extensible.channelMask );
-		swap.Little( format.extra.extensible.subFormat.data1 );
-		swap.Little( format.extra.extensible.subFormat.data2 );
-		swap.Little( format.extra.extensible.subFormat.data3 );
-		swap.Little( format.extra.extensible.subFormat.data4 );
-		swap.LittleArray( format.extra.extensible.subFormat.data5, 6 );
-		waveFmt_t::extra_t::extensible_t::guid_t pcmGuid = {
-			FORMAT_PCM,
-			0x0000,
-			0x0010,
-			0x8000,
-			{ 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 }
+		idSwapClass<waveFmt_t::extra_t::extensible_t> swapExtensible = {};
+		swapExtensible.Little( format.extra.extensible.validBitsPerSample );
+		swapExtensible.Little( format.extra.extensible.channelMask );
+		swapExtensible.Little( format.extra.extensible.subFormat.data1 );
+		swapExtensible.Little( format.extra.extensible.subFormat.data2 );
+		swapExtensible.Little( format.extra.extensible.subFormat.data3 );
+		swapExtensible.Little( format.extra.extensible.subFormat.data4 );
+		swapExtensible.LittleArray( format.extra.extensible.subFormat.data5, 6 );
+		constexpr waveFmt_t::extra_t::extensible_t::guid_t pcmGuid = {
+			.data1 = FORMAT_PCM,
+			.data2 = 0x0000,
+			.data3 = 0x0010,
+			.data4 = 0x8000,
+			.data5 = { 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71 }
 		};
 		if ( memcmp( &pcmGuid, &format.extra.extensible.subFormat, sizeof( pcmGuid ) ) != 0 ) {
 			return false;
@@ -364,7 +364,7 @@ idWaveFile::WriteWaveFormatDirect
 Writes a wave format header to a file ptr, 
 ========================
 */
-bool idWaveFile::WriteWaveFormatDirect( waveFmt_t & format, idFile *file ) {
+bool idWaveFile::WriteWaveFormatDirect( const waveFmt_t & format, idFile *file ) {
 	//idSwapClass<waveFmt_t::basic_t> swap;
 	//swap.Little( format.basic.formatTag );
 	//swap.Little( format.basic.numChannels );
@@ -404,10 +404,10 @@ Writes a wave format header to a file ptr,
 bool idWaveFile::WriteSampleDataDirect( idList< sampleData_t > & sampleData, idFile * file ) {
 	static constexpr uint32 sample = 'smpl';
 	file->WriteBig( sample );
-	uint32 samplerData = sampleData.Num() * 24;
-	uint32 chunkSize = 36 + samplerData;
-	uint32 zero = 0;
-	uint32 numSamples = sampleData.Num();
+	const uint32 samplerData = numeric_cast<uint32>(sampleData.Num() * 24);
+	const uint32 chunkSize = 36 + samplerData;
+	constexpr uint32 zero = 0;
+	const uint32 numSamples = numeric_cast<uint32>(sampleData.Num());
 
 	file->Write( &chunkSize, sizeof( uint32 ) );
 	file->Write( &zero, sizeof( uint32 ) );
@@ -420,7 +420,7 @@ bool idWaveFile::WriteSampleDataDirect( idList< sampleData_t > & sampleData, idF
 	file->Write( &numSamples, sizeof( uint32 ) );
 	file->Write( &samplerData, sizeof( uint32 ) );
 
-	for ( int i = 0; i < sampleData.Num(); ++i ) {
+	for ( size_t i = 0; i < sampleData.Num(); ++i ) {
 		file->Write( &zero, sizeof( uint32 ) );
 		file->Write( &zero, sizeof( uint32 ) );
 		file->Write( &sampleData[ i ].start, sizeof( uint32 ) );
@@ -439,7 +439,7 @@ Writes a data chunk to a file ptr
 ========================
 */
 
-bool idWaveFile::WriteDataDirect( char * _data, uint32 size, idFile * file ) {
+bool idWaveFile::WriteDataDirect(const char * _data, const uint32 size, idFile * file ) {
 	static constexpr uint32 data = 'data';
 	file->WriteBig( data );
 	file->Write( &size, sizeof( uint32 ) );
@@ -455,7 +455,7 @@ Writes a wave header to a file ptr,
 ========================
 */
 
-bool idWaveFile::WriteHeaderDirect( uint32 fileSize, idFile * file ) {
+bool idWaveFile::WriteHeaderDirect(const uint32 fileSize, idFile * file ) {
 	static constexpr uint32 riff = 'RIFF';
 	static constexpr uint32 wave = 'WAVE';
 	file->WriteBig( riff );
@@ -471,13 +471,13 @@ idWaveFile::ReadLoopPoint
 Reads a loop point from a 'smpl' chunk in a wave file, returns 0 if none are found.
 ========================
 */
-bool idWaveFile::ReadLoopData( int & start, int & end ) {
-	uint32 chunkSize = SeekToChunk( samplerChunk_t::id );
+bool idWaveFile::ReadLoopData( index_t & start, index_t & end ) {
+	const uint32 chunkSize = SeekToChunk( samplerChunk_t::id );
 	if ( chunkSize < sizeof( samplerChunk_t ) ) {
 		return false;
 	}
 
-	samplerChunk_t smpl;
+	samplerChunk_t smpl = {};
 	Read( &smpl, sizeof( smpl ) );
 	idSwap::Little( smpl.numSampleLoops );
 
@@ -485,7 +485,7 @@ bool idWaveFile::ReadLoopData( int & start, int & end ) {
 		return false; // this is possible returning false lets us know there are more then 1 sample look in the file and is not appropriate for traditional looping
 	}
 
-	sampleData_t smplData;
+	sampleData_t smplData = {};
 	Read( &smplData, sizeof( smplData ) );
 	idSwap::Little( smplData.start );
 	idSwap::Little( smplData.end );

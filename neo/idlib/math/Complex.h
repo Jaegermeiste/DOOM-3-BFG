@@ -51,9 +51,9 @@ public:
 	void				Zero();
 
 	
-	float				operator[]( Ordinal auto index ) const;
+	float				operator[]( const Ordinal auto index ) const;
 	
-	float &				operator[]( Ordinal auto index );
+	float &				operator[]( const Ordinal auto index );
 
 	idComplex			operator-() const;
 	idComplex &			operator=( const idComplex &a );
@@ -92,10 +92,10 @@ public:
 	[[nodiscard]] idComplex			Sqrt() const;
 	[[nodiscard]] float				Abs() const;
 
-	[[nodiscard]] int					GetDimension() const;
+	[[nodiscard]] static size_t		GetDimension();
 
 	[[nodiscard]] const float *		ToFloatPtr() const;
-	float *				ToFloatPtr();
+	[[nodiscard]] float *			ToFloatPtr();
 	[[nodiscard]] const char *		ToString( int precision = 2 ) const;
 };
 
@@ -117,13 +117,13 @@ ID_INLINE void idComplex::Zero() {
 }
 
 
-ID_INLINE float idComplex::operator[](const Ordinal auto index ) const {
+ID_INLINE float idComplex::operator[]( const Ordinal auto index ) const {
 	assert( index >= 0 && index < 2 );
 	return ( &r )[ index ];
 }
 
 
-ID_INLINE float& idComplex::operator[](const Ordinal auto index ) {
+ID_INLINE float& idComplex::operator[]( const Ordinal auto index ) {
 	assert( index >= 0 && index < 2 );
 	return ( &r )[ index ];
 }
@@ -311,7 +311,7 @@ ID_INLINE float idComplex::Abs() const {
 }
 
 ID_INLINE bool idComplex::Compare( const idComplex &a ) const {
-	return ( ( r == a.r ) && ( i == a.i ) );
+	return ( std::equal_to<>()( r, a.r ) && std::equal_to<>()( i, a.i ) );
 }
 
 ID_INLINE bool idComplex::Compare( const idComplex &a, const float epsilon ) const {
@@ -332,7 +332,7 @@ ID_INLINE bool idComplex::operator!=( const idComplex &a ) const {
 	return !Compare( a );
 }
 
-ID_INLINE int idComplex::GetDimension() const {
+ID_INLINE size_t idComplex::GetDimension() {
 	return 2;
 }
 

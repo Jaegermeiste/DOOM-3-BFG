@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#pragma once
+
 /*
 ==============================================================
 
@@ -43,19 +45,19 @@ extern int64 com_engineHz_numerator;
 extern int64 com_engineHz_denominator;
 
 // Returns the msec the frame starts on
-ID_INLINE int FRAME_TO_MSEC( int64 frame ) noexcept {
-	return static_cast<int>((frame * com_engineHz_numerator) / com_engineHz_denominator);
+ID_INLINE ID_TIME_T FRAME_TO_MSEC(const int64 frame ) noexcept {
+	return numeric_cast<ID_TIME_T>((frame * com_engineHz_numerator) / com_engineHz_denominator);
 }
 // Rounds DOWN to the nearest frame
-ID_INLINE int MSEC_TO_FRAME_FLOOR( int msec ) noexcept {
-	return static_cast<int>(((static_cast<int64>(msec) * com_engineHz_denominator) + (com_engineHz_denominator - 1)) / com_engineHz_numerator);
+ID_INLINE ID_TIME_T MSEC_TO_FRAME_FLOOR(const ID_TIME_T msec ) noexcept {
+	return numeric_cast<ID_TIME_T>(((numeric_cast<ID_TIME_T>(msec) * com_engineHz_denominator) + (com_engineHz_denominator - 1)) / com_engineHz_numerator);
 }
 // Rounds UP to the nearest frame
-ID_INLINE int MSEC_TO_FRAME_CEIL( int msec ) noexcept {
-	return static_cast<int>(((static_cast<int64>(msec) * com_engineHz_denominator) + (com_engineHz_numerator - 1)) / com_engineHz_numerator);
+ID_INLINE ID_TIME_T MSEC_TO_FRAME_CEIL(const ID_TIME_T msec ) noexcept {
+	return numeric_cast<ID_TIME_T>(((numeric_cast<ID_TIME_T>(msec) * com_engineHz_denominator) + (com_engineHz_numerator - 1)) / com_engineHz_numerator);
 }
 // Aligns msec so it starts on a frame boundary
-ID_INLINE int MSEC_ALIGN_TO_FRAME( int msec ) noexcept {
+ID_INLINE ID_TIME_T MSEC_ALIGN_TO_FRAME(const ID_TIME_T msec ) noexcept {
 	return FRAME_TO_MSEC( MSEC_TO_FRAME_CEIL( msec ) );
 }
 
@@ -96,7 +98,7 @@ ID_INLINE bool EndTraceRecording() noexcept {
 	return false;
 }
 
-typedef enum {
+typedef enum toolFlag_e : uint16 {
 	EDITOR_NONE					= 0,
 	EDITOR_RADIANT				= BIT(1),
 	EDITOR_GUI					= BIT(2),
@@ -156,9 +158,9 @@ struct mpMap_t {
 	uint32			supportedModes;
 };
 
-static constexpr int	MAX_LOGGED_STATS = 60 * 120;		// log every half second 
+static constexpr size_t	MAX_LOGGED_STATS = 60 * 120;		// log every half second 
 
-enum currentGame_t {
+enum currentGame_t : uint8 {
 	DOOM_CLASSIC,
 	DOOM2_CLASSIC,
 	DOOM3_BFG
@@ -201,7 +203,7 @@ public:
 	virtual void				StartupVariable( const char * match ) = 0;
 
 								// Begins redirection of console output to the given buffer.
-	virtual void				BeginRedirect( char *buffer, int buffersize, void (*flush)( const char * ) ) = 0;
+	virtual void				BeginRedirect( char *buffer, size_t buffersize, void (*flush)( const char * ) ) = 0;
 
 								// Stops redirection of console output.
 	virtual void				EndRedirect() = 0;
@@ -246,10 +248,10 @@ public:
 	virtual const char *		BindingFromKey( const char *key ) = 0; 
 
 								// Directly sample a button.
-	virtual int					ButtonState( int key ) = 0;
+	virtual int					ButtonState( usercmdButton_t key ) = 0;
 
 								// Directly sample a keystate.
-	virtual int					KeyState( int key ) = 0;
+	virtual int					KeyState( keyNum_t key ) = 0;
 
 	// Returns true if a multiplayer game is running.
 	// CVars and commands are checked differently in multiplayer mode.
@@ -263,9 +265,9 @@ public:
 	// Returns the rate (in ms between snaps) that we want to generate snapshots
 	virtual int					GetSnapRate() = 0;
 
-	virtual void				NetReceiveReliable( int peer, int type, idBitMsg & msg ) = 0;
+	virtual void				NetReceiveReliable( index_t peer, int type, idBitMsg & msg ) = 0;
 	virtual void				NetReceiveSnapshot( class idSnapShot & ss ) = 0;
-	virtual void				NetReceiveUsercmds( int peer, idBitMsg & msg ) = 0;
+	virtual void				NetReceiveUsercmds( index_t peer, idBitMsg & msg ) = 0;
 
 	// Processes the given event.
 	virtual	bool				ProcessEvent( const sysEvent_t * event ) = 0;
@@ -292,16 +294,16 @@ public:
 
 	virtual void				OnStartHosting( idMatchParameters & parms ) = 0;
 
-	virtual int					GetGameFrame() = 0;
+	virtual size_t				GetGameFrame() = 0;
 
-	virtual void				LaunchExternalTitle( int titleIndex, int device, const lobbyConnectInfo_t * const connectInfo ) = 0;
+	virtual void				LaunchExternalTitle( index_t titleIndex, index_t device, const lobbyConnectInfo_t * const connectInfo ) = 0;
 
 	virtual void				InitializeMPMapsModes() = 0;
 	[[nodiscard]] virtual const idStrList &			GetModeList() const = 0;
 	[[nodiscard]] virtual const idStrList &			GetModeDisplayList() const = 0;
 	[[nodiscard]] virtual const idList<mpMap_t> &		GetMapList() const = 0;
 
-	virtual void				ResetPlayerInput( int playerIndex ) = 0;
+	virtual void				ResetPlayerInput( index_t playerIndex ) = 0;
 
 	[[nodiscard]] virtual bool				JapaneseCensorship() const = 0;
 

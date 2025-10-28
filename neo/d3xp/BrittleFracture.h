@@ -81,7 +81,7 @@ public:
 		EVENT_MAXEVENTS
 	};
 
-	void				ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void				ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void				ClientPredictionThink() override;
 	bool				ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
@@ -125,7 +125,7 @@ private:
 	static bool					ModelCallback( renderEntity_s *renderEntity, const renderView_t *renderView );
 
 	void						AddShard( idClipModel *clipModel, idFixedWinding &w );
-	void						RemoveShard( int index );
+	void						RemoveShard( index_t index );
 	void						DropShard( shard_t *shard, const idVec3 &point, const idVec3 &dir, const float impulse, const const ID_TIME_T time );
 	void						Shatter( const idVec3 &point, const idVec3 &impulse, const const ID_TIME_T time );
 	void						DropFloatingIslands( const idVec3 &point, const idVec3 &impulse, const const ID_TIME_T time );

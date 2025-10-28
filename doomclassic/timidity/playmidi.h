@@ -110,4 +110,4 @@ extern int voices;
 
 extern int play_midi(MidiEvent *el,  int32_t  events,  int32_t  samples);
 extern int play_midi_file(char *fn);
-extern void dumb_pass_playing_list(int number_of_files, char *list_of_files[]);
+extern void dumb_pass_playing_list(size_t number_of_files, char *list_of_files[]);

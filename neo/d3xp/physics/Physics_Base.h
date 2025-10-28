@@ -73,7 +73,7 @@ public:	// common physics interface
 	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
 	bool					Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) override;
-	bool					Interpolate( const float fraction ) override;
+	bool					Interpolate( const double fraction ) override;
 	void					ResetInterpolationState( const idVec3 & origin, const idMat3 & axis ) override;
 	void					UpdateTime( ID_TIME_T endTimeMSec ) override;
 	ID_TIME_T				GetTime() const override;
@@ -121,14 +121,14 @@ public:	// common physics interface
 
 	bool					EvaluateContacts() override;
 	size_t					GetNumContacts() const override;
-	const contactInfo_t &	GetContact( const Ordinal auto num ) const;
+	const contactInfo_t &	GetContact( index_t num ) const;
 	void					ClearContacts() override;
 	void					AddContactEntity( idEntity *e ) override;
 	void					RemoveContactEntity( idEntity *e ) override;
 
 	bool					HasGroundContacts() const override;
-	bool					IsGroundEntity( const Ordinal auto entityNum ) const;
-	bool					IsGroundClipModel( const Ordinal auto entityNum, int id ) const;
+	bool					IsGroundEntity( index_t entityNum ) const;
+	bool					IsGroundClipModel( index_t entityNum, int id ) const;
 
 	void					SetPushed( ID_TIME_T deltaTime ) override;
 	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const override;
@@ -191,7 +191,7 @@ template< class _stateType_ >
 bool InterpolatePhysicsState( _stateType_ & stateToUpdate,
 							  const physicsInterpolationState_t & previous,
 							  const physicsInterpolationState_t & next,
-							  const float fraction ) {
+							  const double fraction ) {
 	const idVec3 oldOrigin = stateToUpdate.origin;
 	const idMat3 oldAxis = stateToUpdate.axis;
 

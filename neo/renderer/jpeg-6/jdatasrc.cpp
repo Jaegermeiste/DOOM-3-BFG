@@ -42,7 +42,7 @@ typedef my_source_mgr * my_src_ptr;
  */
 
 METHODDEF void
-init_source( j_decompress_ptr cinfo ) {
+init_source(const j_decompress_ptr cinfo ) {
     my_src_ptr src = (my_src_ptr) cinfo->src;
 
     /* We reset the empty-input-file flag for each image,
@@ -87,7 +87,7 @@ init_source( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF boolean
-fill_input_buffer( j_decompress_ptr cinfo ) {
+fill_input_buffer(const j_decompress_ptr cinfo ) {
     my_src_ptr src = (my_src_ptr) cinfo->src;
 
     memcpy( src->buffer, src->infile, INPUT_BUF_SIZE );
@@ -115,7 +115,7 @@ fill_input_buffer( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-skip_input_data( j_decompress_ptr cinfo, long num_bytes ) {
+skip_input_data(const j_decompress_ptr cinfo, long num_bytes ) {
     my_src_ptr src = (my_src_ptr) cinfo->src;
 
     /* Just a dumb implementation for now.  Could use fseek() except
@@ -167,7 +167,7 @@ term_source( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_stdio_src( j_decompress_ptr cinfo, unsigned char * infile ) {
+jpeg_stdio_src(const j_decompress_ptr cinfo, unsigned char * infile ) {
     my_src_ptr src;
 
     /* The source object and input buffer are made permanent so that a series

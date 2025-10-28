@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 class idSurface_Polytope : public idSurface {
 public:
 						idSurface_Polytope() noexcept;
-						explicit idSurface_Polytope( const idSurface &surface ) : idSurface( surface ) {}
+	explicit            idSurface_Polytope( const idSurface &surface ) : idSurface( surface ) {}
 
 	void				FromPlanes( const idPlane *planes, const size_t numPlanes );
 

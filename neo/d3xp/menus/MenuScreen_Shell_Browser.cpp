@@ -206,7 +206,7 @@ void idMenuScreen_Shell_GameBrowser::UpdateServerList() {
 		return;
 	}
 
-	for ( int i = 0; i < listWidget->GetChildren().Num(); ++i ) {
+	for ( size_t i = 0; i < listWidget->GetChildren().Num(); ++i ) {
 		idMenuWidget & child = listWidget->GetChildByIndex( i );
 		child.SetState( WIDGET_STATE_HIDDEN );
 	}
@@ -234,7 +234,7 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady() {
 	mgr->HidePacifier();
 
 	idList< idPair< serverInfo_t, int > > servers;
-	for ( int i = 0; i < session->NumServers(); ++i ) {
+	for ( size_t i = 0; i < session->NumServers(); ++i ) {
 		const serverInfo_t * const server = session->ServerInfo( i );
 		if ( server != nullptr && server->joinable ) {
 			idPair< serverInfo_t, int > & serverPair = servers.Alloc();
@@ -246,7 +246,7 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady() {
 	servers.SortWithTemplate( idSort_PlayerGamesList() );
 
 	listWidget->ClearGames();
-	for ( int i = 0; i < servers.Num(); ++i ) {
+	for ( size_t i = 0; i < servers.Num(); ++i ) {
 		idPair< serverInfo_t, int > & serverPair = servers[ i ];
 		DescribeServer( serverPair.first, serverPair.second );
 	}
@@ -302,14 +302,14 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady() {
 idMenuScreen_Shell_GameBrowser::DescribeServers
 ========================
 */
-void idMenuScreen_Shell_GameBrowser::DescribeServer( const serverInfo_t & server, const int index ) {
+void idMenuScreen_Shell_GameBrowser::DescribeServer( const serverInfo_t & server, const index_t index ) {
 
 	idStr serverName;
 	int serverIndex = index;
 	bool joinable = false;
 	bool validMap = false;
 	int players = 0;
-	int maxPlayers = 0;
+	size_t maxPlayers = 0;
 	idStrId mapName;
 	idStr modeName;
 
@@ -344,7 +344,7 @@ void idMenuScreen_Shell_GameBrowser::DescribeServer( const serverInfo_t & server
 idMenuScreen_Shell_GameBrowser::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandle ) {
+bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandle ) {
 	idMenuHandler_Shell * const mgr = dynamic_cast< idMenuHandler_Shell * >( menuData );
 
 	if ( mgr == nullptr) {
@@ -370,7 +370,7 @@ bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction & action, cons
 					break;
 				}
 				case BROWSER_COMMAND_SHOW_GAMERTAG: {
-					int index = listWidget->GetServerIndex();
+					index_t index = listWidget->GetServerIndex();
 					if ( index != -1 ) {
 						session->ShowServerGamerCardUI( index );
 					}
@@ -391,7 +391,7 @@ bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction & action, cons
 				return true;
 			}
 
-			int index = listWidget->GetServerIndex();
+			index_t index = listWidget->GetServerIndex();
 			if ( index != -1 ) {
 				session->ConnectToServer( index );
 			}

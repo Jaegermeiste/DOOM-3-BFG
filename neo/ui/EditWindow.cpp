@@ -73,7 +73,7 @@ bool idEditWindow::ParseInternalVar( const char *_name, idTokenParser *src ) {
 	return idWindow::ParseInternalVar( _name, src );
 }
 
-idWinVar *idEditWindow::GetWinVarByName( const char *_name, bool fixup, drawWin_t** owner ) {
+idWinVar *idEditWindow::GetWinVarByName( const char *_name, const bool fixup, drawWin_t** owner ) {
 	if ( idStr::Icmp( _name, "cvar" ) == 0 ) {
 		return &cvarStr;
 	}
@@ -125,12 +125,12 @@ void idEditWindow::GainFocus() {
 	EnsureCursorVisible();
 }
 
-void idEditWindow::Draw( int time, float x, float y ) {
+void idEditWindow::Draw( ID_TIME_T time, float x, float y ) {
 	idVec4 color = foreColor;
 
 	UpdateCvar( true );
 
-	int len = text.Length();
+	size_t len = text.Length();
 	if ( len != lastTextLength ) {
 		scroller->SetValue( 0.0f );
 		EnsureCursorVisible();
@@ -200,7 +200,7 @@ const char *idEditWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 
 	idStr::Copynz( buffer, text.c_str(), sizeof( buffer ) );
 	int key = event->evValue;
-	int len = text.Length();
+	size_t len = text.Length();
 
 	if ( event->evType == SE_CHAR ) {
 		if ( key == '`' ) {
@@ -440,7 +440,7 @@ idEditWindow::InitScroller
 This is the same as in idListWindow
 ================
 */
-void idEditWindow::InitScroller( bool horizontal )
+void idEditWindow::InitScroller(const bool horizontal )
 {
 	const char *thumbImage = "guis/assets/scrollbar_thumb.tga";
 	const char *barImage = "guis/assets/scrollbarv.tga";
@@ -505,7 +505,7 @@ void idEditWindow::EnsureCursorVisible()
 				}
 			}
 		}
-		int maxWidth = GetMaxCharWidth( );
+		size_t maxWidth = GetMaxCharWidth( );
 		int left = cursorX - maxWidth;
 		int right = ( cursorX - textRect.w ) + maxWidth;
 
@@ -549,7 +549,7 @@ void idEditWindow::EnsureCursorVisible()
 					break;
 				}
 			}
-			int topLine = idMath::Ftoi( scroller->GetValue() );
+			int topLine = numeric_cast<int>( scroller->GetValue() );
 			if ( cursorLine < topLine ) {
 				scroller->SetValue( cursorLine );
 			} else if ( cursorLine >= topLine + fit) {
@@ -559,7 +559,7 @@ void idEditWindow::EnsureCursorVisible()
 	}
 }
 
-void idEditWindow::Activate(bool activate, idStr &act) {
+void idEditWindow::Activate(const bool activate, idStr &act) {
 	idWindow::Activate(activate, act);
 	if ( activate ) {
 		UpdateCvar( true, true );
@@ -593,7 +593,7 @@ void idEditWindow::InitCvar( ) {
 idEditWindow::UpdateCvar
 ============
 */
-void idEditWindow::UpdateCvar( bool read, bool force ) {
+void idEditWindow::UpdateCvar(const bool read, const bool force ) {
 	if ( force || liveUpdate ) {
 		if ( cvar ) {
 			if ( read ) {

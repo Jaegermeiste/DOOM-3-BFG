@@ -155,10 +155,10 @@ idRenderModel *idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 			R_AllocStaticTriSurfIndexes( surf->geometry, 6 * count );
 		}
 
-		int numVerts = 0;
+		size_t numVerts = 0;
 		idDrawVert *verts = surf->geometry->verts;
 
-		for ( int index = 0; index < stage->totalParticles; index++ ) {
+		for ( index_t index = 0; index < stage->totalParticles; index++ ) {
 			g.index = index;
 
 			// bump the random
@@ -219,7 +219,7 @@ idRenderModel *idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 		// build the indexes
 		int	numIndexes = 0;
 		triIndex_t *indexes = surf->geometry->indexes;
-		for ( int i = 0; i < numVerts; i += 4 ) {
+		for ( size_t i = 0; i < numVerts; i += 4 ) {
 			indexes[numIndexes+0] = i+0;
 			indexes[numIndexes+1] = i+2;
 			indexes[numIndexes+2] = i+3;
@@ -278,7 +278,7 @@ int idRenderModelPrt::Memory() const {
 	if ( particleSystem ) {
 		total += sizeof( *particleSystem );
 
-		for ( int i = 0; i < particleSystem->stages.Num(); i++ ) {
+		for ( size_t i = 0; i < particleSystem->stages.Num(); i++ ) {
 			total += sizeof( particleSystem->stages[i] );
 		}
 	}

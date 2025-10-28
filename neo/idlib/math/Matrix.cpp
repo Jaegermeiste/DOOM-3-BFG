@@ -602,7 +602,7 @@ idMat4::Transpose
 idMat4 idMat4::Transpose() const {
 	idMat4	transpose;
 
-	for( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		for( int j = 0; j < 4; j++ ) {
 			transpose[ i ][ j ] = mat[ j ][ i ];
         }
@@ -616,8 +616,8 @@ idMat4::TransposeSelf
 ============
 */
 idMat4 &idMat4::TransposeSelf() {
-	for( int i = 0; i < 4; i++ ) {
-		for( int j = i + 1; j < 4; j++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
+		for( size_t j = i + 1; j < 4; j++ ) {
 			const float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
@@ -1032,8 +1032,8 @@ idMat5::Transpose
 idMat5 idMat5::Transpose() const {
 	idMat5	transpose;
 
-	for( int i = 0; i < 5; i++ ) {
-		for( int j = 0; j < 5; j++ ) {
+	for ( size_t i = 0; i < 5; i++ ) {
+		for( size_t j = 0; j < 5; j++ ) {
 			transpose[ i ][ j ] = mat[ j ][ i ];
         }
 	}
@@ -1046,8 +1046,8 @@ idMat5::TransposeSelf
 ============
 */
 idMat5 &idMat5::TransposeSelf() {
-	for( int i = 0; i < 5; i++ ) {
-		for( int j = i + 1; j < 5; j++ ) {
+	for ( size_t i = 0; i < 5; i++ ) {
+		for( size_t j = i + 1; j < 5; j++ ) {
 			const float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
@@ -1720,7 +1720,7 @@ idMat6::Transpose
 idMat6 idMat6::Transpose() const {
 	idMat6	transpose;
 
-	for( int i = 0; i < 6; i++ ) {
+	for ( size_t i = 0; i < 6; i++ ) {
 		for( int j = 0; j < 6; j++ ) {
 			transpose[ i ][ j ] = mat[ j ][ i ];
         }
@@ -1734,8 +1734,8 @@ idMat6::TransposeSelf
 ============
 */
 idMat6 &idMat6::TransposeSelf() {
-	for( int i = 0; i < 6; i++ ) {
-		for( int j = i + 1; j < 6; j++ ) {
+	for ( size_t i = 0; i < 6; i++ ) {
+		for( size_t j = i + 1; j < 6; j++ ) {
 			const float temp = mat[i][j];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;

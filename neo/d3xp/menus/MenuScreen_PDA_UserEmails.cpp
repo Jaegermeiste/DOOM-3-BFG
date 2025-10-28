@@ -66,7 +66,7 @@ void idMenuScreen_PDA_UserEmails::Initialize( idMenuHandler * data ) {
 		pdaInbox.GetEmailList()->RegisterEventObserver( &emailInfo );
 		pdaInbox.GetEmailList()->RegisterEventObserver( &emailScrollbar );
 
-		for ( int i = 0; i < pdaInbox.GetEmailList()->GetChildren().Num(); ++i ) {
+		for ( size_t i = 0; i < pdaInbox.GetEmailList()->GetChildren().Num(); ++i ) {
 			idMenuWidget & child = pdaInbox.GetEmailList()->GetChildByIndex( i );
 			idMenuWidget_Button * const button = dynamic_cast< idMenuWidget_Button * >( &child );
 			if ( button != nullptr) {
@@ -328,7 +328,7 @@ bool idMenuScreen_PDA_UserEmails::ScrollCorrectList( idWidgetAction & action, co
 idMenuScreen_PDA_UserEmails::HandleAction
 ========================
 */
-void idMenuScreen_PDA_UserEmails::ShowEmail( bool show ) {
+void idMenuScreen_PDA_UserEmails::ShowEmail(const bool show ) {
 
 	idSWFSpriteInstance * pdaSprite = nullptr;
 
@@ -387,7 +387,7 @@ void idMenuScreen_PDA_UserEmails::ShowEmail( bool show ) {
 idMenuScreen_PDA_UserEmails::HandleAction
 ========================
 */
-bool idMenuScreen_PDA_UserEmails::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_PDA_UserEmails::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -421,7 +421,7 @@ bool idMenuScreen_PDA_UserEmails::HandleAction( idWidgetAction & action, const i
 
 			if ( widget->GetParent() != nullptr) {
 				idMenuWidget_DynamicList * emailList = dynamic_cast< idMenuWidget_DynamicList * >( widget->GetParent() );
-				int index = parms[0].ToInteger();
+				index_t index = parms[0].ToInteger();
 				if ( emailList != nullptr) {
 					emailList->SetViewIndex( emailList->GetViewOffset() + index );
 					emailList->SetFocusIndex( index );

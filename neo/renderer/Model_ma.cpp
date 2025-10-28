@@ -513,12 +513,12 @@ bool MA_ParseTVert(idParser& parser, maAttribHeader_t* header) {
 /*
 *	Quick check to see if the vert participates in a shared normal
 */
-bool MA_QuickIsVertShared(int faceIndex, int vertIndex) {
+bool MA_QuickIsVertShared(const int faceIndex, const int vertIndex) {
 	
 	maMesh_t* pMesh = &maGlobal.currentObject->mesh;
 	int vertNum = pMesh->faces[faceIndex].vertexNum[vertIndex];
 	
-	for( int i = 0; i < 3; i++) {
+	for ( size_t i = 0; i < 3; i++) {
 		int edge = pMesh->faces[faceIndex].edge[i];
 		if(edge < 0) {
 			edge = idMath::Fabs(edge)-1;
@@ -530,7 +530,7 @@ bool MA_QuickIsVertShared(int faceIndex, int vertIndex) {
 	return false;
 }
 
-void MA_GetSharedFace(int faceIndex, int vertIndex, int& sharedFace, int& sharedVert) {
+void MA_GetSharedFace(const int faceIndex, const int vertIndex, int& sharedFace, int& sharedVert) {
 
 	maMesh_t* pMesh = &maGlobal.currentObject->mesh;
 	int vertNum = pMesh->faces[faceIndex].vertexNum[vertIndex];
@@ -865,14 +865,14 @@ bool MA_ParseConnectAttr(idParser& parser) {
 }
 
 
-void MA_BuildScale(idMat4& mat, float x, float y, float z) {
+void MA_BuildScale(idMat4& mat, const float x, const float y, const float z) {
 	mat.Identity();
 	mat[0][0] = x;
 	mat[1][1] = y;
 	mat[2][2] = z;
 }
 
-void MA_BuildAxisRotation(idMat4& mat, float ang, int axis) {
+void MA_BuildAxisRotation(idMat4& mat, const float ang, const int axis) {
 
 	float sinAng = idMath::Sin(ang);
 	float cosAng = idMath::Cos(ang);
@@ -950,7 +950,7 @@ void MA_ApplyTransformation(maModel_t *model) {
 MA_Parse
 =================
 */
-maModel_t *MA_Parse( const char *buffer, const char* filename, bool verbose ) {
+maModel_t *MA_Parse( const char *buffer, const char* filename, const bool verbose ) {
 	memset( &maGlobal, 0, sizeof( maGlobal ) );
 
 	maGlobal.verbose = verbose;

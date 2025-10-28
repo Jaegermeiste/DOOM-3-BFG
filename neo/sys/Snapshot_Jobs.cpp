@@ -30,8 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Snapshot_Jobs.h"
 
-uint32 SnapObjChecksum( const uint8 * data, int length ) {
-	extern unsigned long CRC32_BlockChecksum( const void *data, int length );
+uint32 SnapObjChecksum( const uint8 * data, const size_t length ) {
+	extern unsigned long CRC32_BlockChecksum( const void *data, size_t length );
 	return CRC32_BlockChecksum( data, length );
 }
 
@@ -248,7 +248,7 @@ NewLZWStream
 static void NewLZWStream( lzwParm_t * parm, idLZWCompressor * lzwCompressor ) {
 	
 	// Reset compressor
-	int maxSize = parm->ioData->maxlzwMem - parm->ioData->lzwBytes;
+	size_t maxSize = parm->ioData->maxlzwMem - parm->ioData->lzwBytes;
 	lzwCompressor->Start( &parm->ioData->lzwMem[parm->ioData->lzwBytes], maxSize );
 	
 	parm->ioData->lastObjId = 0;
@@ -267,7 +267,7 @@ ContinueLZWStream
 */
 static void ContinueLZWStream( lzwParm_t * parm, idLZWCompressor * lzwCompressor ) {
 	// Continue compressor where we left off
-	int maxSize = parm->ioData->maxlzwMem - parm->ioData->lzwBytes;
+	size_t maxSize = parm->ioData->maxlzwMem - parm->ioData->lzwBytes;
 	lzwCompressor->Start( &parm->ioData->lzwMem[parm->ioData->lzwBytes], maxSize, true );
 }
 
@@ -306,9 +306,9 @@ void LZWJobInternal( lzwParm_t * parm, unsigned int dmaTag ) {
 	}
 
 
-	int numChangedObjProcessed = 0;
+	size_t numChangedObjProcessed = 0;
 
-	for ( int i = 0; i < parm->numObjects; i++ ) {
+	for ( size_t i = 0; i < parm->numObjects; i++ ) {
 
 		// This will eventually be gracefully caught in SnapshotProcessor.cpp.  
 		// It's nice to know right when it happens though, so you can inspect the situation.

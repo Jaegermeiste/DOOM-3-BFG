@@ -446,7 +446,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 		if ( entityDef->decals != nullptr && !r_skipDecals.GetBool() ) {
 			entityDef->decals->CreateDeferredDecals( model );
 
-			unsigned int numDrawSurfs = entityDef->decals->GetNumDecalDrawSurfs();
+			size_t numDrawSurfs = entityDef->decals->GetNumDecalDrawSurfs();
 			for ( unsigned int i = 0; i < numDrawSurfs; i++ ) {
 				drawSurf_t * decalDrawSurf = entityDef->decals->CreateDecalDrawSurf( vEntity, i );
 				if ( decalDrawSurf != nullptr) {
@@ -460,7 +460,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 		if ( entityDef->overlays != nullptr && !r_skipOverlays.GetBool() ) {
 			entityDef->overlays->CreateDeferredOverlays( model );
 
-			unsigned int numDrawSurfs = entityDef->overlays->GetNumOverlayDrawSurfs();
+			size_t numDrawSurfs = entityDef->overlays->GetNumOverlayDrawSurfs();
 			for ( unsigned int i = 0; i < numDrawSurfs; i++ ) {
 				drawSurf_t * overlayDrawSurf = entityDef->overlays->CreateOverlayDrawSurf( vEntity, model, i );
 				if ( overlayDrawSurf != nullptr) {
@@ -551,7 +551,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 
 		// debugging tool to make sure we have the correct pre-calculated bounds
 		if ( r_checkBounds.GetBool() ) {
-			for ( int j = 0; j < tri->numVerts; j++ ) {
+			for ( size_t j = 0; j < tri->numVerts; j++ ) {
 				int k;
 				for ( k = 0; k < 3; k++ ) {
 					if ( tri->verts[j].xyz[k] > tri->bounds[1][k] + CHECK_BOUNDS_EPSILON
@@ -874,7 +874,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 					idShadowVert::CreateShadowCache( shadowVerts, tri->verts, tri->numVerts );
 				}
 
-				const int maxShadowVolumeIndexes = tri->numSilEdges * 6 + tri->numIndexes * 2;
+				const size_t maxShadowVolumeIndexes = tri->numSilEdges * 6 + tri->numIndexes * 2;
 
 				shadowDrawSurf->numIndexes = 0;
 				shadowDrawSurf->indexCache = vertexCache.AllocIndex(nullptr, ALIGN( maxShadowVolumeIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );

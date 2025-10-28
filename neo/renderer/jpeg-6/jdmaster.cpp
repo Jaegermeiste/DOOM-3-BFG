@@ -86,7 +86,7 @@ use_merged_upsample( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_calc_output_dimensions( j_decompress_ptr cinfo ) {
+jpeg_calc_output_dimensions(const j_decompress_ptr cinfo ) {
 /* Do computations that are needed before master selection phase */
 #if 0   // JDC: commented out to remove warning
     int ci;
@@ -251,7 +251,7 @@ jpeg_calc_output_dimensions( j_decompress_ptr cinfo ) {
  */
 
 LOCAL void
-prepare_range_limit_table( j_decompress_ptr cinfo ) {
+prepare_range_limit_table(const j_decompress_ptr cinfo ) {
 /* Allocate and fill in the sample_range_limit table */
     JSAMPLE * table;
     int i;
@@ -292,7 +292,7 @@ prepare_range_limit_table( j_decompress_ptr cinfo ) {
  */
 
 LOCAL void
-master_selection( j_decompress_ptr cinfo ) {
+master_selection(const j_decompress_ptr cinfo ) {
     my_master_ptr master = (my_master_ptr) cinfo->master;
     boolean use_c_buffer;
     long samplesperrow;
@@ -445,7 +445,7 @@ master_selection( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-prepare_for_output_pass( j_decompress_ptr cinfo ) {
+prepare_for_output_pass(const j_decompress_ptr cinfo ) {
     my_master_ptr master = (my_master_ptr) cinfo->master;
 
     if ( master->pub.is_dummy_pass ) {
@@ -506,7 +506,7 @@ prepare_for_output_pass( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-finish_output_pass( j_decompress_ptr cinfo ) {
+finish_output_pass(const j_decompress_ptr cinfo ) {
     my_master_ptr master = (my_master_ptr) cinfo->master;
 
     if ( cinfo->quantize_colors ) {
@@ -552,7 +552,7 @@ jpeg_new_colormap( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_master_decompress( j_decompress_ptr cinfo ) {
+jinit_master_decompress(const j_decompress_ptr cinfo ) {
     my_master_ptr master;
 
     master = (my_master_ptr)

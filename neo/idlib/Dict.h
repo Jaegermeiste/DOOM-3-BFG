@@ -101,12 +101,14 @@ public:
 						// print the dict
 	void				Print() const;
 
-						[[nodiscard]] size_t				Allocated() const;
-						[[nodiscard]] size_t				Size() const { return sizeof( *this ) + Allocated(); }
+	[[nodiscard]] size_t				Allocated() const;
+	[[nodiscard]] size_t				Size() const { return sizeof( *this ) + Allocated(); }
 
 	void				Set( const char *key, const char *value );
 	void				SetFloat( const char *key, float val );
+	void				SetDouble( const char* key, double val );
 	void				SetInt( const char *key, int val );
+	void				SetInt64( const char* key, int64 val );
 	void				SetBool( const char *key, bool val );
 	void				SetVector( const char *key, const idVec3 &val );
 	void				SetVec2( const char *key, const idVec2 &val );
@@ -117,24 +119,32 @@ public:
 						// these return default values of 0.0, 0 and false
 	const char *		GetString( const char *key, const char *defaultString = "" ) const;
 	float				GetFloat( const char *key, const char *defaultString ) const;
+	double				GetDouble( const char* key, const char* defaultString ) const;
 	int					GetInt( const char *key, const char *defaultString ) const;
+	int64				GetInt64( const char* key, const char* defaultString ) const;
 	bool				GetBool( const char *key, const char *defaultString ) const;
 	float				GetFloat( const char *key, const float defaultFloat = 0.0f ) const;
+	double				GetDouble( const char* key, const double defaultDouble = 0.0 ) const;
 	int					GetInt( const char *key, const int defaultInt = 0 ) const;
+	int64				GetInt64( const char* key, const int64 defaultInt = 0 ) const;
 	bool				GetBool( const char *key, const bool defaultBool = false ) const;
-	idVec3				GetVector( const char *key, const char *defaultString = nullptr) const;
-	idVec2				GetVec2( const char *key, const char *defaultString = nullptr) const;
-	idVec4				GetVec4( const char *key, const char *defaultString = nullptr) const;
-	idAngles			GetAngles( const char *key, const char *defaultString = nullptr) const;
-	idMat3				GetMatrix( const char *key, const char *defaultString = nullptr) const;
+	idVec3				GetVector( const char *key, const char *defaultString = nullptr ) const;
+	idVec2				GetVec2( const char *key, const char *defaultString = nullptr ) const;
+	idVec4				GetVec4( const char *key, const char *defaultString = nullptr ) const;
+	idAngles			GetAngles( const char *key, const char *defaultString = nullptr ) const;
+	idMat3				GetMatrix( const char *key, const char *defaultString = nullptr ) const;
 
 	bool				GetString( const char *key, const char *defaultString, const char **out ) const;
 	bool				GetString( const char *key, const char *defaultString, idStr &out ) const;
 	bool				GetFloat( const char *key, const char *defaultString, float &out ) const;
+	bool				GetDouble( const char* key, const char* defaultString, double &out ) const;
 	bool				GetInt( const char *key, const char *defaultString, int &out ) const;
+	bool				GetInt64( const char* key, const char* defaultString, int64& out ) const;
 	bool				GetBool( const char *key, const char *defaultString, bool &out ) const;
 	bool				GetFloat( const char *key, const float defaultFloat, float &out ) const;
+	bool				GetDouble( const char* key, const double defaultDouble, double &out ) const;
 	bool				GetInt( const char *key, const int defaultInt, int &out ) const;
+	bool				GetInt64( const char* key, const int64 defaultInt, int64& out ) const;
 	bool				GetBool( const char *key, const bool defaultBool, bool &out ) const;
 	bool				GetVector( const char *key, const char *defaultString, idVec3 &out ) const;
 	bool				GetVec2( const char *key, const char *defaultString, idVec2 &out ) const;
@@ -142,15 +152,15 @@ public:
 	bool				GetAngles( const char *key, const char *defaultString, idAngles &out ) const;
 	bool				GetMatrix( const char *key, const char *defaultString, idMat3 &out ) const;
 
-						[[nodiscard]] size_t				GetNumKeyVals() const;
+	[[nodiscard]] size_t				GetNumKeyVals() const;
 	
-	const idKeyValue *	GetKeyVal( Ordinal auto index ) const;
+	const idKeyValue *	GetKeyVal( const Ordinal auto index ) const;
 						// returns the key/value pair with the given key
 						// returns NULL if the key/value pair does not exist
 	const idKeyValue *	FindKey( const char *key ) const;
 						// returns the index to the key/value pair with the given key
 						// returns -1 if the key/value pair does not exist
-	int64				FindKeyIndex( const char *key ) const;
+	index_t				FindKeyIndex( const char *key ) const;
 						// delete the key/value pair with the given key
 	void				Delete( const char *key );
 						// finds the next key/value pair with the given key prefix.
@@ -168,7 +178,7 @@ public:
 	void				Serialize( idSerializer & ser );
 
 						// returns a unique checksum for this dictionary's content
-						[[nodiscard]] int					Checksum() const;
+	[[nodiscard]] int					Checksum() const;
 
 	static void			Init();
 	static void			Shutdown();
@@ -215,8 +225,16 @@ ID_INLINE void idDict::SetFloat( const char *key, const float val ) {
 	Set( key, va( "%f", val ) );
 }
 
+ID_INLINE void idDict::SetDouble(const char* key, const double val) {
+	Set(key, va("%lf", val));
+}
+
 ID_INLINE void idDict::SetInt( const char *key, const int val ) {
 	Set( key, va( "%i", val ) );
+}
+
+ID_INLINE void idDict::SetInt64(const char* key, const int64 val) {
+	Set(key, va("%lli", val));
 }
 
 ID_INLINE void idDict::SetBool( const char *key, const bool val ) {
@@ -275,8 +293,16 @@ ID_INLINE float idDict::GetFloat( const char *key, const char *defaultString ) c
 	return idStr::AtoF<float>( GetString( key, defaultString ) );
 }
 
+ID_INLINE double idDict::GetDouble(const char* key, const char* defaultString) const {
+	return idStr::AtoF<double>(GetString(key, defaultString));
+}
+
 ID_INLINE int idDict::GetInt( const char *key, const char *defaultString ) const {
 	return idStr::AtoI<int>( GetString( key, defaultString ) );
+}
+
+ID_INLINE int64 idDict::GetInt64(const char* key, const char* defaultString) const {
+	return idStr::AtoI<int64>(GetString(key, defaultString));
 }
 
 ID_INLINE bool idDict::GetBool( const char *key, const char *defaultString ) const {
@@ -292,10 +318,27 @@ ID_INLINE float idDict::GetFloat( const char *key, const float defaultFloat ) co
 	return defaultFloat;
 }
 
+ID_INLINE double idDict::GetDouble( const char* key, const double defaultDouble ) const {
+	const idKeyValue* kv = FindKey(key);
+	if (kv)
+	{
+		return idStr::AtoF<double>(kv->GetValue());
+	}
+	return defaultDouble;
+}
+
 ID_INLINE int idDict::GetInt( const char *key, const int defaultInt ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
 		return atoi( kv->GetValue() );
+	}
+	return defaultInt;
+}
+
+ID_INLINE int64 idDict::GetInt64(const char* key, const int64 defaultInt) const {
+	const idKeyValue* kv = FindKey(key);
+	if (kv) {
+		return _atoi64(kv->GetValue());
 	}
 	return defaultInt;
 }
@@ -343,8 +386,8 @@ ID_INLINE size_t idDict::GetNumKeyVals() const {
 }
 
 
-ID_INLINE const idKeyValue *idDict::GetKeyVal(const Ordinal auto index ) const {
-	if ( index >= 0 && index < args.Num() ) {
+ID_INLINE const idKeyValue *idDict::GetKeyVal( const Ordinal auto index ) const {
+	if ( index >= 0 && std::cmp_less(index, args.Num()) ) {
 		return &args[ index ];
 	}
 	return nullptr;

@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <sys/types.h>
 
+#include <utility>
+
 // Store master volume settings in archived cvars, becausue we want them to apply
 // even if a user isn't signed in.
 // The range is from 0 to 15, which matches the setting in vanilla DOOM.
@@ -47,7 +49,7 @@ idCVar m_inDemoMode( "m_inDemoMode", "1", CVAR_INTEGER, "in demo mode", 0, 1 );
 
 bool	globalNetworking	= false;
 bool	globalPauseTime		= false;
-int		PLAYERCOUNT			= 1;
+size_t	PLAYERCOUNT			= 1;
 
 #ifdef _DEBUG
 bool	debugOutput			= true;
@@ -106,66 +108,66 @@ namespace DoomLib
 	};
 
 	const ExpansionData App_Expansion_Data_Local[] = {
-		{	ExpansionData::IWAD, retail,		doom,			"DOOM",								DOOMWADDIR"DOOM.WAD",		NULL,							"base/textures/DOOMICON.PNG"	, Doom_MapNames },
-		{	ExpansionData::IWAD, commercial,	doom2,			"DOOM 2",							DOOMWADDIR"DOOM2.WAD",		NULL,							"base/textures/DOOM2ICON.PNG"	, Doom2_MapNames },
-		{	ExpansionData::IWAD, commercial,	pack_tnt,		"FINAL DOOM: TNT EVILUTION",		DOOMWADDIR"TNT.WAD",		NULL,							"base/textures/TNTICON.PNG"		, TNT_MapNames },
-		{	ExpansionData::IWAD, commercial,	pack_plut,		"FINAL DOOM: PLUTONIA EXPERIMENT",	DOOMWADDIR"PLUTONIA.WAD",	NULL,							"base/textures/PLUTICON.PNG"	, Plut_MapNames },
+		{	ExpansionData::IWAD, retail,		doom,			"DOOM",								DOOMWADDIR"DOOM.WAD", nullptr,							"base/textures/DOOMICON.PNG"	, Doom_MapNames },
+		{	ExpansionData::IWAD, commercial,	doom2,			"DOOM 2",							DOOMWADDIR"DOOM2.WAD", nullptr,							"base/textures/DOOM2ICON.PNG"	, Doom2_MapNames },
+		{	ExpansionData::IWAD, commercial,	pack_tnt,		"FINAL DOOM: TNT EVILUTION",		DOOMWADDIR"TNT.WAD", nullptr,							"base/textures/TNTICON.PNG"		, TNT_MapNames },
+		{	ExpansionData::IWAD, commercial,	pack_plut,		"FINAL DOOM: PLUTONIA EXPERIMENT",	DOOMWADDIR"PLUTONIA.WAD", nullptr,							"base/textures/PLUTICON.PNG"	, Plut_MapNames },
 		{	ExpansionData::PWAD, commercial,	pack_master,	"DOOM 2: MASTER LEVELS",			DOOMWADDIR"DOOM2.WAD",		DOOMWADDIR"MASTERLEVELS.WAD",	"base/textures/MASTICON.PNG"	, Mast_MapNames },
 		{	ExpansionData::PWAD, commercial,	pack_nerve,		"DOOM 2: NO REST FOR THE LIVING",	DOOMWADDIR"DOOM2.WAD",		DOOMWADDIR"NERVE.WAD",			"base/textures/NERVEICON.PNG"	, Nerve_MapNames },
 	};
 
-	int classicRemap[K_LAST_KEY];
+	static int classicRemap[K_LAST_KEY];
 
 	const ExpansionData * GetCurrentExpansion() {
 		return &App_Expansion_Data_Local[ DoomLib::expansionSelected ];
 	}
 
-	void				  SetCurrentExpansion( int expansion )  { 
+	void				SetCurrentExpansion(const index_t expansion )  { 
 		expansionDirty = true; 
 		expansionSelected = expansion; 
 	}
 
-	void						SetIdealExpansion( int expansion ) {
+	void				SetIdealExpansion(const index_t expansion ) {
 		idealExpansion = expansion;
 	}
 
-	idStr						currentMapName;
-	idStr						currentDifficulty;
+	static idStr						currentMapName;
+	static idStr						currentDifficulty;
 
 	void						SetCurrentMapName( idStr name ) { currentMapName = name; }
 	const idStr &				GetCurrentMapName() { return currentMapName; }
 	void						SetCurrentDifficulty( idStr name ) { currentDifficulty = name; }
 	const idStr &				GetCurrentDifficulty() { return currentDifficulty; }
 
-	int currentplayer = -1;
+	static index_t currentplayer = -1;
 
-	Globals *globaldata[4];
+	static Globals *globaldata[4];
 
 	RecvFunc Recv;
 	SendFunc Send;
 	SendRemoteFunc SendRemote;
 
 
-	bool							Active = true;
+	static bool						Active = true;
 	DoomInterface					Interface;
 
-	int								idealExpansion = 0;
-	int								expansionSelected = 0;
+	index_t							idealExpansion = 0;
+	index_t							expansionSelected = 0;
 	bool							expansionDirty = true;
 
 	bool							skipToLoad = false;
 	char							loadGamePath[MAX_PATH];
 
 	bool							skipToNew = false;
-	int								chosenSkill = 0;
-	int								chosenEpisode = 1;
+	index_t							chosenSkill = 0;
+	index_t							chosenEpisode = 1;
 
 	idMatchParameters				matchParms;
 
-	void * (*Z_Malloc)( int size, int tag, void* user ) = NULL;
-	void 	(*Z_FreeTag)(int lowtag );
+	void * (*Z_Malloc)( size_t size, int tag, void* user ) = nullptr;
+	void 	(*Z_FreeTag)( int lowtag );
 
-	idArray< idSysMutex, 4 >		playerScreenMutexes;
+	static idArray< idSysMutex, 4 >		playerScreenMutexes;
 
 	void ExitGame() {
 		// TODO: If we ever support splitscreen and online,
@@ -205,9 +207,9 @@ namespace DoomLib
 		Active = true;
 
 		// Turn off menu toggler
-		int originalPlayer = DoomLib::GetPlayer();
+		const int originalPlayer = DoomLib::GetPlayer();
 
-		for ( int i = 0; i < Interface.GetNumPlayers(); i++ ) {
+		for ( size_t i = 0; i < Interface.GetNumPlayers(); i++ ) {
 			DoomLib::SetPlayer(i);
 			::g->menuactive = false;
 		}
@@ -244,8 +246,10 @@ extern void I_ProcessSoundEvents( void );
 
 void DoomLib::InitGlobals( void *ptr /* = NULL */ )
 {
-	if (ptr == NULL)
+	if (ptr == nullptr)
+	{
 		ptr = new Globals;
+	}
 
 	globaldata[currentplayer] = static_cast<Globals*>(ptr);
 
@@ -255,7 +259,7 @@ void DoomLib::InitGlobals( void *ptr /* = NULL */ )
 	
 }
 
-void *DoomLib::GetGlobalData( int player ) {
+void *DoomLib::GetGlobalData(const index_t player ) {
 	return globaldata[player];
 }
 
@@ -263,24 +267,24 @@ void DoomLib::InitControlRemap() {
 
 	memset( classicRemap, K_NONE, sizeof( classicRemap ) );
 
-	classicRemap[K_JOY3] = KEY_TAB ; 
-	classicRemap[K_JOY4] = K_MINUS;
-	classicRemap[K_JOY2] = K_EQUALS;
-	classicRemap[K_JOY9] = K_ESCAPE ;
-	classicRemap[K_JOY_STICK1_UP] = K_UPARROW ;
-	classicRemap[K_JOY_DPAD_UP] = K_UPARROW ;
-	classicRemap[K_JOY_STICK1_DOWN] = K_DOWNARROW ;
-	classicRemap[K_JOY_DPAD_DOWN] = K_DOWNARROW ;
-	classicRemap[K_JOY_STICK1_LEFT] = K_LEFTARROW ;
-	classicRemap[K_JOY_DPAD_LEFT] = K_LEFTARROW ;
+	classicRemap[K_JOY3]             = KEY_TAB ; 
+	classicRemap[K_JOY4]             = K_MINUS;
+	classicRemap[K_JOY2]             = K_EQUALS;
+	classicRemap[K_JOY9]             = K_ESCAPE ;
+	classicRemap[K_JOY_STICK1_UP]    = K_UPARROW ;
+	classicRemap[K_JOY_DPAD_UP]      = K_UPARROW ;
+	classicRemap[K_JOY_STICK1_DOWN]  = K_DOWNARROW ;
+	classicRemap[K_JOY_DPAD_DOWN]    = K_DOWNARROW ;
+	classicRemap[K_JOY_STICK1_LEFT]  = K_LEFTARROW ;
+	classicRemap[K_JOY_DPAD_LEFT]    = K_LEFTARROW ;
 	classicRemap[K_JOY_STICK1_RIGHT] = K_RIGHTARROW ;
-	classicRemap[K_JOY_DPAD_RIGHT] = K_RIGHTARROW ;	
-	classicRemap[K_JOY1] = K_ENTER;
+	classicRemap[K_JOY_DPAD_RIGHT]   = K_RIGHTARROW ;	
+	classicRemap[K_JOY1]             = K_ENTER;
 
 
 }
 
-keyNum_t DoomLib::RemapControl( keyNum_t key ) {
+keyNum_t DoomLib::RemapControl( const keyNum_t key ) {
 
 	if( classicRemap[ key ] == K_NONE ) {
 		return key;
@@ -290,12 +294,12 @@ keyNum_t DoomLib::RemapControl( keyNum_t key ) {
 			return K_BACKSPACE;
 		}
 
-		return (keyNum_t)classicRemap[ key ];
+		return static_cast<keyNum_t>(classicRemap[key]);
 	}
 
 }
 
-void DoomLib::InitGame( int argc, char** argv )
+void DoomLib::InitGame( const int argc, char** argv )
 {
 	::g->myargc = argc;
 	::g->myargv = argv;
@@ -324,7 +328,7 @@ void DoomLib::Wipe()
 	D_Wipe();
 }
 
-void DoomLib::Frame( int realoffset, int buffer )
+void DoomLib::Frame( const fixed_t realoffset, int buffer )
 {
 	::g->realoffset = realoffset;
 
@@ -346,12 +350,12 @@ void DoomLib::Draw()
 	R_RenderPlayerView (&::g->players[::g->displayplayer]);
 }
 
-angle_t GetViewAngle()
+static angle_t GetViewAngle()
 {
 	return g->viewangle;
 }
 
-void SetViewAngle( angle_t ang )
+static void SetViewAngle( const angle_t ang )
 {
 	g->viewangle = ang;
 	::g->viewxoffset = (finesine[g->viewangle>>ANGLETOFINESHIFT]*::g->realoffset) >> 8;
@@ -360,23 +364,23 @@ void SetViewAngle( angle_t ang )
 }
 
 
-void SetViewX( fixed_t x )
+static void SetViewX( const fixed_t x )
 {
 	::g->viewx = x;
 }
 
-void SetViewY( fixed_t y )
+static void SetViewY( const fixed_t y )
 {
 	::g->viewy = y;
 }
 
 
-fixed_t GetViewX()
+static fixed_t GetViewX()
 {
 	return ::g->viewx + ::g->viewxoffset;
 }
 
-fixed_t GetViewY()
+static fixed_t GetViewY()
 {
 	return ::g->viewy + ::g->viewyoffset;
 }
@@ -396,17 +400,17 @@ void DoomLib::Shutdown() {
 	// Delete the globals
 	if ( globaldata[currentplayer] ) {
 		delete globaldata[currentplayer];
-		globaldata[currentplayer] = NULL;
+		globaldata[currentplayer] = nullptr;
 	}
 }
 
 // static
-void DoomLib::SetPlayer( int id )
+void DoomLib::SetPlayer( const index_t id )
 {
 	currentplayer = id;
 
-	if ( id < 0 || id >= MAX_PLAYERS ) {
-		g = NULL;
+	if ( id < 0 || std::cmp_greater_equal(id, MAX_PLAYERS)) {
+		g = nullptr;
 	}
 	else {
 
@@ -419,19 +423,19 @@ void DoomLib::SetPlayer( int id )
 	}
 }
 
-void DoomLib::SetNetworking( RecvFunc rf, SendFunc sf, SendRemoteFunc sendRemote )
+void DoomLib::SetNetworking(const RecvFunc rf, const SendFunc sf, const SendRemoteFunc sendRemote )
 {
 	Recv = rf;
 	Send = sf;
 	SendRemote = sendRemote;
 }
 
-int DoomLib::GetPlayer() 
+index_t DoomLib::GetPlayer() 
 { 
 	return currentplayer; 
 }
 
-byte DoomLib::BuildSourceDest( int toNode ) {
+byte DoomLib::BuildSourceDest( const index_t toNode ) {
 	byte sourceDest = 0;
 	sourceDest |= ::g->consoleplayer << 2;
 	sourceDest |= RemoteNodeToPlayerIndex( toNode );
@@ -440,10 +444,10 @@ byte DoomLib::BuildSourceDest( int toNode ) {
 
 void I_Printf(char *error, ...);
 
-void DoomLib::GetSourceDest( byte sourceDest, int* source, int* dest ) {
+void DoomLib::GetSourceDest(const byte sourceDest, index_t* source, index_t* dest ) {
 
-	int src = (sourceDest & 12) >> 2;
-	int dst = sourceDest & 3;
+	const index_t src = (sourceDest & 12) >> 2;
+	const index_t dst = sourceDest & 3;
 
 	*source = PlayerIndexToRemoteNode( src );
 
@@ -451,14 +455,14 @@ void DoomLib::GetSourceDest( byte sourceDest, int* source, int* dest ) {
 	*dest = PlayerIndexToRemoteNode( dst );
 }
 
-int nodeMap[4][4] = {
+static int nodeMap[4][4] = {
 	{0, 1, 2, 3},	//Player 0
 	{1, 0, 2, 3},	//Player 1
 	{2, 0, 1, 3},	//Player 2
 	{3, 0, 1, 2}	//Player 3
 };
 
-int DoomLib::RemoteNodeToPlayerIndex( int node ) {
+int DoomLib::RemoteNodeToPlayerIndex( const index_t node ) {
 	//This needs to be called with the proper doom globals set so this calculation will work properly
 	
 	/*
@@ -477,14 +481,14 @@ int DoomLib::RemoteNodeToPlayerIndex( int node ) {
 
 }
 
-int indexMap[4][4] = {
+static index_t indexMap[4][4] = {
 	{0, 1, 2, 3},	//Player 0
 	{1, 0, 2, 3},	//Player 1
 	{1, 2, 0, 3},	//Player 2
 	{1, 2, 3, 0}	//Player 3
 };
 
-int DoomLib::PlayerIndexToRemoteNode( int index ) {
+int DoomLib::PlayerIndexToRemoteNode(const index_t index ) {
 	/*int player = ::g->consoleplayer;
 	if( index == 0 ) {
 		return player;

@@ -92,7 +92,7 @@ static int ctl_read(int *valp)
 }
 extern void SendDebugMsg(const char*);
 extern bool debugOutput;
-static int cmsg(int type, int verbosity_level, char *fmt, ...)
+static int cmsg(int type, const int verbosity_level, char *fmt, ...)
 {
 #ifdef _DEBUG
 	va_list ap;

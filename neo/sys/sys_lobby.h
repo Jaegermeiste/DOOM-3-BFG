@@ -72,10 +72,10 @@ public:
 	void								ProcessSnapAckQueue();
 	void								Shutdown( bool retainMigrationInfo = false, bool skipGoodbye = false );						// Goto idle state
 	void								HandlePacket( lobbyAddress_t & remoteAddress, idBitMsg fragMsg, idPacketProcessor::sessionId_t sessionID );
-	[[nodiscard]] lobbyState_t						GetState() const { return state; }
-	[[nodiscard]] virtual bool						HasActivePeers() const;
-	[[nodiscard]] virtual bool						IsLobbyFull() const { return NumFreeSlots() == 0; }
-	[[nodiscard]] int									NumFreeSlots() const;
+	[[nodiscard]] lobbyState_t			GetState() const { return state; }
+	[[nodiscard]] virtual bool			HasActivePeers() const;
+	[[nodiscard]] virtual bool			IsLobbyFull() const { return NumFreeSlots() == 0; }
+	[[nodiscard]] size_t				NumFreeSlots() const;
 
 public:
 
@@ -154,32 +154,34 @@ public:
 
 	// Consts
 
-	static constexpr int PEER_HEARTBEAT_IN_SECONDS				= 5;		// Make sure something was sent every 5 seconds, so we don't time out
-	static constexpr int CONNECT_REQUEST_FREQUENCY_IN_SECONDS	= 5;		// Frequency at which we resend a request to connect to a server (will increase in frequency over time down to MIN_CONNECT_FREQUENCY_IN_SECONDS)
-	static constexpr int MIN_CONNECT_FREQUENCY_IN_SECONDS		= 1;		// Min frequency of connection attempts
-	static constexpr int MAX_CONNECT_ATTEMPTS					= 5;
-	static constexpr int BANDWIDTH_REPORTING_MAX				= 10240;	// make bps to report receiving (clamp if higher). For quantizing
-	static constexpr int BANDWIDTH_REPORTING_BITS				= 16;		// number of bits to use for bandwidth reporting
-	static constexpr int MAX_BPS_HISTORY						= 32;		// size of outgoing bps history to maintain for each client
+	static constexpr uint8 PEER_HEARTBEAT_IN_SECONDS			= 5;		// Make sure something was sent every 5 seconds, so we don't time out
+	static constexpr uint8 CONNECT_REQUEST_FREQUENCY_IN_SECONDS	= 5;		// Frequency at which we resend a request to connect to a server (will increase in frequency over time down to MIN_CONNECT_FREQUENCY_IN_SECONDS)
+	static constexpr uint8 MIN_CONNECT_FREQUENCY_IN_SECONDS		= 1;		// Min frequency of connection attempts
+	static constexpr size_t MAX_CONNECT_ATTEMPTS				= 5;
+	static constexpr size_t BANDWIDTH_REPORTING_MAX				= 10240;	// make bps to report receiving (clamp if higher). For quantizing
+	static constexpr size_t BANDWIDTH_REPORTING_BITS			= 16;		// number of bits to use for bandwidth reporting
+	static constexpr size_t MAX_BPS_HISTORY						= 32;		// size of outgoing bps history to maintain for each client
 	
-	static constexpr int MAX_SNAP_SIZE				= idPacketProcessor::MAX_MSG_SIZE;
-	static constexpr int MAX_SNAPSHOT_QUEUE			= 64;
+	static constexpr size_t MAX_SNAP_SIZE				= idPacketProcessor::MAX_MSG_SIZE;
+	static constexpr size_t MAX_SNAPSHOT_QUEUE			= 64;
 
-	static constexpr int OOB_HELLO					= 0;
-	static constexpr int OOB_GOODBYE				= 1;
-	static constexpr int OOB_GOODBYE_W_PARTY		= 2;
-	static constexpr int OOB_GOODBYE_FULL			= 3;
-	static constexpr int OOB_RESOURCE_LIST			= 4;
-	static constexpr int OOB_VOICE_AUDIO			= 5;
-	
-	static constexpr int OOB_MATCH_QUERY			= 6;
-	static constexpr int OOB_MATCH_QUERY_ACK		= 7;
+	enum OOB_e : uint8 {
+		OOB_HELLO            = 0,
+		OOB_GOODBYE          = 1,
+		OOB_GOODBYE_W_PARTY  = 2,
+		OOB_GOODBYE_FULL     = 3,
+		OOB_RESOURCE_LIST    = 4,
+		OOB_VOICE_AUDIO      = 5,
 
-	static constexpr int OOB_SYSTEMLINK_QUERY		= 8;
-		
-	static constexpr int OOB_MIGRATE_INVITE			= 9;
+		OOB_MATCH_QUERY      = 6,
+		OOB_MATCH_QUERY_ACK  = 7,
 
-	static constexpr int OOB_BANDWIDTH_TEST			= 10;
+		OOB_SYSTEMLINK_QUERY = 8,
+
+		OOB_MIGRATE_INVITE   = 9,
+
+		OOB_BANDWIDTH_TEST   = 10
+	};
 
 	enum connectionState_t {
 		CONNECTION_FREE				= 0,		// Free peer slot
@@ -304,56 +306,56 @@ public:
 		connectionState_t	connectionState;
 		bool				loaded;						// true if this peer has finished loading the map
 		bool				inGame;						// true if this peer received the first snapshot, and is in-game		
-		int					lastSnapTime;				// Last time a snapshot was sent on the network to this peer
+		ID_TIME_T			lastSnapTime;				// Last time a snapshot was sent on the network to this peer
 		float				snapHz;
-		int					lastProcTime;				// Used to determine when a packet was processed for sending to this peer
-		int					lastInBandProcTime;			// Last time a in-band packet was processed for sending
-		int					lastFragmentSendTime;		// Last time a fragment was sent out (fragments are processed msg's, waiting to be fully sent)
+		ID_TIME_T			lastProcTime;				// Used to determine when a packet was processed for sending to this peer
+		ID_TIME_T			lastInBandProcTime;			// Last time a in-band packet was processed for sending
+		ID_TIME_T			lastFragmentSendTime;		// Last time a fragment was sent out (fragments are processed msg's, waiting to be fully sent)
 		unsigned long		networkChecksum;			// Checksum used to determine if a peer loaded the network resources the EXACT same as the server did
 		int					pauseSnapshots;
 
 		lobbyAddress_t	address;
 
-		int					numResources;				// number of network resources we know the peer has
+		size_t				numResources;				// number of network resources we know the peer has
 
 		idPacketProcessor *		packetProc;				// Processes packets for this peer
 		idSnapshotProcessor *	snapProc;				// Processes snapshots for this peer
 		idStaticList< idDebugGraph *, 4 >	debugGraphs;//
 
-		int					lastResourceTime;			// Used to throttle the sending of resources
+		ID_TIME_T			lastResourceTime;			// Used to throttle the sending of resources
 
-		int					lastHeartBeat;
-		int					nextPing;					// next Sys_Milliseconds when I'll send this peer a RELIABLE_PING
-		int					lastPingRtt;
+		ID_TIME_T			lastHeartBeat;
+		ID_TIME_T			nextPing;					// next Sys_Milliseconds when I'll send this peer a RELIABLE_PING
+		ID_TIME_T			lastPingRtt;
 		bool				needToSubmitPendingSnap;
-		int					lastSnapJobTime;			// Last time a snapshot was sent to the joblist for this peer
+		ID_TIME_T			lastSnapJobTime;			// Last time a snapshot was sent to the joblist for this peer
 		
 
-		int					startResourceLoadTime;		// Used to determine how long a peer has been loading resources
+		ID_TIME_T			startResourceLoadTime;		// Used to determine how long a peer has been loading resources
 
-		int					maxSnapQueueSize;			// how big has the snap queue gotten?
+		size_t				maxSnapQueueSize;			// how big has the snap queue gotten?
 		int					throttledSnapRate;			// effective snap rate for this peer
-		int					nextThrottleCheck;
+		ID_TIME_T			nextThrottleCheck;
 
-		int					numSnapsSent;
+		size_t				numSnapsSent;
 		
 		float				sentBpsHistory[ MAX_BPS_HISTORY ];
 		int					receivedBpsIndex;
 
 		float				receivedBps;				// peer's reported bps (they tell us their effective downstream)
 		float				maxSnapBps;
-		float				receivedThrottle;			// amount of accumlated time this client has been lagging behind 
-		int					receivedThrottleTime;		// last time we did received based throttle calculations
+		float				receivedThrottle;			// amount of accumulated time this client has been lagging behind 
+		ID_TIME_T			receivedThrottleTime;		// last time we did receive based throttle calculations
 
 		int					throttleSnapsForXSeconds;
-		int					recoverPing;
-		int					failedPingRecoveries;
+		ID_TIME_T			recoverPing;
+		size_t				failedPingRecoveries;
 		int					rightBeforeSnapsPing;
 		
-		int					bandwidthChallengeStartSendTime;	// time we sent first packet of bw challenge to this peer
-		int					bandwidthTestLastSendTime;			// last time in MS we sent them a bw challenge packet
-		int					bandwidthTestBytes;					// used to measure number of bytes we sent them
-		int					bandwidthSequenceNum;				// number of challenge sequences we sent them
+		ID_TIME_T			bandwidthChallengeStartSendTime;	// time we sent first packet of bw challenge to this peer
+		ID_TIME_T			bandwidthTestLastSendTime;			// last time in MS we sent them a bw challenge packet
+		size_t				bandwidthTestBytes;					// used to measure number of bytes we sent them
+		size_t				bandwidthSequenceNum;				// number of challenge sequences we sent them
 		bool				bandwidthChallengeResults;			// we got results back
 		bool				bandwidthChallengeSendComplete;		// we finished sending everything
 
@@ -374,26 +376,26 @@ public:
 
 	virtual lobbyUserID_t				AllocLobbyUserSlotForBot( const char * botName );							// find a open user slot for the bot, and return the userID.
 	virtual void						RemoveBotFromLobbyUserList( lobbyUserID_t lobbyUserID );					// release the session user slot, so that it can be claimed by a player, etc.
-	[[nodiscard]] virtual bool						GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const;						// check to see if the lobby user is a bot or not
+	[[nodiscard]] virtual bool			GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const;						// check to see if the lobby user is a bot or not
 
-	[[nodiscard]] virtual int							GetNumLobbyUsers() const { return userList.Num(); }
-	[[nodiscard]] virtual int							GetNumActiveLobbyUsers() const;
-	[[nodiscard]] virtual bool						AllPeersInGame() const;
-	lobbyUser_t *						GetLobbyUser( int index ) { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr; }
-	[[nodiscard]] const lobbyUser_t *					GetLobbyUser( int index ) const { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr; }
+	[[nodiscard]] virtual size_t		GetNumLobbyUsers() const { return userList.Num(); }
+	[[nodiscard]] virtual size_t		GetNumActiveLobbyUsers() const;
+	[[nodiscard]] virtual bool			AllPeersInGame() const;
+	lobbyUser_t *						GetLobbyUser(const index_t index ) { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr; }
+	[[nodiscard]] const lobbyUser_t *	GetLobbyUser(const index_t index ) const { return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr; }
 
-	[[nodiscard]] virtual bool						IsLobbyUserConnected( int index ) const { return !IsLobbyUserDisconnected( index ); }
+	[[nodiscard]] virtual bool			IsLobbyUserConnected(const index_t index ) const { return !IsLobbyUserDisconnected( index ); }
 
-	[[nodiscard]] virtual int							PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual index_t		PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const;
 
-	[[nodiscard]] virtual int							GetPeerTimeSinceLastPacket( int peerIndex ) const;
-	[[nodiscard]] virtual int							PeerIndexForHost() const { return host; }
+	[[nodiscard]] virtual ID_TIME_T		GetPeerTimeSinceLastPacket( index_t peerIndex ) const;
+	[[nodiscard]] virtual index_t		PeerIndexForHost() const { return host; }
 
-	[[nodiscard]] virtual int							PeerIndexOnHost() const { return peerIndexOnHost; }		// Returns -1 if we are the host
+	[[nodiscard]] virtual index_t		PeerIndexOnHost() const { return peerIndexOnHost; }		// Returns -1 if we are the host
 
 	[[nodiscard]] virtual const idMatchParameters &	GetMatchParms() const { return parms; }
 
-	[[nodiscard]] lobbyType_t							GetActingGameStateLobbyType() const;
+	[[nodiscard]] lobbyType_t			GetActingGameStateLobbyType() const;
 
 	// If IsHost is true, we are a host accepting connections from peers
 	[[nodiscard]] bool	IsHost() const { return isHost; }
@@ -451,45 +453,45 @@ public:		// Turning this on for now, for the sake of getting this up and running
 
 	void								StartCreating();
 
-	int									FindPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::sessionId_t sessionID, bool ignoreSessionID = false );
-	[[nodiscard]] int									FindAnyPeer( const lobbyAddress_t & remoteAddress ) const;
-	[[nodiscard]] int									FindFreePeer() const;
-	int									AddPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::sessionId_t sessionID );
-	void								DisconnectPeerFromSession( int p );
-	void								SetPeerConnectionState( int p, connectionState_t newState, bool skipGoodbye = false );
+	index_t								FindPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::sessionId_t sessionID, bool ignoreSessionID = false );
+	[[nodiscard]] index_t				FindAnyPeer( const lobbyAddress_t & remoteAddress ) const;
+	[[nodiscard]] index_t				FindFreePeer() const;
+	index_t								AddPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::sessionId_t sessionID );
+	void								DisconnectPeerFromSession( index_t p );
+	void								SetPeerConnectionState( index_t p, connectionState_t newState, bool skipGoodbye = false );
 	void								DisconnectAllPeers();
 	
 	virtual void						SendReliable( int type, idBitMsg & msg, bool callReceiveReliable = true, peerMask_t sessionUserMask = MAX_UNSIGNED_TYPE( peerMask_t ) );
 	virtual void						SendReliableToLobbyUser( lobbyUserID_t lobbyUserID, int type, idBitMsg & msg );
 	virtual void						SendReliableToHost( int type, idBitMsg & msg );
 	void								SendGoodbye( const lobbyAddress_t & remoteAddress, bool wasFull = false );
-	void								QueueReliableMessage( int peerNum, byte type ) { QueueReliableMessage( peerNum, type, nullptr, 0 ); }
-	void								QueueReliableMessage( int p, byte type, const byte * data, int dataLen );
-	[[nodiscard]] virtual int							GetNumConnectedPeers() const;
-	[[nodiscard]] virtual int							GetNumConnectedPeersInGame() const;
+	void								QueueReliableMessage(const index_t peerNum, const byte type ) { QueueReliableMessage( peerNum, type, nullptr, 0 ); }
+	void								QueueReliableMessage( index_t p, byte type, const byte * data, size_t dataLen );
+	[[nodiscard]] virtual size_t		GetNumConnectedPeers() const;
+	[[nodiscard]] virtual size_t		GetNumConnectedPeersInGame() const;
 	void								SendMatchParmsToPeers();
 
 	static bool							IsReliablePlayerToPlayerType( byte type );
-	void								HandleReliablePlayerToPlayerMsg( int peerNum, idBitMsg & msg, int type );
+	void								HandleReliablePlayerToPlayerMsg( index_t peerNum, idBitMsg & msg, int type );
 	void								HandleReliablePlayerToPlayerMsg( const reliablePlayerToPlayerHeader_t & info, idBitMsg & msg, int reliableType );
 
-	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type ) { SendConnectionLess( remoteAddress, type, nullptr, 0 ); }
-	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type, const byte * data, int dataLen ) const;
+	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, const byte type ) const { SendConnectionLess( remoteAddress, type, nullptr, 0 ); }
+	void								SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type, const byte * data, size_t dataLen ) const;
 	void								SendConnectionRequest();
 	void								ConnectTo( const lobbyConnectInfo_t & connectInfo, bool fromInvite );
-	void								HandleGoodbyeFromPeer( int peerNum, lobbyAddress_t & remoteAddress, int msgType );
+	void								HandleGoodbyeFromPeer( index_t peerNum, lobbyAddress_t & remoteAddress, int msgType );
 	void								HandleConnectionAttemptFailed();
 	bool								ConnectToNextSearchResult();
 	bool								CheckVersion( idBitMsg & msg, lobbyAddress_t peerAddress );
 	bool								VerifyNumConnectingUsers( idBitMsg & msg );
 	bool								VerifyLobbyUserIDs( idBitMsg & msg );
-	int									HandleInitialPeerConnection( idBitMsg & msg, const lobbyAddress_t & peerAddress, int peerNum );
+	int									HandleInitialPeerConnection( idBitMsg & msg, const lobbyAddress_t & peerAddress, index_t peerNum );
 	void								InitStateLobbyHost();
 
 	void								SendMembersToLobby( lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, bool waitForOtherMembers );
 	void								SendMembersToLobby( idLobby & destLobby, bool waitForOtherMembers );
-	void								SendPeerMembersToLobby( int peerIndex, lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, bool waitForOtherMembers );
-	void								SendPeerMembersToLobby( int peerIndex, lobbyType_t destLobbyType, bool waitForOtherMembers );
+	void								SendPeerMembersToLobby( index_t peerIndex, lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, bool waitForOtherMembers );
+	void								SendPeerMembersToLobby( index_t peerIndex, lobbyType_t destLobbyType, bool waitForOtherMembers );
 	void								NotifyPartyOfLeavingGameLobby();
 	uint32								GetPartyTokenAsHost();
 
@@ -498,31 +500,31 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	virtual void						DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw );
 
 	void								CheckHeartBeats();
-	[[nodiscard]] bool								IsLosingConnectionToHost() const;
-	[[nodiscard]] bool								IsMigratedStatsGame() const;
-	[[nodiscard]] bool								ShouldRelaunchMigrationGame() const;
-	[[nodiscard]] bool								ShouldShowMigratingDialog() const;
-	[[nodiscard]] bool								IsMigrating() const;
+	[[nodiscard]] bool					IsLosingConnectionToHost() const;
+	[[nodiscard]] bool					IsMigratedStatsGame() const;
+	[[nodiscard]] bool					ShouldRelaunchMigrationGame() const;
+	[[nodiscard]] bool					ShouldShowMigratingDialog() const;
+	[[nodiscard]] bool					IsMigrating() const;
 
 	// Pings
 	struct pktPing_t {
-		int timestamp;
+		ID_TIME_T timestamp;
 	};
 
 	void								PingPeers();
 	void								SendPingValues();
 	void								PumpPings();
-	void								HandleReliablePing( int p, idBitMsg & msg );
-	void								HandlePingReply( int p, const pktPing_t & ping );
+	void								HandleReliablePing( index_t p, idBitMsg & msg );
+	void								HandlePingReply( index_t p, const pktPing_t & ping );
 	void								HandlePingValues( idBitMsg & msg );
-	void								HandleBandwidhTestValue( int p, idBitMsg & msg );
+	void								HandleBandwidhTestValue( index_t p, idBitMsg & msg );
 	void								HandleMigrationGameData( idBitMsg & msg );
-	void								HandleHeadsetStateChange( int fromPeer, idBitMsg & msg );
+	void								HandleHeadsetStateChange( index_t fromPeer, idBitMsg & msg );
 
-	bool								SendAnotherFragment( int p );
-	bool								CanSendMoreData( int p );
-	void								ProcessOutgoingMsg( int p, const void * data, int size, bool isOOB, int userData );
-	void								ResendReliables( int p );
+	bool								SendAnotherFragment( index_t p );
+	bool								CanSendMoreData( index_t p );
+	void								ProcessOutgoingMsg( index_t p, const void * data, size_t size, bool isOOB, int userData );
+	void								ResendReliables( index_t p );
 	void								PumpPackets();
 
 	void								UpdateMatchParms( const idMatchParameters & p );
@@ -534,34 +536,34 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	[[nodiscard]] bool								SessionIDCanBeUsedForInBand( idPacketProcessor::sessionId_t sessionID ) const;
 	[[nodiscard]] idPacketProcessor::sessionId_t		IncrementSessionID( idPacketProcessor::sessionId_t sessionID ) const;
 
-	void								HandleHelloAck( int p, idBitMsg & msg );
+	void								HandleHelloAck( index_t p, idBitMsg & msg );
 
-	[[nodiscard]] virtual const char *				GetLobbyUserName( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual bool						GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual bool						GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual int							GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual int							GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual int							GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual int							GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const;
-	virtual bool						SetLobbyUserTeam( lobbyUserID_t lobbyUserID, int teamNumber );
-	[[nodiscard]] virtual int							GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual const char *	GetLobbyUserName( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual bool			GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual bool			GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual index_t		GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual index_t		GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual index_t		GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual index_t		GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const;
+	virtual bool						SetLobbyUserTeam( lobbyUserID_t lobbyUserID, index_t teamNumber );
+	[[nodiscard]] virtual int			GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const;
 	virtual idPlayerProfile *			GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID );
 	virtual idLocalUser *				GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID );
-	[[nodiscard]] virtual int							GetNumLobbyUsersOnTeam( int teamNumber ) const;
+	[[nodiscard]] virtual size_t		GetNumLobbyUsersOnTeam( index_t teamNumber ) const;
 
-	[[nodiscard]] const char *						GetPeerName( int peerNum ) const;
-	[[nodiscard]] virtual const char *				GetHostUserName() const;
+	[[nodiscard]] const char *			GetPeerName( index_t peerNum ) const;
+	[[nodiscard]] virtual const char *	GetHostUserName() const;
 
-	void								HandleReliableMsg( int p, idBitMsg & msg );
+	void								HandleReliableMsg( index_t p, idBitMsg & msg );
 
 	// Bandwidth / Qos / Throttling
 	void								BeginBandwidthTest();
-	[[nodiscard]] bool								BandwidthTestStarted() const;
+	[[nodiscard]] bool					BandwidthTestStarted() const;
 
 	void								ServerUpdateBandwidthTest();
 	void								ClientUpdateBandwidthTest();
 
-	void								ThrottlePeerSnapRate( int peerNum );
+	void								ThrottlePeerSnapRate( index_t peerNum );
 
 	//
 	// sys_session_instance_users.cpp
@@ -575,8 +577,8 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								UnregisterUser( lobbyUser_t * lobbyUser ) const;
 
 	bool								IsSessionUserLocal( const lobbyUser_t * lobbyUser ) const;
-	[[nodiscard]] bool								IsSessionUserIndexLocal( int i ) const;
-	[[nodiscard]] int									GetLobbyUserIndexByID( lobbyUserID_t lobbyUserId, bool ignoreLobbyType = false ) const;
+	[[nodiscard]] bool					IsSessionUserIndexLocal( index_t i ) const;
+	[[nodiscard]] index_t				GetLobbyUserIndexByID( lobbyUserID_t lobbyUserId, bool ignoreLobbyType = false ) const;
 	lobbyUser_t	*						GetLobbyUserByID( lobbyUserID_t lobbyUserId, bool ignoreLobbyType = false );
 
 	// Helper function to create a lobby user from a local user
@@ -587,32 +589,32 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								InitSessionUsersFromLocalUsers( bool onlineMatch );
 
 	// Convert an local userhandle to a session user (-1 if there is no session user with this handle)
-	[[nodiscard]] int									GetLobbyUserIndexByLocalUserHandle( const localUserHandle_t localUserHandle ) const;
+	[[nodiscard]] index_t				GetLobbyUserIndexByLocalUserHandle( const localUserHandle_t localUserHandle ) const;
 
 	// This takes a session user, and converts to a controller user
-	idLocalUser *						GetLocalUserFromLobbyUserIndex( int lobbyUserIndex );	
+	idLocalUser *						GetLocalUserFromLobbyUserIndex( index_t lobbyUserIndex );
 
 	// Takes a controller user, and converts to a session user (will return NULL if there is no session user for this controller user)
 	lobbyUser_t *						GetSessionUserFromLocalUser( const idLocalUser * controller );
 
 	void								RemoveUsersWithDisconnectedPeers();
 	void								RemoveSessionUsersByIDList( idList< lobbyUserID_t > & usersToRemoveByID );
-	void								SendNewUsersToPeers( int skipPeer, int userStart, int numUsers );
-	void								SendPeersMicStatusToNewUsers( int peerNumber );
-	void								AddUsersFromMsg( idBitMsg & msg, int fromPeer );
+	void								SendNewUsersToPeers( index_t skipPeer, index_t userStart, size_t numUsers );
+	void								SendPeersMicStatusToNewUsers( index_t peerNumber );
+	void								AddUsersFromMsg( idBitMsg & msg, index_t fromPeer );
 	void								UpdateSessionUserOnPeers( idBitMsg & msg );
 	void								HandleUpdateSessionUser( idBitMsg & msg );
-	void								CreateUserUpdateMessage( int userIndex, idBitMsg & msg );
+	void								CreateUserUpdateMessage( index_t userIndex, idBitMsg & msg );
 	void								UpdateLocalSessionUsers();
-	[[nodiscard]] int									PeerIndexForSessionUserIndex( int sessionUserIndex ) const;
-	void								HandleUserConnectFailure( int p, idBitMsg & inMsg, int reliableType );
+	[[nodiscard]] index_t				PeerIndexForSessionUserIndex( index_t sessionUserIndex ) const;
+	void								HandleUserConnectFailure( index_t p, idBitMsg & inMsg, int reliableType );
 	void								ProcessUserDisconnectMsg( idBitMsg & msg );
 	void								CompactDisconnectedUsers();
 
 	// Sends a request to the host to join a local user to a session
 	void								RequestLocalUserJoin( idLocalUser * localUser );
 	// Sends a request to the host to remove a session user from the session
-	void								RequestSessionUserDisconnect( int sessionUserIndex );
+	void								RequestSessionUserDisconnect( index_t sessionUserIndex );
 
 	// This function sycs the session users with the current list of of local users on the signin manager.
 	// It will remove the session users that are either no longer on the signin manager, or it
@@ -621,29 +623,29 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								SyncLobbyUsersWithLocalUsers( bool allowJoin, bool onlineMatch );
 
 	bool								ValidateConnectedUser( const lobbyUser_t * user ) const;
-	[[nodiscard]] virtual bool						IsLobbyUserDisconnected( int userIndex ) const;
-	[[nodiscard]] virtual bool						IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual bool						IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual bool						LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const;
-	[[nodiscard]] virtual lobbyUserID_t				GetLobbyUserIdByOrdinal( int userIndex ) const;
-	[[nodiscard]] virtual	int							GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual bool			IsLobbyUserDisconnected( index_t userIndex ) const;
+	[[nodiscard]] virtual bool			IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual bool			IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual bool			LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const;
+	[[nodiscard]] virtual lobbyUserID_t	GetLobbyUserIdByOrdinal( index_t userIndex ) const;
+	[[nodiscard]] virtual index_t		GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const;
 	virtual void						EnableSnapshotsForLobbyUser( lobbyUserID_t lobbyUserID );
-	[[nodiscard]] virtual bool						IsPeerDisconnected( int peerIndex ) const { return !peers[peerIndex].IsConnected(); }
+	[[nodiscard]] virtual bool			IsPeerDisconnected(const index_t peerIndex ) const { return !peers[peerIndex].IsConnected(); }
 
 	float								GetAverageSessionLevel();
-	[[nodiscard]] float								GetAverageLocalUserLevel( bool onlineOnly ) const;
+	[[nodiscard]] float					GetAverageLocalUserLevel( bool onlineOnly ) const;
 
-	void								QueueReliablePlayerToPlayerMessage( int fromSessionUserIndex, int toSessionUserIndex, reliablePlayerToPlayer_t type, const byte * data, int dataLen );
+	void								QueueReliablePlayerToPlayerMessage( index_t fromSessionUserIndex, index_t toSessionUserIndex, reliablePlayerToPlayer_t type, const byte * data, size_t dataLen );
 	virtual void						KickLobbyUser( lobbyUserID_t lobbyUserID );
 
-	[[nodiscard]] int									GetNumConnectedUsers() const;
+	[[nodiscard]] size_t				GetNumConnectedUsers() const;
 
 	//
 	// sys_session_instance_migrate.cpp
 	//
 
-	[[nodiscard]] bool								IsBetterHost( int ping1, lobbyUserID_t userId1, int ping2, lobbyUserID_t userId2 ) const;
-	int									FindMigrationInviteIndex( lobbyAddress_t & address );
+	[[nodiscard]] bool					IsBetterHost( ID_TIME_T ping1, lobbyUserID_t userId1, ID_TIME_T ping2, lobbyUserID_t userId2 ) const;
+	index_t								FindMigrationInviteIndex( lobbyAddress_t & address );
 	void								UpdateHostMigration();
 	void								BuildMigrationInviteList( bool inviteOldHost );
 	void								PickNewHost( bool forceMe = false, bool inviteOldHost = false );
@@ -663,26 +665,26 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	//
 	void								UpdateSnaps();
 	bool								SendCompletedSnaps();
-	[[nodiscard]] bool								SendResources( int p ) const;
-	bool								SubmitPendingSnap( int p );
-	void								SendCompletedPendingSnap( int p );
-	void								CheckPeerThrottle( int p );
-	void								ApplySnapshotDelta( int p, int snapshotNumber );
-	bool								ApplySnapshotDeltaInternal( int p, int snapshotNumber );
-	void								SendSnapshotToPeer( idSnapShot & ss, int p );
+	[[nodiscard]] bool					SendResources( index_t p ) const;
+	bool								SubmitPendingSnap( index_t p );
+	void								SendCompletedPendingSnap( index_t p );
+	void								CheckPeerThrottle( index_t p );
+	void								ApplySnapshotDelta( index_t p, int snapshotNumber );
+	bool								ApplySnapshotDeltaInternal( index_t p, int snapshotNumber );
+	void								SendSnapshotToPeer( idSnapShot & ss, index_t p );
 	bool								AllPeersHaveBaseState();
-	void								ThrottleSnapsForXSeconds( int p, int seconds, bool recoverPing );
-	bool								FirstSnapHasBeenSent( int p );
+	void								ThrottleSnapsForXSeconds( index_t p, int seconds, bool recoverPing );
+	bool								FirstSnapHasBeenSent( index_t p );
 	virtual bool						EnsureAllPeersHaveBaseState();
 	virtual bool						AllPeersHaveStaleSnapObj( int objId );
 	virtual bool						AllPeersHaveExpectedSnapObj( int objId );
 	virtual void						MarkSnapObjDeleted( int objId );
 	virtual void						RefreshSnapObj( int objId );
 	void								ResetBandwidthStats();
-	void								DetectSaturation( int p );
+	void								DetectSaturation( index_t p );
 	virtual void						AddSnapObjTemplate( int objID, idBitMsg & msg );
 
-	static constexpr int MAX_PEERS = MAX_PLAYERS;
+	static constexpr size_t MAX_PEERS = MAX_PLAYERS;
 
 	//------------------------
 	// Pings
@@ -691,28 +693,28 @@ public:		// Turning this on for now, for the sake of getting this up and running
 		idArray<short, MAX_PEERS> pings;
 	};
 
-	static constexpr int PING_INTERVAL_MS = 3000;
+	static constexpr ID_TIME_T PING_INTERVAL_MS = 3000;
 
-	int									lastPingValuesRecvTime; // so clients can display something when server stops pinging
-	int									nextSendPingValuesTime; // the next time to send RELIABLE_PING_VALUES
+	ID_TIME_T							lastPingValuesRecvTime; // so clients can display something when server stops pinging
+	ID_TIME_T							nextSendPingValuesTime; // the next time to send RELIABLE_PING_VALUES
 
-	static constexpr int MIGRATION_GAME_DATA_INTERVAL_MS = 1000;
-	int									nextSendMigrationGameTime;	// when to send next migration game data
-	int									nextSendMigrationGamePeer;	// who to send next migration game data to
+	static constexpr ID_TIME_T MIGRATION_GAME_DATA_INTERVAL_MS = 1000;
+	ID_TIME_T							nextSendMigrationGameTime;	// when to send next migration game data
+	ID_TIME_T							nextSendMigrationGamePeer;	// who to send next migration game data to
 
 	lobbyType_t							lobbyType;
 	lobbyState_t						state;						// State of this lobby
 	failedReason_t						failedReason;
 
-	int									host;						// which peer is the host of this type of session (-1 if we are the host)
-	int									peerIndexOnHost;			// -1 if we are the host
+	index_t								host;						// which peer is the host of this type of session (-1 if we are the host)
+	index_t								peerIndexOnHost;			// -1 if we are the host
 	lobbyAddress_t						hostAddress;				// address of the host for this type of session
 	bool								isHost;						// true if we are the host
 	idLobbyBackend *					lobbyBackend;
 
-	int									helloStartTime;				// Used to determine when the first hello was sent
-	int									lastConnectRequest;			// Used to determine when the last hello was sent
-	int									connectionAttempts;			// Number of connection attempts
+	ID_TIME_T							helloStartTime;				// Used to determine when the first hello was sent
+	ID_TIME_T							lastConnectRequest;			// Used to determine when the last hello was sent
+	size_t								connectionAttempts;			// Number of connection attempts
 
 	
 	bool								needToDisplayMigrateMsg;	// If true, we migrated as host, so we need to display the msg as soon as the lobby is active
@@ -725,10 +727,10 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	// ------------------------
 	//	Bandwidth challenge
 	// ------------------------
-	int									bandwidthChallengeEndTime;		// When the challenge will end/timeout
-	int									bandwidthChallengeStartTime;	// time in MS the challenge started
+	ID_TIME_T							bandwidthChallengeEndTime;		// When the challenge will end/timeout
+	ID_TIME_T							bandwidthChallengeStartTime;	// time in MS the challenge started
 	bool								bandwidthChallengeFinished;		// (HOST) test is finished and we received results back from all peers (or timed out)
-	int									bandwidthChallengeNumGoodSeq;	// (PEER) num of good, in order packets we recevieved
+	size_t								bandwidthChallengeNumGoodSeq;	// (PEER) num of good, in order packets we received
 
 	int									lastSnapBspHistoryUpdateSequence;
 
@@ -750,9 +752,9 @@ public:		// Turning this on for now, for the sake of getting this up and running
 		}
 
 		lobbyAddress_t		address;
-		int					pingMs;
+		ID_TIME_T			pingMs;
 		lobbyUserID_t		userId;
-		int					lastInviteTime;
+		ID_TIME_T			lastInviteTime;
 		int					migrationGameData;
 	};
 
@@ -765,8 +767,8 @@ public:		// Turning this on for now, for the sake of getting this up and running
 
 		migrationState_t				state;
 		idStaticList< migrationInvite_t, MAX_PEERS > invites;
-		int								migrationStartTime;
-		int								ourPingMs;
+		ID_TIME_T						migrationStartTime;
+		ID_TIME_T						ourPingMs;
 		lobbyUserID_t					ourUserId;
 
 		struct persistUntilGameEnds_t {
@@ -792,10 +794,10 @@ public:		// Turning this on for now, for the sake of getting this up and running
 			bool							hasRelaunchedMigratedGame;
 
 			// A generic blob of data that the gamechallenge (or anything else) can read and write to for host migration
-			static constexpr int MIGRATION_GAME_DATA_SIZE = 32;
+			static constexpr size_t MIGRATION_GAME_DATA_SIZE = 32;
 			byte gameData[ MIGRATION_GAME_DATA_SIZE ];
 
-			static constexpr int MIGRATION_GAME_DATA_USER_SIZE = 64;
+			static constexpr size_t MIGRATION_GAME_DATA_USER_SIZE = 64;
 			byte gameDataUser[ MAX_PLAYERS ][ MIGRATION_GAME_DATA_USER_SIZE ];
 
 			bool hasGameData;
@@ -838,7 +840,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	//------------------------
 	// Snapshot jobs
 	//------------------------
-	static constexpr int SNAP_OBJ_JOB_MEMORY = 1024 * 128;			// 128k of obj memory
+	static constexpr size_t SNAP_OBJ_JOB_MEMORY = 1024ULL * 128;			// 128k of obj memory
 
 	lzwCompressionData_t *				lzwData;				// Shared across all snapshot jobs
 	uint8 *								objMemory;				// Shared across all snapshot jobs
@@ -864,7 +866,7 @@ public:
 	virtual idLobby &				GetGameLobby() = 0;
 	virtual idLobby &				GetActingGameStateLobby() = 0;
 	virtual idLobby *				GetLobbyFromType( idLobby::lobbyType_t lobbyType ) = 0;
-	[[nodiscard]] virtual int						GetUniquePlayerId() const = 0;
+	[[nodiscard]] virtual index_t	GetUniquePlayerId() const = 0;
 	virtual idSignInManagerBase	&	GetSignInManager() = 0;
 	virtual	void					SendRawPacket( const lobbyAddress_t & to, const void * data, int size, bool useDirectPort ) = 0;
 	
@@ -875,10 +877,10 @@ public:
 	virtual void					FailedGameMigration( idLobby & lobby ) = 0;
 	virtual void					MigrationEnded( idLobby & lobby ) = 0;
 
-	virtual void					GoodbyeFromHost( idLobby & lobby, int peerNum, const lobbyAddress_t & remoteAddress, int msgType ) = 0;
+	virtual void					GoodbyeFromHost( idLobby & lobby, index_t peerNum, const lobbyAddress_t & remoteAddress, int msgType ) = 0;
 
 	virtual	uint32					GetSessionOptions() = 0;
-	[[nodiscard]] virtual bool					AnyPeerHasAddress( const lobbyAddress_t & remoteAddress ) const = 0;
+	[[nodiscard]] virtual bool		AnyPeerHasAddress( const lobbyAddress_t & remoteAddress ) const = 0;
 
 	[[nodiscard]] virtual idSession::sessionState_t GetState() const = 0;
 
@@ -908,10 +910,10 @@ public:
 	virtual void					HandleServerQueryRequest( lobbyAddress_t & remoteAddr, idBitMsg & msg, int msgType ) = 0;
 	virtual void 					HandleServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) = 0;
 
-	virtual void					HandlePeerMatchParamUpdate( int peer, int msg ) = 0;
+	virtual void					HandlePeerMatchParamUpdate( index_t peer, int msg ) = 0;
 
 	virtual idLobbyBackend *		CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) = 0;
-	virtual idLobbyBackend *		FindLobbyBackend( const idMatchParameters & p, int numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) = 0;
+	virtual idLobbyBackend *		FindLobbyBackend( const idMatchParameters & p, size_t numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) = 0;
 	virtual idLobbyBackend *		JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo , idLobbyBackend::lobbyBackendType_t lobbyType ) = 0;
 	virtual void					DestroyLobbyBackend( idLobbyBackend * lobbyBackend ) = 0;
 };

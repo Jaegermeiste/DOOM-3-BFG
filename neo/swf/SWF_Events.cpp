@@ -61,7 +61,7 @@ idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const 
 	float xOffset = spriteInstance->xOffset;
 	float yOffset = spriteInstance->yOffset;
 	
-	for ( int i = 0; i < spriteInstance->displayList.Num(); i++ ) {
+	for ( size_t i = 0; i < spriteInstance->displayList.Num(); i++ ) {
 		const swfDisplayEntry_t & display = spriteInstance->displayList[i];
 		idSWFDictionaryEntry * entry = FindDictionaryEntry( display.characterID );
 		if ( entry == nullptr) {
@@ -78,9 +78,9 @@ idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const 
 			}
 		} else if ( entry->type == SWF_DICT_SHAPE && ( parentObject != nullptr) ) {
 			idSWFShape * shape = entry->shape;
-			for ( int i = 0; i < shape->fillDraws.Num(); i++ ) {
+			for ( size_t i = 0; i < shape->fillDraws.Num(); i++ ) {
 				const idSWFShapeDrawFill & fill = shape->fillDraws[i];
-				for ( int j = 0; j < fill.indices.Num(); j+=3 ) {
+				for ( size_t j = 0; j < fill.indices.Num(); j+=3 ) {
 					idVec2 xy1 = renderState2.matrix.Transform( fill.startVerts[fill.indices[j+0]] );
 					idVec2 xy2 = renderState2.matrix.Transform( fill.startVerts[fill.indices[j+1]] );
 					idVec2 xy3 = renderState2.matrix.Transform( fill.startVerts[fill.indices[j+2]] );
@@ -391,15 +391,15 @@ bool idSWF::HandleEvent( const sysEvent_t * event ) {
 			float tx = 0.5f * ( sysWidth - ( frameWidth * scale ) );
 			float ty = 0.5f * ( sysHeight - ( frameHeight * scale ) );
 
-			mouseX = idMath::Ftoi( ( static_cast<float>( event->evValue ) - tx ) * invScale );
-			mouseY = idMath::Ftoi( ( static_cast<float>( event->evValue2 ) - ty ) * invScale );
+			mouseX = numeric_cast<int>( ( static_cast<float>( event->evValue ) - tx ) * invScale );
+			mouseY = numeric_cast<int>( ( static_cast<float>( event->evValue2 ) - ty ) * invScale );
 		} else {
 
 			mouseX += event->evValue;
 			mouseY += event->evValue2;
 
-			mouseX = Max( Min( mouseX, idMath::Ftoi( frameWidth + renderBorder ) ), idMath::Ftoi( 0.0f - renderBorder ) );
-			mouseY = Max( Min( mouseY, idMath::Ftoi(frameHeight) ), 0 );
+			mouseX = Max( Min( mouseX, numeric_cast<int>( frameWidth + renderBorder ) ), numeric_cast<int>( 0.0f - renderBorder ) );
+			mouseY = Max( Min( mouseY, numeric_cast<int>(frameHeight) ), 0 );
 		}
 
 		bool retVal = false;

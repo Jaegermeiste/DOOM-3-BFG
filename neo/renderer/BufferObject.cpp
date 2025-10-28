@@ -74,7 +74,7 @@ void UnbindBufferObjects() {
 
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
-void CopyBuffer( byte * dst, const byte * src, int numBytes ) {
+void CopyBuffer( byte * dst, const byte * src, size_t numBytes ) {
 	assert_16_byte_aligned( dst );
 	assert_16_byte_aligned( src );
 
@@ -112,7 +112,7 @@ void CopyBuffer( byte * dst, const byte * src, int numBytes ) {
 
 #else
 
-void CopyBuffer( byte * dst, const byte * src, int numBytes ) {
+void CopyBuffer( byte * dst, const byte * src, const size_t numBytes ) {
 	assert_16_byte_aligned( dst );
 	assert_16_byte_aligned( src );
 	memcpy( dst, src, numBytes );
@@ -154,7 +154,7 @@ idVertexBuffer::~idVertexBuffer() {
 idVertexBuffer::AllocBufferObject
 ========================
 */
-bool idVertexBuffer::AllocBufferObject( const void * data, int allocSize ) {
+bool idVertexBuffer::AllocBufferObject( const void * data, const int allocSize ) {
 	assert( apiObject == NULL );
 	assert_16_byte_aligned( data );
 
@@ -166,7 +166,7 @@ bool idVertexBuffer::AllocBufferObject( const void * data, int allocSize ) {
 
 	bool allocationFailed = false;
 
-	int numBytes = GetAllocedSize();
+	size_t numBytes = GetAllocedSize();
 
 
 	// clear out any previous error
@@ -255,7 +255,7 @@ void idVertexBuffer::Reference( const idVertexBuffer & other ) {
 idVertexBuffer::Reference
 ========================
 */
-void idVertexBuffer::Reference( const idVertexBuffer & other, int refOffset, int refSize ) {
+void idVertexBuffer::Reference( const idVertexBuffer & other, const int refOffset, const int refSize ) {
 	assert( IsMapped() == false );
 	//assert( other.IsMapped() == false );	// this happens when building idTriangles while at the same time setting up idDrawVerts
 	assert( other.GetAPIObject() != NULL );
@@ -275,7 +275,7 @@ void idVertexBuffer::Reference( const idVertexBuffer & other, int refOffset, int
 idVertexBuffer::Update
 ========================
 */
-void idVertexBuffer::Update( const void * data, int updateSize ) const {
+void idVertexBuffer::Update( const void * data, const int updateSize ) const {
 	assert( apiObject != NULL );
 	assert( IsMapped() == false );
 	assert_16_byte_aligned( data );
@@ -285,7 +285,7 @@ void idVertexBuffer::Update( const void * data, int updateSize ) const {
 		idLib::FatalError( "idVertexBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
 	}
 
-	int numBytes = ( updateSize + 15 ) & ~15;
+	size_t numBytes = ( updateSize + 15 ) & ~15;
 
 	GLuint bufferObject = reinterpret_cast< GLuint >( apiObject );
 	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, bufferObject );
@@ -302,7 +302,7 @@ void idVertexBuffer::Update( const void * data, int updateSize ) const {
 idVertexBuffer::MapBuffer
 ========================
 */
-void * idVertexBuffer::MapBuffer( bufferMapType_t mapType ) const {
+void * idVertexBuffer::MapBuffer(const bufferMapType_t mapType ) const {
 	assert( apiObject != NULL );
 	assert( IsMapped() == false );
 
@@ -398,7 +398,7 @@ idIndexBuffer::~idIndexBuffer() {
 idIndexBuffer::AllocBufferObject
 ========================
 */
-bool idIndexBuffer::AllocBufferObject( const void * data, int allocSize ) {
+bool idIndexBuffer::AllocBufferObject( const void * data, const int allocSize ) {
 	assert( apiObject == NULL );
 	assert_16_byte_aligned( data );
 
@@ -410,7 +410,7 @@ bool idIndexBuffer::AllocBufferObject( const void * data, int allocSize ) {
 
 	bool allocationFailed = false;
 
-	int numBytes = GetAllocedSize();
+	size_t numBytes = GetAllocedSize();
 
 
 	// clear out any previous error
@@ -500,7 +500,7 @@ void idIndexBuffer::Reference( const idIndexBuffer & other ) {
 idIndexBuffer::Reference
 ========================
 */
-void idIndexBuffer::Reference( const idIndexBuffer & other, int refOffset, int refSize ) {
+void idIndexBuffer::Reference( const idIndexBuffer & other, const int refOffset, const int refSize ) {
 	assert( IsMapped() == false );
 	//assert( other.IsMapped() == false );	// this happens when building idTriangles while at the same time setting up triIndex_t
 	assert( other.GetAPIObject() != NULL );
@@ -520,7 +520,7 @@ void idIndexBuffer::Reference( const idIndexBuffer & other, int refOffset, int r
 idIndexBuffer::Update
 ========================
 */
-void idIndexBuffer::Update( const void * data, int updateSize ) const {
+void idIndexBuffer::Update( const void * data, const int updateSize ) const {
 
 	assert( apiObject != NULL );
 	assert( IsMapped() == false );
@@ -531,7 +531,7 @@ void idIndexBuffer::Update( const void * data, int updateSize ) const {
 		idLib::FatalError( "idIndexBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
 	}
 
-	int numBytes = ( updateSize + 15 ) & ~15;
+	size_t numBytes = ( updateSize + 15 ) & ~15;
 
 	GLuint bufferObject = reinterpret_cast< GLuint >( apiObject );
 	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, bufferObject );
@@ -548,7 +548,7 @@ void idIndexBuffer::Update( const void * data, int updateSize ) const {
 idIndexBuffer::MapBuffer
 ========================
 */
-void * idIndexBuffer::MapBuffer( bufferMapType_t mapType ) const {
+void * idIndexBuffer::MapBuffer(const bufferMapType_t mapType ) const {
 
 	assert( apiObject != NULL );
 	assert( IsMapped() == false );
@@ -645,7 +645,7 @@ idJointBuffer::~idJointBuffer() {
 idJointBuffer::AllocBufferObject
 ========================
 */
-bool idJointBuffer::AllocBufferObject( const float * joints, int numAllocJoints ) {
+bool idJointBuffer::AllocBufferObject( const float * joints, const size_t numAllocJoints ) {
 	assert( apiObject == NULL );
 	assert_16_byte_aligned( joints );
 
@@ -657,7 +657,7 @@ bool idJointBuffer::AllocBufferObject( const float * joints, int numAllocJoints 
 
 	bool allocationFailed = false;
 
-	const int numBytes = GetAllocedSize();
+	const size_t numBytes = GetAllocedSize();
 
 	GLuint buffer = 0;
 	qglGenBuffersARB( 1, &buffer );
@@ -732,7 +732,7 @@ void idJointBuffer::Reference( const idJointBuffer & other ) {
 idJointBuffer::Reference
 ========================
 */
-void idJointBuffer::Reference( const idJointBuffer & other, int jointRefOffset, int numRefJoints ) {
+void idJointBuffer::Reference( const idJointBuffer & other, const int jointRefOffset, const size_t numRefJoints ) {
 	assert( IsMapped() == false );
 	assert( other.IsMapped() == false );
 	assert( other.GetAPIObject() != NULL );
@@ -753,7 +753,7 @@ void idJointBuffer::Reference( const idJointBuffer & other, int jointRefOffset, 
 idJointBuffer::Update
 ========================
 */
-void idJointBuffer::Update( const float * joints, int numUpdateJoints ) const {
+void idJointBuffer::Update( const float * joints, const size_t numUpdateJoints ) const {
 	assert( apiObject != NULL );
 	assert( IsMapped() == false );
 	assert_16_byte_aligned( joints );
@@ -763,7 +763,7 @@ void idJointBuffer::Update( const float * joints, int numUpdateJoints ) const {
 		idLib::FatalError( "idJointBuffer::Update: size overrun, %i > %i\n", numUpdateJoints, numJoints );
 	}
 
-	const int numBytes = numUpdateJoints * 3 * 4 * sizeof( float );
+	const size_t numBytes = numUpdateJoints * 3 * 4 * sizeof( float );
 
 	qglBindBufferARB( GL_UNIFORM_BUFFER, reinterpret_cast< GLuint >( apiObject ) );
 	qglBufferSubDataARB( GL_UNIFORM_BUFFER, GetOffset(), static_cast<GLsizeiptrARB>(numBytes), joints );
@@ -774,12 +774,12 @@ void idJointBuffer::Update( const float * joints, int numUpdateJoints ) const {
 idJointBuffer::MapBuffer
 ========================
 */
-float * idJointBuffer::MapBuffer( bufferMapType_t mapType ) const {
+float * idJointBuffer::MapBuffer(const bufferMapType_t mapType ) const {
 	assert( IsMapped() == false );
 	assert( mapType == BM_WRITE );
 	assert( apiObject != NULL );
 
-	int numBytes = GetAllocedSize();
+	size_t numBytes = GetAllocedSize();
 
 	void * buffer = nullptr;
 

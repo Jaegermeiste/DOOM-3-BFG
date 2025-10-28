@@ -63,7 +63,7 @@ void idSWF::DefineFont2( idSWFBitStream & bitstream ) {
 			return;
 		}
 		uint32 previousOffset = offsetTableSize;
-		for ( int i = 0; i < numGlyphs; i++ ) {
+		for ( size_t i = 0; i < numGlyphs; i++ ) {
 			uint32 nextOffset = offsetStream.ReadU32();
 			uint32 shapeSize = nextOffset - previousOffset;
 			previousOffset = nextOffset;
@@ -80,7 +80,7 @@ void idSWF::DefineFont2( idSWFBitStream & bitstream ) {
 			return;
 		}
 		uint16 previousOffset = offsetTableSize;
-		for ( int i = 0; i < numGlyphs; i++ ) {
+		for ( size_t i = 0; i < numGlyphs; i++ ) {
 			uint16 nextOffset = offsetStream.ReadU16();
 			uint16 shapeSize = nextOffset - previousOffset;
 			previousOffset = nextOffset;
@@ -91,12 +91,12 @@ void idSWF::DefineFont2( idSWFBitStream & bitstream ) {
 	}
 	if ( flags & BIT( 2 ) ) {
 		// 16 bit codes
-		for ( int i = 0; i < numGlyphs; i++ ) {
+		for ( size_t i = 0; i < numGlyphs; i++ ) {
 			entry->font->glyphs[i].code = bitstream.ReadU16();
 		}
 	} else {
 		// 8 bit codes
-		for ( int i = 0; i < numGlyphs; i++ ) {
+		for ( size_t i = 0; i < numGlyphs; i++ ) {
 			entry->font->glyphs[i].code = bitstream.ReadU8();
 		}
 	}
@@ -104,22 +104,22 @@ void idSWF::DefineFont2( idSWFBitStream & bitstream ) {
 		entry->font->ascent = bitstream.ReadS16();
 		entry->font->descent = bitstream.ReadS16();
 		entry->font->leading = bitstream.ReadS16();
-		for ( int i = 0; i < numGlyphs; i++ ) {
+		for ( size_t i = 0; i < numGlyphs; i++ ) {
 			entry->font->glyphs[i].advance = bitstream.ReadS16();
 		}
-		for ( int i = 0; i < numGlyphs; i++ ) {
+		for ( size_t i = 0; i < numGlyphs; i++ ) {
 			swfRect_t ignored;
 			bitstream.ReadRect( ignored );
 		}
 		uint16 kearningCount = bitstream.ReadU16();
 		if ( flags & BIT( 2 ) ) {
-			for ( int i = 0; i < kearningCount; i++ ) {
+			for ( size_t i = 0; i < kearningCount; i++ ) {
 				uint16 code1 = bitstream.ReadU16();
 				uint16 code2 = bitstream.ReadU16();
 				int16 adjustment = bitstream.ReadS16();
 			}
 		} else {
-			for ( int i = 0; i < kearningCount; i++ ) {
+			for ( size_t i = 0; i < kearningCount; i++ ) {
 				uint16 code1 = bitstream.ReadU8();
 				uint16 code2 = bitstream.ReadU8();
 				int16 adjustment = bitstream.ReadS16();
@@ -142,7 +142,7 @@ void idSWF::DefineFont3( idSWFBitStream & bitstream ) {
 idSWF::DefineTextX
 ========================
 */
-void idSWF::DefineTextX( idSWFBitStream & bitstream, bool rgba ) {
+void idSWF::DefineTextX( idSWFBitStream & bitstream, const bool rgba ) {
 	uint16 characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry * entry = AddDictionaryEntry( characterID, SWF_DICT_TEXT );
 	if ( entry == nullptr) {
@@ -184,7 +184,7 @@ void idSWF::DefineTextX( idSWFBitStream & bitstream, bool rgba ) {
 		}
 		textRecord.firstGlyph = text->glyphs.Num();
 		textRecord.numGlyphs = bitstream.ReadU8();
-		for ( int i = 0; i < textRecord.numGlyphs; i++ ) {
+		for ( size_t i = 0; i < textRecord.numGlyphs; i++ ) {
 			swfGlyphEntry_t & glyph = text->glyphs.Alloc();
 			glyph.index = bitstream.ReadU( glyphBits );
 			glyph.advance = bitstream.ReadS( advanceBits );
@@ -266,7 +266,7 @@ void idSWF::DefineEditText( idSWFBitStream & bitstream ) {
 		idStr initialText;
 
 		// convert html tags if necessary
-		for ( int i = 0; text[i] != 0; i++ ) {
+		for ( size_t i = 0; text[i] != 0; i++ ) {
 			if ( text[i] == '<' ) {
 				if ( i != 0 && text[i+1] == 'p' ) {
 					initialText.Append( '\n' );

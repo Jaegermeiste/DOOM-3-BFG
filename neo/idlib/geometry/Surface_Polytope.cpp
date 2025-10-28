@@ -268,10 +268,10 @@ int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon
 	size_t i = 0, s = 0;
 	idSurface *surface[2] = {};
 	idSurface_Polytope *polytopeSurfaces[2] = {};
-	size_t *onPlaneEdges[2] = {};
+	index_t *onPlaneEdges[2] = {};
 
-	onPlaneEdges[0] = static_cast<size_t*>(_alloca(indexes.Num() / 3 * sizeof(size_t)));
-	onPlaneEdges[1] = static_cast<size_t*>(_alloca(indexes.Num() / 3 * sizeof(size_t)));
+	onPlaneEdges[0] = static_cast<BASE_TYPE(onPlaneEdges)*>(_alloca(indexes.Num() / 3 * sizeof(BASE_TYPE(onPlaneEdges))));
+	onPlaneEdges[1] = static_cast<BASE_TYPE(onPlaneEdges)*>(_alloca(indexes.Num() / 3 * sizeof(BASE_TYPE(onPlaneEdges))));
 
 	const int side = Split(plane, epsilon, &surface[0], &surface[1], onPlaneEdges[0], onPlaneEdges[1]);
 
@@ -299,14 +299,14 @@ int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon
 		idSurface_Polytope* surf = polytopeSurfaces[s];
 
 		int64 edgeNum = surf->edgeIndexes[onPlaneEdges[s][0]];
-		size_t v0 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITSET(edgeNum)];
-		size_t v1 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITNOTSET(edgeNum)];
+		size_t v0 = surf->edges[abs(edgeNum)].verts[INTEGER_SIGN_BIT_IS_SET(edgeNum)];
+		size_t v1 = surf->edges[abs(edgeNum)].verts[INTEGER_SIGN_BIT_IS_NOT_SET(edgeNum)];
 
 		for ( i = 1; onPlaneEdges[s][i] >= 0; i++ ) {
 			for (size_t j = i + 1; onPlaneEdges[s][j] >= 0; j++ ) {
 				edgeNum = surf->edgeIndexes[onPlaneEdges[s][j]];
-				if (std::cmp_equal(v1, surf->edges[abs(edgeNum)].verts[INT64_SIGNBITSET(edgeNum)])) {
-					v1 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITNOTSET(edgeNum)];
+				if (std::cmp_equal(v1, surf->edges[abs(edgeNum)].verts[INTEGER_SIGN_BIT_IS_SET(edgeNum)])) {
+					v1 = surf->edges[abs(edgeNum)].verts[INTEGER_SIGN_BIT_IS_NOT_SET(edgeNum)];
 					SwapValues( onPlaneEdges[s][i], onPlaneEdges[s][j] );
 					break;
 				}
@@ -315,8 +315,8 @@ int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon
 
 		for ( i = 2; onPlaneEdges[s][i] >= 0; i++ ) {
 			edgeNum = surf->edgeIndexes[onPlaneEdges[s][i]];
-			v1 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITNOTSET(edgeNum)];
-			size_t v2 = surf->edges[abs(edgeNum)].verts[INT64_SIGNBITSET(edgeNum)];
+			v1 = surf->edges[abs(edgeNum)].verts[INTEGER_SIGN_BIT_IS_NOT_SET(edgeNum)];
+			size_t v2 = surf->edges[abs(edgeNum)].verts[INTEGER_SIGN_BIT_IS_SET(edgeNum)];
 			surf->indexes.Append( v0 );
 			surf->indexes.Append( v1 );
 			surf->indexes.Append( v2 );

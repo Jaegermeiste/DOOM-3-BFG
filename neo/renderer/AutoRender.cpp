@@ -63,7 +63,7 @@ int idAutoRender::Run() {
 idAutoRender::StartBackgroundAutoSwaps
 ============================
 */
-void idAutoRender::StartBackgroundAutoSwaps( autoRenderIconType_t iconType ) {
+void idAutoRender::StartBackgroundAutoSwaps(const autoRenderIconType_t iconType ) {
 
 
 	if ( IsRunning() ) {
@@ -189,7 +189,7 @@ void idAutoRender::RenderBackground() {
 idAutoRender::RenderLoadingIcon
 ============================
 */
-void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, float speed ) {
+void idAutoRender::RenderLoadingIcon(const float fracX, const float fracY, const float size, const float speed ) {
 
 	float s = 0.0f; 
 	float c = 1.0f;

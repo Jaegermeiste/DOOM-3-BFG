@@ -57,7 +57,7 @@ public:
 
 private:
 	idStrPool *			pool;
-	mutable int			numUsers;
+	mutable size_t		numUsers;
 };
 
 class idStrPool {
@@ -66,9 +66,9 @@ public:
 
 	void				SetCaseSensitive( bool caseSensitive );
 
-						[[nodiscard]] size_t				Num() const { return pool.Num(); }
-						[[nodiscard]] size_t				Allocated() const;
-						[[nodiscard]] size_t				Size() const;
+	[[nodiscard]] size_t	Num() const { return pool.Num(); }
+	[[nodiscard]] size_t	Allocated() const;
+	[[nodiscard]] size_t	Size() const;
 
 	
 	const idPoolStr*    operator[](const Ordinal auto index) const { ORDINAL_CHECK(index, pool.Num()); return pool[index]; }
@@ -99,7 +99,7 @@ idStrPool::AllocString
 ================
 */
 ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
-	int64 i = 0;
+	index_t i = 0;
 
 	const int64 hash = poolHash.GenerateKey(string, caseSensitive);
 	if ( caseSensitive ) {
@@ -132,13 +132,12 @@ idStrPool::FreeString
 ================
 */
 ID_INLINE void idStrPool::FreeString( const idPoolStr *poolStr ) {
-	int64 i = 0;
-
 	assert( poolStr->numUsers >= 1 );
 	assert( poolStr->pool == this );
 
 	poolStr->numUsers--;
 	if ( poolStr->numUsers <= 0 ) {
+		index_t i = 0;
 		const int64 hash = poolHash.GenerateKey(poolStr->c_str(), caseSensitive);
 		if ( caseSensitive ) { 
 			for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
@@ -186,7 +185,7 @@ idStrPool::Clear
 ================
 */
 ID_INLINE void idStrPool::Clear() {
-	for ( int i = 0; i < pool.Num(); i++ ) {
+	for ( size_t i = 0; i < pool.Num(); i++ ) {
 		pool[i]->numUsers = 0;
 	}
 	pool.DeleteContents( true );
@@ -200,7 +199,7 @@ idStrPool::Allocated
 */
 ID_INLINE size_t idStrPool::Allocated() const {
 	size_t size = pool.Allocated() + poolHash.Allocated();
-	for ( int i = 0; i < pool.Num(); i++ ) {
+	for ( size_t i = 0; i < pool.Num(); i++ ) {
 		size += pool[i]->Allocated();
 	}
 	return size;
@@ -213,7 +212,7 @@ idStrPool::Size
 */
 ID_INLINE size_t idStrPool::Size() const {
 	size_t size = pool.Size() + poolHash.Size();
-	for ( int i = 0; i < pool.Num(); i++ ) {
+	for ( size_t i = 0; i < pool.Num(); i++ ) {
 		size += pool[i]->Size();
 	}
 	return size;

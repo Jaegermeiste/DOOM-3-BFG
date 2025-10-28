@@ -45,7 +45,7 @@ after resampling to the next lower power of two.
 ================
 */
 #define	MAX_DIMENSION	4096
-byte *R_ResampleTexture( const byte *in, int inwidth, int inheight,  
+byte *R_ResampleTexture( const byte *in, const int inwidth, const int inheight,  
 							int outwidth, int outheight ) {
 	int		i, j;
 	const byte	*inrow, *inrow2;
@@ -104,8 +104,8 @@ Used to resample images in a more general than quartering fashion.
 Normal maps and such should not be bilerped.
 ================
 */
-byte *R_Dropsample( const byte *in, int inwidth, int inheight,  
-							int outwidth, int outheight ) {
+byte *R_Dropsample( const byte *in, const int inwidth, const int inheight,
+							const int outwidth, const int outheight ) {
 	int		i, j, k;
 	const byte	*inrow;
 	const byte	*pix1;
@@ -151,7 +151,7 @@ With mip maps, the lowest samnpled value will be retained
 Should we rewrite the normal as the centered average?
 ================
 */
-void	R_SetAlphaNormalDivergence( byte *in, int width, int height ) {
+void	R_SetAlphaNormalDivergence( byte *in, const int width, const int height ) {
 	for ( int y = 0 ; y < height ; y++ ) {
 		for ( int x = 0 ; x < width ; x++ ) {
 			// the divergence is the smallest dot product of any of the eight surrounding texels
@@ -201,9 +201,9 @@ Returns a new copy of the texture, quartered in size and filtered.
 The alpha channel is taken to be the minimum of the dots of all surrounding normals.
 ================
 */
-#define MIP_MIN(a,b) (a<b?a:b)
+#define MIP_MIN(a,b) ((a)<(b)?(a):(b))
 
-byte *R_MipMapWithAlphaSpecularity( const byte *in, int width, int height ) {
+byte *R_MipMapWithAlphaSpecularity( const byte *in, const int width, const int height ) {
 	int		i, j, c, x, y, sx, sy;
 	const byte	*in_p;
 	byte	*out, *out_p;
@@ -422,7 +422,7 @@ R_BlendOverTexture
 Apply a color blend over a set of pixels
 ==================
 */
-void R_BlendOverTexture( byte *data, int pixelCount, const byte blend[4] ) {
+void R_BlendOverTexture( byte *data, const int pixelCount, const byte blend[4] ) {
 	int		i;
 	int		inverseAlpha;
 	int		premult[3];
@@ -447,7 +447,7 @@ R_HorizontalFlip
 Flip the image in place
 ==================
 */
-void R_HorizontalFlip( byte *data, int width, int height ) {
+void R_HorizontalFlip( byte *data, const int width, const int height ) {
 	int		i, j;
 	int		temp;
 
@@ -460,7 +460,7 @@ void R_HorizontalFlip( byte *data, int width, int height ) {
 	}
 }
 
-void R_VerticalFlip( byte *data, int width, int height ) {
+void R_VerticalFlip( byte *data, const int width, const int height ) {
 	int		i, j;
 	int		temp;
 
@@ -473,7 +473,7 @@ void R_VerticalFlip( byte *data, int width, int height ) {
 	}
 }
 
-void R_RotatePic( byte *data, int width ) {
+void R_RotatePic( byte *data, const int width ) {
 	int		i, j;
 	int		*temp;
 

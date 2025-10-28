@@ -91,7 +91,7 @@ float idPhysics_Player::CmdScale( const usercmd_t &cmd ) const {
 		upmove = ( ( cmd.buttons & BUTTON_JUMP ) ? 127 : 0 ) - ( ( cmd.buttons & BUTTON_CROUCH ) ? 127 : 0 );
 	}
 
-	int max = abs(forwardmove);
+	size_t max = abs(forwardmove);
 	max = std::max(abs(rightmove), max);
 	max = std::max(abs(upmove), max);
 
@@ -99,8 +99,8 @@ float idPhysics_Player::CmdScale( const usercmd_t &cmd ) const {
 		return 0.0f;
 	}
 
-	const float total = idMath::Sqrt(idMath::Itof<float>(forwardmove * forwardmove + rightmove * rightmove + upmove * upmove));
-	const float scale = playerSpeed * idMath::Itof<float>(max) / (127.0f * total);
+	const float total = idMath::Sqrt(numeric_cast<float>(forwardmove * forwardmove + rightmove * rightmove + upmove * upmove));
+	const float scale = playerSpeed * numeric_cast<float>(max) / (127.0f * total);
 
 	return scale;
 }
@@ -469,7 +469,7 @@ void idPhysics_Player::Friction() {
 	}
 	// apply water friction even if just wading
 	else if ( waterLevel ) {
-		drop += speed * PM_WATERFRICTION * idMath::Itof<float>(waterLevel) * frametime;
+		drop += speed * PM_WATERFRICTION * numeric_cast<float>(waterLevel) * frametime;
 	}
 	// apply air friction
 	else {
@@ -677,7 +677,7 @@ void idPhysics_Player::WalkMove() {
 
 	// clamp the speed lower if wading or walking on the bottom
 	if ( waterLevel ) {
-		float waterScale = idMath::Itof<float>(waterLevel) / 3.0f;
+		float waterScale = numeric_cast<float>(waterLevel) / 3.0f;
 		waterScale = 1.0f - ( 1.0f - PM_SWIMSCALE ) * waterScale;
 		wishspeed = std::min(wishspeed, playerSpeed * waterScale);
 	}
@@ -908,7 +908,7 @@ void idPhysics_Player::LadderMove() {
 idPhysics_Player::CorrectAllSolid
 =============
 */
-void idPhysics_Player::CorrectAllSolid( trace_t &trace, int contents ) const
+void idPhysics_Player::CorrectAllSolid( trace_t &trace, const int contents ) const
 {
 	if ( debugLevel ) {
 		gameLocal.Printf( "%i:allsolid\n", c_pmove );
@@ -1308,7 +1308,7 @@ void idPhysics_Player::MovePlayer( ID_TIME_T msec ) {
 
 	// determine the time
 	framemsec = msec;
-	frametime = idMath::Itof<float>(framemsec) * 0.001f;
+	frametime = numeric_cast<float>(framemsec) * 0.001f;
 
 	// default speed
 	playerSpeed = walkSpeed;
@@ -1681,7 +1681,7 @@ void idPhysics_Player::SetKnockBack( const ID_TIME_T knockBackTime ) {
 idPhysics_Player::SetDebugLevel
 ================
 */
-void idPhysics_Player::SetDebugLevel( bool set ) {
+void idPhysics_Player::SetDebugLevel(const bool set ) {
 	debugLevel = set;
 }
 
@@ -1705,7 +1705,7 @@ bool idPhysics_Player::Evaluate( const ID_TIME_T timeStepMSec, const ID_TIME_T e
 		self->GetMasterPosition( masterOrigin, masterAxis );
 		current.origin = masterOrigin + current.localOrigin * masterAxis;
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, clipModel->GetAxis() );
-		current.velocity = ( current.origin - oldOrigin ) / ( idMath::Itof<float>(timeStepMSec) * 0.001f );
+		current.velocity = ( current.origin - oldOrigin ) / ( numeric_cast<float>(timeStepMSec) * 0.001f );
 		masterDeltaYaw = masterYaw;
 		masterYaw = masterAxis[0].ToYaw();
 		masterDeltaYaw = masterYaw - masterDeltaYaw;
@@ -1730,7 +1730,7 @@ bool idPhysics_Player::Evaluate( const ID_TIME_T timeStepMSec, const ID_TIME_T e
 idPhysics_Player::Interpolate
 ================
 */
-bool idPhysics_Player::Interpolate( const float fraction ) {
+bool idPhysics_Player::Interpolate( const double fraction ) {
 
 	/*
 	// Client is on a pusher... ignore him so he doesn't lag behind
@@ -1967,7 +1967,7 @@ void idPhysics_Player::SetPushed( ID_TIME_T deltaTime ) {
 	if( self->entityNumber != gameLocal.GetLocalClientNum() && common->IsClient() ) { return; }
 
 	// velocity with which the player is pushed
-	velocity = ( current.origin - saved.origin ) / ( idMath::Itof<float>(deltaTime) * idMath::M_MS2SEC );
+	velocity = ( current.origin - saved.origin ) / ( numeric_cast<float>(deltaTime) * idMath::M_MS2SEC );
 
 	// remove any downward push velocity
 	d = velocity * gravityNormal;
@@ -1993,7 +1993,7 @@ void idPhysics_Player::SetPushedWithAbnormalVelocityHack( ID_TIME_T deltaTime ) 
 	if( self->entityNumber != gameLocal.GetLocalClientNum() && common->IsClient() ) { return; }
 
 	// velocity with which the player is pushed
-	velocity = ( current.origin - saved.origin ) / (idMath::Itof<float>(deltaTime) * idMath::M_MS2SEC );
+	velocity = ( current.origin - saved.origin ) / (numeric_cast<float>(deltaTime) * idMath::M_MS2SEC );
 
 	// START ABNORMAL VELOCITY HACK
 	// There is a bug where on the first 1 to 2 frames after a load, the player on the boat
@@ -2048,7 +2048,7 @@ bool idPhysics_Player::ClientPusherLocked( bool & justBecameUnlocked ) {
 
 	bool hasPhysicsContact = false;
 	bool hasGroundContact = false;
-	for ( int i = 0; i < contacts.Num(); i++ ) {
+	for ( size_t i = 0; i < contacts.Num(); i++ ) {
 
 		const idEntity * ent = gameLocal.entities[ contacts[i].entityNum ];
 		if( ent ) {

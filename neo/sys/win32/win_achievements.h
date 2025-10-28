@@ -40,7 +40,7 @@ public:
 	bool	IsInitialized();
 	void	AchievementUnlock( idLocalUser * user, const int achievementID );
 	void	AchievementLock( idLocalUser * user, const int achievementID );
-	void	AchievementLockAll( idLocalUser * user, const int maxId );
+	void	AchievementLockAll( idLocalUser * user, const size_t maxId );
 	void	Pump();
 	bool	GetAchievementDescription( idLocalUser * user, const int id, achievementDescription_t & data ) const;
 	bool	GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const;

@@ -29,18 +29,20 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __V_VIDEO__
 #define __V_VIDEO__
 
+#pragma once
+
 #include "doomtype.h"
 
 #include "doomdef.h"
 
-// Needed because we are refering to patches.
+// Needed because we are referring to patches.
 #include "r_data.h"
 
 //
 // VIDEO
 //
 
-#define CENTERY			(SCREENHEIGHT/2)
+constexpr size_t CENTERY = (SCREENHEIGHT / 2);
 
 
 // Screen 0 is the screen updated by I_Update screen.
@@ -53,7 +55,7 @@ extern	byte*		screens[5];
 extern  int	dirtybox[4];
 
 const extern	byte	gammatable[5][256];
-extern	int	usegamma;
+extern	bool	usegamma;
 
 
 
@@ -63,57 +65,57 @@ void V_Init (void);
 
 void
 V_CopyRect
-( int		srcx,
-  int		srcy,
-  int		srcscrn,
-  int		width,
-  int		height,
-  int		destx,
-  int		desty,
-  int		destscrn );
+(   std::integral auto		srcx,
+	std::integral auto		srcy,
+    const index_t		srcscrn,
+	std::integral auto		width,
+	std::integral auto		height,
+	std::integral auto		destx,
+	std::integral auto		desty,
+	const index_t		destscrn );
 
 void
 V_DrawPatch
-( int		x,
-  int		y,
-  int		scrn,
-  patch_t*	patch);
+(   std::integral auto x,
+    std::integral auto y,
+	const index_t		scrn,
+    patch_t*	patch);
 
 void
 V_DrawPatchDirect
-( int		x,
-  int		y,
-  int		scrn,
-  patch_t*	patch );
+(   std::integral auto		x,
+    std::integral auto		y,
+	const index_t		scrn,
+    patch_t*	patch );
 
 
 // Draw a linear block of pixels into the view buffer.
 void
 V_DrawBlock
-( int		x,
-  int		y,
-  int		scrn,
-  int		width,
-  int		height,
-  byte*		src );
+(   const std::integral auto		x,
+    const std::integral auto		y,
+	const index_t		scrn,
+    const std::integral auto		width,
+    std::integral auto		height,
+    byte*		src );
 
 // Reads a linear block of pixels into the view buffer.
 void
 V_GetBlock
-( int		x,
-  int		y,
-  int		scrn,
-  int		width,
-  int		height,
-  byte*		dest );
+(   const std::integral auto		x,
+	const std::integral auto		y,
+	const index_t		scrn,
+	const std::integral auto		width,
+	std::integral auto		height,
+    byte*		dest );
 
 
 void
 V_MarkRect
-( int		x,
-  int		y,
-  int		width,
-  int		height );
+(   const std::integral auto		x,
+	const std::integral auto		y,
+	const std::integral auto		width,
+	const std::integral auto		height );
 
 #endif
 

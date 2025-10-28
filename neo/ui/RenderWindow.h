@@ -35,7 +35,7 @@ public:
 	virtual ~idRenderWindow();
 
 	virtual void PostParse();
-	virtual void Draw(int time, float x, float y);
+	virtual void Draw(ID_TIME_T time, float x, float y);
 	virtual size_t Allocated(){return idWindow::Allocated();};
 // 
 //  
@@ -45,9 +45,9 @@ public:
 private:
 	void CommonInit();
 	virtual bool ParseInternalVar(const char *name, idTokenParser *src);
-	void Render(int time);
+	void Render(ID_TIME_T time);
 	void PreRender();
-	void BuildAnimation(int time);
+	void BuildAnimation(ID_TIME_T time);
 	renderView_t refdef;
 	idRenderWorld *world;
 	renderEntity_t worldEntity;

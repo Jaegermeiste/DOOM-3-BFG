@@ -61,7 +61,7 @@ void idSmokeParticles::Init() {
 	}
 
 	// set up the free list
-	for ( int i = 0; i < MAX_SMOKE_PARTICLES-1; i++ ) {
+	for ( size_t i = 0; i < MAX_SMOKE_PARTICLES-1; i++ ) {
 		smokes[i].next = &smokes[i+1];
 	}
 	smokes[MAX_SMOKE_PARTICLES-1].next = nullptr;
@@ -401,7 +401,7 @@ bool idSmokeParticles::UpdateRenderEntity( renderEntity_s *renderEntity, const r
 		} else {
 			// build the index list
 			int	indexes = 0;
-			for ( int i = 0 ; i < tri->numVerts ; i += 4 ) {
+			for ( size_t i = 0 ; i < tri->numVerts ; i += 4 ) {
 				tri->indexes[indexes+0] = i;
 				tri->indexes[indexes+1] = i+2;
 				tri->indexes[indexes+2] = i+3;

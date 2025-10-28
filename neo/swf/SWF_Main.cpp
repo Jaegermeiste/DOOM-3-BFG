@@ -70,7 +70,7 @@ idSWF::idSWF( const char * filename_, idSoundWorld * soundWorld_ ) {
 	 tooltipButtonImage.Append( keyButtonImages_t( "<MOUSE2>", "guis/assets/hud/controller/mouse2", "", 64, 52, 0 ) );
 	 tooltipButtonImage.Append( keyButtonImages_t( "<MOUSE3>", "guis/assets/hud/controller/mouse3", "", 64, 52, 0 ) );
 	 	
-	for ( int index = 0; index < tooltipButtonImage.Num(); index++ ) {
+	for ( index_t index = 0; index < tooltipButtonImage.Num(); index++ ) {
 		if ( ( tooltipButtonImage[index].xbImage != nullptr) && ( tooltipButtonImage[index].xbImage[0] != '\0' ) ) {
 			declManager->FindMaterial( tooltipButtonImage[index].xbImage );
 		}
@@ -213,7 +213,7 @@ idSWF::~idSWF() {
 	spriteInstanceAllocator.Free( mainspriteInstance );
 	delete mainsprite;
 
-	for ( int i = 0 ; i < dictionary.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < dictionary.Num() ; i++ ) {
 		if ( dictionary[i].sprite ) {
 			delete dictionary[i].sprite;
 			dictionary[i].sprite = nullptr;
@@ -250,7 +250,7 @@ idSWF::Activate
 when a SWF is deactivated, it rewinds the timeline back to the start
 ===================
 */
-void idSWF::Activate( bool b ) {
+void idSWF::Activate(const bool b ) {
 	if ( !isActive && b ) {
 		inhibitControl = false;
 		lastRenderTime = Sys_Milliseconds();
@@ -281,7 +281,7 @@ bool idSWF::InhibitControl() const
 idSWF::PlaySound
 ===================
 */
-int idSWF::PlaySound( const char * sound, int channel, bool blocking ) const
+int idSWF::PlaySound( const char * sound, const int channel, bool blocking ) const
 {
 	if ( !IsActive() ) {
 		return -1;
@@ -299,7 +299,7 @@ int idSWF::PlaySound( const char * sound, int channel, bool blocking ) const
 idSWF::PlaySound
 ===================
 */
-void idSWF::StopSound( int channel ) const
+void idSWF::StopSound(const int channel ) const
 {
 	if ( soundWorld != nullptr) {
 		soundWorld->PlayShaderDirectly(nullptr, channel );
@@ -534,7 +534,7 @@ idSWFScriptVar idSWF::idSWFScriptFunction_round::Call( idSWFScriptObject * thisO
 	if ( parms.Num() != 1 ) {
 		return idSWFScriptVar();
 	}
-	int value = idMath::Ftoi( parms[0].ToFloat() + 0.5f );
+	int value = numeric_cast<int>( parms[0].ToFloat() + 0.5f );
 	return value;
 }
 

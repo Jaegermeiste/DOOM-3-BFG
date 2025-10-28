@@ -67,9 +67,9 @@ public:
 	idAngles &		Zero();
 
 	
-	float			operator[]( Ordinal auto index ) const;
+	float			operator[]( const Ordinal auto index ) const;
 	
-	float &			operator[]( Ordinal auto index );
+	float &			operator[]( const Ordinal auto index );
 	idAngles		operator-() const;			// negate angles, in general not the inverse rotation
 	idAngles &		operator=( const idAngles &a );
 	idAngles		operator+( const idAngles &a ) const;
@@ -93,7 +93,7 @@ public:
 
 	void			Clamp( const idAngles &min, const idAngles &max );
 
-	[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] size_t	GetDimension() const;
 
 	void			ToVectors( idVec3 *forward, idVec3 *right = nullptr, idVec3 *up = nullptr) const;
 	[[nodiscard]] idVec3			ToForward() const;
@@ -133,13 +133,13 @@ ID_INLINE idAngles &idAngles::Zero() {
 }
 
 
-ID_INLINE float idAngles::operator[](const Ordinal auto index ) const {
+ID_INLINE float idAngles::operator[]( const Ordinal auto index ) const {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &pitch )[ index ];
 }
 
 
-ID_INLINE float &idAngles::operator[](const Ordinal auto index ) {
+ID_INLINE float &idAngles::operator[]( const Ordinal auto index ) {
 	assert( ( index >= 0 ) && ( index < 3 ) );
 	return ( &pitch )[ index ];
 }
@@ -203,7 +203,7 @@ ID_INLINE idAngles operator*( const float a, const idAngles &b ) {
 }
 
 ID_INLINE bool idAngles::Compare( const idAngles &a ) const {
-	return ( ( a.pitch == pitch ) && ( a.yaw == yaw ) && ( a.roll == roll ) );
+	return (std::equal_to<>()( a.pitch, pitch ) && std::equal_to<>()( a.yaw, yaw ) && std::equal_to<>()( a.roll, roll ) );
 }
 
 ID_INLINE bool idAngles::Compare( const idAngles &a, const float epsilon ) const {
@@ -248,7 +248,7 @@ ID_INLINE void idAngles::Clamp( const idAngles &min, const idAngles &max ) {
 	}
 }
 
-ID_INLINE int idAngles::GetDimension() const {
+ID_INLINE size_t idAngles::GetDimension() const {
 	return 3;
 }
 

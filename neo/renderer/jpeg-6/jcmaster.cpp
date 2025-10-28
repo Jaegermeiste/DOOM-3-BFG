@@ -43,7 +43,7 @@ typedef my_comp_master * my_master_ptr;
  */
 
 LOCAL void
-initial_setup( j_compress_ptr cinfo ) {
+initial_setup(const j_compress_ptr cinfo ) {
 /* Do computations that are needed before master selection phase */
     int ci;
     jpeg_component_info * compptr;
@@ -273,7 +273,7 @@ validate_script( j_compress_ptr cinfo ) {
 
 
 LOCAL void
-select_scan_parameters( j_compress_ptr cinfo ) {
+select_scan_parameters(const j_compress_ptr cinfo ) {
 /* Set up the scan parameters for the current scan */
     int ci;
 
@@ -313,7 +313,7 @@ select_scan_parameters( j_compress_ptr cinfo ) {
 
 
 LOCAL void
-per_scan_setup( j_compress_ptr cinfo ) {
+per_scan_setup(const j_compress_ptr cinfo ) {
 /* Do computations that are needed before processing a JPEG scan */
 /* cinfo->comps_in_scan and cinfo->cur_comp_info[] are already set */
     int ci, mcublks, tmp;
@@ -413,7 +413,7 @@ per_scan_setup( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-prepare_for_pass( j_compress_ptr cinfo ) {
+prepare_for_pass(const j_compress_ptr cinfo ) {
     my_master_ptr master = (my_master_ptr) cinfo->master;
 
     switch ( master->pass_type ) {
@@ -501,7 +501,7 @@ prepare_for_pass( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-pass_startup( j_compress_ptr cinfo ) {
+pass_startup(const j_compress_ptr cinfo ) {
     cinfo->master->call_pass_startup = FALSE;/* reset flag so call only once */
 
     ( *cinfo->marker->write_frame_header )( cinfo );
@@ -514,7 +514,7 @@ pass_startup( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-finish_pass_master( j_compress_ptr cinfo ) {
+finish_pass_master(const j_compress_ptr cinfo ) {
     my_master_ptr master = (my_master_ptr) cinfo->master;
 
     /* The entropy coder always needs an end-of-pass call,
@@ -555,7 +555,7 @@ finish_pass_master( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_c_master_control( j_compress_ptr cinfo, boolean transcode_only ) {
+jinit_c_master_control( j_compress_ptr cinfo, const boolean transcode_only ) {
     my_master_ptr master;
 
     master = (my_master_ptr)

@@ -151,7 +151,7 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 		option.Append( "#str_01867" );	// load game
 		menuOptions.Append( option );
 
-		int index = 0;
+		index_t index = 0;
 		idMenuWidget_Button * buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
 		if ( buttonWidget != nullptr) {
 			buttonWidget->SetDescription( "#str_swf_continue_desc" );
@@ -176,7 +176,7 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 		menuOptions.Append( option );
 
 		if ( options != nullptr) {
-			int index = 0;
+			index_t index = 0;
 			idMenuWidget_Button * buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
 			if ( buttonWidget != nullptr) {
 				buttonWidget->SetDescription( "#str_02209" );
@@ -242,7 +242,7 @@ void idMenuScreen_Shell_Singleplayer::ContinueGame() {
 idMenuScreen_Shell_Singleplayer::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -280,7 +280,7 @@ bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction & action, con
 				} else if ( selectionIndex == 1 ) {
 					class idSWFScriptFunction_NewGame : public idSWFScriptFunction_RefCounted {
 					public:
-						idSWFScriptFunction_NewGame( idMenuHandler * _menuData, bool _accept ) {
+						idSWFScriptFunction_NewGame( idMenuHandler * _menuData, const bool _accept ) {
 							menuData = _menuData;
 							accept = _accept;
 						}

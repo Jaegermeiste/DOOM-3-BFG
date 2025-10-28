@@ -78,7 +78,7 @@ static void free_instrument(Instrument *ip)
 	Real_Tim_Free(ip);
 }
 
-static void free_bank(int dr, int b)
+static void free_bank(const int dr, const int b)
 {
 	int i;
 	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);
@@ -98,7 +98,7 @@ static void free_bank(int dr, int b)
 	}
 }
 
-static  int32_t convert_envelope_rate(uint8_t rate)
+static  int32_t convert_envelope_rate(const uint8_t rate)
 {
 	 int32_t r;
 
@@ -111,7 +111,7 @@ static  int32_t convert_envelope_rate(uint8_t rate)
 		<< ((fast_decay) ? 10 : 9);
 }
 
-static  int32_t  convert_envelope_offset(uint8_t offset)
+static  int32_t  convert_envelope_offset(const uint8_t offset)
 {
 	/* This is not too good... Can anyone tell me what these values mean?
 	Are they GUS-style "exponential" volumes? And what does that mean? */
@@ -120,7 +120,7 @@ static  int32_t  convert_envelope_offset(uint8_t offset)
 	return offset << (7+15);
 }
 
-static  int32_t convert_tremolo_sweep(uint8_t sweep)
+static  int32_t convert_tremolo_sweep(const uint8_t sweep)
 {
 	if (!sweep)
 		return 0;
@@ -130,7 +130,7 @@ static  int32_t convert_tremolo_sweep(uint8_t sweep)
 		(play_mode->rate * sweep);
 }
 
-static  int32_t convert_vibrato_sweep(uint8_t sweep,  int32_t vib_control_ratio)
+static  int32_t convert_vibrato_sweep(const uint8_t sweep, const int32_t vib_control_ratio)
 {
 	if (!sweep)
 		return 0;
@@ -145,14 +145,14 @@ static  int32_t convert_vibrato_sweep(uint8_t sweep,  int32_t vib_control_ratio)
 	(play_mode->rate * sweep); */
 }
 
-static  int32_t convert_tremolo_rate(uint8_t rate)
+static  int32_t convert_tremolo_rate(const uint8_t rate)
 {
 	return
 		((SINE_CYCLE_LENGTH * control_ratio * rate) << RATE_SHIFT) /
 		(TREMOLO_RATE_TUNING * play_mode->rate);
 }
 
-static  int32_t convert_vibrato_rate(uint8_t rate)
+static  int32_t convert_vibrato_rate(const uint8_t rate)
 {
 	/* Return a suitable vibrato_control_ratio value */
 	return
@@ -160,7 +160,7 @@ static  int32_t convert_vibrato_rate(uint8_t rate)
 		(rate * 2 * VIBRATO_SAMPLE_INCREMENTS);
 }
 
-static void reverse_data(int16_t *sp,  int32_t ls,  int32_t le)
+static void reverse_data(int16_t *sp, const int32_t ls,  int32_t le)
 {
 	int16_t s, *ep=sp+le;
 	sp+=ls;
@@ -185,9 +185,9 @@ undefined.
 
 TODO: do reverse loops right */
 static Instrument *load_instrument(char *name, int percussion,
-								   int panning, int amp, int note_to_use,
-								   int strip_loop, int strip_envelope,
-								   int strip_tail)
+								   const int panning, const int amp, const int note_to_use,
+								   const int strip_loop, const int strip_envelope,
+								   const int strip_tail)
 {
 	Instrument *ip;
 	Sample *sp;
@@ -577,7 +577,7 @@ fail:
 	return ip;
 }
 
-static int fill_bank(int dr, int b)
+static int fill_bank(const int dr, const int b)
 {
 	int i, errors=0;
 	ToneBank *bank=((dr) ? drumset[b] : tonebank[b]);

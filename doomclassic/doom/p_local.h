@@ -29,42 +29,43 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __P_LOCAL__
 #define __P_LOCAL__
 
+#pragma once
+
 #ifndef __R_LOCAL__
 #include "r_local.h"
 #endif
 
-#define FLOATSPEED		(FRACUNIT*4)
+constexpr auto FLOATSPEED = (FRACUNIT * 4);
 
 
-#define MAXHEALTH		100
-#define VIEWHEIGHT		(41*FRACUNIT)
+constexpr auto MAXHEALTH = 100;
+constexpr auto VIEWHEIGHT = (41 * FRACUNIT);
 
 // mapblocks are used to check movement
 // against lines and things
-#define MAPBLOCKUNITS	128
-#define MAPBLOCKSIZE	(MAPBLOCKUNITS*FRACUNIT)
-#define MAPBLOCKSHIFT	(FRACBITS+7)
-#define MAPBMASK		(MAPBLOCKSIZE-1)
-#define MAPBTOFRAC		(MAPBLOCKSHIFT-FRACBITS)
-
+constexpr size_t MAPBLOCKUNITS = 128;
+constexpr size_t MAPBLOCKSIZE = (MAPBLOCKUNITS * FRACUNIT);
+constexpr auto MAPBLOCKSHIFT = (FRACBITS + 7);
+constexpr auto MAPBMASK = (MAPBLOCKSIZE - 1);
+constexpr auto MAPBTOFRAC = (MAPBLOCKSHIFT - FRACBITS);
 
 // player radius for movement checking
-#define PLAYERRADIUS	16*FRACUNIT
+constexpr size_t PLAYERRADIUS = 16ULL * FRACUNIT;
 
 // MAXRADIUS is for precalculated sector block boxes
 // the spider demon is larger,
 // but we do not have any moving sectors nearby
-#define MAXRADIUS		32*FRACUNIT
+constexpr size_t MAXRADIUS = 32ULL * FRACUNIT;
 
-#define GRAVITY		FRACUNIT
-#define MAXMOVE		(30*FRACUNIT)
+constexpr auto GRAVITY = FRACUNIT;
+constexpr auto MAXMOVE = (30 * FRACUNIT);
 
-#define USERANGE		(64*FRACUNIT)
-#define MELEERANGE		(64*FRACUNIT)
-#define MISSILERANGE	(32*64*FRACUNIT)
+constexpr auto USERANGE = (64 * FRACUNIT);
+constexpr auto MELEERANGE = (64 * FRACUNIT);
+constexpr auto MISSILERANGE = (32 * 64 * FRACUNIT);
 
-// follow a player exlusively for 3 seconds
-#define	BASETHRESHOLD	 	100
+// follow a player exclusively for 3 seconds
+constexpr auto BASETHRESHOLD = 100;
 
 
 
@@ -98,16 +99,16 @@ void	P_PlayerThink (player_t* player);
 //
 // P_MOBJ
 //
-#define ONFLOORZ		MININT
-#define ONCEILINGZ		MAXINT
+constexpr auto ONFLOORZ = std::numeric_limits<int>::min();
+constexpr auto ONCEILINGZ = std::numeric_limits<int>::max();
 
 // Time interval for item respawning.
-#define ITEMQUESIZE		128
+constexpr size_t ITEMQUEUESIZE = 128;
 
-extern mapthing_t	itemrespawnque[ITEMQUESIZE];
-extern int		itemrespawntime[ITEMQUESIZE];
-extern int		iquehead;
-extern int		iquetail;
+extern mapthing_t	itemrespawnqueue[ITEMQUEUESIZE];
+extern ID_TIME_T	itemrespawntime[ITEMQUEUESIZE];
+extern index_t		iqueuehead;
+extern index_t		iqueuetail;
 
 
 void P_RespawnSpecials (void);
@@ -132,13 +133,13 @@ void	P_SpawnPlayerMissile (mobj_t* source, mobjtype_t type);
 //
 // P_ENEMY
 //
-void P_NoiseAlert (mobj_t* target, mobj_t* emmiter);
+void P_NoiseAlert (mobj_t* target, mobj_t* emitter);
 
 
 //
 // P_MAPUTL
 //
-typedef struct
+typedef struct divline_s
 {
     fixed_t	x;
     fixed_t	y;
@@ -147,7 +148,7 @@ typedef struct
     
 } divline_t;
 
-typedef struct
+typedef struct intercept_s
 {
     fixed_t	frac;		// along trace line
     qboolean	isaline;
@@ -157,7 +158,7 @@ typedef struct
     }			d;
 } intercept_t;
 
-#define MAXINTERCEPTS	128
+constexpr size_t MAXINTERCEPTS = 128;
 
 extern intercept_t	intercepts[MAXINTERCEPTS];
 extern intercept_t*	intercept_p;
@@ -181,9 +182,12 @@ void 	P_LineOpening (line_t* linedef);
 qboolean P_BlockLinesIterator (int x, int y, qboolean(*func)(line_t*) );
 qboolean P_BlockThingsIterator (int x, int y, qboolean(*func)(mobj_t*) );
 
-#define PT_ADDLINES		1
-#define PT_ADDTHINGS	2
-#define PT_EARLYOUT		4
+enum PT_e : uint8
+{
+	PT_ADDLINES = 1,
+	PT_ADDTHINGS = 2,
+	PT_EARLYOUT = 4
+};
 
 extern divline_t	trace;
 

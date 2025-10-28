@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_SAVEGAME_H__
 #define __SYS_SAVEGAME_H__
 
+#pragma once
+
 #ifdef OUTPUT_FUNC
 #undef OUTPUT_FUNC
 #endif
@@ -39,33 +41,33 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #define DEFINE_CLASS( x )					virtual const char * Name() const { return #x; }
-#define MAX_SAVEGAMES						16
-#define MAX_FILES_WITHIN_SAVEGAME			10
-#define MIN_SAVEGAME_SIZE_BYTES				( 4 * 1024 * 1024 )
-#define MAX_SAVEGAME_STRING_TABLE_SIZE		400 * 1024	// 400 kB max string table size
+constexpr size_t MAX_SAVEGAMES                      = 16;
+constexpr size_t MAX_FILES_WITHIN_SAVEGAME          = 10;
+constexpr size_t MIN_SAVEGAME_SIZE_BYTES            = (4ULL * 1024ULL * 1024ULL);
+constexpr size_t MAX_SAVEGAME_STRING_TABLE_SIZE     = (400ULL * 1024ULL);	// 400 kB max string table size
 
 
-#define MAX_FILENAME_LENGTH					255
-#define MAX_FILENAME_LENGTH_PATTERN			8
-#define MAX_FOLDER_NAME_LENGTH				64
-#define SAVEGAME_DETAILS_FILENAME			"game.details"
+constexpr size_t MAX_FILENAME_LENGTH                = 255;
+constexpr size_t MAX_FILENAME_LENGTH_PATTERN        = 8;
+constexpr size_t MAX_FOLDER_NAME_LENGTH             = 64;
+constexpr auto   SAVEGAME_DETAILS_FILENAME          = "game.details";
 
 // PS3 restrictions:  The only characters that can be used are 0-9 (numbers), A-Z (uppercase alphabet), "_" (underscore), and "-" (hyphen)
-#define SAVEGAME_AUTOSAVE_FOLDER			"AUTOSAVE"		// auto save slot
+constexpr auto   SAVEGAME_AUTOSAVE_FOLDER           = "AUTOSAVE";		// auto save slot
 
 // common descriptors for savegame description fields
-#define SAVEGAME_DETAIL_FIELD_EXPANSION		"expansion"
-#define SAVEGAME_DETAIL_FIELD_MAP			"mapName"
-#define SAVEGAME_DETAIL_FIELD_MAP_LOCATE	"mapLocation"
-#define SAVEGAME_DETAIL_FIELD_DIFFICULTY	"difficulty"
-#define SAVEGAME_DETAIL_FIELD_PLAYTIME		"playTime"
-#define SAVEGAME_DETAIL_FIELD_LANGUAGE		"language"
-#define	SAVEGAME_DETAIL_FIELD_SAVE_VERSION	"saveVersion"
-#define	SAVEGAME_DETAIL_FIELD_CHECKSUM		"checksum"
+constexpr auto   SAVEGAME_DETAIL_FIELD_EXPANSION    = "expansion";
+constexpr auto   SAVEGAME_DETAIL_FIELD_MAP          = "mapName";
+constexpr auto   SAVEGAME_DETAIL_FIELD_MAP_LOCATE   = "mapLocation";
+constexpr auto   SAVEGAME_DETAIL_FIELD_DIFFICULTY   = "difficulty";
+constexpr auto   SAVEGAME_DETAIL_FIELD_PLAYTIME     = "playTime";
+constexpr auto   SAVEGAME_DETAIL_FIELD_LANGUAGE     = "language";
+constexpr auto   SAVEGAME_DETAIL_FIELD_SAVE_VERSION = "saveVersion";
+constexpr auto   SAVEGAME_DETAIL_FIELD_CHECKSUM     = "checksum";
 
-#define SAVEGAME_GAME_DIRECTORY_PREFIX		"GAME-"
-#define SAVEGAME_PROFILE_DIRECTORY_PREFIX	""
-#define SAVEGAME_RAW_DIRECTORY_PREFIX		""
+constexpr auto   SAVEGAME_GAME_DIRECTORY_PREFIX     = "GAME-";
+constexpr auto   SAVEGAME_PROFILE_DIRECTORY_PREFIX  = "";
+constexpr auto   SAVEGAME_RAW_DIRECTORY_PREFIX      = "";
 
 
 extern idCVar saveGame_verbose;
@@ -77,7 +79,7 @@ class idSessionLocal;
 class idSaveGameManager;
 
 // Specific savegame sub-system errors
-enum saveGameError_t {
+enum saveGameError_t : uint16 {
 	SAVEGAME_E_NONE								= 0,
 	SAVEGAME_E_CANCELLED						= BIT( 0 ),
 	SAVEGAME_E_INSUFFICIENT_ROOM				= BIT( 1 ),
@@ -99,7 +101,7 @@ enum saveGameError_t {
 };
 
 // Modes to control behavior of savegame manager
-enum saveGameModeBitfield_t {
+enum saveGameModeBitfield_t : uint16 {
 	SAVEGAME_MBF_NONE				= 0,
 	SAVEGAME_MBF_LOAD				= BIT( 0 ),		// standard file load (can be individual/multiple files described in parms)
 	SAVEGAME_MBF_SAVE				= BIT( 1 ),		// standard file save (can be individual/multiple files described in parms)
@@ -159,7 +161,7 @@ public:
 	[[nodiscard]] idStr	GetMapName() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP, "" ); }
 	[[nodiscard]] idStr	GetLocation() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP_LOCATE, "" ); }
 	[[nodiscard]] idStr	GetLanguage() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_LANGUAGE, "" ); }
-	[[nodiscard]] int		GetPlaytime() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_PLAYTIME, 0 ); }
+	[[nodiscard]] ID_TIME_T	GetPlaytime() const { return descriptors.GetInt64( SAVEGAME_DETAIL_FIELD_PLAYTIME, 0LL ); }
 	[[nodiscard]] int		GetExpansion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_EXPANSION, 0 ); }
 	[[nodiscard]] int		GetDifficulty() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_DIFFICULTY, -1 ); }
 	[[nodiscard]] int		GetSaveVersion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_SAVE_VERSION, 0 ); }

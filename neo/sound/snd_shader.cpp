@@ -99,7 +99,7 @@ bool idSoundShader::SetDefaultText() {
 	wavname.DefaultFileExtension( ".wav" );		// if the name has .ogg in it, that will stay
 
 	// if there exists a wav file with the same name
-	if ( 1 ) { //fileSystem->ReadFile( wavname, NULL ) != -1 ) {
+	if ( true ) { //fileSystem->ReadFile( wavname, NULL ) != -1 ) {
 		char generated[2048];
 		idStr::snPrintf( generated, sizeof( generated ), 
 						"sound %s // IMPLICITLY GENERATED\n"
@@ -132,8 +132,8 @@ idSoundShader::Parse
   this is called by the declManager
 ===============
 */
-bool idSoundShader::Parse( const char *text, const int textLength, bool allowBinaryVersion ) {
-	idLexer	src;
+bool idSoundShader::Parse( const char *text, const size_t textLength, const bool allowBinaryVersion ) {
+	idLexer	src = {};
 
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( DECL_LEXER_FLAGS );
@@ -166,7 +166,7 @@ bool idSoundShader::ParseShader( idLexer &src ) {
 
 	entries.Clear();
 
-	while ( 1 ) {
+	while ( true ) {
 		if ( !src.ExpectAnyToken( &token ) ) {
 			return false;
 		}
@@ -382,7 +382,7 @@ idSoundShader::HasDefaultSound
 ===============
 */
 bool idSoundShader::HasDefaultSound() const {
-	for ( int i = 0; i < entries.Num(); i++ ) {
+	for ( size_t i = 0; i < entries.Num(); i++ ) {
 		if ( entries[i] && entries[i]->IsDefault() ) {
 			return true;
 		}
@@ -404,7 +404,7 @@ const soundShaderParms_t *idSoundShader::GetParms() const {
 idSoundShader::GetNumSounds
 ===============
 */
-int idSoundShader::GetNumSounds() const {
+size_t idSoundShader::GetNumSounds() const {
 	return entries.Num();
 }
 
@@ -413,7 +413,7 @@ int idSoundShader::GetNumSounds() const {
 idSoundShader::GetSound
 ===============
 */
-const char *idSoundShader::GetSound( int index ) const {
+const char *idSoundShader::GetSound(const index_t index ) const {
 	if ( index >= 0 && index < entries.Num() ) {
 		return entries[index]->GetName();
 	}

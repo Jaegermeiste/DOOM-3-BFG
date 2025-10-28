@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -53,11 +55,11 @@ If you have questions concerning this license or the applicable additional terms
 result_e
 T_MovePlane
 ( sector_t*	sector,
-  fixed_t	speed,
-  fixed_t	dest,
-  qboolean	crush,
-  int		floorOrCeiling,
-  int		direction )
+  const fixed_t	speed,
+  const fixed_t	dest,
+  const qboolean	crush,
+  const int		floorOrCeiling,
+  const int		direction )
 {
     qboolean	flag;
     fixed_t	lastpos;
@@ -121,7 +123,9 @@ T_MovePlane
 		if (flag == true)
 		{
 		    if (crush == true)
-			return crushed;
+		    {
+			    return crushed;
+		    }
 		    sector->floorheight = lastpos;
 		    P_ChangeSector(sector,crush);
 		    return crushed;
@@ -161,7 +165,9 @@ T_MovePlane
 		if (flag == true)
 		{
 		    if (crush == true)
-			return crushed;
+		    {
+			    return crushed;
+		    }
 		    sector->ceilingheight = lastpos;
 		    P_ChangeSector(sector,crush);
 		    return crushed;
@@ -221,12 +227,14 @@ void T_MoveFloor(floormove_t* floor)
 		      floor->crush,0,floor->direction);
     
     if (!(::g->leveltime&7))
-	S_StartSound( &floor->sector->soundorg,
-		     sfx_stnmov);
-    
+    {
+	    S_StartSound( &floor->sector->soundorg,
+	                  sfx_stnmov);
+    }
+
     if (res == pastdest)
     {
-	floor->sector->specialdata = NULL;
+	floor->sector->specialdata = nullptr;
 
 	if (floor->direction == 1)
 	{
@@ -264,7 +272,7 @@ void T_MoveFloor(floormove_t* floor)
 int
 EV_DoFloor
 ( line_t*	line,
-  floor_e	floortype )
+  const floor_e	floortype )
 {
     int			secnum;
     int			rtn;
@@ -280,11 +288,13 @@ EV_DoFloor
 		
 	// ALREADY MOVING?  IF SO, KEEP GOING...
 	if (sec->specialdata)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	// new floor thinker
 	rtn = 1;
-	floor = (floormove_t*)DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, 0);
+	floor = static_cast<floormove_t*>(DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, nullptr));
 	P_AddThinker (&floor->thinker);
 	sec->specialdata = floor;
 	floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
@@ -316,7 +326,9 @@ EV_DoFloor
 	    floor->floordestheight = 
 		P_FindHighestFloorSurrounding(sec);
 	    if (floor->floordestheight != sec->floorheight)
-		floor->floordestheight += 8*FRACUNIT;
+	    {
+		    floor->floordestheight += 8*FRACUNIT;
+	    }
 	    break;
 
 	  case raiseFloorCrush:
@@ -327,8 +339,7 @@ EV_DoFloor
 	    floor->speed = FLOORSPEED;
 	    floor->floordestheight = 
 		P_FindLowestCeilingSurrounding(sec);
-	    if (floor->floordestheight > sec->ceilingheight)
-		floor->floordestheight = sec->ceilingheight;
+	    floor->floordestheight = Min(floor->floordestheight, sec->ceilingheight);
 	    floor->floordestheight -= (8*FRACUNIT)*
 		(floortype == raiseFloorCrush);
 	    break;
@@ -388,16 +399,14 @@ EV_DoFloor
 		  {
 		      side = getSide(secnum,i,0);
 		      if (side->bottomtexture >= 0)
-			  if (::g->s_textureheight[side->bottomtexture] < 
-			      minsize)
-			      minsize = 
-				  ::g->s_textureheight[side->bottomtexture];
+		      {
+			      minsize = Min(::g->s_textureheight[side->bottomtexture], minsize);
+		      }
 		      side = getSide(secnum,i,1);
 		      if (side->bottomtexture >= 0)
-			  if (::g->s_textureheight[side->bottomtexture] < 
-			      minsize)
-			      minsize = 
-				 ::g->s_textureheight[side->bottomtexture];
+		      {
+			      minsize = Min(::g->s_textureheight[side->bottomtexture], minsize);
+		      }
 		  }
 	      }
 	      floor->floordestheight =
@@ -457,7 +466,7 @@ EV_DoFloor
 int
 EV_BuildStairs
 ( line_t*	line,
-  stair_e	type )
+  const stair_e	type )
 {
     int			secnum;
     int			height;
@@ -483,11 +492,13 @@ EV_BuildStairs
 		
 	// ALREADY MOVING?  IF SO, KEEP GOING...
 	if (sec->specialdata)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	// new floor thinker
 	rtn = 1;
-	floor = (floormove_t*)DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, 0);
+	floor = static_cast<floormove_t*>(DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, nullptr));
 	P_AddThinker (&floor->thinker);
 	sec->specialdata = floor;
 	floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
@@ -519,28 +530,36 @@ EV_BuildStairs
 	    for (i = 0;i < sec->linecount;i++)
 	    {
 		if ( !((sec->lines[i])->flags & ML_TWOSIDED) )
-		    continue;
-					
+		{
+			continue;
+		}
+
 		tsec = (sec->lines[i])->frontsector;
 		newsecnum = tsec-::g->sectors;
 		
 		if (secnum != newsecnum)
-		    continue;
+		{
+			continue;
+		}
 
 		tsec = (sec->lines[i])->backsector;
 		newsecnum = tsec - ::g->sectors;
 
 		if (tsec->floorpic != texture)
-		    continue;
-					
+		{
+			continue;
+		}
+
 		height += stairsize;
 
 		if (tsec->specialdata)
-		    continue;
-					
+		{
+			continue;
+		}
+
 		sec = tsec;
 		secnum = newsecnum;
-		floor = (floormove_t*)DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, 0);
+		floor = static_cast<floormove_t*>(DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, nullptr));
 
 		P_AddThinker (&floor->thinker);
 

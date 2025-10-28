@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SOUNDVOICE_H__
 #define __SOUNDVOICE_H__
 
+#pragma once
+
 /*
 ================================================
 idSoundVoice_Base
@@ -38,24 +40,24 @@ class idSoundVoice_Base {
 public:
 				idSoundVoice_Base();
 
-	static void InitSurround( int outputChannels, int channelMask );
+	static void InitSurround( size_t outputChannels, const unsigned int channelMask );
 
-	void		CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], float scale );
+	void		CalculateSurround( size_t srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], float scale );
 
 	void		SetPosition( const idVec3 & p ) { position = p; }
-	void		SetGain( float g ) { gain = g; }
-	void		SetCenterChannel( float c ) { centerChannel = c; }
-	void		SetPitch( float p ) { pitch = p; }
-	void		SetInnerRadius( float r ) { innerRadius = r; }
-	void		SetChannelMask( uint32 mask ) { channelMask = mask; }
+	void		SetGain( const float g ) { gain = g; }
+	void		SetCenterChannel( const float c ) { centerChannel = c; }
+	void		SetPitch( const float p ) { pitch = p; }
+	void		SetInnerRadius( const float r ) { innerRadius = r; }
+	void		SetChannelMask( const uint32 mask ) { channelMask = mask; }
 
 	const idSoundSample * GetCurrentSample();
 
 	// Controls the low pass filter, where 0.0f = no filtering, 1.0f = full filter
-	void		SetOcclusion( float f ) { occlusion = f; }
+	void		SetOcclusion(const float f ) { occlusion = f; }
 
-				[[nodiscard]] float		GetGain() const { return gain; }
-				[[nodiscard]] float		GetPitch() const { return pitch; }
+	[[nodiscard]] float		GetGain() const { return gain; }
+	[[nodiscard]] float		GetPitch() const { return pitch; }
 
 protected:
 	idVec3		position;			// Position of the sound relative to listener
@@ -66,7 +68,7 @@ protected:
 	float		occlusion;			// How much of this sound is occluded (0-1)
 	uint32		channelMask;		// Set to override the default channel mask
 
-	// These are some setting used to do SSF_DISTANCE_BASED_STERO blending
+	// These are some setting used to do SSF_DISTANCE_BASED_STEREO blending
 	float		innerSampleRangeSqr;
 	float		outerSampleRangeSqr;
 
@@ -75,24 +77,24 @@ protected:
 	// These are constants which are initialized with InitSurround
 	//-------------------------------------------------------------
 
-	static idVec2 speakerPositions[idWaveFile::CHANNEL_INDEX_MAX];
+	static idVec3 speakerPositions[idWaveFile::CHANNEL_INDEX_MAX];
 
 	// This is to figure out which speakers are "next to" this one
-	static int speakerLeft[idWaveFile::CHANNEL_INDEX_MAX];
-	static int speakerRight[idWaveFile::CHANNEL_INDEX_MAX];
+	static index_t speakerLeft[idWaveFile::CHANNEL_INDEX_MAX];
+	static index_t speakerRight[idWaveFile::CHANNEL_INDEX_MAX];
 
 	// Number of channels in the output hardware
-	static int dstChannels;
+	static size_t dstChannels;
 
 	// Mask indicating which speakers exist in the hardware configuration
-	static int dstMask;
+	static unsigned int dstMask;
 
 	// dstMap maps a destination channel to a speaker
 	// invMap maps a speaker to a destination channel
-	static int dstCenter;
-	static int dstLFE;
-	static int dstMap[MAX_CHANNELS_PER_VOICE];
-	static int invMap[idWaveFile::CHANNEL_INDEX_MAX];
+	static index_t dstCenter;
+	static index_t dstLFE;
+	static index_t dstMap[MAX_CHANNELS_PER_VOICE];
+	static index_t invMap[idWaveFile::CHANNEL_INDEX_MAX];
 
 	// specifies what volume to specify for each channel when a speaker is omni
 	static float omniLevel;

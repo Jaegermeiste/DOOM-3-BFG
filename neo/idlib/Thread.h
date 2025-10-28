@@ -84,10 +84,10 @@ public:
 	void	Raise() { Sys_SignalRaise( handle ); }
 	void	Clear() { Sys_SignalClear( handle ); }
 
-	// Wait returns true if the object is in a signalled state and
-	// returns false if the wait timed out. Wait also clears the signalled
-	// state when the signalled state is reached within the time-out period.
-	bool	Wait(const int timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
+	// Wait returns true if the object is in a signaled state and
+	// returns false if the wait timed out. Wait also clears the signaled
+	// state when the signaled state is reached within the time-out period.
+	bool	Wait(const ID_TIME_T timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
 
 private:
 	signalHandle_t		handle;
@@ -113,16 +113,16 @@ public:
 	int					Decrement() { return Sys_InterlockedDecrement( value ); }
 
 	// atomically adds a value to the integer and returns the new value
-	int					Add(const int v ) { return Sys_InterlockedAdd( value, static_cast<interlockedInt_t>(v) ); }
+	int					Add(const int v ) { return Sys_InterlockedAdd( value, numeric_cast<interlockedInt_t>(v) ); }
 
 	// atomically subtracts a value from the integer and returns the new value
-	int					Sub(const int v ) { return Sys_InterlockedSub( value, static_cast<interlockedInt_t>(v) ); }
+	int					Sub(const int v ) { return Sys_InterlockedSub( value, numeric_cast<interlockedInt_t>(v) ); }
 
 	// returns the current value of the integer
 	int					GetValue() const { return value; }
 
 	// sets a new value, Note: this operation is not atomic
-	void				SetValue(const int v ) { value = static_cast<interlockedInt_t>(v); }
+	void				SetValue(const int v ) { value = numeric_cast<interlockedInt_t>(v); }
 #elif defined(ID_WIN64)
 	// atomically increments the integer and returns the new value
 	int64				Increment() { return Sys_InterlockedIncrement(value); }
@@ -131,16 +131,16 @@ public:
 	int64				Decrement() { return Sys_InterlockedDecrement(value); }
 
 	// atomically adds a value to the integer and returns the new value
-	int64				Add(const int64 v) { return Sys_InterlockedAdd(value, static_cast<interlockedInt_t>(v)); }
+	int64				Add(const int64 v) { return Sys_InterlockedAdd(value, numeric_cast<interlockedInt_t>(v)); }
 
 	// atomically subtracts a value from the integer and returns the new value
-	int64				Sub(const int64 v) { return Sys_InterlockedSub(value, static_cast<interlockedInt_t>(v)); }
+	int64				Sub(const int64 v) { return Sys_InterlockedSub(value, numeric_cast<interlockedInt_t>(v)); }
 
 	// returns the current value of the integer
-						[[nodiscard]] int64				GetValue() const { return value; }
+	[[nodiscard]] int64				GetValue() const { return value; }
 
 	// sets a new value, Note: this operation is not atomic
-	void				SetValue(const int64 v) { value = static_cast<interlockedInt_t>(v); }
+	void				SetValue(const int64 v) { value = numeric_cast<interlockedInt_t>(v); }
 #endif
 
 private:
@@ -160,13 +160,13 @@ public:
 
 	// atomically sets the pointer and returns the previous pointer value
 	T *		Set( T * newPtr ) { 
-				return static_cast<T*>(Sys_InterlockedExchangePointer((void* &)ptr, newPtr)); 
+				return static_cast<T*>(Sys_InterlockedExchangePointer(reinterpret_cast<void* &>(ptr), newPtr)); 
 			}
 
 	// atomically sets the pointer to 'newPtr' only if the previous pointer is equal to 'comparePtr'
 	// ptr = ( ptr == comparePtr ) ? newPtr : ptr
 	T *		CompareExchange( T * comparePtr, T * newPtr ) {
-				return static_cast<T*>(Sys_InterlockedCompareExchangePointer((void* &)ptr, comparePtr, newPtr));
+				return static_cast<T*>(Sys_InterlockedCompareExchangePointer(reinterpret_cast<void* &>(ptr), comparePtr, newPtr));
 	}
 
 	// returns the current value of the pointer
@@ -221,7 +221,7 @@ Note that the Sys_CreateThread function does not support the concept of worker t
 
 In the above example, the thread does not continuously run in parallel with the main Thread,
 but only for a certain period of time in a very controlled manner. Work is set up for the
-Thread and then the thread is signalled to process that work while the main thread continues.
+Thread and then the thread is signaled to process that work while the main thread continues.
 After doing other work, the main thread can wait for the worker thread to finish, if it has not
 finished already. When the worker thread is done, the main thread can safely use the results
 from the worker thread.
@@ -245,17 +245,17 @@ public:
 
 	bool			StartThread( const char * name, core_t core, 
 								 xthreadPriority priority = THREAD_NORMAL,
-								 int stackSize = DEFAULT_THREAD_STACK_SIZE );
+								 size_t stackSize = DEFAULT_THREAD_STACK_SIZE );
 
 	bool			StartWorkerThread( const char * name, core_t core, 
 									   xthreadPriority priority = THREAD_NORMAL,
-									   int stackSize = DEFAULT_THREAD_STACK_SIZE );
+									   size_t stackSize = DEFAULT_THREAD_STACK_SIZE );
 
 	void			StopThread( bool wait = true );
 
 	// This can be called from multiple other threads. However, in the case
 	// of a worker thread, the work being "done" has little meaning if other
-	// threads are continuously signalling more work.
+	// threads are continuously signaling more work.
 	void			WaitForThread();
 
 	//------------------------
@@ -269,7 +269,7 @@ public:
 	// Returns true if the work is done without waiting.
 	// This can be called from multiple other threads. However, the work
 	// being "done" has little meaning if other threads are continuously
-	// signalling more work.
+	// signaling more work.
 	bool			IsWorkDone();
 
 protected:
@@ -314,7 +314,7 @@ typically crunch through a collection of similar tasks.
 
 	idSysWorkerThreadGroup<idMyWorkerThread> workers( "myWorkers", 4 );
 	for ( ; ; ) {
-		for ( int i = 0; i < workers.GetNumThreads(); i++ ) {
+		for ( size_t i = 0; i < workers.GetNumThreads(); i++ ) {
 			// workers.GetThread( i )-> // setup work for this thread
 		}
 		workers.SignalWorkAndWait();
@@ -330,20 +330,20 @@ in that the worker threads won't automatically run on the SPUs.
 template<class threadType>
 class idSysWorkerThreadGroup {
 public:
-					idSysWorkerThreadGroup( const char * name, int numThreads,
+					idSysWorkerThreadGroup( const char * name, size_t numThreads,
 											xthreadPriority priority = THREAD_NORMAL,
-											int stackSize = DEFAULT_THREAD_STACK_SIZE );
+											size_t stackSize = DEFAULT_THREAD_STACK_SIZE );
 
 	virtual			~idSysWorkerThreadGroup();
 
-					[[nodiscard]] size_t			GetNumThreads() const { return threadList.Num(); }
-	threadType &	GetThread( int i ) { return *threadList[i]; }
+	[[nodiscard]] size_t			GetNumThreads() const { return threadList.Num(); }
+	threadType& GetThread( const Ordinal auto i ) { ORDINAL_CHECK(i, threadList.Num());  return *threadList[i]; }
 
 	void			SignalWorkAndWait();
 
 private:
 	idList<threadType *, TAG_THREAD>	threadList;
-	bool					runOneThreadInline;	// use the signalling thread as one of the threads
+	bool					runOneThreadInline;	// use the signaling thread as one of the threads
 	bool					singleThreaded;		// set to true for debugging
 };
 
@@ -354,11 +354,10 @@ idSysWorkerThreadGroup<threadType>::idSysWorkerThreadGroup
 */
 template<class threadType>
 ID_INLINE idSysWorkerThreadGroup<threadType>::idSysWorkerThreadGroup( const char * name, 
-			int numThreads, xthreadPriority priority, int stackSize ) {
+			size_t numThreads, xthreadPriority priority, size_t stackSize ) {
 	runOneThreadInline = ( numThreads < 0 );
 	singleThreaded = false;
-	numThreads = abs( numThreads );
-	for( int i = 0; i < numThreads; i++ ) {
+	for( size_t i = 0; i < numThreads; i++ ) {
 		threadType *thread = new (TAG_THREAD) threadType;
 		thread->StartWorkerThread( va( "%s_worker%i", name, i ), static_cast<core_t>(i), priority, stackSize );
 		threadList.Append( thread );
@@ -383,18 +382,18 @@ idSysWorkerThreadGroup<threadType>::SignalWorkAndWait
 template<class threadType>
 ID_INLINE void idSysWorkerThreadGroup<threadType>::SignalWorkAndWait() {
 	if ( singleThreaded ) {
-		for( int i = 0; i < threadList.Num(); i++ ) {
+		for ( size_t i = 0; i < threadList.Num(); i++ ) {
 			threadList[ i ]->Run();
 		}
 		return;
 	}
-	for( int i = 0; i < threadList.Num() - runOneThreadInline; i++ ) {
+	for ( size_t i = 0; i < threadList.Num() - runOneThreadInline; i++ ) {
 		threadList[ i ]->SignalWork();
 	}
 	if ( runOneThreadInline ) {
 		threadList[ threadList.Num() - 1 ]->Run();
 	}
-	for ( int i = 0; i < threadList.Num() - runOneThreadInline; i++ ) {
+	for ( size_t i = 0; i < threadList.Num() - runOneThreadInline; i++ ) {
 		threadList[ i ]->WaitForThread();
 	}
 }
@@ -419,12 +418,12 @@ synchronize with each other half-way through execution.
 	};
 
 	idSysWorkerThreadGroup<idMyWorkerThread> workers( "myWorkers", 4 );
-	for ( int i = 0; i < workers.GetNumThreads(); i++ ) {
+	for ( size_t i = 0; i < workers.GetNumThreads(); i++ ) {
 		workers.GetThread( i )->threadNum = i;
 	}
 
 	for ( ; ; ) {
-		for ( int i = 0; i < workers.GetNumThreads(); i++ ) {
+		for ( size_t i = 0; i < workers.GetNumThreads(); i++ ) {
 			// workers.GetThread( i )-> // setup work for this thread
 		}
 		workers.SignalWorkAndWait();
@@ -438,8 +437,8 @@ public:
 	static constexpr int	WAIT_INFINITE = -1;
 
 	ID_INLINE	void			SetNumThreads( size_t num );
-	ID_INLINE	void			Signal( Ordinal auto threadNum );
-	ID_INLINE	bool			Synchronize( Ordinal auto threadNum, int timeout = WAIT_INFINITE );
+	ID_INLINE	void			Signal( const Ordinal auto threadNum );
+	ID_INLINE	bool			Synchronize( const Ordinal auto threadNum, ID_TIME_T timeout = WAIT_INFINITE );
 
 private:
 	idList< idSysSignal *, TAG_THREAD >		signals;
@@ -451,15 +450,15 @@ private:
 idSysThreadSynchronizer::SetNumThreads
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const size_t num ) {
-	assert( std::equal_to<>()(idMath::integer_cast<size_t>(busyCount.GetValue()), signals.Num()) );
+ID_INLINE void idSysThreadSynchronizer::SetNumThreads( const size_t num ) {
+	assert( std::equal_to<>()(numeric_cast<size_t>(busyCount.GetValue()), signals.Num()) );
 	if ( num != signals.Num() ) {
 		signals.DeleteContents();
 		signals.SetNum( num );
 		for ( size_t i = 0; i < num; i++ ) {
 			signals[i] = new (TAG_THREAD) idSysSignal();
 		}
-		busyCount.SetValue( idMath::integer_cast<int64>(num) );
+		busyCount.SetValue( numeric_cast<int64>(num) );
 		SYS_MEMORYBARRIER;
 	}
 }
@@ -469,10 +468,10 @@ ID_INLINE void idSysThreadSynchronizer::SetNumThreads(const size_t num ) {
 idSysThreadSynchronizer::Signal
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::Signal( Ordinal auto threadNum ) {
+ID_INLINE void idSysThreadSynchronizer::Signal( const Ordinal auto threadNum ) {
 	ORDINAL_CHECK(threadNum, signals.Num());
 	if ( busyCount.Decrement() == 0 ) {
-		busyCount.SetValue( idMath::integer_cast<int64>(signals.Num()) );
+		busyCount.SetValue( numeric_cast<int64>(signals.Num()) );
 		SYS_MEMORYBARRIER;
 		for ( size_t i = 0; i < signals.Num(); i++ ) {
 			signals[i]->Raise();
@@ -485,7 +484,7 @@ ID_INLINE void idSysThreadSynchronizer::Signal( Ordinal auto threadNum ) {
 idSysThreadSynchronizer::Synchronize
 ========================
 */
-ID_INLINE bool idSysThreadSynchronizer::Synchronize(const Ordinal auto threadNum, const int timeout ) {
+ID_INLINE bool idSysThreadSynchronizer::Synchronize( const Ordinal auto threadNum, const ID_TIME_T timeout ) {
 	ORDINAL_CHECK(threadNum, signals.Num());
 	return signals[threadNum]->Wait( timeout );
 }

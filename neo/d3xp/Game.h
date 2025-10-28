@@ -90,10 +90,10 @@ public:
 	virtual ID_TIME_T			GetSSStartTime() const = 0;
 
 	// common calls this before moving the single player game to a new level.
-	        const idDict &		GetPersistentPlayerInfo( const Ordinal auto clientNum );
+	        const idDict &		GetPersistentPlayerInfo( index_t clientNum );
 
 	// common calls this right before a new level is loaded.
-	        void				SetPersistentPlayerInfo( const Ordinal auto clientNum, const idDict &playerInfo );
+	        void				SetPersistentPlayerInfo( index_t clientNum, const idDict &playerInfo );
 
 	// Loads a map and spawns all the entities.
 	virtual void				InitFromNewMap( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, int gameMode, int randseed ) = 0;
@@ -119,7 +119,7 @@ public:
 	virtual void				RunFrame( idUserCmdMgr & cmdMgr, gameReturn_t & gameReturn ) = 0;
 
 	// Makes rendering and sound system calls to display for a given clientNum.
-	        bool				Draw( const Ordinal auto clientNum );
+	        bool				Draw( index_t clientNum );
 
 	virtual bool				HandlePlayerGuiEvent( const sysEvent_t * ev ) = 0;
 
@@ -127,9 +127,9 @@ public:
 	virtual void				ServerWriteSnapshot( idSnapShot & ss ) = 0;
 
 	// Processes a reliable message
-	        void				ProcessReliableMessage( const Ordinal auto clientNum, int type, const idBitMsg &msg );
+	        void				ProcessReliableMessage( index_t clientNum, int type, const idBitMsg &msg );
 
-	virtual void				SetInterpolation( const float fraction, const ID_TIME_T serverGameMS, const ID_TIME_T ssStartTime, const ID_TIME_T ssEndTime ) = 0;
+	virtual void				SetInterpolation( const double fraction, const ID_TIME_T serverGameMS, const ID_TIME_T ssStartTime, const ID_TIME_T ssEndTime ) = 0;
 
 	// Reads a snapshot and updates the client game state.
 	virtual void				ClientReadSnapshot( const idSnapShot & ss ) = 0;
@@ -144,12 +144,12 @@ public:
 	virtual size_t				GetMPGameModes( const char *** gameModes, const char *** gameModesDisplay ) = 0;
 
 	// Returns a summary of stats for a given client
-	        void				GetClientStats( const Ordinal auto clientNum, char *data, const size_t len );
+	        void				GetClientStats( index_t clientNum, char *data, const size_t len );
 
 	virtual bool				IsInGame() const = 0;
 
 	// Get the player entity number for a network peer.
-	        size_t				MapPeerToClient( const Ordinal auto peer ) const;
+	        size_t				MapPeerToClient( index_t peer ) const;
 
 	// Get the player entity number of the local player.
 	virtual size_t				GetLocalClientNum() const = 0;
@@ -235,14 +235,14 @@ public:
 	virtual const idVec3 		&ANIM_GetModelOffsetFromEntityDef( const char *classname );
 	virtual idRenderModel *		ANIM_GetModelFromEntityDef( const idDict *args );
 	virtual idRenderModel *		ANIM_GetModelFromName( const char *modelName );
-	virtual const idMD5Anim *	ANIM_GetAnimFromEntityDef( const char *classname, const char *animname );
-	virtual int					ANIM_GetNumAnimsFromEntityDef( const idDict *args );
-	virtual const char *		ANIM_GetAnimNameFromEntityDef( const idDict *args, size_t animNum );
+	virtual const idMD5Anim *	ANIM_GetAnimFromEntityDef( const char *className, const char *animName );
+	virtual size_t				ANIM_GetNumAnimsFromEntityDef( const idDict *args );
+	static  const char *		ANIM_GetAnimNameFromEntityDef( const idDict *args, index_t animNum );
 	virtual const idMD5Anim *	ANIM_GetAnim( const char *fileName );
-	virtual int					ANIM_GetLength( const idMD5Anim *anim );
-	virtual int					ANIM_GetNumFrames( const idMD5Anim *anim );
-	virtual void				ANIM_CreateAnimFrame( const idRenderModel *model, const idMD5Anim *anim, size_t numJoints, idJointMat *frame, ID_TIME_T time, const idVec3 &offset, bool remove_origin_offset );
-	virtual idRenderModel *		ANIM_CreateMeshForAnim( idRenderModel *model, const char *classname, const char *animname, size_t frame, bool remove_origin_offset );
+	virtual ID_TIME_T			ANIM_GetLength( const idMD5Anim *anim );
+	virtual size_t				ANIM_GetNumFrames( const idMD5Anim *anim );
+	virtual void				ANIM_CreateAnimFrame( const idRenderModel *model, const idMD5Anim *anim, size_t numJoints, idJointMat *joints, const ID_TIME_T time, const idVec3 &offset, bool remove_origin_offset );
+	virtual idRenderModel *		ANIM_CreateMeshForAnim( idRenderModel *model, const char *className, const char *animName, size_t frame, bool remove_origin_offset );
 
 	// Articulated Figure calls for AF editor and Radiant.
 	virtual bool				AF_SpawnEntity( const char *fileName );
@@ -253,7 +253,7 @@ public:
 
 	// Entity selection.
 	virtual void				ClearEntitySelection();
-	virtual int					GetSelectedEntities( idEntity *list[], size_t max );
+	virtual size_t				GetSelectedEntities( idEntity *list[], size_t max );
 	virtual void				AddSelectedEntity( idEntity *ent );
 
 	// Selection methods
@@ -263,7 +263,7 @@ public:
 	virtual const idDict *		FindEntityDefDict( const char *name, bool makeDefault = true ) const;
 	virtual void				SpawnEntityDef( const idDict &args, idEntity **ent );
 	virtual idEntity *			FindEntity( const char *name ) const;
-	virtual const char *		GetUniqueEntityName( const char *classname ) const;
+	virtual const char *		GetUniqueEntityName( const char *className ) const;
 
 	// Entity methods.
 	virtual void				EntityGetOrigin( idEntity *ent, idVec3 &org ) const;
@@ -292,9 +292,9 @@ public:
 	virtual void				MapSave( const char *path = nullptr ) const;
 	virtual void				MapSetEntityKeyVal( const char *name, const char *key, const char *val ) const ;
 	virtual void				MapCopyDictToEntity( const char *name, const idDict *dict ) const;
-	virtual int					MapGetUniqueMatchingKeyVals( const char *key, const char *list[], const size_t max ) const;
+	virtual size_t				MapGetUniqueMatchingKeyVals( const char *key, const char *list[], const size_t max ) const;
 	virtual void				MapAddEntity( const idDict *dict ) const;
-	virtual int					MapGetEntitiesMatchingClassWithString( const char *classname, const char *match, const char *list[], const size_t max ) const;
+	virtual size_t				MapGetEntitiesMatchingClassWithString( const char *classname, const char *match, const char *list[], const size_t max ) const;
 	virtual void				MapRemoveEntity( const char *name ) const;
 	virtual void				MapEntityTranslate( const char *name, const idVec3 &v ) const;
 

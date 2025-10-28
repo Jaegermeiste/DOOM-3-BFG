@@ -147,7 +147,7 @@ const int idDeclSkin::GetNumModelAssociations(void ) const {
 idDeclSkin::GetAssociatedModel
 ================
 */
-const char *idDeclSkin::GetAssociatedModel( int index ) const {
+const char *idDeclSkin::GetAssociatedModel(const index_t index ) const {
 	if ( index >= 0 && index < associatedModels.Num() ) {
 		return associatedModels[ index ];
 	}

@@ -166,7 +166,7 @@ private:
 	static void						Event_FadeIn( idVec3 &color, float time );
 	static void						Event_FadeOut( idVec3 &color, float time );
 	static void						Event_FadeTo( idVec3 &color, float alpha, float time );
-	void						    Event_SetShaderParm( const Ordinal auto parmnum, float value );
+	void						    Event_SetShaderParm( index_t parmnum, float value );
 	static void						Event_StartMusic( const char *name );
 	void						    Event_Warning( const char *text );
 	void						    Event_Error( const char *text );
@@ -184,7 +184,7 @@ private:
 	static void						Event_CacheSoundShader( const char *soundName );
 	static void						Event_DebugLine( const idVec3 &color, const idVec3 &start, const idVec3 &end, const float lifetime );
 	static void						Event_DebugArrow( const idVec3 &color, const idVec3 &start, const idVec3 &end, const int size, const float lifetime );
-	static void						Event_DebugCircle( const idVec3 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const int numSteps, const float lifetime );
+	static void						Event_DebugCircle( const idVec3 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const size_t numSteps, const float lifetime );
 	static void						Event_DebugBounds( const idVec3 &color, const idVec3 &mins, const idVec3 &maxs, const float lifetime );
 	static void						Event_DrawText( const char *text, const idVec3 &origin, float scale, const idVec3 &color, const int align, const float lifetime );
 	static void						Event_InfluenceActive();

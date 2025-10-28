@@ -67,18 +67,24 @@ void I_StartFrame (void)
 
 static void I_CombineMouseEvent(const event_t* in, event_t* out)
 {
-	if (fabs((float)in->data1) > fabs((float)out->data1))
+	if (fabs(static_cast<float>(in->data1)) > fabs(static_cast<float>(out->data1)))
+	{
 		out->data1 = in->data1;
-	if (fabs((float)in->data2) > fabs((float)out->data2))
+	}
+	if (fabs(static_cast<float>(in->data2)) > fabs(static_cast<float>(out->data2)))
+	{
 		out->data2 = in->data2;
-	if (fabs((float)in->data3) > fabs((float)out->data3))
+	}
+	if (fabs(static_cast<float>(in->data3)) > fabs(static_cast<float>(out->data3)))
+	{
 		out->data3 = in->data3;
+	}
 }
 
-void I_GetEvents( controller_t *controller )
+static void I_GetEvents( controller_t *controller )
 {
 	event_t e_mouse, e_joystick;
-	int numEvents;
+	size_t numEvents;
 
 	e_mouse.type = ev_mouse;
 	e_mouse.data1 = e_mouse.data2 = e_mouse.data3 = 0;
@@ -96,9 +102,13 @@ void I_GetEvents( controller_t *controller )
 		{
 			I_ReturnMouseInputEvent(i, &e);
 			if (e.type == ev_mouse)
+			{
 				I_CombineMouseEvent(&e, &e_mouse);
+			}
 			else if (e.type == ev_joystick)
+			{
 				I_CombineMouseEvent(&e, &e_joystick);
+			}
 		}
 	}
 
@@ -149,7 +159,7 @@ void I_ReadScreen (byte* scr)
     memcpy(scr, ::g->screens[0], SCREENWIDTH*SCREENHEIGHT);
 }
 
-inline unsigned int I_PackColor( unsigned int a, unsigned int r, unsigned int g, unsigned int b ) {
+static inline unsigned int I_PackColor(const unsigned int a, const unsigned int r, const unsigned int g, const unsigned int b ) {
 	unsigned int color = 0;
 
 	color |= (r & 255) << 24;

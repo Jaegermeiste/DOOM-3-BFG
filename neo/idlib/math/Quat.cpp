@@ -152,9 +152,9 @@ idQuat::Slerp
 Spherical linear interpolation between two quaternions.
 =====================
 */
-idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, const float t ) {
-	idQuat	temp;
-	float	omega, sinom, scale0, scale1;
+idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, const std::floating_point auto t ) {
+	idQuat	temp = {};
+	float	omega = 0.0f, sinom = 0.0f, scale0 = 0.0f, scale1 = 0.0f;
 
 	if ( t <= 0.0f ) {
 		*this = from;
@@ -209,7 +209,7 @@ Approximation of spherical linear interpolation between two quaternions. The int
 traces out the exact same curve as Slerp but does not maintain a constant speed across the arc.
 ========================
 */
-idQuat &idQuat::Lerp( const idQuat &from, const idQuat &to, const float t ) {
+idQuat &idQuat::Lerp( const idQuat &from, const idQuat &to, const std::floating_point auto t ) {
 	if ( t <= 0.0f ) {
 		*this = from;
 		return *this;
@@ -297,6 +297,6 @@ Slerp
 Spherical linear interpolation between two quaternions.
 =====================
 */
-idQuat Slerp( const idQuat & from, const idQuat & to, const float t ) {
+idQuat Slerp( const idQuat & from, const idQuat & to, const std::floating_point auto t ) {
 	return idQuat().Slerp( from, to, t );
 }

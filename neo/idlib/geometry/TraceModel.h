@@ -79,7 +79,7 @@ typedef struct {
 	float				dist;
 	idBounds			bounds;
 	size_t				numEdges;
-	int64				edges[MAX_TRACEMODEL_POLYEDGES];
+	index_t				edges[MAX_TRACEMODEL_POLYEDGES];
 } traceModelPoly_t;
 
 class idTraceModel {
@@ -140,9 +140,9 @@ public:
 						// get the area of one of the polygons
 	[[nodiscard]] float				GetPolygonArea(size_t polyNum ) const;
 						// get the silhouette edges
-	size_t				GetProjectionSilhouetteEdges(const idVec3 &projectionOrigin, int64 silEdges[MAX_TRACEMODEL_EDGES]) const;
-	size_t				GetParallelProjectionSilhouetteEdges( const idVec3 &projectionDir, int64 silEdges[MAX_TRACEMODEL_EDGES] ) const;
-						// calculate mass properties assuming an uniform density
+	size_t				GetProjectionSilhouetteEdges(const idVec3 &projectionOrigin, index_t silEdges[MAX_TRACEMODEL_EDGES]) const;
+	size_t				GetParallelProjectionSilhouetteEdges( const idVec3 &projectionDir, index_t silEdges[MAX_TRACEMODEL_EDGES] ) const;
+						// calculate mass properties assuming a uniform density
 	void				GetMassProperties( const float density, float &mass, idVec3 &centerOfMass, idMat3 &inertiaTensor ) const;
 
 private:
@@ -151,8 +151,8 @@ private:
 	void				InitDodecahedron();
 	void				InitBone();
 
-	void				ProjectionIntegrals( size_t polyNum, size_t a, size_t b, struct projectionIntegrals_s &integrals ) const;
-	void				PolygonIntegrals(size_t polyNum, size_t a, size_t b, size_t c, struct polygonIntegrals_s &integrals ) const;
+	void				ProjectionIntegrals( const Ordinal auto polyNum, const Ordinal auto a, const Ordinal auto b, struct projectionIntegrals_s &integrals ) const;
+	void				PolygonIntegrals( const Ordinal auto polyNum, const Ordinal auto a, const Ordinal auto b, const Ordinal auto c, struct polygonIntegrals_s &integrals ) const;
 	void				VolumeIntegrals( struct volumeIntegrals_s &integrals ) const;
 	void				VolumeFromPolygon( idTraceModel &trm, float thickness ) const;
 	size_t              GetOrderedSilhouetteEdges(const bool edgeIsSilEdge[MAX_TRACEMODEL_EDGES+1], int64 silEdges[MAX_TRACEMODEL_EDGES]) const;

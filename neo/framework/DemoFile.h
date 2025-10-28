@@ -64,8 +64,8 @@ public:
 	void			ReadDict( idDict &dict );
 	void			WriteDict( const idDict &dict );
 
-	int				Read( void *buffer, int len ) const;
-	int				Write( const void *buffer, int len ) const;
+	int				Read( void *buffer, size_t len ) const;
+	int				Write( const void *buffer, size_t len ) const;
 
 private:
 	static idCompressor *AllocCompressor( int type );

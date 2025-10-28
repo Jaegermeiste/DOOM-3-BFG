@@ -1187,7 +1187,7 @@ paramO:	minAlpha	- Min alpha found
 paramO:	maxAlpha	- Max alpha found
 ========================
 */
-void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_, const int maxAlpha_ ) {
+void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_, const size_t maxAlpha_ ) {
 #if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
 	assert( maxAlpha_ >= minAlpha_ );
 
@@ -1461,7 +1461,7 @@ void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_
 idDxtEncoder::EmitAlphaIndices_SSE2
 ========================
 */
-void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int channelBitOffset, const int minAlpha_, const int maxAlpha_ ) {
+void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int channelBitOffset, const int minAlpha_, const size_t maxAlpha_ ) {
 #if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
 	assert( maxAlpha_ >= minAlpha_ );
 
@@ -1767,8 +1767,8 @@ void idDxtEncoder::CompressImageDXT1Fast_SSE2( const byte *inBuf, byte *outBuf, 
 	this->outData = outBuf;
 
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			ExtractBlock_SSE2( inBuf + i * 4, width, block );
 			GetMinMaxBBox_SSE2( block, minColor, maxColor );
 			InsetColorsBBox_SSE2( minColor, maxColor );
@@ -1787,11 +1787,11 @@ void idDxtEncoder::CompressImageDXT1Fast_SSE2( const byte *inBuf, byte *outBuf, 
 	dstPadding = 0;
 	byte * testOutBuf = (byte *) _alloca16( width * height / 2 );
 	CompressImageDXT1Fast_Generic( inBuf, testOutBuf, width, height );
-	for ( int j = 0; j < height/4; j++ ) {
-		for ( int i = 0; i < width/4; i++ ) {
+	for ( size_t j = 0; j < height/4; j++ ) {
+		for ( size_t i = 0; i < width/4; i++ ) {
 			byte * ptr1 = outBuf + ( j * width/4 + i ) * 8 + j * tmpDstPadding;
 			byte * ptr2 = testOutBuf + ( j * width/4 + i ) * 8;
-			for ( int k = 0; k < 8; k++ ) {
+			for ( size_t k = 0; k < 8; k++ ) {
 				assert( ptr1[k] == ptr2[k] );
 			}
 		}
@@ -1822,8 +1822,8 @@ void idDxtEncoder::CompressImageDXT1AlphaFast_SSE2( const byte *inBuf, byte *out
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			ExtractBlock_SSE2( inBuf + i * 4, width, block );
 			GetMinMaxBBox_SSE2( block, minColor, maxColor );
 			byte minAlpha = minColor[3];
@@ -1848,11 +1848,11 @@ void idDxtEncoder::CompressImageDXT1AlphaFast_SSE2( const byte *inBuf, byte *out
 	dstPadding = 0;
 	byte * testOutBuf = (byte *) _alloca16( width * height / 2 );
 	CompressImageDXT1AlphaFast_Generic( inBuf, testOutBuf, width, height );
-	for ( int j = 0; j < height/4; j++ ) {
-		for ( int i = 0; i < width/4; i++ ) {
+	for ( size_t j = 0; j < height/4; j++ ) {
+		for ( size_t i = 0; i < width/4; i++ ) {
 			byte * ptr1 = outBuf + ( j * width/4 + i ) * 8 + j * tmpDstPadding;
 			byte * ptr2 = testOutBuf + ( j * width/4 + i ) * 8;
-			for ( int k = 0; k < 8; k++ ) {
+			for ( size_t k = 0; k < 8; k++ ) {
 				assert( ptr1[k] == ptr2[k] );
 			}
 		}
@@ -1883,8 +1883,8 @@ void idDxtEncoder::CompressImageDXT5Fast_SSE2( const byte *inBuf, byte *outBuf, 
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			ExtractBlock_SSE2( inBuf + i * 4, width, block );
 			GetMinMaxBBox_SSE2( block, minColor, maxColor );
 			InsetColorsBBox_SSE2( minColor, maxColor );
@@ -1908,11 +1908,11 @@ void idDxtEncoder::CompressImageDXT5Fast_SSE2( const byte *inBuf, byte *outBuf, 
 	dstPadding = 0;
 	byte * testOutBuf = (byte *) _alloca16( width * height );
 	CompressImageDXT5Fast_Generic( inBuf, testOutBuf, width, height );
-	for ( int j = 0; j < height / 4; j++ ) {
-		for ( int i = 0; i < width / 4; i++ ) {
+	for ( size_t j = 0; j < height / 4; j++ ) {
+		for ( size_t i = 0; i < width / 4; i++ ) {
 			byte * ptr1 = outBuf + ( j * width/4 + i ) * 16 + j * tmpDstPadding;
 			byte * ptr2 = testOutBuf + ( j * width/4 + i ) * 16;
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				assert( ptr1[k] == ptr2[k] );
 			}
 		}
@@ -2369,8 +2369,8 @@ void idDxtEncoder::CompressYCoCgDXT5Fast_SSE2( const byte *inBuf, byte *outBuf, 
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			ExtractBlock_SSE2( inBuf + i * 4, width, block );
 			GetMinMaxBBox_SSE2( block, minColor, maxColor );
 
@@ -2397,11 +2397,11 @@ void idDxtEncoder::CompressYCoCgDXT5Fast_SSE2( const byte *inBuf, byte *outBuf, 
 	dstPadding = 0;
 	byte * testOutBuf = (byte *) _alloca16( width * height );
 	CompressYCoCgDXT5Fast_Generic( inBuf, testOutBuf, width, height );
-	for ( int j = 0; j < height / 4; j++ ) {
-		for ( int i = 0; i < width / 4; i++ ) {
+	for ( size_t j = 0; j < height / 4; j++ ) {
+		for ( size_t i = 0; i < width / 4; i++ ) {
 			byte * ptr1 = outBuf + ( j * width/4 + i ) * 16 + j * tmpDstPadding;
 			byte * ptr2 = testOutBuf + ( j * width/4 + i ) * 16;
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				assert( ptr1[k] == ptr2[k] );
 			}
 		}
@@ -2419,7 +2419,7 @@ paramO:	minGreen	- Minimal normal Y found
 paramO:	maxGreen	- Maximal normal Y found
 ========================
 */
-void idDxtEncoder::EmitGreenIndices_SSE2( const byte *block, const int channelBitOffset, const int minGreen, const int maxGreen ) {
+void idDxtEncoder::EmitGreenIndices_SSE2( const byte *block, const int channelBitOffset, const int minGreen, const size_t maxGreen ) {
 #if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
 	assert( maxGreen >= minGreen );
 
@@ -2737,8 +2737,8 @@ void idDxtEncoder::CompressNormalMapDXT5Fast_SSE2( const byte *inBuf, byte *outB
 	this->height = height;
 	this->outData = outBuf;
 
-	for ( int j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4, inBuf += width * 4*4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			ExtractBlock_SSE2( inBuf + i * 4, width, block );
 			GetMinMaxBBox_SSE2( block, normal1, normal2 );
 			InsetNormalsBBoxDXT5_SSE2( normal1, normal2 );
@@ -2762,11 +2762,11 @@ void idDxtEncoder::CompressNormalMapDXT5Fast_SSE2( const byte *inBuf, byte *outB
 	dstPadding = 0;
 	byte * testOutBuf = (byte *) _alloca16( width * height );
 	CompressNormalMapDXT5Fast_Generic( inBuf, testOutBuf, width, height );
-	for ( int j = 0; j < height / 4; j++ ) {
-		for ( int i = 0; i < width / 4; i++ ) {
+	for ( size_t j = 0; j < height / 4; j++ ) {
+		for ( size_t i = 0; i < width / 4; i++ ) {
 			byte * ptr1 = outBuf + ( j * width/4 + i ) * 16 + j * tmpDstPadding;
 			byte * ptr2 = testOutBuf + ( j * width/4 + i ) * 16;
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				assert( ptr1[k] == ptr2[k] );
 			}
 		}

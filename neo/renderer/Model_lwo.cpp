@@ -88,7 +88,7 @@ lwGetClip()
 Read image references from a CLIP chunk in an LWO2 file.
 ====================================================================== */
 
-lwClip *lwGetClip( idFile *fp, int cksize )
+lwClip *lwGetClip( idFile *fp, const int cksize )
 {
    lwClip *clip;
    lwPlugin *filt;
@@ -288,7 +288,7 @@ lwFindClip()
 Returns an lwClip pointer, given a clip index.
 ====================================================================== */
 
-lwClip *lwFindClip( lwClip *list, int index )
+lwClip *lwFindClip( lwClip *list, const index_t index )
 {
    lwClip *clip;
 
@@ -336,7 +336,7 @@ lwGetEnvelope()
 Read an ENVL chunk from an LWO2 file.
 ====================================================================== */
 
-lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
+lwEnvelope *lwGetEnvelope( idFile *fp, const int cksize )
 {
    lwEnvelope *env = nullptr;
    lwKey *key = nullptr;
@@ -479,7 +479,7 @@ lwFindEnvelope()
 Returns an lwEnvelope pointer, given an envelope index.
 ====================================================================== */
 
-lwEnvelope *lwFindEnvelope( lwEnvelope *list, int index )
+lwEnvelope *lwFindEnvelope( lwEnvelope *list, const index_t index )
 {
    lwEnvelope *env;
 
@@ -505,7 +505,7 @@ the number of wavelengths between v and v2.
 For example, range( 3 pi, 0, 2 pi, i ) returns pi, with i = 1.
 ====================================================================== */
 
-static float range( float v, float lo, float hi, int *i )
+static float range(const float v, const float lo, const float hi, int *i )
 {
    float v2, r = hi - lo;
 
@@ -528,7 +528,7 @@ hermite()
 Calculate the Hermite coefficients.
 ====================================================================== */
 
-static void hermite( float t, float *h1, float *h2, float *h3, float *h4 )
+static void hermite(const float t, float *h1, float *h2, float *h3, float *h4 )
 {
    float t2, t3;
 
@@ -549,7 +549,7 @@ bezier()
 Interpolate the value of a 1D Bezier curve.
 ====================================================================== */
 
-static float bezier( float x0, float x1, float x2, float x3, float t )
+static float bezier(const float x0, const float x1, const float x2, const float x3, const float t )
 {
    float a, b, c, t2, t3;
 
@@ -574,7 +574,7 @@ endpoints of a BEZ2 curve represent the control points, and these have
 parameter for this curve type.
 ====================================================================== */
 
-static float bez2_time( float x0, float x1, float x2, float x3, float time,
+static float bez2_time(const float x0, const float x1, const float x2, const float x3, const float time,
    float *t0, float *t1 )
 {
    float v, t;
@@ -600,7 +600,7 @@ bez2()
 Interpolate the value of a BEZ2 curve.
 ====================================================================== */
 
-static float bez2( lwKey *key0, lwKey *key1, float time )
+static float bez2( lwKey *key0, lwKey *key1, const float time )
 {
    float x, y, t, t0 = 0.0f, t1 = 1.0f;
 
@@ -1007,15 +1007,15 @@ flen is set to an error code, after which the I/O functions ignore
 read requests until flen is reset.
 ====================================================================== */
 
-#define FLEN_ERROR -9999
+#define FLEN_ERROR (-9999)
 
 static int flen;
 
-void set_flen( int i ) { flen = i; }
+void set_flen(const int i ) { flen = i; }
 
 int get_flen() { return flen; }
 
-void *getbytes( idFile *fp, int size )
+void *getbytes( idFile *fp, const int size )
 {
    void *data;
 
@@ -1040,7 +1040,7 @@ void *getbytes( idFile *fp, int size )
 }
 
 
-void skipbytes( idFile *fp, int n )
+void skipbytes( idFile *fp, const int n )
 {
    if ( flen == FLEN_ERROR ) return;
    if ( fp->Seek( n, FS_SEEK_CUR ))
@@ -1374,7 +1374,7 @@ char *sgetS0( unsigned char **bp )
 {
    char *s;
    unsigned char *buf = *bp;
-   int len;
+   size_t len;
 
    if ( flen == FLEN_ERROR ) return nullptr;
 
@@ -1834,7 +1834,7 @@ lwGetSurface5()
 Read an lwSurface from an LWOB file.
 ====================================================================== */
 
-lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj )
+lwSurface *lwGetSurface5( idFile *fp, const int cksize, lwObject *obj )
 {
    lwSurface *surf = nullptr;
    lwTexture *tex = nullptr;
@@ -2156,7 +2156,7 @@ Read polygon records from a POLS chunk in an LWOB file.  The polygons
 are added to the array in the lwPolygonList.
 ====================================================================== */
 
-int lwGetPolygons5( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset )
+int lwGetPolygons5( idFile *fp, const int cksize, lwPolygonList *plist, const int ptoffset )
 {
    lwPolygon *pp;
    lwPolVert *pv;
@@ -2402,7 +2402,7 @@ Free the memory used by an lwPolygonList.
 
 void lwFreePolygons( lwPolygonList *plist )
 {
-   int i, j;
+   size_t i = 0, j = 0;
 
    if ( plist ) {
       if ( plist->pol ) {
@@ -2430,7 +2430,7 @@ Read point records from a PNTS chunk in an LWO2 file.  The points are
 added to the array in the lwPointList.
 ====================================================================== */
 
-int lwGetPoints( idFile *fp, int cksize, lwPointList *point )
+int lwGetPoints( idFile *fp, const int cksize, lwPointList *point )
 {
 	float *f;
 	int np, i, j;
@@ -2480,7 +2480,7 @@ box hasn't already been initialized.
 
 void lwGetBoundingBox( lwPointList *point, float bbox[] )
 {
-	int i, j;
+	size_t i = 0, j = 0;
 
 	if ( point->count == 0 ) return;
 
@@ -2507,7 +2507,7 @@ lwAllocPolygons()
 Allocate or extend the polygon arrays to hold new records.
 ====================================================================== */
 
-int lwAllocPolygons( lwPolygonList *plist, int npols, int nverts )
+int lwAllocPolygons( lwPolygonList *plist, const int npols, const int nverts )
 {
 	int i;
 
@@ -2550,7 +2550,7 @@ Read polygon records from a POLS chunk in an LWO2 file.  The polygons
 are added to the array in the lwPolygonList.
 ====================================================================== */
 
-int lwGetPolygons( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset )
+int lwGetPolygons( idFile *fp, const int cksize, lwPolygonList *plist, const int ptoffset )
 {
    lwPolygon *pp;
    lwPolVert *pv;
@@ -2629,7 +2629,7 @@ undefined for one- and two-point polygons.
 
 void lwGetPolyNormals( lwPointList *point, lwPolygonList *polygon )
 {
-   int i, j;
+   size_t i = 0, j = 0;
    float p1[ 3 ], p2[ 3 ], pn[ 3 ], v1[ 3 ], v2[ 3 ];
 
    for ( i = 0; i < polygon->count; i++ ) {
@@ -2826,7 +2826,7 @@ Read tag strings from a TAGS chunk in an LWO2 file.  The tags are
 added to the lwTagList array.
 ====================================================================== */
 
-int lwGetTags( idFile *fp, int cksize, lwTagList *tlist )
+int lwGetTags( idFile *fp, const int cksize, lwTagList *tlist )
 {
 	char *buf, *bp;
 	int i, len, ntags;
@@ -2885,7 +2885,7 @@ lwGetPolygonTags()
 Read polygon tags from a PTAG chunk in an LWO2 file.
 ====================================================================== */
 
-int lwGetPolygonTags( idFile *fp, int cksize, lwTagList *tlist, lwPolygonList *plist )
+int lwGetPolygonTags( idFile *fp, const int cksize, lwTagList *tlist, lwPolygonList *plist )
 {
 	unsigned int type;
 	int rlen = 0, i, j;
@@ -3005,7 +3005,7 @@ the first subchunk in a BLOK, and its contents are common to all three
 texture types.
 ====================================================================== */
 
-int lwGetTHeader( idFile *fp, int hsz, lwTexture *tex )
+int lwGetTHeader( idFile *fp, const int hsz, lwTexture *tex )
 {
 	unsigned int id;
 	unsigned short sz;
@@ -3096,7 +3096,7 @@ Read a texture map from a SURF.BLOK in an LWO2 file.  The TMAP
 defines the mapping from texture to world or object coordinates.
 ====================================================================== */
 
-int lwGetTMap( idFile *fp, int tmapsz, lwTMap *tmap )
+int lwGetTMap( idFile *fp, const int tmapsz, lwTMap *tmap )
 {
 	unsigned int id;
 	unsigned short sz;
@@ -3184,7 +3184,7 @@ lwGetImageMap()
 Read an lwImageMap from a SURF.BLOK in an LWO2 file.
 ====================================================================== */
 
-int lwGetImageMap( idFile *fp, int rsz, lwTexture *tex )
+int lwGetImageMap( idFile *fp, const int rsz, lwTexture *tex )
 {
 	unsigned int id;
 	unsigned short sz;
@@ -3293,7 +3293,7 @@ lwGetProcedural()
 Read an lwProcedural from a SURF.BLOK in an LWO2 file.
 ====================================================================== */
 
-int lwGetProcedural( idFile *fp, int rsz, lwTexture *tex )
+int lwGetProcedural( idFile *fp, const int rsz, lwTexture *tex )
 {
    unsigned int id;
    unsigned short sz;
@@ -3368,7 +3368,7 @@ lwGetGradient()
 Read an lwGradient from a SURF.BLOK in an LWO2 file.
 ====================================================================== */
 
-int lwGetGradient( idFile *fp, int rsz, lwTexture *tex )
+int lwGetGradient( idFile *fp, const int rsz, lwTexture *tex )
 {
    unsigned int id;
    unsigned short sz;
@@ -3466,7 +3466,7 @@ lwGetTexture()
 Read an lwTexture from a SURF.BLOK in an LWO2 file.
 ====================================================================== */
 
-lwTexture *lwGetTexture( idFile *fp, int bloksz, unsigned int type )
+lwTexture *lwGetTexture( idFile *fp, const int bloksz, const unsigned int type )
 {
    lwTexture *tex;
    unsigned short sz;
@@ -3514,7 +3514,7 @@ lwGetShader()
 Read a shader record from a SURF.BLOK in an LWO2 file.
 ====================================================================== */
 
-lwPlugin *lwGetShader( idFile *fp, int bloksz )
+lwPlugin *lwGetShader( idFile *fp, const int bloksz )
 {
    lwPlugin *shdr;
    unsigned int id;
@@ -3683,7 +3683,7 @@ lwGetSurface()
 Read an lwSurface from an LWO2 file.
 ====================================================================== */
 
-lwSurface *lwGetSurface( idFile *fp, int cksize )
+lwSurface *lwGetSurface( idFile *fp, const int cksize )
 {
    lwSurface *surf;
    lwTexture *tex;
@@ -3966,8 +3966,8 @@ lwGetVMap()
 Read an lwVMap from a VMAP or VMAD chunk in an LWO2.
 ====================================================================== */
 
-lwVMap *lwGetVMap( idFile *fp, int cksize, int ptoffset, int poloffset,
-   int perpoly )
+lwVMap *lwGetVMap( idFile *fp, const int cksize, int ptoffset, int poloffset,
+   const int perpoly )
 {
    unsigned char *buf, *bp;
    lwVMap *vmap;
@@ -4112,7 +4112,7 @@ int lwGetPolyVMaps( lwPolygonList *polygon, lwVMap *vmap )
 {
    lwVMap *vm;
    lwPolVert *pv;
-   int i, j;
+   size_t i = 0, j = 0;
 
    /* count the number of vmap values for each polygon vertex */
 

@@ -52,7 +52,7 @@ static size_t local_buffer_cur = 0;
 large multiples, so it's simpler to have two roomy ints */
 static  int32_t sample_increment, sample_correction; /*samples per MIDI delta-t*/
 
-static  int32_t read_local(void* buffer, size_t len, size_t count)
+static  int32_t read_local(void* buffer, const size_t len, const size_t count)
 {
 	if (fp && len > 0) {
 		return (int32_t)fp->Read(buffer, len * count ) / len;
@@ -70,7 +70,7 @@ static  int32_t read_local(void* buffer, size_t len, size_t count)
 	return 0;
 }
 
-static void skip_local(size_t len)
+static void skip_local(const size_t len)
 {
 	if (fp) {
 		skip(fp, len);
@@ -84,7 +84,7 @@ static void skip_local(size_t len)
 }
 
 /* Computes how many (fractional) samples one MIDI delta-time unit contains */
-static void compute_sample_increment( int32_t tempo,  int32_t divisions)
+static void compute_sample_increment(const int32_t tempo, const int32_t divisions)
 {
 	double a;
 	a = (double) (tempo) * (double) (play_mode->rate) * (65536.0/1000000.0) /
@@ -324,7 +324,7 @@ static MidiEventList *read_midi_event(void)
 
 /* Read a midi track into the linked list, either merging with any previous
 tracks or appending to them. */
-static int read_track(int append)
+static int read_track(const int append)
 {
 	MidiEventList *meep;
 	MidiEventList *next, *newEventList;
@@ -401,7 +401,7 @@ static void free_midi_list(void)
 events, marking used instruments for loading. Convert event times to
 samples: handle tempo changes. Strip unnecessary events from the list.
 Free the linked list. */
-static MidiEvent *groom_list( int32_t divisions, int32_t *eventsp, int32_t *samplesp)
+static MidiEvent *groom_list(const int32_t divisions, int32_t *eventsp, int32_t *samplesp)
 {
 	MidiEvent *groomed_list, *lp;
 	MidiEventList *meep;
@@ -662,7 +662,7 @@ MidiEvent *read_midi_file(idFile * mfp,  int32_t *count,  int32_t *sp)
 	return groom_list(divisions, count, sp);
 }
 
-MidiEvent *read_midi_buffer(unsigned char* buffer, size_t length,  int32_t *count,  int32_t *sp)
+MidiEvent *read_midi_buffer(unsigned char* buffer, const size_t length,  int32_t *count,  int32_t *sp)
 {
 	 int32_t len, divisions;
 	int16_t format, tracks, divisions_tmp;

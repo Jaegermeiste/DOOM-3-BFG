@@ -166,7 +166,7 @@ ID_INLINE const idMaterial * idClipModel::GetMaterial() const {
 	return material;
 }
 
-ID_INLINE void idClipModel::SetContents( int newContents ) {
+ID_INLINE void idClipModel::SetContents(const int newContents ) {
 	contents = newContents;
 }
 
@@ -182,7 +182,7 @@ ID_INLINE idEntity *idClipModel::GetEntity() const {
 	return entity;
 }
 
-ID_INLINE void idClipModel::SetId( int newId ) {
+ID_INLINE void idClipModel::SetId(const int newId ) {
 	id = newId;
 }
 
@@ -265,7 +265,7 @@ public:
 								const idClipModel *mdl, const idMat3 &trmAxis, int contentMask, const idEntity *passEntity );
 	bool					Motion( trace_t &results, const idVec3 &start, const idVec3 &end, const idRotation &rotation,
 								const idClipModel *mdl, const idMat3 &trmAxis, int contentMask, const idEntity *passEntity );
-	int						Contacts( contactInfo_t *contacts, const int maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
+	int						Contacts( contactInfo_t *contacts, const size_t maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
 								const idClipModel *mdl, const idMat3 &trmAxis, int contentMask, const idEntity *passEntity );
 	int						Contents( const idVec3 &start,
 								const idClipModel *mdl, const idMat3 &trmAxis, int contentMask, const idEntity *passEntity );
@@ -283,7 +283,7 @@ public:
 	void					RotationModel( trace_t &results, const idVec3 &start, const idRotation &rotation,
 								const idClipModel *mdl, const idMat3 &trmAxis, int contentMask,
 								cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis );
-	int						ContactsModel( contactInfo_t *contacts, const int maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
+	int						ContactsModel( contactInfo_t *contacts, const size_t maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
 								const idClipModel *mdl, const idMat3 &trmAxis, int contentMask,
 								cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis );
 	int						ContentsModel( const idVec3 &start,
@@ -298,8 +298,8 @@ public:
 	bool					GetModelContactFeature( const contactInfo_t &contact, const idClipModel *clipModel, idFixedWinding &winding ) const;
 
 	// get entities/clip models within or touching the given bounds
-	int						EntitiesTouchingBounds( const idBounds &bounds, int contentMask, idEntity **entityList, int maxCount ) const;
-	int						ClipModelsTouchingBounds( const idBounds &bounds, int contentMask, idClipModel **clipModelList, int maxCount ) const;
+	int						EntitiesTouchingBounds( const idBounds &bounds, int contentMask, idEntity **entityList, size_t maxCount ) const;
+	int						ClipModelsTouchingBounds( const idBounds &bounds, int contentMask, idClipModel **clipModelList, size_t maxCount ) const;
 
 	const idBounds &		GetWorldBounds() const;
 	idClipModel *			DefaultClipModel();
@@ -333,12 +333,12 @@ private:
 };
 
 
-ID_INLINE bool idClip::TracePoint( trace_t &results, const idVec3 &start, const idVec3 &end, int contentMask, const idEntity *passEntity ) {
+ID_INLINE bool idClip::TracePoint( trace_t &results, const idVec3 &start, const idVec3 &end, const int contentMask, const idEntity *passEntity ) {
 	Translation( results, start, end, nullptr, mat3_identity, contentMask, passEntity );
 	return ( results.fraction < 1.0f );
 }
 
-ID_INLINE bool idClip::TraceBounds( trace_t &results, const idVec3 &start, const idVec3 &end, const idBounds &bounds, int contentMask, const idEntity *passEntity ) {
+ID_INLINE bool idClip::TraceBounds( trace_t &results, const idVec3 &start, const idVec3 &end, const idBounds &bounds, const int contentMask, const idEntity *passEntity ) {
 	temporaryClipModel.LoadModel( idTraceModel( bounds ) );
 	Translation( results, start, end, &temporaryClipModel, mat3_identity, contentMask, passEntity );
 	return ( results.fraction < 1.0f );

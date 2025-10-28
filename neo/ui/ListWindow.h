@@ -51,7 +51,7 @@ public:
 
 	virtual const char*	HandleEvent(const sysEvent_t *event, bool *updateVisuals);
 	virtual void		PostParse();
-	virtual void		Draw(int time, float x, float y);
+	virtual void		Draw(ID_TIME_T time, float x, float y);
 	virtual void		Activate(bool activate, idStr &act);
 	virtual void		HandleBuddyUpdate(idWindow *buddy);
 	virtual void		StateChanged( bool redraw = false );
@@ -67,7 +67,7 @@ private:
 	void				SetCurrentSel( int sel );
 	void				AddCurrentSel( int sel );
 	int					GetCurrentSel();
-	[[nodiscard]] bool				IsSelected( int index ) const;
+	[[nodiscard]] bool				IsSelected( index_t index ) const;
 	void				ClearSelection( int sel );
 
 	idList<idTabRect, TAG_OLD_UI>	tabInfo;

@@ -43,9 +43,9 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-constexpr auto DEFAULT_HASH_SIZE = 1024;
-constexpr auto DEFAULT_HASH_INDEX_SIZE = DEFAULT_HASH_SIZE;
-constexpr auto DEFAULT_HASH_GRANULARITY = 1024;
+constexpr size_t DEFAULT_HASH_SIZE = 1024;
+constexpr size_t DEFAULT_HASH_INDEX_SIZE = DEFAULT_HASH_SIZE;
+constexpr size_t DEFAULT_HASH_GRANULARITY = 1024;
 
 class idHashIndex {
 public:
@@ -67,15 +67,15 @@ public:
 	
 	void			Remove( const int64 key, const Ordinal auto index ) const;
 					// get the first index from the hash, returns -1 if empty hash entry
-	[[nodiscard]] int64			First( const int64 key ) const;
+	[[nodiscard]] index_t			First( const int64 key ) const;
 					// get the next index from the hash, returns -1 if at the end of the hash chain
 	
-	int64			Next( const Ordinal auto index ) const;
+	index_t			Next( const Ordinal auto index ) const;
 
 	// For porting purposes...
-	[[nodiscard]] int64			GetFirst( const int key ) const { return First( key ); }
+	[[nodiscard]] index_t			GetFirst( const int key ) const { return First( key ); }
 	
-	int64			GetNext( const Ordinal auto index ) const { return Next( index ); }
+	index_t			GetNext( const Ordinal auto index ) const { return Next( index ); }
 
 					// insert an entry into the index and add it to the hash, increasing all indexes >= index
 	
@@ -224,7 +224,7 @@ ID_INLINE void idHashIndex::Add( const int64 key, const Ordinal auto index ) {
 	}
 	const int64 h = key & hashMask;
 	indexChain[index] = hash[h];
-	hash[h] = idMath::integer_cast<int64>(index);
+	hash[h] = numeric_cast<int64>(index);
 }
 
 /*
@@ -269,7 +269,7 @@ ID_INLINE int64 idHashIndex::First( const int64 key ) const {
 idHashIndex::Next
 ================
 */
-ID_INLINE int64 idHashIndex::Next( const Ordinal auto index ) const {
+ID_INLINE index_t idHashIndex::Next( const Ordinal auto index ) const {
 	assert( index >= 0 && std::cmp_less(index, indexSize) );
 	return indexChain[index & lookupMask];
 }
@@ -301,7 +301,7 @@ ID_INLINE void idHashIndex::InsertIndex( const int64 key, const Ordinal auto ind
 		if ( max >= indexSize ) {
 			ResizeIndex( max + 1 );
 		}
-		for ( i = max; i > index; i-- ) {
+		for ( i = max; std::cmp_greater(i, index); i-- ) {
 			indexChain[i] = indexChain[i-1];
 		}
 		indexChain[index] = -1;
@@ -320,7 +320,7 @@ ID_INLINE void idHashIndex::RemoveIndex( const int64 key, const Ordinal auto ind
 	Remove( key, index );
 	if ( hash != INVALID_HASH ) {
 		size_t i = 0;
-		size_t max = idMath::integer_cast<size_t>(index);
+		size_t max = numeric_cast<size_t>(index);
 		for ( i = 0; i < hashSize; i++ ) {
 			if (std::cmp_greater_equal(hash[i], index)) {
 				max = std::max<size_t>(hash[i], max);
@@ -411,7 +411,7 @@ idHashIndex::GenerateKey
 ================
 */
 ID_INLINE int64 idHashIndex::GenerateKey(const idVec3& v) const {
-	return ((idMath::Ftoi64(v[0]) + idMath::Ftoi64(v[1]) + idMath::Ftoi64(v[2])) & hashMask);
+	return ((numeric_cast<int64>(v[0]) + numeric_cast<int64>(v[1]) + numeric_cast<int64>(v[2])) & hashMask);
 }
 
 /*

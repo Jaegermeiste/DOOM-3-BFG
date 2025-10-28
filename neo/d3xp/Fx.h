@@ -75,7 +75,7 @@ public:
 
 	void			WriteToSnapshot( idBitMsg &msg ) const override;
 	void			ReadFromSnapshot( const idBitMsg &msg ) override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			ClientPredictionThink() override;
 
 	static idEntityFx *		StartFx( const char *fx, const idVec3 *useOrigin, const idMat3 *useAxis, idEntity *ent, bool bind );

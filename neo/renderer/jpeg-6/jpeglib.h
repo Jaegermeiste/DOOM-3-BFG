@@ -292,7 +292,7 @@ struct jpeg_compress_struct {
 
   int data_precision;		/* bits of precision in image data */
 
-  int num_components;		/* # of color components in JPEG image */
+  size_t num_components;		/* # of color components in JPEG image */
   J_COLOR_SPACE jpeg_color_space; /* colorspace of JPEG image */
 
   jpeg_component_info * comp_info;
@@ -309,7 +309,7 @@ struct jpeg_compress_struct {
   UINT8 arith_dc_U[NUM_ARITH_TBLS]; /* U values for DC arith-coding tables */
   UINT8 arith_ac_K[NUM_ARITH_TBLS]; /* Kx values for AC arith-coding tables */
 
-  int num_scans;		/* # of entries in scan_info array */
+  size_t num_scans;		/* # of entries in scan_info array */
   const jpeg_scan_info * scan_info; /* script for multi-scan file, or NULL */
   /* The default value of scan_info is NULL, which causes a single-scan
    * sequential JPEG file to be emitted.  To create a multi-scan file,
@@ -358,8 +358,8 @@ struct jpeg_compress_struct {
    * These fields are computed during compression startup
    */
   boolean progressive_mode;	/* TRUE if scan script uses progressive mode */
-  int max_h_samp_factor;	/* largest h_samp_factor */
-  int max_v_samp_factor;	/* largest v_samp_factor */
+  size_t max_h_samp_factor;	/* largest h_samp_factor */
+  size_t max_v_samp_factor;	/* largest v_samp_factor */
 
   JDIMENSION total_iMCU_rows;	/* # of iMCU rows to be input to coef ctlr */
   /* The coefficient controller receives data in units of MCU rows as defined
@@ -414,7 +414,7 @@ struct jpeg_decompress_struct {
 
   JDIMENSION image_width;	/* nominal image width (from SOF marker) */
   JDIMENSION image_height;	/* nominal image height */
-  int num_components;		/* # of color components in JPEG image */
+  size_t num_components;		/* # of color components in JPEG image */
   J_COLOR_SPACE jpeg_color_space; /* colorspace of JPEG image */
 
   /* Decompression processing parameters --- these fields must be set before
@@ -559,8 +559,8 @@ struct jpeg_decompress_struct {
   /*
    * These fields are computed during decompression startup
    */
-  int max_h_samp_factor;	/* largest h_samp_factor */
-  int max_v_samp_factor;	/* largest v_samp_factor */
+  size_t max_h_samp_factor;	/* largest h_samp_factor */
+  size_t max_v_samp_factor;	/* largest v_samp_factor */
 
   int min_DCT_scaled_size;	/* smallest DCT_scaled_size of any component */
 

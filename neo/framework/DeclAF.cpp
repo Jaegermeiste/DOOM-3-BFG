@@ -742,7 +742,7 @@ declAFJointMod_t idDeclAF::JointModFromString( const char *str ) {
 idDeclAF::JointModToString
 ================
 */
-const char * idDeclAF::JointModToString( declAFJointMod_t jointMod ) {
+const char * idDeclAF::JointModToString(const declAFJointMod_t jointMod ) {
 	switch( jointMod ) {
 		case DECLAF_JOINTMOD_AXIS: {
 			return "orientation";
@@ -1431,7 +1431,7 @@ idDeclAF::Parse
 ================
 */
 bool idDeclAF::Parse( const char *text, const int textLength, bool allowBinaryVersion ) {
-	int i, j;
+	size_t i = 0, j = 0;
 	idLexer src;
 	idToken token;
 

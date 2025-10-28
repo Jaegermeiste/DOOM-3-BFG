@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __ANIM_TESTMODEL_H__
 #define __ANIM_TESTMODEL_H__
 
+#pragma once
+
 /*
 ==============================================================================================
 
@@ -82,12 +84,12 @@ private:
 	int						headAnim;
 	int						mode;
 	int						frame;
-	int						starttime;
-	int						animtime;
+	ID_TIME_T				starttime;
+	ID_TIME_T				animtime;
 
 	idList<copyJoints_t>	copyJoints;
 
-	void			Think() override;
+	void			        Think() override;
 
 	void					Event_Footstep();
 };

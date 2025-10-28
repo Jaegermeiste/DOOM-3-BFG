@@ -87,8 +87,8 @@ If you have questions concerning this license or the applicable additional terms
 //  A line drawing of the player pointing right,
 //   starting from the middle.
 //
-#define R ((8*PLAYERRADIUS)/7)
-mline_t player_arrow[] = 
+constexpr fixed_t R = ((8 * PLAYERRADIUS) / 7);
+static mline_t player_arrow[] = 
 {
 	{ { -R+R/8, 0 }, { R, 0 } }, // -----
 	{ { R, 0 }, { R-R/2, R/4 } },  // ----->
@@ -98,10 +98,8 @@ mline_t player_arrow[] =
 	{ { -R+3*R/8, 0 }, { -R+R/8, R/4 } }, // >>--->
 	{ { -R+3*R/8, 0 }, { -R+R/8, -R/4 } }
 };
-#undef R
 
-#define R ((8*PLAYERRADIUS)/7)
-mline_t cheat_player_arrow[] = 
+static mline_t cheat_player_arrow[] = 
 {
 	{ { -R+R/8, 0 }, { R, 0 } }, // -----
 	{ { R, 0 }, { R-R/2, R/6 } },  // ----->
@@ -120,25 +118,20 @@ mline_t cheat_player_arrow[] =
 	{ { R/6, -R/7 }, { R/6+R/32, -R/7-R/32 } },
 	{ { R/6+R/32, -R/7-R/32 }, { R/6+R/10, -R/7 } }
 };
-#undef R
 
-#define R (FRACUNIT)
-mline_t triangle_guy[] = 
+static mline_t triangle_guy[] = 
 {
-	{ { fixed_t(-.867*R), fixed_t(-.5*R) }, { fixed_t(.867*R), fixed_t(-.5*R) } },
-	{ { fixed_t(.867*R), fixed_t(-.5*R) } , { 0, R } },
-	{ { 0, R }, { fixed_t(-.867*R), fixed_t(-.5*R) } }
+	{ { static_cast<fixed_t>(-.867 * FRACUNIT), static_cast<fixed_t>(-.5 * FRACUNIT) }, { static_cast<fixed_t>(.867 * FRACUNIT), static_cast<fixed_t>(-.5 * FRACUNIT) } },
+	{ { static_cast<fixed_t>(.867 * FRACUNIT), static_cast<fixed_t>(-.5 * FRACUNIT) } , { 0, FRACUNIT } },
+	{ { 0, FRACUNIT }, { static_cast<fixed_t>(-.867 * FRACUNIT), static_cast<fixed_t>(-.5 * FRACUNIT) } }
 };
-#undef R
 
-#define R (FRACUNIT)
-mline_t thintriangle_guy[] = 
+static mline_t thintriangle_guy[] = 
 {
-	{ { fixed_t(-.5*R), fixed_t(-.7*R) }, { R, 0 } },
-	{ { R, 0 }, { fixed_t(-.5*R), fixed_t(.7*R) } },
-	{ { fixed_t(-.5*R), fixed_t(.7*R) }, { fixed_t(-.5*R), fixed_t(-.7*R) } }
+	{ { static_cast<fixed_t>(-.5 * FRACUNIT), static_cast<fixed_t>(-.7 * FRACUNIT) }, { FRACUNIT, 0 } },
+	{ { FRACUNIT, 0 }, { static_cast<fixed_t>(-.5 * FRACUNIT), static_cast<fixed_t>(.7 * FRACUNIT) } },
+	{ { static_cast<fixed_t>(-.5 * FRACUNIT), static_cast<fixed_t>(.7 * FRACUNIT) }, { static_cast<fixed_t>(-.5 * FRACUNIT), static_cast<fixed_t>(-.7 * FRACUNIT) } }
 };
-#undef R
 
 
 
@@ -178,7 +171,7 @@ const unsigned char cheat_amap_seq[] =
 { 
 	0xb2, 0x26, 0x26, 0x2e, 0xff 
 };
-cheatseq_t cheat_amap = cheatseq_t( cheat_amap_seq, 0 );
+static cheatseq_t cheat_amap = cheatseq_t( cheat_amap_seq, nullptr );
 
 
 //extern byte ::g->screens[][SCREENWIDTH*SCREENHEIGHT];
@@ -187,16 +180,16 @@ cheatseq_t cheat_amap = cheatseq_t( cheat_amap_seq, 0 );
 
 void
 V_MarkRect
-( int	x,
- int	y,
- int	width,
- int	height );
+(   const std::integral auto		x,
+	const std::integral auto		y,
+	const std::integral auto		width,
+	const std::integral auto		height);
 
 // Calculates the slope and slope according to the x-axis of a line
 // segment in map coordinates (with the upright y-axis n' all) so
 // that it can be used with the brain-dead drawing stuff.
 
-void
+static void
 AM_getIslope
 ( mline_t*	ml,
  islope_t*	is )
@@ -205,17 +198,28 @@ AM_getIslope
 
 	dy = ml->a.y - ml->b.y;
 	dx = ml->b.x - ml->a.x;
-	if (!dy) is->islp = (dx<0?-MAXINT:MAXINT);
-	else is->islp = FixedDiv(dx, dy);
-	if (!dx) is->slp = (dy<0?-MAXINT:MAXINT);
-	else is->slp = FixedDiv(dy, dx);
-
+	if (!dy)
+	{
+		is->islp = (dx<0?-MAXINT:MAXINT);
+	}
+	else
+	{
+		is->islp = FixedDiv(dx, dy);
+	}
+	if (!dx)
+	{
+		is->slp = (dy<0?-MAXINT:MAXINT);
+	}
+	else
+	{
+		is->slp = FixedDiv(dy, dx);
+	}
 }
 
 //
 //
 //
-void AM_activateNewScale(void)
+static void AM_activateNewScale(void)
 {
 	::g->m_x += ::g->m_w/2;
 	::g->m_y += ::g->m_h/2;
@@ -230,7 +234,7 @@ void AM_activateNewScale(void)
 //
 //
 //
-void AM_saveScaleAndLoc(void)
+static void AM_saveScaleAndLoc(void)
 {
 	::g->old_m_x = ::g->m_x;
 	::g->old_m_y = ::g->m_y;
@@ -241,7 +245,7 @@ void AM_saveScaleAndLoc(void)
 //
 //
 //
-void AM_restoreScaleAndLoc(void)
+static void AM_restoreScaleAndLoc(void)
 {
 
 	::g->m_w = ::g->old_m_w;
@@ -265,7 +269,7 @@ void AM_restoreScaleAndLoc(void)
 //
 // adds a marker at the current location
 //
-void AM_addMark(void)
+static void AM_addMark(void)
 {
 	::g->markpoints[::g->markpointnum].x = ::g->m_x + ::g->m_w/2;
 	::g->markpoints[::g->markpointnum].y = ::g->m_y + ::g->m_h/2;
@@ -277,7 +281,7 @@ void AM_addMark(void)
 // Determines bounding box of all vertices,
 // sets global variables controlling zoom range.
 //
-void AM_findMinMaxBoundaries(void)
+static void AM_findMinMaxBoundaries(void)
 {
 	int i;
 	fixed_t a;
@@ -289,14 +293,22 @@ void AM_findMinMaxBoundaries(void)
 	for (i=0; i < ::g->numvertexes; i++)
 	{
 		if (::g->vertexes[i].x < ::g->min_x)
+		{
 			::g->min_x = ::g->vertexes[i].x;
+		}
 		else if (::g->vertexes[i].x > ::g->max_x)
+		{
 			::g->max_x = ::g->vertexes[i].x;
+		}
 
 		if (::g->vertexes[i].y < ::g->min_y)
+		{
 			::g->min_y = ::g->vertexes[i].y;
+		}
 		else if (::g->vertexes[i].y > ::g->max_y)
+		{
 			::g->max_y = ::g->vertexes[i].y;
+		}
 	}
 
 	::g->max_w = ::g->max_x - ::g->min_x;
@@ -317,7 +329,7 @@ void AM_findMinMaxBoundaries(void)
 //
 //
 //
-void AM_changeWindowLoc(void)
+static void AM_changeWindowLoc(void)
 {
 	if (::g->m_paninc.x || ::g->m_paninc.y)
 	{
@@ -329,14 +341,22 @@ void AM_changeWindowLoc(void)
 	::g->m_y += ::g->m_paninc.y;
 
 	if (::g->m_x + ::g->m_w/2 > ::g->max_x)
+	{
 		::g->m_x = ::g->max_x - ::g->m_w/2;
+	}
 	else if (::g->m_x + ::g->m_w/2 < ::g->min_x)
+	{
 		::g->m_x = ::g->min_x - ::g->m_w/2;
+	}
 
 	if (::g->m_y + ::g->m_h/2 > ::g->max_y)
+	{
 		::g->m_y = ::g->max_y - ::g->m_h/2;
+	}
 	else if (::g->m_y + ::g->m_h/2 < ::g->min_y)
+	{
 		::g->m_y = ::g->min_y - ::g->m_h/2;
+	}
 
 	::g->m_x2 = ::g->m_x + ::g->m_w;
 	::g->m_y2 = ::g->m_y + ::g->m_h;
@@ -346,7 +366,7 @@ void AM_changeWindowLoc(void)
 //
 //
 //
-void AM_initVariables(void)
+static void AM_initVariables(void)
 {
 	static event_t st_notify = { ev_keyup, AM_MSGENTERED };
 	int pnum;
@@ -367,9 +387,15 @@ void AM_initVariables(void)
 
 	// find player to center on initially
 	if (!::g->playeringame[pnum = ::g->consoleplayer])
+	{
 		for (pnum=0;pnum<MAXPLAYERS;pnum++)
+		{
 			if (::g->playeringame[pnum])
+			{
 				break;
+			}
+		}
+	}
 
 	::g->amap_plr = &::g->players[pnum];
 	::g->m_x = ::g->amap_plr->mo->x - ::g->m_w/2;
@@ -390,7 +416,7 @@ void AM_initVariables(void)
 //
 // 
 //
-void AM_loadPics(void)
+static void AM_loadPics(void)
 {
 	int i;
 	char namebuf[9];
@@ -398,23 +424,25 @@ void AM_loadPics(void)
 	for (i=0;i<10;i++)
 	{
 		sprintf(namebuf, "AMMNUM%d", i);
-		::g->marknums[i] = (patch_t*)W_CacheLumpName(namebuf, PU_STATIC_SHARED);
+		::g->marknums[i] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 	}
 
 }
 
-void AM_unloadPics(void)
+static void AM_unloadPics(void)
 {
 //	int i;
 
 }
 
-void AM_clearMarks(void)
+static void AM_clearMarks(void)
 {
 	int i;
 
 	for (i=0;i<AM_NUMMARKPOINTS;i++)
+	{
 		::g->markpoints[i].x = -1; // means empty
+	}
 	::g->markpointnum = 0;
 }
 
@@ -422,9 +450,9 @@ void AM_clearMarks(void)
 // should be called at the start of every level
 // right now, i figure it out myself
 //
-void AM_LevelInit(void)
+static void AM_LevelInit(void)
 {
-	::g->leveljuststarted = 0;
+	::g->leveljuststarted = false;
 
 	::g->f_x = ::g->f_y = 0;
 	::g->f_w = ::g->finit_width;
@@ -433,9 +461,11 @@ void AM_LevelInit(void)
 	AM_clearMarks();
 
 	AM_findMinMaxBoundaries();
-	::g->scale_mtof = FixedDiv(::g->min_scale_mtof, (int) (0.7*FRACUNIT));
+	::g->scale_mtof = FixedDiv(::g->min_scale_mtof, static_cast<int>(0.7 * FRACUNIT));
 	if (::g->scale_mtof > ::g->max_scale_mtof)
+	{
 		::g->scale_mtof = ::g->min_scale_mtof;
+	}
 	::g->scale_ftom = FixedDiv(FRACUNIT, ::g->scale_mtof);
 }
 
@@ -447,7 +477,7 @@ void AM_LevelInit(void)
 //
 void AM_Stop (void)
 {
-	static event_t st_notify = { (evtype_t)0, ev_keyup, AM_MSGEXITED };
+	static event_t st_notify = { static_cast<evtype_t>(0), ev_keyup, AM_MSGEXITED };
 
 	AM_unloadPics();
 	::g->automapactive = false;
@@ -458,10 +488,13 @@ void AM_Stop (void)
 //
 //
 //
-void AM_Start (void)
+static void AM_Start (void)
 {
 
-	if (!::g->stopped) AM_Stop();
+	if (!::g->stopped)
+	{
+		AM_Stop();
+	}
 	::g->stopped = false;
 	if (::g->lastlevel != ::g->gamemap || ::g->lastepisode != ::g->gameepisode)
 	{
@@ -476,7 +509,7 @@ void AM_Start (void)
 //
 // set the window scale to the maximum size
 //
-void AM_minOutWindowScale(void)
+static void AM_minOutWindowScale(void)
 {
 	::g->scale_mtof = ::g->min_scale_mtof;
 	::g->scale_ftom = FixedDiv(FRACUNIT, ::g->scale_mtof);
@@ -486,7 +519,7 @@ void AM_minOutWindowScale(void)
 //
 // set the window scale to the minimum size
 //
-void AM_maxOutWindowScale(void)
+static void AM_maxOutWindowScale(void)
 {
 	::g->scale_mtof = ::g->max_scale_mtof;
 	::g->scale_ftom = FixedDiv(FRACUNIT, ::g->scale_mtof);
@@ -522,20 +555,44 @@ AM_Responder
 		switch(ev->data1)
 		{
 		case AM_PANRIGHTKEY: // pan right
-			if (!::g->followplayer) ::g->m_paninc.x = FTOM(F_PANINC);
-			else rc = false;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.x = FTOM(F_PANINC);
+			}
+			else
+			{
+				rc = false;
+			}
 			break;
 		case AM_PANLEFTKEY: // pan left
-			if (!::g->followplayer) ::g->m_paninc.x = -FTOM(F_PANINC);
-			else rc = false;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.x = -FTOM(F_PANINC);
+			}
+			else
+			{
+				rc = false;
+			}
 			break;
 		case AM_PANUPKEY: // pan up
-			if (!::g->followplayer) ::g->m_paninc.y = FTOM(F_PANINC);
-			else rc = false;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.y = FTOM(F_PANINC);
+			}
+			else
+			{
+				rc = false;
+			}
 			break;
 		case AM_PANDOWNKEY: // pan down
-			if (!::g->followplayer) ::g->m_paninc.y = -FTOM(F_PANINC);
-			else rc = false;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.y = -FTOM(F_PANINC);
+			}
+			else
+			{
+				rc = false;
+			}
 			break;
 		case AM_ZOOMOUTKEY: // zoom out
 			::g->mtof_zoommul = M_ZOOMOUT;
@@ -557,7 +614,10 @@ AM_Responder
 				AM_saveScaleAndLoc();
 				AM_minOutWindowScale();
 			}
-			else AM_restoreScaleAndLoc();
+			else
+			{
+				AM_restoreScaleAndLoc();
+			}
 			break;
 		case AM_FOLLOWKEY:
 			::g->followplayer = !::g->followplayer;
@@ -594,16 +654,28 @@ AM_Responder
 		switch (ev->data1)
 		{
 		case AM_PANRIGHTKEY:
-			if (!::g->followplayer) ::g->m_paninc.x = 0;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.x = 0;
+			}
 			break;
 		case AM_PANLEFTKEY:
-			if (!::g->followplayer) ::g->m_paninc.x = 0;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.x = 0;
+			}
 			break;
 		case AM_PANUPKEY:
-			if (!::g->followplayer) ::g->m_paninc.y = 0;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.y = 0;
+			}
 			break;
 		case AM_PANDOWNKEY:
-			if (!::g->followplayer) ::g->m_paninc.y = 0;
+			if (!::g->followplayer)
+			{
+				::g->m_paninc.y = 0;
+			}
 			break;
 		case AM_ZOOMOUTKEY:
 		case AM_ZOOMINKEY:
@@ -621,7 +693,7 @@ AM_Responder
 //
 // Zooming
 //
-void AM_changeWindowScale(void)
+static void AM_changeWindowScale(void)
 {
 
 	// Change the scaling multipliers
@@ -629,18 +701,24 @@ void AM_changeWindowScale(void)
 	::g->scale_ftom = FixedDiv(FRACUNIT, ::g->scale_mtof);
 
 	if (::g->scale_mtof < ::g->min_scale_mtof)
+	{
 		AM_minOutWindowScale();
+	}
 	else if (::g->scale_mtof > ::g->max_scale_mtof)
+	{
 		AM_maxOutWindowScale();
+	}
 	else
+	{
 		AM_activateNewScale();
+	}
 }
 
 
 //
 //
 //
-void AM_doFollowPlayer(void)
+static void AM_doFollowPlayer(void)
 {
 
 	if (::g->f_oldloc.x != ::g->amap_plr->mo->x || ::g->f_oldloc.y != ::g->amap_plr->mo->y)
@@ -664,7 +742,7 @@ void AM_doFollowPlayer(void)
 //
 //
 //
-void AM_updateLightLev(void)
+static void AM_updateLightLev(void)
 {
 	//static int litelevels[] = { 0, 3, 5, 6, 6, 7, 7, 7 };
 	const static int litelevels[] = { 0, 4, 7, 10, 12, 14, 15, 15 };
@@ -673,7 +751,10 @@ void AM_updateLightLev(void)
 	if (::g->amclock>::g->nexttic)
 	{
 		::g->lightlev = litelevels[::g->litelevelscnt++];
-		if (::g->litelevelscnt == sizeof(litelevels)/sizeof(int)) ::g->litelevelscnt = 0;
+		if (::g->litelevelscnt == sizeof(litelevels)/sizeof(int))
+		{
+			::g->litelevelscnt = 0;
+		}
 		::g->nexttic = ::g->amclock + 6 - (::g->amclock % 6);
 	}
 
@@ -687,20 +768,28 @@ void AM_Ticker (void)
 {
 
 	if (!::g->automapactive)
+	{
 		return;
+	}
 
 	::g->amclock++;
 
 	if (::g->followplayer)
+	{
 		AM_doFollowPlayer();
+	}
 
 	// Change the zoom if necessary
 	if (::g->ftom_zoommul != FRACUNIT)
+	{
 		AM_changeWindowScale();
+	}
 
 	// Change x,y location
 	if (::g->m_paninc.x || ::g->m_paninc.y)
+	{
 		AM_changeWindowLoc();
+	}
 
 	// Update light level
 	// AM_updateLightLev();
@@ -711,7 +800,7 @@ void AM_Ticker (void)
 //
 // Clear automap frame ::g->buffer.
 //
-void AM_clearFB(int color)
+static void AM_clearFB(const int color)
 {
 	memset(::g->fb, color, ::g->f_w*::g->f_h);
 }
@@ -724,7 +813,7 @@ void AM_clearFB(int color)
 // faster reject and precalculated slopes.  If the speed is needed,
 // use a hash algorithm to handle  the common cases.
 //
-qboolean
+static qboolean
 AM_clipMline
 ( mline_t*	ml,
  fline_t*	fl )
@@ -737,9 +826,9 @@ AM_clipMline
 		TOP	=8
 	};
 
-	register	int outcode1 = 0;
-	register	int outcode2 = 0;
-	register	int outside;
+	int outcode1 = 0;
+	int outcode2 = 0;
+	int outside;
 
 	fpoint_t	tmp = { 0, 0 };
 	int		dx;
@@ -750,30 +839,50 @@ AM_clipMline
 
 	// do trivial rejects and outcodes
 	if (ml->a.y > ::g->m_y2)
+	{
 		outcode1 = TOP;
+	}
 	else if (ml->a.y < ::g->m_y)
+	{
 		outcode1 = BOTTOM;
+	}
 
 	if (ml->b.y > ::g->m_y2)
+	{
 		outcode2 = TOP;
+	}
 	else if (ml->b.y < ::g->m_y)
+	{
 		outcode2 = BOTTOM;
+	}
 
 	if (outcode1 & outcode2)
+	{
 		return false; // trivially outside
+	}
 
 	if (ml->a.x < ::g->m_x)
+	{
 		outcode1 |= LEFT;
+	}
 	else if (ml->a.x > ::g->m_x2)
+	{
 		outcode1 |= RIGHT;
+	}
 
 	if (ml->b.x < ::g->m_x)
+	{
 		outcode2 |= LEFT;
+	}
 	else if (ml->b.x > ::g->m_x2)
+	{
 		outcode2 |= RIGHT;
+	}
 
 	if (outcode1 & outcode2)
+	{
 		return false; // trivially outside
+	}
 
 	// transform to frame-::g->buffer coordinates.
 	fl->a.x = CXMTOF(ml->a.x);
@@ -785,16 +894,22 @@ AM_clipMline
 	DOOUTCODE(outcode2, fl->b.x, fl->b.y);
 
 	if (outcode1 & outcode2)
+	{
 		return false;
+	}
 
 	while (outcode1 | outcode2)
 	{
 		// may be partially inside box
 		// find an outside point
 		if (outcode1)
+		{
 			outside = outcode1;
+		}
 		else
+		{
 			outside = outcode2;
+		}
 
 		// clip to each side
 		if (outside & TOP)
@@ -838,7 +953,9 @@ AM_clipMline
 		}
 
 		if (outcode1 & outcode2)
+		{
 			return false; // trivially outside
+		}
 	}
 
 	return true;
@@ -849,20 +966,20 @@ AM_clipMline
 //
 // Classic Bresenham w/ whatever optimizations needed for speed
 //
-void
+static void
 AM_drawFline
 ( fline_t*	fl,
- int		color )
+ const int		color )
 {
-	register int x;
-	register int y;
-	register int dx;
-	register int dy;
-	register int sx;
-	register int sy;
-	register int ax;
-	register int ay;
-	register int d;
+	int x = 0;
+	int y = 0;
+	int dx = 0;
+	int dy = 0;
+	int sx = 0;
+	int sy = 0;
+	int ax = 0;
+	int ay = 0;
+	int d = 0;
 
 	static int fuck = 0;
 
@@ -891,10 +1008,13 @@ AM_drawFline
 	if (ax > ay)
 	{
 		d = ay - ax/2;
-		while (1)
+		while (true)
 		{
 			PUTDOT(x,y,color);
-			if (x == fl->b.x) return;
+			if (x == fl->b.x)
+			{
+				return;
+			}
 			if (d>=0)
 			{
 				y += sy;
@@ -907,10 +1027,13 @@ AM_drawFline
 	else
 	{
 		d = ax - ay/2;
-		while (1)
+		while (true)
 		{
 			PUTDOT(x, y, color);
-			if (y == fl->b.y) return;
+			if (y == fl->b.y)
+			{
+				return;
+			}
 			if (d >= 0)
 			{
 				x += sx;
@@ -926,15 +1049,17 @@ AM_drawFline
 //
 // Clip ::g->lines, draw visible part sof ::g->lines.
 //
-void
+static void
 AM_drawMline
 ( mline_t*	ml,
- int		color )
+ const int		color )
 {
-	static fline_t fl;
+	static fline_t fl = {};
 
 	if (AM_clipMline(ml, &fl))
+	{
 		AM_drawFline(&fl, color); // draws it on frame ::g->buffer using ::g->fb coords
+	}
 }
 
 
@@ -942,17 +1067,19 @@ AM_drawMline
 //
 // Draws flat (floor/ceiling tile) aligned ::g->grid ::g->lines.
 //
-void AM_drawGrid(int color)
+static void AM_drawGrid(const int color)
 {
-	fixed_t x, y;
-	fixed_t start, end;
-	mline_t ml;
+	fixed_t x = 0, y = 0;
+	fixed_t start = 0, end = 0;
+	mline_t ml = {};
 
 	// Figure out start of vertical gridlines
 	start = ::g->m_x;
 	if ((start-::g->bmaporgx)%(MAPBLOCKUNITS<<FRACBITS))
+	{
 		start += (MAPBLOCKUNITS<<FRACBITS)
-		- ((start-::g->bmaporgx)%(MAPBLOCKUNITS<<FRACBITS));
+			- ((start-::g->bmaporgx)%(MAPBLOCKUNITS<<FRACBITS));
+	}
 	end = ::g->m_x + ::g->m_w;
 
 	// draw vertical gridlines
@@ -968,8 +1095,10 @@ void AM_drawGrid(int color)
 	// Figure out start of horizontal gridlines
 	start = ::g->m_y;
 	if ((start-::g->bmaporgy)%(MAPBLOCKUNITS<<FRACBITS))
+	{
 		start += (MAPBLOCKUNITS<<FRACBITS)
-		- ((start-::g->bmaporgy)%(MAPBLOCKUNITS<<FRACBITS));
+			- ((start-::g->bmaporgy)%(MAPBLOCKUNITS<<FRACBITS));
+	}
 	end = ::g->m_y + ::g->m_h;
 
 	// draw horizontal gridlines
@@ -988,7 +1117,7 @@ void AM_drawGrid(int color)
 // Determines visible ::g->lines, draws them.
 // This is LineDef based, not LineSeg based.
 //
-void AM_drawWalls(void)
+static void AM_drawWalls(void)
 {
 	int i;
 	static mline_t l;
@@ -1002,7 +1131,9 @@ void AM_drawWalls(void)
 		if (::g->cheating || (::g->lines[i].flags & ML_MAPPED))
 		{
 			if ((::g->lines[i].flags & LINE_NEVERSEE) && !::g->cheating)
+			{
 				continue;
+			}
 			if (!::g->lines[i].backsector)
 			{
 				AM_drawMline(&l, WALLCOLORS+::g->lightlev);
@@ -1015,8 +1146,14 @@ void AM_drawWalls(void)
 				}
 				else if (::g->lines[i].flags & ML_SECRET) // secret door
 				{
-					if (::g->cheating) AM_drawMline(&l, SECRETWALLCOLORS + ::g->lightlev);
-					else AM_drawMline(&l, WALLCOLORS+::g->lightlev);
+					if (::g->cheating)
+					{
+						AM_drawMline(&l, SECRETWALLCOLORS + ::g->lightlev);
+					}
+					else
+					{
+						AM_drawMline(&l, WALLCOLORS+::g->lightlev);
+					}
 				}
 				else if (::g->lines[i].backsector->floorheight
 					!= ::g->lines[i].frontsector->floorheight) {
@@ -1033,7 +1170,10 @@ void AM_drawWalls(void)
 		}
 		else if (::g->amap_plr->powers[pw_allmap])
 		{
-			if (!(::g->lines[i].flags & LINE_NEVERSEE)) AM_drawMline(&l, GRAYS+3);
+			if (!(::g->lines[i].flags & LINE_NEVERSEE))
+			{
+				AM_drawMline(&l, GRAYS+3);
+			}
 		}
 	}
 }
@@ -1043,11 +1183,11 @@ void AM_drawWalls(void)
 // Rotation in 2D.
 // Used to rotate player arrow line character.
 //
-void
+static void
 AM_rotate
 ( fixed_t*	x,
  fixed_t*	y,
- angle_t	a )
+ const angle_t	a )
 {
 	fixed_t tmpx;
 
@@ -1062,18 +1202,18 @@ AM_rotate
 	*x = tmpx;
 }
 
-void
+static void
 AM_drawLineCharacter
 ( mline_t*	lineguy,
- int		lineguylines,
- fixed_t	scale,
- angle_t	angle,
- int		color,
- fixed_t	x,
- fixed_t	y )
+ const size_t	lineguylines,
+ const fixed_t	scale,
+ const angle_t	angle,
+ const int		color,
+ const fixed_t	x,
+ const fixed_t	y )
 {
-	int		i;
-	mline_t	l;
+	size_t		i = 0;
+	mline_t	l = {};
 
 	for (i=0;i<lineguylines;i++)
 	{
@@ -1087,7 +1227,9 @@ AM_drawLineCharacter
 		}
 
 		if (angle)
+		{
 			AM_rotate(&l.a.x, &l.a.y, angle);
+		}
 
 		l.a.x += x;
 		l.a.y += y;
@@ -1102,7 +1244,9 @@ AM_drawLineCharacter
 		}
 
 		if (angle)
+		{
 			AM_rotate(&l.b.x, &l.b.y, angle);
+		}
 
 		l.b.x += x;
 		l.b.y += y;
@@ -1111,7 +1255,7 @@ AM_drawLineCharacter
 	}
 }
 
-void AM_drawPlayers(void)
+static void AM_drawPlayers(void)
 {
 	int		i;
 	player_t*	p;
@@ -1122,13 +1266,17 @@ void AM_drawPlayers(void)
 	if (!::g->netgame)
 	{
 		if (::g->cheating)
+		{
 			AM_drawLineCharacter
 			(cheat_player_arrow, NUMCHEATPLYRLINES, 0,
-			::g->amap_plr->mo->angle, WHITE, ::g->amap_plr->mo->x, ::g->amap_plr->mo->y);
+			 ::g->amap_plr->mo->angle, WHITE, ::g->amap_plr->mo->x, ::g->amap_plr->mo->y);
+		}
 		else
+		{
 			AM_drawLineCharacter
 			(player_arrow, NUMPLYRLINES, 0, ::g->amap_plr->mo->angle,
-			WHITE, ::g->amap_plr->mo->x, ::g->amap_plr->mo->y);
+			 WHITE, ::g->amap_plr->mo->x, ::g->amap_plr->mo->y);
+		}
 		return;
 	}
 
@@ -1138,15 +1286,23 @@ void AM_drawPlayers(void)
 		p = &::g->players[i];
 
 		if ( (::g->deathmatch && !::g->singledemo) && p != ::g->amap_plr)
+		{
 			continue;
+		}
 
 		if (!::g->playeringame[i])
+		{
 			continue;
+		}
 
 		if (p->powers[pw_invisibility])
+		{
 			color = 246; // *close* to black
+		}
 		else
+		{
 			color = their_colors[their_color];
+		}
 
 		AM_drawLineCharacter
 			(player_arrow, NUMPLYRLINES, 0, p->mo->angle,
@@ -1155,9 +1311,9 @@ void AM_drawPlayers(void)
 
 }
 
-void
+static void
 AM_drawThings
-( int	colors,
+(const int	colors,
  int 	colorrange)
 {
 	int		i;
@@ -1176,7 +1332,7 @@ AM_drawThings
 	}
 }
 
-void AM_drawMarks(void)
+static void AM_drawMarks(void)
 {
 	int i, fx, fy, w, h;
 
@@ -1191,13 +1347,15 @@ void AM_drawMarks(void)
 			fx = CXMTOF(::g->markpoints[i].x);
 			fy = CYMTOF(::g->markpoints[i].y);
 			if (fx >= ::g->f_x && fx <= ::g->f_w - w && fy >= ::g->f_y && fy <= ::g->f_h - h)
+			{
 				V_DrawPatch(fx/GLOBAL_IMAGE_SCALER, fy/GLOBAL_IMAGE_SCALER, FB, ::g->marknums[i]);
+			}
 		}
 	}
 
 }
 
-void AM_drawCrosshair(int color)
+static void AM_drawCrosshair(const int color)
 {
 	::g->fb[(::g->f_w*(::g->f_h+1))/2] = color; // single point for now
 
@@ -1205,15 +1363,22 @@ void AM_drawCrosshair(int color)
 
 void AM_Drawer (void)
 {
-	if (!::g->automapactive) return;
+	if (!::g->automapactive)
+	{
+		return;
+	}
 
 	AM_clearFB(BACKGROUND);
 	if (::g->grid)
+	{
 		AM_drawGrid(GRIDCOLORS);
+	}
 	AM_drawWalls();
 	AM_drawPlayers();
 	if (::g->cheating==2)
+	{
 		AM_drawThings(THINGCOLORS, THINGRANGE);
+	}
 	AM_drawCrosshair(XHAIRCOLORS);
 
 	AM_drawMarks();

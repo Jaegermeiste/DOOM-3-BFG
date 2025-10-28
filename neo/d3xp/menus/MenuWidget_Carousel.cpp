@@ -129,7 +129,7 @@ idMenuWidget_Carousel::SetListImages
 */
 void idMenuWidget_Carousel::SetListImages( idList<const idMaterial *> & list ) {
 	imgList.Clear();
-	for ( int i = 0; i < list.Num(); ++i ) {
+	for ( size_t i = 0; i < list.Num(); ++i ) {
 		imgList.Append( list[ i ] );
 	}
 }
@@ -139,7 +139,7 @@ void idMenuWidget_Carousel::SetListImages( idList<const idMaterial *> & list ) {
 idMenuWidget_Carousel::Update
 ========================
 */
-bool idMenuWidget_Carousel::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuWidget_Carousel::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -148,7 +148,7 @@ bool idMenuWidget_Carousel::HandleAction( idWidgetAction & action, const idWidge
 idMenuWidget_Carousel::MoveToFirstItem
 ========================
 */
-void idMenuWidget_Carousel::MoveToFirstItem( bool instant ) {
+void idMenuWidget_Carousel::MoveToFirstItem(const bool instant ) {
 	if ( instant ) {
 		moveDiff = 0;
 		viewIndex = 0;
@@ -168,7 +168,7 @@ void idMenuWidget_Carousel::MoveToFirstItem( bool instant ) {
 idMenuWidget_Carousel::MoveToLastItem
 ========================
 */
-void idMenuWidget_Carousel::MoveToLastItem( bool instant ) {	
+void idMenuWidget_Carousel::MoveToLastItem(const bool instant ) {	
 	if ( instant ) {
 		moveDiff = 0;
 		viewIndex = GetTotalNumberOfOptions() - 1;
@@ -187,7 +187,7 @@ void idMenuWidget_Carousel::MoveToLastItem( bool instant ) {
 idMenuWidget_Carousel::Update
 ========================
 */
-void idMenuWidget_Carousel::MoveToIndex( int index, bool instant ) {
+void idMenuWidget_Carousel::MoveToIndex(const index_t index, const bool instant ) {
 
 	idLib::Printf( "moveToIndex %i\n", index );
 

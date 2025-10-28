@@ -118,8 +118,8 @@ void idPlayerStart::Restore( idRestoreGame *savefile ) {
 idPlayerStart::ClientReceiveEvent
 ================
 */
-bool idPlayerStart::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
-	int entityNumber;
+bool idPlayerStart::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
+	index_t entityNumber;
 
 	switch( event ) {
 		case EVENT_TELEPORTPLAYER: {
@@ -549,7 +549,7 @@ void idDamagable::BecomeBroken( idEntity *activator ) {
 idDamagable::Killed
 ================
 */
-void idDamagable::Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) {
+void idDamagable::Killed( idEntity *inflictor, idEntity *attacker, const int damage, const idVec3 &dir, int location ) {
 	if ( gameLocal.time < nextTriggerTime ) {
 		health += damage;
 		return;
@@ -792,7 +792,7 @@ void idForceField::Toggle() {
 idForceField::Think
 ================
 */
-void idForceField::ClientThink( const int curTime, const float fraction, const bool predict ) { 
+void idForceField::ClientThink( const int curTime, const double fraction, const bool predict ) { 
 
 		// evaluate force
 		forceField.Evaluate( gameLocal.time );
@@ -1129,7 +1129,7 @@ idAnimated::PlayNextAnim
 */
 void idAnimated::PlayNextAnim() {
 	const char *animname;
-	int len;
+	size_t len;
 	int cycle;
 
 	if ( current_anim_index >= num_anims ) {
@@ -1198,7 +1198,7 @@ void idAnimated::Event_StartRagdoll() {
 idAnimated::Event_AnimDone
 ================
 */
-void idAnimated::Event_AnimDone( int animindex ) {
+void idAnimated::Event_AnimDone(const int animindex ) {
 	if ( g_debugCinematic.GetBool() ) {
 		const idAnim *animPtr = animator.GetAnim( anim );
 		gameLocal.Printf( "%d: '%s' end anim '%s'\n", gameLocal.framenum, GetName(), animPtr ? animPtr->Name() : "" );
@@ -1262,7 +1262,7 @@ idAnimated::Event_Start
 */
 void idAnimated::Event_Start() {
 	int cycle;
-	int len;
+	size_t len;
 
 	Show();
 
@@ -1309,7 +1309,7 @@ void idAnimated::Event_Footstep() {
 idAnimated::Event_LaunchMissilesUpdate
 =====================
 */
-void idAnimated::Event_LaunchMissilesUpdate( int launchjoint, int targetjoint, int numshots, int framedelay ) {
+void idAnimated::Event_LaunchMissilesUpdate(const int launchjoint, const int targetjoint, const size_t numshots, const int framedelay ) {
 	idVec3			launchPos;
 	idVec3			targetPos;
 	idMat3			axis;
@@ -1356,7 +1356,7 @@ void idAnimated::Event_LaunchMissilesUpdate( int launchjoint, int targetjoint, i
 idAnimated::Event_LaunchMissiles
 =====================
 */
-void idAnimated::Event_LaunchMissiles( const char *projectilename, const char *sound, const char *launchjoint, const char *targetjoint, int numshots, int framedelay ) {
+void idAnimated::Event_LaunchMissiles( const char *projectilename, const char *sound, const char *launchjoint, const char *targetjoint, const size_t numshots, const int framedelay ) {
 	const idDict *	projectileDef;
 	jointHandle_t	launch;
 	jointHandle_t	target;
@@ -1568,7 +1568,7 @@ void idStaticEntity::Think() {
 idStaticEntity::Fade
 ================
 */
-void idStaticEntity::Fade( const idVec4 &to, float fadeTime ) {
+void idStaticEntity::Fade( const idVec4 &to, const float fadeTime ) {
 	GetColor( fadeFrom );
 	fadeTo = to;
 	fadeStart = gameLocal.time;
@@ -1957,7 +1957,7 @@ idFuncSplat::Event_Splat
 void idFuncSplat::Event_Splat() {
 	const char *splat = nullptr;
 	int count = spawnArgs.GetInt( "splatCount", "1" );
-	for ( int i = 0; i < count; i++ ) {
+	for ( size_t i = 0; i < count; i++ ) {
 		splat = spawnArgs.RandomPrefix( "mtr_splat", gameLocal.random );
 		if ( splat != nullptr && *splat != NULL ) {
 			float size = spawnArgs.GetFloat( "splatSize", "128" );
@@ -2144,7 +2144,7 @@ idTextEntity::Think
 void idTextEntity::Think() {
 	if ( thinkFlags & TH_THINK ) {
 		gameRenderWorld->DrawText( text, GetPhysics()->GetOrigin(), 0.25, colorWhite, playerOriented ? gameLocal.GetLocalPlayer()->viewAngles.ToMat3() : GetPhysics()->GetAxis().Transpose(), 1 );
-		for ( int i = 0; i < targets.Num(); i++ ) {
+		for ( size_t i = 0; i < targets.Num(); i++ ) {
 			if ( targets[i].GetEntity() ) {
 				gameRenderWorld->DebugArrow( colorBlue, GetPhysics()->GetOrigin(), targets[i].GetEntity()->GetPhysics()->GetOrigin(), 1 );
 			}
@@ -3109,7 +3109,7 @@ void idFuncRadioChatter::Event_Activate( idEntity *activator ) {
 	const char * sound = spawnArgs.GetString( "snd_radiochatter", "" );
 	if ( sound != nullptr && *sound != NULL ) {
 		const idSoundShader * shader = declManager->FindSound( sound );
-		int length = 0;
+		size_t length = 0;
 		player->StartSoundShader( shader, SND_CHANNEL_RADIO, SSF_GLOBAL, false, &length );
 		time = MS2SEC( length + 150 );
 	}
@@ -3195,7 +3195,7 @@ idPhantomObjects::Restore
 ===============
 */
 void idPhantomObjects::Restore( idRestoreGame *savefile ) {
-	int num;
+	size_t num;
 	int i;
 
 	savefile->ReadInt( end_time );
@@ -3493,7 +3493,7 @@ idShockwave::Think
 ===============
 */
 void idShockwave::Think() {
-	int endTime;
+	ID_TIME_T endTime;
 
 	if ( !isActive ) {
 		BecomeInactive( TH_THINK );

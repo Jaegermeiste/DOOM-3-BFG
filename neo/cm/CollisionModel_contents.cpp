@@ -412,7 +412,7 @@ cm_node_t *idCollisionModelManagerLocal::PointNode( const idVec3 &p, cm_model_t 
 idCollisionModelManagerLocal::PointContents
 ================
 */
-int idCollisionModelManagerLocal::PointContents( const idVec3 p, cmHandle_t model ) {
+int idCollisionModelManagerLocal::PointContents( const idVec3 p, const cmHandle_t model ) {
 	int i;
 	float d;
 	cm_node_t *node;
@@ -455,7 +455,7 @@ int idCollisionModelManagerLocal::PointContents( const idVec3 p, cmHandle_t mode
 idCollisionModelManagerLocal::TransformedPointContents
 ==================
 */
-int	idCollisionModelManagerLocal::TransformedPointContents( const idVec3 &p, cmHandle_t model, const idVec3 &origin, const idMat3 &modelAxis ) {
+int	idCollisionModelManagerLocal::TransformedPointContents( const idVec3 &p, const cmHandle_t model, const idVec3 &origin, const idMat3 &modelAxis ) {
 	idVec3 p_l;
 
 	// subtract origin offset
@@ -473,8 +473,8 @@ idCollisionModelManagerLocal::ContentsTrm
 ==================
 */
 int idCollisionModelManagerLocal::ContentsTrm( trace_t *results, const idVec3 &start,
-									const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
-									cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
+									const idTraceModel *trm, const idMat3 &trmAxis, const int contentMask,
+									const cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
 	int i;
 	bool model_rotated, trm_rotated;
 	idMat3 invModelAxis, tmpAxis;
@@ -621,8 +621,8 @@ idCollisionModelManagerLocal::Contents
 ==================
 */
 int idCollisionModelManagerLocal::Contents( const idVec3 &start,
-									const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
-									cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
+									const idTraceModel *trm, const idMat3 &trmAxis, const int contentMask,
+									const cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
 	trace_t results;
 
 	if ( model < 0 || model > idCollisionModelManagerLocal::maxModels || model > MAX_SUBMODELS ) {

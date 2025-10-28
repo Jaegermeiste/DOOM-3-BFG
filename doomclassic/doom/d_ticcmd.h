@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_TICCMD__
 #define __D_TICCMD__
 
+#pragma once
 #include "doomtype.h"
 
 #ifdef __GNUG__
@@ -39,12 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 // and transmitted to other peers (multiplayer).
 // Mainly movements/button commands per game tick,
 // plus a checksum for internal state consistency.
-typedef struct
+typedef struct ticcmd_s
 {
     char	forwardmove;	// *2048 for move
     char	sidemove;	// *2048 for move
-    short	angleturn;	// <<16 for angle delta
-    short	consistancy;	// checks for net game
+    fixed_t	angleturn;	// <<16 for angle delta
+    short	consistency;	// checks for net game
     byte	buttons;
 	byte	nextPrevWeapon;
 } ticcmd_t;

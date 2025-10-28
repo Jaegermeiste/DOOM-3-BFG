@@ -105,7 +105,7 @@ idLobby::idLobby() {
 	assert( freeUsers.Num() == 0 );
 
 	// Initialize free user list
-	for ( int i = 0; i < userPool.Num(); i++ ) {
+	for ( size_t i = 0; i < userPool.Num(); i++ ) {
 		freeUsers.Append( &userPool[i] );
 	}
 	
@@ -118,7 +118,7 @@ idLobby::idLobby() {
 idLobby::Initialize
 ========================
 */
-void idLobby::Initialize( lobbyType_t sessionType_, idSessionCallbacks * callbacks ) {
+void idLobby::Initialize(const lobbyType_t sessionType_, idSessionCallbacks * callbacks ) {
 	assert( callbacks != NULL );
 
 	lobbyType = sessionType_;
@@ -213,7 +213,7 @@ void idLobby::ProcessSnapAckQueue() {
 
 	constexpr int SNAP_ACKS_TO_PROCESS_PER_FRAME = 1;
 
-	int numProcessed = 0;
+	size_t numProcessed = 0;
 
 	while ( snapDeltaAckQueue.Num() > 0 && numProcessed < SNAP_ACKS_TO_PROCESS_PER_FRAME ) {
 		if ( ApplySnapshotDeltaInternal( snapDeltaAckQueue[0].p, snapDeltaAckQueue[0].snapshotNumber ) ) {
@@ -228,7 +228,7 @@ void idLobby::ProcessSnapAckQueue() {
 idLobby::Shutdown
 ========================
 */
-void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye ) {
+void idLobby::Shutdown(const bool retainMigrationInfo, const bool skipGoodbye ) {
 
 	// Cancel host migration if we were in the process of it and this is the session type that was migrating
 	if ( !retainMigrationInfo && migrationInfo.state != MIGRATE_NONE ) {
@@ -270,7 +270,7 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye ) {
 	
 	// Remove any users that weren't handled in ResetPeers
 	// (this will happen as a client, because we won't get the reliable msg from the server since we are severing the connection)
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 		UnregisterUser( user );
 	}
@@ -452,9 +452,9 @@ void idLobby::HandlePacket( lobbyAddress_t & remoteAddress, idBitMsg fragMsg, id
 			int seqNum = msg.ReadLong();
 			// TODO: We should read the random data and verify the MD5 checksum
 
-			int time = Sys_Milliseconds();
+			ID_TIME_T time = Sys_Milliseconds();
 			bool inOrder = ( seqNum == 0 || peers[peerNum].bandwidthSequenceNum + 1 == seqNum );
-			int timeSinceLast = 0;
+			ID_TIME_T timeSinceLast = 0;
 
 			if ( bandwidthChallengeStartTime <= 0 ) {
 				// Reset the test
@@ -490,7 +490,7 @@ void idLobby::HandlePacket( lobbyAddress_t & remoteAddress, idBitMsg fragMsg, id
 		}
 
 		// Handle reliable
-		int numReliable = peers[ peerNum ].packetProc->GetNumReliables();
+		size_t numReliable = peers[ peerNum ].packetProc->GetNumReliables();
 		for ( int r = 0; r < numReliable; r++ ) {
 			// Just in case one of the reliable msg's cause this peer to disconnect
 			// (this can happen when our party/game host is the same, he quits the game lobby, and sends a reliable msg for us to leave the game)
@@ -743,7 +743,7 @@ void idLobby::State_Searching() {
 	}
 
 	extern idCVar net_maxSearchResultsToTry;
-	const int maxSearchResultsToTry = session->GetTitleStorageInt( "net_maxSearchResultsToTry", net_maxSearchResultsToTry.GetInteger() );
+	const size_t maxSearchResultsToTry = session->GetTitleStorageInt( "net_maxSearchResultsToTry", net_maxSearchResultsToTry.GetInteger() );
 
 	if ( searchResults.Num() > maxSearchResultsToTry ) {
 		searchResults.SetNum( maxSearchResultsToTry );
@@ -830,9 +830,9 @@ void idLobby::State_Connect_Hello_Wait() {
 		return;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 	
-	const int timeoutMs = session->GetTitleStorageInt( "net_connectTimeoutInSeconds", net_connectTimeoutInSeconds.GetInteger() ) * 1000;
+	const ID_TIME_T timeoutMs = session->GetTitleStorageInt( "net_connectTimeoutInSeconds", net_connectTimeoutInSeconds.GetInteger() ) * 1000;
 
 	if ( timeoutMs != 0 && time - helloStartTime > timeoutMs ) {
 		NET_VERBOSE_PRINT( "NET: Timeout waiting for lobbyType %s for party hello.\n", GetLobbyName() );
@@ -860,7 +860,7 @@ void idLobby::State_Connect_Hello_Wait() {
 idLobby::SetState
 ========================
 */
-void idLobby::SetState( lobbyState_t newState ) {	
+void idLobby::SetState(const lobbyState_t newState ) {	
 	assert( newState < NUM_STATES );
 	assert( state < NUM_STATES );
 
@@ -902,7 +902,7 @@ void idLobby::StartCreating() {
 idLobby::FindPeer
 ========================
 */
-int idLobby::FindPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::sessionId_t sessionID, bool ignoreSessionID ) {
+int idLobby::FindPeer( const lobbyAddress_t & remoteAddress, const idPacketProcessor::sessionId_t sessionID, const bool ignoreSessionID ) {
 
 	bool connectionless = ( sessionID == idPacketProcessor::SESSION_ID_CONNECTIONLESS_PARTY || 
 							sessionID == idPacketProcessor::SESSION_ID_CONNECTIONLESS_GAME || 
@@ -930,7 +930,7 @@ int idLobby::FindPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::
 				// Worse case, if the stars line up, the client doesn't see the new sessionId, and times out, and gets booted.
 				// This should be impossible though, since the timings won't be possible considering how long it takes to end the match, 
 				// and restart, and then restart again.
-				int numTries = 2;
+				size_t numTries = 2;
 
 				while ( numTries-- > 0 && searchStart != sessionID ) {
 					searchStart = IncrementSessionID( searchStart );
@@ -995,7 +995,7 @@ int idLobby::FindFreePeer() const {
 idLobby::AddPeer
 ========================
 */
-int idLobby::AddPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::sessionId_t sessionID ) { 
+int idLobby::AddPeer( const lobbyAddress_t & remoteAddress, const idPacketProcessor::sessionId_t sessionID ) { 
 	// First, make sure we don't already have this peer
 	int p = FindPeer( remoteAddress, sessionID );
 	assert( p == -1 );		// When using session ID's, we SHOULDN'T find this remoteAddress/sessionID combo
@@ -1040,7 +1040,7 @@ int idLobby::AddPeer( const lobbyAddress_t & remoteAddress, idPacketProcessor::s
 idLobby::DisconnectPeerFromSession
 ========================
 */
-void idLobby::DisconnectPeerFromSession( int p ) {
+void idLobby::DisconnectPeerFromSession(const int p ) {
 	if ( !verify( IsHost() ) ) {
 		return;
 	}
@@ -1068,7 +1068,7 @@ void idLobby::DisconnectAllPeers() {
 idLobby::SendGoodbye
 ========================
 */
-void idLobby::SendGoodbye( const lobbyAddress_t & remoteAddress, bool wasFull ) { 
+void idLobby::SendGoodbye( const lobbyAddress_t & remoteAddress, const bool wasFull ) { 
 
 	if ( net_skipGoodbye.GetBool() ) {
 		return;
@@ -1086,7 +1086,7 @@ void idLobby::SendGoodbye( const lobbyAddress_t & remoteAddress, bool wasFull ) 
 		msgType = OOB_GOODBYE_W_PARTY;
 	}
 	
-	for ( int i = 0; i < NUM_REDUNDANT_GOODBYES; i++ ) { 
+	for ( size_t i = 0; i < NUM_REDUNDANT_GOODBYES; i++ ) { 
 		SendConnectionLess( remoteAddress, msgType ); 
 	} 
 }
@@ -1096,7 +1096,7 @@ void idLobby::SendGoodbye( const lobbyAddress_t & remoteAddress, bool wasFull ) 
 idLobby::SetPeerConnectionState
 ========================
 */
-void idLobby::SetPeerConnectionState( int p, connectionState_t newState, bool skipGoodbye ) {
+void idLobby::SetPeerConnectionState(const int p, const connectionState_t newState, const bool skipGoodbye ) {
 
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
 		idLib::Printf( "NET: SetPeerConnectionState invalid peer index %i\n", p );
@@ -1167,7 +1167,7 @@ void idLobby::SetPeerConnectionState( int p, connectionState_t newState, bool sk
 idLobby::QueueReliableMessage
 ========================
 */
-void idLobby::QueueReliableMessage( int p, byte type, const byte * data, int dataLen ) {
+void idLobby::QueueReliableMessage(const int p, const byte type, const byte * data, const int dataLen ) {
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
 		return;
 	}
@@ -1202,8 +1202,8 @@ idLobby::GetNumConnectedPeers
 ========================
 */
 int idLobby::GetNumConnectedPeers() const {
-	int numConnected = 0;
-	for ( int i = 0; i < peers.Num(); i++ ) {
+	size_t numConnected = 0;
+	for ( size_t i = 0; i < peers.Num(); i++ ) {
 		if ( peers[i].IsConnected() ) {
 			numConnected++;
 		}
@@ -1218,8 +1218,8 @@ idLobby::GetNumConnectedPeersInGame
 ========================
 */
 int idLobby::GetNumConnectedPeersInGame() const {
-	int numActive = 0;
-	for ( int i = 0; i < peers.Num(); i++ ) {
+	size_t numActive = 0;
+	for ( size_t i = 0; i < peers.Num(); i++ ) {
 		if ( peers[i].IsConnected() && peers[i].inGame ) {
 			numActive++;
 		}
@@ -1260,7 +1260,7 @@ void idLobby::SendMatchParmsToPeers() {
 STATIC idLobby::IsReliablePlayerToPlayerType
 ========================
 */
-bool idLobby::IsReliablePlayerToPlayerType( byte type ) {
+bool idLobby::IsReliablePlayerToPlayerType(const byte type ) {
 	return ( type >= RELIABLE_PLAYER_TO_PLAYER_BEGIN ) && ( type < RELIABLE_PLAYER_TO_PLAYER_END );
 }
 
@@ -1269,7 +1269,7 @@ bool idLobby::IsReliablePlayerToPlayerType( byte type ) {
 idLobby::HandleReliablePlayerToPlayerMsg
 ========================
 */
-void idLobby::HandleReliablePlayerToPlayerMsg( int peerNum, idBitMsg & msg, int type ) {
+void idLobby::HandleReliablePlayerToPlayerMsg( int peerNum, idBitMsg & msg, const int type ) {
 	reliablePlayerToPlayerHeader_t info;
 	int c, b;
 	msg.SaveReadState( c, b ); // in case we need to forward or fail
@@ -1325,7 +1325,7 @@ void idLobby::HandleReliablePlayerToPlayerMsg( const reliablePlayerToPlayerHeade
 idLobby::SendConnectionLess
 ========================
 */
-void idLobby::SendConnectionLess( const lobbyAddress_t & remoteAddress, byte type, const byte * data, int dataLen ) const
+void idLobby::SendConnectionLess( const lobbyAddress_t & remoteAddress, const byte type, const byte * data, const int dataLen ) const
 {
 	idBitMsg msg( data, dataLen );
 	msg.SetSize( dataLen );
@@ -1401,7 +1401,7 @@ idLobby::ConnectTo
 Fires off a request to get the address of a lobbyBackend owner, and then attempts to connect (eventually handled in HandleObtainingLobbyOwnerAddress)
 ========================
 */
-void idLobby::ConnectTo( const lobbyConnectInfo_t & connectInfo, bool fromInvite ) {
+void idLobby::ConnectTo( const lobbyConnectInfo_t & connectInfo, const bool fromInvite ) {
 	NET_VERBOSE_PRINT( "NET: idSessionLocal::ConnectTo: fromInvite = %i\n", fromInvite );
 
 	// Make sure current session is shutdown
@@ -1423,10 +1423,10 @@ void idLobby::ConnectTo( const lobbyConnectInfo_t & connectInfo, bool fromInvite
 idLobby::HandleGoodbyeFromPeer
 ========================
 */
-void idLobby::HandleGoodbyeFromPeer( int peerNum, lobbyAddress_t & remoteAddress, int msgType ) {
+void idLobby::HandleGoodbyeFromPeer(const int peerNum, lobbyAddress_t & remoteAddress, const int msgType ) {
 	if ( migrationInfo.state != MIGRATE_NONE ) {
 		// If this peer is on our invite list, remove them
-		for ( int i = 0; i < migrationInfo.invites.Num(); i++ ) {
+		for ( size_t i = 0; i < migrationInfo.invites.Num(); i++ ) {
 			if ( migrationInfo.invites[i].address.Compare( remoteAddress, true ) ) {
 				migrationInfo.invites.RemoveIndex( i );
 				break;
@@ -1538,10 +1538,10 @@ Make sure number of users connecting is valid, and make sure we have enough room
 bool idLobby::VerifyNumConnectingUsers( idBitMsg & msg ) {
 	int c, b;
 	msg.SaveReadState( c, b );
-	const int numUsers = msg.ReadByte();
+	const size_t numUsers = msg.ReadByte();
 	msg.RestoreReadState( c, b );
 
-	const int numFreeSlots = NumFreeSlots();
+	const size_t numFreeSlots = NumFreeSlots();
 
 	NET_VERBOSE_PRINT( "NET: VerifyNumConnectingUsers %i users, %i free slots for %s\n", numUsers, numFreeSlots, GetLobbyName() );
 
@@ -1552,7 +1552,7 @@ bool idLobby::VerifyNumConnectingUsers( idBitMsg & msg ) {
 		NET_VERBOSE_PRINT( "NET: %i slots requested, but only %i are available\n", numUsers, numFreeSlots );
 		return false;
 	} else if ( lobbyType == TYPE_PARTY && sessionCB->GetState() >= idSession::GAME_LOBBY && sessionCB->GetGameLobby().IsLobbyActive() && !IsMigrating() ) {
-		const int numFreeGameSlots = sessionCB->GetGameLobby().NumFreeSlots();
+		const size_t numFreeGameSlots = sessionCB->GetGameLobby().NumFreeSlots();
 
 		if ( numUsers > numFreeGameSlots ) {
 			NET_VERBOSE_PRINT( "NET: %i slots requested, but only %i are available on the active game session\n", numUsers, numFreeGameSlots );
@@ -1571,7 +1571,7 @@ idLobby::VerifyLobbyUserIDs
 bool idLobby::VerifyLobbyUserIDs( idBitMsg & msg ) {
 	int c, b;
 	msg.SaveReadState( c, b );
-	const int numUsers = msg.ReadByte();
+	const size_t numUsers = msg.ReadByte();
 
 	// Add the new users to our own list
 	for ( int u = 0; u < numUsers; u++ ) {
@@ -1849,7 +1849,7 @@ void idLobby::InitStateLobbyHost() {
 	// Since we are the host, we have to register our initial session users with the lobby
 	// All additional users will join through AddUsersFromMsg, and RegisterUser is handled in there from here on out.
 	// Peers will add users exclusively through AddUsersFromMsg.
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 		RegisterUser( user );
 		if ( lobbyType == TYPE_PARTY ) {
@@ -1866,7 +1866,7 @@ void idLobby::InitStateLobbyHost() {
 		sessionCB->BecameHost( *this );
 
 		// Register this address with this lobbyBackend
-		for ( int i = 0; i < migrationInfo.invites.Num(); i++ ) {
+		for ( size_t i = 0; i < migrationInfo.invites.Num(); i++ ) {
 			lobbyBackend->RegisterAddress( migrationInfo.invites[i].address );
 		}
 	}
@@ -1877,7 +1877,7 @@ void idLobby::InitStateLobbyHost() {
 idLobby::SendMembersToLobby
 ========================
 */
-void idLobby::SendMembersToLobby( lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, bool waitForOtherMembers ) {
+void idLobby::SendMembersToLobby(const lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, const bool waitForOtherMembers ) {
 
 	// It's not our job to send party members to a game if we aren't the party host
 	if ( !IsHost() ) {
@@ -1885,7 +1885,7 @@ void idLobby::SendMembersToLobby( lobbyType_t destLobbyType, const lobbyConnectI
 	}
 
 	// Send the message to all connected peers
-	for ( int i = 0; i < peers.Num(); i++ ) {
+	for ( size_t i = 0; i < peers.Num(); i++ ) {
 		if ( peers[ i ].IsConnected() ) {
 			SendPeerMembersToLobby( i, destLobbyType, connectInfo, waitForOtherMembers );
 		}
@@ -1897,7 +1897,7 @@ void idLobby::SendMembersToLobby( lobbyType_t destLobbyType, const lobbyConnectI
 idLobby::SendMembersToLobby
 ========================
 */
-void idLobby::SendMembersToLobby( idLobby & destLobby, bool waitForOtherMembers ) {
+void idLobby::SendMembersToLobby( idLobby & destLobby, const bool waitForOtherMembers ) {
 	if ( destLobby.lobbyBackend == nullptr) {
 		return;		// We don't have a game lobbyBackend to get an address for
 	}
@@ -1913,7 +1913,7 @@ idLobby::SendPeerMembersToLobby
 Give the address of a game lobby to a particular peer, notifying that peer to send a hello to the same server.
 ========================
 */
-void idLobby::SendPeerMembersToLobby( int peerIndex, lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, bool waitForOtherMembers ) {
+void idLobby::SendPeerMembersToLobby(const int peerIndex, const lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, const bool waitForOtherMembers ) {
 	// It's not our job to send party members to a game if we aren't the party host
 	if ( !IsHost() ) {
 		return;
@@ -1949,7 +1949,7 @@ idLobby::SendPeerMembersToLobby
 Give the address of a game lobby to a particular peer, notifying that peer to send a hello to the same server.
 ========================
 */
-void idLobby::SendPeerMembersToLobby( int peerIndex, lobbyType_t destLobbyType, bool waitForOtherMembers ) {
+void idLobby::SendPeerMembersToLobby(const int peerIndex, const lobbyType_t destLobbyType, const bool waitForOtherMembers ) {
 	idLobby * lobby = sessionCB->GetLobbyFromType( destLobbyType );
 
 	if ( !verify( lobby != NULL ) ) {
@@ -1984,7 +1984,7 @@ void idLobby::NotifyPartyOfLeavingGameLobby() {
 	}
 
 	// Tell our party to leave the game they are in
-	for ( int i = 0; i < peers.Num(); i++ ) {
+	for ( size_t i = 0; i < peers.Num(); i++ ) {
 		if ( peers[ i ].IsConnected() ) {
 			QueueReliableMessage( i, RELIABLE_PARTY_LEAVE_GAME_LOBBY );
 		}
@@ -2019,9 +2019,9 @@ uint32 idLobby::GetPartyTokenAsHost() {
 idLobby::EncodeSessionID
 ========================
 */
-idPacketProcessor::sessionId_t idLobby::EncodeSessionID( uint32 key ) const {
+idPacketProcessor::sessionId_t idLobby::EncodeSessionID(const uint32 key ) const {
 	assert( sizeof( uint32 ) >= sizeof( idPacketProcessor::sessionId_t ) );
-	constexpr int numBits = sizeof( idPacketProcessor::sessionId_t ) * 8 - idPacketProcessor::NUM_LOBBY_TYPE_BITS;
+	constexpr short numBits = sizeof( idPacketProcessor::sessionId_t ) * 8 - idPacketProcessor::NUM_LOBBY_TYPE_BITS;
 	constexpr uint32 mask = ( 1 << numBits ) - 1;
 	idPacketProcessor::sessionId_t sessionID = ( key & mask ) << idPacketProcessor::NUM_LOBBY_TYPE_BITS;
 	sessionID |= ( lobbyType + 1 );
@@ -2033,7 +2033,7 @@ idPacketProcessor::sessionId_t idLobby::EncodeSessionID( uint32 key ) const {
 idLobby::EncodeSessionID
 ========================
 */
-void idLobby::DecodeSessionID( idPacketProcessor::sessionId_t sessionID, uint32 & key ) const {
+void idLobby::DecodeSessionID(const idPacketProcessor::sessionId_t sessionID, uint32 & key ) const {
 	assert( sizeof( uint32 ) >= sizeof( idPacketProcessor::sessionId_t ) );
 	key = sessionID >> idPacketProcessor::NUM_LOBBY_TYPE_BITS;
 }
@@ -2059,7 +2059,7 @@ idPacketProcessor::sessionId_t idLobby::GenerateSessionID() const {
 idLobby::SessionIDCanBeUsedForInBand
 ========================
 */
-bool idLobby::SessionIDCanBeUsedForInBand( idPacketProcessor::sessionId_t sessionID ) const {
+bool idLobby::SessionIDCanBeUsedForInBand(const idPacketProcessor::sessionId_t sessionID ) const {
 	if ( sessionID == idPacketProcessor::SESSION_ID_INVALID ) {
 		return false;
 	}
@@ -2104,7 +2104,7 @@ idPacketProcessor::sessionId_t idLobby::IncrementSessionID( idPacketProcessor::s
 }
 
 #define VERIFY_CONNECTED_PEER( p, sessionType_, msgType )				\
-	if ( !verify( lobbyType == sessionType_ ) ) {						\
+	if ( !verify( lobbyType == (sessionType_) ) ) {						\
 		idLib::Printf( "NET: " #msgType ", peer:%s invalid session type for " #sessionType_ " %i.\n", peer.address.ToString(), sessionType_ );	\
 		return;															\
 	}																	\
@@ -2114,7 +2114,7 @@ idPacketProcessor::sessionId_t idLobby::IncrementSessionID( idPacketProcessor::s
 	}
 
 #define VERIFY_CONNECTING_PEER( p, sessionType_, msgType )				\
-	if ( !verify( lobbyType == sessionType_ ) ) {						\
+	if ( !verify( lobbyType == (sessionType_) ) ) {						\
 		idLib::Printf( "NET: " #msgType ", peer:%s invalid session type for " #sessionType_ " %i.\n", peer.address.ToString(), sessionType_ );	\
 		return;															\
 	}																	\
@@ -2125,14 +2125,14 @@ idPacketProcessor::sessionId_t idLobby::IncrementSessionID( idPacketProcessor::s
 
 #define VERIFY_FROM_HOST( p, sessionType_, msgType )					\
 	VERIFY_CONNECTED_PEER( p, sessionType_, msgType );					\
-	if ( p != host ) {													\
+	if ( (p) != host ) {													\
 		idLib::Printf( "NET: "#msgType", not from "#sessionType_" host: %s\n", peer.address.ToString() );	\
 		return;															\
 	}																	\
 
 #define VERIFY_FROM_CONNECTING_HOST( p, sessionType_, msgType )			\
 	VERIFY_CONNECTING_PEER( p, sessionType_, msgType );					\
-	if ( p != host ) {													\
+	if ( (p) != host ) {													\
 		idLib::Printf( "NET: "#msgType", not from "#sessionType_" host: %s\n", peer.address.ToString() );	\
 		return;															\
 	}																	\
@@ -2142,7 +2142,7 @@ idPacketProcessor::sessionId_t idLobby::IncrementSessionID( idPacketProcessor::s
 idLobby::HandleHelloAck
 ========================
 */
-void idLobby::HandleHelloAck( int p, idBitMsg & msg ) {
+void idLobby::HandleHelloAck(const int p, idBitMsg & msg ) {
 	peer_t & peer = peers[p];
 
 	if ( state != STATE_CONNECT_HELLO_WAIT ) {
@@ -2203,12 +2203,12 @@ void idLobby::HandleHelloAck( int p, idBitMsg & msg ) {
 idLobby::GetLobbyUserName
 ========================
 */
-const char * idLobby::GetLobbyUserName( lobbyUserID_t lobbyUserID ) const { 
-	const int index = GetLobbyUserIndexByID( lobbyUserID );
+const char * idLobby::GetLobbyUserName(const lobbyUserID_t lobbyUserID ) const { 
+	const index_t index = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( index );
 
 	if ( user == nullptr) {
-		for ( int i = 0; i < disconnectedUsers.Num(); i++ ) {
+		for ( size_t i = 0; i < disconnectedUsers.Num(); i++ ) {
 			if ( disconnectedUsers[i].lobbyUserID.CompareIgnoreLobbyType( lobbyUserID ) ) {
 				return disconnectedUsers[i].gamertag;
 			}
@@ -2224,7 +2224,7 @@ const char * idLobby::GetLobbyUserName( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserSkinIndex
 ========================
 */
-int idLobby::GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const {
+int idLobby::GetLobbyUserSkinIndex(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	return user ? user->selectedSkin : 0;
@@ -2235,7 +2235,7 @@ int idLobby::GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserWeaponAutoSwitch
 ========================
 */
-bool idLobby::GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const {
+bool idLobby::GetLobbyUserWeaponAutoSwitch(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	return user ? user->weaponAutoSwitch : true;
@@ -2246,7 +2246,7 @@ bool idLobby::GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserWeaponAutoReload
 ========================
 */
-bool idLobby::GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const {
+bool idLobby::GetLobbyUserWeaponAutoReload(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	return user ? user->weaponAutoReload: true;
@@ -2257,7 +2257,7 @@ bool idLobby::GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserLevel
 ========================
 */
-int idLobby::GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const {
+int idLobby::GetLobbyUserLevel(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	return user ? user->level : 0;
@@ -2268,7 +2268,7 @@ int idLobby::GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserQoS
 ========================
 */
-int idLobby::GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const {
+int idLobby::GetLobbyUserQoS(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 
 	if ( IsHost() && IsSessionUserIndexLocal( userIndex ) ) {
@@ -2289,7 +2289,7 @@ int idLobby::GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserTeam
 ========================
 */
-int idLobby::GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const {
+int idLobby::GetLobbyUserTeam(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	return user ? user->teamNumber : 0;
@@ -2300,7 +2300,7 @@ int idLobby::GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const {
 idLobby::SetLobbyUserTeam
 ========================
 */
-bool idLobby::SetLobbyUserTeam( lobbyUserID_t lobbyUserID, int teamNumber ) {
+bool idLobby::SetLobbyUserTeam(const lobbyUserID_t lobbyUserID, const index_t teamNumber ) {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	lobbyUser_t * user = GetLobbyUser( userIndex );
 
@@ -2326,7 +2326,7 @@ bool idLobby::SetLobbyUserTeam( lobbyUserID_t lobbyUserID, int teamNumber ) {
 idLobby::GetLobbyUserPartyToken
 ========================
 */
-int idLobby::GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const {
+int idLobby::GetLobbyUserPartyToken(const lobbyUserID_t lobbyUserID ) const {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	return user ? user->partyToken : 0;
@@ -2337,7 +2337,7 @@ int idLobby::GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetProfileFromLobbyUser
 ========================
 */
-idPlayerProfile * idLobby::GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID ) {
+idPlayerProfile * idLobby::GetProfileFromLobbyUser(const lobbyUserID_t lobbyUserID ) {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 
 	idPlayerProfile * profile = nullptr;
@@ -2362,7 +2362,7 @@ idPlayerProfile * idLobby::GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID ) 
 idLobby::GetLocalUserFromLobbyUser
 ========================
 */
-idLocalUser * idLobby::GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID ) {
+idLocalUser * idLobby::GetLocalUserFromLobbyUser(const lobbyUserID_t lobbyUserID ) {
 	const int userIndex = GetLobbyUserIndexByID( lobbyUserID );
 
 	return GetLocalUserFromLobbyUserIndex( userIndex );
@@ -2373,9 +2373,9 @@ idLocalUser * idLobby::GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID ) {
 idLobby::GetNumLobbyUsersOnTeam
 ========================
 */
-int idLobby::GetNumLobbyUsersOnTeam( int teamNumber ) const {
-	int numTeam = 0;
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+int idLobby::GetNumLobbyUsersOnTeam(const index_t teamNumber ) const {
+	size_t numTeam = 0;
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		if ( GetLobbyUser( i )->teamNumber == teamNumber ) {
 			++numTeam;
 		}
@@ -2388,9 +2388,9 @@ int idLobby::GetNumLobbyUsersOnTeam( int teamNumber ) const {
 idLobby::GetPeerName
 ========================
 */
-const char * idLobby::GetPeerName( int peerNum ) const {
+const char * idLobby::GetPeerName(const int peerNum ) const {
 
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		if ( !verify( GetLobbyUser( i ) != NULL ) ) {
 			continue;
 		}
@@ -2408,7 +2408,7 @@ const char * idLobby::GetPeerName( int peerNum ) const {
 idLobby::HandleReliableMsg
 ========================
 */
-void idLobby::HandleReliableMsg( int p, idBitMsg & msg ) {
+void idLobby::HandleReliableMsg(const int p, idBitMsg & msg ) {
 	peer_t & peer = peers[p];
 
 	int reliableType = msg.ReadByte();
@@ -2561,7 +2561,7 @@ void idLobby::HandleReliableMsg( int p, idBitMsg & msg ) {
 		NET_VERBOSE_PRINT( "NET: Got an arbitration ok from %d\n", p );
 
 		everyoneArbitrated = true;
-		for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+		for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 			lobbyUser_t * user = GetLobbyUser( i );
 			if ( !verify( user != NULL ) ) {
 				continue;
@@ -2693,14 +2693,14 @@ void idLobby::DrawDebugNetworkHUD() const {
 
 	float curY = Y_OFFSET;
 
-	int numLines = ( net_forceUpstream.GetFloat() != 0.0f ? 6: 5 );
+	size_t numLines = ( net_forceUpstream.GetFloat() != 0.0f ? 6: 5 );
 
 	renderSystem->DrawFilled( idVec4( 0.0f, 0.0f, 0.0f, 0.7f ), X_OFFSET - 10.0f, curY - 10.0f, 1550, ( peers.Num() + numLines ) * Y_SPACING + 20.0f );
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "# Peer                   | Sent kB/s | Recv kB/s | Sent MB | Recv MB | Ping   | L |  %  | R.NM | R.SZ | R.AK | T", colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), "# Peer                   | Sent kB/s | Recv kB/s | Sent MB | Recv MB | Ping   | L |  %  | R.NM | R.SZ | R.AK | T", colorGreen, false );
 	curY += Y_SPACING;
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "------------------------------------------------------------------------------------------------------------------------------------", colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), "------------------------------------------------------------------------------------------------------------------------------------", colorGreen, false );
 	curY += Y_SPACING;
 
 	for ( int p = 0; p < peers.Num(); p++ ) {		
@@ -2734,7 +2734,7 @@ void idLobby::DrawDebugNetworkHUD() const {
 		curY += Y_SPACING;
 	}
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "------------------------------------------------------------------------------------------------------------------------------------", colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), "------------------------------------------------------------------------------------------------------------------------------------", colorGreen, false );
 	curY += Y_SPACING;
 
 	float totalSentKps = static_cast<float>(totalSendRate) / 1024.0f;
@@ -2775,13 +2775,13 @@ void idLobby::DrawDebugNetworkHUD2() const {
 
 	renderSystem->DrawFilled( idVec4( 1.0f, 1.0f, 1.0f, 0.7f ), X_OFFSET - 10.0f, curY - 10.0f, 550, (peers.Num() + 5) * Y_SPACING + 20.0f );
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), va("State: %s. Local time: %d", stateName, Sys_Milliseconds() ), colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), va("State: %s. Local time: %d", stateName, Sys_Milliseconds() ), colorGreen, false );
 	curY += Y_SPACING;
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "Peer           | Sent kB/s | Recv kB/s | L | R | Resources", colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), "Peer           | Sent kB/s | Recv kB/s | L | R | Resources", colorGreen, false );
 	curY += Y_SPACING;
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "------------------------------------------------------------------", colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), "------------------------------------------------------------------", colorGreen, false );
 	curY += Y_SPACING;
 
 	for ( int p = 0; p < peers.Num(); p++ ) {
@@ -2826,7 +2826,7 @@ void idLobby::DrawDebugNetworkHUD2() const {
 		curY += Y_SPACING;
 	}
 
-	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "------------------------------------------------------------------", colorGreen, false );
+	renderSystem->DrawSmallStringExt( numeric_cast<int>( X_OFFSET ), numeric_cast<int>( curY ), "------------------------------------------------------------------", colorGreen, false );
 	curY += Y_SPACING;
 
 	float totalSentKps = static_cast<float>(totalSendRate) / 1024.0f;
@@ -2842,7 +2842,7 @@ idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics
 ========================
 */
 idCVar net_debughud3_bps_max( "net_debughud3_bps_max", "5120.0f", CVAR_FLOAT, "Highest factor of server base snapRate that a client can be throttled" );
-void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw ) {
+void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics(const bool draw ) {
 	constexpr float Y_OFFSET	= 20.0f;
 	constexpr float X_OFFSET	= 20.0f;
 	constexpr float Y_SPACING	= 15.0f;
@@ -2864,7 +2864,7 @@ void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw ) {
 	}
 
 	static int lastTime = 0;
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	for ( int p = 0; p < peers.Num(); p++ ) {
 
@@ -2886,7 +2886,7 @@ void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw ) {
 		int deltaSeq = snapSeq - snapBase;
 		bool throttled = peer.throttledSnapRate > common->GetSnapRate();
 
-		int numLines =  net_forceUpstream.GetBool() ? 5 : 4;
+		size_t numLines =  net_forceUpstream.GetBool() ? 5 : 4;
 
 		const int width = renderSystem->GetWidth()/2.0f - (X_OFFSET * 2);
 
@@ -2993,9 +2993,9 @@ idLobby::CheckHeartBeats
 */
 void idLobby::CheckHeartBeats() {
 	// Disconnect peers that haven't responded within net_peerTimeoutInSeconds
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
-	int timeoutInMs = session->GetTitleStorageInt( "net_peerTimeoutInSeconds", net_peerTimeoutInSeconds.GetInteger() ) * 1000;
+	ID_TIME_T timeoutInMs = session->GetTitleStorageInt( "net_peerTimeoutInSeconds", net_peerTimeoutInSeconds.GetInteger() ) * 1000;
 
 	if ( sessionCB->GetState() < idSession::LOADING && migrationInfo.state == MIGRATE_NONE ) {
 		// Use shorter timeout in lobby (TCR)
@@ -3065,9 +3065,9 @@ bool idLobby::IsLosingConnectionToHost() const {
 		return true;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
-	int timeoutInMs = session->GetTitleStorageInt( "net_peerTimeoutInSeconds", net_peerTimeoutInSeconds.GetInteger() ) * 1000;
+	ID_TIME_T timeoutInMs = session->GetTitleStorageInt( "net_peerTimeoutInSeconds", net_peerTimeoutInSeconds.GetInteger() ) * 1000;
 
 	// return true if heartbeat > half the timeout length
 	if ( timeoutInMs > 0 &&  time - peers[ host ].lastHeartBeat > timeoutInMs / 2 ) {
@@ -3183,7 +3183,7 @@ void idLobby::PingPeers() {
 	idBitMsg msg( packetCopy, sizeof( packetCopy ) );
 	msg.WriteLong( packet.timestamp );
 
-	for ( int i = 0; i < peers.Num(); ++i ) {
+	for ( size_t i = 0; i < peers.Num(); ++i ) {
 		peer_t & peer = peers[ i ];
 		if ( !peer.IsConnected() ) {
 			continue;
@@ -3200,7 +3200,7 @@ void idLobby::PingPeers() {
 idLobby::ThrottlePeerSnapRate
 ========================
 */
-void idLobby::ThrottlePeerSnapRate( int p ) {
+void idLobby::ThrottlePeerSnapRate(const int p ) {
 	if ( !verify( IsHost() ) || !verify( p >= 0 ) ) {
 		return;
 	}
@@ -3226,7 +3226,7 @@ void idLobby::BeginBandwidthTest() {
 		return;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 	bandwidthChallengeStartTime = time;
 	bandwidthChallengeEndTime = 0;
 	bandwidthChallengeFinished = false;
@@ -3273,7 +3273,7 @@ void idLobby::ServerUpdateBandwidthTest() {
 		return;
 	}
 	
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	if ( bandwidthChallengeFinished ) {
 		// test is over
@@ -3286,7 +3286,7 @@ void idLobby::ServerUpdateBandwidthTest() {
 	bool sentAll = true;
 	bool recAll = true;
 
-	for ( int i = 0; i < peers.Num(); ++i ) {
+	for ( size_t i = 0; i < peers.Num(); ++i ) {
 		peer_t & peer = peers[ i ];
 		if ( !peer.IsConnected() ) {
 			continue;
@@ -3392,7 +3392,7 @@ void idLobby::ClientUpdateBandwidthTest() {
 		return;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 	if ( bandwidthChallengeEndTime > time ) {
 		// Test is still going on
 		return;
@@ -3433,7 +3433,7 @@ void idLobby::ClientUpdateBandwidthTest() {
 idLobby::HandleBandwidhTestValue
 ========================
 */
-void idLobby::HandleBandwidhTestValue( int p, idBitMsg & msg ) {
+void idLobby::HandleBandwidhTestValue(const int p, idBitMsg & msg ) {
 	if ( !IsHost() ) {
 		return;
 	}
@@ -3530,7 +3530,7 @@ void idLobby::SendPingValues() {
 
 	memset( &packet, 0, sizeof(packet) );
 
-	for( int i = 0; i < peers.Max(); ++i ) {
+	for ( size_t i = 0; i < peers.Max(); ++i ) {
 		if ( i >= peers.Num() ) {
 			packet.pings[ i ] = -1;
 		} else if ( peers[ i ].IsConnected() ) {
@@ -3542,11 +3542,11 @@ void idLobby::SendPingValues() {
 
 	byte packetCopy[ sizeof(packet) ];
 	idBitMsg msg( packetCopy, sizeof(packetCopy) );
-	for( int i = 0; i < peers.Max(); ++i ) {
+	for ( size_t i = 0; i < peers.Max(); ++i ) {
 		msg.WriteShort( packet.pings[ i ] );
 	}
 
-	for ( int i = 0; i < peers.Num(); i++ ) {
+	for ( size_t i = 0; i < peers.Num(); i++ ) {
 		if ( peers[ i ].IsConnected() ) {
 			QueueReliableMessage( i, RELIABLE_PING_VALUES, msg.GetReadData(), msg.GetSize() );
 		}
@@ -3592,7 +3592,7 @@ void idLobby::PumpPings() {
 idLobby::HandleReliablePing
 ========================
 */
-void idLobby::HandleReliablePing( int p, idBitMsg & msg ) {
+void idLobby::HandleReliablePing(const int p, idBitMsg & msg ) {
 	int c, b;
 	msg.SaveReadState( c, b );
 
@@ -3621,7 +3621,7 @@ void idLobby::HandleReliablePing( int p, idBitMsg & msg ) {
 idLobby::HandlePingReply
 ========================
 */
-void idLobby::HandlePingReply( int p, const pktPing_t & ping ) {
+void idLobby::HandlePingReply(const int p, const pktPing_t & ping ) {
 	const int now = Sys_Milliseconds();
 
 	const int rtt = now - ping.timestamp;
@@ -3643,7 +3643,7 @@ idLobby::HandlePingValues
 void idLobby::HandlePingValues( idBitMsg & msg ) {
 	pktPingValues_t packet;
 	memset( &packet, 0, sizeof( packet ) );
-	for( int i = 0; i < peers.Max(); ++i ) {
+	for ( size_t i = 0; i < peers.Max(); ++i ) {
 		 packet.pings[ i ] = msg.ReadShort();
 	}
 
@@ -3674,7 +3674,7 @@ idLobby::SendAnotherFragment
 Other than connectionless sends, this should be the chokepoint for sending packets to peers.
 ========================
 */
-bool idLobby::SendAnotherFragment( int p ) {
+bool idLobby::SendAnotherFragment(const int p ) {
 	peer_t & peer = peers[p];
 	
 	if ( !peer.IsConnected() ) {	// Not connected to any mode (party or game), so no need to send
@@ -3689,7 +3689,7 @@ bool idLobby::SendAnotherFragment( int p ) {
 		return false;		// We need to throttle the sends so we don't saturate the connection
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	if ( time - peer.lastFragmentSendTime < 2 ) {
 		NET_VERBOSE_PRINT("Too soon to send another packet. Delta: %d \n", ( time-peer.lastFragmentSendTime) );
@@ -3730,7 +3730,7 @@ bool idLobby::SendAnotherFragment( int p ) {
 idLobby::CanSendMoreData
 ========================
 */
-bool idLobby::CanSendMoreData( int p ) {
+bool idLobby::CanSendMoreData(const int p ) {
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
 		NET_VERBOSE_PRINT( "NET: CanSendMoreData %i NO: not a peer\n", p );
 		return false;
@@ -3749,7 +3749,7 @@ bool idLobby::CanSendMoreData( int p ) {
 idLobby::ProcessOutgoingMsg
 ========================
 */
-void idLobby::ProcessOutgoingMsg( int p, const void * data, int size, bool isOOB, int userData ) {
+void idLobby::ProcessOutgoingMsg(const int p, const void * data, const int size, const bool isOOB, const int userData ) {
 
 	peer_t & peer = peers[p];
 	
@@ -3762,7 +3762,7 @@ void idLobby::ProcessOutgoingMsg( int p, const void * data, int size, bool isOOB
 		idLib::Error( "FATAL: Attempt to process a packet while fragments still need to be sent.\n" ); // We can't handle this case
 	}
 
-	int currentTime = Sys_Milliseconds();
+	ID_TIME_T currentTime = Sys_Milliseconds();
 	
 	// if ( currentTime - peer.lastProcTime < 30 ) {
 	//	 idLib::Printf("ProcessOutgoingMsg called within %dms %s\n", (currentTime - peer.lastProcTime), GetLobbyName() );
@@ -3786,7 +3786,7 @@ void idLobby::ProcessOutgoingMsg( int p, const void * data, int size, bool isOOB
 idLobby::ResendReliables
 ========================
 */
-void idLobby::ResendReliables( int p ) {
+void idLobby::ResendReliables(const int p ) {
 
 	peer_t & peer = peers[p];
 	
@@ -3802,7 +3802,7 @@ void idLobby::ResendReliables( int p ) {
 		return;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	constexpr int DEFAULT_MIN_RESEND		= 20;		// Quicker resend while not in game to speed up resource transmission acks
 	constexpr int DEFAULT_MIN_RESEND_INGAME	= 100;
@@ -3906,7 +3906,7 @@ const char * idLobby::GetHostUserName() const {
 idLobby::SendReliable
 ========================
 */
-void idLobby::SendReliable( int type, idBitMsg & msg, bool callReceiveReliable /*= true*/, peerMask_t sessionUserMask /*= MAX_UNSIGNED_TYPE( peerMask_t ) */ ) {
+void idLobby::SendReliable(const int type, idBitMsg & msg, const bool callReceiveReliable /*= true*/, const peerMask_t sessionUserMask /*= MAX_UNSIGNED_TYPE( peerMask_t ) */ ) {
 	//assert( lobbyType == GetActingGameStateLobbyType() );
 
 	assert( type < 256 ); // QueueReliable only accepts a byte for message type
@@ -3921,7 +3921,7 @@ void idLobby::SendReliable( int type, idBitMsg & msg, bool callReceiveReliable /
 	}
 
 	uint32 sentPeerMask = 0;
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 		if ( user->peerIndex == -1 ) {
 			continue;
@@ -3962,7 +3962,7 @@ idLobby::SendReliableToLobbyUser
 can only be used on the server. will take care of calling locally if addressed to player 0
 ========================
 */
-void idLobby::SendReliableToLobbyUser( lobbyUserID_t lobbyUserID, int type, idBitMsg & msg ) {
+void idLobby::SendReliableToLobbyUser(const lobbyUserID_t lobbyUserID, const int type, idBitMsg & msg ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 	assert( type < 256 );			// QueueReliable only accepts a byte for message type
 	assert( IsHost() );				// This function should only be called in the server atm
@@ -3982,7 +3982,7 @@ idLobby::SendReliableToHost
 will make sure to invoke locally if used on the server
 ========================
 */
-void idLobby::SendReliableToHost( int type, idBitMsg & msg ) {
+void idLobby::SendReliableToHost(const int type, idBitMsg & msg ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	if ( IsHost() ) {
@@ -4065,8 +4065,8 @@ idLobby::GetNumActiveLobbyUsers
 ========================
 */
 int idLobby::GetNumActiveLobbyUsers() const {
-	int numActive = 0;
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+	size_t numActive = 0;
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		if ( !GetLobbyUser( i )->IsDisconnected() ) {
 			numActive++;
 		}
@@ -4096,7 +4096,7 @@ bool idLobby::AllPeersInGame() const {
 idLobby::PeerIndexFromLobbyUser
 ========================
 */
-int	idLobby::PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const {
+int	idLobby::PeerIndexFromLobbyUser(const lobbyUserID_t lobbyUserID ) const {
 	const int lobbyUserIndex = GetLobbyUserIndexByID( lobbyUserID );
 
 	const lobbyUser_t * user = GetLobbyUser( lobbyUserIndex );
@@ -4114,7 +4114,7 @@ int	idLobby::PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetPeerTimeSinceLastPacket
 ========================
 */
-int idLobby::GetPeerTimeSinceLastPacket( int peerIndex ) const {
+int idLobby::GetPeerTimeSinceLastPacket(const int peerIndex ) const {
 	if ( peerIndex < 0 ) {
 		return 0;
 	}

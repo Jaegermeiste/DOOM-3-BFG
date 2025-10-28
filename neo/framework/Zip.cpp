@@ -239,7 +239,7 @@ Inputs a long in LSB order to the given file
 nbByte == 1, 2 or 4 (byte, short or long)
 ========================
 */
-int ziplocal_putValue( idFile* filestream, unsigned long x, int nbByte ) {
+int ziplocal_putValue( idFile* filestream, unsigned long x, const int nbByte ) {
     unsigned char buf[4];
     for ( int n = 0; n < nbByte; n++ ) {
         buf[n] = static_cast<unsigned char>(x & 0xff);
@@ -263,7 +263,7 @@ int ziplocal_putValue( idFile* filestream, unsigned long x, int nbByte ) {
 ziplocal_putValue_inmemory
 ========================
 */
-void ziplocal_putValue_inmemory( void* dest, unsigned long x, int nbByte ){
+void ziplocal_putValue_inmemory( void* dest, unsigned long x, const int nbByte ){
     unsigned char* buf = static_cast<unsigned char*>(dest);
     for ( int n = 0; n < nbByte; n++ ) {
         buf[n] = static_cast<unsigned char>(x & 0xff);
@@ -483,7 +483,7 @@ unsigned long ziplocal_SearchCentralDir( idFile* filestream ) {
 zipOpen2
 ========================
 */
-zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
+zipFile zipOpen2( const char *pathname, const int append, char* globalcomment ) {
     zip_internal ziinit;
     zip_internal* zi;
     int err = ZIP_OK;
@@ -652,7 +652,7 @@ zipFile zipOpen2( const char *pathname, int append, char* globalcomment ) {
 zipOpen
 ========================
 */
-zipFile zipOpen( const char *pathname, int append ) {
+zipFile zipOpen( const char *pathname, const int append ) {
     return zipOpen2( pathname, append, nullptr);
 }
 
@@ -661,8 +661,8 @@ zipFile zipOpen( const char *pathname, int append ) {
 zipOpenNewFileInZip3
 ========================
 */
-int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, unsigned int size_extrafield_local, const void* extrafield_global,
-									unsigned int size_extrafield_global, const char* comment, int method, int level, int raw, int windowBits, int memLevel, int strategy, const char* password, unsigned long crcForCrypting ) {
+int zipOpenNewFileInZip3(const zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, const unsigned int size_extrafield_local, const void* extrafield_global,
+									const unsigned int size_extrafield_global, const char* comment, const int method, const int level, const int raw, int windowBits, const int memLevel, const int strategy, const char* password, unsigned long crcForCrypting ) {
     unsigned int size_filename;
     unsigned int size_comment;
     int err = ZIP_OK;
@@ -879,8 +879,8 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 zipOpenNewFileInZip2
 ========================
 */
-int zipOpenNewFileInZip2( zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, unsigned int size_extrafield_local,
-									const void* extrafield_global, unsigned int size_extrafield_global, const char* comment, int method, int level, int raw ) {
+int zipOpenNewFileInZip2(const zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, const unsigned int size_extrafield_local,
+									const void* extrafield_global, const unsigned int size_extrafield_global, const char* comment, const int method, const int level, const int raw ) {
     return zipOpenNewFileInZip3( file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global, size_extrafield_global,
                                  comment, method, level, raw, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0 );
 }
@@ -890,8 +890,8 @@ int zipOpenNewFileInZip2( zipFile file, const char* filename, const zip_fileinfo
 zipOpenNewFileInZip
 ========================
 */
-int zipOpenNewFileInZip( zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, unsigned int size_extrafield_local, const void* extrafield_global,
-								unsigned int size_extrafield_global, const char* comment, int method, int level ) {
+int zipOpenNewFileInZip(const zipFile file, const char* filename, const zip_fileinfo* zipfi, const void* extrafield_local, const unsigned int size_extrafield_local, const void* extrafield_global,
+								const unsigned int size_extrafield_global, const char* comment, const int method, const int level ) {
     return zipOpenNewFileInZip2( file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global, size_extrafield_global, comment, method, level, 0 );
 }
 
@@ -905,7 +905,7 @@ int zipFlushWriteBuffer( zip_internal* zi ) {
     if ( zi->ci.encrypt != 0 ) {
 #ifndef NOCRYPT
         int t;
-		for ( int i = 0; i < zi->ci.pos_in_buffered_data; i++ ) {
+		for ( size_t i = 0; i < zi->ci.pos_in_buffered_data; i++ ) {
             zi->ci.buffered_data[i] = zencode( zi->ci.keys, zi->ci.pcrc_32_tab, zi->ci.buffered_data[i], t );
 		}
 #endif
@@ -922,7 +922,7 @@ int zipFlushWriteBuffer( zip_internal* zi ) {
 zipWriteInFileInZip
 ========================
 */
-int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len ) {
+int zipWriteInFileInZip(const zipFile file, const void* buf, size_t len ) {
     zip_internal* zi;
     int err = ZIP_OK;
 
@@ -984,7 +984,7 @@ int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len ) {
 zipCloseFileInZipRaw
 ========================
 */
-int zipCloseFileInZipRaw( zipFile file, unsigned long uncompressed_size, unsigned long crc32 ) {
+int zipCloseFileInZipRaw(const zipFile file, unsigned long uncompressed_size, unsigned long crc32 ) {
     zip_internal* zi;
     unsigned long compressed_size;
     int err = ZIP_OK;
@@ -1084,7 +1084,7 @@ int zipCloseFileInZipRaw( zipFile file, unsigned long uncompressed_size, unsigne
 zipCloseFileInZip
 ========================
 */
-int zipCloseFileInZip( zipFile file ) {
+int zipCloseFileInZip(const zipFile file ) {
     return zipCloseFileInZipRaw( file, 0, 0 );
 }
 
@@ -1093,7 +1093,7 @@ int zipCloseFileInZip( zipFile file ) {
 zipClose
 ========================
 */
-int zipClose( zipFile file, const char* global_comment ) {
+int zipClose(const zipFile file, const char* global_comment ) {
     zip_internal* zi;
     int err = 0;
     unsigned long size_centraldir = 0;
@@ -1222,7 +1222,7 @@ idZipBuilder::Build
 builds a zip file of all the files in the specified folder, overwriting if necessary
 ========================
 */
-bool idZipBuilder::Build( const char* zipPath, const char *folder, bool cleanFolder ) {
+bool idZipBuilder::Build( const char* zipPath, const char *folder, const bool cleanFolder ) {
 	zipFileName = zipPath;
 	sourceFolderName = folder;
 
@@ -1244,7 +1244,7 @@ idZipBuilder::Update
 updates a zip file with the files in the specified folder
 ========================
 */
-bool idZipBuilder::Update( const char* zipPath, const char *folder, bool cleanFolder ) {
+bool idZipBuilder::Update( const char* zipPath, const char *folder, const bool cleanFolder ) {
 	// if this file doesn't exist, just build it
 	if ( fileSystem->GetTimestamp( zipPath ) == FILE_NOT_FOUND_TIMESTAMP ) {
 		return Build( zipPath, folder, cleanFolder );
@@ -1293,13 +1293,13 @@ bool idZipBuilder::IsFiltered( const idStr &filename ) const {
 	if ( filterExts.Num() == 0 && uncompressedFilterExts.Num() == 0 ) {
 		return false;
 	}
-	for ( int j = 0; j < filterExts.Num(); j++ ) {
+	for ( size_t j = 0; j < filterExts.Num(); j++ ) {
 		idStr fileExt = idStr( "." + filterExts[j] );
 		if ( filename.Right( fileExt.Length() ).Icmp( fileExt ) == 0 ) {
 			return false;
 		}
 	}
-	for ( int j = 0; j < uncompressedFilterExts.Num(); j++ ) {
+	for ( size_t j = 0; j < uncompressedFilterExts.Num(); j++ ) {
 		idStr fileExt = idStr( "." + uncompressedFilterExts[j] );
 		if ( filename.Right( fileExt.Length() ).Icmp( fileExt ) == 0 ) {
 			return false;
@@ -1317,7 +1317,7 @@ bool idZipBuilder::IsUncompressed( const idStr &filename ) const {
 	if ( uncompressedFilterExts.Num() == 0 ) {
 		return false;
 	}
-	for ( int j = 0; j < uncompressedFilterExts.Num(); j++ ) {
+	for ( size_t j = 0; j < uncompressedFilterExts.Num(); j++ ) {
 		idStr fileExt = idStr( "." + uncompressedFilterExts[j] );
 		if ( filename.Right( fileExt.Length() ).Icmp( fileExt ) == 0 ) {
 			return true;
@@ -1378,7 +1378,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles ) {
 
 	// check to make sure that at least one file will be added to the package
 	int atLeastOneFilteredFile = false;
-	for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+	for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 		idStr filename = files->GetFile( i );
 
 		if ( !IsFiltered( filename ) ) {
@@ -1400,7 +1400,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles ) {
 	}
 
 	// add the files to the zip file
-	for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+	for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 
 		// add each file to the zip file
 		zip_fileinfo zi;
@@ -1528,7 +1528,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory * > & src
 	}
 
 	// add the files to the zip file
-	for ( int i = 0; i < srcFiles.Num(); i++ ) {
+	for ( size_t i = 0; i < srcFiles.Num(); i++ ) {
 
 		// add each file to the zip file
 		zip_fileinfo zi;
@@ -1619,7 +1619,7 @@ idZipBuilder::CleanSourceFolder
 this folder is assumed to be a path under FSPATH_BASE
 ========================
 */
-bool idZipBuilder::AddFile( zipFile zf, idFile_Memory *src, bool deleteFile ) const
+bool idZipBuilder::AddFile(const zipFile zf, idFile_Memory *src, const bool deleteFile ) const
 {
 	// add each file to the zip file
 	zip_fileinfo zi;
@@ -1687,7 +1687,7 @@ idZipBuilder::CleanSourceFolder
 this folder is assumed to be a path under FSPATH_BASE
 ========================
 */
-void idZipBuilder::CloseZipFile( zipFile zf ) {
+void idZipBuilder::CloseZipFile(const zipFile zf ) {
 	// close the zip file
 	int closeError = zipClose( zf, zipFileName );
 	if ( closeError != ZIP_OK ) {
@@ -1731,7 +1731,7 @@ void idZipBuilder::CleanSourceFolder() {
 			if ( files->GetNumFiles() && zip_verbosity.GetBool() ) {
 				idLib::Printf( "Deleting files in '%s'...\n", relPath );
 			}
-			for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+			for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 				if ( IsFiltered( files->GetFile( i ) ) ) {
 					continue;
 				}
@@ -1754,7 +1754,7 @@ void idZipBuilder::CleanSourceFolder() {
 
 	// figure out which deleted files need to be removed from source control, and then remove those files
 	idStrList filesToRemoveFromSourceControl;
-	for ( int i = 0; i < deletedFiles.Num(); i++ ) {
+	for ( size_t i = 0; i < deletedFiles.Num(); i++ ) {
 		scFileStatus_t fileStatus = idLib::sourceControl->GetFileStatus( deletedFiles[ i ] );
 		if ( SCF_IS_IN_SOURCE_CONTROL( fileStatus ) ) {
 			filesToRemoveFromSourceControl.Append( deletedFiles[ i ] );
@@ -1870,7 +1870,7 @@ CONSOLE_COMMAND( testZipBuilderCombineFiles, "test routine for memory zip file b
 	}
 
 	// allocate all the test files
-	for ( int i = 0; i < numFiles; i++ ) {
+	for ( size_t i = 0; i < numFiles; i++ ) {
 		idFile_Memory * file = new idFile_Memory( va( "%s%d.txt", testString, i + 1 ) );
 		file->MakeWritable();
 		idStr str = va( "%s%d", testString, i + 1 );
@@ -1930,7 +1930,7 @@ bool idZipBuilder::ExtractFiles( idFile_Memory * & srcFile, idList< idFile_Memor
 		idLib::PrintfIf( zip_verbosity.GetBool(), "Opening archive %s:\n", ospath );
 		unzFile zip = unzOpen( ospath );
 
-		int numFiles = 0;
+		size_t numFiles = 0;
 		int result = unzGoToFirstFile( zip );
 		while( result == UNZ_OK ) {
 			numFiles++;
@@ -1990,7 +1990,7 @@ CONSOLE_COMMAND( testZipBuilderExtractFiles, "test routine for memory zip file e
 	// create a temp.zip file with string files
 	{
 		// allocate all the test files
-		for ( int i = 0; i < numFiles; i++ ) {
+		for ( size_t i = 0; i < numFiles; i++ ) {
 			idFile_Memory * file = new idFile_Memory( va( "%s%d.txt", testString, i + 1 ) );
 			file->MakeWritable();
 			idStr str = va( "%s%d", testString, i + 1 );
@@ -2023,7 +2023,7 @@ CONSOLE_COMMAND( testZipBuilderExtractFiles, "test routine for memory zip file e
 		overallSuccess &= success;
 		idLib::Printf( "Number of files: %s\n", success ? "^2PASS" : "^1FAIL" );
 
-		for ( int i = 0; i < list.Num(); i++ ) {
+		for ( size_t i = 0; i < list.Num(); i++ ) {
 			idStr str;
 			idFile_Memory * file = list[i];
 			file->MakeReadOnly();

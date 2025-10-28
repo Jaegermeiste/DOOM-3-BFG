@@ -77,7 +77,7 @@ class idPlane;
 class idDrawVert;
 class idJointQuat;
 class idJointMat;
-struct dominantTri_t;
+struct dominantTri_s;
 
 class idSIMDProcessor {
 public:
@@ -85,7 +85,7 @@ public:
 
 	cpuid_t							cpuid;
 
-									[[nodiscard]] virtual const char * VPCALL		GetName() const = 0;
+	[[nodiscard]] virtual const char * VPCALL		GetName() const = 0;
 
 	virtual	void VPCALL MinMax( float &min,			float &max,				const float *src,		const size_t count ) = 0;
 	virtual	void VPCALL MinMax( idVec2 &min,		idVec2 &max,			const idVec2 *src,		const size_t count ) = 0;
@@ -97,12 +97,12 @@ public:
 	virtual void VPCALL Memset( void *dst,			const int val,			const size_t count ) = 0;
 
 	// animation
-	virtual void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) = 0;
-	virtual void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t *index, const size_t numJoints ) = 0;
+	virtual void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const jointHandle_t *index, const size_t numJoints ) = 0;
+	virtual void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const jointHandle_t *index, const size_t numJoints ) = 0;
 	virtual void VPCALL ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const size_t numJoints ) = 0;
 	virtual void VPCALL ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const size_t numJoints ) = 0;
-	virtual void VPCALL TransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) = 0;
-	virtual void VPCALL UntransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) = 0;
+	virtual void VPCALL TransformJoints( idJointMat *jointMats, const jointHandle_t *parents, const jointHandle_t firstJoint, const jointHandle_t lastJoint ) = 0;
+	virtual void VPCALL UntransformJoints( idJointMat *jointMats, const jointHandle_t *parents, const jointHandle_t firstJoint, const jointHandle_t lastJoint ) = 0;
 };
 
 // pointer to SIMD processor

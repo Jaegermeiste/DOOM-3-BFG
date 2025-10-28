@@ -41,17 +41,17 @@ idMenuScreen_Shell_Leaderboards::~idMenuScreen_Shell_Leaderboards() {
 }
 
 // Helper functions for formatting leaderboard columns
-static idStr FormatTime( int64 time ) {
+static idStr FormatTime(const int64 time ) {
 	int minutes = time / ( 1000 * 60 );
 	int seconds = ( time - ( minutes * 1000 * 60 ) ) / 1000;
 	int mseconds = time - ( ( minutes * 1000 * 60 ) + ( seconds * 1000 ) );
 	return idStr( va( "%02d:%02d.%03d", minutes, seconds, mseconds ) );
 }
 
-static idStr FormatCash( int64 cash ) { return idStr::FormatCash( static_cast<int32>( cash ) ); }
-static int32 FormatNumber( int64 number ) { return static_cast<int32>( number ); }
+static idStr FormatCash(const int64 cash ) { return idStr::FormatCash( static_cast<int32>( cash ) ); }
+static int32 FormatNumber(const int64 number ) { return static_cast<int32>( number ); }
 
-static idSWFScriptVar FormatColumn( const columnDef_t * columnDef, int64 score ) {
+static idSWFScriptVar FormatColumn( const columnDef_t * columnDef, const int64 score ) {
 	switch( columnDef->displayType ) {
 	case STATS_COLUMN_DISPLAY_TIME_MILLISECONDS:	return idSWFScriptVar( FormatTime( score ) );
 	case STATS_COLUMN_DISPLAY_CASH:					return idSWFScriptVar( FormatCash( score ) );
@@ -152,7 +152,7 @@ void idMenuScreen_Shell_Leaderboards::Initialize( idMenuHandler * data ) {
 	const idList< mpMap_t > maps = common->GetMapList();
 	const char ** gameModes = nullptr;
 	const char ** gameModesDisplay = nullptr;
-	int numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
+	size_t numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
 
 	for ( int mapIndex = 0; mapIndex < maps.Num(); ++mapIndex ) {
 		for ( int modeIndex = 0; modeIndex < numModes; ++modeIndex ) {
@@ -393,7 +393,7 @@ void idMenuScreen_Shell_Leaderboards::HideScreen( const mainMenuTransition_t tra
 idMenuScreen_Shell_Leaderboards::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -422,7 +422,7 @@ bool idMenuScreen_Shell_Leaderboards::HandleAction( idWidgetAction & action, con
 				return true;
 			}
 
-			int index = options->GetFocusIndex();
+			index_t index = options->GetFocusIndex();
 			if ( parms.Num() != 0 ) {
 				index = parms[0].ToInteger();
 			}
@@ -516,7 +516,7 @@ void idMenuScreen_Shell_Leaderboards::SetLeaderboardIndex() {
 	}		
 
 	const leaderboardDefinition_t * leaderboardDef = leaderboards[ lbIndex ].lb;
-	for ( int i = 0; i < leaderboardDef->numColumns; i++ ) {
+	for ( size_t i = 0; i < leaderboardDef->numColumns; i++ ) {
 		/*if ( leaderboardDef->columnDefs[i].displayType != STATS_COLUMN_NEVER_DISPLAY ) {
 			gameLocal->GetMainMenu()->mainMenu->SetGlobal( va("columnname%d",i), leaderboardDef->columnDefs[i].locDisplayName );
 		}*/
@@ -556,7 +556,7 @@ void idMenuScreen_Shell_Leaderboards::RefreshLeaderboard() {
 
 			idList< idStr > values;
 
-			int index = lbCache->GetRowOffset() + addIndex;
+			index_t index = lbCache->GetRowOffset() + addIndex;
 
 			const idLeaderboardCallback::row_t * row = lbCache->GetLeaderboardRow( index );		// If this row is not in the cache, this will kick off a request
 			if ( row != nullptr) {
@@ -633,7 +633,7 @@ void idMenuScreen_Shell_Leaderboards::RefreshLeaderboard() {
 idMenuScreen_Shell_Leaderboards::ShowMessage
 ========================
 */
-void idMenuScreen_Shell_Leaderboards::ShowMessage( bool show, idStr message, bool spinner ) {
+void idMenuScreen_Shell_Leaderboards::ShowMessage(const bool show, idStr message, const bool spinner ) {
 
 	if ( !menuData || !menuData->GetGUI() ) {
 		return;
@@ -719,7 +719,7 @@ idLBCache::Reset
 ========================
 */
 void idLBCache::Reset() {
-	for ( int i = 0; i < NUM_ROW_BLOCKS; i++ ) {
+	for ( size_t i = 0; i < NUM_ROW_BLOCKS; i++ ) {
 		rowBlocks[i].startIndex = 0;
 		rowBlocks[i].rows.Clear();
 	}
@@ -740,7 +740,7 @@ void idLBCache::Reset() {
 idLBCache::SetLeaderboard
 ========================
 */
-void idLBCache::SetLeaderboard( const leaderboardDefinition_t * def_, leaderboardFilterMode_t filter_ ) {
+void idLBCache::SetLeaderboard( const leaderboardDefinition_t * def_, const leaderboardFilterMode_t filter_ ) {
 
 	// If we are busy waiting on results from a previous request, queue up this request
 	if ( loadingNewLeaderboard || requestingRows ) {
@@ -815,7 +815,7 @@ idStr idLBCache::GetFilterStrType() {
 idLBCache::Scroll
 ========================
 */
-bool idLBCache::Scroll( int amount ) {
+bool idLBCache::Scroll(const int amount ) {
 	if ( GetErrorCode() != LEADERBOARD_DISPLAY_ERROR_NONE ) {
 		return false;	// don't allow scrolling on errors
 	}
@@ -851,7 +851,7 @@ bool idLBCache::Scroll( int amount ) {
 idLBCache::ScrollOffset
 ========================
 */
-bool idLBCache::ScrollOffset( int amount ) {
+bool idLBCache::ScrollOffset(const int amount ) {
 	if ( GetErrorCode() != LEADERBOARD_DISPLAY_ERROR_NONE ) {
 		return false;	// don't allow scrolling on errors
 	}
@@ -886,7 +886,7 @@ idLBRowBlock * idLBCache::FindFreeRowBlock() {
 	int bestTime		= 0;
 	int bestBlockIndex	= 0;
 
-	for ( int i = 0; i < NUM_ROW_BLOCKS; i++ ) {
+	for ( size_t i = 0; i < NUM_ROW_BLOCKS; i++ ) {
 		if ( rowBlocks[i].rows.Num() == 0 ) {
 			return &rowBlocks[i];		// Prefer completely empty blocks
 		}
@@ -906,7 +906,7 @@ idLBRowBlock * idLBCache::FindFreeRowBlock() {
 idLBCache::CallbackErrorToDisplayError
 ========================
 */
-leaderboardDisplayError_t idLBCache::CallbackErrorToDisplayError( leaderboardError_t errorCode ) {
+leaderboardDisplayError_t idLBCache::CallbackErrorToDisplayError(const leaderboardError_t errorCode ) {
 	switch ( errorCode ) {
 	case LEADERBOARD_ERROR_NONE:
 		return LEADERBOARD_DISPLAY_ERROR_NONE;
@@ -996,7 +996,7 @@ void idLBCache::Update( const idLeaderboardCallback * callback ) {
 idLBCache::GetLeaderboardRow
 ========================
 */
-const idLeaderboardCallback::row_t * idLBCache::GetLeaderboardRow( int row ) {
+const idLeaderboardCallback::row_t * idLBCache::GetLeaderboardRow(const int row ) {
 	if ( loadingNewLeaderboard ) {
 		return nullptr;		// If we are refreshing (seeing this leaderboard for the first time), force NULL till we get first set of results
 	}
@@ -1006,7 +1006,7 @@ const idLeaderboardCallback::row_t * idLBCache::GetLeaderboardRow( int row ) {
 	}
 
 	// Find it in the cache
-	for ( int i = 0; i < NUM_ROW_BLOCKS; i++ ) {
+	for ( size_t i = 0; i < NUM_ROW_BLOCKS; i++ ) {
 		int startIndex = rowBlocks[i].startIndex;
 		int lastIndex = startIndex + rowBlocks[i].rows.Num() - 1;
 		if ( row >= startIndex && row <= lastIndex ) {

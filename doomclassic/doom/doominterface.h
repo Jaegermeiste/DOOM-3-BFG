@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef DOOM_INTERFACE_H
 #define DOOM_INTERFACE_H
 
+#pragma once
+
 //#include "doomlib.h"
 
 #include <vector>
@@ -44,8 +46,8 @@ public:
 
 	typedef int ( *NoParamCallback)();
 	
-	void Startup( int players, bool multiplayer = false );
-	bool Frame( int time, idUserCmdMgr * userCmdMgr );
+	void Startup( size_t players, bool multiplayer = false );
+	bool Frame( ID_TIME_T time, idUserCmdMgr * userCmdMgr );
 	void Shutdown();
 	void QuitCurrentGame();
 	void EndDMGame();
@@ -56,18 +58,18 @@ public:
 #ifdef ID_ENABLE_DOOM_CLASSIC_NETWORKING
 	void SetNetworking( DoomLib::RecvFunc recv, DoomLib::SendFunc send, DoomLib::SendRemoteFunc sendRemote );
 #endif
-	int GetNumPlayers() const;
+	size_t GetNumPlayers() const;
 
-	static int CurrentPlayer();
+	static index_t CurrentPlayer();
 
-	void	SetMultiplayerPlayers(int localPlayerIndex, int playerCount, int localPlayer, std::vector<std::string> playerAddresses );
+			static void	SetMultiplayerPlayers(index_t localPlayerIndex, size_t playerCount, index_t localPlayer, idList<idStr> playerAddresses );
 
 protected:
-	int					numplayers;
+	size_t				numplayers;
 
 	bool				bFinished[4];
 
-	int					lastTicRun;
+	ID_TIME_T			lastTicRun;
 };
 
 

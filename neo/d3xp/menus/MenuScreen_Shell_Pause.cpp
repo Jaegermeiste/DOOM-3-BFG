@@ -156,7 +156,7 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 			option.Append( "#str_swf_exit_game" );	// exit game
 			menuOptions.Append( option );
 
-			int index = 0;
+			index_t index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PAUSE_CMD_DEAD_RESTART );
 			index++;
@@ -178,7 +178,7 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 			option.Append( "#str_swf_exit_game" );	// exit game
 			menuOptions.Append( option );
 
-			int index = 0;
+			index_t index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PAUSE_CMD_RETURN );
 			index++;
@@ -206,7 +206,7 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 			option.Append( "#str_swf_leave_game" );	// leave game
 			menuOptions.Append( option );		
 
-			int index = 0;
+			index_t index = 0;
 			idMenuWidget_Button * buttonWidget = nullptr;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PAUSE_CMD_RETURN );
@@ -248,7 +248,7 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 				option.Append( "#str_swf_exit_game" );	// exit game
 				menuOptions.Append( option );
 
-				int index = 0;
+				index_t index = 0;
 				idMenuWidget_Button * buttonWidget = nullptr;
 				options->GetChildByIndex( index ).ClearEventActions();
 				options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PAUSE_CMD_LOAD );
@@ -287,7 +287,7 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 				option.Append( "#str_swf_exit_game" );	// exit game
 				menuOptions.Append( option );
 
-				int index = 0;
+				index_t index = 0;
 				idMenuWidget_Button * buttonWidget = nullptr;
 				options->GetChildByIndex( index ).ClearEventActions();
 				options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PAUSE_CMD_RETURN );
@@ -354,7 +354,7 @@ idMenuScreen_Shell_Pause::HandleExitGameBtn
 void idMenuScreen_Shell_Pause::HandleExitGameBtn() {
 	class idSWFScriptFunction_QuitDialog : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_QuitDialog( idMenuScreen_Shell_Pause * _menu, gameDialogMessages_t _msg, bool _accept ) {
+		idSWFScriptFunction_QuitDialog( idMenuScreen_Shell_Pause * _menu, const gameDialogMessages_t _msg, const bool _accept ) {
 			menu = _menu;
 			msg = _msg;
 			accept = _accept;
@@ -394,7 +394,7 @@ idMenuScreen_Shell_Pause::HandleRestartBtn
 void idMenuScreen_Shell_Pause::HandleRestartBtn() {
 	class idSWFScriptFunction_RestartDialog : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_RestartDialog( idMenuScreen_Shell_Pause * _menu, gameDialogMessages_t _msg, bool _accept ) {
+		idSWFScriptFunction_RestartDialog( idMenuScreen_Shell_Pause * _menu, const gameDialogMessages_t _msg, const bool _accept ) {
 			menu = _menu;
 			msg = _msg;
 			accept = _accept;
@@ -421,7 +421,7 @@ void idMenuScreen_Shell_Pause::HandleRestartBtn() {
 idMenuScreen_Shell_Pause::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Pause::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Pause::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

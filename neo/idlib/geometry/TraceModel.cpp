@@ -167,7 +167,7 @@ idTraceModel::SetupOctahedron
 ============
 */
 void idTraceModel::SetupOctahedron( const idBounds &octBounds ) {
-	idVec3 v;
+	idVec3 v = {};
 
 	if ( type != TRM_OCTAHEDRON ) {
 		InitOctahedron();
@@ -187,12 +187,12 @@ void idTraceModel::SetupOctahedron( const idBounds &octBounds ) {
 	verts[5].Set( offset.x, offset.y, offset.z - v[2] );
 
 	// set polygons
-	for ( int i = 0; std::cmp_less(i, numPolys); i++ ) {
-		const int64 e0 = polys[i].edges[0];
-		const int64 e1 = polys[i].edges[1];
-		const size_t v0 = edges[abs(e0)].v[INT64_SIGNBITSET(e0)];
-		const size_t v1 = edges[abs(e0)].v[INT64_SIGNBITNOTSET(e0)];
-		const size_t v2 = edges[abs(e1)].v[INT64_SIGNBITNOTSET(e1)];
+	for ( size_t i = 0; std::cmp_less(i, numPolys); i++ ) {
+		const index_t e0 = polys[i].edges[0];
+		const index_t e1 = polys[i].edges[1];
+		const size_t v0 = edges[abs(e0)].v[INTEGER_SIGN_BIT_IS_SET(e0)];
+		const size_t v1 = edges[abs(e0)].v[INTEGER_SIGN_BIT_IS_NOT_SET(e0)];
+		const size_t v2 = edges[abs(e1)].v[INTEGER_SIGN_BIT_IS_NOT_SET(e1)];
 		// polygon plane
 		polys[i].normal = ( verts[v1] - verts[v0] ).Cross( verts[v2] - verts[v0] );
 		polys[i].normal.Normalize();
@@ -353,15 +353,15 @@ void idTraceModel::SetupDodecahedron( const idBounds &dodBounds ) {
 
 	// set polygons
 	for ( size_t i = 0; std::cmp_less(i, numPolys); i++ ) {
-		const int64 e0 = polys[i].edges[0];
-		const int64 e1 = polys[i].edges[1];
-		const int64 e2 = polys[i].edges[2];
-		const int64 e3 = polys[i].edges[3];
-		const size_t v0 = edges[abs(e0)].v[INT64_SIGNBITSET(e0)];
-		const size_t v1 = edges[abs(e0)].v[INT64_SIGNBITNOTSET(e0)];
-		const size_t v2 = edges[abs(e1)].v[INT64_SIGNBITNOTSET(e1)];
-		const size_t v3 = edges[abs(e2)].v[INT64_SIGNBITNOTSET(e2)];
-		const size_t v4 = edges[abs(e3)].v[INT64_SIGNBITNOTSET(e3)];
+		const index_t e0 = polys[i].edges[0];
+		const index_t e1 = polys[i].edges[1];
+		const index_t e2 = polys[i].edges[2];
+		const index_t e3 = polys[i].edges[3];
+		const size_t v0 = edges[abs(e0)].v[INTEGER_SIGN_BIT_IS_SET(e0)];
+		const size_t v1 = edges[abs(e0)].v[INTEGER_SIGN_BIT_IS_NOT_SET(e0)];
+		const size_t v2 = edges[abs(e1)].v[INTEGER_SIGN_BIT_IS_NOT_SET(e1)];
+		const size_t v3 = edges[abs(e2)].v[INTEGER_SIGN_BIT_IS_NOT_SET(e2)];
+		const size_t v4 = edges[abs(e3)].v[INTEGER_SIGN_BIT_IS_NOT_SET(e3)];
 		// polygon plane
 		polys[i].normal = ( verts[v1] - verts[v0] ).Cross( verts[v2] - verts[v0] );
 		polys[i].normal.Normalize();
@@ -537,32 +537,32 @@ idTraceModel::SetupCylinder
 ============
 */
 void idTraceModel::SetupCylinder( const idBounds &cylBounds, const size_t numSides ) {
-	int64 i = 0;
+	index_t i = 0;
 
-	int64 n = idMath::integer_cast<int64>(numSides);
-	n = std::max<int64>(n, 3);
-	if (idMath::integer_cast<size_t>(n * 2) > MAX_TRACEMODEL_VERTS ) {
+	index_t n = numeric_cast<index_t>(numSides);
+	n = Max(n, 3);
+	if (numeric_cast<size_t>(n * 2) > MAX_TRACEMODEL_VERTS ) {
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCylinder: too many vertices\n" );
 		n = MAX_TRACEMODEL_VERTS / 2;
 	}
-	if (idMath::integer_cast<size_t>(n * 3) > MAX_TRACEMODEL_EDGES ) {
+	if (numeric_cast<size_t>(n * 3) > MAX_TRACEMODEL_EDGES ) {
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCylinder: too many sides\n" );
 		n = MAX_TRACEMODEL_EDGES / 3;
 	}
-	if (idMath::integer_cast<size_t>(n + 2) > MAX_TRACEMODEL_POLYS ) {
+	if (numeric_cast<size_t>(n + 2) > MAX_TRACEMODEL_POLYS ) {
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCylinder: too many polygons\n" );
 		n = MAX_TRACEMODEL_POLYS - 2;
 	}
 
 	type = TRM_CYLINDER;
-	numVerts = idMath::integer_cast<size_t>(n * 2);
-	numEdges = idMath::integer_cast<size_t>(n * 3);
-	numPolys = idMath::integer_cast<size_t>(n + 2);
+	numVerts = numeric_cast<size_t>(n * 2);
+	numEdges = numeric_cast<size_t>(n * 3);
+	numPolys = numeric_cast<size_t>(n + 2);
 	offset = ( cylBounds[0] + cylBounds[1] ) * 0.5f;
 	const idVec3 halfSize = cylBounds[1] - offset;
 	for ( i = 0; i < n; i++ ) {
 		// verts
-		const float angle = idMath::TWO_PI * idMath::Itof<float>(i) / idMath::Itof<float>(n);
+		const float angle = idMath::TWO_PI * numeric_cast<float>(i) / numeric_cast<float>(n);
 		verts[i].x = cos( angle ) * halfSize.x + offset.x;
 		verts[i].y = sin( angle ) * halfSize.y + offset.y;
 		verts[i].z = -halfSize.z + offset.z;
@@ -570,8 +570,8 @@ void idTraceModel::SetupCylinder( const idBounds &cylBounds, const size_t numSid
 		verts[n+i].y = verts[i].y;
 		verts[n+i].z = halfSize.z + offset.z;
 		// edges
-		const int64 ii = i + 1;
-		const int64 n2 = n << 1;
+		const index_t ii = i + 1;
+		const index_t n2 = n << 1;
 		edges[ii].v[0] = i;
 		edges[ii].v[1] = ii % n;
 		edges[n+ii].v[0] = edges[ii].v[0] + n;
@@ -645,40 +645,40 @@ idTraceModel::SetupCone
 ============
 */
 void idTraceModel::SetupCone( const idBounds &coneBounds, const size_t numSides ) {
-	int64 i = 0;
+	index_t i = 0;
 
-	int64 n = idMath::integer_cast<int64>(numSides);
+	index_t n = numeric_cast<index_t>(numSides);
 	if ( n < 2 ) {
 		n = 3;
 	}
-	if (idMath::integer_cast<size_t>(n + 1) > MAX_TRACEMODEL_VERTS ) {
+	if (numeric_cast<size_t>(n + 1) > MAX_TRACEMODEL_VERTS ) {
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCone: too many vertices\n" );
 		n = MAX_TRACEMODEL_VERTS - 1;
 	}
-	if (idMath::integer_cast<size_t>(n * 2) > MAX_TRACEMODEL_EDGES ) {
+	if (numeric_cast<size_t>(n * 2) > MAX_TRACEMODEL_EDGES ) {
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCone: too many edges\n" );
 		n = MAX_TRACEMODEL_EDGES / 2;
 	}
-	if (idMath::integer_cast<size_t>(n + 1) > MAX_TRACEMODEL_POLYS ) {
+	if (numeric_cast<size_t>(n + 1) > MAX_TRACEMODEL_POLYS ) {
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCone: too many polygons\n" );
 		n = MAX_TRACEMODEL_POLYS - 1;
 	}
 
 	type = TRM_CONE;
-	numVerts = idMath::integer_cast<size_t>(n + 1);
-	numEdges = idMath::integer_cast<size_t>(n * 2);
-	numPolys = idMath::integer_cast<size_t>(n + 1);
+	numVerts = numeric_cast<size_t>(n + 1);
+	numEdges = numeric_cast<size_t>(n * 2);
+	numPolys = numeric_cast<size_t>(n + 1);
 	offset = ( coneBounds[0] + coneBounds[1] ) * 0.5f;
 	const idVec3 halfSize = coneBounds[1] - offset;
 	verts[n].Set( 0.0f, 0.0f, halfSize.z + offset.z );
 	for ( i = 0; i < n; i++ ) {
 		// verts
-		const float angle = idMath::TWO_PI * idMath::Itof<float>(i) / idMath::Itof<float>(n);
+		const float angle = idMath::TWO_PI * numeric_cast<float>(i) / numeric_cast<float>(n);
 		verts[i].x = cos( angle ) * halfSize.x + offset.x;
 		verts[i].y = sin( angle ) * halfSize.y + offset.y;
 		verts[i].z = -halfSize.z + offset.z;
 		// edges
-		const int64 ii = i + 1;
+		const index_t ii = i + 1;
 		edges[ii].v[0] = i;
 		edges[ii].v[1] = ii % n;
 		edges[n+ii].v[0] = i;
@@ -774,7 +774,7 @@ void idTraceModel::SetupBone( const float length, const float width ) {
 		polys[i].dist = polys[i].normal * verts[ edges[ abs(polys[i].edges[0]) ].v[0] ];
 		polys[i].bounds.Clear();
 		for ( size_t j = 0; j < 3; j++ ) {
-			const int64 edgeNum = polys[i].edges[j];
+			const index_t edgeNum = polys[i].edges[j];
 			polys[i].bounds.AddPoint( verts[ edges[abs(edgeNum)].v[edgeNum < 0] ] );
 		}
 	}
@@ -846,7 +846,7 @@ idTraceModel::SetupPolygon
 ============
 */
 void idTraceModel::SetupPolygon( const idVec3 *v, const size_t count ) {
-	int64 i = 0, j = 0;
+	index_t i = 0, j = 0;
 
 	type = TRM_POLYGON;
 	numVerts = count;
@@ -879,16 +879,16 @@ void idTraceModel::SetupPolygon( const idVec3 *v, const size_t count ) {
 		edges[i+1].normal = polys[0].normal.Cross( v[i] - v[j] );
 		edges[i+1].normal.Normalize();
 		polys[0].edges[i] = i + 1;
-		polys[1].edges[i] = -(idMath::integer_cast<int>(numVerts) - i);
+		polys[1].edges[i] = -(numeric_cast<int>(numVerts) - i);
 		polys[0].bounds.AddPoint( verts[i] );
 		mid += v[i];
 	}
 	polys[1].bounds = polys[0].bounds;
 	// offset to center
-	offset = mid * (1.0f / idMath::Itof<float>(numVerts));
+	offset = mid * (1.0f / numeric_cast<float>(numVerts));
 	// total bounds
 	bounds = polys[0].bounds;
-	// considered non convex because the model has no volume
+	// considered non-convex because the model has no volume
 	isConvex = false;
 }
 
@@ -922,12 +922,12 @@ void idTraceModel::VolumeFromPolygon( idTraceModel &trm, const float thickness )
 		trm.edges[ numEdges + i + 1 ].v[1] = numVerts + (i+1) % numVerts;
 		trm.edges[ numEdges * 2 + i + 1 ].v[0] = i;
 		trm.edges[ numEdges * 2 + i + 1 ].v[1] = numVerts + i;
-		trm.polys[1].edges[i] = -idMath::integer_cast<int64>(numEdges + i + 1);
+		trm.polys[1].edges[i] = -numeric_cast<index_t>(numEdges + i + 1);
 		trm.polys[2+i].numEdges = 4;
-		trm.polys[2+i].edges[0] = -idMath::integer_cast<int64>(i + 1);
-		trm.polys[2+i].edges[1] = idMath::integer_cast<int64>(numEdges*2 + i + 1);
-		trm.polys[2+i].edges[2] = idMath::integer_cast<int64>(numEdges + i + 1);
-		trm.polys[2+i].edges[3] = -idMath::integer_cast<int64>(numEdges*2 + (i+1) % numEdges + 1);
+		trm.polys[2+i].edges[0] = -numeric_cast<index_t>(i + 1);
+		trm.polys[2+i].edges[1] = numeric_cast<index_t>(numEdges*2 + i + 1);
+		trm.polys[2+i].edges[2] = numeric_cast<index_t>(numEdges + i + 1);
+		trm.polys[2+i].edges[3] = -numeric_cast<index_t>(numEdges*2 + (i+1) % numEdges + 1);
 		trm.polys[2+i].normal = (verts[(i + 1) % numVerts] - verts[i]).Cross( polys[0].normal );
 		trm.polys[2+i].normal.Normalize();
 		trm.polys[2+i].dist = trm.polys[2+i].normal * verts[i];
@@ -955,7 +955,7 @@ size_t idTraceModel::GenerateEdgeNormals() {
 	for ( i = 0; i < numPolys; i++ ) {
 		const traceModelPoly_t* poly = polys + i;
 		for ( size_t j = 0; j < poly->numEdges; j++ ) {
-			const int64 edgeNum = poly->edges[j];
+			const index_t edgeNum = poly->edges[j];
 			traceModelEdge_t* edge = edges + abs(edgeNum);
 			if ( edge->normal[0] == 0.0f && edge->normal[1] == 0.0f && edge->normal[2] == 0.0f ) {
 				edge->normal = poly->normal;
@@ -965,7 +965,7 @@ size_t idTraceModel::GenerateEdgeNormals() {
 				// if the two planes make a very sharp edge
 				if ( dot < SHARP_EDGE_DOT ) {
 					// max length normal pointing outside both polygons
-					idVec3 dir = verts[edge->v[edgeNum > 0]] - verts[edge->v[edgeNum < 0]];
+					const idVec3 dir = verts[edge->v[edgeNum > 0]] - verts[edge->v[edgeNum < 0]];
 					edge->normal = edge->normal.Cross( dir ) + poly->normal.Cross( -dir );
 					edge->normal *= ( 0.5f / ( 0.5f + 0.5f * SHARP_EDGE_DOT ) ) / edge->normal.Length();
 					numSharpEdges++;
@@ -1016,12 +1016,12 @@ void idTraceModel::Rotate( const idMat3 &rotation ) {
 	for ( i = 0; i < numPolys; i++ ) {
 		polys[i].normal *= rotation;
 		polys[i].bounds.Clear();
-		int64 edgeNum = 0;
+		index_t edgeNum = 0;
 		for ( size_t j = 0; j < polys[i].numEdges; j++ ) {
 			edgeNum = polys[i].edges[j];
-			polys[i].bounds.AddPoint( verts[edges[abs(edgeNum)].v[INT64_SIGNBITSET(edgeNum)]] );
+			polys[i].bounds.AddPoint( verts[edges[abs(edgeNum)].v[INTEGER_SIGN_BIT_IS_SET(edgeNum)]] );
 		}
-		polys[i].dist = polys[i].normal * verts[edges[abs(edgeNum)].v[INT64_SIGNBITSET(edgeNum)]];
+		polys[i].dist = polys[i].normal * verts[edges[abs(edgeNum)].v[INTEGER_SIGN_BIT_IS_SET(edgeNum)]];
 		bounds += polys[i].bounds;
 	}
 
@@ -1035,14 +1035,14 @@ idTraceModel::Shrink
 */
 void idTraceModel::Shrink( const float m ) {
 	size_t i = 0;
-	int64 edgeNum = 0;
+	index_t edgeNum = 0;
 	const traceModelEdge_t *edge = nullptr;
 
 	if ( type == TRM_POLYGON ) {
 		for ( i = 0; i < numEdges; i++ ) {
 			edgeNum = polys[0].edges[i];
 			edge = &edges[abs(edgeNum)];
-			idVec3 dir = verts[edge->v[INT64_SIGNBITSET(edgeNum)]] - verts[edge->v[INT64_SIGNBITNOTSET(edgeNum)]];
+			idVec3 dir = verts[edge->v[INTEGER_SIGN_BIT_IS_SET(edgeNum)]] - verts[edge->v[INTEGER_SIGN_BIT_IS_NOT_SET(edgeNum)]];
 			if ( dir.Normalize() < 2.0f * m ) {
 				continue;
 			}
@@ -1059,7 +1059,7 @@ void idTraceModel::Shrink( const float m ) {
 		for ( size_t j = 0; j < polys[i].numEdges; j++ ) {
 			edgeNum = polys[i].edges[j];
 			edge = &edges[abs(edgeNum)];
-			verts[ edge->v[ INT64_SIGNBITSET(edgeNum) ] ] -= polys[i].normal * m;
+			verts[ edge->v[INTEGER_SIGN_BIT_IS_SET(edgeNum) ] ] -= polys[i].normal * m;
 		}
 	}
 }
@@ -1113,11 +1113,11 @@ float idTraceModel::GetPolygonArea(const size_t polyNum ) const {
 	}
 	const traceModelPoly_t* poly = &polys[polyNum];
 	float total = 0.0f;
-	const idVec3 base = verts[edges[abs(poly->edges[0])].v[INT64_SIGNBITSET(poly->edges[0])]];
+	const idVec3 base = verts[edges[abs(poly->edges[0])].v[INTEGER_SIGN_BIT_IS_SET(poly->edges[0])]];
 	for ( size_t i = 0; i < poly->numEdges; i++ ) {
-		idVec3 v1 = verts[edges[abs(poly->edges[i])].v[INT64_SIGNBITSET(poly->edges[i])]] - base;
-		idVec3 v2 = verts[edges[abs(poly->edges[i])].v[INT64_SIGNBITNOTSET(poly->edges[i])]] - base;
-		idVec3 cross = v1.Cross(v2);
+		const idVec3 v1 = verts[edges[abs(poly->edges[i])].v[INTEGER_SIGN_BIT_IS_SET(poly->edges[i])]] - base;
+		const idVec3 v2 = verts[edges[abs(poly->edges[i])].v[INTEGER_SIGN_BIT_IS_NOT_SET(poly->edges[i])]] - base;
+		const idVec3 cross = v1.Cross(v2);
 		total += cross.Length();
 	}
 	return total * 0.5f;
@@ -1128,14 +1128,14 @@ float idTraceModel::GetPolygonArea(const size_t polyNum ) const {
 idTraceModel::GetOrderedSilhouetteEdges
 ============
 */
-size_t idTraceModel::GetOrderedSilhouetteEdges(const bool edgeIsSilEdge[MAX_TRACEMODEL_EDGES+1], int64 silEdges[MAX_TRACEMODEL_EDGES]) const {
+size_t idTraceModel::GetOrderedSilhouetteEdges(const bool edgeIsSilEdge[MAX_TRACEMODEL_EDGES+1], index_t silEdges[MAX_TRACEMODEL_EDGES]) const {
 	size_t i = 0, j = 0;
-	int64 unsortedSilEdges[MAX_TRACEMODEL_EDGES] = {};
+	index_t unsortedSilEdges[MAX_TRACEMODEL_EDGES] = {};
 
 	size_t numSilEdges = 0;
 	for ( i = 1; i <= numEdges; i++ ) {
 		if ( edgeIsSilEdge[i] ) {
-			unsortedSilEdges[numSilEdges++] = idMath::integer_cast<int64>(i);
+			unsortedSilEdges[numSilEdges++] = numeric_cast<index_t>(i);
 		}
 	}
 
@@ -1144,7 +1144,7 @@ size_t idTraceModel::GetOrderedSilhouetteEdges(const bool edgeIsSilEdge[MAX_TRAC
 	size_t nextSilVert = edges[silEdges[0]].v[0];
 	for ( i = 1; i < numSilEdges; i++ ) {
 		for ( j = 1; j < numSilEdges; j++ ) {
-			const int64 edgeNum = unsortedSilEdges[j];
+			const index_t edgeNum = unsortedSilEdges[j];
 			if ( edgeNum >= 0 ) {
 				if ( edges[edgeNum].v[0] == nextSilVert ) {
 					nextSilVert = edges[edgeNum].v[1];
@@ -1171,15 +1171,15 @@ size_t idTraceModel::GetOrderedSilhouetteEdges(const bool edgeIsSilEdge[MAX_TRAC
 idTraceModel::GetProjectionSilhouetteEdges
 ============
 */
-size_t idTraceModel::GetProjectionSilhouetteEdges(const idVec3 &projectionOrigin, int64 silEdges[MAX_TRACEMODEL_EDGES]) const {
+size_t idTraceModel::GetProjectionSilhouetteEdges(const idVec3 &projectionOrigin, index_t silEdges[MAX_TRACEMODEL_EDGES]) const {
 	bool edgeIsSilEdge[MAX_TRACEMODEL_EDGES+1];
 
 	memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
 
 	for (size_t i = 0; i < numPolys; i++ ) {
 		const traceModelPoly_t* poly = &polys[i];
-		int64 edgeNum = poly->edges[0];
-		idVec3 dir = verts[edges[abs(edgeNum)].v[INT64_SIGNBITSET(edgeNum)]] - projectionOrigin;
+		index_t edgeNum = poly->edges[0];
+		const idVec3 dir = verts[edges[abs(edgeNum)].v[INTEGER_SIGN_BIT_IS_SET(edgeNum)]] - projectionOrigin;
 		if ( dir * poly->normal < 0.0f ) {
 			for (size_t j = 0; j < poly->numEdges; j++ ) {
 				edgeNum = poly->edges[j];
@@ -1196,7 +1196,7 @@ size_t idTraceModel::GetProjectionSilhouetteEdges(const idVec3 &projectionOrigin
 idTraceModel::GetParallelProjectionSilhouetteEdges
 ============
 */
-size_t idTraceModel::GetParallelProjectionSilhouetteEdges( const idVec3 &projectionDir, int64 silEdges[MAX_TRACEMODEL_EDGES] ) const {
+size_t idTraceModel::GetParallelProjectionSilhouetteEdges( const idVec3 &projectionDir, index_t silEdges[MAX_TRACEMODEL_EDGES] ) const {
 	bool edgeIsSilEdge[MAX_TRACEMODEL_EDGES+1];
 
 	memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
@@ -1205,7 +1205,7 @@ size_t idTraceModel::GetParallelProjectionSilhouetteEdges( const idVec3 &project
 		const traceModelPoly_t* poly = &polys[i];
 		if ( projectionDir * poly->normal < 0.0f ) {
 			for (size_t j = 0; j < poly->numEdges; j++ ) {
-				const int64 edgeNum = poly->edges[j];
+				const index_t edgeNum = poly->edges[j];
 				edgeIsSilEdge[abs(edgeNum)] ^= 1;
 			}
 		}
@@ -1233,11 +1233,15 @@ typedef struct projectionIntegrals_s {
 idTraceModel::ProjectionIntegrals
 ============
 */
-void idTraceModel::ProjectionIntegrals( size_t polyNum, size_t a, size_t b, struct projectionIntegrals_s &integrals ) const {
-	const traceModelPoly_t *poly;
+void idTraceModel::ProjectionIntegrals( const Ordinal auto polyNum, const Ordinal auto a, const Ordinal auto b, struct projectionIntegrals_s &integrals ) const {
+	ORDINAL_CHECK(polyNum, numPolys);
+	ORDINAL_CHECK(a, 3);
+	ORDINAL_CHECK(b, 3);
+
+	const traceModelPoly_t *poly = nullptr;
 	size_t i = 0;
-	int64 edgeNum = 0;
-	idVec3 v1, v2;
+	index_t edgeNum = 0;
+	idVec3 v1 = {}, v2 = {};
 	float a0 = 0.0f, a1 = 0.0f, da = 0.0f;
 	float b0 = 0.0f, b1 = 0.0f, db = 0.0f;
 	float a0_2 = 0.0f, a0_3 = 0.0f, a0_4 = 0.0f, b0_2 = 0.0f, b0_3 = 0.0f, b0_4 = 0.0f;
@@ -1318,8 +1322,13 @@ typedef struct polygonIntegrals_s {
 idTraceModel::PolygonIntegrals
 ============
 */
-void idTraceModel::PolygonIntegrals(const size_t polyNum, const size_t a, const size_t b, const size_t c, struct polygonIntegrals_s &integrals ) const {
-	projectionIntegrals_t pi;
+void idTraceModel::PolygonIntegrals(const Ordinal auto polyNum, const Ordinal auto a, const Ordinal auto b, const Ordinal auto c, struct polygonIntegrals_s &integrals ) const {
+	ORDINAL_CHECK(polyNum, numPolys);
+	ORDINAL_CHECK(a, 3);
+	ORDINAL_CHECK(b, 3);
+	ORDINAL_CHECK(c, 3);
+
+	projectionIntegrals_t pi = {};
 
 	ProjectionIntegrals( polyNum, a, b, pi );
 

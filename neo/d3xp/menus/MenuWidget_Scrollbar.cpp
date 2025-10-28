@@ -138,7 +138,7 @@ void idMenuWidget_ScrollBar::CalcTopAndBottom() {
 idMenuWidget_ScrollBar::CalculatePosition
 ========================
 */
-void idMenuWidget_ScrollBar::CalculatePosition( float x, float y ) {	
+void idMenuWidget_ScrollBar::CalculatePosition( float x, const float y ) {	
 	if ( GetSprite() == nullptr) {
 		return;
 	}
@@ -206,7 +206,7 @@ void idMenuWidget_ScrollBar::CalculatePosition( float x, float y ) {
 idMenuWidget_ScrollBar::HandleAction
 ========================
 */
-bool idMenuWidget_ScrollBar::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuWidget_ScrollBar::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	widgetAction_t actionType = action.GetType();
 

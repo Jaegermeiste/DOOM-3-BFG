@@ -95,7 +95,7 @@ int idSaveGameThread::Save() const
 	// Check for the required storage space.
 	int64 requiredSizeBytes = 0;
 	{
-		for ( int i = 0; i < callback->files.Num(); i++ ) {
+		for ( size_t i = 0; i < callback->files.Num(); i++ ) {
 			idFile_SaveGame *	file = callback->files[i];
 			requiredSizeBytes += ( file->Length() + sizeof( unsigned int ) ); // uint for checksum
 			if ( file->type == SAVEGAMEFILE_PIPELINED ) {
@@ -112,7 +112,7 @@ int idSaveGameThread::Save() const
 	if ( ( callback->mode & SAVEGAME_MBF_DELETE_FILES ) && !callback->cancelled ) {
 		if ( fileSystem->IsFolder( saveFolder.c_str(), "fs_savePath" ) == FOLDER_YES ) {
 			idFileList * files = fileSystem->ListFilesTree( saveFolder.c_str(), "*.*" );
-			for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+			for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 				requiredSizeBytes -= fileSystem->GetFileLength( files->GetFile( i ) );
 				filesToDelete.Append( files->GetFile( i ) );
 			}
@@ -140,12 +140,12 @@ int idSaveGameThread::Save() const
 
 	// Delete all previous files if needed
 	// ALL THE FILES RIGHT NOW----  could use pattern later...
-	for ( int i = 0; i < filesToDelete.Num() && !callback->cancelled; i++ ) {
+	for ( size_t i = 0; i < filesToDelete.Num() && !callback->cancelled; i++ ) {
 		fileSystem->RemoveFile( filesToDelete[i].c_str() );
 	}
 
 	// Save the raw files.
-	for ( int i = 0; i < callback->files.Num() && ret == ERROR_SUCCESS && !callback->cancelled; i++ ) {
+	for ( size_t i = 0; i < callback->files.Num() && ret == ERROR_SUCCESS && !callback->cancelled; i++ ) {
 		idFile_SaveGame * file = callback->files[i];
 
 		idStr fileName = saveFolder;
@@ -226,7 +226,7 @@ int idSaveGameThread::Save() const
 	if ( callback->errorCode != SAVEGAME_E_NONE ) {
 		if ( fileSystem->IsFolder( saveFolder, "fs_savePath" ) == FOLDER_YES ) {
 			idFileList * files = fileSystem->ListFilesTree( saveFolder, "/|*" );
-			for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+			for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 				fileSystem->RemoveFile( files->GetFile( i ) );
 			}
 			fileSystem->FreeFileList( files );
@@ -256,7 +256,7 @@ int idSaveGameThread::Load() const
 	}
 
 	int ret = ERROR_SUCCESS;
-	for ( int i = 0; i < callback->files.Num() && ret == ERROR_SUCCESS && !callback->cancelled; i++ ) {
+	for ( size_t i = 0; i < callback->files.Num() && ret == ERROR_SUCCESS && !callback->cancelled; i++ ) {
 		idFile_SaveGame * file = callback->files[i];
 
 		idStr filename = saveFolder;
@@ -351,7 +351,7 @@ int idSaveGameThread::Delete() const
 	int ret = ERROR_SUCCESS;
 	if ( fileSystem->IsFolder( saveFolder, "fs_savePath" ) == FOLDER_YES ) {
 		idFileList * files = fileSystem->ListFilesTree( saveFolder, "/|*" );
-		for ( int i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
+		for ( size_t i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
 			fileSystem->RemoveFile( files->GetFile( i ) );
 		}
 		fileSystem->FreeFileList( files );
@@ -386,7 +386,7 @@ int idSaveGameThread::Enumerate() const
 		idFileList * files = fileSystem->ListFilesTree( saveFolder, SAVEGAME_DETAILS_FILENAME );
 		const idStrList & fileList = files->GetList();
 
-		for ( int i = 0; i < fileList.Num() && !callback->cancelled; i++ ) {
+		for ( size_t i = 0; i < fileList.Num() && !callback->cancelled; i++ ) {
 			idSaveGameDetails * details = callback->detailList.Alloc();
 			// We have more folders on disk than we have room in our save detail list, stop trying to read them in and continue with what we have
 			if ( details == nullptr) {
@@ -469,7 +469,7 @@ int idSaveGameThread::EnumerateFiles() const
 		idFileList * files = fileSystem->ListFilesTree( folder, "*.*" );
 
 		// look for the instance pattern
-		for ( int i = 0; i < files->GetNumFiles() && ret == 0 && !callback->cancelled; i++ ) {
+		for ( size_t i = 0; i < files->GetNumFiles() && ret == 0 && !callback->cancelled; i++ ) {
 			idStr fullFilename = files->GetFile( i );
 			idStr filename = fullFilename;
 			filename.StripPath();
@@ -530,7 +530,7 @@ int idSaveGameThread::DeleteFiles() const
 	folder.AppendPath( callback->directory );
 
 	// delete the explicitly requested files first
-	for ( int j = 0; j < callback->files.Num() && !callback->cancelled; ++j ) {
+	for ( size_t j = 0; j < callback->files.Num() && !callback->cancelled; ++j ) {
 		idFile_SaveGame * file = callback->files[j];
 		idStr fullpath = folder;
 		fullpath.AppendPath( file->GetName() );
@@ -543,7 +543,7 @@ int idSaveGameThread::DeleteFiles() const
 		idFileList * files = fileSystem->ListFilesTree( folder, "*.*" );
 
 		// look for the instance pattern
-		for ( int i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
+		for ( size_t i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
 			idStr filename = files->GetFile( i );
 			filename.StripPath();
 
@@ -586,7 +586,7 @@ int idSaveGameThread::DeleteAll() const
 	if ( fileSystem->IsFolder( saveFolder, "fs_savePath" ) == FOLDER_YES ) {
 		idFileList * files = fileSystem->ListFilesTree( saveFolder, "/|*" );
 		// remove directories after files
-		for ( int i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
+		for ( size_t i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
 			// contained files should always be first
 			if ( fileSystem->IsFolder( files->GetFile( i ), "fs_savePath" ) == FOLDER_YES ) {
 				fileSystem->RemoveDir( files->GetFile( i ) );
@@ -685,7 +685,7 @@ void Sys_SaveGameCheck( bool & exists, bool & autosaveExists ) {
 
 		idLib::PrintfIf( saveGame_verbose.GetBool(), "found %d savegames\n", fileList.Num() );
 
-		for ( int i = 0; i < fileList.Num(); i++ ) {
+		for ( size_t i = 0; i < fileList.Num(); i++ ) {
 			const char * directory = va( "%s/%s", saveFolder, fileList[i].c_str() );
 
 			if ( fileSystem->IsFolder( directory, "fs_savePath" ) == FOLDER_YES ) {

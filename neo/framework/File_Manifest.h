@@ -69,7 +69,7 @@ public:
 
 	void PopulateList( idStaticList< idStr, 16384 > &dest ) {
 		dest.Clear();
-		for ( int i = 0; i < cacheTable.Num(); i++ ) {
+		for ( size_t i = 0; i < cacheTable.Num(); i++ ) {
 			dest.Append( cacheTable[ i ] );
 		}
 	}
@@ -166,7 +166,7 @@ struct preloadSort_t {
 };
 class idSort_Preload : public idSort_Quick< preloadSort_t, idSort_Preload > {
 public:
-	[[nodiscard]] static int64 Compare( const preloadSort_t & a, const preloadSort_t & b ) { return idMath::integer_cast<int64>(a.ofs) - idMath::integer_cast<int64>(b.ofs); }
+	[[nodiscard]] static int64 Compare( const preloadSort_t & a, const preloadSort_t & b ) { return numeric_cast<int64>(a.ofs) - numeric_cast<int64>(b.ofs); }
 };
 
 class idPreloadManifest {
@@ -196,13 +196,13 @@ public:
 		return entries.Num();
 	}
 
-	[[nodiscard]] const preloadEntry_s & GetPreloadByIndex( const Ordinal auto idx ) const {
+	[[nodiscard]] const preloadEntry_s & GetPreloadByIndex(const index_t idx ) const {
 		ORDINAL_CHECK(idx, entries.Num());
 
 		return entries[ idx ];
 	}
 
-	[[nodiscard]] const idStr & GetResourceNameByIndex( const Ordinal auto idx ) const {
+	[[nodiscard]] const idStr & GetResourceNameByIndex(const index_t idx ) const {
 		ORDINAL_CHECK(idx, entries.Num());
 
 		return entries[ idx ].resourceName;
@@ -246,7 +246,7 @@ public:
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddImage( const char *_resourceName, int _filter, int _repeat, int _usage, int _cube ) {
+	void AddImage( const char *_resourceName, const int _filter, const int _repeat, const int _usage, const int _cube ) {
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_IMAGE;
 		pe.resourceName = _resourceName;
@@ -264,7 +264,7 @@ public:
 	int64 FindResource( const char *name ) {
 		for ( size_t i = 0; i < entries.Num(); i++ ) {
 			if ( idStr::Icmp( name, entries[ i ].resourceName ) == 0 ) {
-				return idMath::integer_cast<int64>(i);
+				return numeric_cast<int64>(i);
 			}
 		}
 		return -1;

@@ -60,7 +60,7 @@ enum tokenSubType_e : uint64
 	TT_BINARY             = 0x00010, // binary number
 	TT_LONG               = 0x00020, // long int
 	TT_UNSIGNED           = 0x00040, // unsigned int
-	TT_FLOAT              = 0x00080, // floating point number
+	TT_FLOAT              = 0x00080, // floating posize_t number
 	TT_SINGLE_PRECISION   = 0x00100, // float
 	TT_DOUBLE_PRECISION   = 0x00200, // double
 	TT_EXTENDED_PRECISION = 0x00400, // long double
@@ -160,7 +160,7 @@ ID_INLINE unsigned long	idToken::GetUnsignedLongValue() {
 	if ( !(subtype & TT_VALUESVALID) ) {
 		NumberValue();
 	}
-	return idMath::integer_cast<unsigned long>(intvalue);
+	return numeric_cast<unsigned long>(intvalue);
 }
 
 ID_INLINE int64	idToken::GetInt64Value() {
@@ -180,7 +180,7 @@ ID_INLINE uint64	idToken::GetUnsignedInt64Value() {
 	if (!(subtype & TT_VALUESVALID)) {
 		NumberValue();
 	}
-	return idMath::integer_cast<uint64>(intvalue);
+	return numeric_cast<uint64>(intvalue);
 }
 
 ID_INLINE int idToken::GetIntValue() {
@@ -190,7 +190,7 @@ ID_INLINE int idToken::GetIntValue() {
 	if (!(subtype & TT_VALUESVALID)) {
 		NumberValue();
 	}
-	return idMath::integer_cast<int>(intvalue);
+	return numeric_cast<int>(intvalue);
 }
 
 ID_INLINE size_t idToken::WhiteSpaceBeforeToken() const {

@@ -157,9 +157,9 @@ idMenuWidget_DynamicList::SetListData
 */
 void idMenuWidget_DynamicList::SetListData( idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > & list ) {
 	listItemInfo.Clear();
-	for ( int i = 0; i < list.Num(); ++i ) {
+	for ( size_t i = 0; i < list.Num(); ++i ) {
 		idList< idStr > values;
-		for ( int j = 0; j < list[i].Num(); ++j ) {
+		for ( size_t j = 0; j < list[i].Num(); ++j ) {
 			values.Append( list[i][j] );
 		}
 		listItemInfo.Append( values );
@@ -180,7 +180,7 @@ void idMenuWidget_DynamicList::Recalculate() {
 	}
 
 	idSWFScriptObject & root = swf->GetRootObject();
-	for ( int i = 0; i < GetChildren().Num(); ++i ) {
+	for ( size_t i = 0; i < GetChildren().Num(); ++i ) {
 		idMenuWidget & child = GetChildByIndex( i );
 		child.SetSpritePath( GetSpritePath(), "info", "list", va( "item%d", i ) );
 		if ( child.BindSprite( root ) ) {

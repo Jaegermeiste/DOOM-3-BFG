@@ -35,7 +35,7 @@ LOCAL boolean output_pass_setup JPP( (j_decompress_ptr cinfo) );
  */
 
 GLOBAL boolean
-jpeg_start_decompress( j_decompress_ptr cinfo ) {
+jpeg_start_decompress(const j_decompress_ptr cinfo ) {
     if ( cinfo->global_state == DSTATE_READY ) {
         /* First call: initialize master control, select active modules */
         jinit_master_decompress( cinfo );
@@ -95,7 +95,7 @@ jpeg_start_decompress( j_decompress_ptr cinfo ) {
  */
 
 LOCAL boolean
-output_pass_setup( j_decompress_ptr cinfo ) {
+output_pass_setup(const j_decompress_ptr cinfo ) {
     if ( cinfo->global_state != DSTATE_PRESCAN ) {
         /* First call: do pass setup */
         ( *cinfo->master->prepare_for_output_pass )( cinfo );
@@ -152,8 +152,8 @@ output_pass_setup( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL JDIMENSION
-jpeg_read_scanlines( j_decompress_ptr cinfo, JSAMPARRAY scanlines,
-                     JDIMENSION max_lines ) {
+jpeg_read_scanlines(const j_decompress_ptr cinfo, const JSAMPARRAY scanlines,
+                     const JDIMENSION max_lines ) {
     JDIMENSION row_ctr;
 
     if ( cinfo->global_state != DSTATE_SCANNING ) {
@@ -185,8 +185,8 @@ jpeg_read_scanlines( j_decompress_ptr cinfo, JSAMPARRAY scanlines,
  */
 
 GLOBAL JDIMENSION
-jpeg_read_raw_data( j_decompress_ptr cinfo, JSAMPIMAGE data,
-                    JDIMENSION max_lines ) {
+jpeg_read_raw_data(const j_decompress_ptr cinfo, const JSAMPIMAGE data,
+                    const JDIMENSION max_lines ) {
     JDIMENSION lines_per_iMCU_row;
 
     if ( cinfo->global_state != DSTATE_RAW_OK ) {

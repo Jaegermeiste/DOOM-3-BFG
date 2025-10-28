@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __M_FIXED__
 #define __M_FIXED__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
@@ -38,8 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 //
 // Fixed point, 32bit as 16.16.
 //
-#define FRACBITS		16
-#define FRACUNIT		(1<<FRACBITS)
+constexpr auto FRACBITS = 16;
+constexpr auto FRACUNIT = (1 << FRACBITS);
 
 typedef int fixed_t;
 

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __R_DEFS__
 #define __R_DEFS__
 
+#pragma once
+
 #include "Precompiled.h"
 
 // Screenwidth.
@@ -47,12 +49,15 @@ If you have questions concerning this license or the applicable additional terms
 
 // Silhouette, needed for clipping Segs (mainly)
 // and sprites representing things.
-#define SIL_NONE		0
-#define SIL_BOTTOM		1
-#define SIL_TOP			2
-#define SIL_BOTH		3
+enum silhouette_e : uint8
+{
+	SIL_NONE = 0,
+	SIL_BOTTOM = 1,
+	SIL_TOP = 2,
+	SIL_BOTH = 3
+};
 
-#define MAXDRAWSEGS		1280
+constexpr size_t MAXDRAWSEGS = 1280;
 
 
 
@@ -68,7 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 // Note: transformed values not buffered locally,
 //  like some DOOM-alikes ("wt", "WebView") did.
 //
-typedef struct
+typedef struct vertex_s
 {
     fixed_t	x;
     fixed_t	y;
@@ -85,7 +90,7 @@ struct line_s;
 //  moving objects (doppler), because
 //  position is prolly just buffered, not
 //  updated.
-typedef struct
+typedef struct degenmobj_s
 {
     thinker_t		thinker;	// not used for anything
     fixed_t		x;
@@ -98,12 +103,12 @@ typedef struct
 // The SECTORS record, at runtime.
 // Stores things/mobjs.
 //
-typedef	struct
+typedef	struct sector_s
 {
     fixed_t	floorheight;
     fixed_t	ceilingheight;
-    short	floorpic;
-    short	ceilingpic;
+	index_t	floorpic;
+	index_t	ceilingpic;
     short	lightlevel;
     short	special;
     short	tag;
@@ -121,7 +126,7 @@ typedef	struct
     degenmobj_t	soundorg;
 
     // if == validcount, already checked
-    int		validcount;
+    size_t	validcount;
 
     // list of mobjs in sector
     mobj_t*	thinglist;
@@ -129,7 +134,7 @@ typedef	struct
     // thinker_t for reversable actions
     void*	specialdata;
 
-    int			linecount;
+    size_t	linecount;
     struct line_s**	lines;	// [linecount] size
     
 } sector_t;
@@ -141,7 +146,7 @@ typedef	struct
 // The SideDef.
 //
 
-typedef struct
+typedef struct side_s
 {
     // add this to the calculated texture column
     fixed_t	textureoffset;
@@ -151,9 +156,9 @@ typedef struct
 
     // Texture indices.
     // We do not maintain names here. 
-    short	toptexture;
-    short	bottomtexture;
-    short	midtexture;
+    index_t	toptexture;
+	index_t	bottomtexture;
+	index_t	midtexture;
 
     // Sector the SideDef is facing.
     sector_t*	sector;
@@ -165,7 +170,7 @@ typedef struct
 //
 // Move clipping aid for LineDefs.
 //
-typedef enum
+typedef enum slopetype_e : uint8
 {
     ST_HORIZONTAL,
     ST_VERTICAL,
@@ -237,7 +242,7 @@ typedef struct subsector_s
 //
 // The LineSeg.
 //
-typedef struct
+typedef struct seg_s
 {
     vertex_t*	v1;
     vertex_t*	v2;
@@ -262,7 +267,7 @@ typedef struct
 //
 // BSP node.
 //
-typedef struct
+typedef struct node_s
 {
     // Partition line.
     fixed_t	x;
@@ -282,10 +287,10 @@ typedef struct
 
 
 // posts are runs of non masked source pixels
-typedef struct
+typedef struct post_s
 {
     byte		topdelta;	// -1 is the last post in a column
-    byte		length; 	// length data bytes follows
+    size_t		length; 	// length data bytes follows
 } post_t;
 
 // postColumn_t is a list of 0 or more post_t, (byte)-1 terminated
@@ -355,11 +360,11 @@ typedef struct drawseg_s
 // of patches.
 struct patch_t
 { 
-    short		width;		// bounding box size 
-    short		height; 
-    short		leftoffset;	// pixels to the left of origin 
-    short		topoffset;	// pixels below the origin 
-    int			columnofs[8];	// only [width] used
+    size_t		width;		// bounding box size 
+    size_t		height; 
+    int 		leftoffset;	// pixels to the left of origin 
+    int 		topoffset;	// pixels below the origin 
+    size_t		columnofs[8];	// only [width] used
     // the [0] is &columnofs[width] 
 };
 

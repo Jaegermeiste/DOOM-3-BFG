@@ -182,7 +182,7 @@ idJointMat::GetTranslation
 ========================
 */
 ID_INLINE idVec3 idJointMat::GetTranslation() const {
-	idVec3 t;
+	idVec3 t = {};
 	t[0] = mat[0 * 4 + 3];
 	t[1] = mat[1 * 4 + 3];
 	t[2] = mat[2 * 4 + 3];
@@ -212,7 +212,7 @@ idJointMat::operator*=
 ========================
 */
 ID_INLINE idJointMat & idJointMat::operator*=( const idJointMat &a ) {
-	float tmp[3];
+	float tmp[3] = {};
 
 	tmp[0] = mat[0 * 4 + 0] * a.mat[0 * 4 + 0] + mat[1 * 4 + 0] * a.mat[0 * 4 + 1] + mat[2 * 4 + 0] * a.mat[0 * 4 + 2];
 	tmp[1] = mat[0 * 4 + 0] * a.mat[1 * 4 + 0] + mat[1 * 4 + 0] * a.mat[1 * 4 + 1] + mat[2 * 4 + 0] * a.mat[1 * 4 + 2];
@@ -298,7 +298,7 @@ idJointMat::Compare
 ========================
 */
 ID_INLINE bool idJointMat::Compare( const idJointMat &a ) const {
-	for ( int i = 0; i < 12; i++ ) {
+	for ( size_t i = 0; i < 12; i++ ) {
 		if ( mat[i] != a.mat[i] ) {
 			return false;
 		}
@@ -312,7 +312,7 @@ idJointMat::Compare
 ========================
 */
 ID_INLINE bool idJointMat::Compare( const idJointMat &a, const float epsilon ) const {
-	for ( int i = 0; i < 12; i++ ) {
+	for ( size_t i = 0; i < 12; i++ ) {
 		if ( idMath::Fabs( mat[i] - a.mat[i] ) > epsilon ) {
 			return false;
 		}
@@ -355,7 +355,7 @@ idJointMat::Invert
 ========================
 */
 ID_INLINE void idJointMat::Invert() {
-	float tmp[3];
+	float tmp[3] = {};
 
 	// negate inverse rotated translation part
 	tmp[0] = mat[0 * 4 + 0] * mat[0 * 4 + 3] + mat[1 * 4 + 0] * mat[1 * 4 + 3] + mat[2 * 4 + 0] * mat[2 * 4 + 3];
@@ -516,7 +516,7 @@ idJointMat::InverseMultiply
 ========================
 */
 ID_INLINE void idJointMat::InverseMultiply( idJointMat &result, const idJointMat &m1, const idJointMat &m2 ) {
-	float dst[3];
+	float dst[3] = {};
 
 	result.mat[0 * 4 + 0] = m1.mat[0 * 4 + 0] * m2.mat[0 * 4 + 0] + m1.mat[0 * 4 + 1] * m2.mat[0 * 4 + 1] + m1.mat[0 * 4 + 2] * m2.mat[0 * 4 + 2];
 	result.mat[0 * 4 + 1] = m1.mat[0 * 4 + 0] * m2.mat[1 * 4 + 0] + m1.mat[0 * 4 + 1] * m2.mat[1 * 4 + 1] + m1.mat[0 * 4 + 2] * m2.mat[1 * 4 + 2];

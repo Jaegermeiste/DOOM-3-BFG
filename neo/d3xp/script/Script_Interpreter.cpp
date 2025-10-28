@@ -534,7 +534,7 @@ Calls a function on a script object.
 NOTE: If this is called from within a event called by this interpreter, the function arguments will be invalid after calling this function.
 ================
 */
-void idInterpreter::EnterObjectFunction( idEntity *self, const function_t *func, bool clearStack ) {
+void idInterpreter::EnterObjectFunction( idEntity *self, const function_t *func, const bool clearStack ) {
 	if ( clearStack ) {
 		Reset();
 	}
@@ -555,7 +555,7 @@ Returns the new program statement counter
 NOTE: If this is called from within a event called by this interpreter, the function arguments will be invalid after calling this function.
 ====================
 */
-void idInterpreter::EnterFunction( const function_t *func, bool clearStack ) {
+void idInterpreter::EnterFunction( const function_t *func, const bool clearStack ) {
 	int 		c;
 	prstack_t	*stack;
 

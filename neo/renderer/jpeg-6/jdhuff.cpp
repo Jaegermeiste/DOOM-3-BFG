@@ -74,7 +74,7 @@ typedef huff_entropy_decoder * huff_entropy_ptr;
  */
 
 METHODDEF void
-start_pass_huff_decoder( j_decompress_ptr cinfo ) {
+start_pass_huff_decoder(const j_decompress_ptr cinfo ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     int ci, dctbl, actbl;
     jpeg_component_info * compptr;
@@ -127,7 +127,7 @@ start_pass_huff_decoder( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_make_d_derived_tbl( j_decompress_ptr cinfo, JHUFF_TBL * htbl,
+jpeg_make_d_derived_tbl(const j_decompress_ptr cinfo, JHUFF_TBL * htbl,
                          d_derived_tbl ** pdtbl ) {
     d_derived_tbl * dtbl;
     int p, i, l, si;
@@ -236,7 +236,7 @@ jpeg_make_d_derived_tbl( j_decompress_ptr cinfo, JHUFF_TBL * htbl,
 GLOBAL boolean
 jpeg_fill_bit_buffer( bitread_working_state * state,
                       register bit_buf_type get_buffer, register int bits_left,
-                      int nbits ) {
+                      const int nbits ) {
 /* Load up the bit buffer to a depth of at least nbits */
 /* Copy heavily used state fields into locals (hopefully registers) */
     register const JOCTET * next_input_byte = state->next_input_byte;
@@ -327,7 +327,7 @@ no_more_data:
 GLOBAL int
 jpeg_huff_decode( bitread_working_state * state,
                   register bit_buf_type get_buffer, register int bits_left,
-                  d_derived_tbl * htbl, int min_bits ) {
+                  d_derived_tbl * htbl, const int min_bits ) {
     register int l = min_bits;
     register INT32 code;
 
@@ -396,7 +396,7 @@ static const int extend_offset[16] = /* entry n is (-1 << n) + 1 */
  */
 
 LOCAL boolean
-process_restart( j_decompress_ptr cinfo ) {
+process_restart(const j_decompress_ptr cinfo ) {
     huff_entropy_ptr entropy = (huff_entropy_ptr) cinfo->entropy;
     int ci;
 
@@ -569,7 +569,7 @@ skip_ACs:
  */
 
 GLOBAL void
-jinit_huff_decoder( j_decompress_ptr cinfo ) {
+jinit_huff_decoder(const j_decompress_ptr cinfo ) {
     huff_entropy_ptr entropy;
     int i;
 

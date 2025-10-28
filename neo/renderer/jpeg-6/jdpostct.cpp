@@ -70,7 +70,7 @@ JPP( ( j_decompress_ptr cinfo,
  */
 
 METHODDEF void
-start_pass_dpost( j_decompress_ptr cinfo, J_BUF_MODE pass_mode ) {
+start_pass_dpost( j_decompress_ptr cinfo, const J_BUF_MODE pass_mode ) {
     my_post_ptr post = (my_post_ptr) cinfo->post;
 
     switch ( pass_mode ) {
@@ -124,11 +124,11 @@ start_pass_dpost( j_decompress_ptr cinfo, J_BUF_MODE pass_mode ) {
  */
 
 METHODDEF void
-post_process_1pass( j_decompress_ptr cinfo,
-                    JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr,
-                    JDIMENSION in_row_groups_avail,
-                    JSAMPARRAY output_buf, JDIMENSION * out_row_ctr,
-                    JDIMENSION out_rows_avail ) {
+post_process_1pass(const j_decompress_ptr cinfo,
+                    const JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr,
+                    const JDIMENSION in_row_groups_avail,
+                    const JSAMPARRAY output_buf, JDIMENSION * out_row_ctr,
+                    const JDIMENSION out_rows_avail ) {
     my_post_ptr post = (my_post_ptr) cinfo->post;
     JDIMENSION num_rows, max_rows;
 
@@ -248,7 +248,7 @@ post_process_2pass( j_decompress_ptr cinfo,
  */
 
 GLOBAL void
-jinit_d_post_controller( j_decompress_ptr cinfo, boolean need_full_buffer ) {
+jinit_d_post_controller(const j_decompress_ptr cinfo, const boolean need_full_buffer ) {
     my_post_ptr post;
 
     post = (my_post_ptr)

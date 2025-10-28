@@ -109,21 +109,25 @@ public:
 
 	static void SixtetsForInt( byte *out, int src ) {
 			const byte *b = reinterpret_cast<byte*>(&src);
-			out[0] = ( b[0] & 0xfc ) >> 2;
-			out[1] = ( ( b[0] & 0x3 ) << 4 ) + ( ( b[1] & 0xf0 ) >> 4 );
-			out[2] = ( ( b[1] & 0xf ) << 2 ) + ( ( b[2] & 0xc0 ) >> 6 );
-			out[3] = b[2] & 0x3f;
+
+			out[0] =                         ( b[0] & 0xfc ) >> 2;
+			out[1] = numeric_cast<byte>(( ( b[0] & 0x3 )  << 4 ) + ( ( b[1] & 0xf0 ) >> 4 ));
+			out[2] = numeric_cast<byte>(( ( b[1] & 0xf )  << 2 ) + ( ( b[2] & 0xc0 ) >> 6 ));
+			out[3] =                           b[2] & 0x3f;
 	}
 
-	static int IntForSixtets( byte *in ) {
+	static int IntForSixtets( const byte *in ) {
 			int ret = 0;
+
 			byte *b = reinterpret_cast<byte*>(&ret);
-			b[0] |= in[0] << 2;
+
+			b[0] |=   in[0]          << 2;
 			b[0] |= ( in[1] & 0x30 ) >> 4;
-			b[1] |= ( in[1] & 0xf ) << 4;
+			b[1] |= ( in[1] & 0xf )  << 4;
 			b[1] |= ( in[2] & 0x3c ) >> 2;
-			b[2] |= ( in[2] & 0x3 ) << 6;
-			b[2] |= in[3];
+			b[2] |= ( in[2] & 0x3 )  << 6;
+			b[2] |=   in[3];
+
 			return ret;
 	}
 

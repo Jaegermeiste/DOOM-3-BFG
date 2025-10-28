@@ -83,7 +83,7 @@ bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds & occluderBound
 R_ShadowVolumeCullBits
 ====================
 */
-static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idShadowVert *verts, const int numVerts ) {
+static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idShadowVert *verts, const size_t numVerts ) {
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
@@ -129,7 +129,7 @@ static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float r
 
 	__m128i vecTotalOrInt = { 0, 0, 0, 0 };
 
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
@@ -214,7 +214,7 @@ static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float r
 	idODSStreamedArray< idShadowVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
 	byte tOr = 0;
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
@@ -335,7 +335,7 @@ bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3 & lineStart, const
 		if ( v >= 0.0f && u + v <= det * det ) {
 			// if determinant is near zero then the ray lies in the triangle plane
 			if ( idMath::Fabs( det ) > idMath::FLT_SMALLEST_NON_DENORMAL ) {
-				const float fraction = ( edge1 * qvec ) / det;
+				const double fraction = ( edge1 * qvec ) / det;
 				if ( fraction >= 0.0f && fraction <= lineLength ) {
 					return true;
 				}
@@ -375,7 +375,7 @@ cases where the shadow volume would otherwise be rendered with Z-fail.
 Rendering with Z-fail can be significantly slower even on today's hardware.
 ===================
 */
-bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int numVerts, const triIndex_t * indexes, int numIndexes,
+bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, const size_t numVerts, const triIndex_t * indexes, const size_t numIndexes,
 								const idVec3 & localLightOrigin, const idVec3 & localViewOrigin, const float zNear ) {
 
 	ALIGNTYPE16 idPlane planes[4];
@@ -418,7 +418,7 @@ bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int 
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
-	for ( int i = 0; i < numIndexes; ) {
+	for ( size_t i = 0; i < numIndexes; ) {
 
 		const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 

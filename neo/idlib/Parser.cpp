@@ -146,12 +146,12 @@ static void PC_PrintDefineHashTable(define_t **definehash) {
 PC_NameHash
 ================
 */
-ID_INLINE int PC_NameHash( const char *name ) {
-	int hash = 0;
-	for ( int i = 0; name[i] != '\0'; i++ ) {
-		hash += name[i] * (119 + i);
+static ID_INLINE int32 PC_NameHash( const char *name ) {
+	int32 hash = 0;
+	for ( size_t i = 0; name[i] != '\0'; i++ ) {
+		hash += name[i] * (119 + numeric_cast<int32>( i ));
 	}
-	hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (DEFINEHASHSIZE-1);
+	hash = (hash ^ ( hash >> 10 ) ^ ( hash >> 20 )) & ( numeric_cast<int32>(DEFINEHASHSIZE) - 1 );
 	return hash;
 }
 
@@ -161,7 +161,7 @@ idParser::AddDefineToHash
 ================
 */
 void idParser::AddDefineToHash( define_t *define, define_t **definehash ) {
-	const int hash = PC_NameHash(define->name);
+	const int32 hash = PC_NameHash(define->name);
 	define->hashnext = definehash[hash];
 	definehash[hash] = define;
 }
@@ -172,7 +172,7 @@ FindHashedDefine
 ================
 */
 define_t *idParser::FindHashedDefine( define_t **definehash, const char *name ) {
-	const int hash = PC_NameHash(name);
+	const int32 hash = PC_NameHash(name);
 	for ( define_t* d = definehash[hash]; d; d = d->hashnext ) {
 		if ( !strcmp(d->name, name) ) {
 			return d;
@@ -200,8 +200,8 @@ define_t *idParser::FindDefine( define_t *defines, const char *name ) {
 idParser::FindDefineParm
 ================
 */
-int idParser::FindDefineParm( define_t *define, const char *name ) {
-	int i = 0;
+index_t idParser::FindDefineParm( define_t *define, const char *name ) {
+	index_t i = 0;
 	for (const idToken* p = define->parms; p; p = p->next ) {
 		if ( (*p) == name ) {
 			return i;
@@ -217,7 +217,7 @@ idParser::CopyDefine
 ================
 */
 define_t *idParser::CopyDefine( define_t *define ) {
-	idToken *token, *newtoken, *lasttoken;
+	idToken *token = nullptr, *newtoken = nullptr, *lasttoken = nullptr;
 
 	define_t* newdefine = static_cast<define_t*>(Mem_Alloc(sizeof(define_t) + strlen(define->name) + 1, TAG_IDLIB_PARSER));
 	//copy the define name
@@ -302,7 +302,7 @@ define_t *idParser::DefineFromString( const char *string ) {
 	}
 	define_t* def = src.CopyFirstDefine();
 	src.FreeSource();
-	//if the define was created succesfully
+	//if the define was created successfully
 	return def;
 }
 
@@ -711,8 +711,8 @@ bool idParser::ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken
 		case BUILTIN_LINE: {
 			std::ignore = sprintf( buf, "%llu", deftoken->line );
 			(*token) = buf;
-			token->intvalue = idMath::integer_cast<int64>(deftoken->line);
-			token->floatvalue = idMath::Itof<double>(deftoken->line);
+			token->intvalue = numeric_cast<int64>(deftoken->line);
+			token->floatvalue = numeric_cast<double>(deftoken->line);
 			token->type = TT_NUMBER;
 			token->subtype = TT_DECIMAL | TT_INTEGER | TT_VALUESVALID;
 			token->line = deftoken->line;
@@ -803,7 +803,7 @@ bool idParser::ExpandDefine( idToken *deftoken, define_t *define, idToken **firs
 	idToken* last = nullptr;
 	// create a list with tokens of the expanded define
 	for (const idToken* dt = define->tokens; dt; dt = dt->next ) {
-		int parmnum = -1;
+		index_t parmnum = -1;
 		// if the token is a name, it could be a define parameter
 		if ( dt->type == TT_NAME ) {
 			parmnum = FindDefineParm( define, dt->c_str() );
@@ -1323,16 +1323,16 @@ idParser::EvaluateTokens
 typedef struct operator_s
 {
 	size_t op;
-	int priority;
-	int parentheses;
+	int32 priority;
+	int32 parentheses;
 	struct operator_s *prev, *next;
 } operator_t;
 
 typedef struct value_s
 {
-	signed long int intvalue;
+	int64 intvalue;
 	double floatvalue;
-	int parentheses;
+	int32 parentheses;
 	struct value_s *prev, *next;
 } value_t;
 
@@ -1365,6 +1365,9 @@ static int PC_OperatorPriority(const size_t op) {
 
 		case P_COLON: return 5;
 		case P_QUESTIONMARK: return 5;
+	default:
+		return false;
+		break;
 	}
 	return false;
 }
@@ -1374,8 +1377,8 @@ static int PC_OperatorPriority(const size_t op) {
 //#define AllocOperator(op)		op = (operator_t *) GetClearedMemory(sizeof(operator_t));
 //#define FreeOperator(op)		FreeMemory(op);
 
-#define MAX_VALUES		64
-#define MAX_OPERATORS	64
+constexpr size_t MAX_VALUES = 64;
+constexpr size_t MAX_OPERATORS = 64;
 
 #define AllocValue(val)									\
 	if ( numvalues >= MAX_VALUES ) {					\
@@ -1401,7 +1404,7 @@ static int PC_OperatorPriority(const size_t op) {
 
 #define FreeOperator(op)
 
-bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, double *floatvalue, int integer ) {
+bool idParser::EvaluateTokens( idToken *tokens, int64 *intvalue, double *floatvalue, int integer ) {
 	operator_t *o = nullptr, *firstoperator = nullptr, *lastoperator = nullptr;
 	value_t *v = nullptr, *firstvalue = nullptr, *lastvalue = nullptr, *v1 = nullptr, *v2 = nullptr;
 	idToken *t = nullptr;
@@ -1410,15 +1413,15 @@ bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, doubl
 	int error = 0;
 	int lastwasvalue = 0;
 	int negativevalue = 0;
-	int questmarkintvalue = 0;
+	int64 questmarkintvalue = 0;
 	double questmarkfloatvalue = 0;
 	int gotquestmarkvalue = false;
 	size_t lastoperatortype = 0;
 	//
 	operator_t operator_heap[MAX_OPERATORS] = {};
-	int numoperators = 0;
+	size_t numoperators = 0;
 	value_t value_heap[MAX_VALUES] = {};
-	int numvalues = 0;
+	size_t numvalues = 0;
 
 	firstoperator = lastoperator = nullptr;
 	firstvalue = lastvalue = nullptr;
@@ -1538,7 +1541,7 @@ bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, doubl
 				else if (t->subtype == P_PARENTHESESCLOSE) {
 					parentheses--;
 					if (parentheses < 0) {
-						idParser::Error( "too many ) in #if/#elsif" );
+						idParser::Error( "too many ) in #if/#elif" );
 						error = 1;
 					}
 					break;
@@ -1549,7 +1552,7 @@ bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, doubl
 						t->subtype == P_RSHIFT || t->subtype == P_LSHIFT ||
 						t->subtype == P_BIN_AND || t->subtype == P_BIN_OR ||
 						t->subtype == P_BIN_XOR) {
-						idParser::Error( "illigal operator '%s' on floating point operands\n", t->c_str() );
+						idParser::Error( "illegal operator '%s' on floating point operands\n", t->c_str() );
 						error = 1;
 						break;
 					}
@@ -1687,7 +1690,7 @@ bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, doubl
 			}
 			//if there's no value or no next value
 			if (!v) {
-				idParser::Error( "mising values in #if/#elif" );
+				idParser::Error( "missing values in #if/#elif" );
 				error = 1;
 				break;
 			}
@@ -1799,6 +1802,9 @@ bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, doubl
 				gotquestmarkvalue = true;
 				break;
 			}
+
+		default:
+			break;
 		}
 #ifdef DEBUG_EVAL
 		if (integer)
@@ -1898,7 +1904,7 @@ bool idParser::EvaluateTokens( idToken *tokens, signed long int *intvalue, doubl
 idParser::Evaluate
 ================
 */
-bool idParser::Evaluate( signed long int *intvalue, double *floatvalue, const int integer ) {
+bool idParser::Evaluate( int64 *intvalue, double *floatvalue, const int integer ) {
 	idToken token = {};
 	idToken *t = nullptr, *nexttoken = nullptr;
 	bool defined = false;
@@ -2012,7 +2018,7 @@ bool idParser::Evaluate( signed long int *intvalue, double *floatvalue, const in
 idParser::DollarEvaluate
 ================
 */
-bool idParser::DollarEvaluate( signed long int *intvalue, double *floatvalue, const int integer) {
+bool idParser::DollarEvaluate( int64 *intvalue, double *floatvalue, const int integer) {
 	bool defined = false;
 	idToken token = {};
 	idToken *t = nullptr, *nexttoken = nullptr;
@@ -2143,7 +2149,7 @@ idParser::Directive_elif
 ================
 */
 bool idParser::Directive_elif() {
-	signed long int value = 0;
+	int64 value = 0;
 	parserIndentType_t type = INDENT_NONE;
 	int skip = 0;
 
@@ -2166,7 +2172,7 @@ idParser::Directive_if
 ================
 */
 bool idParser::Directive_if() {
-	signed long int value = 0;
+	int64 value = 0;
 
 	if ( !idParser::Evaluate( &value, nullptr, true ) ) {
 		return false;
@@ -2261,7 +2267,7 @@ idParser::Directive_eval
 ================
 */
 bool idParser::Directive_eval() {
-	signed long int value = 0;
+	int64 value = 0;
 	idToken token = {};
 	char buf[128] = {};
 
@@ -2400,7 +2406,7 @@ idParser::DollarDirective_evalint
 ================
 */
 bool idParser::DollarDirective_evalint() {
-	signed long int value = 0;
+	int64 value = 0;
 	idToken token = {};
 	char buf[128] = {};
 
@@ -2413,12 +2419,12 @@ bool idParser::DollarDirective_evalint() {
 	token.whiteSpaceEnd_p = nullptr;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	std::ignore = sprintf( buf, "%d", static_cast<int>(abs( value ) ));
+	std::ignore = sprintf( buf, "%lld", abs( value ) );
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL | TT_VALUESVALID;
 	token.intvalue = abs( value );
-	token.floatvalue = abs( value );
+	token.floatvalue = fabs( value );
 	idParser::UnreadSourceToken( &token );
 	if ( value < 0 ) {
 		idParser::UnreadSignToken();
@@ -2449,7 +2455,7 @@ bool idParser::DollarDirective_evalfloat() {
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL | TT_VALUESVALID;
-	token.intvalue = static_cast<unsigned long>(fabs(value));
+	token.intvalue = numeric_cast<BASE_TYPE(token.intvalue)>(fabs(value));
 	token.floatvalue = fabs( value );
 	idParser::UnreadSourceToken( &token );
 	if ( value < 0 ) {
@@ -2815,7 +2821,7 @@ idParser::ParseBracedSectionExact
 
 The next token should be an open brace.
 Parses until a matching close brace is found.
-Maintains the exact formating of the braced section
+Maintains the exact formatting of the braced section
 
   FIXME: what about precompilation ?
 =================
@@ -2994,7 +3000,7 @@ float idParser::ParseFloat() {
 	idToken token = {};
 
 	if ( !idParser::ReadToken( &token ) ) {
-		idParser::Error( "couldn't read expected floating point number" );
+		idParser::Error( "couldn't read expected floating posize_t number" );
 		return 0.0f;
 	}
 	if ( token.type == TT_PUNCTUATION && token == "-" ) {
@@ -3017,7 +3023,7 @@ bool idParser::Parse1DMatrix(const int x, float *m ) {
 		return false;
 	}
 
-	for ( int i = 0; i < x; i++ ) {
+	for ( size_t i = 0; i < x; i++ ) {
 		m[i] = idParser::ParseFloat();
 	}
 
@@ -3037,7 +3043,7 @@ bool idParser::Parse2DMatrix(const int y, const int x, float *m ) {
 		return false;
 	}
 
-	for ( int i = 0; i < y; i++ ) {
+	for ( size_t i = 0; i < y; i++ ) {
 		if ( !idParser::Parse1DMatrix( x, m + i * x ) ) {
 			return false;
 		}
@@ -3059,7 +3065,7 @@ bool idParser::Parse3DMatrix(const int z, const int y, const int x, float *m ) {
 		return false;
 	}
 
-	for ( int i = 0 ; i < z; i++ ) {
+	for ( size_t i = 0 ; i < z; i++ ) {
 		if ( !idParser::Parse2DMatrix( y, x, m + i * x*y ) ) {
 			return false;
 		}
@@ -3098,7 +3104,7 @@ void idParser::SetMarker() {
 ================
 idParser::GetStringFromMarker
 
-  FIXME: this is very bad code, the script isn't even garrenteed to still be around
+  FIXME: this is very bad code, the script isn't even guaranteed to still be around
 ================
 */
 void idParser::GetStringFromMarker( idStr& out, const bool clean ) {
@@ -3272,7 +3278,7 @@ void idParser::FreeSource(const bool keepDefines ) {
 		// free hash table
 		if ( definehash ) {
 			// free defines
-			for ( int i = 0; i < DEFINEHASHSIZE; i++ ) {
+			for ( size_t i = 0; i < DEFINEHASHSIZE; i++ ) {
 				while( definehash[i] ) {
 					define_t* define = definehash[i];
 					definehash[i] = definehash[i]->hashnext;
@@ -3418,7 +3424,7 @@ idParser::EndOfFile
 bool idParser::EndOfFile() const
 {
 	if ( scriptstack != nullptr) {
-		return (bool) scriptstack->EndOfFile();
+		return scriptstack->EndOfFile();
 	}
 	return true;
 }

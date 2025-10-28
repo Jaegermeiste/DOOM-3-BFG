@@ -191,7 +191,7 @@ void idMenuScreen_Shell_Stereoscopics::HideScreen( const mainMenuTransition_t tr
 	if ( stereoData.IsRestartRequired() ) {
 		class idSWFScriptFunction_Restart : public idSWFScriptFunction_RefCounted {
 		public:
-			idSWFScriptFunction_Restart( gameDialogMessages_t _msg, bool _restart ) {
+			idSWFScriptFunction_Restart(const gameDialogMessages_t _msg, const bool _restart ) {
 				msg = _msg;
 				restart = _restart;
 			}
@@ -230,7 +230,7 @@ void idMenuScreen_Shell_Stereoscopics::HideScreen( const mainMenuTransition_t tr
 idMenuScreen_Shell_Stereoscopics::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_Stereoscopics::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Stereoscopics::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData != nullptr) {
 		if ( menuData->ActiveScreen() != SHELL_AREA_STEREOSCOPICS ) {
@@ -343,7 +343,7 @@ idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::AdjustField
 void idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::AdjustField( const int fieldIndex, const int adjustAmount ) {
 	
 	if ( fieldIndex == STEREO_FIELD_ENABLE ) {
-		int numOptions = NUM_STEREO_ENABLE;
+		size_t numOptions = NUM_STEREO_ENABLE;
 		if ( !renderSystem->HasQuadBufferSupport() ) {
 			numOptions--;
 		}

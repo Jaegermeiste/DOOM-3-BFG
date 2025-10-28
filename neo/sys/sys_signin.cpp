@@ -72,8 +72,8 @@ idPlayerProfile * idSignInManagerBase::GetDefaultProfile() {
 idSignInManagerBase::GetLocalUserByInputDevice
 ========================
 */
-idLocalUser * idSignInManagerBase::GetLocalUserByInputDevice( int index ) {
-	for ( int i = 0; i < GetNumLocalUsers(); i++ ) {
+idLocalUser * idSignInManagerBase::GetLocalUserByInputDevice(const index_t index ) {
+	for ( size_t i = 0; i < GetNumLocalUsers(); i++ ) {
 		if ( GetLocalUserByIndex( i )->GetInputDevice() == index ) {
 			return GetLocalUserByIndex( i );	// Found it
 		}
@@ -87,8 +87,8 @@ idLocalUser * idSignInManagerBase::GetLocalUserByInputDevice( int index ) {
 idSignInManagerBase::GetLocalUserByHandle
 ========================
 */
-idLocalUser * idSignInManagerBase::GetLocalUserByHandle( localUserHandle_t handle ) {
-	for ( int i = 0; i < GetNumLocalUsers(); i++ ) {
+idLocalUser * idSignInManagerBase::GetLocalUserByHandle(const localUserHandle_t handle ) {
+	for ( size_t i = 0; i < GetNumLocalUsers(); i++ ) {
 		if ( GetLocalUserByIndex( i )->GetLocalUserHandle() == handle ) {
 			return GetLocalUserByIndex( i );	// Found it
 		}
@@ -102,7 +102,7 @@ idLocalUser * idSignInManagerBase::GetLocalUserByHandle( localUserHandle_t handl
 idSignInManagerBase::GetPlayerProfileByInputDevice
 ========================
 */
-idPlayerProfile * idSignInManagerBase::GetPlayerProfileByInputDevice( int index ) {
+idPlayerProfile * idSignInManagerBase::GetPlayerProfileByInputDevice(const index_t index ) {
 	idLocalUser * user = session->GetSignInManager().GetLocalUserByInputDevice( index );
 	idPlayerProfile * profile = nullptr;
 	if ( user != nullptr) {
@@ -116,8 +116,8 @@ idPlayerProfile * idSignInManagerBase::GetPlayerProfileByInputDevice( int index 
 idSignInManagerBase::RemoveLocalUserByInputDevice
 ========================
 */
-bool idSignInManagerBase::RemoveLocalUserByInputDevice( int index ) {
-	for ( int i = 0; i < GetNumLocalUsers(); i++ ) {
+bool idSignInManagerBase::RemoveLocalUserByInputDevice(const index_t index ) {
+	for ( size_t i = 0; i < GetNumLocalUsers(); i++ ) {
 		if ( GetLocalUserByIndex( i )->GetInputDevice() == index ) {
 			RemoveLocalUserByIndex( i );
 			return true;
@@ -132,8 +132,8 @@ bool idSignInManagerBase::RemoveLocalUserByInputDevice( int index ) {
 idSignInManagerBase::RemoveLocalUserByHandle
 ========================
 */
-bool idSignInManagerBase::RemoveLocalUserByHandle( localUserHandle_t handle ) {
-	for ( int i = 0; i < GetNumLocalUsers(); i++ ) {
+bool idSignInManagerBase::RemoveLocalUserByHandle(const localUserHandle_t handle ) {
+	for ( size_t i = 0; i < GetNumLocalUsers(); i++ ) {
 		if ( GetLocalUserByIndex( i )->GetLocalUserHandle() == handle ) {
 			RemoveLocalUserByIndex( i );
 			return true;
@@ -149,7 +149,7 @@ idSignInManagerBase::SaveUserProfiles
 ========================
 */
 void idSignInManagerBase::SaveUserProfiles() {
-	for ( int i = 0; i < GetNumLocalUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLocalUsers(); i++ ) {
 		idLocalUser * localUser = GetLocalUserByIndex( i );
 		if ( localUser != nullptr) {
 			idPlayerProfile * profile = localUser->GetProfile();
@@ -176,7 +176,7 @@ void idSignInManagerBase::RemoveAllLocalUsers() {
 idSignInManagerBase::ValidateLocalUsers
 ========================
 */
-void idSignInManagerBase::ValidateLocalUsers( bool requireOnline ) {
+void idSignInManagerBase::ValidateLocalUsers(const bool requireOnline ) {
 	if ( !RequirePersistentMaster() ) {
 		return;
 	}
@@ -235,10 +235,10 @@ localUserHandle_t idSignInManagerBase::GetUniqueLocalUserHandle( const char * na
 
 	localUserHandle_t::userHandleType_t handle = 0;
 	
-	for ( int i = 0; i < NUM_LOOPS; i++ ) {
+	for ( size_t i = 0; i < NUM_LOOPS; i++ ) {
 		localUserHandle_t::userHandleType_t tempHandle = 0;
 
-		for ( int j = 0; j < STRIDE_BYTES; j++ ) {
+		for ( size_t j = 0; j < STRIDE_BYTES; j++ ) {
 			tempHandle |= static_cast<localUserHandle_t::userHandleType_t>(digest[(i * STRIDE_BYTES) + j]) << ( j * 8 );
 		}
 

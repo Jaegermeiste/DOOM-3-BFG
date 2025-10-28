@@ -28,10 +28,12 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MENU_WIDGET_H__
 #define __MENU_WIDGET_H__
 
+#pragma once
+
 class idMenuHandler;
 class idMenuWidget;
 
-enum menuOption_t {
+typedef enum menuOption_e : int8 {
 	OPTION_INVALID = -1,
 	OPTION_BUTTON_TEXT,
 	OPTION_SLIDER_BAR,
@@ -40,9 +42,9 @@ enum menuOption_t {
 	OPTION_BUTTON_INFO,
 	OPTION_BUTTON_FULL_TEXT_SLIDER,
 	MAX_MENU_OPTION_TYPES
-};
+} menuOption_t;
 
-enum widgetEvent_t {
+typedef enum widgetEvent_e : uint8 {
 	WIDGET_EVENT_PRESS,
 	WIDGET_EVENT_RELEASE,
 	WIDGET_EVENT_ROLL_OVER,
@@ -92,17 +94,17 @@ enum widgetEvent_t {
 	WIDGET_EVENT_TAB_NEXT,
 	WIDGET_EVENT_TAB_PREV,
 	MAX_WIDGET_EVENT
-};
+} widgetEvent_t;
 
-enum scrollType_t {
+typedef enum scrollType_e : uint8 {
 	SCROLL_SINGLE,		// scroll a single unit
 	SCROLL_PAGE,		// scroll a page
 	SCROLL_FULL,		// scroll all the way to the end
 	SCROLL_TOP,			// scroll to the first selection
 	SCROLL_END,			// scroll to the last selection
-};
+} scrollType_t;
 
-enum widgetAction_t {
+typedef enum widgetAction_e : uint8 {
 	WIDGET_ACTION_NONE,
 	WIDGET_ACTION_COMMAND,
 	WIDGET_ACTION_FUNCTION,					// call the SWF function
@@ -138,9 +140,9 @@ enum widgetAction_t {
 	WIDGET_ACTION_REFRESH,
 	WIDGET_ACTION_MUTE_PLAYER,
 	MAX_WIDGET_ACTION
-};
+} widgetAction_t;
 
-enum actionHandler_t {
+typedef enum actionHandler_e : uint8 {
 	WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER,
 	WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE,
 	WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER,
@@ -155,17 +157,17 @@ enum actionHandler_t {
 	WIDGET_ACTION_EVENT_DRAG_START,
 	WIDGET_ACTION_EVENT_DRAG_STOP,
 	WIDGET_ACTION_EVENT_JOY3_ON_PRESS,
-};
+} actionHandler_t;
 
-struct widgetTransition_t {
-	widgetTransition_t() :
+typedef struct widgetTransition_s {
+	widgetTransition_s() :
 		animationName(nullptr) {
 
 	}
 
 	const char *						animationName;			// name of the animation to run
 	idStaticList< const char *, 4 >		prefixes;				// prefixes to try to use for animation
-};
+}  widgetTransition_t;
 
 
 /*
@@ -173,8 +175,8 @@ struct widgetTransition_t {
 scoreboardInfo_t
 ================================================
 */
-struct scoreboardInfo_t {
-	scoreboardInfo_t() :
+typedef struct scoreboardInfo_s {
+	scoreboardInfo_s() :
 		index( -1 ),
 		voiceState( VOICECHAT_DISPLAY_NONE ) {
 	}
@@ -182,7 +184,7 @@ struct scoreboardInfo_t {
 	idList< idStr, TAG_IDLIB_LIST_MENU> values;
 	int						index;
 	voiceStateDisplay_t		voiceState;
-};
+} scoreboardInfo_t;
 
 /*
 ================================================
@@ -283,7 +285,7 @@ public:
 
 		// everything else is equal, so check all parms. NOTE: this assumes we are only sending
 		// integral types.
-		for ( int i = 0; i < GetParms().Num(); ++i ) {
+		for ( size_t i = 0; i < GetParms().Num(); ++i ) {
 			if ( GetParms()[ i ].GetType() != otherAction.GetParms()[ i ].GetType() 
 				|| GetParms()[ i ].ToInteger() != otherAction.GetParms()[ i ].ToInteger() ) {
 				return false;
@@ -302,25 +304,25 @@ public:
 		scriptFunction->AddRef();
 	}
 
-	void Set( widgetAction_t action_ ) {
+	void Set(const widgetAction_t action_ ) {
 		action = action_;
 		parms.Clear();
 	}
 
-	void Set( widgetAction_t action_, const idSWFScriptVar & var1 ) {
+	void Set(const widgetAction_t action_, const idSWFScriptVar & var1 ) {
 		action = action_;
 		parms.Clear();
 		parms.Append( var1 );
 	}
 
-	void Set( widgetAction_t action_, const idSWFScriptVar & var1, const idSWFScriptVar & var2 ) {
+	void Set(const widgetAction_t action_, const idSWFScriptVar & var1, const idSWFScriptVar & var2 ) {
 		action = action_;
 		parms.Clear();
 		parms.Append( var1 );
 		parms.Append( var2 );
 	}
 
-	void Set( widgetAction_t action_, const idSWFScriptVar & var1, const idSWFScriptVar & var2, const idSWFScriptVar & var3 ) {
+	void Set(const widgetAction_t action_, const idSWFScriptVar & var1, const idSWFScriptVar & var2, const idSWFScriptVar & var3 ) {
 		action = action_;
 		parms.Clear();
 		parms.Append( var1 );
@@ -328,7 +330,7 @@ public:
 		parms.Append( var3 );
 	}
 
-	void Set( widgetAction_t action_, const idSWFScriptVar & var1, const idSWFScriptVar & var2, const idSWFScriptVar & var3, const idSWFScriptVar & var4 ) {
+	void Set(const widgetAction_t action_, const idSWFScriptVar & var1, const idSWFScriptVar & var2, const idSWFScriptVar & var3, const idSWFScriptVar & var4 ) {
 		action = action_;
 		parms.Clear();
 		parms.Append( var1 );
@@ -461,14 +463,14 @@ public:
 
 	idMenuWidget *						GetFocus() { return ( focusIndex >= 0 && focusIndex < children.Num() ) ? children[ focusIndex ] : nullptr; }
 	int									GetFocusIndex() const { return focusIndex; }
-	void								SetFocusIndex( const int index, bool skipSound = false );
+	void								SetFocusIndex( const index_t index, bool skipSound = false );
 
 	//------------------------
 	// Hierarchy
 	//------------------------
 	idMenuWidgetList &					GetChildren() { return children; }
 	const idMenuWidgetList &			GetChildren() const { return children; }
-	idMenuWidget &						GetChildByIndex( const int index ) const { return *children[ index ]; }
+	idMenuWidget &						GetChildByIndex( const index_t index ) const { return *children[ index ]; }
 
 	void								AddChild( idMenuWidget * widget );
 	void								RemoveChild( idMenuWidget * widget );
@@ -480,11 +482,11 @@ public:
 	void								SetParent( idMenuWidget * parent_ ) { parent = parent_; }
 	void								SetSWFObj( idSWF * obj ) { swfObj = obj; }
 	bool								GetHandlerIsParent() { return handlerIsParent; }
-	void								SetHandlerIsParent( bool val ) { handlerIsParent = val; }
-	void								SetNoAutoFree( bool b ) { noAutoFree = b; }
+	void								SetHandlerIsParent(const bool val ) { handlerIsParent = val; }
+	void								SetNoAutoFree(const bool b ) { noAutoFree = b; }
 
 protected:
-	void								ForceFocusIndex( const int index ) { focusIndex = index; }
+	void								ForceFocusIndex( const index_t index ) { focusIndex = index; }
 
 protected:
 	bool								handlerIsParent;
@@ -545,7 +547,7 @@ public:
 	void					SetLabel( const idStr & label ) { btnLabel = label; }
 	const idStr &			GetLabel() const { return btnLabel; }
 	void					SetValues( idList< idStr > & list );
-	const idStr &			GetValue( int index ) const;
+	const idStr &			GetValue( index_t index ) const;
 	void					SetImg( const idMaterial * val ) { img = val; }
 	const idMaterial *		GetImg() { return img; }
 	void					SetDescription( const char * desc_ ) { description = desc_; }
@@ -603,7 +605,7 @@ public:
 	}
 
 	void			Update() override;
-	void					SetButtonInfo( int index_, idList< idStr > & list, voiceStateDisplay_t voiceState_ );
+	void					SetButtonInfo( index_t index_, idList< idStr > & list, voiceStateDisplay_t voiceState_ );
 
 protected:
 	voiceStateDisplay_t		voiceState;
@@ -625,8 +627,8 @@ public:
 	void			Update() override;
 	void					SetOptionType( const menuOption_t type ) { optionType = type; }
 	menuOption_t			GetOptionType() const { return optionType; }
-	void					SetupEvents( int delay, int index );
-	void					SetDisabled( bool disable ) { disabled = disable; }
+	void					SetupEvents( int delay, index_t index );
+	void					SetDisabled(const bool disable ) { disabled = disable; }
 
 protected:
 	menuOption_t			optionType;
@@ -650,7 +652,7 @@ public:
 	}
 
 	void			Update() override;
-	void					SetButtonInfo( idStr name_, idStrId mapName_, idStr modeName_, int index_ = 0, int players_ = 0, int maxPlayers_ = 0, bool joinable_ = false, bool validMap_ = false );
+	void					SetButtonInfo( idStr name_, idStrId mapName_, idStr modeName_, index_t index_ = 0, int players_ = 0, size_t maxPlayers_ = 0, bool joinable_ = false, bool validMap_ = false );
 	bool					IsValid() { return !serverName.IsEmpty(); }
 	bool					CanJoin() { return ( joinable && validMap ); }
 
@@ -687,8 +689,8 @@ public:
 	bool			ExecuteEvent( const idWidgetEvent & event ) override;
 	void			Update() override;
 
-	void					SetNavIndex( int i, const navWidgetState_t type ) { navIndex = i; navState = type; }
-	void					SetPosition( float pos ) { xPos = pos; }
+	void					SetNavIndex(const int i, const navWidgetState_t type ) { navIndex = i; navState = type; }
+	void					SetPosition(const float pos ) { xPos = pos; }
 
 private:
 
@@ -711,7 +713,7 @@ public:
 	}
 
 	void			Update() override;
-	void					SetPosition( float pos ) { xPos = pos; }
+	void					SetPosition(const float pos ) { xPos = pos; }
 
 private:
 
@@ -747,17 +749,17 @@ public:
 	bool						IsWrappingAllowed() const { return allowWrapping; }
 	void						SetWrappingAllowed( const bool allow ) { allowWrapping = allow; }
 
-	void						SetNumVisibleOptions( const int numVisibleOptions_ ) { numVisibleOptions = numVisibleOptions_; }
+	void						SetNumVisibleOptions( const size_t numVisibleOptions_ ) { numVisibleOptions = numVisibleOptions_; }
 	int							GetNumVisibleOptions() const { return numVisibleOptions; }
 
 	int							GetViewOffset() const { return viewOffset; }
 	void						SetViewOffset( const int offset ) { viewOffset = offset; }
 
 	int							GetViewIndex() const { return viewIndex; }
-	void						SetViewIndex( const int index ) { viewIndex = index; }
+	void						SetViewIndex( const index_t index ) { viewIndex = index; }
 
-	void						CalculatePositionFromIndexDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int indexDelta, const bool allowWrapping, const bool wrapAround = false ) const;
-	void						CalculatePositionFromOffsetDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int offsetDelta ) const;
+	void						CalculatePositionFromIndexDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const size_t maxSize, const index_t indexDelta, const bool allowWrapping, const bool wrapAround = false ) const;
+	void						CalculatePositionFromOffsetDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const size_t maxSize, const int offsetDelta ) const;
 
 private:
 	int							numVisibleOptions;
@@ -771,7 +773,7 @@ public:
 	idStr serverName;
 	int	index;
 	int players;
-	int maxPlayers;
+	size_t maxPlayers;
 	bool joinable;
 	bool validMap;
 	idStrId mapName;
@@ -789,7 +791,7 @@ public:
 	bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) override;
 	int					GetTotalNumberOfOptions() const override;
 	void						ClearGames();
-	void						AddGame( idStr name_, idStrId mapName_, idStr modeName_, int index_ = 0, int players_ = 0, int maxPlayers_ = 0, bool joinable_ = false, bool validMap_ = false );
+	void						AddGame( idStr name_, idStrId mapName_, idStr modeName_, index_t index_ = 0, int players_ = 0, size_t maxPlayers_ = 0, bool joinable_ = false, bool validMap_ = false );
 	int							GetServerIndex();
 private:
 	idList< idBrowserEntry_t >	games;
@@ -819,18 +821,18 @@ public:
 	virtual int					GetTotalNumberOfOptions() const { return imgList.Num(); }
 	virtual bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) { return true; }
 
-	void						SetNumVisibleOptions( const int numVisibleOptions_ ) { numVisibleOptions = numVisibleOptions_; }
+	void						SetNumVisibleOptions( const size_t numVisibleOptions_ ) { numVisibleOptions = numVisibleOptions_; }
 	int							GetNumVisibleOptions() const { return numVisibleOptions; }
 		
-	void						MoveToIndex( int index, bool instant = false );
+	void						MoveToIndex( index_t index, bool instant = false );
 	void						MoveToFirstItem( bool instant = true );
 	void						MoveToLastItem( bool instant = true );
 	int							GetMoveToIndex() { return moveToIndex; }
-	void						SetMoveToIndex( int index ) { moveToIndex = index; }
-	void						SetViewIndex( int index ) { viewIndex = index; }
+	void						SetMoveToIndex(const index_t index ) { moveToIndex = index; }
+	void						SetViewIndex(const index_t index ) { viewIndex = index; }
 	int							GetViewIndex() const { return viewIndex; }
 	void						SetListImages( idList<const idMaterial *> & list );
-	void						SetMoveDiff( int val ) { moveDiff = val; }
+	void						SetMoveDiff(const int val ) { moveDiff = val; }
 	int							GetMoveDiff() { return moveDiff; }
 	bool						GetScrollLeft() { return scrollLeft; }
 
@@ -925,9 +927,9 @@ public:
 	void				Update() override;
 	bool				PrepareListElement( idMenuWidget & widget, const int childIndex ) override;
 	int					GetTotalNumberOfOptions() const override { return numEntries; }
-	void						SetEntryData( int index, idStr name, voiceStateDisplay_t voiceState );
+	void						SetEntryData( index_t index, idStr name, voiceStateDisplay_t voiceState );
 	void						SetHeadingInfo( idList< idStr > & list );
-	void						SetNumEntries( int num ) { numEntries = num; }
+	void						SetNumEntries(const size_t num ) { numEntries = num; }
 	int							GetNumEntries() { return numEntries; }
 	void						SetRefreshFunction( const char* func );
 private:
@@ -956,8 +958,8 @@ public:
 	virtual void				Recalculate();
 	virtual void				SetListData( idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > & list );
 	
-	void						SetControlList( bool val ) { controlList = val; }
-	void						SetIgnoreColor( bool val ) { ignoreColor = val; }
+	void						SetControlList(const bool val ) { controlList = val; }
+	void						SetIgnoreColor(const bool val ) { ignoreColor = val; }
 
 protected:
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU >	listItemInfo;
@@ -996,8 +998,8 @@ public:
 
 			void				Update() override;
 			void				Initialize( idMenuHandler * data ) override;
-	virtual void				SetInitialXPos( float pos ) { initialPos = pos; }
-	virtual void				SetButtonSpacing( float lSpace, float rSpace, float sSpace ) { leftSpacer = lSpace; rightSpacer = rSpace; selectedSpacer = sSpace; }
+	virtual void				SetInitialXPos(const float pos ) { initialPos = pos; }
+	virtual void				SetButtonSpacing(const float lSpace, const float rSpace, const float sSpace ) { leftSpacer = lSpace; rightSpacer = rSpace; selectedSpacer = sSpace; }
 			bool				PrepareListElement( idMenuWidget & widget, const int navIndex ) override;
 	virtual void				SetListHeadings( idList< idStr > & list );
 			int					GetTotalNumberOfOptions() const override;
@@ -1031,7 +1033,7 @@ public:
 
 	void				Update() override;
 	void				Initialize( idMenuHandler * data ) override;
-	virtual void				SetButtonSpacing( float rSpace ) { rightSpacer = rSpace; }
+	virtual void				SetButtonSpacing(const float rSpace ) { rightSpacer = rSpace; }
 	bool				PrepareListElement( idMenuWidget & widget, const int navIndex ) override;
 	virtual void				SetListHeadings( idList< idStr > & list );
 	int					GetTotalNumberOfOptions() const override;
@@ -1151,7 +1153,7 @@ public:
 	void	Update() override;
 	void	ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) override;
 
-	void			SetForSaveScreen( bool val ) { forSaveScreen = val; }
+	void			SetForSaveScreen(const bool val ) { forSaveScreen = val; }
 private:
 	int		loadIndex;
 	bool	forSaveScreen;
@@ -1215,10 +1217,10 @@ public:
 	}
 
 	void	Update() override;
-	void			SetIcon( int index, const idMaterial * icon );
+	void			SetIcon( index_t index, const idMaterial * icon );
 	void			FindFreeSpot();
 	int				GetSlotIndex() { return slotIndex; }
-	void			SetSlotIndex( int num ) { slotIndex = num; }
+	void			SetSlotIndex(const size_t num ) { slotIndex = num; }
 private:
 	const idMaterial * images[ NUM_QUICK_SLOTS ];
 	int				slotIndex;
@@ -1247,7 +1249,7 @@ idWidgetActionHandler
 */
 class idWidgetActionHandler : public idSWFScriptFunction_RefCounted {
 public:
-	idWidgetActionHandler( idMenuWidget * widget, actionHandler_t actionEventType, widgetEvent_t _event ) :
+	idWidgetActionHandler( idMenuWidget * widget, const actionHandler_t actionEventType, const widgetEvent_t _event ) :
 		targetWidget( widget ),
 		type( actionEventType ),
 		targetEvent( _event ) {

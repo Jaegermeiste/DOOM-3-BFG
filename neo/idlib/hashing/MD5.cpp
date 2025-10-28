@@ -43,17 +43,17 @@ Contains the MD5BlockChecksum implementation.
 // but it looks ok and a random test function checked it out.
 //------------------------
 // #define F1(x, y, z) (x & y | ~x & z)
-#define F1(x, y, z) (z ^ (x & (y ^ z)))
+#define F1(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
 #define F2(x, y, z) F1(z, x, y)
-#define F3(x, y, z) (x ^ y ^ z)
-#define F4(x, y, z) (y ^ (x | ~z))
+#define F3(x, y, z) ((x) ^ (y) ^ (z))
+#define F4(x, y, z) ((y) ^ ((x) | ~(z)))
 
 // This is the central step in the MD5 algorithm.
-#define MD5STEP(f, w, x, y, z, data, s) ( w += f(x, y, z) + (data),  w = w<<s | w>>(32-s),  w += x )
+#define MD5STEP(f, w, x, y, z, data, s) ( (w) += f(x, y, z) + (data),  (w) = (w)<<(s) | (w)>>(32-(s)),  (w) += (x) )
 
 #ifndef _MD_PADDING
 #define _MD_PADDING
-static unsigned char PADDING[64] = {
+static byte PADDING[64] = {
 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 #endif // _MD_PADDING
@@ -62,17 +62,17 @@ static unsigned char PADDING[64] = {
 ========================
 Encode
 
-Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 4.
+Encodes input (uint32) into output (byte). Assumes len is a multiple of 4.
 ========================
 */
-static void MD5_Encode( unsigned char *output, const UINT4 *input, const size_t len ) {
-	unsigned int i, j;
+static void MD5_Encode( byte *output, const uint32*input, const size_t len ) {
+	size_t i = 0, j = 0;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
- 		output[j] = static_cast<unsigned char>(input[i] & 0xff);
- 		output[j+1] = static_cast<unsigned char>((input[i] >> 8) & 0xff);
- 		output[j+2] = static_cast<unsigned char>((input[i] >> 16) & 0xff);
- 		output[j+3] = static_cast<unsigned char>((input[i] >> 24) & 0xff);
+ 		output[j] = numeric_cast<byte>(input[i] & 0xff);
+ 		output[j+1] = numeric_cast<byte>((input[i] >> 8) & 0xff);
+ 		output[j+2] = numeric_cast<byte>((input[i] >> 16) & 0xff);
+ 		output[j+3] = numeric_cast<byte>((input[i] >> 24) & 0xff);
 	}
 }
 
@@ -80,14 +80,14 @@ static void MD5_Encode( unsigned char *output, const UINT4 *input, const size_t 
 ========================
 Decode
 
-Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 4.
+Decodes input (byte) into output (uint32). Assumes len is a multiple of 4.
 ========================
 */
-static void MD5_Decode( UINT4 *output, const unsigned char *input, const size_t len ) {
-	unsigned int i, j;
+static void MD5_Decode( uint32 *output, const byte *input, const size_t len ) {
+	size_t i = 0, j = 0;
 
 	for ( i = 0, j = 0; j < len; i++, j += 4 ) {
- 		output[i] = static_cast<UINT4>(input[j]) | (static_cast<UINT4>(input[j + 1]) << 8) | (static_cast<UINT4>(input[j + 2]) << 16) | (static_cast<UINT4>(input[j + 3]) << 24);
+ 		output[i] = numeric_cast<uint32>(input[j]) | (numeric_cast<uint32>(input[j + 1]) << 8) | (numeric_cast<uint32>(input[j + 2]) << 16) | (numeric_cast<uint32>(input[j + 3]) << 24);
 	}
 }
 
@@ -100,8 +100,8 @@ longwords of new data. MD5Update blocks the data and converts bytes into longwor
 routine.
 ========================
 */
-static void MD5_Transform(UINT4 state[4], const unsigned char block[64] ) {
-	UINT4 a = 0, b = 0, c = 0, d = 0, x[16] = {};
+static void MD5_Transform(uint32 state[4], const byte block[64] ) {
+	uint32 a = 0, b = 0, c = 0, d = 0, x[16] = {};
 
 	a = state[0];
 	b = state[1];
@@ -183,8 +183,8 @@ static void MD5_Transform(UINT4 state[4], const unsigned char block[64] ) {
 	state[2] += c;
 	state[3] += d;
 
-	// Zeroize sensitive information.
-	memset( (POINTER)x, 0, sizeof( x ) );
+	// Zero sensitive information.
+	memset( x, 0, sizeof( x ) );
 }
 
 /*
@@ -212,20 +212,22 @@ MD5 block update operation. Continues an MD5 message-digest operation, processin
 message block, and updating the context.
 ========================
 */
-void MD5_Update( MD5_CTX *context, unsigned char const *input, const size_t inputLen ) {
-	size_t i;
+void MD5_Update( MD5_CTX *context, byte const *input, const size_t inputLen ) {
+	size_t i = 0;
 
 	// Compute number of bytes mod 64
-	unsigned int index = static_cast<unsigned int>((context->bits[0] >> 3) & 0x3F);
+	size_t index = numeric_cast<size_t>((context->bits[0] >> 3) & 0x3F);
+
+	const auto inputLen_ui32 = numeric_cast<uint32>(inputLen);
 
 	// Update number of bits
-	if ((context->bits[0] += (static_cast<UINT4>(inputLen) << 3))< (static_cast<UINT4>(inputLen) << 3)) {
+	if ((context->bits[0] += (inputLen_ui32 << 3))< (inputLen_ui32 << 3)) {
 		context->bits[1]++;
 	}
 
-	context->bits[1] += (static_cast<UINT4>(inputLen) >> 29);
+	context->bits[1] += (inputLen_ui32 >> 29);
 
-	const size_t partLen = 64 - static_cast<size_t>(index);
+	const size_t partLen = 64 - index;
 
 	// Transform as many times as possible.
 	if ( inputLen >= partLen ) {
@@ -250,18 +252,18 @@ void MD5_Update( MD5_CTX *context, unsigned char const *input, const size_t inpu
 MD5_Final
 
 MD5 finalization. Ends an MD5 message-digest operation, writing the message digest and 
-zero-izing the context.
+zeroing the context.
 ========================
 */
-void MD5_Final( MD5_CTX *context, unsigned char digest[16] ) {
-	unsigned char bits[8];
+void MD5_Final( MD5_CTX *context, byte digest[16] ) {
+	byte bits[8] ={};
 
 	// Save number of bits
 	MD5_Encode( bits, context->bits, 8 );
 
 	// Pad out to 56 mod 64.
-	const unsigned int index = static_cast<unsigned int>((context->bits[0] >> 3) & 0x3f);
-	const unsigned int padLen = (index < 56) ? (56 - index) : (120 - index);
+	const size_t index = numeric_cast<size_t>((context->bits[0] >> 3) & 0x3f);
+	const size_t padLen = (index < 56) ? (56 - index) : (120 - index);
 	MD5_Update( context, PADDING, padLen );
 
 	// Append length (before padding)
@@ -280,12 +282,12 @@ MD5_BlockChecksum
 ========================
 */
 
-unsigned int MD5_BlockChecksum( const void *data, const size_t length ) {
-	unsigned char	digest[16] = {};
+uint32 MD5_BlockChecksum( const void *data, const size_t length ) {
+	byte	digest[16] = {};
 	MD5_CTX			ctx = {};
 
 	MD5_Init( &ctx );
-	MD5_Update( &ctx, static_cast<const unsigned char *>(data), length );
+	MD5_Update( &ctx, static_cast<const byte *>(data), length );
 	MD5_Final( &ctx, digest );
 
 	// Handle it manually to be endian-safe since we don't have access to idSwap.

@@ -66,9 +66,9 @@ public:
 	idSWFScriptVar( idStrId s ) : type( SWF_VAR_UNDEF ) { SetString( s ); }
 	idSWFScriptVar( const idStr & s ) : type( SWF_VAR_UNDEF ) { SetString( s ); }
 	idSWFScriptVar( const char * s ) : type( SWF_VAR_UNDEF ) { SetString( idStr( s ) ); }
-	idSWFScriptVar( float f ) : type( SWF_VAR_UNDEF ) { SetFloat( f ); }
-	idSWFScriptVar( bool b ) : type( SWF_VAR_UNDEF ) { SetBool( b ); }
-	idSWFScriptVar( int32 i ) : type( SWF_VAR_UNDEF ) { SetInteger( i ); }
+	idSWFScriptVar(const float f ) : type( SWF_VAR_UNDEF ) { SetFloat( f ); }
+	idSWFScriptVar(const bool b ) : type( SWF_VAR_UNDEF ) { SetBool( b ); }
+	idSWFScriptVar(const int32 i ) : type( SWF_VAR_UNDEF ) { SetInteger( i ); }
 	idSWFScriptVar( idSWFScriptFunction * nf ) : type( SWF_VAR_UNDEF ) { SetFunction( nf ); }
 	~idSWFScriptVar();
 
@@ -82,11 +82,11 @@ public:
 	void SetString( const idStr & s )	{ Free(); type = SWF_VAR_STRING; value.string = idSWFScriptString::Alloc( s ); }
 	void SetString( const char * s )	{ Free(); type = SWF_VAR_STRING; value.string = idSWFScriptString::Alloc( s ); }
 	void SetString( idSWFScriptString * s )	{ Free(); type = SWF_VAR_STRING; value.string = s; s->AddRef(); }
-	void SetFloat( float f )			{ Free(); type = SWF_VAR_FLOAT; value.f = f; }
+	void SetFloat( const std::floating_point auto f )			{ Free(); type = SWF_VAR_FLOAT; value.f = numeric_cast<decltype(value.f)>(f); }
 	void SetNULL()						{ Free(); type = SWF_VAR_NULL; }
 	void SetUndefined()					{ Free(); type = SWF_VAR_UNDEF; }
-	void SetBool( bool b )				{ Free(); type = SWF_VAR_BOOL; value.b = b; }
-	void SetInteger( Ordinal auto i )	{ Free(); type = SWF_VAR_INTEGER; value.i = idMath::integer_cast<int64>(i); }
+	void SetBool( const bool b )				{ Free(); type = SWF_VAR_BOOL; value.b = b; }
+	void SetInteger( const std::integral auto i ) { Free(); type = SWF_VAR_INTEGER; value.i = numeric_cast<decltype(value.i)>(i); }
 
 	void SetObject( idSWFScriptObject * o );
 	void SetFunction( idSWFScriptFunction * f );
@@ -144,7 +144,7 @@ private:
 	swfScriptVarType type;
 
 	union swfScriptVarValue_t {
-		float	f;
+		long double	f;
 		int64	i;
 		bool	b;
 		idSWFScriptObject * object;

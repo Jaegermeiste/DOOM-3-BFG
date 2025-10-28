@@ -289,7 +289,7 @@ static infoParm_t	infoParms[] = {
 	{"surftype15",	0,	SURFTYPE_15,	0 },
 };
 
-static constexpr int numInfoParms = sizeof(infoParms) / sizeof (infoParms[0]);
+static constexpr size_t numInfoParms = sizeof(infoParms) / sizeof (infoParms[0]);
 
 
 /*
@@ -301,7 +301,7 @@ See if the current token matches one of the surface parm bit flags
 */
 bool idMaterial::CheckSurfaceParm( idToken *token ) {
 
-	for ( int i = 0 ; i < numInfoParms ; i++ ) {
+	for ( size_t i = 0 ; i < numInfoParms ; i++ ) {
 		if ( !token->Icmp( infoParms[i].name ) ) {
 			if ( infoParms[i].surfaceFlags & SURF_TYPE_MASK ) {
 				// ensure we only have one surface type set
@@ -410,7 +410,7 @@ void idMaterial::ParseDecalInfo( idLexer &src ) {
 	float	start[4], end[4];
 	src.Parse1DMatrix( 4, start );
 	src.Parse1DMatrix( 4, end );
-	for ( int i = 0 ; i < 4 ; i++ ) {
+	for ( size_t i = 0 ; i < 4 ; i++ ) {
 		decalInfo.start[i] = start[i];
 		decalInfo.end[i] = end[i];
 	}
@@ -421,7 +421,7 @@ void idMaterial::ParseDecalInfo( idLexer &src ) {
 idMaterial::GetExpressionConstant
 =============
 */
-int idMaterial::GetExpressionConstant( float f ) {
+int idMaterial::GetExpressionConstant(const float f ) {
 	int		i;
 
 	for ( i = EXP_REG_NUM_PREDEFINED ; i < numRegisters ; i++ ) {
@@ -477,7 +477,7 @@ expOp_t	*idMaterial::GetExpressionOp() {
 idMaterial::EmitOp
 =================
 */
-int idMaterial::EmitOp( int a, int b, expOpType_t opType ) {
+int idMaterial::EmitOp(const int a, const int b, const expOpType_t opType ) {
 	expOp_t	*op;
 
 	// optimize away identity operations
@@ -524,7 +524,7 @@ int idMaterial::EmitOp( int a, int b, expOpType_t opType ) {
 idMaterial::ParseEmitOp
 =================
 */
-int idMaterial::ParseEmitOp( idLexer &src, int a, expOpType_t opType, int priority ) {
+int idMaterial::ParseEmitOp( idLexer &src, const int a, const expOpType_t opType, const int priority ) {
 	int		b;
 
 	b = ParseExpressionPriority( src, priority );
@@ -684,7 +684,7 @@ Returns a register index
 =================
 */
 #define	TOP_PRIORITY 4
-int idMaterial::ParseExpressionPriority( idLexer &src, int priority ) {
+int idMaterial::ParseExpressionPriority( idLexer &src, const int priority ) {
 	idToken token;
 	int		a;
 
@@ -1759,7 +1759,7 @@ void idMaterial::AddImplicitStages( const textureRepeat_t trpDefault /* = TR_REP
 	bool hasBump = false;
 	bool hasReflection = false;
 
-	for ( int i = 0 ; i < numStages ; i++ ) {
+	for ( size_t i = 0 ; i < numStages ; i++ ) {
 		if ( pd->parseStages[i].lighting == SL_BUMP ) {
 			hasBump = true;
 		}
@@ -1818,7 +1818,7 @@ void idMaterial::SortInteractionStages() const
 {
 	int		j;
 
-	for ( int i = 0 ; i < numStages ; i = j ) {
+	for ( size_t i = 0 ; i < numStages ; i = j ) {
 		// find the next bump map
 		for ( j = i + 1 ; j < numStages ; j++ ) {
 			if ( pd->parseStages[j].lighting == SL_BUMP ) {
@@ -2461,7 +2461,7 @@ idMaterial::AddReference
 void idMaterial::AddReference() {
 	refCount++;
 
-	for ( int i = 0; i < numStages; i++ ) {
+	for ( size_t i = 0; i < numStages; i++ ) {
 		shaderStage_t *s = &stages[i];
 
 		if ( s->texture.image ) {
@@ -2590,7 +2590,7 @@ idMaterial::Texgen
 */
 texgen_t idMaterial::Texgen() const {
 	if ( stages ) {
-		for ( int i = 0; i < numStages; i++ ) {
+		for ( size_t i = 0; i < numStages; i++ ) {
 			if ( stages[ i ].texture.texgen != TG_EXPLICIT ) {
 				return stages[ i ].texture.texgen;
 			}
@@ -2637,7 +2637,7 @@ ID_TIME_T	idMaterial::CinematicLength() const {
 idMaterial::UpdateCinematic
 =============
 */
-void idMaterial::UpdateCinematic( int time ) const {
+void idMaterial::UpdateCinematic( ID_TIME_T time ) const {
 }
 
 /*
@@ -2646,7 +2646,7 @@ idMaterial::CloseCinematic
 =============
 */
 void idMaterial::CloseCinematic() const {
-	for( int i = 0; i < numStages; i++ ) {
+	for ( size_t i = 0; i < numStages; i++ ) {
 		if ( stages[i].texture.cinematic ) {
 			stages[i].texture.cinematic->Close();
 			delete stages[i].texture.cinematic;
@@ -2660,8 +2660,8 @@ void idMaterial::CloseCinematic() const {
 idMaterial::ResetCinematicTime
 =============
 */
-void idMaterial::ResetCinematicTime( int time ) const {
-	for( int i = 0; i < numStages; i++ ) {
+void idMaterial::ResetCinematicTime( ID_TIME_T time ) const {
+	for ( size_t i = 0; i < numStages; i++ ) {
 		if ( stages[i].texture.cinematic ) {
 			stages[i].texture.cinematic->ResetTime( time );
 		}
@@ -2674,7 +2674,7 @@ idMaterial::GetCinematicStartTime
 =============
 */
 int idMaterial::GetCinematicStartTime() const {
-	for( int i = 0; i < numStages; i++ ) {
+	for ( size_t i = 0; i < numStages; i++ ) {
 		if ( stages[i].texture.cinematic ) {
 			return stages[i].texture.cinematic->GetStartTime();
 		}
@@ -2784,7 +2784,7 @@ idMaterial::GetBumpStage
 ===================
 */
 const shaderStage_t *idMaterial::GetBumpStage() const {
-	for ( int i = 0 ; i < numStages ; i++ ) {
+	for ( size_t i = 0 ; i < numStages ; i++ ) {
 		if ( stages[i].lighting == SL_BUMP ) {
 			return &stages[i];
 		}
@@ -2797,10 +2797,10 @@ const shaderStage_t *idMaterial::GetBumpStage() const {
 idMaterial::ReloadImages
 ===================
 */
-void idMaterial::ReloadImages( bool force ) const {
-	for ( int i = 0 ; i < numStages ; i++ ) {
+void idMaterial::ReloadImages(const bool force ) const {
+	for ( size_t i = 0 ; i < numStages ; i++ ) {
 		if ( stages[i].newStage ) {
-			for ( int j = 0 ; j < stages[i].newStage->numFragmentProgramImages ; j++ ) {
+			for ( size_t j = 0 ; j < stages[i].newStage->numFragmentProgramImages ; j++ ) {
 				if ( stages[i].newStage->fragmentProgramImages[j] ) {
 					stages[i].newStage->fragmentProgramImages[j]->Reload( force );
 				}
@@ -2845,7 +2845,7 @@ void idMaterial::SetFastPathImages() {
 		}
 
 		// check for non-identity colors
-		for ( int i = 0; i < 4; i++ ) {
+		for ( size_t i = 0; i < 4; i++ ) {
 			if ( idMath::Fabs( constantRegisters[surfaceStage->color.registers[i]] - 1.0f ) > 0.1f ) {
 				goto fail;
 			}

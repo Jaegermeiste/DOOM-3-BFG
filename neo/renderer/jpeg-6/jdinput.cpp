@@ -36,7 +36,7 @@ METHODDEF int consume_markers JPP( (j_decompress_ptr cinfo) );
  */
 
 LOCAL void
-initial_setup( j_decompress_ptr cinfo ) {
+initial_setup(const j_decompress_ptr cinfo ) {
 /* Called once, when first SOS marker is reached */
     int ci;
     jpeg_component_info * compptr;
@@ -122,7 +122,7 @@ initial_setup( j_decompress_ptr cinfo ) {
 
 
 LOCAL void
-per_scan_setup( j_decompress_ptr cinfo ) {
+per_scan_setup(const j_decompress_ptr cinfo ) {
 /* Do computations that are needed before processing a JPEG scan */
 /* cinfo->comps_in_scan and cinfo->cur_comp_info[] were set from SOS marker */
     int ci, mcublks, tmp;
@@ -228,7 +228,7 @@ per_scan_setup( j_decompress_ptr cinfo ) {
  */
 
 LOCAL void
-latch_quant_tables( j_decompress_ptr cinfo ) {
+latch_quant_tables(const j_decompress_ptr cinfo ) {
     int ci, qtblno;
     jpeg_component_info * compptr;
     JQUANT_TBL * qtbl;
@@ -263,7 +263,7 @@ latch_quant_tables( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-start_input_pass( j_decompress_ptr cinfo ) {
+start_input_pass(const j_decompress_ptr cinfo ) {
     per_scan_setup( cinfo );
     latch_quant_tables( cinfo );
     ( *cinfo->entropy->start_pass )( cinfo );
@@ -279,7 +279,7 @@ start_input_pass( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-finish_input_pass( j_decompress_ptr cinfo ) {
+finish_input_pass(const j_decompress_ptr cinfo ) {
     cinfo->inputctl->consume_input = consume_markers;
 }
 
@@ -295,7 +295,7 @@ finish_input_pass( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF int
-consume_markers( j_decompress_ptr cinfo ) {
+consume_markers(const j_decompress_ptr cinfo ) {
     my_inputctl_ptr inputctl = (my_inputctl_ptr) cinfo->inputctl;
     int val;
 
@@ -349,7 +349,7 @@ consume_markers( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-reset_input_controller( j_decompress_ptr cinfo ) {
+reset_input_controller(const j_decompress_ptr cinfo ) {
     my_inputctl_ptr inputctl = (my_inputctl_ptr) cinfo->inputctl;
 
     inputctl->pub.consume_input = consume_markers;
@@ -370,7 +370,7 @@ reset_input_controller( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_input_controller( j_decompress_ptr cinfo ) {
+jinit_input_controller(const j_decompress_ptr cinfo ) {
     my_inputctl_ptr inputctl;
 
     /* Create subobject in permanent pool */

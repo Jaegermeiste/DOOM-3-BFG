@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MULTIPLAYERGAME_H__
 #define	__MULTIPLAYERGAME_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -42,7 +44,7 @@ class idMenuHandler_HUD;
 class idMenuHandler_Scoreboard;
 class idItemTeam;
 
-enum gameType_t {
+typedef enum gameType_e : uint8 {
 	GAME_SP = -2,
 	GAME_RANDOM = -1,
 	GAME_DM = 0,
@@ -51,10 +53,10 @@ enum gameType_t {
 	GAME_LASTMAN,
 	GAME_CTF,
 	GAME_COUNT,
-};
+} gameType_t;
 
 // Used by the UI
-typedef enum {
+typedef enum flagStatus_e : uint8 {
 	FLAGSTATUS_INBASE = 0,
 	FLAGSTATUS_TAKEN  = 1,
 	FLAGSTATUS_STRAY  = 2,
@@ -62,7 +64,7 @@ typedef enum {
 } flagStatus_t;
 
 typedef struct mpPlayerState_s {
-	int				ping;			// player ping
+	ID_TIME_T		ping;			// player ping ms
 	int				fragCount;		// kills
 	int				teamFragCount;	// team kills
 	int				wins;			// wins
@@ -70,14 +72,14 @@ typedef struct mpPlayerState_s {
 	int				deaths;
 } mpPlayerState_t;
 
-constexpr int NUM_CHAT_NOTIFY	= 5;
-constexpr int CHAT_FADE_TIME	= 400;
-constexpr int FRAGLIMIT_DELAY	= 2000;
+constexpr size_t NUM_CHAT_NOTIFY	= 5;
+constexpr ID_TIME_T CHAT_FADE_TIME	= 400;
+constexpr ID_TIME_T FRAGLIMIT_DELAY	= 2000;
 
 constexpr int MP_PLAYER_MINFRAGS = -100;
 constexpr int MP_PLAYER_MAXFRAGS = 400;	// in CTF frags are player points
 constexpr int MP_PLAYER_MAXWINS	= 100;
-constexpr int MP_PLAYER_MAXPING	= 999;
+constexpr ID_TIME_T MP_PLAYER_MAXPING	= 999;
 constexpr int MP_CTF_MAXPOINTS = 400;
 
 typedef struct mpChatLine_s {
@@ -85,7 +87,7 @@ typedef struct mpChatLine_s {
 	short			fade;			// starts high and decreases, line is removed once reached 0
 } mpChatLine_t;
 
-typedef enum {
+typedef enum snd_evt_e : uint8 {
 	SND_YOUWIN = 0,
 	SND_YOULOSE,
 	SND_FIGHT,
@@ -114,13 +116,13 @@ public:
 	void			Reset();
 
 	// setup local data for a new player
-	void			SpawnPlayer( int clientNum );
+	void			SpawnPlayer( index_t clientNum );
 
 	// checks rules and updates state of the mp game
 	void			Run();
 
-	// draws mp hud, scoredboard, etc.. 
-	bool			Draw( int clientNum );
+	// draws mp hud, scoreboard, etc.. 
+	bool			Draw( index_t clientNum );
 
 	// updates frag counts and potentially ends the match in sudden death
 	void			PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag );
@@ -131,7 +133,7 @@ public:
 	void			ReadFromSnapshot( const idBitMsg &msg );
 
 	// game state
-	typedef enum {
+	typedef enum gameState_e : uint8 {
 		INACTIVE = 0,						// not running
 		WARMUP,								// warming up
 		COUNTDOWN,							// post warmup pre-game
@@ -145,11 +147,11 @@ public:
 	idMultiplayerGame::gameState_t		GetGameState() const;
 
 	static const char *GlobalSoundStrings[ SND_COUNT ];
-	void			PlayGlobalSound( int toPlayerNum, snd_evt_t evt, const char *shader = nullptr);
-	void			PlayTeamSound( int toTeam, snd_evt_t evt, const char *shader = nullptr);	// sound that's sent only to member of toTeam team
+	void			PlayGlobalSound( index_t toPlayerNum, snd_evt_t evt, const char *shader = nullptr);
+	void			PlayTeamSound( index_t toTeam, snd_evt_t evt, const char *shader = nullptr);	// sound that's sent only to member of toTeam team
 
 	// more compact than a chat line
-	typedef enum {
+	typedef enum msg_evt_e : uint8 {
 		MSG_SUICIDE = 0,
 		MSG_KILLED,
 		MSG_KILLEDTEAM,
@@ -172,57 +174,57 @@ public:
 	} msg_evt_t;
 	void			PrintMessageEvent( msg_evt_t evt, int parm1 = -1, int parm2 = -1 );
 
-	void			DisconnectClient( int clientNum );
+	void			DisconnectClient( index_t clientNum );
 	static void		DropWeapon_f( const idCmdArgs &args );
 	static void		MessageMode_f( const idCmdArgs &args );
 	static void		VoiceChat_f( const idCmdArgs &args );
 	static void		VoiceChatTeam_f( const idCmdArgs &args );
 
-	int				NumActualClients( bool countSpectators, int *teamcount = nullptr);
-	void			DropWeapon( int clientNum );
+	size_t			NumActualClients( bool countSpectators, size_t *teamcount = nullptr);
+					static void			DropWeapon( index_t clientNum );
 	void			MapRestart();
 	void			BalanceTeams();
-	void			SwitchToTeam( int clientNum, int oldteam, int newteam );
+	void			SwitchToTeam( index_t clientNum, index_t oldteam, index_t newteam );
 	bool			IsPureReady() const;
-	void			ProcessChatMessage( int clientNum, bool team, const char *name, const char *text, const char *sound );
-	void			ProcessVoiceChat( int clientNum, bool team, int index );
+	void			ProcessChatMessage( index_t clientNum, bool team, const char *name, const char *text, const char *sound );
+	void			ProcessVoiceChat( index_t clientNum, bool team, index_t index );
 	bool			HandleGuiEvent( const sysEvent_t * sev );
 	bool			IsScoreboardActive();
 	void			SetScoreboardActive( bool active );
 	void			CleanupScoreboard();
 
 	void			Precache();
-	
-	void			ToggleSpectate();
+
+	static void			ToggleSpectate();
 
 	void			GetSpectateText( idPlayer * player, idStr spectatetext[ 2 ], bool scoreboard );
 
-	void			ClearFrags( int clientNum );
+	void			ClearFrags( index_t clientNum );
 
-	bool			CanPlay( idPlayer *p );
-	bool			WantRespawn( idPlayer *p );
+	static bool			CanPlay( idPlayer *p );
+	static bool			WantRespawn( idPlayer *p );
 
-	void			ServerWriteInitialReliableMessages( int clientNum, lobbyUserID_t lobbyUserID );
+	void			ServerWriteInitialReliableMessages( index_t clientNum, lobbyUserID_t lobbyUserID );
 	void			ClientReadStartState( const idBitMsg &msg );
 	void			ClientReadWarmupTime( const idBitMsg &msg );
 	void			ClientReadMatchStartedTime( const idBitMsg & msg );
-	void			ClientReadAchievementUnlock( const idBitMsg & msg );
+	static void			ClientReadAchievementUnlock( const idBitMsg & msg );
 
-	void			ServerClientConnect( int clientNum );
-	int             GetFlagPoints( int team );	// Team points in CTF
+	void			ServerClientConnect( index_t clientNum );
+	int             GetFlagPoints( index_t team );	// Team points in CTF
 	void			SetFlagMsg( bool b );		// allow flag event messages to be sent
 	bool			IsFlagMsgOn();		// should flag event messages go through?
 
-	int             player_red_flag;            // Ent num of red flag carrier for HUD    
-	int             player_blue_flag;           // Ent num of blue flag carrier for HUD
+	index_t         player_red_flag;            // Ent num of red flag carrier for HUD    
+	index_t         player_blue_flag;           // Ent num of blue flag carrier for HUD
 
-	void			PlayerStats( int clientNum, char *data, const int len );
+	void			PlayerStats( index_t clientNum, char *data, const size_t len );
 
 private:
 	static const char * teamNames[];
 	static const char * skinNames[];
 	static const idVec3 skinColors[];
-	static const int	numSkins;
+	static const size_t numSkins;
 
 	// state vars
 	gameState_t		gameState;				// what state the current game is in
@@ -232,13 +234,13 @@ private:
 
 											// keep track of clients which are willingly in spectator mode
 	// time related
-	int				nextStateSwitch;		// time next state switch
-	int				warmupEndTime;			// warmup till..
-	int				matchStartedTime;		// time current match started
+	ID_TIME_T		nextStateSwitch;		// time next state switch
+	ID_TIME_T		warmupEndTime;			// warmup till..
+	ID_TIME_T		matchStartedTime;		// time current match started
 
 	// tourney
-	int				currentTourneyPlayer[2];// our current set of players
-	int				lastWinner;				// plays again
+	index_t			currentTourneyPlayer[2];// our current set of players
+	index_t			lastWinner;				// plays again
 
 	// warmup
 	bool			one, two, three;		// keeps count down voice from repeating
@@ -248,17 +250,17 @@ private:
 
 	// chat data
 	mpChatLine_t	chatHistory[ NUM_CHAT_NOTIFY ];
-	int				chatHistoryIndex;
-	int				chatHistorySize;		// 0 <= x < NUM_CHAT_NOTIFY
+	index_t			chatHistoryIndex;
+	size_t			chatHistorySize;		// 0 <= x < NUM_CHAT_NOTIFY
 	bool			chatDataUpdated;
-	int				lastChatLineTime;
+	ID_TIME_T		lastChatLineTime;
 
 	// rankings are used by UpdateScoreboard and UpdateHud
-	int				numRankedPlayers;		// ranked players, others may be empty slots or spectators
+	size_t			numRankedPlayers;		// ranked players, others may be empty slots or spectators
 	idPlayer *		rankedPlayers[MAX_CLIENTS];
 
 	bool			pureReady;				// defaults to false, set to true once server game is running with pure checksums
-	int				fragLimitTimeout;
+	ID_TIME_T		fragLimitTimeout;
 
 	int				voiceChatThrottle;
 
@@ -274,7 +276,7 @@ private:
 	void			GameHasBeenWon();
 
 	// updates the passed gui with current score information
-	void			UpdateRankColor( idUserInterface *gui, const char *mask, int i, const idVec3 &vec );
+	static void		UpdateRankColor( idUserInterface *gui, const char *mask, int i, const idVec3 &vec );
 	void			UpdateScoreboard( idMenuHandler_Scoreboard * scoreboard, idPlayer *owner );
 
 	void			DrawScoreBoard( idPlayer *player );
@@ -305,11 +307,11 @@ private:
 	void			CheckRespawns( idPlayer *spectator = nullptr);
 	// when clients disconnect or join spectate during game, check if we need to end the game
 	void			CheckAbortGame();
-	void			MessageMode( const idCmdArgs &args );
+	static void			MessageMode( const idCmdArgs &args );
 	// scores in TDM
-	void			TeamScore( int entityNumber, int team, int delta );
+	void			TeamScore( index_t entityNumber, index_t team, int delta );
 	void			VoiceChat( const idCmdArgs &args, bool team );
-	void			DumpTourneyLine();
+	static void			DumpTourneyLine();
 	void			SuddenRespawn();
 
 	void			FindTeamFlags();
@@ -320,24 +322,23 @@ private:
 	void			NewState_GameReview_ServerAndClient();
    
 public:
+	static const char *	GetTeamName( index_t team );
+	const char *	GetSkinName( index_t skin ) const;
+	const idVec3 &	GetSkinColor( index_t skin ) const;
 
-	const char *	GetTeamName( int team ) const;
-	const char *	GetSkinName( int skin ) const;
-	const idVec3 &	GetSkinColor( int skin ) const;
-
-	idItemTeam *	GetTeamFlag( int team );
-	flagStatus_t    GetFlagStatus( int team );
-	void			TeamScoreCTF( int team, int delta );
-	void			PlayerScoreCTF( int playerIdx, int delta );
+	idItemTeam *	GetTeamFlag( index_t team );
+	flagStatus_t    GetFlagStatus( index_t team );
+	void			TeamScoreCTF( index_t team, int delta );
+	void			PlayerScoreCTF( index_t playerIdx, int delta );
 	// returns entityNum to team flag carrier, -1 if no flag carrier
-	int				GetFlagCarrier( int team );
+					static int				GetFlagCarrier( index_t team );
 	void            UpdateScoreboardFlagStatus();
 	void			ReloadScoreboard();
 
-	int				GetGameModes( const char *** gameModes, const char *** gameModesDisplay );
+	static size_t	GetGameModes( const char *** gameModes, const char *** gameModesDisplay );
 
-	bool            IsGametypeFlagBased();
-	bool            IsGametypeTeamBased();
+	static bool     IsGametypeFlagBased();
+	static bool     IsGametypeTeamBased();
 	
 };
 
@@ -349,7 +350,8 @@ ID_INLINE bool idMultiplayerGame::IsPureReady() const {
 	return pureReady;
 }
 
-ID_INLINE void idMultiplayerGame::ClearFrags( int clientNum ) {
+ID_INLINE void idMultiplayerGame::ClearFrags(const index_t clientNum ) {
+	ORDINAL_CHECK(clientNum, MAX_CLIENTS);
 	playerState[ clientNum ].fragCount = 0;
 }
 

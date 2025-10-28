@@ -225,7 +225,7 @@ extern int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_f
 /*
   Write data in the zipfile
 */
-extern int zipWriteInFileInZip( zipFile file, const void* buf, unsigned int len );
+extern int zipWriteInFileInZip( zipFile file, const void* buf, size_t len );
 
 
 /*

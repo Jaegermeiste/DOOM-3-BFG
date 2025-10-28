@@ -217,7 +217,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t * const allCmds
 
 	// create the stereoRenderImage if we haven't already
 	static idImage * stereoRenderImages[2];
-	for ( int i = 0; i < 2; i++ ) {
+	for ( size_t i = 0; i < 2; i++ ) {
 		if ( stereoRenderImages[i] == nullptr) {
 			stereoRenderImages[i] = globalImages->ImageFromFunction( va("_stereoRender%i",i), R_MakeStereoRenderImage );
 		}

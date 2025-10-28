@@ -160,7 +160,7 @@ static void R_FlatNormalImage( idImage *image ) {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
 	// flat normal map for default bunp mapping
-	for ( int i = 0 ; i < 4 ; i++ ) {
+	for ( size_t i = 0 ; i < 4 ; i++ ) {
 		data[0][i][0] = 128;
 		data[0][i][1] = 128;
 		data[0][i][2] = 255;
@@ -253,7 +253,7 @@ Height values below zero are inside the fog volume
 */
 static constexpr float	RAMP_RANGE =	8;
 static constexpr float	DEEP_RANGE =	-30;
-static float	FogFraction( float viewHeight, float targetHeight ) {
+static float	FogFraction(const float viewHeight, const float targetHeight ) {
 	float	total = idMath::Fabs( targetHeight - viewHeight );
 
 //	return targetHeight >= 0 ? 0 : 1.0;

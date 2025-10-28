@@ -1,0 +1,30 @@
+{
+  "dependencies": [
+    "directxmath",
+    "directxmesh",
+    {
+      "name": "directxtex",
+      "features": [
+        "dx12",
+        "openexr"
+      ]
+    },
+    "directxtk12",
+    "libjpeg-turbo",
+    "magic-enum",
+    {
+      "name": "minizip-ng",
+      "features": [
+        "bzip2",
+        "lzma",
+        "zlib",
+        "zstd"
+      ]
+    },
+    "ms-gdk",
+    "ms-gsl",
+    "steam-audio",
+    "zlib-ng",
+    "directx12-agility"
+  ]
+}

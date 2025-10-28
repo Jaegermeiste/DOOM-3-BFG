@@ -540,7 +540,7 @@ int ZEXPORT gzungetc(c, file)
 char * ZEXPORT gzgets(file, buf, len)
     gzFile file;
     char *buf;
-    int len;
+    size_t len;
 {
     char *b = buf;
     if (buf == Z_NULL || len <= 0) return Z_NULL;
@@ -600,11 +600,11 @@ int ZEXPORT gzwrite (file, buf, len)
 #ifdef STDC
 #include <stdarg.h>
 
-int ZEXPORTVA gzprintf (gzFile file, const char *format, /* args */ ...)
+int ZEXPORTVA gzprintf (const gzFile file, const char *format, /* args */ ...)
 {
     char buf[Z_PRINTF_BUFSIZE];
     va_list va;
-    int len;
+    size_t len;
 
     buf[sizeof(buf) - 1] = 0;
     va_start(va, format);
@@ -642,7 +642,7 @@ int ZEXPORTVA gzprintf (file, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
         a11, a12, a13, a14, a15, a16, a17, a18, a19, a20;
 {
     char buf[Z_PRINTF_BUFSIZE];
-    int len;
+    size_t len;
 
     buf[sizeof(buf) - 1] = 0;
 #ifdef NO_snprintf

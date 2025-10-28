@@ -143,7 +143,7 @@ void idMenuScreen_Shell_Dev::SetupDevOptions() {
 
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;	
 	
-	for ( int i = 0; i < devOptions.Num(); ++i ) {
+	for ( size_t i = 0; i < devOptions.Num(); ++i ) {
 		idList< idStr > option;
 		option.Append( devOptions[ i ].name );
 		menuOptions.Append( option );
@@ -222,7 +222,7 @@ void idMenuScreen_Shell_Dev::HideScreen( const mainMenuTransition_t transitionTy
 idMenuScreen_Shell_Dev::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_Dev::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Dev::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

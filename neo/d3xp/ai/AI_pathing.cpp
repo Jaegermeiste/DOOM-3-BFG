@@ -139,7 +139,7 @@ int64 PointInsideObstacle( const obstacle_t *obstacles, const size_t numObstacle
 			continue;
 		}
 
-		return idMath::integer_cast<int64>(i);
+		return numeric_cast<int64>(i);
 	}
 
 	return -1;
@@ -275,7 +275,7 @@ void GetPointOutsideObstacles( const obstacle_t *obstacles, const size_t numObst
 GetFirstBlockingObstacle
 ============
 */
-bool GetFirstBlockingObstacle( const obstacle_t *obstacles, int numObstacles, int skipObstacle, const idVec2 &startPos, const idVec2 &delta, float &blockingScale, int &blockingObstacle, int &blockingEdgeNum ) {
+bool GetFirstBlockingObstacle( const obstacle_t *obstacles, const size_t numObstacles, const int skipObstacle, const idVec2 &startPos, const idVec2 &delta, float &blockingScale, int &blockingObstacle, int &blockingEdgeNum ) {
 	int i, edgeNums[2];
 	float dist, scale1, scale2;
 	idVec2 bounds[2];
@@ -313,7 +313,7 @@ bool GetFirstBlockingObstacle( const obstacle_t *obstacles, int numObstacles, in
 GetObstacles
 ============
 */
-int GetObstacles( const idPhysics *physics, const idAAS *aas, const idEntity *ignore, int areaNum, const idVec3 &startPos, const idVec3 &seekPos, obstacle_t *obstacles, int maxObstacles, idBounds &clipBounds ) {
+int GetObstacles( const idPhysics *physics, const idAAS *aas, const idEntity *ignore, index_t areaNum, const idVec3 &startPos, const idVec3 &seekPos, obstacle_t *obstacles, size_t maxObstacles, idBounds &clipBounds ) {
 	int i, j, numListedClipModels, numObstacles, numVerts, clipMask, blockingObstacle, blockingEdgeNum;
 	int wallEdges[MAX_AAS_WALL_EDGES], numWallEdges, verts[2], lastVerts[2], nextVerts[2];
 	float stepHeight, headHeight, blockingScale, min, max;
@@ -532,8 +532,8 @@ void DrawPathTree( const pathNode_t *root, const float height ) {
 GetPathNodeDelta
 ============
 */
-bool GetPathNodeDelta( pathNode_t *node, const obstacle_t *obstacles, const idVec2 &seekPos, bool blocked ) {
-	int numPoints, edgeNum;
+bool GetPathNodeDelta( pathNode_t *node, const obstacle_t *obstacles, const idVec2 &seekPos, const bool blocked ) {
+	size_t numPoints, edgeNum;
 	bool facing;
 	idVec2 seekDelta, dir;
 	pathNode_t *n;
@@ -596,7 +596,7 @@ bool GetPathNodeDelta( pathNode_t *node, const obstacle_t *obstacles, const idVe
 BuildPathTree
 ============
 */
-pathNode_t *BuildPathTree( const obstacle_t *obstacles, int numObstacles, const idBounds &clipBounds, const idVec2 &startPos, const idVec2 &seekPos, obstaclePath_t &path ) {
+pathNode_t *BuildPathTree( const obstacle_t *obstacles, const size_t numObstacles, const idBounds &clipBounds, const idVec2 &startPos, const idVec2 &seekPos, obstaclePath_t &path ) {
 	int blockingEdgeNum, blockingObstacle, obstaclePoints, bestNumNodes = MAX_OBSTACLE_PATH;
 	float blockingScale;
 	pathNode_t *root, *node, *child;
@@ -751,7 +751,7 @@ void PrunePathTree( pathNode_t *root, const idVec2 &seekPos ) {
 OptimizePath
 ============
 */
-int OptimizePath( const pathNode_t *root, const pathNode_t *leafNode, const obstacle_t *obstacles, int numObstacles, idVec2 optimizedPath[MAX_OBSTACLE_PATH] ) {
+int OptimizePath( const pathNode_t *root, const pathNode_t *leafNode, const obstacle_t *obstacles, const size_t numObstacles, idVec2 optimizedPath[MAX_OBSTACLE_PATH] ) {
 	int i, numPathPoints, edgeNums[2];
 	const pathNode_t *curNode, *nextNode;
 	idVec2 curPos, curDelta, bounds[2];
@@ -811,7 +811,7 @@ int OptimizePath( const pathNode_t *root, const pathNode_t *leafNode, const obst
 PathLength
 ============
 */
-float PathLength( idVec2 optimizedPath[MAX_OBSTACLE_PATH], int numPathPoints, const idVec2 &curDir ) {
+float PathLength( idVec2 optimizedPath[MAX_OBSTACLE_PATH], const size_t numPathPoints, const idVec2 &curDir ) {
 	int i;
 	float pathLength;
 
@@ -835,7 +835,7 @@ FindOptimalPath
   Returns true if there is a path all the way to the goal.
 ============
 */
-bool FindOptimalPath( const pathNode_t *root, const obstacle_t *obstacles, int numObstacles, const float height, const idVec3 &curDir, idVec3 &seekPos ) {
+bool FindOptimalPath( const pathNode_t *root, const obstacle_t *obstacles, const size_t numObstacles, const float height, const idVec3 &curDir, idVec3 &seekPos ) {
 	int i, numPathPoints, bestNumPathPoints;
 	const pathNode_t *node, *lastNode, *bestNode;
 	idVec2 optimizedPath[MAX_OBSTACLE_PATH];
@@ -934,7 +934,7 @@ idAI::FindPathAroundObstacles
 ============
 */
 bool idAI::FindPathAroundObstacles( const idPhysics *physics, const idAAS *aas, const idEntity *ignore, const idVec3 &startPos, const idVec3 &seekPos, obstaclePath_t &path ) {
-	int numObstacles, areaNum, insideObstacle;
+	size_t numObstacles, areaNum, insideObstacle;
 	obstacle_t obstacles[MAX_OBSTACLES];
 	idBounds clipBounds;
 	idBounds bounds;
@@ -1040,7 +1040,7 @@ PathTrace
   Returns true if a stop event was triggered.
 ============
 */
-bool PathTrace( const idEntity *ent, const idAAS *aas, const idVec3 &start, const idVec3 &end, int stopEvent, struct pathTrace_s &trace, predictedPath_t &path ) {
+bool PathTrace( const idEntity *ent, const idAAS *aas, const idVec3 &start, const idVec3 &end, const int stopEvent, struct pathTrace_s &trace, predictedPath_t &path ) {
 	trace_t clipTrace;
 	aasTrace_t aasTrace;
 
@@ -1298,7 +1298,7 @@ Ballistics
 =====================
 */
 
-int Ballistics( const idVec3 &start, const idVec3 &end, float speed, float gravity, ballistics_t bal[2] ) {
+int Ballistics( const idVec3 &start, const idVec3 &end, const float speed, const float gravity, ballistics_t bal[2] ) {
 	int n, i;
 	float x, y, a, b, c, d, sqrtd, inva, p[2];
 
@@ -1357,7 +1357,7 @@ static float HeightForTrajectory( const idVec3 &start, float zVel, float gravity
 idAI::TestTrajectory
 =====================
 */
-bool idAI::TestTrajectory( const idVec3 &start, const idVec3 &end, float zVel, float gravity, float time, float max_height, const idClipModel *clip, int clipmask, const idEntity *ignore, const idEntity *targetEntity, int drawtime ) {
+bool idAI::TestTrajectory( const idVec3 &start, const idVec3 &end, const float zVel, const float gravity, const float time, const float max_height, const idClipModel *clip, const int clipmask, const idEntity *ignore, const idEntity *targetEntity, const int drawtime ) {
 	int i, numSegments;
 	float maxHeight, t, t2;
 	idVec3 points[5];
@@ -1446,7 +1446,7 @@ idAI::PredictTrajectory
   aimDir is set to the ideal aim direction in order to hit the target
 =====================
 */
-bool idAI::PredictTrajectory( const idVec3 &firePos, const idVec3 &target, float projectileSpeed, const idVec3 &projGravity, const idClipModel *clip, int clipmask, float max_height, const idEntity *ignore, const idEntity *targetEntity, int drawtime, idVec3 &aimDir ) {
+bool idAI::PredictTrajectory( const idVec3 &firePos, const idVec3 &target, const float projectileSpeed, const idVec3 &projGravity, const idClipModel *clip, const int clipmask, const float max_height, const idEntity *ignore, const idEntity *targetEntity, const int drawtime, idVec3 &aimDir ) {
 	int n, i, j;
 	float zVel, a, t, pitch, s, c;
 	trace_t trace;

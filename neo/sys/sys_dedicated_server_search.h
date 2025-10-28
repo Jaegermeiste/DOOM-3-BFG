@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef	__DEDICATEDSERVERSEARCH_H__
 #define	__DEDICATEDSERVERSEARCH_H__
 
+#pragma once
+
 /*
 ================================================
 idDedicatedServerSearch 
@@ -45,18 +47,18 @@ public:
 	void			HandleQueryAck( lobbyAddress_t & addr, idBitMsg & msg );
 
 
-	bool			GetAddrAtIndex( netadr_t & addr, int i );
-					[[nodiscard]] const serverInfo_t *	DescribeServerAtIndex( int i ) const;
-					[[nodiscard]] const idList< idStr > *	GetServerPlayersAtIndex( int i ) const;
+	bool			GetAddrAtIndex( netadr_t & addr, index_t i );
+	[[nodiscard]] const serverInfo_t *	DescribeServerAtIndex( index_t i) const;
+	[[nodiscard]] const idList< idStr > *	GetServerPlayersAtIndex( index_t i) const;
 
-					[[nodiscard]] int				NumServers() const;
+	[[nodiscard]] size_t			NumServers() const;
 
 private:
-	struct serverInfoDedicated_t {
+	typedef struct serverInfoDedicated_s {
 		lobbyAddress_t			addr;
-		serverInfo_t				serverInfo;
-		idList< idStr >				connectedPlayers;
-	};
+		serverInfo_t			serverInfo;
+		idList< idStr >			connectedPlayers;
+	} serverInfoDedicated_t;
 
 	idList< serverInfoDedicated_t >	list;
 	idCallback *		callback;

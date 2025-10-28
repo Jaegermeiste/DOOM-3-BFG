@@ -67,7 +67,7 @@ idSnapshotProcessor::~idSnapshotProcessor() {
 idSnapshotProcessor::Reset
 ========================
 */
-void idSnapshotProcessor::Reset( bool cstor ) {
+void idSnapshotProcessor::Reset(const bool cstor ) {
 	hasPendingSnap	= false;
 	snapSequence	= INITIAL_SNAP_SEQUENCE;
 	baseSequence	= -1;	
@@ -107,7 +107,7 @@ bool idSnapshotProcessor::TrySetPendingSnapshot( idSnapShot & ss ) {
 idSnapshotProcessor::PeekDeltaSequence
 ========================
 */
-void idSnapshotProcessor::PeekDeltaSequence( const char * deltaMem, int deltaSize, int & deltaSequence, int & deltaBaseSequence ) {
+void idSnapshotProcessor::PeekDeltaSequence( const char * deltaMem, const int deltaSize, int & deltaSequence, int & deltaBaseSequence ) {
 	idSnapShot::PeekDeltaSequence( deltaMem, deltaSize, deltaSequence, deltaBaseSequence );
 }
 
@@ -116,7 +116,7 @@ void idSnapshotProcessor::PeekDeltaSequence( const char * deltaMem, int deltaSiz
 idSnapshotProcessor::ApplyDeltaToSnapshot
 ========================
 */
-bool idSnapshotProcessor::ApplyDeltaToSnapshot( idSnapShot & snap, const char * deltaMem, int deltaSize, int visIndex ) {
+bool idSnapshotProcessor::ApplyDeltaToSnapshot( idSnapShot & snap, const char * deltaMem, const int deltaSize, const int visIndex ) {
 	return snap.ReadDeltaForJob( deltaMem, deltaSize, visIndex, &templateStates );
 }
 
@@ -131,7 +131,7 @@ static int g_maxlwMem = 100;
 idSnapshotProcessor::SubmitPendingSnap
 ========================
 */
-void idSnapshotProcessor::SubmitPendingSnap( int visIndex, uint8 * objMemory, int objMemorySize, lzwCompressionData_t * lzwData ) {
+void idSnapshotProcessor::SubmitPendingSnap(const int visIndex, uint8 * objMemory, const int objMemorySize, lzwCompressionData_t * lzwData ) {
 
 	assert_16_byte_aligned( objMemory );
 	assert_16_byte_aligned( lzwData );
@@ -192,7 +192,7 @@ void idSnapshotProcessor::SubmitPendingSnap( int visIndex, uint8 * objMemory, in
 idSnapshotProcessor::GetPendingSnapDelta
 ========================
 */
-int idSnapshotProcessor::GetPendingSnapDelta( byte * outBuffer, int maxLength ) {
+int idSnapshotProcessor::GetPendingSnapDelta( byte * outBuffer, const size_t maxLength ) {
 
 	assert( PendingSnapReadyToSend() );
 
@@ -296,7 +296,7 @@ NOTE: we use ReadDeltaForJob twice, once to build the same base as the server (b
 could we avoid the double apply by keeping outSnap cached in memory and avoid rebuilding it from a delta when the next one comes around?
 ========================
 */
-bool idSnapshotProcessor::ReceiveSnapshotDelta( const byte * deltaData, int deltaLength, int visIndex, int & outSeq, int & outBaseSeq, idSnapShot & outSnap, bool & fullSnap ) {
+bool idSnapshotProcessor::ReceiveSnapshotDelta( const byte * deltaData, const int deltaLength, const int visIndex, int & outSeq, int & outBaseSeq, idSnapShot & outSnap, bool & fullSnap ) {
 
 	fullSnap = false;
 
@@ -375,7 +375,7 @@ Apply a snapshot delta to our current basestate, and make that the new base.
 We can remove all deltas that refer to the basetate we just removed.
 ========================
 */
-bool idSnapshotProcessor::ApplySnapshotDelta( int visIndex, int snapshotNumber ) {
+bool idSnapshotProcessor::ApplySnapshotDelta(const int visIndex, const int snapshotNumber ) {
 
 	NET_VERBOSESNAPSHOT_PRINT_LEVEL( 6, va( "idSnapshotProcessor::ApplySnapshotDelta snapshotNumber: %d\n", snapshotNumber ) );
 
@@ -496,7 +496,7 @@ void idSnapshotProcessor::SanityCheckDeltas() const
 	int lastDeltaSequence		= -1;
 	int lastDeltaBaseSequence	= -1;
 	
-	for ( int i = 0; i < deltas.Num(); i++ ) {
+	for ( size_t i = 0; i < deltas.Num(); i++ ) {
 		baseState.PeekDeltaSequence( (const char *)deltas.ItemData( i ), deltas.ItemLength( i ), deltaSequence, deltaBaseSequence );
 		assert( deltaSequence == deltas.ItemSequence( i ) );	// Make sure delta stored in compressed form matches the one stored in the data queue
 		assert( deltaSequence > lastDeltaSequence );			// Make sure they are in order (we reject out of order sequences in ApplysnapshotDelta)
@@ -513,7 +513,7 @@ void idSnapshotProcessor::SanityCheckDeltas() const
 idSnapshotProcessor::AddSnapObjTemplate
 ========================
 */
-void idSnapshotProcessor::AddSnapObjTemplate( int objID, idBitMsg & msg ) {
+void idSnapshotProcessor::AddSnapObjTemplate(const int objID, idBitMsg & msg ) {
 	extern idCVar net_ssTemplateDebug;
 	idSnapShot::objectState_t * state = templateStates.S_AddObject( objID, MAX_UNSIGNED_TYPE( uint32 ), msg );
 	if ( verify( state != NULL ) ) {

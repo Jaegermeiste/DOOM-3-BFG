@@ -469,7 +469,7 @@ typedef struct st_lwVMap {
    int            dim;
    int            nverts;
    int            perpoly;
-   int           *vindex;              /* array of point indexes */
+   int           *vindex;              /* array of poindex_t indexes */
    int           *pindex;              /* array of polygon indexes */
    float        **val;
 
@@ -604,13 +604,13 @@ int lwGetPolyVMaps( lwPolygonList *polygon, lwVMap *vmap );
 
 void lwFreeClip( lwClip *clip );
 lwClip *lwGetClip( idFile *fp, int cksize );
-lwClip *lwFindClip( lwClip *list, int index );
+lwClip *lwFindClip( lwClip *list, index_t index );
 
 /* envelope.c */
 
 void lwFreeEnvelope( lwEnvelope *env );
 lwEnvelope *lwGetEnvelope( idFile *fp, int cksize );
-lwEnvelope *lwFindEnvelope( lwEnvelope *list, int index );
+lwEnvelope *lwFindEnvelope( lwEnvelope *list, index_t index );
 float lwEvalEnvelope( lwEnvelope *env, float time );
 
 /* surface.c */

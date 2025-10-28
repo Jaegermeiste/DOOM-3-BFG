@@ -217,7 +217,7 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby & lobby ) {
 idSessionLocalCallbacks::GoodbyeFromHost
 ========================
 */
-void idSessionLocalCallbacks::GoodbyeFromHost( idLobby & lobby, int peerNum, const lobbyAddress_t & remoteAddress, int msgType ) {
+void idSessionLocalCallbacks::GoodbyeFromHost( idLobby & lobby, const int peerNum, const lobbyAddress_t & remoteAddress, const int msgType ) {
 	sessionLocal->GoodbyeFromHost( lobby, peerNum, remoteAddress, msgType );	
 }
 
@@ -287,7 +287,7 @@ This is called when we have determined that we need to pick a new host.
 Call PickNewHostInternal to continue on with the host picking process.
 ========================
 */
-void idSessionLocalCallbacks::PrePickNewHost( idLobby & lobby, bool forceMe, bool inviteOldHost ) {
+void idSessionLocalCallbacks::PrePickNewHost( idLobby & lobby, const bool forceMe, const bool inviteOldHost ) {
 	sessionLocal->PrePickNewHost( lobby, forceMe, inviteOldHost );
 }
 
@@ -307,7 +307,7 @@ bool idSessionLocalCallbacks::PreMigrateInvite( idLobby & lobby ) {
 idSessionLocalCallbacks::ConnectAndMoveToLobby
 ========================
 */
-void idSessionLocalCallbacks::ConnectAndMoveToLobby( idLobby::lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, bool waitForPartyOk ) {
+void idSessionLocalCallbacks::ConnectAndMoveToLobby(const idLobby::lobbyType_t destLobbyType, const lobbyConnectInfo_t & connectInfo, const bool waitForPartyOk ) {
 	
 	// See if we are already in the game lobby
 	idLobby * lobby = sessionLocal->GetLobbyFromType( destLobbyType );
@@ -345,7 +345,7 @@ void idSessionLocalCallbacks::ConnectAndMoveToLobby( idLobby::lobbyType_t destLo
 idSessionLocalCallbacks::HandleServerQueryRequest
 ========================
 */
-void idSessionLocalCallbacks::HandleServerQueryRequest( lobbyAddress_t & remoteAddr, idBitMsg & msg, int msgType ) {
+void idSessionLocalCallbacks::HandleServerQueryRequest( lobbyAddress_t & remoteAddr, idBitMsg & msg, const int msgType ) {
 	sessionLocal->HandleServerQueryRequest( remoteAddr, msg, msgType );
 }
 
@@ -365,7 +365,7 @@ extern idCVar net_headlessServer;
 idSessionLocalCallbacks::HandlePeerMatchParamUpdate
 ========================
 */
-void idSessionLocalCallbacks::HandlePeerMatchParamUpdate( int peer, int msg ) {
+void idSessionLocalCallbacks::HandlePeerMatchParamUpdate(const int peer, const int msg ) {
 	if ( net_headlessServer.GetBool() ) {
 		sessionLocal->storedPeer = peer;
 		sessionLocal->storedMsgType = msg;
@@ -377,7 +377,7 @@ void idSessionLocalCallbacks::HandlePeerMatchParamUpdate( int peer, int msg ) {
 idSessionLocalCallbacks::CreateLobbyBackend
 ========================
 */
-idLobbyBackend * idSessionLocalCallbacks::CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalCallbacks::CreateLobbyBackend( const idMatchParameters & p, const float skillLevel, const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	return sessionLocal->CreateLobbyBackend( p, skillLevel, lobbyType );
 }
 
@@ -386,7 +386,7 @@ idLobbyBackend * idSessionLocalCallbacks::CreateLobbyBackend( const idMatchParam
 idSessionLocalCallbacks::FindLobbyBackend
 ========================
 */
-idLobbyBackend * idSessionLocalCallbacks::FindLobbyBackend( const idMatchParameters & p, int numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalCallbacks::FindLobbyBackend( const idMatchParameters & p, const size_t numPartyUsers, const float skillLevel, const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	return sessionLocal->FindLobbyBackend( p, numPartyUsers, skillLevel, lobbyType );
 }
 
@@ -395,7 +395,7 @@ idLobbyBackend * idSessionLocalCallbacks::FindLobbyBackend( const idMatchParamet
 idSessionLocalCallbacks::JoinFromConnectInfo
 ========================
 */
-idLobbyBackend * idSessionLocalCallbacks::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo , idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalCallbacks::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo , const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	return sessionLocal->JoinFromConnectInfo( connectInfo, lobbyType );
 }
 

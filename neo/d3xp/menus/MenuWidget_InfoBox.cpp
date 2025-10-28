@@ -105,7 +105,7 @@ void idMenuWidget_InfoBox::ResetInfoScroll() {
 idMenuWidget_InfoBox::Scroll
 ========================
 */
-void idMenuWidget_InfoBox::Scroll(  int d ) {
+void idMenuWidget_InfoBox::Scroll(const int d ) {
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
 
@@ -154,7 +154,7 @@ int idMenuWidget_InfoBox::GetMaxScroll() {
 idMenuWidget_InfoBox::SetScroll
 ========================
 */
-void idMenuWidget_InfoBox::SetScroll( int scroll ) {
+void idMenuWidget_InfoBox::SetScroll(const int scroll ) {
 
 	idSWFTextInstance * txtBody = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBody" );
 
@@ -178,7 +178,7 @@ void idMenuWidget_InfoBox::SetScrollbar( idMenuWidget_ScrollBar * bar ) {
 idMenuWidget_InfoBox::ObserveEvent
 ========================
 */
-bool idMenuWidget_InfoBox::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuWidget_InfoBox::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	const idSWFParmList & parms = action.GetParms();
 

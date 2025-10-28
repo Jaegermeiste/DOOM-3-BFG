@@ -48,7 +48,7 @@ void idDeclFX::Print() const {
 	const idDeclFX *list = this;
 
 	common->Printf("%d events\n", list->events.Num() );
-	for( int i = 0; i < list->events.Num(); i++ ) {
+	for ( size_t i = 0; i < list->events.Num(); i++ ) {
 		switch( list->events[i].type ) {
 			case FX_LIGHT:
 				common->Printf("FX_LIGHT %s\n", list->events[i].data.c_str());
@@ -261,7 +261,7 @@ void idDeclFX::ParseSingleFXAction( idLexer &src, idFXSingleAction& FXAction ) {
 		if ( !token.Icmp( "uselight" ) ) {
 			src.ReadToken( &token );
 			FXAction.data = token;
-			for( int i = 0; i < events.Num(); i++ ) {
+			for ( size_t i = 0; i < events.Num(); i++ ) {
 				if ( events[i].name.Icmp( FXAction.data ) == 0 ) {
 					FXAction.sibling = i;
 					FXAction.lightColor = events[i].lightColor;
@@ -308,7 +308,7 @@ void idDeclFX::ParseSingleFXAction( idLexer &src, idFXSingleAction& FXAction ) {
 		if ( !token.Icmp( "useModel" ) ) {
 			src.ReadToken( &token );
 			FXAction.data = token;
-			for( int i = 0; i < events.Num(); i++ ) {
+			for ( size_t i = 0; i < events.Num(); i++ ) {
 				if ( events[i].name.Icmp( FXAction.data ) == 0 ) {
 					FXAction.sibling = i;
 				}

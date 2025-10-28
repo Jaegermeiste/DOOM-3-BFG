@@ -136,7 +136,7 @@ void idAchievementManager::SyncAchievments() {
 	}
 
 	// Set achievement counts
-	for ( int i = 0; i < counts.Num(); i++ ) {
+	for ( size_t i = 0; i < counts.Num(); i++ ) {
 		if ( user->GetProfile()->GetAchievement( i ) ) {
 			counts[i] = achievementInfo[i].required;
 		} else if ( achievementInfo[i].lifetime ) {
@@ -165,7 +165,7 @@ idAchievementManager::Save
 void idAchievementManager::Save( idSaveGame * savefile ) const {
 	owner.Save( savefile );
 
-	for ( int i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
+	for ( size_t i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
 		savefile->WriteInt( counts[i] );
 	}
 
@@ -183,7 +183,7 @@ idAchievementManager::Restore
 void idAchievementManager::Restore( idRestoreGame * savefile ) {
 	owner.Restore( savefile );
 	
-	for ( int i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
+	for ( size_t i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
 		savefile->ReadInt( counts[i] );
 	}
 
@@ -272,7 +272,7 @@ idAchievementManager::SavePersistentData
 ========================
 */
 void idAchievementManager::SavePersistentData( idDict & playerInfo ) {
-	for ( int i = 0; i < ACHIEVEMENTS_NUM; ++i ) {
+	for ( size_t i = 0; i < ACHIEVEMENTS_NUM; ++i ) {
 		playerInfo.SetInt( va( "ach_%d", i ), counts[i] );
 	}
 }
@@ -283,7 +283,7 @@ idAchievementManager::RestorePersistentData
 ========================
 */
 void idAchievementManager::RestorePersistentData( const idDict & spawnArgs ) {
-	for( int i = 0; i < ACHIEVEMENTS_NUM; ++i ) {
+	for ( size_t i = 0; i < ACHIEVEMENTS_NUM; ++i ) {
 		counts[i] = spawnArgs.GetInt( va( "ach_%d", i), "0" );
 	}
 }
@@ -294,7 +294,7 @@ void idAchievementManager::RestorePersistentData( const idDict & spawnArgs ) {
 idAchievementManager::LocalUser_CompleteAchievement
 ========================
 */
-void idAchievementManager::LocalUser_CompleteAchievement( achievement_t id ) {
+void idAchievementManager::LocalUser_CompleteAchievement(const achievement_t id ) {
 	idLocalUser * localUser = session->GetSignInManager().GetMasterLocalUser();
 
 	// Check to see if we've already given the achievement.  
@@ -323,7 +323,7 @@ idAchievementManager::CheckDoomClassicsAchievements
 Processed when the player finishes a level.
 ========================
 */
-void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int itemcount, int secretcount, int skill, int mission, int map, int episode, int totalkills, int totalitems, int totalsecret ) {
+void idAchievementManager::CheckDoomClassicsAchievements(const int killcount, const int itemcount, const int secretcount, int skill, int mission, const int map, const int episode, const int totalkills, const int totalitems, const int totalsecret ) {
 
 	const skill_t difficulty = static_cast<skill_t>(skill);
 	const currentGame_t currentGame = common->GetCurrentGame();
@@ -450,7 +450,7 @@ CONSOLE_COMMAND( AchievementsReset, "Lock an achievement", NULL ) {
 		return;
 	}
 	if ( args.Argc() == 1 ) {
-		for ( int i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
+		for ( size_t i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
 			user->SetStatInt( i, 0 );
 			session->GetAchievementSystem().AchievementLock( user, i );
 		}
@@ -474,7 +474,7 @@ CONSOLE_COMMAND( AchievementsUnlock, "Unlock an achievement", NULL ) {
 		return;
 	}
 	if ( args.Argc() == 1 ) {
-		for ( int i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
+		for ( size_t i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
 			user->SetStatInt( i, achievementInfo[i].required );
 			session->GetAchievementSystem().AchievementUnlock( user, i );
 		}
@@ -503,7 +503,7 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL ) {
 	idArray<bool, 128> achievementState;
 	bool achievementStateValid = session->GetAchievementSystem().GetAchievementState( user, achievementState );
 
-	for ( int i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
+	for ( size_t i = 0; i < ACHIEVEMENTS_NUM; i++ ) {
 		const char * pInfo = "";
 		if ( profile == nullptr) {
 			pInfo = S_COLOR_RED  "unknown" S_COLOR_DEFAULT;

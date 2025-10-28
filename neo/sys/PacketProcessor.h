@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PACKET_PROCESSOR_H__
 #define __PACKET_PROCESSOR_H__
 
+#pragma once
+
 /*
 ================================================
 idPacketProcessor
@@ -49,7 +51,7 @@ public:
 	static constexpr sessionId_t SESSION_ID_CONNECTIONLESS_GAME			= 2;
 	static constexpr sessionId_t SESSION_ID_CONNECTIONLESS_GAME_STATE	= 3;
 	
-	static constexpr int BANDWIDTH_AVERAGE_PERIOD						= 250;
+	static constexpr ID_TIME_T BANDWIDTH_AVERAGE_PERIOD						= 250;
 
 	idPacketProcessor() noexcept {
 		Reset();
@@ -75,9 +77,9 @@ public:
 		lastSendTime			= 0;
 
 		outgoingRateTime		= 0;
-		outgoingRateBytes		= 0.0f;
+		outgoingRateBytes		= 0.0;
 		incomingRateTime		= 0;
-		incomingRateBytes		= 0.0f;
+		incomingRateBytes		= 0.0;
 		
 		outgoingBytes			= 0;
 		incomingBytes			= 0;
@@ -94,14 +96,14 @@ public:
 		
 	}
 
-	static constexpr int MAX_MSG_SIZE			= 8000;							// This is the max size you can pass into ProcessOutgoing
-	static constexpr int MAX_FINAL_PACKET_SIZE	= 1200;							// Lowest/safe MTU across all our platforms to avoid fragmentation at the transport layer (which is poorly supported by consumer hardware and may cause nasty latency side effects)
-	static constexpr int MAX_RELIABLE_QUEUE		= 64;
+	static constexpr size_t MAX_MSG_SIZE			= 8000;							// This is the max size you can pass into ProcessOutgoing
+	static constexpr size_t MAX_FINAL_PACKET_SIZE	= 1200;							// Lowest/safe MTU across all our platforms to avoid fragmentation at the transport layer (which is poorly supported by consumer hardware and may cause nasty latency side effects)
+	static constexpr size_t MAX_RELIABLE_QUEUE		= 64;
 
 	// TypeInfo doesn't like sizeof( sessionId_t )?? and then fails to understand the #ifdef/#else/#endif
 	//static const int MAX_PACKET_SIZE		= MAX_FINAL_PACKET_SIZE - 6 - sizeof( sessionId_t );	// Largest possible packet before headers and such applied (subtract some for various internal header data, and session id)
-	static constexpr int MAX_PACKET_SIZE		= MAX_FINAL_PACKET_SIZE - 6 - 2;			// Largest possible packet before headers and such applied (subtract some for various internal header data, and session id)
-	static constexpr int MAX_OOB_MSG_SIZE		= MAX_PACKET_SIZE - 1;			// We don't allow fragmentation for out-of-band msg's, and we need a byte for the header
+	static constexpr size_t MAX_PACKET_SIZE		= MAX_FINAL_PACKET_SIZE - 6 - 2;			// Largest possible packet before headers and such applied (subtract some for various internal header data, and session id)
+	static constexpr size_t MAX_OOB_MSG_SIZE		= MAX_PACKET_SIZE - 1;			// We don't allow fragmentation for out-of-band msg's, and we need a byte for the header
 	
 private:
 	void QueueReliableAck( int lastReliable );
@@ -109,19 +111,19 @@ private:
 
 public:		
 	bool CanSendMoreData() const;
-	void UpdateOutgoingRate( const int time, const int size );
-	void UpdateIncomingRate( const int time, const int size );
+	void UpdateOutgoingRate( const ID_TIME_T time, const size_t size );
+	void UpdateIncomingRate( const ID_TIME_T time, const size_t size );
 	
-	void RefreshRates( int time ) { UpdateOutgoingRate( time, 0 ); UpdateIncomingRate( time, 0 ); }
+	void RefreshRates( ID_TIME_T time ) { UpdateOutgoingRate( time, 0 ); UpdateIncomingRate( time, 0 ); }
 
 	// Used to queue reliable msg's, to be sent on the next ProcessOutgoing
-	bool QueueReliableMessage( byte type, const byte * data, int dataLen );
+	bool QueueReliableMessage( byte type, const byte * data, size_t dataLen );
 	// Used to process a msg ready to be sent, could get fragmented into multiple fragments
-	bool ProcessOutgoing( const int time, const idBitMsg & msg, bool isOOB, int userData );
+	bool ProcessOutgoing( const ID_TIME_T time, const idBitMsg & msg, bool isOOB, int userData );
 	// Used to get each fragment for sending through the actual net connection
-	bool GetSendFragment( const int time, sessionId_t sessionID, idBitMsg & outMsg );
+	bool GetSendFragment( const ID_TIME_T time, sessionId_t sessionID, idBitMsg & outMsg );
 	// Used to process a fragment received.  Returns true when msg was reconstructed.
-	int ProcessIncoming( int time, sessionId_t expectedSessionID, idBitMsg & msg, idBitMsg & out, int & userData, const int peerNum );
+	int ProcessIncoming( ID_TIME_T time, sessionId_t expectedSessionID, idBitMsg & msg, idBitMsg & out, int & userData, const int peerNum );
 
 	// Returns true if there are more fragments to send
 	bool HasMoreFragments() const { return ( unsentMsg.GetRemainingData() > 0 ); }
@@ -140,20 +142,20 @@ public:
 	// Used to "peek" at a session id of a message fragment
 	static sessionId_t GetSessionID( idBitMsg & msg );
 
-	int				GetNumReliables() const			{ return numReliable; }
-	const byte *	GetReliable( int i ) const		{ return reliableMsgPtrs[ i ]; }
-	int				GetReliableSize( int i ) const	{ return reliableMsgSize[ i ]; }
+	size_t			GetNumReliables() const			{ return numReliable; }
+	const byte *	GetReliable(const int i ) const		{ return reliableMsgPtrs[ i ]; }
+	size_t			GetReliableSize(const int i ) const	{ return reliableMsgSize[ i ]; }
 	
-	void			SetLastSendTime( int i )		{ lastSendTime = i; }
-	int				GetLastSendTime() const			{ return lastSendTime; }
-	float			GetOutgoingRateBytes() const	{ return outgoingRateBytes; }
-	int				GetOutgoingBytes() const		{ return outgoingBytes; }
-	float			GetIncomingRateBytes() const	{ return incomingRateBytes; }
-	int				GetIncomingBytes() const		{ return incomingBytes; }
+	void			SetLastSendTime(const ID_TIME_T i )		{ lastSendTime = i; }
+	ID_TIME_T		GetLastSendTime() const			{ return lastSendTime; }
+	double			GetOutgoingRateBytes() const	{ return outgoingRateBytes; }
+	size_t			GetOutgoingBytes() const		{ return outgoingBytes; }
+	double			GetIncomingRateBytes() const	{ return incomingRateBytes; }
+	size_t			GetIncomingBytes() const		{ return incomingBytes; }
 
 					// more reliable computation, based on a suitably small interval
-	int				GetOutgoingRate2() const		{ return currentOutgoingRate; }
-	int				GetIncomingRate2() const		{ return currentIncomingRate; }
+	double			GetOutgoingRate2() const		{ return currentOutgoingRate; }
+	double			GetIncomingRate2() const		{ return currentIncomingRate; }
 					// decrease a fragmentation counter, so we reflect how much we're maxing the MTU
 	bool			TickFragmentAccumulator()		{ if ( fragmentAccumulator > 0 ) { fragmentAccumulator--; return true; } return false; }
 
@@ -177,14 +179,14 @@ private:
 	class idOuterPacketHeader {
 	public:
 		idOuterPacketHeader() noexcept : sessionID( SESSION_ID_INVALID ) {}
-		idOuterPacketHeader( sessionId_t sessionID_ ) : sessionID( sessionID_ ) {}
+		idOuterPacketHeader(const sessionId_t sessionID_ ) : sessionID( sessionID_ ) {}
 
 		void WriteToMsg( idBitMsg & msg ) const
 		{
 			msg.WriteUShort( sessionID );	
 		}
 
-		void ReadFromMsg( idBitMsg & msg ) {
+		void ReadFromMsg( const idBitMsg & msg ) {
 			sessionID = msg.ReadUShort();	
 		}
 
@@ -196,7 +198,7 @@ private:
 	class idInnerPacketHeader {
 	public:
 	    idInnerPacketHeader() noexcept : type( 0 ), userData( 0 ) {}
-		idInnerPacketHeader( int inType, int inData ) : type( inType ), userData( inData ) {}
+		idInnerPacketHeader(const int inType, const int inData ) : type( inType ), userData( inData ) {}
 
 		void WriteToMsg( idBitMsg & msg ) const
 		{
@@ -204,7 +206,7 @@ private:
 			msg.WriteBits( userData, 6 );
 		}
 	    
-		void ReadFromMsg( idBitMsg & msg ) {
+		void ReadFromMsg( const idBitMsg & msg ) {
 			type = msg.ReadBits( 2 );
 			userData = msg.ReadBits( 6 );
 		}
@@ -218,7 +220,7 @@ private:
 	};
 
 	byte			msgBuffer[ MAX_MSG_SIZE ];					// Buffer used to reconstruct the msg
-	int				msgWritePos;								// Write position into the msg reconstruction buffer
+	size_t			msgWritePos;								// Write position into the msg reconstruction buffer
 	int				fragmentSequence;							// Fragment sequence number
 	int				droppedFrags;								// Number of dropped fragments
 	bool			fragmentedSend;								// Used to determine if the current send requires fragmenting
@@ -229,33 +231,33 @@ private:
 	int				reliableSequenceRecv;						// sequence number of the last reliable packet we received from this peer
 
 	// These are for receiving reliables, you need to get these before the next process call or they will get cleared
-	int				numReliable;
+	size_t			numReliable;
 	byte			reliableBuffer[ MAX_MSG_SIZE ];				// We shouldn't have to hold more than this
 	const byte *	reliableMsgPtrs[ MAX_RELIABLE_QUEUE ];
-	int				reliableMsgSize[ MAX_RELIABLE_QUEUE ];
+	size_t			reliableMsgSize[ MAX_RELIABLE_QUEUE ];
 	
-	int				queuedReliableAck;							// Used to piggy back on the next send to ack reliables
+	int				queuedReliableAck;							// Used to piggyback on the next send to ack reliables
 	
 	idBitMsg		unsentMsg;
 	byte			unsentBuffer[ MAX_MSG_SIZE ];				// Buffer used hold the current msg until it's all sent
 
-	int				lastSendTime;
+	ID_TIME_T		lastSendTime;
 
 	// variables to keep track of the rate
-	int				outgoingRateTime;
-	float			outgoingRateBytes;		// B/S
-	int				incomingRateTime;
-	float			incomingRateBytes;		// B/S
+	ID_TIME_T		outgoingRateTime;
+	double			outgoingRateBytes;		// B/S
+	ID_TIME_T		incomingRateTime;
+	double			incomingRateBytes;		// B/S
 
-	int				outgoingBytes;
-	int				incomingBytes;
+	size_t			outgoingBytes;
+	size_t			incomingBytes;
 
-	int				currentOutgoingRate;
-	int				lastOutgoingRateTime;
-	int				lastOutgoingBytes;
-	int				currentIncomingRate;
-	int				lastIncomingRateTime;
-	int				lastIncomingBytes;
+	double			currentOutgoingRate;
+	ID_TIME_T		lastOutgoingRateTime;
+	size_t			lastOutgoingBytes;
+	double			currentIncomingRate;
+	ID_TIME_T		lastIncomingRateTime;
+	size_t			lastIncomingBytes;
 
 
 	int				fragmentAccumulator;	// counts max size packets we are sending for the net debug hud

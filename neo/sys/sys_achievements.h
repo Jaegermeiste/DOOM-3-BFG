@@ -82,7 +82,7 @@ public:
 	virtual void	AchievementLock( idLocalUser * user, const int achievementID ) {}
 
 	// Puts alls achievements back to their original state, platform implementation may not allow this
-	virtual void	AchievementLockAll( idLocalUser * user, const int maxId ) {}
+	virtual void	AchievementLockAll( idLocalUser * user, const size_t maxId ) {}
 
 	// Should be done every frame
 	virtual void	Pump() = 0;

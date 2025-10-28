@@ -108,7 +108,7 @@ void idDeclParticle::GetStageBounds( idParticleStage *stage ) {
 	steppingRandom.SetSeed( 0 );
 
 	// just step through a lot of possible particles as a representative sampling
-	for ( int i = 0 ; i < 1000 ; i++ ) {
+	for ( size_t i = 0 ; i < 1000 ; i++ ) {
 		g.random = g.originalRandom = steppingRandom;
 
 		int	maxMsec = stage->particleLife * 1000;
@@ -157,7 +157,7 @@ idDeclParticle::ParseParms
 Parses a variable length list of parms on one line
 ================
 */
-void idDeclParticle::ParseParms( idLexer &src, float *parms, int maxParms ) {
+void idDeclParticle::ParseParms( idLexer &src, float *parms, const size_t maxParms ) {
 	idToken token;
 
 	memset( parms, 0, maxParms * sizeof( *parms ) );
@@ -425,7 +425,7 @@ idParticleStage *idDeclParticle::ParseParticleStage( idLexer &src ) {
 idDeclParticle::Parse
 ================
 */
-bool idDeclParticle::Parse( const char *text, const int textLength, bool allowBinaryVersion ) {
+bool idDeclParticle::Parse( const char *text, const int textLength, const bool allowBinaryVersion ) {
 
 	if ( cvarSystem->GetCVarBool( "fs_buildresources" ) ) {
 		fileSystem->AddParticlePreload( GetName() );
@@ -503,7 +503,7 @@ bool idDeclParticle::Parse( const char *text, const int textLength, bool allowBi
 	// calculate the bounds
 	//
 	bounds.Clear();
-	for( int i = 0; i < stages.Num(); i++ ) {
+	for ( size_t i = 0; i < stages.Num(); i++ ) {
 		GetStageBounds( stages[i] );
 		bounds.AddBounds( stages[i]->bounds );
 	}
@@ -526,7 +526,7 @@ bool idDeclParticle::Parse( const char *text, const int textLength, bool allowBi
 idDeclParticle::LoadBinary
 ========================
 */
-bool idDeclParticle::LoadBinary( idFile * file, unsigned int checksum ) {
+bool idDeclParticle::LoadBinary( idFile * file, const unsigned int checksum ) {
 
 	if ( file == nullptr) {
 		return false;
@@ -559,10 +559,10 @@ bool idDeclParticle::LoadBinary( idFile * file, unsigned int checksum ) {
 		return false;
 	}
 
-	int numStages;
+	size_t numStages;
 	file->ReadBig( numStages );
 	
-	for ( int i = 0; i < numStages; i++ ) {
+	for ( size_t i = 0; i < numStages; i++ ) {
 		idParticleStage * s = new (TAG_DECL) idParticleStage;
 		stages.Append( s );
 		assert( stages.Num() <= MAX_PARTICLE_STAGES );
@@ -625,7 +625,7 @@ bool idDeclParticle::LoadBinary( idFile * file, unsigned int checksum ) {
 idDeclParticle::WriteBinary
 ========================
 */
-void idDeclParticle::WriteBinary( idFile * file, unsigned int checksum ) {
+void idDeclParticle::WriteBinary( idFile * file, const unsigned int checksum ) {
 
 	if ( file == nullptr) {
 		return;
@@ -647,7 +647,7 @@ void idDeclParticle::WriteBinary( idFile * file, unsigned int checksum ) {
 	file->WriteBig( checksum );
 	file->WriteBig( stages.Num() );
 	
-	for ( int i = 0; i < stages.Num(); i++ ) {
+	for ( size_t i = 0; i < stages.Num(); i++ ) {
 		idParticleStage * s = stages[i];
 
 		if ( s->material != nullptr && s->material->GetName() != nullptr) {
@@ -852,7 +852,7 @@ bool idDeclParticle::RebuildTextSource() {
 		f.WriteFloatString( "\tdepthHack\t%f\n", depthHack );
 	}
 
-	for ( int i = 0; i < stages.Num(); i++ ) {
+	for ( size_t i = 0; i < stages.Num(); i++ ) {
 		WriteStage( &f, stages[i] );
 	}
 
@@ -885,14 +885,14 @@ idParticleParm
 ====================================================================================
 */
 
-float idParticleParm::Eval( float frac, idRandom &rand ) const {
+float idParticleParm::Eval(const float frac, idRandom &rand ) const {
 	if ( table ) {
 		return table->TableLookup( frac );
 	}
 	return from + frac * ( to - from );
 }
 
-float idParticleParm::Integrate( float frac, idRandom &rand ) const {
+float idParticleParm::Integrate(const float frac, idRandom &rand ) const {
 	if ( table ) {
 		common->Printf( "idParticleParm::Integrate: can't integrate tables\n" );
 		return 0;
@@ -1037,7 +1037,7 @@ int idParticleStage::NumQuadsPerParticle() const {
 	int	count = 1;
 
 	if ( orientation == POR_AIMED ) {
-		int	trails = idMath::Ftoi( orientationParms[0] );
+		int	trails = numeric_cast<int>( orientationParms[0] );
 		// each trail stage will add an extra quad
 		count *= ( 1 + trails );
 	}
@@ -1263,7 +1263,7 @@ int	idParticleStage::ParticleVerts( particleGen_t *g, idVec3 origin, idDrawVert 
 		idDrawVert *verts_p = verts;
 		idVec3		stepOrigin = origin;
 		idVec3		stepLeft;
-		int			numTrails = idMath::Ftoi( orientationParms[0] );
+		int			numTrails = numeric_cast<int>( orientationParms[0] );
 		float		trailTime = orientationParms[1];
 
 		if ( trailTime == 0 ) {
@@ -1273,7 +1273,7 @@ int	idParticleStage::ParticleVerts( particleGen_t *g, idVec3 origin, idDrawVert 
 		float height = 1.0f / ( 1 + numTrails );
 		float t = 0;
 
-		for ( int i = 0 ; i <= numTrails ; i++ ) {
+		for ( size_t i = 0 ; i <= numTrails ; i++ ) {
 			g->random = g->originalRandom;
 			g->age = currentAge - ( i + 1 ) * trailTime / ( numTrails + 1 );	// time to back up
 			g->frac = g->age / particleLife;
@@ -1456,9 +1456,9 @@ void idParticleStage::ParticleColors( particleGen_t *g, idDrawVert *verts ) cons
 		}
 	}
 
-	for ( int i = 0 ; i < 4 ; i++ ) {
+	for ( size_t i = 0 ; i < 4 ; i++ ) {
 		float	fcolor = ( ( entityColor ) ? g->renderEnt->shaderParms[i] : color[i] ) * fadeFraction + fadeColor[i] * ( 1.0f - fadeFraction );
-		int		icolor = idMath::Ftoi( fcolor * 255.0f );
+		int		icolor = numeric_cast<int>( fcolor * 255.0f );
 		if ( icolor < 0 ) {
 			icolor = 0;
 		} else if ( icolor > 255 ) {
@@ -1516,7 +1516,7 @@ int idParticleStage::CreateParticle( particleGen_t *g, idDrawVert *verts ) const
 	float	iFrac = 1.0f - frac;
 
 	idVec2 tempST;
-	for ( int i = 0 ; i < numVerts ; i++ ) {
+	for ( size_t i = 0 ; i < numVerts ; i++ ) {
 		verts[numVerts + i] = verts[i];
 
 		tempST = verts[numVerts + i].GetTexCoord();
@@ -1543,7 +1543,7 @@ idParticleStage::GetCustomPathName
 */
 const char* idParticleStage::GetCustomPathName() const
 {
-	int index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
+	index_t index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
 	return ParticleCustomDesc[index].name;
 }
 
@@ -1554,7 +1554,7 @@ idParticleStage::GetCustomPathDesc
 */
 const char* idParticleStage::GetCustomPathDesc() const
 {
-	int index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
+	index_t index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
 	return ParticleCustomDesc[index].desc;
 }
 
@@ -1565,7 +1565,7 @@ idParticleStage::NumCustomPathParms
 */
 int idParticleStage::NumCustomPathParms() const
 {
-	int index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
+	index_t index = ( customPathType < CustomParticleCount ) ? customPathType : 0;
 	return ParticleCustomDesc[index].count;
 }
 
@@ -1576,7 +1576,7 @@ idParticleStage::SetCustomPathType
 */
 void idParticleStage::SetCustomPathType( const char *p ) {
 	customPathType = PPATH_STANDARD;
-	for ( int i = 0; i < CustomParticleCount; i ++ ) {
+	for ( size_t i = 0; i < CustomParticleCount; i ++ ) {
 		if ( idStr::Icmp( p, ParticleCustomDesc[i].name ) == 0 ) {
 			customPathType = static_cast<prtCustomPth_t>( i );
 			break;

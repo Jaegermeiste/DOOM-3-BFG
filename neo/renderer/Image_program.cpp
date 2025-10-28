@@ -79,7 +79,7 @@ properly without knowing the texture coordinate stretching.
 We can assume constant and equal ST vectors for walls, but not for characters.
 =================
 */
-static void R_HeightmapToNormalMap( byte *data, int width, int height, float scale ) {
+static void R_HeightmapToNormalMap( byte *data, const int width, const int height, float scale ) {
 	int		i, j;
 	byte	*depth;
 
@@ -143,7 +143,7 @@ static void R_HeightmapToNormalMap( byte *data, int width, int height, float sca
 R_ImageScale
 =================
 */
-static void R_ImageScale( byte *data, int width, int height, float scale[4] ) {
+static void R_ImageScale( byte *data, const int width, const int height, float scale[4] ) {
 	int		i, j;
 	int		c;
 
@@ -165,7 +165,7 @@ static void R_ImageScale( byte *data, int width, int height, float scale[4] ) {
 R_InvertAlpha
 =================
 */
-static void R_InvertAlpha( byte *data, int width, int height ) {
+static void R_InvertAlpha( byte *data, const int width, const int height ) {
 	int		i;
 	int		c;
 
@@ -181,7 +181,7 @@ static void R_InvertAlpha( byte *data, int width, int height ) {
 R_InvertColor
 =================
 */
-static void R_InvertColor( byte *data, int width, int height ) {
+static void R_InvertColor( byte *data, const int width, const int height ) {
 	int		i;
 	int		c;
 
@@ -223,9 +223,9 @@ static void R_AddNormalMaps( byte *data1, const size_t width1, const size_t heig
 			d1 = data1 + ( i * width1 + j ) * 4;
 			d2 = data2 + ( i * width1 + j ) * 4;
 
-			n[0] = idMath::Itof<float>( d1[0] - 128 ) / 127.0f;
-			n[1] = idMath::Itof<float>( d1[1] - 128 ) / 127.0f;
-			n[2] = idMath::Itof<float>( d1[2] - 128 ) / 127.0f;
+			n[0] = numeric_cast<float>( d1[0] - 128 ) / 127.0f;
+			n[1] = numeric_cast<float>( d1[1] - 128 ) / 127.0f;
+			n[2] = numeric_cast<float>( d1[2] - 128 ) / 127.0f;
 
 			// There are some normal maps that blend to 0,0,0 at the edges
 			// this screws up compression, so we try to correct that here by instead fading it to 0,0,1
@@ -234,13 +234,13 @@ static void R_AddNormalMaps( byte *data1, const size_t width1, const size_t heig
 				n[2] = idMath::Sqrt(1.0f - (n[0]*n[0]) - (n[1]*n[1]));
 			}
 
-			n[0] += idMath::Itof<float>( d2[0] - 128 ) / 127.0f;
-			n[1] += idMath::Itof<float>( d2[1] - 128 ) / 127.0f;
+			n[0] += numeric_cast<float>( d2[0] - 128 ) / 127.0f;
+			n[1] += numeric_cast<float>( d2[1] - 128 ) / 127.0f;
 			n.Normalize();
 
-			d1[0] = idMath::integer_cast<byte>(n[0] * 127 + 128);
-			d1[1] = idMath::integer_cast<byte>(n[1] * 127 + 128);
-			d1[2] = idMath::integer_cast<byte>(n[2] * 127 + 128);
+			d1[0] = numeric_cast<byte>(n[0] * 127 + 128);
+			d1[1] = numeric_cast<byte>(n[1] * 127 + 128);
+			d1[2] = numeric_cast<byte>(n[2] * 127 + 128);
 			d1[3] = 255;
 		}
 	}
@@ -284,16 +284,16 @@ static void R_SmoothNormalMap( byte *data, const size_t width, const size_t heig
 						continue;
 					}
 
-					normal[0] += factors[k+1][l+1] * idMath::Itof<float>( in[0] - 128 );
-					normal[1] += factors[k+1][l+1] * idMath::Itof<float>( in[1] - 128 );
-					normal[2] += factors[k+1][l+1] * idMath::Itof<float>( in[2] - 128 );
+					normal[0] += factors[k+1][l+1] * numeric_cast<float>( in[0] - 128 );
+					normal[1] += factors[k+1][l+1] * numeric_cast<float>( in[1] - 128 );
+					normal[2] += factors[k+1][l+1] * numeric_cast<float>( in[2] - 128 );
 				}
 			}
 			normal.Normalize();
 			out = data + ( j * width + i ) * 4;
-			out[0] = idMath::integer_cast<byte>(128 + 127 * normal[0]);
-			out[1] = idMath::integer_cast<byte>(128 + 127 * normal[1]);
-			out[2] = idMath::integer_cast<byte>(128 + 127 * normal[2]);
+			out[0] = numeric_cast<byte>(128 + 127 * normal[0]);
+			out[1] = numeric_cast<byte>(128 + 127 * normal[1]);
+			out[2] = numeric_cast<byte>(128 + 127 * normal[2]);
 		}
 	}
 
@@ -325,7 +325,7 @@ static void R_ImageAdd( byte *data1, const size_t width1, const size_t height1, 
 	for ( i = 0 ; i < c ; i++ ) {
 		j = data1[i] + data2[i];
 		j = std::min<size_t>(j, 255);
-		data1[i] = idMath::integer_cast<byte>(j);
+		data1[i] = numeric_cast<byte>(j);
 	}
 
 	if ( newMap ) {

@@ -75,7 +75,7 @@ void R_ToggleSmpFrame() {
 	frameData->frameMemoryUsed.SetValue( 0 );
 
 #if defined( TRACK_FRAME_ALLOCS )
-	for ( int i = 0; i < FRAME_ALLOC_MAX; i++ ) {
+	for ( size_t i = 0; i < FRAME_ALLOC_MAX; i++ ) {
 		frameAllocTypeCount[i].SetValue( 0 );
 	}
 #endif
@@ -164,7 +164,7 @@ void *R_FrameAlloc(size_t bytes, frameAllocType_t type ) {
 R_ClearedFrameAlloc
 ==================
 */
-void *R_ClearedFrameAlloc(size_t bytes, frameAllocType_t type ) {
+void *R_ClearedFrameAlloc(const size_t bytes, const frameAllocType_t type ) {
 	// NOTE: every allocation is cache line cleared
 	return R_FrameAlloc( bytes, type );
 }
@@ -182,7 +182,7 @@ FONT-END STATIC MEMORY ALLOCATION
 R_StaticAlloc
 =================
 */
-void *R_StaticAlloc(size_t bytes, const memTag_t tag ) {
+void *R_StaticAlloc(const size_t bytes, const memTag_t tag ) {
 	tr.pc.c_alloc++;
 
     void * buf = Mem_Alloc( bytes, tag );
@@ -199,7 +199,7 @@ void *R_StaticAlloc(size_t bytes, const memTag_t tag ) {
 R_ClearedStaticAlloc
 =================
 */
-void *R_ClearedStaticAlloc(size_t bytes ) {
+void *R_ClearedStaticAlloc(const size_t bytes ) {
 	void * buf = R_StaticAlloc( bytes );
 	memset( buf, 0, bytes );
 	return buf;
@@ -239,7 +239,7 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const size_t numDrawSurfs 
 	// 3. index (largest first)
 	assert( numDrawSurfs <= 0xFFFF );
 	for (size_t i = 0; i < numDrawSurfs; i++ ) {
-		float sort = idMath::Itof<float>(SS_POST_PROCESS) - drawSurfs[i]->sort;
+		float sort = numeric_cast<float>(SS_POST_PROCESS) - drawSurfs[i]->sort;
 		assert( sort >= 0.0f );
 
 		uint64 dist = 0;
@@ -335,7 +335,7 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const size_t numDrawSurfs 
 	// Add a sort offset so surfaces with equal sort orders still deterministically
 	// draw in the order they were added, at least within a given model.
 	float sorfOffset = 0.0f;
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		drawSurf[i]->sort += sorfOffset;
 		sorfOffset += 0.000001f;
 	}
@@ -379,7 +379,7 @@ void R_RenderView( viewDef_t *parms ) {
 	idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustum, tr.viewDef->worldSpace.mvp, false, true );
 
 	// the DOOM 3 frustum planes point outside the frustum
-	for ( int i = 0; i < 6; i++ ) {
+	for ( size_t i = 0; i < 6; i++ ) {
 		tr.viewDef->frustum[i] = - tr.viewDef->frustum[i];
 	}
 	// remove the Z-near to avoid portals from being near clipped

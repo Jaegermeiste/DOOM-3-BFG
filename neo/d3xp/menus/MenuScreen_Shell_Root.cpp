@@ -137,7 +137,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 		idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;	
 		idList< idStr > option;
 
-		int index = 0;
+		index_t index = 0;
 
 		if ( g_demoMode.GetBool() ) {
 			idMenuWidget_Button * buttonWidget = nullptr;
@@ -296,7 +296,7 @@ idMenuScreen_Shell_Root::HandleExitGameBtn
 void idMenuScreen_Shell_Root::HandleExitGameBtn() {
 	class idSWFScriptFunction_QuitDialog : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_QuitDialog( gameDialogMessages_t _msg, int _accept ) {
+		idSWFScriptFunction_QuitDialog(const gameDialogMessages_t _msg, const int _accept ) {
 			msg = _msg;
 			accept = _accept;
 		}
@@ -345,7 +345,7 @@ int idMenuScreen_Shell_Root::GetRootIndex() {
 idMenuScreen_Shell_Root::SetRootIndex
 ========================
 */
-void idMenuScreen_Shell_Root::SetRootIndex( int index ) {
+void idMenuScreen_Shell_Root::SetRootIndex(const index_t index ) {
 	if ( options != nullptr) {
 		options->SetFocusIndex( index );
 	}
@@ -356,7 +356,7 @@ void idMenuScreen_Shell_Root::SetRootIndex( int index ) {
 idMenuScreen_Shell_Root::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -416,7 +416,7 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction & action, const idWid
 				return true;
 			}
 
-			int index = menuBar->GetViewIndex();			
+			index_t index = menuBar->GetViewIndex();			
 			const int dir = parms[0].ToInteger();
 #ifdef ID_RETAIL
 			const int totalCount = menuBar->GetTotalNumberOfOptions() - 1;

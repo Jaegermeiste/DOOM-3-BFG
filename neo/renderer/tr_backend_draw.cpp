@@ -153,7 +153,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 		}
 		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
 	}
-	const int indexOffset = static_cast<int>(ibHandle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
+	const index_t indexOffset = static_cast<int>(ibHandle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
 
 	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
@@ -236,10 +236,10 @@ static void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textu
 	// we attempt to keep scrolls from generating incredibly large texture values, but
 	// center rotations and center scales can still generate offsets that need to be > 1
 	if ( matrix[3*4+0] < -40.0f || matrix[12] > 40.0f ) {
-		matrix[3*4+0] -= idMath::integer_cast<int>(matrix[3 * 4 + 0]);
+		matrix[3*4+0] -= numeric_cast<int>(matrix[3 * 4 + 0]);
 	}
 	if ( matrix[13] < -40.0f || matrix[13] > 40.0f ) {
-		matrix[13] -= idMath::integer_cast<int>(matrix[13]);
+		matrix[13] -= numeric_cast<int>(matrix[13]);
 	}
 
 	matrix[0*4+2] = 0.0f;
@@ -347,7 +347,7 @@ static void RB_BindVariableStageImage( const textureStage_t *texture, const floa
 		// offset time by shaderParm[7] (FIXME: make the time offset a parameter of the shader?)
 		// We make no attempt to optimize for multiple identical cinematics being in view, or
 		// for cinematics going at a lower framerate than the renderer.
-		cin = texture->cinematic->ImageForTime( backEnd.viewDef->renderView.time[0] + idMath::Ftoi( 1000.0f * backEnd.viewDef->renderView.shaderParms[11] ) );
+		cin = texture->cinematic->ImageForTime( backEnd.viewDef->renderView.time[0] + numeric_cast<int>( 1000.0f * backEnd.viewDef->renderView.shaderParms[11] ) );
 		if ( cin.imageY != nullptr) {
 			GL_SelectTexture( 0 );
 			cin.imageY->Bind();
@@ -788,7 +788,7 @@ static void RB_FillDepthBufferFast( drawSurf_t **drawSurfs, const size_t numDraw
 	}
 
 	const drawSurf_t ** perforatedSurfaces = static_cast<const drawSurf_t**>(_alloca(numDrawSurfs * sizeof(drawSurf_t*)));
-	int numPerforatedSurfaces = 0;
+	size_t numPerforatedSurfaces = 0;
 
 	// draw all the opaque surfaces and build up a list of perforated surfaces that
 	// we will defer drawing until all opaque surfaces are done
@@ -883,10 +883,10 @@ static void RB_SetupInteractionStage( const shaderStage_t *surfaceStage, const f
 		// we attempt to keep scrolls from generating incredibly large texture values, but
 		// center rotations and center scales can still generate offsets that need to be > 1
 		if ( matrix[0][3] < -40.0f || matrix[0][3] > 40.0f ) {
-			matrix[0][3] -= idMath::Ftoi( matrix[0][3] );
+			matrix[0][3] -= numeric_cast<int>( matrix[0][3] );
 		}
 		if ( matrix[1][3] < -40.0f || matrix[1][3] > 40.0f ) {
-			matrix[1][3] -= idMath::Ftoi( matrix[1][3] );
+			matrix[1][3] -= numeric_cast<int>( matrix[1][3] );
 		}
 	} else {
 		matrix[0][0] = 1.0f;
@@ -901,7 +901,7 @@ static void RB_SetupInteractionStage( const shaderStage_t *surfaceStage, const f
 	}
 
 	if ( color != nullptr) {
-		for ( int i = 0; i < 4; i++ ) {
+		for ( size_t i = 0; i < 4; i++ ) {
 			// clamp here, so cards with a greater range don't look different.
 			// we could perform overbrighting like we do for lights, but
 			// it doesn't currently look worth it.
@@ -1072,7 +1072,7 @@ static void RB_RenderInteractions( const drawSurf_t *surfList, const viewLight_t
 			complexSurfaces.Append( walk );
 		}
 	}
-	for ( int i = 0; i < complexSurfaces.Num(); i++ ) {
+	for ( size_t i = 0; i < complexSurfaces.Num(); i++ ) {
 		allSurfaces.Append( complexSurfaces[i] );
 	}
 
@@ -1180,7 +1180,7 @@ static void RB_RenderInteractions( const drawSurf_t *surfList, const viewLight_t
 
 				// transform the light project into model local space
 				idPlane lightProjection[4];
-				for ( int i = 0; i < 4; i++ ) {
+				for ( size_t i = 0; i < 4; i++ ) {
 					R_GlobalPlaneToLocal( surf->space->modelMatrix, vLight->lightProject[i], lightProjection[i] );
 				}
 
@@ -1781,7 +1781,7 @@ static void RB_DrawInteractions() {
 	GL_State( GLS_DEFAULT );
 
 	// unbind texture units
-	for ( int i = 0; i < 5; i++ ) {
+	for ( size_t i = 0; i < 5; i++ ) {
 		GL_SelectTexture( i );
 		globalImages->BindNull();
 	}
@@ -1814,7 +1814,7 @@ If we are rendering Guis, the drawSurf_t::sort value is a depth offset that can
 be multiplied by guiEye for polarity and screenSeparation for scale.
 =====================
 */
-static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, const int numDrawSurfs, 
+static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, const size_t numDrawSurfs, 
 									const float guiStereoScreenOffset, const int stereoEye ) {
 	// only obey skipAmbient if we are rendering a view
 	if ( backEnd.viewDef->viewEntities && r_skipAmbient.GetBool() ) {
@@ -1976,7 +1976,7 @@ static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, cons
 			
 				renderProgManager.BindShader( newStage->glslProgram, newStage->glslProgram );
 
-				for ( int j = 0; j < newStage->numVertexParms; j++ ) {
+				for ( size_t j = 0; j < newStage->numVertexParms; j++ ) {
 					float parm[4];
 					parm[0] = regs[ newStage->vertexParms[j][0] ];
 					parm[1] = regs[ newStage->vertexParms[j][1] ];
@@ -1992,7 +1992,7 @@ static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, cons
 				}
 
 				// bind texture units
-				for ( int j = 0; j < newStage->numFragmentProgramImages; j++ ) {
+				for ( size_t j = 0; j < newStage->numFragmentProgramImages; j++ ) {
 					idImage * image = newStage->fragmentProgramImages[j];
 					if ( image != nullptr) {
 						GL_SelectTexture( j );
@@ -2004,7 +2004,7 @@ static int RB_DrawShaderPasses( const drawSurf_t * const * const drawSurfs, cons
 				RB_DrawElementsWithCounters( surf );
 
 				// unbind texture units
-				for ( int j = 0; j < newStage->numFragmentProgramImages; j++ ) {
+				for ( size_t j = 0; j < newStage->numFragmentProgramImages; j++ ) {
 					idImage * image = newStage->fragmentProgramImages[j];
 					if ( image != nullptr) {
 						GL_SelectTexture( j );
@@ -2168,7 +2168,7 @@ static void RB_T_BlendLight( const drawSurf_t *drawSurfs, const viewLight_t * vL
 
 			// change the light projection matrix
 			idPlane	lightProjectInCurrentSpace[4];
-			for ( int i = 0; i < 4; i++ ) {
+			for ( size_t i = 0; i < 4; i++ ) {
 				R_GlobalPlaneToLocal( drawSurf->space->modelMatrix, vLight->lightProject[i], lightProjectInCurrentSpace[i] );
 			}
 
@@ -2213,7 +2213,7 @@ static void RB_BlendLight( const drawSurf_t *drawSurfs, const drawSurf_t *drawSu
 
 	renderProgManager.BindShader_BlendLight();
 
-	for ( int i = 0; i < lightShader->GetNumStages(); i++ ) {
+	for ( size_t i = 0; i < lightShader->GetNumStages(); i++ ) {
 		const shaderStage_t	*stage = lightShader->GetStage(i);
 
 		if ( !regs[ stage->conditionRegister ] ) {
@@ -2285,14 +2285,14 @@ static void RB_T_BasicFog( const drawSurf_t *drawSurfs, const idPlane fogPlanes[
 			idPlane localFogPlanes[4];
 			if ( inverseBaseLightProject == nullptr) {
 				RB_SetMVP( drawSurf->space->mvp );
-				for ( int i = 0; i < 4; i++ ) {
+				for ( size_t i = 0; i < 4; i++ ) {
 					R_GlobalPlaneToLocal( drawSurf->space->modelMatrix, fogPlanes[i], localFogPlanes[i] );
 				}
 			} else {
 				idRenderMatrix invProjectMVPMatrix;
 				idRenderMatrix::Multiply( backEnd.viewDef->worldSpace.mvp, *inverseBaseLightProject, invProjectMVPMatrix );
 				RB_SetMVP( invProjectMVPMatrix );
-				for ( int i = 0; i < 4; i++ ) {
+				for ( size_t i = 0; i < 4; i++ ) {
 					inverseBaseLightProject->InverseTransformPlane( fogPlanes[i], localFogPlanes[i], false );
 				}
 			}
@@ -2463,9 +2463,9 @@ void RB_DrawViewInternal( const viewDef_t * viewDef, const int stereoEye ) {
 	// in a separate thread, it must not try to load images, so do it here.
 	//-------------------------------------------------
 	drawSurf_t **drawSurfs = (drawSurf_t **)&viewDef->drawSurfs[0];
-	const int numDrawSurfs = viewDef->numDrawSurfs;
+	const size_t numDrawSurfs = viewDef->numDrawSurfs;
 
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		const drawSurf_t * ds = viewDef->drawSurfs[ i ];
 		if ( ds->material != nullptr) {
 			const_cast<idMaterial *>( ds->material )->EnsureNotPurged();

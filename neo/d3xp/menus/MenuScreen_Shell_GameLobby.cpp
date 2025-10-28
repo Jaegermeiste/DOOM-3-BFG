@@ -167,7 +167,7 @@ void idMenuScreen_Shell_GameLobby::Update() {
 			option.Clear();
 
 			idMenuWidget_Button * buttonWidget = nullptr;
-			int index = 0;
+			index_t index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_START, 0 );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
@@ -211,7 +211,7 @@ void idMenuScreen_Shell_GameLobby::Update() {
 				option.Clear();
 
 				idMenuWidget_Button * buttonWidget = nullptr;
-				int index = 0;
+				index_t index = 0;
 				options->GetChildByIndex( index ).ClearEventActions();
 				options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_INVITE, 0 );
 				buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
@@ -299,7 +299,7 @@ void idMenuScreen_Shell_GameLobby::ShowScreen( const mainMenuTransition_t transi
 			menuOptions.Append( option );
 			option.Clear();
 
-			int index = 0;
+			index_t index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_INVITE, 0 );
 			idMenuWidget_Button * buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
@@ -366,7 +366,7 @@ bool idMenuScreen_Shell_GameLobby::CanKickSelectedPlayer( lobbyUserID_t & luid )
 idMenuScreen_Shell_GameLobby::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -426,7 +426,7 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction & action, const 
 				return true;
 			}
 
-			int index = parms[0].ToInteger();
+			index_t index = parms[0].ToInteger();
 
 			idLobbyBase & activeLobby = session->GetActivePlatformLobbyBase();
 			lobbyUserID_t luid = activeLobby.GetLobbyUserIdByOrdinal( index );

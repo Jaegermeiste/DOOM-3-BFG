@@ -163,7 +163,7 @@ typedef enum {          /* JPEG marker codes */
 
 
 LOCAL boolean
-get_soi( j_decompress_ptr cinfo ) {
+get_soi(const j_decompress_ptr cinfo ) {
 /* Process an SOI marker */
     int i;
 
@@ -201,7 +201,7 @@ get_soi( j_decompress_ptr cinfo ) {
 
 
 LOCAL boolean
-get_sof( j_decompress_ptr cinfo, boolean is_prog, boolean is_arith ) {
+get_sof(const j_decompress_ptr cinfo, const boolean is_prog, const boolean is_arith ) {
 /* Process a SOFn marker */
     INT32 length;
     int c, ci;
@@ -268,7 +268,7 @@ get_sof( j_decompress_ptr cinfo, boolean is_prog, boolean is_arith ) {
 
 
 LOCAL boolean
-get_sos( j_decompress_ptr cinfo ) {
+get_sos(const j_decompress_ptr cinfo ) {
 /* Process a SOS marker */
     INT32 length;
     int i, ci, n, c, cc;
@@ -340,7 +340,7 @@ id_found:
 
 
 METHODDEF boolean
-get_app0( j_decompress_ptr cinfo ) {
+get_app0(const j_decompress_ptr cinfo ) {
 /* Process an APP0 marker */
 #define JFIF_LEN 14
     INT32 length;
@@ -403,7 +403,7 @@ get_app0( j_decompress_ptr cinfo ) {
 
 
 METHODDEF boolean
-get_app14( j_decompress_ptr cinfo ) {
+get_app14(const j_decompress_ptr cinfo ) {
 /* Process an APP14 marker */
 #define ADOBE_LEN 12
     INT32 length;
@@ -451,10 +451,10 @@ get_app14( j_decompress_ptr cinfo ) {
 
 
 LOCAL boolean
-get_dac( j_decompress_ptr cinfo ) {
+get_dac(const j_decompress_ptr cinfo ) {
 /* Process a DAC marker */
     INT32 length;
-    int index, val;
+    index_t index, val;
     INPUT_VARS( cinfo );
 
     INPUT_2BYTES( cinfo, length, return FALSE );
@@ -490,7 +490,7 @@ get_dac( j_decompress_ptr cinfo ) {
 
 
 LOCAL boolean
-get_dht( j_decompress_ptr cinfo ) {
+get_dht(const j_decompress_ptr cinfo ) {
 /* Process a DHT marker */
     INT32 length;
     UINT8 bits[17];
@@ -558,7 +558,7 @@ get_dht( j_decompress_ptr cinfo ) {
 
 
 LOCAL boolean
-get_dqt( j_decompress_ptr cinfo ) {
+get_dqt(const j_decompress_ptr cinfo ) {
 /* Process a DQT marker */
     INT32 length;
     int n, i, prec;
@@ -615,7 +615,7 @@ get_dqt( j_decompress_ptr cinfo ) {
 
 
 LOCAL boolean
-get_dri( j_decompress_ptr cinfo ) {
+get_dri(const j_decompress_ptr cinfo ) {
 /* Process a DRI marker */
     INT32 length;
     unsigned int tmp;
@@ -639,7 +639,7 @@ get_dri( j_decompress_ptr cinfo ) {
 
 
 METHODDEF boolean
-skip_variable( j_decompress_ptr cinfo ) {
+skip_variable(const j_decompress_ptr cinfo ) {
 /* Skip over an unknown or uninteresting variable-length marker */
     INT32 length;
     INPUT_VARS( cinfo );
@@ -665,7 +665,7 @@ skip_variable( j_decompress_ptr cinfo ) {
  */
 
 LOCAL boolean
-next_marker( j_decompress_ptr cinfo ) {
+next_marker(const j_decompress_ptr cinfo ) {
     int c;
     INPUT_VARS( cinfo );
 
@@ -713,7 +713,7 @@ next_marker( j_decompress_ptr cinfo ) {
 
 
 LOCAL boolean
-first_marker( j_decompress_ptr cinfo ) {
+first_marker(const j_decompress_ptr cinfo ) {
 /* Like next_marker, but used to obtain the initial SOI marker. */
 /* For this marker, we do not allow preceding garbage or fill; otherwise,
  * we might well scan an entire input file before realizing it ain't JPEG.
@@ -744,7 +744,7 @@ first_marker( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF int
-read_markers( j_decompress_ptr cinfo ) {
+read_markers(const j_decompress_ptr cinfo ) {
     /* Outer loop repeats once for each marker. */
     for (;; ) {
         /* Collect the marker proper, unless we already did. */
@@ -918,7 +918,7 @@ read_markers( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF boolean
-read_restart_marker( j_decompress_ptr cinfo ) {
+read_restart_marker(const j_decompress_ptr cinfo ) {
     /* Obtain a marker unless we already did. */
     /* Note that next_marker will complain if it skips any data. */
     if ( cinfo->unread_marker == 0 ) {
@@ -998,7 +998,7 @@ read_restart_marker( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL boolean
-jpeg_resync_to_restart( j_decompress_ptr cinfo, int desired ) {
+jpeg_resync_to_restart(const j_decompress_ptr cinfo, const int desired ) {
     int marker = cinfo->unread_marker;
     int action = 1;
 
@@ -1054,7 +1054,7 @@ jpeg_resync_to_restart( j_decompress_ptr cinfo, int desired ) {
  */
 
 METHODDEF void
-reset_marker_reader( j_decompress_ptr cinfo ) {
+reset_marker_reader(const j_decompress_ptr cinfo ) {
     cinfo->comp_info = NULL;    /* until allocated by get_sof */
     cinfo->input_scan_number = 0;   /* no SOS seen yet */
     cinfo->unread_marker = 0;   /* no pending marker */
@@ -1070,7 +1070,7 @@ reset_marker_reader( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_marker_reader( j_decompress_ptr cinfo ) {
+jinit_marker_reader(const j_decompress_ptr cinfo ) {
     int i;
 
     /* Create subobject in permanent pool */

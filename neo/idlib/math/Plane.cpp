@@ -36,7 +36,7 @@ idPlane plane_origin( 0.0f, 0.0f, 0.0f, 0.0f );
 idPlane::Type
 ================
 */
-int idPlane::Type() const {
+planetypes_e idPlane::Type() const {
 	if ( Normal()[0] == 0.0f ) {
 		if ( Normal()[1] == 0.0f ) {
 			return Normal()[2] > 0.0f ? PLANETYPE_Z : PLANETYPE_NEGZ;
@@ -69,7 +69,7 @@ int idPlane::Type() const {
 idPlane::HeightFit
 ================
 */
-bool idPlane::HeightFit( const idVec3 *points, const int numPoints ) {
+bool idPlane::HeightFit( const idVec3 *points, const size_t numPoints ) {
 	int i;
 	float sumXX = 0.0f, sumXY = 0.0f, sumXZ = 0.0f;
 	float sumYY = 0.0f, sumYZ = 0.0f;

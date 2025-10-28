@@ -72,7 +72,7 @@ public:
 					// returns the number of pushed entities
 	int				GetNumPushedEntities() const { return numPushed; }
 					// get the ith pushed entity
-	idEntity *		GetPushedEntity( int i ) const { assert( i >= 0 && i < numPushed ); return pushed[i].ent; }
+	idEntity *		GetPushedEntity(const int i ) const { assert( i >= 0 && i < numPushed ); return pushed[i].ent; }
 
 private:
 	struct pushed_s {
@@ -94,14 +94,14 @@ private:
 	bool			RotateEntityToAxial( idEntity *ent, idVec3 rotationPoint );
 #ifdef NEW_PUSH
 	bool			CanPushEntity( idEntity *ent, idEntity *pusher, idEntity *initialPusher, const int flags );
-	void			AddEntityToPushedGroup( idEntity *ent, float fraction, bool groundContact );
+	void			AddEntityToPushedGroup( idEntity *ent, double fraction, bool groundContact );
 	bool			IsFullyPushed( idEntity *ent );
 	bool			ClipTranslationAgainstPusher( trace_t &results, idEntity *ent, idEntity *pusher, const idVec3 &translation );
 	int				GetPushableEntitiesForTranslation( idEntity *pusher, idEntity *initialPusher, const int flags,
-											const idVec3 &translation, idEntity *entityList[], int maxEntities );
+											const idVec3 &translation, idEntity *entityList[], size_t maxEntities );
 	bool			ClipRotationAgainstPusher( trace_t &results, idEntity *ent, idEntity *pusher, const idRotation &rotation );
 	int				GetPushableEntitiesForRotation( idEntity *pusher, idEntity *initialPusher, const int flags,
-											const idRotation &rotation, idEntity *entityList[], int maxEntities );
+											const idRotation &rotation, idEntity *entityList[], size_t maxEntities );
 #else
 	void			ClipEntityRotation( trace_t &trace, const idEntity *ent, const idClipModel *clipModel,
 										idClipModel *skip, const idRotation &rotation );

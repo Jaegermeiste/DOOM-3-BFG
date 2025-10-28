@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <algorithm>
+
 #include "../../idlib/precompiled.h"
 #include "../snd_local.h"
 
@@ -33,8 +35,9 @@ idCVar s_skipHardwareSets( "s_skipHardwareSets", "0", CVAR_BOOL, "Do all calcula
 idCVar s_debugHardware( "s_debugHardware", "0", CVAR_BOOL, "Print a message any time a hardware voice changes" );
 
 // The whole system runs at this sample rate
-static int SYSTEM_SAMPLE_RATE = 44100;
-static float ONE_OVER_SYSTEM_SAMPLE_RATE = 1.0f / SYSTEM_SAMPLE_RATE;
+static constexpr int   SYSTEM_SAMPLE_RATE = 44100;
+static constexpr float SYSTEM_SAMPLE_RATE_F = 44100.0f;
+static constexpr float ONE_OVER_SYSTEM_SAMPLE_RATE = (1.0f / SYSTEM_SAMPLE_RATE_F);
 
 /*
 ========================
@@ -47,11 +50,11 @@ public:
 	STDMETHOD_(void, OnVoiceProcessingPassEnd)() {}
 	STDMETHOD_(void, OnStreamEnd)() {}
 	STDMETHOD_(void, OnBufferStart)( void * pContext ) {
-		idSoundSystemLocal::bufferContext_t * bufferContext = static_cast<idSoundSystemLocal::bufferContext_t*>(pContext);
+		const idSoundSystemLocal::bufferContext_t * bufferContext = static_cast<idSoundSystemLocal::bufferContext_t*>(pContext);
 		bufferContext->voice->OnBufferStart( bufferContext->sample, bufferContext->bufferNumber );
 	}
 	STDMETHOD_(void, OnLoopEnd)( void * ) {}
-	STDMETHOD_(void, OnVoiceError)( void *, HRESULT hr ) { idLib::Warning( "OnVoiceError( %d )", hr ); }
+	STDMETHOD_(void, OnVoiceError)( void *, const HRESULT hr ) { idLib::Warning( "OnVoiceError( %d )", hr ); }
 	STDMETHOD_(void, OnBufferEnd)( void* pContext ) {
 		idSoundSystemLocal::bufferContext_t * bufferContext = static_cast<idSoundSystemLocal::bufferContext_t*>(pContext);
 		soundSystemLocal.ReleaseStreamBufferContext( bufferContext );
@@ -159,7 +162,7 @@ void idSoundVoice_XAudio2::DestroyInternal() {
 idSoundVoice_XAudio2::Start
 ========================
 */
-void idSoundVoice_XAudio2::Start( ID_TIME_T offsetMS, int ssFlags ) {
+void idSoundVoice_XAudio2::Start( ID_TIME_T offsetMS, const int ssFlags ) {
 
 	if ( s_debugHardware.GetBool() ) {
 		idLib::Printf( "%dms: %p starting %s @ %dms\n", Sys_Milliseconds(), pSourceVoice, leadinSample ? leadinSample->GetName() : "<null>", offsetMS );
@@ -176,7 +179,7 @@ void idSoundVoice_XAudio2::Start( ID_TIME_T offsetMS, int ssFlags ) {
 		idLib::Warning( "Starting defaulted sound sample %s", leadinSample->GetName() );
 	}
 
-	bool flicker = ( ssFlags & SSF_NO_FLICKER ) == 0;
+	const bool flicker = ( ssFlags & SSF_NO_FLICKER ) == 0;
 
 	if ( flicker != hasVUMeter ) {
 		hasVUMeter = flicker;
@@ -204,7 +207,7 @@ void idSoundVoice_XAudio2::Start( ID_TIME_T offsetMS, int ssFlags ) {
 	}
 
 	assert( offsetMS >= 0 );
-	size_t offsetSamples = MsecToSamples( offsetMS, leadinSample->SampleRate() );
+	const size_t offsetSamples = MsecToSamples( offsetMS, leadinSample->SampleRate() );
 	if ( loopingSample == nullptr && offsetSamples >= leadinSample->playLength ) {
 		return;
 	}
@@ -219,7 +222,7 @@ void idSoundVoice_XAudio2::Start( ID_TIME_T offsetMS, int ssFlags ) {
 idSoundVoice_XAudio2::RestartAt
 ========================
 */
-int idSoundVoice_XAudio2::RestartAt( size_t offsetSamples ) {
+size_t idSoundVoice_XAudio2::RestartAt( size_t offsetSamples ) {
 	offsetSamples &= ~127;
 
 	idSoundSample_XAudio2 * sample = leadinSample;
@@ -232,8 +235,8 @@ int idSoundVoice_XAudio2::RestartAt( size_t offsetSamples ) {
 		}
 	}
 
-	int previousNumSamples = 0;
-	for ( int i = 0; i < sample->buffers.Num(); i++ ) {
+	size_t previousNumSamples = 0;
+	for ( size_t i = 0; i < sample->buffers.Num(); i++ ) {
 		if ( sample->buffers[i].numSamples > sample->playBegin + offsetSamples ) {
 			return SubmitBuffer( sample, i, sample->playBegin + offsetSamples - previousNumSamples );
 		}
@@ -265,7 +268,7 @@ size_t idSoundVoice_XAudio2::SubmitBuffer( idSoundSample_XAudio2 * sample, const
 
 	XAUDIO2_BUFFER buffer = { 0 };
 	if ( offset > 0 ) {
-		int previousNumSamples = 0;
+		size_t previousNumSamples = 0;
 		if ( bufferNumber > 0 ) {
 			previousNumSamples = sample->buffers[bufferNumber-1].numSamples;
 		}
@@ -293,10 +296,10 @@ bool idSoundVoice_XAudio2::Update() {
 		return false;
 	}
 
-	XAUDIO2_VOICE_STATE state;
+	XAUDIO2_VOICE_STATE state = {};
 	pSourceVoice->GetState( &state );
 
-	const int srcChannels = leadinSample->NumChannels();
+	const size_t srcChannels = leadinSample->NumChannels();
 
 	float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ] = { 0 };
 	CalculateSurround( srcChannels, pLevelMatrix, 1.0f );
@@ -327,7 +330,7 @@ bool idSoundVoice_XAudio2::IsPlaying() const
 	if ( pSourceVoice == nullptr) {
 		return false;
 	}
-	XAUDIO2_VOICE_STATE state;
+	XAUDIO2_VOICE_STATE state = {};
 	pSourceVoice->GetState( &state );
 	return ( state.BuffersQueued != 0 );
 }
@@ -405,17 +408,15 @@ float idSoundVoice_XAudio2::GetAmplitude() const
 		return 1.0f;
 	}
 
-	float peakLevels[ MAX_CHANNELS_PER_VOICE ];
-	float rmsLevels[ MAX_CHANNELS_PER_VOICE ];
+	float peakLevels[ MAX_CHANNELS_PER_VOICE ] = {};
+	float rmsLevels[ MAX_CHANNELS_PER_VOICE ] = {};
 
-	XAUDIO2FX_VOLUMEMETER_LEVELS levels;
+	XAUDIO2FX_VOLUMEMETER_LEVELS levels = {};
 	levels.ChannelCount = leadinSample->NumChannels();
 	levels.pPeakLevels = peakLevels;
 	levels.pRMSLevels = rmsLevels;
 
-	if ( levels.ChannelCount > MAX_CHANNELS_PER_VOICE ) {
-		levels.ChannelCount = MAX_CHANNELS_PER_VOICE;
-	}
+	levels.ChannelCount = numeric_cast<decltype(levels.ChannelCount)>(Min(levels.ChannelCount, MAX_CHANNELS_PER_VOICE));
 
 	if ( pSourceVoice->GetEffectParameters( 0, &levels, sizeof( levels ) ) != S_OK ) {
 		return 0.0f;
@@ -430,7 +431,7 @@ float idSoundVoice_XAudio2::GetAmplitude() const
 		rms += rmsLevels[i];
 	}
 
-	return rms / static_cast<float>(levels.ChannelCount);
+	return rms / numeric_cast<float>(levels.ChannelCount);
 }
 
 /*
@@ -438,36 +439,37 @@ float idSoundVoice_XAudio2::GetAmplitude() const
 idSoundVoice_XAudio2::ResetSampleRate
 ========================
 */
-void idSoundVoice_XAudio2::SetSampleRate( uint32 newSampleRate, uint32 operationSet ){
+void idSoundVoice_XAudio2::SetSampleRate(const uint32 newSampleRate, const uint32 operationSet ){
 	if ( pSourceVoice == nullptr || leadinSample == nullptr) {
 		return;
 	}
 
 	sampleRate = newSampleRate;
+	const auto sampleRate_f = numeric_cast<float>(sampleRate);
 
 	XAUDIO2_FILTER_PARAMETERS filter;
 	filter.Type = LowPassFilter;
 	filter.OneOverQ = 1.0f;			// [0.0f, XAUDIO2_MAX_FILTER_ONEOVERQ]
-	float cutoffFrequency = 1000.0f / Max( 0.01f, occlusion );
-	if ( cutoffFrequency * 6.0f >= static_cast<float>(sampleRate) ) {
+	const float cutoffFrequency = 1000.0f / Max( 0.01f, occlusion );
+	if ( cutoffFrequency * 6.0f >= sampleRate_f) {
 		filter.Frequency = XAUDIO2_MAX_FILTER_FREQUENCY;
 	} else {
-		filter.Frequency = 2.0f * idMath::Sin( idMath::PI * cutoffFrequency / static_cast<float>(sampleRate) );
+		filter.Frequency = 2.0f * idMath::Sin( idMath::PI * cutoffFrequency / sampleRate_f);
 	}
 	assert( filter.Frequency >= 0.0f && filter.Frequency <= XAUDIO2_MAX_FILTER_FREQUENCY );
 	filter.Frequency = idMath::ClampFloat( 0.0f, XAUDIO2_MAX_FILTER_FREQUENCY, filter.Frequency );
 
 	pSourceVoice->SetFilterParameters( &filter, operationSet );
 
-	float freqRatio = pitch * static_cast<float>(sampleRate) / static_cast<float>(sourceVoiceRate);
+	float freqRatio = pitch * sampleRate_f / numeric_cast<float>(sourceVoiceRate);
 	assert( freqRatio >= XAUDIO2_MIN_FREQ_RATIO && freqRatio <= XAUDIO2_MAX_FREQ_RATIO );
 	freqRatio = idMath::ClampFloat( XAUDIO2_MIN_FREQ_RATIO, XAUDIO2_MAX_FREQ_RATIO, freqRatio );
 
 	// if the value specified for maxFreqRatio is too high for the specified format, the call to CreateSourceVoice will fail
 	if ( numChannels == 1 ) {
-		assert( freqRatio * static_cast<float>(SYSTEM_SAMPLE_RATE) <= XAUDIO2_MAX_RATIO_TIMES_RATE_XMA_MONO );
+		assert( freqRatio * SYSTEM_SAMPLE_RATE_F <= XAUDIO2_MAX_RATIO_TIMES_RATE_XMA_MONO );
 	} else {
-		assert( freqRatio * static_cast<float>(SYSTEM_SAMPLE_RATE) <= XAUDIO2_MAX_RATIO_TIMES_RATE_XMA_MULTICHANNEL );
+		assert( freqRatio * SYSTEM_SAMPLE_RATE_F <= XAUDIO2_MAX_RATIO_TIMES_RATE_XMA_MULTICHANNEL );
 	}
 	pSourceVoice->SetFrequencyRatio( freqRatio, operationSet );
 }

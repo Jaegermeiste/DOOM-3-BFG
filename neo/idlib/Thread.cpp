@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================================================================
-Contains the vartious ThreadingClass implementations.
+Contains the various ThreadingClass implementations.
 ================================================================================================
 */
 
@@ -73,7 +73,7 @@ idSysThread::~idSysThread() {
 idSysThread::StartThread
 ========================
 */
-bool idSysThread::StartThread( const char * name_, const core_t core, const xthreadPriority priority, const int stackSize ) {
+bool idSysThread::StartThread( const char * name_, const core_t core, const xthreadPriority priority, const size_t stackSize ) {
 	if ( isRunning ) {
 		return false;
 	}
@@ -86,7 +86,7 @@ bool idSysThread::StartThread( const char * name_, const core_t core, const xthr
 		Sys_DestroyThread( threadHandle );
 	}
 
-	threadHandle = Sys_CreateThread( (xthread_t)ThreadProc, this, priority, name, core, stackSize, false );
+	threadHandle = Sys_CreateThread( reinterpret_cast<xthread_t>(ThreadProc), this, priority, name, core, stackSize, false );
 
 	isRunning = true;
 	return true;
@@ -97,7 +97,7 @@ bool idSysThread::StartThread( const char * name_, const core_t core, const xthr
 idSysThread::StartWorkerThread
 ========================
 */
-bool idSysThread::StartWorkerThread( const char * name_, const core_t core, const xthreadPriority priority, const int stackSize ) {
+bool idSysThread::StartWorkerThread( const char * name_, const core_t core, const xthreadPriority priority, const size_t stackSize ) {
 	if ( isRunning ) {
 		return false;
 	}
@@ -276,7 +276,7 @@ TestWorkers
 static void TestWorkers() {
 	idSysWorkerThreadGroup<idMyThread> workers( "myWorkers", 4 );
 	for ( ; ; ) {
-		for ( int i = 0; i < workers.GetNumThreads(); i++ ) {
+		for ( size_t i = 0; i < workers.GetNumThreads(); i++ ) {
 			// workers.GetThread( i )-> // setup work for this thread
 		}
 		workers.SignalWorkAndWait();

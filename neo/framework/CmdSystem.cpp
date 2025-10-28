@@ -82,7 +82,7 @@ public:
 	virtual void			SetupReloadEngine( const idCmdArgs &args );
 	virtual bool			PostReloadEngine();
 
-	void					SetWait( int numFrames ) { wait = numFrames; }
+	void					SetWait(const size_t numFrames ) { wait = numFrames; }
 	[[nodiscard]] commandDef_t *			GetCommands() const { return commands; }
 
 private:
@@ -140,7 +140,7 @@ public:
 idCmdSystemLocal::ListByFlags
 ============
 */
-void idCmdSystemLocal::ListByFlags( const idCmdArgs &args, cmdFlags_t flags ) {
+void idCmdSystemLocal::ListByFlags( const idCmdArgs &args, const cmdFlags_t flags ) {
 	int i;
 	idStr match;
 	const commandDef_t *cmd;
@@ -379,7 +379,7 @@ void idCmdSystemLocal::Shutdown() {
 idCmdSystemLocal::AddCommand
 ============
 */
-void idCmdSystemLocal::AddCommand( const char *cmdName, cmdFunction_t function, int flags, const char *description, argCompletion_t argCompletion ) {
+void idCmdSystemLocal::AddCommand( const char *cmdName, const cmdFunction_t function, const int flags, const char *description, const argCompletion_t argCompletion ) {
 	commandDef_t *cmd;
 	
 	// fail if the command already exists
@@ -427,7 +427,7 @@ void idCmdSystemLocal::RemoveCommand( const char *cmdName ) {
 idCmdSystemLocal::RemoveFlaggedCommands
 ============
 */
-void idCmdSystemLocal::RemoveFlaggedCommands( int flags ) {
+void idCmdSystemLocal::RemoveFlaggedCommands(const int flags ) {
 	commandDef_t *cmd, **last;
 
 	for ( last = &commands, cmd = *last; cmd; cmd = *last ) {
@@ -590,7 +590,7 @@ void idCmdSystemLocal::AppendCommandText( const char *text ) {
 idCmdSystemLocal::BufferCommandText
 ============
 */
-void idCmdSystemLocal::BufferCommandText( cmdExecution_t exec, const char *text ) {
+void idCmdSystemLocal::BufferCommandText(const cmdExecution_t exec, const char *text ) {
 	switch( exec ) {
 		case CMD_EXEC_NOW: {
 			ExecuteCommandText( text );
@@ -615,7 +615,7 @@ void idCmdSystemLocal::BufferCommandText( cmdExecution_t exec, const char *text 
 idCmdSystemLocal::BufferCommandArgs
 ============
 */
-void idCmdSystemLocal::BufferCommandArgs( cmdExecution_t exec, const idCmdArgs &args ) {
+void idCmdSystemLocal::BufferCommandArgs(const cmdExecution_t exec, const idCmdArgs &args ) {
 	switch ( exec ) {
 		case CMD_EXEC_NOW: {
 			ExecuteTokenizedString( args );

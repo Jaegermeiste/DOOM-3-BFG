@@ -187,7 +187,7 @@ void buttonState_t::Clear() {
 buttonState_t::SetKeyState
 ================
 */
-void buttonState_t::SetKeyState( int keystate, bool toggle ) {
+void buttonState_t::SetKeyState(const int keystate, const bool toggle ) {
 	if ( !toggle ) {
 		held = false;
 		on = keystate;
@@ -200,9 +200,9 @@ void buttonState_t::SetKeyState( int keystate, bool toggle ) {
 }
 
 
-constexpr int NUM_USER_COMMANDS = sizeof(userCmdStrings) / sizeof(userCmdString_t);
+constexpr size_t NUM_USER_COMMANDS = sizeof(userCmdStrings) / sizeof(userCmdString_t);
 
-constexpr int MAX_CHAT_BUFFER = 127;
+constexpr size_t MAX_CHAT_BUFFER = 127;
 
 class idUsercmdGenLocal : public idUsercmdGen {
 public:
@@ -222,24 +222,24 @@ public:
 
 	int				CommandStringUsercmdData( const char *cmdString );
 
-	void			BuildCurrentUsercmd( int deviceNum );
+	void			BuildCurrentUsercmd( index_t deviceNum );
 
 	usercmd_t		GetCurrentUsercmd() { return cmd; };
 
 	void			MouseState( int *x, int *y, int *button, bool *down );
 
-	int				ButtonState( int key );
-	int				KeyState( int key );
+	int				ButtonState( usercmdButton_t key ) const;
+	int				KeyState( keyNum_t key ) const;
 
 private:
 	void			MakeCurrent();
 	void			InitCurrent();
 
-					[[nodiscard]] bool			Inhibited() const;
+	[[nodiscard]] bool			Inhibited() const;
 	void			AdjustAngles();
 	void			KeyMove();
 	void			CircleToSquare( float & axis_x, float & axis_y ) const;
-	void			HandleJoystickAxis( int keyNum, float unclampedValue, float threshold, bool positive );
+	void			HandleJoystickAxis( keyNum_t keyNum, float unclampedValue, float threshold, bool positive );
 	void			JoystickMove();
 	void			JoystickMove2();
 	void			MouseMove();
@@ -249,9 +249,9 @@ private:
 
 	void			Mouse();
 	void			Keyboard();
-	void			Joystick( int deviceNum );
+	void			Joystick( index_t deviceNum );
 
-	void			Key( int keyNum, bool down );
+	void			Key( keyNum_t keyNum, bool down );
 
 	idVec3			viewangles;
 	int				impulseSequence;
@@ -261,7 +261,7 @@ private:
 	buttonState_t	toggled_run;
 	buttonState_t	toggled_zoom;
 
-	int				buttonState[UB_MAX_BUTTONS];
+	int64			buttonState[UB_MAX_BUTTONS];
 	bool			keyState[K_LAST_KEY];
 
 	int				inhibitCommands;	// true when in console or menu locally
@@ -270,15 +270,15 @@ private:
 
 	usercmd_t		cmd;		// the current cmd being built
 
-	int				continuousMouseX, continuousMouseY;	// for gui event generatioin, never zerod
-	int				mouseButton;						// for gui event generatioin
+	int				continuousMouseX, continuousMouseY;	// for gui event generation, never zeroed
+	keyNum_t		mouseButton;						// for gui event generation
 	bool			mouseDown;
 
 	int				mouseDx, mouseDy;	// added to by mouse events
 	float			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
 
-	int				pollTime;
-	int				lastPollTime;
+	ID_TIME_T		pollTime;
+	ID_TIME_T		lastPollTime;
 	float			lastLookValuePitch;
 	float			lastLookValueYaw;
 
@@ -340,7 +340,7 @@ idUsercmdGenLocal::idUsercmdGenLocal() {
 idUsercmdGenLocal::InhibitUsercmd
 ================
 */
-void idUsercmdGenLocal::InhibitUsercmd( inhibit_t subsystem, bool inhibit ) {
+void idUsercmdGenLocal::InhibitUsercmd(const inhibit_t subsystem, const bool inhibit ) {
 	if ( inhibit ) {
 		inhibitCommands |= 1 << subsystem;
 	} else {
@@ -355,8 +355,9 @@ idUsercmdGenLocal::ButtonState
 Returns (the fraction of the frame) that the key was down
 ===============
 */
-int	idUsercmdGenLocal::ButtonState( int key ) {
-	if ( key<0 || key>=UB_MAX_BUTTONS ) {
+int	idUsercmdGenLocal::ButtonState( const usercmdButton_t key ) const
+{
+	if ( key < UB_NONE || key >= UB_MAX_BUTTONS ) {
 		return -1;
 	}
 	return ( buttonState[key] > 0 ) ? 1 : 0;
@@ -370,8 +371,9 @@ Returns (the fraction of the frame) that the key was down
 bk20060111
 ===============
 */
-int	idUsercmdGenLocal::KeyState( int key ) {
-	if ( key<0 || key>=K_LAST_KEY ) {
+int	idUsercmdGenLocal::KeyState( const keyNum_t key ) const
+{
+	if ( key < K_NONE || key >= K_LAST_KEY ) {
 		return -1;
 	}
 	return ( keyState[key] ) ? 1 : 0;
@@ -507,7 +509,7 @@ void idUsercmdGenLocal::CircleToSquare( float & axis_x, float & axis_y ) const {
 	// swap the two axes so we project against the vertical line X = 1
 	bool swap = false;
 	if ( axis_y > axis_x ) {
-		float tmp = axis_x;
+		const float tmp = axis_x;
 		axis_x = axis_y;
 		axis_y = tmp;
 		swap = true;
@@ -524,16 +526,16 @@ void idUsercmdGenLocal::CircleToSquare( float & axis_x, float & axis_y ) const {
 		len = 1.0f;
 	}
 	// thales
-	float axis_y_us = axis_y / axis_x;
+	const float axis_y_us = axis_y / axis_x;
 
 	// use a power curve to shift the correction to happen closer to the unit circle
-	float correctionRatio = Square( len );
+	const float correctionRatio = Square( len );
 	axis_x += correctionRatio * ( len - axis_x );
 	axis_y += correctionRatio * ( axis_y_us - axis_y );
 
 	// go back through the symmetries
 	if ( swap ) {
-		float tmp = axis_x;
+		const float tmp = axis_x;
 		axis_x = axis_y;
 		axis_y = tmp;
 	}
@@ -550,7 +552,7 @@ void idUsercmdGenLocal::CircleToSquare( float & axis_x, float & axis_y ) const {
 idUsercmdGenLocal::HandleJoystickAxis
 ========================
 */
-void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, float threshold, bool positive ) {
+void idUsercmdGenLocal::HandleJoystickAxis( const keyNum_t keyNum, const float unclampedValue, const float threshold, const bool positive ) {
 	if ( ( unclampedValue > 0.0f ) && !positive ) {
 		return;
 	}
@@ -567,7 +569,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 		pressed = true;
 	}
 
-	int action = idKeyInput::GetUsercmdAction( keyNum );
+	const int action = idKeyInput::GetUsercmdAction( keyNum );
 	if ( action >= UB_ATTACK ) {
 		Key( keyNum, pressed );
 		return;
@@ -590,23 +592,23 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 
 	switch ( action ) {
 		case UB_MOVEFORWARD: {
-			float move = static_cast<float>(cmd.forwardmove) + ( KEY_MOVESPEED * value );
-			cmd.forwardmove = idMath::ClampChar( idMath::Ftoi( move ) );
+			const float move = static_cast<float>(cmd.forwardmove) + ( KEY_MOVESPEED * value );
+			cmd.forwardmove = idMath::ClampChar( numeric_cast<int>( move ) );
 			break;
 		}
 		case UB_MOVEBACK: {
-			float move = static_cast<float>(cmd.forwardmove) - ( KEY_MOVESPEED * value );
-			cmd.forwardmove = idMath::ClampChar( idMath::Ftoi( move ) );
+			const float move = static_cast<float>(cmd.forwardmove) - ( KEY_MOVESPEED * value );
+			cmd.forwardmove = idMath::ClampChar( numeric_cast<int>( move ) );
 			break;
 		}
 		case UB_MOVELEFT: {
-			float move = static_cast<float>(cmd.rightmove) - ( KEY_MOVESPEED * value );
-			cmd.rightmove = idMath::ClampChar( idMath::Ftoi( move ) );
+			const float move = static_cast<float>(cmd.rightmove) - ( KEY_MOVESPEED * value );
+			cmd.rightmove = idMath::ClampChar( numeric_cast<int>( move ) );
 			break;
 		}
 		case UB_MOVERIGHT: {
-			float move = static_cast<float>(cmd.rightmove) + ( KEY_MOVESPEED * value );
-			cmd.rightmove = idMath::ClampChar( idMath::Ftoi( move ) );
+			const float move = static_cast<float>(cmd.rightmove) + ( KEY_MOVESPEED * value );
+			cmd.rightmove = idMath::ClampChar( numeric_cast<int>( move ) );
 			break;
 		}
 		case UB_LOOKUP: {
@@ -615,7 +617,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 				lastLookValuePitch = lookValue;
 			}
 
-			float invertPitch = in_invertLook.GetBool() ? -1.0f : 1.0f;
+			const float invertPitch = in_invertLook.GetBool() ? -1.0f : 1.0f;
 			viewangles[PITCH] -= MS2SEC( pollTime - lastPollTime ) * lookValue * joy_pitchSpeed.GetFloat() * invertPitch;
 			break;
 		}
@@ -625,7 +627,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 				lastLookValuePitch = lookValue;
 			}
 
-			float invertPitch = in_invertLook.GetBool() ? -1.0f : 1.0f;
+			const float invertPitch = in_invertLook.GetBool() ? -1.0f : 1.0f;
 			viewangles[PITCH] += MS2SEC( pollTime - lastPollTime ) * lookValue * joy_pitchSpeed.GetFloat() * invertPitch;
 			break;
 		}
@@ -654,8 +656,8 @@ idUsercmdGenLocal::JoystickMove
 =================
 */
 void idUsercmdGenLocal::JoystickMove() {
-	float threshold = joy_deadZone.GetFloat();
-	float triggerThreshold = joy_triggerThreshold.GetFloat();
+	const float threshold = joy_deadZone.GetFloat();
+	const float triggerThreshold = joy_triggerThreshold.GetFloat();
 
 	float axis_y = joystickAxis[ AXIS_LEFT_Y ];
 	float axis_x = joystickAxis[ AXIS_LEFT_X ];
@@ -702,11 +704,11 @@ idVec2 JoypadFunction(
 		return idVec2( 0.0f, 0.0f );
 	}
 
-	idVec2	threshed;
+	idVec2	threshed = {};
 	if ( !mergedThreshold ) {
 		// if the thresholding is performed independently, you can more easily move
 		// or look in a pure axial direction without drifting
-		for ( int i = 0 ; i < 2 ; i++ ) {
+		for ( size_t i = 0 ; i < 2 ; i++ ) {
 			const float v = raw[i];
 			float t;
 			if ( v > 0.0f ) {
@@ -771,7 +773,7 @@ Draws axis and threshold / range rings into an RGBA image
 =================
 */
 void	DrawJoypadTexture(
-	const int	size,
+	const size_t	size,
 	byte	image[],
 
 	const idVec2 raw,
@@ -783,25 +785,27 @@ void	DrawJoypadTexture(
 
 //	assert( raw.x >= -1.0f && raw.x <= 1.0f && raw.y >= -1.0f && raw.y <= 1.0f );
 	idVec2	clamped;
-	for ( int i = 0 ; i < 2 ; i++ ) {
+	for ( size_t i = 0 ; i < 2 ; i++ ) {
 		clamped[i] = Max( -1.0f, Min( raw[i], 1.0f ) );
 	}
 
-	const int halfSize = size/2;
+	const auto sizef = numeric_cast<float>(size);
+	const auto halfSize = size/2;
+	const auto halfSizef = numeric_cast<float>(halfSize);
 
 	// find the offsets that will give certain values for
 	// the rings
-	static constexpr int NUM_RINGS = 5;
+	static constexpr size_t NUM_RINGS = 5;
 	float	ringSizes[NUM_RINGS] = {};
-	float	ringValue[NUM_RINGS] = { 0.0f, 0.25f, 0.5f, 0.75f, 0.99f };
-	int		ringNum = 0;
-	for ( int i = 1 ; i < size ; i++ ) {
-		const float	v = static_cast<float>(i) / (size-1);
+	const float	ringValue[NUM_RINGS] = { 0.0f, 0.25f, 0.5f, 0.75f, 0.99f };
+	size_t		ringNum = 0;
+	for ( size_t i = 1 ; i < size ; i++ ) {
+		const float	v = numeric_cast<float>(i) / (sizef - 1.0f);
 
 		const idVec2 mapped = JoypadFunction(
 			idVec2( v, 0.0f ), 1.0f, threshold, range, shape, mergedThreshold );
 		if ( mapped.x > ringValue[ ringNum ] ) {
-			ringSizes[ ringNum ] = v * halfSize;
+			ringSizes[ ringNum ] = v * halfSizef;
 			ringNum++;
 			if ( ringNum == NUM_RINGS ) {
 				break;
@@ -810,14 +814,14 @@ void	DrawJoypadTexture(
 	}
 
 	memset( image, 0, size * size * 4 );
-#define PLOT(x,y) ((int *)image)[(int)(y)*size+(int)(x)]=0xffffffff
-#define CPLOT(x,y) ((int *)image)[(int)(halfSize+y)*size+(int)(halfSize+x)]=0xffffffff
+#define PLOT(x,y) (reinterpret_cast<int*>(image)[numeric_cast<int>(y) * numeric_cast<int>(size) + numeric_cast<int>(x)] = 0xffffffff)
+#define CPLOT(x,y) (reinterpret_cast<int*>(image)[numeric_cast<int>(halfSize+(y)) * numeric_cast<int>(size) + numeric_cast<int>(halfSize+(x))] = 0xffffffff)
 
-	int	clampedX = halfSize + Min( halfSize-1, static_cast<int>(halfSize * clamped.x) );
-	int	clampedY = halfSize + Min( halfSize-1, static_cast<int>(halfSize * clamped.y) );
+	const int	clampedX = numeric_cast<int>(halfSizef + Min( halfSizef-1.0f, (halfSizef * clamped.x) ));
+	const int	clampedY = numeric_cast<int>(halfSizef + Min( halfSizef-1.0f, (halfSizef * clamped.y) ));
 
 	// draw the box edge outline and center lines
-	for ( int i = 0 ; i < size ; i++ ) {
+	for ( size_t i = 0 ; i < size ; i++ ) {
 		PLOT( i, 0 );
 		PLOT( i, size-1 );
 		PLOT( 0, i );
@@ -825,10 +829,10 @@ void	DrawJoypadTexture(
 		PLOT( i, clampedY );
 		PLOT( clampedX, i );
 	}
-	const int iThresh = size * threshold * 0.5f;
+	const size_t iThresh = numeric_cast<size_t>( numeric_cast<float>(size) * threshold * 0.5f);
 	if ( !mergedThreshold ) {
-		const int open = size * 0.5f - iThresh;
-		for ( int i = 0 ; i < open ; i++ ) {
+		const size_t open = numeric_cast<size_t>( sizef * 0.5f - numeric_cast<float>(iThresh));
+		for ( size_t i = 0 ; i < open ; i++ ) {
 			PLOT( i, halfSize - iThresh );
 			PLOT( i, halfSize + iThresh );
 			PLOT( size-1-i, halfSize - iThresh );
@@ -842,16 +846,16 @@ void	DrawJoypadTexture(
 	}
 
 	// I'm not going to bother writing a proper circle drawing algorithm...
-	const int octantPoints = size * 2;
+	const auto octantPoints = size * 2;
 	float rad = 0.0f;
-	float radStep = idMath::PI / ( 4 * octantPoints );
-	for ( int point = 0 ; point < octantPoints ; point++, rad += radStep ) {
-		float	s, c;
+	const float radStep = idMath::PI / numeric_cast<float>( 4 * octantPoints );
+	for ( size_t point = 0 ; point < octantPoints ; point++, rad += radStep ) {
+		float	s = 0.0f, c = 0.0f;
 		idMath::SinCos( rad, s, c );
-		for ( int ringNum = 0 ; ringNum < NUM_RINGS ; ringNum++ ) {
+		for ( size_t ringNum = 0 ; ringNum < NUM_RINGS ; ringNum++ ) {
 			const float ringSize = ringSizes[ ringNum ];
-			const int	ix = idMath::Floor( ringSize * c );
-			const int	iy = idMath::Floor( ringSize * s );
+			const int	ix = numeric_cast<int>(Floor( ringSize * c ));
+			const int	iy = numeric_cast<int>(Floor( ringSize * s ));
 #if 0
 			if ( !mergedThreshold && ( ix < iThresh || iy < iThresh ) ) {
 				continue;
@@ -880,7 +884,7 @@ DrawJoypadTexture
 Can be called to fill in a scratch texture for visualization
 =================
 */
-void DrawJoypadTexture( const int size, byte image[] ) {
+void DrawJoypadTexture( const size_t size, byte image[] ) {
 	const float threshold =			joy_deadZone.GetFloat();
 	const float range =				joy_range.GetFloat();
 	const bool mergedThreshold =	joy_mergedThreshold.GetBool();
@@ -926,7 +930,7 @@ void idUsercmdGenLocal::JoystickMove2() {
 	lastLookJoypad = rightRaw;
 
 	idVec2 leftMapped = JoypadFunction( leftRaw, 1.0f, threshold, range, shape, mergedThreshold );
-	idVec2 rightMapped = JoypadFunction( rightRaw, aimAssist, threshold, range, shape, mergedThreshold );
+	const idVec2 rightMapped = JoypadFunction( rightRaw, aimAssist, threshold, range, shape, mergedThreshold );
 
 	// because idPhysics_Player::CmdScale scales mvoement values down so that 1,1 = sqrt(2), sqrt(2),
 	// we need to expand our circular values out to a square
@@ -1044,7 +1048,7 @@ void idUsercmdGenLocal::MakeCurrent() {
 		mouseDy = 0;
 	}
 
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		cmd.angles[i] = ANGLE2SHORT( viewangles[i] );
 	}
 
@@ -1086,7 +1090,7 @@ Returns the button if the command string is used by the usercmd generator.
 ================
 */
 int	idUsercmdGenLocal::CommandStringUsercmdData( const char *cmdString ) {
-	for ( userCmdString_t *ucs = userCmdStrings ; ucs->string ; ucs++ ) {
+	for (const userCmdString_t *ucs = userCmdStrings ; ucs->string ; ucs++ ) {
 		if ( idStr::Icmp( cmdString, ucs->string ) == 0 ) {
 			return ucs->button;
 		}
@@ -1144,7 +1148,7 @@ void idUsercmdGenLocal::Clear() {
 	inhibitCommands = false;
 
 	mouseDx = mouseDy = 0;
-	mouseButton = 0;
+	mouseButton = K_NONE;
 	mouseDown = false;
 }
 
@@ -1167,7 +1171,7 @@ idUsercmdGenLocal::Key
 Handles mouse/keyboard button actions
 ===================
 */
-void idUsercmdGenLocal::Key( int keyNum, bool down ) {
+void idUsercmdGenLocal::Key(const keyNum_t keyNum, const bool down ) {
 
 	// Sanity check, sometimes we get double message :(
 	if ( keyState[ keyNum ] == down ) {
@@ -1175,7 +1179,7 @@ void idUsercmdGenLocal::Key( int keyNum, bool down ) {
 	}
 	keyState[ keyNum ] = down;
 
-	int action = idKeyInput::GetUsercmdAction( keyNum );
+	const int action = idKeyInput::GetUsercmdAction( keyNum );
 
 	if ( down ) {
 		buttonState[ action ]++;
@@ -1200,13 +1204,13 @@ idUsercmdGenLocal::Mouse
 ===================
 */
 void idUsercmdGenLocal::Mouse() {
-	int	mouseEvents[MAX_MOUSE_EVENTS][2];
+	int	mouseEvents[MAX_MOUSE_EVENTS][2] = {};
 
-	int numEvents = Sys_PollMouseInputEvents( mouseEvents );
+	const size_t numEvents = Sys_PollMouseInputEvents( mouseEvents );
 
 	// Study each of the buffer elements and process them.
-	for ( int i = 0; i < numEvents; i++ ) {
-		int action = mouseEvents[i][0];
+	for ( size_t i = 0; i < numEvents; i++ ) {
+		const int action = mouseEvents[i][0];
 		int value = mouseEvents[i][1];
 		switch ( action ) {
 		case M_ACTION1:
@@ -1217,7 +1221,7 @@ void idUsercmdGenLocal::Mouse() {
 		case M_ACTION6:
 		case M_ACTION7:
 		case M_ACTION8:
-			mouseButton = K_MOUSE1 + ( action - M_ACTION1 );
+			mouseButton = static_cast<keyNum_t>(K_MOUSE1 + ( action - M_ACTION1 ));
 			mouseDown = ( value != 0 );
 			Key( mouseButton, mouseDown );
 			break;
@@ -1231,7 +1235,7 @@ void idUsercmdGenLocal::Mouse() {
 			break;
 		case M_DELTAZ:	// mouse wheel, may have multiple clicks
 			{
-				int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
+				const keyNum_t key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
 				value = abs( value );
 				while( value-- > 0 ) {
 					Key( key, true );
@@ -1254,12 +1258,12 @@ idUsercmdGenLocal::Keyboard
 */
 void idUsercmdGenLocal::Keyboard() {
 
-	int numEvents = Sys_PollKeyboardInputEvents();
+	const size_t numEvents = Sys_PollKeyboardInputEvents();
 
     // Study each of the buffer elements and process them.
-	for ( int i = 0; i < numEvents; i++ ) {
-		int key;
-		bool state;
+	for ( size_t i = 0; i < numEvents; i++ ) {
+		keyNum_t key = K_NONE;
+		bool state = false;
 		if ( Sys_ReturnKeyboardInputEvent( i, key, state ) ) {
 			Key( key, state );
 		}
@@ -1273,21 +1277,21 @@ void idUsercmdGenLocal::Keyboard() {
 idUsercmdGenLocal::Joystick
 ===============
 */
-void idUsercmdGenLocal::Joystick( int deviceNum ) {
-	int numEvents = Sys_PollJoystickInputEvents( deviceNum );
+void idUsercmdGenLocal::Joystick( const index_t deviceNum ) {
+	const size_t numEvents = Sys_PollJoystickInputEvents( deviceNum );
 
 	// Study each of the buffer elements and process them.
-	for ( int i = 0; i < numEvents; i++ ) {
-		int action;
-		int value;
-		if ( Sys_ReturnJoystickInputEvent( i, action, value ) ) {
+	for ( size_t i = 0; i < numEvents; i++ ) {
+		int action = 0;
+		int value = 0;
+		if ( Sys_ReturnJoystickInputEvent( static_cast<sys_jEvents_e>(i), action, value ) ) {
 			if ( action >= J_ACTION1 && action <= J_ACTION_MAX ) {
-				int joyButton = K_JOY1 + ( action - J_ACTION1 );
+				const keyNum_t joyButton = static_cast<keyNum_t>(K_JOY1 + ( action - J_ACTION1 ));
 				Key( joyButton, ( value != 0 ) );
 			} else if ( ( action >= J_AXIS_MIN ) && ( action <= J_AXIS_MAX ) ) {
 				joystickAxis[ action - J_AXIS_MIN ] = static_cast<float>( value ) / 32767.0f;
 			} else if ( action >= J_DPAD_UP && action <= J_DPAD_RIGHT ) {
-				int joyButton = K_JOY_DPAD_UP + ( action - J_DPAD_UP );
+				const keyNum_t joyButton = static_cast<keyNum_t>(K_JOY_DPAD_UP + ( action - J_DPAD_UP ));
 				Key( joyButton, ( value != 0 ) );
 			} else {
 				assert( !"Unknown joystick event" );
@@ -1315,7 +1319,7 @@ void idUsercmdGenLocal::MouseState( int *x, int *y, int *button, bool *down ) {
 idUsercmdGenLocal::BuildCurrentUsercmd
 ================
 */
-void idUsercmdGenLocal::BuildCurrentUsercmd( int deviceNum ) {
+void idUsercmdGenLocal::BuildCurrentUsercmd( const index_t deviceNum ) {
 
 	pollTime = Sys_Milliseconds();
 	if ( pollTime - lastPollTime > 100 ) {

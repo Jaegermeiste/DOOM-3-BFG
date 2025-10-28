@@ -37,11 +37,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys/sys_assert.h"
 #include "sys/sys_types.h"
 #include "sys/sys_intrinsics.h"
+#include "sys/sys_numeric_cast.h"
+#include "sys/sys_helpers.h"
 #include "sys/sys_threading.h"
 
 //-----------------------------------------------------
-
-#define ID_TIME_T int64 // Signed because -1 means "File not found" and we don't want that to compare > than any other time
 
 // non-portable system services
 #include "../sys/sys_public.h"
@@ -79,8 +79,8 @@ If you have questions concerning this license or the applicable additional terms
 
 // We have expression parsing and evaluation code in multiple places:
 // materials, sound shaders, and guis. We should unify them.
-constexpr int MAX_EXPRESSION_OPS = 4096;
-constexpr int MAX_EXPRESSION_REGISTERS = 4096;
+constexpr size_t MAX_EXPRESSION_OPS = 4096;
+constexpr size_t MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
 #include "../renderer/OpenGL/qgl.h"

@@ -99,7 +99,7 @@ bool idSliderWindow::ParseInternalVar(const char *_name, idTokenParser *src) {
 	return idWindow::ParseInternalVar(_name, src);
 }
 
-idWinVar *idSliderWindow::GetWinVarByName(const char *_name, bool fixup, drawWin_t** owner) {
+idWinVar *idSliderWindow::GetWinVarByName(const char *_name, const bool fixup, drawWin_t** owner) {
  
 	if (idStr::Icmp(_name, "value") == 0) {
 		return &value;
@@ -167,7 +167,7 @@ void idSliderWindow::PostParse() {
 	InitCvar();
 }
 
-void idSliderWindow::InitWithDefaults(const char *_name, const idRectangle &_rect, const idVec4 &_foreColor, const idVec4 &_matColor, const char *_background, const char *thumbShader, bool _vertical, bool _scrollbar) {
+void idSliderWindow::InitWithDefaults(const char *_name, const idRectangle &_rect, const idVec4 &_foreColor, const idVec4 &_matColor, const char *_background, const char *thumbShader, const bool _vertical, const bool _scrollbar) {
 	SetInitialState(_name);
 	rect = _rect;
 	foreColor = _foreColor;
@@ -183,17 +183,17 @@ void idSliderWindow::InitWithDefaults(const char *_name, const idRectangle &_rec
 	flags |= WIN_HOLDCAPTURE;
 }
 
-void idSliderWindow::SetRange(float _low, float _high, float _step) {
+void idSliderWindow::SetRange(const float _low, const float _high, const float _step) {
 	low = _low;
 	high = _high;
 	stepSize = _step;
 }
 
-void idSliderWindow::SetValue(float _value) {
+void idSliderWindow::SetValue(const float _value) {
 	value = _value;
 }
 
-void idSliderWindow::Draw(int time, float x, float y) {
+void idSliderWindow::Draw(ID_TIME_T time, float x, float y) {
 	idVec4 color = foreColor;
 
 	if ( !cvar && !buddyWin ) {
@@ -333,7 +333,7 @@ const char *idSliderWindow::RouteMouseCoords(float xd, float yd) {
 }
 
 
-void idSliderWindow::Activate(bool activate, idStr &act) {
+void idSliderWindow::Activate(const bool activate, idStr &act) {
 	idWindow::Activate(activate, act);
 	if ( activate ) {
 		UpdateCvar( true, true );
@@ -368,7 +368,7 @@ void idSliderWindow::InitCvar( ) {
 idSliderWindow::UpdateCvar
 ============
 */
-void idSliderWindow::UpdateCvar( bool read, bool force ) {
+void idSliderWindow::UpdateCvar(const bool read, const bool force ) {
 	if ( buddyWin || !cvar ) {
 		return;
 	}

@@ -124,7 +124,7 @@ void idRenderModelManagerLocal::ListModels_f( const idCmdArgs &args ) {
 	common->Printf( " mem   srf verts tris\n" );
 	common->Printf( " ---   --- ----- ----\n" );
 
-	for ( int i = 0; i < localModelManager.models.Num(); i++ ) {
+	for ( size_t i = 0; i < localModelManager.models.Num(); i++ ) {
 		idRenderModel	*model = localModelManager.models[i];
 
 		if ( !model->IsLoaded() ) {
@@ -185,7 +185,7 @@ idRenderModelManagerLocal::WritePrecacheCommands
 =================
 */
 void idRenderModelManagerLocal::WritePrecacheCommands( idFile *f ) {
-	for ( int i = 0; i < models.Num(); i++ ) {
+	for ( size_t i = 0; i < models.Num(); i++ ) {
 		idRenderModel	*model = models[i];
 
 		if ( !model ) {
@@ -252,7 +252,7 @@ void idRenderModelManagerLocal::Shutdown() {
 idRenderModelManagerLocal::GetModel
 =================
 */
-idRenderModel *idRenderModelManagerLocal::GetModel( const char *_modelName, bool createIfNotFound ) {
+idRenderModel *idRenderModelManagerLocal::GetModel( const char *_modelName, const bool createIfNotFound ) {
 
 	if ( !_modelName || !_modelName[0] ) {
 		return nullptr;
@@ -462,7 +462,7 @@ idRenderModelManagerLocal::RemoveModel
 =================
 */
 void idRenderModelManagerLocal::RemoveModel( idRenderModel *model ) {
-	int index = models.FindIndex( model );
+	index_t index = models.FindIndex( model );
 	if ( index != -1 ) {
 		hash.RemoveIndex( hash.GenerateKey( model->Name(), false ), index );
 		models.RemoveIndex( index );
@@ -474,7 +474,7 @@ void idRenderModelManagerLocal::RemoveModel( idRenderModel *model ) {
 idRenderModelManagerLocal::ReloadModels
 =================
 */
-void idRenderModelManagerLocal::ReloadModels( bool forceAll ) {
+void idRenderModelManagerLocal::ReloadModels(const bool forceAll ) {
 	if ( forceAll ) {
 		common->Printf( "Reloading all model files...\n" );
 	} else {
@@ -518,7 +518,7 @@ idRenderModelManagerLocal::FreeModelVertexCaches
 =================
 */
 void idRenderModelManagerLocal::FreeModelVertexCaches() {
-	for ( int i = 0; i < models.Num(); i++ ) {
+	for ( size_t i = 0; i < models.Num(); i++ ) {
 		idRenderModel *model = models[i];
 		model->FreeVertexCache();
 	}
@@ -532,7 +532,7 @@ idRenderModelManagerLocal::BeginLevelLoad
 void idRenderModelManagerLocal::BeginLevelLoad() {
 	insideLevelLoad = true;
 
-	for ( int i = 0; i < models.Num(); i++ ) {
+	for ( size_t i = 0; i < models.Num(); i++ ) {
 		idRenderModel *model = models[i];
 
 		// always reload all models 
@@ -556,10 +556,10 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest &manifest  ) {
 	if ( preload_MapModels.GetBool() ) {
 		// preload this levels images
 		int	start = Sys_Milliseconds();
-		int numLoaded = 0;
+		size_t numLoaded = 0;
 		idList< preloadSort_t > preloadSort;
 		preloadSort.Resize( manifest.NumResources() );
-		for ( int i = 0; i < manifest.NumResources(); i++ ) {
+		for ( size_t i = 0; i < manifest.NumResources(); i++ ) {
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( i );
 			idResourceCacheEntry rc;
 			idStrStatic< MAX_OSPATH > filename;
@@ -587,7 +587,7 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest &manifest  ) {
 		
 		preloadSort.SortWithTemplate( idSort_Preload() );
 
-		for ( int i = 0; i < preloadSort.Num(); i++ ) {
+		for ( size_t i = 0; i < preloadSort.Num(); i++ ) {
 			const preloadSort_t & ps = preloadSort[ i ];
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( ps.idx );
 			if ( p.resType == PRELOAD_MODEL ) {
@@ -625,7 +625,7 @@ void idRenderModelManagerLocal::EndLevelLoad() {
 	int	loadCount = 0;
 
 	// purge any models not touched
-	for ( int i = 0; i < models.Num(); i++ ) {
+	for ( size_t i = 0; i < models.Num(); i++ ) {
 		idRenderModel *model = models[i];
 
 		if ( !model->IsLevelLoadReferenced() && model->IsLoaded() && model->IsReloadable() ) {
@@ -649,7 +649,7 @@ void idRenderModelManagerLocal::EndLevelLoad() {
 	}
 
 	// load any new ones
-	for ( int i = 0; i < models.Num(); i++ ) {
+	for ( size_t i = 0; i < models.Num(); i++ ) {
 		common->UpdateLevelLoadPacifier();
 
 
@@ -662,13 +662,13 @@ void idRenderModelManagerLocal::EndLevelLoad() {
 	}
 
 	// create static vertex/index buffers for all models
-	for ( int i = 0; i < models.Num(); i++ ) {
+	for ( size_t i = 0; i < models.Num(); i++ ) {
 		common->UpdateLevelLoadPacifier();
 
 
 		idRenderModel *model = models[i];
 		if ( model->IsLoaded() ) {
-			for ( int j = 0; j < model->NumSurfaces(); j++ ) {
+			for ( size_t j = 0; j < model->NumSurfaces(); j++ ) {
 				R_CreateStaticBuffersForTri( *(model->Surface( j )->geometry) );
 			}
 		}
@@ -718,7 +718,7 @@ void idRenderModelManagerLocal::PrintMemInfo( MemInfo_t *mi ) {
 	}
 
 	// print next
-	for ( int i = 0; i < localModelManager.models.Num(); i++ ) {
+	for ( size_t i = 0; i < localModelManager.models.Num(); i++ ) {
 		idRenderModel	*model = localModelManager.models[sortIndex[i]];
 		int mem;
 

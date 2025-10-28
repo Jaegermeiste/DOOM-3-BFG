@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __R_MAIN__
 #define __R_MAIN__
 
+#pragma once
+
 #include "d_player.h"
 #include "r_data.h"
 
@@ -44,10 +46,10 @@ If you have questions concerning this license or the applicable additional terms
 extern fixed_t		viewcos;
 extern fixed_t		viewsin;
 
-extern int		viewwidth;
-extern int		viewheight;
-extern int		viewwindowx;
-extern int		viewwindowy;
+extern size_t		viewwidth;
+extern size_t		viewheight;
+extern size_t		viewwindowx;
+extern size_t		viewwindowy;
 
 
 
@@ -58,10 +60,10 @@ extern fixed_t		centerxfrac;
 extern fixed_t		centeryfrac;
 extern fixed_t		projection;
 
-extern int		validcount;
+extern size_t		validcount;
 
-extern int		linecount;
-extern int		loopcount;
+extern size_t		linecount;
+extern size_t		loopcount;
 
 
 //
@@ -72,13 +74,13 @@ extern int		loopcount;
 
 // Lighting constants.
 // Now why not 32 levels here?
-#define LIGHTLEVELS	        16
-#define LIGHTSEGSHIFT	         4
+constexpr size_t LIGHTLEVELS     = 16;
+constexpr auto LIGHTSEGSHIFT   = 4;
 
-#define MAXLIGHTSCALE		48
-#define LIGHTSCALESHIFT		12
-#define MAXLIGHTZ	       128
-#define LIGHTZSHIFT		20
+constexpr auto MAXLIGHTSCALE   = 48;
+constexpr auto LIGHTSCALESHIFT = 12;
+constexpr auto MAXLIGHTZ       = 128;
+constexpr auto LIGHTZSHIFT     = 20;
 
 extern lighttable_t*	scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 extern lighttable_t*	scalelightfixed[MAXLIGHTSCALE];
@@ -90,7 +92,7 @@ extern lighttable_t*	fixedcolormap;
 
 // Number of diminishing brightness levels.
 // There a 0-31, i.e. 32 LUT in the COLORMAP lump.
-#define NUMCOLORMAPS		32
+constexpr size_t NUMCOLORMAPS = 32;
 
 
 // Blocky/low detail mode.
@@ -180,7 +182,7 @@ void R_RenderPlayerView (player_t *player);
 void R_Init (void);
 
 // Called by M_Responder.
-void R_SetViewSize (int blocks, int detail);
+void R_SetViewSize (size_t blocks, int detail);
 
 #endif
 

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DECLMANAGER_H__
 #define __DECLMANAGER_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -41,14 +43,14 @@ If you have questions concerning this license or the applicable additional terms
 	are not handled here.
 
 	A decl will never, ever go away once it is created. The manager is
-	garranteed to always return the same decl pointer for a decl type/name
+	guaranteed to always return the same decl pointer for a decl type/name
 	combination. The index of a decl in the per type list also stays the
 	same throughout the lifetime of the engine. Although the pointer to
 	a decl always stays the same, one should never maintain pointers to
-	data inside decls. The data stored in a decl is not garranteed to stay
+	data inside decls. The data stored in a decl is not guaranteed to stay
 	the same for more than one engine frame.
 
-	The decl indexes of explicitely defined decls are garrenteed to be
+	The decl indexes of explicitly defined decls are guaranteed to be
 	consistent based on the parsed decl files. However, the indexes of
 	implicit decls may be different based on the order in which levels
 	are loaded.
@@ -84,23 +86,23 @@ typedef enum declType_e : uint8 {
 	DECL_MAX_TYPES			= 32
 } declType_t;
 
-typedef enum {
+typedef enum declState_e : uint8 {
 	DS_UNPARSED,
 	DS_DEFAULTED,			// set if a parse failed due to an error, or the lack of any source
 	DS_PARSED
 } declState_t;
 
-constexpr int DECL_LEXER_FLAGS	=	LEXFL_NOSTRINGCONCAT |				// multiple strings seperated by whitespaces are not concatenated
+constexpr int DECL_LEXER_FLAGS	=	LEXFL_NOSTRINGCONCAT |				// multiple strings separated by whitespaces are not concatenated
 								LEXFL_NOSTRINGESCAPECHARS |			// no escape characters inside strings
-								LEXFL_ALLOWPATHNAMES |				// allow path seperators in names
+								LEXFL_ALLOWPATHNAMES |				// allow path separators in names
 								LEXFL_ALLOWMULTICHARLITERALS |		// allow multi character literals
-								LEXFL_ALLOWBACKSLASHSTRINGCONCAT |	// allow multiple strings seperated by '\' to be concatenated
+								LEXFL_ALLOWBACKSLASHSTRINGCONCAT |	// allow multiple strings separated by '\' to be concatenated
 								LEXFL_NOFATALERRORS;				// just set a flag instead of fatal erroring
 
 
 class idDeclBase {
 public:
-	virtual 				~idDeclBase() {};
+	virtual 				~idDeclBase() {}
 	[[nodiscard]] virtual const char * GetName() const = 0;
 	[[nodiscard]] virtual declType_t GetType() const = 0;
 	[[nodiscard]] virtual declState_t GetState() const = 0;
@@ -121,7 +123,7 @@ public:
 	[[nodiscard]] virtual bool EverReferenced() const = 0;
 	virtual bool			SetDefaultText() = 0;
 	[[nodiscard]] virtual const char *	DefaultDefinition() const = 0;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion ) = 0;
+	virtual bool			Parse( const char *text, const size_t textLength, const bool allowBinaryVersion ) = 0;
 	virtual void			FreeData() = 0;
 	[[nodiscard]] virtual size_t Size() const = 0;
 	virtual void			List() const = 0;
@@ -134,7 +136,7 @@ public:
 							// The constructor should initialize variables such that
 							// an immediate call to FreeData() does no harm.
 							idDecl() noexcept { base = nullptr; }
-	virtual 				~idDecl() {};
+	virtual 				~idDecl() {}
 
 							// Returns the name of the decl.
 	[[nodiscard]] const char *	GetName() const { return base->GetName(); }
@@ -211,7 +213,7 @@ public:
 							// The manager will have called FreeData() before issuing a Parse().
 							// The subclass can call MakeDefault() internally at any point if
 							// there are parse errors.
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion = false ) { return base->Parse( text, textLength, allowBinaryVersion ); }
+	virtual bool			Parse( const char *text, const size_t textLength, const bool allowBinaryVersion = false ) { return base->Parse( text, textLength, allowBinaryVersion ); }
 
 							// Frees any pointers held by the subclass. This may be called before
 							// any Parse(), so the constructor must have set sane values. The decl will be
@@ -292,7 +294,7 @@ public:
 							// The complete lists of decls can be walked to populate editor browsers.
 							// If forceParse is set false, you can get the decl to check name / filename / etc.
 							// without causing it to parse the source and load media.
-	        const idDecl *	DeclByIndex( declType_t type, const Ordinal auto index, bool forceParse = true );
+	        const idDecl *	DeclByIndex( declType_t type, index_t index, bool forceParse = true );
 
 							// List and print decls.
 	virtual void			ListType( const idCmdArgs &args, declType_t type ) = 0;
@@ -316,9 +318,9 @@ public:
 	virtual const idDeclSkin *		FindSkin( const char *name, bool makeDefault = true ) = 0;
 	virtual const idSoundShader *	FindSound( const char *name, bool makeDefault = true ) = 0;
 
-	virtual const idMaterial *		MaterialByIndex( int index, bool forceParse = true ) = 0;
-	virtual const idDeclSkin *		SkinByIndex( int index, bool forceParse = true ) = 0;
-	virtual const idSoundShader *	SoundByIndex( int index, bool forceParse = true ) = 0;
+	virtual const idMaterial *		MaterialByIndex( index_t index, bool forceParse = true ) = 0;
+	virtual const idDeclSkin *		SkinByIndex( index_t index, bool forceParse = true ) = 0;
+	virtual const idSoundShader *	SoundByIndex( index_t index, bool forceParse = true ) = 0;
 
 	virtual void					Touch( const idDecl * decl ) = 0;
 };

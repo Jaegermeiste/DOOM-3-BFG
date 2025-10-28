@@ -106,7 +106,7 @@ public:
 
 	void				Clear();
 	void				Copy( const idSWFConstantPool & other );
-	idSWFScriptString * Get( int n ) { return pool[n]; }
+	idSWFScriptString * Get( const index_t n ) { return pool[n]; }
 	void				Append( idSWFScriptString * s ) { pool.Append( s ); }
 
 private:
@@ -124,7 +124,7 @@ public:
 	idSWFScriptVar & B() { return operator[]( Num() - 2 ); }
 	idSWFScriptVar & C() { return operator[]( Num() - 3 ); }
 	idSWFScriptVar & D() { return operator[]( Num() - 4 ); }
-	void Pop( int n )	{ SetNum( Num() - n ); }
+	void Pop(const int n )	{ SetNum( Num() - n ); }
 };
 
 /*
@@ -142,14 +142,14 @@ public:
 	void	Release() { if ( --refCount == 0 ) { delete this; } }
 
 	// This could all be passed to Alloc (and was at one time) but in some places it's far more convenient to specify each separately
-	void	SetFlags( uint16 _flags )								{ flags = _flags; }
-	void	SetData( const byte * _data, uint32 _length )			{ data = _data; length = _length; }
+	void	SetFlags(const uint16 _flags )								{ flags = _flags; }
+	void	SetData( const byte * _data, const uint32 _length )			{ data = _data; length = _length; }
 	void	SetScope( idList<idSWFScriptObject *> & scope );
 	void	SetConstants( const idSWFConstantPool & _constants )	{ constants.Copy( _constants ); }
 	void	SetDefaultSprite( idSWFSpriteInstance * _sprite )		{ defaultSprite = _sprite; }
-	void	AllocRegisters( int numRegs	)							{ registers.SetNum( numRegs ); }
-	void	AllocParameters( int numParms )							{ parameters.SetNum( numParms ); }
-	void	SetParameter( uint8 n, uint8 r, const char * name )		{ parameters[n].reg = r; parameters[n].name = name; }
+	void	AllocRegisters(const size_t numRegs	)							{ registers.SetNum( numRegs ); }
+	void	AllocParameters(const size_t numParms )							{ parameters.SetNum( numParms ); }
+	void	SetParameter(const index_t n, const uint8 r, const char * name )		{ parameters[n].reg = r; parameters[n].name = name; }
 
 	idSWFScriptObject * GetPrototype()	    						{ return prototype; }
 	void	SetPrototype( idSWFScriptObject * _prototype )			{ _prototype->AddRef(); assert( prototype == NULL ); prototype = _prototype; }

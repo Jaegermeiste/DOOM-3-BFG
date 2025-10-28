@@ -122,7 +122,7 @@ idSimpleWindow::~idSimpleWindow() {
 void idSimpleWindow::StateChanged( bool redraw ) {
 }
 
-void idSimpleWindow::SetupTransforms(float x, float y) const
+void idSimpleWindow::SetupTransforms(const float x, const float y) const
 {
 	static idMat3 trans;
 	static idVec3 org;
@@ -179,7 +179,7 @@ void idSimpleWindow::DrawBorderAndCaption(const idRectangle &drawRect) const
 	}
 }
 
-void idSimpleWindow::CalcClientRect(float xofs, float yofs) {
+void idSimpleWindow::CalcClientRect(const float xofs, const float yofs) {
 
 	drawRect = rect;
 
@@ -215,7 +215,7 @@ void idSimpleWindow::CalcClientRect(float xofs, float yofs) {
 }
 
 
-void idSimpleWindow::Redraw(float x, float y) {
+void idSimpleWindow::Redraw(const float x, const float y) {
 	
 	if (!visible) {
 		return;

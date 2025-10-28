@@ -101,7 +101,7 @@ public:
 	static idSWFScriptObject *	Alloc();
 	void					AddRef();
 	void					Release();
-	void					SetNoAutoDelete( bool b ) { noAutoDelete = b; }
+	void					SetNoAutoDelete(const bool b ) { noAutoDelete = b; }
 
 	void					Clear();
 
@@ -116,15 +116,15 @@ public:
 	// Also accessible via __proto__ property
 							[[nodiscard]] idSWFScriptObject *		GetPrototype() const { return prototype; }
 	void					SetPrototype( idSWFScriptObject *_prototype ) { assert( prototype == NULL ); prototype = _prototype; prototype->AddRef(); }
-	idSWFScriptVar			Get( int index );
+	idSWFScriptVar			Get( index_t index );
 	idSWFScriptVar			Get( const char * name );
-	idSWFSpriteInstance *	GetSprite( int index );
+	idSWFSpriteInstance *	GetSprite( index_t index );
 	idSWFSpriteInstance *	GetSprite( const char * name );
-	idSWFScriptObject *		GetObject( int index );
+	idSWFScriptObject *		GetObject( index_t index );
 	idSWFScriptObject *		GetObject( const char * name );
-	idSWFTextInstance *		GetText( int index );
+	idSWFTextInstance *		GetText( index_t index );
 	idSWFTextInstance *		GetText( const char * name );
-	void					Set( int index, const idSWFScriptVar & value );
+	void					Set( index_t index, const idSWFScriptVar & value );
 	void					Set( const char * name, const idSWFScriptVar & value );
 	void					SetNative( const char * name, idSWFScriptNativeVariable * native );
 	bool					HasProperty( const char * name );
@@ -133,7 +133,7 @@ public:
 
 	// This is to implement for-in (fixme: respect DONTENUM flag)
 							[[nodiscard]] size_t					NumVariables() const { return variables.Num(); }
-	const char *			EnumVariable( int i ) { return variables[i].name; }
+							const char* EnumVariable(const index_t i) const { ORDINAL_CHECK(i, variables.Num()); return variables[i].name; }
 	
 	idSWFScriptVar			GetNestedVar( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
 	idSWFScriptObject *		GetNestedObj( const char * arg1, const char * arg2 = nullptr, const char * arg3 = nullptr, const char * arg4 = nullptr, const char * arg5 = nullptr, const char * arg6 = nullptr);
@@ -185,7 +185,7 @@ private:
 		idSWFTextInstance *		text;			// only valid if objectType == SWF_OBJECT_TEXT
 	} data;
 
-	swfNamedVar_t *	GetVariable( int index, bool create );
+	swfNamedVar_t *	GetVariable( index_t index, bool create );
 	swfNamedVar_t *	GetVariable( const char * name, bool create );
 };
 

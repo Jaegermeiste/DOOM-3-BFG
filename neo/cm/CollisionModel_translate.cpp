@@ -359,7 +359,7 @@ float CM_TranslationPlaneFraction( const idPlane &plane, const idVec3 &start, co
 idCollisionModelManagerLocal::TranslateTrmVertexThroughPolygon
 ================
 */
-void idCollisionModelManagerLocal::TranslateTrmVertexThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v, int bitNum ) {
+void idCollisionModelManagerLocal::TranslateTrmVertexThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *poly, cm_trmVertex_t *v, const int bitNum ) {
 	int i, edgeNum;
 	float f;
 	cm_edge_t *edge;
@@ -502,7 +502,7 @@ idCollisionModelManagerLocal::TranslateTrmThroughPolygon
 */
 bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t *tw, cm_polygon_t *p ) {
 	int i, j, k, edgeNum;
-	float fraction, d;
+	double fraction, d;
 	idVec3 endp;
 	idPluecker *pl;
 	cm_trmVertex_t *bv;
@@ -674,7 +674,7 @@ idCollisionModelManagerLocal::SetupTrm
 ================
 */
 void idCollisionModelManagerLocal::SetupTrm( cm_traceWork_t *tw, const idTraceModel *trm ) {
-	int i, j;
+	size_t i = 0, j = 0;
 
 	// vertices
 	tw->numVerts = trm->numVerts;
@@ -734,7 +734,7 @@ void idCollisionModelManagerLocal::Translation( trace_t *results, const idVec3 &
 										const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
 										cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
 
-	int i, j;
+	size_t i = 0, j = 0;
 	float dist;
 	bool model_rotated, trm_rotated;
 	idVec3 dir1, dir2, dir;

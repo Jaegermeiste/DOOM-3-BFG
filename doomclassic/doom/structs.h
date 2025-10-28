@@ -29,29 +29,29 @@ If you have questions concerning this license or the applicable additional terms
 #pragma once
 
 //  am_map.structs begin // 
-typedef struct
+typedef struct fpoint_s
 {
 	int x, y;
 } fpoint_t;
-typedef struct
+typedef struct fline_s
 {
 	fpoint_t a, b;
 } fline_t;
-typedef struct
+typedef struct mpoint_s
 {
 	fixed_t		x,y;
 } mpoint_t;
-typedef struct
+typedef struct mline_s
 {
 	mpoint_t a, b;
 } mline_t;
-typedef struct
+typedef struct islope_s
 {
 	fixed_t slp, islp;
 } islope_t;
 // am_map.structs end // 
 //  f_finale.structs begin // 
-typedef struct
+typedef struct castinfo_s
 {
     char		*name;
     mobjtype_t	type;
@@ -59,11 +59,11 @@ typedef struct
 // f_finale.structs end // 
 //  i_input.structs begin // 
 
-enum  {
+enum  jDelata_e : uint8 {
 	J_DELTAX,
 	J_DELTAY,
 };
-enum InputEventType
+enum InputEventType : uint8
 {
 	IETAxis,
 	IETButtonDigital,
@@ -104,7 +104,7 @@ typedef struct tagMidiTrackChunk_t {
 } MidiTrackChunk_t;
 // mus2midi.structs end // 
 //  m_menu.structs begin // 
-typedef struct
+typedef struct menuitem_s
 {
 	// 0 = no cursor here, 1 = ok, 2 = arrows ok
 	short	status;
@@ -129,7 +129,7 @@ typedef struct menu_s
 	short		y;		// x,y of menu
 	short		lastOn;		// last item user was on in menu
 } menu_t;
-typedef enum
+typedef enum : uint8
 {
     newgame = 0,
     options,
@@ -138,14 +138,14 @@ typedef enum
     quitdoom,
     main_end
 } main_e;
-typedef enum
+typedef enum : uint8
 {
 	g_accept,
 	g_cancel,
 	g_change,
-	qut_end
+	quit_end
 } quit_e;
-typedef enum
+typedef enum : uint8
 {
 	ep1,
 	ep2,
@@ -153,13 +153,13 @@ typedef enum
 	ep4,
 	ep_end
 } episodes_e;
-typedef enum
+typedef enum : uint8
 {
 	ex1,
 	ex2,
 	ex_end
 } expansions_e;
-typedef enum
+typedef enum : uint8
 {
 	killthings,
 	toorough,
@@ -168,7 +168,7 @@ typedef enum
 	nightmare,
 	newg_end
 } newgame_e;
-typedef enum
+typedef enum : uint8
 {
 	endgame,
 	scrnsize,
@@ -180,17 +180,17 @@ typedef enum
 	soundvol,
 	opt_end
 } options_e;
-typedef enum
+typedef enum : uint8
 {
 	rdthsempty1,
 	read1_end
 } read_e;
-typedef enum
+typedef enum : uint8
 {
 	rdthsempty2,
 	read2_end
 } read_e2;
-typedef enum
+typedef enum : uint8
 {
 	sfx_vol,
 	sfx_empty1,
@@ -198,7 +198,7 @@ typedef enum
 	sfx_empty2,
 	sound_end
 } sound_e;
-typedef enum
+typedef enum : uint8
 {
 	load1,
 	load2,
@@ -225,14 +225,14 @@ struct default_t
     int		untranslated;		// lousy hack
 
 	default_t( ) :
-		name( NULL ),
-		location( NULL ),
+		name(nullptr),
+		location(nullptr),
 		defaultvalue( 0 ),
 		scantranslate( 0 ),
 		untranslated( 0 ) {
 	}
 
-	default_t( char * name_, int * location_, int defaultvalue_ ) :
+	default_t( char * name_, int * location_, const int defaultvalue_ ) :
 		name( name_ ),
 		location( location_ ),
 		defaultvalue( defaultvalue_ ) {
@@ -244,7 +244,7 @@ struct default_t
 		charDefault( charDefault_ ) {
 	}
 };
-typedef struct
+typedef struct pcx_s
 {
     char		manufacturer;
     char		version;
@@ -271,7 +271,7 @@ typedef struct
 } pcx_t;
 // m_misc.structs end // 
 //  p_enemy.structs begin // 
-typedef enum
+typedef enum dirtype_e : uint8
 {
     DI_EAST,
     DI_NORTHEAST,
@@ -287,13 +287,14 @@ typedef enum
 } dirtype_t;
 // p_enemy.structs end // 
 //  p_saveg.structs begin // 
-typedef enum
+typedef enum thinkerclass_e : uint8
 {
     tc_end = 0,
     tc_mobj
 
 } thinkerclass_t;
-typedef enum
+
+typedef enum : uint8
 {
     tc_ceiling = 2,
     tc_door,
@@ -308,7 +309,7 @@ typedef enum
 } specials_e;	
 // p_saveg.structs end // 
 //  p_spec.structs begin // 
-typedef struct
+typedef struct anim_s2
 {
 	qboolean	istexture;
 	int		picnum;
@@ -317,7 +318,7 @@ typedef struct
 	int		speed;
 
 } anim_t2;
-typedef struct
+typedef struct animdef_s
 {
 	qboolean	istexture;	// if false, it is a flat
 	char	endname[9];
@@ -326,7 +327,7 @@ typedef struct
 } animdef_t;
 // p_spec.structs end // 
 //  r_bsp.structs begin // 
-typedef	struct
+typedef	struct cliprange_s
 {
     int	first;
     int last;
@@ -334,7 +335,7 @@ typedef	struct
 } cliprange_t;
 // r_bsp.structs end // 
 //  r_data.structs begin // 
-typedef struct
+typedef struct mappatch_s
 {
     short	originx;
     short	originy;
@@ -342,7 +343,7 @@ typedef struct
     short	stepdir;
     short	colormap;
 } mappatch_t;
-typedef struct
+typedef struct maptexture_s
 {
     char		name[8];
     int			masked;	
@@ -352,7 +353,7 @@ typedef struct
     short		patchcount;
     mappatch_t	patches[1];
 } maptexture_t;
-typedef struct
+typedef struct texpatch_s
 {
     // Block origin (allways UL),
     // which has allready accounted
@@ -361,7 +362,7 @@ typedef struct
     int		originy;
     int		patch;
 } texpatch_t;
-typedef struct
+typedef struct texture_s
 {
     // Keep name for switch changing, etc.
     char	name[8];		
@@ -376,7 +377,7 @@ typedef struct
 } texture_t;
 // r_data.structs end // 
 //  r_things.structs begin // 
-typedef struct
+typedef struct maskdraw_s
 {
     int		x1;
     int		x2;
@@ -388,7 +389,7 @@ typedef struct
 } maskdraw_t;
 // r_things.structs end // 
 //  st_stuff.structs begin // 
-typedef enum
+typedef enum stateenum_e : int8
 {
     NoState = -1,
     StatCount,
@@ -397,7 +398,7 @@ typedef enum
 } stateenum_t;
 // st_stuff.structs end // 
 //  s_sound.structs begin // 
-typedef struct
+typedef struct channel_s
 {
 	// sound information (if null, channel avail.)
 	sfxinfo_t*	sfxinfo;
@@ -411,20 +412,20 @@ typedef struct
 } channel_t;
 // s_sound.structs end // 
 //  wi_stuff.structs begin // 
-typedef enum
+typedef enum animenum_e : uint8
 {
     ANIM_ALWAYS,
     ANIM_RANDOM,
     ANIM_LEVEL
 
 } animenum_t;
-typedef struct
+typedef struct point_s
 {
     int		x;
     int		y;
     
 } point_t;
-typedef struct
+typedef struct anim_s
 {
     animenum_t	type;
 
@@ -473,10 +474,10 @@ struct lumplookup
 	lumplookup *next;
 	lumplookup *prev;
 };
-typedef struct
+typedef struct memzone_s
 {
     // total bytes malloced, including header
-    int		size;
+    size_t		size;
 
     // start / end cap for linked list
     memblock_t	blocklist;

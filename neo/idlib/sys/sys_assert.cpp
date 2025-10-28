@@ -62,7 +62,7 @@ bool AssertFailed( const char * file, const int line, const char * expression ) 
 	static volatile bool skipThisAssertion = false;
 	skipThisAssertion = false;
 
-	for ( int i = 0; i < skippedAssertions.Num(); i++ ) {
+	for ( size_t i = 0; i < skippedAssertions.Num(); i++ ) {
 		if ( skippedAssertions[i].file == file && skippedAssertions[i].line == line ) {
 			skipThisAssertion = true;
 			// Set breakpoint here to re-enable

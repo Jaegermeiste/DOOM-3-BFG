@@ -124,7 +124,7 @@ void idResolutionScale::GetCurrentResolutionScale( float & x, float & y ) const
 idResolutionScale::SetCurrentGPUFrameTime
 ========================
 */
-void idResolutionScale::SetCurrentGPUFrameTime( int microseconds ) {
+void idResolutionScale::SetCurrentGPUFrameTime(const int microseconds ) {
 	float old = currentResolution;
 	float milliseconds = microseconds * 0.001f;
 
@@ -183,12 +183,12 @@ void idResolutionScale::GetConsoleText( idStr &s ) {
 		} else if ( rs_enable.GetInteger() == 2 ) {
 			x = 1.0f;
 		}
-		s = va( "rs-pixels %i", idMath::Ftoi( x * y ) );
+		s = va( "rs-pixels %i", numeric_cast<int>( x * y ) );
 	} else {
 		if ( rs_enable.GetInteger() == 3 ) {
-			s = va( "%2i%%h,%2i%%v", idMath::Ftoi( 100.0f * x ), idMath::Ftoi( 100.0f * y ) );
+			s = va( "%2i%%h,%2i%%v", numeric_cast<int>( 100.0f * x ), numeric_cast<int>( 100.0f * y ) );
 		} else {
-			s = va( "%2i%%%s", ( rs_enable.GetInteger() == 1 ) ? idMath::Ftoi( 100.0f * x ) : idMath::Ftoi( 100.0f * y ), ( rs_enable.GetInteger() == 1 ) ? "h" : "v" );
+			s = va( "%2i%%%s", ( rs_enable.GetInteger() == 1 ) ? numeric_cast<int>( 100.0f * x ) : numeric_cast<int>( 100.0f * y ), ( rs_enable.GetInteger() == 1 ) ? "h" : "v" );
 		}
 	}
 }

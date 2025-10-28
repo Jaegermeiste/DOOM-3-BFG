@@ -83,12 +83,12 @@ class idParallelJobList {
 	friend class idParallelJobManagerLocal;
 public:
 
-	void					AddJob( jobRun_t function, void * data ) const;
-	CellSpursJob128 *		AddJobSPURS();
+	void					PushJob( jobRun_t function, void * data ) const;
+	static CellSpursJob128 *		AddJobSPURS();
 	void					InsertSyncPoint( jobSyncType_t syncType ) const;
 
 	// Submit the jobs in this list.
-	void					Submit( idParallelJobList * waitForJobList = nullptr, jobListParallelism_t parallelism = JOBLIST_PARALLELISM_DEFAULT ) const;
+	void					Submit(const idParallelJobList * waitForJobList = nullptr, jobListParallelism_t parallelism = JOBLIST_PARALLELISM_DEFAULT ) const;
 	// Wait for the jobs in this list to finish. Will spin in place if any jobs are not done.
 	void					Wait() const;
 	// Try to wait for the jobs in this list to finish but either way return immediately. Returns true if all jobs are done.
@@ -97,25 +97,25 @@ public:
 	[[nodiscard]] bool					IsSubmitted() const;
 
 	// Get the number of jobs executed in this job list.
-	[[nodiscard]] size_t		        	GetNumExecutedJobs() const;
+	[[nodiscard]] size_t	        	GetNumExecutedJobs() const;
 	// Get the number of sync points.
 	[[nodiscard]] size_t      			GetNumSyncs() const;
 	// Time at which the job list was submitted.
-	[[nodiscard]] uint64					GetSubmitTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T			GetSubmitTimeMicroSec() const;
 	// Time at which execution of this job list started.
-	[[nodiscard]] uint64					GetStartTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T			GetStartTimeMicroSec() const;
 	// Time at which all jobs in the list were executed.
-	[[nodiscard]] uint64					GetFinishTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T			GetFinishTimeMicroSec() const;
 	// Time the host thread waited for this job list to finish.
-	[[nodiscard]] uint64					GetWaitTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T			GetWaitTimeMicroSec() const;
 	// Get the total time all units spent processing this job list.
-	[[nodiscard]] uint64					GetTotalProcessingTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T			GetTotalProcessingTimeMicroSec() const;
 	// Get the total time all units wasted while processing this job list.
-	[[nodiscard]] uint64					GetTotalWastedTimeMicroSec() const;
+	[[nodiscard]] ID_MICROSEC_T			GetTotalWastedTimeMicroSec() const;
 	// Time the given unit spent processing this job list.
-	[[nodiscard]] uint64					GetUnitProcessingTimeMicroSec( int unit ) const;
+	[[nodiscard]] ID_MICROSEC_T			GetUnitProcessingTimeMicroSec( const Ordinal auto unit ) const;
 	// Time the given unit wasted while processing this job list.
-	[[nodiscard]] uint64					GetUnitWastedTimeMicroSec( int unit ) const;
+	[[nodiscard]] ID_MICROSEC_T			GetUnitWastedTimeMicroSec( const Ordinal auto unit ) const;
 
 	// Get the job list ID
 	[[nodiscard]] jobListId_t				GetId() const;
@@ -151,7 +151,7 @@ public:
 	[[nodiscard]] virtual size_t				GetNumJobLists() const = 0;
 	[[nodiscard]] virtual size_t				GetNumFreeJobLists() const = 0;
 	
-	static  idParallelJobList*  GetJobList(Ordinal auto index) { return nullptr; };
+	[[nodiscard]] static  idParallelJobList*  GetJobList( const Ordinal auto index ) { return nullptr; }
 
 	virtual size_t				GetNumProcessingUnits() = 0;
 

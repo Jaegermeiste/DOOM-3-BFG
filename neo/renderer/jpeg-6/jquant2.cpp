@@ -222,7 +222,7 @@ typedef my_cquantizer * my_cquantize_ptr;
 
 METHODDEF void
 prescan_quantize( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
-                  JSAMPARRAY output_buf, int num_rows ) {
+                  JSAMPARRAY output_buf, size_t num_rows ) {
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     register JSAMPROW ptr;
     register histptr histp;
@@ -270,7 +270,7 @@ typedef box * boxptr;
 
 
 LOCAL boxptr
-find_biggest_color_pop( boxptr boxlist, int numboxes ) {
+find_biggest_color_pop( boxptr boxlist, size_t numboxes ) {
 /* Find the splittable box with the largest color population */
 /* Returns NULL if no splittable boxes remain */
     register boxptr boxp;
@@ -289,7 +289,7 @@ find_biggest_color_pop( boxptr boxlist, int numboxes ) {
 
 
 LOCAL boxptr
-find_biggest_volume( boxptr boxlist, int numboxes ) {
+find_biggest_volume( boxptr boxlist, size_t numboxes ) {
 /* Find the splittable box with the largest (scaled) volume */
 /* Returns NULL if no splittable boxes remain */
     register boxptr boxp;
@@ -441,7 +441,7 @@ have_c2max:
 
 
 LOCAL int
-median_cut( j_decompress_ptr cinfo, boxptr boxlist, int numboxes,
+median_cut( j_decompress_ptr cinfo, boxptr boxlist, size_t numboxes,
             int desired_colors ) {
 /* Repeatedly select and split the largest box until we have enough boxes */
     int n, lb;
@@ -578,7 +578,7 @@ LOCAL void
 select_colors( j_decompress_ptr cinfo, int desired_colors ) {
 /* Master routine for color selection */
     boxptr boxlist;
-    int numboxes;
+    size_t numboxes;
     int i;
 
     /* Allocate workspace for box list */
@@ -692,8 +692,8 @@ find_nearby_colors( j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
  * This routine uses Heckbert's "locally sorted search" criterion to select
  * the colors that need further consideration.
  */
-    int numcolors = cinfo->actual_number_of_colors;
-    int maxc0, maxc1, maxc2;
+    size_t numcolors = cinfo->actual_number_of_colors;
+    size_t maxc0, maxc1, maxc2;
     int centerc0, centerc1, centerc2;
     int i, x, ncolors;
     INT32 minmaxdist, min_dist, max_dist, tdist;
@@ -813,7 +813,7 @@ find_nearby_colors( j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
 
 LOCAL void
 find_best_colors( j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
-                  int numcolors, JSAMPLE colorlist[], JSAMPLE bestcolor[] ) {
+                  size_t numcolors, JSAMPLE colorlist[], JSAMPLE bestcolor[] ) {
 /* Find the closest colormap entry for each cell in the update box,
  * given the list of candidate colors prepared by find_nearby_colors.
  * Return the indexes of the closest entries in the bestcolor[] array.
@@ -904,7 +904,7 @@ fill_inverse_cmap( j_decompress_ptr cinfo, int c0, int c1, int c2 ) {
     register histptr cachep;/* pointer into main cache array */
     /* This array lists the candidate colormap indexes. */
     JSAMPLE colorlist[MAXNUMCOLORS];
-    int numcolors;      /* number of candidate colors */
+    size_t numcolors;      /* number of candidate colors */
     /* This array holds the actually closest colormap index for each cell. */
     JSAMPLE bestcolor[BOX_C0_ELEMS * BOX_C1_ELEMS * BOX_C2_ELEMS];
 
@@ -952,7 +952,7 @@ fill_inverse_cmap( j_decompress_ptr cinfo, int c0, int c1, int c2 ) {
 
 METHODDEF void
 pass2_no_dither( j_decompress_ptr cinfo,
-                 JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows ) {
+                 JSAMPARRAY input_buf, JSAMPARRAY output_buf, size_t num_rows ) {
 /* This version performs no dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     hist3d histogram = cquantize->histogram;
@@ -986,7 +986,7 @@ pass2_no_dither( j_decompress_ptr cinfo,
 
 METHODDEF void
 pass2_fs_dither( j_decompress_ptr cinfo,
-                 JSAMPARRAY input_buf, JSAMPARRAY output_buf, int num_rows ) {
+                 JSAMPARRAY input_buf, JSAMPARRAY output_buf, size_t num_rows ) {
 /* This version performs Floyd-Steinberg dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     hist3d histogram = cquantize->histogram;

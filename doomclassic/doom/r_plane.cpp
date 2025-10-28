@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <stdlib.h>
 
+#include <algorithm>
+
 #include "i_system.h"
 #include "z_zone.h"
 #include "w_wad.h"
@@ -96,9 +98,9 @@ void R_InitPlanes (void)
 //
 void
 R_MapPlane
-( int		y,
-  int		x1,
-  int		x2 )
+(const int		y,
+  const int		x1,
+  const int		x2 )
 {
     angle_t	angle;
     fixed_t	distance;
@@ -135,13 +137,17 @@ R_MapPlane
     ::g->ds_yfrac = -GetViewY() - FixedMul(finesine[angle], length);
 
     if (::g->fixedcolormap)
-	::g->ds_colormap = ::g->fixedcolormap;
+    {
+	    ::g->ds_colormap = ::g->fixedcolormap;
+    }
     else
     {
 	index = distance >> LIGHTZSHIFT;
 	
 	if (index >= MAXLIGHTZ )
-	    index = MAXLIGHTZ-1;
+	{
+		index = MAXLIGHTZ-1;
+	}
 
 	::g->ds_colormap = ::g->planezlight[index];
     }
@@ -201,7 +207,7 @@ void R_ClearPlanes (void)
 //
 // R_FindPlane
 //
-visplane_t* R_FindPlane( fixed_t height, int picnum, int lightlevel ) {
+visplane_t* R_FindPlane( fixed_t height, const int picnum, int lightlevel ) {
     visplane_t*	check;
 	
     if (picnum == ::g->skyflatnum) {
@@ -216,8 +222,10 @@ visplane_t* R_FindPlane( fixed_t height, int picnum, int lightlevel ) {
 	}
 
 	if (check < ::g->lastvisplane)
+	{
 		return check;
-		
+	}
+
     //if (::g->lastvisplane - ::g->visplanes == MAXVISPLANES)
 		//I_Error ("R_FindPlane: no more visplanes");
 	if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
@@ -245,8 +253,8 @@ visplane_t* R_FindPlane( fixed_t height, int picnum, int lightlevel ) {
 visplane_t*
 R_CheckPlane
 ( visplane_t*	pl,
-  int		start,
-  int		stop )
+  const int		start,
+  const int		stop )
 {
     int		intrl;
     int		intrh;
@@ -277,10 +285,14 @@ R_CheckPlane
 	}
 
 	for (x=intrl ; x<= intrh ; x++)
+	{
 		if (pl->top[x] != 0xffff)
+		{
 			break;
+		}
+	}
 
-	if (x > intrh)
+    if (x > intrh)
 	{
 		pl->minx = unionl;
 		pl->maxx = unionh;
@@ -313,7 +325,7 @@ R_CheckPlane
 //
 void
 R_MakeSpans
-( int		x,
+(const int		x,
   int		t1,
   int		b1,
   int		t2,
@@ -358,24 +370,32 @@ void R_DrawPlanes (void)
 				
 #ifdef RANGECHECK
     if (::g->ds_p - ::g->drawsegs > MAXDRAWSEGS)
-	I_Error ("R_DrawPlanes: ::g->drawsegs overflow (%i)",
-		 ::g->ds_p - ::g->drawsegs);
-    
+    {
+	    I_Error ("R_DrawPlanes: ::g->drawsegs overflow (%i)",
+	             ::g->ds_p - ::g->drawsegs);
+    }
+
     if (::g->lastvisplane - ::g->visplanes > MAXVISPLANES)
-	I_Error ("R_DrawPlanes: visplane overflow (%i)",
-		 ::g->lastvisplane - ::g->visplanes);
-    
+    {
+	    I_Error ("R_DrawPlanes: visplane overflow (%i)",
+	             ::g->lastvisplane - ::g->visplanes);
+    }
+
     if (::g->lastopening - ::g->openings > MAXOPENINGS)
-	I_Error ("R_DrawPlanes: opening overflow (%i)",
-		 ::g->lastopening - ::g->openings);
+    {
+	    I_Error ("R_DrawPlanes: opening overflow (%i)",
+	             ::g->lastopening - ::g->openings);
+    }
 #endif
 
     for (pl = ::g->visplanes ; pl < ::g->lastvisplane ; pl++)
     {
 	if (pl->minx > pl->maxx)
-	    continue;
+	{
+		continue;
+	}
 
-	
+
 	// sky flat
 	if (pl->picnum == ::g->skyflatnum)
 	{
@@ -405,18 +425,19 @@ void R_DrawPlanes (void)
 	}
 	
 	// regular flat
-	::g->ds_source = (byte*)W_CacheLumpNum(::g->firstflat +
-				   ::g->flattranslation[pl->picnum],
-				   PU_CACHE_SHARED);
+	::g->ds_source = static_cast<byte*>(W_CacheLumpNum(::g->firstflat +
+	                                                   ::g->flattranslation[pl->picnum],
+	                                                   PU_CACHE_SHARED));
 	
 	::g->planeheight = abs(pl->height-::g->viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+::g->extralight;
 
 	if (light >= LIGHTLEVELS)
-	    light = LIGHTLEVELS-1;
+	{
+		light = LIGHTLEVELS-1;
+	}
 
-	if (light < 0)
-	    light = 0;
+	light = Max(light, 0);
 
 	::g->planezlight = ::g->zlight[light];
 

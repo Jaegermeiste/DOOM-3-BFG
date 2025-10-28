@@ -233,17 +233,17 @@ typedef struct cm_trmEdge_s {
 typedef struct cm_trmPolygon_s {
 	int used;
 	idPlane plane;									// polygon plane
-	int numEdges;									// number of edges
+	size_t numEdges;									// number of edges
 	int edges[MAX_TRACEMODEL_POLYEDGES];			// index into cm_traceWork_t->edges
 	idBounds rotationBounds;						// rotation bounds for this polygon
 } cm_trmPolygon_t;
 
 typedef struct cm_traceWork_s {
-	int numVerts;
+	size_t numVerts;
 	cm_trmVertex_t vertices[MAX_TRACEMODEL_VERTS];	// trm vertices
-	int numEdges;
+	size_t numEdges;
 	cm_trmEdge_t edges[MAX_TRACEMODEL_EDGES+1];		// trm edges
-	int numPolys;
+	size_t numPolys;
 	cm_trmPolygon_t polys[MAX_TRACEMODEL_POLYS];	// trm polygons
 	cm_model_t *model;								// model colliding with
 	idVec3 start;									// start of trace
@@ -272,8 +272,8 @@ typedef struct cm_traceWork_s {
 	idRotation modelVertexRotation;					// inverse rotation for model vertices
 
 	contactInfo_t *contacts;						// array with contacts
-	int maxContacts;								// max size of contact array
-	int numContacts;								// number of contacts found
+	size_t maxContacts;								// max size of contact array
+	size_t numContacts;								// number of contacts found
 
 	idPlane heartPlane1;							// polygons should be near anough the trace heart planes
 	float maxDistFromHeartPlane1;
@@ -321,7 +321,7 @@ public:
 	// get the vertex of a model
 	bool			GetModelVertex( cmHandle_t model, int vertexNum, idVec3 &vertex ) const;
 	// get the edge of a model
-	bool			GetModelEdge( cmHandle_t model, int edgeNum, idVec3 &start, idVec3 &end ) const;
+	bool			GetModelEdge( cmHandle_t model, index_t edgeNum, idVec3 &start, idVec3 &end ) const;
 	// get the polygon of a model
 	bool			GetModelPolygon( cmHandle_t model, int polygonNum, idFixedWinding &winding ) const;
 
@@ -338,7 +338,7 @@ public:
 								const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
 								cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis );
 	// stores all contact points of the trm with the model, returns the number of contacts
-	int				Contacts( contactInfo_t *contacts, const int maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
+	int				Contacts( contactInfo_t *contacts, const size_t maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
 								const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
 								cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis );
 	// test collision detection
@@ -405,7 +405,7 @@ private:			// CollisionMap_trace.cpp
 	void			TraceTrmThroughNode( cm_traceWork_t *tw, cm_node_t *node );
 	void			TraceThroughAxialBSPTree_r( cm_traceWork_t *tw, cm_node_t *node, float p1f, float p2f, idVec3 &p1, idVec3 &p2);
 	void			TraceThroughModel( cm_traceWork_t *tw );
-	void			RecurseProcBSP_r( trace_t *results, int parentNodeNum, int nodeNum, float p1f, float p2f, const idVec3 &p1, const idVec3 &p2 );
+	void			RecurseProcBSP_r( trace_t *results, int parentNodeNum, index_t nodeNum, float p1f, float p2f, const idVec3 &p1, const idVec3 &p2 );
 
 private:			// CollisionMap_load.cpp
 	void			Clear();
@@ -435,7 +435,7 @@ private:			// CollisionMap_load.cpp
 	void			ParseProcNodes( idLexer *src );
 	void			LoadProcBSP( const char *name );
 					// removal of contained polygons
-	int				R_ChoppedAwayByProcBSP( int nodeNum, idFixedWinding *w, const idVec3 &normal, const idVec3 &origin, const float radius );
+	int				R_ChoppedAwayByProcBSP( index_t nodeNum, idFixedWinding *w, const idVec3 &normal, const idVec3 &origin, const float radius );
 	int				ChoppedAwayByProcBSP( const idFixedWinding &w, const idPlane &plane, int contents );
 	void			ChopWindingListWithBrush( cm_windingList_t *list, cm_brush_t *b );
 	void			R_ChopWindingListWithTreeBrushes( cm_windingList_t *list, cm_node_t *node );
@@ -445,8 +445,8 @@ private:			// CollisionMap_load.cpp
 	cm_node_t *		AllocNode( cm_model_t *model, int blockSize );
 	cm_polygonRef_t*AllocPolygonReference( cm_model_t *model, int blockSize );
 	cm_brushRef_t *	AllocBrushReference( cm_model_t *model, int blockSize );
-	cm_polygon_t *	AllocPolygon( cm_model_t *model, int numEdges );
-	cm_brush_t *	AllocBrush( cm_model_t *model, int numPlanes );
+	cm_polygon_t *	AllocPolygon( cm_model_t *model, size_t numEdges );
+	cm_brush_t *	AllocBrush( cm_model_t *model, size_t numPlanes );
 	void			AddPolygonToNode( cm_model_t *model, cm_node_t *node, cm_polygon_t *p );
 	void			AddBrushToNode( cm_model_t *model, cm_node_t *node, cm_brush_t *b );
 	void			SetupTrmModelStructure();
@@ -505,7 +505,7 @@ private:			// CollisionMap_files.cpp
 private:			// CollisionMap_debug
 	int				ContentsFromString( const char *string ) const;
 	[[nodiscard]] const char *	StringFromContents( const int contents ) const;
-	void			DrawEdge( cm_model_t *model, int edgeNum, const idVec3 &origin, const idMat3 &axis );
+	void			DrawEdge( cm_model_t *model, index_t edgeNum, const idVec3 &origin, const idMat3 &axis );
 	void			DrawPolygon( cm_model_t *model, cm_polygon_t *p, const idVec3 &origin, const idMat3 &axis,
 								const idVec3 &viewOrigin );
 	void			DrawNodePolygons( cm_model_t *model, cm_node_t *node, const idVec3 &origin, const idMat3 &axis,

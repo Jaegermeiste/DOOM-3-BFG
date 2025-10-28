@@ -206,7 +206,7 @@ void idGrabber::Initialize() {
 idGrabber::SetDragDistance
 ==============
 */
-void idGrabber::SetDragDistance( float dist ) {
+void idGrabber::SetDragDistance(const float dist ) {
 	dragTraceDist = dist;
 }
 
@@ -215,7 +215,7 @@ void idGrabber::SetDragDistance( float dist ) {
 idGrabber::StartDrag
 ==============
 */
-void idGrabber::StartDrag( idEntity *grabEnt, int id ) {
+void idGrabber::StartDrag( idEntity *grabEnt, const int id ) {
 	int clipModelId = id;
 	idPlayer *thePlayer = owner.GetEntity();
 
@@ -304,7 +304,7 @@ void idGrabber::StartDrag( idEntity *grabEnt, int id ) {
 idGrabber::StopDrag
 ==============
 */
-void idGrabber::StopDrag( bool dropOnly ) {
+void idGrabber::StopDrag(const bool dropOnly ) {
 	idPlayer *thePlayer = owner.GetEntity();
 
 	if ( beam ) {
@@ -419,7 +419,7 @@ void idGrabber::StopDrag( bool dropOnly ) {
 idGrabber::Update
 ==============
 */
-int idGrabber::Update( idPlayer *player, bool hide ) {
+int idGrabber::Update( idPlayer *player, const bool hide ) {
 	trace_t trace;
 	idEntity *newEnt;
 

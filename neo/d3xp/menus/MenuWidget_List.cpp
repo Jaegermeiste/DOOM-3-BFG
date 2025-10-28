@@ -99,7 +99,7 @@ void idMenuWidget_List::Update() {
 idMenuWidget_List::HandleAction
 ========================
 */
-bool idMenuWidget_List::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuWidget_List::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	const idSWFParmList & parms = action.GetParms();
 
@@ -135,7 +135,7 @@ Pure functional encapsulation of how to calculate a new index and offset based o
 chose to move through the list.
 ========================
 */
-void idMenuWidget_List::CalculatePositionFromIndexDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int indexDelta, const bool allowWrapping, const bool wrapAround ) const {
+void idMenuWidget_List::CalculatePositionFromIndexDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const size_t maxSize, const index_t indexDelta, const bool allowWrapping, const bool wrapAround ) const {
 	assert( indexDelta != 0 );
 	
 	int newIndex = currentIndex + indexDelta;
@@ -196,7 +196,7 @@ void idMenuWidget_List::CalculatePositionFromIndexDelta( int & outIndex, int & o
 idMenuWidget_List::CalculatePositionFromOffsetDelta
 ========================
 */
-void idMenuWidget_List::CalculatePositionFromOffsetDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int offsetDelta ) const {
+void idMenuWidget_List::CalculatePositionFromOffsetDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const size_t maxSize, const int offsetDelta ) const {
 	// shouldn't be setting both indexDelta AND offsetDelta
 	// FIXME: make this simpler code - just pass a boolean to control it?
 	assert( offsetDelta != 0 );
@@ -367,7 +367,7 @@ void idMenuWidget_GameBrowserList::ClearGames() {
 idMenuWidget_GameBrowserList::PrepareListElement
 ========================
 */
-void idMenuWidget_GameBrowserList::AddGame( idStr name_, idStrId mapName_, idStr modeName_, int index_, int players_, int maxPlayers_, bool joinable_, bool validMap_ ) {
+void idMenuWidget_GameBrowserList::AddGame( idStr name_, idStrId mapName_, idStr modeName_, const index_t index_, const int players_, const size_t maxPlayers_, const bool joinable_, const bool validMap_ ) {
 
 	idBrowserEntry_t entry;
 

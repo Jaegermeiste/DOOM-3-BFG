@@ -282,7 +282,7 @@ int32 idSWFScriptVar::ToInteger() const {
 	switch ( type ) {
 		case SWF_VAR_STRING:	return atoi( *value.string );
 
-		case SWF_VAR_FLOAT:		return idMath::Ftoi( value.f );
+		case SWF_VAR_FLOAT:		return numeric_cast<int>( value.f );
 
 		case SWF_VAR_BOOL:		return value.b ? 1 : 0;
 		case SWF_VAR_INTEGER:	return value.i;
@@ -303,12 +303,12 @@ Dest	idSWFScriptVar::ToInteger() const {
 	switch (type) {
 	case SWF_VAR_STRING:	retVal = idStr::AtoI<Dest>(*value.string);
 
-	case SWF_VAR_FLOAT:		retVal = retVal = idMath::integer_Cast<Dest>(idMath::Ftoi(value.f));
+	case SWF_VAR_FLOAT:		retVal = retVal = idMath::integer_Cast<Dest>(numeric_cast<int>(value.f));
 
 	case SWF_VAR_BOOL:		retVal = value.b ? 1 : 0;
-	case SWF_VAR_INTEGER:	retVal = idMath::integer_cast<Dest>(value.i);
+	case SWF_VAR_INTEGER:	retVal = numeric_cast<Dest>(value.i);
 
-	case SWF_VAR_OBJECT:	retVal = idMath::integer_cast<Dest>(value.object->DefaultValue(false).ToInteger());
+	case SWF_VAR_OBJECT:	retVal = numeric_cast<Dest>(value.object->DefaultValue(false).ToInteger());
 
 	case SWF_VAR_FUNCTION:
 	case SWF_VAR_NULL:

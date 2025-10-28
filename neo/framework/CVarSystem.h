@@ -56,7 +56,7 @@ If you have questions concerning this license or the applicable additional terms
 	save space and time. Making CVars static does not change their
 	functionality due to their global nature.
 
-	CVars should be contructed only through one of the constructors with name,
+	CVars should be constructed only through one of the constructors with name,
 	value, flags and description. The name, value and description parameters
 	to the constructor have to be static strings, do not use va() or the like
 	functions returning a string.
@@ -81,7 +81,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef enum {
+typedef enum cvarFlags_e : int32 {
 	CVAR_ALL				= -1,		// all flags
 	CVAR_BOOL				= BIT(0),	// variable is a boolean
 	CVAR_INTEGER			= BIT(1),	// variable is an integer
@@ -121,34 +121,36 @@ public:
 							idCVar( const char *name, const char *value, int flags, const char *description,
 									argCompletion_t valueCompletion = nullptr);
 							idCVar( const char *name, const char *value, int flags, const char *description,
-									float valueMin, float valueMax, argCompletion_t valueCompletion = nullptr);
+									double valueMin, double valueMax, argCompletion_t valueCompletion = nullptr);
 							idCVar( const char *name, const char *value, int flags, const char *description,
 									const char **valueStrings, argCompletion_t valueCompletion = nullptr);
 
 	virtual					~idCVar() {}
 
-							[[nodiscard]] const char *			GetName() const noexcept { return internalVar->name; }
-							[[nodiscard]] int						GetFlags() const noexcept { return internalVar->flags; }
-							[[nodiscard]] const char *			GetDescription() const noexcept { return internalVar->description; }
-							[[nodiscard]] float					GetMinValue() const noexcept { return internalVar->valueMin; }
-							[[nodiscard]] float					GetMaxValue() const noexcept { return internalVar->valueMax; }
-							[[nodiscard]] const char **			GetValueStrings() const noexcept { return valueStrings; }
-							[[nodiscard]] argCompletion_t			GetValueCompletion() const noexcept { return valueCompletion; }
+	[[nodiscard]] const char *			GetName() const noexcept { return internalVar->name; }
+	[[nodiscard]] int					GetFlags() const noexcept { return internalVar->flags; }
+	[[nodiscard]] const char *			GetDescription() const noexcept { return internalVar->description; }
+	[[nodiscard]] long double			GetMinValue() const noexcept { return internalVar->valueMin; }
+	[[nodiscard]] long double			GetMaxValue() const noexcept { return internalVar->valueMax; }
+	[[nodiscard]] const char **			GetValueStrings() const noexcept { return valueStrings; }
+	[[nodiscard]] argCompletion_t		GetValueCompletion() const noexcept { return valueCompletion; }
 
-							[[nodiscard]] bool					IsModified() const noexcept { return ( internalVar->flags & CVAR_MODIFIED ) != 0; }
-	void					SetModified() const noexcept { internalVar->flags |= CVAR_MODIFIED; }
-	void					ClearModified() const noexcept { internalVar->flags &= ~CVAR_MODIFIED; }
+	[[nodiscard]] bool					IsModified() const noexcept { return ( internalVar->flags & CVAR_MODIFIED ) != 0; }
+				  void					SetModified() const noexcept { internalVar->flags |= CVAR_MODIFIED; }
+				  void					ClearModified() const noexcept { internalVar->flags &= ~CVAR_MODIFIED; }
 
-							[[nodiscard]] const char *			GetDefaultString() const { return internalVar->InternalGetResetString(); }
-							[[nodiscard]] const char *			GetString() const noexcept { return internalVar->value; }
-							[[nodiscard]] bool					GetBool() const noexcept { return ( internalVar->integerValue != 0 ); }
-							[[nodiscard]] int						GetInteger() const noexcept { return internalVar->integerValue; }
-							[[nodiscard]] float					GetFloat() const noexcept { return internalVar->floatValue; }
+	[[nodiscard]] const char *			GetDefaultString() const { return internalVar->InternalGetResetString(); }
+	[[nodiscard]] const char *			GetString() const noexcept { return internalVar->value; }
+	[[nodiscard]] bool					GetBool() const noexcept { return ( internalVar->integerValue != 0 ); }
+	[[nodiscard]] int32					GetInteger() const noexcept { return numeric_cast<int32>( internalVar->integerValue ); }
+	[[nodiscard]] int64					GetInteger64() const noexcept { return internalVar->integerValue; }
+	[[nodiscard]] float					GetFloat() const noexcept { return numeric_cast<float>(internalVar->floatValue); }
+	[[nodiscard]] double				GetDouble() const noexcept { return internalVar->floatValue; }
 
 	void					SetString( const char *value ) const { internalVar->InternalSetString( value ); }
 	void					SetBool( const bool value ) const { internalVar->InternalSetBool( value ); }
-	void					SetInteger( const int value ) const { internalVar->InternalSetInteger( value ); }
-	void					SetFloat( const float value ) const { internalVar->InternalSetFloat( value ); }
+	void					SetInteger( const int64 value ) const { internalVar->InternalSetInteger( value ); }
+	void					SetFloat( const double value ) const { internalVar->InternalSetFloat( value ); }
 
 	void					SetInternalVar( idCVar *cvar ) noexcept { internalVar = cvar; }
 
@@ -159,30 +161,30 @@ protected:
 	const char *			value = nullptr;					// value
 	const char *			description = nullptr;			// description
 	int						flags = 0;					// CVAR_? flags
-	float					valueMin = 1.0f;				// minimum value
-	float					valueMax = -1.0f;				// maximum value
+	double			    	valueMin = 1.0;				// minimum value
+	double			    	valueMax = -1.0;				// maximum value
 	const char **			valueStrings = nullptr;			// valid value strings
 	argCompletion_t			valueCompletion;		// value auto-completion function
-	int						integerValue = 0;			// atoi( string )
-	float					floatValue = 0.0f;				// atof( value )
+	int64					integerValue = 0;			// atoi( string )
+	double			    	floatValue = 0.0;				// atof( value )
 	idCVar *				internalVar = nullptr;			// internal cvar
 	idCVar *				next = nullptr;					// next statically declared cvar
 
 private:
 	void					Init( const char *name, const char *value, int flags, const char *description,
-									float valueMin, float valueMax, const char **valueStrings, argCompletion_t valueCompletion );
+									double valueMin, double valueMax, const char **valueStrings, argCompletion_t valueCompletion );
 
 	virtual void			InternalSetString( const char *newValue ) noexcept {}
 	virtual void			InternalSetBool( const bool newValue ) noexcept {}
-	virtual void			InternalSetInteger( const int newValue ) noexcept {}
-	virtual void			InternalSetFloat( const float newValue ) noexcept {}
+	virtual void			InternalSetInteger( const int64 newValue ) noexcept {}
+	virtual void			InternalSetFloat( const double newValue ) noexcept {}
 
-							[[nodiscard]] virtual const char *	InternalGetResetString() const noexcept { return value; }
+	[[nodiscard]] virtual const char *	InternalGetResetString() const noexcept { return value; }
 
 	static idCVar *			staticVars;
 };
 
-ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const char *description,
+ID_INLINE idCVar::idCVar( const char *name, const char *value, const int flags, const char *description,
 							argCompletion_t valueCompletion ) {
 	if ( !valueCompletion && ( flags & CVAR_BOOL ) ) {
 		valueCompletion = idCmdSystem::ArgCompletion_Boolean;
@@ -190,13 +192,13 @@ ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const 
 	Init( name, value, flags, description, 1, -1, nullptr, valueCompletion );
 }
 
-ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const char *description,
-							float valueMin, float valueMax, argCompletion_t valueCompletion ) {
+ID_INLINE idCVar::idCVar( const char *name, const char *value, const int flags, const char *description,
+							const double valueMin, const double valueMax, const argCompletion_t valueCompletion ) {
 	Init( name, value, flags, description, valueMin, valueMax, nullptr, valueCompletion );
 }
 
-ID_INLINE idCVar::idCVar( const char *name, const char *value, int flags, const char *description,
-							const char **valueStrings, argCompletion_t valueCompletion ) {
+ID_INLINE idCVar::idCVar( const char *name, const char *value, const int flags, const char *description,
+							const char **valueStrings, const argCompletion_t valueCompletion ) {
 	Init( name, value, flags, description, 1, -1, valueStrings, valueCompletion );
 }
 
@@ -227,14 +229,14 @@ public:
 							// Sets the value of a CVar by name.
 	virtual void			SetCVarString( const char *name, const char *value, int flags = 0 ) = 0;
 	virtual void			SetCVarBool( const char *name, const bool value, int flags = 0 ) = 0;
-	virtual void			SetCVarInteger( const char *name, const int value, int flags = 0 ) = 0;
-	virtual void			SetCVarFloat( const char *name, const float value, int flags = 0 ) = 0;
+	virtual void			SetCVarInteger( const char *name, const int64 value, int flags = 0 ) = 0;
+	virtual void			SetCVarFloat( const char *name, const long double value, int flags = 0 ) = 0;
 
 							// Gets the value of a CVar by name.
 	virtual const char *	GetCVarString( const char *name ) const = 0;
 	virtual bool			GetCVarBool( const char *name ) const = 0;
-	virtual int				GetCVarInteger( const char *name ) const = 0;
-	virtual float			GetCVarFloat( const char *name ) const = 0;
+	virtual int64			GetCVarInteger( const char *name ) const = 0;
+	virtual long double		GetCVarFloat( const char *name ) const = 0;
 
 							// Called by the command system when argv(0) doesn't match a known command.
 							// Returns true if argv(0) is a variable reference and prints or changes the CVar.
@@ -279,8 +281,8 @@ extern idCVarSystem *		cvarSystem;
 ===============================================================================
 */
 
-ID_INLINE void idCVar::Init( const char *name, const char *value, int flags, const char *description,
-							float valueMin, float valueMax, const char **valueStrings, argCompletion_t valueCompletion ) {
+ID_INLINE void idCVar::Init( const char *name, const char *value, const int flags, const char *description,
+							const double valueMin, const double valueMax, const char **valueStrings, const argCompletion_t valueCompletion ) {
 	this->name = name;
 	this->value = value;
 	this->flags = flags;

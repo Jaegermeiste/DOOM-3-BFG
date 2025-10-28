@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __R_DATA__
 #define __R_DATA__
 
+#pragma once
+
 #include "r_defs.h"
 #include "r_state.h"
 
@@ -39,8 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 // Retrieve column data for span blitting.
 byte*
 R_GetColumn
-( int		tex,
-  int		col );
+( index_t		tex,
+  size_t		col );
 
 
 // I/O, setting up the stuff.
@@ -51,13 +53,13 @@ void R_PrecacheLevel (void);
 // Retrieval.
 // Floor/ceiling opaque texture tiles,
 // lookup by name. For animation?
-int R_FlatNumForName ( const char* name);
+index_t R_FlatNumForName ( const char* name);
 
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
-int R_TextureNumForName (const char *name);
-int R_CheckTextureNumForName ( const char *name);
+index_t R_TextureNumForName (const char *name);
+index_t R_CheckTextureNumForName ( const char *name);
 
 #endif
 

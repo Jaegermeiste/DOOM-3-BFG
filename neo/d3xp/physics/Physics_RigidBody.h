@@ -119,10 +119,10 @@ public:	// common physics interface
 	const idBounds &		GetBounds( int id = -1 ) const override;
 	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
-	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
-	bool					Interpolate( const float fraction ) override;
+	bool					Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec );
+	bool					Interpolate( const double fraction ) override;
 	void					ResetInterpolationState( const idVec3 & origin, const idMat3 & axis ) override;
-	void					UpdateTime( int endTimeMSec );
+	void					UpdateTime( ID_TIME_T endTimeMSec );
 	int						GetTime() const override;
 
 	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;

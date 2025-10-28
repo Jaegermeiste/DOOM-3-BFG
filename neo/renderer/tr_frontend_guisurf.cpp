@@ -52,7 +52,7 @@ void R_SurfaceToTextureAxis( const srfTriangles_t *tri, idVec3 &origin, idVec3 a
 	// find the bounds of the texture
 	idVec2 boundsMin( 999999.0f, 999999.0f );
 	idVec2 boundsMax( -999999.0f, -999999.0f );
-	for ( int i = 0 ; i < tri->numVerts ; i++ ) {
+	for ( size_t i = 0 ; i < tri->numVerts ; i++ ) {
 		const idVec2 uv = tri->verts[i].GetTexCoord();
 		boundsMin.x = Min( uv.x, boundsMin.x );
 		boundsMax.x = Max( uv.x, boundsMax.x );
@@ -186,11 +186,11 @@ static void R_RenderGuiSurf( idUserInterface *gui, const drawSurf_t *drawSurf ) 
 R_AddInGameGuis
 ================
 */
-void R_AddInGameGuis( const drawSurf_t * const drawSurfs[], const int numDrawSurfs ) {
+void R_AddInGameGuis( const drawSurf_t * const drawSurfs[], const size_t numDrawSurfs ) {
 	SCOPED_PROFILE_EVENT( "R_AddInGameGuis" );
 
 	// check for gui surfaces
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		const drawSurf_t * drawSurf = drawSurfs[i];
 
 		idUserInterface	*gui = drawSurf->material->GlobalGui();

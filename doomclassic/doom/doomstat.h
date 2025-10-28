@@ -29,12 +29,14 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_STATE__
 #define __D_STATE__
 
+#pragma once
+
 // We need globally shared data structures,
 //  for defining the global state variables.
 #include "doomdata.h"
 #include "d_net.h"
 
-// We need the playr data structure as well.
+// We need the player data structure as well.
 #include "d_player.h"
 
 
@@ -59,7 +61,7 @@ extern  qboolean	devparm;	// DEBUG: launched with -devparm
 // Game Mode - identify IWAD as shareware, retail etc.
 //
 extern GameMode_t	gamemode;
-extern int	gamemission;
+extern index_t	gamemission;
 
 // Set if homebrew PWAD stuff has been added.
 extern  qboolean	modifiedgame;
@@ -76,18 +78,18 @@ extern  Language_t   language;
 
 // Defaults for menu, methinks.
 extern  skill_t		startskill;
-extern  int             startepisode;
-extern	int		startmap;
+extern  index_t     startepisode;
+extern	index_t		startmap;
 
 extern  qboolean		autostart;
 
 // Selected by user. 
-extern  skill_t         gameskill;
-extern  int		gameepisode;
-extern  int		gamemap;
+extern  skill_t     gameskill;
+extern  index_t		gameepisode;
+extern  index_t		gamemap;
 
 // Nightmare mode flag, single player.
-extern  qboolean         respawnmonsters;
+extern  qboolean    respawnmonsters;
 
 // Netgame? Only true if >1 player.
 extern  qboolean	netgame;
@@ -107,11 +109,11 @@ extern  qboolean	deathmatch;
 //  w/o a reference LUT in a sound module.
 // Ideally, this would use indices found
 //  in: /usr/include/linux/soundcard.h
-extern int snd_MusicDevice;
-extern int snd_SfxDevice;
+extern index_t snd_MusicDevice;
+extern index_t snd_SfxDevice;
 // Config file? Same disclaimer as above.
-extern int snd_DesiredMusicDevice;
-extern int snd_DesiredSfxDevice;
+extern index_t snd_DesiredMusicDevice;
+extern index_t snd_DesiredSfxDevice;
 
 
 // -------------------------
@@ -133,11 +135,11 @@ extern  qboolean		viewactive;
 extern  qboolean		nodrawers;
 extern  qboolean		noblit;
 
-extern	int		viewwindowx;
-extern	int		viewwindowy;
-extern	int		viewheight;
-extern	int		viewwidth;
-extern	int		scaledviewwidth;
+extern	size_t		viewwindowx;
+extern	size_t		viewwindowy;
+extern	size_t		viewheight;
+extern	size_t		viewwidth;
+extern	size_t		scaledviewwidth;
 
 
 
@@ -149,21 +151,21 @@ extern	int		scaledviewwidth;
 extern  int	viewangleoffset;
 
 // Player taking events, and displaying.
-extern  int	consoleplayer;	
-extern  int	displayplayer;
+extern  index_t	consoleplayer;	
+extern  index_t	displayplayer;
 
 
 // -------------------------------------
 // Scores, rating.
 // Statistics on a given map, for intermission.
 //
-extern  int	totalkills;
-extern	int	totalitems;
-extern	int	totalsecret;
+extern  size_t	totalkills;
+extern	size_t	totalitems;
+extern	size_t	totalsecret;
 
 // Timer, for scores.
-extern  int	levelstarttic;	// gametic at level start
-extern  int	leveltime;	// tics in game play for par
+extern  ID_TIME_T	levelstarttic;	// gametic at level start
+extern  ID_TIME_T	leveltime;	// tics in game play for par
 
 
 
@@ -198,7 +200,7 @@ extern  gamestate_t     gamestate;
 
 
 
-extern	int		gametic;
+extern	ID_TIME_T		gametic;
 
 
 // Bookkeeping on players - state.
@@ -274,7 +276,7 @@ extern  ticcmd_t	localcmds[BACKUPTICS];
 extern	int		rndindex;
 
 extern	int		maketic;
-extern  int             nettics[MAXNETNODES];
+extern  ID_TIME_T             nettics[MAXNETNODES];
 
 extern  ticcmd_t        netcmds[MAXPLAYERS][BACKUPTICS];
 extern	int		ticdup;

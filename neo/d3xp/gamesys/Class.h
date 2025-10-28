@@ -35,6 +35,8 @@ instancing of objects.
 #ifndef __SYS_CLASS_H__
 #define __SYS_CLASS_H__
 
+#pragma once
+
 class idClass;
 class idTypeInfo;
 
@@ -59,16 +61,16 @@ public:
 	int			type;
 	int64		value;
 
-	idEventArg()								{ type = D_EVENT_INTEGER; value = 0; };
-	idEventArg( int data )						{ type = D_EVENT_INTEGER; value = data; };
-	idEventArg( int64 data )                    { type = D_EVENT_INTEGER; value = data; };
-	idEventArg( size_t data )                   { type = D_EVENT_INTEGER; value = idMath::integer_cast<int64>(data); };
-	idEventArg( float data )					{ type = D_EVENT_FLOAT; value = *reinterpret_cast<int64 *>( &data ); };
-	idEventArg( idVec3 &data )					{ type = D_EVENT_VECTOR; value = reinterpret_cast<int64>( &data ); };
-	idEventArg( const idStr &data )				{ type = D_EVENT_STRING; value = reinterpret_cast<int64>( data.c_str() ); };
-	idEventArg( const char *data )				{ type = D_EVENT_STRING; value = reinterpret_cast<int64>( data ); };
-	idEventArg( const class idEntity *data )	{ type = D_EVENT_ENTITY; value = reinterpret_cast<int64>( data ); };
-	idEventArg( const struct trace_s *data )	{ type = D_EVENT_TRACE; value = reinterpret_cast<int64>( data ); };
+	idEventArg()								{ type = D_EVENT_INTEGER; value = 0; }
+	idEventArg(const int32 data )				{ type = D_EVENT_INTEGER; value = data; }
+	idEventArg(const int64 data )               { type = D_EVENT_INTEGER; value = data; }
+	idEventArg(const size_t data )              { type = D_EVENT_INTEGER; value = numeric_cast<int64>(data); }
+	idEventArg( float data )					{ type = D_EVENT_FLOAT; value = *reinterpret_cast<int64*>( &data ); }
+	idEventArg( idVec3 &data )					{ type = D_EVENT_VECTOR; value = reinterpret_cast<int64>( &data ); }
+	idEventArg( const idStr &data )				{ type = D_EVENT_STRING; value = reinterpret_cast<int64>( data.c_str() ); }
+	idEventArg( const char *data )				{ type = D_EVENT_STRING; value = reinterpret_cast<int64>( data ); }
+	idEventArg( const class idEntity *data )	{ type = D_EVENT_ENTITY; value = reinterpret_cast<int64>( data ); }
+	idEventArg( const struct trace_s *data )	{ type = D_EVENT_TRACE; value = reinterpret_cast<int64>( data ); }
 };
 
 class idAllocError : public idException {
@@ -115,7 +117,7 @@ incorrect.  Use this on concrete classes only.
 		( void ( idClass::* )( idSaveGame * ) const )&nameofclass::Save, ( void ( idClass::* )( idRestoreGame * ) )&nameofclass::Restore );	\
 	idClass *nameofclass::CreateInstance() {														\
 		try {																						\
-			nameofclass *ptr = new nameofclass;														\
+			(nameofclass) *ptr = new (nameofclass);														\
 			ptr->FindUninitializedMemory();															\
 			return ptr;																				\
 		}																							\
@@ -189,8 +191,8 @@ public:
 	const char *				GetSuperclass() const;
 	void						FindUninitializedMemory();
 
-	void						Save( idSaveGame *savefile ) const {};
-	void						Restore( idRestoreGame *savefile ) {};
+	void						Save( idSaveGame *savefile ) const {}
+	void						Restore( idRestoreGame *savefile ) {}
 
 	bool						RespondsTo( const idEventDef &ev ) const;
 
@@ -238,7 +240,7 @@ public:
 	static idClass *			CreateInstance( const char *name );
 	static size_t				GetNumTypes() { return types.Num(); }
 	static int					GetTypeNumBits() { return typeNumBits; }
-	static idTypeInfo *			GetType( const Ordinal auto num );
+	static idTypeInfo *			GetType( index_t num );
 
 private:
 	classSpawnFunc_t			CallSpawnFunc( idTypeInfo *cls );

@@ -52,7 +52,7 @@ idAASLocal::EdgeSplitPoint
   returns true if the split point is between the edge vertices
 ============
 */
-bool idAASLocal::EdgeSplitPoint( idVec3 &split, int edgeNum, const idPlane &plane ) const {
+bool idAASLocal::EdgeSplitPoint( idVec3 &split, const index_t edgeNum, const idPlane &plane ) const {
 	const aasEdge_t *edge;
 	idVec3 v1, v2;
 	float d1, d2;
@@ -79,7 +79,7 @@ idAASLocal::FloorEdgeSplitPoint
   the point has to be on the front side of the frontPlane to be valid
 ============
 */
-bool idAASLocal::FloorEdgeSplitPoint( idVec3 &bestSplit, int areaNum, const idPlane &pathPlane, const idPlane &frontPlane, bool closest ) const {
+bool idAASLocal::FloorEdgeSplitPoint( idVec3 &bestSplit, const index_t areaNum, const idPlane &pathPlane, const idPlane &frontPlane, const bool closest ) const {
 	int i, j, faceNum, edgeNum;
 	const aasArea_t *area;
 	const aasFace_t *face;
@@ -137,7 +137,7 @@ idAASLocal::WalkPathValid
   returns true if one can walk in a straight line between origin and goalOrigin
 ============
 */
-bool idAASLocal::WalkPathValid( int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, int &endAreaNum ) const {
+bool idAASLocal::WalkPathValid(const index_t areaNum, const idVec3 &origin, const index_t goalAreaNum, const idVec3 &goalOrigin, const int travelFlags, idVec3 &endPos, index_t &endAreaNum ) const {
 	int curAreaNum, lastAreaNum, lastAreas[4], lastAreaIndex;
 	idPlane pathPlane, frontPlane, farPlane;
 	idReachability *reach;
@@ -250,7 +250,7 @@ bool idAASLocal::WalkPathValid( int areaNum, const idVec3 &origin, int goalAreaN
 idAASLocal::SubSampleWalkPath
 ============
 */
-idVec3 idAASLocal::SubSampleWalkPath( int areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, int &endAreaNum ) const {
+idVec3 idAASLocal::SubSampleWalkPath( index_t areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, index_t &endAreaNum ) const {
 	int i, numSamples, curAreaNum;
 	idVec3 dir, point, nextPoint, endPos;
 
@@ -279,7 +279,7 @@ idAASLocal::WalkPathToGoal
   FIXME: don't stop optimizing on first failure ?
 ============
 */
-bool idAASLocal::WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
+bool idAASLocal::WalkPathToGoal( aasPath_t &path, index_t areaNum, const idVec3 &origin, const index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
 	idReachability * reach = nullptr;
 	idVec3 endPos;
@@ -400,7 +400,7 @@ idAASLocal::FlyPathValid
   returns true if one can fly in a straight line between origin and goalOrigin
 ============
 */
-bool idAASLocal::FlyPathValid( int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, int &endAreaNum ) const {
+bool idAASLocal::FlyPathValid( index_t areaNum, const idVec3 &origin, index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags, idVec3 &endPos, index_t &endAreaNum ) const {
 	aasTrace_t trace;
 
 	if ( file == nullptr) {
@@ -426,7 +426,7 @@ bool idAASLocal::FlyPathValid( int areaNum, const idVec3 &origin, int goalAreaNu
 idAASLocal::SubSampleFlyPath
 ============
 */
-idVec3 idAASLocal::SubSampleFlyPath( int areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, int &endAreaNum ) const {
+idVec3 idAASLocal::SubSampleFlyPath( index_t areaNum, const idVec3 &origin, const idVec3 &start, const idVec3 &end, int travelFlags, index_t &endAreaNum ) const {
 	int i, numSamples, curAreaNum;
 	idVec3 dir, point, nextPoint, endPos;
 
@@ -455,7 +455,7 @@ idAASLocal::FlyPathToGoal
   FIXME: don't stop optimizing on first failure ?
 ============
 */
-bool idAASLocal::FlyPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
+bool idAASLocal::FlyPathToGoal( aasPath_t &path, index_t areaNum, const idVec3 &origin, const index_t goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
 	idReachability *reach = nullptr;
 	idVec3 endPos;
@@ -555,7 +555,7 @@ typedef struct wallEdge_s {
 idAASLocal::SortWallEdges
 ============
 */
-void idAASLocal::SortWallEdges( int *edges, int numEdges ) const {
+void idAASLocal::SortWallEdges( int *edges, const size_t numEdges ) const {
 	int i, j, k, numSequences;
 	wallEdge_t **sequenceFirst, **sequenceLast, *wallEdges, *wallEdge;
 
@@ -607,7 +607,7 @@ void idAASLocal::SortWallEdges( int *edges, int numEdges ) const {
 idAASLocal::GetWallEdges
 ============
 */
-int idAASLocal::GetWallEdges( int areaNum, const idBounds &bounds, int travelFlags, int *edges, int maxEdges ) const {
+int idAASLocal::GetWallEdges(const index_t areaNum, const idBounds &bounds, const int travelFlags, int *edges, const size_t maxEdges ) const {
 	int i, j, k, l, face1Num, face2Num, edge1Num, edge2Num, numEdges, absEdge1Num;
 	int *areaQueue, curArea, queueStart, queueEnd;
 	byte *areasVisited;

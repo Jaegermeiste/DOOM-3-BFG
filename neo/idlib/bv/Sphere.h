@@ -85,7 +85,7 @@ public:
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale1, float &scale2 ) const;
 
 					// Tight sphere for a point set.
-	void			FromPoints( const idVec3 *points, const int numPoints );
+	void			FromPoints( const idVec3 *points, const size_t numPoints );
 					// Most tight sphere for a translation.
 	void			FromPointTranslation( const idVec3 &point, const idVec3 &translation );
 	void			FromSphereTranslation( const idSphere &sphere, const idVec3 &start, const idVec3 &translation );

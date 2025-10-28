@@ -55,7 +55,7 @@ public:
 
 	void	UpdateChangeableSpawnArgs( const idDict *source ) override;
 	void	Think() override;
-	void	ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void	ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void	FreeLightDef() override;
 	bool	GetPhysicsToSoundTransform( idVec3 &origin, idMat3 &axis ) override;
 	void			Present() override;

@@ -176,7 +176,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
 int
 EV_DoCeiling
 ( line_t*	line,
-  ceiling_e	type )
+  const ceiling_e	type )
 {
     int		secnum;
     int		rtn;
@@ -201,11 +201,13 @@ EV_DoCeiling
     {
 	sec = &::g->sectors[secnum];
 	if (sec->specialdata)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	// new door thinker
 	rtn = 1;
-	ceiling = (ceiling_t*)DoomLib::Z_Malloc(sizeof(*ceiling), PU_LEVEL, 0);
+	ceiling = static_cast<ceiling_t*>(DoomLib::Z_Malloc(sizeof(*ceiling), PU_LEVEL, nullptr));
 	P_AddThinker (&ceiling->thinker);
 	sec->specialdata = ceiling;
 	ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
@@ -230,7 +232,9 @@ EV_DoCeiling
 	  case lowerToFloor:
 	    ceiling->bottomheight = sec->floorheight;
 	    if (type != lowerToFloor)
-		ceiling->bottomheight += 8*FRACUNIT;
+	    {
+		    ceiling->bottomheight += 8*FRACUNIT;
+	    }
 	    ceiling->direction = -1;
 	    ceiling->speed = CEILSPEED;
 	    break;
@@ -259,7 +263,7 @@ void P_AddActiveCeiling(ceiling_t* c)
     
     for (i = 0; i < MAXCEILINGS;i++)
     {
-	if (::g->activeceilings[i] == NULL)
+	if (::g->activeceilings[i] == nullptr)
 	{
 	    ::g->activeceilings[i] = c;
 	    return;
@@ -280,9 +284,9 @@ void P_RemoveActiveCeiling(ceiling_t* c)
     {
 	if (::g->activeceilings[i] == c)
 	{
-	    ::g->activeceilings[i]->sector->specialdata = NULL;
+	    ::g->activeceilings[i]->sector->specialdata = nullptr;
 	    P_RemoveThinker (&::g->activeceilings[i]->thinker);
-	    ::g->activeceilings[i] = NULL;
+	    ::g->activeceilings[i] = nullptr;
 	    break;
 	}
     }
@@ -329,7 +333,7 @@ int	EV_CeilingCrushStop(line_t	*line)
 	    && (::g->activeceilings[i]->direction != 0))
 	{
 	    ::g->activeceilings[i]->olddirection = ::g->activeceilings[i]->direction;
-	    ::g->activeceilings[i]->thinker.function.acv = (actionf_v)NULL;
+	    ::g->activeceilings[i]->thinker.function.acv = static_cast<actionf_v>(nullptr);
 	    ::g->activeceilings[i]->direction = 0;		// in-stasis
 	    rtn = 1;
 	}

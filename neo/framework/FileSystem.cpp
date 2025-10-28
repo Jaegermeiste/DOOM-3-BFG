@@ -170,7 +170,7 @@ public:
 	virtual bool			UsingResourceFiles() { return resourceFiles.Num() > 0; }
 	virtual void			UnloadMapResources( const char *name );
 	virtual void			UnloadResourceContainer( const char *name );
-	idFile *				GetResourceContainer( int idx ) {
+	idFile *				GetResourceContainer(const int idx ) {
 		if ( idx >= 0 && idx < resourceFiles.Num() ) {
 			return resourceFiles[ idx ]->resourceFile;
 		}
@@ -185,7 +185,7 @@ public:
 							[[nodiscard]] virtual bool			IsBinaryModel( const idStr & resName ) const;
 							[[nodiscard]] virtual bool			IsSoundSample( const idStr & resName ) const;
 	virtual void			FreeResourceBuffer() { resourceBufferAvailable = resourceBufferSize; }
-	virtual void			AddImagePreload( const char *resName, int _filter, int _repeat, int _usage, int _cube ) {
+	virtual void			AddImagePreload( const char *resName, const int _filter, const int _repeat, const int _usage, const int _cube ) {
 		preloadList.AddImage( resName, _filter, _repeat, _usage, _cube );
 	}
 	virtual void			AddSamplePreload( const char *resName ) {
@@ -298,7 +298,7 @@ idFileSystem *		fileSystem = &fileSystemLocal;
 idFileSystemLocal::ReadFromBGL
 ================
 */
-int idFileSystemLocal::ReadFromBGL( idFile *_resourceFile, void * _buffer, int _offset, int _len ) {
+int idFileSystemLocal::ReadFromBGL( idFile *_resourceFile, void * _buffer, const int _offset, const int _len ) {
 	if ( _resourceFile->Tell() != _offset ) {
 		_resourceFile->Seek( _offset, FS_SEEK_SET );
 	}
@@ -402,7 +402,7 @@ int64 idFileSystemLocal::GetFileLength( const char * relativePath ) {
 		return -1;
 	}
 
-	len = idMath::integer_cast<int64>(f->Length());
+	len = numeric_cast<int64>(f->Length());
 
 	delete f;
 	return len;
@@ -413,7 +413,7 @@ int64 idFileSystemLocal::GetFileLength( const char * relativePath ) {
 idFileSystemLocal::OpenOSFile
 ================
 */
-idFileHandle idFileSystemLocal::OpenOSFile( const char *fileName, fsMode_t mode ) {
+idFileHandle idFileSystemLocal::OpenOSFile( const char *fileName, const fsMode_t mode ) {
 	idFileHandle fp;
 
 
@@ -451,7 +451,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char *fileName, fsMode_t mode 
 idFileSystemLocal::CloseOSFile
 ================
 */
-void idFileSystemLocal::CloseOSFile( idFileHandle o ) {
+void idFileSystemLocal::CloseOSFile(const idFileHandle o ) {
 	::CloseHandle( o );
 }
 
@@ -460,7 +460,7 @@ void idFileSystemLocal::CloseOSFile( idFileHandle o ) {
 idFileSystemLocal::DirectFileLength
 ================
 */
-int idFileSystemLocal::DirectFileLength( idFileHandle o ) {
+int idFileSystemLocal::DirectFileLength(const idFileHandle o ) {
 	return GetFileSize( o, nullptr);
 }
 
@@ -511,7 +511,7 @@ void idFileSystemLocal::EnableBackgroundCache( bool enable ) {
 idFileSystemLocal::BeginLevelLoad
 =================
 */
-void idFileSystemLocal::BeginLevelLoad( const char *name, char *_blockBuffer, int _blockBufferSize ) {
+void idFileSystemLocal::BeginLevelLoad( const char *name, char *_blockBuffer, const int _blockBufferSize ) {
 	
 	if ( name == nullptr || *name == '\0' ) {
 		return;
@@ -582,9 +582,9 @@ void idFileSystemLocal::EndLevelLoad() {
 		manifestFileName.Insert( "maps/", 0 );
 		idFile *outFile = fileSystem->OpenFileWrite( manifestFileName );
 		if ( outFile != nullptr) {
-			const int num = fileManifest.Num();
+			const size_t num = fileManifest.Num();
 			outFile->WriteBig( num );
-			for ( int i = 0; i < num; i++ ) {
+			for ( size_t i = 0; i < num; i++ ) {
 				outFile->WriteString( fileManifest[ i ] );
 			}
 			delete outFile;
@@ -609,7 +609,7 @@ void idFileSystemLocal::EndLevelLoad() {
 }
 
 bool FileExistsInAllManifests( const char *filename, idList< idFileManifest > &manifests ) {
-	for ( int i = 0; i < manifests.Num(); i++ ) {
+	for ( size_t i = 0; i < manifests.Num(); i++ ) {
 		if ( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr) {
 			continue;
 		}
@@ -624,7 +624,7 @@ bool FileExistsInAllManifests( const char *filename, idList< idFileManifest > &m
 }
 
 bool FileExistsInAllPreloadManifests( const char *filename, idList< idPreloadManifest > &manifests ) {
-	for ( int i = 0; i < manifests.Num(); i++ ) {
+	for ( size_t i = 0; i < manifests.Num(); i++ ) {
 		if ( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr) {
 			continue;
 		}
@@ -636,7 +636,7 @@ bool FileExistsInAllPreloadManifests( const char *filename, idList< idPreloadMan
 }
 
 void RemoveFileFromAllManifests( const char *filename, idList< idFileManifest > &manifests ) {
-	for ( int i = 0; i < manifests.Num(); i++ ) {
+	for ( size_t i = 0; i < manifests.Num(); i++ ) {
 		if ( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr) {
 			continue;
 		}
@@ -659,23 +659,23 @@ void idFileSystemLocal::AddRenderProgs( idStrList &files ) {
 	// grab all the renderprogs
 	idStr path = RelativePathToOSPath( "renderprogs/cgb", "fs_basepath" );
 	ListOSFiles( path, "*.cgb", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
+	for ( size_t i = 0; i < work.Num(); i++ ) {
 		files.Append( idStr( "renderprogs/cgb/" ) + work[i] );
 	}
 
 	path = RelativePathToOSPath( "renderprogs/hlsl", "fs_basepath" );
 	ListOSFiles( path, "*.v360", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
+	for ( size_t i = 0; i < work.Num(); i++ ) {
 		files.Append( idStr( "renderprogs/hlsl/" ) + work[i] );
 	}
 	ListOSFiles( path, "*.p360", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
+	for ( size_t i = 0; i < work.Num(); i++ ) {
 		files.Append( idStr( "renderprogs/hlsl/" ) + work[i] );
 	}
 
 	path = RelativePathToOSPath( "renderprogs/gl", "fs_basepath" );
 	ListOSFiles( path, "*.*", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
+	for ( size_t i = 0; i < work.Num(); i++ ) {
 		files.Append( idStr( "renderprogs/gl/" ) + work[i] );
 	}
 
@@ -689,13 +689,13 @@ idFileSystemLocal::AddSoundResources
 void idFileSystemLocal::AddFonts( idStrList &files ) {
 	// temp fix for getting idaudio files in
 	idFileList *fl = ListFilesTree( "generated/images/newfonts", "*.bimage", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		files.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "newfonts", "*.dat", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		files.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
@@ -705,10 +705,10 @@ void idFileSystemLocal::AddFonts( idStrList &files ) {
 const char * excludeExtensions[] = {
 	".idxma", ".idmsf", ".idwav", ".xma", ".msf", ".wav", ".resource"
 };
-constexpr int numExcludeExtensions = sizeof( excludeExtensions ) / sizeof( excludeExtensions[ 0 ] );
+constexpr size_t numExcludeExtensions = sizeof( excludeExtensions ) / sizeof( excludeExtensions[ 0 ] );
 
 bool IsExcludedFile( const idStr & resName ) {
-	for ( int k = 0; k < numExcludeExtensions; k++ ) {
+	for ( size_t k = 0; k < numExcludeExtensions; k++ ) {
 		if ( resName.Find( excludeExtensions[ k ], false ) >= 0 ) {
 			return true;
 		}
@@ -749,72 +749,72 @@ void idFileSystemLocal::BuildOrderedStartupContainer() {
 	idStrList orderedFiles( 1024 );
 
 	idFileList * fl = ListFilesTree( "materials", "*.mtr", true );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "renderprogs", "*.v360", true );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "renderprogs", "*.p360", true );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "renderprogs", "*.cgb", true );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "renderprogs/gl", "*.*", true );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "skins", "*.skin", true );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "sound", "*.sndshd", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "def", "*.def", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "fx", "*.fx", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "particles", "*.prt", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 
 	fl = ListFilesTree( "af", "*.af", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
 	fl = ListFilesTree( "newpdas", "*.pda", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
@@ -943,7 +943,7 @@ void idFileSystemLocal::BuildOrderedStartupContainer() {
 	orderedFiles.Append( "script/ai_follower.script" );
 	orderedFiles.Append( "generated/swf/shell.bswf" );
 	fl = ListFilesTree( "newfonts", "*.dat", false );
-	for ( int i = 0; i < fl->GetList().Num(); i++ ) {
+	for ( size_t i = 0; i < fl->GetList().Num(); i++ ) {
 		orderedFiles.AddUnique( fl->GetList()[i] );
 	}
 	FreeFileList( fl );
@@ -971,7 +971,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 
 	idList< idFileManifest > manifests;				// list of all manifest files
 	// load all file manifests
-	for ( int i = 0; i < manifestFiles.Num(); i++ ) {
+	for ( size_t i = 0; i < manifestFiles.Num(); i++ ) {
 		idStr path = "maps/";
 		path += manifestFiles[ i ];
 		idFileManifest manifest;
@@ -989,7 +989,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 
 	idList< idPreloadManifest > preloadManifests;	// list of all preload manifest files
 	// load all preload manifests
-	for ( int i = 0; i < preloadFiles.Num(); i++ ) {
+	for ( size_t i = 0; i < preloadFiles.Num(); i++ ) {
 		idStr path = "maps/";
 		path += preloadFiles[ i ];
 		if ( path.Find( "_startup", false ) >= 0 ) {
@@ -1003,9 +1003,9 @@ void idFileSystemLocal::WriteResourcePacks() {
 	}
 
 	// build common list of files
-	for ( int i = 0; i < manifests.Num(); i++ ) {
+	for ( size_t i = 0; i < manifests.Num(); i++ ) {
 		idFileManifest &manifest = manifests[ i ];
-		for ( int j = 0; j < manifest.NumFiles(); j++ ) {
+		for ( size_t j = 0; j < manifest.NumFiles(); j++ ) {
 			idStr name = manifest.GetFileNameByIndex( j );
 			if ( name.CheckExtension( ".cfg" ) || (name.Find( ".lang", false ) >= 0) ) {
 				continue;
@@ -1018,9 +1018,9 @@ void idFileSystemLocal::WriteResourcePacks() {
 		}
 	}
 	// common list of preload reosurces, image, sample or models 
-	for ( int i = 0; i < preloadManifests.Num(); i++ ) {
+	for ( size_t i = 0; i < preloadManifests.Num(); i++ ) {
 		idPreloadManifest &preload = preloadManifests[ i ];
-		for ( int j = 0; j < preload.NumResources(); j++ ) {
+		for ( size_t j = 0; j < preload.NumResources(); j++ ) {
 			idStr name = preload.GetResourceNameByIndex( j );
 			if ( FileExistsInAllPreloadManifests( name, preloadManifests ) ) {
 				commonPreloads.Add( preload.GetPreloadByIndex( j ) );
@@ -1037,13 +1037,13 @@ void idFileSystemLocal::WriteResourcePacks() {
 	idStrList work;
 
 	// remove all common files from each map manifest
-	for ( int i = 0; i < manifests.Num(); i++ ) {
+	for ( size_t i = 0; i < manifests.Num(); i++ ) {
 		if ( ( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr) || ( strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr) ) {
 			continue;
 		}
 		//idLib::Printf( "%04d referenced files for %s\n", manifests[ i ].GetReferencedFileCount(), manifests[ i ].GetManifestName() );
 
-		for ( int j = 0; j < filesCommonToAllMaps.Num(); j++ ) {
+		for ( size_t j = 0; j < filesCommonToAllMaps.Num(); j++ ) {
 			manifests[ i ].RemoveAll( filesCommonToAllMaps[ j ] );
 		}
 		//idLib::Printf( "%04d referenced files for %s\n", manifests[ i ].GetReferencedFileCount(), manifests[ i ].GetManifestName() );
@@ -1055,11 +1055,11 @@ void idFileSystemLocal::WriteResourcePacks() {
 	idStrList commonCollision( 2048 );
 	idStrList soundFiles( 2048 );		// don't write these per map so we fit on disc
 
-	for ( int i = 0; i < manifests.Num(); i++ ) {
+	for ( size_t i = 0; i < manifests.Num(); i++ ) {
 		idStr resourceFileName = manifests[ i ].GetManifestName();
 		if ( resourceFileName.Find( "_startup.manifest", false ) >= 0 ) {
 			// add all the startup manifest files to the common list
-			for ( int j = 0; j < manifests[ i ].NumFiles(); j++ ) {
+			for ( size_t j = 0; j < manifests[ i ].NumFiles(); j++ ) {
 				idStr check = manifests[i].GetFileNameByIndex( j );
 				if ( check.CheckExtension( ".cfg" ) == false ) {
 					filesCommonToAllMaps.AddUnique( check.c_str() );
@@ -1077,7 +1077,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 
 		manifests[ i ].PopulateList( mapFiles );
 
-		for ( int j = 0; j < mapFiles.Num(); j++ ) {
+		for ( size_t j = 0; j < mapFiles.Num(); j++ ) {
 			idStr & resName = mapFiles[ j ];
 			if ( resName.Find( ".bimage", false ) >= 0 ) {
 				commonImages.AddUnique( resName );
@@ -1109,21 +1109,21 @@ void idFileSystemLocal::WriteResourcePacks() {
 			mapFilesTwo.AddUnique( resName );
 		}
 
-		for ( int j = 0; j < commonImages.Num(); j++ ) {
+		for ( size_t j = 0; j < commonImages.Num(); j++ ) {
 			mapFilesTwo.AddUnique( commonImages[ j ] );
 		}
-		for ( int j = 0; j < commonModels.Num(); j++ ) {
+		for ( size_t j = 0; j < commonModels.Num(); j++ ) {
 			mapFilesTwo.AddUnique( commonModels[ j ] );
 		}
-		for ( int j = 0; j < commonAnims.Num(); j++ ) {
+		for ( size_t j = 0; j < commonAnims.Num(); j++ ) {
 			mapFilesTwo.AddUnique( commonAnims[ j ] );
 		}
-		for ( int j = 0; j < commonCollision.Num(); j++ ) {
+		for ( size_t j = 0; j < commonCollision.Num(); j++ ) {
 			mapFilesTwo.AddUnique( commonCollision[ j ] );
 		}
 		// write map resources
 		idStrList mapFilesToWrite;
-		for ( int j = 0; j < mapFilesTwo.Num(); j++ ) {
+		for ( size_t j = 0; j < mapFilesTwo.Num(); j++ ) {
 			mapFilesToWrite.Append( mapFilesTwo[ j ] );
 		}
 		idResourceContainer::WriteResourceFile( resourceFileName, mapFilesToWrite, false );
@@ -1132,7 +1132,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 	// add  the new manifests just written
 	path = RelativePathToOSPath( "maps", "fs_savepath" );
 	ListOSFiles( path, "*.preload", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
+	for ( size_t i = 0; i < work.Num(); i++ ) {
 		filesCommonToAllMaps.Append( idStr( "maps/" ) + work[ i ] );
 	}
 
@@ -1144,7 +1144,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 	commonModels.Clear();
 
 	idStrList commonFiles;
-	for ( int i = 0; i < filesCommonToAllMaps.Num(); i++ ) {
+	for ( size_t i = 0; i < filesCommonToAllMaps.Num(); i++ ) {
 		idStr & resName = filesCommonToAllMaps[ i ];
 		if ( resName.Find( ".bimage", false ) >= 0 ) {
 			commonImages.AddUnique( resName );
@@ -1169,10 +1169,10 @@ void idFileSystemLocal::WriteResourcePacks() {
 		commonFiles.AddUnique( resName );
 	}
 
-	for ( int j = 0; j < commonImages.Num(); j++ ) {
+	for ( size_t j = 0; j < commonImages.Num(); j++ ) {
 		commonFiles.AddUnique( commonImages[ j ] );
 	}
-	for ( int j = 0; j < commonModels.Num(); j++ ) {
+	for ( size_t j = 0; j < commonModels.Num(); j++ ) {
 		commonFiles.AddUnique( commonModels[ j ] );
 	}
 
@@ -1199,7 +1199,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 		{ "jp", "sound/vo/japanese/", &soundOutputFiles[ 4 ] },
 		{ "en", "sound/vo/", &soundOutputFiles[ 5 ] }	// english last so the other langs are culled first
 	};
-	constexpr int numSoundFiles = sizeof( soundFileInfo ) / sizeof ( soundVOInfo_t );
+	constexpr size_t numSoundFiles = sizeof( soundFileInfo ) / sizeof ( soundVOInfo_t );
 
 	for ( int k = soundFiles.Num() - 1; k > 0; k-- ) {
 		for ( int l = 0; l < numSoundFiles; l++ ) {
@@ -1210,7 +1210,7 @@ void idFileSystemLocal::WriteResourcePacks() {
 		}
 	}
 
-	for ( int k = 0; k < numSoundFiles; k++ ) {
+	for ( size_t k = 0; k < numSoundFiles; k++ ) {
 		idStrList & sampleList = *soundFileInfo[ k ].samples;
 
 		// write pc
@@ -1221,11 +1221,11 @@ void idFileSystemLocal::WriteResourcePacks() {
 	}
 
 	idResourceContainer::WriteResourceFile( "_sound_pc", soundFiles, false );
-	for ( int k = 0; k < soundFiles.Num(); k++ ) {
+	for ( size_t k = 0; k < soundFiles.Num(); k++ ) {
 		soundFiles[ k ].Replace( ".idwav", ".idxma" );
 	}
 
-	for ( int k = 0; k < soundFiles.Num(); k++ ) {
+	for ( size_t k = 0; k < soundFiles.Num(); k++ ) {
 		soundFiles[ k ].Replace( ".idxma", ".idmsf" );
 	}
 
@@ -1287,7 +1287,7 @@ void idFileSystemLocal::CopyFile( const char *fromOSPath, const char *toOSPath )
 		newFromPath.BackSlashesToSlashes();
 		newFromPath.ToLower();
 		if ( newFromPath.Find( "/vo/", false ) >= 0 ) {
-			for ( int i = 0; i < Sys_NumLangs(); i++ ) {
+			for ( size_t i = 0; i < Sys_NumLangs(); i++ ) {
 				const char *lang = Sys_Lang( i );
 				if ( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 ) {
 					continue;
@@ -1377,7 +1377,7 @@ idFileSystemLocal::ReplaceSeparators
 Fix things up differently for win/unix/mac
 ====================
 */
-void idFileSystemLocal::ReplaceSeparators( idStr &path, char sep ) {
+void idFileSystemLocal::ReplaceSeparators( idStr &path, const char sep ) {
 	char *s;
 
 	for( s = &path[ 0 ]; *s ; s++ ) {
@@ -1492,7 +1492,7 @@ const char *idFileSystemLocal::OSPathToRelativePath( const char *OSPath ) {
 		if ( componentLength == 0 ) {
 			continue;
 		}
-		for ( int i = 0; i < basePaths.Num(); i++ ) {
+		for ( size_t i = 0; i < basePaths.Num(); i++ ) {
 			if ( componentLength != basePaths[i].Length() ) {
 				continue;
 			}
@@ -1507,7 +1507,7 @@ const char *idFileSystemLocal::OSPathToRelativePath( const char *OSPath ) {
 					const char * end2 = OSPath + slashes[n+2];
 					const int componentLength2 = end2 - start2;
 					if ( componentLength2 > 0 ) {
-						for ( int j = 0; j < basePaths.Num(); j++ ) {
+						for ( size_t j = 0; j < basePaths.Num(); j++ ) {
 							if ( componentLength2 != basePaths[j].Length() ) {
 								continue;
 							}
@@ -1610,7 +1610,7 @@ int64 idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_T
 		int64 size = 0;
 		if ( GetResourceCacheEntry( relativePath, rc ) ) {
 			*timestamp = 0;
-			size = idMath::integer_cast<int64>(rc.length);
+			size = numeric_cast<int64>(rc.length);
 		} 
 		return size;
 	}
@@ -1815,7 +1815,7 @@ Does not clear the list first so this can be used to progressively build a file 
 When 'sort' is true only the new files added to the list are sorted.
 ===============
 */
-int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, bool fullRelativePath, const char * gamedir ) {
+int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, const bool fullRelativePath, const char * gamedir ) {
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
@@ -1837,7 +1837,7 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 	if ( resourceFiles.Num() > 0 ) {
 		int idx = resourceFiles.Num() - 1;
 		while ( idx >= 0 ) {
-			for ( int i = 0; i < resourceFiles[ idx ]->cacheTable.Num(); i++ ) {
+			for ( size_t i = 0; i < resourceFiles[ idx ]->cacheTable.Num(); i++ ) {
 				idResourceCacheEntry & rt = resourceFiles[ idx ]->cacheTable[ i ];
 				// if the name is not long anough to at least contain the path
 
@@ -1903,7 +1903,7 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 
 		idStr netpath = BuildOSPath( searchPaths[sp].path, searchPaths[sp].gamedir, relativePath );
 
-		for ( int i = 0; i < extensions.Num(); i++ ) {
+		for ( size_t i = 0; i < extensions.Num(); i++ ) {
 
 			// scan for files in the filesystem
 			idStrList sysFiles;
@@ -1915,7 +1915,7 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 				sysFiles.Remove( ".." );
 			}
 
-			for ( int j = 0; j < sysFiles.Num(); j++ ) {
+			for ( size_t j = 0; j < sysFiles.Num(); j++ ) {
 				// unique the match
 				if ( fullRelativePath ) {
 					idStr work = relativePath;
@@ -1937,7 +1937,7 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 idFileSystemLocal::ListFiles
 ===============
 */
-idFileList *idFileSystemLocal::ListFiles( const char *relativePath, const char *extension, bool sort, bool fullRelativePath, const char* gamedir ) {
+idFileList *idFileSystemLocal::ListFiles( const char *relativePath, const char *extension, const bool sort, const bool fullRelativePath, const char* gamedir ) {
 	idHashIndex hashIndex( 4096, 4096 );
 	idStrList extensionList;
 
@@ -1989,7 +1989,7 @@ int idFileSystemLocal::GetFileListTree( const char *relativePath, const idStrLis
 idFileSystemLocal::ListFilesTree
 ===============
 */
-idFileList *idFileSystemLocal::ListFilesTree( const char *relativePath, const char *extension, bool sort, const char* gamedir ) {
+idFileList *idFileSystemLocal::ListFilesTree( const char *relativePath, const char *extension, const bool sort, const char* gamedir ) {
 	idHashIndex hashIndex( 4096, 4096 );
 	idStrList extensionList;
 
@@ -2195,7 +2195,7 @@ idFileSystemLocal::Path_f
 */
 void idFileSystemLocal::Path_f( const idCmdArgs &args ) {
 	common->Printf( "Current search path:\n" );
-	for ( int i = 0; i < fileSystemLocal.searchPaths.Num(); i++ ) {
+	for ( size_t i = 0; i < fileSystemLocal.searchPaths.Num(); i++ ) {
 		common->Printf( "%s/%s\n", fileSystemLocal.searchPaths[i].path.c_str(), fileSystemLocal.searchPaths[i].gamedir.c_str() );
 	}
 }
@@ -2312,7 +2312,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList & list )
 		// Read in the table
 		currentFile->Seek( tableOffset, FS_SEEK_SET );
 
-		int numFileResources;
+		size_t numFileResources;
 		currentFile->ReadBig( numFileResources );
 
 		idList< idResourceCacheEntry > cacheEntries;
@@ -2374,7 +2374,7 @@ idFileSystemLocal::FindResourceFile
 ================
 */
 int idFileSystemLocal::FindResourceFile( const char * resourceFileName ) {
-	for ( int i = 0; i < resourceFiles.Num(); i++ ) {
+	for ( size_t i = 0; i < resourceFiles.Num(); i++ ) {
 		if ( idStr::Icmp( resourceFileName, resourceFiles[ i ]->GetFileName() ) == 0 ) {
 			return i;
 		}
@@ -2391,7 +2391,7 @@ void idFileSystemLocal::RemoveResourceFileByIndex( const int &idx ) {
 		if ( idx >= 0 && idx < resourceFiles.Num() ) {
 			delete resourceFiles[ idx ];
 			resourceFiles.RemoveIndex( idx );
-			for ( int i = 0; i < resourceFiles.Num(); i++ ) {
+			for ( size_t i = 0; i < resourceFiles.Num(); i++ ) {
 				// fixup any container indexes
 				resourceFiles[ i ]->SetContainerIndex( i );
 			}
@@ -2432,7 +2432,7 @@ Sets gameFolder, adds the directory to the head of the search paths
 */
 void idFileSystemLocal::AddGameDirectory( const char *path, const char *dir ) {
 	// check if the search path already exists
-	for ( int i = 0; i < searchPaths.Num(); i++ ) {
+	for ( size_t i = 0; i < searchPaths.Num(); i++ ) {
 		if ( searchPaths[i].path.Cmp( path ) == 0 && searchPaths[i].gamedir.Cmp( dir ) == 0 ) {
 			return;
 		}
@@ -2459,7 +2459,7 @@ void idFileSystemLocal::AddGameDirectory( const char *path, const char *dir ) {
 	pakfiles.SortWithTemplate( idSort_PathStr() );
 	if ( pakfiles.Num() > 0 ) {
 		// resource files present, ignore pak files
-		for ( int i = 0; i < pakfiles.Num(); i++ ) {
+		for ( size_t i = 0; i < pakfiles.Num(); i++ ) {
 			pakfile = pakfiles[i]; //BuildOSPath( path, dir, pakfiles[i] );
 			idResourceContainer *rc = new idResourceContainer();
 			if ( rc->Init( pakfile, resourceFiles.Num() ) ) {
@@ -2493,7 +2493,7 @@ void idFileSystemLocal::SetupGameDirectories( const char *gameName ) {
 const char *cachedStartupFiles[] = {
 	"game:\\base\\video\\loadvideo.bik"
 };
-constexpr int numStartupFiles = sizeof( cachedStartupFiles ) / sizeof ( cachedStartupFiles[ 0 ] );
+constexpr size_t numStartupFiles = sizeof( cachedStartupFiles ) / sizeof ( cachedStartupFiles[ 0 ] );
 
 const char *cachedNormalFiles[] = {
 	"game:\\base\\_sound_xenon_en.resources",	// these will fail silently on the files that are not on disc
@@ -2507,14 +2507,14 @@ const char *cachedNormalFiles[] = {
 	"game:\\base\\_ordered.resources",
 	"game:\\base\\video\\mars_rotation.bik"		// cache this to save the consumer from hearing SEEK.. SEEK... SEEK.. SEEK  SEEEK while at the main menu
 };
-constexpr int numNormalFiles = sizeof( cachedNormalFiles ) / sizeof ( cachedNormalFiles[ 0 ] );
+constexpr size_t numNormalFiles = sizeof( cachedNormalFiles ) / sizeof ( cachedNormalFiles[ 0 ] );
 
 const char *dontCacheFiles[] = {
 	"game:\\base\\maps\\*.*",	// these will fail silently on the files that are not on disc
 	"game:\\base\\video\\*.*",
 	"game:\\base\\sound\\*.*",
 };
-constexpr int numDontCacheFiles = sizeof( dontCacheFiles ) / sizeof ( dontCacheFiles[ 0 ] );
+constexpr size_t numDontCacheFiles = sizeof( dontCacheFiles ) / sizeof ( dontCacheFiles[ 0 ] );
 
 /*
 ================
@@ -2704,7 +2704,7 @@ bool idFileSystemLocal::GetResourceCacheEntry( const char *fileName, idResourceC
 	int idx = resourceFiles.Num() - 1;
 	while ( idx >= 0 ) {
 		const int key = resourceFiles[ idx ]->cacheHash.GenerateKey( canonical, false );
-		for ( int index = resourceFiles[ idx ]->cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = resourceFiles[ idx ]->cacheHash.GetNext( index ) ) {
+		for ( index_t index = resourceFiles[ idx ]->cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = resourceFiles[ idx ]->cacheHash.GetNext( index ) ) {
 			idResourceCacheEntry & rt = resourceFiles[ idx ]->cacheTable[ index ];
 			if ( idStr::Icmp( rt.filename, canonical ) == 0 ) {
 				rc.filename = rt.filename;
@@ -2727,7 +2727,7 @@ Returns NULL
 ========================
 */
 
-idFile * idFileSystemLocal::GetResourceFile( const char *fileName, bool memFile ) { 
+idFile * idFileSystemLocal::GetResourceFile( const char *fileName, const bool memFile ) { 
 	
 	if ( resourceFiles.Num() == 0 ) {
 		return nullptr;
@@ -2781,7 +2781,7 @@ Used for streaming data out of either a
 separate file or a ZIP file.
 ===========
 */
-idFile *idFileSystemLocal::OpenFileReadFlags( const char *relativePath, int searchFlags, bool allowCopyFiles, const char* gamedir ) {
+idFile *idFileSystemLocal::OpenFileReadFlags( const char *relativePath, const int searchFlags, const bool allowCopyFiles, const char* gamedir ) {
 	
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
@@ -2873,7 +2873,7 @@ idFile *idFileSystemLocal::OpenFileReadFlags( const char *relativePath, int sear
 						fileManifest.AddUnique( samplePath );
 						if ( relativePath.Find( "/vo/", false ) >= 0 ) {
 							// this is vo so add the language variants
-							for ( int i = 0; i < Sys_NumLangs(); i++ ) {
+							for ( size_t i = 0; i < Sys_NumLangs(); i++ ) {
 								const char *lang = Sys_Lang( i );
 								if ( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 ) {
 									continue;
@@ -2890,7 +2890,7 @@ idFile *idFileSystemLocal::OpenFileReadFlags( const char *relativePath, int sear
 						}
 					} else if ( relativePath.Icmpn( "guis/", 5 ) == 0 ) {
 						// this is a gui so add the language variants
-						for ( int i = 0; i < Sys_NumLangs(); i++ ) {
+						for ( size_t i = 0; i < Sys_NumLangs(); i++ ) {
 							const char *lang = Sys_Lang( i );
 							if ( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 ) {
 								fileManifest.Append( relativePath );
@@ -2946,7 +2946,7 @@ idFile *idFileSystemLocal::OpenFileReadFlags( const char *relativePath, int sear
 idFileSystemLocal::OpenFileRead
 ===========
 */
-idFile *idFileSystemLocal::OpenFileRead( const char *relativePath, bool allowCopyFiles, const char* gamedir ) {
+idFile *idFileSystemLocal::OpenFileRead( const char *relativePath, const bool allowCopyFiles, const char* gamedir ) {
 	return OpenFileReadFlags( relativePath, FSFLAG_SEARCH_DIRS, allowCopyFiles, gamedir );
 }
 
@@ -2955,7 +2955,7 @@ idFile *idFileSystemLocal::OpenFileRead( const char *relativePath, bool allowCop
 idFileSystemLocal::OpenFileReadMemory
 ===========
 */
-idFile *idFileSystemLocal::OpenFileReadMemory( const char *relativePath, bool allowCopyFiles, const char* gamedir ) {
+idFile *idFileSystemLocal::OpenFileReadMemory( const char *relativePath, const bool allowCopyFiles, const char* gamedir ) {
 	return OpenFileReadFlags( relativePath, FSFLAG_SEARCH_DIRS | FSFLAG_RETURN_FILE_MEM, allowCopyFiles, gamedir );
 }
 
@@ -3108,7 +3108,7 @@ idFile *idFileSystemLocal::OpenExplicitFileWrite( const char *OSPath ) {
 idFileSystemLocal::OpenFileAppend
 ===========
 */
-idFile *idFileSystemLocal::OpenFileAppend( const char *relativePath, bool sync, const char *basePath ) {
+idFile *idFileSystemLocal::OpenFileAppend( const char *relativePath, const bool sync, const char *basePath ) {
 
 	const char *path;
 	idStr OSpath;
@@ -3150,7 +3150,7 @@ idFile *idFileSystemLocal::OpenFileAppend( const char *relativePath, bool sync, 
 idFileSystemLocal::OpenFileByMode
 ================
 */
-idFile *idFileSystemLocal::OpenFileByMode( const char *relativePath, fsMode_t mode ) {
+idFile *idFileSystemLocal::OpenFileByMode( const char *relativePath, const fsMode_t mode ) {
 	if ( mode == FS_READ ) {
 		return OpenFileRead( relativePath );
 	}

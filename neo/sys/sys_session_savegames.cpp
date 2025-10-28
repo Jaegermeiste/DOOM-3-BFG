@@ -53,7 +53,7 @@ idSaveGameProcessorLoadFiles
 idSaveGameProcessorLoadFiles::InitLoadFiles
 ========================
 */
-bool idSaveGameProcessorLoadFiles::InitLoadFiles( const char * folder_, const saveFileEntryList_t & files, idSaveGameManager::packageType_t type ) {
+bool idSaveGameProcessorLoadFiles::InitLoadFiles( const char * folder_, const saveFileEntryList_t & files, const idSaveGameManager::packageType_t type ) {
 	if ( !idSaveGameProcessor::Init() ) {
 		return false;
 	}
@@ -62,7 +62,7 @@ bool idSaveGameProcessorLoadFiles::InitLoadFiles( const char * folder_, const sa
 	parms.description.slotName = folder_;
 	parms.mode = SAVEGAME_MBF_LOAD;
 
-	for ( int i = 0; i < files.Num(); ++i ) {
+	for ( size_t i = 0; i < files.Num(); ++i ) {
 		parms.files.Append( files[i] );
 	}
 
@@ -95,7 +95,7 @@ idSaveGameProcessorDelete
 idSaveGameProcessorDelete::Init
 ========================
 */
-bool idSaveGameProcessorDelete::InitDelete( const char * folder_, idSaveGameManager::packageType_t type ) {
+bool idSaveGameProcessorDelete::InitDelete( const char * folder_, const idSaveGameManager::packageType_t type ) {
 	if ( !idSaveGameProcessor::Init() ) {
 		return false;
 	}
@@ -134,7 +134,7 @@ idSaveGameProcessorSaveFiles
 idSaveGameProcessorSaveFiles::InitSave
 ========================
 */
-bool idSaveGameProcessorSaveFiles::InitSave( const char * folder, const saveFileEntryList_t & files, const idSaveGameDetails & descriptionForPS3, idSaveGameManager::packageType_t type ) {
+bool idSaveGameProcessorSaveFiles::InitSave( const char * folder, const saveFileEntryList_t & files, const idSaveGameDetails & descriptionForPS3, const idSaveGameManager::packageType_t type ) {
 	if ( !idSaveGameProcessor::Init() ) {
 		return false;
 	}
@@ -147,7 +147,7 @@ bool idSaveGameProcessorSaveFiles::InitSave( const char * folder, const saveFile
 	// Setup save system
 	parms.directory = AddSaveFolderPrefix( folder, type );
 	parms.mode = SAVEGAME_MBF_SAVE;	// do NOT delete the existing files
-	for ( int i = 0; i < files.Num(); ++i ) {
+	for ( size_t i = 0; i < files.Num(); ++i ) {
 		parms.files.Append( files[i] );
 	}
 
@@ -358,7 +358,7 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char * name, saveFileEntryL
 
 		// Check the cached save details from the enumeration and make sure we don't load a save from a newer version of the game!
 		const saveGameDetailsList_t details = GetSaveGameManager().GetEnumeratedSavegames();
-		for ( int i = 0; i < details.Num(); ++i ) {
+		for ( size_t i = 0; i < details.Num(); ++i ) {
 			if ( idStr::Cmp( name, details[i].slotName ) == 0 ) {
 				if ( details[i].GetSaveVersion() > BUILD_NUMBER ) {
 					parms.errorCode = SAVEGAME_E_INCOMPATIBLE_NEWER_VERSION;
@@ -502,7 +502,7 @@ void idSessionLocal::OnEnumerationCompleted( idSaveLoadParms * parms ) {
 
 		// The platform-specific implementations don't know about the prefixes
 		// If we don't do this here, we will end up with slots like: GAME-GAME-GAME-GAME-AUTOSAVE...
-		for ( int i = 0; i < detailsList.Num(); i++ ) {
+		for ( size_t i = 0; i < detailsList.Num(); i++ ) {
 			idSaveGameDetails & details = detailsList[i];
 
 			const idStr original = details.slotName;
@@ -774,7 +774,7 @@ CONSOLE_COMMAND( testSavegameEnumerateFiles, "enumerates all the files in a fold
 	Sys_ExecuteSavegameCommandAsync( &parms );
 	parms.callbackSignal.Wait();
 
-	for ( int i = 0; i < parms.files.Num(); i++ ) {
+	for ( size_t i = 0; i < parms.files.Num(); i++ ) {
 		idLib::Printf( S_COLOR_YELLOW "\t%d: %s\n" S_COLOR_DEFAULT, i, parms.files[i]->GetName() );
 	}
 }
@@ -785,7 +785,7 @@ OutputDetailList
 ========================
 */
 void OutputDetailList( const saveGameDetailsList_t & savegameList ) {
-	for ( int i = 0; i < savegameList.Num(); ++i ) {
+	for ( size_t i = 0; i < savegameList.Num(); ++i ) {
 		idLib::Printf( S_COLOR_YELLOW "\t%s - %s\n" S_COLOR_DEFAULT
 			"\t\tMap: %s\n"
 			"\t\tTime: %s\n",

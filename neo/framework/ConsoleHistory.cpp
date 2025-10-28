@@ -38,7 +38,7 @@ const char * HISTORY_FILE_NAME = "consoleHistory.txt";
 idConsoleHistory::AddToHistory
 ========================
 */
-void idConsoleHistory::AddToHistory( const char *line, bool writeHistoryFile ) {
+void idConsoleHistory::AddToHistory( const char *line, const bool writeHistoryFile ) {
 	// empty lines never modify history
 	if ( line == nullptr) {
 		return;
@@ -96,7 +96,7 @@ void idConsoleHistory::AddToHistory( const char *line, bool writeHistoryFile ) {
 idConsoleHistory::RetrieveFromHistory
 ========================
 */
-idStr idConsoleHistory::RetrieveFromHistory( bool backward ) {
+idStr idConsoleHistory::RetrieveFromHistory(const bool backward ) {
 	// if there are no commands in the history
 	if ( numHistory == 0 ) {
 		return idStr( "" );

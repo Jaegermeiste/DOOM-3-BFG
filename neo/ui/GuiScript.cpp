@@ -211,7 +211,7 @@ void Script_Transition(idWindow *window, idList<idGSWinVar, TAG_OLD_UI> *src) {
 			common->Warning("Bad transition in gui %s in window %s\n", window->GetGui()->GetSourceFile(), window->GetName());
 			return;
 		}
-		int time = atoi(*timeStr);
+		ID_TIME_T time = atoi(*timeStr);
 		float ac = 0.0f;
 		float dc = 0.0f;
 		if (src->Num() > 4) {
@@ -284,7 +284,7 @@ idGuiScript::~idGuiScript() {
 	delete ifList;
 	delete elseList;
 	int c = parms.Num();
-	for ( int i = 0; i < c; i++ ) {
+	for ( size_t i = 0; i < c; i++ ) {
 		if ( parms[i].own ) {
 			delete parms[i].var;
 		}

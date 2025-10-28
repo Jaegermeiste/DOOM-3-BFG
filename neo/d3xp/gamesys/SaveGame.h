@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SAVEGAME_H__
 #define __SAVEGAME_H__
 
+#pragma once
+
 /*
 
 Save game related helper classes.
@@ -92,7 +94,7 @@ public:
 
 	int						GetBuildNumber() const { return version; }
 
-	int						GetCurrentSaveSize() const { return file->Length(); }
+	size_t					GetCurrentSaveSize() const { return file->Length(); }
 
 private:
 	idFile *				file;
@@ -106,12 +108,12 @@ private:
 
 	struct stringTableIndex_s {
 		idStr		string;
-		int			offset;
+		size_t		offset;
 	};
 
 	idHashIndex						stringHash;
 	idList< stringTableIndex_s >	stringTable;
-	int								curStringTableOffset;
+	size_t							curStringTableOffset;
 
 };
 

@@ -203,7 +203,7 @@ idMenuScreen_Scoreboard::SetPlayerData
 */
 void idMenuScreen_Scoreboard::SetPlayerData( idList< scoreboardInfo_t, TAG_IDLIB_LIST_MENU > data ) {
 	if ( playerList != nullptr) {		
-		for ( int i = 0; i < data.Num(); ++i ) {
+		for ( size_t i = 0; i < data.Num(); ++i ) {
 			if ( i < playerList->GetChildren().Num() ) {
 				idMenuWidget_ScoreboardButton * button = dynamic_cast< idMenuWidget_ScoreboardButton * >( &playerList->GetChildByIndex( i ) );
 				if ( button != nullptr) {
@@ -220,7 +220,7 @@ void idMenuScreen_Scoreboard::SetPlayerData( idList< scoreboardInfo_t, TAG_IDLIB
 idMenuScreen_Scoreboard::UpdateGameInfo
 ========================
 */
-void idMenuScreen_Scoreboard::UpdateGameInfo( idStr gameInfo ) {
+void idMenuScreen_Scoreboard::UpdateGameInfo(const idStr gameInfo ) {
 
 	if ( GetSWFObject() )  {
 		idSWFScriptObject & root = GetSWFObject()->GetRootObject();
@@ -240,7 +240,7 @@ void idMenuScreen_Scoreboard::UpdateGameInfo( idStr gameInfo ) {
 idMenuScreen_Scoreboard::UpdateSpectating
 ========================
 */
-void idMenuScreen_Scoreboard::UpdateSpectating( idStr spectating, idStr follow ) {
+void idMenuScreen_Scoreboard::UpdateSpectating(const idStr spectating, const idStr follow ) {
 
 	if ( GetSWFObject() )  {
 		idSWFScriptObject & root = GetSWFObject()->GetRootObject();
@@ -267,7 +267,7 @@ void idMenuScreen_Scoreboard::UpdateSpectating( idStr spectating, idStr follow )
 idMenuScreen_Scoreboard::UpdateTeamScores
 ========================
 */
-void idMenuScreen_Scoreboard::UpdateTeamScores( int r, int b ) {
+void idMenuScreen_Scoreboard::UpdateTeamScores(const int r, const int b ) {
 
 	if ( GetSWFObject() )  {
 		idSWFScriptObject & root = GetSWFObject()->GetRootObject();
@@ -303,8 +303,8 @@ void idMenuScreen_Scoreboard::UpdateHighlight() {
 
 	int curIndex = playerList->GetViewIndex();
 	int newIndex = playerList->GetViewIndex();
-	int numRed = data->GetNumPlayers( 0 );
-	int numBlue = data->GetNumPlayers( 1 );	
+	size_t numRed = data->GetNumPlayers( 0 );
+	size_t numBlue = data->GetNumPlayers( 1 );	
 
 	if ( numBlue == 0 ) {		
 		if ( curIndex >= numRed ) {
@@ -336,7 +336,7 @@ void idMenuScreen_Scoreboard::UpdateHighlight() {
 idMenuScreen_Scoreboard::HandleAction
 ========================
 */
-bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -361,7 +361,7 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction & action, const idWid
 			if ( !data ) {
 				return true;
 			}
-			int index = parms[0].ToInteger();
+			index_t index = parms[0].ToInteger();
 			data->MutePlayer( index );
 
 			return true;
@@ -388,11 +388,11 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction & action, const idWid
 				return true;
 			}
 
-			int numRed = data->GetNumPlayers( 0 );
-			int numBlue = data->GetNumPlayers( 1 );
+			size_t numRed = data->GetNumPlayers( 0 );
+			size_t numBlue = data->GetNumPlayers( 1 );
 
 			if ( selectionIndex >= 4 && numBlue != 0 ) {
-				int index = numRed + ( selectionIndex - 4 );
+				index_t index = numRed + ( selectionIndex - 4 );
 				data->ViewPlayerProfile( index );
 			} else {
 				data->ViewPlayerProfile( selectionIndex );
@@ -419,8 +419,8 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction & action, const idWid
 					return true;
 				}
 
-				int numRed = data->GetNumPlayers( 0 );
-				int numBlue = data->GetNumPlayers( 1 );
+				size_t numRed = data->GetNumPlayers( 0 );
+				size_t numBlue = data->GetNumPlayers( 1 );
 
 				if ( numRed + numBlue <= 1 ) {
 					return true;

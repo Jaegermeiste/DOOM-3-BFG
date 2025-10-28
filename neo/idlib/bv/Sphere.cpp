@@ -125,7 +125,7 @@ idSphere::FromPoints
   Tight sphere for a point set.
 ============
 */
-void idSphere::FromPoints( const idVec3 *points, const int numPoints ) {
+void idSphere::FromPoints( const idVec3 *points, const size_t numPoints ) {
 	idVec3 mins, maxs;
 
 	SIMDProcessor->MinMax( mins, maxs, points, numPoints );
@@ -133,7 +133,7 @@ void idSphere::FromPoints( const idVec3 *points, const int numPoints ) {
 	origin = ( mins + maxs ) * 0.5f;
 
 	float radiusSqr = 0.0f;
-	for ( int i = 0; i < numPoints; i++ ) {
+	for ( size_t i = 0; i < numPoints; i++ ) {
 		const float dist = (points[i] - origin).LengthSqr();
 		if ( dist > radiusSqr ) {
 			radiusSqr = dist;

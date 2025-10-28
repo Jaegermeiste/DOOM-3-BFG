@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../idlib/precompiled.h"
 
-#define NBM( x ) (int32)( ( 1LL << x ) - 1 )
+#define NBM( x ) (int32)( ( 1LL << (x) ) - 1 )
 int maskForNumBits[33] = {	NBM( 0x00 ), NBM( 0x01 ), NBM( 0x02 ), NBM( 0x03 ),
 							NBM( 0x04 ), NBM( 0x05 ), NBM( 0x06 ), NBM( 0x07 ),
 							NBM( 0x08 ), NBM( 0x09 ), NBM( 0x0A ), NBM( 0x0B ),
@@ -38,7 +38,7 @@ int maskForNumBits[33] = {	NBM( 0x00 ), NBM( 0x01 ), NBM( 0x02 ), NBM( 0x03 ),
 							NBM( 0x18 ), NBM( 0x19 ), NBM( 0x1A ), NBM( 0x1B ),
 							NBM( 0x1C ), NBM( 0x1D ), NBM( 0x1E ), NBM( 0x1F ), -1 };
 
-#define NBS( x ) (int32)( (-1) << ( x - 1 ) )
+#define NBS( x ) (int32)( (-1) << ( (x) - 1 ) )
 int signForNumBits[33] = {	NBS( 0x01 ), NBS( 0x01 ), NBS( 0x02 ), NBS( 0x03 ),
 							NBS( 0x04 ), NBS( 0x05 ), NBS( 0x06 ), NBS( 0x07 ),
 							NBS( 0x08 ), NBS( 0x09 ), NBS( 0x0A ), NBS( 0x0B ),
@@ -102,7 +102,7 @@ void idSWFBitStream::Free() {
 idSWFBitStream::Load
 ========================
 */
-void idSWFBitStream::Load( const byte * data, uint32 len, bool copy ) {
+void idSWFBitStream::Load( const byte * data, const size_t len, const bool copy ) {
 	Free();
 
 	if ( copy ) {
@@ -126,7 +126,7 @@ idSWFBitStream::ReadEncodedU32
 */
 uint32 idSWFBitStream::ReadEncodedU32() {
 	uint32 result = 0;
-	for ( int i = 0; i < 5; i++ ) {
+	for ( size_t i = 0; i < 5; i++ ) {
 		byte b = ReadU8();
 		result |= ( b & 0x7F ) << ( 7 * i );
 		if ( ( b & 0x80 ) == 0 ) {
@@ -141,7 +141,7 @@ uint32 idSWFBitStream::ReadEncodedU32() {
 idSWFBitStream::ReadData
 ========================
 */
-const byte * idSWFBitStream::ReadData( int size ) {
+const byte * idSWFBitStream::ReadData( const size_t size ) {
 	assert( readp >= startp && readp <= endp );
 	ResetBits();
 	if ( readp + size > endp ) {
@@ -161,7 +161,7 @@ const byte * idSWFBitStream::ReadData( int size ) {
 idSWFBitStream::ReadInternalU
 ========================
 */
-ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
+ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBit, uint64 & regCurrentByte, short numBits ) {
 	assert( numBits <= 32 );
 
 	// read bits with only one microcoded shift instruction (shift with variable) on the consoles
@@ -169,7 +169,7 @@ ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBi
 	// such that calling ResetBits() never discards more than 7 bits and aligns with the next byte
 	uint64 numExtraBytes = ( numBits - regCurrentBit + 7 ) >> 3;
 	regCurrentBit = regCurrentBit + ( numExtraBytes << 3 ) - numBits;
-	for ( int i = 0; i < numExtraBytes; i++ ) {
+	for ( size_t i = 0; i < numExtraBytes; i++ ) {
 		regCurrentByte = ( regCurrentByte << 8 ) | readp[i];
 	}
 	readp += numExtraBytes;
@@ -181,7 +181,7 @@ ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBi
 idSWFBitStream::ReadInternalS
 ========================
 */
-ID_FORCEINLINE int idSWFBitStream::ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
+ID_FORCEINLINE int idSWFBitStream::ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, short numBits ) {
 	int i = static_cast<int>(ReadInternalU(regCurrentBit, regCurrentByte, numBits));
 
 	// sign extend without microcoded shift instrunction (shift with variable) on the consoles
@@ -194,7 +194,7 @@ ID_FORCEINLINE int idSWFBitStream::ReadInternalS( uint64 & regCurrentBit, uint64
 idSWFBitStream::ReadU
 ========================
 */
-unsigned int idSWFBitStream::ReadU( unsigned int numBits ) {
+unsigned int idSWFBitStream::ReadU( short numBits ) {
 	return ReadInternalU( currentBit, currentByte, numBits );
 }
 
@@ -203,7 +203,7 @@ unsigned int idSWFBitStream::ReadU( unsigned int numBits ) {
 idSWFBitStream::ReadS
 ========================
 */
-int idSWFBitStream::ReadS( unsigned int numBits ) {
+int idSWFBitStream::ReadS( short numBits ) {
 	return ReadInternalS( currentBit, currentByte, numBits );
 }
 
@@ -327,7 +327,7 @@ void idSWFBitStream::ReadColorXFormRGBA( swfColorXform_t & cxf ) {
 	currentBit = regCurrentBit;
 	currentByte = regCurrentByte;
 
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		cxf.mul[i] = SWFFIXED8( m.i[i] );
 		cxf.add[i] = SWFFIXED8( a.i[i] );
 	}
@@ -372,9 +372,9 @@ void idSWFBitStream::ReadColorRGBA( swfColorRGBA_t & color ) {
 idSWFBitStream::ReadGradient
 ========================
 */
-void idSWFBitStream::ReadGradient( swfGradient_t & grad, bool rgba ) {
+void idSWFBitStream::ReadGradient( swfGradient_t & grad, const bool rgba ) {
 	grad.numGradients = ReadU8() & 0xF;	// the top 4 bits control spread and interpolation mode, but we ignore them
-	for ( int i = 0; i < grad.numGradients; i++ ) {
+	for ( size_t i = 0; i < grad.numGradients; i++ ) {
 		grad.gradientRecords[i].startRatio = ReadU8();
 		if ( rgba ) {
 			ReadColorRGBA( grad.gradientRecords[i].startColor );
@@ -393,7 +393,7 @@ idSWFBitStream::ReadMorphGradient
 */
 void idSWFBitStream::ReadMorphGradient( swfGradient_t & grad ) {
 	grad.numGradients = ReadU8() & 0xF;	// the top 4 bits control spread and interpolation mode, but we ignore them
-	for ( int i = 0; i < grad.numGradients; i++ ) {
+	for ( size_t i = 0; i < grad.numGradients; i++ ) {
 		grad.gradientRecords[i].startRatio = ReadU8();
 		ReadColorRGBA( grad.gradientRecords[i].startColor );
 		grad.gradientRecords[i].endRatio = ReadU8();

@@ -28,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __BUFFEROBJECT_H__
 #define __BUFFEROBJECT_H__
 
+#pragma once
+
+
 /*
 ================================================================================================
 
@@ -36,12 +39,13 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
+class idDrawVert;
 class idIndexBuffer;
 
-enum bufferMapType_t {
+typedef enum bufferMapType_e : uint8 {
 	BM_READ,			// map for reading
 	BM_WRITE			// map for writing
-};
+} bufferMapType_t;
 
 // Returns all targets to virtual memory use instead of buffer object use.
 // Call this before doing any conventional buffer reads, like screenshots.
@@ -58,29 +62,29 @@ public:
 						~idVertexBuffer();
 
 	// Allocate or free the buffer.
-	bool				AllocBufferObject( const void * data, int allocSize );
+	bool				AllocBufferObject( const void * data, size_t allocSize );
 	void				FreeBufferObject();
 
 	// Make this buffer a reference to another buffer.
 	void				Reference( const idVertexBuffer & other );
-	void				Reference( const idVertexBuffer & other, int refOffset, int refSize );
+	void				Reference( const idVertexBuffer & other, size_t refOffset, size_t refSize );
 
 	// Copies data to the buffer. 'size' may be less than the originally allocated size.
-	void				Update( const void * data, int updateSize ) const;
+	void				Update( const void * data, size_t updateSize ) const;
 
-						[[nodiscard]] void *				MapBuffer( bufferMapType_t mapType ) const;
-						[[nodiscard]] idDrawVert *		MapVertexBuffer( bufferMapType_t mapType ) const { return static_cast< idDrawVert * >( MapBuffer( mapType ) ); }
+	[[nodiscard]] void *				MapBuffer( bufferMapType_t mapType ) const;
+	[[nodiscard]] idDrawVert *		MapVertexBuffer(const bufferMapType_t mapType ) const { return static_cast< idDrawVert * >( MapBuffer( mapType ) ); }
 	void				UnmapBuffer() const;
-						[[nodiscard]] bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
+	[[nodiscard]] bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
 
-						[[nodiscard]] int					GetSize() const { return ( size & ~MAPPED_FLAG ); }
-						[[nodiscard]] int					GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
-						[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
-						[[nodiscard]] int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
+	[[nodiscard]] size_t			GetSize() const { return ( size & ~MAPPED_FLAG ); }
+	[[nodiscard]] size_t			GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
+	[[nodiscard]] void *			GetAPIObject() const { return apiObject; }
+	[[nodiscard]] size_t			GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 
 private:
-	int					size;					// size in bytes
-	int					offsetInOtherBuffer;	// offset in bytes
+	size_t				size;					// size in bytes
+	size_t				offsetInOtherBuffer;	// offset in bytes
 	void *				apiObject;
 
 	// sizeof() confuses typeinfo...
@@ -89,9 +93,9 @@ private:
 
 private:
 	void				ClearWithoutFreeing();
-	void				SetMapped() const { const_cast< int & >( size ) |= MAPPED_FLAG; }
-	void				SetUnmapped() const { const_cast< int & >( size ) &= ~MAPPED_FLAG; }
-						[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
+	void				SetMapped() const { const_cast<size_t& >( size ) |= MAPPED_FLAG; }
+	void				SetUnmapped() const { const_cast<size_t& >( size ) &= ~MAPPED_FLAG; }
+	[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
 
 	DISALLOW_COPY_AND_ASSIGN( idVertexBuffer );
 };
@@ -117,19 +121,19 @@ public:
 	// Copies data to the buffer. 'size' may be less than the originally allocated size.
 	void				Update( const void * data, int updateSize ) const;
 
-						[[nodiscard]] void *				MapBuffer( bufferMapType_t mapType ) const;
-						[[nodiscard]] triIndex_t *		MapIndexBuffer( bufferMapType_t mapType ) const { return static_cast< triIndex_t * >( MapBuffer( mapType ) ); }
+	[[nodiscard]] void *				MapBuffer( bufferMapType_t mapType ) const;
+	[[nodiscard]] triIndex_t *		MapIndexBuffer(const bufferMapType_t mapType ) const { return static_cast< triIndex_t * >( MapBuffer( mapType ) ); }
 	void				UnmapBuffer() const;
-						[[nodiscard]] bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
+	[[nodiscard]] bool				IsMapped() const { return ( size & MAPPED_FLAG ) != 0; }
 
-						[[nodiscard]] int					GetSize() const { return ( size & ~MAPPED_FLAG ); }
-						[[nodiscard]] int					GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
-						[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
-						[[nodiscard]] int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
+	[[nodiscard]] size_t				GetSize() const { return ( size & ~MAPPED_FLAG ); }
+	[[nodiscard]] size_t				GetAllocedSize() const { return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15; }
+	[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
+	[[nodiscard]] size_t				GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 
 private:
-	int					size;					// size in bytes
-	int					offsetInOtherBuffer;	// offset in bytes
+	size_t				size;					// size in bytes
+	size_t				offsetInOtherBuffer;	// offset in bytes
 	void *				apiObject;
 
 	// sizeof() confuses typeinfo...
@@ -138,9 +142,9 @@ private:
 
 private:
 	void				ClearWithoutFreeing();
-	void				SetMapped() const { const_cast< int & >( size ) |= MAPPED_FLAG; }
-	void				SetUnmapped() const { const_cast< int & >( size ) &= ~MAPPED_FLAG; }
-						[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
+	void				SetMapped() const { const_cast<size_t & >( size ) |= MAPPED_FLAG; }
+	void				SetUnmapped() const { const_cast<size_t & >( size ) &= ~MAPPED_FLAG; }
+	[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
 
 	DISALLOW_COPY_AND_ASSIGN( idIndexBuffer );
 };
@@ -160,30 +164,30 @@ public:
 						~idJointBuffer();
 
 	// Allocate or free the buffer.
-	bool				AllocBufferObject( const float * joints, int numAllocJoints );
+	bool				AllocBufferObject( const float * joints, size_t numAllocJoints );
 	void				FreeBufferObject();
 
 	// Make this buffer a reference to another buffer.
 	void				Reference( const idJointBuffer & other );
-	void				Reference( const idJointBuffer & other, int jointRefOffset, int numRefJoints );
+	void				Reference( const idJointBuffer & other, int jointRefOffset, size_t numRefJoints );
 
 	// Copies data to the buffer. 'numJoints' may be less than the originally allocated size.
-	void				Update( const float * joints, int numUpdateJoints ) const;
+	void				Update( const float * joints, size_t numUpdateJoints ) const;
 
-						[[nodiscard]] float *				MapBuffer( bufferMapType_t mapType ) const;
+	[[nodiscard]] float *				MapBuffer( bufferMapType_t mapType ) const;
 	void				UnmapBuffer() const;
-						[[nodiscard]] bool				IsMapped() const { return ( numJoints & MAPPED_FLAG ) != 0; }
+	[[nodiscard]] bool				IsMapped() const { return ( numJoints & MAPPED_FLAG ) != 0; }
 
-						[[nodiscard]] int					GetNumJoints() const { return ( numJoints & ~MAPPED_FLAG ); }
-						[[nodiscard]] int					GetAllocedSize() const { return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float ); }
-						[[nodiscard]] void *				GetAPIObject() const { return apiObject; }
-						[[nodiscard]] int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
+	[[nodiscard]] size_t	GetNumJoints() const { return ( numJoints & ~MAPPED_FLAG ); }
+	[[nodiscard]] size_t	GetAllocedSize() const { return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float ); }
+	[[nodiscard]] void *	GetAPIObject() const { return apiObject; }
+	[[nodiscard]] size_t	GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 
 	void				Swap( idJointBuffer & other );
 
 private:
-	int					numJoints;
-	int					offsetInOtherBuffer;	// offset in bytes
+	size_t				numJoints;
+	size_t				offsetInOtherBuffer;	// offset in bytes
 	void *				apiObject;
 
 	// sizeof() confuses typeinfo...
@@ -192,9 +196,9 @@ private:
 
 private:
 	void				ClearWithoutFreeing();
-	void				SetMapped() const { const_cast< int & >( numJoints ) |= MAPPED_FLAG; }
-	void				SetUnmapped() const { const_cast< int & >( numJoints ) &= ~MAPPED_FLAG; }
-						[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
+	void				SetMapped() const { const_cast<size_t& >( numJoints ) |= MAPPED_FLAG; }
+	void				SetUnmapped() const { const_cast<size_t& >( numJoints ) &= ~MAPPED_FLAG; }
+	[[nodiscard]] bool				OwnsBuffer() const { return ( ( offsetInOtherBuffer & OWNS_BUFFER_FLAG ) != 0 ); }
 
 	DISALLOW_COPY_AND_ASSIGN( idJointBuffer );
 };

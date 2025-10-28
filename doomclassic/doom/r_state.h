@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __R_STATE__
 #define __R_STATE__
 
+#pragma once
+
 // Need data structure definitions.
 #include "d_player.h"
 #include "r_data.h"
@@ -56,9 +58,9 @@ extern fixed_t*		spritetopoffset;
 
 extern lighttable_t*	colormaps;
 
-extern int		viewwidth;
-extern int		scaledviewwidth;
-extern int		viewheight;
+extern size_t		viewwidth;
+extern size_t		scaledviewwidth;
+extern size_t		viewheight;
 
 extern int		firstflat;
 
@@ -68,37 +70,37 @@ extern int*		texturetranslation;
 
 
 // Sprite....
-extern int		firstspritelump;
-extern int		lastspritelump;
-extern int		numspritelumps;
+extern index_t		firstspritelump;
+extern index_t		lastspritelump;
+extern size_t		numspritelumps;
 
 
 
 //
 // Lookup tables for map data.
 //
-extern int		numsprites;
+extern size_t		numsprites;
 extern spritedef_t*	sprites;
 
-extern int		numvertexes;
+extern size_t		numvertexes;
 extern vertex_t*	vertexes;
 
-extern int		numsegs;
+extern size_t		numsegs;
 extern seg_t*		segs;
 
-extern int		numsectors;
+extern size_t		numsectors;
 extern sector_t*	sectors;
 
-extern int		numsubsectors;
+extern size_t		numsubsectors;
 extern subsector_t*	subsectors;
 
-extern int		numnodes;
+extern size_t		numnodes;
 extern node_t*		nodes;
 
-extern int		numlines;
+extern size_t		numlines;
 extern line_t*		lines;
 
-extern int		numsides;
+extern size_t		numsides;
 extern side_t*		sides;
 
 

@@ -116,17 +116,17 @@ public:
 
 	// Leaderboards
 	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment = nullptr);
-	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback );
+	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, size_t numRows, const idLeaderboardCallback & callback );
 	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID );
 
 	// Scoring (currently just for TrueSkill)
-	virtual void			SetLobbyUserRelativeScore( lobbyUserID_t lobbyUserID, int relativeScore, int team ) {}
+	virtual void			SetLobbyUserRelativeScore( lobbyUserID_t lobbyUserID, int relativeScore, index_t team ) {}
 
 	virtual void			LeaderboardFlush();
 
 	virtual idNetSessionPort &	GetPort( bool dedicated = false );
 	virtual idLobbyBackend *	CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType );
-	virtual idLobbyBackend *	FindLobbyBackend( const idMatchParameters & p, int numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType );
+	virtual idLobbyBackend *	FindLobbyBackend( const idMatchParameters & p, size_t numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType );
 	virtual idLobbyBackend *	JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo , idLobbyBackend::lobbyBackendType_t lobbyType );
 	virtual void				DestroyLobbyBackend( idLobbyBackend * lobbyBackend );
 	virtual void				PumpLobbies();
@@ -164,7 +164,7 @@ public:
 	idLobbyToSessionCBLocal( idSessionLocalWin * sessionLocalWin_ ) : sessionLocalWin( sessionLocalWin_ ) { }
 
 	[[nodiscard]] virtual bool CanJoinLocalHost() const { sessionLocalWin->EnsurePort(); return sessionLocalWin->canJoinLocalHost; }
-	[[nodiscard]] virtual class idLobbyBackend * GetLobbyBackend( idLobbyBackend::lobbyBackendType_t type ) const { return sessionLocalWin->lobbyBackends[ type ]; }
+	[[nodiscard]] virtual class idLobbyBackend * GetLobbyBackend(const idLobbyBackend::lobbyBackendType_t type ) const { return sessionLocalWin->lobbyBackends[ type ]; }
 
 private:
 	idSessionLocalWin *			sessionLocalWin;
@@ -178,8 +178,8 @@ public:
 	virtual bool	GetLocalChatDataInternal( int talkerIndex, byte * data, int & dataSize ) { return false; }
 	virtual void	SubmitIncomingChatDataInternal( int talkerIndex, const byte * data, int dataSize ) { }
 	virtual bool	TalkerHasData( int talkerIndex ) { return false; }
-	virtual bool	RegisterTalkerInternal( int index ) { return true; }
-	virtual void	UnregisterTalkerInternal( int index ) { }
+	virtual bool	RegisterTalkerInternal( index_t index ) { return true; }
+	virtual void	UnregisterTalkerInternal( index_t index ) { }
 };
 
 /*
@@ -436,7 +436,7 @@ bool idSessionLocalWin::IsSystemUIShowing() const {
 idSessionLocalWin::SetSystemUIShowing
 ========================
 */
-void idSessionLocalWin::SetSystemUIShowing( bool show ) {
+void idSessionLocalWin::SetSystemUIShowing(const bool show ) {
 	isSysUIShowing = show;
 }
 
@@ -538,7 +538,7 @@ void idSessionLocalWin::LeaderboardFlush() {
 idSessionLocalWin::LeaderboardDownload
 ========================
 */
-void idSessionLocalWin::LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback ) {
+void idSessionLocalWin::LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, size_t numRows, const idLeaderboardCallback & callback ) {
 }
 
 /*
@@ -584,7 +584,7 @@ idNetSessionPort & idSessionLocalWin::GetPort( bool dedicated ) {
 idSessionLocalWin::CreateLobbyBackend
 ========================
 */
-idLobbyBackend * idSessionLocalWin::CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalWin::CreateLobbyBackend( const idMatchParameters & p, const float skillLevel, const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	idLobbyBackend * lobbyBackend = CreateLobbyInternal( lobbyType );
 	lobbyBackend->StartHosting( p, skillLevel, lobbyType );
 	return lobbyBackend;
@@ -595,7 +595,7 @@ idLobbyBackend * idSessionLocalWin::CreateLobbyBackend( const idMatchParameters 
 idSessionLocalWin::FindLobbyBackend
 ========================
 */
-idLobbyBackend * idSessionLocalWin::FindLobbyBackend( const idMatchParameters & p, int numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalWin::FindLobbyBackend( const idMatchParameters & p, const size_t numPartyUsers, const float skillLevel, const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	idLobbyBackend * lobbyBackend = CreateLobbyInternal( lobbyType );
 	lobbyBackend->StartFinding( p, numPartyUsers, skillLevel );
 	return lobbyBackend;
@@ -606,7 +606,7 @@ idLobbyBackend * idSessionLocalWin::FindLobbyBackend( const idMatchParameters & 
 idSessionLocalWin::JoinFromConnectInfo
 ========================
 */
-idLobbyBackend * idSessionLocalWin::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalWin::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo, const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	idLobbyBackend * lobbyBackend = CreateLobbyInternal( lobbyType );
 	lobbyBackend->JoinFromConnectInfo( connectInfo );
 	return lobbyBackend;
@@ -638,7 +638,7 @@ void idSessionLocalWin::PumpLobbies() {
 	assert( lobbyBackends[idLobbyBackend::TYPE_GAME_STATE] == NULL || lobbyBackends[idLobbyBackend::TYPE_GAME_STATE]->GetLobbyType() == idLobbyBackend::TYPE_GAME_STATE );
 
 	// Pump lobbyBackends
-	for ( int i = 0; i < lobbyBackends.Num(); i++ ) {
+	for ( size_t i = 0; i < lobbyBackends.Num(); i++ ) {
 		if ( lobbyBackends[i] != nullptr) {
 			lobbyBackends[i]->Pump();
 		}
@@ -650,7 +650,7 @@ void idSessionLocalWin::PumpLobbies() {
 idSessionLocalWin::CreateLobbyInternal
 ========================
 */
-idLobbyBackend * idSessionLocalWin::CreateLobbyInternal( idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalWin::CreateLobbyInternal(const idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	EnsurePort();
 	idLobbyBackend * lobbyBackend = new (TAG_NETWORKING) idLobbyBackendDirect();
 

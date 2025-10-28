@@ -71,7 +71,7 @@ class idFileList {
 public:
 	[[nodiscard]] const char *			GetBasePath() const { return basePath; }
 	[[nodiscard]] size_t					GetNumFiles() const { return list.Num(); }
-	[[nodiscard]] const char *			GetFile( size_t index ) const { return list[index]; }
+	[[nodiscard]] const char *			GetFile(const size_t index ) const { return list[index]; }
 	[[nodiscard]] const idStrList &		GetList() const noexcept { return list; }
 
 private:

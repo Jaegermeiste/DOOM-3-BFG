@@ -38,15 +38,15 @@ public:
 	float w;    // width
 	float h;    // height;
 	idRectangle() { x = y = w= h = 0.0; }
-	idRectangle(float ix, float iy, float iw, float ih) { x = ix; y = iy; w = iw; h = ih; }
+	idRectangle(const float ix, const float iy, const float iw, const float ih) { x = ix; y = iy; w = iw; h = ih; }
 	[[nodiscard]] float Bottom() const { return y + h; }
 	[[nodiscard]] float Right() const { return x + w; }
-	void Offset (float x, float y) { 
+	void Offset (const float x, const float y) { 
 		this->x += x;
 		this->y += y;
 	}
 
-	[[nodiscard]] bool Contains(float xt, float yt) const
+	[[nodiscard]] bool Contains(const float xt, const float yt) const
 	{
 		if (w == 0.0 && h == 0.0) {
 			return false;
@@ -58,7 +58,7 @@ public:
 	}
 	void Empty() { x = y = w = h = 0.0; };
 
-	void ClipAgainst(idRectangle r, bool sizeOnly) {
+	void ClipAgainst(const idRectangle r, const bool sizeOnly) {
 		if (!sizeOnly) {
 			if (x < r.x) {
 				w -= r.x - x;
@@ -79,7 +79,7 @@ public:
 
 
 
-	void Rotate(float a, idRectangle &out) const
+	void Rotate(const float a, idRectangle &out) const
 	{
 		idVec3 p1, p2, p3, p4, p5;
 		float c, s;
@@ -111,7 +111,7 @@ public:
 	idRectangle & operator*=( const float a );
 	idRectangle & operator=( const idVec4 v );
 	int operator==(const idRectangle &a) const;
-	float &	operator[]( const int index );
+	float &	operator[]( const index_t index );
 	[[nodiscard]] char * String() const;
 	[[nodiscard]] const idVec4& ToVec4() const;
 
@@ -181,7 +181,7 @@ ID_INLINE int idRectangle::operator==( const idRectangle &a ) const {
 	return (x == a.x && y == a.y && w == a.w && a.h);
 }
 
-ID_INLINE float& idRectangle::operator[]( int index ) {
+ID_INLINE float& idRectangle::operator[](const index_t index ) {
 	return ( &x )[ index ];
 }
 
@@ -193,7 +193,7 @@ public:
 		rects.Clear();
 	}
 
-	bool Contains(float xt, float yt) {
+	bool Contains(const float xt, const float yt) {
 		int c = rects.Num();
 		for (int i = 0; i < c; i++) {
 			if (rects[i].Contains(xt, yt)) {
@@ -203,7 +203,7 @@ public:
 		return false;
 	}
 
-	void AddRect(float x, float y, float w, float h) {
+	void AddRect(const float x, const float y, const float w, const float h) {
 		rects.Append(idRectangle(x, y, w, h));
 	}
 
@@ -212,7 +212,7 @@ public:
 		return rects.Num();
 	}
 
-	idRectangle *GetRect(int index) {
+	idRectangle *GetRect(const index_t index) {
 		if (index >= 0 && index < rects.Num()) {
 			return &rects[index];
 		}

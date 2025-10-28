@@ -179,7 +179,7 @@ public:
 
 						// Default argument completion functions.
 	static void			ArgCompletion_Boolean( const idCmdArgs &args, void(*callback)( const char *s ) );
-	template<int min,int max>
+	template<int min,size_t max>
 	static void			ArgCompletion_Integer( const idCmdArgs &args, void(*callback)( const char *s ) );
 	template<const char **strings>
 	static void			ArgCompletion_String( const idCmdArgs &args, void(*callback)( const char *s ) );
@@ -204,14 +204,14 @@ ID_INLINE void idCmdSystem::ArgCompletion_Boolean( const idCmdArgs &args, void(*
 	callback( va( "%s 1", args.Argv( 0 ) ) );
 }
 
-template<int min,int max> ID_INLINE void idCmdSystem::ArgCompletion_Integer( const idCmdArgs &args, void(*callback)( const char *s ) ) {
+template<int min,size_t max> ID_INLINE void idCmdSystem::ArgCompletion_Integer( const idCmdArgs &args, void(*callback)( const char *s ) ) {
 	for ( int i = min; i <= max; i++ ) {
 		callback( va( "%s %d", args.Argv( 0 ), i ) );
 	}
 }
 
 template<const char **strings> ID_INLINE void idCmdSystem::ArgCompletion_String( const idCmdArgs &args, void(*callback)( const char *s ) ) {
-	for ( int i = 0; strings[i]; i++ ) {
+	for ( size_t i = 0; strings[i]; i++ ) {
 		callback( va( "%s %s", args.Argv( 0 ), strings[i] ) );
 	}
 }

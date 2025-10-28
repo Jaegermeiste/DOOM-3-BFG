@@ -134,7 +134,7 @@ void idMenuScreen_PDA_VideoDisks::Update() {
 		//}
 
 		idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-		int index = pdaVideoList.GetViewIndex();
+		index_t index = pdaVideoList.GetViewIndex();
 		const idDeclVideo * video = player->GetVideo( index );
 
 		if ( video == nullptr) {
@@ -173,8 +173,8 @@ void idMenuScreen_PDA_VideoDisks::ShowScreen( const mainMenuTransition_t transit
 	videoItems.Clear();
 	idPlayer * player = gameLocal.GetLocalPlayer();
 	if ( player != nullptr) {
-		int numVideos = player->GetInventory().videos.Num();
-		for ( int i = 0; i < numVideos; ++i ) {
+		size_t numVideos = player->GetInventory().videos.Num();
+		for ( size_t i = 0; i < numVideos; ++i ) {
 			const idDeclVideo * video = player->GetVideo( i );
 			if( video != nullptr) {
 				idList< idStr > item;
@@ -202,7 +202,7 @@ void idMenuScreen_PDA_VideoDisks::ToggleVideoDiskPlay() {
 	}
 
 
-	int index = pdaVideoList.GetViewIndex();
+	index_t index = pdaVideoList.GetViewIndex();
 	const idDeclVideo * video = player->GetVideo( index );
 	
 	if ( video == nullptr) {
@@ -229,7 +229,7 @@ void idMenuScreen_PDA_VideoDisks::ToggleVideoDiskPlay() {
 idMenuScreen_PDA_VideoDisks::SelectedVideoToPlay
 ========================
 */
-void idMenuScreen_PDA_VideoDisks::SelectedVideoToPlay( int index ) {
+void idMenuScreen_PDA_VideoDisks::SelectedVideoToPlay(const index_t index ) {
 
 	idPlayer * player = gameLocal.GetLocalPlayer();
 	if ( player == nullptr) {
@@ -277,7 +277,7 @@ void idMenuScreen_PDA_VideoDisks::HideScreen( const mainMenuTransition_t transit
 idMenuScreen_PDA_VideoDisks::HandleAction
 ========================
 */
-bool idMenuScreen_PDA_VideoDisks::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_PDA_VideoDisks::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

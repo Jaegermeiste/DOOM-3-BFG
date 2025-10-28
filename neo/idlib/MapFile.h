@@ -106,11 +106,11 @@ public:
 	static idMapBrush *		Parse( idLexer &src, const idVec3 &origin, bool newFormat = true, float version = CURRENT_MAP_VERSION );
 	static idMapBrush *		ParseQ3( idLexer &src, const idVec3 &origin );
 	
-	bool					Write( idFile *fp, Ordinal auto primitiveNum, const idVec3 &origin ) const;
+	bool					Write( idFile *fp, const Ordinal auto primitiveNum, const idVec3 &origin ) const;
 	[[nodiscard]] size_t	GetNumSides() const { return sides.Num(); }
 	size_t					AddSide( idMapBrushSide *side ) { return sides.Append( side ); }
 
-	[[nodiscard]] idMapBrushSide* GetSide(const Ordinal auto i) const { ORDINAL_CHECK(i, sides.Num());  return sides[i]; }
+	[[nodiscard]] idMapBrushSide* GetSide( const Ordinal auto i) const { ORDINAL_CHECK(i, sides.Num());  return sides[i]; }
 	[[nodiscard]] unsigned int	GetGeometryCRC() const;
 
 protected:
@@ -121,20 +121,20 @@ protected:
 class idMapPatch : public idMapPrimitive, public idSurface_Patch {
 public:
 							idMapPatch() noexcept;
-							idMapPatch(size_t maxPatchWidth, size_t maxPatchHeight );
+							idMapPatch( size_t maxPatchWidth, size_t maxPatchHeight );
 							~idMapPatch() override = default;
 	static idMapPatch *		Parse( idLexer &src, const idVec3 &origin, bool patchDef3 = true, float version = CURRENT_MAP_VERSION );
 	
-	bool					Write( idFile *fp, Ordinal auto primitiveNum, const idVec3 &origin ) const;
+	bool					Write( idFile *fp, const Ordinal auto primitiveNum, const idVec3 &origin ) const;
 	[[nodiscard]] const char *	GetMaterial() const { return material; }
 	void					SetMaterial( const char *p ) { material = p; }
 	[[nodiscard]] size_t	GetHorzSubdivisions() const { return horzSubdivisions; }
 	[[nodiscard]] size_t	GetVertSubdivisions() const { return vertSubdivisions; }
 	[[nodiscard]] bool		GetExplicitlySubdivided() const { return explicitSubdivisions; }
-	void					SetHorzSubdivisions(const size_t n ) { horzSubdivisions = n; }
-	void					SetVertSubdivisions(const size_t n ) { vertSubdivisions = n; }
+	void					SetHorzSubdivisions( const size_t n ) { horzSubdivisions = n; }
+	void					SetVertSubdivisions( const size_t n ) { vertSubdivisions = n; }
 	void					SetExplicitlySubdivided(const bool b ) { explicitSubdivisions = b; }
-	[[nodiscard]] unsigned int			GetGeometryCRC() const;
+	[[nodiscard]] uint32	GetGeometryCRC() const;
 
 protected:
 	idStr					material;
@@ -152,7 +152,7 @@ ID_INLINE idMapPatch::idMapPatch() noexcept {
 	expanded = false;
 }
 
-ID_INLINE idMapPatch::idMapPatch(const size_t maxPatchWidth, const size_t maxPatchHeight ) {
+ID_INLINE idMapPatch::idMapPatch( const size_t maxPatchWidth, const size_t maxPatchHeight ) {
 	type = TYPE_PATCH;
 	horzSubdivisions = vertSubdivisions = 0;
 	explicitSubdivisions = false;
@@ -175,7 +175,7 @@ public:
 							~idMapEntity() { primitives.DeleteContents( true ); }
 	static idMapEntity *	Parse( idLexer &src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
 	
-	bool					Write( idFile *fp, Ordinal auto entityNum ) const;
+	bool					Write( idFile *fp, const Ordinal auto entityNum ) const;
 	[[nodiscard]] size_t	GetNumPrimitives() const { return primitives.Num(); }
 
 	[[nodiscard]] idMapPrimitive*  GetPrimitive( const Ordinal auto i ) const { ORDINAL_CHECK(i, primitives.Num()); return primitives[i]; }

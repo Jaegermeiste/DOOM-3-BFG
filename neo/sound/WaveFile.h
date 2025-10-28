@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __WAVEFILE_H
 #define __WAVEFILE_H
 
+#pragma once
+
 /*
 ================================================================================================
 Contains the WaveFile declaration.
@@ -47,14 +49,14 @@ public:
 	bool		Open( const char * filename );
 	void		Close();
 	uint32		SeekToChunk( uint32 id );
-	size_t		Read( void * buffer, size_t len ) const { return file->Read( buffer, len ); }
+	size_t		Read( void * buffer, const size_t len ) const { return file->Read( buffer, len ); }
 	uint32		GetChunkOffset( uint32 id );
 
 	ID_TIME_T	Timestamp() const { return file->Timestamp(); }
 	[[nodiscard]] const char * Name() const { return ( file == nullptr ? "" : file->GetName() ); }
 
 	// This maps to the channel mask in waveFmtExtensible_t
-	enum {
+	enum channelIndex_e : uint8 {
 		CHANNEL_INDEX_FRONT_LEFT,
 		CHANNEL_INDEX_FRONT_RIGHT,
 		CHANNEL_INDEX_FRONT_CENTER,
@@ -66,9 +68,16 @@ public:
 		CHANNEL_INDEX_BACK_CENTER,
 		CHANNEL_INDEX_SIDE_LEFT,
 		CHANNEL_INDEX_SIDE_RIGHT,
+		CHANNEL_INDEX_TOP_CENTER,
+		CHANNEL_INDEX_TOP_FRONT_LEFT,
+		CHANNEL_INDEX_TOP_FRONT_CENTER,
+		CHANNEL_INDEX_TOP_FRONT_RIGHT,
+		CHANNEL_INDEX_TOP_BACK_LEFT,
+		CHANNEL_INDEX_TOP_BACK_CENTER,
+		CHANNEL_INDEX_TOP_BACK_RIGHT,
 		CHANNEL_INDEX_MAX
 	};
-	enum {
+	enum channelMask_e : uint32 {
 		CHANNEL_MASK_FRONT_LEFT			= BIT( CHANNEL_INDEX_FRONT_LEFT ),
 		CHANNEL_MASK_FRONT_RIGHT		= BIT( CHANNEL_INDEX_FRONT_RIGHT ),
 		CHANNEL_MASK_FRONT_CENTER		= BIT( CHANNEL_INDEX_FRONT_CENTER ),
@@ -80,12 +89,19 @@ public:
 		CHANNEL_MASK_BACK_CENTER		= BIT( CHANNEL_INDEX_BACK_CENTER ),
 		CHANNEL_MASK_SIDE_LEFT			= BIT( CHANNEL_INDEX_SIDE_LEFT ),
 		CHANNEL_MASK_SIDE_RIGHT			= BIT( CHANNEL_INDEX_SIDE_RIGHT ),
+		CHANNEL_MASK_TOP_CENTER         = BIT( CHANNEL_INDEX_TOP_CENTER ),
+		CHANNEL_MASK_TOP_FRONT_LEFT     = BIT( CHANNEL_INDEX_TOP_FRONT_LEFT ),
+		CHANNEL_MASK_TOP_FRONT_CENTER   = BIT( CHANNEL_INDEX_TOP_FRONT_CENTER ),
+		CHANNEL_MASK_TOP_FRONT_RIGHT    = BIT( CHANNEL_INDEX_TOP_FRONT_RIGHT ),
+		CHANNEL_MASK_TOP_BACK_LEFT      = BIT( CHANNEL_INDEX_TOP_BACK_LEFT ),
+		CHANNEL_MASK_TOP_BACK_CENTER    = BIT( CHANNEL_INDEX_TOP_BACK_CENTER ),
+		CHANNEL_MASK_TOP_BACK_RIGHT     = BIT( CHANNEL_INDEX_TOP_BACK_RIGHT ),
 		CHANNEL_MASK_ALL				= BIT( CHANNEL_INDEX_MAX ) - 1,
 	};
 
 	// This matches waveFmt_t::formatTag
 	// These are the only wave formats that we understand
-	enum {
+	enum waveFormat_e : uint16 {
 		FORMAT_UNKNOWN		= 0x0000,
 		FORMAT_PCM			= 0x0001,
 		FORMAT_ADPCM		= 0x0002,
@@ -193,14 +209,14 @@ public:
 		uint32 playCount;		// ignored	
 	};
 
-	const char * ReadWaveFormat( waveFmt_t & waveFmt );
+	const char * ReadWaveFormat( waveFmt_t & format );
 	static bool  ReadWaveFormatDirect( waveFmt_t & format, idFile *file );
-	static bool  WriteWaveFormatDirect( waveFmt_t & format, idFile *file );
+	static bool  WriteWaveFormatDirect(const waveFmt_t & format, idFile *file );
 	static bool  WriteSampleDataDirect( idList< sampleData_t > & sampleData, idFile *file );
-	static bool  WriteDataDirect( char * _data, uint32 size, idFile * file );
+	static bool  WriteDataDirect(const char * _data, uint32 size, idFile * file );
 	static bool  WriteHeaderDirect( uint32 fileSize, idFile * file );
 
-	bool		 ReadLoopData( int & start, int & end );
+	bool		 ReadLoopData( index_t & start, index_t & end );
 	
 private:
 	idFile *					file;

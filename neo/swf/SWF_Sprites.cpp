@@ -68,7 +68,7 @@ void idSWF::DefineSprite( idSWFBitStream & bitstream ) {
 idSWFSprite::Load
 ========================
 */
-void idSWFSprite::Load( idSWFBitStream & bitstream, bool parseDictionary ) {
+void idSWFSprite::Load( idSWFBitStream & bitstream, const bool parseDictionary ) {
 
 	frameCount = bitstream.ReadU16();
 
@@ -175,12 +175,12 @@ idSWFSprite::Read
 ========================
 */
 void idSWFSprite::Read( idFile * f ) {
-	int num = 0;
+	size_t num = 0;
 	f->ReadBig( frameCount );
 	f->ReadBig( num ); frameOffsets.SetNum( num );
 	f->ReadBigArray( frameOffsets.Ptr(), frameOffsets.Num() );
 	f->ReadBig( num ); frameLabels.SetNum( num );
-	for ( int i = 0; i < frameLabels.Num(); i++ ) {
+	for ( size_t i = 0; i < frameLabels.Num(); i++ ) {
 		f->ReadBig( frameLabels[i].frameNum );
 		f->ReadString( frameLabels[i].frameLabel );
 	}
@@ -194,7 +194,7 @@ void idSWFSprite::Read( idFile * f ) {
 	byte * currentBuffer = commandBuffer;
 
 	f->ReadBig( num ); commands.SetNum( num );
-	for ( int i = 0; i < commands.Num(); i++ ) {
+	for ( size_t i = 0; i < commands.Num(); i++ ) {
 		uint32 streamLength = 0;
 
 		f->ReadBig( commands[i].tag );
@@ -207,7 +207,7 @@ void idSWFSprite::Read( idFile * f ) {
 	uint32 doInitActionLength = 0;
 	f->ReadBig( num );
 	doInitActions.SetNum( num );
-	for ( int i = 0; i < num; i++ ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		f->ReadBig( doInitActionLength );
 		idSWFBitStream &initaction = doInitActions[i];
 		initaction.Load( currentBuffer, doInitActionLength, true );
@@ -225,33 +225,33 @@ void idSWFSprite::Write( idFile * f ) {
 	f->WriteBig( frameOffsets.Num() );
 	f->WriteBigArray( frameOffsets.Ptr(), frameOffsets.Num() );
 	f->WriteBig( frameLabels.Num() );
-	for ( int i = 0; i < frameLabels.Num(); i++ ) {
+	for ( size_t i = 0; i < frameLabels.Num(); i++ ) {
 		f->WriteBig( frameLabels[i].frameNum );
 		f->WriteString( frameLabels[i].frameLabel );
 	}
 	uint32 totalLength = 0;
-	for ( int i = 0; i < commands.Num(); i++ ) {
+	for ( size_t i = 0; i < commands.Num(); i++ ) {
 		totalLength += commands[i].stream.Length();
 	}
 	for (int i = 0; i < doInitActions.Num(); i++ ) {
 		totalLength += doInitActions[i].Length();
 	}
 	f->WriteBig( totalLength );
-	for ( int i = 0; i < commands.Num(); i++ ) {
+	for ( size_t i = 0; i < commands.Num(); i++ ) {
 		f->Write( commands[i].stream.Ptr(), commands[i].stream.Length() );
 	}
-	for ( int i = 0; i < doInitActions.Num(); i++ ){
+	for ( size_t i = 0; i < doInitActions.Num(); i++ ){
 		f->Write( doInitActions[i].Ptr(), doInitActions[i].Length() );
 	}
 
 	f->WriteBig( commands.Num() ); 
-	for ( int i = 0; i < commands.Num(); i++ ) {
+	for ( size_t i = 0; i < commands.Num(); i++ ) {
 		f->WriteBig( commands[i].tag );
 		f->WriteBig( commands[i].stream.Length() );
 	}
 
 	f->WriteBig( doInitActions.Num() );
-	for ( int i = 0; i < doInitActions.Num(); i++ ){
+	for ( size_t i = 0; i < doInitActions.Num(); i++ ){
 		f->WriteBig( doInitActions[i].Length() ); 
 	}
 }

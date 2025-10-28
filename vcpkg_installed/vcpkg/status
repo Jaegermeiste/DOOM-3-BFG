@@ -1,0 +1,398 @@
+Package: vcpkg-cmake-config
+Version: 2024-05-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: fcdf68e2b11302f4e2a66284cabd5d877355de03f07943f0dd5ac5ae38fb8895
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2025-08-07
+Architecture: x64-windows
+Multi-Arch: same
+Abi: cec985954c7dada10cdc4c883b162bac3dc475df645e9df97713e2b25efa95fc
+Status: install ok installed
+
+Package: directx-headers
+Version: 1.618.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 1faffcac835fe271d1cfd23e1ec4240ad7157659159b1e9beea02d98642a4580
+Description: Official DirectX 12 Headers
+Status: install ok installed
+
+Package: directx12-agility
+Version: 1.618.2
+Depends: directx-headers, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 420f0d77e090979adf250d1ddadf9edf60f2c48479ca355e4b84f882cf1d26d0
+Description: DirectX 12 Agility SDK
+Status: install ok installed
+
+Package: directxmath
+Version: 2025-04-03
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 418c95dbf617ed0d868782b66bc8b44ee279f02c9dff3c24fd72ea6913995402
+Description: DirectXMath SIMD C++ math library
+Status: install ok installed
+
+Package: directxmesh
+Version: 2025-07-10
+Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b44ca5a32fcabfa70e0ebc4d91dd17e578bad4babaca7fe183da0a646b991645
+Description: DirectXMesh geometry processing library
+Status: install ok installed
+
+Package: openjph
+Version: 0.24.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b0c9f20e2d36c12810956b99ccb566e7aac050e3d91f6a529d32e6ee9cfc9942
+Description: Open-source implementation of JPEG2000 Part-15 (or JPH or HTJ2K)
+Status: install ok installed
+
+Package: libdeflate
+Version: 1.24
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b072b1d8b04c55febf487c91e2c0e81724311b9bcdd9264b712524c6766e1adc
+Description: libdeflate is a library for fast, whole-buffer DEFLATE-based compression and decompression.
+Default-Features: compression, decompression, gzip, zlib
+Status: install ok installed
+
+Package: libdeflate
+Feature: compression
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support compression
+Status: install ok installed
+
+Package: libdeflate
+Feature: decompression
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support decompression
+Status: install ok installed
+
+Package: libdeflate
+Feature: gzip
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support the gzip format
+Status: install ok installed
+
+Package: libdeflate
+Feature: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support the zlib format
+Status: install ok installed
+
+Package: imath
+Version: 3.2.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: de83237e63eef664da1809c38cc77a5bbdf628384b5305a637f26fad4d04f1d1
+Description: Imath is a C++ and Python library of 2D and 3D vector, matrix, and math operations for computer graphics.
+Status: install ok installed
+
+Package: openexr
+Version: 3.4.2
+Depends: imath, libdeflate, openjph, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 60d79198b9c74cced0fdf4a141f4f74954dc7081b48933322b7804548e36d14d
+Description: OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications
+Status: install ok installed
+
+Package: directxtex
+Version: 2025-07-10
+Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 76e85accd983012041a4996c67e000c8c77de9eb4fe29c303c88d6408c23317e
+Description: DirectXTex texture processing library
+Default-Features: dx11
+Status: install ok installed
+
+Package: directxtex
+Feature: dx11
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build with DirectX11 support
+Status: install ok installed
+
+Package: directxtex
+Feature: dx12
+Depends: directx-headers
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build with DirectX12 support for Windows 10/Windows 11
+Status: install ok installed
+
+Package: directxtex
+Feature: openexr
+Depends: openexr
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enable OpenEXR support
+Status: install ok installed
+
+Package: directx-dxc
+Version: 2025-10-10
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 407ec7b6942e14d8f324dbf28b5469aa5a99769791dbbd887783980e28b7b3b5
+Description: DirectX Shader Compiler (LLVM/Clang)
+Status: install ok installed
+
+Package: directxtk12
+Version: 2025-07-10
+Depends: directx-dxc, directx-headers, directxmath, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 4ad05f885688c91d2766cbecc31adf78d489abf6307fce72899157300c74c18c
+Description: A collection of helper classes for writing DirectX 12 code in C++.
+Default-Features: xaudio2-9
+Status: install ok installed
+
+Package: directxtk12
+Feature: xaudio2-9
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build with XAudio 2.9 support for Windows 10/11
+Status: install ok installed
+
+Package: libjpeg-turbo
+Version: 3.1.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 64d6fa291041ff068a61e8e90783103eaf454920fdac2f10cc2cbd23d65bceaf
+Description: libjpeg-turbo is a JPEG image codec that uses SIMD instructions (MMX, SSE2, NEON, AltiVec) to accelerate baseline JPEG compression and decompression on x86, x86-64, ARM, and PowerPC systems.
+Status: install ok installed
+
+Package: magic-enum
+Version: 0.9.7
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 7fc02b7716de61804c73d8183b0777a4092e1a8785a5a87c271cd11ae6237fb0
+Description: Header-only C++17 library provides static reflection for enums, work with any enum type without any macro or boilerplate code.
+Status: install ok installed
+
+Package: zstd
+Version: 1.5.7
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: e14884ca8411eea4fa21f1048839e9e6792b7c4936adb8d6d781f3293d241ac3
+Description: Zstandard - Fast real-time compression algorithm
+Status: install ok installed
+
+Package: zlib
+Version: 1.3.1
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: a3b0ff05a86fa9a43adece03dcf1455ba3adb6ae029d44caf145f3c099c19010
+Description: A compression library
+Status: install ok installed
+
+Package: liblzma
+Version: 5.8.1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 638bcf4f46cb21323c0ae91746fcb9778d55c5e91b8bf4cde2b03ba330f959df
+Description: Compression library with an API similar to that of zlib.
+Status: install ok installed
+
+Package: bzip2
+Version: 1.0.8
+Port-Version: 6
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: e01cd5d8eee1e602e67d85752764c2e1f3651a72f9ff2f27c71a167e80e9d602
+Description: bzip2 is a freely available, patent free, high-quality data compressor. It typically compresses files to within 10% to 15% of the best available techniques (the PPM family of statistical compressors), whilst being around twice as fast at compression and six times faster at decompression.
+Default-Features: tool
+Status: install ok installed
+
+Package: bzip2
+Feature: tool
+Architecture: x64-windows
+Multi-Arch: same
+Description: Builds bzip2 executable
+Status: install ok installed
+
+Package: minizip-ng
+Version: 4.0.10
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: a0a151d4b5eed70eae39844cf7f423c97bdeb07c00d39f856705fc23122590ce
+Description: minizip-ng is a zip manipulation library written in C that is supported on Windows, macOS, and Linux.
+Default-Features: bzip2, lzma, pkcrypt, wzaes, zlib, zstd
+Status: install ok installed
+
+Package: minizip-ng
+Feature: bzip2
+Depends: bzip2
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enables BZIP2 compression
+Status: install ok installed
+
+Package: minizip-ng
+Feature: lzma
+Depends: liblzma
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enables LZMA compression
+Status: install ok installed
+
+Package: minizip-ng
+Feature: pkcrypt
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enables PKWARE traditional encryption
+Status: install ok installed
+
+Package: minizip-ng
+Feature: wzaes
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enables WinZIP AES encryption
+Status: install ok installed
+
+Package: minizip-ng
+Feature: zlib
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enables ZLIB compression
+Status: install ok installed
+
+Package: minizip-ng
+Feature: zstd
+Depends: zstd
+Architecture: x64-windows
+Multi-Arch: same
+Description: Enables ZSTD compression
+Status: install ok installed
+
+Package: brotli
+Version: 1.1.0
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: f3f3aaf1b27847bb0c19bd850b26f75a1f0c6441cc8200f47b539d5fe9fb3431
+Description: a generic-purpose lossless compression algorithm that compresses data using a combination of a modern variant of the LZ77 algorithm, Huffman coding and 2nd order context modeling.
+Status: install ok installed
+
+Package: cpprestsdk
+Version: 2.10.19
+Port-Version: 3
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b80b298c7956a2f3b4f34b92bbfdc71e92f3b76d122887b962bd8caf2013caa8
+Description: C++11 JSON, REST, and OAuth library
+    The C++ REST SDK is a Microsoft project for cloud-based client-server communication in native code using a modern asynchronous C++ API design. This project aims to help C++ developers connect to and interact with services.
+Default-Features: brotli, compression
+Status: install ok installed
+
+Package: cpprestsdk
+Feature: brotli
+Depends: brotli
+Architecture: x64-windows
+Multi-Arch: same
+Description: Brotli compression support
+Status: install ok installed
+
+Package: cpprestsdk
+Feature: compression
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: HTTP Compression support
+Status: install ok installed
+
+Package: ms-gdk
+Version: 2504.3.4084
+Depends: cpprestsdk, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: b08bd2f337310d441f44a7a42149bc573a58507178630892deae5047359d0119
+Description: Microsoft Game Development Kit (GDK)
+Status: install ok installed
+
+Package: ms-gsl
+Version: 4.2.0
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 94640a6274fd975925e549509ed95fec0bfdf929f2b6c74aae93a5721a1ed8f3
+Description: Microsoft implementation of the Guidelines Support Library
+Status: install ok installed
+
+Package: pffft
+Version: 2021-10-09
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: a5e94e40cb35c90561746ab46e9b28c86eed20d783ffa2b2a74e7e21bcf9e667
+Description: PFFFT, a pretty fast Fourier Transform.
+Status: install ok installed
+
+Package: libmysofa
+Version: 1.3.2
+Depends: vcpkg-cmake, vcpkg-cmake-config, zlib
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 8ad902c0519398bb944f458a2000e8e4dda94503948cb3aaa5fe51bf04c38336
+Description: Reader for AES SOFA files to get better HRTFs (Head-Relative Transfer Functions)
+Status: install ok installed
+
+Package: flatbuffers
+Version: 25.9.23
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 5e892ebc425e99908ab7ed4f475305a0fb0f5b64739ef3cae5cd53035d46cd80
+Description: FlatBuffers is a cross platform serialization library architected for maximum memory efficiency. It allows you to directly access serialized data without parsing/unpacking it first, while still having great forwards/backwards compatibility.
+Status: install ok installed
+
+Package: steam-audio
+Version: 4.7.0
+Depends: flatbuffers, libmysofa, pffft, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: ec93503f89df0c5a10704640dc9145a89ea2ab791e9e41bbc6c5617eefb0af30
+Description: Valve's steam audio library
+Status: install ok installed
+
+Package: zlib-ng
+Version: 2.2.5
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 8c1a4fa2cde38f4cfd2f270da5046144f7af100b743b0f2a16193835e1921c15
+Description: zlib replacement with optimizations for 'next generation' systems
+Status: install ok installed
+

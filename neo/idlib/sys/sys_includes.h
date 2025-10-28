@@ -44,6 +44,10 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
 
@@ -122,7 +126,13 @@ If you have questions concerning this license or the applicable additional terms
 #include <locale>
 #include <limits>
 #include <span>
+#include <in6addr.h>
+#include <stddef.h>
+#include <utility>
+#include <locale>
+#include <codecvt>
 
+#include <magic_enum/magic_enum.hpp>
 //-----------------------------------------------------
 
 // Hacked stuff we may want to consider implementing later

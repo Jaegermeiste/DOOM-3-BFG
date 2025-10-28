@@ -497,7 +497,7 @@ decode_mcu_AC_refine( j_decompress_ptr cinfo, JBLOCKROW * MCU_data ) {
     JCOEFPTR thiscoef;
     BITREAD_STATE_VARS;
     d_derived_tbl * tbl;
-    int num_newnz;
+    size_t num_newnz;
     int newnz_pos[DCTSIZE2];
 
     /* Process restart marker if needed; may have to suspend */

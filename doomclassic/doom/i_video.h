@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __I_VIDEO__
 #define __I_VIDEO__
 
+#pragma once
 
 #include "doomtype.h"
 #include "d_event.h"
@@ -66,9 +67,9 @@ void I_InputFrame( void );
 
 void I_UpdateControllerState(void);
 struct controller_t;
-int I_PollMouseInputEvents( controller_t * ) ;
+size_t I_PollMouseInputEvents( controller_t * ) ;
 int I_ReturnMouseInputEvent( const int n, event_t* e);
-int I_PollJoystickInputEvents( controller_t * ) ;
+size_t I_PollJoystickInputEvents( controller_t * ) ;
 int I_ReturnJoystickInputEvent( const int n, event_t* e);
 void I_EndJoystickInputEvents( void );
 

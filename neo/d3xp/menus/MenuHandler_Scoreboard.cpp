@@ -93,7 +93,7 @@ void idMenuHandler_Scoreboard::TriggerMenu() {
 idMenuHandler_Scoreboard::ActivateMenu
 ========================
 */
-void idMenuHandler_Scoreboard::ActivateMenu( bool show ) {
+void idMenuHandler_Scoreboard::ActivateMenu(const bool show ) {
 
 	idMenuHandler::ActivateMenu( show );
 
@@ -155,7 +155,7 @@ void idMenuHandler_Scoreboard::Initialize( const char * swfFile, idSoundWorld * 
 	menuScreens[ (screenId) ]->Initialize( menuHandler );				\
 	menuScreens[ (screenId) ]->AddRef();
 
-	for ( int i = 0; i < SCOREBOARD_NUM_AREAS; ++i ) {
+	for ( size_t i = 0; i < SCOREBOARD_NUM_AREAS; ++i ) {
 		menuScreens[ i ] = nullptr;
 	}
 
@@ -227,7 +227,7 @@ void idMenuHandler_Scoreboard::Initialize( const char * swfFile, idSoundWorld * 
 idMenuHandler_Scoreboard::GetMenuScreen
 ========================
 */
-idMenuScreen * idMenuHandler_Scoreboard::GetMenuScreen( int index ) {
+idMenuScreen * idMenuHandler_Scoreboard::GetMenuScreen(const index_t index ) {
 
 	if ( index < 0 || index >= SCOREBOARD_NUM_AREAS ) {
 		return nullptr;
@@ -242,7 +242,7 @@ idMenuScreen * idMenuHandler_Scoreboard::GetMenuScreen( int index ) {
 idMenuHandler_Scoreboard::HandleAction
 ========================
 */
-bool idMenuHandler_Scoreboard::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuHandler_Scoreboard::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( activeScreen == SCOREBOARD_AREA_INVALID ) {
 		return true;
@@ -272,7 +272,7 @@ bool idMenuHandler_Scoreboard::HandleAction( idWidgetAction & action, const idWi
 idMenuHandler_Scoreboard::AddPlayerInfo
 ========================
 */
-void idMenuHandler_Scoreboard::AddPlayerInfo( int index, voiceStateDisplay_t voiceState, int team, idStr name, int score, int wins, int ping, idStr spectateData ) {
+void idMenuHandler_Scoreboard::AddPlayerInfo(const index_t index, const voiceStateDisplay_t voiceState, const index_t team, idStr name, const int score, const int wins, const int ping, idStr spectateData ) {
 	
 	scoreboardInfo_t info;
 	idList< idStr > values;
@@ -329,7 +329,7 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo > & da
 	if ( data.Num() != scoreboardInfo.Num() ) {
 		changed = true;
 	} else {
-		for ( int i = 0; i < data.Num(); ++i ) {
+		for ( size_t i = 0; i < data.Num(); ++i ) {
 			if ( data[i] != scoreboardInfo[i] ) {
 				changed = true;
 				break;
@@ -353,12 +353,12 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo > & da
 
 	redInfo.Clear();
 	blueInfo.Clear();
-	for ( int i = 0; i < data.Num(); ++i ) {
+	for ( size_t i = 0; i < data.Num(); ++i ) {
 		AddPlayerInfo( data[i].playerNum, data[i].voiceState, data[i].team, data[i].name, data[i].score, data[i].wins, data[i].ping, data[i].spectateData );
 	}
 
 	idList< scoreboardInfo_t, TAG_IDLIB_LIST_MENU > listItemInfo;
-	for ( int i = 0; i < redInfo.Num(); ++i ) {
+	for ( size_t i = 0; i < redInfo.Num(); ++i ) {
 		listItemInfo.Append( redInfo[i] );
 	}
 
@@ -370,7 +370,7 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo > & da
 		}
 	}
 
-	for ( int i = 0; i < blueInfo.Num(); ++i ) {
+	for ( size_t i = 0; i < blueInfo.Num(); ++i ) {
 		listItemInfo.Append( blueInfo[i] );
 	}
 
@@ -399,7 +399,7 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo > & da
 idMenuHandler_Scoreboard::SetTeamScore
 ========================
 */
-void idMenuHandler_Scoreboard::SetTeamScores( int r, int b ) {
+void idMenuHandler_Scoreboard::SetTeamScores(const int r, const int b ) {
 	redScore = r;
 	blueScore = b;
 }
@@ -409,7 +409,7 @@ void idMenuHandler_Scoreboard::SetTeamScores( int r, int b ) {
 idMenuHandler_Scoreboard::GetNumPlayers
 ========================
 */
-int idMenuHandler_Scoreboard::GetNumPlayers( int team ) {
+int idMenuHandler_Scoreboard::GetNumPlayers(const index_t team ) {
 
 	if ( team == 1 ) {
 		return blueInfo.Num();
@@ -424,7 +424,7 @@ int idMenuHandler_Scoreboard::GetNumPlayers( int team ) {
 idMenuHandler_Scoreboard::SetActivationScreen
 ========================
 */
-void idMenuHandler_Scoreboard::SetActivationScreen( int screen, int trans ) {
+void idMenuHandler_Scoreboard::SetActivationScreen(const int screen, const int trans ) {
 	activationScreen = screen;
 	transition = trans;
 }
@@ -434,11 +434,11 @@ void idMenuHandler_Scoreboard::SetActivationScreen( int screen, int trans ) {
 idMenuHandler_Scoreboard::GetUserID
 ========================
 */
-void idMenuHandler_Scoreboard::GetUserID( int slot, lobbyUserID_t & luid ) {
+void idMenuHandler_Scoreboard::GetUserID(const int slot, lobbyUserID_t & luid ) {
 	idList< int > redList;
 	idList< int > blueList;
 
-	for ( int i = 0; i < scoreboardInfo.Num(); ++i ) {
+	for ( size_t i = 0; i < scoreboardInfo.Num(); ++i ) {
 		if ( scoreboardInfo[i].team == 1 ) {
 			blueList.Append( scoreboardInfo[i].playerNum );
 		} else {
@@ -448,11 +448,11 @@ void idMenuHandler_Scoreboard::GetUserID( int slot, lobbyUserID_t & luid ) {
 
 	idList< int > displayList;
 
-	for ( int i = 0; i < redList.Num(); ++i ) {
+	for ( size_t i = 0; i < redList.Num(); ++i ) {
 		displayList.Append( redList[ i ] );
 	}
 
-	for ( int i = 0; i < blueList.Num(); ++i ) {
+	for ( size_t i = 0; i < blueList.Num(); ++i ) {
 		displayList.Append( blueList[ i ] );
 	}
 
@@ -468,7 +468,7 @@ void idMenuHandler_Scoreboard::GetUserID( int slot, lobbyUserID_t & luid ) {
 idMenuHandler_Scoreboard::ViewPlayerProfile
 ========================
 */
-void idMenuHandler_Scoreboard::ViewPlayerProfile( int slot ) {
+void idMenuHandler_Scoreboard::ViewPlayerProfile(const int slot ) {
 
 	lobbyUserID_t luid;
 	GetUserID( slot, luid );
@@ -482,7 +482,7 @@ void idMenuHandler_Scoreboard::ViewPlayerProfile( int slot ) {
 idMenuHandler_Scoreboard::MutePlayer
 ========================
 */
-void idMenuHandler_Scoreboard::MutePlayer( int slot ) {
+void idMenuHandler_Scoreboard::MutePlayer(const int slot ) {
 
 	lobbyUserID_t luid;
 	GetUserID( slot, luid );

@@ -38,12 +38,12 @@ If you have questions concerning this license or the applicable additional terms
 // Global parameters/defines.
 //
 // DOOM version
-enum { VERSION =  111 };
+enum doomVer_e : uint8 { VERSION =  111 };
 
 
 // Game mode handling - identify IWAD version
 //  to handle IWAD dependend animations etc.
-typedef enum
+typedef enum GameMode_e : uint8
 {
   shareware,	// DOOM 1 shareware, E1, M9
   registered,	// DOOM 1 registered, E3, M27
@@ -56,7 +56,7 @@ typedef enum
 
 
 // Mission packs - might be useful for TC stuff?
-typedef enum
+typedef enum GameMission_e : uint8
 {
   doom,			// DOOM 1
   doom2,		// DOOM 2
@@ -71,7 +71,7 @@ typedef enum
 
 
 // Identify language to use, software localization.
-typedef enum
+typedef enum Language_e : uint8
 {
   english,
   german,
@@ -111,13 +111,13 @@ typedef enum
 
 // It is educational but futile to change this
 //  scaling e.g. to 2. Drawing of status bar,
-//  menues etc. is tied to the scale implied
+//  menus etc. is tied to the scale implied
 //  by the graphics.
-#define	SCREEN_MUL		1
-#define	INV_ASPECT_RATIO	0.625 // 0.75, ideally
+constexpr auto SCREEN_MUL = 1;
+constexpr auto INV_ASPECT_RATIO = 0.625; // 0.75, ideally
 
 // Defines suck. C sucks.
-// C++ might sucks for OOP, but it sure is a better C.
+// C++ might suck for OOP, but it sure is a better C.
 // So there.
 //#define SCREENWIDTH  320//320
 //SCREEN_MUL*BASE_WIDTH //320
@@ -128,16 +128,17 @@ typedef enum
 
 
 // The maximum number of players, multiplayer/networking.
-#define MAXPLAYERS		4
+constexpr size_t MAXPLAYERS = 4;
 
 // State updates, number of tics / second.
-#define TICRATE		35
+constexpr ID_TIME_T TICRATE = 35;
 
 // The current state of the game: whether we are
 // playing, gazing at the intermission screen,
 // the game final animation, or a demo. 
-typedef enum
+typedef enum gamestate_e : int8 // might be negative at init
 {
+	GS_INVALID = -1,
     GS_LEVEL,
     GS_INTERMISSION,
     GS_FINALE,
@@ -149,14 +150,18 @@ typedef enum
 //
 
 // Skill flags.
-#define	MTF_EASY		1
-#define	MTF_NORMAL		2
-#define	MTF_HARD		4
+enum MTF_e : uint8
+{
+	MTF_EASY = 1,
+	MTF_NORMAL = 2,
+	MTF_HARD = 4,
+	// Deaf monsters/do not react to sound.
+    MTF_AMBUSH = 8
+};
 
-// Deaf monsters/do not react to sound.
-#define	MTF_AMBUSH		8
 
-typedef enum
+
+typedef enum skill_e : uint8
 {
     sk_baby,
     sk_easy,
@@ -171,7 +176,7 @@ typedef enum
 //
 // Key cards.
 //
-typedef enum
+typedef enum card_e : uint8
 {
     it_bluecard,
     it_yellowcard,
@@ -189,7 +194,7 @@ typedef enum
 // The defined weapons,
 //  including a marker indicating
 //  user has not changed weapon.
-typedef enum
+typedef enum weapontype_e : uint8
 {
     wp_fist,
     wp_pistol,
@@ -210,7 +215,7 @@ typedef enum
 
 
 // Ammunition types defined.
-typedef enum
+typedef enum ammotype_e : uint8
 {
     am_clip,	// Pistol / chaingun ammo.
     am_shell,	// Shotgun / double barreled shotgun.
@@ -223,7 +228,7 @@ typedef enum
 
 
 // Power up artifacts.
-typedef enum
+typedef enum powertype_e : uint8
 {
     pw_invulnerability,
     pw_strength,
@@ -242,7 +247,7 @@ typedef enum
 //  how many seconds till expiration,
 //  assuming TICRATE is 35 ticks/second.
 //
-typedef enum
+typedef enum powerduration_e : uint16
 {
     INVULNTICS	= (30*TICRATE),
     INVISTICS	= (60*TICRATE),
@@ -259,36 +264,40 @@ typedef enum
 // This is the stuff configured by Setup.Exe.
 // Most key data are simple ascii (uppercased).
 //
-#define KEY_RIGHTARROW	K_RIGHTARROW
-#define KEY_LEFTARROW	K_LEFTARROW
-#define KEY_UPARROW		K_UPARROW
-#define KEY_DOWNARROW	K_DOWNARROW
-#define KEY_ESCAPE		K_ESCAPE
-#define KEY_ENTER		K_ENTER
-#define KEY_TAB			K_TAB
-#define KEY_F1		K_F1
-#define KEY_F2		K_F2
-#define KEY_F3		K_F3
-#define KEY_F4		K_F4
-#define KEY_F5		K_F5
-#define KEY_F6		K_F6
-#define KEY_F7		K_F7
-#define KEY_F8		K_F8
-#define KEY_F9		K_F9
-#define KEY_F10		K_F10
-#define KEY_F11		K_F11
-#define KEY_F12		K_F12
+enum keys_e : uint8
+{
+	KEY_RIGHTARROW = K_RIGHTARROW,
+	KEY_LEFTARROW  = K_LEFTARROW,
+	KEY_UPARROW    = K_UPARROW,
+	KEY_DOWNARROW  = K_DOWNARROW,
+	KEY_ESCAPE     = K_ESCAPE,
+	KEY_ENTER      = K_ENTER,
+	KEY_TAB        = K_TAB,
+	KEY_F1         = K_F1,
+	KEY_F2         = K_F2,
+	KEY_F3         = K_F3,
+	KEY_F4         = K_F4,
+	KEY_F5         = K_F5,
+	KEY_F6         = K_F6,
+	KEY_F7         = K_F7,
+	KEY_F8         = K_F8,
+	KEY_F9         = K_F9,
+	KEY_F10        = K_F10,
+	KEY_F11        = K_F11,
+	KEY_F12        = K_F12,
 
-#define KEY_BACKSPACE	K_BACKSPACE
-#define KEY_PAUSE	0xff
+	KEY_BACKSPACE  = K_BACKSPACE,
 
-#define KEY_EQUALS	K_EQUALS
-#define KEY_MINUS	K_MINUS
+	KEY_PAUSE      = 0xff,
 
-#define KEY_RSHIFT	K_RSHIFT
-#define KEY_RCTRL	K_RCTRL
-#define KEY_RALT	K_RALT
-#define KEY_LALT	K_LALT
+	KEY_EQUALS     = K_EQUALS,
+	KEY_MINUS      = K_MINUS,
+
+	KEY_RSHIFT     = K_RSHIFT,
+	KEY_RCTRL      = K_RCTRL,
+	KEY_RALT       = K_RALT,
+	KEY_LALT       = K_LALT
+};
 
 // DOOM basic types (qboolean),
 //  and max/min values.

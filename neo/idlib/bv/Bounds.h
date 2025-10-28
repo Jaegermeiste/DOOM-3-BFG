@@ -46,8 +46,7 @@ public:
 					explicit idBounds( const idVec3 &point );
 
 	
-	const idVec3 &	operator[]( const Ordinal auto index ) const;
-	
+	const idVec3&   operator[]( const Ordinal auto index ) const;
 	idVec3 &		operator[]( const Ordinal auto index );
 	idBounds		operator+( const idVec3 &t ) const;				// returns translated bounds
 	idBounds &		operator+=( const idVec3 &t );					// translate the bounds
@@ -58,44 +57,44 @@ public:
 	idBounds		operator-( const idBounds &a ) const;
 	idBounds &		operator-=( const idBounds &a );
 
-					[[nodiscard]] bool			Compare( const idBounds &a ) const;							// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idBounds &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idBounds &a ) const;							// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idBounds &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idBounds &a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idBounds &a ) const;						// exact compare, no epsilon
 
 	void			Clear();									// inside out bounds
 	void			Zero();									// single point at origin
 
-					[[nodiscard]] idVec3			GetCenter() const;						// returns center of bounds
-					[[nodiscard]] float			GetRadius() const;						// returns the radius relative to the bounds origin
-					[[nodiscard]] float			GetRadius( const idVec3 &center ) const;		// returns the radius relative to the given center
-					[[nodiscard]] float			GetVolume() const;						// returns the volume of the bounds
-					[[nodiscard]] bool			IsCleared() const;						// returns true if bounds are inside out
+	[[nodiscard]] idVec3		GetCenter() const;						// returns center of bounds
+	[[nodiscard]] float			GetRadius() const;						// returns the radius relative to the bounds origin
+	[[nodiscard]] float			GetRadius( const idVec3 &center ) const;		// returns the radius relative to the given center
+	[[nodiscard]] float			GetVolume() const;						// returns the volume of the bounds
+	[[nodiscard]] bool			IsCleared() const;						// returns true if bounds are inside out
 
 	bool			AddPoint( const idVec3 &v );					// add the point, returns true if the bounds expanded
 	bool			AddBounds( const idBounds &a );					// add the bounds, returns true if the bounds expanded
-					[[nodiscard]] idBounds		Intersect( const idBounds &a ) const;			// return intersection of this bounds with the given bounds
+	[[nodiscard]] idBounds		Intersect( const idBounds &a ) const;			// return intersection of this bounds with the given bounds
 	idBounds &		IntersectSelf( const idBounds &a );				// intersect this bounds with the given bounds
-					[[nodiscard]] idBounds		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
+	[[nodiscard]] idBounds		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
 	idBounds &		ExpandSelf( const float d );					// expand bounds in all directions with the given value
-					[[nodiscard]] idBounds		Translate( const idVec3 &translation ) const;	// return translated bounds
+	[[nodiscard]] idBounds		Translate( const idVec3 &translation ) const;	// return translated bounds
 	idBounds &		TranslateSelf( const idVec3 &translation );		// translate this bounds
-					[[nodiscard]] idBounds		Rotate( const idMat3 &rotation ) const;			// return rotated bounds
+	[[nodiscard]] idBounds		Rotate( const idMat3 &rotation ) const;			// return rotated bounds
 	idBounds &		RotateSelf( const idMat3 &rotation );			// rotate this bounds
 
-					[[nodiscard]] float			PlaneDistance( const idPlane &plane ) const;
-					[[nodiscard]] int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+	[[nodiscard]] float			PlaneDistance( const idPlane &plane ) const;
+	[[nodiscard]] int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
-					[[nodiscard]] bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
-					[[nodiscard]] bool			IntersectsBounds( const idBounds &a ) const;	// includes touching
-					[[nodiscard]] bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
+	[[nodiscard]] bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
+	[[nodiscard]] bool			IntersectsBounds( const idBounds &a ) const;	// includes touching
+	[[nodiscard]] bool			LineIntersection( const idVec3 &start, const idVec3 &end ) const;
 					// intersection point is start + dir * scale
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale ) const;
 
 					// most tight bounds for the given transformed bounds
 	void			FromTransformedBounds( const idBounds &bounds, const idVec3 &origin, const idMat3 &axis );
 					// most tight bounds for a point set
-	void			FromPoints( const idVec3 *points, const int numPoints );
+	void			FromPoints( const idVec3 *points, const size_t numPoints );
 					// most tight bounds for a translation
 	void			FromPointTranslation( const idVec3 &point, const idVec3 &translation );
 	void			FromBoundsTranslation( const idBounds &bounds, const idVec3 &origin, const idMat3 &axis, const idVec3 &translation );
@@ -104,14 +103,14 @@ public:
 	void			FromBoundsRotation( const idBounds &bounds, const idVec3 &origin, const idMat3 &axis, const idRotation &rotation );
 
 	void			ToPoints( idVec3 points[8] ) const;
-					[[nodiscard]] idSphere		ToSphere() const;
+	[[nodiscard]] idSphere		ToSphere() const;
 
 	void			AxisProjection( const idVec3 &dir, float &min, float &max ) const;
 	void			AxisProjection( const idVec3 &origin, const idMat3 &axis, const idVec3 &dir, float &min, float &max ) const;
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t			GetDimension();
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
 
 private:
@@ -413,7 +412,7 @@ ID_INLINE void idBounds::AxisProjection( const idVec3 &origin, const idMat3 &axi
 	max = d1 + d2;
 }
 
-ID_INLINE int idBounds::GetDimension() const {
+ID_INLINE size_t idBounds::GetDimension() {
 	return 6;
 }
 

@@ -47,6 +47,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <comutil.h>
 #include <Wbemidl.h>
 
+#include "sys/sys_lobby_backend.h"
+
 #pragma comment (lib, "wbemuuid.lib")
 
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
@@ -56,7 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 constexpr auto EPOCH_DIFF_100NS = 116444736000000000ULL;
 
 // Convert FILETIME (100ns ticks since 1601-01-01) to Unix epoch milliseconds.
-[[nodiscard]] static inline uint64 Sys_FiletimeToUnixMs(uint64 filetime100ns) noexcept {
+[[nodiscard]] static inline uint64 Sys_FiletimeToUnixMs(const uint64 filetime100ns) noexcept {
 	// Guard against dates before 1970 if ever needed; clamp to 0.
 	if (filetime100ns <= EPOCH_DIFF_100NS)
 	{
@@ -125,15 +127,15 @@ ID_TIME_T Sys_Milliseconds() {
 Sys_Microseconds
 ========================
 */
-ID_TIME_T Sys_Microseconds() {
-	static ID_TIME_T ticksPerMicrosecondTimes1024 = 0;
+uint64 Sys_Microseconds() {
+	static uint64 ticksPerMicrosecondTimes1024 = 0;
 
 	if ( ticksPerMicrosecondTimes1024 == 0 ) {
-		ticksPerMicrosecondTimes1024 = ( static_cast<ID_TIME_T>(Sys_ClockTicksPerSecond()) << 10 ) / 1000000;
+		ticksPerMicrosecondTimes1024 = ( numeric_cast<uint64>(Sys_ClockTicksPerSecond()) << 10 ) / 1000000;
 		assert( ticksPerMicrosecondTimes1024 > 0 );
 	}
 
-	return (static_cast<ID_TIME_T>(Sys_GetClockTicks()) << 10) / ticksPerMicrosecondTimes1024;
+	return (numeric_cast<uint64>(Sys_GetClockTicks()) << 10) / ticksPerMicrosecondTimes1024;
 }
 
 /*
@@ -150,7 +152,7 @@ size_t Sys_GetSystemRam() {
 	auto physRam = statex.ullTotalPhys / ( 1024ULL * 1024ULL );
 	// HACK: For some reason, ullTotalPhys is sometimes off by a meg or two, so we round up to the nearest 16 megs
 	physRam = ( physRam + 8 ) & ~15;
-	return idMath::integer_cast<size_t>(physRam);
+	return numeric_cast<size_t>(physRam);
 }
 
 
@@ -270,7 +272,7 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats ) {
 Sys_LockMemory
 ================
 */
-bool Sys_LockMemory( void *ptr, size_t bytes ) {
+bool Sys_LockMemory( void *ptr, const size_t bytes ) {
 	return ( VirtualLock( ptr, static_cast<SIZE_T>(bytes) ) != FALSE );
 }
 
@@ -279,7 +281,7 @@ bool Sys_LockMemory( void *ptr, size_t bytes ) {
 Sys_UnlockMemory
 ================
 */
-bool Sys_UnlockMemory( void *ptr, size_t bytes ) {
+bool Sys_UnlockMemory( void *ptr, const size_t bytes ) {
 	return ( VirtualUnlock( ptr, static_cast<SIZE_T>(bytes) ) != FALSE );
 }
 
@@ -288,7 +290,7 @@ bool Sys_UnlockMemory( void *ptr, size_t bytes ) {
 Sys_SetPhysicalWorkMemory
 ================
 */
-void Sys_SetPhysicalWorkMemory( size_t minBytes, size_t maxBytes ) {
+void Sys_SetPhysicalWorkMemory(const size_t minBytes, const size_t maxBytes ) {
 	::SetProcessWorkingSetSize( GetCurrentProcess(), minBytes, maxBytes );
 }
 
@@ -299,7 +301,7 @@ Sys_GetCurrentUser
 */
 char *Sys_GetCurrentUser() {
 	static char s_userName[1024] = {};
-	DWORD size = idMath::integer_cast<DWORD>(sizeof( s_userName ));
+	DWORD size = numeric_cast<DWORD>(sizeof( s_userName ));
 
 
 	if ( !GetUserName( s_userName, &size ) ) {
@@ -337,21 +339,13 @@ constexpr int UNDECORATE_FLAGS =	UNDNAME_NO_MS_KEYWORDS |
 #if (defined(_DEBUG) || defined(DEBUG)) && 1
 
 typedef struct symbol_s {
-#if defined(ID_WIN64) || defined (ID_WIN32)
-	UINT_PTR            address;
-#else
-	int					address;
-#endif
+	address_t           address;
 	char *				name;
 	struct symbol_s *	next;
 } symbol_t;
 
 typedef struct module_s {
-#if defined(ID_WIN64) || defined (ID_WIN32)
-	UINT_PTR            address;
-#else
-	int					address;
-#endif
+	address_t           address;
 	char *				name;
 	symbol_t *			symbols;
 	struct module_s *	next;
@@ -408,10 +402,10 @@ static int64 ParseHexNumber64(const char** ptr) {
 	while ((**ptr) >= '0' && (**ptr) <= '9' || (**ptr) >= 'a' && (**ptr) <= 'f') {
 		n <<= 4;
 		if (**ptr >= '0' && **ptr <= '9') {
-			n |= idMath::integer_cast<int64>((**ptr) - '0');
+			n |= numeric_cast<int64>((**ptr) - '0');
 		}
 		else {
-			n |= 10LL + idMath::integer_cast<int64>((**ptr) - 'a');
+			n |= 10LL + numeric_cast<int64>((**ptr) - 'a');
 		}
 		(*ptr)++;
 	}
@@ -423,7 +417,7 @@ static int64 ParseHexNumber64(const char** ptr) {
 Sym_Init
 ==================
 */
-static void Sym_Init( UINT_PTR addr ) {
+static void Sym_Init(const address_t addr ) {
 	TCHAR moduleName[MAX_STRING_CHARS] = {};
 	MEMORY_BASIC_INFORMATION mbi = {};
 
@@ -444,7 +438,7 @@ static void Sym_Init( UINT_PTR addr ) {
 	module_t *module = static_cast<module_t*>(malloc(sizeof(module_t)));
 	module->name = static_cast<char*>(malloc(strlen(moduleName) + 1));
 	strcpy( module->name, moduleName );
-	module->address = reinterpret_cast<UINT_PTR>(mbi.AllocationBase);
+	module->address = reinterpret_cast<address_t>(mbi.AllocationBase);
 	module->symbols = nullptr;
 	module->next = modules;
 	modules = module;
@@ -456,7 +450,7 @@ static void Sym_Init( UINT_PTR addr ) {
 
 	auto pos = ftell( fp );
 	fseek( fp, 0, SEEK_END );
-	auto length = idMath::integer_cast<size_t>(ftell( fp ));
+	auto length = numeric_cast<size_t>(ftell( fp ));
 	fseek( fp, pos, SEEK_SET );
 
 	char *text = static_cast<char*>(malloc(length + 1));
@@ -476,11 +470,8 @@ static void Sym_Init( UINT_PTR addr ) {
 		SkipRestOfLine( &ptr );
 	}
 
-#if defined(ID_WIN64) || defined (ID_WIN32)
-	UINT_PTR symbolAddress = 0;
-#else
-	int symbolAddress;
-#endif
+	address_t symbolAddress = 0;
+
 	char symbolName[MAX_STRING_CHARS] = {};
 	symbol_t *symbol = nullptr;
 
@@ -558,15 +549,15 @@ static void Sym_Shutdown() {
 Sym_GetFuncInfo
 ==================
 */
-static void Sym_GetFuncInfo( UINT_PTR addr, idStr &module, idStr &funcName ) {
+static void Sym_GetFuncInfo(const address_t addr, idStr &module, idStr &funcName ) {
 	MEMORY_BASIC_INFORMATION mbi = {};
-	module_t *m = nullptr;
-	symbol_t *s = nullptr;
+	const module_t *m = nullptr;
+	const symbol_t *s = nullptr;
 
 	VirtualQuery( reinterpret_cast<LPCVOID>(addr), &mbi, sizeof(mbi) );
 
 	for ( m = modules; m != nullptr; m = m->next ) {
-		if ( m->address == reinterpret_cast<UINT_PTR>(mbi.AllocationBase) ) {
+		if ( m->address == reinterpret_cast<address_t>(mbi.AllocationBase) ) {
 			break;
 		}
 	}
@@ -596,7 +587,7 @@ static void Sym_GetFuncInfo( UINT_PTR addr, idStr &module, idStr &funcName ) {
 		}
 	}
 
-	sprintf( funcName, "0x%08llu", addr );
+	sprintf( funcName, "0x%08lld", addr );
 	module = "";
 }
 
@@ -611,7 +602,7 @@ idStr lastModule;
 Sym_Init
 ==================
 */
-static void Sym_Init( UINT_PTR addr ) {
+static void Sym_Init( address_t addr ) {
 	TCHAR moduleName[MAX_STRING_CHARS] = {};
 	TCHAR modShortNameBuf[MAX_STRING_CHARS] = {};
 	MEMORY_BASIC_INFORMATION mbi = {};
@@ -738,9 +729,8 @@ GetFuncAddr
 ==================
 */
 static address_t GetFuncAddr( address_t midPtPtr ) {
-	long temp;
 	do {
-		temp = (long)(*(long*)midPtPtr);
+		long temp = (*reinterpret_cast<long*>(midPtPtr));
 		if ( (temp&0x00FFFFFF) == PROLOGUE_SIGNATURE ) {
 			break;
 		}
@@ -757,7 +747,7 @@ GetCallerAddr
 */
 static address_t GetCallerAddr( long _ebp ) {
 	long midPtPtr = 0;
-	long res = 0;
+	address_t res = 0;
 
 	__asm {
 		mov		eax, _ebp
@@ -898,13 +888,11 @@ Sys_GetCallStackStr
 ==================
 */
 const char *Sys_GetCallStackStr( const address_t *callStack, const size_t callStackSize ) {
-	static char string[MAX_STRING_CHARS*2] = {};
-	size_t index = 0;
-	int64 i = 0;
-	idStr module, funcName;
+	static char string[MAX_STRING_CHARS * 2] = {};
+	idStr module = {}, funcName = {};
 
-	index = 0;
-	for ( i = idMath::integer_cast<int64>(callStackSize)-1; i >= 0; i-- ) {
+	size_t index = 0;
+	for ( int64 i = numeric_cast<int64>(callStackSize) - 1; i >= 0; i-- ) {
 		Sym_GetFuncInfo( callStack[i], module, funcName );
 		index += sprintf( string+index, " -> %s", funcName.c_str() );
 	}
@@ -917,9 +905,7 @@ Sys_GetCallStackCurStr
 ==================
 */
 const char *Sys_GetCallStackCurStr( const size_t depth ) {
-	address_t *callStack = nullptr;
-
-	callStack = static_cast<address_t*>(_alloca(depth * sizeof(address_t)));
+	address_t* callStack = static_cast<address_t*>(_alloca(depth * sizeof(address_t)));
 	auto totalDepth = Sys_GetCallStack( callStack, depth );
 	return Sys_GetCallStackStr( callStack, totalDepth );
 }
@@ -931,16 +917,13 @@ Sys_GetCallStackCurAddressStr
 */
 const char *Sys_GetCallStackCurAddressStr( const size_t depth ) {
 	static char string[MAX_STRING_CHARS * 2] = {};
-	address_t *callStack = nullptr;
-	size_t index = 0;
-	int64 i = 0;
 
-	callStack = static_cast<address_t*>(_alloca(depth * sizeof(address_t)));
+	address_t* callStack = static_cast<address_t*>(_alloca(depth * sizeof(address_t)));
 	auto totalDepth = Sys_GetCallStack( callStack, depth );
 
-	index = 0;
-	for ( i = idMath::integer_cast<int64>(totalDepth)-1; i >= 0; i-- ) {
-		index += sprintf( string+index, " -> 0x%08llu", callStack[i] );
+	size_t index = 0;
+	for ( int64 i = numeric_cast<int64>(totalDepth) - 1; i >= 0; i-- ) {
+		index += sprintf( string+index, " -> 0x%08lld", callStack[i] );
 	}
 	return string;
 }

@@ -33,6 +33,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "List.h"
 
+#include <utility>
+
 /*
 ===============================================================================
 
@@ -51,34 +53,34 @@ public:
 						~idStaticList<type,size>();
 
 	void				Clear();										// marks the list as empty.  does not deallocate or initialize data.
-						[[nodiscard]] size_t				Num() const;									// returns number of elements in list
-						[[nodiscard]] size_t				Max() const;									// returns the maximum number of elements in the list
-	void				SetNum(size_t newnum );								// set number of elements in list
+	[[nodiscard]]        size_t				Num() const;									// returns number of elements in list
+	[[nodiscard]] static size_t				Max();									// returns the maximum number of elements in the list
+	void				SetNum( size_t newnum );								// set number of elements in list
 
 	// sets the number of elements in list and initializes any newly allocated elements to the given value
-	void				SetNum(size_t newNum, const type & initValue );
+	void				SetNum( size_t newNum, const type & initValue );
 
-						[[nodiscard]] size_t				Allocated() const;							// returns total size of allocated memory
-						[[nodiscard]] size_t				Size() const;									// returns total size of allocated memory including size of list type
-						[[nodiscard]] size_t				MemoryUsed() const;							// returns size of the used elements in the list
+	[[nodiscard]] static size_t				Allocated();							// returns total size of allocated memory
+	[[nodiscard]] static size_t				Size();									// returns total size of allocated memory including size of list type
+	[[nodiscard]]        size_t				MemoryUsed() const;							// returns size of the used elements in the list
 
 	
-	const type &		operator[](const Ordinal auto index ) const;
+	const type &		operator[]( const Ordinal auto index ) const;
 	
-	type &				operator[](Ordinal auto index );
+	type &				operator[]( const Ordinal auto index );
 
 	type *				Ptr();										// returns a pointer to the list
-						[[nodiscard]] const type *		Ptr() const;									// returns a pointer to the list
+	[[nodiscard]] const type *		Ptr() const;									// returns a pointer to the list
 	type *				Alloc();										// returns reference to a new data element at the end of the list.  returns NULL when full.
-	int64				Append( const type & obj );							// append element
-	int64				Append( const idStaticList<type,size> &other );		// append list
-	int64				AddUnique( const type & obj );						// add unique element
+	index_t				Append( const type & obj );							// append element
+	size_t				Append( const idStaticList<type,size> &other );		// append list
+	index_t				AddUnique( const type & obj );						// add unique element
 	
-	int64				Insert( const type & obj, Ordinal auto index = 0 );				// insert the element at the given index
-						[[nodiscard]] int64				FindIndex( const type & obj ) const;				// find the index for the given element
-						[[nodiscard]] type *				Find( type const & obj ) const;						// find pointer to the given element
-						[[nodiscard]] int64				FindNull() const;								// find the index for the first NULL pointer in the list
-	int64				IndexOf( const type *obj ) const;					// returns the index for the pointer to an element in the list
+	index_t				Insert( const type & obj, Ordinal auto index = 0 );				// insert the element at the given index
+	[[nodiscard]] index_t				FindIndex( const type & obj ) const;				// find the index for the given element
+	[[nodiscard]] type *				Find( type const & obj ) const;						// find pointer to the given element
+	[[nodiscard]] index_t				FindNull() const;								// find the index for the first NULL pointer in the list
+	index_t				IndexOf( const type *obj ) const;					// returns the index for the pointer to an element in the list
 	
 	bool				RemoveIndex( Ordinal auto index );							// remove the element at the given index
 	
@@ -95,7 +97,7 @@ private:
 
 private:
 	// resizes list to the given number of elements
-	void				Resize(size_t newsize );
+	void				Resize( const size_t newsize );
 };
 
 /*
@@ -170,7 +172,7 @@ list to NULL.
 */
 template<class type, size_t size>
 ID_INLINE void idStaticList<type,size>::DeleteContents(const bool clear ) {
-	for( int i = 0; i < num; i++ ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		delete list[ i ];
 		list[ i ] = NULL;
 	}
@@ -202,7 +204,8 @@ Returns the maximum number of elements in the list.
 ================
 */
 template<class type, size_t size>
-ID_INLINE size_t idStaticList<type,size>::Max() const {
+ID_INLINE size_t idStaticList<type,size>::Max()
+{
 	return size;
 }
 
@@ -212,7 +215,8 @@ idStaticList<type>::Allocated
 ================
 */
 template<class type, size_t size>
-ID_INLINE size_t idStaticList<type,size>::Allocated() const {
+ID_INLINE size_t idStaticList<type,size>::Allocated()
+{
 	return size * sizeof( type );
 }
 
@@ -222,7 +226,8 @@ idStaticList<type>::Size
 ================
 */
 template<class type, size_t size>
-ID_INLINE size_t idStaticList<type,size>::Size() const {
+ID_INLINE size_t idStaticList<type,size>::Size()
+{
 	return sizeof( idStaticList<type,size> ) + Allocated();
 }
 
@@ -260,7 +265,7 @@ ID_INLINE void idStaticList<type,size>::SetNum(size_t newNum, const type &initVa
 	assert( newNum >= 0 );
 	newNum = Min( newNum, size );
 	assert( newNum <= size );
-	for ( int i = num; i < newNum; i++ ) {
+	for ( int i = num; std::cmp_less(i, newNum); i++ ) {
 		list[i] = initValue;
 	}
 	num = newNum;
@@ -276,7 +281,7 @@ Release builds do no range checking.
 */
 template<class type, size_t size>
 
-ID_INLINE const type &idStaticList<type,size>::operator[](Ordinal auto index ) const {
+ID_INLINE const type &idStaticList<type,size>::operator[]( const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, num);
 
 	return list[ index ];
@@ -292,7 +297,7 @@ Release builds do no range checking.
 */
 template<class type, size_t size>
 
-ID_INLINE type &idStaticList<type,size>::operator[](Ordinal auto index ) {
+ID_INLINE type &idStaticList<type,size>::operator[]( const Ordinal auto index ) {
 	ORDINAL_CHECK(index, num);
 
 	return list[ index ];
@@ -356,7 +361,7 @@ Returns the index of the new element, or -1 when list is full.
 ================
 */
 template<class type, size_t size>
-ID_INLINE int64 idStaticList<type,size>::Append( type const & obj ) {
+ID_INLINE index_t idStaticList<type,size>::Append( type const & obj ) {
 	assert( num < size );
 	if ( num < size ) {
 		list[ num ] = obj;
@@ -380,7 +385,7 @@ Returns the index of the new element, or -1 when list is full.
 */
 template<class type, size_t size>
 
-ID_INLINE int64 idStaticList<type,size>::Insert( type const & obj, Ordinal auto index ) {
+ID_INLINE index_t idStaticList<type,size>::Insert( type const & obj, Ordinal auto index ) {
 	assert( num < size );
 	if ( num >= size ) {
 		return -1;
@@ -389,7 +394,7 @@ ID_INLINE int64 idStaticList<type,size>::Insert( type const & obj, Ordinal auto 
 	assert( index >= 0 );
 	if ( index < 0 ) {
 		index = 0;
-	} else if ( index > num ) {
+	} else if (std::cmp_greater(index, num)) {
 		index = num;
 	}
 
@@ -412,7 +417,7 @@ Returns the size of the new combined list
 ================
 */
 template<class type, size_t size>
-ID_INLINE int64 idStaticList<type,size>::Append( const idStaticList<type,size> &other ) {
+ID_INLINE size_t idStaticList<type,size>::Append( const idStaticList<type,size> &other ) {
 	size_t n = other.Num();
 
 	if ( num + n > size ) {
@@ -433,8 +438,8 @@ Adds the data to the list if it doesn't already exist.  Returns the index of the
 ================
 */
 template<class type, size_t size>
-ID_INLINE int64 idStaticList<type,size>::AddUnique( type const & obj ) {
-	int index = FindIndex(obj);
+ID_INLINE index_t idStaticList<type,size>::AddUnique( type const & obj ) {
+	index_t index = FindIndex(obj);
 	if ( index < 0 ) {
 		index = Append( obj );
 	}
@@ -450,10 +455,10 @@ Searches for the specified data in the list and returns it's index.  Returns -1 
 ================
 */
 template<class type, size_t size>
-ID_INLINE int64 idStaticList<type,size>::FindIndex( type const & obj ) const {
+ID_INLINE index_t idStaticList<type,size>::FindIndex( type const & obj ) const {
 	for(size_t i = 0; i < num; i++ ) {
 		if ( list[ i ] == obj ) {
-			return i;
+			return numeric_cast<index_t>(i);
 		}
 	}
 
@@ -470,7 +475,7 @@ Searches for the specified data in the list and returns it's address. Returns NU
 */
 template<class type, size_t size>
 ID_INLINE type *idStaticList<type,size>::Find( type const & obj ) const {
-	int64 i = FindIndex(obj);
+	index_t i = FindIndex(obj);
 	if ( i >= 0 ) {
 		return static_cast<type*>(&list[i]);
 	}
@@ -489,10 +494,10 @@ on non-pointer lists will cause a compiler error.
 ================
 */
 template<class type, size_t size>
-ID_INLINE int64 idStaticList<type,size>::FindNull() const {
+ID_INLINE index_t idStaticList<type,size>::FindNull() const {
 	for( size_t i = 0; i < num; i++ ) {
 		if ( list[ i ] == NULL ) {
-			return i;
+			return numeric_cast<index_t>(i);
 		}
 	}
 
@@ -533,9 +538,9 @@ template<class type, size_t size>
 
 ID_INLINE bool idStaticList<type,size>::RemoveIndex(const Ordinal auto index ) {
 	assert( index >= 0 );
-	assert( index < num );
+	assert(std::cmp_less(index, num ));
 
-	if ( ( index < 0 ) || ( index >= num ) ) {
+	if ( ( index < 0 ) || (std::cmp_greater_equal(index, num)) ) {
 		return false;
 	}
 
@@ -563,14 +568,14 @@ NOTE:	The element is not destroyed, so any memory used by it may not be freed un
 */
 template< typename _type_, size_t size >
 
-ID_INLINE bool idStaticList<_type_,size>::RemoveIndexFast(Ordinal auto index ) {
+ID_INLINE bool idStaticList<_type_,size>::RemoveIndexFast( const Ordinal auto index ) {
 
 	if ( ( index < 0 ) || ( std::cmp_greater_equal(index, num )) ) {
 		return false;
 	}
 
 	num--;
-	if ( index != num ) {
+	if (std::cmp_not_equal(index, num)) {
 		list[ index ] = list[ num ];
 	}
 
@@ -625,7 +630,7 @@ Contents are copied using their = operator so that data is correctly instantiate
 ========================
 */
 template< class type, size_t size >
-ID_INLINE void idStaticList<type,size>::Resize(const size_t newsize ) {
+ID_INLINE void idStaticList<type,size>::Resize( const size_t newsize ) {
 
 	assert( newsize >= 0 );
 

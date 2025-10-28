@@ -184,7 +184,7 @@ int idPhysics_Base::GetContents( int id ) const {
 idPhysics_Base::SetClipMask
 ================
 */
-void idPhysics_Base::SetClipMask( int mask, int id ) {
+void idPhysics_Base::SetClipMask(const int mask, int id ) {
 	clipMask = mask;
 }
 
@@ -229,7 +229,7 @@ bool idPhysics_Base::Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) {
 idPhysics_Base::Interpolate
 ================
 */
-bool idPhysics_Base::Interpolate( const float fraction ) {
+bool idPhysics_Base::Interpolate( const double fraction ) {
 	return false;
 }
 
@@ -538,7 +538,7 @@ size_t idPhysics_Base::GetNumContacts() const {
 idPhysics_Base::GetContact
 ================
 */
-const contactInfo_t &idPhysics_Base::GetContact( const Ordinal auto num ) const {
+const contactInfo_t &idPhysics_Base::GetContact(const index_t num ) const {
 	ORDINAL_CHECK(num, contacts.Num());
 	return contacts[num];
 }
@@ -628,7 +628,7 @@ bool idPhysics_Base::HasGroundContacts() const {
 idPhysics_Base::IsGroundEntity
 ================
 */
-bool idPhysics_Base::IsGroundEntity( const Ordinal auto entityNum ) const {
+bool idPhysics_Base::IsGroundEntity(const index_t entityNum ) const {
 	ORDINAL_CHECK(entityNum, contacts.Num());
 	size_t i = 0;
 
@@ -645,7 +645,7 @@ bool idPhysics_Base::IsGroundEntity( const Ordinal auto entityNum ) const {
 idPhysics_Base::IsGroundClipModel
 ================
 */
-bool idPhysics_Base::IsGroundClipModel( const Ordinal auto entityNum, int id ) const {
+bool idPhysics_Base::IsGroundClipModel(const index_t entityNum, const int id ) const {
 	ORDINAL_CHECK(entityNum, contacts.Num());
 	size_t i = 0;
 
@@ -799,7 +799,7 @@ bool idPhysics_Base::IsOutsideWorld() const {
 idPhysics_Base::DrawVelocity
 ================
 */
-void idPhysics_Base::DrawVelocity( int id, float linearScale, float angularScale ) const {
+void idPhysics_Base::DrawVelocity(const int id, const float linearScale, const float angularScale ) const {
 	idVec3 dir = {}, org = {}, vec = {}, start = {}, end = {};
 	idMat3 axis = {};
 	float length = 0.0f, a = 0.0f;

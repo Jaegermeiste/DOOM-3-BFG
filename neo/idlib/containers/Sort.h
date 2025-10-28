@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 Contains the generic templated sort algorithms for quick-sort, heap-sort and insertion-sort.
 
 The sort algorithms do not use class operators or overloaded functions to compare
-objects because it is often desireable to sort the same objects in different ways
+objects because it is often desirable to sort the same objects in different ways
 based on different keys (not just ascending and descending but sometimes based on
 name and other times based on say priority). So instead, for each different sort a
 separate class is implemented with a Compare() function.
@@ -50,7 +50,7 @@ that are stored on the objects.
 
 The Compare() function is not virtual because this would incur significant overhead.
 Do NOT make the Compare() function virtual on the derived class!
-The sort implementations also explicitely call the Compare() function of the derived
+The sort implementations also explicitly call the Compare() function of the derived
 class. This is to avoid various compiler bugs with using overloaded compare functions
 and the inability of various compilers to find the right overloaded compare function.
 
@@ -129,41 +129,41 @@ public:
 			return;
 		}
 
-		constexpr int64 MAX_LEVELS = 128;
-		int64 lo[MAX_LEVELS] = {}, hi[MAX_LEVELS] = {};
+		constexpr size_t MAX_LEVELS = 128;
+		index_t lo[MAX_LEVELS] = {}, hi[MAX_LEVELS] = {};
 
 		// 'lo' is the lower index, 'hi' is the upper index
 		// of the region of the array that is being sorted.
 		lo[0] = 0;
-		hi[0] = static_cast<int64>(num) - 1;
+		hi[0] = numeric_cast<index_t>(num) - 1;
 
-		for ( int64 level = 0; level >= 0; ) {
-			int64 i = lo[level];
-			int64 j = hi[level];
+		for ( index_t level = 0; level >= 0; ) {
+			index_t i = lo[level];
+			index_t j = hi[level];
 
-			// Only use quick-sort when there are 4 or more elements in this region and we are below MAX_LEVELS.
-			// Otherwise fall back to an insertion-sort.
-			if ( ( ( j - i ) >= 4 ) && ( level < ( MAX_LEVELS - 1 ) ) ) {
+			// Only use quick-sort when there are 4 or more elements in this region, and we are below MAX_LEVELS.
+			// Otherwise, fall back to an insertion-sort.
+			if ( ( ( j - i ) >= 4 ) && ( std::cmp_less(level, ( MAX_LEVELS - 1 ) ) ) ) {
 
 				// Use the center element as the pivot.
-				// The median of a multi point sample could be used
+				// The median of a multipoint sample could be used
 				// but simply taking the center works quite well.
-				int64 pi = ( i + j ) / 2;
+				index_t pivot_index = ( i + j ) / 2;
 
 				// Move the pivot element to the end of the region.
-				SwapValues( base[j], base[pi] );
+				SwapValues( base[j], base[pivot_index] );
 
 				// Get a reference to the pivot element.
 				_type_ & pivot = base[j--];
 
 				// Partition the region.
 				do {
-					while( static_cast< const _derived_ * >( this )->Compare( base[i], pivot ) < 0 ) { if ( ++i >= j )
+					while( selective_cast< const _derived_ * >( this )->Compare( base[i], pivot ) < 0 ) { if ( ++i >= j )
 						{
 							break;
 						}
 					}
-					while( static_cast< const _derived_ * >( this )->Compare( base[j], pivot ) > 0 ) { if ( --j <= i )
+					while( selective_cast< const _derived_ * >( this )->Compare( base[j], pivot ) > 0 ) { if ( --j <= i )
 						{
 							break;
 						}
@@ -178,13 +178,13 @@ public:
 				// Without these iterations sorting of arrays with many duplicates may
 				// become really slow because the partitioning can be very unbalanced.
 				// However, these iterations are unnecessary if all elements are unique.
-				while ( static_cast< const _derived_ * >( this )->Compare( base[i], pivot ) <= 0 && i < hi[level] ) { i++; }
-				while ( static_cast< const _derived_ * >( this )->Compare( base[j], pivot ) >= 0 && lo[level] < j ) { j--; }
+				while ( selective_cast< const _derived_ * >( this )->Compare( base[i], pivot ) <= 0 && i < hi[level] ) { i++; }
+				while ( selective_cast< const _derived_ * >( this )->Compare( base[j], pivot ) >= 0 && lo[level] < j ) { j--; }
 
 				// Move the pivot element in place.
 				SwapValues( pivot, base[i] );
 
-				assert( level < MAX_LEVELS - 1 );
+				assert( std::cmp_less(level, MAX_LEVELS - 1) );
 				lo[level+1] = i;
 				hi[level+1] = hi[level];
 				hi[level] = j;
@@ -194,9 +194,9 @@ public:
 
 				// Insertion-sort of the remaining elements.
 				for( ; i < j; j-- ) {
-					int64 m = i;
-					for ( int64 k = i + 1; k <= j; k++ ) {
-						if ( static_cast< const _derived_ * >( this )->Compare( base[k], base[m] ) > 0 ) {
+					index_t m = i;
+					for ( index_t k = i + 1; k <= j; k++ ) {
+						if ( selective_cast< const _derived_ * >( this )->Compare( base[k], base[m] ) > 0 ) {
 							m = k;
 						}
 					}
@@ -217,27 +217,13 @@ be used to sort scalars from small to large.
 template< typename _type_ >
 class idSort_QuickDefault : public idSort_Quick< _type_, idSort_QuickDefault< _type_ > > {
 public:
-	int Compare( const _type_ & a, const _type_ & b ) const { return a - b; }
-};
-
-/*
-================================================
-Specialization for floating point values to avoid an float-to-int
-conversion for every comparison.
-================================================
-*/
-template<>
-class idSort_QuickDefault< float > : public idSort_Quick< float, idSort_QuickDefault< float > > {
-public:
-	[[nodiscard]] int Compare( const float & a, const float & b ) const {
-		if ( a < b ) {
-			return -1;
-		}
-		if ( a > b ) {
-			return 1;
-		}
-		return 0;
+	static int Compare(const _type_& a, const _type_& b)
+	{
+		return (a < b) ? -1 :
+			   (a > b) ?  1 :
+			              0;
 	}
+
 };
 
 /*
@@ -253,15 +239,16 @@ public:
 	{
 		// get all elements in heap order
 #if 1
+		const index_t index_count = numeric_cast<index_t>(num);
 		// O( n )
-		for (size_t i = num / 2; i > 0; i-- ) {
+		for ( index_t i = index_count / 2; i > 0; i-- ) {
 			// sift down
-			size_t parent = i - 1;
-			for ( size_t child = parent * 2 + 1; child < num; child = parent * 2 + 1 ) {
-				if ( child + 1 < num && static_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
+			index_t parent = i - 1;
+			for ( index_t child = parent * 2 + 1; child < index_count; child = parent * 2 + 1 ) {
+				if ( child + 1 < index_count && numeric_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
 					child++;
 				}
-				if ( static_cast< const _derived_ * >( this )->Compare( base[child], base[parent] ) <= 0 ) {
+				if ( numeric_cast< const _derived_ * >( this )->Compare( base[child], base[parent] ) <= 0 ) {
 					break;
 				}
 				SwapValues( base[parent], base[child] );
@@ -283,15 +270,15 @@ public:
 		}
 #endif
 		// get sorted elements while maintaining heap order
-		for (size_t i = num - 1; i > 0; i-- ) {
+		for ( index_t i = index_count - 1; i > 0; i-- ) {
 			SwapValues( base[0], base[i] );
 			// sift down
-			size_t parent = 0;
-			for (size_t child = parent * 2 + 1; child < i; child = parent * 2 + 1 ) {
-				if ( child + 1 < i && static_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
+			index_t parent = 0;
+			for ( index_t child = parent * 2 + 1; child < i; child = parent * 2 + 1 ) {
+				if ( child + 1 < i && numeric_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
 					child++;
 				}
-				if ( static_cast< const _derived_ * >( this )->Compare( base[child], base[parent] ) <= 0 ) {
+				if ( numeric_cast< const _derived_ * >( this )->Compare( base[child], base[parent] ) <= 0 ) {
 					break;
 				}
 				SwapValues( base[parent], base[child] );
@@ -310,7 +297,12 @@ be used to sort scalars from small to large.
 template< typename _type_ >
 class idSort_HeapDefault : public idSort_Heap< _type_, idSort_HeapDefault< _type_ > > {
 public:
-	int Compare( const _type_ & a, const _type_ & b ) const { return a - b; }
+	static int Compare(const _type_& a, const _type_& b)
+	{
+		return (a < b) ? -1 :
+			   (a > b) ?  1 :
+			              0;
+	}
 };
 
 /*
@@ -328,13 +320,13 @@ public:
 		_type_ * hi = base + ( num - 1 );
 		while( hi > lo ) {
 			_type_ * max = lo;
-			for ( _type_ * p = lo + 1; p <= hi; p++ ) {
-				if ( static_cast< const _derived_ * >( this )->Compare( (*p), (*max) ) > 0 ) {
+			for ( _type_ * p = lo + 1; p <= hi; ++p ) {
+				if ( selective_cast< const _derived_ * >( this )->Compare( (*p), (*max) ) > 0 ) {
 					max = p;
 				}
 			}
 			SwapValues( *max, *hi );
-			hi--;
+			--hi;
 		}
 	}
 };
@@ -348,7 +340,12 @@ be used to sort scalars from small to large.
 template< typename _type_ >
 class idSort_InsertionDefault : public idSort_Insertion< _type_, idSort_InsertionDefault< _type_ > > {
 public:
-	int Compare( const _type_ & a, const _type_ & b ) const { return a - b; }
+	static int Compare(const _type_& a, const _type_& b)
+	{
+		return (a < b) ? -1 :
+			   (a > b) ?  1 :
+			              0;
+	}
 };
 
 #endif // !__SORT_H__

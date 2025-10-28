@@ -73,7 +73,7 @@ idMultiModelAF::~idMultiModelAF() {
 idMultiModelAF::SetModelForId
 ================
 */
-void idMultiModelAF::SetModelForId( int id, const idStr &modelName ) {
+void idMultiModelAF::SetModelForId(const int id, const idStr &modelName ) {
 	modelHandles.AssureSize( id+1, nullptr);
 	modelDefHandles.AssureSize( id+1, -1 );
 	modelHandles[id] = renderModelManager->FindModel( modelName );
@@ -144,7 +144,7 @@ idChain::BuildChain
   this allows an object to be attached to multiple chains while keeping a single tree structure
 ================
 */
-void idChain::BuildChain( const idStr &name, const idVec3 &origin, float linkLength, float linkWidth, float density, int numLinks, bool bindToWorld ) {
+void idChain::BuildChain( const idStr &name, const idVec3 &origin, const float linkLength, const float linkWidth, const float density, const size_t numLinks, const bool bindToWorld ) {
 	int i;
 	float halfLinkLength = linkLength * 0.5f;
 	idTraceModel trm;
@@ -211,7 +211,7 @@ idChain::Spawn
 ================
 */
 void idChain::Spawn() {
-	int numLinks;
+	size_t numLinks;
 	float length, linkLength, linkWidth, density;
 	bool drop;
 	idVec3 origin;
@@ -283,7 +283,7 @@ void idAFAttachment::Spawn() {
 idAFAttachment::SetBody
 =====================
 */
-void idAFAttachment::SetBody( idEntity *bodyEnt, const char *model, jointHandle_t attachJoint ) {
+void idAFAttachment::SetBody( idEntity *bodyEnt, const char *model, const jointHandle_t attachJoint ) {
 	bool bleed;
 
 	body = bodyEnt;
@@ -397,7 +397,7 @@ void idAFAttachment::AddDamageEffect( const trace_t &collision, const idVec3 &ve
 idAFAttachment::GetImpactInfo
 ================
 */
-void idAFAttachment::GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info ) {
+void idAFAttachment::GetImpactInfo( idEntity *ent, const int id, const idVec3 &point, impactInfo_t *info ) {
 	if ( body ) {
 		body->GetImpactInfo( ent, JOINT_HANDLE_TO_CLIPMODEL_ID( attachJoint ), point, info );
 	} else {
@@ -410,7 +410,7 @@ void idAFAttachment::GetImpactInfo( idEntity *ent, int id, const idVec3 &point, 
 idAFAttachment::ApplyImpulse
 ================
 */
-void idAFAttachment::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) {
+void idAFAttachment::ApplyImpulse( idEntity *ent, const int id, const idVec3 &point, const idVec3 &impulse ) {
 	if ( body ) {
 		body->ApplyImpulse( ent, JOINT_HANDLE_TO_CLIPMODEL_ID( attachJoint ), point, impulse );
 	} else {
@@ -423,7 +423,7 @@ void idAFAttachment::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, c
 idAFAttachment::AddForce
 ================
 */
-void idAFAttachment::AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) {
+void idAFAttachment::AddForce( idEntity *ent, const int id, const idVec3 &point, const idVec3 &force ) {
 	if ( body ) {
 		body->AddForce( ent, JOINT_HANDLE_TO_CLIPMODEL_ID( attachJoint ), point, force );
 	} else {
@@ -436,7 +436,7 @@ void idAFAttachment::AddForce( idEntity *ent, int id, const idVec3 &point, const
 idAFAttachment::PlayIdleAnim
 ================
 */
-void idAFAttachment::PlayIdleAnim( int blendTime ) {
+void idAFAttachment::PlayIdleAnim(const int blendTime ) {
 	if ( idleAnim && ( idleAnim != animator.CurrentAnim( ANIMCHANNEL_ALL )->AnimNum() ) ) {
 		animator.CycleAnim( ANIMCHANNEL_ALL, idleAnim, gameLocal.time, blendTime );
 	}
@@ -640,7 +640,7 @@ void idAFEntity_Base::Think() {
 idAFEntity_Base::BodyForClipModelId
 ================
 */
-int idAFEntity_Base::BodyForClipModelId( int id ) const {
+int idAFEntity_Base::BodyForClipModelId(const int id ) const {
 	return af.BodyForClipModelId( id );
 }
 
@@ -718,7 +718,7 @@ void idAFEntity_Base::AddDamageEffect( const trace_t &collision, const idVec3 &v
 idAFEntity_Base::GetImpactInfo
 ================
 */
-void idAFEntity_Base::GetImpactInfo( idEntity *ent, int id, const idVec3 &point, impactInfo_t *info ) {
+void idAFEntity_Base::GetImpactInfo( idEntity *ent, const int id, const idVec3 &point, impactInfo_t *info ) {
 	if ( af.IsActive() ) {
 		af.GetImpactInfo( ent, id, point, info );
 	} else {
@@ -731,7 +731,7 @@ void idAFEntity_Base::GetImpactInfo( idEntity *ent, int id, const idVec3 &point,
 idAFEntity_Base::ApplyImpulse
 ================
 */
-void idAFEntity_Base::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) {
+void idAFEntity_Base::ApplyImpulse( idEntity *ent, const int id, const idVec3 &point, const idVec3 &impulse ) {
 	if ( af.IsLoaded() ) {
 		af.ApplyImpulse( ent, id, point, impulse );
 	}
@@ -745,7 +745,7 @@ void idAFEntity_Base::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, 
 idAFEntity_Base::AddForce
 ================
 */
-void idAFEntity_Base::AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) {
+void idAFEntity_Base::AddForce( idEntity *ent, const int id, const idVec3 &point, const idVec3 &force ) {
 	if ( af.IsLoaded() ) {
 		af.AddForce( ent, id, point, force );
 	}
@@ -833,7 +833,7 @@ idClipModel *idAFEntity_Base::GetCombatModel() const {
 idAFEntity_Base::SetCombatContents
 ================
 */
-void idAFEntity_Base::SetCombatContents( bool enable ) {
+void idAFEntity_Base::SetCombatContents(const bool enable ) {
 	assert( combatModel );
 	if ( enable && combatModelContents ) {
 		assert( !combatModel->GetContents() );
@@ -1113,7 +1113,7 @@ void idAFEntity_Gibbable::Damage( idEntity *inflictor, idEntity *attacker, const
 idAFEntity_Gibbable::SetThrown
 =====================
 */
-void idAFEntity_Gibbable::SetThrown( bool isThrown ) {
+void idAFEntity_Gibbable::SetThrown(const bool isThrown ) {
 
 	if ( isThrown ) {
 		int i, num = af.GetPhysics()->GetNumBodies();
@@ -1579,7 +1579,7 @@ void idAFEntity_WithAttachedHead::Show() {
 idAFEntity_WithAttachedHead::ProjectOverlay
 ================
 */
-void idAFEntity_WithAttachedHead::ProjectOverlay( const idVec3 &origin, const idVec3 &dir, float size, const char *material ) {
+void idAFEntity_WithAttachedHead::ProjectOverlay( const idVec3 &origin, const idVec3 &dir, const float size, const char *material ) {
 
 	idEntity::ProjectOverlay( origin, dir, size, material );
 
@@ -1935,11 +1935,11 @@ void idAFEntity_VehicleSimple::Think() {
 /*
 		// spawn dust particle effects
 		if ( force != 0.0f && !( gameLocal.framenum & 7 ) ) {
-			int numContacts;
+			size_t numContacts;
 			idAFConstraint_Contact *contacts[2];
 			for ( i = 0; i < 4; i++ ) {
 				numContacts = af.GetPhysics()->GetBodyContactConstraints( wheels[i]->GetClipModel()->GetId(), contacts, 2 );
-				for ( int j = 0; j < numContacts; j++ ) {
+				for ( size_t j = 0; j < numContacts; j++ ) {
 					gameLocal.smokeParticles->EmitSmoke( dustSmoke, gameLocal.time, gameLocal.random.RandomFloat(), contacts[j]->GetContact().point, contacts[j]->GetContact().normal.ToMat3() );
 				}
 			}
@@ -2113,11 +2113,11 @@ void idAFEntity_VehicleFourWheels::Think() {
 
 		// spawn dust particle effects
 		if ( force != 0.0f && !( gameLocal.framenum & 7 ) ) {
-			int numContacts;
+			size_t numContacts;
 			idAFConstraint_Contact *contacts[2];
 			for ( i = 0; i < 4; i++ ) {
 				numContacts = af.GetPhysics()->GetBodyContactConstraints( wheels[i]->GetClipModel()->GetId(), contacts, 2 );
-				for ( int j = 0; j < numContacts; j++ ) {
+				for ( size_t j = 0; j < numContacts; j++ ) {
 					gameLocal.smokeParticles->EmitSmoke( dustSmoke, gameLocal.time, gameLocal.random.RandomFloat(), contacts[j]->GetContact().point, contacts[j]->GetContact().normal.ToMat3(), timeGroup /* D3XP */ );
 				}
 			}
@@ -2302,11 +2302,11 @@ void idAFEntity_VehicleSixWheels::Think() {
 
 		// spawn dust particle effects
 		if ( force != 0.0f && !( gameLocal.framenum & 7 ) ) {
-			int numContacts;
+			size_t numContacts;
 			idAFConstraint_Contact *contacts[2];
 			for ( i = 0; i < 6; i++ ) {
 				numContacts = af.GetPhysics()->GetBodyContactConstraints( wheels[i]->GetClipModel()->GetId(), contacts, 2 );
-				for ( int j = 0; j < numContacts; j++ ) {
+				for ( size_t j = 0; j < numContacts; j++ ) {
 					gameLocal.smokeParticles->EmitSmoke( dustSmoke, gameLocal.time, gameLocal.random.RandomFloat(), contacts[j]->GetContact().point, contacts[j]->GetContact().normal.ToMat3(), timeGroup /* D3XP */ );
 				}
 			}
@@ -2377,7 +2377,7 @@ void idAFEntity_VehicleAutomated::PostSpawn() {
 idAFEntity_VehicleAutomated::Event_SetVelocity
 ================
 */
-void idAFEntity_VehicleAutomated::Event_SetVelocity( float _velocity ) {
+void idAFEntity_VehicleAutomated::Event_SetVelocity(const float _velocity ) {
 	velocity = _velocity;
 }
 
@@ -2386,7 +2386,7 @@ void idAFEntity_VehicleAutomated::Event_SetVelocity( float _velocity ) {
 idAFEntity_VehicleAutomated::Event_SetTorque
 ================
 */
-void idAFEntity_VehicleAutomated::Event_SetTorque( float _torque ) {
+void idAFEntity_VehicleAutomated::Event_SetTorque(const float _torque ) {
 	force = _torque;
 }
 
@@ -2395,7 +2395,7 @@ void idAFEntity_VehicleAutomated::Event_SetTorque( float _torque ) {
 idAFEntity_VehicleAutomated::Event_SetSteeringSpeed
 ================
 */
-void idAFEntity_VehicleAutomated::Event_SetSteeringSpeed( float _steeringSpeed ) {
+void idAFEntity_VehicleAutomated::Event_SetSteeringSpeed(const float _steeringSpeed ) {
 	steeringSpeed = _steeringSpeed;
 }
 
@@ -2754,7 +2754,7 @@ void idAFEntity_ClawFourFingers::Spawn() {
 idAFEntity_ClawFourFingers::Event_SetFingerAngle
 ================
 */
-void idAFEntity_ClawFourFingers::Event_SetFingerAngle( float angle ) {
+void idAFEntity_ClawFourFingers::Event_SetFingerAngle(const float angle ) {
 	int i;
 
 	for ( i = 0; i < 4; i++ ) {
@@ -2961,7 +2961,7 @@ idRenderModel *idGameEdit::AF_CreateMesh( const idDict &args, idVec3 &meshOrigin
 	const idMD5Anim *MD5anim = nullptr;
 	const idMD5Joint *MD5joint = nullptr;
 	const idMD5Joint *MD5joints = nullptr;
-	int numMD5joints;
+	size_t numMD5joints;
 	idJointMat *originalJoints = nullptr;
 	int parentNum;
 
@@ -3393,7 +3393,7 @@ void idHarvestable::BeginFX() {
 idAFEntity_Harvest::CalcTriggerBounds
 ================
 */
-void idHarvestable::CalcTriggerBounds( float size, idBounds &bounds ) {
+void idHarvestable::CalcTriggerBounds(const float size, idBounds &bounds ) {
 	
 	idEntity* parent = parentEnt.GetEntity();
 	if(!parent) {

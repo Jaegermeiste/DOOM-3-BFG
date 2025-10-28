@@ -139,7 +139,7 @@ public:
 	void	Shutdown();
 
 	void	SetRenderParm( renderParm_t rp, const float * value );
-	void	SetRenderParms( renderParm_t rp, const float * values, int numValues );
+	void	SetRenderParms( renderParm_t rp, const float * values, size_t numValues );
 
 	int		FindVertexShader( const char * name );
 	int		FindFragmentShader( const char * name );
@@ -204,8 +204,8 @@ public:
 	void		ZeroUniforms();
 
 protected:
-	void	LoadVertexShader( int index );
-	void	LoadFragmentShader( int index );
+	void	LoadVertexShader( index_t index );
+	void	LoadFragmentShader( index_t index );
 
 	enum {
 		BUILTIN_GUI,
@@ -248,7 +248,7 @@ protected:
 		MAX_BUILTINS
 	};
 	int builtinShaders[MAX_BUILTINS];
-	void BindShader_Builtin( int i ) { BindShader( builtinShaders[i], builtinShaders[i] ); }
+	void BindShader_Builtin(const int i ) { BindShader( builtinShaders[i], builtinShaders[i] ); }
 
 	GLuint	LoadShader( GLenum target, const char * name, const char * startToken );
 	bool	CompileGLSL( GLenum target, const char * name );

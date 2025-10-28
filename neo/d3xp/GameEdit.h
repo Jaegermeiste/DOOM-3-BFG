@@ -72,8 +72,8 @@ public:
 	void					SetSelected( idEntity *ent );
 	idEntity *				GetSelected() const { return selected.GetEntity(); }
 	void					DeleteSelected();
-	void					BindSelected();
-	void					UnbindSelected();
+	void					BindSelected() const;
+	void					UnbindSelected() const;
 
 private:
 	idEntityPtr<idEntity>	dragEnt;			// entity being dragged

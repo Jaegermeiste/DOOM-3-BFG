@@ -31,8 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <utility>
 
-static const int SAMPLE_RATE = 60;
+static constexpr int SAMPLE_RATE = 60;
 
 enum errorCodes_t {
 	E_OK = 0,
@@ -44,8 +45,8 @@ enum errorCodes_t {
 
 struct chunk_t {
 	unsigned int id;
-	unsigned int size;
-	unsigned int offset;
+	size_t       size;
+	__int64      offset;
 };
 
 static unsigned short FORMAT_PCM = 0x0001;
@@ -64,25 +65,25 @@ struct format_t {
 template<class type> static void Swap( type &c ) {
 	if ( sizeof( type ) == 1 ) {
 	} else if ( sizeof( type ) == 2 ) {
-		unsigned char * b = (unsigned char *)&c;
-		SwapBytes( b[0], b[1] );
+		const auto b = reinterpret_cast<unsigned char*>(&c);
+		SwapBytes( b[0], b[1] )
 	} else if ( sizeof( type ) == 4 ) {
-		unsigned char * b = (unsigned char *)&c;
-		SwapBytes( b[0], b[3] );
-		SwapBytes( b[1], b[2] );
+		const auto b = reinterpret_cast<unsigned char*>(&c);
+		SwapBytes( b[0], b[3] )
+		SwapBytes( b[1], b[2] )
 	} else if ( sizeof( type ) == 8 ) {
-		unsigned char * b = (unsigned char *)&c;
-		SwapBytes( b[0], b[7] );
-		SwapBytes( b[1], b[6]);
-		SwapBytes( b[2], b[5] );
-		SwapBytes( b[3], b[4] );
+		const auto b = reinterpret_cast<unsigned char*>(&c);
+		SwapBytes( b[0], b[7] )
+		SwapBytes( b[1], b[6])
+		SwapBytes( b[2], b[5] )
+		SwapBytes( b[3], b[4] )
 	} else {
-		int * null = 0;
+		int * null = nullptr;
 		c = *null;
 	}
 }
 
-int WAVE_ReadHeader( FILE * f ) {
+static size_t WAVE_ReadHeader( FILE * f ) {
 	struct header_t {
 		unsigned int id;
 		unsigned int size;
@@ -100,12 +101,12 @@ int WAVE_ReadHeader( FILE * f ) {
 	return header.size;
 }
 
-int WAVE_ReadChunks( FILE * f, unsigned int fileSize, chunk_t * chunks, int maxChunks ) {
-	unsigned int offset = ftell( f );
-	int numChunks = 0;
+static size_t WAVE_ReadChunks( FILE * f, const size_t fileSize, chunk_t * chunks, const size_t maxChunks ) {
+	__int64 offset = _ftelli64( f );
+	size_t numChunks = 0;
 
-	while ( offset < fileSize ) {
-		struct chuckHeader_t {
+	while (std::cmp_less(offset, fileSize)) {
+		struct chunkHeader_t {
 			unsigned int id;
 			unsigned int size;
 		} chunkHeader;
@@ -125,24 +126,24 @@ int WAVE_ReadChunks( FILE * f, unsigned int fileSize, chunk_t * chunks, int maxC
 		numChunks++;
 
 		offset += chunkHeader.size;
-		fseek( f, offset, SEEK_SET );
+		_fseeki64( f, offset, SEEK_SET );
 	}
 
 	return numChunks;
 }
 
-bool Process( FILE * in, FILE * out ) {
+static bool Process( FILE * in, FILE * out ) {
 
-	int headerSize = WAVE_ReadHeader( in );
+	const size_t headerSize = WAVE_ReadHeader( in );
 	if ( headerSize == 0 ) {
 		printf( "Header invalid\n" );
 		return false;
 	}
 
-	static const int MAX_CHUNKS = 32;
+	static constexpr size_t MAX_CHUNKS = 32;
 	chunk_t chunks[MAX_CHUNKS] = {};
 
-	int numChunks = WAVE_ReadChunks( in, headerSize + 8, chunks, MAX_CHUNKS );
+	const size_t numChunks = WAVE_ReadChunks( in, headerSize + 8, chunks, MAX_CHUNKS );
 	if ( numChunks == 0 ) {
 		printf( "No chunks\n" );
 		return false;
@@ -152,11 +153,11 @@ bool Process( FILE * in, FILE * out ) {
 		return false;
 	}
 
-	format_t format;
+	format_t format = {};
 	bool foundFormat = false;
-	unsigned int dataOffset = 0;
-	unsigned int dataSize = 0;
-	for ( int i = 0; i < numChunks; i++ ) {
+	__int64 dataOffset = 0;
+	size_t dataSize = 0;
+	for ( size_t i = 0; i < numChunks; i++ ) {
 		if ( chunks[i].id == 'fmt ' ) {
 			if ( foundFormat ) {
 				printf( "Found multiple format chunks\n" );
@@ -166,7 +167,7 @@ bool Process( FILE * in, FILE * out ) {
 				printf( "Format chunk too small\n" );
 				return false;
 			}
-			fseek( in, chunks[i].offset, SEEK_SET );
+			_fseeki64( in, chunks[i].offset, SEEK_SET );
 			fread( &format, sizeof( format ), 1, in );
 			foundFormat = true;
 		}
@@ -180,7 +181,7 @@ bool Process( FILE * in, FILE * out ) {
 		}
 	}
 	if ( dataOffset == 0 ) {
-		printf( "Colud not find data chunk\n" );
+		printf( "Could not find data chunk\n" );
 		return false;
 	}
 	if ( !foundFormat ) {
@@ -199,26 +200,26 @@ bool Process( FILE * in, FILE * out ) {
 		printf( "Only stereo or mono files supported (%d)\n", format.numChannels );
 		return false;
 	}
-	unsigned short expectedSampleSize = format.numChannels * format.bitsPerSample / 8;
+	const unsigned short expectedSampleSize = format.numChannels * format.bitsPerSample / 8;
 	if ( format.sampleSize != expectedSampleSize ) {
 		printf( "Invalid sampleSize (%d, expected %d)\n", format.sampleSize, expectedSampleSize );
 		return false;
 	}
-	unsigned int numSamples = dataSize / expectedSampleSize;
+	const size_t numSamples = dataSize / expectedSampleSize;
 
 	void * inputData = malloc( dataSize );
-	if ( inputData == NULL ) {
+	if ( inputData == nullptr) {
 		printf( "Out of memory\n" );
 		return false;
 	}
-	fseek( in, dataOffset, SEEK_SET );
+	_fseeki64( in, dataOffset, SEEK_SET );
 	fread( inputData, dataSize, 1, in );
 
-	int numOutputSamples = 1 + ( numSamples * SAMPLE_RATE / format.samplesPerSec );
-	float * min = (float *)malloc( numOutputSamples * sizeof( float ) );
-	float * max = (float *)malloc( numOutputSamples * sizeof( float ) );
-	unsigned char * outputData = (unsigned char *)malloc( numOutputSamples );
-	if ( min == NULL || max == NULL || outputData == NULL ) {
+	const size_t numOutputSamples = 1 + ( numSamples * SAMPLE_RATE / format.samplesPerSec );
+	const auto min = static_cast<float*>(malloc(numOutputSamples * sizeof(float)));
+	const auto max = static_cast<float*>(malloc(numOutputSamples * sizeof(float)));
+	const auto outputData = static_cast<unsigned char*>(malloc(numOutputSamples));
+	if ( min == nullptr || max == nullptr || outputData == nullptr) {
 		printf( "Out of memory\n" );
 		free( inputData );
 		free( min );
@@ -226,61 +227,61 @@ bool Process( FILE * in, FILE * out ) {
 		free( outputData );
 		return false;
 	}
-	for ( int i = 0; i < numOutputSamples; i++ ) {
+	for ( size_t i = 0; i < numOutputSamples; i++ ) {
 		max[i] = -1.0f;
 		min[i] = 1.0f;
 	}
 	
 	if ( format.bitsPerSample == 16 ) {
-		short * sdata = (short *)inputData;
+		const auto sdata = static_cast<short*>(inputData);
 		if ( format.numChannels == 1 ) {
 			for ( unsigned int i = 0; i < numSamples; i++ ) {
-				unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
-				float fdata = (float)sdata[i] / 32767.0f;
+				const unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
+				float fdata = static_cast<float>(sdata[i]) / 32767.0f;
 				min[index] = __min( min[index], fdata );
 				max[index] = __max( max[index], fdata );
 			}
 		} else {
 			unsigned int j = 0;
-			for ( unsigned int i = 0; i < numSamples; i++ ) {
-				unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
-				for ( unsigned int c = 0; c < format.numChannels; c++ ) {
-					float fdata = (float)sdata[j++] / 32767.0f;
+			for (unsigned int i = 0; i < numSamples; i++ ) {
+				const unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
+				for (size_t c = 0; c < format.numChannels; c++ ) {
+					float fdata = static_cast<float>(sdata[j++]) / 32767.0f;
 					min[index] = __min( min[index], fdata );
 					max[index] = __max( max[index], fdata );
 				}
 			}
 		}
 	} else {
-		unsigned char * bdata = (unsigned char *)inputData;
+		const auto bdata = static_cast<unsigned char*>(inputData);
 		if ( format.numChannels == 1 ) {
 			for ( unsigned int i = 0; i < numSamples; i++ ) {
-				unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
-				float fdata = ( (float)bdata[i] - 128.0f ) / 127.0f;
+				const unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
+				float fdata = ( static_cast<float>(bdata[i]) - 128.0f ) / 127.0f;
 				min[index] = __min( min[index], fdata );
 				max[index] = __max( max[index], fdata );
 			}
 		} else {
 			unsigned int j = 0;
 			for ( unsigned int i = 0; i < numSamples; i++ ) {
-				unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
+				const unsigned int index = i * SAMPLE_RATE / format.samplesPerSec;
 				for ( unsigned int c = 0; c < format.numChannels; c++ ) {
-					float fdata = ( (float)bdata[j++] - 128.0f ) / 127.0f;
+					float fdata = ( static_cast<float>(bdata[j++]) - 128.0f ) / 127.0f;
 					min[index] = __min( min[index], fdata );
 					max[index] = __max( max[index], fdata );
 				}
 			}
 		}
 	}
-	for ( int i = 0; i < numOutputSamples; i++ ) {
-		float amp = atan( max[i] - min[i] ) / 0.7853981633974483f;
-		int o = (int)( amp * 255.0f );
+	for ( size_t i = 0; i < numOutputSamples; i++ ) {
+		const float amp = static_cast<float>(atan( max[i] - min[i] )) / 0.7853981633974483f;
+		const int o = static_cast<int>(amp * 255.0f);
 		if ( o > 255 ) {
 			outputData[i] = 255;
 		} else if ( o < 0 ) {
 			outputData[i] = 0;
 		} else {
-			outputData[i] = (unsigned char)o;
+			outputData[i] = static_cast<unsigned char>(o);
 		}
 	}
 	fwrite( outputData, numOutputSamples, 1, out );
@@ -294,7 +295,7 @@ bool Process( FILE * in, FILE * out ) {
 	return true;
 }
 
-int main(int argc, char * argv[]) {
+int main(const int argc, char * argv[]) {
 
 	if ( argc < 2 ) {
 		printf( "Usage: %s <wav>\n", argv[0] );
@@ -304,18 +305,18 @@ int main(int argc, char * argv[]) {
 
 	printf( "Processing %s: ", inputFileName );
 
-	FILE * in = NULL;
+	FILE * in = nullptr;
 	if ( fopen_s( &in, inputFileName, "rb" ) != 0 ) {
 		printf( "Could not open input file\n" );
 		return E_OPEN_IN;
 	}
-	char outputFileName[1024] = {0};
+	char outputFileName[1024] = {};
 	if ( strcpy_s( outputFileName, inputFileName ) != 0 ) {
 		printf( "Filename too long\n" );
 		return E_ARGS;
 	}
 	char * dot = strrchr( outputFileName, '.' );
-	if ( dot == NULL ) {
+	if ( dot == nullptr) {
 		dot = outputFileName + strlen( outputFileName );
 	}
 	if ( strcpy_s( dot, sizeof( outputFileName ) - ( dot - outputFileName ), ".amp" ) != 0 ) {
@@ -323,13 +324,13 @@ int main(int argc, char * argv[]) {
 		return E_ARGS;
 	}
 
-	FILE * out = NULL;
+	FILE * out = nullptr;
 	if ( fopen_s( &out, outputFileName, "wb" ) != 0 ) {
 		printf( "Could not open output file %s\n", outputFileName );
 		return E_OPEN_OUT;
 	}
 
-	bool success = Process( in, out );
+	const bool success = Process( in, out );
 
 	fclose( in );
 	fclose( out );

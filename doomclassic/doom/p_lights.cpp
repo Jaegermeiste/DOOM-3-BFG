@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -52,14 +54,20 @@ void T_FireFlicker (fireflicker_t* flick)
     int	amount;
 	
     if (--flick->count)
-	return;
-	
+    {
+	    return;
+    }
+
     amount = (P_Random()&3)*16;
     
     if (flick->sector->lightlevel - amount < flick->minlight)
-	flick->sector->lightlevel = flick->minlight;
+    {
+	    flick->sector->lightlevel = flick->minlight;
+    }
     else
-	flick->sector->lightlevel = flick->maxlight - amount;
+    {
+	    flick->sector->lightlevel = flick->maxlight - amount;
+    }
 
     flick->count = 4;
 }
@@ -77,7 +85,7 @@ void P_SpawnFireFlicker (sector_t*	sector)
     // Nothing special about it during gameplay.
     sector->special = 0; 
 	
-    flick = (fireflicker_t*)DoomLib::Z_Malloc( sizeof(*flick), PU_LEVEL, 0);
+    flick = static_cast<fireflicker_t*>(DoomLib::Z_Malloc(sizeof(*flick), PU_LEVEL, nullptr));
 
     P_AddThinker (&flick->thinker);
 
@@ -102,8 +110,10 @@ void P_SpawnFireFlicker (sector_t*	sector)
 void T_LightFlash (lightflash_t* flash)
 {
     if (--flash->count)
-	return;
-	
+    {
+	    return;
+    }
+
     if (flash->sector->lightlevel == flash->maxlight)
     {
 	flash-> sector->lightlevel = flash->minlight;
@@ -132,7 +142,7 @@ void P_SpawnLightFlash (sector_t*	sector)
     // nothing special about it during gameplay
     sector->special = 0;	
 	
-    flash = (lightflash_t*)DoomLib::Z_Malloc( sizeof(*flash), PU_LEVEL, 0);
+    flash = static_cast<lightflash_t*>(DoomLib::Z_Malloc(sizeof(*flash), PU_LEVEL, nullptr));
 
     P_AddThinker (&flash->thinker);
 
@@ -159,8 +169,10 @@ void P_SpawnLightFlash (sector_t*	sector)
 void T_StrobeFlash (strobe_t*		flash)
 {
     if (--flash->count)
-	return;
-	
+    {
+	    return;
+    }
+
     if (flash->sector->lightlevel == flash->minlight)
     {
 	flash-> sector->lightlevel = flash->maxlight;
@@ -184,32 +196,38 @@ void T_StrobeFlash (strobe_t*		flash)
 void
 P_SpawnStrobeFlash
 ( sector_t*	sector,
-  int		fastOrSlow,
-  int		inSync )
+  const int		fastOrSlow,
+  const int		inSync )
 {
     strobe_t*	flash;
 	
-    flash = (strobe_t*)DoomLib::Z_Malloc( sizeof(*flash), PU_LEVEL, 0);
+    flash = static_cast<strobe_t*>(DoomLib::Z_Malloc(sizeof(*flash), PU_LEVEL, nullptr));
 
     P_AddThinker (&flash->thinker);
 
     flash->sector = sector;
     flash->darktime = fastOrSlow;
     flash->brighttime = STROBEBRIGHT;
-    flash->thinker.function.acp1 = (actionf_p1) T_StrobeFlash;
+    flash->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_StrobeFlash);
     flash->maxlight = sector->lightlevel;
     flash->minlight = P_FindMinSurroundingLight(sector, sector->lightlevel);
 		
     if (flash->minlight == flash->maxlight)
-	flash->minlight = 0;
+    {
+	    flash->minlight = 0;
+    }
 
     // nothing special about it during gameplay
     sector->special = 0;	
 
     if (!inSync)
-	flash->count = (P_Random()&7)+1;
+    {
+	    flash->count = (P_Random()&7)+1;
+    }
     else
-	flash->count = 1;
+    {
+	    flash->count = 1;
+    }
 }
 
 
@@ -218,16 +236,18 @@ P_SpawnStrobeFlash
 //
 void EV_StartLightStrobing(line_t*	line)
 {
-    int		secnum;
-    sector_t*	sec;
+    index_t		secnum = 0;
+    sector_t*	sec = nullptr;
 	
     secnum = -1;
-    while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+    while ((secnum = P_FindSectorFromLineTag(line, secnum)) >= 0)
     {
 	sec = &::g->sectors[secnum];
 	if (sec->specialdata)
-	    continue;
-	
+	{
+		continue;
+	}
+
 	P_SpawnStrobeFlash (sec,SLOWDARK, 0);
     }
 }
@@ -258,9 +278,10 @@ void EV_TurnTagLightsOff(line_t* line)
 		templine = sector->lines[i];
 		tsec = getNextSector(templine,sector);
 		if (!tsec)
-		    continue;
-		if (tsec->lightlevel < min)
-		    min = tsec->lightlevel;
+		{
+			continue;
+		}
+		min = Min<int>(tsec->lightlevel, min);
 	    }
 	    sector->lightlevel = min;
 	}
@@ -299,10 +320,11 @@ EV_LightTurnOn
 		    temp = getNextSector(templine,sector);
 
 		    if (!temp)
-			continue;
+		    {
+			    continue;
+		    }
 
-		    if (temp->lightlevel > bright)
-			bright = temp->lightlevel;
+		    bright = Max<int>(temp->lightlevel, bright);
 		}
 	    }
 	    sector-> lightlevel = bright;
@@ -346,7 +368,7 @@ void P_SpawnGlowingLight(sector_t*	sector)
 {
     glow_t*	g;
 	
-    g = (glow_t*)DoomLib::Z_Malloc( sizeof(*g), PU_LEVEL, 0);
+    g = static_cast<glow_t*>(DoomLib::Z_Malloc(sizeof(*g), PU_LEVEL, nullptr));
 
     P_AddThinker(&g->thinker);
 

@@ -84,7 +84,7 @@ struct jpeg_color_converter {
   JMETHOD(void, start_pass, (j_compress_ptr cinfo));
   JMETHOD(void, color_convert, (j_compress_ptr cinfo,
 				JSAMPARRAY input_buf, JSAMPIMAGE output_buf,
-				JDIMENSION output_row, int num_rows));
+				JDIMENSION output_row, size_t num_rows));
 };
 
 /* Downsampling */
@@ -245,7 +245,7 @@ struct jpeg_color_deconverter {
   JMETHOD(void, start_pass, (j_decompress_ptr cinfo));
   JMETHOD(void, color_convert, (j_decompress_ptr cinfo,
 				JSAMPIMAGE input_buf, JDIMENSION input_row,
-				JSAMPARRAY output_buf, int num_rows));
+				JSAMPARRAY output_buf, size_t num_rows));
 };
 
 /* Color quantization or color precision reduction */
@@ -253,7 +253,7 @@ struct jpeg_color_quantizer {
   JMETHOD(void, start_pass, (j_decompress_ptr cinfo, boolean is_pre_scan));
   JMETHOD(void, color_quantize, (j_decompress_ptr cinfo,
 				 JSAMPARRAY input_buf, JSAMPARRAY output_buf,
-				 int num_rows));
+				 size_t num_rows));
   JMETHOD(void, finish_pass, (j_decompress_ptr cinfo));
   JMETHOD(void, new_color_map, (j_decompress_ptr cinfo));
 };
@@ -370,7 +370,7 @@ EXTERN long jdiv_round_up JPP((long a, long b));
 EXTERN long jround_up JPP((long a, long b));
 EXTERN void jcopy_sample_rows JPP((JSAMPARRAY input_array, int source_row,
 				   JSAMPARRAY output_array, int dest_row,
-				   int num_rows, JDIMENSION num_cols));
+				   size_t num_rows, JDIMENSION num_cols));
 EXTERN void jcopy_block_row JPP((JBLOCKROW input_row, JBLOCKROW output_row,
 				 JDIMENSION num_blocks));
 EXTERN void jzero_far JPP((void FAR * target, size_t bytestozero));

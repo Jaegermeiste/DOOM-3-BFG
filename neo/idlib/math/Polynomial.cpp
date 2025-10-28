@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <utility>
+
 #include "../precompiled.h"
 
 constexpr float EPSILON		= 1e-6f;
@@ -36,11 +38,15 @@ constexpr float EPSILON		= 1e-6f;
 idPolynomial::Laguer
 =============
 */
-int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x ) const {
+size_t idPolynomial::Laguer( const idComplex *coef, const size_t degree, idComplex &x )
+{
 	constexpr int MT = 10, MAX_ITERATIONS = MT * 8;
 	static constexpr float frac[] = { 0.0f, 0.5f, 0.25f, 0.75f, 0.13f, 0.38f, 0.62f, 0.88f, 1.0f };
-	int i;
-	idComplex dx, d, f;
+	size_t i = 0;
+	idComplex dx = {}, d = {}, f = {};
+
+	const auto degree_i64 = numeric_cast<int64>(degree);
+	const auto degree_f = numeric_cast<float>(degree);
 
 	for ( i = 1; i <= MAX_ITERATIONS; i++ ) {
 		idComplex b = coef[degree];
@@ -48,7 +54,7 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		d.Zero();
 		f.Zero();
 		const float abx = x.Abs();
-		for ( int j = degree - 1; j >= 0; j-- ) {
+		for ( int64 j = degree_i64 - 1; j >= 0; j-- ) {
 			f = x * f + d;
 			d = x * d + b;
 			b = x * b + coef[j];
@@ -59,7 +65,7 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		}
 		idComplex g = d / b;
 		idComplex g2 = g * g;
-		idComplex s = (static_cast<float>(degree - 1) * (static_cast<float>(degree) * (g2 - 2.0f * f / b) - g2)).Sqrt();
+		idComplex s = (degree_f - 1.0f * (degree_f * (g2 - 2.0f * f / b) - g2)).Sqrt();
 		idComplex gps = g + s;
 		idComplex gms = g - s;
 		const float abp = gps.Abs();
@@ -70,7 +76,7 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 		if ( Max( abp, abm ) > 0.0f ) {
 			dx = static_cast<float>(degree) / gps;
 		} else {
-			dx = idMath::Exp( idMath::Log( 1.0f + abx ) ) * idComplex( idMath::Cos(static_cast<float>(i) ), idMath::Sin(static_cast<float>(i) ) );
+			dx = idMath::Exp( idMath::Log( 1.0f + abx ) ) * idComplex( idMath::Cos(numeric_cast<float>(i) ), idMath::Sin(numeric_cast<float>(i) ) );
 		}
 		idComplex cx = x - dx;
 		if ( x == cx ) {
@@ -90,16 +96,18 @@ int idPolynomial::Laguer( const idComplex *coef, const int degree, idComplex &x 
 idPolynomial::GetRoots
 =============
 */
-int idPolynomial::GetRoots( idComplex *roots ) const {
-	int i, j;
+size_t idPolynomial::GetRoots( idComplex *roots ) const {
+	index_t i = 0, j = 0;
 	idComplex x;
 
+	const auto degree_index = numeric_cast<index_t>(degree);
+
 	idComplex* coef = static_cast<idComplex*>(_alloca16(( degree + 1 ) * sizeof( idComplex )));
-	for ( i = 0; i <= degree; i++ ) {
+	for ( i = 0; std::cmp_less_equal(i, degree_index); i++ ) {
 		coef[i].Set( coefficient[i], 0.0f );
 	}
 
-	for ( i = degree - 1; i >= 0; i-- ) {
+	for ( i = degree_index - 1; i >= 0; i-- ) {
 		x.Zero();
 		Laguer( coef, i + 1, x );
 		if ( idMath::Fabs( x.i ) < 2.0f * EPSILON * idMath::Fabs( x.r ) ) {
@@ -114,14 +122,14 @@ int idPolynomial::GetRoots( idComplex *roots ) const {
 		}
 	}
 
-	for ( i = 0; i <= degree; i++ ) {
+	for ( i = 0; i <= degree_index; i++ ) {
 		coef[i].Set( coefficient[i], 0.0f );
 	}
-	for ( i = 0; i < degree; i++ ) {
+	for ( i = 0; i < degree_index; i++ ) {
 		Laguer( coef, degree, roots[i] );
 	}
 
-	for ( i = 1; i < degree; i++ ) {
+	for ( i = 1; i < degree_index; i++ ) {
 		x = roots[i];
 		for ( j = i - 1; j >= 0; j-- ) {
 			if ( roots[j].r <= x.r ) {
@@ -140,8 +148,8 @@ int idPolynomial::GetRoots( idComplex *roots ) const {
 idPolynomial::GetRoots
 =============
 */
-int idPolynomial::GetRoots( float *roots ) const {
-	int i, num;
+size_t idPolynomial::GetRoots( float *roots ) const {
+	index_t i = 0, num = 0;
 
 	switch( degree ) {
 		case 0: return 0;
@@ -160,7 +168,9 @@ int idPolynomial::GetRoots( float *roots ) const {
 
 	GetRoots( complexRoots );
 
-	for ( num = i = 0; i < degree; i++ ) {
+	const auto degree_index = numeric_cast<index_t>(degree);
+
+	for ( num = i = 0; i < degree_index; i++ ) {
 		if ( complexRoots[i].i == 0.0f ) {
 			roots[i] = complexRoots[i].r;
 			num++;
@@ -189,50 +199,50 @@ void idPolynomial::Test() {
 	idComplex complexRoots[4], complexValue;
 
 	idPolynomial p = idPolynomial(-5.0f, 4.0f);
-	int num = p.GetRoots(roots);
-	for ( i = 0; i < num; i++ ) {
+	size_t num = p.GetRoots(roots);
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
 
 	p = idPolynomial( -5.0f, 4.0f, 3.0f );
 	num = p.GetRoots( roots );
-	for ( i = 0; i < num; i++ ) {
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
 
 	p = idPolynomial( 1.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( roots );
-	for ( i = 0; i < num; i++ ) {
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
 
 	p = idPolynomial( 5.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( roots );
-	for ( i = 0; i < num; i++ ) {
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
 
 	p = idPolynomial( -5.0f, 4.0f, 3.0f, 2.0f, 1.0f );
 	num = p.GetRoots( roots );
-	for ( i = 0; i < num; i++ ) {
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
 
 	p = idPolynomial( 1.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( complexRoots );
-	for ( i = 0; i < num; i++ ) {
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		complexValue = p.GetValue( complexRoots[i] );
 		assert( idMath::Fabs( complexValue.r ) < 1e-4f && idMath::Fabs( complexValue.i ) < 1e-4f );
 	}
 
 	p = idPolynomial( 5.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( complexRoots );
-	for ( i = 0; i < num; i++ ) {
+	for ( i = 0; std::cmp_less(i, num); i++ ) {
 		complexValue = p.GetValue( complexRoots[i] );
 		assert( idMath::Fabs( complexValue.r ) < 1e-4f && idMath::Fabs( complexValue.i ) < 1e-4f );
 	}

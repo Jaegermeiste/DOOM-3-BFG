@@ -49,7 +49,7 @@ void PreLightShadowVolumeJob( const preLightShadowVolumeParms_t * parms ) {
 	}
 
 	bool renderZFail = false;
-	int numShadowIndices = 0;
+	size_t numShadowIndices = 0;
 
 	// The shadow volume may be depth culled if either the shadow volume was culled to the view frustum or if the
 	// depth range of the visible part of the shadow volume is outside the depth range of the light volume.

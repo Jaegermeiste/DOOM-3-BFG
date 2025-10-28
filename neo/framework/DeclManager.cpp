@@ -191,7 +191,7 @@ public:
 	virtual const char *		GetDeclNameFromType( declType_t type ) const;
 	virtual declType_t			GetDeclTypeFromName( const char *typeName ) const;
 	virtual const idDecl *		FindType( declType_t type, const char *name, bool makeDefault = true );
-	        const idDecl *		DeclByIndex( declType_t type, const Ordinal auto index, bool forceParse = true );
+	        const idDecl *		DeclByIndex( declType_t type, index_t index, bool forceParse = true );
 
 	virtual const idDecl*		FindDeclWithoutParsing( declType_t type, const char *name, bool makeDefault = true );
 	virtual void				ReloadFile( const char* filename, bool force );
@@ -211,17 +211,17 @@ public:
 	virtual const idDeclSkin *		FindSkin( const char *name, bool makeDefault = true );
 	virtual const idSoundShader *	FindSound( const char *name, bool makeDefault = true );
 
-	virtual const idMaterial *		MaterialByIndex( int index, bool forceParse = true );
-	virtual const idDeclSkin *		SkinByIndex( int index, bool forceParse = true );
-	virtual const idSoundShader *	SoundByIndex( int index, bool forceParse = true );
+	virtual const idMaterial *		MaterialByIndex( index_t index, bool forceParse = true );
+	virtual const idDeclSkin *		SkinByIndex( index_t index, bool forceParse = true );
+	virtual const idSoundShader *	SoundByIndex( index_t index, bool forceParse = true );
 
 	virtual void					Touch( const idDecl * decl );
 
 public:
-	static void					MakeNameCanonical( const char *name, char *result, int maxLength );
+	static void					MakeNameCanonical( const char *name, char *result, size_t maxLength );
 	idDeclLocal *				FindTypeWithoutParsing( declType_t type, const char *name, bool makeDefault = true );
 
-	idDeclType *				GetDeclType( int type ) const { return declTypes[type]; }
+	idDeclType *				GetDeclType(const int type ) const { return declTypes[type]; }
 	const idDeclFile *			GetImplicitDeclFile() const { return &implicitDecls; }
 
 	void						ConvertPDAsToStrings( const idCmdArgs &args );
@@ -421,7 +421,7 @@ void SetupHuffman() {
 
 	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i++ ) {
 		node = new (TAG_DECL) huffmanNode_t;
-		node->symbol = idMath::integer_cast<int>(i);
+		node->symbol = numeric_cast<int>(i);
 		node->frequency = huffmanFrequencies[i];
 		node->next = nullptr;
 		node->children[0] = nullptr;
@@ -508,7 +508,7 @@ size_t HuffmanDecompressText( char *text, const size_t textLength, const byte *c
 			bit = msg.ReadBits( 1 );
 			node = node->children[bit];
 		} while( node->symbol == -1 );
-		text[i] = idMath::integer_cast<char>(node->symbol);
+		text[i] = numeric_cast<char>(node->symbol);
 	}
 	text[i] = '\0';
 	return msg.GetReadCount();
@@ -521,7 +521,7 @@ ListHuffmanFrequencies_f
 */
 void ListHuffmanFrequencies_f( const idCmdArgs &args ) {
 	size_t i = 0;
-	float compression = !totalUncompressedLength ? 100 : idMath::Itof<float>(100ULL * totalCompressedLength / totalUncompressedLength);
+	float compression = !totalUncompressedLength ? 100 : numeric_cast<float>(100ULL * totalCompressedLength / totalUncompressedLength);
 	common->Printf( "// compression ratio = %d%%\n", static_cast<int>(compression) );
 	common->Printf( "static int huffmanFrequencies[] = {\n" );
 	for( i = 0; i < MAX_HUFFMAN_SYMBOLS; i += 8 ) {
@@ -551,7 +551,7 @@ void ConvertPDAsToStrings_f( const idCmdArgs &args ) {
 idDeclFile::idDeclFile
 ================
 */
-idDeclFile::idDeclFile( const char *fileName, declType_t defaultType ) {
+idDeclFile::idDeclFile( const char *fileName, const declType_t defaultType ) {
 	this->fileName = fileName;
 	this->defaultType = defaultType;
 	this->timestamp = 0;
@@ -583,7 +583,7 @@ idDeclFile::Reload
 ForceReload will cause it to reload even if the timestamp hasn't changed
 ================
 */
-void idDeclFile::Reload( bool force ) {
+void idDeclFile::Reload(const bool force ) {
 	// check for an unchanged timestamp
 	if ( !force && timestamp != 0 ) {
 		ID_TIME_T	testTimeStamp;
@@ -920,8 +920,8 @@ void idDeclManagerLocal::Shutdown() {
 idDeclManagerLocal::Reload
 ===================
 */
-void idDeclManagerLocal::Reload( bool force ) {
-	for ( int i = 0; i < loadedFiles.Num(); i++ ) {
+void idDeclManagerLocal::Reload(const bool force ) {
+	for ( size_t i = 0; i < loadedFiles.Num(); i++ ) {
 		loadedFiles[i]->Reload( force );
 	}
 }
@@ -936,9 +936,9 @@ void idDeclManagerLocal::BeginLevelLoad() {
 
 	// clear all the referencedThisLevel flags and purge all the data
 	// so the next reference will cause a reparse
-	for ( int i = 0; i < DECL_MAX_TYPES; i++ ) {
+	for ( size_t i = 0; i < DECL_MAX_TYPES; i++ ) {
 		int	num = linearLists[i].Num();
-		for ( int j = 0 ; j < num ; j++ ) {
+		for ( size_t j = 0 ; j < num ; j++ ) {
 			idDeclLocal *decl = linearLists[i][j];
 			decl->Purge();
 		}
@@ -962,7 +962,7 @@ void idDeclManagerLocal::EndLevelLoad() {
 idDeclManagerLocal::RegisterDeclType
 ===================
 */
-void idDeclManagerLocal::RegisterDeclType( const char *typeName, declType_t type, idDecl *(*allocator)() ) {
+void idDeclManagerLocal::RegisterDeclType( const char *typeName, const declType_t type, idDecl *(*allocator)() ) {
 	idDeclType *declType;
 
 	if ( type < declTypes.Num() && declTypes[static_cast<int>(type)] ) {
@@ -986,8 +986,8 @@ void idDeclManagerLocal::RegisterDeclType( const char *typeName, declType_t type
 idDeclManagerLocal::RegisterDeclFolder
 ===================
 */
-void idDeclManagerLocal::RegisterDeclFolder( const char *folder, const char *extension, declType_t defaultType ) {
-	int i, j;
+void idDeclManagerLocal::RegisterDeclFolder( const char *folder, const char *extension, const declType_t defaultType ) {
+	size_t i = 0, j = 0;
 	idStr fileName;
 	idDeclFolder *declFolder;
 	idFileList *fileList;
@@ -1067,7 +1067,7 @@ int idDeclManagerLocal::GetChecksum() const {
 				continue;
 			}
 
-			checksumData[total*2+0] = idMath::integer_cast<int>(total);
+			checksumData[total*2+0] = numeric_cast<int>(total);
 			checksumData[total*2+1] = decl->checksum;
 			total++;
 		}
@@ -1091,7 +1091,7 @@ size_t idDeclManagerLocal::GetNumDeclTypes() const {
 idDeclManagerLocal::GetDeclNameFromType
 ===================
 */
-const char * idDeclManagerLocal::GetDeclNameFromType( declType_t type ) const {
+const char * idDeclManagerLocal::GetDeclNameFromType(const declType_t type ) const {
 	int typeIndex = (int)type;
 
 	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
@@ -1121,7 +1121,7 @@ idDeclManagerLocal::FindType
 External users will always cause the decl to be parsed before returning
 =================
 */
-const idDecl *idDeclManagerLocal::FindType( declType_t type, const char *name, bool makeDefault ) {
+const idDecl *idDeclManagerLocal::FindType(const declType_t type, const char *name, const bool makeDefault ) {
 	idScopedCriticalSection cs( mutex );
 
 	if ( !name || !name[0] ) {
@@ -1161,7 +1161,7 @@ const idDecl *idDeclManagerLocal::FindType( declType_t type, const char *name, b
 idDeclManagerLocal::FindDeclWithoutParsing
 ===============
 */
-const idDecl* idDeclManagerLocal::FindDeclWithoutParsing( declType_t type, const char *name, bool makeDefault) {
+const idDecl* idDeclManagerLocal::FindDeclWithoutParsing(const declType_t type, const char *name, const bool makeDefault) {
 	idDeclLocal* decl = FindTypeWithoutParsing(type, name, makeDefault);
 	if(decl) {
 		return decl->self;
@@ -1174,7 +1174,7 @@ const idDecl* idDeclManagerLocal::FindDeclWithoutParsing( declType_t type, const
 idDeclManagerLocal::ReloadFile
 ===============
 */
-void idDeclManagerLocal::ReloadFile( const char* filename, bool force ) {
+void idDeclManagerLocal::ReloadFile( const char* filename, const bool force ) {
 	for (size_t i = 0; i < loadedFiles.Num(); i++ ) {
 		if(!loadedFiles[i]->fileName.Icmp(filename)) {
 			checksum ^= loadedFiles[i]->checksum;
@@ -1189,7 +1189,7 @@ void idDeclManagerLocal::ReloadFile( const char* filename, bool force ) {
 idDeclManagerLocal::GetNumDecls
 ===================
 */
-size_t idDeclManagerLocal::GetNumDecls( declType_t type ) {
+size_t idDeclManagerLocal::GetNumDecls(const declType_t type ) {
 	int typeIndex = (int)type;
 
 	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
@@ -1204,7 +1204,7 @@ size_t idDeclManagerLocal::GetNumDecls( declType_t type ) {
 idDeclManagerLocal::DeclByIndex
 ===================
 */
-const idDecl *idDeclManagerLocal::DeclByIndex( declType_t type, const Ordinal auto index, bool forceParse ) {
+const idDecl *idDeclManagerLocal::DeclByIndex(const declType_t type, const index_t index, const bool forceParse ) {
 		int typeIndex = (int)type;
 
 	if ( typeIndex < 0 || typeIndex >= declTypes.Num() || declTypes[typeIndex] == nullptr) {
@@ -1241,7 +1241,7 @@ Lists every decl declared, even if it hasn't been referenced or parsed
 FIXME: alphabetized, wildcards?
 ===================
 */
-void idDeclManagerLocal::ListType( const idCmdArgs &args, declType_t type ) {
+void idDeclManagerLocal::ListType( const idCmdArgs &args, const declType_t type ) {
 	bool all, ever;
 
 	if ( !idStr::Icmp( args.Argv( 1 ), "all" ) ) {
@@ -1258,7 +1258,7 @@ void idDeclManagerLocal::ListType( const idCmdArgs &args, declType_t type ) {
 	common->Printf( "--------------------\n" );
 	int printed = 0;
 	int	count = linearLists[ static_cast<int>(type) ].Num();
-	for ( int i = 0 ; i < count ; i++ ) {
+	for ( size_t i = 0 ; i < count ; i++ ) {
 		idDeclLocal *decl = linearLists[ static_cast<int>(type) ][ i ];
 
 		if ( !all && decl->declState == DS_UNPARSED ) {
@@ -1300,7 +1300,7 @@ void idDeclManagerLocal::ListType( const idCmdArgs &args, declType_t type ) {
 idDeclManagerLocal::PrintType
 ===================
 */
-void idDeclManagerLocal::PrintType( const idCmdArgs &args, declType_t type ) {
+void idDeclManagerLocal::PrintType( const idCmdArgs &args, const declType_t type ) {
 	// individual decl types may use additional command parameters
 	if ( args.Argc() < 2 ) {
 		common->Printf( "USAGE: Print<decl type> <decl name> [type specific parms]\n" );
@@ -1357,7 +1357,7 @@ void idDeclManagerLocal::PrintType( const idCmdArgs &args, declType_t type ) {
 idDeclManagerLocal::CreateNewDecl
 ===================
 */
-idDecl *idDeclManagerLocal::CreateNewDecl( declType_t type, const char *name, const char *_fileName ) {
+idDecl *idDeclManagerLocal::CreateNewDecl(const declType_t type, const char *name, const char *_fileName ) {
 	int typeIndex = (int)type;
 	int i, hash;
 
@@ -1439,7 +1439,7 @@ idDecl *idDeclManagerLocal::CreateNewDecl( declType_t type, const char *name, co
 idDeclManagerLocal::RenameDecl
 ===============
 */
-bool idDeclManagerLocal::RenameDecl( declType_t type, const char* oldName, const char* newName ) {
+bool idDeclManagerLocal::RenameDecl(const declType_t type, const char* oldName, const char* newName ) {
 
 	char canonicalOldName[MAX_STRING_CHARS];
 	MakeNameCanonical( oldName, canonicalOldName, sizeof( canonicalOldName ));
@@ -1493,7 +1493,7 @@ void idDeclManagerLocal::MediaPrint( const char *fmt, ... ) {
 	if ( !decl_show.GetInteger() ) {
 		return;
 	}
-	for ( int i = 0 ; i < indent ; i++ ) {
+	for ( size_t i = 0 ; i < indent ; i++ ) {
 		common->Printf( "    " );
 	}
 	va_list		argptr;
@@ -1512,8 +1512,8 @@ idDeclManagerLocal::WritePrecacheCommands
 ===================
 */
 void idDeclManagerLocal::WritePrecacheCommands( idFile *f ) {
-	for ( int i = 0; i < declTypes.Num(); i++ ) {
-		int num;
+	for ( size_t i = 0; i < declTypes.Num(); i++ ) {
+		size_t num;
 
 		if ( declTypes[i] == nullptr) {
 			continue;
@@ -1521,7 +1521,7 @@ void idDeclManagerLocal::WritePrecacheCommands( idFile *f ) {
 
 		num = linearLists[i].Num();
 
-		for ( int j = 0 ; j < num ; j++ ) {
+		for ( size_t j = 0 ; j < num ; j++ ) {
 			idDeclLocal *decl = linearLists[i][j];
 
 			if ( !decl->referencedThisLevel ) {
@@ -1538,31 +1538,31 @@ void idDeclManagerLocal::WritePrecacheCommands( idFile *f ) {
 
 /********************************************************************/
 
-const idMaterial *idDeclManagerLocal::FindMaterial( const char *name, bool makeDefault ) {
+const idMaterial *idDeclManagerLocal::FindMaterial( const char *name, const bool makeDefault ) {
 	return static_cast<const idMaterial *>( FindType( DECL_MATERIAL, name, makeDefault ) );
 }
 
-const idMaterial *idDeclManagerLocal::MaterialByIndex( int index, bool forceParse ) {
+const idMaterial *idDeclManagerLocal::MaterialByIndex(const index_t index, const bool forceParse ) {
 	return static_cast<const idMaterial *>( DeclByIndex( DECL_MATERIAL, index, forceParse ) );
 }
 
 /********************************************************************/
 
-const idDeclSkin *idDeclManagerLocal::FindSkin( const char *name, bool makeDefault ) {
+const idDeclSkin *idDeclManagerLocal::FindSkin( const char *name, const bool makeDefault ) {
 	return static_cast<const idDeclSkin *>( FindType( DECL_SKIN, name, makeDefault ) );
 }
 
-const idDeclSkin *idDeclManagerLocal::SkinByIndex( int index, bool forceParse ) {
+const idDeclSkin *idDeclManagerLocal::SkinByIndex(const index_t index, const bool forceParse ) {
 	return static_cast<const idDeclSkin *>( DeclByIndex( DECL_SKIN, index, forceParse ) );
 }
 
 /********************************************************************/
 
-const idSoundShader *idDeclManagerLocal::FindSound( const char *name, bool makeDefault ) {
+const idSoundShader *idDeclManagerLocal::FindSound( const char *name, const bool makeDefault ) {
 	return static_cast<const idSoundShader *>( FindType( DECL_SOUND, name, makeDefault ) );
 }
 
-const idSoundShader *idDeclManagerLocal::SoundByIndex( int index, bool forceParse ) {
+const idSoundShader *idDeclManagerLocal::SoundByIndex(const index_t index, const bool forceParse ) {
 	return static_cast<const idSoundShader *>( DeclByIndex( DECL_SOUND, index, forceParse ) );
 }
 
@@ -1584,7 +1584,7 @@ void idDeclManagerLocal::Touch( const idDecl * decl ) {
 idDeclManagerLocal::MakeNameCanonical
 ===================
 */
-void idDeclManagerLocal::MakeNameCanonical( const char *name, char *result, int maxLength ) {
+void idDeclManagerLocal::MakeNameCanonical( const char *name, char *result, const size_t maxLength ) {
 	int i, lastDot;
 
 	lastDot = -1;
@@ -1683,7 +1683,7 @@ void idDeclManagerLocal::TouchDecl_f( const idCmdArgs &args ) {
 	if ( args.Argc() != 3 ) {
 		common->Printf( "usage: touch <type> <name>\n" );
 		common->Printf( "valid types: " );
-		for ( int i = 0 ; i < declManagerLocal.declTypes.Num() ; i++ ) {
+		for ( size_t i = 0 ; i < declManagerLocal.declTypes.Num() ; i++ ) {
 			if ( declManagerLocal.declTypes[i] ) {
 				common->Printf( "%s ", declManagerLocal.declTypes[i]->typeName.c_str() );
 			}
@@ -1715,7 +1715,7 @@ idDeclManagerLocal::FindTypeWithoutParsing
 This finds or creats the decl, but does not cause a parse.  This is only used internally.
 ===================
 */
-idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing( declType_t type, const char *name, bool makeDefault ) {
+idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing(const declType_t type, const char *name, const bool makeDefault ) {
 	int typeIndex = (int)type;
 	int i, hash;
 
@@ -1785,7 +1785,7 @@ void idDeclManagerLocal::ConvertPDAsToStrings( const idCmdArgs &args ) {
 	idStr temp;
 
 	int count = linearLists[ DECL_PDA ].Num();
-	for ( int i = 0; i < count; i++ ) {
+	for ( size_t i = 0; i < count; i++ ) {
 		const idDeclPDA *decl = static_cast< const idDeclPDA * >( FindType( DECL_PDA, linearLists[ DECL_PDA ][ i ]->GetName(), false ) );
 
 		idStr pdaBaseStrId = va( headEnd.c_str(), decl->GetName() );
@@ -1868,7 +1868,7 @@ void idDeclManagerLocal::ConvertPDAsToStrings( const idCmdArgs &args ) {
 		temp = "\n\n//////// PDA Info Emails ////////////\n";
 		file->Write( temp, temp.Length() );
 	}
-	for ( int i = 0; i < infoEmailCount; i++ ) {
+	for ( size_t i = 0; i < infoEmailCount; i++ ) {
 		const idDeclEmail * email = static_cast< const idDeclEmail * >( FindType( DECL_EMAIL, linearLists[ DECL_EMAIL ][ i ]->GetName(), false ) );
 
 		idStr filename = email->base->GetFileName();
@@ -1907,7 +1907,7 @@ void idDeclManagerLocal::ConvertPDAsToStrings( const idCmdArgs &args ) {
 		temp = "\n\n//////// PDA Videos ////////////\n";
 		file->Write( temp, temp.Length() );
 	}
-	for ( int i = 0; i < videoCount; i++ ) {
+	for ( size_t i = 0; i < videoCount; i++ ) {
 		const idDeclVideo * video = static_cast< const idDeclVideo * >( FindType( DECL_VIDEO, linearLists[ DECL_VIDEO ][ i ]->GetName(), false ) );
 
 		idStr videoBaseStrId = va( "\t\"#str_%s_", video->GetName() );
@@ -2115,7 +2115,7 @@ void idDeclLocal::SetTextLocal( const char *text, const size_t length ) {
 	checksum = MD5_BlockChecksum( text, length );
 
 #ifdef GET_HUFFMAN_FREQUENCIES
-	for( int i = 0; i < length; i++ ) {
+	for ( size_t i = 0; i < length; i++ ) {
 		huffmanFrequencies[((const unsigned char *)text)[i]]++;
 	}
 #endif

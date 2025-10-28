@@ -86,10 +86,10 @@ If you have questions concerning this license or the applicable additional terms
 void R_DrawColumn ( lighttable_t * dc_colormap,
 					byte * dc_source ) 
 { 
-	int			count; 
-	byte*		dest; 
-	fixed_t		frac;
-	fixed_t		fracstep;	 
+	int64		count = 0; 
+	byte*		dest = nullptr; 
+	fixed_t		frac = 0;
+	fixed_t		fracstep = 0;	 
 
 	count = ::g->dc_yh - ::g->dc_yl; 
 
@@ -98,11 +98,13 @@ void R_DrawColumn ( lighttable_t * dc_colormap,
 		//return; 
 
 	#ifdef RANGECHECK 
-		if ((unsigned)::g->dc_x >= SCREENWIDTH
+		if (static_cast<unsigned>(::g->dc_x) >= SCREENWIDTH
 			|| ::g->dc_yl < 0
-			|| ::g->dc_yh >= SCREENHEIGHT) 
-			I_Error ("R_DrawColumn: %i to %i at %i", ::g->dc_yl, ::g->dc_yh, ::g->dc_x); 
-	#endif 
+			|| ::g->dc_yh >= SCREENHEIGHT)
+		{
+			I_Error ("R_DrawColumn: %i to %i at %i", ::g->dc_yl, ::g->dc_yh, ::g->dc_x);
+		}
+#endif 
 
 		// Framebuffer destination address.
 		// Use ::g->ylookup LUT to avoid multiply with ScreenWidth.
@@ -196,20 +198,22 @@ void R_DrawColumn (void)
 void R_DrawColumnLow ( lighttable_t * dc_colormap,
 					   byte * dc_source ) 
 { 
-	int			count; 
-	byte*		dest; 
-	byte*		dest2;
-	fixed_t		frac;
-	fixed_t		fracstep;	 
+	int64		count = 0; 
+	byte*		dest = nullptr; 
+	byte*       dest2 = nullptr;
+	fixed_t		frac = 0;
+	fixed_t		fracstep = 0;	 
 
 	count = ::g->dc_yh - ::g->dc_yl; 
 
 	// Zero length.
-	if (count < 0) 
-		return; 
+	if (count < 0)
+	{
+		return;
+	}
 
 #ifdef RANGECHECK 
-	if ((unsigned)::g->dc_x >= SCREENWIDTH
+	if (static_cast<unsigned>(::g->dc_x) >= SCREENWIDTH
 		|| ::g->dc_yl < 0
 		|| ::g->dc_yh >= SCREENHEIGHT)
 	{
@@ -258,28 +262,34 @@ void R_DrawColumnLow ( lighttable_t * dc_colormap,
 void R_DrawFuzzColumn ( lighttable_t * dc_colormap,
 						  byte * dc_source ) 
 { 
-	int			count; 
-	byte*		dest; 
-	fixed_t		frac;
-	fixed_t		fracstep;	 
+	int64		count = 0; 
+	byte*		dest = nullptr; 
+	fixed_t		frac = 0;
+	fixed_t		fracstep = 0;	 
 
 	// Adjust borders. Low... 
-	if (!::g->dc_yl) 
+	if (!::g->dc_yl)
+	{
 		::g->dc_yl = 1;
+	}
 
 	// .. and high.
-	if (::g->dc_yh == ::g->viewheight-1) 
-		::g->dc_yh = ::g->viewheight - 2; 
+	if (::g->dc_yh == ::g->viewheight-1)
+	{
+		::g->dc_yh = ::g->viewheight - 2;
+	}
 
 	count = ::g->dc_yh - ::g->dc_yl; 
 
 	// Zero length.
-	if (count < 0) 
-		return; 
+	if (count < 0)
+	{
+		return;
+	}
 
 
 #ifdef RANGECHECK 
-	if ((unsigned)::g->dc_x >= SCREENWIDTH
+	if (static_cast<unsigned>(::g->dc_x) >= SCREENWIDTH
 		|| ::g->dc_yl < 0 || ::g->dc_yh >= SCREENHEIGHT)
 	{
 		I_Error ("R_DrawFuzzColumn: %i to %i at %i",
@@ -332,8 +342,10 @@ void R_DrawFuzzColumn ( lighttable_t * dc_colormap,
 		*dest = ::g->colormaps[6*256+dest[::g->fuzzoffset[::g->fuzzpos]]]; 
 
 		// Clamp table lookup index.
-		if (++::g->fuzzpos == FUZZTABLE) 
+		if (++::g->fuzzpos == FUZZTABLE)
+		{
 			::g->fuzzpos = 0;
+		}
 
 		dest += SCREENWIDTH;
 
@@ -357,17 +369,19 @@ void R_DrawFuzzColumn ( lighttable_t * dc_colormap,
 void R_DrawTranslatedColumn ( lighttable_t * dc_colormap,
 						  byte * dc_source ) 
 { 
-	int			count; 
-	byte*		dest; 
-	fixed_t		frac;
-	fixed_t		fracstep;	 
+	int64		count = 0; 
+	byte*		dest = nullptr; 
+	fixed_t		frac = 0;
+	fixed_t		fracstep = 0;	 
 
 	count = ::g->dc_yh - ::g->dc_yl; 
-	if (count < 0) 
-		return; 
+	if (count < 0)
+	{
+		return;
+	}
 
 #ifdef RANGECHECK 
-	if ((unsigned)::g->dc_x >= SCREENWIDTH
+	if (static_cast<unsigned>(::g->dc_x) >= SCREENWIDTH
 		|| ::g->dc_yl < 0
 		|| ::g->dc_yh >= SCREENHEIGHT)
 	{
@@ -431,26 +445,25 @@ void R_DrawTranslatedColumn ( lighttable_t * dc_colormap,
 //
 void R_InitTranslationTables (void)
 {
-	int		i;
+	size_t		i = 0;
 
-	::g->translationtables = (byte*)DoomLib::Z_Malloc (256*3+255, PU_STATIC, 0);
-	::g->translationtables = (byte *)(( (int)::g->translationtables + 255 )& ~255);
+	::g->translationtables = static_cast<byte*>(DoomLib::Z_Malloc(numeric_cast<size_t>(256 * 3 + 255), PU_STATIC, nullptr));
+	::g->translationtables = reinterpret_cast<byte*>((reinterpret_cast<int>(::g->translationtables) + 255) & ~255);
 
 	// translate just the 16 green colors
-	for (i=0 ; i<256 ; i++)
+	for (i = 0; i < 256; i++)
 	{
 		if (i >= 0x70 && i<= 0x7f)
 		{
 			// map green ramp to gray, brown, red
 			::g->translationtables[i] = 0x60 + (i&0xf);
-			::g->translationtables [i+256] = 0x40 + (i&0xf);
-			::g->translationtables [i+512] = 0x20 + (i&0xf);
+			::g->translationtables[i + 256] = 0x40 + (i&0xf);
+			::g->translationtables[i + 512] = 0x20 + (i&0xf);
 		}
 		else
 		{
 			// Keep all other colors as is.
-			::g->translationtables[i] = ::g->translationtables[i+256] 
-			= ::g->translationtables[i+512] = i;
+			::g->translationtables[i] = ::g->translationtables[i + 256] = ::g->translationtables[i + 512] = numeric_cast<byte>(i);
 		}
 	}
 }
@@ -483,22 +496,22 @@ void R_InitTranslationTables (void)
 void R_DrawSpan ( fixed_t xfrac,
 				  fixed_t yfrac,
 				  fixed_t ds_y,
-				  int ds_x1,
-				  int ds_x2,
-				  fixed_t ds_xstep,
-				  fixed_t ds_ystep,
+				  const int ds_x1,
+				  const int ds_x2,
+				  const fixed_t ds_xstep,
+				  const fixed_t ds_ystep,
 				  lighttable_t * ds_colormap,
 				  byte * ds_source ) 
 { 
-	byte*		dest; 
-	int			count;
-	int			spot; 
+	byte*		dest = nullptr; 
+	int64		count = 0;
+	int			spot = 0; 
 
 #ifdef RANGECHECK
 	if (::g->ds_x2 < ::g->ds_x1
 		|| ::g->ds_x1<0
 		|| ::g->ds_x2>=SCREENWIDTH  
-		|| (unsigned)::g->ds_y>SCREENHEIGHT)
+		|| static_cast<unsigned>(::g->ds_y)>SCREENHEIGHT)
 	{
 		I_Error( "R_DrawSpan: %i to %i at %i",
 			::g->ds_x1,::g->ds_x2,::g->ds_y);
@@ -619,15 +632,15 @@ void R_DrawSpanLow ( fixed_t xfrac,
 				  lighttable_t * ds_colormap,
 				  byte * ds_source ) 
 {
-	byte*		dest; 
-	int			count;
-	int			spot; 
+	byte*		dest = nullptr; 
+	int64		count = 0;
+	int			spot = 0; 
 
 #ifdef RANGECHECK 
 	if (::g->ds_x2 < ::g->ds_x1
 		|| ::g->ds_x1<0
 		|| ::g->ds_x2>=SCREENWIDTH  
-		|| (unsigned)::g->ds_y>SCREENHEIGHT)
+		|| static_cast<unsigned>(::g->ds_y)>SCREENHEIGHT)
 	{
 		I_Error( "R_DrawSpan: %i to %i at %i",
 			::g->ds_x1,::g->ds_x2,::g->ds_y);
@@ -659,17 +672,17 @@ void R_DrawSpanLow ( fixed_t xfrac,
 
 //
 // R_InitBuffer 
-// Creats lookup tables that avoid
+// Creates lookup tables that avoid
 //  multiplies and other hazzles
 //  for getting the framebuffer address
 //  of a pixel to draw.
 //
-void
+static void
 R_InitBuffer
-( int		width,
- int		height ) 
+(const size_t		width,
+ const size_t		height )
 { 
-	int		i; 
+	size_t		i = 0; 
 
 	// Handle resize,
 	//  e.g. smaller view windows
@@ -677,18 +690,26 @@ R_InitBuffer
 	::g->viewwindowx = (SCREENWIDTH-width) >> 1; 
 
 	// Column offset. For windows.
-	for (i=0 ; i<width ; i++) 
+	for (i = 0; i < width; i++)
+	{
 		::g->columnofs[i] = ::g->viewwindowx + i;
+	}
 
-	// Samw with base row offset.
-	if (width == SCREENWIDTH) 
-		::g->viewwindowy = 0; 
-	else 
-		::g->viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1; 
+	// Same with base row offset.
+	if (width == SCREENWIDTH)
+	{
+		::g->viewwindowy = 0;
+	}
+	else
+	{
+		::g->viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1;
+	}
 
-	// Preclaculate all row offsets.
-	for (i=0 ; i<height ; i++) 
-		::g->ylookup[i] = ::g->screens[0] + (i+::g->viewwindowy)*SCREENWIDTH; 
+	// Precalculate all row offsets.
+	for (i=0 ; i<height ; i++)
+	{
+		::g->ylookup[i] = ::g->screens[0] + (i+::g->viewwindowy)*SCREENWIDTH;
+	}
 } 
 
 
@@ -702,37 +723,43 @@ R_InitBuffer
 //
 void R_FillBackScreen (void) 
 { 
-	byte*		src;
-	byte*		dest; 
-	int			x;
-	int			y; 
-	int			width, height, windowx, windowy;
-	patch_t*	patch;
+	byte*		src = nullptr;
+	byte*		dest = nullptr; 
+	size_t		x = 0;
+	size_t		y = 0; 
+	size_t		width = 0, height = 0;
+	patch_t*	patch = nullptr;
 
 	// DOOM border patch.
 	char	name1[] = "FLOOR7_2";
 	// DOOM II border patch.
 	char	name2[] = "GRNROCK";	
 
-	char*	name;
+	char*	name = nullptr;
 
 	if (::g->scaledviewwidth == SCREENWIDTH)
+	{
 		return;
+	}
 
 	if ( ::g->gamemode == commercial)
+	{
 		name = name2;
+	}
 	else
+	{
 		name = name1;
+	}
 
-	src = (byte*)W_CacheLumpName (name, PU_CACHE_SHARED); 
+	src = static_cast<byte*>(W_CacheLumpName(name, PU_CACHE_SHARED)); 
 	dest = ::g->screens[1]; 
 
-	for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++) { 
-		for (x=0 ; x<SCREENWIDTH/64 ; x++) 	{ 
+	for (y = 0; y < SCREENHEIGHT-SBARHEIGHT; y++) { 
+		for (x = 0; x < SCREENWIDTH/64; x++) 	{ 
 			memcpy(dest, src+((y&63)<<6), 64); 
 			dest += 64; 
 		} 
-		if (SCREENWIDTH&63) 
+		if (false) 
 		{ 
 			memcpy(dest, src+((y&63)<<6), SCREENWIDTH&63); 
 			dest += (SCREENWIDTH&63); 
@@ -741,34 +768,34 @@ void R_FillBackScreen (void)
 
 	width = ::g->scaledviewwidth / GLOBAL_IMAGE_SCALER;
 	height = ::g->viewheight / GLOBAL_IMAGE_SCALER;
-	windowx = ::g->viewwindowx / GLOBAL_IMAGE_SCALER;
-	windowy = ::g->viewwindowy / GLOBAL_IMAGE_SCALER;
+	auto windowx = ::g->viewwindowx / GLOBAL_IMAGE_SCALER;
+	auto windowy = ::g->viewwindowy / GLOBAL_IMAGE_SCALER;
 
-	patch = (patch_t*)W_CacheLumpName ("brdr_t",PU_CACHE_SHARED);
-	for (x=0 ; x<width ; x+=8) {
-		V_DrawPatch (windowx+x,windowy-8,1,patch);
+	patch = static_cast<patch_t*>(W_CacheLumpName("brdr_t",PU_CACHE_SHARED));
+	for (x = 0; x < width; x += 8) {
+		V_DrawPatch (windowx + x, windowy - 8, 1, patch);
 	}
 
-	patch = (patch_t*)W_CacheLumpName ("brdr_b",PU_CACHE_SHARED);
-	for (x=0 ; x<width ; x+=8) {
-		V_DrawPatch (windowx+x,windowy+height,1,patch);
+	patch = static_cast<patch_t*>(W_CacheLumpName("brdr_b",PU_CACHE_SHARED));
+	for (x = 0; x < width; x += 8) {
+		V_DrawPatch (windowx + x, windowy + height, 1, patch);
 	}
 
-	patch = (patch_t*)W_CacheLumpName ("brdr_l",PU_CACHE_SHARED);
-	for (y=0 ; y<height ; y+=8) {
-		V_DrawPatch (windowx-8,windowy+y,1,patch);
+	patch = static_cast<patch_t*>(W_CacheLumpName("brdr_l",PU_CACHE_SHARED));
+	for (y = 0; y < height; y += 8) {
+		V_DrawPatch (windowx - 8, windowy + y, 1, patch);
 	}
 
-	patch = (patch_t*)W_CacheLumpName ("brdr_r",PU_CACHE_SHARED);
-	for (y=0 ; y<height ; y+=8) {
-		V_DrawPatch (windowx+width,windowy+y,1,patch);
+	patch = static_cast<patch_t*>(W_CacheLumpName("brdr_r",PU_CACHE_SHARED));
+	for (y = 0; y < height; y += 8) {
+		V_DrawPatch (windowx + width, windowy + y, 1, patch);
 	}
 
 	// Draw beveled edge. 
-	V_DrawPatch(windowx-8, windowy-8, 1, (patch_t*)W_CacheLumpName ("brdr_tl",PU_CACHE_SHARED));
-	V_DrawPatch(windowx+width, windowy-8, 1, (patch_t*)W_CacheLumpName ("brdr_tr",PU_CACHE_SHARED));
-	V_DrawPatch(windowx-8, windowy+height, 1, (patch_t*)W_CacheLumpName ("brdr_bl",PU_CACHE_SHARED));
-	V_DrawPatch (windowx+width, windowy+height, 1, (patch_t*)W_CacheLumpName ("brdr_br",PU_CACHE_SHARED));
+	V_DrawPatch(windowx - 8, windowy - 8, 1, static_cast<patch_t*>(W_CacheLumpName("brdr_tl",PU_CACHE_SHARED)));
+	V_DrawPatch(windowx + width, windowy - 8, 1, static_cast<patch_t*>(W_CacheLumpName("brdr_tr",PU_CACHE_SHARED)));
+	V_DrawPatch(windowx - 8, windowy + height, 1, static_cast<patch_t*>(W_CacheLumpName("brdr_bl",PU_CACHE_SHARED)));
+	V_DrawPatch(windowx + width, windowy + height, 1, static_cast<patch_t*>(W_CacheLumpName("brdr_br",PU_CACHE_SHARED)));
 } 
 
 
@@ -777,15 +804,15 @@ void R_FillBackScreen (void)
 //
 void
 R_VideoErase
-( unsigned	ofs,
- int		count ) 
+(const size_t ofs,
+ const size_t count ) 
 { 
 	// LFB copy.
 	// This might not be a good idea if memcpy
-	//  is not optiomal, e.g. byte by byte on
+	//  is not optimal, e.g. byte by byte on
 	//  a 32bit CPU, as GNU GCC/Linux libc did
 	//  at one point.
-	memcpy(::g->screens[0]+ofs, ::g->screens[1]+ofs, count); 
+	memcpy(::g->screens[0] + ofs, ::g->screens[1] + ofs, count); 
 } 
 
 
@@ -796,10 +823,10 @@ R_VideoErase
 //
 void
 V_MarkRect
-( int		x,
- int		y,
- int		width,
- int		height ); 
+(   const std::integral auto		x,
+	const std::integral auto		y,
+	const std::integral auto		width,
+	const std::integral auto		height);
 
 void R_DrawViewBorder (void) 
 { 
@@ -808,8 +835,10 @@ void R_DrawViewBorder (void)
 	int		ofs;
 	int		i; 
 
-	if (::g->scaledviewwidth == SCREENWIDTH) 
-		return; 
+	if (::g->scaledviewwidth == SCREENWIDTH)
+	{
+		return;
+	}
 
 	top = ((SCREENHEIGHT-SBARHEIGHT)-::g->viewheight)/2; 
 	side = (SCREENWIDTH-::g->scaledviewwidth)/2; 

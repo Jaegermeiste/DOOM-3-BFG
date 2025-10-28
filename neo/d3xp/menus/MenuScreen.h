@@ -28,23 +28,25 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MENUSCREEN_H__
 #define __MENUSCREEN_H__
 
+#pragma once
+
 #include "../../renderer/tr_local.h"
 
-enum mainMenuTransition_t {
+typedef enum mainMenuTransition_e : int8 {
 	MENU_TRANSITION_INVALID = -1,
 	MENU_TRANSITION_SIMPLE,
 	MENU_TRANSITION_ADVANCE,
 	MENU_TRANSITION_BACK,
 	MENU_TRANSITION_FORCE
-};
+} mainMenuTransition_t;
 
-enum cursorState_t {
+typedef enum cursorState_t : uint8 {
 	CURSOR_NONE,
 	CURSOR_IN_COMBAT,
 	CURSOR_TALK,
 	CURSOR_GRABBER,
 	CURSOR_ITEM,
-};
+} cursorState_t;
 
 /*
 ================================================
@@ -73,7 +75,7 @@ idLBCache
 */
 class idLBCache { 
 public:
-	static constexpr int NUM_ROW_BLOCKS		= 5;
+	static constexpr size_t NUM_ROW_BLOCKS		= 5;
 	static constexpr leaderboardFilterMode_t DEFAULT_LEADERBOARD_FILTER = LEADERBOARD_FILTER_OVERALL;
 
 	idLBCache() :
@@ -102,7 +104,7 @@ public:
 	const idLeaderboardCallback::row_t *	GetLeaderboardRow( int row );
 
 	const leaderboardDefinition_t *			GetLeaderboard() const { return def; }
-	int										GetNumRowsInLeaderboard() const { return numRowsInLeaderboard; }
+	size_t									GetNumRowsInLeaderboard() const { return numRowsInLeaderboard; }
 
 	int										GetEntryIndex() const { return entryIndex; }
 	int										GetRowOffset() const { return rowOffset; }
@@ -112,8 +114,8 @@ public:
 	bool									IsRequestingRows() const { return requestingRows; }
 	bool									IsLoadingNewLeaderboard() const { return loadingNewLeaderboard; }
 
-	void									SetEntryIndex( int value ) { entryIndex = value; }
-	void									SetRowOffset( int value ) { rowOffset = value; }
+	void									SetEntryIndex(const int value ) { entryIndex = value; }
+	void									SetRowOffset(const int value ) { rowOffset = value; }
 
 	void									DisplayGamerCardUI( const idLeaderboardCallback::row_t * row );
 
@@ -178,9 +180,9 @@ idMenuScreen_PDA_UserData
 class idMenuScreen_PDA_UserData : public idMenuScreen {
 public:
 
-	idMenuScreen_PDA_UserData() {}
+	idMenuScreen_PDA_UserData() = default;
 
-	~idMenuScreen_PDA_UserData() override {}
+	~idMenuScreen_PDA_UserData() override = default;
 	void					Initialize( idMenuHandler * data ) override;
 	void					Update() override;
 	void					ShowScreen( const mainMenuTransition_t transitionType ) override;
@@ -209,8 +211,7 @@ public:
 	}
 
 	~idMenuScreen_PDA_UserEmails() override
-	{
-	}
+	= default;
 
 	void					Update() override;
 	void					Initialize( idMenuHandler * data ) override;
@@ -243,8 +244,7 @@ public:
 	}
 
 	~idMenuScreen_PDA_VideoDisks() override
-	{
-		}
+	= default;
 
 	void				Initialize( idMenuHandler * data ) override;
 	void				Update() override;
@@ -254,7 +254,7 @@ public:
 
 	void						ToggleVideoDiskPlay();
 	void						UpdateVideoDetails();
-	void						SelectedVideoToPlay( int index );
+	void						SelectedVideoToPlay( index_t index );
 	void						ClearActiveVideo() { activeVideo = nullptr; }
 	const idDeclVideo *			GetActiveVideo() { return activeVideo; }
 private:
@@ -272,8 +272,7 @@ idMenuScreen_PDA_UserData
 */
 class idMenuScreen_PDA_Inventory : public idMenuScreen {
 public:
-	idMenuScreen_PDA_Inventory() {
-	}
+	idMenuScreen_PDA_Inventory() = default;
 
 	void				Initialize( idMenuHandler * data ) override;
 	void				Update() override;
@@ -282,8 +281,8 @@ public:
 	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 	void						EquipWeapon();
-	const char *				GetWeaponName( int index );
-	bool						IsVisibleWeapon( int index );
+	const char *				GetWeaponName( index_t index );
+	bool						IsVisibleWeapon( index_t index );
 
 private:
 	idMenuWidget_Carousel 			itemList;
@@ -310,7 +309,7 @@ public:
 
 	void						HandleExitGameBtn();
 	int							GetRootIndex();
-	void						SetRootIndex( int index );
+	void						SetRootIndex( index_t index );
 	idMenuWidget_Help *			GetHelpWidget() { return helpWidget; }
 
 private:
@@ -423,7 +422,7 @@ public:
 	void				HideScreen( const mainMenuTransition_t transitionType ) override;
 	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
-	void						SetCanContinue( bool valid ) { canContinue = valid; }
+	void						SetCanContinue(const bool valid ) { canContinue = valid; }
 	void						ContinueGame();
 private:
 	bool						canContinue;
@@ -453,21 +452,21 @@ private:
 	idMenuWidget_Button	*		btnBack;
 };
 
-struct creditInfo_t {
+typedef struct creditInfo_s {
 
-	creditInfo_t() {
+	creditInfo_s() {
 		type = -1;
 		entry = "";
 	}
 
-	creditInfo_t( int t, const char * val ) {
+	creditInfo_s(const int t, const char * val ) {
 		type = t;
 		entry = val;
 	}
 
 	int type;
 	idStr entry;
-};
+} creditInfo_t;
 
 //*
 //================================================	
@@ -515,30 +514,30 @@ public:
 	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 
 private:
-	struct optionData_t {
-		optionData_t() {
+	typedef struct optionData_s {
+		optionData_s() {
 			fullscreen = -1;
 			vidmode = -1;
 		}
-		optionData_t( int f, int v ) {
+		optionData_s(const int f, const int v ) {
 			fullscreen = f;
 			vidmode = v;
 		}
-		optionData_t( const optionData_t & other ) {
+		optionData_s( const optionData_s & other ) {
 			fullscreen = other.fullscreen;
 			vidmode = other.vidmode;
 		}
-		const optionData_t & operator=( const optionData_t & other ) {
+		const optionData_s & operator=( const optionData_s & other ) {
 			fullscreen = other.fullscreen;
 			vidmode = other.vidmode;
 			return *this;
 		}
-		bool operator==( const optionData_t & other ) const {
+		bool operator==( const optionData_s & other ) const {
 			return ( fullscreen == other.fullscreen ) && ( ( vidmode == other.vidmode ) || ( fullscreen == 0 ) );
 		}
 		int fullscreen;
 		int vidmode;
-	};
+	} optionData_t;
 	idList<optionData_t>		optionData;
 
 	optionData_t				originalOption;
@@ -634,7 +633,7 @@ public:
 	
 	void						UpdateServerList();
 	void						OnServerListReady();
-	void						DescribeServer( const serverInfo_t & server, const int index );
+	void						DescribeServer( const serverInfo_t & server, const index_t index );
 
 private:
 	idMenuWidget_GameBrowserList * listWidget;
@@ -725,7 +724,7 @@ public:
 	void						SetBinding( int keyNum );
 	void						UpdateBindingDisplay();
 	void						ToggleWait( bool wait );
-	void						SetBindingChanged( bool changed ) { bindingsChanged = changed; }
+	void						SetBindingChanged(const bool changed ) { bindingsChanged = changed; }
 
 protected:
 	void						HandleRestoreDefaults();
@@ -823,9 +822,9 @@ public:
 	bool				HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled = false ) override;
 	
 	void						UpdateSaveEnumerations();
-	void						LoadDamagedGame( int index );
-	void						LoadGame( int index );
-	void						DeleteGame( int index );
+	void						LoadDamagedGame( index_t index );
+	void						LoadGame( index_t index );
+	void						DeleteGame( index_t index );
 	saveGameDetailsList_t		GetSortedSaves() const { return sortedSaves; }
 
 private:
@@ -858,8 +857,8 @@ public:
 	saveGameDetailsList_t		GetSortedSaves() const { return sortedSaves; }
 	
 	void						UpdateSaveEnumerations();
-	void						SaveGame( int index );
-	void						DeleteGame( int index );
+	void						SaveGame( index_t index );
+	void						DeleteGame( index_t index );
 
 private:
 	idMenuWidget_Button	*		btnBack;
@@ -884,7 +883,7 @@ public:
 	*/
 	class idMenuDataSource_GameSettings : public idMenuDataSource {
 	public:
-		enum gameSettingFields_t {
+		typedef enum gameSettingFields_e : uint8 {
 			GAME_FIELD_FOV,
 			GAME_FIELD_CHECKPOINTS,
 			GAME_FIELD_AUTO_SWITCH,
@@ -893,7 +892,7 @@ public:
 			GAME_FIELD_ALWAYS_SPRINT,
 			GAME_FIELD_FLASHLIGHT_SHADOWS,
 			MAX_GAME_FIELDS
-		};
+		} gameSettingFields_t;
 
 		idMenuDataSource_GameSettings();
 
@@ -947,13 +946,13 @@ public:
 	*/
 	class idMenuDataSource_MatchSettings : public idMenuDataSource {
 	public:
-		enum matchSettingFields_t {
+		typedef enum matchSettingFields_e : uint8 {
 			MATCH_FIELD_MODE,
 			MATCH_FIELD_MAP,
 			MATCH_FIELD_TIME,
 			MATCH_FIELD_SCORE,
 			MAX_MATCH_FIELDS
-		};
+		} matchSettingFields_t;
 
 		idMenuDataSource_MatchSettings();
 
@@ -976,8 +975,8 @@ public:
 
 	private:
 
-		void						GetModeName( int index, idStr & name );
-		void						GetMapName( int index, idStr & name );
+		void						GetModeName( index_t index, idStr & name );
+		void						GetMapName( index_t index, idStr & name );
 
 		idStaticList< idSWFScriptVar, MAX_MATCH_FIELDS >	fields;
 		idStaticList< idSWFScriptVar, MAX_MATCH_FIELDS >	originalFields;
@@ -1015,12 +1014,12 @@ public:
 	*/
 	class idMenuDataSource_ControlSettings : public idMenuDataSource {
 	public:
-		enum controlSettingFields_t {
+		typedef enum controlSettingFields_e : uint8 {
 			CONTROLS_FIELD_INVERT_MOUSE,
 			CONTROLS_FIELD_GAMEPAD_ENABLED,
 			CONTROLS_FIELD_MOUSE_SENS,			
 			MAX_CONTROL_FIELDS
-		};
+		} controlSettingFields_t;
 
 		idMenuDataSource_ControlSettings();
 
@@ -1074,7 +1073,7 @@ public:
 	*/
 	class idMenuDataSource_GamepadSettings : public idMenuDataSource {
 	public:
-		enum controlSettingFields_t {
+		typedef enum controlSettingFields_e : uint8 {
 			GAMEPAD_FIELD_LEFTY,
 			GAMEPAD_FIELD_INVERT,
 			GAMEPAD_FIELD_VIBRATE,
@@ -1137,10 +1136,10 @@ public:
 	*/
 	class idMenuDataSource_LayoutSettings : public idMenuDataSource {
 	public:
-		enum controlSettingFields_t {
+		typedef enum controlSettingFields_e : uint8 {
 			LAYOUT_FIELD_LAYOUT,
 			MAX_LAYOUT_FIELDS,
-		};
+		} controlSettingFields_t;
 
 		idMenuDataSource_LayoutSettings();
 
@@ -1197,7 +1196,7 @@ public:
 	*/
 	class idMenuDataSource_SystemSettings : public idMenuDataSource {
 	public:
-		enum systemSettingFields_t {
+		typedef enum systemSettingFields_e : uint8 {
 			SYSTEM_FIELD_FULLSCREEN,
 			SYSTEM_FIELD_FRAMERATE,
 			SYSTEM_FIELD_VSYNC,
@@ -1207,7 +1206,7 @@ public:
 			SYSTEM_FIELD_BRIGHTNESS,
 			SYSTEM_FIELD_VOLUME,
 			MAX_SYSTEM_FIELDS
-		};
+		} systemSettingFields_t;
 
 		idMenuDataSource_SystemSettings();
 
@@ -1272,12 +1271,12 @@ public:
 	*/
 	class idMenuDataSource_StereoSettings : public idMenuDataSource {
 	public:
-		enum stereoSettingFields_t {
+		typedef enum stereoSettingFields_e : uint8 {
 			STEREO_FIELD_ENABLE,
 			STEREO_FIELD_SEPERATION,
 			STEREO_FIELD_SWAP_EYES,
 			MAX_STEREO_FIELDS
-		};
+		} stereoSettingFields_t;
 
 		idMenuDataSource_StereoSettings();
 
@@ -1442,7 +1441,7 @@ public:
 		audioLogPrevTime( 0 ),
 		commPrevTime( 0 ),
 		oxygenComm( false ),
-		inVaccuum( false ),
+		inVacuum( false ),
 		ammoInfo(nullptr),
 		newWeapon(nullptr),
 		pickupInfo(nullptr),
@@ -1497,7 +1496,7 @@ public:
 	void					ShowObjective( bool complete );
 	void					HideObjective( bool complete );
 	void					GiveWeapon( idPlayer * player, int weaponIndex );
-	void					UpdatePickupInfo( int index, const idStr & name );
+	void					UpdatePickupInfo( index_t index, const idStr & name );
 	bool					IsPickupListReady();
 	void					ShowPickups();
 	void					SetCursorState( idPlayer * player, cursorState_t state, int set );
@@ -1506,14 +1505,14 @@ public:
 	void					CombatCursorFlash();
 	void					UpdateSoulCube( bool ready );
 	void					ShowRespawnMessage( bool show );
-	void					SetShowSoulCubeOnLoad( bool show ) { showSoulCubeInfoOnLoad = show; }
+	void					SetShowSoulCubeOnLoad(const bool show ) { showSoulCubeInfoOnLoad = show; }
 
 	// MULTIPLAYER
 
 	void					ToggleMPInfo( bool show, bool showTeams, bool isCTF = false );
-	void					SetFlagState( int team, int state );
-	void					SetTeamScore( int team, int score );
-	void					SetTeam( int team );
+	void					SetFlagState( index_t team, int state );
+	void					SetTeamScore( index_t team, int score );
+	void					SetTeam( index_t team );
 	void					TriggerHitTarget( bool show, const idStr & target, int color = 0 );
 	void					ToggleLagged( bool show );
 	void					UpdateGameTime( const char * time );
@@ -1575,11 +1574,11 @@ private:
 	idSWFTextInstance *		mpMessage;
 	idSWFTextInstance *		mpTime;
 		
-	int						audioLogPrevTime;
-	int						commPrevTime;
+	ID_TIME_T				audioLogPrevTime;
+	ID_TIME_T				commPrevTime;
 
 	bool					oxygenComm;
-	bool					inVaccuum;
+	bool					inVacuum;
 
 	idStr					objTitle;
 	idStr					objDesc;

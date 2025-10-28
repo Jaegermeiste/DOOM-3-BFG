@@ -73,7 +73,7 @@ public:
 	[[nodiscard]] virtual int					NumSurfaces() const;
 	[[nodiscard]] virtual int					NumBaseSurfaces() const;
 	[[nodiscard]] virtual const modelSurface_t *Surface( int surfaceNum ) const;
-	[[nodiscard]] virtual srfTriangles_t *	AllocSurfaceTriangles( int numVerts, int numIndexes ) const;
+	[[nodiscard]] virtual srfTriangles_t *	AllocSurfaceTriangles( size_t numVerts, size_t numIndexes ) const;
 	virtual void				FreeSurfaceTriangles( srfTriangles_t *tris ) const;
 	[[nodiscard]] virtual bool				IsStaticWorldModel() const;
 	[[nodiscard]] virtual dynamicModel_t		IsDynamicModel() const;
@@ -158,7 +158,7 @@ public:
 								idMD5Mesh();
 								~idMD5Mesh();
 
- 	void						ParseMesh( idLexer &parser, int numJoints, const idJointMat *joints );
+ 	void						ParseMesh( idLexer &parser, size_t numJoints, const idJointMat *joints );
 
 	[[nodiscard]] int							NumVerts() const { return numVerts; }
 	[[nodiscard]] int							NumTris() const { return numTris; }
@@ -388,8 +388,8 @@ public:
 	[[nodiscard]] virtual bool				ModelHasShadowCastingSurfaces() const { return false; };
 
 	int							NewTrail( idVec3 pt, int duration );
-	void						UpdateTrail( int index, idVec3 pt );
-	void						DrawTrail( int index, const struct renderEntity_s *ent, srfTriangles_t *tri, float globalAlpha );
+	void						UpdateTrail( index_t index, idVec3 pt );
+	void						DrawTrail( index_t index, const struct renderEntity_s *ent, srfTriangles_t *tri, float globalAlpha );
 };
 
 /*

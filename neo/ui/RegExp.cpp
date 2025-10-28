@@ -112,7 +112,7 @@ void idRegister::GetFromRegs( float *registers ) const
 		return;
 	}
 
-	for ( int i = 0; i < regCount; i++ ) {
+	for ( size_t i = 0; i < regCount; i++ ) {
 		v[i] = registers[regs[i]];
 	}
 	
@@ -165,7 +165,7 @@ void idRegister::ReadFromDemoFile(idDemoFile *f) {
 	f->ReadBool( enabled );
 	f->ReadShort( type );
 	f->ReadInt( regCount );
-	for ( int i = 0; i < 4; i++ )
+	for ( size_t i = 0; i < 4; i++ )
 		f->ReadUnsignedShort( regs[i] );
 	name = f->ReadHashString();
 }
@@ -191,7 +191,7 @@ idRegister::WriteToSaveGame
 */
 void idRegister::WriteToSaveGame( idFile *savefile ) const
 {
-	int len;
+	size_t len;
 
 	savefile->Write( &enabled, sizeof( enabled ) );
 	savefile->Write( &type, sizeof( type ) );
@@ -211,7 +211,7 @@ idRegister::ReadFromSaveGame
 ================
 */
 void idRegister::ReadFromSaveGame( idFile *savefile ) {
-	int len;
+	size_t len;
 
 	savefile->Read( &enabled, sizeof( enabled ) );
 	savefile->Read( &type, sizeof( type ) );
@@ -230,13 +230,13 @@ void idRegister::ReadFromSaveGame( idFile *savefile ) {
 idRegisterList::AddReg
 ====================
 */
-void idRegisterList::AddReg( const char *name, int type, idVec4 data, idWindow *win, idWinVar *var ) {
+void idRegisterList::AddReg( const char *name, const int type, idVec4 data, idWindow *win, idWinVar *var ) {
 	if ( FindReg( name ) == nullptr) {
 		assert( type >= 0 && type < idRegister::NUMTYPES );
-		int numRegs = idRegister::REGCOUNT[type];
+		size_t numRegs = idRegister::REGCOUNT[type];
 		idRegister *reg = new (TAG_OLD_UI) idRegister( name, type );
 		reg->var = var;
-		for ( int i = 0; i < numRegs; i++ ) {
+		for ( size_t i = 0; i < numRegs; i++ ) {
 			reg->regs[i] = win->ExpressionConstant(data[i]);
 		}
 		int hash = regHash.GenerateKey( name, false );
@@ -249,14 +249,14 @@ void idRegisterList::AddReg( const char *name, int type, idVec4 data, idWindow *
 idRegisterList::AddReg
 ====================
 */
-void idRegisterList::AddReg( const char *name, int type, idTokenParser *src, idWindow *win, idWinVar *var ) {
+void idRegisterList::AddReg( const char *name, const int type, idTokenParser *src, idWindow *win, idWinVar *var ) {
 	idRegister* reg;
 
 	reg = FindReg( name );
 
 	if ( reg == nullptr) {
 		assert(type >= 0 && type < idRegister::NUMTYPES);
-		int numRegs = idRegister::REGCOUNT[type];
+		size_t numRegs = idRegister::REGCOUNT[type];
 		reg = new (TAG_OLD_UI) idRegister( name, type );
 		reg->var = var;
 		if ( type == idRegister::STRING ) {
@@ -266,7 +266,7 @@ void idRegisterList::AddReg( const char *name, int type, idTokenParser *src, idW
 				var->Init( tok, win );
 			}
 		} else {
-			for ( int i = 0; i < numRegs; i++ ) {
+			for ( size_t i = 0; i < numRegs; i++ ) {
 				reg->regs[i] = win->ParseExpression(src, nullptr);
 				if ( i < numRegs-1 ) {
 					src->ExpectTokenString(",");
@@ -276,7 +276,7 @@ void idRegisterList::AddReg( const char *name, int type, idTokenParser *src, idW
 		int hash = regHash.GenerateKey( name, false );
 		regHash.Add( hash, regs.Append( reg ) );
 	} else {
-		int numRegs = idRegister::REGCOUNT[type];
+		size_t numRegs = idRegister::REGCOUNT[type];
 		reg->var = var;
 		if ( type == idRegister::STRING ) {
 			idToken tok;
@@ -284,7 +284,7 @@ void idRegisterList::AddReg( const char *name, int type, idTokenParser *src, idW
 				var->Init( tok, win );
 			}
 		} else {
-			for ( int i = 0; i < numRegs; i++ ) {
+			for ( size_t i = 0; i < numRegs; i++ ) {
 				reg->regs[i] = win->ParseExpression( src, nullptr);
 				if ( i < numRegs-1 ) {
 					src->ExpectTokenString(",");
@@ -300,7 +300,7 @@ idRegisterList::GetFromRegs
 ====================
 */
 void idRegisterList::GetFromRegs(float *registers) {
-	for ( int i = 0; i < regs.Num(); i++ ) {
+	for ( size_t i = 0; i < regs.Num(); i++ ) {
 		regs[i]->GetFromRegs( registers );
 	}
 }
@@ -353,7 +353,7 @@ void idRegisterList::ReadFromDemoFile(idDemoFile *f) {
 
 	f->ReadInt( c );
 	regs.DeleteContents( true );
-	for ( int i = 0; i < c; i++ ) {
+	for ( size_t i = 0; i < c; i++ ) {
 		idRegister *reg = new (TAG_OLD_UI) idRegister;
 		reg->ReadFromDemoFile( f );
 		regs.Append( reg );
@@ -369,7 +369,7 @@ void idRegisterList::WriteToDemoFile(idDemoFile *f) {
 	int c = regs.Num();
 
 	f->WriteInt( c );
-	for ( int i = 0 ; i < c; i++ ) {
+	for ( size_t i = 0 ; i < c; i++ ) {
 		regs[i]->WriteToDemoFile(f);
 	}
 }

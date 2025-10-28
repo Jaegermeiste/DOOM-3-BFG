@@ -156,7 +156,7 @@ idCVar r_showLights( "r_showLights", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = jus
 idCVar r_showShadows( "r_showShadows", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = visualize the stencil shadow volumes, 2 = draw filled in", 0, 3, idCmdSystem::ArgCompletion_Integer<0,3> );
 idCVar r_showLightScissors( "r_showLightScissors", "0", CVAR_RENDERER | CVAR_BOOL, "show light scissor rectangles" );
 idCVar r_showLightCount( "r_showLightCount", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = colors surfaces based on light count, 2 = also count everything through walls, 3 = also print overdraw", 0, 3, idCmdSystem::ArgCompletion_Integer<0,3> );
-idCVar r_showViewEntitys( "r_showViewEntitys", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = displays the bounding boxes of all view models, 2 = print index numbers" );
+idCVar r_showViewEntitys( "r_showViewEntitys", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = displays the bounding boxes of all view models, 2 = prindex_t index numbers" );
 idCVar r_showTris( "r_showTris", "0", CVAR_RENDERER | CVAR_INTEGER, "enables wireframe rendering of the world, 1 = only draw visible ones, 2 = draw all front facing, 3 = draw all, 4 = draw with alpha", 0, 4, idCmdSystem::ArgCompletion_Integer<0,4> );
 idCVar r_showSurfaceInfo( "r_showSurfaceInfo", "0", CVAR_RENDERER | CVAR_BOOL, "show surface material name under crosshair" );
 idCVar r_showNormals( "r_showNormals", "0", CVAR_RENDERER | CVAR_FLOAT, "draws wireframe normals" );
@@ -307,7 +307,7 @@ glBindMultiTextureEXT
 As of 2011/09/16 the Intel drivers for "Sandy Bridge" and "Ivy Bridge" integrated graphics do not support this extension.
 ========================
 */
-void APIENTRY glBindMultiTextureEXT( GLenum texunit, GLenum target, GLuint texture ) {
+void APIENTRY glBindMultiTextureEXT(const GLenum texunit, const GLenum target, const GLuint texture ) {
 	qglActiveTextureARB( texunit );
 	qglBindTexture( target, texture );
 }
@@ -337,7 +337,7 @@ For ARB_debug_output
 ========================
 */
 static void CALLBACK DebugCallback(unsigned int source, unsigned int type,
-								   unsigned int id, unsigned int severity, int length, const char * message, void * userParam) {
+								   unsigned int id, unsigned int severity, size_t length, const char * message, void * userParam) {
 	// it probably isn't safe to do an idLib::Printf at this point
 	OutputDebugString( message );
 	OutputDebugString( "\n" );
@@ -657,7 +657,7 @@ r_displayRefresh 70	specify 70 hz, etc
 void R_SetNewMode( const bool fullInit ) {
 	// try up to three different configurations
 
-	for ( int i = 0 ; i < 3 ; i++ ) {
+	for ( size_t i = 0 ; i < 3 ; i++ ) {
 		if ( i == 0 && stereoRender_enable.GetInteger() != STEREO3D_QUAD_BUFFER ) {
 			continue;		// don't even try for a stereo mode
 		}
@@ -795,7 +795,7 @@ void R_InitOpenGL() {
 		GLint numExtensions;
 		qglGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
 		extensions_string.Clear();
-		for ( int i = 0; i < numExtensions; i++ ) {
+		for ( size_t i = 0; i < numExtensions; i++ ) {
 			extensions_string.Append( (const char*)qglGetStringi( GL_EXTENSIONS, i ) );
 			// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
 			if ( i < numExtensions - 1 ) {
@@ -945,7 +945,7 @@ static void R_ListModes_f( const idCmdArgs &args ) {
 		if ( !R_GetModeListForDisplay( displayNum, modeList ) ) {
 			break;
 		}
-		for ( int i = 0; i < modeList.Num() ; i++ ) {
+		for ( size_t i = 0; i < modeList.Num() ; i++ ) {
 			common->Printf( "Monitor %i, mode %3i: %4i x %4i @ %ihz\n", displayNum+1, i, modeList[i].width, modeList[i].height, modeList[i].displayHz );
 		}
 	}
@@ -1155,7 +1155,7 @@ void R_ReadTiledPixels( const size_t width, const size_t height, byte *buffer, r
 			}
 
 			qglReadBuffer( GL_FRONT );
-			qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(w), idMath::integer_cast<GLsizei>(h), GL_RGB, GL_UNSIGNED_BYTE, temp );
+			qglReadPixels( 0, 0, numeric_cast<GLsizei>(w), numeric_cast<GLsizei>(h), GL_RGB, GL_UNSIGNED_BYTE, temp );
 
 			const size_t	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
 
@@ -1223,10 +1223,10 @@ void idRenderSystemLocal::TakeScreenshot( const size_t width, const size_t heigh
 
 	// fill in the header (this is vertically flipped, which qglReadPixels emits)
 	buffer[2] = 2;		// uncompressed type
-	buffer[12] = idMath::integer_cast<byte>(width & 255);
-	buffer[13] = idMath::integer_cast<byte>(width >> 8);
-	buffer[14] = idMath::integer_cast<byte>(height & 255);
-	buffer[15] = idMath::integer_cast<byte>(height >> 8);
+	buffer[12] = numeric_cast<byte>(width & 255);
+	buffer[13] = numeric_cast<byte>(width >> 8);
+	buffer[14] = numeric_cast<byte>(height & 255);
+	buffer[15] = numeric_cast<byte>(height >> 8);
 	buffer[16] = 24;	// pixel size
 
 	// swap rgb to bgr
@@ -1281,7 +1281,7 @@ void R_ScreenshotFilename( int &lastNumber, const char *base, idStr &fileName ) 
 		if ( lastNumber == 99999 ) {
 			break;
 		}
-		int len = fileSystem->ReadFile( fileName, nullptr, nullptr);
+		size_t len = fileSystem->ReadFile( fileName, nullptr, nullptr);
 		if ( len <= 0 ) {
 			break;
 		}
@@ -1404,7 +1404,7 @@ static idMat3		cubeAxis[6];
 R_SampleCubeMap
 ==================
 */
-void R_SampleCubeMap( const idVec3 &dir, int size, byte *buffers[6], byte result[4] ) {
+void R_SampleCubeMap( const idVec3 &dir, const int size, byte *buffers[6], byte result[4] ) {
 	float	adir[3];
 	int		axis, x, y;
 
@@ -1606,8 +1606,8 @@ void R_SetColorMappings() {
 	float invg = 1.0f / r_gamma.GetFloat();
 
 	float j = 0.0f;
-	for ( int i = 0; i < 256; i++, j += b ) {
-		int inf = idMath::Ftoi( 0xffff * pow( j / 255.0f, invg ) + 0.5f );
+	for ( size_t i = 0; i < 256; i++, j += b ) {
+		int inf = numeric_cast<int>( 0xffff * pow( j / 255.0f, invg ) + 0.5f );
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
 
@@ -1951,7 +1951,7 @@ static srfTriangles_t * R_MakeFullScreenTris() {
 	tri->numIndexes = 6;
 	tri->numVerts = 4;
 
-	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	index_t indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
 	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc(allocatedIndexBytes, TAG_RENDER_TOOLS));
 
@@ -1980,7 +1980,7 @@ static srfTriangles_t * R_MakeFullScreenTris() {
 	verts[3].xyz[1] = -1.0f;
 	verts[3].SetTexCoord( 0.0f, 0.0f );
 
-	for ( int i = 0 ; i < 4 ; i++ ) {
+	for ( size_t i = 0 ; i < 4 ; i++ ) {
 		verts[i].SetColor( 0xffffffff );
 	}
 
@@ -1999,7 +1999,7 @@ static srfTriangles_t * R_MakeZeroOneCubeTris() {
 	tri->numVerts = 8;
 	tri->numIndexes = 36;
 
-	const int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	const index_t indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	const int allocatedIndexBytes = ALIGN( indexSize, 16 );
 	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc(allocatedIndexBytes, TAG_RENDER_TOOLS));
 
@@ -2072,7 +2072,7 @@ static srfTriangles_t * R_MakeZeroOneCubeTris() {
 	tri->indexes[11*3+1] = 4;
 	tri->indexes[11*3+2] = 6;
 
-	for ( int i = 0 ; i < 4 ; i++ ) {
+	for ( size_t i = 0 ; i < 4 ; i++ ) {
 		verts[i].SetColor( 0xffffffff );
 	}
 
@@ -2092,7 +2092,7 @@ srfTriangles_t* R_MakeTestImageTriangles() {
 	tri->numIndexes = 6;
 	tri->numVerts = 4;
 
-	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	index_t indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
 	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc(allocatedIndexBytes, TAG_RENDER_TOOLS));
 
@@ -2124,7 +2124,7 @@ srfTriangles_t* R_MakeTestImageTriangles() {
 	tempVerts[3].xyz[2] = 0;
 	tempVerts[3].SetTexCoord( 0.0f, 1.0f );
 
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		tempVerts[i].SetColor( 0xFFFFFFFF );
 	}
 	return tri;
@@ -2326,7 +2326,7 @@ idFont * idRenderSystemLocal::RegisterFont( const char * fontName ) {
 
 	idStrStatic< MAX_OSPATH > baseFontName = fontName;
 	baseFontName.Replace( "fonts/", "" );
-	for ( int i = 0; i < fonts.Num(); i++ ) {
+	for ( size_t i = 0; i < fonts.Num(); i++ ) {
 		if ( idStr::Icmp( fonts[i]->GetName(), baseFontName ) == 0 ) {
 			fonts[i]->Touch();
 			return fonts[i];

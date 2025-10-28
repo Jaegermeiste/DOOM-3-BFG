@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_CMDS_H__
 #define __SYS_CMDS_H__
 
+#pragma once
+
 void	D_DrawDebugLines();
 
 #endif /* !__SYS_CMDS_H__ */

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SND_LOCAL_H__
 #define __SND_LOCAL_H__
 
+#pragma once
+
 #include "WaveFile.h"
 
 // Maximum number of voices we can have allocated
@@ -82,12 +84,19 @@ typedef enum soundDemoCommand_e : uint8 {
 
 #define OPERATION_SET 1
 
-#include <dxsdkver.h>
+//#include <dxsdkver.h>
 
 #include <xaudio2.h>
 #include <xaudio2fx.h>
 #include <X3DAudio.h>
-#include <xma2defs.h>
+//#include <xma2defs.h>
+#include <mmdeviceapi.h>
+#include <functiondiscoverykeys_devpkey.h>
+#include <audioclient.h>
+#include <propvarutil.h>
+#include <spatialaudioclient.h>
+#include <spatialaudiometadata.h>
+#include <wrl/client.h> // Microsoft::WRL::ComPtr
 #include "XAudio2/XA2_SoundSample.h"
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"
@@ -180,62 +189,62 @@ idSoundWorldLocal
 class idSoundWorldLocal : public idSoundWorld {
 public:
 							idSoundWorldLocal();
-	virtual					~idSoundWorldLocal();
+							~idSoundWorldLocal() override;
 
 	//------------------------
 	// Functions from idSoundWorld, implemented in SoundWorld.cpp
 	//------------------------
 
 	// Called at map start
-	virtual void			ClearAllSoundEmitters();
+							void			ClearAllSoundEmitters() override;
 
 	// stop all playing sounds
-	virtual void			StopAllSounds();
+							void			StopAllSounds() override;
 
 	// get a new emitter that can play sounds in this world
-	virtual idSoundEmitter *AllocSoundEmitter();
+							idSoundEmitter *AllocSoundEmitter() override;
 
 	// for load games
-	        idSoundEmitter *EmitterForIndex( const Ordinal auto index );
+							idSoundEmitter *EmitterForIndex( const index_t index ) override;
 
 	// query data from all emitters in the world
-	virtual float			CurrentShakeAmplitude();
+							float			CurrentShakeAmplitude() override;
 
 	// where is the camera
-	virtual void			PlaceListener( const idVec3 &origin, const idMat3 &axis, const int listenerId );
+							void			PlaceListener( const idVec3 &origin, const idMat3 &axis, const index_t listenerId ) override;
 
 	// fade all sounds in the world with a given shader soundClass
 	// to is in Db, over is in seconds
-	virtual void			FadeSoundClasses( const int soundClass, const float to, const float over );
+							void			FadeSoundClasses( const int soundClass, const float to, const float over ) override;
 
 	// dumps the current state and begins archiving commands
-	virtual void			StartWritingDemo( idDemoFile *demo );
-	virtual void			StopWritingDemo();
+							void			StartWritingDemo( idDemoFile *demo ) override;
+							void			StopWritingDemo() override;
 
 	// read a sound command from a demo file
-	virtual void			ProcessDemoCommand( idDemoFile *readDemo );
+							void			ProcessDemoCommand( idDemoFile *readDemo ) override;
 
 	// menu sounds
-    virtual int				PlayShaderDirectly( const char *name, const s_channelType channel = -1 );
+							ID_TIME_T		PlayShaderDirectly( const char *name, const s_channelType channel = -1 ) override;
 
-	virtual void			Skip( ID_TIME_T time );
+							void			Skip( ID_TIME_T time ) override;
 
-	virtual void			Pause();
-	virtual void			UnPause();
-	virtual bool			IsPaused() { return isPaused; }
+							void			Pause() override;
+							void			UnPause() override;
+							bool			IsPaused() override { return isPaused; }
 
 	virtual ID_TIME_T		GetSoundTime();
 
 	// avidump
-	virtual void			AVIOpen( const char *path, const char *name );
-	virtual void			AVIClose();
+							void			AVIOpen( const char *path, const char *name ) override;
+							void			AVIClose() override;
 
 	// SaveGame Support
-	virtual void			WriteToSaveGame( idFile *savefile );
-	virtual void			ReadFromSaveGame( idFile *savefile );
+							void			WriteToSaveGame( idFile *savefile ) override;
+							void			ReadFromSaveGame( idFile *savefile ) override;
 
-	virtual void			SetSlowmoSpeed( float speed );
-	virtual void			SetEnviroSuit( bool active );
+							void			SetSlowmoSpeed( float speed ) override;
+							void			SetEnviroSuit( bool active ) override;
 
 	//=======================================
 
@@ -294,28 +303,28 @@ idSoundEmitterLocal
 */
 class idSoundEmitterLocal : public idSoundEmitter {
 public:
-	virtual void	Free( bool immediate );
+	void	Free( bool immediate ) override;
 
 	virtual void	Reset();
 
-	virtual void	UpdateEmitter( const idVec3 &origin, int listenerId, const soundShaderParms_t *parms );
+	void	UpdateEmitter( const idVec3 &origin, int listenerId, const soundShaderParms_t *parms ) override;
 
-	[[nodiscard]] virtual ID_TIME_T	StartSound( const idSoundShader *shader, const s_channelType channel, float diversity = 0, int shaderFlags = 0, bool allowSlow = true );
+	[[nodiscard]] ID_TIME_T StartSound( const idSoundShader *shader, const s_channelType channel, float diversity = 0, int shaderFlags = 0, bool allowSlow = true ) override;
 
-	virtual void	ModifySound( const s_channelType channel, const soundShaderParms_t *parms );
-	virtual void	StopSound( const s_channelType channel );
+	void	ModifySound( const s_channelType channel, const soundShaderParms_t *parms ) override;
+	void	StopSound( const s_channelType channel ) override;
 
-	virtual void	FadeSound( const s_channelType channel, float to, float over );
+	void	FadeSound( const s_channelType channel, float to, float over ) override;
 
-	[[nodiscard]] virtual bool	CurrentlyPlaying( const s_channelType channel = SCHANNEL_ANY ) const;
+	[[nodiscard]] bool	CurrentlyPlaying( const s_channelType channel = SCHANNEL_ANY ) const override;
 
-	virtual	float	CurrentAmplitude();
+	float	CurrentAmplitude() override;
 
-	[[nodiscard]] virtual	size_t	Index() const;
+	[[nodiscard]] size_t	Index() const override;
 
 	//----------------------------------------------
 
-	void			Init( const Ordinal auto i, idSoundWorldLocal * sw );
+	void			Init( index_t i, idSoundWorldLocal * sw );
 
 	// Returns true if the emitter should be freed.
 	bool			CheckForCompletion( ID_TIME_T currentTime );
@@ -348,7 +357,7 @@ public:
 
 	// sound emitters are only allocated by the soundWorld block allocator
 					idSoundEmitterLocal();
-	virtual			~idSoundEmitterLocal();
+	~idSoundEmitterLocal() override;
 };
 
 
@@ -362,53 +371,53 @@ idSoundSystemLocal
 class idSoundSystemLocal : public idSoundSystem {
 public:
 	// all non-hardware initialization
-	virtual void			Init();
+	void			Init() override;
 
 	// shutdown routine
-	virtual	void			Shutdown();
+	void			Shutdown() override;
 
-	virtual idSoundWorld *	AllocSoundWorld( idRenderWorld *rw );
-	virtual void			FreeSoundWorld( idSoundWorld *sw );
+	idSoundWorld *	AllocSoundWorld( idRenderWorld *rw ) override;
+	void			FreeSoundWorld( idSoundWorld *sw ) override;
 
 	// specifying NULL will cause silence to be played
-	virtual void			SetPlayingSoundWorld( idSoundWorld *soundWorld );
+	void			SetPlayingSoundWorld( idSoundWorld *soundWorld ) override;
 
 	// some tools, like the sound dialog, may be used in both the game and the editor
 	// This can return NULL, so check!
-	virtual idSoundWorld *	GetPlayingSoundWorld();
+	idSoundWorld *	GetPlayingSoundWorld() override;
 
 	// sends the current playing sound world information to the sound hardware
-	virtual void			Render();
+	void			Render() override;
 
 	// Mutes the SSG_MUSIC group
-	virtual void			MuteBackgroundMusic( bool mute ) { musicMuted = mute; }
+	void			MuteBackgroundMusic( bool mute ) override { musicMuted = mute; }
 
 	// sets the final output volume to 0
 	// This should only be used when the app is deactivated
 	// Since otherwise there will be problems with different subsystems muting and unmuting at different times
-	virtual void			SetMute( bool mute ) { muted = mute; }
-	virtual bool			IsMuted() { return muted; }
+	void			SetMute( bool mute ) override { muted = mute; }
+	bool			IsMuted() override { return muted; }
 
-	virtual void			OnReloadSound( const idDecl * sound );
+	void			OnReloadSound( const idDecl * sound ) override;
 
-	virtual void			StopAllSounds();
+	void			StopAllSounds() override;
 
-	virtual void			InitStreamBuffers();
-	virtual void			FreeStreamBuffers();
+	void			InitStreamBuffers() override;
+	void			FreeStreamBuffers() override;
 
-	virtual void *			GetIXAudio2() const;
+	void *			GetIXAudio2() const override;
 
 	// for the sound level meter window
-	virtual cinData_t		ImageForTime( const ID_TIME_T milliseconds, const bool waveform );
+	cinData_t		ImageForTime( const ID_TIME_T milliseconds, const bool waveform ) override;
 
 	// Free all sounds loaded during the last map load
-	virtual	void			BeginLevelLoad();
+	void			BeginLevelLoad() override;
 
 	// We might want to defer the loading of new sounds to this point
-	virtual	void			EndLevelLoad();
+	void			EndLevelLoad() override;
 
 	// prints memory info
-	virtual void			PrintMemInfo( MemInfo_t *mi );
+	void			PrintMemInfo( MemInfo_t *mi ) override;
 
 	//-------------------------
 
@@ -428,7 +437,7 @@ public:
 
 	idSoundSample *			LoadSample( const char * name );
 
-	virtual void			Preload( idPreloadManifest & preload );
+	void			Preload( idPreloadManifest & preload ) override;
 
 	struct bufferContext_t {
 		bufferContext_t() :

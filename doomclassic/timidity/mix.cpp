@@ -36,7 +36,7 @@ mix.c */
 #include "mix.h"
 
 /* Returns 1 if envelope runs out */
-int recompute_envelope(int v)
+int recompute_envelope(const int v)
 {
 	int stage;
 
@@ -75,7 +75,7 @@ int recompute_envelope(int v)
 	return 0;
 }
 
-void apply_envelope_to_amp(int v)
+void apply_envelope_to_amp(const int v)
 {
 	float lamp=voice[v].left_amp, ramp;
 	 int32_t  la,ra;
@@ -122,7 +122,7 @@ void apply_envelope_to_amp(int v)
 	}
 }
 
-static int update_envelope(int v)
+static int update_envelope(const int v)
 {
 	voice[v].envelope_volume += voice[v].envelope_increment;
 	/* Why is there no ^^ operator?? */
@@ -138,7 +138,7 @@ static int update_envelope(int v)
 	return 0;
 }
 
-static void update_tremolo(int v)
+static void update_tremolo(const int v)
 {
 	 int32_t depth=voice[v].sample->tremolo_depth<<7;
 
@@ -172,7 +172,7 @@ static void update_tremolo(int v)
 }
 
 /* Returns 1 if the note died */
-static int update_signal(int v)
+static int update_signal(const int v)
 {
 	if (voice[v].envelope_increment && update_envelope(v))
 		return 1;
@@ -190,7 +190,7 @@ static int update_signal(int v)
 #  define MIXATION(a)	*lp++ += (a)*s;
 #endif
 
-static void mix_mystery_signal(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_mystery_signal(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	Voice *vp = voice + v;
 	final_volume_t 
@@ -237,7 +237,7 @@ static void mix_mystery_signal(sample_t *sp,  int32_t *lp, int v, int count)
 		}
 }
 
-static void mix_center_signal(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_center_signal(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	Voice *vp = voice + v;
 	final_volume_t 
@@ -281,7 +281,7 @@ static void mix_center_signal(sample_t *sp,  int32_t *lp, int v, int count)
 		}
 }
 
-static void mix_single_signal(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_single_signal(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	Voice *vp = voice + v;
 	final_volume_t 
@@ -325,7 +325,7 @@ static void mix_single_signal(sample_t *sp,  int32_t *lp, int v, int count)
 		}
 }
 
-static void mix_mono_signal(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_mono_signal(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	Voice *vp = voice + v;
 	final_volume_t 
@@ -367,7 +367,7 @@ static void mix_mono_signal(sample_t *sp,  int32_t *lp, int v, int count)
 		}
 }
 
-static void mix_mystery(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_mystery(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	final_volume_t 
 		left=voice[v].left_mix, 
@@ -382,7 +382,7 @@ static void mix_mystery(sample_t *sp,  int32_t *lp, int v, int count)
 	}
 }
 
-static void mix_center(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_center(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	final_volume_t 
 		left=voice[v].left_mix;
@@ -396,7 +396,7 @@ static void mix_center(sample_t *sp,  int32_t *lp, int v, int count)
 	}
 }
 
-static void mix_single(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_single(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	final_volume_t 
 		left=voice[v].left_mix;
@@ -410,7 +410,7 @@ static void mix_single(sample_t *sp,  int32_t *lp, int v, int count)
 	}
 }
 
-static void mix_mono(sample_t *sp,  int32_t *lp, int v, int count)
+static void mix_mono(sample_t *sp,  int32_t *lp, const int v, int count)
 {
 	final_volume_t 
 		left=voice[v].left_mix;
@@ -424,7 +424,7 @@ static void mix_mono(sample_t *sp,  int32_t *lp, int v, int count)
 }
 
 /* Ramp a note out in c samples */
-static void ramp_out(sample_t *sp,  int32_t *lp, int v,  int32_t c)
+static void ramp_out(sample_t *sp,  int32_t *lp, const int v,  int32_t c)
 {
 
 	/* should be final_volume_t, but uint8_t gives trouble. */
@@ -514,7 +514,7 @@ static void ramp_out(sample_t *sp,  int32_t *lp, int v,  int32_t c)
 
 /**************** interface function ******************/
 
-void mix_voice( int32_t *buf, int v,  int32_t c)
+void mix_voice( int32_t *buf, const int v,  int32_t c)
 {
 	Voice *vp=voice+v;
 	sample_t *sp;

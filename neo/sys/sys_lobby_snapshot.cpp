@@ -79,7 +79,7 @@ void idLobby::UpdateSnaps() {
 		return;
 	}
 
-	for ( int p = 0; p < peers.Num(); p++ ) {
+	for ( index_t p = 0; std::cmp_less(p,peers.Num()); p++ ) {
 		peer_t & peer = peers[p];
 	
 		if ( !peer.IsConnected() ) {
@@ -115,7 +115,7 @@ bool idLobby::SendCompletedSnaps() {
 
 	bool sentAllSubmitted = true;
 	
-	for ( int p = 0; p < peers.Num(); p++ ) {
+	for ( index_t p = 0; std::cmp_less(p, peers.Num()); p++ ) {
 		peer_t & peer = peers[p];
 	
 		if ( !peer.IsConnected() ) {
@@ -150,7 +150,7 @@ bool idLobby::SendCompletedSnaps() {
 idLobby::SendResources
 ========================
 */
-bool idLobby::SendResources( int p ) const
+bool idLobby::SendResources(index_t p ) const
 {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
@@ -162,7 +162,7 @@ bool idLobby::SendResources( int p ) const
 idLobby::SubmitPendingSnap
 ========================
 */
-bool idLobby::SubmitPendingSnap( int p ) {
+bool idLobby::SubmitPendingSnap(const index_t p ) {
 	
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
@@ -185,11 +185,11 @@ bool idLobby::SubmitPendingSnap( int p ) {
 		return false;
 	}
 
-	int time = Sys_Milliseconds();
+	const ID_TIME_T time = Sys_Milliseconds();
 
-	int timeFromLastSub = time - peer.lastSnapJobTime;
+	const ID_TIME_T timeFromLastSub = time - peer.lastSnapJobTime;
 
-	int forceResendTime = session->GetTitleStorageInt( "net_snap_redundant_resend_in_ms", net_snap_redundant_resend_in_ms.GetInteger() );
+	ID_TIME_T forceResendTime = session->GetTitleStorageInt64( "net_snap_redundant_resend_in_ms", net_snap_redundant_resend_in_ms.GetInteger() );
 
 	if ( timeFromLastSub < forceResendTime && peer.snapProc->IsBusyConfirmingPartialSnap() ) {
 		return false;
@@ -211,11 +211,11 @@ bool idLobby::SubmitPendingSnap( int p ) {
 idLobby::SendCompletedPendingSnap
 ========================
 */
-void idLobby::SendCompletedPendingSnap( int p ) {
+void idLobby::SendCompletedPendingSnap(const index_t p ) {
 
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 	
 	peer_t & peer = peers[p];
 	
@@ -234,7 +234,7 @@ void idLobby::SendCompletedPendingSnap( int p ) {
 	// This is somewhat wasteful, but we have to do this to keep the snap job pipe ready to keep doing work
 	// If we don't do this, this peer will cause other peers to be starved of snapshots, when they may very well be ready to send a snap
 	byte buffer[ MAX_SNAP_SIZE ];
-	int maxLength = sizeof( buffer ) - peer.packetProc->GetReliableDataSize() - 128;
+	size_t maxLength = sizeof( buffer ) - peer.packetProc->GetReliableDataSize() - 128;
 
 	int size = peer.snapProc->GetPendingSnapDelta( buffer, maxLength );
 
@@ -252,8 +252,8 @@ void idLobby::SendCompletedPendingSnap( int p ) {
 		return;
 	}
 
-	int timeFromJobSub = time - peer.lastSnapJobTime;
-	int timeFromLastSend = time - peer.lastSnapTime;
+	ID_TIME_T timeFromJobSub = time - peer.lastSnapJobTime;
+	ID_TIME_T timeFromLastSend = time - peer.lastSnapTime;
 
 	if ( timeFromLastSend > 0 ) {
 		peer.snapHz = 1000.0f / static_cast<float>(timeFromLastSend);
@@ -278,7 +278,7 @@ void idLobby::SendCompletedPendingSnap( int p ) {
 				const int peer_throttle_minSnapSeq = session->GetTitleStorageInt( "net_peer_throttle_minSnapSeq", net_peer_throttle_minSnapSeq.GetInteger() );
 				if ( peer.snapProc->GetFullSnapBaseSequence() > idSnapshotProcessor::INITIAL_SNAP_SEQUENCE + peer_throttle_minSnapSeq ) {
 					// If throttling recovered the ping
-					int maxRate = common->GetSnapRate() * session->GetTitleStorageInt( "net_peer_throttle_maxSnapRate", net_peer_throttle_maxSnapRate.GetInteger() );
+					size_t maxRate = common->GetSnapRate() * session->GetTitleStorageInt( "net_peer_throttle_maxSnapRate", net_peer_throttle_maxSnapRate.GetInteger() );
 					peer.throttledSnapRate = idMath::ClampInt( common->GetSnapRate(), maxRate, peer.throttledSnapRate + common->GetSnapRate() );
 				}
 			}
@@ -317,7 +317,7 @@ void idLobby::SendCompletedPendingSnap( int p ) {
 idLobby::CheckPeerThrottle
 ========================
 */
-void idLobby::CheckPeerThrottle( int p ) {
+void idLobby::CheckPeerThrottle(const index_t p ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
@@ -342,7 +342,7 @@ void idLobby::CheckPeerThrottle( int p ) {
 		return;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	if ( !AllPeersHaveBaseState() ) {
 		return;
@@ -397,7 +397,7 @@ void idLobby::CheckPeerThrottle( int p ) {
 			if ( peer.receivedThrottle > duration ) {
 				peer.maxSnapBps = peer.receivedBps * session->GetTitleStorageFloat( "net_snap_bw_test_throttle_max_scale", net_snap_bw_test_throttle_max_scale.GetFloat() );
 
-				int maxRate = common->GetSnapRate() * session->GetTitleStorageInt( "net_peer_throttle_maxSnapRate", net_peer_throttle_maxSnapRate.GetInteger() );
+				size_t maxRate = common->GetSnapRate() * session->GetTitleStorageInt( "net_peer_throttle_maxSnapRate", net_peer_throttle_maxSnapRate.GetInteger() );
 
 				if ( peer.throttledSnapRate == 0 ) {
 					peer.throttledSnapRate = common->GetSnapRate() * 2;
@@ -417,7 +417,7 @@ void idLobby::CheckPeerThrottle( int p ) {
 idLobby::ApplySnapshotDelta
 ========================
 */
-void idLobby::ApplySnapshotDelta( int p, int snapshotNumber ) {
+void idLobby::ApplySnapshotDelta(const index_t p, const int snapshotNumber ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
@@ -452,7 +452,7 @@ void idLobby::ApplySnapshotDelta( int p, int snapshotNumber ) {
 idLobby::ApplySnapshotDeltaInternal
 ========================
 */
-bool idLobby::ApplySnapshotDeltaInternal( int p, int snapshotNumber ) {
+bool idLobby::ApplySnapshotDeltaInternal(const index_t p, const int snapshotNumber ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
@@ -490,7 +490,7 @@ idLobby::SendSnapshotToPeer
 ========================
 */
 idCVar net_forceDropSnap( "net_forceDropSnap", "0", CVAR_BOOL, "wait on snaps" );
-void idLobby::SendSnapshotToPeer( idSnapShot & ss, int p ) {
+void idLobby::SendSnapshotToPeer( idSnapShot & ss, const index_t p ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	peer_t & peer = peers[p];
@@ -504,7 +504,7 @@ void idLobby::SendSnapshotToPeer( idSnapShot & ss, int p ) {
 		return;
 	}
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	const int throttleMode = session->GetTitleStorageInt( "net_peer_throttle_mode", net_peer_throttle_mode.GetInteger() );
 
@@ -559,7 +559,7 @@ idLobby::AllPeersHaveBaseState
 bool idLobby::AllPeersHaveBaseState() {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	for ( int i = 0; i < peers.Num(); ++i ) {
+	for ( size_t i = 0; i < peers.Num(); ++i ) {
 		
 		if ( !peers[i].IsConnected() ) {
 			continue;
@@ -578,7 +578,7 @@ bool idLobby::AllPeersHaveBaseState() {
 idLobby::ThrottleSnapsForXSeconds
 ========================
 */
-void idLobby::ThrottleSnapsForXSeconds( int p, int seconds, bool recoverPing ) {
+void idLobby::ThrottleSnapsForXSeconds(const index_t p, const int seconds, const bool recoverPing ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	if ( peers[p].throttleSnapsForXSeconds != 0 ) {
@@ -596,7 +596,7 @@ void idLobby::ThrottleSnapsForXSeconds( int p, int seconds, bool recoverPing ) {
 idLobby::FirstSnapHasBeenSent
 ========================
 */
-bool idLobby::FirstSnapHasBeenSent( int p ) {
+bool idLobby::FirstSnapHasBeenSent(const index_t p ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	if ( !verify( p >= 0 && p < peers.Num() ) ) {
@@ -637,10 +637,10 @@ bool idLobby::EnsureAllPeersHaveBaseState() {
 
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 
-	for ( int i = 0; i < peers.Num(); ++i ) {
+	for ( size_t i = 0; i < peers.Num(); ++i ) {
 		if ( !peers[i].IsConnected() ) {
 			continue;
 		}
@@ -665,10 +665,10 @@ bool idLobby::EnsureAllPeersHaveBaseState() {
 idLobby::AllPeersHaveStaleSnapObj
 ========================
 */
-bool idLobby::AllPeersHaveStaleSnapObj( int objId ) {
+bool idLobby::AllPeersHaveStaleSnapObj(const int objId ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	for ( int i = 0; i < peers.Num(); i++ ) {	
+	for ( size_t i = 0; i < peers.Num(); i++ ) {	
 		if ( !peers[i].IsConnected() ) {
 			continue;
 		}
@@ -689,10 +689,10 @@ bool idLobby::AllPeersHaveStaleSnapObj( int objId ) {
 idLobby::AllPeersHaveExpectedSnapObj
 ========================
 */
-bool idLobby::AllPeersHaveExpectedSnapObj( int objId ) {
+bool idLobby::AllPeersHaveExpectedSnapObj(const int objId ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	for ( int i = 0; i < peers.Num(); i++ ) {	
+	for ( size_t i = 0; i < peers.Num(); i++ ) {	
 		if ( !peers[i].IsConnected() ) {
 			continue;
 		}
@@ -721,10 +721,10 @@ bool idLobby::AllPeersHaveExpectedSnapObj( int objId ) {
 idLobby::MarkSnapObjDeleted
 ========================
 */
-void idLobby::RefreshSnapObj( int objId ) {
+void idLobby::RefreshSnapObj(const int objId ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	for ( int i = 0; i < peers.Num(); i++ ) {	
+	for ( size_t i = 0; i < peers.Num(); i++ ) {	
 		if ( !peers[i].IsConnected() ) {
 			continue;
 		}
@@ -743,10 +743,10 @@ void idLobby::RefreshSnapObj( int objId ) {
 idLobby::MarkSnapObjDeleted
 ========================
 */
-void idLobby::MarkSnapObjDeleted( int objId ) {
+void idLobby::MarkSnapObjDeleted(const int objId ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
-	for ( int i = 0; i < peers.Num(); i++ ) {	
+	for ( size_t i = 0; i < peers.Num(); i++ ) {	
 		if ( !peers[i].IsConnected() ) {
 			continue;
 		}
@@ -789,7 +789,7 @@ idLobby::DetectSaturation
 See if the ping shot up, which indicates a previously saturated connection
 ========================
 */
-void idLobby::DetectSaturation( int p ) {
+void idLobby::DetectSaturation(const index_t p ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	peer_t & peer = peers[p];
@@ -815,7 +815,7 @@ void idLobby::DetectSaturation( int p ) {
 idLobby::AddSnapObjTemplate
 ========================
 */
-void idLobby::AddSnapObjTemplate( int objID, idBitMsg & msg ) {
+void idLobby::AddSnapObjTemplate(const int objID, idBitMsg & msg ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	// If we are in the middle of a SS read, apply this state to what we

@@ -25,17 +25,21 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+#ifndef __COMMON_LOCAL_H__
+#define __COMMON_LOCAL_H__
 
-static constexpr int MAX_USERCMD_BACKUP = 256;
-static constexpr int NUM_USERCMD_RELAY = 10;
-static constexpr int NUM_USERCMD_SEND = 8;
+#pragma once
 
-static constexpr int initialHz = 60;
-static constexpr int initialBaseTicks = 1000 / initialHz;
-static constexpr int initialBaseTicksPerSec = initialHz * initialBaseTicks;
+static constexpr size_t    MAX_USERCMD_BACKUP = 256;
+static constexpr size_t    NUM_USERCMD_RELAY = 10;
+static constexpr size_t    NUM_USERCMD_SEND = 8;
 
-static constexpr int LOAD_TIP_CHANGE_INTERVAL = 12000;
-static constexpr int LOAD_TIP_COUNT = 26;
+static constexpr double    initialHz = 60.0;
+static constexpr double    initialBaseTicks = 1000.0 / initialHz;
+static constexpr double    initialBaseTicksPerSec = initialHz * initialBaseTicks;
+
+static constexpr ID_TIME_T LOAD_TIP_CHANGE_INTERVAL = 12000;
+static constexpr size_t    LOAD_TIP_COUNT = 26;
 
 class idGameThread : public idSysThread {
 public:
@@ -53,167 +57,167 @@ public:
 
 	// the gameReturn_t is from the previous frame, the
 	// new frame will be running in parallel on exit
-	gameReturn_t	RunGameAndDraw( int numGameFrames, idUserCmdMgr & userCmdMgr_, bool isClient_, int startGameFrame );
+	gameReturn_t	RunGameAndDraw( size_t numGameFrames, idUserCmdMgr & userCmdMgr_, bool isClient_, int startGameFrame );
 
 	// Accessors to the stored frame/thread time information
-	void			SetThreadTotalTime( const int inTime ) { threadTime = inTime; }
-	int				GetThreadTotalTime() const { return threadTime; }
+	void			SetThreadTotalTime( const ID_MICROSEC_T inTime ) { threadTime = inTime; }
+	ID_MICROSEC_T	    	GetThreadTotalTime() const { return threadTime; }
 
-	void			SetThreadGameTime( const int time ) { threadGameTime = time; }
-	int				GetThreadGameTime() const { return threadGameTime; }
+	void			SetThreadGameTime( const ID_MICROSEC_T time ) { threadGameTime = time; }
+	ID_MICROSEC_T	    	GetThreadGameTime() const { return threadGameTime; }
 
-	void			SetThreadRenderTime( const int time ) { threadRenderTime = time; }
-	int				GetThreadRenderTime() const { return threadRenderTime; }
+	void			SetThreadRenderTime( const ID_MICROSEC_T time ) { threadRenderTime = time; }
+	ID_MICROSEC_T  		GetThreadRenderTime() const { return threadRenderTime; }
 
 private:
-	virtual int	Run();
+	int	Run() override;
 
-	int				gameTime;
-	int				drawTime;
-	int				threadTime;					// total time : game time + foreground render time
-	int				threadGameTime;				// game time only
-	int				threadRenderTime;			// render fg time only
+	ID_TIME_T		gameTime;
+	ID_TIME_T		drawTime;
+	ID_TIME_T		threadTime;					// total time : game time + foreground render time
+	ID_TIME_T		threadGameTime;				// game time only
+	ID_TIME_T		threadRenderTime;			// render fg time only
 	idUserCmdMgr *	userCmdMgr;
 	gameReturn_t	ret;
-	int				numGameFrames;
+	size_t			numGameFrames;
 	bool			isClient;
 };
 
-enum errorParm_t {
+enum errorParm_t : uint8 {
 	ERP_NONE,
 	ERP_FATAL,						// exit the entire game with a popup window
 	ERP_DROP,						// print to console and disconnect from game
 	ERP_DISCONNECT					// don't kill server
 };
 
-enum gameLaunch_t {
+enum gameLaunch_t : uint8 {
 	LAUNCH_TITLE_DOOM = 0,
 	LAUNCH_TITLE_DOOM2,
 };
 
 struct netTimes_t {
-	int localTime;
-	int serverTime;
+	ID_TIME_T localTime;
+	ID_TIME_T serverTime;
 };
 
 struct frameTiming_t {
-	uint64	startSyncTime;
-	uint64	finishSyncTime;
-	uint64	startGameTime;
-	uint64	finishGameTime;
-	uint64	finishDrawTime;
-	uint64	startRenderTime;
-	uint64	finishRenderTime;
+	ID_MICROSEC_T	startSyncTime;
+	ID_MICROSEC_T	finishSyncTime;
+	ID_MICROSEC_T	startGameTime;
+	ID_MICROSEC_T	finishGameTime;
+	ID_MICROSEC_T	finishDrawTime;
+	ID_MICROSEC_T	startRenderTime;
+	ID_MICROSEC_T	finishRenderTime;
 };
 
-#define	MAX_PRINT_MSG_SIZE	4096
-#define MAX_WARNING_LIST	256
+constexpr size_t MAX_PRINT_MSG_SIZE = 4096;
+constexpr size_t MAX_WARNING_LIST   = 256;
 
-#define SAVEGAME_CHECKPOINT_FILENAME		"gamedata.save"
-#define SAVEGAME_DESCRIPTION_FILENAME		"gamedata.txt"
-#define SAVEGAME_STRINGS_FILENAME			"gamedata.strings"
+constexpr auto   SAVEGAME_CHECKPOINT_FILENAME  = "gamedata.save";
+constexpr auto   SAVEGAME_DESCRIPTION_FILENAME = "gamedata.txt";
+constexpr auto   SAVEGAME_STRINGS_FILENAME     = "gamedata.strings";
 
 class idCommonLocal : public idCommon {
 public:
 								idCommonLocal();
 
-	virtual void				Init( int argc, const char * const * argv, const char *cmdline );
-	virtual void				Shutdown();
-	virtual	void				CreateMainMenu();
-	virtual void				Quit();
-	virtual bool				IsInitialized() const;
-	virtual void				Frame();
-	virtual void				UpdateScreen( bool captureToImage );
-	virtual void				UpdateLevelLoadPacifier();
-	virtual void				StartupVariable( const char * match );
+								void				Init( int argc, const char * const * argv, const char *cmdline ) override;
+								void				Shutdown() override;
+								void				CreateMainMenu() override;
+								void				Quit() override;
+								bool				IsInitialized() const override;
+								void				Frame() override;
+								void				UpdateScreen( bool captureToImage ) override;
+								void				UpdateLevelLoadPacifier() override;
+								void				StartupVariable( const char * match ) override;
 	virtual void				WriteConfigToFile( const char *filename );
-	virtual void				BeginRedirect( char *buffer, int buffersize, void (*flush)( const char * ) );
-	virtual void				EndRedirect();
-	virtual void				SetRefreshOnPrint( bool set );
-	virtual void				Printf( VERIFY_FORMAT_STRING const char *fmt, ... );
-	virtual void				VPrintf( const char *fmt, va_list arg );
-	virtual void				DPrintf( VERIFY_FORMAT_STRING const char *fmt, ... );
-	virtual void				Warning( VERIFY_FORMAT_STRING const char *fmt, ... );
-	virtual void				DWarning( VERIFY_FORMAT_STRING const char *fmt, ...);
-	virtual void				PrintWarnings();
-	virtual void				ClearWarnings( const char *reason );
-	virtual void				Error( VERIFY_FORMAT_STRING const char *fmt, ... );
-	virtual void				FatalError( VERIFY_FORMAT_STRING const char *fmt, ... );
-	virtual bool				IsShuttingDown() const { return com_shuttingDown; }
+								void				BeginRedirect( char *buffer, size_t buffersize, void (*flush)( const char * ) ) override;
+								void				EndRedirect() override;
+								void				SetRefreshOnPrint( bool set ) override;
+								void				Printf( VERIFY_FORMAT_STRING const char *fmt, ... ) override;
+								void				VPrintf( const char *fmt, va_list arg ) override;
+								void				DPrintf( VERIFY_FORMAT_STRING const char *fmt, ... ) override;
+								void				Warning( VERIFY_FORMAT_STRING const char *fmt, ... ) override;
+								void				DWarning( VERIFY_FORMAT_STRING const char *fmt, ...) override;
+								void				PrintWarnings() override;
+								void				ClearWarnings( const char *reason ) override;
+								void				Error( VERIFY_FORMAT_STRING const char *fmt, ... ) override;
+								void				FatalError( VERIFY_FORMAT_STRING const char *fmt, ... ) override;
+								bool				IsShuttingDown() const override { return com_shuttingDown; }
 
-	virtual const char *		KeysFromBinding( const char *bind );
-	virtual const char *		BindingFromKey( const char *key );
+								const char *		KeysFromBinding( const char *bind ) override;
+								const char *		BindingFromKey( const char *key ) override;
 
-	virtual bool				IsMultiplayer();
-	virtual bool				IsServer();
-	virtual bool				IsClient();
+								bool				IsMultiplayer() override;
+								bool				IsServer() override;
+								bool				IsClient() override;
 
-	virtual bool				GetConsoleUsed() { return consoleUsed; }
+								bool				GetConsoleUsed() override { return consoleUsed; }
 
-	virtual int					GetSnapRate();
+								int					GetSnapRate() override;
 
-	virtual void				NetReceiveReliable( int peer, int type, idBitMsg & msg );
-	virtual void				NetReceiveSnapshot( class idSnapShot & ss );
-	virtual void				NetReceiveUsercmds( int peer, idBitMsg & msg );
-	void						NetReadUsercmds( int clientNum, idBitMsg & msg );
+								void				NetReceiveReliable( index_t peer, int type, idBitMsg & msg ) override;
+								void				NetReceiveSnapshot( class idSnapShot & ss ) override;
+								void				NetReceiveUsercmds( index_t peer, idBitMsg & msg ) override;
+	void						NetReadUsercmds( index_t clientNum, idBitMsg & msg );
 
-	virtual bool				ProcessEvent( const sysEvent_t *event );
+								bool				ProcessEvent( const sysEvent_t *event ) override;
 
-	virtual bool				LoadGame( const char * saveName );
-	virtual bool				SaveGame( const char * saveName );
+								bool				LoadGame( const char * saveName ) override;
+								bool				SaveGame( const char * saveName ) override;
 
-	virtual int					ButtonState( int key );
-	virtual int					KeyState( int key );
+								int					ButtonState( usercmdButton_t key ) override;
+								int					KeyState( keyNum_t key ) override;
 
-	virtual idDemoFile *		ReadDemo() { return readDemo; }
-	virtual idDemoFile *		WriteDemo() { return writeDemo; }
+								idDemoFile *		ReadDemo() override { return readDemo; }
+								idDemoFile *		WriteDemo() override { return writeDemo; }
 
-	virtual idGame *			Game() { return game; }
-	virtual idRenderWorld *		RW() { return renderWorld; }
-	virtual idSoundWorld *		SW() { return soundWorld; }
-	virtual idSoundWorld *		MenuSW() { return menuSoundWorld; }
-	virtual idSession *			Session() { return session; }
-	virtual idCommonDialog &	Dialog() { return commonDialog; }
+								idGame *			Game() override { return game; }
+								idRenderWorld *		RW() override { return renderWorld; }
+								idSoundWorld *		SW() override { return soundWorld; }
+								idSoundWorld *		MenuSW() override { return menuSoundWorld; }
+								idSession *			Session() override { return session; }
+								idCommonDialog &	Dialog() override { return commonDialog; }
 
-	virtual void				OnSaveCompleted( idSaveLoadParms & parms );
-	virtual void				OnLoadCompleted( idSaveLoadParms & parms );
-	virtual void				OnLoadFilesCompleted( idSaveLoadParms & parms );
-	virtual void				OnEnumerationCompleted( idSaveLoadParms & parms );
-	virtual void				OnDeleteCompleted( idSaveLoadParms & parms );
-	virtual void				TriggerScreenWipe( const char * _wipeMaterial, bool hold );
+								void				OnSaveCompleted( idSaveLoadParms & parms ) override;
+								void				OnLoadCompleted( idSaveLoadParms & parms ) override;
+								void				OnLoadFilesCompleted( idSaveLoadParms & parms ) override;
+								void				OnEnumerationCompleted( idSaveLoadParms & parms ) override;
+								void				OnDeleteCompleted( idSaveLoadParms & parms ) override;
+								void				TriggerScreenWipe( const char * _wipeMaterial, bool hold ) override;
 
-	virtual void				OnStartHosting( idMatchParameters & parms );
+								void				OnStartHosting( idMatchParameters & parms ) override;
 
-	virtual int					GetGameFrame() { return gameFrame; }
+								size_t				GetGameFrame() override { return gameFrame; }
 
-	virtual void				LaunchExternalTitle( int titleIndex,
-													 int device,
-													 const lobbyConnectInfo_t * const connectInfo ); // For handling invitations. NULL if no invitation used.
+								void				LaunchExternalTitle( index_t titleIndex,
+												                         index_t device,
+												                         const lobbyConnectInfo_t * const connectInfo ) override; // For handling invitations. NULL if no invitation used.
 
-	virtual void				InitializeMPMapsModes();
-	virtual const idStrList &			GetModeList() const { return mpGameModes; }
-	virtual const idStrList &			GetModeDisplayList() const { return mpDisplayGameModes; }
-	virtual const idList<mpMap_t> &		GetMapList() const { return mpGameMaps; }
+								void				InitializeMPMapsModes() override;
+								const idStrList &			GetModeList() const override { return mpGameModes; }
+								const idStrList &			GetModeDisplayList() const override { return mpDisplayGameModes; }
+								const idList<mpMap_t> &		GetMapList() const override { return mpGameMaps; }
 
-	virtual void				ResetPlayerInput( int playerIndex );
+								void				ResetPlayerInput( index_t playerIndex ) override;
 
-	virtual bool				JapaneseCensorship() const;
+								bool				JapaneseCensorship() const override;
 
-	virtual void				QueueShowShell() { showShellRequested = true; }
+								void				QueueShowShell() override { showShellRequested = true; }
 
-	virtual currentGame_t		GetCurrentGame() const { return currentGame; }
-	virtual void				SwitchToGame( currentGame_t newGame );		
+								currentGame_t		GetCurrentGame() const override { return currentGame; }
+								void				SwitchToGame( currentGame_t newGame ) override;		
 
 public:
 	void	Draw();			// called by gameThread
 
-	int		GetGameThreadTotalTime() const { return gameThread.GetThreadTotalTime(); }
-	int		GetGameThreadGameTime() const { return gameThread.GetThreadGameTime(); }
-	int		GetGameThreadRenderTime() const { return gameThread.GetThreadRenderTime(); }
-	int		GetRendererBackEndMicroseconds() const { return time_backend; }
-	int		GetRendererShadowsMicroseconds() const { return time_shadows; }
-	int		GetRendererIdleMicroseconds() const { return mainFrameTiming.startRenderTime - mainFrameTiming.finishSyncTime; }
-	int		GetRendererGPUMicroseconds() const { return time_gpu; }
+	ID_MICROSEC_T GetGameThreadTotalTime() const { return gameThread.GetThreadTotalTime(); }
+	ID_MICROSEC_T	GetGameThreadGameTime() const { return gameThread.GetThreadGameTime(); }
+	ID_MICROSEC_T	GetGameThreadRenderTime() const { return gameThread.GetThreadRenderTime(); }
+	ID_MICROSEC_T	GetRendererBackEndMicroseconds() const { return time_backend; }
+	ID_MICROSEC_T	GetRendererShadowsMicroseconds() const { return time_shadows; }
+	ID_MICROSEC_T	GetRendererIdleMicroseconds() const { return mainFrameTiming.startRenderTime - mainFrameTiming.finishSyncTime; }
+	ID_MICROSEC_T	GetRendererGPUMicroseconds() const { return time_gpu; }
 
 	frameTiming_t		frameTiming;
 	frameTiming_t		mainFrameTiming;
@@ -223,7 +227,7 @@ public:	// These are public because they are called directly by static functions
 	const char * GetCurrentMapName() const { return currentMapName.c_str(); }
 
 	// loads a map and starts a new game on it
-	void	StartNewGame( const char * mapName, bool devmap, int gameMode );
+	void	StartNewGame( const char * mapName, bool devmap, int8 gameMode );
 	void	LeaveGame();
 
 	void	DemoShot( const char *name );
@@ -256,7 +260,7 @@ private:
 	char						errorMessage[MAX_PRINT_MSG_SIZE];
 
 	char *						rd_buffer;
-	int							rd_buffersize;
+	size_t						rd_buffersize;
 	void						(*rd_flush)( const char *buffer );
 
 	idStr						warningCaption;
@@ -305,14 +309,14 @@ private:
 
 	idUserCmdMgr		userCmdMgr;
 	
-	int					nextUsercmdSendTime;	// Next time to send usercmds
-	int					nextSnapshotSendTime;	// Next time to send a snapshot
+	ID_TIME_T			nextUsercmdSendTime;	// Next time to send usercmds
+	ID_TIME_T			nextSnapshotSendTime;	// Next time to send a snapshot
 
 	idSnapShot			lastSnapShot;		// last snapshot we received from the server
 	struct reliableMsg_t {
 		int	client;
 		int type;
-		int dataSize;
+		size_t dataSize;
 		byte * data;
 	};
 	idList<reliableMsg_t> reliableQueue;
@@ -325,44 +329,44 @@ private:
 										// used for comparisons with the new snapshot for com_drawSnapshot
 
 	// This is ultimately controlled by net_maxBufferedSnapshots by running double speed, but this is the hard max before seeing visual popping
-	static constexpr int RECEIVE_SNAPSHOT_BUFFER_SIZE = 16;			
+	static constexpr size_t RECEIVE_SNAPSHOT_BUFFER_SIZE = 16;			
 
-	int				readSnapshotIndex;
-	int				writeSnapshotIndex;
+	index_t			readSnapshotIndex;
+	index_t			writeSnapshotIndex;
 	idArray<idSnapShot,RECEIVE_SNAPSHOT_BUFFER_SIZE>	receivedSnaps;
 
 	float			optimalPCTBuffer;
-	float			optimalTimeBuffered;
-	float			optimalTimeBufferedWindow;
+	double  		optimalTimeBuffered;
+	double			optimalTimeBufferedWindow;
 
-	uint64			snapRate;
-	uint64			actualRate;
+	double  		snapRate;
+	double  		actualRate;
 
-	uint64			snapTime;			// time we got the most recent snapshot
-	uint64			snapTimeDelta;		// time interval that current ss was sent in
+	ID_TIME_T		snapTime;			// time we got the most recent snapshot
+	ID_TIME_T		snapTimeDelta;		// time interval that current ss was sent in
 
-	uint64			snapTimeWrite;
-	uint64			snapCurrentTime;	// realtime playback time
+	ID_TIME_T		snapTimeWrite;
+	ID_TIME_T		snapCurrentTime;	// realtime playback time
 	netTimes_t		snapCurrent;		// current snapshot
 	netTimes_t		snapPrevious;		// previous snapshot
-	float			snapCurrentResidual;
+	double			snapCurrentResidual;
 
-	float			snapTimeBuffered;
-	float			effectiveSnapRate;
-	int				totalBufferedTime;
-	int				totalRecvTime;
+	double  		snapTimeBuffered;
+	double			effectiveSnapRate;
+	ID_TIME_T		totalBufferedTime;
+	ID_TIME_T		totalRecvTime;
 
 
 
 	int					clientPrediction;
 
-	int					gameFrame;			// Frame number of the local game
-	double				gameTimeResidual;	// left over msec from the last game frame
+	size_t				gameFrame;			// Frame number of the local game
+	double   			gameTimeResidual;	// left over msec from the last game frame
 	bool				syncNextGameFrame;
 
 	bool				aviCaptureMode;		// if true, screenshots will be taken and sound captured
 	idStr				aviDemoShortName;	// 
-	int					aviDemoFrameCount;
+	size_t				aviDemoFrameCount;
 
 	enum timeDemo_t {
 		TD_NO,
@@ -370,9 +374,9 @@ private:
 		TD_YES_THEN_QUIT
 	};
 	timeDemo_t			timeDemo;
-	int					timeDemoStartTime;
-	int					numDemoFrames;		// for timeDemo and demoShot
-	int					demoTimeOffset;
+	ID_TIME_T			timeDemoStartTime;
+	size_t				numDemoFrames;		// for timeDemo and demoShot
+	ID_TIME_T			demoTimeOffset;
 	renderView_t		currentDemoRenderView;
 
 	idStrList			mpGameModes;
@@ -380,7 +384,7 @@ private:
 	idList<mpMap_t>		mpGameMaps;
 
 	idSWF *				loadGUI;
-	int					nextLoadTip;
+	ID_TIME_T			nextLoadTip;
 	bool				isHellMap;
 	bool				defaultLoadscreen;
 	idStaticList<int, LOAD_TIP_COUNT>	loadTipList;
@@ -390,26 +394,26 @@ private:
 	const idMaterial *	whiteMaterial;
 
 	const idMaterial *	wipeMaterial;
-	int					wipeStartTime;
-	int					wipeStopTime;
+	ID_TIME_T			wipeStartTime;
+	ID_TIME_T			wipeStopTime;
 	bool				wipeHold;
 	bool				wipeForced;		// used for the PS3 to start an early wipe while we are accessing saved game data
 
 	idGameThread		gameThread;				// the game and draw code can be run in parallel
 
 	// com_speeds times
-	int					count_numGameFrames;	// total number of game frames that were run
-	int					time_gameFrame;			// game logic time
-	int					time_maxGameFrame;		// maximum single frame game logic time
-	int					time_gameDraw;			// game present time
-	uint64				time_frontend;			// renderer frontend time
-	uint64				time_backend;			// renderer backend time
-	uint64				time_shadows;			// renderer backend waiting for shadow volumes to be created
-	uint64				time_gpu;				// total gpu time, at least for PC
+	size_t				count_numGameFrames;	// total number of game frames that were run
+	ID_TIME_T			time_gameFrame;			// game logic time
+	ID_TIME_T			time_maxGameFrame;		// maximum single frame game logic time
+	ID_TIME_T			time_gameDraw;			// game present time
+	ID_MICROSEC_T		    	time_frontend;			// renderer frontend time microseconds
+	ID_MICROSEC_T			    time_backend;			// renderer backend time microseconds
+	ID_MICROSEC_T			    time_shadows;			// renderer backend waiting for shadow volumes to be created (microseconds)
+	ID_MICROSEC_T		    	time_gpu;				// total gpu time, at least for PC (microseconds)
 
 	// Used during loading screens
-	int					lastPacifierSessionTime;
-	int					lastPacifierGuiTime;
+	ID_TIME_T			lastPacifierSessionTime;
+	ID_TIME_T			lastPacifierGuiTime;
 	bool				lastPacifierDialogState;
 
 	bool				showShellRequested;
@@ -418,10 +422,10 @@ private:
 	currentGame_t		idealCurrentGame;		// Defer game switching so that bad things don't happen in the middle of the frame.
 	const idMaterial *	doomClassicMaterial;
 
-	static constexpr int			DOOMCLASSIC_RENDERWIDTH = 320 * 3;
-	static constexpr int			DOOMCLASSIC_RENDERHEIGHT = 200 * 3;
-	static constexpr int			DOOMCLASSIC_BYTES_PER_PIXEL = 4;
-	static constexpr int			DOOMCLASSIC_IMAGE_SIZE_IN_BYTES = DOOMCLASSIC_RENDERWIDTH * DOOMCLASSIC_RENDERHEIGHT * DOOMCLASSIC_BYTES_PER_PIXEL;
+	static constexpr size_t			DOOMCLASSIC_RENDERWIDTH = 320 * 3;
+	static constexpr size_t			DOOMCLASSIC_RENDERHEIGHT = 200 * 3;
+	static constexpr size_t			DOOMCLASSIC_BYTES_PER_PIXEL = 4;
+	static constexpr size_t			DOOMCLASSIC_IMAGE_SIZE_IN_BYTES = DOOMCLASSIC_RENDERWIDTH * DOOMCLASSIC_RENDERHEIGHT * DOOMCLASSIC_BYTES_PER_PIXEL;
 	
 	idArray< byte, DOOMCLASSIC_IMAGE_SIZE_IN_BYTES >	doomClassicImageData;
 
@@ -461,14 +465,14 @@ private:
 
 	// Snapshot interpolation
 	void	ProcessSnapshot( idSnapShot & ss );
-	int		CalcSnapTimeBuffered( int & totalBufferedTime, int & totalRecvTime  );
+	ID_TIME_T	CalcSnapTimeBuffered( ID_TIME_T & totalBufferedTime, ID_TIME_T & totalRecvTime  );
 	void	ProcessNextSnapshot();
-	void	InterpolateSnapshot( netTimes_t & prev, netTimes_t & next, float fraction, bool predict );
+	void	InterpolateSnapshot( netTimes_t & prev, netTimes_t & next, double fraction, bool predict );
 	void	ResetNetworkingState();
 
 	int		NetworkFrame();
 	void	SendSnapshots();
-	void	SendUsercmds( int localClientNum );
+	void	SendUsercmds( index_t localClientNum );
 	
 	void	LoadLoadingGui(const char *mapName, bool & hellMap );
 
@@ -502,3 +506,4 @@ private:
 };
 
 extern idCommonLocal commonLocal;
+#endif // __COMMON_LOCAL_H__

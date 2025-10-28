@@ -47,13 +47,13 @@ public:
 	void					operator=( const idCmdArgs &args );
 
 							// The functions that execute commands get their parameters with these functions.
-							[[nodiscard]] int						Argc() const { return argc; }
+	[[nodiscard]] int						Argc() const { return argc; }
 							// Argv() will return an empty string, not NULL if arg >= argc.
-							[[nodiscard]] const char *			Argv(const Ordinal auto arg ) const { return ( arg >= 0 && arg < argc ) ? argv[arg] : ""; }
+	[[nodiscard]] const char *			Argv( const index_t arg ) const { return ( arg >= 0 && arg < argc ) ? argv[arg] : ""; }
 							// Returns a single string containing argv(start) to argv(end)
 							// escapeArgs is a fugly way to put the string back into a state ready to tokenize again
-							[[nodiscard]] const char*             Args() const;
-	const char *			Args( Ordinal auto start = 1L, Ordinal auto end = -1L, bool escapeArgs = false ) const;
+	[[nodiscard]] const char *          Args() const;
+	[[nodiscard]] const char *			Args( const Ordinal auto start, Ordinal auto end = -1LL, bool escapeArgs = false ) const;
 
 							// Takes a null terminated string and breaks the string up into arg tokens.
 							// Does not need to be /n terminated.

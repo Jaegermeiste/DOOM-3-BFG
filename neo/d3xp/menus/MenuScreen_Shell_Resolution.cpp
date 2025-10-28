@@ -159,7 +159,7 @@ void idMenuScreen_Shell_Resolution::ShowScreen( const mainMenuTransition_t trans
 	}
 	for ( int displayNum = 0 ; displayNum < displays.Num(); displayNum++ ) {
 		idList<vidMode_t> & modeList = displays[displayNum];
-		for ( int i = 0; i < modeList.Num(); i++ ) {
+		for ( size_t i = 0; i < modeList.Num(); i++ ) {
 			const optionData_t thisOption( displayNum + 1, i );
 			if ( originalOption == thisOption ) {
 				viewIndex = menuOptions.Num();
@@ -208,7 +208,7 @@ void idMenuScreen_Shell_Resolution::HideScreen( const mainMenuTransition_t trans
 idMenuScreen_Shell_Resolution::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_Resolution::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Resolution::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -256,7 +256,7 @@ bool idMenuScreen_Shell_Resolution::HandleAction( idWidgetAction & action, const
 
 					class idSWFFuncAcceptVideoChanges : public idSWFScriptFunction_RefCounted {
 					public:
-						idSWFFuncAcceptVideoChanges( idMenuHandler * _menu, gameDialogMessages_t _msg, const optionData_t & _optionData, bool _accept ) {
+						idSWFFuncAcceptVideoChanges( idMenuHandler * _menu, const gameDialogMessages_t _msg, const optionData_t & _optionData, const bool _accept ) {
 							menuHandler = _menu;
 							msg = _msg;
 							optionData = _optionData;

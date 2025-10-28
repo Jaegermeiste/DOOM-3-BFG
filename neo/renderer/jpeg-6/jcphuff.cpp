@@ -103,7 +103,7 @@ METHODDEF void finish_pass_gather_phuff JPP( (j_compress_ptr cinfo) );
  */
 
 METHODDEF void
-start_pass_phuff( j_compress_ptr cinfo, boolean gather_statistics ) {
+start_pass_phuff(const j_compress_ptr cinfo, const boolean gather_statistics ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
     boolean is_DC_band;
     int ci, tbl;
@@ -216,7 +216,7 @@ start_pass_phuff( j_compress_ptr cinfo, boolean gather_statistics ) {
 
 
 LOCAL void
-dump_buffer( phuff_entropy_ptr entropy ) {
+dump_buffer(const phuff_entropy_ptr entropy ) {
 /* Empty the output buffer; we do not support suspension in this module. */
     struct jpeg_destination_mgr * dest = entropy->cinfo->dest;
 
@@ -239,7 +239,7 @@ dump_buffer( phuff_entropy_ptr entropy ) {
 
 INLINE
 LOCAL void
-emit_bits( phuff_entropy_ptr entropy, unsigned int code, int size ) {
+emit_bits(const phuff_entropy_ptr entropy, const unsigned int code, const int size ) {
 /* Emit some bits, unless we are in gather mode */
 /* This routine is heavily used, so it's worth coding tightly. */
     register INT32 put_buffer = (INT32) code;
@@ -279,7 +279,7 @@ emit_bits( phuff_entropy_ptr entropy, unsigned int code, int size ) {
 
 
 LOCAL void
-flush_bits( phuff_entropy_ptr entropy ) {
+flush_bits(const phuff_entropy_ptr entropy ) {
     emit_bits( entropy, 0x7F, 7 );/* fill any partial byte with ones */
     entropy->put_buffer = 0;   /* and reset bit-buffer to empty */
     entropy->put_bits = 0;
@@ -292,7 +292,7 @@ flush_bits( phuff_entropy_ptr entropy ) {
 
 INLINE
 LOCAL void
-emit_symbol( phuff_entropy_ptr entropy, int tbl_no, int symbol ) {
+emit_symbol(const phuff_entropy_ptr entropy, const int tbl_no, const int symbol ) {
     if ( entropy->gather_statistics ) {
         entropy->count_ptrs[tbl_no][symbol]++;
     } else {
@@ -307,7 +307,7 @@ emit_symbol( phuff_entropy_ptr entropy, int tbl_no, int symbol ) {
  */
 
 LOCAL void
-emit_buffered_bits( phuff_entropy_ptr entropy, char * bufstart,
+emit_buffered_bits(const phuff_entropy_ptr entropy, char * bufstart,
                     unsigned int nbits ) {
     if ( entropy->gather_statistics ) {
         return;
@@ -326,7 +326,7 @@ emit_buffered_bits( phuff_entropy_ptr entropy, char * bufstart,
  */
 
 LOCAL void
-emit_eobrun( phuff_entropy_ptr entropy ) {
+emit_eobrun(const phuff_entropy_ptr entropy ) {
     register int temp, nbits;
 
     if ( entropy->EOBRUN > 0 ) {/* if there is any pending EOBRUN */
@@ -355,7 +355,7 @@ emit_eobrun( phuff_entropy_ptr entropy ) {
  */
 
 LOCAL void
-emit_restart( phuff_entropy_ptr entropy, int restart_num ) {
+emit_restart(const phuff_entropy_ptr entropy, const int restart_num ) {
     int ci;
 
     emit_eobrun( entropy );
@@ -385,7 +385,7 @@ emit_restart( phuff_entropy_ptr entropy, int restart_num ) {
  */
 
 METHODDEF boolean
-encode_mcu_DC_first( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
+encode_mcu_DC_first(const j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
     register int temp, temp2;
     register int nbits;
@@ -469,7 +469,7 @@ encode_mcu_DC_first( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
  */
 
 METHODDEF boolean
-encode_mcu_AC_first( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
+encode_mcu_AC_first(const j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
     register int temp, temp2;
     register int nbits;
@@ -577,7 +577,7 @@ encode_mcu_AC_first( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
  */
 
 METHODDEF boolean
-encode_mcu_DC_refine( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
+encode_mcu_DC_refine(const j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
     register int temp;
     int blkn;
@@ -625,7 +625,7 @@ encode_mcu_DC_refine( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
  */
 
 METHODDEF boolean
-encode_mcu_AC_refine( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
+encode_mcu_AC_refine(const j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
     register int temp;
     register int r, k;
@@ -757,7 +757,7 @@ encode_mcu_AC_refine( j_compress_ptr cinfo, JBLOCKROW * MCU_data ) {
  */
 
 METHODDEF void
-finish_pass_phuff( j_compress_ptr cinfo ) {
+finish_pass_phuff(const j_compress_ptr cinfo ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
 
     entropy->next_output_byte = cinfo->dest->next_output_byte;
@@ -777,7 +777,7 @@ finish_pass_phuff( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-finish_pass_gather_phuff( j_compress_ptr cinfo ) {
+finish_pass_gather_phuff(const j_compress_ptr cinfo ) {
     phuff_entropy_ptr entropy = (phuff_entropy_ptr) cinfo->entropy;
     boolean is_DC_band;
     int ci, tbl;
@@ -826,7 +826,7 @@ finish_pass_gather_phuff( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_phuff_encoder( j_compress_ptr cinfo ) {
+jinit_phuff_encoder(const j_compress_ptr cinfo ) {
     phuff_entropy_ptr entropy;
     int i;
 

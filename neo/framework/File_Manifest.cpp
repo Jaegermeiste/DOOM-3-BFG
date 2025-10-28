@@ -46,11 +46,11 @@ idPreloadManifest::LoadManifest
 bool idPreloadManifest::LoadManifest( const char *fileName ) {
 	idFile * inFile = fileSystem->OpenFileReadMemory( fileName );
 	if ( inFile != nullptr) {
-		int numEntries;
+		size_t numEntries;
 		inFile->ReadBig( numEntries );
 		inFile->ReadString( filename );
 		entries.SetNum( numEntries );
-		for ( int i = 0; i < numEntries; i++ ) {
+		for ( size_t i = 0; i < numEntries; i++ ) {
 			entries[ i ].Read( inFile );
 		}
 delete inFile;
@@ -92,10 +92,10 @@ bool idFileManifest::LoadManifestFromFile( idFile *file ) {
 	}
 	filename = file->GetName();
 	idStr str;
-	int num;
+	size_t num;
 	file->ReadBig( num );
 	cacheTable.SetNum( num );
-	for ( int i = 0; i < num; i++ ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		file->ReadString( cacheTable[ i ] );
 		//if ( FindFile( cacheTable[ i ].filename ) == NULL ) {
 			// we only care about the first usage
@@ -118,9 +118,9 @@ void idFileManifest::WriteManifestFile( const char *fileName ) {
 		return;
 	}
 	idStr str;
-	int num = cacheTable.Num();
+	size_t num = cacheTable.Num();
 	file->WriteBig( num );
-	for ( int i = 0; i < num; i++ ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		file->WriteString( cacheTable[ i ] );
 	}
 	delete file;
@@ -146,7 +146,7 @@ idFileManifest::FindFile
 */ 
 int idFileManifest::FindFile( const char *fileName ) {
 	const int key =cacheHash.GenerateKey( fileName, false );
-	for ( int index = cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = cacheHash.GetNext( index ) ) {
+	for ( index_t index = cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = cacheHash.GetNext( index ) ) {
 		if ( idStr::Icmp( cacheTable[ index ], fileName ) == 0 ) {
 			return index;
 		}
@@ -160,7 +160,7 @@ idFileManifest::RemoveAll
 ========================
 */ 
 void idFileManifest::RemoveAll( const char * _fileName ) {
-	for ( int i = 0; i < cacheTable.Num(); i++ ) {
+	for ( size_t i = 0; i < cacheTable.Num(); i++ ) {
 		if ( cacheTable[ i ].Icmp( _fileName ) == 0 ) {
 			const int key =cacheHash.GenerateKey( cacheTable[ i ], false );
 			cacheTable.RemoveIndex( i );

@@ -99,7 +99,7 @@ static drawSurf_t * R_AutospriteDeform( drawSurf_t *surf ) {
 	idDrawVert * newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 )));
 	triIndex_t * newIndexes = static_cast<triIndex_t*>(_alloca16(ALIGN( srcTri->numIndexes * sizeof( triIndex_t ), 16 )));
 
-	for ( int i = 0; i < srcTri->numVerts; i += 4 ) {
+	for ( size_t i = 0; i < srcTri->numVerts; i += 4 ) {
 		// find the midpoint
 		newVerts[i+0] = idDrawVert::GetSkinnedDrawVert( srcTri->verts[i + 0], joints );
 		newVerts[i+1] = idDrawVert::GetSkinnedDrawVert( srcTri->verts[i + 1], joints );
@@ -182,18 +182,18 @@ static drawSurf_t * R_TubeDeform( drawSurf_t * surf ) {
 	newTri->numIndexes = srcTri->numIndexes;
 
 	idDrawVert * newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( srcTri->numVerts * sizeof( idDrawVert ), 16 )));
-	for ( int i = 0; i < srcTri->numVerts; i++ ) {
+	for ( size_t i = 0; i < srcTri->numVerts; i++ ) {
 		newVerts[i].Clear();
 	}
 
 	// this is a lot of work for two triangles...
 	// we could precalculate a lot if it is an issue, but it would mess up the shader abstraction
-	for ( int i = 0, indexes = 0; i < srcTri->numVerts; i += 4, indexes += 6 ) {
+	for ( size_t i = 0, indexes = 0; i < srcTri->numVerts; i += 4, indexes += 6 ) {
 		// identify the two shortest edges out of the six defined by the indexes
-		int nums[2] = { 0, 0 };
+		size_t nums[2] = { 0, 0 };
 		float lengths[2] = { 999999.0f, 999999.0f };
 
-		for ( int j = 0; j < 6; j++ ) {
+		for ( size_t j = 0; j < 6; j++ ) {
 			const idVec3 v1 = idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[srcTri->indexes[i + edgeVerts[j][0]]], joints );
 			const idVec3 v2 = idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[srcTri->indexes[i + edgeVerts[j][1]]], joints );
 
@@ -212,7 +212,7 @@ static drawSurf_t * R_TubeDeform( drawSurf_t * surf ) {
 		// find the midpoints of the two short edges, which
 		// will give us the major axis in object coordinates
 		idVec3 mid[2];
-		for ( int j = 0; j < 2; j++ ) {
+		for ( size_t j = 0; j < 2; j++ ) {
 			const idVec3 v1 = idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[srcTri->indexes[i+edgeVerts[nums[j]][0]]], joints );
 			const idVec3 v2 = idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[srcTri->indexes[i+edgeVerts[nums[j]][1]]], joints );
 
@@ -225,7 +225,7 @@ static drawSurf_t * R_TubeDeform( drawSurf_t * surf ) {
 		const idVec3 major = mid[1] - mid[0];
 
 		// re-project the points
-		for ( int j = 0; j < 2; j++ ) {
+		for ( size_t j = 0; j < 2; j++ ) {
 			const int i1 = srcTri->indexes[i+edgeVerts[nums[j]][0]];
 			const int i2 = srcTri->indexes[i+edgeVerts[nums[j]][1]];
 
@@ -263,7 +263,7 @@ int	R_WindingFromTriangles( const srfTriangles_t *tri, triIndex_t indexes[MAX_TR
 	int i, j, k, l;
 
 	indexes[0] = tri->indexes[0];
-	int numIndexes = 1;
+	size_t numIndexes = 1;
 	int	numTris = tri->numIndexes / 3;
 
 	do {
@@ -377,21 +377,21 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 	const float dot = dir * plane.Normal();
 
 	// set vertex colors based on plane angle
-	int color = idMath::Ftoi( dot * 8 * 256 );
+	int color = numeric_cast<int>( dot * 8 * 256 );
 	if ( color > 255 ) {
 		color = 255;
 	}
 
 	triIndex_t indexes[MAX_TRI_WINDING_INDEXES];
-	int numIndexes = R_WindingFromTriangles( srcTri, indexes );
+	size_t numIndexes = R_WindingFromTriangles( srcTri, indexes );
 
 	// only deal with quads
 	if ( numIndexes != 4 ) {
 		return nullptr;
 	}
 
-	constexpr int maxVerts = 16;
-	constexpr int maxIndexes = 18 * 3;
+	constexpr size_t maxVerts = 16;
+	constexpr size_t maxIndexes = 18 * 3;
 
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
 	srfTriangles_t * newTri = static_cast<srfTriangles_t*>(R_ClearedFrameAlloc(sizeof(*newTri), FRAME_ALLOC_SURFACE_TRIANGLES));
@@ -403,7 +403,7 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 	idVec3 edgeDir[4][3];
 
 	// calculate vector directions
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		newVerts[i].Clear();
 		newVerts[i].xyz = srcTri->verts[ indexes[i] ].xyz;
 		newVerts[i].SetTexCoord( 0.5f, 0.5f );
@@ -433,7 +433,7 @@ static drawSurf_t * R_FlareDeform( drawSurf_t * surf ) {
 	const float spread = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ] * r_flareSize.GetFloat();
 
 	for ( int i = 4; i < 16; i++ ) {
-		const int index = ( i - 4 ) / 3;
+		const index_t index = ( i - 4 ) / 3;
 		idVec3 v = srcTri->verts[indexes[index]].xyz + spread * edgeDir[index][( i - 4 ) % 3];
 
 		idVec3 dir = v - localViewer;
@@ -483,7 +483,7 @@ static drawSurf_t * R_ExpandDeform( drawSurf_t * surf ) {
 	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 )));
 
 	const float dist = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ];
-	for ( int i = 0; i < srcTri->numVerts; i++ ) {
+	for ( size_t i = 0; i < srcTri->numVerts; i++ ) {
 		newVerts[i] = srcTri->verts[i];
 		newVerts[i].xyz = srcTri->verts[i].xyz + srcTri->verts[i].GetNormal() * dist;
 	}
@@ -511,7 +511,7 @@ static drawSurf_t * R_MoveDeform( drawSurf_t * surf ) {
 	idDrawVert *newVerts = static_cast<idDrawVert*>(_alloca16(ALIGN( newTri->numVerts * sizeof( idDrawVert ), 16 )));
 
 	const float dist = surf->shaderRegisters[ surf->material->GetDeformRegister(0) ];
-	for ( int i = 0; i < srcTri->numVerts; i++ ) {
+	for ( size_t i = 0; i < srcTri->numVerts; i++ ) {
 		newVerts[i] = srcTri->verts[i];
 		newVerts[i].xyz[0] += dist;
 	}
@@ -544,7 +544,7 @@ static drawSurf_t * R_TurbulentDeform( drawSurf_t * surf ) {
 	const float domain = surf->shaderRegisters[ surf->material->GetDeformRegister(2) ];
 	constexpr float tOfs = 0.5f;
 
-	for ( int i = 0; i < srcTri->numVerts; i++ ) {
+	for ( size_t i = 0; i < srcTri->numVerts; i++ ) {
 		float f = srcTri->verts[i].xyz[0] * 0.003f + srcTri->verts[i].xyz[1] * 0.007f + srcTri->verts[i].xyz[2] * 0.011f;
 
 		f = timeOfs + domain * f;
@@ -576,7 +576,7 @@ typedef struct {
 	idVec3		mid;
 } eyeIsland_t;
 
-static void AddTriangleToIsland_r( const srfTriangles_t *tri, int triangleNum, bool *usedList, eyeIsland_t *island ) {
+static void AddTriangleToIsland_r( const srfTriangles_t *tri, const int triangleNum, bool *usedList, eyeIsland_t *island ) {
 	usedList[triangleNum] = true;
 
 	// add to the current island
@@ -603,7 +603,7 @@ static void AddTriangleToIsland_r( const srfTriangles_t *tri, int triangleNum, b
 	island->bounds.AddPoint( vc );
 
 	int	numTri = tri->numIndexes / 3;
-	for ( int i = 0; i < numTri; i++ ) {
+	for ( size_t i = 0; i < numTri; i++ ) {
 		if ( usedList[i] ) {
 			continue;
 		}
@@ -633,7 +633,7 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 	const srfTriangles_t * srcTri = surf->frontEndGeo;
 
 	// separate all the triangles into islands
-	const int numTri = srcTri->numIndexes / 3;
+	const size_t numTri = srcTri->numIndexes / 3;
 	if ( numTri > MAX_EYEBALL_ISLANDS * MAX_EYEBALL_TRIS ) {
 		common->Printf( "R_EyeballDeform: too many triangles in surface" );
 		return nullptr;
@@ -643,7 +643,7 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 	bool triUsed[MAX_EYEBALL_ISLANDS*MAX_EYEBALL_TRIS];
 	memset( triUsed, 0, sizeof( triUsed ) );
 
-	int numIslands = 0;
+	size_t numIslands = 0;
 	for ( ; numIslands < MAX_EYEBALL_ISLANDS; numIslands++ ) {
 		islands[numIslands].numTris = 0;
 		islands[numIslands].bounds.Clear();
@@ -676,12 +676,12 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 	triIndex_t *newIndexes = static_cast<triIndex_t*>(_alloca16(ALIGN( srcTri->numIndexes * sizeof( triIndex_t ), 16 )));
 
 	// decide which islands are the eyes and points
-	for ( int i = 0; i < numIslands; i++ ) {
+	for ( size_t i = 0; i < numIslands; i++ ) {
 		islands[i].mid = islands[i].bounds.GetCenter();
 	}
 
-	int numIndexes = 0;
-	for ( int i = 0; i < numIslands; i++ ) {
+	size_t numIndexes = 0;
+	for ( size_t i = 0; i < numIslands; i++ ) {
 		eyeIsland_t * island = &islands[i];
 
 		if ( island->numTris == 1 ) {
@@ -696,7 +696,7 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 		float dist[MAX_EYEBALL_ISLANDS];
 		int sortOrder[MAX_EYEBALL_ISLANDS];
 
-		for ( int j = 0; j < numIslands; j++ ) {
+		for ( size_t j = 0; j < numIslands; j++ ) {
 			idVec3 dir = islands[j].mid - island->mid;
 			dist[j] = dir.Length();
 			sortOrder[j] = j;
@@ -735,14 +735,14 @@ static drawSurf_t * R_EyeballDeform( drawSurf_t * surf ) {
 		texVec[0].Cross( v1, v2 );
 		texVec[1].Cross( texVec[0], dir );
 
-		for ( int j = 0; j < 2; j++ ) {
+		for ( size_t j = 0; j < 2; j++ ) {
 			texVec[j] -= dir * ( texVec[j] * dir );
 			texVec[j].Normalize();
 		}
 
 		// emit these triangles, generating the projected texcoords
-		for ( int j = 0; j < islands[i].numTris; j++ ) {
-			for ( int k = 0; k < 3; k++ ) {
+		for ( size_t j = 0; j < islands[i].numTris; j++ ) {
+			for ( size_t k = 0; k < 3; k++ ) {
 				int	index = islands[i].tris[j] * 3;
 
 				index = srcTri->indexes[index + k];
@@ -781,7 +781,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	//
 	// calculate the area of all the triangles
 	//
-	int numSourceTris = surf->frontEndGeo->numIndexes / 3;
+	size_t numSourceTris = surf->frontEndGeo->numIndexes / 3;
 	float totalArea = 0.0f;
 	float * sourceTriAreas = nullptr;
 
@@ -790,7 +790,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	if ( useArea ) {
 		sourceTriAreas = static_cast<float*>(_alloca(sizeof(*sourceTriAreas) * numSourceTris));
 		int	triNum = 0;
-		for ( int i = 0; i < srcTri->numIndexes; i += 3, triNum++ ) {
+		for ( size_t i = 0; i < srcTri->numIndexes; i += 3, triNum++ ) {
 			float area = idWinding::TriangleArea(	idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[ srcTri->indexes[ i+0 ] ], joints ),
 													idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[ srcTri->indexes[ i+1 ] ], joints ),
 													idDrawVert::GetSkinnedDrawVertPosition( srcTri->verts[ srcTri->indexes[ i+2 ] ], joints ) );
@@ -809,9 +809,9 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 	g.origin.Zero();
 	g.axis = mat3_identity;
 
-	int maxStageParticles[MAX_PARTICLE_STAGES] = { 0 };
-	int maxStageQuads[MAX_PARTICLE_STAGES] = { 0 };
-	int maxQuads = 0;
+	size_t maxStageParticles[MAX_PARTICLE_STAGES] = { 0 };
+	size_t maxStageQuads[MAX_PARTICLE_STAGES] = { 0 };
+	size_t maxQuads = 0;
 
 	for ( int stageNum = 0; stageNum < particleSystem->stages.Num(); stageNum++ ) {
 		idParticleStage *stage = particleSystem->stages[stageNum];
@@ -828,8 +828,8 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 
 		// we interpret stage->totalParticles as "particles per map square area"
 		// so the systems look the same on different size surfaces
-		const int totalParticles = ( useArea ) ? idMath::Ftoi( stage->totalParticles * totalArea * ( 1.0f / 4096.0f ) ) : ( stage->totalParticles );
-		const int numQuads = totalParticles * stage->NumQuadsPerParticle() * ( ( useArea ) ? 1 : numSourceTris );
+		const int totalParticles = ( useArea ) ? numeric_cast<int>( stage->totalParticles * totalArea * ( 1.0f / 4096.0f ) ) : ( stage->totalParticles );
+		const size_t numQuads = totalParticles * stage->NumQuadsPerParticle() * ( ( useArea ) ? 1 : numSourceTris );
 
 		maxStageParticles[stageNum] = totalParticles;
 		maxStageQuads[stageNum] = numQuads;
@@ -854,20 +854,20 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 
 		idParticleStage *stage = particleSystem->stages[stageNum];
 
-		int numVerts = 0;
+		size_t numVerts = 0;
 		for ( int currentTri = 0; currentTri < ( ( useArea ) ? 1 : numSourceTris ); currentTri++ ) {
 
 			idRandom steppingRandom;
 			idRandom steppingRandom2;
 
-			int stageAge = g.renderView->time[renderEntity->timeGroup] + idMath::Ftoi( renderEntity->shaderParms[SHADERPARM_TIMEOFFSET] * 1000.0f - stage->timeOffset * 1000.0f );
+			int stageAge = g.renderView->time[renderEntity->timeGroup] + numeric_cast<int>( renderEntity->shaderParms[SHADERPARM_TIMEOFFSET] * 1000.0f - stage->timeOffset * 1000.0f );
 			int stageCycle = stageAge / stage->cycleMsec;
 
 			// some particles will be in this cycle, some will be in the previous cycle
-			steppingRandom.SetSeed( ( ( stageCycle << 10 ) & idRandom::MAX_RAND ) ^ idMath::Ftoi( renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND )  );
-			steppingRandom2.SetSeed( ( ( ( stageCycle - 1 ) << 10 ) & idRandom::MAX_RAND ) ^ idMath::Ftoi( renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND )  );
+			steppingRandom.SetSeed( ( ( stageCycle << 10 ) & idRandom::MAX_RAND ) ^ numeric_cast<int>( renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND )  );
+			steppingRandom2.SetSeed( ( ( ( stageCycle - 1 ) << 10 ) & idRandom::MAX_RAND ) ^ numeric_cast<int>( renderEntity->shaderParms[SHADERPARM_DIVERSITY] * idRandom::MAX_RAND )  );
 
-			for ( int index = 0; index < maxStageParticles[stageNum]; index++ ) {
+			for ( index_t index = 0; index < maxStageParticles[stageNum]; index++ ) {
 				g.index = index;
 
 				// bump the random
@@ -875,7 +875,7 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 				steppingRandom2.RandomInt();
 
 				// calculate local age for this index 
-				int bunchOffset = idMath::Ftoi( stage->particleLife * 1000 * stage->spawnBunching * index / maxStageParticles[stageNum] );
+				int bunchOffset = numeric_cast<int>( stage->particleLife * 1000 * stage->spawnBunching * index / maxStageParticles[stageNum] );
 
 				int particleAge = stageAge - bunchOffset;
 				int particleCycle = particleAge / stage->cycleMsec;
@@ -960,8 +960,8 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 		}
 
 		// build the index list
-		int numIndexes = 0;
-		for ( int i = 0; i < numVerts; i += 4 ) {
+		size_t numIndexes = 0;
+		for ( size_t i = 0; i < numVerts; i += 4 ) {
 			newIndexes[numIndexes + 0] = i + 0;
 			newIndexes[numIndexes + 1] = i + 2;
 			newIndexes[numIndexes + 2] = i + 3;

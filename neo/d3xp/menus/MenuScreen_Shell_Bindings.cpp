@@ -78,7 +78,7 @@ static bindInfo_t keyboardBinds[] = {
 	//{ "#str_04071",	"clientDropWeapon"						}	// DROP WEAPON
 };
 
-static constexpr int numBinds = sizeof( keyboardBinds ) / sizeof( keyboardBinds[0] );
+static constexpr size_t numBinds = sizeof( keyboardBinds ) / sizeof( keyboardBinds[0] );
 
 static constexpr int NUM_BIND_LISTINGS = 14;
 /*
@@ -242,7 +242,7 @@ void idMenuScreen_Shell_Bindings::UpdateBindingDisplay() {
 
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > bindList;	
 
-	for ( int i = 0; i < numBinds; ++i ) {
+	for ( size_t i = 0; i < numBinds; ++i ) {
 		idList< idStr > option;
 
 		option.Append( keyboardBinds[i].display );
@@ -267,7 +267,7 @@ void idMenuScreen_Shell_Bindings::UpdateBindingDisplay() {
 					"JOY1", "JOY2", "JOY3", "JOY4", "JOY5", "JOY6",
 					"JOY_TRIGGER1", "JOY_TRIGGER2", nullptr
 				};
-				for ( int i = 0; i < joyBinds.Num(); i++ ) {
+				for ( size_t i = 0; i < joyBinds.Num(); i++ ) {
 					if ( joyBinds[i].Icmpn( "JOY_STICK", 9 ) == 0 ) {
 						continue; // Can't rebind the sticks, so don't even show them
 					}
@@ -325,7 +325,7 @@ void idMenuScreen_Shell_Bindings::UpdateBindingDisplay() {
 idMenuScreen_Shell_Bindings::ToggleWait
 ========================
 */
-void idMenuScreen_Shell_Bindings::ToggleWait( bool wait ) {
+void idMenuScreen_Shell_Bindings::ToggleWait(const bool wait ) {
 
 	if ( wait ) {
 
@@ -377,7 +377,7 @@ void idMenuScreen_Shell_Bindings::ToggleWait( bool wait ) {
 idMenuScreen_Shell_Bindings::SetBinding
 ========================
 */
-void idMenuScreen_Shell_Bindings::SetBinding( int keyNum ) {
+void idMenuScreen_Shell_Bindings::SetBinding(const int keyNum ) {
 
 	int listIndex = options->GetViewIndex();
 	idKeyInput::SetBinding( keyNum, keyboardBinds[ listIndex ].bind );
@@ -397,7 +397,7 @@ void idMenuScreen_Shell_Bindings::HandleRestoreDefaults() {
 
 	class idSWFScriptFunction_Restore : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_Restore( gameDialogMessages_t _msg, bool _accept, idMenuScreen_Shell_Bindings * _menu ) {
+		idSWFScriptFunction_Restore(const gameDialogMessages_t _msg, const bool _accept, idMenuScreen_Shell_Bindings * _menu ) {
 			msg = _msg;
 			accept = _accept;
 			menu = _menu;
@@ -435,7 +435,7 @@ void idMenuScreen_Shell_Bindings::HandleRestoreDefaults() {
 idMenuScreen_Shell_Bindings::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Bindings::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Bindings::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

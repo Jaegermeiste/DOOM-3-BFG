@@ -233,7 +233,7 @@ void idCollisionModelManagerLocal::WriteCollisionModel( idFile *fp, cm_model_t *
 idCollisionModelManagerLocal::WriteCollisionModelsToFile
 ================
 */
-void idCollisionModelManagerLocal::WriteCollisionModelsToFile( const char *filename, int firstModel, int lastModel, unsigned int mapFileCRC ) {
+void idCollisionModelManagerLocal::WriteCollisionModelsToFile( const char *filename, const int firstModel, const int lastModel, const unsigned int mapFileCRC ) {
 	int i;
 	idFile *fp;
 	idStr name;
@@ -555,7 +555,7 @@ cm_model_t * idCollisionModelManagerLocal::ParseCollisionModel( idLexer *src ) {
 idCollisionModelManagerLocal::LoadCollisionModelFile
 ================
 */
-bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, unsigned int mapFileCRC ) {
+bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, const unsigned int mapFileCRC ) {
 	idToken token;
 	idLexer *src;
 	unsigned int crc;
@@ -576,7 +576,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 	bool loaded = false;
 	idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 	if ( file != nullptr) {
-		int numEntries = 0;
+		size_t numEntries = 0;
 		file->ReadBig( numEntries );
 		file->ReadString( mapName );
 		file->ReadBig( crc );
@@ -585,7 +585,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 		file->ReadString( fileID );
 		file->ReadString( fileVersion );
 		if ( fileID == CM_FILEID && fileVersion == CM_FILEVERSION && crc == mapFileCRC && numEntries > 0 ) {
-			for ( int i = 0; i < numEntries; i++ ) {
+			for ( size_t i = 0; i < numEntries; i++ ) {
 				cm_model_t *model = LoadBinaryModelFromFile( file, currentTimeStamp );
 				models[ numModels ] = model;
 				numModels++;
@@ -604,7 +604,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char *name, uns
 			return false;
 		}
 
-		int numEntries = 0;
+		size_t numEntries = 0;
 		idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
 		if ( outputFile != nullptr) {
 			outputFile->WriteBig( numEntries );

@@ -173,7 +173,7 @@ void idMenuScreen_Shell_MatchSettings::HideScreen( const mainMenuTransition_t tr
 idMenuScreen_Shell_MatchSettings::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -311,7 +311,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::CommitDat
 idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetMapName
 ========================
 */
-void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetMapName( int index, idStr & name ) {
+void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetMapName( index_t index, idStr & name ) {
 	idLobbyBase & lobby = session->GetActivePlatformLobbyBase();
 	const idMatchParameters & matchParameters = lobby.GetMatchParms();
 	name = "#str_swf_filter_random";
@@ -326,7 +326,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetMapNam
 idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetModeName
 ========================
 */
-void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetModeName( int index, idStr & name ) {
+void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::GetModeName( index_t index, idStr & name ) {
 	idLobbyBase & lobby = session->GetActivePlatformLobbyBase();
 	const idMatchParameters & matchParameters = lobby.GetMatchParms();
 	name = "#str_swf_filter_random";
@@ -348,7 +348,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 
 	idMatchParameters matchParameters = session->GetActivePlatformLobbyBase().GetMatchParms();
 	if ( fieldIndex == MATCH_FIELD_MAP ) {
-		for ( int i = 0; i < maps.Num(); i++ ) {
+		for ( size_t i = 0; i < maps.Num(); i++ ) {
 			// Don't allow random maps in the game lobby
 			matchParameters.gameMap += adjustAmount;
 			if ( matchParameters.gameMap < 0 ) {
@@ -378,7 +378,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 		matchParameters.gameMode %= modes.Num();
 		updateMap = false;
 		if ( ( maps[matchParameters.gameMap].supportedModes & BIT(matchParameters.gameMode) ) == 0 ) {			
-			for ( int i = 0; i < maps.Num(); ++i ) {
+			for ( size_t i = 0; i < maps.Num(); ++i ) {
 				if ( ( maps[i].supportedModes & BIT(matchParameters.gameMode) ) != 0 ) {
 					matchParameters.gameMap = i;
 					updateMap = true;

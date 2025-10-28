@@ -58,7 +58,7 @@ void Sys_ExecuteSavegameCommandAsync( idSaveLoadParms * savegameParms ) {
 	Sys_ExecuteSavegameCommandAsyncImpl( savegameParms );
 }
 
-#define ASSERT_ENUM_STRING_BITFIELD( string, index )		( 1 / (int)!( string - ( 1 << index ) ) ) ? #string : ""
+#define ASSERT_ENUM_STRING_BITFIELD( string, index )		( 1 / (int)!( (string) - ( 1 << (index) ) ) ) ? #string : ""
 
 const char * saveGameErrorStrings[ SAVEGAME_E_NUM ] = {
 	ASSERT_ENUM_STRING_BITFIELD( SAVEGAME_E_CANCELLED,							0 ),
@@ -80,7 +80,7 @@ const char * saveGameErrorStrings[ SAVEGAME_E_NUM ] = {
 CONSOLE_COMMAND( savegamePrintErrors, "Prints error code corresponding to each bit", 0 ) {
 	idLib::Printf( "Bit  Description\n"
 				   "---  -----------\n" );
-	for ( int i = 0; i < SAVEGAME_E_BITS_USED; i++ ) {
+	for ( size_t i = 0; i < SAVEGAME_E_BITS_USED; i++ ) {
 		idLib::Printf( "%03d  %s\n", i, saveGameErrorStrings[i] );
 	}
 }
@@ -97,12 +97,12 @@ Example:
 	SAVEGAME_E_LOAD, SAVEGAME_E_INVALID_FILENAME
 ========================
 */
-idStr GetSaveGameErrorString( int errorMask ) {
+idStr GetSaveGameErrorString(const int errorMask ) {
 	idStr errorString;
 	bool continueProcessing = errorMask > 0;
 	int localError = errorMask;
 
-	for ( int i = 0; i < SAVEGAME_E_NUM && continueProcessing; ++i ) {
+	for ( size_t i = 0; i < SAVEGAME_E_NUM && continueProcessing; ++i ) {
 		int mask = ( 1 << i );
 
 		if ( localError & mask ) {
@@ -131,7 +131,7 @@ Directory name for savegames, slot number or user-defined name appended to it
 TRC R116 - PS3 folder must start with the product code
 ========================
 */
-const idStr & GetSaveFolder( idSaveGameManager::packageType_t type ) {
+const idStr & GetSaveFolder(const idSaveGameManager::packageType_t type ) {
 	static bool initialized = false;
 	static idStrStatic<MAX_FOLDER_NAME_LENGTH>	saveFolder[idSaveGameManager::PACKAGE_NUM];
 
@@ -156,7 +156,7 @@ idStr AddSaveFolderPrefix
 	output	= GAMES-RAGE_0
 ========================
 */
-idStr AddSaveFolderPrefix( const char * folder, idSaveGameManager::packageType_t type ) {
+idStr AddSaveFolderPrefix( const char * folder, const idSaveGameManager::packageType_t type ) {
 	idStr dir = GetSaveFolder( type );
 	dir.Append( folder );
 
@@ -172,7 +172,7 @@ RemoveSaveFolderPrefix
 	output	= RAGE_0
 ========================
 */
-idStr RemoveSaveFolderPrefix( const char * folder, idSaveGameManager::packageType_t type ) {
+idStr RemoveSaveFolderPrefix( const char * folder, const idSaveGameManager::packageType_t type ) {
 	idStr dir = folder;
 	idStr prefix = GetSaveFolder( type );
 	dir.StripLeading( prefix );
@@ -250,7 +250,7 @@ idSaveLoadParms::~idSaveLoadParms
 ========================
 */
 idSaveLoadParms::~idSaveLoadParms() {
-	for ( int i = 0; i < files.Num(); ++i ) {
+	for ( size_t i = 0; i < files.Num(); ++i ) {
 		if ( files[i]->type & SAVEGAMEFILE_AUTO_DELETE ) {
 			delete files[i];
 		}
@@ -297,7 +297,7 @@ void idSaveLoadParms::Init() {
 idSaveLoadParms::SetDefaults
 ========================
 */
-void idSaveLoadParms::SetDefaults( int newInputDevice ) {
+void idSaveLoadParms::SetDefaults(const int newInputDevice ) {
 	// These are pulled out so SetDefaults() isn't called during global instantiation of objects that have savegame processors
 	// in them that then require a session reference.
 	Init();	
@@ -325,7 +325,7 @@ idSaveLoadParms::CancelSaveGameFilePipelines
 ========================
 */
 void idSaveLoadParms::CancelSaveGameFilePipelines() {
-	for ( int i = 0; i < files.Num(); i++ ) {
+	for ( size_t i = 0; i < files.Num(); i++ ) {
 		if ( ( files[i]->type & SAVEGAMEFILE_PIPELINED ) != 0 ) {
 			idFile_SaveGamePipelined * file = dynamic_cast< idFile_SaveGamePipelined * >( files[i] );
 			assert( file != NULL );
@@ -349,7 +349,7 @@ idSaveLoadParms::AbortSaveGameFilePipeline
 ========================
 */
 void idSaveLoadParms::AbortSaveGameFilePipeline() {
-	for ( int i = 0; i < files.Num(); i++ ) {
+	for ( size_t i = 0; i < files.Num(); i++ ) {
 		if ( ( files[i]->type & SAVEGAMEFILE_PIPELINED ) != 0 ) {
 			idFile_SaveGamePipelined * file = dynamic_cast< idFile_SaveGamePipelined * >( files[i] );
 			assert( file != NULL );
@@ -515,7 +515,7 @@ We would need to overrideSimpleProcessorCheck if we were sure we had done someth
 to bail out nicely.  Something like canceling a disc swap during a loading disc swap dialog...
 ========================
 */
-void idSaveGameManager::WaitForAllProcessors( bool overrideSimpleProcessorCheck ) {
+void idSaveGameManager::WaitForAllProcessors(const bool overrideSimpleProcessorCheck ) {
 	assert( idLib::IsMainThread() );
 
 	while ( IsWorking() || ( processorQueue.Num() > 0 ) ) {
@@ -686,7 +686,7 @@ void idSaveGameManager::CancelWithHandle( const saveGameHandle_t & handle ) {
 	}
 
 	// remove from queue
-	for ( int i = 0; i < processorQueue.Num(); ++i ) {
+	for ( size_t i = 0; i < processorQueue.Num(); ++i ) {
 		if ( processorQueue[i]->GetHandle() == handle ) {
 			processorQueue[i]->Cancel();
 			return;
@@ -707,10 +707,10 @@ void idSaveGameManager::StartNextProcessor() {
 	}
 
 	idSaveGameProcessor * nextProcessor = nullptr;
-	int index = 0;
+	index_t index = 0;
 
 	// pick off the first simple processor
-	for ( int i = 0; i < processorQueue.Num(); ++i ) {
+	for ( size_t i = 0; i < processorQueue.Num(); ++i ) {
 		if ( processorQueue[i]->IsSimpleProcessor() ) {
 			index = i;
 			break;
@@ -838,7 +838,7 @@ void idSaveGameManager::Pump() {
 		if ( !continueProcessing ) {
 
 			// Clear out details if we detect corruption but keep directory/slot information
-			for ( int i = 0; i < processor->parms.detailList.Num(); ++i ) {
+			for ( size_t i = 0; i < processor->parms.detailList.Num(); ++i ) {
 				idSaveGameDetails & details = processor->parms.detailList[i];
 				if ( details.damaged ) {
 					details.descriptors.Clear();
@@ -862,7 +862,7 @@ void idSaveGameManager::Pump() {
 			// ------------------------------------
 			Sys_InterlockedIncrement( lastExecutedProcessorHandle );
 			
-			for ( int i = 0; i < localProcessor->completedCallbacks.Num(); i++ ) {
+			for ( size_t i = 0; i < localProcessor->completedCallbacks.Num(); i++ ) {
 				localProcessor->completedCallbacks[i]->Call();
 			}
 			localProcessor->completedCallbacks.DeleteContents( true );

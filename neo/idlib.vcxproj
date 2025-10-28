@@ -165,17 +165,23 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <ExpandAttributedSource>false</ExpandAttributedSource>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ALLOW_RTCc_IN_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <UseDynamicDebugging>false</UseDynamicDebugging>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions512</EnableEnhancedInstructionSet>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Lib>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
       <Verbose>true</Verbose>
     </Lib>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -347,8 +353,10 @@
     <ClInclude Include="idlib\sys\sys_builddefines.h" />
     <ClInclude Include="idlib\sys\sys_defines.h" />
     <ClInclude Include="idlib\sys\sys_filesystem.h" />
+    <ClInclude Include="idlib\sys\sys_helpers.h" />
     <ClInclude Include="idlib\sys\sys_includes.h" />
     <ClInclude Include="idlib\sys\sys_intrinsics.h" />
+    <ClInclude Include="idlib\sys\sys_numeric_cast.h" />
     <ClInclude Include="idlib\sys\sys_threading.h" />
     <ClInclude Include="idlib\sys\sys_types.h" />
     <ClInclude Include="idlib\sys\sys_type_ordinal.hpp" />

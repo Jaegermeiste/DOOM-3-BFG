@@ -53,9 +53,9 @@ Retrieving contacts
 idCollisionModelManagerLocal::Contacts
 ==================
 */
-int idCollisionModelManagerLocal::Contacts( contactInfo_t *contacts, const int maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
-								const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
-								cmHandle_t model, const idVec3 &origin, const idMat3 &modelAxis ) {
+int idCollisionModelManagerLocal::Contacts( contactInfo_t *contacts, const size_t maxContacts, const idVec3 &start, const idVec6 &dir, const float depth,
+								const idTraceModel *trm, const idMat3 &trmAxis, const int contentMask,
+								const cmHandle_t model, const idVec3 &origin, const idMat3 &modelAxis ) {
 	trace_t results;
 	idVec3 end;
 

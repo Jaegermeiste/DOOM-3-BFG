@@ -53,36 +53,55 @@ cht_CheckCheat
     if (::g->firsttime)
     {
 	::g->firsttime = 0;
-	for (i=0;i<256;i++) ::g->cheat_xlate_table[i] = SCRAMBLE(i);
+	for (i=0;i<256;i++)
+	{
+		::g->cheat_xlate_table[i] = SCRAMBLE(i);
+	}
     }
 
     if (!cht->p)
     {
 	cht->p = ::g->cheatbuffer + ::g->usedcheatbuffer;
 	int isize = 0;
-	while(cht->sequence[isize] != 0xff) cht->p[isize] = cht->sequence[isize];
+	while(cht->sequence[isize] != 0xff)
+	{
+		cht->p[isize] = cht->sequence[isize];
+	}
 	cht->p[isize] = 0xff;
 	::g->usedcheatbuffer += isize;
 	::g->usedcheatbuffer ++;
     }
 
     if (*cht->p == 0)
-	*(cht->p++) = key;
+    {
+	    *(cht->p++) = key;
+    }
     else if
-	(::g->cheat_xlate_table[(unsigned char)key] == *cht->p) cht->p++;
+	(::g->cheat_xlate_table[static_cast<unsigned char>(key)] == *cht->p)
+    {
+	    cht->p++;
+    }
     else
     {
 	int isize = 0;
-	while(cht->sequence[isize] != 0xff) cht->p[isize] = cht->sequence[isize];
+	while(cht->sequence[isize] != 0xff)
+	{
+		cht->p[isize] = cht->sequence[isize];
+	}
 	cht->p[isize] = 0xff;
     }
 
     if (*cht->p == 1)
-	cht->p++;
+    {
+	    cht->p++;
+    }
     else if (*cht->p == 0xff) // end of sequence character
     {
 	int isize = 0;
-	while(cht->sequence[isize] != 0xff) cht->p[isize] = cht->sequence[isize];
+	while(cht->sequence[isize] != 0xff)
+	{
+		cht->p[isize] = cht->sequence[isize];
+	}
 	cht->p[isize] = 0xff;	
 	rc = 1;
     }
@@ -101,14 +120,20 @@ cht_GetParam
 	unsigned char *p;
     unsigned char c;
 
-	int isize = 0;
+	const int isize = 0;
 
-	while(cht->sequence[isize] != 0xff) pb[isize] = cht->sequence[isize];
-	pb[isize] = 0xff;
+	while(cht->sequence[isize] != 0xff)
+	{
+		pb[isize] = cht->sequence[isize];
+	}
+    pb[isize] = 0xff;
 	p = &pb[0];
 
-    while (*(p++) != 1);
-    
+    while (*(p++) != 1)
+    {
+	    ;
+    }
+
     do
     {
 	c = *p;
@@ -118,9 +143,9 @@ cht_GetParam
     while (c && *p!=0xff );
 
     if (*p==0xff)
-	*buffer = 0;
-
-
+    {
+	    *buffer = 0;
+    }
 }
 
 

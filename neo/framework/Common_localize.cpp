@@ -156,7 +156,7 @@ void GetFileList(const char* dir, const char* ext, idStrList& list) {
 	}
 }
 
-int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, idStrList& excludeList, bool writeFile) {
+int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, idStrList& excludeList, const bool writeFile) {
 
 	common->Printf("Localizing Map '%s'\n", mapName);
 
@@ -165,7 +165,7 @@ int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, i
 	idMapFile map;
 	if ( map.Parse(mapName, false, false ) ) {
 		int count = map.GetNumEntities();
-		for ( int j = 0; j < count; j++ ) {
+		for ( size_t j = 0; j < count; j++ ) {
 			idMapEntity *ent = map.GetEntity( j );
 			if ( ent ) {
 
@@ -275,7 +275,7 @@ CONSOLE_COMMAND( localizeMaps, "localize maps", NULL ) {
 	{
 		// I think this is equivalent...
 		const byte * buffer = nullptr;
-		int len = fileSystem->ReadFile( filename, (void**)&buffer );
+		size_t len = fileSystem->ReadFile( filename, (void**)&buffer );
 		if ( verify( len > 0 ) ) {
 			strTable.Load( buffer, len, filename );
 		}
@@ -301,7 +301,7 @@ CONSOLE_COMMAND( localizeMaps, "localize maps", NULL ) {
 	} else {
 		idStrList files;
 		GetFileList("z:/d3xp/d3xp/maps/game", "*.map", files);
-		for ( int i = 0; i < files.Num(); i++ ) {
+		for ( size_t i = 0; i < files.Num(); i++ ) {
 			idStr file =  fileSystem->OSPathToRelativePath(files[i]);
 			strCount += LocalizeMap(file, strTable, listHash, excludeList, write);		
 		}
@@ -337,7 +337,7 @@ CONSOLE_COMMAND( localizeGuis, "localize guis", NULL ) {
 	{
 		// I think this is equivalent...
 		const byte * buffer = nullptr;
-		int len = fileSystem->ReadFile( filename, (void**)&buffer );
+		size_t len = fileSystem->ReadFile( filename, (void**)&buffer );
 		if ( verify( len > 0 ) ) {
 			strTable.Load( buffer, len, filename );
 		}
@@ -358,7 +358,7 @@ CONSOLE_COMMAND( localizeGuis, "localize guis", NULL ) {
 		} else {
 			files = fileSystem->ListFilesTree( "guis", "*.gui", true );
 		}
-		for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+		for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 			commonLocal.LocalizeGui( files->GetFile( i ), strTable );
 		}
 		fileSystem->FreeFileList( files );
@@ -369,7 +369,7 @@ CONSOLE_COMMAND( localizeGuis, "localize guis", NULL ) {
 			files = fileSystem->ListFilesTree( "guis", "*.pd", true, "d3xp" );
 		}
 		
-		for ( int i = 0; i < files->GetNumFiles(); i++ ) {
+		for ( size_t i = 0; i < files->GetNumFiles(); i++ ) {
 			commonLocal.LocalizeGui( files->GetFile( i ), strTable );
 		}
 		fileSystem->FreeFileList( files );
@@ -393,7 +393,7 @@ CONSOLE_COMMAND( localizeGuiParmsTest, "Create test files that show gui parms lo
 	idStrList files;
 	GetFileList("z:/d3xp/d3xp/maps/game", "*.map", files);
 
-	for ( int i = 0; i < files.Num(); i++ ) {
+	for ( size_t i = 0; i < files.Num(); i++ ) {
 		
 		common->Printf("Testing Map '%s'\n", files[i].c_str());
 		idMapFile map;
@@ -401,7 +401,7 @@ CONSOLE_COMMAND( localizeGuiParmsTest, "Create test files that show gui parms lo
 		idStr file =  fileSystem->OSPathToRelativePath(files[i]);
 		if ( map.Parse(file, false, false ) ) {
 			int count = map.GetNumEntities();
-			for ( int j = 0; j < count; j++ ) {
+			for ( size_t j = 0; j < count; j++ ) {
 				idMapEntity *ent = map.GetEntity( j );
 				if ( ent ) {
 					const idKeyValue* kv = ent->epairs.MatchPrefix("gui_parm");
@@ -440,7 +440,7 @@ CONSOLE_COMMAND( localizeMapsTest, "Create test files that shows which strings w
 	idStrList files;
 	GetFileList("z:/d3xp/d3xp/maps/game", "*.map", files);
 
-	for ( int i = 0; i < files.Num(); i++ ) {
+	for ( size_t i = 0; i < files.Num(); i++ ) {
 
 		common->Printf("Testing Map '%s'\n", files[i].c_str());
 		idMapFile map;
@@ -448,7 +448,7 @@ CONSOLE_COMMAND( localizeMapsTest, "Create test files that shows which strings w
 		idStr file =  fileSystem->OSPathToRelativePath(files[i]);
 		if ( map.Parse(file, false, false ) ) {
 			int count = map.GetNumEntities();
-			for ( int j = 0; j < count; j++ ) {
+			for ( size_t j = 0; j < count; j++ ) {
 				idMapEntity *ent = map.GetEntity( j );
 				if ( ent ) {
 					
@@ -457,7 +457,7 @@ CONSOLE_COMMAND( localizeMapsTest, "Create test files that shows which strings w
 					if(classname == "worldspawn" || classname == "func_static" || classname == "light" || classname == "speaker" || classname.Left(8) == "trigger_") {
 						continue;
 					}
-					for( int i = 0; i < ent->epairs.GetNumKeyVals(); i++) {
+					for ( size_t i = 0; i < ent->epairs.GetNumKeyVals(); i++) {
 						const idKeyValue* kv = ent->epairs.GetKeyVal(i);
 						idStr out = va("%s,%s,%s,%s\r\n", classname.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str(), file.c_str());
 						localizeFile->Write( out.c_str(), out.Length() );
@@ -521,10 +521,10 @@ void idCommonLocal::LocalizeSpecificMapData( const char *fileName, idLangDict &l
 	idMapFile map;
 	if ( map.Parse( fileName, false, false ) ) {
 		int count = map.GetNumEntities();
-		for ( int i = 0; i < count; i++ ) {
+		for ( size_t i = 0; i < count; i++ ) {
 			idMapEntity *ent = map.GetEntity( i );
 			if ( ent ) {
-				for ( int j = 0; j < replaceArgs.GetNumKeyVals(); j++ ) {
+				for ( size_t j = 0; j < replaceArgs.GetNumKeyVals(); j++ ) {
 					const idLangKeyValue *kv = replaceArgs.GetKeyVal( j );
 					const char *temp = ent->epairs.GetString( kv->key );
 					if ( ( temp != nullptr) && *temp ) {

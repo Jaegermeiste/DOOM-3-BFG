@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <ctype.h>
 
+#include <algorithm>
+
 // Functions.
 #include "i_system.h"
 #include "m_swap.h"
@@ -58,47 +60,46 @@ If you have questions concerning this license or the applicable additional terms
 //  0 = text, 1 = art screen, 2 = character cast
 
 
+static const char*	e1text = E1TEXT;
+static const char*	e2text = E2TEXT;
+static const char*	e3text = E3TEXT;
+static const char*	e4text = E4TEXT;
 
-const char*	e1text = E1TEXT;
-const char*	e2text = E2TEXT;
-const char*	e3text = E3TEXT;
-const char*	e4text = E4TEXT;
+static const char*	c1text = C1TEXT;
+static const char*	c2text = C2TEXT;
+static const char*	c3text = C3TEXT;
+static const char*	c4text = C4TEXT;
+static const char*	c5text = C5TEXT;
+static const char*	c6text = C6TEXT;
+static const char* c7text = C7TEXT;
+static const char* c8Text = C8TEXT;
 
-const char*	c1text = C1TEXT;
-const char*	c2text = C2TEXT;
-const char*	c3text = C3TEXT;
-const char*	c4text = C4TEXT;
-const char*	c5text = C5TEXT;
-const char*	c6text = C6TEXT;
-const char* c7text = C7TEXT;
-const char* c8Text = C8TEXT;
+static const char*	p1text = P1TEXT;
+static const char*	p2text = P2TEXT;
+static const char*	p3text = P3TEXT;
+static const char*	p4text = P4TEXT;
+static const char*	p5text = P5TEXT;
+static const char*	p6text = P6TEXT;
 
-const char*	p1text = P1TEXT;
-const char*	p2text = P2TEXT;
-const char*	p3text = P3TEXT;
-const char*	p4text = P4TEXT;
-const char*	p5text = P5TEXT;
-const char*	p6text = P6TEXT;
+static const char*	t1text = T1TEXT;
+static const char*	t2text = T2TEXT;
+static const char*	t3text = T3TEXT;
+static const char*	t4text = T4TEXT;
+static const char*	t5text = T5TEXT;
+static const char*	t6text = T6TEXT;
 
-const char*	t1text = T1TEXT;
-const char*	t2text = T2TEXT;
-const char*	t3text = T3TEXT;
-const char*	t4text = T4TEXT;
-const char*	t5text = T5TEXT;
-const char*	t6text = T6TEXT;
+static const char*	finaletext;
+static const char*	finaleflat;
 
-const char*	finaletext;
-const char*	finaleflat;
-
-void	F_StartCast (void);
-void	F_CastTicker (void);
-qboolean F_CastResponder (event_t *ev);
-void	F_CastDrawer (void);
+static void	F_StartCast (void);
+static void	F_CastTicker (void);
+static qboolean F_CastResponder (event_t *ev);
+static void	F_CastDrawer (void);
 
 //
 // F_StartFinale
 //
-void F_StartFinale (void)
+static void F_StartFinale (void)
 {
     ::g->gameaction = ga_nothing;
     ::g->gamestate = GS_FINALE;
@@ -227,9 +228,10 @@ void F_StartFinale (void)
 }
 
 
-bool finaleButtonPressed = false;
-bool startButtonPressed = false;
-qboolean F_Responder (event_t *event)
+static bool finaleButtonPressed = false;
+static bool startButtonPressed = false;
+
+static qboolean F_Responder (event_t *event)
 {
 	if( !common->IsMultiplayer() && event->type == ev_keydown && event->data1 == KEY_ESCAPE ) {
 		startButtonPressed = true;
@@ -237,16 +239,18 @@ qboolean F_Responder (event_t *event)
 	}
 
 	if (::g->finalestage == 2)
+	{
 		return F_CastResponder (event);
+	}
 
-    return false;
+	return false;
 }
 
 
 //
 // F_Ticker
 //
-void F_Ticker (void)
+static void F_Ticker (void)
 {
     int		i;
     
@@ -255,8 +259,12 @@ void F_Ticker (void)
 	{
 		// go on to the next level
 		for (i=0 ; i<MAXPLAYERS ; i++)
+		{
 			if (::g->players[i].cmd.buttons)
+			{
 				break;
+			}
+		}
 
 		if ( finaleButtonPressed || i < MAXPLAYERS)
 		{	
@@ -287,7 +295,7 @@ void F_Ticker (void)
 		}
 	}
 
-	bool SkipTheText = 	finaleButtonPressed;
+	const bool SkipTheText = 	finaleButtonPressed;
 
     // advance animation
     ::g->finalecount++;
@@ -312,9 +320,11 @@ void F_Ticker (void)
     {
 		::g->finalecount = 0;
 		::g->finalestage = 1;
-		::g->wipegamestate = (gamestate_t)-1;		// force a wipe
+		::g->wipegamestate = static_cast<gamestate_t>(-1);		// force a wipe
 		if (::g->gameepisode == 3)
-		    S_StartMusic (mus_bunny);
+		{
+			S_StartMusic (mus_bunny);
+		}
     }
 
 	startButtonPressed = false;
@@ -330,7 +340,7 @@ void F_Ticker (void)
 #include "hu_stuff.h"
 
 
-void F_TextWrite (void)
+static void F_TextWrite (void)
 {
     byte*	src;
     byte*	dest;
@@ -347,7 +357,7 @@ void F_TextWrite (void)
 	}
 
     // erase the entire screen to a tiled background
-    src = (byte*)W_CacheLumpName ( finaleflat , PU_CACHE_SHARED);
+    src = static_cast<byte*>(W_CacheLumpName(finaleflat, PU_CACHE_SHARED));
     dest = ::g->screens[0];
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
@@ -357,7 +367,7 @@ void F_TextWrite (void)
 	    memcpy (dest, src+((y&63)<<6), 64);
 	    dest += 64;
 	}
-	if (SCREENWIDTH&63)
+	if (false)
 	{
 	    memcpy (dest, src+((y&63)<<6), SCREENWIDTH&63);
 	    dest += (SCREENWIDTH&63);
@@ -372,13 +382,14 @@ void F_TextWrite (void)
     ch = finaletext;
 	
     count = (::g->finalecount - 10)/TEXTSPEED;
-    if (count < 0)
-	count = 0;
+    count = Max(count, 0);
     for ( ; count ; count-- )
     {
 	c = *ch++;
 	if (!c)
-	    break;
+	{
+		break;
+	}
 	if (c == '\n')
 	{
 	    cx = 10;
@@ -395,7 +406,9 @@ void F_TextWrite (void)
 		
 	w = SHORT (::g->hu_font[c]->width);
 	if (cx+w > SCREENWIDTH)
-	    break;
+	{
+		break;
+	}
 	V_DrawPatch(cx, cy, 0, ::g->hu_font[c]);
 	cx+=w;
     }
@@ -408,7 +421,7 @@ void F_TextWrite (void)
 //   in order of appearance
 //
 
-castinfo_t	castorder[] = 
+static castinfo_t	castorder[] = 
 {
     {CC_ZOMBIE, MT_POSSESSED},
     {CC_SHOTGUN, MT_SHOTGUY},
@@ -428,7 +441,7 @@ castinfo_t	castorder[] =
     {CC_CYBER, MT_CYBORG},
     {CC_HERO, MT_PLAYER},
 
-    {NULL,(mobjtype_t)0}
+    {nullptr,static_cast<mobjtype_t>(0)}
 };
 
 
@@ -441,7 +454,7 @@ castinfo_t	castorder[] =
 void F_StartCast (void)
 {
 	if ( ::g->finalestage != 2 ) {
-		::g->wipegamestate = (gamestate_t)-1;		// force a screen wipe
+		::g->wipegamestate = static_cast<gamestate_t>(-1);		// force a screen wipe
 		::g->castnum = 0;
 		::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
 		::g->casttics = ::g->caststate->tics;
@@ -470,17 +483,23 @@ void F_CastTicker (void)
 	}
 
     if (--::g->casttics > 0)
-	return;			// not time to change state yet
-		
+    {
+	    return; // not time to change state yet
+    }
+
     if (::g->caststate->tics == -1 || ::g->caststate->nextstate == S_NULL)
     {
 	// switch from deathstate to next monster
 	::g->castnum++;
 	::g->castdeath = false;
-	if (castorder[::g->castnum].name == NULL)
-	    ::g->castnum = 0;
+	if (castorder[::g->castnum].name == nullptr)
+	{
+		::g->castnum = 0;
+	}
 	if (mobjinfo[castorder[::g->castnum].type].seesound)
-	    S_StartSound (NULL, mobjinfo[castorder[::g->castnum].type].seesound);
+	{
+		S_StartSound (nullptr, mobjinfo[castorder[::g->castnum].type].seesound);
+	}
 	::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
 	::g->castframes = 0;
     }
@@ -488,7 +507,9 @@ void F_CastTicker (void)
     {
 	// just advance to next state in animation
 	if (::g->caststate == &::g->states[S_PLAY_ATK1])
-	    goto stopattack;	// Oh, gross hack!
+	{
+		goto stopattack; // Oh, gross hack!
+	}
 	st = ::g->caststate->nextstate;
 	::g->caststate = &::g->states[st];
 	::g->castframes++;
@@ -526,7 +547,9 @@ void F_CastTicker (void)
 	}
 		
 	if (sfx)
-	    S_StartSound (NULL, sfx);
+	{
+		S_StartSound (nullptr, sfx);
+	}
     }
 	
     if (::g->castframes == 12)
@@ -534,18 +557,26 @@ void F_CastTicker (void)
 	// go into attack frame
 	::g->castattacking = true;
 	if (::g->castonmelee)
-	    ::g->caststate=&::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+	{
+		::g->caststate=&::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+	}
 	else
-	    ::g->caststate=&::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+	{
+		::g->caststate=&::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+	}
 	::g->castonmelee ^= 1;
 	if (::g->caststate == &::g->states[S_NULL])
 	{
 	    if (::g->castonmelee)
-		::g->caststate=
-		    &::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+	    {
+		    ::g->caststate=
+			    &::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+	    }
 	    else
-		::g->caststate=
-		    &::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+	    {
+		    ::g->caststate=
+			    &::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+	    }
 	}
     }
 	
@@ -563,7 +594,9 @@ void F_CastTicker (void)
 	
     ::g->casttics = ::g->caststate->tics;
     if (::g->casttics == -1)
-	::g->casttics = 15;
+    {
+	    ::g->casttics = 15;
+    }
 }
 
 
@@ -574,11 +607,15 @@ void F_CastTicker (void)
 qboolean F_CastResponder (event_t* ev)
 {
     if (ev->type != ev_keydown)
-	return false;
-		
+    {
+	    return false;
+    }
+
     if (::g->castdeath)
-	return true;			// already in dying frames
-		
+    {
+	    return true; // already in dying frames
+    }
+
     // go into death frame
     ::g->castdeath = true;
     ::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].deathstate];
@@ -586,13 +623,15 @@ qboolean F_CastResponder (event_t* ev)
     ::g->castframes = 0;
     ::g->castattacking = false;
     if (mobjinfo[castorder[::g->castnum].type].deathsound)
-	S_StartSound (NULL, mobjinfo[castorder[::g->castnum].type].deathsound);
-	
+    {
+	    S_StartSound (nullptr, mobjinfo[castorder[::g->castnum].type].deathsound);
+    }
+
     return true;
 }
 
 
-void F_CastPrint (char* text)
+static void F_CastPrint (char* text)
 {
     char*	ch;
     int		c;
@@ -608,7 +647,9 @@ void F_CastPrint (char* text)
     {
 	c = *ch++;
 	if (!c)
-	    break;
+	{
+		break;
+	}
 	c = toupper(c) - HU_FONTSTART;
 	if (c < 0 || c> HU_FONTSIZE)
 	{
@@ -627,7 +668,9 @@ void F_CastPrint (char* text)
     {
 	c = *ch++;
 	if (!c)
-	    break;
+	{
+		break;
+	}
 	c = toupper(c) - HU_FONTSTART;
 	if (c < 0 || c> HU_FONTSIZE)
 	{
@@ -657,7 +700,7 @@ void F_CastDrawer (void)
     patch_t*		patch;
     
     // erase the entire screen to a background
-    V_DrawPatch (0,0,0, (patch_t*)W_CacheLumpName ("BOSSBACK", PU_CACHE_SHARED));
+    V_DrawPatch (0,0,0, static_cast<patch_t*>(W_CacheLumpName("BOSSBACK", PU_CACHE_SHARED)));
 
     F_CastPrint (castorder[::g->castnum].name);
     
@@ -665,28 +708,32 @@ void F_CastDrawer (void)
     sprdef = &::g->sprites[::g->caststate->sprite];
     sprframe = &sprdef->spriteframes[ ::g->caststate->frame & FF_FRAMEMASK];
     lump = sprframe->lump[0];
-    flip = (qboolean)sprframe->flip[0];
+    flip = static_cast<qboolean>(sprframe->flip[0]);
 			
-    patch = (patch_t*)W_CacheLumpNum (lump+::g->firstspritelump, PU_CACHE_SHARED);
+    patch = static_cast<patch_t*>(W_CacheLumpNum(lump + ::g->firstspritelump, PU_CACHE_SHARED));
     if (flip)
-		V_DrawPatchFlipped (160,170,0,patch);
+    {
+	    V_DrawPatchFlipped (160,170,0,patch);
+    }
     else
-		V_DrawPatch (160,170,0,patch);
+    {
+	    V_DrawPatch (160,170,0,patch);
+    }
 }
 
 
 //
 // F_DrawPatchCol
 //
-void
-F_DrawPatchCol( int x, patch_t* patch, int col ) {
+static void
+F_DrawPatchCol(const int x, patch_t* patch, const int col ) {
     postColumn_t*	column;
     byte*			source;
     int				count;
 	
     column = (postColumn_t *)((byte *)patch + LONG(patch->columnofs[col]));
 
-	int destx = x;
+	const int destx = x;
 	int desty = 0;
 
     // step through the posts in a column
@@ -701,10 +748,10 @@ F_DrawPatchCol( int x, patch_t* patch, int col ) {
 			int scaledx, scaledy;
 			scaledx = destx * GLOBAL_IMAGE_SCALER;
 			scaledy = desty * GLOBAL_IMAGE_SCALER;
-			byte src = *source++;
+			const byte src = *source++;
 
-			for ( int i = 0; i < GLOBAL_IMAGE_SCALER; i++ ) {
-				for ( int j = 0; j < GLOBAL_IMAGE_SCALER; j++ ) {
+			for ( size_t i = 0; i < GLOBAL_IMAGE_SCALER; i++ ) {
+				for ( size_t j = 0; j < GLOBAL_IMAGE_SCALER; j++ ) {
 					::g->screens[0][( scaledx + j ) + ( scaledy + i ) * SCREENWIDTH] = src;
 				}
 			}
@@ -719,7 +766,7 @@ F_DrawPatchCol( int x, patch_t* patch, int col ) {
 //
 // F_BunnyScroll
 //
-void F_BunnyScroll (void)
+static void F_BunnyScroll (void)
 {
     int		scrolled;
     int		x;
@@ -728,53 +775,56 @@ void F_BunnyScroll (void)
     char	name[10];
     int		stage;
 		
-    p1 = (patch_t*)W_CacheLumpName ("PFUB2", PU_LEVEL_SHARED);
-    p2 = (patch_t*)W_CacheLumpName ("PFUB1", PU_LEVEL_SHARED);
+    p1 = static_cast<patch_t*>(W_CacheLumpName("PFUB2", PU_LEVEL_SHARED));
+    p2 = static_cast<patch_t*>(W_CacheLumpName("PFUB1", PU_LEVEL_SHARED));
 
     V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
 	
     scrolled = 320 - (::g->finalecount-230)/2;
-    if (scrolled > 320)
-	scrolled = 320;
-    if (scrolled < 0)
-	scrolled = 0;
-		
+    scrolled = Min(scrolled, 320);
+    scrolled = Max(scrolled, 0);
+
     for ( x=0 ; x<ORIGINAL_WIDTH ; x++)
     {
 	if (x+scrolled < 320)
-	    F_DrawPatchCol (x, p1, x+scrolled);
+	{
+		F_DrawPatchCol (x, p1, x+scrolled);
+	}
 	else
-	    F_DrawPatchCol (x, p2, x+scrolled - 320);		
+	{
+		F_DrawPatchCol (x, p2, x+scrolled - 320);
+	}
     }
 	
     if (::g->finalecount < 1130)
-	return;
+    {
+	    return;
+    }
     if (::g->finalecount < 1180)
     {
 	V_DrawPatch ((ORIGINAL_WIDTH-13*8)/2,
-		     (ORIGINAL_HEIGHT-8*8)/2,0, (patch_t*)W_CacheLumpName ("END0",PU_CACHE_SHARED));
+		     (ORIGINAL_HEIGHT-8*8)/2,0, static_cast<patch_t*>(W_CacheLumpName("END0",PU_CACHE_SHARED)));
 	::g->laststage = 0;
 	return;
     }
 	
     stage = (::g->finalecount-1180) / 5;
-    if (stage > 6)
-	stage = 6;
+    stage = Min(stage, 6);
     if (stage > ::g->laststage)
     {
-	S_StartSound (NULL, sfx_pistol);
+	S_StartSound (nullptr, sfx_pistol);
 	::g->laststage = stage;
     }
 	
     sprintf (name,"END%i",stage);
-    V_DrawPatch ((ORIGINAL_WIDTH-13*8)/2, (ORIGINAL_HEIGHT-8*8)/2,0, (patch_t*)W_CacheLumpName (name,PU_CACHE_SHARED));
+    V_DrawPatch ((ORIGINAL_WIDTH-13*8)/2, (ORIGINAL_HEIGHT-8*8)/2,0, static_cast<patch_t*>(W_CacheLumpName(name,PU_CACHE_SHARED)));
 }
 
 
 //
 // F_Drawer
 //
-void F_Drawer (void)
+static void F_Drawer (void)
 {
     if (::g->finalestage == 2)
     {
@@ -783,29 +833,35 @@ void F_Drawer (void)
     }
 
     if (!::g->finalestage)
-	F_TextWrite ();
+    {
+	    F_TextWrite ();
+    }
     else
     {
 	switch (::g->gameepisode)
 	{
 	  case 1:
 	    if ( ::g->gamemode == retail )
-	      V_DrawPatch (0,0,0,
-			 (patch_t*)W_CacheLumpName("CREDIT",PU_CACHE_SHARED));
+	    {
+		    V_DrawPatch (0,0,0,
+		                 static_cast<patch_t*>(W_CacheLumpName("CREDIT",PU_CACHE_SHARED)));
+	    }
 	    else
-	      V_DrawPatch (0,0,0,
-			 (patch_t*)W_CacheLumpName("HELP2",PU_CACHE_SHARED));
+	    {
+		    V_DrawPatch (0,0,0,
+		                 static_cast<patch_t*>(W_CacheLumpName("HELP2",PU_CACHE_SHARED)));
+	    }
 	    break;
 	  case 2:
 	    V_DrawPatch(0,0,0,
-			(patch_t*)W_CacheLumpName("VICTORY2",PU_CACHE_SHARED));
+			static_cast<patch_t*>(W_CacheLumpName("VICTORY2",PU_CACHE_SHARED)));
 	    break;
 	  case 3:
 	    F_BunnyScroll ();
 	    break;
 	  case 4:
 	    V_DrawPatch (0,0,0,
-			 (patch_t*)W_CacheLumpName("ENDPIC",PU_CACHE_SHARED));
+			 static_cast<patch_t*>(W_CacheLumpName("ENDPIC",PU_CACHE_SHARED)));
 	    break;
 	}
     }

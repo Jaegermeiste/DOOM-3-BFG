@@ -66,7 +66,7 @@ void idSoundFade::Clear() {
 idSoundFade::SetVolume
 ========================
 */
-void idSoundFade::SetVolume( float to ) {
+void idSoundFade::SetVolume(const float to ) {
 	fadeStartVolume = to;
 	fadeEndVolume = to;
 	fadeStartTime = 0;
@@ -78,7 +78,7 @@ void idSoundFade::SetVolume( float to ) {
 idSoundFade::Fade
 ========================
 */
-void idSoundFade::Fade( float to, ID_TIME_T length, ID_TIME_T soundTime ) {
+void idSoundFade::Fade(const float to, ID_TIME_T length, ID_TIME_T soundTime ) {
 	ID_TIME_T startTime = soundTime;
 	// if it is already fading to this volume at this rate, don't change it
 	if ( fadeEndTime == startTime + length && fadeEndVolume == to ) {
@@ -96,9 +96,9 @@ idSoundFade::GetVolume
 ========================
 */
 float idSoundFade::GetVolume( const ID_TIME_T soundTime ) const {
-	const float fadeDuration = idMath::Itof<float>(fadeEndTime - fadeStartTime);
+	const float fadeDuration = numeric_cast<float>(fadeEndTime - fadeStartTime);
 	const ID_TIME_T currentTime = soundTime;
-	const float playTime = idMath::Itof<float>(currentTime - fadeStartTime);
+	const float playTime = numeric_cast<float>(currentTime - fadeStartTime);
 	if ( fadeDuration <= 0.0f ) {
 		return fadeEndVolume;
 	} else if ( currentTime >= fadeEndTime ) {
@@ -281,7 +281,7 @@ void idSoundChannel::UpdateVolume(ID_TIME_T currentTime ) {
 idSoundChannel::UpdateHardware
 ========================
 */
-void idSoundChannel::UpdateHardware( float volumeAdd, ID_TIME_T currentTime ) {
+void idSoundChannel::UpdateHardware(const float volumeAdd, ID_TIME_T currentTime ) {
 	idSoundWorldLocal * soundWorld = emitter->soundWorld;
 
 	if ( soundWorld == nullptr) {
@@ -387,7 +387,7 @@ idSoundEmitterLocal::~idSoundEmitterLocal() {
 idSoundEmitterLocal::Init
 ========================
 */
-void idSoundEmitterLocal::Init( const Ordinal auto i, idSoundWorldLocal * sw ) {
+void idSoundEmitterLocal::Init(const index_t i, idSoundWorldLocal * sw ) {
 	index = i;
 	soundWorld = sw;
 
@@ -469,7 +469,7 @@ Returns true if the emitter should be freed.
 ========================
 */
 bool idSoundEmitterLocal::CheckForCompletion( ID_TIME_T currentTime ) {
-	for ( int64 i = idMath::integer_cast<int64>(channels.Num()) - 1; i >= 0 ; i-- ) {
+	for ( int64 i = numeric_cast<int64>(channels.Num()) - 1; i >= 0 ; i-- ) {
 		idSoundChannel * chan = channels[i];
 
 		if ( chan->CheckForCompletion( currentTime ) ) {
@@ -574,7 +574,7 @@ idSoundEmitterLocal::Free
 Doesn't free it until the next update.
 ========================
 */
-void idSoundEmitterLocal::Free( bool immediate ) {
+void idSoundEmitterLocal::Free(const bool immediate ) {
 	assert( soundWorld );
 	assert( soundWorld->emitters[this->index] == this );
 
@@ -601,7 +601,7 @@ void idSoundEmitterLocal::Free( bool immediate ) {
 idSoundEmitterLocal::UpdateEmitter
 ========================
 */
-void idSoundEmitterLocal::UpdateEmitter( const idVec3 &origin, int listenerId, const soundShaderParms_t *parms ) {
+void idSoundEmitterLocal::UpdateEmitter( const idVec3 &origin, const int listenerId, const soundShaderParms_t *parms ) {
 	assert( soundWorld != NULL );
 	assert( soundWorld->emitters[this->index] == this );
 
@@ -635,7 +635,7 @@ in most cases play sounds immediately, however
 return: int	- the length of the started sound in msec.
 ========================
 */
-ID_TIME_T idSoundEmitterLocal::StartSound( const idSoundShader * shader, const s_channelType channel, float diversity, int shaderFlags, bool allowSlow ) {
+ID_TIME_T idSoundEmitterLocal::StartSound( const idSoundShader * shader, const s_channelType channel, const float diversity, const int shaderFlags, const bool allowSlow ) {
 	assert( soundWorld != NULL );
 	assert( soundWorld->emitters[this->index] == this );
 
@@ -741,13 +741,13 @@ ID_TIME_T idSoundEmitterLocal::StartSound( const idSoundShader * shader, const s
 						mostRecent = i;
 					}
 				}
-				choice = idMath::integer_cast<size_t>(diversity * idMath::Itof<float>(shader->entries.Num() - 1));
+				choice = numeric_cast<size_t>(diversity * numeric_cast<float>(shader->entries.Num() - 1));
 				if ( choice >= mostRecent ) {
 					choice++;
 				}
 			} else {
 				// pick a sound from the list based on the passed diversity
-				choice = idMath::integer_cast<size_t>(diversity * idMath::Itof<float>(shader->entries.Num()));
+				choice = numeric_cast<size_t>(diversity * numeric_cast<float>(shader->entries.Num()));
 			}
 			choice = idMath::ClampUInt64( 0, shader->entries.Num() - 1, choice );
 			leadinSample = shader->entries[choice];
@@ -884,7 +884,7 @@ void idSoundEmitterLocal::ModifySound( const s_channelType channel, const soundS
 		soundWorld->writeDemo->WriteInt( parms->soundClass );
 	}
 
-	for ( int64 i = idMath::integer_cast<int64>(channels.Num()) - 1; i >= 0; i-- ) {
+	for ( int64 i = numeric_cast<int64>(channels.Num()) - 1; i >= 0; i-- ) {
 		idSoundChannel * chan = channels[i];
 		if ( channel != SCHANNEL_ANY && std::cmp_not_equal(chan->logicalChannel, channel)) {
 			continue;
@@ -901,7 +901,7 @@ void idSoundEmitterLocal::ModifySound( const s_channelType channel, const soundS
 idSoundEmitterLocal::FadeSound
 ========================
 */
-void idSoundEmitterLocal::FadeSound( const s_channelType channel, float to, float over ) {
+void idSoundEmitterLocal::FadeSound( const s_channelType channel, const float to, const float over ) {
 	assert( soundWorld != NULL );
 	assert( soundWorld->emitters[this->index] == this );
 

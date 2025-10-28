@@ -54,7 +54,7 @@ public:
 
 							// model associations are just for the preview dialog in the editor
 	[[nodiscard]] const int				GetNumModelAssociations() const;
-	[[nodiscard]] const char *			GetAssociatedModel( int index ) const;
+	[[nodiscard]] const char *			GetAssociatedModel( index_t index ) const;
 
 private:
 	idList<skinMapping_t, TAG_IDLIB_LIST_DECL>	mappings;

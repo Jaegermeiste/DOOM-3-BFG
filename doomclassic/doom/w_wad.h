@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __W_WAD__
 #define __W_WAD__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
@@ -38,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // TYPES
 //
-typedef struct
+typedef struct wadinfo_s
 {
     // Should be "IWAD" or "PWAD".
     char		identification[4];		
@@ -48,7 +49,7 @@ typedef struct
 } wadinfo_t;
 
 
-typedef struct
+typedef struct filelump_s
 {
     int			filepos;
     int			size;
@@ -59,32 +60,32 @@ typedef struct
 //
 // WADFILE I/O related stuff.
 //
-typedef struct
+typedef struct lumpinfo_s
 {
     char	name[8];
     idFile *	handle;
     int		position;
-    int		size;
+    int 	size;
 } lumpinfo_t;
 
 
 extern	void**		lumpcache;
 extern	lumpinfo_t*	lumpinfo;
-extern	int		numlumps;
+extern	size_t		numlumps;
 
 void    W_InitMultipleFiles (const char** filenames);
 void    W_Reload (void);
 void	W_FreeLumps();
 void	W_FreeWadFiles();
 
-int	W_CheckNumForName (const char* name);
-int	W_GetNumForName (const char* name);
+index_t	W_CheckNumForName (const char* name);
+index_t	W_GetNumForName (const char* name);
 
-int	W_LumpLength (int lump);
-void    W_ReadLump (int lump, void *dest);
+size_t	W_LumpLength ( index_t lump );
+void    W_ReadLump ( index_t lump, void *dest );
 
-void*	W_CacheLumpNum (int lump, int tag);
-void*	W_CacheLumpName (const char* name, int tag);
+void*	W_CacheLumpNum ( index_t lump, int tag );
+void*	W_CacheLumpName ( const char* name, int tag );
 
 void	W_Shutdown( void );
 

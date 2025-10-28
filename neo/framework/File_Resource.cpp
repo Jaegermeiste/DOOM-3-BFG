@@ -52,7 +52,7 @@ void idResourceContainer::ReOpen() {
 idResourceContainer::Init 
 ========================
 */ 
-bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
+bool idResourceContainer::Init( const char *_fileName, const uint8 containerIndex ) {
 
 	if ( idStr::Icmp( _fileName, "_ordered.resources" ) == 0 ) {
 		resourceFile = fileSystem->OpenFileReadMemory( _fileName );
@@ -86,7 +86,7 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 
 	cacheTable.SetNum( numFileResources );
 
-	for ( int i = 0; i < numFileResources; i++ ) {
+	for ( size_t i = 0; i < numFileResources; i++ ) {
 		idResourceCacheEntry &rt = cacheTable[ i ];
 		rt.Read( &memFile );
 		rt.filename.BackSlashesToSlashes();
@@ -95,7 +95,7 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 
 		const int key = cacheHash.GenerateKey( rt.filename, false );
 		bool found = false;
-		//for ( int index = cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = cacheHash.GetNext( index ) ) {
+		//for ( index_t index = cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = cacheHash.GetNext( index ) ) {
 		//	idResourceCacheEntry & rtc = cacheTable[ index ];
 		//	if ( idStr::Icmp( rtc.filename, rt.filename ) == 0 ) {
 		//		found = true;
@@ -124,9 +124,9 @@ void idResourceContainer::WriteManifestFile( const char *name, const idStrList &
 	filename.Insert( "maps/", 0 );
 	idFile *outFile = fileSystem->OpenFileWrite( filename );
 	if ( outFile != nullptr) {
-		int num = list.Num();
+		size_t num = list.Num();
 		outFile->WriteBig( num );
-		for ( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			outFile->WriteString( list[ i ] );
 		}
 		delete outFile;
@@ -143,10 +143,10 @@ int idResourceContainer::ReadManifestFile( const char *name, idStrList &list ) {
 	if ( inFile != nullptr) {
 		list.SetGranularity( 16384 );
 		idStr str;
-		int num;
+		size_t num;
 		list.Clear();
 		inFile->ReadBig( num );
-		for ( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			inFile->ReadString( str );
 			list.Append( str );
 		}
@@ -206,7 +206,7 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 
 		entries.SetNum( _numFileResources );
 
-		for ( int i = 0; i < _numFileResources; i++ ) {
+		for ( size_t i = 0; i < _numFileResources; i++ ) {
 			entries[ i ].Read( &memFile );
 
 
@@ -266,7 +266,7 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 	outFile->WriteBig( entries.Num() );
 
 	// write the individual resource entries
-	for ( int i = 0; i < entries.Num(); i++ ) {
+	for ( size_t i = 0; i < entries.Num(); i++ ) {
 		entries[ i ].Write( outFile );
 	}
 
@@ -288,7 +288,7 @@ idResourceContainer::ExtractResourceFile
 ========================
 */ 
 void idResourceContainer::SetContainerIndex( const int & _idx ) {
-	for ( int i = 0; i < cacheTable.Num(); i++ ) {
+	for ( size_t i = 0; i < cacheTable.Num(); i++ ) {
 		cacheTable[ i ].containerIndex = _idx;
 	}
 }
@@ -298,7 +298,7 @@ void idResourceContainer::SetContainerIndex( const int & _idx ) {
 idResourceContainer::ExtractResourceFile 
 ========================
 */ 
-void idResourceContainer::ExtractResourceFile ( const char * _fileName, const char * _outPath, bool _copyWavs ) {
+void idResourceContainer::ExtractResourceFile ( const char * _fileName, const char * _outPath, const bool _copyWavs ) {
 	idFile *inFile = fileSystem->OpenFileRead( _fileName );
 
 	if ( inFile == nullptr) {
@@ -326,7 +326,7 @@ void idResourceContainer::ExtractResourceFile ( const char * _fileName, const ch
 	int _numFileResources;
 	memFile.ReadBig( _numFileResources );
 
-	for ( int i = 0; i < _numFileResources; i++ ) {
+	for ( size_t i = 0; i < _numFileResources; i++ ) {
 		idResourceCacheEntry rt;
 		rt.Read( &memFile );
 		rt.filename.BackSlashesToSlashes();
@@ -335,7 +335,7 @@ void idResourceContainer::ExtractResourceFile ( const char * _fileName, const ch
 		if ( _copyWavs && ( rt.filename.Find( ".idwav" ) >= 0 ||  rt.filename.Find( ".idxma" ) >= 0 ||  rt.filename.Find( ".idmsf" ) >= 0 ) ) {
 			rt.filename.SetFileExtension( "wav" );
 			rt.filename.Replace( "generated/", "" );
-			int len = fileSystem->GetFileLength( rt.filename );
+			size_t len = fileSystem->GetFileLength( rt.filename );
 			fbuf =  static_cast<byte*>(Mem_Alloc(len, TAG_RESOURCE));
 			fileSystem->ReadFile( rt.filename, (void**)&fbuf, nullptr);
 		} else {
@@ -378,7 +378,7 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 	int64 size = 0;
 	idStrList flist;
 	flist.SetGranularity( 16384 );
-	for ( int i = 0; i < manifest.Num(); i++ ) {
+	for ( size_t i = 0; i < manifest.Num(); i++ ) {
 		flist.Append( manifest[ i ] );
 		size += fileSystem->GetFileLength( manifest[ i ] );
 		if ( size > 1024 * 1024 * 1024 ) {
@@ -434,7 +434,7 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 
 		entries.Resize( fileList.Num() );
 
-		for ( int i = 0; i < fileList.Num(); i++ ) {
+		for ( size_t i = 0; i < fileList.Num(); i++ ) {
 			idResourceCacheEntry ent;
 
 			ent.filename = fileList[ i ];
@@ -482,7 +482,7 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 		resFile->WriteBig( numFileResources );
 
 		// write the individual resource entries
-		for ( int i = 0; i < entries.Num(); i++ ) {
+		for ( size_t i = 0; i < entries.Num(); i++ ) {
 			entries[ i ].Write( resFile );
 			if ( i + 1 == numFileResources ) {
 				// we just wrote out the last new entry

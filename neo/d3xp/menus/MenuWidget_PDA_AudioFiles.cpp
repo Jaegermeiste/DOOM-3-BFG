@@ -113,7 +113,7 @@ void idMenuWidget_PDA_AudioFiles::Update() {
 			} else {
 				audioList->GetChildByIndex( 0 ).SetState( WIDGET_STATE_NORMAL );
 				const idDeclAudio *aud = nullptr;
-				for ( int index = 0; index < pda->GetNumAudios(); ++index ) {
+				for ( index_t index = 0; index < pda->GetNumAudios(); ++index ) {
 					idList< idStr > audioName;
 					aud = pda->GetAudioByIndex( index );						
 					if ( aud != nullptr) {

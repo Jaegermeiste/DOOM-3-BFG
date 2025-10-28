@@ -71,30 +71,33 @@ If you have questions concerning this license or the applicable additional terms
 int
 M_DrawText
 ( int		x,
-  int		y,
-  qboolean	direct,
+  const int		y,
+  const qboolean	direct,
   char*		string )
 {
-    int 	c;
-    int		w;
-
-    while (*string)
+	while (*string)
     {
-	c = toupper(*string) - HU_FONTSTART;
+	const int c = toupper(*string) - HU_FONTSTART;
 	string++;
 	if (c < 0 || c> HU_FONTSIZE)
 	{
 	    x += 4;
 	    continue;
 	}
-		
-	w = SHORT (::g->hu_font[c]->width);
+
+	const int w = SHORT(::g->hu_font[c]->width);
 	if (x+w > SCREENWIDTH)
-	    break;
+	{
+		break;
+	}
 	if (direct)
-	    V_DrawPatchDirect(x, y, 0, ::g->hu_font[c]);
+	{
+		V_DrawPatchDirect(x, y, 0, ::g->hu_font[c]);
+	}
 	else
-	    V_DrawPatch(x, y, 0, ::g->hu_font[c]);
+	{
+		V_DrawPatch(x, y, 0, ::g->hu_font[c]);
+	}
 	x+=w;
     }
 
@@ -105,21 +108,25 @@ M_DrawText
 //
 // M_WriteFile
 //
-boolean M_WriteFile ( char const*	name, void*		source, int		length ) {
+boolean M_WriteFile ( char const*	name, void*		source, const size_t		length ) {
 	
-	idFile *		handle = NULL;
-	int		count;
+	idFile *		handle = nullptr;
+	size_t		count = 0;
 
 	handle = fileSystem->OpenFileWrite( name, "fs_savepath" );
 
-	if (handle == NULL )
+	if (handle == nullptr)
+	{
 		return false;
+	}
 
 	count = handle->Write( source, length );
 	fileSystem->CloseFile( handle );
 
 	if (count < length)
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -128,20 +135,20 @@ boolean M_WriteFile ( char const*	name, void*		source, int		length ) {
 //
 // M_ReadFile
 //
-int M_ReadFile ( char const*	name, byte**	buffer ) {
-	int count, length;
-	idFile * handle = NULL;
-	byte		*buf;
+size_t M_ReadFile ( char const*	name, byte**	buffer ) {
+	size_t count = 0, length = 0;
+	idFile * handle = nullptr;
+	byte		*buf = nullptr;
 
 	handle = fileSystem->OpenFileRead( name, false );
 
-	if (handle == NULL ) {
+	if (handle == nullptr) {
 		I_Error ("Couldn't read file %s", name);
 	}
 
 	length = handle->Length();
 
-	buf = ( byte* )Z_Malloc ( handle->Length(), PU_STATIC, NULL);
+	buf = static_cast<byte*>(Z_Malloc(handle->Length(), PU_STATIC, nullptr));
 	count = handle->Read( buf, length );
 
 	if (count < length ) {
@@ -163,7 +170,7 @@ static qboolean SaveGame( void* source, DWORD length )
 }
 
 
-qboolean M_WriteSaveGame( void* source, int length )
+qboolean M_WriteSaveGame( void* source, const size_t length )
 {
 	return SaveGame( source, length );
 }
@@ -256,8 +263,10 @@ void M_LoadDefaults (void)
     // set everything to base values
     ::g->numdefaults = sizeof(::g->defaults)/sizeof(::g->defaults[0]);
     for (i=0 ; i < ::g->numdefaults ; i++)
-		*::g->defaults[i].location = ::g->defaults[i].defaultvalue;
-    
+    {
+	    *::g->defaults[i].location = ::g->defaults[i].defaultvalue;
+    }
+
     // check for a custom default file
     i = M_CheckParm ("-config");
     if (i && i < ::g->myargc-1)
@@ -266,9 +275,11 @@ void M_LoadDefaults (void)
 		I_Printf ("	default file: %s\n",::g->defaultfile);
     }
     else
-		::g->defaultfile = ::g->basedefault;
+    {
+	    ::g->defaultfile = ::g->basedefault;
+    }
 
-/*
+    /*
     // read the file in, overriding any set ::g->defaults
     f = f o pen (::g->defaultfile, "r");
     if (f)
@@ -320,7 +331,7 @@ void M_LoadDefaults (void)
 //
 // WritePCXfile
 //
-void
+static void
 WritePCXfile
 ( char*		filename,
   byte*		data,

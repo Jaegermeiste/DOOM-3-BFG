@@ -107,7 +107,7 @@ void idCursor3D::Think() {
 ===============================================================================
 */
 
-#define MAX_DRAG_TRACE_DISTANCE			2048.0f
+constexpr float MAX_DRAG_TRACE_DISTANCE = 2048.0f;
 
 /*
 ==============
@@ -165,13 +165,13 @@ idDragEntity::Update
 ==============
 */
 void idDragEntity::Update( idPlayer *player ) {
-	idVec3 viewPoint, origin;
-	idMat3 viewAxis, axis;
-	trace_t trace;
+	idVec3 viewPoint = {}, origin = {};
+	idMat3 viewAxis = {}, axis = {};
+	trace_t trace = {};
 	idEntity *newEnt = nullptr;
-	idAngles angles;
+	idAngles angles = {};
 	jointHandle_t newJoint = INVALID_JOINT;
-	idStr newBodyName;
+	idStr newBodyName = {};
 
 	player->GetViewPos( viewPoint, viewAxis );
 
@@ -265,7 +265,7 @@ void idDragEntity::Update( idPlayer *player ) {
 
 		cursor->drag.SetDragPosition( cursor->GetPhysics()->GetOrigin() );
 
-		renderEntity_t *renderEntity = drag->GetRenderEntity();
+		const renderEntity_t *renderEntity = drag->GetRenderEntity();
 		idAnimator *dragAnimator = drag->GetAnimator();
 
 		if ( joint != INVALID_JOINT && renderEntity != nullptr && dragAnimator != nullptr) {
@@ -281,7 +281,7 @@ void idDragEntity::Update( idPlayer *player ) {
 	// if there is a selected entity
 	if ( selected.GetEntity() && g_dragShowSelection.GetBool() ) {
 		// draw the bbox of the selected entity
-		renderEntity_t *renderEntity = selected.GetEntity()->GetRenderEntity();
+		const renderEntity_t *renderEntity = selected.GetEntity()->GetRenderEntity();
 		if ( renderEntity ) {
 			gameRenderWorld->DebugBox( colorYellow, idBox( renderEntity->bounds, renderEntity->origin, renderEntity->axis ) );
 		}
@@ -314,13 +314,14 @@ void idDragEntity::DeleteSelected() {
 idDragEntity::BindSelected
 ==============
 */
-void idDragEntity::BindSelected() {
-	int num, largestNum;
-	idLexer lexer;
-	idToken type, bodyName;
-	idStr key, value, bindBodyName;
-	const idKeyValue *kv;
-	idAFEntity_Base *af;
+void idDragEntity::BindSelected() const
+{
+	size_t num = 0, largestNum = 0;
+	idLexer lexer = {};
+	idToken type = {}, _bodyName = {};
+	idStr key = {}, value = {}, bindBodyName = {};
+	const idKeyValue *kv = nullptr;
+	idAFEntity_Base *af = nullptr;
 
 	af = dynamic_cast<idAFEntity_Base *>(dragEnt.GetEntity());
 
@@ -344,11 +345,11 @@ void idDragEntity::BindSelected() {
 
 		lexer.LoadMemory( kv->GetValue(), kv->GetValue().Length(), kv->GetKey() );
 		lexer.ReadToken( &type );
-		lexer.ReadToken( &bodyName );
+		lexer.ReadToken( &_bodyName );
 		lexer.FreeSource();
 
 		// if there already exists a bind constraint for this body
-		if ( bodyName.Icmp( bindBodyName ) == 0 ) {
+		if ( _bodyName.Icmp( bindBodyName ) == 0 ) {
 			// delete the bind constraint
 			af->spawnArgs.Delete( kv->GetKey() );
 			kv = nullptr;
@@ -357,7 +358,7 @@ void idDragEntity::BindSelected() {
 		kv = af->spawnArgs.MatchPrefix( "bindConstraint ", kv );
 	}
 
-	sprintf( key, "bindConstraint bind%d", largestNum );
+	sprintf( key, "bindConstraint bind%llu", largestNum );
 	sprintf( value, "ballAndSocket %s %s", bindBodyName.c_str(), af->GetAnimator()->GetJointName( joint ) );
 
 	af->spawnArgs.Set( key, value );
@@ -370,9 +371,10 @@ void idDragEntity::BindSelected() {
 idDragEntity::UnbindSelected
 ==============
 */
-void idDragEntity::UnbindSelected() {
-	const idKeyValue *kv;
-	idAFEntity_Base *af;
+void idDragEntity::UnbindSelected() const
+{
+	const idKeyValue *kv = nullptr;
+	idAFEntity_Base *af = nullptr;
 
 	af = dynamic_cast<idAFEntity_Base *>(selected.GetEntity());
 
@@ -421,8 +423,8 @@ idEditEntities::SelectEntity
 =============
 */
 bool idEditEntities::SelectEntity( const idVec3 &origin, const idVec3 &dir, const idEntity *skip ) {
-	idVec3		end;
-	idEntity	*ent;
+	idVec3		end = {};
+	idEntity	*ent = nullptr;
 
 	if ( !g_editEntityMode.GetInteger() || selectableEntityClasses.Num() == 0 ) {
 		return false;
@@ -436,7 +438,7 @@ bool idEditEntities::SelectEntity( const idVec3 &origin, const idVec3 &dir, cons
 	end = origin + dir * 4096.0f;
 
 	ent = nullptr;
-	for ( int i = 0; i < selectableEntityClasses.Num(); i++ ) {
+	for ( size_t i = 0; i < selectableEntityClasses.Num(); i++ ) {
 		ent = gameLocal.FindTraceEntity( origin, end, *selectableEntityClasses[i].typeInfo, skip );
 		if ( ent ) {
 			break;
@@ -481,7 +483,7 @@ idEditEntities::ClearSelectedEntities
 =============
 */
 void idEditEntities::ClearSelectedEntities() {
-	int i, count;
+	size_t i = 0, count = 0;
 
 	count = selectedEntities.Num();
 	for ( i = 0; i < count; i++ ) {
@@ -497,7 +499,7 @@ idEditEntities::EntityIsSelectable
 =============
 */
 bool idEditEntities::EntityIsSelectable( idEntity *ent, idVec4 *color, idStr *text ) {
-	for ( int i = 0; i < selectableEntityClasses.Num(); i++ ) {
+	for ( size_t i = 0; i < selectableEntityClasses.Num(); i++ ) {
 		if ( ent->GetType() == selectableEntityClasses[i].typeInfo ) {
 			if ( text ) {
 				*text = selectableEntityClasses[i].textKey;
@@ -530,7 +532,7 @@ idEditEntities::DisplayEntities
 =============
 */
 void idEditEntities::DisplayEntities() {
-	idEntity *ent;
+	idEntity *ent = nullptr;
 
 	if ( !gameLocal.GetLocalPlayer() ) {
 		return;
@@ -584,16 +586,16 @@ void idEditEntities::DisplayEntities() {
 
 	idBounds viewBounds( gameLocal.GetLocalPlayer()->GetPhysics()->GetOrigin() );
 	idBounds viewTextBounds( gameLocal.GetLocalPlayer()->GetPhysics()->GetOrigin() );
-	idMat3 axis = gameLocal.GetLocalPlayer()->viewAngles.ToMat3();
+	const idMat3 axis = gameLocal.GetLocalPlayer()->viewAngles.ToMat3();
 
 	viewBounds.ExpandSelf( 512 );
 	viewTextBounds.ExpandSelf( 128 );
 
-	idStr textKey;
+	idStr textKey = {};
 
 	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 
-		idVec4 color;
+		idVec4 color = {};
 
 		textKey = "";
 		if ( !EntityIsSelectable( ent, &color, &textKey ) ) {
@@ -673,9 +675,9 @@ idGameEdit *		gameEdit = &gameEditLocal;
 idGameEdit::GetSelectedEntities
 =============
 */
-int idGameEdit::GetSelectedEntities( idEntity *list[], int max ) {
-	int num = 0;
-	idEntity *ent;
+size_t idGameEdit::GetSelectedEntities( idEntity *list[], const size_t max ) {
+	size_t num = 0;
+	idEntity *ent = nullptr;
 
 	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 		if ( ent->fl.selected ) {
@@ -694,7 +696,7 @@ idGameEdit::TriggerSelected
 =============
 */
 void idGameEdit::TriggerSelected() {
-	idEntity *ent;
+	idEntity *ent = nullptr;
 	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 		if ( ent->fl.selected ) {
 			ent->ProcessEvent( &EV_Activate, gameLocal.GetLocalPlayer() );
@@ -708,7 +710,7 @@ idGameEdit::ClearEntitySelection
 ================
 */
 void idGameEdit::ClearEntitySelection() {
-	idEntity *ent;
+	idEntity *ent = nullptr;
 
 	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
 		ent->fl.selected = false;
@@ -732,7 +734,7 @@ void idGameEdit::AddSelectedEntity( idEntity *ent ) {
 idGameEdit::FindEntityDefDict
 ================
 */
-const idDict *idGameEdit::FindEntityDefDict( const char *name, bool makeDefault ) const {
+const idDict *idGameEdit::FindEntityDefDict( const char *name, const bool makeDefault ) const {
 	return gameLocal.FindEntityDefDict( name, makeDefault );
 }
 
@@ -761,20 +763,20 @@ idGameEdit::GetUniqueEntityName
 generates a unique name for a given classname
 =============
 */
-const char *idGameEdit::GetUniqueEntityName( const char *classname ) const {
-	int			id;
-	static char	name[1024];
+const char *idGameEdit::GetUniqueEntityName( const char *className ) const {
+	size_t			id = 0;
+	static char	name[1024] = {};
 
 	// can only have MAX_GENTITIES, so if we have a spot available, we're guaranteed to find one
 	for( id = 0; id < MAX_GENTITIES; id++ ) {
-		idStr::snPrintf( name, sizeof( name ), "%s_%d", classname, id );
+		idStr::snPrintf( name, sizeof( name ), "%s_%d", className, id );
 		if ( !gameLocal.FindEntity( name ) ) {
 			return name;
 		}
 	}
 
 	// id == MAX_GENTITIES + 1, which can't be in use if we get here
-	idStr::snPrintf( name, sizeof( name ), "%s_%d", classname, id );
+	idStr::snPrintf( name, sizeof( name ), "%s_%d", className, id );
 	return name;
 }
 
@@ -874,7 +876,7 @@ idGameEdit::EntityChangeSpawnArgs
 */
 void idGameEdit::EntityChangeSpawnArgs( idEntity *ent, const idDict *newArgs ) {
 	if ( ent ) {
-		for ( int i = 0 ; i < newArgs->GetNumKeyVals () ; i ++ ) {
+		for ( size_t i = 0 ; i < newArgs->GetNumKeyVals () ; i ++ ) {
 			const idKeyValue *kv = newArgs->GetKeyVal( i );
 	        
 			if ( kv->GetValue().Length() > 0 ) {
@@ -983,7 +985,7 @@ idGameEdit::MapGetEntityDict
 const idDict *idGameEdit::MapGetEntityDict( const char *name ) const {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	if ( mapFile && name && *name ) {
-		idMapEntity *mapent = mapFile->FindEntity( name );
+		const idMapEntity *mapent = mapFile->FindEntity( name );
 		if ( mapent ) {
 			return &mapent->epairs;
 		}
@@ -1028,7 +1030,7 @@ void idGameEdit::MapCopyDictToEntity( const char *name, const idDict *dict ) con
 	if ( mapFile && name && *name ) {
 		idMapEntity *mapent = mapFile->FindEntity( name );
 		if ( mapent ) {
-			for ( int i = 0; i < dict->GetNumKeyVals(); i++ ) {
+			for ( size_t i = 0; i < dict->GetNumKeyVals(); i++ ) {
 				const idKeyValue *kv = dict->GetKeyVal( i );
 				const char *key = kv->GetKey();
 				const char *val = kv->GetValue();
@@ -1046,11 +1048,11 @@ idGameEdit::MapGetUniqueMatchingKeyVals
 ================
 */
 size_t idGameEdit::MapGetUniqueMatchingKeyVals( const char *key, const char *list[], const size_t max ) const {
-	idMapFile *mapFile = gameLocal.GetLevelMap();
+	const idMapFile *mapFile = gameLocal.GetLevelMap();
 	size_t count = 0;
 	if ( mapFile ) {
 		for ( size_t i = 0; i < mapFile->GetNumEntities(); i++ ) {
-			idMapEntity *ent = mapFile->GetEntity( i );
+			const idMapEntity *ent = mapFile->GetEntity( i );
 			if ( ent ) {
 				const char *k = ent->epairs.GetString( key );
 				if ( k != nullptr && *k != NULL && count < max ) {
@@ -1097,16 +1099,16 @@ void idGameEdit::MapRemoveEntity( const char *name ) const {
 idGameEdit::MapGetEntitiesMatchignClassWithString
 ================
 */
-int idGameEdit::MapGetEntitiesMatchingClassWithString( const char *classname, const char *match, const char *list[], const int max ) const {
-	idMapFile *mapFile = gameLocal.GetLevelMap();
-	int count = 0;
+size_t idGameEdit::MapGetEntitiesMatchingClassWithString( const char *className, const char *match, const char *list[], const size_t max ) const {
+	const idMapFile *mapFile = gameLocal.GetLevelMap();
+	size_t count = 0;
 	if ( mapFile ) {
-		int entCount = mapFile->GetNumEntities();
-		for ( int i = 0 ; i < entCount; i++ ) {
-			idMapEntity *ent = mapFile->GetEntity(i);
+		const size_t entCount = mapFile->GetNumEntities();
+		for ( size_t i = 0 ; i < entCount; i++ ) {
+			const idMapEntity *ent = mapFile->GetEntity(i);
 			if (ent) {
 				idStr work = ent->epairs.GetString("classname");
-				if ( work.Icmp( classname ) == 0 ) {
+				if ( work.Icmp( className ) == 0 ) {
 					if ( match && *match ) { 
 						work = ent->epairs.GetString( "soundgroup" );
 						if ( count < max && work.Icmp( match ) == 0 ) {

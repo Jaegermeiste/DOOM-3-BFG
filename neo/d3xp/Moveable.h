@@ -53,7 +53,7 @@ public:
 	void					Restore( idRestoreGame *savefile );
 
 	void			Think() override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			Hide() override;
 	void			Show() override;
 
@@ -88,7 +88,7 @@ protected:
 
 	const idMaterial *		GetRenderModelMaterial() const;
 	void					BecomeNonSolid();
-	void					InitInitialSpline( int startTime );
+	void					InitInitialSpline( ID_TIME_T startTime );
 	bool					FollowInitialSplinePath();
 
 	void					Event_Activate( idEntity *activator );
@@ -122,7 +122,7 @@ public:
 	void					BarrelThink();
 	void			Think() override;
 	bool			GetPhysicsToVisualTransform( idVec3 &origin, idMat3 &axis ) override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	
 private:
 	float					radius;					// radius of barrel
@@ -161,7 +161,7 @@ public:
 	void					StartBurning();
 	void					StopBurning();
 
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			Think() override;
 	void			Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &dir, 
 				            const char *damageDefName, const float damageScale, const int location ) override;

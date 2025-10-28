@@ -416,7 +416,7 @@ bool Sys_SaveGameProfileCheck() {
 		idFileList * files = fileSystem->ListFiles( saveFolder, SAVEGAME_PROFILE_FILENAME );
 		const idStrList & fileList = files->GetList();
 
-		for ( int i = 0; i < fileList.Num(); i++ ) {
+		for ( size_t i = 0; i < fileList.Num(); i++ ) {
 			idStr filename = fileList[i];
 			if ( filename == SAVEGAME_PROFILE_FILENAME ) {
 				exists = true;

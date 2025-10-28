@@ -54,7 +54,7 @@ public:
 	// SubmitPendingSnap will submit the pending snap to a job, so that it can be retrieved later for sending.
 	void SubmitPendingSnap( int visIndex, uint8 * objMemory, int objMemorySize, lzwCompressionData_t * lzwData );
 	// GetPendingSnapDelta
-	int GetPendingSnapDelta( byte * outBuffer, int maxLength );
+	int GetPendingSnapDelta( byte * outBuffer, size_t maxLength );
 	// If PendingSnapReadyToSend is true, then GetPendingSnapDelta will return something to send
 	[[nodiscard]] bool PendingSnapReadyToSend() const { return jobMemory->lzwInOutData.numlzwDeltas > 0; }
 	// When you call WritePendingSnapshot, and then send the resulting buffer as a unreliable msg, you will eventually

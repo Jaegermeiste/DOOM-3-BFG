@@ -134,12 +134,12 @@ public:
 	void				SetPointerType( idTypeDef *type );
 
 	size_t				NumParameters() const;
-	idTypeDef			*GetParmType( const Ordinal auto parmNumber ) const;
-	const char			*GetParmName( const Ordinal auto parmNumber ) const;
+	idTypeDef			*GetParmType( index_t parmNumber ) const;
+	const char			*GetParmName( index_t parmNumber ) const;
 
 	size_t				NumFunctions() const;
 	int64				GetFunctionNumber( const function_t *func ) const;
-	const function_t	*GetFunction( const Ordinal auto funcNumber ) const;
+	const function_t	*GetFunction( index_t funcNumber ) const;
 	void				AddFunction( const function_t *func );
 };
 
@@ -480,14 +480,14 @@ public:
 	void										CompileFile( const char *filename );
 	void										BeginCompilation();
 	void										FinishCompilation();
-	void										DisassembleStatement( idFile *file, const Ordinal auto instructionPointer ) const;
+	void										DisassembleStatement( idFile *file, index_t instructionPointer ) const;
 	void										Disassemble() const;
 	void										FreeData();
 
-	const char									*GetFilename( const Ordinal auto num );
+	const char									*GetFilename( index_t num );
 	size_t										GetFilenum( const char *name );
-	size_t										GetLineNumberForStatement( const Ordinal auto index );
-	const char									*GetFilenameForStatement( const Ordinal auto index );
+	size_t										GetLineNumberForStatement( index_t index );
+	const char									*GetFilenameForStatement( index_t index );
 
 	idTypeDef									*AllocType( idTypeDef &type );
 	idTypeDef									*AllocType( etype_t etype, idVarDef *edef, const char *ename, size_t esize, idTypeDef *aux );
@@ -504,13 +504,13 @@ public:
 	function_t									*FindFunction( const char *name ) const;						// returns NULL if function not found
 	function_t									*FindFunction( const char *name, const idTypeDef *type ) const;	// returns NULL if function not found
 	function_t									&AllocFunction( idVarDef *def );
-	function_t									*GetFunction( const Ordinal auto index );
+	function_t									*GetFunction( index_t index );
 	size_t										GetFunctionIndex( const function_t *func );
 
 	void										SetEntity( const char *name, idEntity *ent ) const;
 
 	statement_t									*AllocStatement();
-	statement_t									&GetStatement( const Ordinal auto index );
+	statement_t									&GetStatement( index_t index );
 	size_t										NumStatements() const { return statements.Num(); }
 
 	int 										GetReturnedInteger() const;
@@ -529,7 +529,7 @@ public:
 idProgram::GetStatement
 ================
 */
-ID_INLINE statement_t &idProgram::GetStatement( const Ordinal auto index ) {
+ID_INLINE statement_t &idProgram::GetStatement(const index_t index ) {
 	ORDINAL_CHECK(index, statements.Num());
 	return statements[ index ];
 }
@@ -539,7 +539,7 @@ ID_INLINE statement_t &idProgram::GetStatement( const Ordinal auto index ) {
 idProgram::GetFunction
 ================
 */
-ID_INLINE function_t *idProgram::GetFunction( const Ordinal auto index ) {
+ID_INLINE function_t *idProgram::GetFunction(const index_t index ) {
 	ORDINAL_CHECK(index, functions.Num());
 	return &functions[ index ];
 }
@@ -568,7 +568,7 @@ ID_INLINE int idProgram::GetReturnedInteger() const
 idProgram::ReturnFloat
 ================
 */
-ID_INLINE void idProgram::ReturnFloat( float value ) const
+ID_INLINE void idProgram::ReturnFloat(const float value ) const
 {
 	*returnDef->value.floatPtr = value;
 }
@@ -578,7 +578,7 @@ ID_INLINE void idProgram::ReturnFloat( float value ) const
 idProgram::ReturnInteger
 ================
 */
-ID_INLINE void idProgram::ReturnInteger( int value ) const
+ID_INLINE void idProgram::ReturnInteger(const int value ) const
 {
 	*returnDef->value.intPtr = value;
 }
@@ -608,7 +608,7 @@ ID_INLINE void idProgram::ReturnString( const char *string ) const
 idProgram::GetFilename
 ================
 */
-ID_INLINE const char *idProgram::GetFilename( const Ordinal auto num ) {
+ID_INLINE const char *idProgram::GetFilename(const index_t num ) {
 	ORDINAL_CHECK(num, fileList.Num());
 	return fileList[ num ];
 }
@@ -618,7 +618,7 @@ ID_INLINE const char *idProgram::GetFilename( const Ordinal auto num ) {
 idProgram::GetLineNumberForStatement
 ================
 */
-ID_INLINE size_t idProgram::GetLineNumberForStatement( const Ordinal auto index ) {
+ID_INLINE size_t idProgram::GetLineNumberForStatement(const index_t index ) {
 	ORDINAL_CHECK(index, statements.Num());
 	return statements[ index ].linenumber;
 }
@@ -628,7 +628,7 @@ ID_INLINE size_t idProgram::GetLineNumberForStatement( const Ordinal auto index 
 idProgram::GetFilenameForStatement
 ================
 */
-ID_INLINE const char *idProgram::GetFilenameForStatement( const Ordinal auto index ) {
+ID_INLINE const char *idProgram::GetFilenameForStatement(const index_t index ) {
 	ORDINAL_CHECK(index, statements.Num());
 	return GetFilename( statements[ index ].file );
 }

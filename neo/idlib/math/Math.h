@@ -30,12 +30,15 @@ If you have questions concerning this license or the applicable additional terms
 #define __MATH_MATH_H__
 
 #pragma once
+
 #include <bit>
 #include <limits>
 #include <cmath>
 #include <concepts>
 #include <functional>
 #include <safeint.h>
+
+#include "idlib/sys/sys_helpers.h"
 
 #ifdef MACOS_X
 // for square root estimate instruction
@@ -53,7 +56,6 @@ If you have questions concerning this license or the applicable additional terms
 
 ===============================================================================
 */
-
 #ifdef INFINITY
 #undef INFINITY
 #endif
@@ -65,16 +67,16 @@ If you have questions concerning this license or the applicable additional terms
 #define DEG2RAD(a)				( (a) * idMath::M_DEG2RAD )
 #define RAD2DEG(a)				( (a) * idMath::M_RAD2DEG )
 
-#define SEC2MS(t)				( idMath::Ftoi( (t) * idMath::M_SEC2MS ) )
+#define SEC2MS(t)				( numeric_cast<ID_TIME_T>( (t) * idMath::M_SEC2MS ) )
 #define MS2SEC(t)				( (t) * idMath::M_MS2SEC )
 
-#define	ANGLE2SHORT(x)			( idMath::Ftoi( (x) * 65536.0f / 360.0f ) & 65535 )
+#define	ANGLE2SHORT(x)			( numeric_cast<int>( (x) * 65536.0f / 360.0f ) & 65535 )
 #define	SHORT2ANGLE(x)			( (x) * ( 360.0f / 65536.0f ) )
 
-#define	ANGLE2BYTE(x)			( idMath::Ftoi( (x) * 256.0f / 360.0f ) & 255 )
+#define	ANGLE2BYTE(x)			( numeric_cast<int>( (x) * 256.0f / 360.0f ) & 255 )
 #define	BYTE2ANGLE(x)			( (x) * ( 360.0f / 256.0f ) )
 
-#define C_FLOAT_TO_INT( x )		(int)(x)
+//#define C_FLOAT_TO_INT( x )		(int)(x)
 
 /*
 ================================================================================================
@@ -161,7 +163,7 @@ namespace idMath_i2f {
 	template <std::floating_point F>
 	inline constexpr std::uintmax_t kExactLimit = Traits<F>::exact_limit;
 
-	enum class Eu64 : std::size_t { A = 0, B = 1 };
+	enum class Eu64 : size_t { A = 0, B = 1 };
 } // namespace idMath_i2f
 
 static_assert(idMath_i2f::integral_like<size_t>);
@@ -236,128 +238,31 @@ constexpr auto INT64_SIGN_BIT = 63;
 
 // If this was ever compiled on a system that had 64 bit unsigned ints,
 // it would fail.
-compile_time_assert( sizeof( unsigned int ) == 4 );
+compile_time_assert(sizeof(unsigned int) == 4);// Why is this here?
 
-#define OLD_INT32_SIGNBITSET(i)		(static_cast<const unsigned int>(i) >> INT32_SIGN_BIT)
-#define OLD_INT32_SIGNBITNOTSET(i)	((~static_cast<const unsigned int>(i)) >> INT32_SIGN_BIT)
+// NOTE: These are really bool but are treated as int32 throughout the library, so we return int32 instead
 
-// Unfortunately, /analyze can't figure out that these always return
-// either 0 or 1, so this extra wrapper is needed to avoid the static
-// analysis warning.
-
-ID_INLINE_EXTERN int INT32_SIGNBITSET(const int i ) {
-	const int	r = OLD_INT32_SIGNBITSET( i );
-	assert( r == 0 || r == 1 );
-	return r;
+[[nodiscard]] ID_INLINE_EXTERN constexpr int32 INTEGER_SIGN_BIT_IS_SET( const std::unsigned_integral auto v ) noexcept {
+	using Type = decltype(v);
+	constexpr int sign_bit = std::numeric_limits<Type>::digits - 1;
+	return static_cast<int32>(((v >> sign_bit) & Type { 1 }) != Type{ 0 });
 }
 
-ID_INLINE_EXTERN int INT32_SIGNBITNOTSET(const int i ) {
-	const int	r = OLD_INT32_SIGNBITNOTSET( i );
-	assert( r == 0 || r == 1 );
-	return r;
+[[nodiscard]] ID_INLINE_EXTERN constexpr int32 INTEGER_SIGN_BIT_IS_NOT_SET( const std::unsigned_integral auto v ) noexcept {
+	return !INTEGER_SIGN_BIT_IS_SET(v);
 }
 
-ID_INLINE_EXTERN int64 INT64_SIGNBITSET(const int64 i) {
-	const int64	r = static_cast<const uint64>(i) >> INT64_SIGN_BIT;
-	assert(r == 0 || r == 1);
-	return r;
+[[nodiscard]] ID_INLINE_EXTERN constexpr int32 INTEGER_SIGN_BIT_IS_SET( const std::signed_integral auto v ) noexcept {
+	using UnsignedType = std::make_unsigned_t<decltype(v)>;
+	const UnsignedType u = numeric_cast<UnsignedType>(v);
+
+	return INTEGER_SIGN_BIT_IS_SET(u);
 }
 
-ID_INLINE_EXTERN int64 INT64_SIGNBITNOTSET(const int64 i) {
-	const int64	r = (~static_cast<const uint64>(i)) >> INT64_SIGN_BIT;
-	assert(r == 0 || r == 1);
-	return r;
+[[nodiscard]] ID_INLINE_EXTERN constexpr int32 INTEGER_SIGN_BIT_IS_NOT_SET( const std::signed_integral auto v ) noexcept {
+	// exact logical complement keeps the intent clear and still constant-folds
+	return !INTEGER_SIGN_BIT_IS_SET(v);
 }
-
-namespace idMath_integral_signs {
-
-	// Remove cv/ref once.
-	template <class T>
-	using decay_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
-
-	// MSVC-friendly integral detection (treat common aliases as integral)
-	template <class T>
-	struct is_integral_compat {
-		using U = decay_cvref_t<T>;
-		static constexpr bool value =
-			std::is_integral_v<U>
-#if defined(_MSC_VER)
-			|| std::is_same_v<U, __int64>
-			|| std::is_same_v<U, unsigned __int64>
-			|| std::is_same_v<U, long long>
-			|| std::is_same_v<U, unsigned long long>
-			|| std::is_same_v<U, std::size_t>
-			|| std::is_same_v<U, std::ptrdiff_t>
-#endif
-			;
-	};
-	template <class T>
-	inline constexpr bool is_integral_compat_v = is_integral_compat<T>::value;
-
-	// Map any integral T to a fixed-width type of the same size & signedness.
-	template <class T, bool Signed, size_t Bytes>
-	struct fixed_width_of_size;
-
-	template <class T> struct fixed_width_of_size<T, true, 8> { using type = std::int64_t; };
-	template <class T> struct fixed_width_of_size<T, true, 4> { using type = std::int32_t; };
-	template <class T> struct fixed_width_of_size<T, true, 2> { using type = std::int16_t; };
-	template <class T> struct fixed_width_of_size<T, true, 1> { using type = std::int8_t; };
-	template <class T> struct fixed_width_of_size<T, false, 8> { using type = std::uint64_t; };
-	template <class T> struct fixed_width_of_size<T, false, 4> { using type = std::uint32_t; };
-	template <class T> struct fixed_width_of_size<T, false, 2> { using type = std::uint16_t; };
-	template <class T> struct fixed_width_of_size<T, false, 1> { using type = std::uint8_t; };
-
-	template <class T>
-	using SafeIntCompat_t =
-		typename fixed_width_of_size<
-		T,
-		std::is_signed_v<decay_cvref_t<T>>,
-		sizeof(decay_cvref_t<T>)
-		>::type;
-
-	// Normalize an integral or enum source to a SafeInt-compatible fixed-width type.
-	template <class S, bool IsEnum = std::is_enum_v<decay_cvref_t<S>>>
-	struct normalize_src;
-
-	// Enum source → use underlying_type_t first, then normalize
-	template <class S>
-	struct normalize_src<S, /*IsEnum=*/true> {
-		using raw = decay_cvref_t<S>;
-		using base = std::underlying_type_t<raw>;
-		using type = SafeIntCompat_t<base>;
-	};
-
-	// Non-enum source → normalize directly
-	template <class S>
-	struct normalize_src<S, /*IsEnum=*/false> {
-		using raw = decay_cvref_t<S>;
-		using type = SafeIntCompat_t<raw>;
-	};
-
-	// Range-check floating point to integral Dest (using long double for headroom)
-	template <class DestFixed, class Float>
-	inline void ensure_fp_in_range(Float x) {
-		using Lim = std::numeric_limits<DestFixed>;
-		// reject NaN / Inf
-		if (!std::isfinite(static_cast<long double>(x))) {
-			throw msl::utilities::SafeIntException(msl::utilities::SafeIntError::SafeIntArithmeticOverflow);
-		}
-		const long double lo = static_cast<long double>((Lim::min)());
-		const long double hi = static_cast<long double>((Lim::max)());
-		const long double xv = static_cast<long double>(x);
-		if (xv < lo || xv > hi) {
-			throw msl::utilities::SafeIntException(msl::utilities::SafeIntError::SafeIntArithmeticOverflow);
-		}
-	}
-} // namespace idMath_integral_signs
-
-#ifdef _MSC_VER
-static_assert(idMath_integral_signs::is_integral_compat_v<__int64>);
-static_assert(idMath_integral_signs::is_integral_compat_v<unsigned __int64>);
-static_assert(idMath_integral_signs::is_integral_compat_v<size_t>);
-static_assert(idMath_integral_signs::is_integral_compat_v<int64>);
-static_assert(idMath_integral_signs::is_integral_compat_v<uint64>);
-#endif
 
 /*
 ================================================================================================
@@ -419,8 +324,9 @@ constexpr int NAN_VALUE = 0x7f800000;
 IEEE_FLT_IS_NAN
 ========================
 */
-ID_INLINE_EXTERN bool IEEE_FLT_IS_NAN(const float x ) {
-	return x != x;
+ID_INLINE_EXTERN constexpr bool IEEE_FLT_IS_NAN(const std::floating_point auto x ) {
+	//return x != x;
+	return std::isnan(x);
 }
 
 /*
@@ -428,8 +334,9 @@ ID_INLINE_EXTERN bool IEEE_FLT_IS_NAN(const float x ) {
 IEEE_FLT_IS_INF
 ========================
 */
-ID_INLINE_EXTERN bool IEEE_FLT_IS_INF(const float x ) {
-	return x == x && x * 0 != x * 0;
+ID_INLINE_EXTERN constexpr bool IEEE_FLT_IS_INF(const std::floating_point auto x ) {
+	//return x == x && x * 0 != x * 0;
+	return std::isinf(x);
 }
 
 /*
@@ -437,8 +344,9 @@ ID_INLINE_EXTERN bool IEEE_FLT_IS_INF(const float x ) {
 IEEE_FLT_IS_INF_NAN
 ========================
 */
-ID_INLINE_EXTERN bool IEEE_FLT_IS_INF_NAN(const float x ) {
-	return x * 0 != x * 0;
+ID_INLINE_EXTERN constexpr bool IEEE_FLT_IS_INF_NAN(const std::floating_point auto x ) {
+	//return x * 0 != x * 0;
+	return std::isinf(x) && std::isnan(x);
 }
 
 /*
@@ -446,8 +354,10 @@ ID_INLINE_EXTERN bool IEEE_FLT_IS_INF_NAN(const float x ) {
 IEEE_FLT_IS_IND
 ========================
 */
-ID_INLINE_EXTERN bool IEEE_FLT_IS_IND(const float x ) {
-	return	(reinterpret_cast<const unsigned int &>(x) == 0xffc00000); 
+ID_INLINE_EXTERN constexpr bool IEEE_FLT_IS_IND(const std::floating_point auto x ) {
+	//return	(reinterpret_cast<const unsigned int &>(x) == 0xffc00000);
+	// functionally identical to isnan(), but separated semantically
+	return std::isnan(x);
 }
 
 /*
@@ -455,9 +365,10 @@ ID_INLINE_EXTERN bool IEEE_FLT_IS_IND(const float x ) {
 IEEE_FLT_IS_DENORMAL
 ========================
 */
-ID_INLINE_EXTERN bool IEEE_FLT_IS_DENORMAL(const float x ) {
-	return ((reinterpret_cast<const unsigned int &>(x) & 0x7f800000) == 0x00000000 &&
-			(reinterpret_cast<const unsigned int &>(x) & 0x007fffff) != 0x00000000 ); 
+ID_INLINE_EXTERN constexpr bool IEEE_FLT_IS_DENORMAL(const std::floating_point auto x ) {
+	/*return ((reinterpret_cast<const unsigned int &>(x) & 0x7f800000) == 0x00000000 &&
+			(reinterpret_cast<const unsigned int &>(x) & 0x007fffff) != 0x00000000 ); */
+	return std::fpclassify(x) == FP_SUBNORMAL;
 }
 
 
@@ -467,7 +378,7 @@ IsNAN
 ========================
 */template<class type>
 ID_INLINE_EXTERN bool IsNAN( const type &v ) {
-	for ( int i = 0; i < v.GetDimension(); i++ ) {
+	for ( size_t i = 0; i < v.GetDimension(); i++ ) {
 		const float f = v.ToFloatPtr()[i];
 		if ( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) ) {
 			return true;
@@ -483,7 +394,7 @@ IsValid
 */
 template<class type>
 ID_INLINE_EXTERN bool IsValid( const type &v ) {
-	for ( int i = 0; i < v.GetDimension(); i++ ) {
+	for ( size_t i = 0; i < v.GetDimension(); i++ ) {
 		const float f = v.ToFloatPtr()[i];
 		if ( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) || IEEE_FLT_IS_DENORMAL( f ) ) {
 			return false;
@@ -498,7 +409,7 @@ IsValid
 ========================
 */
 //template<>
-ID_INLINE_EXTERN bool IsValid( const float & f ) {	// these parameter must be a reference for the function to be considered a specialization
+ID_INLINE_EXTERN bool IsValid( const std::floating_point auto & f ) {	// these parameter must be a reference for the function to be considered a specialization
 	return !( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) || IEEE_FLT_IS_DENORMAL( f ) );
 }
 
@@ -508,7 +419,7 @@ IsNAN
 ========================
 */
 //template<>
-ID_INLINE_EXTERN bool IsNAN( const float & f ) {	// these parameter must be a reference for the function to be considered a specialization
+ID_INLINE_EXTERN bool IsNAN( const std::floating_point auto & f ) {	// these parameter must be a reference for the function to be considered a specialization
 	if ( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) ) {
 		return true;
 	}
@@ -524,7 +435,7 @@ Returns true if any scalar is greater than the range or less than the negative r
 */
 template<class type>
 ID_INLINE_EXTERN bool IsInRange( const type &v, const float range ) {
-	for ( int i = 0; i < v.GetDimension(); i++ ) {
+	for ( size_t i = 0; i < v.GetDimension(); i++ ) {
 		const float f = v.ToFloatPtr()[i];
 		if ( f > range || f < -range ) {
 			return false;
@@ -637,12 +548,12 @@ public:
 	static float				Log( float f );				// natural logarithm with 32 bits precision
 	static float				Log16( float f );			// natural logarithm with 16 bits precision
 
-	static int					IPow( int x, int y );		// integral x raised to the power y
+	static auto					IPow( const std::integral auto x, const std::integral auto power );		// integral x raised to the power y
 	static int					ILog2( float f );			// integral base-2 logarithm of the floating point value
 	static int					ILog2( int i );				// integral base-2 logarithm of the integer value
 
 	static size_t				BitsForFloat( const std::floating_point auto f );	// minimum number of bits required to represent ceil( f )
-	static size_t				BitsForInteger( const std::integral auto i );	// minimum number of bits required to represent i
+	static size_t				BitsForInteger( const Ordinal auto i );	// minimum number of bits required to represent i
 	static int					MaskForFloatSign( float f );// returns 0x00000000 if x >= 0.0f and returns 0xFFFFFFFF if x <= -0.0f
 	static int					MaskForIntegerSign( int i );// returns 0x00000000 if x >= 0 and returns 0xFFFFFFFF if x < 0
 	static auto					FloorPowerOfTwo(const Numeric auto v) noexcept;	// round v down to the nearest power of 2
@@ -654,11 +565,11 @@ public:
 	static int					Abs( int x );				// returns the absolute value of the integer value (for reference only)
 	static float				Fabs( float f );			// returns the absolute value of the floating point value
 	static double				Fabs( double f );			// returns the absolute value of the floating point value
-	static float				Floor( float f );			// returns the largest integer that is less than or equal to the given value
-	static float				Ceil( float f );			// returns the smallest integer that is greater than or equal to the given value
+	static auto			     	Floor( const std::floating_point auto f );			// returns the largest integer that is less than or equal to the given value
+	static auto 				Ceil( const std::floating_point auto f );			// returns the smallest integer that is greater than or equal to the given value
 	static float				Rint( float f );			// returns the nearest integer
 
-	static float				Frac( float f );			// f - Floor( f )
+	static auto 				Frac( const std::floating_point auto f );			// f - Floor( f )
 
 	static int					Ftoi( float f );			// float to int conversion
 	static int					Ftoi( double d );			// double to int conversion
@@ -682,22 +593,13 @@ public:
 	template <std::floating_point DestFloat, idMath_i2f::integral_like Src>
 	[[nodiscard]] static DestFloat Itof(Src v) noexcept;
 
-	template <typename Dest, typename Src>
-	[[nodiscard]] static Dest integer_cast(Src v)
-		requires (
-	// Dest must be integral (including bool)
-	idMath_integral_signs::is_integral_compat_v<Dest> &&
-		// Src can be arithmetic or enum (including bool, floats, etc.)
-		(std::is_arithmetic_v<idMath_integral_signs::decay_cvref_t<Src>> ||
-			std::is_enum_v<idMath_integral_signs::decay_cvref_t<Src>>)
-		);
-
 	static signed char			ClampChar( int i );
 	static signed short			ClampShort( int i );
 	static int					ClampInt( int min, int max, int value );
 	static int64				ClampInt64( int64 min, int64 max, int64 value );
 	static uint64				ClampUInt64( uint64 min, uint64 max, uint64 value);
 	static float				ClampFloat( float min, float max, float value );
+	static double				ClampDouble( double min, double max, double value );
 
 	static float				AngleNormalize360( float angle );
 	static float				AngleNormalize180( float angle );
@@ -706,7 +608,7 @@ public:
 	static int					FloatToBits( float f, int exponentBits, int mantissaBits );
 	static float				BitsToFloat( int i, int exponentBits, int mantissaBits );
 
-	static int					FloatHash( const float *array, const int numFloats );
+	static int					FloatHash( const float *array, const size_t numFloats );
 
 	static float				LerpToWithScale( const float cur, const float dest, const float scale );
 
@@ -745,7 +647,7 @@ public:
 #endif
 
 private:
-	enum {
+	enum idMath_e : uint16 {
 		LOOKUP_BITS				= 8,							
 		EXP_POS					= 23,							
 		EXP_BIAS				= 127,							
@@ -853,8 +755,8 @@ ID_INLINE float idMath::Sqrt16(const float x ) {
 idMath::Frac
 ========================
 */
-ID_INLINE float idMath::Frac(const float f ) {
-	return f - floorf( f );
+ID_INLINE auto idMath::Frac(const std::floating_point auto f ) {
+	return f - ::Floor( f );
 }
 
 /*
@@ -1254,8 +1156,8 @@ ID_INLINE float idMath::Exp16(const float f ) {
 		i--;
 	}
 #endif
-	int exponent = ( i + IEEE_FLT_EXPONENT_BIAS ) << IEEE_FLT_MANTISSA_BITS;
-	float y = *reinterpret_cast<float *>(&exponent);
+	const int exponent = ( i + IEEE_FLT_EXPONENT_BIAS ) << IEEE_FLT_MANTISSA_BITS;
+	float y = *reinterpret_cast<float *>(const_cast<int*>(&exponent));
 	x -= static_cast<float>(i);
 	if ( x >= 0.5f ) {
 		x -= 0.5f;
@@ -1300,8 +1202,28 @@ ID_INLINE float idMath::Log16( float f ) {
 idMath::IPow
 ========================
 */
-ID_INLINE int idMath::IPow(const int x, int y ) {
-	int r; for( r = x; y > 1; y-- ) { r *= x; } return r;
+ID_INLINE auto idMath::IPow(const std::integral auto x, const std::integral auto power ) {
+	using CommonType = std::common_type_t<decltype(x), decltype(power)>;
+
+	if (power < 0)
+	{
+		return CommonType{ 0 }; // No fractional results for integral base/exponent
+	}
+
+	CommonType base = numeric_cast<CommonType>(x);
+	CommonType exp = numeric_cast<CommonType>(power);
+	CommonType result = numeric_cast<CommonType>(1);
+
+	while (exp > 0) {
+		if (exp & 1)
+		{
+			result *= base;
+		}
+		base *= base;
+		exp >>= 1;
+	}
+
+	return result;
 }
 
 /*
@@ -1371,7 +1293,7 @@ ID_INLINE size_t idMath::BitsForFloat( const std::floating_point auto f ) {
 idMath::BitsForInteger
 ========================
 */
-ID_INLINE size_t idMath::BitsForInteger( const std::integral auto i ) {
+ID_INLINE size_t idMath::BitsForInteger( const Ordinal auto i ) {
 	//return ILog2( Itof<float>(i) ) + 1;
 
 	using T = decltype(i);
@@ -1675,7 +1597,7 @@ ID_INLINE int idMath::BitReverse( int x ) {
 idMath::Abs
 ========================
 */
-ID_INLINE int idMath::Abs( int x ) {
+ID_INLINE int idMath::Abs(const int x ) {
 #if 1
 	return abs( x );
 #else
@@ -1714,8 +1636,8 @@ ID_INLINE double idMath::Fabs(double f) {
 idMath::Floor
 ========================
 */
-ID_INLINE float idMath::Floor(const float f ) {
-	return floorf( f );
+ID_INLINE auto idMath::Floor(const std::floating_point auto f) {
+	return ::Floor( f );
 }
 
 /*
@@ -1723,8 +1645,8 @@ ID_INLINE float idMath::Floor(const float f ) {
 idMath::Ceil
 ========================
 */
-ID_INLINE float idMath::Ceil(const float f ) {
-	return ceilf( f );
+ID_INLINE auto idMath::Ceil(const std::floating_point auto f) {
+	return ::Ceil( f );
 }
 
 /*
@@ -1736,37 +1658,6 @@ ID_INLINE float idMath::Rint(const float f ) {
 	return floorf( f + 0.5f );
 }
 
-
-/*
-========================
-idMath::Ftoi
-========================
-*/
-ID_INLINE int idMath::Ftoi( float f ) {
-#ifdef ID_WIN_X86_SSE_INTRIN
-	// If a converted result is larger than the maximum signed doubleword integer,
-	// the floating-point invalid exception is raised, and if this exception is masked,
-	// the indefinite integer value (80000000H) is returned.
-	__m128 x = _mm_load_ss( &f );
-	return _mm_cvttss_si32( x );
-#elif 0 // round chop (C/C++ standard)
-	int i, s, e, m, shift;
-	i = *reinterpret_cast<int *>(&f);
-	s = i >> IEEE_FLT_SIGN_BIT;
-	e = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
-	m = ( i & ( ( 1 << IEEE_FLT_MANTISSA_BITS ) - 1 ) ) | ( 1 << IEEE_FLT_MANTISSA_BITS );
-	shift = e - IEEE_FLT_MANTISSA_BITS;
-	return ( ( ( ( m >> -shift ) | ( m << shift ) ) & ~( e >> INT32_SIGN_BIT ) ) ^ s ) - s;
-#else
-	// If a converted result is larger than the maximum signed doubleword integer the result is undefined.
-	//return C_FLOAT_TO_INT( f );
-	return _cvt_ftoi_fast(f);
-#endif
-}
-
-ID_INLINE int idMath::Ftoi(double d) {
-	return _cvt_dtoi_fast(d);
-}
 
 /*
 ========================
@@ -1952,7 +1843,7 @@ ID_INLINE void idMath::Dtofv(
 idMath::Dtof
 ========================
 */
-ID_INLINE float idMath::Dtof(double d) noexcept {
+ID_INLINE float idMath::Dtof(const double d) noexcept {
 	float out = 0.0f;
 	Dtofv(&d, &out, 1);
 	return out;
@@ -1965,7 +1856,7 @@ idMath::Itofv
 */
 // ---------- Vector version: integral[] -> float[] with debug asserts ----------
 template <std::floating_point DestFloat, idMath_i2f::integral_like Src>
-I2F_FORCEINLINE void idMath::Itofv(DestFloat* I2F_RESTRICT dst, const Src* I2F_RESTRICT src, size_t count) noexcept
+I2F_FORCEINLINE void idMath::Itofv(DestFloat* I2F_RESTRICT dst, const Src* I2F_RESTRICT src, const size_t count) noexcept
 {
 	using namespace idMath_i2f;
 	constexpr std::uintmax_t LIMIT = kExactLimit<DestFloat>;
@@ -1976,7 +1867,7 @@ I2F_FORCEINLINE void idMath::Itofv(DestFloat* I2F_RESTRICT dst, const Src* I2F_R
 		// If DestFloat has >= uintmax_t precision bits, LIMIT==max and this trivially holds.
 		assert(mag <= LIMIT && "Itof: integer exceeds exact precision of destination floating type");
 #endif
-		dst[i] = static_cast<DestFloat>(src[i]); // exact when the assert holds
+		dst[i] = numeric_cast<DestFloat>(src[i]); // exact when the assert holds
 	}
 }
 
@@ -1991,72 +1882,6 @@ template <std::floating_point DestFloat, idMath_i2f::integral_like Src>
 	DestFloat out{};
 	Itofv<DestFloat, Src>(&out, &v, 1);
 	return out;
-}
-
-/*
-========================
-idMath::integer_cast
-========================
-*/
-template <typename Dest, typename Src>
-[[nodiscard]] inline Dest idMath::integer_cast(Src v)
-	requires (
-idMath_integral_signs::is_integral_compat_v<Dest> &&
-(std::is_arithmetic_v<idMath_integral_signs::decay_cvref_t<Src>> ||
-	std::is_enum_v<idMath_integral_signs::decay_cvref_t<Src>>)
-	)
-{
-	using D_raw = idMath_integral_signs::decay_cvref_t<Dest>;
-	using S_raw = idMath_integral_signs::decay_cvref_t<Src>;
-	using D_fixed = idMath_integral_signs::SafeIntCompat_t<D_raw>;
-
-	// Fast path: destination is bool
-	if constexpr (std::is_same_v<D_raw, bool>) {
-		if constexpr (std::is_floating_point_v<S_raw>) {
-			if (!std::isfinite(static_cast<long double>(v))) {
-				throw msl::utilities::SafeIntException(msl::utilities::SafeIntError::SafeIntArithmeticOverflow);
-			}
-			return static_cast<bool>(v != static_cast<S_raw>(0));
-		}
-		else if constexpr (std::is_enum_v<S_raw>) {
-			using U = std::underlying_type_t<S_raw>;
-			return static_cast<bool>(static_cast<U>(v) != static_cast<U>(0));
-		}
-		else {
-			// integral (incl. bool)
-			return static_cast<bool>(v != 0);
-		}
-	}
-
-	// Non-bool destination:
-	if constexpr (idMath_integral_signs::is_integral_compat_v<S_raw> || std::is_enum_v<S_raw>) {
-		// Ordinal/enum source → SafeCast (normalize both sides)
-		using S_fixed = typename idMath_integral_signs::normalize_src<S_raw>::type;
-
-		if constexpr (std::is_same_v<D_raw, S_raw>) {
-			return v; // exact match → zero-cost
-		}
-		else {
-			const S_fixed ssrc = static_cast<S_fixed>(v);
-			D_fixed ddst{};
-			if (!msl::utilities::SafeCast(ssrc, ddst)) {
-				throw msl::utilities::SafeIntException(msl::utilities::SafeIntError::SafeIntArithmeticOverflow);
-			}
-			return static_cast<D_raw>(ddst);
-		}
-	}
-	else if constexpr (std::is_floating_point_v<S_raw>) {
-		// Floating → integral: validate finite & in-range, then truncate toward zero
-		idMath_integral_signs::ensure_fp_in_range<D_fixed>(v);
-		D_fixed ddst = static_cast<D_fixed>(v); // truncation toward zero per C++
-		return static_cast<D_raw>(ddst);
-	}
-	else {
-		// Shouldn't reach (constraints restrict to arithmetic or enum)
-		static_assert(std::is_arithmetic_v<S_raw> || std::is_enum_v<S_raw>,
-			"integer_cast<Dest>(Src): Src must be arithmetic or enum.");
-		return D_raw{}; // placate MSVC warnings in unreachable paths
-	}
 }
 
 /*
@@ -2145,6 +1970,15 @@ ID_INLINE float idMath::ClampFloat(const float min, const float max, const float
 
 /*
 ========================
+idMath::ClampDouble
+========================
+*/
+ID_INLINE double idMath::ClampDouble(const double min, const double max, const double value) {
+	return Max(min, Min(max, value));
+}
+
+/*
+========================
 idMath::AngleNormalize360
 ========================
 */
@@ -2182,24 +2016,53 @@ ID_INLINE float idMath::AngleDelta(const float angle1, const float angle2 ) {
 idMath::FloatHash
 ========================
 */
-ID_INLINE int idMath::FloatHash( const float *array, const int numFloats ) {
+ID_INLINE int idMath::FloatHash( const float *array, const size_t numFloats ) {
 	int hash = 0;
 
 	const int* ptr = reinterpret_cast<const int*>(array);
-	for ( int i = 0; i < numFloats; i++ ) {
+	for ( size_t i = 0; i < numFloats; i++ ) {
 		hash ^= ptr[i];
 	}
 	return hash;
 }
 
-template< typename T >
-ID_INLINE_EXTERN T Lerp( const T from, const T to, float f ) { 
-	return from + ( ( to - from ) * f );
+template< Numeric T, std::floating_point F >
+[[nodiscard]] ID_INLINE_EXTERN auto Lerp( const T from, const T to, const F f ) noexcept
+-> std::common_type_t<T, F> {
+	using CommonType = std::common_type_t<T, F>;
+
+	const CommonType a = numeric_cast<CommonType>(from);
+	const CommonType b = numeric_cast<CommonType>(to);
+	const CommonType c = numeric_cast<CommonType>(f);
+	return numeric_cast<T>(a + ((b - a) * c));
 }
 
-//template<>
-ID_INLINE_EXTERN int Lerp( const int from, const int to, const float f ) { 
-	return idMath::Ftoi( static_cast<float>(from) + ( ( static_cast<float>(to) - static_cast<float>(from) ) * f ) );
+template< typename T, std::floating_point F >
+[[nodiscard]] ID_INLINE_EXTERN T Lerp(const T from, const T to, const F f) noexcept {
+
+	return (from + ((to - from) * f));
+}
+
+template< typename T >
+[[nodiscard]] ID_INLINE_EXTERN void LerpArray(const T* from, const T* to, T* out, size_t arraySize, double f) {
+	for (size_t i = 0; i < arraySize; ++i)
+	{
+		out[i] = Lerp(from[i], to[i], f);
+	}
+}
+
+template<Numeric T, std::floating_point F, size_t N>
+[[nodiscard]] ID_INLINE_EXTERN constexpr void LerpArray(const T(&from)[N], const T(&to)[N], T(&out)[N], const F f) noexcept
+{
+	static_assert(N > 0, "Array size must be greater than zero");
+	using CommonType = std::common_type_t<T, F>;
+
+	for (size_t i = 0; i < N; ++i)
+	{
+		const CommonType a = numeric_cast<CommonType>(from[i]);
+		const CommonType b = numeric_cast<CommonType>(to[i]);
+		out[i] = numeric_cast<T>(Lerp(a, b, f));
+	}
 }
 
 

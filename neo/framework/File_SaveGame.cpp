@@ -42,7 +42,7 @@ TODO: CRC on each block
 ZlibAlloc
 ========================
 */
-void * ZlibAlloc( void *opaque, uInt items, uInt size ) {
+void * ZlibAlloc( void *opaque, const uInt items, const size_t size ) {
 	return Mem_Alloc( items * size, TAG_SAVEGAMES );
 }
 
@@ -184,7 +184,7 @@ bool idFile_SaveGamePipelined::ReadSaveFormatVersion() {
 idFile_SaveGamePipelined::GetPointerSize
 ========================
 */
-int idFile_SaveGamePipelined::GetPointerSize() const { 
+size_t idFile_SaveGamePipelined::GetPointerSize() const {
 	if ( pointerSize == 0 ) { 
 		// in original savegames we weren't saving the pointer size, so the 2 high bytes of the save version will be 0
 		return 4; 
@@ -308,7 +308,7 @@ WRITE PATH
 idFile_SaveGamePipelined::OpenForWriting
 ============================
 */
-bool idFile_SaveGamePipelined::OpenForWriting( const char * const filename, bool useNativeFile ) {
+bool idFile_SaveGamePipelined::OpenForWriting( const char * const filename, const bool useNativeFile ) {
 	assert( mode == CLOSED );
 
 	name = filename;
@@ -623,7 +623,7 @@ Modifies:
 	uncompressedProducedBytes
 ============================
 */
-int idFile_SaveGamePipelined::Write( const void * buffer, int length ) {
+size_t idFile_SaveGamePipelined::Write( const void * buffer, const size_t length ) {
 	if ( buffer == nullptr || length <= 0 ) {
 		return 0;
 	}
@@ -672,7 +672,7 @@ READ PATH
 idFile_SaveGamePipelined::OpenForReading
 ============================
 */
-bool idFile_SaveGamePipelined::OpenForReading( const char * const filename, bool useNativeFile ) {
+bool idFile_SaveGamePipelined::OpenForReading( const char * const filename, const bool useNativeFile ) {
 	assert( mode == CLOSED );
 
 	name = filename;
@@ -766,7 +766,7 @@ Modifies:
 	nativeFileEndHit
 ============================
 */
-bool idFile_SaveGamePipelined::NextReadBlock( blockForIO_t * block, size_t lastReadBytes ) {
+bool idFile_SaveGamePipelined::NextReadBlock( blockForIO_t * block, const size_t lastReadBytes ) {
 	assert( mode == READ );
 
 	assert( ( lastReadBytes & ( COMPRESSED_BLOCK_SIZE - 1 ) ) == 0 || block == NULL );
@@ -998,7 +998,7 @@ Modifies:
 	bytesZlib
 ============================
 */
-int idFile_SaveGamePipelined::Read( void * buffer, int length ) {
+size_t idFile_SaveGamePipelined::Read( void * buffer, const size_t length ) {
 	if ( buffer == nullptr || length <= 0 ) {
 		return 0;
 	}
@@ -1105,7 +1105,7 @@ CONSOLE_COMMAND( TestSaveGameFile, "Exercises the pipelined savegame code", 0 ) 
 #else
 	// test every file in base (found a fencepost error >100 files in originally!)
 	idFileList * fileList = fileSystem->ListFiles( "", "" );
-	for ( int i = 0; i < fileList->GetNumFiles(); i++ ) {
+	for ( size_t i = 0; i < fileList->GetNumFiles(); i++ ) {
 		TestProcessFile( fileList->GetFile( i ) );
 		common->UpdateConsoleDisplay();
 	}

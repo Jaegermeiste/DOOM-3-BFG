@@ -73,7 +73,7 @@ void idAchievementSystemWin::AchievementLock( idLocalUser * user, const int achi
 idAchievementSystemWin::AchievementLockAll
 ========================
 */
-void idAchievementSystemWin::AchievementLockAll( idLocalUser * user, const int maxId ) {
+void idAchievementSystemWin::AchievementLockAll( idLocalUser * user, const size_t maxId ) {
 }
 
 /*

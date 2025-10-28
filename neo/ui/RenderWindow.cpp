@@ -64,7 +64,7 @@ void idRenderWindow::CommonInit() {
 }
 
 
-void idRenderWindow::BuildAnimation(int time) {
+void idRenderWindow::BuildAnimation(ID_TIME_T time) {
 	
 	if (!updateAnimation) {
 		return;
@@ -116,7 +116,7 @@ void idRenderWindow::PreRender() {
 	}
 }
 
-void idRenderWindow::Render( int time ) {
+void idRenderWindow::Render( ID_TIME_T time ) {
 	rLight.origin = lightOrigin.ToVec3();
 	rLight.shaderParms[SHADERPARM_RED] = lightColor.x();
 	rLight.shaderParms[SHADERPARM_GREEN] = lightColor.y();
@@ -140,7 +140,7 @@ void idRenderWindow::Render( int time ) {
 
 
 
-void idRenderWindow::Draw(int time, float x, float y) {
+void idRenderWindow::Draw(ID_TIME_T time, float x, float y) {
 	PreRender();
 	Render(time);
 
@@ -168,7 +168,7 @@ void idRenderWindow::PostParse() {
 
 // 
 //  
-idWinVar *idRenderWindow::GetWinVarByName(const char *_name, bool fixup, drawWin_t** owner ) {
+idWinVar *idRenderWindow::GetWinVarByName(const char *_name, const bool fixup, drawWin_t** owner ) {
 // 
 	if (idStr::Icmp(_name, "model") == 0) {
 		return &modelName;

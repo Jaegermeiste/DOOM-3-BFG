@@ -27,12 +27,14 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <utility>
+
 #include "../../idlib/precompiled.h"
 #include "../sys_session_local.h"
 
 #include "win_local.h"
 
-#define DINPUT_BUFFERSIZE           256
+constexpr size_t DINPUT_BUFFERSIZE = 256;
 
 /*
 ============================================================
@@ -67,18 +69,28 @@ bool IN_StartupKeyboard() {
     bDisableWindowsKey = true;
 
     if( bExclusive )
-        dwCoopFlags = DISCL_EXCLUSIVE;
+    {
+	    dwCoopFlags = DISCL_EXCLUSIVE;
+    }
     else
-        dwCoopFlags = DISCL_NONEXCLUSIVE;
+    {
+	    dwCoopFlags = DISCL_NONEXCLUSIVE;
+    }
 
     if( bForeground )
-        dwCoopFlags |= DISCL_FOREGROUND;
+    {
+	    dwCoopFlags |= DISCL_FOREGROUND;
+    }
     else
-        dwCoopFlags |= DISCL_BACKGROUND;
+    {
+	    dwCoopFlags |= DISCL_BACKGROUND;
+    }
 
     // Disabling the windows key is only allowed only if we are in foreground nonexclusive
     if( bDisableWindowsKey && !bExclusive && bForeground )
-        dwCoopFlags |= DISCL_NOWINKEY;
+    {
+	    dwCoopFlags |= DISCL_NOWINKEY;
+    }
 
     // Obtain an interface to the system keyboard device.
     if( FAILED( hr = win32.g_pdi->CreateDevice( GUID_SysKeyboard, &win32.g_pKeyboard, NULL ) ) ) {
@@ -94,8 +106,10 @@ bool IN_StartupKeyboard() {
     // This tells DirectInput that we will be passing an array
     // of 256 bytes to IDirectInputDevice::GetDeviceState.
     if( FAILED( hr = win32.g_pKeyboard->SetDataFormat( &c_dfDIKeyboard ) ) )
-        return false;
-    
+    {
+	    return false;
+    }
+
     // Set the cooperativity level to let DirectInput know how
     // this device should interact with the system and with other
     // DirectInput applications.
@@ -125,10 +139,12 @@ bool IN_StartupKeyboard() {
         dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
         dipdw.diph.dwObj        = 0;
         dipdw.diph.dwHow        = DIPH_DEVICE;
-        dipdw.dwData            = DINPUT_BUFFERSIZE; // Arbitary buffer size
+        dipdw.dwData            = DINPUT_BUFFERSIZE; // Arbitrary buffer size
 
         if( FAILED( hr = win32.g_pKeyboard->SetProperty( DIPROP_BUFFERSIZE, &dipdw.diph ) ) )
-            return false;
+        {
+	        return false;
+        }
     }
 
     // Acquire the newly created device
@@ -419,7 +435,7 @@ void IN_Frame() {
 }
 
 
-void	Sys_GrabMouseCursor( bool grabIt ) {
+void	Sys_GrabMouseCursor(const bool grabIt ) {
 	win32.mouseReleased = !grabIt;
 	if ( !grabIt ) {
 		// release it right now
@@ -444,9 +460,9 @@ static byte toggleFetch[2][ 256 ];
 Sys_PollKeyboardInputEvents
 ====================
 */
-int Sys_PollKeyboardInputEvents() {
-    DWORD              dwElements;
-    HRESULT            hr;
+size_t Sys_PollKeyboardInputEvents() {
+    DWORD              dwElements = 0;
+    HRESULT            hr = {};
 
     if( win32.g_pKeyboard == nullptr) {
         return 0;
@@ -497,8 +513,8 @@ Fake events by getting the entire device state
 and checking transitions
 ====================
 */
-int Sys_PollKeyboardInputEvents() {
-    HRESULT            hr;
+size_t Sys_PollKeyboardInputEvents() {
+    HRESULT            hr = {};
 
     if( win32.g_pKeyboard == NULL ) {
         return 0;
@@ -529,9 +545,9 @@ int Sys_PollKeyboardInputEvents() {
 	}
 
 	// build faked events
-	int		numChanges = 0;
+	size_t		numChanges = 0;
 
-	for ( int i = 0 ; i < 256 ; i++ ) {
+	for ( size_t i = 0 ; i < 256 ; i++ ) {
 		if ( toggleFetch[0][i] != toggleFetch[1][i] ) {
 			polled_didod[ numChanges ].dwOfs = i;
 			polled_didod[ numChanges ].dwData = toggleFetch[ diFetch ][i] ? 0x80 : 0;
@@ -551,8 +567,9 @@ int Sys_PollKeyboardInputEvents() {
 Sys_PollKeyboardInputEvents
 ====================
 */
-int Sys_ReturnKeyboardInputEvent( const int n, int &ch, bool &state ) {
-	ch = polled_didod[ n ].dwOfs;
+keyNum_t Sys_ReturnKeyboardInputEvent( const Ordinal auto n, keyNum_t &ch, bool &state ) {
+	ORDINAL_CHECK(n, DINPUT_BUFFERSIZE);
+	ch = static_cast<keyNum_t>(polled_didod[ n ].dwOfs);
 	state = ( polled_didod[ n ].dwData & 0x80 ) == 0x80;
 	if ( ch == K_PRINTSCREEN || ch == K_LCTRL || ch == K_LALT || ch == K_RCTRL || ch == K_RALT ) {
 		// for windows, add a keydown event for print screen here, since
@@ -571,9 +588,9 @@ void Sys_EndKeyboardInputEvents() {
 //=====================================================================================
 
 
-int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
-	DWORD				dwElements;
-	HRESULT				hr;
+size_t Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
+	DWORD				dwElements = 0;
+	HRESULT				hr = {};
 
 	if ( !win32.g_pMouse || !win32.mouseGrabbed ) {
 		return 0;
@@ -603,7 +620,7 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 		mouseEvents[i][1] = 0;
 
 		if ( polled_didod[i].dwOfs >= DIMOFS_BUTTON0 && polled_didod[i].dwOfs <= DIMOFS_BUTTON7 ) {
-			const int mouseButton = ( polled_didod[i].dwOfs - DIMOFS_BUTTON0 );
+			const int mouseButton = numeric_cast<int>( polled_didod[i].dwOfs - DIMOFS_BUTTON0 );
 			const bool mouseDown = (polled_didod[i].dwData & 0x80) == 0x80;
 			mouseEvents[i][0] = M_ACTION1 + mouseButton;
 			mouseEvents[i][1] = mouseDown;
@@ -612,22 +629,22 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 			switch (polled_didod[i].dwOfs) {
 			case DIMOFS_X:
 				mouseEvents[i][0] = M_DELTAX;
-				mouseEvents[i][1] = polled_didod[i].dwData;
-				Sys_QueueEvent( SE_MOUSE, polled_didod[i].dwData, 0, 0, nullptr, 0 );
+				mouseEvents[i][1] = numeric_cast<int>(polled_didod[i].dwData);
+				Sys_QueueEvent( SE_MOUSE, mouseEvents[i][1], 0, 0, nullptr, 0 );
 				break;
 			case DIMOFS_Y:
 				mouseEvents[i][0] = M_DELTAY;
-				mouseEvents[i][1] = polled_didod[i].dwData;
-				Sys_QueueEvent( SE_MOUSE, 0, polled_didod[i].dwData, 0, nullptr, 0 );
+				mouseEvents[i][1] = numeric_cast<int>(polled_didod[i].dwData);
+				Sys_QueueEvent( SE_MOUSE, 0, mouseEvents[i][1], 0, nullptr, 0 );
 				break;
 			case DIMOFS_Z:
 				mouseEvents[i][0] = M_DELTAZ;
-				mouseEvents[i][1] = static_cast<int>(polled_didod[i].dwData) / WHEEL_DELTA;
+				mouseEvents[i][1] = numeric_cast<int>(polled_didod[i].dwData) / WHEEL_DELTA;
 				{
-					const int value = static_cast<int>(polled_didod[i].dwData) / WHEEL_DELTA;
+					const int value = numeric_cast<int>(polled_didod[i].dwData) / WHEEL_DELTA;
 					const int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
-					const int iterations = abs( value );
-					for ( int i = 0; i < iterations; i++ ) {
+					const auto iterations = _abs64( value );
+					for ( size_t j = 0; std::cmp_less(j, iterations); j++ ) {
 						Sys_QueueEvent( SE_KEY, key, true, 0, nullptr, 0 );
 						Sys_QueueEvent( SE_KEY, key, false, 0, nullptr, 0 );
 					}
@@ -644,16 +661,16 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 //	Joystick Input Handling
 //=====================================================================================
 
-void Sys_SetRumble( int device, int low, int hi ) {
+void Sys_SetRumble( const index_t device, const int low, const int hi ) {
 	return win32.g_Joystick.SetRumble( device, low, hi );
 }
 
-int Sys_PollJoystickInputEvents( int deviceNum ) {
+size_t Sys_PollJoystickInputEvents( const index_t deviceNum ) {
 	return win32.g_Joystick.PollInputEvents( deviceNum );
 }
 
 
-int Sys_ReturnJoystickInputEvent( const int n, int &action, int &value ) {
+int Sys_ReturnJoystickInputEvent( const sys_jEvents_e n, int &action, int &value ) {
 	return win32.g_Joystick.ReturnInputEvent( n, action, value );
 }
 
@@ -667,18 +684,18 @@ void Sys_EndJoystickInputEvents() {
 JoystickSamplingThread
 ========================
 */
-static int	threadTimeDeltas[256];
+static uint64	threadTimeDeltas[256];
 static int	threadPacket[256];
-static int	threadCount;
+static size_t	threadCount;
 void JoystickSamplingThread( void *data ) {
-	static int prevTime = 0;
+	static uint64 prevTime = 0;
 	static uint64 nextCheck[MAX_JOYSTICKS] = { 0 };
 	constexpr uint64 waitTime = 5000000; // poll every 5 seconds to see if a controller was connected
-	while( 1 ) {
+	while( true ) {
 		// hopefully we see close to 4000 usec each loop
-		int	now = Sys_Microseconds();
-		int	delta;
-		if ( prevTime == 0 ) {
+		uint64	now = Sys_Microseconds();
+		uint64	delta = 0;
+		if ( (prevTime == 0) || (prevTime > now) ) {
 			delta = 4000;
 		} else {
 			delta = now - prevTime;
@@ -688,9 +705,9 @@ void JoystickSamplingThread( void *data ) {
 		threadCount++;
 
 		{
-			XINPUT_STATE	joyData[MAX_JOYSTICKS];
-			bool			validData[MAX_JOYSTICKS];
-			for ( int i = 0 ; i < MAX_JOYSTICKS ; i++ ) {
+			XINPUT_STATE	joyData[MAX_JOYSTICKS] = {};
+			bool			validData[MAX_JOYSTICKS] = {};
+			for ( size_t i = 0 ; i < MAX_JOYSTICKS ; i++ ) {
 				if ( now >= nextCheck[i] ) {
 					// XInputGetState might block... for a _really_ long time..
 					validData[i] = XInputGetState( i, &joyData[i] ) == ERROR_SUCCESS;
@@ -710,7 +727,7 @@ void JoystickSamplingThread( void *data ) {
 			// do this short amount of processing inside a critical section
 			idScopedCriticalSection cs( win32.g_Joystick.mutexXis );
 
-			for ( int i = 0 ; i < MAX_JOYSTICKS ; i++ ) {
+			for ( size_t i = 0 ; i < MAX_JOYSTICKS ; i++ ) {
 				controllerState_t * cs = &win32.g_Joystick.controllers[i];
 
 				if ( !validData[i] ) {
@@ -765,14 +782,14 @@ bool idJoystickWin32::Init() {
 	// setup the timer that the high frequency thread will wait on
 	// to fire every 4 msec
 	timer = CreateWaitableTimer(nullptr, FALSE, "JoypadTimer" );
-	LARGE_INTEGER dueTime;
+	LARGE_INTEGER dueTime = {};
 	dueTime.QuadPart = -1;
 	if ( !SetWaitableTimer( timer, &dueTime, 4, nullptr, nullptr, FALSE ) ) {
 		idLib::FatalError( "SetWaitableTimer for joystick failed" );
 	}
 
 	// spawn the high frequency joystick reading thread
-	Sys_CreateThread( (xthread_t)JoystickSamplingThread, nullptr, THREAD_HIGHEST, "Joystick", CORE_1A );
+	Sys_CreateThread( reinterpret_cast<xthread_t>(JoystickSamplingThread), nullptr, THREAD_HIGHEST, "Joystick", CORE_1A );
 
 	return false;
 }
@@ -782,7 +799,7 @@ bool idJoystickWin32::Init() {
 idJoystickWin32::SetRumble
 ========================
 */
-void idJoystickWin32::SetRumble( int inputDeviceNum, int rumbleLow, int rumbleHigh ) {
+void idJoystickWin32::SetRumble(const index_t inputDeviceNum, const int rumbleLow, const int rumbleHigh ) {
 	if ( inputDeviceNum < 0 || inputDeviceNum >= MAX_JOYSTICKS ) {
 		return;
 	}
@@ -790,9 +807,9 @@ void idJoystickWin32::SetRumble( int inputDeviceNum, int rumbleLow, int rumbleHi
 		return;
 	}
 	XINPUT_VIBRATION vibration;
-	vibration.wLeftMotorSpeed = idMath::ClampInt( 0, 65535, rumbleLow );
-	vibration.wRightMotorSpeed = idMath::ClampInt( 0, 65535, rumbleHigh );
-	DWORD err = XInputSetState( inputDeviceNum, &vibration );
+	vibration.wLeftMotorSpeed = numeric_cast<WORD>(Clamp( 0, 65535, rumbleLow ));
+	vibration.wRightMotorSpeed = numeric_cast<WORD>(Clamp( 0, 65535, rumbleHigh ));
+	DWORD err = XInputSetState( numeric_cast<DWORD>(inputDeviceNum), &vibration );
 	if ( err != ERROR_SUCCESS ) {
 		idLib::Warning( "XInputSetState error: 0x%x", err );
 	}
@@ -803,10 +820,10 @@ void idJoystickWin32::SetRumble( int inputDeviceNum, int rumbleLow, int rumbleHi
 idJoystickWin32::PostInputEvent
 ========================
 */
-void idJoystickWin32::PostInputEvent( int inputDeviceNum, int event, int value, int range ) {
+void idJoystickWin32::PostInputEvent(const index_t inputDeviceNum, const int event, const int value, const int range ) {
 	// These events are used for GUI button presses
 	if ( ( event >= J_ACTION1 ) && ( event <= J_ACTION_MAX ) ) {
-		PushButton( inputDeviceNum, K_JOY1 + ( event - J_ACTION1 ), value != 0 );
+		PushButton( inputDeviceNum, static_cast<keyNum_t>(K_JOY1 + ( event - J_ACTION1 )), value != 0 );
 	} else if ( event == J_AXIS_LEFT_X ) {
 		PushButton( inputDeviceNum, K_JOY_STICK1_LEFT, ( value < -range ) );
 		PushButton( inputDeviceNum, K_JOY_STICK1_RIGHT, ( value > range ) );
@@ -820,7 +837,7 @@ void idJoystickWin32::PostInputEvent( int inputDeviceNum, int event, int value, 
 		PushButton( inputDeviceNum, K_JOY_STICK2_UP, ( value < -range ) );
 		PushButton( inputDeviceNum, K_JOY_STICK2_DOWN, ( value > range ) );
 	} else if ( ( event >= J_DPAD_UP ) && ( event <= J_DPAD_RIGHT ) ) {
-		PushButton( inputDeviceNum, K_JOY_DPAD_UP + ( event - J_DPAD_UP ), value != 0 );
+		PushButton( inputDeviceNum, static_cast<keyNum_t>(K_JOY_DPAD_UP + ( event - J_DPAD_UP )), value != 0 );
 	} else if ( event == J_AXIS_LEFT_TRIG ) {
 		PushButton( inputDeviceNum, K_JOY_TRIGGER1, ( value > range ) );
 	} else if ( event == J_AXIS_RIGHT_TRIG ) {
@@ -846,7 +863,7 @@ void idJoystickWin32::PostInputEvent( int inputDeviceNum, int event, int value, 
 idJoystickWin32::PollInputEvents
 ========================
 */
-int idJoystickWin32::PollInputEvents( int inputDeviceNum ) {
+size_t idJoystickWin32::PollInputEvents( const index_t inputDeviceNum ) {
 	numEvents = 0;
 
 	if ( !win32.activeApp ) {
@@ -879,7 +896,7 @@ int idJoystickWin32::PollInputEvents( int inputDeviceNum ) {
 		return numEvents;
 	}
 #endif
-	for ( int i = 0 ; i < 32 ; i++ ) {
+	for ( size_t i = 0 ; i < 32 ; i++ ) {
 		int	bit = 1<<i;
 
 		if ( ( ( xis.Gamepad.wButtons | old.Gamepad.wButtons ) & bit ) == 0
@@ -905,7 +922,7 @@ int idJoystickWin32::PollInputEvents( int inputDeviceNum ) {
 	};
 
 	// Check the digital buttons
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		int mask = ( 1 << i );
 		if ( ( xis.Gamepad.wButtons & mask ) != ( old.Gamepad.wButtons & mask ) ) {
 			PostInputEvent( inputDeviceNum, joyRemap[i], ( xis.Gamepad.wButtons & mask ) > 0 );
@@ -942,8 +959,8 @@ int idJoystickWin32::PollInputEvents( int inputDeviceNum ) {
 idJoystickWin32::ReturnInputEvent
 ========================
 */
-int idJoystickWin32::ReturnInputEvent( const int n, int & action, int &value ) {
-	if ( ( n < 0 ) || ( n >= MAX_JOY_EVENT ) ) {
+int idJoystickWin32::ReturnInputEvent( const sys_jEvents_e n, int & action, int &value ) {
+	if ( ( n < J_EVENT_NONE ) || ( n >= MAX_JOY_EVENT ) ) {
 		return 0;
 	}
 
@@ -958,7 +975,7 @@ int idJoystickWin32::ReturnInputEvent( const int n, int & action, int &value ) {
 idJoystickWin32::PushButton
 ========================
 */
-void idJoystickWin32::PushButton( int inputDeviceNum, int key, bool value ) {
+void idJoystickWin32::PushButton( const index_t inputDeviceNum, const keyNum_t key, const bool value ) {
 	// So we don't keep sending the same SE_KEY message over and over again
 	if ( buttonStates[inputDeviceNum][key] != value ) {
 		buttonStates[inputDeviceNum][key] = value;

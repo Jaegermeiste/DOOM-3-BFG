@@ -28,8 +28,35 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __XA_SOUNDHARDWARE_H__
 #define __XA_SOUNDHARDWARE_H__
 
+#pragma once
+
 class idSoundSample_XAudio2;
 class idSoundVoice_XAudio2;
+
+enum XAudio2DeviceRole_e : int8 {
+	NotDefaultDevice            = 0x0,
+	DefaultConsoleDevice        = 0x1,
+	DefaultMultimediaDevice     = 0x2,
+	DefaultCommunicationsDevice = 0x4,
+	DefaultGameDevice           = 0x8,   // legacy only; never set on modern Windows
+	GlobalDefaultDevice         = 0xF,
+	InvalidDeviceRole           = ~GlobalDefaultDevice
+};
+
+struct XAudio2DeviceInfo_s {
+	char                 DeviceID[256]{};                      // IMMDevice endpoint ID
+	wchar_t              DeviceID_W[256]{};                    // WIDE IMMDevice ID (pass to CreateMasteringVoice szDeviceId)
+	char                 DisplayName[256]{};                   // Friendly name (e.g., "Speakers (Realtek High Definition Audio)")
+	DWORD                DeviceState{};                        // DEVICE_STATE_ACTIVE, _DISABLED, _NOTPRESENT, _UNPLUGGED
+	XAudio2DeviceRole_e  Role{ InvalidDeviceRole };            // bitmask; “Game” bit will be 0 on modern Windows
+	WAVEFORMATEXTENSIBLE OutputFormat{};                       // Basic (tag/channels/rate/avgBps/blockAlign/bits)
+
+	// Spatial Audio
+	bool                 SupportsSpatialObjects{};             // ISpatialAudioObjectRenderStream
+	bool                 SupportsSpatialMetadata{};            // ISpatialAudioObjectRenderStreamForMetadata
+	UINT32               MaxDynamicObjects{};                  // number of simultaneous objects
+	UINT32               MaxFrameCount{};                      // maximum possible frame count per processing pass
+};
 
 /*
 ================================================
@@ -71,10 +98,14 @@ public:
 	void			FreeVoice( idSoundVoice * voice );
 
 	// video playback needs this
-					[[nodiscard]] IXAudio2 *		GetIXAudio2() const { return pXAudio2; };
+	[[nodiscard]] IXAudio2 *		GetIXAudio2() const { return pXAudio2; };
 
-					[[nodiscard]] int				GetNumZombieVoices() const { return zombieVoices.Num(); }
-					[[nodiscard]] int				GetNumFreeVoices() const { return freeVoices.Num(); }
+	[[nodiscard]] size_t			GetNumZombieVoices() const { return zombieVoices.Num(); }
+	[[nodiscard]] size_t			GetNumFreeVoices() const { return freeVoices.Num(); }
+
+	// Enumerate all available XAudio2 render (output) devices.
+    // Returns a list of fully populated XAudio2DeviceInfo_s records.
+	ID_INLINE static idList<XAudio2DeviceInfo_s> EnumerateRenderDevices();
 
 protected:
 	friend class idSoundSample_XAudio2;
@@ -86,19 +117,38 @@ private:
 	IXAudio2SubmixVoice * pSubmixVoice;
 
 	idSoundEngineCallback	soundEngineCallback;
-	int					lastResetTime;
+	ID_TIME_T			lastResetTime;
 
-	int					outputChannels;
-	int					channelMask;
+	size_t				outputChannels;
+	DWORD				channelMask;
 
 	idDebugGraph *		vuMeterRMS;
 	idDebugGraph *		vuMeterPeak;
-	int					vuMeterPeakTimes[ 8 ];
+	ID_TIME_T			vuMeterPeakTimes[ 8 ];
 
 	// Can't stop and start a voice on the same frame, so we have to double this to handle the worst case scenario of stopping all voices and starting a full new set
 	idStaticList<idSoundVoice_XAudio2, MAX_HARDWARE_VOICES * 2 > voices;
 	idStaticList<idSoundVoice_XAudio2 *, MAX_HARDWARE_VOICES * 2 > zombieVoices;
 	idStaticList<idSoundVoice_XAudio2 *, MAX_HARDWARE_VOICES * 2 > freeVoices;
+
+	XAudio2DeviceInfo_s preferredAudioDeviceDetails;
+
+	// Helpers
+	// Check whether the given device ID corresponds to the current default endpoint for a role.
+	ID_INLINE static bool                        IsDefaultRole( IMMDeviceEnumerator* en, const wchar_t* deviceId, ERole role );
+
+	// Query the mix/output format from an IAudioClient and fill a WAVEFORMATEXTENSIBLE structure.
+	ID_INLINE static void                        FillMixFormat( IAudioClient* ac, WAVEFORMATEXTENSIBLE& fmt );
+
+	// Retrieve the audio render device details
+	// - role: eConsole / eMultimedia / eCommunications
+	// - outDeviceID: UTF-8 string buffer (256 bytes)
+	// Returns true on success.
+	ID_INLINE static bool                        GetRenderDeviceInfo(Microsoft::WRL::ComPtr<IMMDeviceEnumerator> deviceEnumerator, Microsoft::WRL::ComPtr<IMMDevice> device, XAudio2DeviceInfo_s& outInfo);
+
+	// Retrieve the default render device ID for a given Core Audio role.
+	// Returns true on success.
+	ID_INLINE static bool                        GetDefaultRenderDeviceInfo( ERole role, XAudio2DeviceInfo_s & outInfo);
 };
 
 /*

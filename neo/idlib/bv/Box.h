@@ -89,7 +89,7 @@ public:
 	bool			RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale1, float &scale2 ) const;
 
 					// tight box for a collection of points
-	void			FromPoints( const idVec3 *points, const int numPoints );
+	void			FromPoints( const idVec3 *points, const size_t numPoints );
 					// most tight box for a translation
 	void			FromPointTranslation( const idVec3 &point, const idVec3 &translation );
 	void			FromBoxTranslation( const idBox &box, const idVec3 &translation );
@@ -286,7 +286,7 @@ ID_INLINE void idBox::AxisProjection( const idVec3 &dir, float &min, float &max 
 }
 
 ID_INLINE void idBox::AxisProjection( const idMat3 &ax, idBounds &bounds ) const {
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		const float d1 = ax[i] * center;
 		const float d2 = idMath::Fabs( extents[0] * ( ax[i] * axis[0] ) ) +
 					idMath::Fabs( extents[1] * ( ax[i] * axis[1] ) ) +

@@ -82,7 +82,7 @@ void idLocalUser::ResetStorageDevice() {
 idLocalUser::StorageSizeAvailable
 ========================
 */
-bool idLocalUser::StorageSizeAvailable( uint64 minSizeInBytes, int64 & neededBytes ) {
+bool idLocalUser::StorageSizeAvailable(const uint64 minSizeInBytes, int64 & neededBytes ) {
 	int64 size = Sys_GetDriveFreeSpaceInBytes( fs_savepath.GetString() );
 
 	neededBytes = minSizeInBytes - size;
@@ -98,7 +98,7 @@ bool idLocalUser::StorageSizeAvailable( uint64 minSizeInBytes, int64 & neededByt
 idLocalUser::SetStatInt
 ========================
 */
-void idLocalUser::SetStatInt( int s, int v ) {
+void idLocalUser::SetStatInt(const int s, const int v ) {
 	idPlayerProfile * profile = GetProfile();
 	if ( profile != nullptr) {
 		return profile->StatSetInt( s, v );
@@ -110,7 +110,7 @@ void idLocalUser::SetStatInt( int s, int v ) {
 idLocalUser::SetStatFloat
 ========================
 */
-void idLocalUser::SetStatFloat( int s, float v ) {
+void idLocalUser::SetStatFloat(const int s, const float v ) {
 	idPlayerProfile * profile = GetProfile();
 	if ( profile != nullptr) {
 		return profile->StatSetFloat( s, v );
@@ -122,7 +122,7 @@ void idLocalUser::SetStatFloat( int s, float v ) {
 idLocalUser::GetStatInt
 ========================
 */
-int	idLocalUser::GetStatInt( int s ) { 
+int	idLocalUser::GetStatInt(const int s ) { 
 	const idPlayerProfile * profile = GetProfile();
 
 	if ( profile != nullptr && s >= 0 ) {
@@ -137,7 +137,7 @@ int	idLocalUser::GetStatInt( int s ) {
 idLocalUser::GetStatFloat
 ========================
 */
-float idLocalUser::GetStatFloat( int s ) {
+float idLocalUser::GetStatFloat(const int s ) {
 	const idPlayerProfile * profile = GetProfile();
 
 	if ( profile != nullptr) {

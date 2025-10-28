@@ -47,7 +47,7 @@ idCVar image_highQualityCompression( "image_highQualityCompression", "0", CVAR_B
 idBinaryImage::Load2DFromMemory
 ========================
 */
-void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_const, int numLevels, textureFormat_t & textureFormat, textureColor_t & colorFormat, bool gammaMips ) {
+void idBinaryImage::Load2DFromMemory(const int width, const int height, const byte * pic_const, const size_t numLevels, textureFormat_t & textureFormat, textureColor_t & colorFormat, const bool gammaMips ) {
 	fileData.textureType = TT_2D;
 	fileData.format = textureFormat;
 	fileData.colorFormat = colorFormat;
@@ -64,14 +64,14 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 	} else if ( colorFormat == CFM_NORMAL_DXT5 ) {
 		// Blah, HQ swizzles automatically, Fast doesn't
 		if ( !image_highQualityCompression.GetBool() ) {
-			for ( int i = 0; i < width * height; i++ ) {
+			for ( size_t i = 0; i < width * height; i++ ) {
 				pic[i*4+3] = pic[i*4+0];
 				pic[i*4+0] = 0;
 				pic[i*4+2] = 0;
 			}
 		}
 	} else if ( colorFormat == CFM_GREEN_ALPHA ) {
-		for ( int i = 0; i < width * height; i++ ) {
+		for ( size_t i = 0; i < width * height; i++ ) {
 			pic[i*4+1] = pic[i*4+3];
 			pic[i*4+0] = 0;
 			pic[i*4+2] = 0;
@@ -95,7 +95,7 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 				dxtWidth = ( scaledWidth + 3 ) & ~3;
 				dxtHeight = ( scaledHeight + 3 ) & ~3;
 				dxtPic = static_cast<byte*>(Mem_ClearedAlloc(dxtWidth * 4 * dxtHeight, TAG_IMAGE));
-				for ( int i = 0; i < scaledHeight; i++ ) {
+				for ( size_t i = 0; i < scaledHeight; i++ ) {
 					memcpy( dxtPic + i*dxtWidth*4, pic + i*scaledWidth*4, scaledWidth*4 );
 				}
 			} else {
@@ -145,25 +145,25 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 		} else if ( textureFormat == FMT_LUM8 || textureFormat == FMT_INT8 ) {
 			// LUM8 and INT8 just read the red channel
 			img.Alloc( scaledWidth * scaledHeight );
-			for ( int i = 0; i < img.dataSize; i++ ) {
+			for ( size_t i = 0; i < img.dataSize; i++ ) {
 				img.data[ i ] = pic[ i * 4 ];
 			}
 		} else if ( textureFormat == FMT_ALPHA ) {
 			// ALPHA reads the alpha channel
 			img.Alloc( scaledWidth * scaledHeight );
-			for ( int i = 0; i < img.dataSize; i++ ) {
+			for ( size_t i = 0; i < img.dataSize; i++ ) {
 				img.data[ i ] = pic[ i * 4 + 3 ];
 			}
 		} else if ( textureFormat == FMT_L8A8 ) {
 			// L8A8 reads the alpha and red channels
 			img.Alloc( scaledWidth * scaledHeight * 2 );
-			for ( int i = 0; i < img.dataSize / 2; i++ ) {
+			for ( size_t i = 0; i < img.dataSize / 2; i++ ) {
 				img.data[ i * 2 + 0 ] = pic[ i * 4 + 0 ];
 				img.data[ i * 2 + 1 ] = pic[ i * 4 + 3 ];
 			}
 		} else if ( textureFormat == FMT_RGB565 ) {
 			img.Alloc( scaledWidth * scaledHeight * 2 );
-			for ( int i = 0; i < img.dataSize / 2; i++ ) {
+			for ( size_t i = 0; i < img.dataSize / 2; i++ ) {
 				unsigned short color = ( ( pic[ i * 4 + 0 ] >> 3 ) << 11 ) | ( ( pic[ i * 4 + 1 ] >> 2 ) << 5 ) | ( pic[ i * 4 + 2 ] >> 3 );
 				img.data[ i * 2 + 0 ] = ( color >> 8 ) & 0xFF;
 				img.data[ i * 2 + 1 ] = color & 0xFF;
@@ -171,7 +171,7 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte * pic_co
 		} else {
 			fileData.format = textureFormat = FMT_RGBA8;
 			img.Alloc( scaledWidth * scaledHeight * 4 );
-			for ( int i = 0; i < img.dataSize; i++ ) {
+			for ( size_t i = 0; i < img.dataSize; i++ ) {
 				img.data[ i ] = pic[ i ];
 			}
 		}
@@ -229,12 +229,12 @@ static void PadImageTo4x4( const byte *src, const size_t width, const size_t hei
 idBinaryImage::LoadCubeFromMemory
 ========================
 */
-void idBinaryImage::LoadCubeFromMemory( const size_t width, const byte * pics[6], const size_t numLevels, textureFormat_t & textureFormat, bool gammaMips ) {
+void idBinaryImage::LoadCubeFromMemory( const size_t width, const byte * pics[6], const size_t numLevels, textureFormat_t & textureFormat, const bool gammaMips ) {
 	fileData.textureType = TT_CUBIC;
 	fileData.format = textureFormat;
 	fileData.colorFormat = CFM_DEFAULT;
-	fileData.height = fileData.width = idMath::integer_cast<int>(width);
-	fileData.numLevels = idMath::integer_cast<int>(numLevels);
+	fileData.height = fileData.width = numeric_cast<int>(width);
+	fileData.numLevels = numeric_cast<int>(numLevels);
 
 	images.SetNum( fileData.numLevels * 6ULL );
 
@@ -242,7 +242,7 @@ void idBinaryImage::LoadCubeFromMemory( const size_t width, const byte * pics[6]
 		const byte *orig = pics[side];
 		const byte *pic = orig;
 		size_t	scaledWidth = fileData.width;
-		for ( size_t level = 0; level < idMath::integer_cast<size_t>(fileData.numLevels); level++ ) {
+		for ( size_t level = 0; level < numeric_cast<size_t>(fileData.numLevels); level++ ) {
 			// compress data or convert floats as necessary
 			idBinaryImageData &img = images[ level * 6 + side ];
 
@@ -259,10 +259,10 @@ void idBinaryImage::LoadCubeFromMemory( const size_t width, const byte * pics[6]
 				padSrc = pic;
 			}
 
-			img.level = idMath::integer_cast<int>(level);
-			img.destZ = idMath::integer_cast<int>(side);
-			img.width = idMath::integer_cast<int>(padSize);
-			img.height = idMath::integer_cast<int>(padSize);
+			img.level = numeric_cast<int>(level);
+			img.destZ = numeric_cast<int>(side);
+			img.width = numeric_cast<int>(padSize);
+			img.height = numeric_cast<int>(padSize);
 			if ( textureFormat == FMT_DXT1 ) {
 				img.Alloc( padSize * padSize / 2 );
 				idDxtEncoder dxt;
@@ -327,7 +327,7 @@ ID_TIME_T idBinaryImage::WriteGeneratedFile( ID_TIME_T sourceFileTime ) {
 	file->WriteBig( fileData.height );
 	file->WriteBig( fileData.numLevels );
 
-	for ( int i = 0; i < images.Num(); i++ ) {
+	for ( size_t i = 0; i < images.Num(); i++ ) {
 		idBinaryImageData &img = images[ i ];
 		file->WriteBig( img.level );
 		file->WriteBig( img.destZ );
@@ -392,7 +392,7 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile * bFile, ID_TIME_T sourceFileT
 		return false;
 	}
 
-	int numImages = fileData.numLevels;
+	size_t numImages = fileData.numLevels;
 	if ( fileData.textureType == TT_CUBIC ) {
 		numImages *= 6;
 	}

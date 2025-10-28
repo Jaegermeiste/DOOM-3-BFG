@@ -31,8 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#include <stddef.h>
-
 /*
 ===============================================================================
 
@@ -57,7 +55,7 @@ public:
 	static class idCommon *		common;
 	static class idCVarSystem *	cvarSystem;
 	static class idFileSystem *	fileSystem;
-	static int					frameNumber;
+	static size_t				frameNumber;
 
 	static void					Init();
 	static void					ShutDown();
@@ -84,7 +82,14 @@ public:
 ===============================================================================
 */
 
-typedef int						qhandle_t;
+typedef int32					qhandle_t;
+
+/*
+#ifndef INDEX_T_DEFINED
+typedef long long               index_t;
+#define INDEX_T_DEFINED
+#endif
+*/
 
 class idFile;
 class idVec3;
@@ -140,30 +145,40 @@ dword	PackColor( const idVec4 &color );
 void	UnpackColor( const dword color, idVec4 &unpackedColor );
 
 // little/big endian conversion
-short	         BigShort( short l );
-short	         LittleShort( short l );
-unsigned short	 BigUShort( unsigned short l );
-unsigned short	 LittleUShort( unsigned short l );
-int		         BigLong( int l );
-int		         LittleLong( int l );
-unsigned int	 BigULong( unsigned int l );
-unsigned int	 LittleULong( unsigned int l );
-__int64	         BigLongLong( __int64 l );
-__int64	         LittleLongLong( __int64 l );
-unsigned __int64 BigULongLong( unsigned __int64 l );
-unsigned __int64 LittleULongLong( unsigned __int64 l );
-float	         BigFloat( float l );
-float	         LittleFloat( float l );
-void	         BigRevBytes( void *bp, int elsize, int elcount );
-void	         LittleRevBytes( void *bp, int elsize, int elcount );
-void	         LittleBitField( void *bp, int elsize );
+int16	         BigShort( const int16 l );
+int16	         LittleShort( const int16 l );
+uint16	         BigUShort( const uint16 l );
+uint16	         LittleUShort( const uint16 l );
+int32		     BigLong( const int32 l );
+int32		     LittleLong( const int32 l );
+uint32           BigULong( const uint32 l );
+uint32	         LittleULong( const uint32 l );
+int64	         BigLongLong( const int64 l );
+int64	         LittleLongLong( const int64 l );
+uint64           BigULongLong( const uint64 l );
+uint64           LittleULongLong( const uint64 l );
+float	         BigFloat( const float f );
+float	         LittleFloat( const float f );
+double	         BigDouble( const double d );
+double	         LittleDouble( const double d );
+long double      BigLongDouble( const long double ld );
+long double      LittleLongDouble( const long double ld );
+void	         BigRevBytes( void *bp, const size_t elsize, const size_t elcount );
+void	         LittleRevBytes( void *bp, const size_t elsize, const size_t elcount );
+void	         LittleBitField( void *bp, const size_t elsize );
 void	         Swap_Init();
 
 bool	         Swap_IsBigEndian();
 
 // for base64
-void	SixtetsForInt( byte *out, int src);
-int		IntForSixtets( byte *in );
+void	         SixtetsForInt( byte *out, const int32 src );
+int32		     IntForSixtets( const byte *in );
+void	         SixtetsForUInt( byte* out, const uint32 src );
+uint32		     UIntForSixtets( const byte* in );
+void	         SixtetsForInt64( byte* out, const int64 src );
+int64		     Int64ForSixtets( const byte* in);
+void	         SixtetsForUInt64( byte* out, const uint64 src );
+uint64		     UInt64ForSixtets( const byte* in );
 
 /*
 ================================================
@@ -172,7 +187,7 @@ idException
 */
 class idException {
 public:
-	static constexpr int MAX_ERROR_LEN = 2048;
+	static constexpr size_t MAX_ERROR_LEN = 2048;
 
 					idException( const char *text = "" ) noexcept {
 						strncpy( error, text, MAX_ERROR_LEN ); 
@@ -204,7 +219,7 @@ idFatalException
 */
 class idFatalException {
 public:
-	static constexpr int MAX_ERROR_LEN = 2048;
+	static constexpr size_t MAX_ERROR_LEN = 2048;
 
 	idFatalException( const char *text = "" ) noexcept {
 		strncpy( idException::error, text, MAX_ERROR_LEN ); 
@@ -245,6 +260,7 @@ public:
 
 // System
 #include "sys/sys_assert.h"
+#include "sys/sys_types.h"
 #include "sys/sys_threading.h"
 
 // memory management and arrays

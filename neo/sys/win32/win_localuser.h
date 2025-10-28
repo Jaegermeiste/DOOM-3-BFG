@@ -60,14 +60,14 @@ public:
 	//==========================================================================================
 	// idLocalUserWin interface
 	//==========================================================================================
-	void						SetInputDevice( int inputDevice_ ) { inputDevice = inputDevice_; }
+	void						SetInputDevice(const int inputDevice_ ) { inputDevice = inputDevice_; }
 	void						SetGamerTag( const char * gamerTag_ ) { gamertag = gamerTag_; }
 
 	[[nodiscard]] winUserState_t				GetUserState() const
 	{ winUserState_t a = { inputDevice }; return a; }
 	bool						VerifyUserState( winUserState_t & state ) const;
 
-	void						Init( int inputDevice_, const char * gamertag_, int numLocalUsers );
+	void						Init( int inputDevice_, const char * gamertag_, size_t numLocalUsers );
 
 private:
 	idStrStatic< MAX_GAMERTAG >	gamertag;

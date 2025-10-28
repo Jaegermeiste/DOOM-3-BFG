@@ -157,7 +157,7 @@ public:
 	int			GetLastPlayerKilledTime() { return lastPlayerKilledTime; }
 	void		SetLastPlayerKilledTime( const ID_TIME_T time ) { lastPlayerKilledTime = time; }
 	bool		GetPlayerTookDamage() { return playerTookDamage; }
-	void		SetPlayerTookDamage( bool bl ) { playerTookDamage = bl; }
+	void		SetPlayerTookDamage(const bool bl ) { playerTookDamage = bl; }
 	void		IncrementHellTimeKills();
 	void		ResetHellTimeKills() { currentHellTimeKills = 0; }
 	void		SavePersistentData( idDict & playerInfo );

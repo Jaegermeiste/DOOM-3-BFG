@@ -39,7 +39,7 @@ idCVar net_migration_forcePeerAsHost( "net_migration_forcePeerAsHost", "-1", CVA
 idLobby::IsBetterHost
 ========================
 */
-bool idLobby::IsBetterHost( int ping1, lobbyUserID_t userId1, int ping2, lobbyUserID_t userId2 ) const
+bool idLobby::IsBetterHost(const int ping1, const lobbyUserID_t userId1, const int ping2, const lobbyUserID_t userId2 ) const
 {
 	if ( lobbyType == TYPE_PARTY ) {
 		return userId1 < userId2;			// Only use user id for party, since ping doesn't matter
@@ -66,7 +66,7 @@ int idLobby::FindMigrationInviteIndex( lobbyAddress_t & address ) {
 		return -1;
 	}
 
-	for ( int i = 0; i < migrationInfo.invites.Num(); i++ ) {
+	for ( size_t i = 0; i < migrationInfo.invites.Num(); i++ ) {
 		if ( migrationInfo.invites[i].address.Compare( address, true ) ) {
 			return i;
 		}
@@ -82,7 +82,7 @@ idLobby::UpdateHostMigration
 */
 void idLobby::UpdateHostMigration() {
 	
-	int time = Sys_Milliseconds();
+	ID_TIME_T time = Sys_Milliseconds();
 
 	// If we are picking a new host, then update that
 	if ( migrationInfo.state == MIGRATE_PICKING_HOST ) {
@@ -123,7 +123,7 @@ void idLobby::UpdateHostMigration() {
 	}
 
 	// Send invites to anyone who hasn't responded
-	for ( int i = 0; i < migrationInfo.invites.Num(); i++ ) {
+	for ( size_t i = 0; i < migrationInfo.invites.Num(); i++ ) {
 		if ( time - migrationInfo.invites[i].lastInviteTime < session->GetTitleStorageInt( "MIGRATION_INVITE_TIME_IN_SECONDS", MIGRATION_INVITE_TIME_IN_SECONDS ) * 1000 ) {
 			continue;		// Not enough time passed
 		}
@@ -153,11 +153,11 @@ void idLobby::UpdateHostMigration() {
 idLobby::BuildMigrationInviteList
 ========================
 */
-void idLobby::BuildMigrationInviteList( bool inviteOldHost ) {
+void idLobby::BuildMigrationInviteList(const bool inviteOldHost ) {
 	migrationInfo.invites.Clear();
 
 	// Build a list of addresses we will send invites to (gather all unique remote addresses from the session user list)
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 
 		if ( !verify( user != NULL ) ) {
@@ -201,7 +201,7 @@ void idLobby::BuildMigrationInviteList( bool inviteOldHost ) {
 idLobby::PickNewHost
 ========================
 */
-void idLobby::PickNewHost( bool forceMe, bool inviteOldHost ) {
+void idLobby::PickNewHost(const bool forceMe, const bool inviteOldHost ) {
 	if ( IsHost() ) {
 		idLib::Printf( "PickNewHost: Already host of session %s\n", GetLobbyName() );
 		return;
@@ -215,7 +215,7 @@ void idLobby::PickNewHost( bool forceMe, bool inviteOldHost ) {
 idLobby::PickNewHostInternal
 ========================
 */
-void idLobby::PickNewHostInternal( bool forceMe, bool inviteOldHost ) {
+void idLobby::PickNewHostInternal(const bool forceMe, const bool inviteOldHost ) {
 
 	if ( migrationInfo.state == MIGRATE_PICKING_HOST ) {
 		return;		// Already picking new host
@@ -233,7 +233,7 @@ void idLobby::PickNewHostInternal( bool forceMe, bool inviteOldHost ) {
 	int bestPingMs				= 0;
 	lobbyUserID_t bestUserId;
 
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 
 		if ( !verify( user != NULL ) ) {
@@ -381,7 +381,7 @@ idLobby::GetMigrationGameData
 This will setup the passed in idBitMsg to either read or write from the global migration game data buffer
 ========================
 */
-bool idLobby::GetMigrationGameData( idBitMsg &msg, bool reading ) {
+bool idLobby::GetMigrationGameData( idBitMsg &msg, const bool reading ) {
 	if ( reading ) {
 		if ( !IsMigratedStatsGame() || !migrationInfo.persistUntilGameEndsData.wasMigratedHost ) {
 			// This was not a migrated session, we have no migration data
@@ -403,7 +403,7 @@ idLobby::GetMigrationGameDataUser
 This will setup the passed in idBitMsg to either read or write from the user's migration game data buffer
 ========================
 */
-bool idLobby::GetMigrationGameDataUser( lobbyUserID_t lobbyUserID, idBitMsg & msg, bool reading ) {
+bool idLobby::GetMigrationGameDataUser(const lobbyUserID_t lobbyUserID, idBitMsg & msg, const bool reading ) {
 	const int userNum = GetLobbyUserIndexByID( lobbyUserID );
 
 	if ( !verify( userNum >=0 && userNum < MAX_PLAYERS ) ) {
@@ -458,7 +458,7 @@ void idLobby::HandleMigrationGameData( idBitMsg & msg ) {
 	}
 	
 	msg.ReadData( migrationInfo.persistUntilGameEndsData.gameData, sizeof( migrationInfo.persistUntilGameEndsData.gameData ) );
-	int numUsers = msg.ReadByte();
+	size_t numUsers = msg.ReadByte();
 	int dataIndex=0;
 	for ( int i=0; i < numUsers; i++ ) {
 		lobbyUserID_t lobbyUserID;

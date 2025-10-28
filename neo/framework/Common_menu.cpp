@@ -40,21 +40,21 @@ void idCommonLocal::InitializeMPMapsModes() {
 
 	const char ** gameModes = nullptr;
 	const char ** gameModesDisplay = nullptr;
-	int numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
+	size_t numModes = game->GetMPGameModes( &gameModes, &gameModesDisplay );
 	mpGameModes.SetNum( numModes );
-	for ( int i = 0; i < numModes; i++ ) {
+	for ( size_t i = 0; i < numModes; i++ ) {
 		mpGameModes[i] = gameModes[i];
 	}
 	mpDisplayGameModes.SetNum( numModes );
-	for ( int i = 0; i < numModes; i++ ) {
+	for ( size_t i = 0; i < numModes; i++ ) {
 		mpDisplayGameModes[i] = gameModesDisplay[i];
 	}
-	int numMaps = declManager->GetNumDecls( DECL_MAPDEF );
+	size_t numMaps = declManager->GetNumDecls( DECL_MAPDEF );
 	mpGameMaps.Clear();
-	for ( int i = 0; i < numMaps; i++ ) {
+	for ( size_t i = 0; i < numMaps; i++ ) {
 		const idDeclEntityDef * mapDef = static_cast<const idDeclEntityDef *>( declManager->DeclByIndex( DECL_MAPDEF, i ) );
 		uint32 supportedModes = 0;
-		for ( int j = 0; j < numModes; j++ ) {
+		for ( size_t j = 0; j < numModes; j++ ) {
 			if ( mapDef->dict.GetBool( gameModes[j], false ) ) {
 				supportedModes |= BIT(j);
 			}
@@ -87,7 +87,7 @@ void idCommonLocal::OnStartHosting( idMatchParameters & parms ) {
 			// Select a map which supports the chosen mode
 			idList<int> supportedMaps;
 			uint32 supportedMode = BIT( parms.gameMode );
-			for ( int i = 0; i < mpGameMaps.Num(); i++ ) {
+			for ( size_t i = 0; i < mpGameMaps.Num(); i++ ) {
 				if ( mpGameMaps[i].supportedModes & supportedMode ) {
 					supportedMaps.Append( i );
 				}
@@ -104,8 +104,8 @@ void idCommonLocal::OnStartHosting( idMatchParameters & parms ) {
 	if ( parms.gameMode < 0 ) {
 		uint32 supportedModes = mpGameMaps[parms.gameMap].supportedModes;
 		int8 supportedModeList[32] = {};
-		int numSupportedModes = 0;
-		for ( int i = 0; i < 32; i++ ) {
+		size_t numSupportedModes = 0;
+		for ( size_t i = 0; i < 32; i++ ) {
 			if ( supportedModes & BIT(i) ) {
 				supportedModeList[numSupportedModes] = i;
 				numSupportedModes++;

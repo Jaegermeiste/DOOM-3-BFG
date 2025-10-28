@@ -55,28 +55,24 @@ If you have questions concerning this license or the applicable additional terms
 // GLOBALS
 //
 
-lumpinfo_t*	lumpinfo = NULL;
-int			numlumps;
+lumpinfo_t*	lumpinfo = nullptr;
+size_t		numlumps;
 void**		lumpcache;
 
 
-
-int filelength (FILE* handle) 
+static size_t filelength (FILE* handle) 
 { 
 	// DHM - not used :: development tool (loading single lump not in a WAD file)
 	return 0;
 }
 
 
-void
+static void
 ExtractFileBase
 ( const char*		path,
   char*		dest )
 {
-	const char*	src;
-	int		length;
-
-	src = path + strlen(path) - 1;
+	const char* src = path + strlen(path) - 1;
 
 	// back up until a \ or the start
 	while (src != path
@@ -88,14 +84,16 @@ ExtractFileBase
     
 	// copy up to eight characters
 	memset (dest,0,8);
-	length = 0;
+	size_t length = 0;
 
 	while (*src && *src != '.')
 	{
 		if (++length == 9)
+		{
 			I_Error ("Filename base of %s >8 chars",path);
+		}
 
-		*dest++ = toupper((int)*src++);
+		*dest++ = idStr::ToUpper(*src++);
 	}
 }
 
@@ -120,28 +118,24 @@ ExtractFileBase
 //  specially to allow map reloads.
 // But: the reload feature is a fragile hack...
 
-const char*			reloadname;
+static const char*			reloadname;
 
 
-void W_AddFile ( const char *filename)
+static void W_AddFile ( const char *filename )
 {
-    wadinfo_t		header;
-    lumpinfo_t*		lump_p;
-    int		i;
-    idFile *		handle;
-    int			length;
-    int			startlump;
-    std::vector<filelump_t>	fileinfo( 1 );
+    wadinfo_t		header = {};
+    idFile *		handle = nullptr;
+    idList<filelump_t>	fileinfo( 1 );
     
     // open the file and add to directory
-    if ( (handle = fileSystem->OpenFileRead(filename)) == 0)
+    if ( (handle = fileSystem->OpenFileRead(filename)) == nullptr)
     {
 		I_Printf (" couldn't open %s\n",filename);
 		return;
     }
 
     I_Printf (" adding %s\n",filename);
-    startlump = numlumps;
+    const index_t startlump = numeric_cast<index_t>(numlumps);
 	
     if ( idStr::Icmp( filename+strlen(filename)-3 , "wad" ) )
     {
@@ -168,8 +162,8 @@ void W_AddFile ( const char *filename)
 		}
 		header.numlumps = LONG(header.numlumps);
 		header.infotableofs = LONG(header.infotableofs);
-		length = header.numlumps*sizeof(filelump_t);
-		fileinfo.resize(header.numlumps);
+		const size_t length = header.numlumps * sizeof(filelump_t);
+		fileinfo.Resize(header.numlumps);
 		handle->Seek(  header.infotableofs, FS_SEEK_SET );
 		handle->Read( &fileinfo[0], length );
 		numlumps += header.numlumps;
@@ -177,21 +171,24 @@ void W_AddFile ( const char *filename)
 
     
 	// Fill in lumpinfo
-	if (lumpinfo == NULL) {
-		lumpinfo = (lumpinfo_t*)malloc( numlumps*sizeof(lumpinfo_t) );
+	if (lumpinfo == nullptr) {
+		lumpinfo = static_cast<lumpinfo_t*>(malloc(numlumps * sizeof(lumpinfo_t)));
 	} else {
-		lumpinfo = (lumpinfo_t*)realloc( lumpinfo, numlumps*sizeof(lumpinfo_t) );
+		lumpinfo = static_cast<lumpinfo_t*>(realloc(lumpinfo, numlumps * sizeof(lumpinfo_t)));
+
+		if (lumpinfo == nullptr) {
+			I_Error("Couldn't realloc lumpinfo");
+
+			lumpinfo = static_cast<lumpinfo_t*>(malloc(numlumps * sizeof(lumpinfo_t)));
+		}
 	}
 
-	if (!lumpinfo)
-		I_Error ("Couldn't realloc lumpinfo");
-
-	lump_p = &lumpinfo[startlump];
+    lumpinfo_t* lump_p = &lumpinfo[startlump];
 
 	::g->wadFileHandles[ ::g->numWadFiles++ ] = handle;
 
 	filelump_t * filelumpPointer = &fileinfo[0];
-	for (i=startlump ; i<numlumps ; i++,lump_p++, filelumpPointer++)
+	for (size_t i = startlump; i < numlumps; i++, lump_p++, filelumpPointer++)
 	{
 		lump_p->handle = handle;
 		lump_p->position = LONG(filelumpPointer->filepos);
@@ -218,20 +215,20 @@ void W_Reload (void)
 // Frees all lump data
 //
 void W_FreeLumps() {
-	if ( lumpcache != NULL ) {
-		for ( int i = 0; i < numlumps; i++ ) {
+	if ( lumpcache != nullptr) {
+		for ( size_t i = 0; i < numlumps; i++ ) {
 			if ( lumpcache[i] ) {
 				Z_Free( lumpcache[i] );
 			}
 		}
 
 		Z_Free( lumpcache );
-		lumpcache = NULL;
+		lumpcache = nullptr;
 	}
 
-	if ( lumpinfo != NULL ) {
+	if ( lumpinfo != nullptr) {
 		free( lumpinfo );
-		lumpinfo = NULL;
+		lumpinfo = nullptr;
 		numlumps = 0;
 	}
 }
@@ -241,15 +238,15 @@ void W_FreeLumps() {
 // Free this list of wad files so that a new list can be created
 //
 void W_FreeWadFiles() {
-	for (int i = 0 ; i < MAXWADFILES ; i++) {
-		wadfiles[i] = NULL;
+	for (size_t i = 0; i < MAXWADFILES; i++) {
+		wadfiles[i] = nullptr;
 		if ( ::g->wadFileHandles[i] ) {
 			delete ::g->wadFileHandles[i];
 		}
-		::g->wadFileHandles[i] = NULL;
+		::g->wadFileHandles[i] = nullptr;
 	}
 	::g->numWadFiles = 0;
-	extraWad = 0;
+	extraWad = nullptr;
 }
 
 
@@ -269,15 +266,15 @@ void W_FreeWadFiles() {
 //
 void W_InitMultipleFiles (const char** filenames)
 {
-	int		size;
+	size_t		size = 0;
 
-	if (lumpinfo == NULL)
+	if (lumpinfo == nullptr)
 	{
 		// open all the files, load headers, and count lumps
 		numlumps = 0;
 
 		// will be realloced as lumps are added
-		lumpinfo = NULL;
+		lumpinfo = nullptr;
 
 		for ( ; *filenames ; filenames++)
 		{
@@ -285,23 +282,29 @@ void W_InitMultipleFiles (const char** filenames)
 		}
 		
 		if (!numlumps)
+		{
 			I_Error ("W_InitMultipleFiles: no files found");
+		}
 
 		// set up caching
 		size = numlumps * sizeof(*lumpcache);
-		lumpcache = (void**)DoomLib::Z_Malloc(size, PU_STATIC_SHARED, 0 );
+		lumpcache = static_cast<void**>(DoomLib::Z_Malloc(size, PU_STATIC_SHARED, nullptr));
 
 		if (!lumpcache)
+		{
 			I_Error ("Couldn't allocate lumpcache");
+		}
 
 		memset (lumpcache,0, size);
 	} else {
 		// set up caching
 		size = numlumps * sizeof(*lumpcache);
-		lumpcache = (void**)DoomLib::Z_Malloc(size, PU_STATIC_SHARED, 0 );
+		lumpcache = static_cast<void**>(DoomLib::Z_Malloc(size, PU_STATIC_SHARED, nullptr));
 
 		if (!lumpcache)
+		{
 			I_Error ("Couldn't allocate lumpcache");
+		}
 
 		memset (lumpcache,0, size);
 	}
@@ -328,7 +331,7 @@ void W_Shutdown( void ) {
 //
 // W_NumLumps
 //
-int W_NumLumps (void)
+static size_t W_NumLumps (void)
 {
     return numlumps;
 }
@@ -340,19 +343,19 @@ int W_NumLumps (void)
 // Returns -1 if name not found.
 //
 
-int W_CheckNumForName (const char* name)
+index_t W_CheckNumForName (const char* name)
 {
-	const int NameLength = 9;
+	constexpr size_t NameLength = 9;
 
     union {
-		char	s[NameLength];
-		int	x[2];
+		char	s[NameLength] = {};
+		int	x[2] = {};
 	
     } name8;
     
-    int		v1;
-    int		v2;
-    lumpinfo_t*	lump_p;
+    int		v1 = 0;
+    int		v2 = 0;
+    lumpinfo_t*	lump_p = nullptr;
 
     // make the name into two integers for easy compares
     strncpy (name8.s,name, NameLength - 1);
@@ -361,8 +364,9 @@ int W_CheckNumForName (const char* name)
     name8.s[NameLength - 1] = 0;
 
     // case insensitive
-	for ( int i = 0; i < NameLength; ++i ) {
-		name8.s[i] = toupper( name8.s[i] );		
+	for (char& i : name8.s)
+	{
+		i = idStr::ToUpper(i);		
 	}
 
     v1 = name8.x[0];
@@ -374,8 +378,8 @@ int W_CheckNumForName (const char* name)
 
     while (lump_p-- != lumpinfo)
     {
-		if ( *(int *)lump_p->name == v1
-			&& *(int *)&lump_p->name[4] == v2)
+		if ( *reinterpret_cast<int*>(lump_p->name) == v1
+			&& *reinterpret_cast<int*>(&lump_p->name[4]) == v2)
 		{
 			return lump_p - lumpinfo;
 		}
@@ -392,15 +396,15 @@ int W_CheckNumForName (const char* name)
 // W_GetNumForName
 // Calls W_CheckNumForName, but bombs out if not found.
 //
-int W_GetNumForName ( const char* name)
+index_t W_GetNumForName ( const char* name )
 {
-    int	i;
-
-    i = W_CheckNumForName ( name);
+	index_t i = W_CheckNumForName(name);
     
     if (i == -1)
-      I_Error ("W_GetNumForName: %s not found!", name);
-      
+    {
+	    I_Error ("W_GetNumForName: %s not found!", name);
+    }
+
     return i;
 }
 
@@ -409,10 +413,12 @@ int W_GetNumForName ( const char* name)
 // W_LumpLength
 // Returns the buffer size needed to load the given lump.
 //
-int W_LumpLength (int lump)
+size_t W_LumpLength (index_t lump)
 {
-    if (lump >= numlumps)
-		I_Error ("W_LumpLength: %i >= numlumps",lump);
+    if (std::cmp_greater_equal(lump, numlumps))
+    {
+	    I_Error ("W_LumpLength: %i >= numlumps",lump);
+    }
 
     return lumpinfo[lump].size;
 }
@@ -426,17 +432,19 @@ int W_LumpLength (int lump)
 //
 void
 W_ReadLump
-( int		lump,
+( index_t	lump,
   void*		dest )
 {
-    int			c;
-    lumpinfo_t*	l;
-    idFile *		handle;
+    size_t		c = 0;
+    lumpinfo_t*	l = nullptr;
+    idFile *	handle = nullptr;
 	
-    if (lump >= numlumps)
-		I_Error ("W_ReadLump: %i >= numlumps",lump);
+    if (std::cmp_greater_equal(lump, numlumps))
+    {
+	    I_Error ("W_ReadLump: %i >= numlumps", lump);
+    }
 
-    l = lumpinfo+lump;
+    l = lumpinfo + lump;
 	
 	handle = l->handle;
 	
@@ -444,7 +452,9 @@ W_ReadLump
 	c = handle->Read( dest, l->size );
 
     if (c < l->size)
-		I_Error ("W_ReadLump: only read %i of %i on lump %i",  c,l->size,lump);	
+    {
+	    I_Error ("W_ReadLump: only read %i of %i on lump %i",  c,l->size, lump);
+    }
 }
 
 
@@ -456,11 +466,13 @@ W_ReadLump
 void*
 W_CacheLumpNum
 ( int		lump,
-  int		tag )
+  const int		tag )
 {
 #ifdef RANGECHECK
 	if (lump >= numlumps)
-	I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
+	{
+		I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
+	}
 #endif
 
 	if (!lumpcache[lump])
@@ -468,7 +480,7 @@ W_CacheLumpNum
 		byte*	ptr;
 		// read the lump in
 		//I_Printf ("cache miss on lump %i\n",lump);
-		ptr = (byte*)DoomLib::Z_Malloc(W_LumpLength (lump), tag, &lumpcache[lump]);
+		ptr = static_cast<byte*>(DoomLib::Z_Malloc(W_LumpLength(lump), tag, &lumpcache[lump]));
 		W_ReadLump (lump, lumpcache[lump]);
 	}
 
@@ -483,13 +495,13 @@ W_CacheLumpNum
 void*
 W_CacheLumpName
 ( const char*		name,
-  int		tag )
+  const int		tag )
 {
     return W_CacheLumpNum (W_GetNumForName(name), tag);
 }
 
 
-void W_Profile (void)
+static void W_Profile (void)
 {
 }
 

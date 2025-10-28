@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // _D3XP : rename all gameLocal.time to gameLocal.slow.time for merge!
 
-// a mover will update any gui entities in it's target list with 
+// a mover will update any gui entities in its target list with 
 // a key/val pair of "mover" "state" from below.. guis can represent
 // realtime info like this
 // binary only
@@ -287,7 +287,7 @@ void idMover::Restore( idRestoreGame *savefile ) {
 
 	savefile->ReadBool( hasSpline );
 	if ( hasSpline ) {
-		int starttime;
+		ID_TIME_T startTime;
 		int totaltime;
 		int accel;
 		int decel;
@@ -309,7 +309,7 @@ void idMover::Restore( idRestoreGame *savefile ) {
 idMover::Event_PostRestore
 ================
 */
-void idMover::Event_PostRestore( int start, int total, int accel, int decel, int useSplineAng ) {
+void idMover::Event_PostRestore(const int start, const int total, const int accel, const int decel, const int useSplineAng ) {
 	idCurve_Spline<idVec3> *spline;
 
 	idEntity *splineEntity = splineEnt.GetEntity();
@@ -441,7 +441,7 @@ void idMover::Event_SetCallback() {
 idMover::VectorForDir
 ================
 */
-void idMover::VectorForDir( float angle, idVec3 &vec ) {
+void idMover::VectorForDir(const float angle, idVec3 &vec ) {
 	idAngles ang;
 
 	switch( static_cast<int>(angle) ) {
@@ -534,7 +534,7 @@ void idMover::FindGuiTargets() {
 idMover::ClientThink
 ==============================
 */
-void idMover::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idMover::ClientThink( const int curTime, const double fraction, const bool predict ) {
 
 	// HACK. because I'm not sure all the other stuff this will screw up.
 	// There was a reason we weren't fully interpolating movers ( Which would evaluate bound objects ).
@@ -563,10 +563,10 @@ key/val will be set to any renderEntity->gui's on the list
 */
 void idMover::SetGuiState( const char *key, const char *val ) const {
 	gameLocal.Printf( "Setting %s to %s\n", key, val );
-	for( int i = 0; i < guiTargets.Num(); i++ ) {
+	for ( size_t i = 0; i < guiTargets.Num(); i++ ) {
 		idEntity *ent = guiTargets[ i ].GetEntity();
 		if ( ent ) {
-			for ( int j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
+			for ( size_t j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
 				if ( ent->GetRenderEntity() && ent->GetRenderEntity()->gui[ j ] ) {
 					ent->GetRenderEntity()->gui[ j ]->SetStateString( key, val );
 					ent->GetRenderEntity()->gui[ j ]->StateChanged( gameLocal.slow.time, true );
@@ -653,7 +653,7 @@ void idMover::DoneMoving() {
 idMover::UpdateMoveSound
 ================
 */
-void idMover::UpdateMoveSound( moveStage_t stage ) {
+void idMover::UpdateMoveSound(const moveStage_t stage ) {
 	switch( stage ) {
 		case ACCELERATION_STAGE: {
 			StartSound( "snd_accel", SND_CHANNEL_BODY2, 0, false, nullptr);
@@ -841,7 +841,7 @@ void idMover::DoneRotating() {
 idMover::UpdateRotationSound
 ================
 */
-void idMover::UpdateRotationSound( moveStage_t stage ) {
+void idMover::UpdateRotationSound(const moveStage_t stage ) {
 	switch( stage ) {
 		case ACCELERATION_STAGE: {
 			StartSound( "snd_accel", SND_CHANNEL_BODY2, 0, false, nullptr);
@@ -934,7 +934,7 @@ void idMover::Event_UpdateRotation() {
 idMover::BeginRotation
 ================
 */
-void idMover::BeginRotation( idThread *thread, bool stopwhendone ) {
+void idMover::BeginRotation( idThread *thread, const bool stopwhendone ) {
 	moveStage_t stage;
 	idAngles	ang;
 	int			at;
@@ -1038,7 +1038,7 @@ void idMover::Event_PartBlocked( idEntity *blockingEntity ) {
 idMover::Event_SetMoveSpeed
 ================
 */
-void idMover::Event_SetMoveSpeed( float speed ) {
+void idMover::Event_SetMoveSpeed(const float speed ) {
 	if ( speed <= 0 ) {
 		gameLocal.Error( "Cannot set speed less than or equal to 0." );
 	}
@@ -1052,7 +1052,7 @@ void idMover::Event_SetMoveSpeed( float speed ) {
 idMover::Event_SetMoveTime
 ================
 */
-void idMover::Event_SetMoveTime( float time ) {
+void idMover::Event_SetMoveTime(const float time ) {
 	if ( time <= 0 ) {
 		gameLocal.Error( "Cannot set time less than or equal to 0." );
 	}
@@ -1066,7 +1066,7 @@ void idMover::Event_SetMoveTime( float time ) {
 idMover::Event_SetAccellerationTime
 ================
 */
-void idMover::Event_SetAccellerationTime( float time ) {
+void idMover::Event_SetAccellerationTime(const float time ) {
 	if ( time < 0 ) {
 		gameLocal.Error( "Cannot set acceleration time less than 0." );
 	}
@@ -1079,7 +1079,7 @@ void idMover::Event_SetAccellerationTime( float time ) {
 idMover::Event_SetDecelerationTime
 ================
 */
-void idMover::Event_SetDecelerationTime( float time ) {
+void idMover::Event_SetDecelerationTime(const float time ) {
 	if ( time < 0 ) {
 		gameLocal.Error( "Cannot set deceleration time less than 0." );
 	}
@@ -1126,7 +1126,7 @@ void idMover::Event_MoveToPos( idVec3 &pos ) {
 idMover::Event_MoveDir
 ================
 */
-void idMover::Event_MoveDir( float angle, float distance ) {
+void idMover::Event_MoveDir(const float angle, const float distance ) {
 	idVec3 dir;
 	idVec3 org;
 
@@ -1142,7 +1142,7 @@ void idMover::Event_MoveDir( float angle, float distance ) {
 idMover::Event_MoveAccelerateTo
 ================
 */
-void idMover::Event_MoveAccelerateTo( float speed, float time ) {
+void idMover::Event_MoveAccelerateTo(const float speed, const float time ) {
 	float v;
 	idVec3 org, dir;
 	int at;
@@ -1185,7 +1185,7 @@ void idMover::Event_MoveAccelerateTo( float speed, float time ) {
 idMover::Event_MoveDecelerateTo
 ================
 */
-void idMover::Event_MoveDecelerateTo( float speed, float time ) {
+void idMover::Event_MoveDecelerateTo(const float speed, const float time ) {
 	float v;
 	idVec3 org, dir;
 	int dt;
@@ -1228,7 +1228,7 @@ void idMover::Event_MoveDecelerateTo( float speed, float time ) {
 idMover::Event_RotateDownTo
 ================
 */
-void idMover::Event_RotateDownTo( int axis, float angle ) {
+void idMover::Event_RotateDownTo(const int axis, const float angle ) {
 	idAngles ang;
 
 	if ( ( axis < 0 ) || ( axis > 2 ) ) {
@@ -1250,7 +1250,7 @@ void idMover::Event_RotateDownTo( int axis, float angle ) {
 idMover::Event_RotateUpTo
 ================
 */
-void idMover::Event_RotateUpTo( int axis, float angle ) {
+void idMover::Event_RotateUpTo(const int axis, const float angle ) {
 	idAngles ang;
 
 	if ( ( axis < 0 ) || ( axis > 2 ) ) {
@@ -1318,7 +1318,7 @@ void idMover::Event_RotateOnce( idAngles &angles ) {
 idMover::Event_Bob
 ================
 */
-void idMover::Event_Bob( float speed, float phase, idVec3 &depth ) {
+void idMover::Event_Bob(const float speed, const float phase, idVec3 &depth ) {
 	idVec3 org;
 
 	physicsObj.GetLocalOrigin( org );
@@ -1330,7 +1330,7 @@ void idMover::Event_Bob( float speed, float phase, idVec3 &depth ) {
 idMover::Event_Sway
 ================
 */
-void idMover::Event_Sway( float speed, float phase, idAngles &depth ) {
+void idMover::Event_Sway(const float speed, const float phase, idAngles &depth ) {
 	idAngles ang, angSpeed;
 	float duration;
 
@@ -1558,7 +1558,7 @@ void idMover::ReadFromSnapshot( const idBitMsg &msg ) {
 idMover::SetPortalState
 ================
 */
-void idMover::SetPortalState( bool open ) {
+void idMover::SetPortalState(const bool open ) {
 	assert( areaPortal );
 	gameLocal.SetPortalState( areaPortal, open ? PS_BLOCK_NONE : PS_BLOCK_ALL );
 }
@@ -1692,7 +1692,7 @@ idElevator::Spawn
 */
 void idElevator::Spawn() {
 	idStr str;
-	int len1;
+	size_t len1;
 
 	lastFloor = 0;
 	currentFloor = 0;
@@ -1768,7 +1768,7 @@ void idElevator::Think() {
 			doorent->spawnArgs.Set( "snd_close", "" );
 			doorent->spawnArgs.Set( "snd_opened", "" );
 		}
-		for ( int i = 0; i < floorInfo.Num(); i++ ) {
+		for ( size_t i = 0; i < floorInfo.Num(); i++ ) {
 			idDoor *door = GetDoor( floorInfo[i].door );
 			if ( door ) {
 				door->SetCompanion( doorent );
@@ -1783,7 +1783,7 @@ void idElevator::Think() {
 		if ( doorent != nullptr && doorent->IsOpen() ) {
 			state = WAITING_ON_DOORS;
 		} else {
-			for ( int i = 0; i < floorInfo.Num(); i++ ) {
+			for ( size_t i = 0; i < floorInfo.Num(); i++ ) {
 				idDoor *door = GetDoor( floorInfo[i].door );
 				if ( door != nullptr && door->IsOpen() ) {
 					state = WAITING_ON_DOORS; 
@@ -1879,7 +1879,7 @@ bool idElevator::HandleSingleGuiCommand( idEntity *entityGui, idLexer *src ) {
 idElevator::OpenFloorDoor
 ================
 */
-void idElevator::OpenFloorDoor( int floor ) {
+void idElevator::OpenFloorDoor(const int floor ) {
 	floorInfo_s *fi = GetFloorInfo( floor );
 	if ( fi ) {
 		idDoor *door = GetDoor( fi->door );
@@ -1906,8 +1906,8 @@ void idElevator::OpenInnerDoor() {
 idElevator::GetFloorInfo
 ================
 */
-floorInfo_s *idElevator::GetFloorInfo( int floor ) {
-	for ( int i = 0; i < floorInfo.Num(); i++ ) {
+floorInfo_s *idElevator::GetFloorInfo(const int floor ) {
+	for ( size_t i = 0; i < floorInfo.Num(); i++ ) {
 		if ( floorInfo[i].floor == floor ) {
 			return &floorInfo[i];
 		}
@@ -1920,7 +1920,7 @@ floorInfo_s *idElevator::GetFloorInfo( int floor ) {
 idElevator::Event_GotoFloor
 ================
 */
-void idElevator::Event_GotoFloor( int floor ) {
+void idElevator::Event_GotoFloor(const int floor ) {
 	floorInfo_s *fi = GetFloorInfo( floor );
 	if ( fi ) {
 		DisableAllDoors();
@@ -1950,7 +1950,7 @@ void idElevator::BeginMove( idThread *thread ) {
 	while( kv ) {
 		idEntity *ent = gameLocal.FindEntity( kv->GetValue() );
 		if ( ent ) {
-			for ( int j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
+			for ( size_t j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
 				if ( ent->GetRenderEntity() && ent->GetRenderEntity()->gui[ j ] ) {
 					ent->GetRenderEntity()->gui[ j ]->SetStateString( "floor", "" );
 					ent->GetRenderEntity()->gui[ j ]->StateChanged( gameLocal.slow.time, true );
@@ -2024,7 +2024,7 @@ void idElevator::DoneMoving() {
 	while( kv ) {
 		idEntity *ent = gameLocal.FindEntity( kv->GetValue() );
 		if ( ent ) {
-			for ( int j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
+			for ( size_t j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
 				if ( ent->GetRenderEntity() && ent->GetRenderEntity()->gui[ j ] ) {
 					ent->GetRenderEntity()->gui[ j ]->SetStateString( "floor", va( "%i", currentFloor ) );
 					ent->GetRenderEntity()->gui[ j ]->StateChanged( gameLocal.slow.time, true );
@@ -2051,7 +2051,7 @@ void idElevator::CloseAllDoors() {
 	if ( door ) {
 		door->Close();
 	}
-	for ( int i = 0; i < floorInfo.Num(); i++ ) {
+	for ( size_t i = 0; i < floorInfo.Num(); i++ ) {
 		door = GetDoor( floorInfo[i].door );
 		if ( door ) {
 			door->Close();
@@ -2069,7 +2069,7 @@ void idElevator::DisableAllDoors() {
 	if ( door ) {
 		door->Enable( false );
 	}
-	for ( int i = 0; i < floorInfo.Num(); i++ ) {
+	for ( size_t i = 0; i < floorInfo.Num(); i++ ) {
 		door = GetDoor( floorInfo[i].door );
 		if ( door ) {
 			door->Enable( false );
@@ -2087,7 +2087,7 @@ void idElevator::EnableProperDoors() {
 	if ( door ) {
 		door->Enable( true );
 	}
-	for ( int i = 0; i < floorInfo.Num(); i++ ) {
+	for ( size_t i = 0; i < floorInfo.Num(); i++ ) {
 		if ( floorInfo[i].floor == currentFloor ) {
 			door = GetDoor( floorInfo[i].door );
 			if ( door ) {
@@ -2410,7 +2410,7 @@ Angles will be cleared, because it is being used to represent a direction
 instead of an orientation.
 ===============
 */
-void idMover_Binary::GetMovedir( float angle, idVec3 &movedir ) {
+void idMover_Binary::GetMovedir(const float angle, idVec3 &movedir ) {
 	if ( angle == -1 ) {
 		movedir.Set( 0, 0, 1 );
 	} else if ( angle == -2 ) {
@@ -2439,7 +2439,7 @@ void idMover_Binary::Event_SetCallback() {
 idMover_Binary::UpdateMoverSound
 ===============
 */
-void idMover_Binary::UpdateMoverSound( moverState_t state ) {
+void idMover_Binary::UpdateMoverSound(const moverState_t state ) {
 	if ( moveMaster == this ) {
 		switch( state ) {
 			case MOVER_POS1:
@@ -2461,7 +2461,7 @@ void idMover_Binary::UpdateMoverSound( moverState_t state ) {
 idMover_Binary::SetMoverState
 ===============
 */
-void idMover_Binary::SetMoverState( moverState_t newstate, const ID_TIME_T time ) {
+void idMover_Binary::SetMoverState(const moverState_t newstate, const ID_TIME_T time ) {
 	idVec3 	delta;
 
 	moverState = newstate;
@@ -2512,7 +2512,7 @@ All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
 */
-void idMover_Binary::MatchActivateTeam( moverState_t newstate, const ID_TIME_T time ) {
+void idMover_Binary::MatchActivateTeam(const moverState_t newstate, const ID_TIME_T time ) {
 	idMover_Binary *slave;
 
 	for ( slave = this; slave != nullptr; slave = slave->activateChain ) {
@@ -2525,7 +2525,7 @@ void idMover_Binary::MatchActivateTeam( moverState_t newstate, const ID_TIME_T t
 idMover_Binary::Enable
 ================
 */
-void idMover_Binary::Enable( bool b ) {
+void idMover_Binary::Enable(const bool b ) {
 	enabled = b;
 }
 
@@ -2534,7 +2534,7 @@ void idMover_Binary::Enable( bool b ) {
 idMover_Binary::Event_MatchActivateTeam
 ================
 */
-void idMover_Binary::Event_MatchActivateTeam( moverState_t newstate, const ID_TIME_T time ) {
+void idMover_Binary::Event_MatchActivateTeam(const moverState_t newstate, const ID_TIME_T time ) {
 	MatchActivateTeam( newstate, time );
 }
 
@@ -2795,7 +2795,7 @@ void idMover_Binary::GotoPosition2() {
 idMover_Binary::UpdateBuddies
 ================
 */
-void idMover_Binary::UpdateBuddies( int val ) {
+void idMover_Binary::UpdateBuddies(const int val ) {
 	int i, c;
 
 	if ( updateStatus == 2 ) {
@@ -2939,7 +2939,7 @@ void idMover_Binary::SetGuiState( const char *key, const char *val ) const {
 	for( i = 0; i < guiTargets.Num(); i++ ) {
 		idEntity *ent = guiTargets[ i ].GetEntity();
 		if ( ent ) {
-			for ( int j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
+			for ( size_t j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
 				if ( ent->GetRenderEntity() && ent->GetRenderEntity()->gui[ j ] ) {
 					ent->GetRenderEntity()->gui[ j ]->SetStateString( key, val );
 					ent->GetRenderEntity()->gui[ j ]->StateChanged( gameLocal.slow.time, true );
@@ -2977,7 +2977,7 @@ idMover_Binary::InitSpeed
 pos1, pos2, and speed are passed in so the movement delta can be calculated
 ================
 */
-void idMover_Binary::InitSpeed( idVec3 &mpos1, idVec3 &mpos2, float mspeed, float maccelTime, float mdecelTime ) {
+void idMover_Binary::InitSpeed( idVec3 &mpos1, idVec3 &mpos2, const float mspeed, const float maccelTime, const float mdecelTime ) {
 	idVec3		move;
 	float		distance;
 	float		speed;
@@ -3014,7 +3014,7 @@ idMover_Binary::InitTime
 pos1, pos2, and time are passed in so the movement delta can be calculated
 ================
 */
-void idMover_Binary::InitTime( idVec3 &mpos1, idVec3 &mpos2, float mtime, float maccelTime, float mdecelTime ) {
+void idMover_Binary::InitTime( idVec3 &mpos1, idVec3 &mpos2, const float mtime, const float maccelTime, const float mdecelTime ) {
 
 	pos1		= mpos1;
 	pos2		= mpos2;
@@ -3041,7 +3041,7 @@ void idMover_Binary::InitTime( idVec3 &mpos1, idVec3 &mpos2, float mtime, float 
 idMover_Binary::SetBlocked
 ================
 */
-void idMover_Binary::SetBlocked( bool b ) {
+void idMover_Binary::SetBlocked(const bool b ) {
 	for ( idMover_Binary *slave = moveMaster; slave != nullptr; slave = slave->activateChain ) {
 		slave->blocked = b;
 		if ( b ) {
@@ -3112,7 +3112,7 @@ void idMover_Binary::ReadFromSnapshot( const idBitMsg &msg ) {
 idMover_Binary::SetPortalState
 ================
 */
-void idMover_Binary::SetPortalState( bool open ) {
+void idMover_Binary::SetPortalState(const bool open ) {
 	assert( areaPortal );
 	gameLocal.SetPortalState( areaPortal, open ? PS_BLOCK_NONE : PS_BLOCK_ALL );
 }
@@ -3382,7 +3382,7 @@ void idDoor::Spawn() {
 idDoor::Think
 ================
 */
-void idDoor::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idDoor::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
 
@@ -3449,7 +3449,7 @@ void idDoor::PostBind() {
 idDoor::SetAASAreaState
 ================
 */
-void idDoor::SetAASAreaState( bool closed ) {
+void idDoor::SetAASAreaState(const bool closed ) {
 	aas_area_closed = closed;
 	gameLocal.SetAASAreaState( physicsObj.GetAbsBounds(), AREACONTENTS_CLUSTERPORTAL|AREACONTENTS_OBSTACLE, closed );
 }
@@ -3593,7 +3593,7 @@ void idDoor::Close() {
 idDoor::Lock
 ================
 */
-void idDoor::Lock( int f ) {
+void idDoor::Lock(const int f ) {
 	idMover_Binary *other;
 
 	// lock all the doors on the team
@@ -3671,7 +3671,7 @@ idDoor::CalcTriggerBounds
 Calcs bounds for a trigger.
 ======================
 */
-void idDoor::CalcTriggerBounds( float size, idBounds &bounds ) {
+void idDoor::CalcTriggerBounds(const float size, idBounds &bounds ) {
 	idMover_Binary	*other;
 	int				i;
 	int				best;
@@ -4009,7 +4009,7 @@ void idDoor::Event_Close() {
 idDoor::Event_Lock
 ================
 */
-void idDoor::Event_Lock( int f ) {
+void idDoor::Event_Lock(const int f ) {
 	Lock( f );
 }
 
@@ -4280,7 +4280,7 @@ void idPlat::RunPhysics_NoBlocking() {
 idPlat::ClientThink
 ================
 */
-void idPlat::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idPlat::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	InterpolatePhysicsOnly( fraction );
 
 	Present();

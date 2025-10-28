@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __M_ARGV__
 #define __M_ARGV__
 
+#pragma once
+
 //
 // MISC
 //
@@ -37,7 +39,7 @@ extern  char**	myargv;
 
 // Returns the position of the given parameter
 // in the arg list (0 if not found).
-int M_CheckParm (char* check);
+index_t M_CheckParm (const char* check);
 
 
 #endif

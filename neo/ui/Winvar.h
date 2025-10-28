@@ -80,7 +80,7 @@ public:
 
 	[[nodiscard]] virtual float x() const = 0;
 
-	void SetEval(bool b) {
+	void SetEval(const bool b) {
 		eval = b;
 	}
 
@@ -237,7 +237,7 @@ public:
 	virtual void WriteToSaveGame( idFile *savefile ) {
 		savefile->Write( &eval, sizeof( eval ) );
 
-		int len = data.Length();
+		size_t len = data.Length();
 		savefile->Write( &len, sizeof( len ) );
 		if ( len > 0 ) {
 			savefile->Write( data.c_str(), len );
@@ -246,7 +246,7 @@ public:
 	virtual void ReadFromSaveGame( idFile *savefile ) {
 		savefile->Read( &eval, sizeof( eval ) );
 
-		int len;
+		size_t len;
 		savefile->Read( &len, sizeof( len ) );
 		if ( len > 0 ) {
 			data.Fill( ' ', len );
@@ -834,7 +834,7 @@ public:
 	virtual void WriteToSaveGame( idFile *savefile ) {
 		savefile->Write( &eval, sizeof( eval ) );
 
-		int len = data.Length();
+		size_t len = data.Length();
 		savefile->Write( &len, sizeof( len ) );
 		if ( len > 0 ) {
 			savefile->Write( data.c_str(), len );
@@ -843,7 +843,7 @@ public:
 	virtual void ReadFromSaveGame( idFile *savefile ) {
 		savefile->Read( &eval, sizeof( eval ) );
 
-		int len;
+		size_t len;
 		savefile->Read( &len, sizeof( len ) );
 		if ( len > 0 ) {
 			data.Fill( ' ', len );

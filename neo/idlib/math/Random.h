@@ -47,7 +47,7 @@ public:
 						[[nodiscard]] int					GetSeed() const;
 
 	int					RandomInt();			// random integer in the range [0, MAX_RAND]
-	int					RandomInt( int max );		// random integer in the range [0, max[
+	int					RandomInt( size_t max );		// random integer in the range [0, max[
 	int					RandomInt( const std::integral auto max);		// random integer in the range [0, max[
 	float				RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float				CRandomFloat();		// random number in the range [-1.0f, 1.0f]
@@ -75,7 +75,7 @@ ID_INLINE int idRandom::RandomInt() {
 	return ( seed & idRandom::MAX_RAND );
 }
 
-ID_INLINE int idRandom::RandomInt(const int max ) {
+ID_INLINE int idRandom::RandomInt(const size_t max ) {
 	if ( max == 0 ) {
 		return 0;			// avoid divide by zero error
 	}
@@ -86,7 +86,7 @@ ID_INLINE int idRandom::RandomInt(const std::integral auto max) {
 	if (max == 0) {
 		return 0;			// avoid divide by zero error
 	}
-	return RandomInt() % idMath::integer_cast<int>(max);
+	return RandomInt() % numeric_cast<int>(max);
 }
 
 ID_INLINE float idRandom::RandomFloat() {
@@ -108,13 +108,15 @@ ID_INLINE float idRandom::CRandomFloat() {
 
 class idRandom2 {
 public:
-							idRandom2( unsigned long seed = 0 ) noexcept;
+							idRandom2() noexcept;
+	               explicit idRandom2( const Ordinal auto seed ) noexcept;
 
-	void					SetSeed( unsigned long seed ) noexcept;
+	void					SetSeed( const Ordinal auto seed ) noexcept;
+
 	[[nodiscard]] unsigned long			GetSeed() const;
 
 	int						RandomInt();			// random integer in the range [0, MAX_RAND]
-	int						RandomInt( int max );		// random integer in the range [0, max]
+	int						RandomInt( size_t max );		// random integer in the range [0, max]
 	int64					RandomInt64();			// random integer in the range [0, MAX_RAND]
 	int64					RandomInt64(int64 max);		// random integer in the range [0, max]
 	float					RandomFloat();		// random number in the range [0.0f, 1.0f]
@@ -129,12 +131,17 @@ private:
 	static constexpr unsigned long	IEEE_MASK = 0x007fffff;
 };
 
-ID_INLINE idRandom2::idRandom2(const unsigned long seed ) noexcept {
-	this->seed = seed;
+ID_INLINE idRandom2::idRandom2() noexcept {
+	SetSeed(Sys_Milliseconds());
 }
 
-ID_INLINE void idRandom2::SetSeed(const unsigned long seed ) noexcept {
-	this->seed = seed;
+ID_INLINE idRandom2::idRandom2( const Ordinal auto seed ) noexcept {
+	SetSeed(seed);
+}
+
+ID_INLINE void idRandom2::SetSeed( const Ordinal auto seed ) noexcept {
+	constexpr uint64 mask = static_cast<uint64>((std::numeric_limits<unsigned long>::max)());
+	this->seed = static_cast<unsigned long>(static_cast<uint64>(seed) & mask);
 }
 
 ID_INLINE unsigned long idRandom2::GetSeed() const {
@@ -146,23 +153,23 @@ ID_INLINE int idRandom2::RandomInt() {
 	return ( static_cast<int>(seed) & idRandom2::MAX_RAND );
 }
 
-ID_INLINE int idRandom2::RandomInt(const int max ) {
+ID_INLINE int idRandom2::RandomInt( const size_t max ) {
 	if ( max == 0 ) {
 		return 0;		// avoid divide by zero error
 	}
-	return ( RandomInt() >> ( 16 - idMath::BitsForInteger( max ) ) ) % max;
+	return ( RandomInt() >> ( 16 - idMath::BitsForInteger( max ) ) ) % numeric_cast<int>(max);
 }
 
 ID_INLINE int64 idRandom2::RandomInt64() {
 	seed = 1664525L * seed + 1013904223L;
-	return (idMath::integer_cast<int64>(seed) & idRandom2::MAX_RAND);
+	return (numeric_cast<int64>(seed) & idRandom2::MAX_RAND);
 }
 
 ID_INLINE int64 idRandom2::RandomInt64(const int64 max) {
 	if (max == 0) {
 		return 0;		// avoid divide by zero error
 	}
-	return (RandomInt64() >> (16 - idMath::BitsForInteger(max))) % max;
+	return (RandomInt64() >> (16 - idMath::BitsForInteger( max ))) % max;
 }
 
 ID_INLINE float idRandom2::RandomFloat() {

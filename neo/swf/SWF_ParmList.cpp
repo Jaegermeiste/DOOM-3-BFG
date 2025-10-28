@@ -65,13 +65,13 @@ void idSWFParmList::Append( idSWFScriptString * s ) {
 		var->SetString( s );
 	}
 }
-void idSWFParmList::Append( const float f ) {
+void idSWFParmList::Append( const std::floating_point auto f ) {
 	idSWFScriptVar * var = Alloc();
 	if ( var != nullptr) {
 		var->SetFloat( f );
 	}
 }
-void idSWFParmList::Append( const int32 i ) {
+void idSWFParmList::Append( const std::integral auto i ) {
 	idSWFScriptVar * var = Alloc();
 	if ( var != nullptr) {
 		var->SetInteger( i );

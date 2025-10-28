@@ -165,7 +165,7 @@ The clip space of the 'lightProject' is assumed to be in the range [0, 1].
 static byte TriangleCulled_Generic( const idVec3 & v1, const idVec3 & v2, const idVec3 & v3, const idRenderMatrix & lightProject ) {
 	// transform the triangle
 	idVec4 c[3];
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		c[0][i] = v1[0] * lightProject[i][0] + v1[1] * lightProject[i][1] + v1[2] * lightProject[i][2] + lightProject[i][3];
 		c[1][i] = v2[0] * lightProject[i][0] + v2[1] * lightProject[i][1] + v2[2] * lightProject[i][2] + lightProject[i][3];
 		c[2][i] = v3[0] * lightProject[i][0] + v3[1] * lightProject[i][1] + v3[2] * lightProject[i][2] + lightProject[i][3];
@@ -173,7 +173,7 @@ static byte TriangleCulled_Generic( const idVec3 & v1, const idVec3 & v2, const 
 
 	// calculate the culled bits
 	int bits = 0;
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		constexpr float minW = 0.0f;
 		const float maxW = c[i][3];
 
@@ -196,8 +196,8 @@ static byte TriangleCulled_Generic( const idVec3 & v1, const idVec3 & v2, const 
 CalculateTriangleFacingCulledStatic
 =====================
 */
-static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte * __restrict culled, const triIndex_t * __restrict indexes, int numIndexes,
-									const idDrawVert * __restrict verts, const int numVerts,
+static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte * __restrict culled, const triIndex_t * __restrict indexes, const size_t numIndexes,
+									const idDrawVert * __restrict verts, const size_t numVerts,
 									const idVec3 & lightOrigin, const idVec3 & viewOrigin,
 									bool cullShadowTrianglesToLight, const idRenderMatrix & lightProject,
 									bool * insideShadowVolume, const float radius ) {
@@ -236,12 +236,12 @@ static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte *
 
 	__m128i numFrontFacing = _mm_setzero_si128();
 
-	for ( int i = 0, j = 0; i < numIndexes; ) {
+	for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 		const int batchStart = i;
 		const int batchEnd = indexedVertsODS.FetchNextBatch();
 		const int batchEnd4x = batchEnd - 4 * 3;
-		const int indexStart = j;
+		const index_t indexStart = j;
 
 		for ( ; i <= batchEnd4x; i += 4 * 3, j += 4 ) {
 			const __m128 vertA0 = _mm_load_ps( indexedVertsODS[i + 0 * 3 + 0].xyz.ToFloatPtr() );
@@ -332,13 +332,13 @@ static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte *
 
 	const byte cullShadowTrianglesToLightMask = cullShadowTrianglesToLight ? 255 : 0;
 
-	int numFrontFacing = 0;
+	size_t numFrontFacing = 0;
 
-	for ( int i = 0, j = 0; i < numIndexes; ) {
+	for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 		const int batchStart = i;
 		const int batchEnd = indexedVertsODS.FetchNextBatch();
-		const int indexStart = j;
+		const index_t indexStart = j;
 
 		for ( ; i <= batchEnd - 3; i += 3, j++ ) {
 			const idVec3 & v1 = indexedVertsODS[i + 0].xyz;
@@ -382,8 +382,8 @@ static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte *
 CalculateTriangleFacingCulledSkinned
 =====================
 */
-static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte * __restrict culled, idVec4 * __restrict tempVerts, const triIndex_t * __restrict indexes, int numIndexes,
-												const idDrawVert * __restrict verts, const int numVerts, const idJointMat * __restrict joints,
+static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte * __restrict culled, idVec4 * __restrict tempVerts, const triIndex_t * __restrict indexes, const size_t numIndexes,
+												const idDrawVert * __restrict verts, const size_t numVerts, const idJointMat * __restrict joints,
 												const idVec3 & lightOrigin, const idVec3 & viewOrigin,
 												bool cullShadowTrianglesToLight, const idRenderMatrix & lightProject,
 												bool * insideShadowVolume, const float radius ) {
@@ -409,7 +409,7 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 
 	idODSStreamedArray< idDrawVert, 32, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
@@ -434,29 +434,29 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 
 	__m128i numFrontFacing = _mm_setzero_si128();
 
-	for ( int i = 0, j = 0; i < numIndexes; ) {
+	for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 		const int batchStart = i;
 		const int batchEnd = indexesODS.FetchNextBatch();
 		const int batchEnd4x = batchEnd - 4 * 3;
-		const int indexStart = j;
+		const index_t indexStart = j;
 
 		for ( ; i <= batchEnd4x; i += 4 * 3, j += 4 ) {
-			const int indexA0 = indexesODS[( i + 0 * 3 + 0 )];
-			const int indexA1 = indexesODS[( i + 0 * 3 + 1 )];
-			const int indexA2 = indexesODS[( i + 0 * 3 + 2 )];
+			const index_t indexA0 = indexesODS[( i + 0 * 3 + 0 )];
+			const index_t indexA1 = indexesODS[( i + 0 * 3 + 1 )];
+			const index_t indexA2 = indexesODS[( i + 0 * 3 + 2 )];
 
-			const int indexB0 = indexesODS[( i + 1 * 3 + 0 )];
-			const int indexB1 = indexesODS[( i + 1 * 3 + 1 )];
-			const int indexB2 = indexesODS[( i + 1 * 3 + 2 )];
+			const index_t indexB0 = indexesODS[( i + 1 * 3 + 0 )];
+			const index_t indexB1 = indexesODS[( i + 1 * 3 + 1 )];
+			const index_t indexB2 = indexesODS[( i + 1 * 3 + 2 )];
 
-			const int indexC0 = indexesODS[( i + 2 * 3 + 0 )];
-			const int indexC1 = indexesODS[( i + 2 * 3 + 1 )];
-			const int indexC2 = indexesODS[( i + 2 * 3 + 2 )];
+			const index_t indexC0 = indexesODS[( i + 2 * 3 + 0 )];
+			const index_t indexC1 = indexesODS[( i + 2 * 3 + 1 )];
+			const index_t indexC2 = indexesODS[( i + 2 * 3 + 2 )];
 
-			const int indexD0 = indexesODS[( i + 3 * 3 + 0 )];
-			const int indexD1 = indexesODS[( i + 3 * 3 + 1 )];
-			const int indexD2 = indexesODS[( i + 3 * 3 + 2 )];
+			const index_t indexD0 = indexesODS[( i + 3 * 3 + 0 )];
+			const index_t indexD1 = indexesODS[( i + 3 * 3 + 1 )];
+			const index_t indexD2 = indexesODS[( i + 3 * 3 + 2 )];
 
 			const __m128 vertA0 = _mm_load_ps( tempVerts[indexA0].ToFloatPtr() );
 			const __m128 vertA1 = _mm_load_ps( tempVerts[indexA1].ToFloatPtr() );
@@ -547,7 +547,7 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 
 	idODSStreamedArray< idDrawVert, 32, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
@@ -561,13 +561,13 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 
 	const byte cullShadowTrianglesToLightMask = cullShadowTrianglesToLight ? 255 : 0;
 
-	int numFrontFacing = 0;
+	size_t numFrontFacing = 0;
 
-	for ( int i = 0, j = 0; i < numIndexes; ) {
+	for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 		const int batchStart = i;
 		const int batchEnd = indexesODS.FetchNextBatch();
-		const int indexStart = j;
+		const index_t indexStart = j;
 
 		for ( ; i <= batchEnd - 3; i += 3, j++ ) {
 			const int i0 = indexesODS[i + 0];
@@ -618,7 +618,7 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 StreamOut
 ============
 */
-static void StreamOut( void * dst, const void * src, int numBytes ) {
+static void StreamOut( void * dst, const void * src, size_t numBytes ) {
 	numBytes = ( numBytes + 15 ) & ~15;
 	assert_16_byte_aligned( dst );
 	assert_16_byte_aligned( src );
@@ -657,9 +657,9 @@ static void StreamOut( void * dst, const void * src, int numBytes ) {
 R_CreateShadowVolumeTriangles
 ============
 */
-static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices, triIndex_t *__restrict indexBuffer, int & numShadowIndexesTotal,
-												const byte *__restrict facing, const silEdge_t *__restrict silEdges, const int numSilEdges,
-												const triIndex_t *__restrict indexes, const int numIndexes, const bool includeCaps ) {
+static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices, triIndex_t *__restrict indexBuffer, size_t & numShadowIndexesTotal,
+												const byte *__restrict facing, const silEdge_t *__restrict silEdges, const size_t numSilEdges,
+												const triIndex_t *__restrict indexes, const size_t numIndexes, const bool includeCaps ) {
 	assert_spu_local_store( facing );
 	assert_not_spu_local_store( shadowIndices );
 	assert_not_spu_local_store( silEdges );
@@ -667,21 +667,21 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 
 #if 1
 
-	constexpr int IN_BUFFER_SIZE = 64;
-	constexpr int OUT_BUFFER_SIZE = IN_BUFFER_SIZE * 8;			// each silhouette edge or cap triangle may create 6 indices (8 > 6)
-	constexpr int OUT_BUFFER_DEPTH = 4;							// quad buffer to allow overlapped output streaming
-	constexpr int OUT_BUFFER_MASK = ( OUT_BUFFER_SIZE * OUT_BUFFER_DEPTH - 1 );
+	constexpr size_t IN_BUFFER_SIZE = 64;
+	constexpr size_t OUT_BUFFER_SIZE = IN_BUFFER_SIZE * 8;			// each silhouette edge or cap triangle may create 6 indices (8 > 6)
+	constexpr size_t OUT_BUFFER_DEPTH = 4;							// quad buffer to allow overlapped output streaming
+	constexpr size_t OUT_BUFFER_MASK = ( OUT_BUFFER_SIZE * OUT_BUFFER_DEPTH - 1 );
 
 	compile_time_assert( OUT_BUFFER_SIZE * OUT_BUFFER_DEPTH * sizeof( triIndex_t ) == OUTPUT_INDEX_BUFFER_SIZE );
 	assert_16_byte_aligned( indexBuffer );
 
-	int numShadowIndices = 0;
-	int numStreamedIndices = 0;
+	size_t numShadowIndices = 0;
+	size_t numStreamedIndices = 0;
 
 	{
 		idODSStreamedArray< silEdge_t, IN_BUFFER_SIZE, SBT_DOUBLE, 1 > silEdgesODS( silEdges, numSilEdges );
 
-		for ( int i = 0; i < numSilEdges; ) {
+		for ( size_t i = 0; i < numSilEdges; ) {
 
 			const int nextNumSilEdges = silEdgesODS.FetchNextBatch();
 
@@ -774,7 +774,7 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 	if ( includeCaps ) {
 		idODSStreamedArray< triIndex_t, IN_BUFFER_SIZE, SBT_QUAD, 1 > indexesODS( indexes, numIndexes );
 
-		for ( int i = 0, j = 0; i < numIndexes; ) {
+		for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 			const int nextNumIndexes = indexesODS.FetchNextBatch();
 
@@ -869,7 +869,7 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 	{
 		idODSStreamedArray< silEdge_t, 128, SBT_DOUBLE, 1 > silEdgesODS( silEdges, numSilEdges );
 
-		for ( int i = 0; i < numSilEdges; ) {
+		for ( size_t i = 0; i < numSilEdges; ) {
 
 			const int nextNumSilEdges = silEdgesODS.FetchNextBatch() - 1;
 
@@ -909,7 +909,7 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 	if ( includeCaps ) {
 		idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 1 > indexesODS( indexes, numIndexes );
 
-		for ( int i = 0, j = 0; i < numIndexes; ) {
+		for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 			const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 
@@ -949,8 +949,8 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 R_CreateLightTriangles
 =====================
 */
-void R_CreateLightTriangles( triIndex_t * __restrict lightIndices, triIndex_t * __restrict indexBuffer, int & numLightIndicesTotal,
-								const byte * __restrict culled, const triIndex_t * __restrict indexes, const int numIndexes ) {
+void R_CreateLightTriangles( triIndex_t * __restrict lightIndices, triIndex_t * __restrict indexBuffer, size_t & numLightIndicesTotal,
+								const byte * __restrict culled, const triIndex_t * __restrict indexes, const size_t numIndexes ) {
 	assert_spu_local_store( culled );
 	assert_not_spu_local_store( lightIndices );
 	assert_not_spu_local_store( indexes );
@@ -965,12 +965,12 @@ void R_CreateLightTriangles( triIndex_t * __restrict lightIndices, triIndex_t * 
 	compile_time_assert( OUT_BUFFER_SIZE * OUT_BUFFER_DEPTH * sizeof( triIndex_t ) == OUTPUT_INDEX_BUFFER_SIZE );
 	assert_16_byte_aligned( indexBuffer );
 
-	int numLightIndices = 0;
-	int numStreamedIndices = 0;
+	size_t numLightIndices = 0;
+	size_t numStreamedIndices = 0;
 
 	idODSStreamedArray< triIndex_t, IN_BUFFER_SIZE, SBT_QUAD, 1 > indexesODS( indexes, numIndexes );
 
-	for ( int i = 0, j = 0; i < numIndexes; ) {
+	for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 		const int nextNumIndexes = indexesODS.FetchNextBatch();
 
@@ -1039,11 +1039,11 @@ void R_CreateLightTriangles( triIndex_t * __restrict lightIndices, triIndex_t * 
 
 #else	// NOTE: this code will not work on the SPU because it tries to write directly to the destination
 
-	int numLightIndices = 0;
+	size_t numLightIndices = 0;
 
 	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 1 > indexesODS( indexes, numIndexes );
 
-	for ( int i = 0, j = 0; i < numIndexes; ) {
+	for ( size_t i = 0, j = 0; i < numIndexes; ) {
 
 		const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 
@@ -1108,8 +1108,8 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t * parms ) {
 	}
 
 	bool renderZFail = false;
-	int numShadowIndices = 0;
-	int numLightIndices = 0;
+	size_t numShadowIndices = 0;
+	size_t numLightIndices = 0;
 
 	// The shadow volume may be depth culled if either the shadow volume was culled to the view frustum or if the
 	// depth range of the visible part of the shadow volume is outside the depth range of the light volume.
@@ -1129,7 +1129,7 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t * parms ) {
 
 		// Calculate the facing of each triangle and cull each triangle to the light volume.
 		// Optionally also calculate more precisely whether or not the view is inside the shadow volume.
-		int numFrontFacing = 0;
+		size_t numFrontFacing = 0;
 		if ( parms->joints != nullptr) {
 			numFrontFacing = CalculateTriangleFacingCulledSkinned( parms->tempFacing, parms->tempCulled, parms->tempVerts, parms->indexes, parms->numIndexes,
 																parms->verts, parms->numVerts, parms->joints,
@@ -1146,7 +1146,7 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t * parms ) {
 
 		// Create shadow volume indices.
 		if ( parms->shadowIndices != nullptr) {
-			const int numTriangles = parms->numIndexes / 3;
+			const size_t numTriangles = parms->numIndexes / 3;
 
 			// If there are any triangles facing away from the light.
 			if ( numTriangles - numFrontFacing > 0 ) {

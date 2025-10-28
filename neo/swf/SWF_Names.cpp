@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 idSWF::GetTagName
 ========================
 */
-const char * idSWF::GetTagName( swfTag_t tag ) {
+const char * idSWF::GetTagName(const swfTag_t tag ) {
 #define SWF_TAG_NAME( x ) case Tag_##x: return #x;
 	switch ( tag ) {
 	SWF_TAG_NAME( End );
@@ -107,7 +107,7 @@ const char * idSWF::GetTagName( swfTag_t tag ) {
 idSWF::GetActionName
 ========================
 */
-const char * idSWF::GetActionName( swfAction_t action ) {
+const char * idSWF::GetActionName(const swfAction_t action ) {
 #define SWF_ACTION_NAME( x ) case Action_##x: return #x;
 	switch ( action ) {
 	SWF_ACTION_NAME( NextFrame );

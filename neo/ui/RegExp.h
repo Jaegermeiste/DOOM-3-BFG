@@ -51,7 +51,7 @@ public:
 	void				SetToRegs( float *registers ) const;
 	void				GetFromRegs( float *registers ) const;
 	void				CopyRegs( idRegister *src );
-	void				Enable( bool b ) { enabled = b; }
+	void				Enable(const bool b ) { enabled = b; }
 	void				ReadFromDemoFile( idDemoFile *f );
 	void				WriteToDemoFile( idDemoFile *f );
 	void				WriteToSaveGame( idFile *savefile ) const;
@@ -61,7 +61,7 @@ public:
 ID_INLINE idRegister::idRegister() {
 }
 
-ID_INLINE idRegister::idRegister( const char *p, int t ) {
+ID_INLINE idRegister::idRegister( const char *p, const int t ) {
 	name = p;
 	type = t;
 	assert( t >= 0 && t < NUMTYPES );

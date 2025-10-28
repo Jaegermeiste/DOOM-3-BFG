@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SNAPSHOT_H__
 #define __SNAPSHOT_H__
 
+#pragma once
+
 #include "snapshot_jobs.h"
 
 extern idCVar net_verboseSnapshot;
@@ -48,11 +50,11 @@ public:
 	// clears the snapshot
 	void Clear();
 
-	[[nodiscard]] int  GetTime() const { return time; }
-	void SetTime( int t ) { time = t; }
+	[[nodiscard]] ID_TIME_T  GetTime() const { return time; }
+	void SetTime(const ID_TIME_T t ) { time = t; }
 
-	[[nodiscard]] int  GetRecvTime() const { return recvTime; }
-	void SetRecvTime( int t ) { recvTime = t; }
+	[[nodiscard]] ID_TIME_T  GetRecvTime() const { return recvTime; }
+	void SetRecvTime(const ID_TIME_T t ) { recvTime = t; }
 
 	// Loads only sequence and baseSequence values from the compressed stream
 	static void PeekDeltaSequence( const char * deltaMem, int deltaSize, int & sequence, int & baseSequence );
@@ -64,14 +66,14 @@ public:
 	// Writes an object state packet which is delta compressed against the old snapshot
 	struct objectBuffer_t {
 		objectBuffer_t() noexcept : data(nullptr), size( 0 ) { }
-		objectBuffer_t( int s ) : data(nullptr), size( s ) { Alloc( s ); }
+		objectBuffer_t(const int s ) : data(nullptr), size( s ) { Alloc( s ); }
 		objectBuffer_t( const objectBuffer_t & o ) : data(nullptr), size( 0 ) { *this = o; }
 		~objectBuffer_t() { _Release(); }
 		void Alloc(size_t size );
 		[[nodiscard]] int NumRefs() const { return data == nullptr ? 0 : data[size]; }
 		[[nodiscard]] objectSize_t Size() const { return size; }
 		[[nodiscard]] byte * Ptr() const { return data == nullptr ? nullptr : data ; }
-		byte & operator[]( int i ) const { return data[i]; }
+		byte & operator[](const int i ) const { return data[i]; }
 		void operator=( const objectBuffer_t & other );
 
 		// (not making private because of idSnapshot)
@@ -126,11 +128,11 @@ public:
 
 	void SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t & submitDeltaJobInfo );
 
-	bool WriteDelta( idSnapShot & old, int visIndex, idFile * file, int maxLength, int optimalLength = 0 );
+	bool WriteDelta( idSnapShot & old, int visIndex, idFile * file, size_t maxLength, int optimalLength = 0 );
 
 	// Adds an object to the state, overwrites any existing object with the same number
-	objectState_t * S_AddObject( int objectNum, uint32 visMask, const idBitMsg & msg, const char * tag = nullptr) { return S_AddObject( objectNum, visMask, msg.GetReadData(), msg.GetSize(), tag ); }
-	objectState_t * S_AddObject( int objectNum, uint32 visMask, const byte * buffer, size_t size, const char * tag = nullptr) { return S_AddObject( objectNum, visMask, reinterpret_cast<const char*>(buffer), size, tag ); }
+	objectState_t * S_AddObject(const int objectNum, const uint32 visMask, const idBitMsg & msg, const char * tag = nullptr) { return S_AddObject( objectNum, visMask, msg.GetReadData(), msg.GetSize(), tag ); }
+	objectState_t * S_AddObject(const int objectNum, const uint32 visMask, const byte * buffer, const size_t size, const char * tag = nullptr) { return S_AddObject( objectNum, visMask, reinterpret_cast<const char*>(buffer), size, tag ); }
 	objectState_t * S_AddObject( int objectNum, uint32 visMask, const char * buffer, size_t size, const char * tag = nullptr);
 	bool CopyObject( const idSnapShot & oldss, int objectNum, bool forceStale = false );
 	int CompareObject( const idSnapShot * oldss, int objectNum, int start=0, int end=0, int oldStart=0 );
@@ -142,7 +144,7 @@ public:
 	int GetObjectMsgByIndex( int i, idBitMsg & msg, bool ignoreIfStale = false ) const;
 
 	// returns true if the object was found in the snapshot
-	bool GetObjectMsgByID( int objectNum, idBitMsg & msg, bool ignoreIfStale = false ) const { return GetObjectMsgByIndex( FindObjectIndexByID( objectNum ), msg, ignoreIfStale ) == objectNum; }
+	bool GetObjectMsgByID(const int objectNum, idBitMsg & msg, const bool ignoreIfStale = false ) const { return GetObjectMsgByIndex( FindObjectIndexByID( objectNum ), msg, ignoreIfStale ) == objectNum; }
 
 	// returns the object index or -1 if it's not found
 	[[nodiscard]] int FindObjectIndexByID( int objectNum ) const;
@@ -172,8 +174,8 @@ private:
 	idList< objectState_t *, TAG_IDLIB_LIST_SNAPSHOT>							objectStates;
 	idBlockAlloc< objectState_t, 16, TAG_NETWORKING >	allocatedObjs;
 
-	int													time;
-	int													recvTime;
+	ID_TIME_T											time;
+	ID_TIME_T											recvTime;
 
 	[[nodiscard]] int				BinarySearch( int objectNum ) const;
 	objectState_t &	FindOrCreateObjectByID( int objectNum );					// objIndex is optional parm for returning the index of the obj
@@ -195,7 +197,7 @@ private:
 	) const;		
 	
 	void WriteObject( idFile * file, int visIndex, objectState_t * newState, objectState_t * oldState, int & lastobjectNum );
-	void FreeObjectState( int index );
+	void FreeObjectState( index_t index );
 };
 
 #endif // __SNAPSHOT_H__

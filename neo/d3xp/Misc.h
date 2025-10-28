@@ -240,7 +240,7 @@ public:
 	void				Spawn();
 
 	void		Think() override;
-	void		ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void		ClientThink( const int curTime, const double fraction, const bool predict ) override;
 private:
 	idForce_Field		forceField;
 
@@ -292,8 +292,8 @@ private:
 	void					Event_StartRagdoll();
 	void					Event_AnimDone( int animIndex );
 	void					Event_Footstep();
-	void					Event_LaunchMissiles( const char *projectilename, const char *sound, const char *launchjoint, const char *targetjoint, int numshots, int framedelay );
-	void					Event_LaunchMissilesUpdate( int launchjoint, int targetjoint, int numshots, int framedelay );
+	void					Event_LaunchMissiles( const char *projectilename, const char *sound, const char *launchjoint, const char *targetjoint, size_t numshots, int framedelay );
+	void					Event_LaunchMissilesUpdate( int launchjoint, int targetjoint, size_t numshots, int framedelay );
 	void					Event_SetAnimation( const char *animName );
 	void					Event_GetAnimationLength();
 };
@@ -790,7 +790,7 @@ public:
 private:
 	void				Event_Activate( idEntity *activator );
 	void				Event_Throw();
-	void				Event_ShakeObject( idEntity *object, int starttime );
+	void				Event_ShakeObject( idEntity *object, ID_TIME_T startTime );
 
 	int					end_time;
 	float				throw_time;

@@ -12,28 +12,16 @@
 ===============================================================================
 */
 
-#ifndef _MD_TYPES
-#define _MD_TYPES
-/* POINTER defines a generic pointer type */
-typedef unsigned char* POINTER;
-
-/* UINT2 defines a two byte word */
-typedef unsigned short int UINT2;
-
-/* UINT4 defines a four byte word */
-typedef unsigned long int UINT4;
-#endif // _MD_TYPES
-
 struct MD5_CTX {
-	UINT4	state[4];
-	UINT4	bits[2];
-	unsigned char	in[64];
+	uint32	state[4];
+	uint32	bits[2];
+	byte	in[64];
 };
 
 void MD5_Init( MD5_CTX *ctx );
-void MD5_Update( MD5_CTX *context, unsigned char const *input, size_t inputLen );
-void MD5_Final( MD5_CTX *context, unsigned char digest[16] );
+void MD5_Update( MD5_CTX *context, byte const *input, size_t inputLen );
+void MD5_Final( MD5_CTX *context,byte digest[16] );
 
-unsigned int MD5_BlockChecksum( const void *data, size_t length );
+uint32 MD5_BlockChecksum( const void *data, size_t length );
 
 #endif /* !__MD5_H__ */

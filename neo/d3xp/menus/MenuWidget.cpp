@@ -49,7 +49,7 @@ idMenuWidget::idMenuWidget() :
 	noAutoFree( false ) {
 
 	eventActionLookup.SetNum( eventActionLookup.Max() );
-	for ( int i = 0; i < eventActionLookup.Num(); ++i ) {
+	for ( size_t i = 0; i < eventActionLookup.Num(); ++i ) {
 		eventActionLookup[ i ] = INVALID_ACTION_INDEX;
 	}
 }
@@ -64,7 +64,7 @@ idMenuWidget::~idMenuWidget() {
 }
 
 void idMenuWidget::Cleanup() {
-	for ( int j = 0; j < observers.Num(); ++j ) {
+	for ( size_t j = 0; j < observers.Num(); ++j ) {
 		assert( observers[j]->refCount > 0 );
 		observers[ j ]->Release();
 	}
@@ -72,7 +72,7 @@ void idMenuWidget::Cleanup() {
 	observers.Clear();
 
 	// free all children
-	for ( int i = 0; i < children.Num(); ++i ) {
+	for ( size_t i = 0; i < children.Num(); ++i ) {
 		assert( children[i]->refCount > 0 );
 		children[ i ]->Release();
 	}
@@ -107,7 +107,7 @@ idMenuWidget::RemoveAllChildren
 */
 void idMenuWidget::RemoveAllChildren() {
 	
-	for ( int i = 0; i < children.Num(); ++ i ) {
+	for ( size_t i = 0; i < children.Num(); ++ i ) {
 
 		assert( children[ i ]->GetParent() == this );
 
@@ -137,7 +137,7 @@ idMenuWidget::RemoveChild
 ========================
 */
 bool idMenuWidget::HasChild( idMenuWidget * widget ) {
-	for ( int i = 0; i < children.Num(); ++ i ) {
+	for ( size_t i = 0; i < children.Num(); ++ i ) {
 		if ( children[ i ] == widget ) {
 			return true;
 		}
@@ -215,7 +215,7 @@ Sends an event to all the observers
 ========================
 */
 void idMenuWidget::SendEventToObservers( const idWidgetEvent & event ) {
-	for ( int i = 0; i < observers.Num(); ++i ) {
+	for ( size_t i = 0; i < observers.Num(); ++i ) {
 		observers[ i ]->ObserveEvent( *this, event );
 	}
 }
@@ -243,9 +243,9 @@ idMenuWidget::SetSpritePath
 */
 void idMenuWidget::SetSpritePath( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5 ) {
 	const char * args[] = { arg1, arg2, arg3, arg4, arg5 };
-	constexpr int numArgs = sizeof( args ) / sizeof( args[ 0 ] );
+	constexpr size_t numArgs = sizeof( args ) / sizeof( args[ 0 ] );
 	spritePath.Clear();
-	for ( int i = 0; i < numArgs; ++i ) {
+	for ( size_t i = 0; i < numArgs; ++i ) {
 		if ( args[ i ] == nullptr) {
 			break;
 		}
@@ -260,9 +260,9 @@ idMenuWidget::SetSpritePath
 */
 void idMenuWidget::SetSpritePath( const idList< idStr > & spritePath_, const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5 ) {
 	const char * args[] = { arg1, arg2, arg3, arg4, arg5 };
-	constexpr int numArgs = sizeof( args ) / sizeof( args[ 0 ] );
+	constexpr size_t numArgs = sizeof( args ) / sizeof( args[ 0 ] );
 	spritePath = spritePath_;
-	for ( int i = 0; i < numArgs; ++i ) {
+	for ( size_t i = 0; i < numArgs; ++i ) {
 		if ( args[ i ] == nullptr) {
 			break;
 		}
@@ -332,7 +332,7 @@ bool idMenuWidget::BindSprite( idSWFScriptObject & root ) {
 
 	const char * args[ 6 ] = {nullptr};
 	assert( GetSpritePath().Num() > 0 );
-	for ( int i = 0; i < GetSpritePath().Num(); ++i ) {
+	for ( size_t i = 0; i < GetSpritePath().Num(); ++i ) {
 		args[ i ] = GetSpritePath()[ i ].c_str();
 	}
 	boundSprite = root.GetNestedSprite( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ], args[ 4 ], args[ 5 ] );
@@ -402,7 +402,7 @@ void idMenuWidget::SetDataSource( idMenuDataSource * dataSource_, const int fiel
 idMenuWidget::SetFocusIndex
 ========================
 */
-void idMenuWidget::SetFocusIndex( const int index, bool skipSound ) {
+void idMenuWidget::SetFocusIndex( const index_t index, const bool skipSound ) {
 
 	if (  GetChildren().Num() == 0 ) {
 		return;
@@ -480,7 +480,7 @@ void idMenuWidget::SetState( const widgetState_t state ) {
 idMenuWidget::HandleAction
 ========================
 */
-bool idMenuWidget::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuWidget::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	bool handled = false;
 	if ( GetParent() != nullptr) {
@@ -534,7 +534,7 @@ void idMenuWidget::ClearEventActions() {
 	eventActions.Clear();
 	eventActionLookup.Clear();
 	eventActionLookup.SetNum( eventActionLookup.Max() );
-	for ( int i = 0; i < eventActionLookup.Num(); ++i ) {
+	for ( size_t i = 0; i < eventActionLookup.Num(); ++i ) {
 		eventActionLookup[ i ] = INVALID_ACTION_INDEX;
 	}
 }

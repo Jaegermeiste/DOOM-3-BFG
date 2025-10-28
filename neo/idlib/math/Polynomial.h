@@ -52,9 +52,9 @@ public:
 					explicit idPolynomial( float a, float b, float c, float d, float e );
 
 	
-	float			operator[]( Ordinal auto index ) const;
+	float			operator[]( const Ordinal auto index ) const;
 	
-	float &			operator[]( Ordinal auto index );
+	float &			operator[]( const Ordinal auto index );
 
 	idPolynomial	operator-() const;
 	idPolynomial &	operator=( const idPolynomial &p );
@@ -69,42 +69,42 @@ public:
 	idPolynomial &	operator*=( const float s );
 	idPolynomial &	operator/=( const float s );
 
-					[[nodiscard]] bool			Compare( const idPolynomial &p ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idPolynomial &p, const float epsilon ) const;// compare with epsilon
+	[[nodiscard]] bool			Compare( const idPolynomial &p ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idPolynomial &p, const float epsilon ) const;// compare with epsilon
 	bool			operator==(	const idPolynomial &p ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPolynomial &p ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Zero( int d );
 
-					[[nodiscard]] int				GetDimension() const;									// get the degree of the polynomial
-					[[nodiscard]] int				GetDegree() const;									// get the degree of the polynomial
-					[[nodiscard]] float			GetValue( const float x ) const;							// evaluate the polynomial with the given real value
-					[[nodiscard]] idComplex		GetValue( const idComplex &x ) const;						// evaluate the polynomial with the given complex value
-					[[nodiscard]] idPolynomial	GetDerivative() const;								// get the first derivative of the polynomial
-					[[nodiscard]] idPolynomial	GetAntiDerivative() const;							// get the anti derivative of the polynomial
+	[[nodiscard]] size_t    	GetDimension() const;									// get the degree of the polynomial
+	[[nodiscard]] size_t		GetDegree() const;									// get the degree of the polynomial
+	[[nodiscard]] float			GetValue( const float x ) const;							// evaluate the polynomial with the given real value
+	[[nodiscard]] idComplex		GetValue( const idComplex &x ) const;						// evaluate the polynomial with the given complex value
+	[[nodiscard]] idPolynomial	GetDerivative() const;								// get the first derivative of the polynomial
+	[[nodiscard]] idPolynomial	GetAntiDerivative() const;							// get the anti derivative of the polynomial
 
-	int				GetRoots( idComplex *roots ) const;							// get all roots
-	int				GetRoots( float *roots ) const;								// get the real roots
+	size_t			GetRoots( idComplex *roots ) const;							// get all roots
+	size_t			GetRoots( float *roots ) const;								// get the real roots
 
-	static int		GetRoots1( float a, float b, float *roots );
-	static int		GetRoots2( float a, float b, float c, float *roots );
-	static int		GetRoots3( float a, float b, float c, float d, float *roots );
-	static int		GetRoots4( float a, float b, float c, float d, float e, float *roots );
+	static size_t	GetRoots1( float a, float b, float *roots );
+	static size_t	GetRoots2( float a, float b, float c, float *roots );
+	static size_t	GetRoots3( float a, float b, float c, float d, float *roots );
+	static size_t	GetRoots4( float a, float b, float c, float d, float e, float *roots );
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] float *		ToFloatPtr();
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 	static void		Test();
 
 private:
-	int				degree;
-	int				allocated;
+	size_t			degree;
+	size_t			allocated;
 	float *			coefficient;
 
-	void			Resize( int d, bool keep );
-	int				Laguer( const idComplex *coef, const int degree, idComplex &r ) const;
+	void			Resize( size_t d, bool keep );
+	static size_t	Laguer( const idComplex *coef, const size_t degree, idComplex &x );
 };
 
 ID_INLINE idPolynomial::idPolynomial() noexcept {
@@ -163,13 +163,13 @@ ID_INLINE idPolynomial::idPolynomial(const float a, const float b, const float c
 }
 
 
-ID_INLINE float idPolynomial::operator[](const Ordinal auto index ) const {
+ID_INLINE float idPolynomial::operator[]( const Ordinal auto index ) const {
 	assert( index >= 0 && index <= degree );
 	return coefficient[ index ];
 }
 
 
-ID_INLINE float& idPolynomial::operator[](const Ordinal auto index ) {
+ID_INLINE float& idPolynomial::operator[]( const Ordinal auto index ) {
 	assert( index >= 0 && index <= degree );
 	return coefficient[ index ];
 }
@@ -182,7 +182,11 @@ ID_INLINE idPolynomial idPolynomial::operator-() const {
 	return n;
 }
 
-ID_INLINE idPolynomial &idPolynomial::operator=( const idPolynomial &p ) { 
+ID_INLINE idPolynomial &idPolynomial::operator=( const idPolynomial &p ) {
+	if (this == &p) {
+		return *this;
+	}
+
 	Resize( p.degree, false );
 	for ( size_t i = 0; std::cmp_less_equal(i, degree); i++ ) {
 		coefficient[i] = p.coefficient[i];
@@ -218,7 +222,7 @@ ID_INLINE idPolynomial idPolynomial::operator+( const idPolynomial &p ) const {
 		for ( i = 0; std::cmp_less_equal(i, degree); i++ ) {
 			n.coefficient[i] = coefficient[i] + p.coefficient[i];
 			if ( n.coefficient[i] != 0.0f ) {
-				n.degree = idMath::integer_cast<int>(i);
+				n.degree = numeric_cast<int>(i);
 			}
 		}
 	}
@@ -253,7 +257,7 @@ ID_INLINE idPolynomial idPolynomial::operator-( const idPolynomial &p ) const {
 		for ( i = 0; std::cmp_less_equal(i, degree); i++ ) {
 			n.coefficient[i] = coefficient[i] - p.coefficient[i];
 			if ( n.coefficient[i] != 0.0f ) {
-				n.degree = idMath::integer_cast<int>(i);
+				n.degree = numeric_cast<int>(i);
 			}
 		}
 	}
@@ -267,7 +271,7 @@ ID_INLINE idPolynomial idPolynomial::operator*( const float s ) const {
 		n.degree = 0;
 	} else {
 		n.Resize( degree, false );
-		for ( int i = 0; i <= degree; i++ ) {
+		for ( size_t i = 0; i <= degree; i++ ) {
 			n.coefficient[i] = coefficient[i] * s;
 		}
 	}
@@ -280,7 +284,7 @@ ID_INLINE idPolynomial idPolynomial::operator/( const float s ) const {
 	assert( s != 0.0f );
 	n.Resize( degree, false );
 	const float invs = 1.0f / s;
-	for ( int i = 0; i <= degree; i++ ) {
+	for ( size_t i = 0; i <= degree; i++ ) {
 		n.coefficient[i] = coefficient[i] * invs;
 	}
 	return n;
@@ -305,7 +309,7 @@ ID_INLINE idPolynomial &idPolynomial::operator+=( const idPolynomial &p ) {
 		for ( i = 0; std::cmp_less_equal(i, degree); i++ ) {
 			coefficient[i] += p.coefficient[i];
 			if ( coefficient[i] != 0.0f ) {
-				degree = idMath::integer_cast<int>(i);
+				degree = numeric_cast<int>(i);
 			}
 		}
 	}
@@ -331,7 +335,7 @@ ID_INLINE idPolynomial &idPolynomial::operator-=( const idPolynomial &p ) {
 		for ( i = 0; std::cmp_less_equal(i, degree); i++ ) {
 			coefficient[i] -= p.coefficient[i];
 			if ( coefficient[i] != 0.0f ) {
-				degree = idMath::integer_cast<int>(i);
+				degree = numeric_cast<int>(i);
 			}
 		}
 	}
@@ -355,7 +359,7 @@ ID_INLINE idPolynomial &idPolynomial::operator/=( const float s ) {
 	for ( size_t i = 0; std::cmp_less_equal(i, degree); i++ ) {
 		coefficient[i] = invs;
 	}
-	return *this;;
+	return *this;
 }
 
 ID_INLINE bool idPolynomial::Compare( const idPolynomial &p ) const {
@@ -401,11 +405,11 @@ ID_INLINE void idPolynomial::Zero(const int d ) {
 	}
 }
 
-ID_INLINE int idPolynomial::GetDimension() const {
+ID_INLINE size_t idPolynomial::GetDimension() const {
 	return degree;
 }
 
-ID_INLINE int idPolynomial::GetDegree() const {
+ID_INLINE size_t idPolynomial::GetDegree() const {
 	return degree;
 }
 
@@ -438,7 +442,7 @@ ID_INLINE idPolynomial idPolynomial::GetDerivative() const {
 	}
 	n.Resize( degree - 1, false );
 	for ( size_t i = 1; std::cmp_less_equal(i, degree); i++ ) {
-		n.coefficient[i-1] = i * coefficient[i];
+		n.coefficient[i-1] = numeric_cast<float>(i) * coefficient[i];
 	}
 	return n;
 }
@@ -452,18 +456,18 @@ ID_INLINE idPolynomial idPolynomial::GetAntiDerivative() const {
 	n.Resize( degree + 1, false );
 	n.coefficient[0] = 0.0f;
 	for ( size_t i = 0; std::cmp_less_equal(i, degree); i++ ) {
-		n.coefficient[i+1] = coefficient[i] / ( i + 1 );
+		n.coefficient[i+1] = coefficient[i] / numeric_cast<float>( i + 1 );
 	}
 	return n;
 }
 
-ID_INLINE int idPolynomial::GetRoots1(const float a, const float b, float *roots ) {
+ID_INLINE size_t idPolynomial::GetRoots1(const float a, const float b, float *roots ) {
 	assert( a != 0.0f );
 	roots[0] = - b / a;
 	return 1;
 }
 
-ID_INLINE int idPolynomial::GetRoots2(const float a, float b, float c, float *roots ) {
+ID_INLINE size_t idPolynomial::GetRoots2(const float a, float b, float c, float *roots ) {
 	if ( a != 1.0f ) {
 		assert( a != 0.0f );
 		const float inva = 1.0f / a;
@@ -484,7 +488,7 @@ ID_INLINE int idPolynomial::GetRoots2(const float a, float b, float c, float *ro
 	}
 }
 
-ID_INLINE int idPolynomial::GetRoots3(const float a, float b, float c, float d, float *roots ) {
+ID_INLINE size_t idPolynomial::GetRoots3(const float a, float b, float c, float d, float *roots ) {
 	float t = 0.0f;
 
 	if ( a != 1.0f ) {
@@ -539,7 +543,7 @@ ID_INLINE int idPolynomial::GetRoots3(const float a, float b, float c, float d, 
 	}
 }
 
-ID_INLINE int idPolynomial::GetRoots4(const float a, float b, float c, float d, float e, float *roots ) {
+ID_INLINE size_t idPolynomial::GetRoots4(const float a, float b, float c, float d, float e, float *roots ) {
 	float s1 = 0.0f, s2 = 0.0f, t1 = 0.0f, t2 = 0.0f;
 	float roots3[3] = {};
 
@@ -552,7 +556,7 @@ ID_INLINE int idPolynomial::GetRoots4(const float a, float b, float c, float d, 
 		b *= inva;
 	}
 
-	int count = 0;
+	size_t count = 0;
 
 	GetRoots3( 1.0f, -c, b * d - 4.0f * e, -b * b * e + 4.0f * c * e - d * d, roots3 );
 	const float y = roots3[0];
@@ -606,13 +610,13 @@ ID_INLINE float *idPolynomial::ToFloatPtr() {
 	return coefficient;
 }
 
-ID_INLINE void idPolynomial::Resize(const int d, const bool keep ) {
-	const int alloc = ( d + 1 + 3 ) & ~3;
+ID_INLINE void idPolynomial::Resize(const size_t d, const bool keep ) {
+	const size_t alloc = ( d + 1 + 3 ) & ~3;
 	if ( alloc > allocated ) {
 		float *ptr = static_cast<float*>(Mem_Alloc16(alloc * sizeof(float), TAG_MATH));
 		if ( coefficient != nullptr) {
 			if ( keep ) {
-				for ( int i = 0; i <= degree; i++ ) {
+				for ( size_t i = 0; i <= degree; i++ ) {
 					ptr[i] = coefficient[i];
 				}
 			}

@@ -97,7 +97,7 @@ void	P_SpawnMapThing (mapthing_t*	mthing);
 //
 // P_LoadVertexes
 //
-void P_LoadVertexes (int lump)
+static void P_LoadVertexes (const int lump)
 {
 	byte*		data;
 	int			i;
@@ -113,7 +113,7 @@ void P_LoadVertexes (int lump)
 	if (MallocForLump( lump, ::g->numvertexes*sizeof(vertex_t ), ::g->vertexes, PU_LEVEL_SHARED ))
 	{
 		// Load data into cache.
-		data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
 		ml = (mapvertex_t *)data;
 		li = ::g->vertexes;
@@ -136,7 +136,7 @@ void P_LoadVertexes (int lump)
 //
 // P_LoadSegs
 //
-void P_LoadSegs (int lump)
+static void P_LoadSegs (const int lump)
 {
 	byte*		data;
 	int			i;
@@ -152,7 +152,7 @@ void P_LoadSegs (int lump)
 	if (MallocForLump( lump, ::g->numsegs*sizeof(seg_t), ::g->segs, PU_LEVEL_SHARED ))
 	{
 		memset (::g->segs, 0, ::g->numsegs*sizeof(seg_t));
-		data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
 		ml = (mapseg_t *)data;
 		li = ::g->segs;
@@ -170,9 +170,13 @@ void P_LoadSegs (int lump)
 			li->sidedef = &::g->sides[ldef->sidenum[side]];
 			li->frontsector = ::g->sides[ldef->sidenum[side]].sector;
 			if (ldef-> flags & ML_TWOSIDED)
+			{
 				li->backsector = ::g->sides[ldef->sidenum[side^1]].sector;
+			}
 			else
-				li->backsector = 0;
+			{
+				li->backsector = nullptr;
+			}
 		}
 
 		Z_Free(data);
@@ -183,7 +187,7 @@ void P_LoadSegs (int lump)
 //
 // P_LoadSubsectors
 //
-void P_LoadSubsectors (int lump)
+static void P_LoadSubsectors (const int lump)
 {
 	byte*		data;
 	int			i;
@@ -194,7 +198,7 @@ void P_LoadSubsectors (int lump)
 
 	if (MallocForLump( lump, ::g->numsubsectors*sizeof(subsector_t), ::g->subsectors, PU_LEVEL_SHARED ))
 	{
-		data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
 		ms = (mapsubsector_t *)data;
 		memset (::g->subsectors,0, ::g->numsubsectors*sizeof(subsector_t));
@@ -215,7 +219,7 @@ void P_LoadSubsectors (int lump)
 //
 // P_LoadSectors
 //
-void P_LoadSectors (int lump)
+static void P_LoadSectors (const int lump)
 {
 	byte*		data;
 	int			i;
@@ -224,9 +228,9 @@ void P_LoadSectors (int lump)
 
 	::g->numsectors = W_LumpLength (lump) / sizeof(mapsector_t);
 	
-	::g->sectors = (sector_t*)Z_Malloc( ::g->numsectors*sizeof(sector_t), PU_LEVEL, NULL );
+	::g->sectors = static_cast<sector_t*>(Z_Malloc(::g->numsectors * sizeof(sector_t), PU_LEVEL, nullptr));
 	memset (::g->sectors, 0, ::g->numsectors*sizeof(sector_t));
-	data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+	data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
 	ms = (mapsector_t *)data;
 	ss = ::g->sectors;
@@ -239,7 +243,7 @@ void P_LoadSectors (int lump)
 		ss->lightlevel = SHORT(ms->lightlevel);
 		ss->special = SHORT(ms->special);
 		ss->tag = SHORT(ms->tag);
-		ss->thinglist = NULL;
+		ss->thinglist = nullptr;
 	}
 
 	Z_Free(data);
@@ -273,7 +277,7 @@ void P_LoadSectors (int lump)
 //
 // P_LoadNodes
 //
-void P_LoadNodes (int lump)
+static void P_LoadNodes (const int lump)
 {
 	byte*	data;
 	int		i;
@@ -285,7 +289,7 @@ void P_LoadNodes (int lump)
 	::g->numnodes = W_LumpLength (lump) / sizeof(mapnode_t);
 	if (MallocForLump( lump, ::g->numnodes*sizeof(node_t), ::g->nodes, PU_LEVEL_SHARED ))
 	{
-		data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
 		mn = (mapnode_t *)data;
 		no = ::g->nodes;
@@ -300,7 +304,9 @@ void P_LoadNodes (int lump)
 			{
 				no->children[j] = SHORT(mn->children[j]);
 				for (k=0 ; k<4 ; k++)
+				{
 					no->bbox[j][k] = SHORT(mn->bbox[j][k])<<FRACBITS;
+				}
 			}
 		}
 
@@ -312,19 +318,19 @@ void P_LoadNodes (int lump)
 //
 // P_LoadThings
 //
-void P_LoadThings (int lump)
+static void P_LoadThings (const index_t lump)
 {
-	byte*		data;
-	int			i;
-	mapthing_t*		mt;
-	int			numthings;
-	qboolean		spawn;
+	byte*		    data = nullptr;
+	size_t			i = 0;
+	mapthing_t*		mt = nullptr;
+	size_t			numthings = 0;
+	qboolean		spawn = false;
 
-	data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+	data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 	numthings = (W_LumpLength (lump) / sizeof(mapthing_t));
 
-	mt = (mapthing_t *)data;
-	for (i=0 ; i<numthings ; i++, mt++)
+	mt = reinterpret_cast<mapthing_t*>(data);
+	for (i = 0; i < numthings; i++, mt++)
 	{
 		spawn = true;
 
@@ -344,11 +350,13 @@ void P_LoadThings (int lump)
 			case 66:	// Revenant
 			case 84:	// Wolf SS
 				spawn = false;
-				break;
+				continue;                     // FIX: https://doomwiki.org/wiki/Doom_II_monster_exclusion_bug
 			}
 		}
 		if (spawn == false)
+		{
 			break;
+		}
 
 		// Do spawn all other stuff. 
 		mt->x = SHORT(mt->x);
@@ -368,7 +376,7 @@ void P_LoadThings (int lump)
 // P_LoadLineDefs
 // Also counts secret ::g->lines for intermissions.
 //
-void P_LoadLineDefs (int lump)
+static void P_LoadLineDefs (const int lump)
 {
 	byte*		data;
 	int			i;
@@ -381,7 +389,7 @@ void P_LoadLineDefs (int lump)
 	if (MallocForLump( lump, ::g->numlines*sizeof(line_t), ::g->lines, PU_LEVEL_SHARED ))
 	{
 		memset (::g->lines, 0, ::g->numlines*sizeof(line_t));
-		data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
 		mld = (maplinedef_t *)data;
 		ld = ::g->lines;
@@ -396,15 +404,23 @@ void P_LoadLineDefs (int lump)
 			ld->dy = v2->y - v1->y;
 
 			if (!ld->dx)
+			{
 				ld->slopetype = ST_VERTICAL;
+			}
 			else if (!ld->dy)
+			{
 				ld->slopetype = ST_HORIZONTAL;
+			}
 			else
 			{
 				if (FixedDiv (ld->dy , ld->dx) > 0)
+				{
 					ld->slopetype = ST_POSITIVE;
+				}
 				else
+				{
 					ld->slopetype = ST_NEGATIVE;
+				}
 			}
 
 			if (v1->x < v2->x)
@@ -433,14 +449,22 @@ void P_LoadLineDefs (int lump)
 			ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
 			if (ld->sidenum[0] != -1)
+			{
 				ld->frontsector = ::g->sides[ld->sidenum[0]].sector;
+			}
 			else
-				ld->frontsector = 0;
+			{
+				ld->frontsector = nullptr;
+			}
 
 			if (ld->sidenum[1] != -1)
+			{
 				ld->backsector = ::g->sides[ld->sidenum[1]].sector;
+			}
 			else
-				ld->backsector = 0;
+			{
+				ld->backsector = nullptr;
+			}
 		}
 
 		Z_Free(data);
@@ -451,22 +475,17 @@ void P_LoadLineDefs (int lump)
 //
 // P_LoadSideDefs
 //
-void P_LoadSideDefs (int lump)
+static void P_LoadSideDefs (const int lump)
 {
-	byte*		data;
-	int			i;
-	mapsidedef_t*	msd;
-	side_t*		sd;
-
 	::g->numsides = W_LumpLength (lump) / sizeof(mapsidedef_t);
 	if (MallocForLump( lump, ::g->numsides*sizeof(side_t), ::g->sides, PU_LEVEL_SHARED))
 	{
 		memset (::g->sides, 0, ::g->numsides*sizeof(side_t));
-		data = (byte*)W_CacheLumpNum (lump,PU_CACHE_SHARED); // ALAN: LOADTIME
+		byte* data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-		msd = (mapsidedef_t *)data;
-		sd = ::g->sides;
-		for (i=0 ; i < ::g->numsides ; i++, msd++, sd++)
+		mapsidedef_t* msd = reinterpret_cast<mapsidedef_t*>(data);
+		side_t* sd = ::g->sides;
+		for (size_t i = 0 ; i < ::g->numsides ; i++, msd++, sd++)
 		{
 			sd->textureoffset = SHORT(msd->textureoffset)<<FRACBITS;
 			sd->rowoffset = SHORT(msd->rowoffset)<<FRACBITS;
@@ -484,7 +503,7 @@ void P_LoadSideDefs (int lump)
 //
 // P_LoadBlockMap
 //
-void P_LoadBlockMap (int lump)
+static void P_LoadBlockMap (const int lump)
 {
 	int		i;
 	int		count;
@@ -494,13 +513,15 @@ void P_LoadBlockMap (int lump)
 		firstTime = true;
 	}
 
-	::g->blockmaplump = (short*)W_CacheLumpNum (lump,PU_LEVEL_SHARED); // ALAN: This is initialized somewhere else as shared...
+	::g->blockmaplump = static_cast<short*>(W_CacheLumpNum(lump,PU_LEVEL_SHARED)); // ALAN: This is initialized somewhere else as shared...
 	::g->blockmap = ::g->blockmaplump+4;
 	count = W_LumpLength (lump)/2;
 
 	if ( firstTime ) {				// SMF
 		for (i=0 ; i<count ; i++)
+		{
 			::g->blockmaplump[i] = SHORT(::g->blockmaplump[i]);
+		}
 	}
 
 	::g->bmaporgx = ( ::g->blockmaplump[0] )<<FRACBITS;
@@ -510,7 +531,7 @@ void P_LoadBlockMap (int lump)
 
 	// clear out mobj chains
 	count = sizeof(*::g->blocklinks)* ::g->bmapwidth*::g->bmapheight;
-	::g->blocklinks = (mobj_t**)Z_Malloc (count,PU_LEVEL, 0);
+	::g->blocklinks = static_cast<mobj_t**>(Z_Malloc(count,PU_LEVEL, nullptr));
 	memset (::g->blocklinks, 0, count);
 }
 
@@ -521,7 +542,7 @@ void P_LoadBlockMap (int lump)
 // Builds sector line lists and subsector sector numbers.
 // Finds block bounding boxes for ::g->sectors.
 //
-void P_GroupLines (void)
+static void P_GroupLines (void)
 {
 	line_t**		linebuffer;
 	int			i;
@@ -559,7 +580,7 @@ void P_GroupLines (void)
 	}
 
 	// build line tables for each sector	
-	linebuffer = (line_t**)Z_Malloc (total*4, PU_LEVEL, 0);
+	linebuffer = static_cast<line_t**>(Z_Malloc(total * 4, PU_LEVEL, nullptr));
 	sector = ::g->sectors;
 	for (i=0 ; i < ::g->numsectors ; i++, sector++)
 	{
@@ -576,7 +597,9 @@ void P_GroupLines (void)
 			}
 		}
 		if (linebuffer - sector->lines != sector->linecount)
+		{
 			I_Error ("P_GroupLines: miscounted");
+		}
 
 		// set the degenmobj_t to the middle of the bounding box
 		sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
@@ -606,10 +629,10 @@ void P_GroupLines (void)
 //
 // P_SetupLevel
 //
-void
+static void
 P_SetupLevel
-( int		episode,
- int		map,
+(const int		episode,
+ const int		map,
  int		playermask,
  skill_t	skill)
 {
@@ -656,9 +679,13 @@ P_SetupLevel
 	if ( ::g->gamemode == commercial)
 	{
 		if (map<10)
+		{
 			sprintf (lumpname,"map0%i", map);
+		}
 		else
+		{
 			sprintf (lumpname,"map%i", map);
+		}
 	}
 	else
 	{
@@ -684,7 +711,7 @@ P_SetupLevel
 	P_LoadNodes (lumpnum+ML_NODES);
 	P_LoadSegs (lumpnum+ML_SEGS);
 
-	::g->rejectmatrix = (byte*)W_CacheLumpNum (lumpnum+ML_REJECT,PU_LEVEL);
+	::g->rejectmatrix = static_cast<byte*>(W_CacheLumpNum(lumpnum + ML_REJECT,PU_LEVEL));
 
 	P_GroupLines ();
 
@@ -696,15 +723,16 @@ P_SetupLevel
 	if (::g->deathmatch)
 	{
 		for (i=0 ; i<MAXPLAYERS ; i++)
+		{
 			if (::g->playeringame[i])
 			{
 				// DHM - Nerve :: In deathmatch, reset every player at match start
 				::g->players[i].playerstate = PST_REBORN;
 
-				::g->players[i].mo = NULL;
+				::g->players[i].mo = nullptr;
 				G_DeathMatchSpawnPlayer (i);
 			}
-
+		}
 	}
 
 	// clear special respawning que
@@ -718,7 +746,9 @@ P_SetupLevel
 
 	// preload graphics
 	if (::g->precache)
+	{
 		R_PrecacheLevel ();
+	}
 }
 
 
@@ -726,7 +756,7 @@ P_SetupLevel
 //
 // P_Init
 //
-void P_Init (void)
+static void P_Init (void)
 {
 	P_InitSwitchList ();
 	P_InitPicAnims ();

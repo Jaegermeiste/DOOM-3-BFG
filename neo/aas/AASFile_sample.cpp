@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
+#include <algorithm>
+
 #include "../idlib/precompiled.h"
 
 
@@ -45,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 idAASFileLocal::EdgeCenter
 ================
 */
-idVec3 idAASFileLocal::EdgeCenter( Ordinal auto edgeNum ) const {
+idVec3 idAASFileLocal::EdgeCenter( index_t edgeNum ) const {
 	ORDINAL_CHECK(edgeNum, edges.Num());
 
 	const aasEdge_t* edge = &edges[edgeNum];
@@ -57,7 +59,7 @@ idVec3 idAASFileLocal::EdgeCenter( Ordinal auto edgeNum ) const {
 idAASFileLocal::FaceCenter
 ================
 */
-idVec3 idAASFileLocal::FaceCenter( Ordinal auto faceNum ) const {
+idVec3 idAASFileLocal::FaceCenter( index_t faceNum ) const {
 	ORDINAL_CHECK(faceNum, faces.Num());
 	size_t i = 0;
 
@@ -70,7 +72,7 @@ idVec3 idAASFileLocal::FaceCenter( Ordinal auto faceNum ) const {
 			const aasEdge_t* edge = &edges[_abs64(edgeNum)];
 			center += vertices[ edge->vertexNum[ INT64_SIGNBITSET(edgeNum) ] ];
 		}
-		center /= idMath::Itof<float>(face->numEdges);
+		center /= numeric_cast<float>(face->numEdges);
 	}
 	return center;
 }
@@ -80,7 +82,7 @@ idVec3 idAASFileLocal::FaceCenter( Ordinal auto faceNum ) const {
 idAASFileLocal::AreaCenter
 ================
 */
-idVec3 idAASFileLocal::AreaCenter( Ordinal auto areaNum ) const {
+idVec3 idAASFileLocal::AreaCenter( index_t areaNum ) const {
 	size_t i = 0;
 
 	idVec3 center = vec3_origin;
@@ -91,7 +93,7 @@ idVec3 idAASFileLocal::AreaCenter( Ordinal auto areaNum ) const {
 			auto faceNum = faceIndex[area->firstFace + i];
 			center += FaceCenter( _abs64(faceNum) );
 		}
-		center /= idMath::Itof<float>(area->numFaces);
+		center /= numeric_cast<float>(area->numFaces);
 	}
 	return center;
 }
@@ -101,7 +103,7 @@ idVec3 idAASFileLocal::AreaCenter( Ordinal auto areaNum ) const {
 idAASFileLocal::AreaReachableGoal
 ============
 */
-idVec3 idAASFileLocal::AreaReachableGoal( Ordinal auto areaNum ) const {
+idVec3 idAASFileLocal::AreaReachableGoal( index_t areaNum ) const {
 	size_t i = 0, numFaces = 0;
 	aasTrace_t trace;
 
@@ -123,7 +125,7 @@ idVec3 idAASFileLocal::AreaReachableGoal( Ordinal auto areaNum ) const {
 		numFaces++;
 	}
 	if ( numFaces > 0 ) {
-		center /= idMath::Itof<float>(numFaces);
+		center /= numeric_cast<float>(numFaces);
 	}
 	center[2] += 1.0f;
 	idVec3 end = center;
@@ -138,11 +140,10 @@ idVec3 idAASFileLocal::AreaReachableGoal( Ordinal auto areaNum ) const {
 idAASFileLocal::EdgeBounds
 ================
 */
-idBounds idAASFileLocal::EdgeBounds( int edgeNum ) const {
-	const aasEdge_t *edge;
-	idBounds bounds;
+idBounds idAASFileLocal::EdgeBounds(const index_t edgeNum ) const {
+	idBounds bounds = {};
 
-	edge = &edges[ abs( edgeNum ) ];
+	const aasEdge_t* edge = &edges[abs(edgeNum)];
 	bounds[0] = bounds[1] = vertices[ edge->vertexNum[0] ];
 	bounds += vertices[ edge->vertexNum[1] ];
 	return bounds;
@@ -153,19 +154,18 @@ idBounds idAASFileLocal::EdgeBounds( int edgeNum ) const {
 idAASFileLocal::FaceBounds
 ================
 */
-idBounds idAASFileLocal::FaceBounds( int faceNum ) const {
-	int i, edgeNum;
-	const aasFace_t *face;
-	const aasEdge_t *edge;
-	idBounds bounds;
+idBounds idAASFileLocal::FaceBounds(const index_t faceNum ) const {
+	size_t i = 0;
+	index_t edgeNum = 0;
+	idBounds bounds = {};
 
-	face = &faces[faceNum];
+	const aasFace_t* face = &faces[faceNum];
 	bounds.Clear();
 
 	for ( i = 0; i < face->numEdges; i++ ) {
 		edgeNum = edgeIndex[ face->firstEdge + i ];
-		edge = &edges[ abs( edgeNum ) ];
-		bounds.AddPoint( vertices[ edge->vertexNum[ INT32_SIGNBITSET(edgeNum) ] ] );
+		const aasEdge_t* edge = &edges[abs(edgeNum)];
+		bounds.AddPoint( vertices[ edge->vertexNum[ INT64_SIGNBITSET(edgeNum) ] ] );
 	}
 	return bounds;
 }
@@ -175,12 +175,12 @@ idBounds idAASFileLocal::FaceBounds( int faceNum ) const {
 idAASFileLocal::AreaBounds
 ================
 */
-idBounds idAASFileLocal::AreaBounds( int areaNum ) const {
-	int i, faceNum;
-	const aasArea_t *area;
+idBounds idAASFileLocal::AreaBounds(const index_t areaNum ) const {
+	size_t i = 0;
+	index_t faceNum = 0;
 	idBounds bounds;
 
-	area = &areas[areaNum];
+	const aasArea_t* area = &areas[areaNum];
 	bounds.Clear();
 
 	for ( i = 0; i < area->numFaces; i++ ) {
@@ -195,8 +195,8 @@ idBounds idAASFileLocal::AreaBounds( int areaNum ) const {
 idAASFileLocal::PointAreaNum
 ============
 */
-int64 idAASFileLocal::PointAreaNum( const idVec3 &origin ) const {
-	int64 nodeNum = 0;
+index_t idAASFileLocal::PointAreaNum( const idVec3 &origin ) const {
+	index_t nodeNum = 0;
 
 	nodeNum = 1;
 	do {
@@ -220,12 +220,13 @@ int64 idAASFileLocal::PointAreaNum( const idVec3 &origin ) const {
 idAASFileLocal::PointReachableAreaNum
 ============
 */
-int idAASFileLocal::PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const {
-	int areaList[32], areaNum, i;
-	idVec3 start, end, pointList[32];
-	aasTrace_t trace;
-	idBounds bounds;
-	float frac;
+index_t idAASFileLocal::PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const {
+	index_t areaList[32], areaNum = 0;
+	size_t i = 0;
+	idVec3 start = {}, end = {}, pointList[32] = {};
+	aasTrace_t trace = {};
+	idBounds bounds = {};
+	float frac = 0.0f;
 
 	start = origin;
 
@@ -283,7 +284,7 @@ int idAASFileLocal::PointReachableAreaNum( const idVec3 &origin, const idBounds 
 idAASFileLocal::BoundsReachableAreaNum_r
 ============
 */
-int idAASFileLocal::BoundsReachableAreaNum_r( int nodeNum, const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const {
+int idAASFileLocal::BoundsReachableAreaNum_r( index_t nodeNum, const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const {
 	int res;
 	const aasNode_t *node;
 
@@ -329,7 +330,7 @@ int idAASFileLocal::BoundsReachableAreaNum( const idBounds &bounds, const int ar
 idAASFileLocal::PushPointIntoAreaNum
 ============
 */
-void idAASFileLocal::PushPointIntoAreaNum( int areaNum, idVec3 &point ) const {
+void idAASFileLocal::PushPointIntoAreaNum(const index_t areaNum, idVec3 &point ) const {
 	int i, faceNum;
 	const aasArea_t *area;
 	const aasFace_t *face;
@@ -557,7 +558,7 @@ bool idAASFileLocal::Trace( aasTrace_t &trace, const idVec3 &start, const idVec3
 idAASLocal::AreaContentsTravelFlags
 ============
 */
-int idAASFileLocal::AreaContentsTravelFlags( int areaNum ) const {
+int idAASFileLocal::AreaContentsTravelFlags(const index_t areaNum ) const {
 	if ( areas[areaNum].contents & AREACONTENTS_WATER ) {
 		return TFL_WATER;
 	}
@@ -569,19 +570,15 @@ int idAASFileLocal::AreaContentsTravelFlags( int areaNum ) const {
 idAASFileLocal::MaxTreeDepth_r
 ============
 */
-void idAASFileLocal::MaxTreeDepth_r( int nodeNum, int &depth, int &maxDepth ) const {
-	const aasNode_t *node;
-
+void idAASFileLocal::MaxTreeDepth_r(const index_t nodeNum, size_t &depth, size_t &maxDepth ) const {
 	if ( nodeNum <= 0 ) {
 		return;
 	}
 
 	depth++;
-	if ( depth > maxDepth ) {
-		maxDepth = depth;
-	}
+	maxDepth = std::max<size_t>(depth, maxDepth);
 
-	node = &nodes[nodeNum];
+	const aasNode_t* node = &nodes[nodeNum];
 	MaxTreeDepth_r( node->children[0], depth, maxDepth );
 	MaxTreeDepth_r( node->children[1], depth, maxDepth );
 
@@ -593,8 +590,8 @@ void idAASFileLocal::MaxTreeDepth_r( int nodeNum, int &depth, int &maxDepth ) co
 idAASFileLocal::MaxTreeDepth
 ============
 */
-int idAASFileLocal::MaxTreeDepth() const {
-	int depth, maxDepth;
+size_t idAASFileLocal::MaxTreeDepth() const {
+	size_t depth = 0, maxDepth = 0;
 
 	depth = maxDepth = 0;
 	MaxTreeDepth_r( 1, depth, maxDepth );

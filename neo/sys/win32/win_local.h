@@ -60,7 +60,7 @@ extern	PFNWGLSETPBUFFERATTRIBARBPROC	wglSetPbufferAttribARB;
 
 #define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE | WS_THICKFRAME)
 
-void	Sys_QueueEvent( sysEventType_t type, int value, int value2, size_t ptrLength, void *ptr, int inputDeviceNum );
+void	Sys_QueueEvent( sysEventType_t type, int value, int value2, size_t ptrLength, void *ptr, index_t inputDeviceNum );
 
 void	Sys_CreateConsole();
 void	Sys_DestroyConsole();
@@ -86,7 +86,7 @@ void	IN_Frame();
 
 void	DisableTaskKeys( BOOL bDisable, BOOL bBeep, BOOL bTaskMgr );
 
-ID_TIME_T Sys_Microseconds();
+uint64  Sys_Microseconds();
 
 // window procedure
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -108,7 +108,7 @@ typedef struct {
 
 	// when we get a windows message, we store the time off so keyboard processing
 	// can know the exact time of an event (not really needed now that we use async direct input)
-	int				sysMsgTime;
+	DWORD			sysMsgTime;
 
 	bool			windowClassRegistered;
 

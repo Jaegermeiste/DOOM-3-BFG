@@ -67,23 +67,23 @@ public:
 					idJoystickWin32();
 
 	virtual bool	Init();
-	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh );
-	virtual int		PollInputEvents( int inputDeviceNum );
-	virtual int		ReturnInputEvent( const int n, int &action, int &value );
+	virtual void	SetRumble( index_t deviceNum, int rumbleLow, int rumbleHigh );
+	virtual size_t	PollInputEvents( index_t inputDeviceNum );
+	virtual int		ReturnInputEvent( const sys_jEvents_e n, int &action, int &value );
 	virtual void	EndInputEvents() {}
 
 protected:
 	friend void		JoystickSamplingThread( void *data );
 
-	void 			PushButton( int inputDeviceNum, int key, bool value );
-	void 			PostInputEvent( int inputDeviceNum, int event, int value, int range = 16384 );
+	void 			PushButton( index_t inputDeviceNum, keyNum_t key, bool value );
+	void 			PostInputEvent( index_t inputDeviceNum, int event, int value, int range = 16384 );
 
 	idSysMutex				mutexXis;		// lock this before using currentXis or stickIntegrations
 	HANDLE					timer;			// fire every 4 msec
 
-	int						numEvents;
+	size_t					numEvents;
 
-	struct {
+	struct joyEventVal_s {
 		int event;
 		int value;
 	}						events[ MAX_JOY_EVENT ];

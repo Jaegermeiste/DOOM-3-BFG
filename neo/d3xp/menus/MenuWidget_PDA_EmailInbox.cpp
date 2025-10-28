@@ -114,7 +114,7 @@ void idMenuWidget_PDA_EmailInbox::Update() {
 		if ( emailList != nullptr) {
 			const idDeclEmail *email = nullptr;
 			emailInfo.Clear();
-			for ( int index = 0; index < pda->GetNumEmails(); ++index ) {
+			for ( index_t index = 0; index < pda->GetNumEmails(); ++index ) {
 				idList< idStr > emailData;
 				email = pda->GetEmailByIndex( index );						
 				if ( email != nullptr) {

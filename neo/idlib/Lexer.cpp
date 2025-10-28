@@ -151,15 +151,15 @@ void idLexer::CreatePunctuationTable( const punctuation_t *punctuations ) {
 		const punctuation_t* newp = &punctuations[i];
 		int64 lastp = -1;
 		//sort the punctuations in this table entry on length (longer punctuations first)
-		for (n = idLexer::punctuationtable[idMath::integer_cast<size_t>(newp->p[0])]; n >= 0; n = idLexer::nextpunctuation[n] ) {
+		for (n = idLexer::punctuationtable[numeric_cast<size_t>(newp->p[0])]; n >= 0; n = idLexer::nextpunctuation[n] ) {
 			const punctuation_t* p = &punctuations[n];
 			if (strlen(p->p) < strlen(newp->p)) {
 				idLexer::nextpunctuation[i] = n;
 				if (lastp >= 0) {
-					idLexer::nextpunctuation[lastp] = idMath::integer_cast<int>(i);
+					idLexer::nextpunctuation[lastp] = numeric_cast<int>(i);
 				}
 				else {
-					idLexer::punctuationtable[idMath::integer_cast<size_t>(newp->p[0])] = idMath::integer_cast<int>(i);
+					idLexer::punctuationtable[numeric_cast<size_t>(newp->p[0])] = numeric_cast<int>(i);
 				}
 				break;
 			}
@@ -168,10 +168,10 @@ void idLexer::CreatePunctuationTable( const punctuation_t *punctuations ) {
 		if (n < 0) {
 			idLexer::nextpunctuation[i] = -1;
 			if (lastp >= 0) {
-				idLexer::nextpunctuation[lastp] = idMath::integer_cast<int>(i);
+				idLexer::nextpunctuation[lastp] = numeric_cast<int>(i);
 			}
 			else {
-				idLexer::punctuationtable[idMath::integer_cast<size_t>(newp->p[0])] = idMath::integer_cast<int>(i);
+				idLexer::punctuationtable[numeric_cast<size_t>(newp->p[0])] = numeric_cast<int>(i);
 			}
 		}
 	}
@@ -464,7 +464,7 @@ int idLexer::ReadEscapeCharacter( char *ch ) {
 		{
 			idLexer::script_p++;
 			for (i = 0, val = 0; ; i++, idLexer::script_p++) {
-				c = idMath::integer_cast<int>(*idLexer::script_p);
+				c = numeric_cast<int>(*idLexer::script_p);
 				if (c >= '0' && c <= '9')
 				{
 					c = c - '0';
@@ -520,7 +520,7 @@ int idLexer::ReadEscapeCharacter( char *ch ) {
 	// step over the escape character or the last digit of the number
 	idLexer::script_p++;
 	// store the escape character
-	*ch = idMath::integer_cast<char>(c);
+	*ch = numeric_cast<char>(c);
 	// successfully read escape character
 	return 1;
 }
@@ -615,7 +615,7 @@ int idLexer::ReadString( idToken *token, const int quote ) {
 				idLexer::Warning( "literal is not one character long" );
 			}
 		}
-		token->subtype = idMath::integer_cast<size_t>((*token)[0]);
+		token->subtype = numeric_cast<size_t>((*token)[0]);
 	}
 	else {
 		// the subtype is the length of the string
@@ -717,7 +717,7 @@ int idLexer::ReadNumber( idToken *token ) {
 		}
 	}
 	else {
-		// decimal integer or floating point number or ip address
+		// decimal integer or floating posize_t number or ip address
 		int dot = 0;
 		while(true) {
 			if ( c >= '0' && c <= '9' ) {
@@ -735,7 +735,7 @@ int idLexer::ReadNumber( idToken *token ) {
 			//We have scientific notation without a decimal point
 			dot++;
 		}
-		// if a floating point number
+		// if a floating posize_t number
 		if ( dot == 1 ) {
 			token->subtype = TT_DECIMAL | TT_FLOAT;
 			// check for floating point exponent
@@ -871,7 +871,7 @@ int idLexer::ReadPunctuation( idToken *token ) {
 	const punctuation_t *punc = nullptr;
 
 #ifdef PUNCTABLE
-	for (int64 n = idLexer::punctuationtable[idMath::integer_cast<size_t>(*(idLexer::script_p))]; n >= 0; n = idLexer::nextpunctuation[n])
+	for (int64 n = idLexer::punctuationtable[numeric_cast<size_t>(*(idLexer::script_p))]; n >= 0; n = idLexer::nextpunctuation[n])
 	{
 		punc = &(idLexer::punctuations[n]);
 #else
@@ -1367,6 +1367,28 @@ int idLexer::ParseInt() {
 
 /*
 ================
+idLexer::ParseInt64
+================
+*/
+int64 idLexer::ParseInt64() {
+	idToken token = {};
+
+	if (!idLexer::ReadToken(&token)) {
+		idLexer::Error("couldn't read expected integer");
+		return 0;
+	}
+	if (token.type == TT_PUNCTUATION && token == "-") {
+		idLexer::ExpectTokenType(TT_NUMBER, TT_INTEGER, &token);
+		return -((signed int)token.GetIntValue());
+	}
+	else if (token.type != TT_NUMBER || token.subtype == TT_FLOAT) {
+		idLexer::Error("expected integer value, found '%s'", token.c_str());
+	}
+	return token.GetInt64Value();
+}
+
+/*
+================
 idLexer::ParseBool
 ================
 */
@@ -1394,10 +1416,10 @@ float idLexer::ParseFloat( bool *errorFlag ) {
 
 	if ( !idLexer::ReadToken( &token ) ) {
 		if ( errorFlag ) {
-			idLexer::Warning( "couldn't read expected floating point number" );
+			idLexer::Warning( "couldn't read expected floating posize_t number" );
 			*errorFlag = true;
 		} else {
-			idLexer::Error( "couldn't read expected floating point number" );
+			idLexer::Error( "couldn't read expected floating posize_t number" );
 		}
 		return 0;
 	}

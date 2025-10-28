@@ -60,7 +60,7 @@ const idVec6 vec6_lcp_epsilon				= idVec6( LCP_EPSILON, LCP_EPSILON, LCP_EPSILON
 
 #ifdef AF_TIMINGS
 static int lastTimerReset = 0;
-static int numArticulatedFigures = 0;
+static size_t numArticulatedFigures = 0;
 static idTimer timer_total, timer_pc, timer_ac, timer_collision, timer_lcp;
 #endif
 
@@ -227,7 +227,7 @@ void idAFConstraint::DebugDraw() {
 idAFConstraint::InitSize
 ================
 */
-void idAFConstraint::InitSize( int size ) {
+void idAFConstraint::InitSize(const int size ) {
 	J1.Zero( size, 6 );
 	J2.Zero( size, 6 );
 	c1.Zero( size );
@@ -332,7 +332,7 @@ void idAFConstraint_Fixed::SetBody2( idAFBody *body ) {
 idAFConstraint_Fixed::Evaluate
 ================
 */
-void idAFConstraint_Fixed::Evaluate( float invTimeStep ) {
+void idAFConstraint_Fixed::Evaluate(const float invTimeStep ) {
 	idVec3 ofs, a2;
 	idMat3 ax;
 	idRotation r;
@@ -622,7 +622,7 @@ float idAFConstraint_BallAndSocketJoint::GetFriction() const {
 idAFConstraint_BallAndSocketJoint::Evaluate
 ================
 */
-void idAFConstraint_BallAndSocketJoint::Evaluate( float invTimeStep ) {
+void idAFConstraint_BallAndSocketJoint::Evaluate(const float invTimeStep ) {
 	idVec3 a1, a2;
 	idAFBody *master;
 
@@ -662,7 +662,7 @@ void idAFConstraint_BallAndSocketJoint::Evaluate( float invTimeStep ) {
 idAFConstraint_BallAndSocketJoint::ApplyFriction
 ================
 */
-void idAFConstraint_BallAndSocketJoint::ApplyFriction( float invTimeStep ) {
+void idAFConstraint_BallAndSocketJoint::ApplyFriction(const float invTimeStep ) {
 	idVec3 angular;
 	float invMass, currentFriction;
 
@@ -1124,7 +1124,7 @@ idAFConstraint_UniversalJoint::Evaluate
   NOTE: this joint is homokinetic
 ================
 */
-void idAFConstraint_UniversalJoint::Evaluate( float invTimeStep ) {
+void idAFConstraint_UniversalJoint::Evaluate(const float invTimeStep ) {
 	idVec3 a1, a2, s1, s2, d1, d2, v;
 	idAFBody *master;
 
@@ -1196,7 +1196,7 @@ void idAFConstraint_UniversalJoint::Evaluate( float invTimeStep ) {
 idAFConstraint_UniversalJoint::ApplyFriction
 ================
 */
-void idAFConstraint_UniversalJoint::ApplyFriction( float invTimeStep ) {
+void idAFConstraint_UniversalJoint::ApplyFriction(const float invTimeStep ) {
 	idVec3 angular;
 	float invMass, currentFriction;
 
@@ -1778,7 +1778,7 @@ void idAFConstraint_Hinge::SetSteerSpeed( const float speed ) {
 idAFConstraint_Hinge::Evaluate
 ================
 */
-void idAFConstraint_Hinge::Evaluate( float invTimeStep ) {
+void idAFConstraint_Hinge::Evaluate(const float invTimeStep ) {
 	idVec3 a1, a2;
 	idVec3 x1, x2, cross;
 	idVec3 vecX, vecY;
@@ -1839,7 +1839,7 @@ void idAFConstraint_Hinge::Evaluate( float invTimeStep ) {
 idAFConstraint_Hinge::ApplyFriction
 ================
 */
-void idAFConstraint_Hinge::ApplyFriction( float invTimeStep ) {
+void idAFConstraint_Hinge::ApplyFriction(const float invTimeStep ) {
 	idVec3 angular;
 	float invMass, currentFriction;
 
@@ -2204,7 +2204,7 @@ void idAFConstraint_HingeSteering::ApplyFriction( float invTimeStep ) {
 idAFConstraint_HingeSteering::Add
 ================
 */
-bool idAFConstraint_HingeSteering::Add( idPhysics_AF *phys, float invTimeStep ) {
+bool idAFConstraint_HingeSteering::Add( idPhysics_AF *phys, const float invTimeStep ) {
 	float angle, speed;
 	idVec3 a1, a2;
 
@@ -2316,7 +2316,7 @@ void idAFConstraint_Slider::SetAxis( const idVec3 &ax ) {
 idAFConstraint_Slider::Evaluate
 ================
 */
-void idAFConstraint_Slider::Evaluate( float invTimeStep ) {
+void idAFConstraint_Slider::Evaluate(const float invTimeStep ) {
 	idVec3 vecX, vecY, ofs;
 	idRotation r;
 	idAFBody *master;
@@ -2555,7 +2555,7 @@ void idAFConstraint_Plane::SetPlane( const idVec3 &normal, const idVec3 &anchor 
 idAFConstraint_Plane::Evaluate
 ================
 */
-void idAFConstraint_Plane::Evaluate( float invTimeStep ) {
+void idAFConstraint_Plane::Evaluate(const float invTimeStep ) {
 	idVec3 a1, a2, normal, p;
 	idVec6 v;
 	idAFBody *master;
@@ -2743,7 +2743,7 @@ void idAFConstraint_Spring::SetLimit( const float minLength, const float maxLeng
 idAFConstraint_Spring::Evaluate
 ================
 */
-void idAFConstraint_Spring::Evaluate( float invTimeStep ) {
+void idAFConstraint_Spring::Evaluate(const float invTimeStep ) {
 	idVec3 a1, a2, velocity1, velocity2, force;
 	idVec6 v1, v2;
 	float d, dampingForce, length, error;
@@ -3054,7 +3054,7 @@ void idAFConstraint_Contact::Evaluate( float invTimeStep ) {
 idAFConstraint_Contact::ApplyFriction
 ================
 */
-void idAFConstraint_Contact::ApplyFriction( float invTimeStep ) {
+void idAFConstraint_Contact::ApplyFriction(const float invTimeStep ) {
 	idVec3 r, velocity, normal, dir1, dir2;
 	float friction, magnitude, forceNumerator, forceDenominator;
 	idVecX impulse, dv;
@@ -3420,7 +3420,7 @@ void idAFConstraint_ConeLimit::ApplyFriction( float invTimeStep ) {
 idAFConstraint_ConeLimit::Add
 ================
 */
-bool idAFConstraint_ConeLimit::Add( idPhysics_AF *phys, float invTimeStep ) {
+bool idAFConstraint_ConeLimit::Add( idPhysics_AF *phys, const float invTimeStep ) {
 	float a;
 	idVec6 J1row, J2row;
 	idVec3 ax, anchor, body1ax, normal, coneVector, p1, p2;
@@ -3677,7 +3677,7 @@ void idAFConstraint_PyramidLimit::ApplyFriction( float invTimeStep ) {
 idAFConstraint_PyramidLimit::Add
 ================
 */
-bool idAFConstraint_PyramidLimit::Add( idPhysics_AF *phys, float invTimeStep ) {
+bool idAFConstraint_PyramidLimit::Add( idPhysics_AF *phys, const float invTimeStep ) {
 	int i;
 	float a[2];
 	idVec6 J1row, J2row;
@@ -4146,7 +4146,7 @@ idAFBody::idAFBody() {
 idAFBody::idAFBody
 ================
 */
-idAFBody::idAFBody( const idStr &name, idClipModel *clipModel, float density ) {
+idAFBody::idAFBody( const idStr &name, idClipModel *clipModel, const float density ) {
 
 	assert( clipModel );
 	assert( clipModel->IsTraceModel() );
@@ -4248,7 +4248,7 @@ void idAFBody::SetClipModel( idClipModel *clipModel ) {
 idAFBody::SetFriction
 ================
 */
-void idAFBody::SetFriction( float linear, float angular, float contact ) {
+void idAFBody::SetFriction(const float linear, const float angular, const float contact ) {
 	if ( linear < 0.0f || linear > 1.0f ||
 			angular < 0.0f || angular > 1.0f ||
 				contact < 0.0f ) {
@@ -4265,7 +4265,7 @@ void idAFBody::SetFriction( float linear, float angular, float contact ) {
 idAFBody::SetBouncyness
 ================
 */
-void idAFBody::SetBouncyness( float bounce ) {
+void idAFBody::SetBouncyness(const float bounce ) {
 	if ( bounce < 0.0f || bounce > 1.0f ) {
 		gameLocal.Warning( "idAFBody::SetBouncyness: bouncyness out of range, bounce = %.1f", bounce );
 		return;
@@ -4278,7 +4278,7 @@ void idAFBody::SetBouncyness( float bounce ) {
 idAFBody::SetDensity
 ================
 */
-void idAFBody::SetDensity( float density, const idMat3 &inertiaScale ) {
+void idAFBody::SetDensity(const float density, const idMat3 &inertiaScale ) {
 
 	// get the body mass properties
 	clipModel->GetMassProperties( density, mass, centerOfMass, inertiaTensor );
@@ -4482,7 +4482,7 @@ idAFTree::Factor
 ================
 */
 void idAFTree::Factor() const {
-	int i, j;
+	size_t i = 0, j = 0;
 	idAFBody *body;
 	idAFConstraint *child = nullptr;
 	idMatX childI;
@@ -4536,8 +4536,8 @@ idAFTree::Solve
   solve for primary constraints in the tree
 ================
 */
-void idAFTree::Solve( int auxiliaryIndex ) const {
-	int i, j;
+void idAFTree::Solve(const int auxiliaryIndex ) const {
+	size_t i = 0, j = 0;
 	idAFBody *body, *child;
 	idAFConstraint *primaryConstraint;
 
@@ -4603,8 +4603,8 @@ idAFTree::Response
   calculate body forces in the tree in response to a constraint force
 ================
 */
-void idAFTree::Response( const idAFConstraint *constraint, int row, int auxiliaryIndex ) const {
-	int i, j;
+void idAFTree::Response( const idAFConstraint *constraint, const int row, const int auxiliaryIndex ) const {
+	size_t i = 0, j = 0;
 	idAFBody *body;
 	idAFConstraint *child, *primaryConstraint;
 	idVecX v;
@@ -4711,8 +4711,8 @@ idAFTree::CalculateForces
   calculate forces on the bodies in the tree
 ================
 */
-void idAFTree::CalculateForces( float timeStep ) const {
-	int i, j;
+void idAFTree::CalculateForces(const float timeStep ) const {
+	size_t i = 0, j = 0;
 	float invStep;
 	idAFBody *body;
 	idAFConstraint *child, *c, *primaryConstraint;
@@ -4773,7 +4773,7 @@ idAFTree::SetMaxSubTreeAuxiliaryIndex
 ================
 */
 void idAFTree::SetMaxSubTreeAuxiliaryIndex() {
-	int i, j;
+	size_t i = 0, j = 0;
 	idAFBody *body, *child;
 
 	// from the leaves up towards the root
@@ -4859,7 +4859,7 @@ void idAFTree::DebugDraw( const idVec4 &color ) const {
 idPhysics_AF::EvaluateConstraints
 ================
 */
-void idPhysics_AF::EvaluateConstraints( float timeStep ) {
+void idPhysics_AF::EvaluateConstraints(const float timeStep ) {
 	int i;
 	float invTimeStep;
 	idAFBody *body;
@@ -4969,7 +4969,7 @@ void idPhysics_AF::RemoveFrameConstraints() {
 idPhysics_AF::ApplyFriction
 ================
 */
-void idPhysics_AF::ApplyFriction( float timeStep, float endTimeMSec ) {
+void idPhysics_AF::ApplyFriction(const float timeStep, const float endTimeMSec ) {
 	int i;
 	float invTimeStep;
 
@@ -5030,7 +5030,7 @@ void idPhysics_AF::PrimaryFactor() {
 idPhysics_AF::PrimaryForces
 ================
 */
-void idPhysics_AF::PrimaryForces( float timeStep ) {
+void idPhysics_AF::PrimaryForces(const float timeStep ) {
 	int i;
 
 	for ( i = 0; i < trees.Num(); i++ ) {
@@ -5328,7 +5328,7 @@ void idPhysics_AF::VerifyContactConstraints() {
 idPhysics_AF::Evolve
 ================
 */
-void idPhysics_AF::Evolve( float timeStep ) {
+void idPhysics_AF::Evolve(const float timeStep ) {
 	int i;
 	float angle;
 	idVec3 vec;
@@ -5443,7 +5443,7 @@ bool idPhysics_AF::CollisionImpulse( float timeStep, idAFBody *body, trace_t &co
 idPhysics_AF::ApplyCollisions
 ================
 */
-bool idPhysics_AF::ApplyCollisions( float timeStep ) {
+bool idPhysics_AF::ApplyCollisions(const float timeStep ) {
 	int i;
 
 	for ( i = 0; i < collisions.Num(); i++ ) {
@@ -5903,7 +5903,7 @@ float idPhysics_AF::GetContactFrictionScale() const {
 idPhysics_AF::TestIfAtRest
 ================
 */
-bool idPhysics_AF::TestIfAtRest( float timeStep ) {
+bool idPhysics_AF::TestIfAtRest(const float timeStep ) {
 	int i;
 	float translationSqr, maxTranslationSqr, rotation, maxRotation;
 	idAFBody *body;
@@ -6070,7 +6070,7 @@ void idPhysics_AF::SetClipModel( idClipModel *model, float density, int id, bool
 idPhysics_AF::GetClipModel
 ================
 */
-idClipModel *idPhysics_AF::GetClipModel( int id ) const {
+idClipModel *idPhysics_AF::GetClipModel(const int id ) const {
 	if ( id >= 0 && id < bodies.Num() ) {
 		return bodies[id]->GetClipModel();
 	}
@@ -6091,7 +6091,7 @@ int idPhysics_AF::GetNumClipModels() const {
 idPhysics_AF::SetMass
 ================
 */
-void idPhysics_AF::SetMass( float mass, int id ) {
+void idPhysics_AF::SetMass(const float mass, const int id ) {
 	if ( id >= 0 && id < bodies.Num() ) {
 	}
 	else {
@@ -6105,7 +6105,7 @@ void idPhysics_AF::SetMass( float mass, int id ) {
 idPhysics_AF::GetMass
 ================
 */
-float idPhysics_AF::GetMass( int id ) const {
+float idPhysics_AF::GetMass(const int id ) const {
 	if ( id >= 0 && id < bodies.Num() ) {
 		return bodies[id]->mass;
 	}
@@ -6117,7 +6117,7 @@ float idPhysics_AF::GetMass( int id ) const {
 idPhysics_AF::SetContents
 ================
 */
-void idPhysics_AF::SetContents( int contents, int id ) {
+void idPhysics_AF::SetContents(const int contents, const int id ) {
 	int i;
 
 	if ( id >= 0 && id < bodies.Num() ) {
@@ -6135,7 +6135,7 @@ void idPhysics_AF::SetContents( int contents, int id ) {
 idPhysics_AF::GetContents
 ================
 */
-int idPhysics_AF::GetContents( int id ) const {
+int idPhysics_AF::GetContents(const int id ) const {
 	int i, contents;
 
 	if ( id >= 0 && id < bodies.Num() ) {
@@ -6155,7 +6155,7 @@ int idPhysics_AF::GetContents( int id ) const {
 idPhysics_AF::GetBounds
 ================
 */
-const idBounds &idPhysics_AF::GetBounds( int id ) const {
+const idBounds &idPhysics_AF::GetBounds(const int id ) const {
 	int i;
 	static idBounds relBounds;
 
@@ -6184,7 +6184,7 @@ const idBounds &idPhysics_AF::GetBounds( int id ) const {
 idPhysics_AF::GetAbsBounds
 ================
 */
-const idBounds &idPhysics_AF::GetAbsBounds( int id ) const {
+const idBounds &idPhysics_AF::GetAbsBounds(const int id ) const {
 	int i;
 	static idBounds absBounds;
 
@@ -6209,7 +6209,7 @@ const idBounds &idPhysics_AF::GetAbsBounds( int id ) const {
 idPhysics_AF::Evaluate
 ================
 */
-bool idPhysics_AF::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
+bool idPhysics_AF::Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) {
 	float timeStep;
 
 	if ( timeScaleRampStart < MS2SEC( endTimeMSec ) && timeScaleRampEnd > MS2SEC( endTimeMSec ) ) {
@@ -6408,7 +6408,7 @@ bool idPhysics_AF::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
 idPhysics_AF::UpdateTime
 ================
 */
-void idPhysics_AF::UpdateTime( int endTimeMSec ) {
+void idPhysics_AF::UpdateTime( ID_TIME_T endTimeMSec ) {
 }
 
 /*
@@ -7077,7 +7077,7 @@ void idPhysics_AF::AddFrameConstraint( idAFConstraint *constraint ) {
 idPhysics_AF::ForceBodyId
 ================
 */
-void idPhysics_AF::ForceBodyId( idAFBody *body, int newId ) {
+void idPhysics_AF::ForceBodyId( idAFBody *body, const int newId ) {
 	int id;
 
 	id = bodies.FindIndex( body );
@@ -7340,7 +7340,7 @@ void idPhysics_AF::DeleteConstraint( const int id ) {
 idPhysics_AF::GetBodyContactConstraints
 ================
 */
-int idPhysics_AF::GetBodyContactConstraints( const int id, idAFConstraint_Contact *contacts[], int maxContacts ) const {
+int idPhysics_AF::GetBodyContactConstraints( const int id, idAFConstraint_Contact *contacts[], const size_t maxContacts ) const {
 	int i, numContacts;
 	idAFBody *body;
 	idAFConstraint_Contact *contact;
@@ -7368,7 +7368,7 @@ int idPhysics_AF::GetBodyContactConstraints( const int id, idAFConstraint_Contac
 idPhysics_AF::SetDefaultFriction
 ================
 */
-void idPhysics_AF::SetDefaultFriction( float linear, float angular, float contact ) {
+void idPhysics_AF::SetDefaultFriction(const float linear, const float angular, const float contact ) {
 	if (	linear < 0.0f || linear > 1.0f ||
 			angular < 0.0f || angular > 1.0f ||
 			contact < 0.0f || contact > 1.0f ) {
@@ -7586,7 +7586,7 @@ void idPhysics_AF::Rotate( const idRotation &rotation, int id ) {
 idPhysics_AF::GetOrigin
 ================
 */
-const idVec3 &idPhysics_AF::GetOrigin( int id ) const {
+const idVec3 &idPhysics_AF::GetOrigin(const int id ) const {
 	if ( id < 0 || id >= bodies.Num() ) {
 		return vec3_origin;
 	}
@@ -7600,7 +7600,7 @@ const idVec3 &idPhysics_AF::GetOrigin( int id ) const {
 idPhysics_AF::GetAxis
 ================
 */
-const idMat3 &idPhysics_AF::GetAxis( int id ) const {
+const idMat3 &idPhysics_AF::GetAxis(const int id ) const {
 	if ( id < 0 || id >= bodies.Num() ) {
 		return mat3_identity;
 	}
@@ -7614,7 +7614,7 @@ const idMat3 &idPhysics_AF::GetAxis( int id ) const {
 idPhysics_AF::SetLinearVelocity
 ================
 */
-void idPhysics_AF::SetLinearVelocity( const idVec3 &newLinearVelocity, int id ) {
+void idPhysics_AF::SetLinearVelocity( const idVec3 &newLinearVelocity, const int id ) {
 	if ( id < 0 || id >= bodies.Num() ) {
 		return;
 	}
@@ -7627,7 +7627,7 @@ void idPhysics_AF::SetLinearVelocity( const idVec3 &newLinearVelocity, int id ) 
 idPhysics_AF::SetAngularVelocity
 ================
 */
-void idPhysics_AF::SetAngularVelocity( const idVec3 &newAngularVelocity, int id ) {
+void idPhysics_AF::SetAngularVelocity( const idVec3 &newAngularVelocity, const int id ) {
 	if ( id < 0 || id >= bodies.Num() ) {
 		return;
 	}
@@ -7640,7 +7640,7 @@ void idPhysics_AF::SetAngularVelocity( const idVec3 &newAngularVelocity, int id 
 idPhysics_AF::GetLinearVelocity
 ================
 */
-const idVec3 &idPhysics_AF::GetLinearVelocity( int id ) const {
+const idVec3 &idPhysics_AF::GetLinearVelocity(const int id ) const {
 	if ( id < 0 || id >= bodies.Num() ) {
 		return vec3_origin;
 	}
@@ -7654,7 +7654,7 @@ const idVec3 &idPhysics_AF::GetLinearVelocity( int id ) const {
 idPhysics_AF::GetAngularVelocity
 ================
 */
-const idVec3 &idPhysics_AF::GetAngularVelocity( int id ) const {
+const idVec3 &idPhysics_AF::GetAngularVelocity(const int id ) const {
 	if ( id < 0 || id >= bodies.Num() ) {
 		return vec3_origin;
 	}
@@ -7818,7 +7818,7 @@ void idPhysics_AF::LinkClip() {
 idPhysics_AF::SetPushed
 ================
 */
-void idPhysics_AF::SetPushed( int deltaTime ) {
+void idPhysics_AF::SetPushed(const int deltaTime ) {
 	idAFBody *body;
 	idRotation rotation;
 

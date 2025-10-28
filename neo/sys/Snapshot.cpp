@@ -42,7 +42,7 @@ InDebugRange
 Helper function for net_ssTemplateDebug debugging
 ========================
 */
-bool InDebugRange( int i ) {
+bool InDebugRange(const int i ) {
 	return ( i >= net_ssTemplateDebug_start.GetInteger() && i < net_ssTemplateDebug_start.GetInteger() + net_ssTemplateDebug_len.GetInteger() );
 }
 /*
@@ -80,7 +80,7 @@ void idSnapShot::objectState_t::Print( const char * name ) const
 idSnapShot::objectBuffer_t::Alloc
 ========================
 */
-void idSnapShot::objectBuffer_t::Alloc( int s ) {
+void idSnapShot::objectBuffer_t::Alloc(const int s ) {
 	//assert( mem.IsMapHeap() );
 	if ( !verify( s < SIZE_NOT_STALE ) ) {
 		idLib::FatalError( "s >= SIZE_NOT_STALE" );
@@ -174,7 +174,7 @@ idSnapShot::Clear
 void idSnapShot::Clear() {
 	time = 0;
 	recvTime = 0;
-	for ( int i = 0; i < objectStates.Num(); i++ ) {
+	for ( size_t i = 0; i < objectStates.Num(); i++ ) {
 		FreeObjectState( i );
 	}
 	objectStates.Clear();
@@ -194,7 +194,7 @@ void idSnapShot::operator=( const idSnapShot & other ) {
 			FreeObjectState( i );
 		}
 		objectStates.AssureSize( other.objectStates.Num(), nullptr);
-		for ( int i = 0; i < objectStates.Num(); i++ ) {
+		for ( size_t i = 0; i < objectStates.Num(); i++ ) {
 			const objectState_t & otherState = *other.objectStates[i];
 			if ( objectStates[i] == nullptr) {
 				objectStates[i] = allocatedObjs.Alloc();
@@ -219,7 +219,7 @@ void idSnapShot::operator=( const idSnapShot & other ) {
 idSnapShot::PeekDeltaSequence
 ========================
 */
-void idSnapShot::PeekDeltaSequence( const char * deltaMem, int deltaSize, int & sequence, int & baseSequence ) {
+void idSnapShot::PeekDeltaSequence( const char * deltaMem, const int deltaSize, int & sequence, int & baseSequence ) {
 	lzwCompressionData_t	lzwData;
 	idLZWCompressor			lzwCompressor( &lzwData );
 	
@@ -233,7 +233,7 @@ void idSnapShot::PeekDeltaSequence( const char * deltaMem, int deltaSize, int & 
 idSnapShot::ReadDeltaForJob
 ========================
 */
-bool idSnapShot::ReadDeltaForJob( const char * deltaMem, int deltaSize, int visIndex, idSnapShot * templateStates ) {
+bool idSnapShot::ReadDeltaForJob( const char * deltaMem, const int deltaSize, const int visIndex, idSnapShot * templateStates ) {
 
 	bool report = net_verboseSnapshotReport.GetBool();
 	net_verboseSnapshotReport.SetBool( false );
@@ -387,7 +387,7 @@ bool idSnapShot::ReadDeltaForJob( const char * deltaMem, int deltaSize, int visI
 			}
 		}
 #ifdef SNAPSHOT_CHECKSUMS
-		extern uint32 SnapObjChecksum( const uint8 * data, int length );
+		extern uint32 SnapObjChecksum( const uint8 * data, size_t length );
 		if ( state.buffer.Size() > 0 ) {
 			uint32 checksum = 0;
 			lzwCompressor.ReadAgnostic( checksum );
@@ -495,10 +495,10 @@ void idSnapShot::SubmitLZWJob(
 	objParms_t *&					baseObjParm,		// Pointer to the first obj parm for the current stream
 	objParms_t *&					curObjParm,			// Current obj parm
 	lzwParm_t *&					curlzwParm,			// Current delta parm
-	bool							saveDictionary
+	const bool							saveDictionary
 ) const
 {
-	int numObjects = curObjParm - baseObjParm;
+	size_t numObjects = curObjParm - baseObjParm;
 	
 	if ( numObjects == 0 ) {
 		return;		// Nothing to do
@@ -534,7 +534,7 @@ Helper function for getting template objectState.
 newState parameter is optional and is just used for debugging/printf comparison of the template and actual state
 ========================
 */
-idSnapShot::objectState_t * idSnapShot::GetTemplateState( int objNum, idSnapShot * templateStates, idSnapShot::objectState_t * newState /*=NULL*/ ) {
+idSnapShot::objectState_t * idSnapShot::GetTemplateState(const int objNum, idSnapShot * templateStates, idSnapShot::objectState_t * newState /*=NULL*/ ) {
 	objectState_t * oldState = nullptr;
 	int spawnedStateIndex = templateStates->FindObjectIndexByID( objNum );
 	if ( spawnedStateIndex >= 0 ) {
@@ -569,9 +569,9 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t & submitDel
 
 	int j = 0;
 	
-	int numOldStates = submitDeltaJobInfo.oldSnap->objectStates.Num();
+	size_t numOldStates = submitDeltaJobInfo.oldSnap->objectStates.Num();
 	
-	for ( int i = 0; i < objectStates.Num(); i++ ) {
+	for ( size_t i = 0; i < objectStates.Num(); i++ ) {
 		objectState_t & newState = *objectStates[i];
 		if ( !verify( newState.buffer.Size() > 0 ) ) {
 			// you CANNOT have a valid ss obj state w/ size = 0: this will be interpreted as a delete in ::ReadDelta and this will completely throw
@@ -643,7 +643,7 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t & submitDel
 idSnapShot::ReadDelta
 ========================
 */
-bool idSnapShot::ReadDelta( idFile * file, int visIndex ) {
+bool idSnapShot::ReadDelta( idFile * file, const int visIndex ) {
 
 	file->ReadBig( time );
 
@@ -724,7 +724,7 @@ bool idSnapShot::ReadDelta( idFile * file, int visIndex ) {
 idSnapShot::WriteObject
 ========================
 */
-void idSnapShot::WriteObject( idFile * file, int visIndex, objectState_t * newState, objectState_t * oldState, int & lastobjectNum ) {
+void idSnapShot::WriteObject( idFile * file, const int visIndex, objectState_t * newState, objectState_t * oldState, int & lastobjectNum ) {
 	assert( newState != NULL || oldState != NULL );
 		
 	bool visChange		= false; // visibility changes will be signified with a 0xffff state size
@@ -844,7 +844,7 @@ void idSnapShot::PrintReport() {
 idSnapShot::WriteDelta
 ========================
 */
-bool idSnapShot::WriteDelta( idSnapShot & old, int visIndex, idFile * file, int maxLength, int optimalLength ) {
+bool idSnapShot::WriteDelta( idSnapShot & old, const int visIndex, idFile * file, const size_t maxLength, const int optimalLength ) {
 	file->WriteBig( time );
 
 	int objectHeaderSize = sizeof( uint16 ) + sizeof( objectSize_t );
@@ -855,7 +855,7 @@ bool idSnapShot::WriteDelta( idSnapShot & old, int visIndex, idFile * file, int 
 	int lastobjectNum = 0;
 	int j = 0;
 	
-	for ( int i = 0; i < objectStates.Num(); i++ ) {
+	for ( size_t i = 0; i < objectStates.Num(); i++ ) {
 		objectState_t & newState = *objectStates[i];
 
 		if ( optimalLength > 0 && file->Length() >= optimalLength ) {
@@ -938,7 +938,7 @@ bool idSnapShot::WriteDelta( idSnapShot & old, int visIndex, idFile * file, int 
 idSnapShot::AddObject
 ========================
 */
-idSnapShot::objectState_t * idSnapShot::S_AddObject( int objectNum, uint32 visMask, const char * data, int _size, const char * tag ) {
+idSnapShot::objectState_t * idSnapShot::S_AddObject(const int objectNum, const uint32 visMask, const char * data, const int _size, const char * tag ) {
 	objectSize_t size = _size;
 	objectState_t & state = FindOrCreateObjectByID( objectNum );
 	state.visMask = visMask;
@@ -959,7 +959,7 @@ idSnapShot::CopyObject
 ========================
 */
 
-bool idSnapShot::CopyObject( const idSnapShot & oldss, int objectNum, bool forceStale ) {	
+bool idSnapShot::CopyObject( const idSnapShot & oldss, const int objectNum, const bool forceStale ) {	
 
 	int oldIndex = oldss.FindObjectIndexByID( objectNum );
 	if ( oldIndex == -1 ) {
@@ -991,7 +991,7 @@ start, end, and oldStart can optionally be passed in to compare subsections of t
 default parameters will compare entire object
 ========================
 */
-int idSnapShot::CompareObject( const idSnapShot * oldss, int objectNum, int start, int end, int oldStart ) {
+int idSnapShot::CompareObject( const idSnapShot * oldss, const int objectNum, const int start, int end, const int oldStart ) {
 	if ( oldss == nullptr) {
 		return 0;
 	}
@@ -1037,7 +1037,7 @@ int idSnapShot::CompareObject( const idSnapShot * oldss, int objectNum, int star
 idSnapShot::GetObjectMsgByIndex
 ========================
 */
-int idSnapShot::GetObjectMsgByIndex( int i, idBitMsg & msg, bool ignoreIfStale ) const {
+int idSnapShot::GetObjectMsgByIndex(const int i, idBitMsg & msg, const bool ignoreIfStale ) const {
 	if ( i < 0 || i >= objectStates.Num() ) {
 		return -1;
 	}
@@ -1054,7 +1054,7 @@ int idSnapShot::GetObjectMsgByIndex( int i, idBitMsg & msg, bool ignoreIfStale )
 idSnapShot::ObjectIsStaleByIndex
 ========================
 */
-bool idSnapShot::ObjectIsStaleByIndex( int i ) const {
+bool idSnapShot::ObjectIsStaleByIndex(const int i ) const {
 	if ( i < 0 || i >= objectStates.Num() ) {
 		return false;
 	}
@@ -1066,7 +1066,7 @@ bool idSnapShot::ObjectIsStaleByIndex( int i ) const {
 idSnapShot::ObjectChangedCountByIndex
 ========================
 */
-int idSnapShot::ObjectChangedCountByIndex( int i ) const {
+int idSnapShot::ObjectChangedCountByIndex(const int i ) const {
 	if ( i < 0 || i >= objectStates.Num() ) {
 		return false;
 	}
@@ -1078,7 +1078,7 @@ int idSnapShot::ObjectChangedCountByIndex( int i ) const {
 idSnapShot::FindObjectIndexByID
 ========================
 */
-int idSnapShot::FindObjectIndexByID( int objectNum ) const {
+int idSnapShot::FindObjectIndexByID(const int objectNum ) const {
 	int i = BinarySearch( objectNum );
 	if ( i >= 0 && i < objectStates.Num() && objectStates[i]->objectNum == objectNum ) {
 		return i;
@@ -1091,7 +1091,7 @@ int idSnapShot::FindObjectIndexByID( int objectNum ) const {
 idSnapShot::BinarySearch
 ========================
 */
-int idSnapShot::BinarySearch( int objectNum ) const {
+int idSnapShot::BinarySearch(const int objectNum ) const {
 	int lo = 0;
 	int hi = objectStates.Num();
 	while ( hi != lo ) {
@@ -1115,7 +1115,7 @@ int idSnapShot::BinarySearch( int objectNum ) const {
 idSnapShot::FindOrCreateObjectByID
 ========================
 */
-idSnapShot::objectState_t & idSnapShot::FindOrCreateObjectByID( int objectNum ) {
+idSnapShot::objectState_t & idSnapShot::FindOrCreateObjectByID(const int objectNum ) {
 	//assert( mem.IsMapHeap() );
 
 	int i = BinarySearch( objectNum );
@@ -1137,7 +1137,7 @@ idSnapShot::objectState_t & idSnapShot::FindOrCreateObjectByID( int objectNum ) 
 idSnapShot::FindObjectByID
 ========================
 */
-idSnapShot::objectState_t * idSnapShot::FindObjectByID( int objectNum ) const {
+idSnapShot::objectState_t * idSnapShot::FindObjectByID(const int objectNum ) const {
 
 	//assert( mem.IsMapHeap() );
 
@@ -1169,8 +1169,8 @@ void idSnapShot::CleanupEmptyStates() {
 idSnapShot::UpdateExpectedSeq
 ========================
 */
-void idSnapShot::UpdateExpectedSeq( int newSeq ) {
-	for ( int i = 0; i < objectStates.Num(); i++ ) {
+void idSnapShot::UpdateExpectedSeq(const int newSeq ) {
+	for ( size_t i = 0; i < objectStates.Num(); i++ ) {
 		if ( objectStates[i]->expectedSequence == -2 ) {
 			objectStates[i]->expectedSequence = newSeq;
 		}
@@ -1182,7 +1182,7 @@ void idSnapShot::UpdateExpectedSeq( int newSeq ) {
 idSnapShot::FreeObjectState
 ========================
 */
-void idSnapShot::FreeObjectState( int index ) {
+void idSnapShot::FreeObjectState(const index_t index ) {
 	assert( objectStates[index] != NULL );
 	//assert( mem.IsMapHeap() );
 	objectStates[index]->buffer._Release();
@@ -1196,7 +1196,7 @@ idSnapShot::ApplyToExistingState
 Take uncompressed state in msg and add it to existing state
 ========================
 */
-void idSnapShot::ApplyToExistingState( int objId, idBitMsg & msg ) {
+void idSnapShot::ApplyToExistingState(const int objId, idBitMsg & msg ) {
 	objectState_t *	objectState = FindObjectByID( objId );
 	if ( !verify( objectState != NULL ) ) {
 		return;	
@@ -1217,7 +1217,7 @@ void idSnapShot::ApplyToExistingState( int objId, idBitMsg & msg ) {
 		objectState->Print( "DELTA STATE" );
 		
 		PrintAlign( "SPAWN STATE" );
-		for ( int i = 0; i < msg.GetSize(); i++ ) {
+		for ( size_t i = 0; i < msg.GetSize(); i++ ) {
 			if ( InDebugRange( i ) ) {
 				idLib::Printf( "%02X", msg.GetReadData()[i] );
 			}
@@ -1245,7 +1245,7 @@ CONSOLE_COMMAND( serializeQTest, "Serialization Sanity Test", 0 ) {
 
 	float values[] = { 0.0001f, 0.001f, 0.01f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 0.999f, 
 							1.0f, 1.01f, 1.1f, 10.0f, 10.1f, 10.101f, 100.0f, 101.0f, 101.1f, 101.101f };
-	int num = sizeof(values) / sizeof(float);
+	size_t num = sizeof(values) / sizeof(float);
 
 	idLib::Printf("\n^3Testing SerializeQ and SerializeUQ \n");
 
@@ -1254,7 +1254,7 @@ CONSOLE_COMMAND( serializeQTest, "Serialization Sanity Test", 0 ) {
 		writeBitMsg.InitWrite( buffer, sizeof(buffer) );
 		idSerializer writeSerializer( writeBitMsg, true );
 
-		for( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			writeSerializer.SerializeUQ( values[i], 255.0f, 16 );
 			writeSerializer.SerializeQ( values[i], 128.0f, 16 );
 		}
@@ -1265,7 +1265,7 @@ CONSOLE_COMMAND( serializeQTest, "Serialization Sanity Test", 0 ) {
 		readBitMsg.InitRead( buffer, sizeof( buffer ) );
 		idSerializer readSerializer( readBitMsg, false );
 
-		for( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 
 			float resultUQ = -999.0f;
 			float resultQ  = -999.0f;

@@ -40,10 +40,10 @@ Contains the DxtDecoder implementation.
 idDxtDecoder::EmitBlock
 ========================
 */
-void idDxtDecoder::EmitBlock( byte *outPtr, int x, int y, const byte *colorBlock ) const
+void idDxtDecoder::EmitBlock( byte *outPtr, const int x, const int y, const byte *colorBlock ) const
 {
 	outPtr += ( y * width + x ) * 4;
-	for ( int j = 0; j < 4; j++ ) {
+	for ( size_t j = 0; j < 4; j++ ) {
 		memcpy( outPtr, &colorBlock[j*4*4], 4*4 );
 		outPtr += width * 4;
 	}
@@ -56,7 +56,7 @@ idDxtDecoder::DecodeAlphaValues
 */
 void idDxtDecoder::DecodeAlphaValues( byte *colorBlock, const int offset ) {
 	int i;
-	unsigned int indexes;
+	unsigned index_t indexes;
 	byte alphas[8];
 
 	alphas[0] = ReadByte();
@@ -98,7 +98,7 @@ void idDxtDecoder::DecodeAlphaValues( byte *colorBlock, const int offset ) {
 idDxtDecoder::DecodeColorValues
 ========================
 */
-void idDxtDecoder::DecodeColorValues( byte *colorBlock, bool noBlack, bool writeAlpha ) {
+void idDxtDecoder::DecodeColorValues( byte *colorBlock, const bool noBlack, const bool writeAlpha ) {
 	byte colors[4][4];
 
 	unsigned short color0 = ReadUShort();
@@ -132,8 +132,8 @@ void idDxtDecoder::DecodeColorValues( byte *colorBlock, bool noBlack, bool write
 		colors[3][3] = 0;
 	}
 
-	unsigned int indexes = ReadUInt();
-	for ( int i = 0; i < 16; i++ ) {
+	unsigned index_t indexes = ReadUInt();
+	for ( size_t i = 0; i < 16; i++ ) {
 		colorBlock[i*4+0] = colors[indexes & 3][0];
 		colorBlock[i*4+1] = colors[indexes & 3][1];
 		colorBlock[i*4+2] = colors[indexes & 3][2];
@@ -162,8 +162,8 @@ void idDxtDecoder::DecodeCTX1Values( byte *colorBlock ) {
 	colors[3][0] = ( 1 * colors[0][0] + 2 * colors[1][0] ) / 3;
 	colors[3][1] = ( 1 * colors[0][1] + 2 * colors[1][1] ) / 3;
 
-	unsigned int indexes = ReadUInt();
-	for ( int i = 0; i < 16; i++ ) {
+	unsigned index_t indexes = ReadUInt();
+	for ( size_t i = 0; i < 16; i++ ) {
 		colorBlock[i*4+0] = colors[indexes & 3][0];
 		colorBlock[i*4+1] = colors[indexes & 3][1];
 		indexes >>= 2;
@@ -175,15 +175,15 @@ void idDxtDecoder::DecodeCTX1Values( byte *colorBlock ) {
 idDxtDecoder::DecompressImageDXT1
 ========================
 */
-void idDxtDecoder::DecompressImageDXT1( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressImageDXT1( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeColorValues( block, false, true );
 			EmitBlock( outBuf, i, j, block );
 		}
@@ -195,15 +195,15 @@ void idDxtDecoder::DecompressImageDXT1( const byte *inBuf, byte *outBuf, int wid
 idDxtDecoder::DecompressImageDXT5
 ========================
 */
-void idDxtDecoder::DecompressImageDXT5( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressImageDXT5( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeAlphaValues( block, 3 );
 			DecodeColorValues( block, true, false );
 			EmitBlock( outBuf, i, j, block );
@@ -216,15 +216,15 @@ void idDxtDecoder::DecompressImageDXT5( const byte *inBuf, byte *outBuf, int wid
 idDxtDecoder::DecompressImageDXT5_nVidia7x
 ========================
 */
-void idDxtDecoder::DecompressImageDXT5_nVidia7x( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressImageDXT5_nVidia7x( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeAlphaValues( block, 3 );
 			DecodeColorValues( block, false, false );
 			EmitBlock( outBuf, i, j, block );
@@ -237,10 +237,10 @@ void idDxtDecoder::DecompressImageDXT5_nVidia7x( const byte *inBuf, byte *outBuf
 idDxtDecoder::DecompressYCoCgDXT5
 ========================
 */
-void idDxtDecoder::DecompressYCoCgDXT5( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressYCoCgDXT5( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	DecompressImageDXT5_nVidia7x( inBuf, outBuf, width, height );
 	// descale the CoCg values and set the scale factor effectively to 1
-	for ( int i = 0; i < width * height; i++ ) {
+	for ( size_t i = 0; i < width * height; i++ ) {
 		int scale = ( outBuf[i*4+2] >> 3 ) + 1;
 		outBuf[i*4+0] = static_cast<byte>((outBuf[i * 4 + 0] - 128) / scale + 128);
 		outBuf[i*4+1] = static_cast<byte>((outBuf[i * 4 + 1] - 128) / scale + 128);
@@ -254,15 +254,15 @@ void idDxtDecoder::DecompressYCoCgDXT5( const byte *inBuf, byte *outBuf, int wid
 idDxtDecoder::DecompressYCoCgCTX1DXT5A
 ========================
 */
-void idDxtDecoder::DecompressYCoCgCTX1DXT5A( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressYCoCgCTX1DXT5A( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeAlphaValues( block, 3 );
 			DecodeCTX1Values( block );
 			EmitBlock( outBuf, i, j, block );
@@ -277,7 +277,7 @@ idDxtDecoder::DecodeNormalYValues
 */
 void idDxtDecoder::DecodeNormalYValues( byte *normalBlock, const int offsetY, byte &c0, byte &c1 ) {
 	int i;
-	unsigned int indexes;
+	unsigned index_t indexes;
 	unsigned short normal0, normal1;
 	byte normalsY[4];
 
@@ -357,14 +357,14 @@ void idDxtDecoder::DeriveNormalZValues( byte *normalBlock ) {
 idDxtDecoder::UnRotateNormals
 ========================
 */
-void UnRotateNormals( const byte *block, float *normals, byte c0, byte c1 ) {
+void UnRotateNormals( const byte *block, float *normals, const byte c0, const byte c1 ) {
 	int rotation = c0;
 	float angle = -( rotation / 255.0f ) * idMath::PI;
 	float s = sin( angle );
 	float c = cos( angle );
 
 	int scale = ( c1 >> 3 ) + 1;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		float x = block[i*4+0] / 255.0f * 2.0f - 1.0f;
 		float y = ( ( block[i*4+1] - 128 ) / scale + 128 ) / 255.0f * 2.0f - 1.0f;
 		float rx = c * x - s * y;
@@ -379,33 +379,33 @@ void UnRotateNormals( const byte *block, float *normals, byte c0, byte c1 ) {
 idDxtDecoder::DecompressNormalMapDXT1
 ========================
 */
-void idDxtDecoder::DecompressNormalMapDXT1( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressNormalMapDXT1( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeColorValues( block, false, true );
 #if 1
 			float normals[16*4];
 			/*
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				normals[k*4+0] = block[k*4+0] / 255.0f * 2.0f - 1.0f;
 				normals[k*4+1] = block[k*4+1] / 255.0f * 2.0f - 1.0f;
 			}
 			*/
 			UnRotateNormals( block, normals, block[0*4+2], 0 );
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				float x = normals[k*4+0];
 				float y = normals[k*4+1];
 				float z = 1.0f - x * x - y * y;
 				if ( z < 0.0f ) z = 0.0f;
 				normals[k*4+2] = sqrt( z );
 			}
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				block[k*4+0] = idMath::Ftob( ( normals[k*4+0] + 1.0f ) / 2.0f * 255.0f );
 				block[k*4+1] = idMath::Ftob( ( normals[k*4+1] + 1.0f ) / 2.0f * 255.0f );
 				block[k*4+2] = idMath::Ftob( ( normals[k*4+2] + 1.0f ) / 2.0f * 255.0f );
@@ -423,18 +423,18 @@ void idDxtDecoder::DecompressNormalMapDXT1( const byte *inBuf, byte *outBuf, int
 idDxtDecoder::DecompressNormalMapDXT1Renormalize
 ========================
 */
-void idDxtDecoder::DecompressNormalMapDXT1Renormalize( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressNormalMapDXT1Renormalize( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeColorValues( block, false, true );
 
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				float normal[3];
 				normal[0] = block[k*4+0] / 255.0f * 2.0f - 1.0f;
 				normal[1] = block[k*4+1] / 255.0f * 2.0f - 1.0f;
@@ -458,19 +458,19 @@ void idDxtDecoder::DecompressNormalMapDXT1Renormalize( const byte *inBuf, byte *
 idDxtDecoder::DecompressNormalMapDXT5Renormalize
 ========================
 */
-void idDxtDecoder::DecompressNormalMapDXT5Renormalize( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressNormalMapDXT5Renormalize( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeAlphaValues( block, 3 );
 			DecodeColorValues( block, false, false );
 
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				float normal[3];
 #if 0 // object-space
 				normal[0] = block[k*4+0] / 255.0f * 2.0f - 1.0f;
@@ -503,7 +503,7 @@ idDxtDecoder::BiasScaleNormalY
 void BiasScaleNormalY( byte *normals, const int offsetY, const byte c0, const byte c1 ) {
 	int bias = c0 - 4;
 	int scale = ( c1 >> 3 ) + 1;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		normals[i*4+offsetY] = static_cast<byte>((normals[i * 4 + offsetY] - 128) / scale + bias);
 	}
 }
@@ -516,7 +516,7 @@ idDxtDecoder::BiasScaleNormals
 void BiasScaleNormals( const byte *block, float *normals, const byte c0, const byte c1 ) {
 	int bias = c0 - 4;
 	int scale = ( c1 >> 3 ) + 1;
-	for ( int i = 0; i < 16; i++ ) {
+	for ( size_t i = 0; i < 16; i++ ) {
 		normals[i*4+0] = block[i*4+0] / 255.0f * 2.0f - 1.0f;
 		normals[i*4+1] = ( ( block[i*4+1] - 128.0f ) / scale + bias ) / 255.0f * 2.0f - 1.0f;
 	}
@@ -527,7 +527,7 @@ void BiasScaleNormals( const byte *block, float *normals, const byte c0, const b
 idDxtDecoder::DecompressNormalMapDXT5
 ========================
 */
-void idDxtDecoder::DecompressNormalMapDXT5( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressNormalMapDXT5( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 	byte c0, c1;
 
@@ -535,22 +535,22 @@ void idDxtDecoder::DecompressNormalMapDXT5( const byte *inBuf, byte *outBuf, int
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeAlphaValues( block, 0 );
 			DecodeNormalYValues( block, 1, c0, c1 );
 #if 1
 			float normals[16*4];
 			//BiasScaleNormals( block, normals, c0, c1 );
 			UnRotateNormals( block, normals, c0, c1 );
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				float x = normals[k*4+0];
 				float y = normals[k*4+1];
 				float z = 1.0f - x * x - y * y;
 				if ( z < 0.0f ) z = 0.0f;
 				normals[k*4+2] = sqrt( z );
 			}
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				block[k*4+0] = idMath::Ftob( ( normals[k*4+0] + 1.0f ) / 2.0f * 255.0f );
 				block[k*4+1] = idMath::Ftob( ( normals[k*4+1] + 1.0f ) / 2.0f * 255.0f );
 				block[k*4+2] = idMath::Ftob( ( normals[k*4+2] + 1.0f ) / 2.0f * 255.0f );
@@ -570,31 +570,31 @@ void idDxtDecoder::DecompressNormalMapDXT5( const byte *inBuf, byte *outBuf, int
 idDxtDecoder::DecompressNormalMapDXN2
 ========================
 */
-void idDxtDecoder::DecompressNormalMapDXN2( const byte *inBuf, byte *outBuf, int width, int height ) {
+void idDxtDecoder::DecompressNormalMapDXN2( const byte *inBuf, byte *outBuf, const int width, const int height ) {
 	byte block[64];
 
 	this->width = width;
 	this->height = height;
 	this->inData = inBuf;
 
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecodeAlphaValues( block, 0 );
 			DecodeAlphaValues( block, 1 );
 #if 1
 			float normals[16*4];
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				normals[k*4+0] = block[k*4+0] / 255.0f * 2.0f - 1.0f;
 				normals[k*4+1] = block[k*4+1] / 255.0f * 2.0f - 1.0f;
 	}
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				float x = normals[k*4+0];
 				float y = normals[k*4+1];
 				float z = 1.0f - x * x - y * y;
 				if ( z < 0.0f ) z = 0.0f;
 				normals[k*4+2] = sqrt( z );
 			}
-			for ( int k = 0; k < 16; k++ ) {
+			for ( size_t k = 0; k < 16; k++ ) {
 				block[k*4+0] = idMath::Ftob( ( normals[k*4+0] + 1.0f ) / 2.0f * 255.0f );
 				block[k*4+1] = idMath::Ftob( ( normals[k*4+1] + 1.0f ) / 2.0f * 255.0f );
 				block[k*4+2] = idMath::Ftob( ( normals[k*4+2] + 1.0f ) / 2.0f * 255.0f );
@@ -612,7 +612,7 @@ void idDxtDecoder::DecompressNormalMapDXN2( const byte *inBuf, byte *outBuf, int
 idDxtDecoder::DecomposeColorBlock
 ========================
 */
-void idDxtDecoder::DecomposeColorBlock( byte colors[2][4], byte colorIndices[16], bool noBlack ) {
+void idDxtDecoder::DecomposeColorBlock( byte colors[2][4], byte colorIndices[16], const bool noBlack ) {
 	int i;
 	unsigned int indices;
 	unsigned short color0, color1;
@@ -682,7 +682,7 @@ void idDxtDecoder::DecomposeAlphaBlock( byte colors[2][4], byte alphaIndices[16]
 idDxtDecoder::DecomposeImageDXT1
 ========================
 */
-void idDxtDecoder::DecomposeImageDXT1( const byte *inBuf, byte *colorIndices, byte *pic1, byte *pic2, int width, int height ) {
+void idDxtDecoder::DecomposeImageDXT1( const byte *inBuf, byte *colorIndices, byte *pic1, byte *pic2, const int width, const int height ) {
 	byte colors[2][4];
 	byte indices[16];
 
@@ -691,8 +691,8 @@ void idDxtDecoder::DecomposeImageDXT1( const byte *inBuf, byte *colorIndices, by
 	this->inData = inBuf;
 
 	// extract the colors from the DXT
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecomposeColorBlock( colors, indices, false );
 
 			memcpy( colorIndices + (j+0) * width + i, indices+ 0, 4 );
@@ -712,7 +712,7 @@ void idDxtDecoder::DecomposeImageDXT1( const byte *inBuf, byte *colorIndices, by
 idDxtDecoder::DecomposeImageDXT5
 ========================
 */
-void idDxtDecoder::DecomposeImageDXT5( const byte *inBuf, byte *colorIndices, byte *alphaIndices, byte *pic1, byte *pic2, int width, int height ) {
+void idDxtDecoder::DecomposeImageDXT5( const byte *inBuf, byte *colorIndices, byte *alphaIndices, byte *pic1, byte *pic2, const int width, const int height ) {
 	byte colors[2][4];
 	byte colorInd[16];
 	byte alphaInd[16];
@@ -722,8 +722,8 @@ void idDxtDecoder::DecomposeImageDXT5( const byte *inBuf, byte *colorIndices, by
 	this->inData = inBuf;
 
 	// extract the colors from the DXT
-	for ( int j = 0; j < height; j += 4 ) {
-		for ( int i = 0; i < width; i += 4 ) {
+	for ( size_t j = 0; j < height; j += 4 ) {
+		for ( size_t i = 0; i < width; i += 4 ) {
 			DecomposeAlphaBlock( colors, alphaInd );
 			DecomposeColorBlock( colors, colorInd, true );
 

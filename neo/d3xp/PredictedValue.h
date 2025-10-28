@@ -57,7 +57,7 @@ public:
 	idPredictedValue< type_ > & operator+=( const type_ & toAdd );
 	idPredictedValue< type_ > & operator-=( const type_ & toSubtract );
 
-	bool		UpdateFromSnapshot( const type_ & valueFromSnapshot, int clientNumber );
+	bool		UpdateFromSnapshot( const type_ & valueFromSnapshot, index_t clientNumber );
 
 	type_		Get() const { return value; }
 

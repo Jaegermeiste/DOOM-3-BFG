@@ -30,6 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 /*
 ================================================================================================
 
@@ -43,11 +47,56 @@ If you have questions concerning this license or the applicable additional terms
 #undef ID_PC
 #undef ID_PC_WIN
 #undef ID_PC_WIN64
-#undef ID_CONSOLE
 #undef ID_WIN32
+#undef ID_WIN64
+
+#undef ID_GDK
+
+#undef ID_CONSOLE
+#undef ID_XBOX
+#undef ID_XBOX_360
+#undef ID_XBOX_ONE
+#undef ID_XBOX_SERIES
+
 #undef ID_LITTLE_ENDIAN
+#undef ID_BIG_ENDIAN
+
+// --- Xbox 360 (legacy XDK) --------------------------------------------------
+#if defined(XBOX) || defined(_XBOX) || defined(_XBOX360)
+#define ID_CONSOLE
+#define ID_XBOX
+#define ID_XBOX_360
+#define ID_BIG_ENDIAN
+
+// --- Modern GDK Xbox -------------------------------------------------------
+#elif defined(_GAMING_XBOX)
+#define ID_CONSOLE
+#define ID_XBOX
+#define ID_LITTLE_ENDIAN
+#define ID_GDK
+
+#if defined(_GAMING_XBOX_SCARLETT)
+#define ID_XBOX_SERIES
+#elif defined(_GAMING_XBOX_XBOXONE)
+#define ID_XBOX_ONE
+#endif
+
+// --- GDK on Windows (Desktop) ----------------------------------------------
+#elif defined(_GAMING_DESKTOP)
+#define ID_GDK_DESKTOP
+#define ID_PC
+#define ID_PC_WIN
+#define ID_LITTLE_ENDIAN
+#define ID_GDK
 
 #if defined(_WIN64)
+#define ID_WIN64
+#elif defined(_WIN32)
+#define ID_WIN32
+#endif
+
+// --- Standard Windows (non-GDK) --------------------------------------------
+#elif defined(_WIN64)
 #define ID_PC
 #define ID_PC_WIN
 #define ID_WIN64
@@ -81,11 +130,109 @@ If you have questions concerning this license or the applicable additional terms
 	#define ID_PC_WIN
 	#define ID_WIN32
 	#define ID_LITTLE_ENDIAN
+
+// --- Legacy XDK (Durango) ---------------------------------------------------
+#elif defined(_DURANGO)
+#define ID_CONSOLE
+#define ID_XBOX
+#define ID_XBOX_ONE
+#define ID_LITTLE_ENDIAN
+
 #else
 #error Unknown Platform
 #endif
 
 #define ID_OPENGL
+
+/*
+================================================================================================
+
+	CPU detection from compiler
+
+================================================================================================
+*/
+
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__) || defined(__amd64__)
+constexpr auto CPUSTRING = "x64";
+#define ID_CPU_ARCH_X64
+#define ID_LITTLE_ENDIAN
+
+#elif defined(_M_IA64)
+constexpr auto CPUSTRING = "IA64";
+#define ID_CPU_ARCH_IA64
+#define ID_LITTLE_ENDIAN  // Itanium used little-endian Windows ABI
+
+#elif defined(_M_IX86) || defined(__i386__)
+constexpr auto CPUSTRING = "x86";
+#define ID_CPU_ARCH_X86
+#define ID_LITTLE_ENDIAN
+
+#elif defined(__aarch64__) || defined(_M_ARM64)
+constexpr auto CPUSTRING = "ARM64";
+#define ID_CPU_ARCH_ARM64
+#define ID_LITTLE_ENDIAN   // Windows/most AArch64 systems use LE
+
+#elif defined(__arm__) || defined(_M_ARM)
+constexpr auto CPUSTRING = "ARM32";
+#define ID_CPU_ARCH_ARM32
+#define ID_LITTLE_ENDIAN   // ARM can be bi-endian, but Windows/Android/iOS use LE
+
+#elif defined(__riscv)
+constexpr auto CPUSTRING = "RISCV";
+#define ID_CPU_ARCH_RISCV
+#define ID_LITTLE_ENDIAN   // RISC-V defines little-endian as standard (RV64EL, RV32EL)
+
+#elif defined(__powerpc64__) || defined(__ppc64__)
+constexpr auto CPUSTRING = "PPC64";
+#define ID_CPU_ARCH_PPC64
+#define ID_BIG_ENDIAN      // most PPC64 consoles (e.g., Xbox 360, PS3) were BE
+
+#elif defined(__powerpc__) || defined(__ppc__)
+constexpr auto CPUSTRING = "PPC32";
+#define ID_CPU_ARCH_PPC32
+#define ID_BIG_ENDIAN      // Xbox 360, Wii, PS2/PS3 used big-endian PPC32
+
+#elif defined(__mips__) || defined(__mips)
+#if defined(__mips64)
+constexpr auto CPUSTRING = "MIPS64";
+#define ID_CPU_ARCH_MIPS64
+#else
+constexpr auto CPUSTRING = "MIPS32";
+#define ID_CPU_ARCH_MIPS32
+#endif
+#if defined(__MIPSEL__) || defined(_MIPSEL) || defined(__mips_le)
+#define ID_LITTLE_ENDIAN
+#else
+#define ID_BIG_ENDIAN
+#endif
+
+#elif defined(__s390x__)
+constexpr auto CPUSTRING = "S390X";
+#define ID_CPU_ARCH_S390X
+#define ID_BIG_ENDIAN      // IBM zSeries is big-endian
+
+#elif defined(__wasm64__)
+constexpr auto CPUSTRING = "WASM64";
+#define ID_CPU_ARCH_WASM64
+#define ID_LITTLE_ENDIAN   // WebAssembly is defined as little-endian
+
+#elif defined(__wasm32__)
+constexpr auto CPUSTRING = "WASM32";
+#define ID_CPU_ARCH_WASM32
+#define ID_LITTLE_ENDIAN
+
+#else
+constexpr auto CPUSTRING = "UNK";
+#define ID_CPU_ARCH_UNKNOWN
+#define ID_LITTLE_ENDIAN    // default to LE for safety
+#endif
+
+
+#if defined(_DEBUG) || defined (DEBUG)
+constexpr auto BUILD_TYPE = "DEBUG";
+#else
+constexpr auto BUILD_TYPE = "Release";
+#endif // defined(_DEBUG) || defined (DEBUG)
 
 /*
 ================================================================================================
@@ -97,59 +244,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef ID_PC_WIN
 
-#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__) || defined(__amd64__)
-constexpr auto CPUSTRING = "x64";
-#define ID_CPU_ARCH_X64
-#elif defined(_M_IA64)
-constexpr auto CPUSTRING = "IA64";
-#define ID_CPU_ARCH_IA64
-#elif defined(_M_IX86) || defined(__i386__)
-constexpr auto CPUSTRING = "x86";
-#define ID_CPU_ARCH_X86
-#elif defined(__aarch64__) || defined(_M_ARM64)
-constexpr auto CPUSTRING = "ARM64";
-#define ID_CPU_ARCH_ARM64
-#elif defined(__arm__) || defined(_M_ARM)
-constexpr auto CPUSTRING = "ARM32";
-#define ID_CPU_ARCH_ARM32
-#elif defined(__riscv)
-constexpr auto CPUSTRING = "RISCV";
-#define ID_CPU_ARCH_RISCV
-#elif defined(__powerpc64__) || defined(__ppc64__)
-constexpr auto CPUSTRING = "PPC64";
-#define ID_CPU_ARCH_PPC64
-#elif defined(__powerpc__) || defined(__ppc__)
-constexpr auto CPUSTRING = "PPC32";
-#define ID_CPU_ARCH_PPC32
-#elif defined(__mips__) || defined(__mips)
-#if defined(__mips64)
-constexpr auto CPUSTRING = "MIPS64";
-#define ID_CPU_ARCH_MIPS64
-#else
-constexpr auto CPUSTRING = "MIPS32";
-#define ID_CPU_ARCH_MIPS32
-#endif
-#elif defined(__s390x__)
-constexpr auto CPUSTRING = "S390X";
-#define ID_CPU_ARCH_S390X
-#elif defined(__wasm64__)
-constexpr auto CPUSTRING = "WASM64";
-#define ID_CPU_ARCH_WASM64
-#elif defined(__wasm32__)
-constexpr auto CPUSTRING = "WASM32";
-#define ID_CPU_ARCH_WASM32
-#else
-constexpr auto CPUSTRING = "UNK";
-#define ID_CPU_ARCH_UNKNOWN
-#endif
-
-#if defined(_DEBUG) || defined (DEBUG)
-constexpr auto BUILD_TYPE = "DEBUG";
-#else
-constexpr auto BUILD_TYPE = "Release";
-#endif // defined(_DEBUG) || defined (DEBUG)
-
-#define BUILD_STRING "win-" CPUSTRING "_" BUILD_TYPE;
+constexpr auto BUILD_OS  = "Win";
 constexpr auto BUILD_OS_ID = 0;
 
 #define ALIGN16( x )					__declspec(align(16)) x
@@ -213,7 +308,7 @@ private:									\
 Setup for /analyze code analysis, which we currently only have on the 360, but
 we may get later for win32 if we buy the higher end vc++ licenses.
 
-Even with VS2010 ultmate, /analyze only works for x86, not x64
+Even with VS2010 ultimate, /analyze only works for x86, not x64
 
 Also note the __analysis_assume macro in sys_assert.h relates to code analysis.
 
@@ -245,6 +340,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // win32 needs this, but 360 doesn't
 #pragma warning( disable: 6540 )	// warning C6540: The use of attribute annotations on this function will invalidate all of its existing __declspec annotations [D:\tech5\engine\engine-10.vcxproj]
 
+#pragma warning( disable: 26482 )    // warning C26482: Only index into arrays using constant expressions
 
 // checking format strings catches a LOT of errors
 //#include <CodeAnalysis\SourceAnnotations.h>
@@ -252,7 +348,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 
 
 // We need to inform the compiler that Error() and FatalError() will
-// never return, so any conditions that leeds to them being called are
+// never return, so any conditions that leads to them being called are
 // guaranteed to be false in the following code
 #define NO_RETURN __declspec(noreturn)
 

@@ -290,7 +290,7 @@ srfTriangles_t *R_CopyStaticTriSurf( const srfTriangles_t *tri ) {
 R_AllocStaticTriSurfVerts
 =================
 */
-static void R_AllocStaticTriSurfVerts( srfTriangles_t *tri, size_t numVerts ) {
+static void R_AllocStaticTriSurfVerts( srfTriangles_t *tri, const size_t numVerts ) {
 	assert( tri->verts == nullptr );
 	tri->verts = static_cast<idDrawVert*>(Mem_Alloc16(numVerts * sizeof(idDrawVert), TAG_TRI_VERTS));
 }
@@ -300,7 +300,7 @@ static void R_AllocStaticTriSurfVerts( srfTriangles_t *tri, size_t numVerts ) {
 R_AllocStaticTriSurfIndexes
 =================
 */
-static void R_AllocStaticTriSurfIndexes( srfTriangles_t *tri, size_t numIndexes ) {
+static void R_AllocStaticTriSurfIndexes( srfTriangles_t *tri, const size_t numIndexes ) {
 	assert( tri->indexes == nullptr );
 	tri->indexes = static_cast<triIndex_t*>(Mem_Alloc16(numIndexes * sizeof(triIndex_t), TAG_TRI_INDEXES));
 }
@@ -310,7 +310,7 @@ static void R_AllocStaticTriSurfIndexes( srfTriangles_t *tri, size_t numIndexes 
 R_AllocStaticTriSurfSilIndexes
 =================
 */
-static void R_AllocStaticTriSurfSilIndexes( srfTriangles_t *tri, size_t numIndexes ) {
+static void R_AllocStaticTriSurfSilIndexes( srfTriangles_t *tri, const size_t numIndexes ) {
 	assert( tri->silIndexes == nullptr );
 	tri->silIndexes = static_cast<triIndex_t*>(Mem_Alloc16(numIndexes * sizeof(triIndex_t), TAG_TRI_SIL_INDEXES));
 }
@@ -320,7 +320,7 @@ static void R_AllocStaticTriSurfSilIndexes( srfTriangles_t *tri, size_t numIndex
 R_AllocStaticTriSurfDominantTris
 =================
 */
-static void R_AllocStaticTriSurfDominantTris( srfTriangles_t *tri, size_t numVerts ) {
+static void R_AllocStaticTriSurfDominantTris( srfTriangles_t *tri, const size_t numVerts ) {
 	assert( tri->dominantTris == nullptr );
 	tri->dominantTris = static_cast<dominantTri_t*>(Mem_Alloc16(numVerts * sizeof(dominantTri_t), TAG_TRI_DOMINANT_TRIS));
 }
@@ -330,7 +330,7 @@ static void R_AllocStaticTriSurfDominantTris( srfTriangles_t *tri, size_t numVer
 R_AllocStaticTriSurfMirroredVerts
 =================
 */
-static void R_AllocStaticTriSurfMirroredVerts( srfTriangles_t *tri, size_t numMirroredVerts ) {
+static void R_AllocStaticTriSurfMirroredVerts( srfTriangles_t *tri, const size_t numMirroredVerts ) {
 	assert( tri->mirroredVerts == nullptr );
 	tri->mirroredVerts = static_cast<int*>(Mem_Alloc16(numMirroredVerts * sizeof(*tri->mirroredVerts), TAG_TRI_MIR_VERT));
 }
@@ -340,7 +340,7 @@ static void R_AllocStaticTriSurfMirroredVerts( srfTriangles_t *tri, size_t numMi
 R_AllocStaticTriSurfDupVerts
 =================
 */
-static void R_AllocStaticTriSurfDupVerts( srfTriangles_t *tri, size_t numDupVerts ) {
+static void R_AllocStaticTriSurfDupVerts( srfTriangles_t *tri, const size_t numDupVerts ) {
 	assert( tri->dupVerts == nullptr );
 	tri->dupVerts = static_cast<int*>(Mem_Alloc16(numDupVerts * 2 * sizeof(*tri->dupVerts), TAG_TRI_DUP_VERT));
 }
@@ -350,7 +350,7 @@ static void R_AllocStaticTriSurfDupVerts( srfTriangles_t *tri, size_t numDupVert
 R_AllocStaticTriSurfSilEdges
 =================
 */
-static void R_AllocStaticTriSurfSilEdges( srfTriangles_t *tri, size_t numSilEdges ) {
+static void R_AllocStaticTriSurfSilEdges( srfTriangles_t *tri, const size_t numSilEdges ) {
 	assert( tri->silEdges == nullptr );
 	tri->silEdges = static_cast<silEdge_t*>(Mem_Alloc16(numSilEdges * sizeof(silEdge_t), TAG_TRI_SIL_EDGE));
 }
@@ -360,7 +360,7 @@ static void R_AllocStaticTriSurfSilEdges( srfTriangles_t *tri, size_t numSilEdge
 R_AllocStaticTriSurfPreLightShadowVerts
 =================
 */
-static void R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t *tri, size_t numVerts ) {
+static void R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t *tri, const size_t numVerts ) {
 	assert( tri->preLightShadowVertexes == nullptr );
 	tri->preLightShadowVertexes = static_cast<idShadowVert*>(Mem_Alloc16(numVerts * sizeof(idShadowVert), TAG_TRI_SHADOW));
 }
@@ -370,7 +370,7 @@ static void R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t *tri, size_t
 R_ResizeStaticTriSurfVerts
 =================
 */
-static void R_ResizeStaticTriSurfVerts( srfTriangles_t *tri, size_t numVerts ) {
+static void R_ResizeStaticTriSurfVerts( srfTriangles_t *tri, const size_t numVerts ) {
 	idDrawVert * newVerts = static_cast<idDrawVert*>(Mem_Alloc16(numVerts * sizeof(idDrawVert), TAG_TRI_VERTS));
 	const size_t copy = std::min( numVerts, tri->numVerts );
 	memcpy( newVerts, tri->verts, copy * sizeof( idDrawVert ) );
@@ -383,7 +383,7 @@ static void R_ResizeStaticTriSurfVerts( srfTriangles_t *tri, size_t numVerts ) {
 R_ResizeStaticTriSurfIndexes
 =================
 */
-static void R_ResizeStaticTriSurfIndexes( srfTriangles_t *tri, size_t numIndexes ) {
+static void R_ResizeStaticTriSurfIndexes( srfTriangles_t *tri, const size_t numIndexes ) {
 	triIndex_t * newIndexes = static_cast<triIndex_t*>(Mem_Alloc16(numIndexes * sizeof(triIndex_t), TAG_TRI_INDEXES));
 	const size_t copy = std::min( numIndexes, tri->numIndexes );
 	memcpy( newIndexes, tri->indexes, copy * sizeof( triIndex_t ) );
@@ -624,7 +624,7 @@ static void R_DefineEdge( const triIndex_t v1, const triIndex_t v2, const triInd
 	silEdge_t silEdge;
 
 	silEdge.p1 = planeNum;
-	silEdge.p2 = idMath::integer_cast<triIndex_t>(numPlanes);
+	silEdge.p2 = numeric_cast<triIndex_t>(numPlanes);
 	silEdge.v1 = v1;
 	silEdge.v2 = v2;
 
@@ -790,7 +790,7 @@ R_FaceNegativePolarity
 Returns true if the texture polarity of the face is negative, false if it is positive or zero
 ===============
 */
-static bool R_FaceNegativePolarity( const srfTriangles_t *tri, size_t firstIndex ) {
+static bool R_FaceNegativePolarity( const srfTriangles_t *tri, const size_t firstIndex ) {
 	const idDrawVert * a = tri->verts + tri->indexes[firstIndex + 0];
 	const idDrawVert * b = tri->verts + tri->indexes[firstIndex + 1];
 	const idDrawVert * c = tri->verts + tri->indexes[firstIndex + 2];
@@ -860,7 +860,7 @@ static void	R_DuplicateMirroredVertexes( srfTriangles_t *tri ) {
 	for ( i = 0; i < tri->numVerts; i++ ) {
 		vert = &tverts[i];
 		if ( vert->polarityUsed[0] && vert->polarityUsed[1] ) {
-			vert->negativeRemap = idMath::integer_cast<triIndex_t>(totalVerts);
+			vert->negativeRemap = numeric_cast<triIndex_t>(totalVerts);
 			totalVerts++;
 		}
 	}
@@ -1312,7 +1312,7 @@ typedef struct {
 	size_t		faceNum = 0;
 } indexSort_t;
 
-static int IndexSort( const void *a, const void *b ) {
+static index_t indexSort( const void *a, const void *b ) {
 	if (static_cast<const indexSort_t *>(a)->vertexNum < static_cast<const indexSort_t*>(b)->vertexNum ) {
 		return -1;
 	}
@@ -1632,7 +1632,7 @@ Only deals with vertexes and indexes, not silhouettes, planes, etc.
 Does NOT perform a cleanup triangles, so there may be duplicated verts in the result.
 =================
 */
-srfTriangles_t * R_MergeSurfaceList( const srfTriangles_t **surfaces, int numSurfaces ) {
+srfTriangles_t * R_MergeSurfaceList( const srfTriangles_t **surfaces, const size_t numSurfaces ) {
 	srfTriangles_t	*newTri;
 	const srfTriangles_t	*tri;
 	int				i, j;
@@ -1722,7 +1722,7 @@ R_CleanupTriangles
 FIXME: allow createFlat and createSmooth normals, as well as explicit
 =================
 */
-void R_CleanupTriangles( srfTriangles_t *tri, bool createNormals, bool identifySilEdges, bool useUnsmoothedTangents ) {
+void R_CleanupTriangles( srfTriangles_t *tri, const bool createNormals, const bool identifySilEdges, const bool useUnsmoothedTangents ) {
 	R_RangeCheckIndexes( tri );
 
 	R_CreateSilIndexes( tri );
@@ -1769,8 +1769,8 @@ DEFORMED SURFACES
 R_BuildDeformInfo
 ===================
 */
-deformInfo_t *R_BuildDeformInfo( int numVerts, const idDrawVert *verts, int numIndexes, const int *indexes, 
-									bool useUnsmoothedTangents ) {
+deformInfo_t *R_BuildDeformInfo(const size_t numVerts, const idDrawVert *verts, const size_t numIndexes, const int *indexes,
+									const bool useUnsmoothedTangents ) {
 	srfTriangles_t	tri;
 	memset( &tri, 0, sizeof( srfTriangles_t ) );
 
@@ -1782,7 +1782,7 @@ deformInfo_t *R_BuildDeformInfo( int numVerts, const idDrawVert *verts, int numI
 	R_AllocStaticTriSurfIndexes( &tri, tri.numIndexes );
 
 	// don't memcpy, so we can change the index type from int to short without changing the interface
-	for ( int i = 0; i < tri.numIndexes; i++ ) {
+	for ( size_t i = 0; i < tri.numIndexes; i++ ) {
 		tri.indexes[i] = indexes[i];
 	}
 

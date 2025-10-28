@@ -147,7 +147,7 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations() {
 		}
 	} else {
 
-		for ( int i = 0; i < saveGameInfo.Num(); ++i ) {
+		for ( size_t i = 0; i < saveGameInfo.Num(); ++i ) {
 			if ( saveGameInfo[i].slotName.Icmp( "autosave" ) == 0 ) {
 				hasAutosave = true;
 				break;
@@ -288,12 +288,12 @@ void idMenuScreen_Shell_Save::HideScreen( const mainMenuTransition_t transitionT
 idMenuScreen_Shell_Save::SaveGame
 ========================
 */
-void idMenuScreen_Shell_Save::SaveGame( int index ) {
+void idMenuScreen_Shell_Save::SaveGame( index_t index ) {
 	const saveGameDetailsList_t & saveGameInfo = session->GetSaveGameManager().GetEnumeratedSavegames();
 	int newSaveOffset = 1;
 
 	bool hasAutosave = false;
-	for ( int i = 0; i < saveGameInfo.Num(); ++i ) {
+	for ( size_t i = 0; i < saveGameInfo.Num(); ++i ) {
 		if ( saveGameInfo[i].slotName.Icmp( "autosave" ) == 0 ) {
 			hasAutosave = true;
 			break;
@@ -345,7 +345,7 @@ void idMenuScreen_Shell_Save::SaveGame( int index ) {
 
 		class idSWFScriptFunction_OverwriteSave : public idSWFScriptFunction_RefCounted {
 		public:
-			idSWFScriptFunction_OverwriteSave( gameDialogMessages_t _msg, bool _accept, int _index, idMenuScreen_Shell_Save * _screen ) {
+			idSWFScriptFunction_OverwriteSave(const gameDialogMessages_t _msg, const bool _accept, const int _index, idMenuScreen_Shell_Save * _screen ) {
 				msg = _msg;
 				accept = _accept;
 				index = _index;
@@ -368,7 +368,7 @@ void idMenuScreen_Shell_Save::SaveGame( int index ) {
 			}
 		private:
 			gameDialogMessages_t msg;
-			int index;
+			index_t index;
 			bool accept;
 			idMenuScreen_Shell_Save * screen;
 		};
@@ -387,11 +387,11 @@ void idMenuScreen_Shell_Save::SaveGame( int index ) {
 idMenuScreen_Shell_Save::DeleteGame
 ========================
 */
-void idMenuScreen_Shell_Save::DeleteGame( int index ) {
+void idMenuScreen_Shell_Save::DeleteGame( index_t index ) {
 	
 	class idSWFScriptFunction_DeleteGame : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_DeleteGame( gameDialogMessages_t _msg, bool _accept, int _index, idMenuScreen_Shell_Save * _screen ) {
+		idSWFScriptFunction_DeleteGame(const gameDialogMessages_t _msg, const bool _accept, const int _index, idMenuScreen_Shell_Save * _screen ) {
 			msg = _msg;
 			accept = _accept;
 			index = _index;
@@ -409,14 +409,14 @@ void idMenuScreen_Shell_Save::DeleteGame( int index ) {
 		}
 	private:
 		gameDialogMessages_t msg;
-		int index;
+		index_t index;
 		bool accept;
 		idMenuScreen_Shell_Save * screen;
 	};
 
 	bool hasAutosave = false;
 	const saveGameDetailsList_t & saveInfo = session->GetSaveGameManager().GetEnumeratedSavegames();
-	for ( int i = 0; i < saveInfo.Num(); ++i ) {
+	for ( size_t i = 0; i < saveInfo.Num(); ++i ) {
 		if ( saveInfo[i].slotName.Icmp( "autosave" ) == 0 ) {
 			hasAutosave = true;
 			break;
@@ -436,7 +436,7 @@ void idMenuScreen_Shell_Save::DeleteGame( int index ) {
 idMenuScreen_Shell_Save::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Save::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Save::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

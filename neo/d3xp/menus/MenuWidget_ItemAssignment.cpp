@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idLib/precompiled.h"
 #include "../Game_local.h"
 
-void idMenuWidget_ItemAssignment::SetIcon( int index, const idMaterial * icon ) {
+void idMenuWidget_ItemAssignment::SetIcon(const index_t index, const idMaterial * icon ) {
 
 	if ( index < 0 || index >= NUM_QUICK_SLOTS ) {
 		return;
@@ -40,7 +40,7 @@ void idMenuWidget_ItemAssignment::SetIcon( int index, const idMaterial * icon ) 
 
 void idMenuWidget_ItemAssignment::FindFreeSpot() {
 	slotIndex = 0;
-	for ( int i = 0; i < NUM_QUICK_SLOTS; ++i ) {
+	for ( size_t i = 0; i < NUM_QUICK_SLOTS; ++i ) {
 		if ( images[ i ] == nullptr) {
 			slotIndex = i;
 			break;
@@ -71,7 +71,7 @@ void idMenuWidget_ItemAssignment::Update() {
 		dpad->StopFrame( slotIndex + 2 );
 	}
 
-	for ( int i = 0; i < NUM_QUICK_SLOTS; ++i ) {
+	for ( size_t i = 0; i < NUM_QUICK_SLOTS; ++i ) {
 		idSWFSpriteInstance * item = GetSprite()->GetScriptObject()->GetNestedSprite( va( "item%d", i ) );
 		if ( item != nullptr) {
 			if ( i == slotIndex ) {

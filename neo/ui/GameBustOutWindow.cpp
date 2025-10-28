@@ -130,7 +130,7 @@ void BOEntity::SetMaterial(const char* name) {
 BOEntity::SetSize
 ======================
 */
-void BOEntity::SetSize( float _width, float _height ) {
+void BOEntity::SetSize(const float _width, const float _height ) {
 	width = _width;
 	height = _height;
 }
@@ -140,7 +140,7 @@ void BOEntity::SetSize( float _width, float _height ) {
 BOEntity::SetVisible
 ======================
 */
-void BOEntity::SetColor( float r, float g, float b, float a ) {
+void BOEntity::SetColor(const float r, const float g, const float b, const float a ) {
 	color.x = r;
 	color.y = g;
 	color.z = b;
@@ -152,7 +152,7 @@ void BOEntity::SetColor( float r, float g, float b, float a ) {
 BOEntity::SetVisible
 ======================
 */
-void BOEntity::SetVisible( bool isVisible ) {
+void BOEntity::SetVisible(const bool isVisible ) {
 	visible = isVisible;
 }
 
@@ -161,7 +161,7 @@ void BOEntity::SetVisible( bool isVisible ) {
 BOEntity::Update
 ======================
 */
-void BOEntity::Update( float timeslice, int guiTime ) {
+void BOEntity::Update(const float timeslice, int guiTime ) {
 	
 	if ( !visible ) {
 		return;
@@ -204,7 +204,7 @@ BOBrick::BOBrick() {
 	isBroken = false;
 }
 
-BOBrick::BOBrick( BOEntity *_ent, float _x, float _y, float _width, float _height ) {
+BOBrick::BOBrick( BOEntity *_ent, const float _x, const float _y, const float _width, const float _height ) {
 	ent = _ent;
 	x = _x;
 	y = _y;
@@ -239,7 +239,7 @@ void BOBrick::WriteToSaveGame( idFile *savefile ) {
 	savefile->Write( &powerup, sizeof(powerup) );
 	savefile->Write( &isBroken, sizeof(isBroken) );
 
-	int index = ent->game->entities.FindIndex( ent );
+	index_t index = ent->game->entities.FindIndex( ent );
 	savefile->Write( &index, sizeof(index) );
 }
 
@@ -257,7 +257,7 @@ void BOBrick::ReadFromSaveGame( idFile *savefile, idGameBustOutWindow *game ) {
 	savefile->Read( &powerup, sizeof(powerup) );
 	savefile->Read( &isBroken, sizeof(isBroken) );
 
-	int index;
+	index_t index;
 	savefile->Read( &index, sizeof(index) );
 	ent = game->entities[index];
 }
@@ -267,7 +267,7 @@ void BOBrick::ReadFromSaveGame( idFile *savefile, idGameBustOutWindow *game ) {
 BOBrick::SetColor
 ======================
 */
-void BOBrick::SetColor( idVec4 bcolor ) const
+void BOBrick::SetColor(const idVec4 bcolor ) const
 {
 	ent->SetColor( bcolor.x, bcolor.y, bcolor.z, bcolor.w );
 }
@@ -277,7 +277,7 @@ void BOBrick::SetColor( idVec4 bcolor ) const
 BOBrick::checkCollision
 ======================
 */
-collideDir_t BOBrick::checkCollision( idVec2 pos, idVec2 vel ) const
+collideDir_t BOBrick::checkCollision(const idVec2 pos, const idVec2 vel ) const
 {
 	idVec2	ptA, ptB;
 	float	dist;
@@ -456,7 +456,7 @@ void idGameBustOutWindow::WriteToSaveGame( idFile *savefile ) {
 
 	// Write Entities
 	int i;
-	int numberOfEnts = entities.Num();
+	size_t numberOfEnts = entities.Num();
 	savefile->Write( &numberOfEnts, sizeof(numberOfEnts) );
 	for ( i=0; i<numberOfEnts; i++ ) {
 		entities[i]->WriteToSaveGame( savefile );
@@ -532,7 +532,7 @@ void idGameBustOutWindow::ReadFromSaveGame( idFile *savefile ) {
 	savefile->Read( &ballHitCeiling, sizeof(ballHitCeiling) );
 
 	int i;
-	int numberOfEnts;
+	size_t numberOfEnts;
 
 	// Read entities
 	savefile->Read( &numberOfEnts, sizeof(numberOfEnts) );
@@ -719,7 +719,7 @@ bool idGameBustOutWindow::ParseInternalVar(const char *_name, idTokenParser *src
 idGameBustOutWindow::GetWinVarByName
 =============================
 */
-idWinVar *idGameBustOutWindow::GetWinVarByName(const char *_name, bool winLookup, drawWin_t** owner) {
+idWinVar *idGameBustOutWindow::GetWinVarByName(const char *_name, const bool winLookup, drawWin_t** owner) {
 	idWinVar *retVar = nullptr;
 
 	if ( idStr::Icmp(_name, "gamerunning") == 0 ) {
@@ -755,7 +755,7 @@ void idGameBustOutWindow::PostParse() {
 idGameBustOutWindow::Draw
 =============================
 */
-void idGameBustOutWindow::Draw(int time, float x, float y) {
+void idGameBustOutWindow::Draw(ID_TIME_T time, float x, float y) {
 	int i;
 
 	//Update the game every frame before drawing
@@ -1193,7 +1193,7 @@ void idGameBustOutWindow::UpdateBall() {
 
 		// Check for collision with bricks
 		for ( i=0; i<BOARD_ROWS; i++ ) {
-			int num = board[i].Num();
+			size_t num = board[i].Num();
 
 			for ( j=0; j<num; j++ ) {
 				BOBrick *brick = (board[i])[j];

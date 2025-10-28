@@ -208,7 +208,7 @@ void idPVS::DestroyPVSData() {
 idPVS::FloodFrontPortalPVS_r
 ================
 */
-void idPVS::FloodFrontPortalPVS_r( pvsPortal_t *portal, int areaNum ) const {
+void idPVS::FloodFrontPortalPVS_r( pvsPortal_t *portal, const index_t areaNum ) const {
 	int i, n;
 	pvsArea_t *area;
 	pvsPortal_t *p;
@@ -448,7 +448,7 @@ void idPVS::PassagePVS() const {
 idPVS::AddPassageBoundaries
 ===============
 */
-void idPVS::AddPassageBoundaries( const idWinding &source, const idWinding &pass, bool flipClip, idPlane *bounds, int &numBounds, int maxBounds ) const {
+void idPVS::AddPassageBoundaries( const idWinding &source, const idWinding &pass, const bool flipClip, idPlane *bounds, int &numBounds, const size_t maxBounds ) const {
 	int			i, j, k, l;
 	idVec3		v1, v2, normal;
 	float		d, dist;
@@ -692,7 +692,7 @@ idPVS::DestroyPassages
 ================
 */
 void idPVS::DestroyPassages() const {
-	int i, j;
+	size_t i = 0, j = 0;
 	pvsPortal_t *p;
 	pvsArea_t *area;
 
@@ -817,7 +817,7 @@ void idPVS::Init() {
 	portalVisBytes = ( ((numPortals+31)&~31) >> 3);
 	portalVisLongs = portalVisBytes/sizeof(long);
 
-	for ( int i = 0; i < MAX_CURRENT_PVS; i++ ) {
+	for ( size_t i = 0; i < MAX_CURRENT_PVS; i++ ) {
 		currentPVS[i].handle.i = -1;
 		currentPVS[i].handle.h = 0;
 		currentPVS[i].pvs = new (TAG_PVS) byte[areaVisBytes];
@@ -871,7 +871,7 @@ void idPVS::Shutdown() {
 		delete areaPVS;
 		areaPVS = nullptr;
 	}
-	for ( int i = 0; i < MAX_CURRENT_PVS; i++ ) {
+	for ( size_t i = 0; i < MAX_CURRENT_PVS; i++ ) {
 		delete currentPVS[i].pvs;
 		currentPVS[i].pvs = nullptr;
 	}
@@ -884,7 +884,7 @@ idPVS::GetConnectedAreas
   assumes the 'areas' array is initialized to false
 ================
 */
-void idPVS::GetConnectedAreas( int srcArea, bool *areas ) const {
+void idPVS::GetConnectedAreas(const int srcArea, bool *areas ) const {
 	int curArea, nextArea;
 	int queueStart, queueEnd;
 	int i, n;
@@ -934,7 +934,7 @@ int idPVS::GetPVSArea( const idVec3 &point ) const {
 idPVS::GetPVSAreas
 ================
 */
-int idPVS::GetPVSAreas( const idBounds &bounds, int *areas, int maxAreas ) const {
+int idPVS::GetPVSAreas( const idBounds &bounds, int *areas, const size_t maxAreas ) const {
 	return gameRenderWorld->BoundsInAreas( bounds, areas, maxAreas );
 }
 
@@ -957,7 +957,7 @@ idPVS::SetupCurrentPVS
 ================
 */
 pvsHandle_t idPVS::SetupCurrentPVS( const idBounds &source, const pvsType_t type ) const {
-	int numSourceAreas, sourceAreas[MAX_BOUNDS_AREAS];
+	size_t numSourceAreas, sourceAreas[MAX_BOUNDS_AREAS];
 
 	numSourceAreas = gameRenderWorld->BoundsInAreas( source, sourceAreas, MAX_BOUNDS_AREAS );
 
@@ -1008,8 +1008,8 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int sourceArea, const pvsType_t type )
 idPVS::SetupCurrentPVS
 ================
 */
-pvsHandle_t idPVS::SetupCurrentPVS( const int *sourceAreas, const int numSourceAreas, const pvsType_t type ) const {
-	int i, j;
+pvsHandle_t idPVS::SetupCurrentPVS( const int *sourceAreas, const size_t numSourceAreas, const pvsType_t type ) const {
+	size_t i = 0, j = 0;
 	unsigned int h;
 	long *vis, *pvs;
 	pvsHandle_t handle;
@@ -1070,7 +1070,7 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int *sourceAreas, const int numSourceA
 idPVS::MergeCurrentPVS
 ================
 */
-pvsHandle_t idPVS::MergeCurrentPVS( pvsHandle_t pvs1, pvsHandle_t pvs2 ) const {
+pvsHandle_t idPVS::MergeCurrentPVS(const pvsHandle_t pvs1, const pvsHandle_t pvs2 ) const {
 	int i;
 	long *pvs1Ptr, *pvs2Ptr, *ptr;
 	pvsHandle_t handle = { 0 };
@@ -1099,7 +1099,7 @@ pvsHandle_t idPVS::MergeCurrentPVS( pvsHandle_t pvs1, pvsHandle_t pvs2 ) const {
 idPVS::AllocCurrentPVS
 ================
 */
-pvsHandle_t idPVS::AllocCurrentPVS( unsigned int h ) const {
+pvsHandle_t idPVS::AllocCurrentPVS(const unsigned int h ) const {
 	int i;
 	pvsHandle_t handle;
 
@@ -1123,7 +1123,7 @@ pvsHandle_t idPVS::AllocCurrentPVS( unsigned int h ) const {
 idPVS::FreeCurrentPVS
 ================
 */
-void idPVS::FreeCurrentPVS( pvsHandle_t handle ) const {
+void idPVS::FreeCurrentPVS(const pvsHandle_t handle ) const {
 	if ( handle.i < 0 || handle.i >= MAX_CURRENT_PVS || handle.h != currentPVS[handle.i].handle.h ) {
 		gameLocal.Error( "idPVS::FreeCurrentPVS: invalid handle" );
 		return;
@@ -1203,7 +1203,7 @@ bool idPVS::InCurrentPVS( const pvsHandle_t handle, const int targetArea ) const
 idPVS::InCurrentPVS
 ================
 */
-bool idPVS::InCurrentPVS( const pvsHandle_t handle, const int *targetAreas, int numTargetAreas ) const {
+bool idPVS::InCurrentPVS( const pvsHandle_t handle, const int *targetAreas, const size_t numTargetAreas ) const {
 	int i;
 
 	if ( handle.i < 0 || handle.i >= MAX_CURRENT_PVS ||

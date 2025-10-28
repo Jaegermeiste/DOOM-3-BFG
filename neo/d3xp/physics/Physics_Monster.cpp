@@ -401,7 +401,7 @@ monsterMoveResult_t idPhysics_Monster::GetMoveResult() const {
 idPhysics_Monster::ForceDeltaMove
 ================
 */
-void idPhysics_Monster::ForceDeltaMove( bool force ) {
+void idPhysics_Monster::ForceDeltaMove(const bool force ) {
 	forceDeltaMove = force;
 }
 
@@ -410,7 +410,7 @@ void idPhysics_Monster::ForceDeltaMove( bool force ) {
 idPhysics_Monster::UseFlyMove
 ================
 */
-void idPhysics_Monster::UseFlyMove( bool force ) {
+void idPhysics_Monster::UseFlyMove(const bool force ) {
 	fly = force;
 }
 
@@ -419,7 +419,7 @@ void idPhysics_Monster::UseFlyMove( bool force ) {
 idPhysics_Monster::UseVelocityMove
 ================
 */
-void idPhysics_Monster::UseVelocityMove( bool force ) {
+void idPhysics_Monster::UseVelocityMove(const bool force ) {
 	useVelocityMove = force;
 }
 
@@ -446,7 +446,7 @@ void idPhysics_Monster::DisableImpact() {
 idPhysics_Monster::Evaluate
 ================
 */
-bool idPhysics_Monster::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
+bool idPhysics_Monster::Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) {
 	idVec3 masterOrigin, oldOrigin;
 	idMat3 masterAxis;
 	float timeStep;
@@ -548,7 +548,7 @@ bool idPhysics_Monster::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec 
 idPhysics_Monster::UpdateTime
 ================
 */
-void idPhysics_Monster::UpdateTime( int endTimeMSec ) {
+void idPhysics_Monster::UpdateTime( ID_TIME_T endTimeMSec ) {
 }
 
 /*
@@ -714,7 +714,7 @@ const idVec3 &idPhysics_Monster::GetLinearVelocity( int id ) const {
 idPhysics_Monster::SetPushed
 ================
 */
-void idPhysics_Monster::SetPushed( int deltaTime ) {
+void idPhysics_Monster::SetPushed(const int deltaTime ) {
 	// velocity with which the monster is pushed
 	current.pushVelocity += ( current.origin - saved.origin ) / ( deltaTime * idMath::M_MS2SEC );
 }

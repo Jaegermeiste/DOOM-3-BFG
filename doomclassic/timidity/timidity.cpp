@@ -51,7 +51,7 @@ sample_t *resample_buffer;
 #define MAXWORDS 10
 
  // Alternative to FGets
-char* Gets( idFile & file, char *buf, int bsize ) {
+char* Gets( idFile & file, char *buf, const int bsize ) {
 
 	int i;
 	char c;
@@ -325,7 +325,7 @@ static int read_config_file(const char *name)
 	return 0;
 }
 
-int Timidity_Init(int rate, int format, int channels, int samples, const char* config)
+int Timidity_Init(const int rate, const int format, const int channels, const int samples, const char* config)
 {
 	int ret;
 	ret = read_config_file(config);

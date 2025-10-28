@@ -40,7 +40,7 @@ idLobby::SaveDisconnectedUser
 */
 void idLobby::SaveDisconnectedUser( const lobbyUser_t & user ) {
 	bool found = false;
-	for ( int i = 0; i < disconnectedUsers.Num(); i++ ) {
+	for ( size_t i = 0; i < disconnectedUsers.Num(); i++ ) {
 		if ( user.lobbyUserID.CompareIgnoreLobbyType( disconnectedUsers[i].lobbyUserID ) ) {
 			found = true;
 			memcpy( disconnectedUsers[i].gamertag, user.gamertag, sizeof( user.gamertag ) );
@@ -192,7 +192,7 @@ bool idLobby::IsSessionUserLocal( const lobbyUser_t * lobbyUser ) const {
 idLobby::IsSessionUserIndexLocal
 ========================
 */
-bool idLobby::IsSessionUserIndexLocal( int i ) const {
+bool idLobby::IsSessionUserIndexLocal(const int i ) const {
 	return IsSessionUserLocal( GetLobbyUser( i ) );
 }
 
@@ -201,13 +201,13 @@ bool idLobby::IsSessionUserIndexLocal( int i ) const {
 idLobby::GetLobbyUserIndexByID
 ========================
 */
-int idLobby::GetLobbyUserIndexByID( lobbyUserID_t lobbyUserId, bool ignoreLobbyType ) const {
+int idLobby::GetLobbyUserIndexByID(const lobbyUserID_t lobbyUserId, const bool ignoreLobbyType ) const {
 	if ( !lobbyUserId.IsValid() ) {
 		return -1;
 	}
 	assert( lobbyUserId.GetLobbyType() == lobbyType || ignoreLobbyType );
 
-	for ( int i = 0; i < GetNumLobbyUsers(); ++ i ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++ i ) {
 		if ( ignoreLobbyType ) {
 			if ( GetLobbyUser( i )->lobbyUserID.CompareIgnoreLobbyType( lobbyUserId ) ) {
 				return i;
@@ -226,8 +226,8 @@ int idLobby::GetLobbyUserIndexByID( lobbyUserID_t lobbyUserId, bool ignoreLobbyT
 idLobby::GetLobbyUserByID
 ========================
 */
-lobbyUser_t	* idLobby::GetLobbyUserByID( lobbyUserID_t lobbyUserID, bool ignoreLobbyType ) {
-	int index = GetLobbyUserIndexByID( lobbyUserID, ignoreLobbyType );
+lobbyUser_t	* idLobby::GetLobbyUserByID(const lobbyUserID_t lobbyUserID, const bool ignoreLobbyType ) {
+	index_t index = GetLobbyUserIndexByID( lobbyUserID, ignoreLobbyType );
 
 	if ( index == -1 ) {
 		return nullptr;
@@ -280,14 +280,14 @@ idLobby::InitSessionUsersFromLocalUsers
 This functions just defaults the session users to the signin manager local users
 ========================
 */
-void idLobby::InitSessionUsersFromLocalUsers( bool onlineMatch ) {
+void idLobby::InitSessionUsersFromLocalUsers(const bool onlineMatch ) {
 	assert( lobbyBackend != NULL );
 
 	// First, clear all session users of this session type
 	FreeAllUsers();
 
 	// Copy all local users from sign in mgr to the session user list
-	for ( int i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); i++ ) {		
+	for ( size_t i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); i++ ) {		
 		idLocalUser * localUser = sessionCB->GetSignInManager().GetLocalUserByIndex( i );
 		
 		// Make sure this user can join lobbies
@@ -316,7 +316,7 @@ Takes a local user handle, and converts to a session user
 */
 int idLobby::GetLobbyUserIndexByLocalUserHandle( const localUserHandle_t localUserHandle ) const {
 	// Find the session user that uses this input device index
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		if ( !IsSessionUserIndexLocal( i ) ) {
 			continue;	// We only want local users
 		}
@@ -334,7 +334,7 @@ idLobby::GetLocalUserFromLobbyUserIndex
 This takes a session user, and converts to a local user
 ========================
 */
-idLocalUser * idLobby::GetLocalUserFromLobbyUserIndex( int lobbyUserIndex ) {
+idLocalUser * idLobby::GetLocalUserFromLobbyUserIndex(const int lobbyUserIndex ) {
 	if ( lobbyUserIndex < 0 || lobbyUserIndex >= GetNumLobbyUsers() ) {
 		return nullptr;
 	}
@@ -434,7 +434,7 @@ Called from both host and client.
 void idLobby::RemoveSessionUsersByIDList( idList< lobbyUserID_t > & usersToRemoveByID ) {
 	assert( lobbyBackend != NULL || usersToRemoveByID.Num() == 0 );
 
-	for ( int i = 0; i < usersToRemoveByID.Num(); i++ ) {
+	for ( size_t i = 0; i < usersToRemoveByID.Num(); i++ ) {
 		for ( int u = 0; u < GetNumLobbyUsers(); u++ ) {
 			lobbyUser_t * user = GetLobbyUser( u );
 			
@@ -473,7 +473,7 @@ void idLobby::RemoveSessionUsersByIDList( idList< lobbyUserID_t > & usersToRemov
 		idBitMsg msg( buffer, sizeof( buffer ) );
 		msg.WriteByte( usersToRemoveByID.Num() );
 
-		for ( int i = 0; i < usersToRemoveByID.Num(); i++ ) {
+		for ( size_t i = 0; i < usersToRemoveByID.Num(); i++ ) {
 			usersToRemoveByID[i].WriteToMsg( msg );
 		}
 		for ( int p = 0; p < peers.Num(); p++ ) {
@@ -488,7 +488,7 @@ idLobby::SendPeersMicStatusToNewUsers
 Sends each current user mic status to the newly added peer.
 ========================
 */
-void idLobby::SendPeersMicStatusToNewUsers( int peerNumber ) {
+void idLobby::SendPeersMicStatusToNewUsers(const int peerNumber ) {
 	if ( !IsHost() ) {
 		return;
 	}
@@ -497,9 +497,9 @@ void idLobby::SendPeersMicStatusToNewUsers( int peerNumber ) {
 	idBitMsg outmsg( buffer, sizeof( buffer ) );
 
 	// Count up how many users will be in the msg
-	int numUsersInMsg = 0;
+	size_t numUsersInMsg = 0;
 
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 
 		if ( user->isBot ) {
@@ -519,7 +519,7 @@ void idLobby::SendPeersMicStatusToNewUsers( int peerNumber ) {
 
 	outmsg.WriteLong( numUsersInMsg );
 
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		lobbyUser_t * user = GetLobbyUser( i );
 
 		if ( user->isBot ) {
@@ -550,7 +550,7 @@ Sends a range of users to the current list of peers.
 The host calls this when he receives new users, to forward the list to the other peers.
 ========================
 */
-void idLobby::SendNewUsersToPeers( int skipPeer, int userStart, int numUsers ) {
+void idLobby::SendNewUsersToPeers(const int skipPeer, const int userStart, const size_t numUsers ) {
 	if ( !IsHost() ) {
 		return;
 	}
@@ -597,7 +597,7 @@ lobbyUserID_t idLobby::AllocLobbyUserSlotForBot( const char * botName ) {
 	int sessionUserIndex = -1;
 
 	// First, try to replace a disconnected user
-	for ( int i = 0; i < GetNumLobbyUsers(); ++i ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); ++i ) {
 		if ( IsLobbyUserDisconnected( i ) ) {
 			lobbyUser_t * user = GetLobbyUser( i );
 			if ( verify( user != NULL ) ) {
@@ -635,8 +635,8 @@ lobbyUserID_t idLobby::AllocLobbyUserSlotForBot( const char * botName ) {
 idLobby::RemoveBotFromLobbyUserList
 ========================
 */
-void idLobby::RemoveBotFromLobbyUserList( lobbyUserID_t lobbyUserID ) {
-	const int index = GetLobbyUserIndexByID( lobbyUserID );
+void idLobby::RemoveBotFromLobbyUserList(const lobbyUserID_t lobbyUserID ) {
+	const index_t index = GetLobbyUserIndexByID( lobbyUserID );
 
 	lobbyUser_t * botUser = GetLobbyUser( index );
 	if ( botUser == nullptr) {
@@ -661,8 +661,8 @@ void idLobby::RemoveBotFromLobbyUserList( lobbyUserID_t lobbyUserID ) {
 idLobby::GetLobbyUserIsBot
 ========================
 */
-bool idLobby::GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const {
-	const int index = GetLobbyUserIndexByID( lobbyUserID );
+bool idLobby::GetLobbyUserIsBot(const lobbyUserID_t lobbyUserID ) const {
+	const index_t index = GetLobbyUserIndexByID( lobbyUserID );
 
 	const lobbyUser_t * botLobbyUser = GetLobbyUser( index );
 	if ( botLobbyUser == nullptr) {
@@ -680,9 +680,9 @@ Simply parses a msg, and adds any new users from it to our own user list.
 If we are the host, we will forward this to all peers except the peer that we just received it from.
 ========================
 */
-void idLobby::AddUsersFromMsg( idBitMsg & msg, int fromPeer ) {
+void idLobby::AddUsersFromMsg( idBitMsg & msg, const int fromPeer ) {
 	int userStart	= GetNumLobbyUsers();
-	int numNewUsers = msg.ReadByte();
+	size_t numNewUsers = msg.ReadByte();
 	
 	assert( lobbyBackend != NULL );
 
@@ -717,7 +717,7 @@ void idLobby::AddUsersFromMsg( idBitMsg & msg, int fromPeer ) {
 		lobbyUser_t * appendedUser = nullptr;
 
 		// First, try to replace a disconnected user
-		for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+		for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 			lobbyUser_t * user = GetLobbyUser( i );
 
 			if ( user->IsDisconnected() ) {
@@ -773,10 +773,10 @@ void idLobby::UpdateSessionUserOnPeers( idBitMsg & msg ) {
 idLobby::HandleHeadsetStateChange
 ========================
 */
-void idLobby::HandleHeadsetStateChange( int fromPeer, idBitMsg & msg ) {
+void idLobby::HandleHeadsetStateChange(const int fromPeer, idBitMsg & msg ) {
 	int userCount = msg.ReadLong();
 	
-	for ( int i = 0; i < userCount; ++i ) {
+	for ( size_t i = 0; i < userCount; ++i ) {
 		lobbyUserID_t lobbyUserID;
 		lobbyUserID.ReadFromMsg( msg );
 		bool state = msg.ReadBool();
@@ -798,7 +798,7 @@ void idLobby::HandleHeadsetStateChange( int fromPeer, idBitMsg & msg ) {
 			lobbyUserID.WriteToMsg( outMsg );
 			outMsg.WriteBool( state );
 
-			for ( int j = 0; j < peers.Num(); ++j ) {
+			for ( size_t j = 0; j < peers.Num(); ++j ) {
 				// Don't send this to the player that we just received the message from
 				if ( !peers[ j ].IsConnected() || j == fromPeer ) {
 					continue;
@@ -831,7 +831,7 @@ void idLobby::HandleUpdateSessionUser( idBitMsg & msg ) {
 idLobby::CreateUserUpdateMessage
 ========================
 */
-void idLobby::CreateUserUpdateMessage( int userIndex, idBitMsg & msg ) {
+void idLobby::CreateUserUpdateMessage(const int userIndex, idBitMsg & msg ) {
 	lobbyUser_t * user = GetLobbyUser( userIndex );
 
 	if ( verify( user != NULL ) ) {
@@ -846,7 +846,7 @@ idLobby::UpdateLocalSessionUsers
 ======================== 
 */
 void idLobby::UpdateLocalSessionUsers() {
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		idLocalUser * localUser = GetLocalUserFromLobbyUserIndex( i );
 		lobbyUser_t * lobbyUser = GetLobbyUser( i );
 
@@ -875,7 +875,7 @@ void idLobby::UpdateLocalSessionUsers() {
 idLobby::PeerIndexForSessionUserIndex
 ========================
 */
-int idLobby::PeerIndexForSessionUserIndex( int sessionUserIndex ) const {
+int idLobby::PeerIndexForSessionUserIndex(const int sessionUserIndex ) const {
 	const lobbyUser_t * user = GetLobbyUser( sessionUserIndex );
 
 	if ( !verify( user != NULL ) ) {
@@ -890,7 +890,7 @@ int idLobby::PeerIndexForSessionUserIndex( int sessionUserIndex ) const {
 idLobby::HandleUserConnectFailure
 ========================
 */
-void idLobby::HandleUserConnectFailure( int p, idBitMsg & inMsg, int reliableType ) {
+void idLobby::HandleUserConnectFailure(const int p, idBitMsg & inMsg, const int reliableType ) {
 	// Read user to get handle so we can send it back
 	inMsg.ReadByte();		// Num users
 	lobbyUser_t user;
@@ -915,7 +915,7 @@ void idLobby::ProcessUserDisconnectMsg( idBitMsg & msg ) {
 	idList< lobbyUserID_t > removeList;
 
 	// Convert the msg into a list of id's
-	const int numUsers			= msg.ReadByte();
+	const size_t numUsers			= msg.ReadByte();
 	
 	for ( int u = 0; u < numUsers; u++ ) {
 		lobbyUserID_t lobbyUserID;
@@ -977,7 +977,7 @@ Sends a request to the host to remove a session user from the session.
 If we are the host, we will do it immediately.
 ========================
 */
-void idLobby::RequestSessionUserDisconnect( int sessionUserIndex ) {
+void idLobby::RequestSessionUserDisconnect(const int sessionUserIndex ) {
 
 	if ( !IsRunningAsHostOrPeer() ) {
 		// If we are not in an actual running session, just remove it.
@@ -1028,7 +1028,7 @@ As local users come and go, this function will detect that, and send msg's to th
 add/remove the users from the session.
 ========================
 */
-void idLobby::SyncLobbyUsersWithLocalUsers( bool allowLocalJoins, bool onlineMatch ) {		
+void idLobby::SyncLobbyUsersWithLocalUsers(const bool allowLocalJoins, const bool onlineMatch ) {		
 	
 	if ( lobbyBackend == nullptr) {
 		return;
@@ -1040,7 +1040,7 @@ void idLobby::SyncLobbyUsersWithLocalUsers( bool allowLocalJoins, bool onlineMat
 
 	if ( allowLocalJoins ) {
 		// If we are allowed to do so, allow local users to join the session user list
-		for ( int i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); i++ ) {
+		for ( size_t i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); i++ ) {
 			idLocalUser * localUser = sessionCB->GetSignInManager().GetLocalUserByIndex( i );
 						
 			if ( GetSessionUserFromLocalUser( localUser ) != nullptr) {
@@ -1088,7 +1088,7 @@ void idLobby::SyncLobbyUsersWithLocalUsers( bool allowLocalJoins, bool onlineMat
 idLobby::IsLobbyUserDisconnected
 ========================
 */
-bool idLobby::IsLobbyUserDisconnected( int userIndex ) const {
+bool idLobby::IsLobbyUserDisconnected(const int userIndex ) const {
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	if ( user == nullptr) {
 		return true;
@@ -1110,7 +1110,7 @@ bool idLobby::IsLobbyUserDisconnected( int userIndex ) const {
 idLobby::IsLobbyUserValid
 ========================
 */
-bool idLobby::IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const {
+bool idLobby::IsLobbyUserValid(const lobbyUserID_t lobbyUserID ) const {
 	if ( !lobbyUserID.IsValid() ) {
 		return false;
 	}
@@ -1158,7 +1158,7 @@ bool idLobby::ValidateConnectedUser( const lobbyUser_t * user ) const {
 idLobby::IsLobbyUserLoaded
 ========================
 */
-bool idLobby::IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const {
+bool idLobby::IsLobbyUserLoaded(const lobbyUserID_t lobbyUserID ) const {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	int userIndex = GetLobbyUserIndexByID( lobbyUserID );
@@ -1197,7 +1197,7 @@ bool idLobby::IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const {
 idLobby::LobbyUserHasFirstFullSnap
 ========================
 */
-bool idLobby::LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const {
+bool idLobby::LobbyUserHasFirstFullSnap(const lobbyUserID_t lobbyUserID ) const {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	int userIndex = GetLobbyUserIndexByID( lobbyUserID );
@@ -1224,7 +1224,7 @@ bool idLobby::LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const {
 idLobby::GetLobbyUserIdByOrdinal
 ========================
 */
-lobbyUserID_t idLobby::GetLobbyUserIdByOrdinal( int userIndex ) const {
+lobbyUserID_t idLobby::GetLobbyUserIdByOrdinal(const int userIndex ) const {
 	const lobbyUser_t * user = GetLobbyUser( userIndex );
 	if ( user == nullptr) {
 		return lobbyUserID_t();
@@ -1246,7 +1246,7 @@ lobbyUserID_t idLobby::GetLobbyUserIdByOrdinal( int userIndex ) const {
 idLobby::GetLobbyUserIndexFromLobbyUserID
 ========================
 */
-int idLobby::GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const {
+int idLobby::GetLobbyUserIndexFromLobbyUserID(const lobbyUserID_t lobbyUserID ) const {
 	return GetLobbyUserIndexByID( lobbyUserID );
 }
 
@@ -1255,7 +1255,7 @@ int idLobby::GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const
 idLobby::EnableSnapshotsForLobbyUser
 ========================
 */
-void idLobby::EnableSnapshotsForLobbyUser( lobbyUserID_t lobbyUserID ) {
+void idLobby::EnableSnapshotsForLobbyUser(const lobbyUserID_t lobbyUserID ) {
 	assert( lobbyType == GetActingGameStateLobbyType() );
 
 	int userIndex = GetLobbyUserIndexByID( lobbyUserID );
@@ -1282,7 +1282,7 @@ float idLobby::GetAverageSessionLevel() {
 	float	level				= 0.0f;
 	int		numActiveMembers	= 0;
 
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		const lobbyUser_t * user = GetLobbyUser( i );
 
 		if ( user->IsDisconnected() ) {
@@ -1307,12 +1307,12 @@ float idLobby::GetAverageSessionLevel() {
 idLobby::GetAverageLocalUserLevel
 ========================
 */
-float idLobby::GetAverageLocalUserLevel( bool onlineOnly ) const
+float idLobby::GetAverageLocalUserLevel(const bool onlineOnly ) const
 {
 	float	level				= 0.0f;
 	int		numActiveMembers	= 0;
 
-	for ( int i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); ++i ) {
+	for ( size_t i = 0; i < sessionCB->GetSignInManager().GetNumLocalUsers(); ++i ) {
 		const idLocalUser * localUser = sessionCB->GetSignInManager().GetLocalUserByIndex( i );
 
 		if ( onlineOnly && !localUser->CanPlayOnline() ) {
@@ -1341,7 +1341,7 @@ float idLobby::GetAverageLocalUserLevel( bool onlineOnly ) const
 idLobby::QueueReliablePlayerToPlayerMessage
 ========================
 */
-void idLobby::QueueReliablePlayerToPlayerMessage( int fromSessionUserIndex, int toSessionUserIndex, reliablePlayerToPlayer_t type, const byte * data, int dataLen ) {
+void idLobby::QueueReliablePlayerToPlayerMessage(const int fromSessionUserIndex, const int toSessionUserIndex, const reliablePlayerToPlayer_t type, const byte * data, const int dataLen ) {
 	
 	reliablePlayerToPlayerHeader_t info;
 	info.fromSessionUserIndex = fromSessionUserIndex;
@@ -1373,7 +1373,7 @@ void idLobby::QueueReliablePlayerToPlayerMessage( int fromSessionUserIndex, int 
 idLobby::KickLobbyUser
 ========================
 */
-void idLobby::KickLobbyUser( lobbyUserID_t lobbyUserID ) {
+void idLobby::KickLobbyUser(const lobbyUserID_t lobbyUserID ) {
 	if ( !IsHost() ) {
 		return;
 	}
@@ -1399,9 +1399,9 @@ idLobby::GetNumConnectedUsers
 ========================
 */
 int idLobby::GetNumConnectedUsers() const {
-	int numConnectectUsers = 0;
+	size_t numConnectectUsers = 0;
 
-	for ( int i = 0; i < GetNumLobbyUsers(); i++ ) {
+	for ( size_t i = 0; i < GetNumLobbyUsers(); i++ ) {
 		const lobbyUser_t * user = GetLobbyUser( i );
 
 		if ( user->IsDisconnected() ) {

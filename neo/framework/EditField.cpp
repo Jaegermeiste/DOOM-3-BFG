@@ -134,7 +134,7 @@ void idEditField::Clear() {
 idEditField::SetWidthInChars
 ===============
 */
-void idEditField::SetWidthInChars( int w ) {
+void idEditField::SetWidthInChars(const int w ) {
 	assert( w <= MAX_EDIT_LINE );
 	widthInChars = w;
 }
@@ -144,7 +144,7 @@ void idEditField::SetWidthInChars( int w ) {
 idEditField::SetCursor
 ===============
 */
-void idEditField::SetCursor( int c ) {
+void idEditField::SetCursor(const int c ) {
 	assert( c <= MAX_EDIT_LINE );
 	cursor = c;
 }
@@ -295,7 +295,7 @@ void idEditField::AutoComplete() {
 idEditField::CharEvent
 ===============
 */
-void idEditField::CharEvent( int ch ) {
+void idEditField::CharEvent(const int ch ) {
 	int		len;
 
 	if ( ch == 'v' - 'a' + 1 ) {	// ctrl-v is paste
@@ -370,7 +370,7 @@ void idEditField::CharEvent( int ch ) {
 idEditField::KeyDownEvent
 ===============
 */
-void idEditField::KeyDownEvent( int key ) {
+void idEditField::KeyDownEvent(const int key ) {
 	int		len;
 
 	// shift-insert is paste
@@ -528,7 +528,7 @@ void idEditField::SetBuffer( const char *buf ) {
 idEditField::Draw
 ===============
 */
-void idEditField::Draw( int x, int y, int width, bool showCursor ) {
+void idEditField::Draw(const int x, const int y, int width, const bool showCursor ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -593,7 +593,7 @@ void idEditField::Draw( int x, int y, int width, bool showCursor ) {
 	}
 
 	// Move the cursor back to account for color codes
-	for ( int i = 0; i<cursor; i++ ) {
+	for ( size_t i = 0; i<cursor; i++ ) {
 		if ( idStr::IsColor( &str[i] ) ) {
 			i++;
 			prestep += 2;

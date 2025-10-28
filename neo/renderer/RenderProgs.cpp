@@ -70,11 +70,11 @@ void idRenderProgManager::Init() {
 	common->Printf( "----- Initializing Render Shaders -----\n" );
 
 
-	for ( int i = 0; i < MAX_BUILTINS; i++ ) {
+	for ( size_t i = 0; i < MAX_BUILTINS; i++ ) {
 		builtinShaders[i] = -1;
 	}
 	struct builtinShaders_t {
-		int index;
+		index_t index;
 		const char * name;
 	} builtins[] = {
 		{ BUILTIN_GUI, "gui.vfp" },
@@ -112,12 +112,12 @@ void idRenderProgManager::Init() {
 		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp" },
 		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp" },
 	};
-	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
+	size_t numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
 	vertexShaders.SetNum( numBuiltins );
 	fragmentShaders.SetNum( numBuiltins );
 	glslPrograms.SetNum( numBuiltins );
 
-	for ( int i = 0; i < numBuiltins; i++ ) {
+	for ( size_t i = 0; i < numBuiltins; i++ ) {
 		vertexShaders[i].name = builtins[i].name;
 		fragmentShaders[i].name = builtins[i].name;
 		builtinShaders[builtins[i].index] = i;
@@ -154,14 +154,14 @@ idRenderProgManager::LoadAllShaders()
 ================================================================================================
 */
 void idRenderProgManager::LoadAllShaders() {
-	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
+	for ( size_t i = 0; i < vertexShaders.Num(); i++ ) {
 		LoadVertexShader( i );
 	}
-	for ( int i = 0; i < fragmentShaders.Num(); i++ ) {
+	for ( size_t i = 0; i < fragmentShaders.Num(); i++ ) {
 		LoadFragmentShader( i );
 	}
 
-	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
+	for ( size_t i = 0; i < glslPrograms.Num(); ++i ) {
 		LoadGLSLProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
 	}
 }
@@ -173,19 +173,19 @@ idRenderProgManager::KillAllShaders()
 */
 void idRenderProgManager::KillAllShaders() {
 	Unbind();
-	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
+	for ( size_t i = 0; i < vertexShaders.Num(); i++ ) {
 		if ( vertexShaders[i].progId != INVALID_PROGID ) {
 			qglDeleteShader( vertexShaders[i].progId );
 			vertexShaders[i].progId = INVALID_PROGID;
 		}
 	}
-	for ( int i = 0; i < fragmentShaders.Num(); i++ ) {
+	for ( size_t i = 0; i < fragmentShaders.Num(); i++ ) {
 		if ( fragmentShaders[i].progId != INVALID_PROGID ) {
 			qglDeleteShader( fragmentShaders[i].progId );
 			fragmentShaders[i].progId = INVALID_PROGID;
 		}
 	}
-	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
+	for ( size_t i = 0; i < glslPrograms.Num(); ++i ) {
 		if ( glslPrograms[i].progId != INVALID_PROGID ) {
 			qglDeleteProgram( glslPrograms[i].progId );
 			glslPrograms[i].progId = INVALID_PROGID;
@@ -208,7 +208,7 @@ idRenderProgManager::FindVertexShader
 ================================================================================================
 */
 int idRenderProgManager::FindVertexShader( const char * name ) {
-	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
+	for ( size_t i = 0; i < vertexShaders.Num(); i++ ) {
 		if ( vertexShaders[i].name.Icmp( name ) == 0 ) {
 			LoadVertexShader( i );
 			return i;
@@ -216,7 +216,7 @@ int idRenderProgManager::FindVertexShader( const char * name ) {
 	}
 	vertexShader_t shader;
 	shader.name = name;
-	int index = vertexShaders.Append( shader );
+	index_t index = vertexShaders.Append( shader );
 	LoadVertexShader( index );
 	currentVertexShader = index;
 
@@ -238,7 +238,7 @@ idRenderProgManager::FindFragmentShader
 ================================================================================================
 */
 int idRenderProgManager::FindFragmentShader( const char * name ) {
-	for ( int i = 0; i < fragmentShaders.Num(); i++ ) {
+	for ( size_t i = 0; i < fragmentShaders.Num(); i++ ) {
 		if ( fragmentShaders[i].name.Icmp( name ) == 0 ) {
 			LoadFragmentShader( i );
 			return i;
@@ -246,7 +246,7 @@ int idRenderProgManager::FindFragmentShader( const char * name ) {
 	}
 	fragmentShader_t shader;
 	shader.name = name;
-	int index = fragmentShaders.Append( shader );
+	index_t index = fragmentShaders.Append( shader );
 	LoadFragmentShader( index );
 	currentFragmentShader = index;
 	return index;
@@ -260,7 +260,7 @@ int idRenderProgManager::FindFragmentShader( const char * name ) {
 idRenderProgManager::LoadVertexShader
 ================================================================================================
 */
-void idRenderProgManager::LoadVertexShader( int index ) {
+void idRenderProgManager::LoadVertexShader(const index_t index ) {
 	if ( vertexShaders[index].progId != INVALID_PROGID ) {
 		return; // Already loaded
 	}
@@ -272,7 +272,7 @@ void idRenderProgManager::LoadVertexShader( int index ) {
 idRenderProgManager::LoadFragmentShader
 ================================================================================================
 */
-void idRenderProgManager::LoadFragmentShader( int index ) {
+void idRenderProgManager::LoadFragmentShader(const index_t index ) {
 	if ( fragmentShaders[index].progId != INVALID_PROGID ) {
 		return; // Already loaded
 	}
@@ -284,7 +284,7 @@ void idRenderProgManager::LoadFragmentShader( int index ) {
 idRenderProgManager::LoadShader
 ================================================================================================
 */
-GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const char * startToken ) {
+GLuint idRenderProgManager::LoadShader(const GLenum target, const char * name, const char * startToken ) {
 
 	idStr fullPath = "renderprogs\\gl\\";
 	fullPath += name;
@@ -363,7 +363,7 @@ GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const 
 idRenderProgManager::BindShader
 ================================================================================================
 */
-void idRenderProgManager::BindShader( int vIndex, int fIndex ) {
+void idRenderProgManager::BindShader(const int vIndex, const int fIndex ) {
 	if ( currentVertexShader == vIndex && currentFragmentShader == fIndex ) {
 		return;
 	}
@@ -394,8 +394,8 @@ void idRenderProgManager::Unbind() {
 idRenderProgManager::SetRenderParms
 ================================================================================================
 */
-void idRenderProgManager::SetRenderParms( renderParm_t rp, const float * value, int num ) {
-	for ( int i = 0; i < num; i++ ) {
+void idRenderProgManager::SetRenderParms(const renderParm_t rp, const float * value, const size_t num ) {
+	for ( size_t i = 0; i < num; i++ ) {
 		SetRenderParm( static_cast<renderParm_t>(rp + i), value + ( i * 4 ) );
 	}
 }
@@ -405,7 +405,7 @@ void idRenderProgManager::SetRenderParms( renderParm_t rp, const float * value, 
 idRenderProgManager::SetRenderParm
 ================================================================================================
 */
-void idRenderProgManager::SetRenderParm( renderParm_t rp, const float * value ) {
+void idRenderProgManager::SetRenderParm(const renderParm_t rp, const float * value ) {
 	SetUniformValue( rp, value );
 }
 

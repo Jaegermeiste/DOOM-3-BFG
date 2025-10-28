@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DYNAMICSHADOWVOLUME_H__
 #define __DYNAMICSHADOWVOLUME_H__
 
+#pragma once
+
 /*
 ================================================================================================
 
@@ -49,17 +51,18 @@ model like for instance a world model.
 ================================================================================================
 */
 
-#define TEMP_ROUND16( x )				( ( x + 15 ) & ~15 )
-#define TEMP_FACING( numIndexes )		TEMP_ROUND16( ( ( numIndexes / 3 + 3 ) & ~3 ) + 1 )	// rounded up for SIMD, plus 1 for dangling edges
-#define TEMP_CULL( numIndexes )			TEMP_ROUND16( ( ( numIndexes / 3 + 3 ) & ~3 ) )		// rounded up for SIMD
-#define TEMP_VERTS( numVerts )			TEMP_ROUND16( numVerts * sizeof( idVec4 ) )
-#define OUTPUT_INDEX_BUFFER_SIZE		4096
+#define TEMP_ROUND16( x )				( ( (x) + 15 ) & ~15 )
+#define TEMP_FACING( numIndexes )		TEMP_ROUND16( ( ( (numIndexes) / 3 + 3 ) & ~3 ) + 1 )	// rounded up for SIMD, plus 1 for dangling edges
+#define TEMP_CULL( numIndexes )			TEMP_ROUND16( ( ( (numIndexes) / 3 + 3 ) & ~3 ) )		// rounded up for SIMD
+#define TEMP_VERTS( numVerts )			TEMP_ROUND16( (numVerts) * sizeof( idVec4 ) )
 
-struct silEdge_t {
+constexpr size_t OUTPUT_INDEX_BUFFER_SIZE = 4096;
+
+typedef struct silEdge_s {
 	// NOTE: using triIndex_t for the planes is dubious, as there can be 2x the faces as verts
 	triIndex_t					p1, p2;					// planes defining the edge
 	triIndex_t					v1, v2;					// verts defining the edge
-};
+} silEdge_t;
 
 /*
 ================================================
@@ -69,13 +72,13 @@ dynamicShadowVolumeParms_t
 struct dynamicShadowVolumeParms_t {
 	// input
 	const idDrawVert *				verts;					// streamed in from main memory
-	int								numVerts;
+	size_t							numVerts;
 	const triIndex_t *				indexes;				// streamed in from main memory
-	int								numIndexes;
+	size_t							numIndexes;
 	const silEdge_t	*				silEdges;				// streamed in from main memory
-	int								numSilEdges;
+	size_t							numSilEdges;
 	const idJointMat *				joints;					// in SPU local memory
-	int								numJoints;
+	size_t							numJoints;
 	idBounds						triangleBounds;
 	idRenderMatrix					triangleMVP;
 	idVec3							localLightOrigin;
@@ -95,11 +98,11 @@ struct dynamicShadowVolumeParms_t {
 	// output
 	triIndex_t *					indexBuffer;			// output buffer in SPU local memory
 	triIndex_t *					shadowIndices;			// streamed out to main memory
-	int								maxShadowIndices;
-	int *							numShadowIndices;		// streamed out to main memory
+	size_t							maxShadowIndices;
+	size_t *						numShadowIndices;		// streamed out to main memory
 	triIndex_t *					lightIndices;			// streamed out to main memory
-	int								maxLightIndices;
-	int *							numLightIndices;		// streamed out to main memory
+	size_t							maxLightIndices;
+	size_t *						numLightIndices;		// streamed out to main memory
 	int *							renderZFail;			// streamed out to main memory
 	float *							shadowZMin;				// streamed out to main memory
 	float *							shadowZMax;				// streamed out to main memory

@@ -56,7 +56,7 @@ static gamepadBindInfo_t gamepadBinds[] = {
 	{ "txtRTrigger",	K_JOY_TRIGGER2	}
 };
 
-static constexpr int numGamepadBinds = sizeof( gamepadBinds ) / sizeof( gamepadBinds[0] );
+static constexpr size_t numGamepadBinds = sizeof( gamepadBinds ) / sizeof( gamepadBinds[0] );
 
 /*
 ========================
@@ -203,7 +203,7 @@ void idMenuScreen_Shell_ControllerLayout::UpdateBindingInfo() {
 		return;
 	}
 
-	for ( int i = 0; i < numGamepadBinds; ++i ) {
+	for ( size_t i = 0; i < numGamepadBinds; ++i ) {
 
 		const char * txtField = gamepadBinds[i].textField;
 		int keyNum = gamepadBinds[i].keyNum;
@@ -234,7 +234,7 @@ void idMenuScreen_Shell_ControllerLayout::UpdateBindingInfo() {
 idMenuScreen_Shell_ControllerLayout::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_ControllerLayout::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_ControllerLayout::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

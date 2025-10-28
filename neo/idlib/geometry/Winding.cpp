@@ -307,7 +307,7 @@ idWinding *idWinding::Clip( const idPlane &plane, const float epsilon, const boo
 		idVec5* p2 = &p[(i + 1) % numPoints];
 
 		dot = dists[i] / (dists[i] - dists[i+1]);
-		for ( int j = 0; j < 3; j++ ) {
+		for ( size_t j = 0; j < 3; j++ ) {
 			// avoid round off error when possible
 			if ( plane.Normal()[j] == 1.0f ) {
 				mid[j] = plane.Dist();
@@ -418,7 +418,7 @@ bool idWinding::ClipInPlace( const idPlane &plane, const float epsilon, const bo
 		idVec5* p2 = &p[(i + 1) % numPoints];
 		
 		dot = dists[i] / (dists[i] - dists[i+1]);
-		for ( int j = 0; j < 3; j++ ) {
+		for ( size_t j = 0; j < 3; j++ ) {
 			// avoid round off error when possible
 			if ( plane.Normal()[j] == 1.0f ) {
 				mid[j] = plane.Dist();
@@ -465,7 +465,7 @@ idWinding::Reverse
 idWinding *idWinding::Reverse() const {
 	idWinding* w = new(TAG_IDLIB_WINDING) idWinding(numPoints);
 	w->numPoints = numPoints;
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		w->p[ numPoints - i - 1 ] = p[i];
 	}
 	return w;
@@ -478,7 +478,7 @@ idWinding::ReverseSelf
 */
 void idWinding::ReverseSelf() const
 {
-	for ( int i = 0; i < (numPoints>>1); i++ ) {
+	for ( size_t i = 0; i < (numPoints>>1); i++ ) {
 		const idVec5 v = p[i];
 		p[i] = p[numPoints - i - 1];
 		p[numPoints - i - 1] = v;
@@ -592,7 +592,7 @@ idWinding::GetRadius
 */
 float idWinding::GetRadius( const idVec3 &center ) const {
 	float radius = 0.0f;
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		idVec3 dir = p[i].ToVec3() - center;
 		const float r = dir * dir;
 		if ( r > radius ) {
@@ -611,7 +611,7 @@ idVec3 idWinding::GetCenter() const {
 	idVec3 center;
 
 	center.Zero();
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		center += p[i].ToVec3();
 	}
 	center *= ( 1.0f / numPoints );
@@ -694,12 +694,12 @@ idWinding::RemoveEqualPoints
 =============
 */
 void idWinding::RemoveEqualPoints( const float epsilon ) {
-	for ( int i = 0; std::cmp_less(i, numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
 		if ( (p[i].ToVec3() - p[(i+numPoints-1)%numPoints].ToVec3()).LengthSqr() >= Square( epsilon ) ) {
 			continue;
 		}
 		numPoints--;
-		for ( int j = i; std::cmp_less(j, numPoints); j++ ) {
+		for ( size_t j = i; std::cmp_less(j, numPoints); j++ ) {
 			p[j] = p[j+1];
 		}
 		i--;
@@ -803,11 +803,11 @@ void idWinding::AddToConvexHull( const idWinding *winding, const idVec3 &normal,
 
 		// insert the point here
 		newHullPoints[0] = p1;
-		int numNewHullPoints = 1;
+		size_t numNewHullPoints = 1;
 
 		// copy over all points that aren't double fronts
 		j = (j+1) % this->numPoints;
-		for ( int k = 0; std::cmp_less(k, this->numPoints); k++ ) {
+		for ( size_t k = 0; std::cmp_less(k, this->numPoints); k++ ) {
 			if ( hullSide[ (j+k) % this->numPoints ] && hullSide[ (j+k+1) % this->numPoints ] ) {
 				continue;
 			}
@@ -914,7 +914,7 @@ void idWinding::AddToConvexHull( const idVec3 &point, const idVec3 &normal, cons
 
 	// insert the point here
 	hullPoints[0] = point;
-	int numHullPoints = 1;
+	size_t numHullPoints = 1;
 
 	// copy over all points that aren't double fronts
 	j = (j+1) % numPoints;
@@ -1043,11 +1043,11 @@ idWinding::RemovePoint
 =============
 */
 
-void idWinding::RemovePoint(const Ordinal auto point ) {
-	if ( point < 0 || point >= numPoints ) {
+void idWinding::RemovePoint( const Ordinal auto point ) {
+	if ( point < 0 || std::cmp_greater_equal(point, numPoints)) {
 		idLib::common->FatalError( "idWinding::removePoint: point out of range" );
 	}
-	if ( point < numPoints - 1) {
+	if ( std::cmp_less(point, numPoints - 1)) {
 		memmove(&p[point], &p[point+1], (numPoints - point - 1) * sizeof(p[0]) );
 	}
 	numPoints--;
@@ -1060,7 +1060,7 @@ idWinding::InsertPoint
 */
 
 void idWinding::InsertPoint( const idVec5 &point, const Ordinal auto spot ) {
-	if ( spot > numPoints ) {
+	if (std::cmp_greater(spot, numPoints)) {
 		idLib::common->FatalError( "idWinding::insertPoint: spot > numPoints" );
 	}
 
@@ -1069,7 +1069,7 @@ void idWinding::InsertPoint( const idVec5 &point, const Ordinal auto spot ) {
 	}
 
 	EnsureAlloced( numPoints+1, true );
-	for (size_t i = numPoints; i > spot; i-- ) {
+	for (index_t i = numPoints; std::cmp_greater(i, spot); i-- ) {
 		p[i] = p[i-1];
 	}
 	p[spot] = point;
@@ -1376,7 +1376,7 @@ float idWinding::TriangleArea( const idVec3 &a, const idVec3 &b, const idVec3 &c
 idFixedWinding::ReAllocate
 =============
 */
-bool idFixedWinding::ReAllocate(size_t n, bool keep) {
+bool idFixedWinding::ReAllocate(const size_t n, bool keep) {
 
 	assert( n <= MAX_POINTS_ON_WINDING );
 

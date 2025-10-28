@@ -219,7 +219,7 @@ idMenuWidget_Button::AddValue
 */
 void idMenuWidget_Button::SetValues( idList< idStr > & list ) {
 	values.Clear();
-	for ( int i = 0; i < list.Num(); ++ i ) {
+	for ( size_t i = 0; i < list.Num(); ++ i ) {
 		values.Append( list[ i ] );
 	}
 }
@@ -229,7 +229,7 @@ void idMenuWidget_Button::SetValues( idList< idStr > & list ) {
 idMenuWidget_Button::GetValue
 ========================
 */
-const idStr & idMenuWidget_Button::GetValue( int index ) const {
+const idStr & idMenuWidget_Button::GetValue(const index_t index ) const {
 
 	return values[ index ];
 
@@ -270,7 +270,7 @@ void idMenuWidget_Button::AnimateToState( const animState_t targetAnimState, con
 		widgetTransition_t trans;
 		SetupTransitionInfo( trans, GetState(), GetAnimState(), targetAnimState );
 		if ( trans.animationName[0] != '\0' ) {
-			for ( int i = 0; i < trans.prefixes.Num(); ++i ) {
+			for ( size_t i = 0; i < trans.prefixes.Num(); ++i ) {
 				const char * const frameLabel = va( "%s%s", trans.prefixes[ i ], trans.animationName );
 				if ( GetSprite()->FrameExists( frameLabel ) ) {
 					GetSprite()->PlayFrame( frameLabel );
@@ -406,7 +406,7 @@ void idMenuWidget_ControlButton::Update() {
 idMenuWidget_ControlButton::Update
 ========================
 */
-void idMenuWidget_ControlButton::SetupEvents( int delay, int index ) {
+void idMenuWidget_ControlButton::SetupEvents( int delay, index_t index ) {
 	AddEventAction( WIDGET_EVENT_SCROLL_LEFT ).Set( WIDGET_ACTION_START_REPEATER, WIDGET_ACTION_ADJUST_FIELD, -1, delay, index );
 	AddEventAction( WIDGET_EVENT_SCROLL_RIGHT ).Set( WIDGET_ACTION_START_REPEATER, WIDGET_ACTION_ADJUST_FIELD, 1, delay, index );
 	AddEventAction( WIDGET_EVENT_SCROLL_LEFT_RELEASE ).Set( WIDGET_ACTION_STOP_REPEATER );
@@ -459,7 +459,7 @@ void idMenuWidget_ServerButton::Update() {
 idMenuWidget_ServerButton::SetButtonInfo
 ========================
 */
-void idMenuWidget_ServerButton::SetButtonInfo( idStr name_, idStrId mapName_, idStr modeName_, int index_, int players_, int maxPlayers_, bool joinable_, bool validMap_ ) {
+void idMenuWidget_ServerButton::SetButtonInfo( idStr name_, idStrId mapName_, idStr modeName_, const index_t index_, const int players_, const size_t maxPlayers_, const bool joinable_, const bool validMap_ ) {
 	serverName = name_;
 	index = index_;
 	players = players_;
@@ -530,7 +530,7 @@ void idMenuWidget_LobbyButton::Update() {
 idMenuWidget_LobbyButton::SetButtonInfo
 ========================
 */
-void idMenuWidget_LobbyButton::SetButtonInfo( idStr name_, voiceStateDisplay_t voiceState_ ) {
+void idMenuWidget_LobbyButton::SetButtonInfo( idStr name_, const voiceStateDisplay_t voiceState_ ) {
 	name = name_;
 	voiceState = voiceState_;
 }
@@ -593,7 +593,7 @@ void idMenuWidget_ScoreboardButton::Update() {
 idMenuWidget_ScoreboardButton::SetButtonInfo
 ========================
 */
-void idMenuWidget_ScoreboardButton::SetButtonInfo( int index_, idList< idStr > & list, voiceStateDisplay_t voiceState_ ) {
+void idMenuWidget_ScoreboardButton::SetButtonInfo(const index_t index_, idList< idStr > & list, const voiceStateDisplay_t voiceState_ ) {
 	index = index_;
 	voiceState = voiceState_;
 	SetValues( list );

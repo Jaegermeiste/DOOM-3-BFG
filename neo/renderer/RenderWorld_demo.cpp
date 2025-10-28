@@ -105,7 +105,7 @@ bool		idRenderWorldLocal::ProcessDemoCommand( idDemoFile *readDemo, renderView_t
 		readDemo->ReadInt( header.version );
 		readDemo->ReadInt( header.sizeofRenderEntity );
 		readDemo->ReadInt( header.sizeofRenderLight );
-		for ( int i = 0; i < 256; i++ )
+		for ( size_t i = 0; i < 256; i++ )
 			readDemo->ReadChar( header.mapname[i] );
 		// the internal version value got replaced by DS_VERSION at toplevel
 		if ( header.version != 4 ) {
@@ -134,7 +134,7 @@ bool		idRenderWorldLocal::ProcessDemoCommand( idDemoFile *readDemo, renderView_t
 		readDemo->ReadChar( tmp );
 		readDemo->ReadChar( tmp );
 		readDemo->ReadInt( renderView->time[1] );
-		for ( int i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ )
+		for ( size_t i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ )
 			readDemo->ReadFloat( renderView->shaderParms[i] );
 
 		if ( !readDemo->ReadInt( (int&)renderView->globalMaterial ) ) {
@@ -269,7 +269,7 @@ void	idRenderWorldLocal::WriteLoadMap() const
 	common->WriteDemo()->WriteInt( header.version );
 	common->WriteDemo()->WriteInt( header.sizeofRenderEntity );
 	common->WriteDemo()->WriteInt( header.sizeofRenderLight );
-	for ( int i = 0; i < 256; i++ )
+	for ( size_t i = 0; i < 256; i++ )
 		common->WriteDemo()->WriteChar( header.mapname[i] );
 	
 	if ( r_showDemo.GetBool() ) {
@@ -361,7 +361,7 @@ void	idRenderWorldLocal::WriteRenderView( const renderView_t *renderView ) const
 WriteFreeEntity
 ================
 */
-void	idRenderWorldLocal::WriteFreeEntity( qhandle_t handle ) const
+void	idRenderWorldLocal::WriteFreeEntity(const qhandle_t handle ) const
 {
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
@@ -384,7 +384,7 @@ void	idRenderWorldLocal::WriteFreeEntity( qhandle_t handle ) const
 WriteFreeLightEntity
 ================
 */
-void	idRenderWorldLocal::WriteFreeLight( qhandle_t handle ) const
+void	idRenderWorldLocal::WriteFreeLight(const qhandle_t handle ) const
 {
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
@@ -407,7 +407,7 @@ void	idRenderWorldLocal::WriteFreeLight( qhandle_t handle ) const
 WriteRenderLight
 ================
 */
-void	idRenderWorldLocal::WriteRenderLight( qhandle_t handle, const renderLight_t *light ) const
+void	idRenderWorldLocal::WriteRenderLight(const qhandle_t handle, const renderLight_t *light ) const
 {
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
@@ -438,7 +438,7 @@ void	idRenderWorldLocal::WriteRenderLight( qhandle_t handle, const renderLight_t
 	common->WriteDemo()->WriteInt( (int&)light->prelightModel );
 	common->WriteDemo()->WriteInt( light->lightId );
 	common->WriteDemo()->WriteInt( (int&)light->shader );
-	for ( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++)
+	for ( size_t i = 0; i < MAX_ENTITY_SHADER_PARMS; i++)
 		common->WriteDemo()->WriteFloat( light->shaderParms[i] );
 	common->WriteDemo()->WriteInt( (int&)light->referenceSound );
 
@@ -490,7 +490,7 @@ void	idRenderWorldLocal::ReadRenderLight( ) {
 	common->ReadDemo()->ReadInt( (int&)light.prelightModel );
 	common->ReadDemo()->ReadInt( light.lightId );
 	common->ReadDemo()->ReadInt( (int&)light.shader );
-	for ( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++)
+	for ( size_t i = 0; i < MAX_ENTITY_SHADER_PARMS; i++)
 		common->ReadDemo()->ReadFloat( light.shaderParms[i] );
 	common->ReadDemo()->ReadInt( (int&)light.referenceSound );
 	if ( light.prelightModel ) {
@@ -517,7 +517,7 @@ void	idRenderWorldLocal::ReadRenderLight( ) {
 WriteRenderEntity
 ================
 */
-void	idRenderWorldLocal::WriteRenderEntity( qhandle_t handle, const renderEntity_t *ent ) {
+void	idRenderWorldLocal::WriteRenderEntity(const qhandle_t handle, const renderEntity_t *ent ) {
 
 	// only the main renderWorld writes stuff to demos, not the wipes or
 	// menu renders
@@ -546,9 +546,9 @@ void	idRenderWorldLocal::WriteRenderEntity( qhandle_t handle, const renderEntity
 	common->WriteDemo()->WriteInt( (int&)ent->referenceShader );
 	common->WriteDemo()->WriteInt( (int&)ent->customSkin );
 	common->WriteDemo()->WriteInt( (int&)ent->referenceSound );
-	for ( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ )
+	for ( size_t i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ )
 		common->WriteDemo()->WriteFloat( ent->shaderParms[i] );
-	for ( int i = 0; i < MAX_RENDERENTITY_GUI; i++ )
+	for ( size_t i = 0; i < MAX_RENDERENTITY_GUI; i++ )
 		common->WriteDemo()->WriteInt( (int&)ent->gui[i] );
 	common->WriteDemo()->WriteInt( (int&)ent->remoteRenderView );
 	common->WriteDemo()->WriteInt( ent->numJoints );
@@ -577,9 +577,9 @@ void	idRenderWorldLocal::WriteRenderEntity( qhandle_t handle, const renderEntity
 		common->WriteDemo()->WriteInt( index );
 	}
 	if ( ent->numJoints ) {
-		for ( int i = 0; i < ent->numJoints; i++) {
+		for ( size_t i = 0; i < ent->numJoints; i++) {
 			float *data = ent->joints[i].ToFloatPtr();
-			for ( int j = 0; j < 12; ++j)
+			for ( size_t j = 0; j < 12; ++j)
 				common->WriteDemo()->WriteFloat( data[j] );
 		}
 	}
@@ -680,9 +680,9 @@ void	idRenderWorldLocal::ReadRenderEntity() {
 	}
 	if ( ent.numJoints ) {
 		ent.joints = static_cast<idJointMat*>(Mem_Alloc16(SIMD_ROUND_JOINTS(ent.numJoints) * sizeof(ent.joints[0]), TAG_JOINTMAT)); 
-		for ( int i = 0; i < ent.numJoints; i++) {
+		for ( size_t i = 0; i < ent.numJoints; i++) {
 			float *data = ent.joints[i].ToFloatPtr();
-			for ( int j = 0; j < 12; ++j ) {
+			for ( size_t j = 0; j < 12; ++j ) {
 				common->ReadDemo()->ReadFloat( data[j] );
 			}
 		}

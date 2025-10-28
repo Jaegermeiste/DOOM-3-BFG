@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 idODE_Euler::idODE_Euler
 =============
 */
-idODE_Euler::idODE_Euler( const int dim, const deriveFunction_t dr, const void *ud ) {
+idODE_Euler::idODE_Euler( const size_t dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	derivatives = new (TAG_MATH) float[dim];
 	derive = dr;
@@ -66,7 +66,7 @@ idODE_Euler::Evaluate
 float idODE_Euler::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	derive( t0, userData, state, derivatives );
 	const float delta = t1 - t0;
-	for ( int i = 0; i < dimension; i++ ) {
+	for ( size_t i = 0; i < dimension; i++ ) {
 		newState[i] = state[i] + delta * derivatives[i];
 	}
 	return delta;
@@ -83,7 +83,7 @@ float idODE_Euler::Evaluate( const float *state, float *newState, const float t0
 idODE_Midpoint::idODE_Midpoint
 =============
 */
-idODE_Midpoint::idODE_Midpoint( const int dim, const deriveFunction_t dr, const void *ud ) {
+idODE_Midpoint::idODE_Midpoint( const size_t dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	tmpState = new (TAG_MATH) float[dim];
 	derivatives = new (TAG_MATH) float[dim];
@@ -107,9 +107,9 @@ idODE_Midpoint::~Evaluate
 =============
 */
 float idODE_Midpoint::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	int i = 0;
+	size_t i = 0;
 
-	const double delta = static_cast<double>(t1) - t0;
+	const double delta = numeric_cast<BASE_TYPE(delta)>(t1) - numeric_cast<BASE_TYPE(delta)>(t0);
 	const float halfDelta = idMath::Dtof(delta * 0.5);
     // first step
 	derive( t0, userData, state, derivatives );
@@ -136,7 +136,7 @@ float idODE_Midpoint::Evaluate( const float *state, float *newState, const float
 idODE_RK4::idODE_RK4
 =============
 */
-idODE_RK4::idODE_RK4( const int dim, const deriveFunction_t dr, const void *ud ) {
+idODE_RK4::idODE_RK4( const size_t dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	derive = dr;
 	userData = ud;
@@ -166,9 +166,9 @@ idODE_RK4::Evaluate
 =============
 */
 float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
-	int i = 0;
+	size_t i = 0;
 
-	const double delta = t1 - t0;
+	const double delta = numeric_cast<BASE_TYPE(delta)>(t1) - numeric_cast<BASE_TYPE(delta)>(t0);
 	const float halfDelta = idMath::Dtof(delta * 0.5);
 	// first step
 	derive( t0, userData, state, d1 );
@@ -206,7 +206,7 @@ float idODE_RK4::Evaluate( const float *state, float *newState, const float t0, 
 idODE_RK4Adaptive::idODE_RK4Adaptive
 =============
 */
-idODE_RK4Adaptive::idODE_RK4Adaptive( const int dim, const deriveFunction_t dr, const void *ud ) {
+idODE_RK4Adaptive::idODE_RK4Adaptive( const size_t dim, const deriveFunction_t dr, const void *ud ) {
 	dimension = dim;
 	derive = dr;
 	userData = ud;
@@ -251,9 +251,9 @@ idODE_RK4Adaptive::Evaluate
 */
 float idODE_RK4Adaptive::Evaluate( const float *state, float *newState, const float t0, const float t1 ) {
 	double error = 0.0;
-	int i = 0;
+	size_t i = 0;
 
-	double delta = t1 - t0;
+	double delta = numeric_cast<BASE_TYPE(delta)>(t1) - numeric_cast<BASE_TYPE(delta)>(t0);
 	const double d_halfDelta = delta * 0.5;
 	const float f_halfDelta = idMath::Dtof(d_halfDelta);
 	const float fourthDelta = idMath::Dtof(delta * 0.25);

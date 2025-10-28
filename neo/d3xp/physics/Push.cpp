@@ -190,8 +190,8 @@ bool idPush::CanPushEntity( idEntity *ent, idEntity *pusher, idEntity *initialPu
 idPush::AddEntityToPushedGroup
 ============
 */
-void idPush::AddEntityToPushedGroup( idEntity *ent, float fraction, bool groundContact ) {
-	int i, j;
+void idPush::AddEntityToPushedGroup( idEntity *ent, double fraction, bool groundContact ) {
+	size_t i = 0, j = 0;
 
 	for ( i = 0; i < pushedGroupSize; i++ ) {
 		if ( ent == pushedGroup[i].ent ) {
@@ -275,7 +275,7 @@ idPush::GetPushableEntitiesForTranslation
 ============
 */
 int idPush::GetPushableEntitiesForTranslation( idEntity *pusher, idEntity *initialPusher, const int flags,
-											const idVec3 &translation, idEntity *entityList[], int maxEntities ) {
+											const idVec3 &translation, idEntity *entityList[], size_t maxEntities ) {
 	int i, n, l;
 	idBounds bounds, pushBounds;
 	idPhysics *physics;
@@ -312,7 +312,7 @@ float idPush::ClipTranslationalPush( trace_t &results, idEntity *pusher, const i
 										const idVec3 &newOrigin, const idVec3 &translation ) {
 	int i, j, numListedEntities;
 	idEntity *curPusher, *ent, *entityList[ MAX_GENTITIES ];
-	float fraction;
+	double fraction;
 	bool groundContact, blocked = false;
 	float totalMass;
 	trace_t trace;
@@ -471,7 +471,7 @@ idPush::GetPushableEntitiesForRotation
 ============
 */
 int idPush::GetPushableEntitiesForRotation( idEntity *pusher, idEntity *initialPusher, const int flags,
-											const idRotation &rotation, idEntity *entityList[], int maxEntities ) {
+											const idRotation &rotation, idEntity *entityList[], size_t maxEntities ) {
 	int i, n, l;
 	idBounds bounds, pushBounds;
 	idPhysics *physics;
@@ -508,7 +508,7 @@ float idPush::ClipRotationalPush( trace_t &results, idEntity *pusher, const int 
 									const idMat3 &newAxis, const idRotation &rotation ) {
 	int i, j, numListedEntities;
 	idEntity *curPusher, *ent, *entityList[ MAX_GENTITIES ];
-	float fraction;
+	double fraction;
 	bool groundContact, blocked = false;
 	float totalMass;
 	trace_t trace;
@@ -990,7 +990,7 @@ int idPush::TryTranslatePushEntity( trace_t &results, idEntity *check, idClipMod
 idPush::DiscardEntities
 ============
 */
-int idPush::DiscardEntities( idEntity *entityList[], size_t numEntities, int flags, idEntity *pusher ) {
+int idPush::DiscardEntities( idEntity *entityList[], const size_t numEntities, const int flags, idEntity *pusher ) {
 	size_t i = 0, num = 0;
 	idEntity *check = nullptr;
 

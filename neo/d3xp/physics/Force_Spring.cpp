@@ -65,7 +65,7 @@ idForce_Spring::~idForce_Spring() {
 idForce_Spring::InitSpring
 ================
 */
-void idForce_Spring::InitSpring( float Kstretch, float Kcompress, float damping, float restLength ) {
+void idForce_Spring::InitSpring(const float Kstretch, const float Kcompress, const float damping, const float restLength ) {
 	this->Kstretch = Kstretch;
 	this->Kcompress = Kcompress;
 	this->damping = damping;
@@ -77,7 +77,7 @@ void idForce_Spring::InitSpring( float Kstretch, float Kcompress, float damping,
 idForce_Spring::SetPosition
 ================
 */
-void idForce_Spring::SetPosition( idPhysics *physics1, int id1, const idVec3 &p1, idPhysics *physics2, int id2, const idVec3 &p2 ) {
+void idForce_Spring::SetPosition( idPhysics *physics1, const int id1, const idVec3 &p1, idPhysics *physics2, const int id2, const idVec3 &p2 ) {
 	this->physics1 = physics1;
 	this->id1 = id1;
 	this->p1 = p1;

@@ -122,7 +122,7 @@ void idForce_Field::Uniform( const idVec3 &force ) {
 idForce_Field::Explosion
 ================
 */
-void idForce_Field::Explosion( float force ) {
+void idForce_Field::Explosion(const float force ) {
 	magnitude = force;
 	type = FORCEFIELD_EXPLOSION;
 }
@@ -132,7 +132,7 @@ void idForce_Field::Explosion( float force ) {
 idForce_Field::Implosion
 ================
 */
-void idForce_Field::Implosion( float force ) {
+void idForce_Field::Implosion(const float force ) {
 	magnitude = force;
 	type = FORCEFIELD_IMPLOSION;
 }
@@ -142,7 +142,7 @@ void idForce_Field::Implosion( float force ) {
 idForce_Field::RandomTorque
 ================
 */
-void idForce_Field::RandomTorque( float force ) {
+void idForce_Field::RandomTorque(const float force ) {
 	randomTorque = force;
 }
 
@@ -152,7 +152,7 @@ idForce_Field::Evaluate
 ================
 */
 void idForce_Field::Evaluate( const ID_TIME_T time ) {
-	int numClipModels, i;
+	size_t numClipModels, i;
 	idBounds bounds;
 	idVec3 force, torque, angularVelocity;
 	idClipModel *cm, *clipModelList[ MAX_GENTITIES ];

@@ -396,6 +396,12 @@
     <ClInclude Include="idlib\sys\sys_type_ordinal.hpp">
       <Filter>Sys</Filter>
     </ClInclude>
+    <ClInclude Include="idlib\sys\sys_numeric_cast.h">
+      <Filter>Sys</Filter>
+    </ClInclude>
+    <ClInclude Include="idlib\sys\sys_helpers.h">
+      <Filter>Sys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

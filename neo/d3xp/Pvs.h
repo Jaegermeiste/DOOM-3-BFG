@@ -69,19 +69,19 @@ public:
 	void				Shutdown();
 						// get the area(s) the source is in
 	int					GetPVSArea( const idVec3 &point ) const;		// returns the area number
-	int					GetPVSAreas( const idBounds &bounds, int *areas, int maxAreas ) const;	// returns number of areas
+	int					GetPVSAreas( const idBounds &bounds, int *areas, size_t maxAreas ) const;	// returns number of areas
 						// setup current PVS for the source
 	pvsHandle_t			SetupCurrentPVS( const idVec3 &source, const pvsType_t type = PVS_NORMAL ) const;
 	pvsHandle_t			SetupCurrentPVS( const idBounds &source, const pvsType_t type = PVS_NORMAL ) const;
 	pvsHandle_t			SetupCurrentPVS( const int sourceArea, const pvsType_t type = PVS_NORMAL ) const;
-	pvsHandle_t			SetupCurrentPVS( const int *sourceAreas, const int numSourceAreas, const pvsType_t type = PVS_NORMAL ) const;
+	pvsHandle_t			SetupCurrentPVS( const int *sourceAreas, const size_t numSourceAreas, const pvsType_t type = PVS_NORMAL ) const;
 	pvsHandle_t			MergeCurrentPVS( pvsHandle_t pvs1, pvsHandle_t pvs2 ) const;
 	void				FreeCurrentPVS( pvsHandle_t handle ) const;
 						// returns true if the target is within the current PVS
 	bool				InCurrentPVS( const pvsHandle_t handle, const idVec3 &target ) const;
 	bool				InCurrentPVS( const pvsHandle_t handle, const idBounds &target ) const;
 	bool				InCurrentPVS( const pvsHandle_t handle, const int targetArea ) const;
-	bool				InCurrentPVS( const pvsHandle_t handle, const int *targetAreas, int numTargetAreas ) const;
+	bool				InCurrentPVS( const pvsHandle_t handle, const int *targetAreas, size_t numTargetAreas ) const;
 						// draw all portals that are within the PVS of the source
 	void				DrawPVS( const idVec3 &source, const pvsType_t type = PVS_NORMAL ) const;
 	void				DrawPVS( const idBounds &source, const pvsType_t type = PVS_NORMAL ) const;
@@ -111,11 +111,11 @@ private:
 	void				CreatePVSData();
 	void				DestroyPVSData();
 	void				CopyPortalPVSToMightSee() const;
-	void				FloodFrontPortalPVS_r( struct pvsPortal_s *portal, int areaNum ) const;
+	void				FloodFrontPortalPVS_r( struct pvsPortal_s *portal, index_t areaNum ) const;
 	void				FrontPortalPVS() const;
 	struct pvsStack_s *	FloodPassagePVS_r( struct pvsPortal_s *source, const struct pvsPortal_s *portal, struct pvsStack_s *prevStack ) const;
 	void				PassagePVS() const;
-	void				AddPassageBoundaries( const idWinding &source, const idWinding &pass, bool flipClip, idPlane *bounds, int &numBounds, int maxBounds ) const;
+	void				AddPassageBoundaries( const idWinding &source, const idWinding &pass, bool flipClip, idPlane *bounds, int &numBounds, size_t maxBounds ) const;
 	void				CreatePassages() const;
 	void				DestroyPassages() const;
 	int					AreaPVSFromPortalPVS() const;

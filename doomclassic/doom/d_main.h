@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_MAIN__
 #define __D_MAIN__
 
+#pragma once
+
 #include "d_event.h"
 
 #ifdef __GNUG__
@@ -37,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 extern const char*		extraWad;
 
-#define MAXWADFILES             20
+constexpr size_t MAXWADFILES = 20;
 extern const char*		wadfiles[MAXWADFILES];
 
 void D_AddExtraWadFile( const char *file );
@@ -66,9 +68,13 @@ void D_PageDrawer (void);
 void D_AdvanceDemo (void);
 void D_StartTitle (void);
 
-#define R_OK	0x01
-#define X_OK	0x02
-#define W_OK	0x04
+enum OK_e : uint8
+{
+	R_OK = 0x01,
+	X_OK = 0x02,
+	W_OK = 0x04
+};
+
 int access(char* name, int val);
 
 

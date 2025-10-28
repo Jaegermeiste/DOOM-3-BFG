@@ -30,8 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 
 		
 struct lzwCompressionData_t {
-	static constexpr int	LZW_DICT_BITS	= 12;
-	static constexpr int	LZW_DICT_SIZE	= 1 << LZW_DICT_BITS;
+	static constexpr size_t	LZW_DICT_BITS	= 12;
+	static constexpr size_t	LZW_DICT_SIZE	= 1 << LZW_DICT_BITS;
 	
 	uint8					dictionaryK[LZW_DICT_SIZE];
 	uint16					dictionaryW[LZW_DICT_SIZE];
@@ -60,41 +60,41 @@ public:
 	static constexpr int	LZW_START_BITS	= 9;
 	static constexpr int	LZW_FIRST_CODE	= ( 1 << ( LZW_START_BITS - 1 ) );
 
-	void	Start( uint8 * data_, int maxSize, bool append = false );
+	void	Start( uint8 * data_, size_t maxSize, bool append = false );
 	int		ReadBits( int bits );
 	int		WriteChain( int code );
 	void	DecompressBlock();
 	void	WriteBits( uint32 value, int bits );
-	int		ReadByte( bool ignoreOverflow = false );
-	void	WriteByte( uint8 value );
+	byte	ReadByte( bool ignoreOverflow = false );
+	void	WriteByte( byte value );
 	[[nodiscard]] int		Lookup( int w, int k ) const;
 	int		AddToDict( int w, int k );
 	bool	BumpBits();
 	int		End();
 
-	[[nodiscard]] int		Length() const { return lzwData->bytesWritten; }
-	[[nodiscard]] int		GetReadCount() const { return bytesRead; }
+	[[nodiscard]] size_t		Length() const { return lzwData->bytesWritten; }
+	[[nodiscard]] size_t		GetReadCount() const { return bytesRead; }
 
 	void	Save();
 	void	Restore() const;
 
 	[[nodiscard]] bool	IsOverflowed() const { return overflowed; }
 	
-	int		Write( const void * data, int length ) {
+	size_t	Write( const void * data, const size_t length ) {
 		const auto src = static_cast<const uint8*>(data);
 		
-		for ( int i = 0; i < length && !IsOverflowed(); i++ ) {
+		for ( size_t i = 0; i < length && !IsOverflowed(); i++ ) {
 			WriteByte( src[i] );
 		}
 		
 		return length;
 	}
 
-	int		Read( void * data, int length, bool ignoreOverflow = false ) {
+	size_t	Read( void * data, const size_t length, const bool ignoreOverflow = false ) {
 		uint8 * src = static_cast<uint8*>(data);
 		
-		for ( int i = 0; i < length; i++ ) {
-			int byte = ReadByte( ignoreOverflow );
+		for ( size_t i = 0; i < length; i++ ) {
+			const auto byte = ReadByte( ignoreOverflow );
 			
 			if ( byte == -1 ) {
 				return i;
@@ -106,21 +106,21 @@ public:
 		return length;
 	}
 
-	int		WriteR( const void * data, int length ) {
+	size_t	WriteR( const void * data, const size_t length ) {
 		const auto src = static_cast<const uint8*>(data);
 		
-		for ( int i = 0; i < length && !IsOverflowed(); i++ ) {
+		for ( size_t i = 0; i < length && !IsOverflowed(); i++ ) {
 			WriteByte( src[length - i - 1] );
 		}
 		
 		return length;
 	}
 
-	int		ReadR( void * data, int length, bool ignoreOverflow = false ) {
+	size_t	ReadR( void * data, const size_t length, const bool ignoreOverflow = false ) {
 		uint8 * src = static_cast<uint8*>(data);
 		
-		for ( int i = 0; i < length; i++ ) {
-			int byte = ReadByte( ignoreOverflow );
+		for ( size_t i = 0; i < length; i++ ) {
+			const auto byte = ReadByte( ignoreOverflow );
 			
 			if ( byte == -1 ) {
 				return i;
@@ -136,7 +136,7 @@ public:
 		return Write( &c, sizeof( c ) );
 	}
 
-	template<class type> ID_INLINE size_t ReadAgnostic( type & c, bool ignoreOverflow = false ) {
+	template<class type> ID_INLINE size_t ReadAgnostic( type & c, const bool ignoreOverflow = false ) {
 		size_t r = Read( &c, sizeof( c ), ignoreOverflow );
 		return r;
 	}
@@ -162,14 +162,14 @@ private:
 	// For reading
 	int					bytesRead;
 	uint8				block[LZW_BLOCK_SIZE];
-	int					blockSize;
-	int					blockIndex;
+	size_t				blockSize;
+	index_t				blockIndex;
 	
 	// saving/restoring when overflow (when writing). 
 	// Must call End directly after restoring (dictionary is bad so can't keep writing)
-	int					savedBytesWritten;
-	int					savedCodeWord;
-	int					saveCodeBits;
+	size_t				savedBytesWritten;
+	size_t				savedCodeWord;
+	size_t				saveCodeBits;
 	uint64				savedTempValue;
 	int					savedTempBits;
 };
@@ -185,7 +185,7 @@ public:
 	idZeroRunLengthCompressor() noexcept : zeroCount( 0 ), destStart(nullptr) {
 	}
 	
-	void Start( uint8 * dest_, idLZWCompressor * comp_, int maxSize_ );
+	void Start( uint8 * dest_, idLZWCompressor * comp_, size_t maxSize_ );
 	bool WriteRun();
 	bool WriteByte( uint8 value );
 	byte ReadByte();

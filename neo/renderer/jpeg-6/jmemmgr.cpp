@@ -216,7 +216,7 @@ print_mem_stats( j_common_ptr cinfo, int pool_id ) {
 
 
 LOCAL void
-out_of_memory( j_common_ptr cinfo, int which ) {
+out_of_memory(const j_common_ptr cinfo, const int which ) {
 /* Report an out-of-memory error and stop execution */
 /* If we compiled MEM_STATS support, report alloc requests before dying */
 #ifdef MEM_STATS
@@ -253,7 +253,7 @@ static const size_t extra_pool_slop[JPOOL_NUMPOOLS] = {
 
 
 METHODDEF void *
-alloc_small( j_common_ptr cinfo, int pool_id, size_t sizeofobject ) {
+alloc_small(const j_common_ptr cinfo, const int pool_id, size_t sizeofobject ) {
 /* Allocate a "small" object */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     small_pool_ptr hdr_ptr, prev_hdr_ptr;
@@ -346,7 +346,7 @@ alloc_small( j_common_ptr cinfo, int pool_id, size_t sizeofobject ) {
  */
 
 METHODDEF void FAR *
-alloc_large( j_common_ptr cinfo, int pool_id, size_t sizeofobject ) {
+alloc_large(const j_common_ptr cinfo, const int pool_id, size_t sizeofobject ) {
 /* Allocate a "large" object */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     large_pool_ptr hdr_ptr;
@@ -402,8 +402,8 @@ alloc_large( j_common_ptr cinfo, int pool_id, size_t sizeofobject ) {
  */
 
 METHODDEF JSAMPARRAY
-alloc_sarray( j_common_ptr cinfo, int pool_id,
-              JDIMENSION samplesperrow, JDIMENSION numrows ) {
+alloc_sarray(const j_common_ptr cinfo, const int pool_id,
+              const JDIMENSION samplesperrow, const JDIMENSION numrows ) {
 /* Allocate a 2-D sample array */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     JSAMPARRAY result;
@@ -451,8 +451,8 @@ alloc_sarray( j_common_ptr cinfo, int pool_id,
  */
 
 METHODDEF JBLOCKARRAY
-alloc_barray( j_common_ptr cinfo, int pool_id,
-              JDIMENSION blocksperrow, JDIMENSION numrows ) {
+alloc_barray(const j_common_ptr cinfo, const int pool_id,
+              const JDIMENSION blocksperrow, const JDIMENSION numrows ) {
 /* Allocate a 2-D coefficient-block array */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     JBLOCKARRAY result;
@@ -532,9 +532,9 @@ alloc_barray( j_common_ptr cinfo, int pool_id,
 
 
 METHODDEF jvirt_sarray_ptr
-request_virt_sarray( j_common_ptr cinfo, int pool_id, boolean pre_zero,
-                     JDIMENSION samplesperrow, JDIMENSION numrows,
-                     JDIMENSION maxaccess ) {
+request_virt_sarray(const j_common_ptr cinfo, const int pool_id, const boolean pre_zero,
+                     const JDIMENSION samplesperrow, const JDIMENSION numrows,
+                     const JDIMENSION maxaccess ) {
 /* Request a virtual 2-D sample array */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     jvirt_sarray_ptr result;
@@ -562,9 +562,9 @@ request_virt_sarray( j_common_ptr cinfo, int pool_id, boolean pre_zero,
 
 
 METHODDEF jvirt_barray_ptr
-request_virt_barray( j_common_ptr cinfo, int pool_id, boolean pre_zero,
-                     JDIMENSION blocksperrow, JDIMENSION numrows,
-                     JDIMENSION maxaccess ) {
+request_virt_barray(const j_common_ptr cinfo, const int pool_id, const boolean pre_zero,
+                     const JDIMENSION blocksperrow, const JDIMENSION numrows,
+                     const JDIMENSION maxaccess ) {
 /* Request a virtual 2-D coefficient-block array */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     jvirt_barray_ptr result;
@@ -592,7 +592,7 @@ request_virt_barray( j_common_ptr cinfo, int pool_id, boolean pre_zero,
 
 
 METHODDEF void
-realize_virt_arrays( j_common_ptr cinfo ) {
+realize_virt_arrays(const j_common_ptr cinfo ) {
 /* Allocate the in-memory buffers for any unrealized virtual arrays */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
     long space_per_minheight, maximum_space, avail_mem;
@@ -700,7 +700,7 @@ realize_virt_arrays( j_common_ptr cinfo ) {
 
 
 LOCAL void
-do_sarray_io( j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing ) {
+do_sarray_io(const j_common_ptr cinfo, const jvirt_sarray_ptr ptr, const boolean writing ) {
 /* Do backing store read or write of a virtual sample array */
     long bytesperrow, file_offset, byte_count, rows, thisrow, i;
 
@@ -734,7 +734,7 @@ do_sarray_io( j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing ) {
 
 
 LOCAL void
-do_barray_io( j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing ) {
+do_barray_io(const j_common_ptr cinfo, const jvirt_barray_ptr ptr, const boolean writing ) {
 /* Do backing store read or write of a virtual coefficient-block array */
     long bytesperrow, file_offset, byte_count, rows, thisrow, i;
 
@@ -768,9 +768,9 @@ do_barray_io( j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing ) {
 
 
 METHODDEF JSAMPARRAY
-access_virt_sarray( j_common_ptr cinfo, jvirt_sarray_ptr ptr,
-                    JDIMENSION start_row, JDIMENSION num_rows,
-                    boolean writable ) {
+access_virt_sarray(const j_common_ptr cinfo, const jvirt_sarray_ptr ptr,
+                    const JDIMENSION start_row, const JDIMENSION num_rows,
+                    const boolean writable ) {
 /* Access the part of a virtual sample array starting at start_row */
 /* and extending for num_rows rows.  writable is true if  */
 /* caller intends to modify the accessed area. */
@@ -859,9 +859,9 @@ access_virt_sarray( j_common_ptr cinfo, jvirt_sarray_ptr ptr,
 
 
 METHODDEF JBLOCKARRAY
-access_virt_barray( j_common_ptr cinfo, jvirt_barray_ptr ptr,
-                    JDIMENSION start_row, JDIMENSION num_rows,
-                    boolean writable ) {
+access_virt_barray(const j_common_ptr cinfo, const jvirt_barray_ptr ptr,
+                    const JDIMENSION start_row, const JDIMENSION num_rows,
+                    const boolean writable ) {
 /* Access the part of a virtual block array starting at start_row */
 /* and extending for num_rows rows.  writable is true if  */
 /* caller intends to modify the accessed area. */
@@ -1027,7 +1027,7 @@ free_pool( j_common_ptr cinfo, int pool_id ) {
  */
 
 METHODDEF void
-self_destruct( j_common_ptr cinfo ) {
+self_destruct(const j_common_ptr cinfo ) {
     int pool;
 
     /* Close all backing store, release all memory.
@@ -1052,7 +1052,7 @@ self_destruct( j_common_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_memory_mgr( j_common_ptr cinfo ) {
+jinit_memory_mgr(const j_common_ptr cinfo ) {
     my_mem_ptr mem;
     long max_to_use;
     int pool;

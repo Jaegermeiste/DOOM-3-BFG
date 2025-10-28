@@ -753,7 +753,7 @@ idTarget_SetModel::Event_Activate
 ================
 */
 void idTarget_SetModel::Event_Activate( idEntity *activator ) {
-	for( int i = 0; i < targets.Num(); i++ ) {
+	for ( size_t i = 0; i < targets.Num(); i++ ) {
 		idEntity *ent = targets[ i ].GetEntity();
 		if ( ent ) {
 			ent->SetModel( spawnArgs.GetString( "newmodel" ) );
@@ -941,7 +941,7 @@ void idTarget_SetInfluence::Spawn() {
 idTarget_SetInfluence::Event_Flash
 ================
 */
-void idTarget_SetInfluence::Event_Flash( float flash, int out ) {
+void idTarget_SetInfluence::Event_Flash(const float flash, const int out ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
 	player->playerView.Fade( idVec4( 1, 1, 1, 1 ), flash );
 	const idSoundShader *shader = nullptr;
@@ -961,7 +961,7 @@ void idTarget_SetInfluence::Event_Flash( float flash, int out ) {
 idTarget_SetInfluence::Event_ClearFlash
 ================
 */
-void idTarget_SetInfluence::Event_ClearFlash( float flash ) {
+void idTarget_SetInfluence::Event_ClearFlash(const float flash ) {
 	idPlayer *player = gameLocal.GetLocalPlayer();
 	player->playerView.Fade( vec4_zero , flash );		
 }
@@ -1036,7 +1036,7 @@ idTarget_SetInfluence::Event_Activate
 ================
 */
 void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
-	int i, j;
+	size_t i = 0, j = 0;
 	idEntity *ent;
 	idLight *light;
 	idSound *sound;
@@ -1217,7 +1217,7 @@ idTarget_SetInfluence::Event_RestoreInfluence
 ================
 */
 void idTarget_SetInfluence::Event_RestoreInfluence() {
-	int i, j;
+	size_t i = 0, j = 0;
 	idEntity *ent;
 	idLight *light;
 	idSound *sound;
@@ -1334,7 +1334,7 @@ void idTarget_SetKeyVal::Event_Activate( idEntity *activator ) {
 					key = kv->GetValue().Left( n );
 					val = kv->GetValue().Right( kv->GetValue().Length() - n - 1 );
 					ent->spawnArgs.Set( key, val );
-					for ( int j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
+					for ( size_t j = 0; j < MAX_RENDERENTITY_GUI; j++ ) {
 						if ( ent->GetRenderEntity()->gui[ j ] ) {
 							if ( idStr::Icmpn( key, "gui_", 4 ) == 0 ) {
 								ent->GetRenderEntity()->gui[ j ]->SetStateString( key, val );
@@ -1724,7 +1724,7 @@ idTarget_RemoveWeapons::Event_Activate
 ================
 */
 void idTarget_RemoveWeapons::Event_Activate( idEntity *activator ) {
-	for( int i = 0; i < gameLocal.numClients; i++ ) {
+	for ( size_t i = 0; i < gameLocal.numClients; i++ ) {
 		if ( gameLocal.entities[ i ] ) {
 			idPlayer *player = static_cast< idPlayer* >( gameLocal.entities[i] );
 
@@ -1755,7 +1755,7 @@ idTarget_LevelTrigger::Event_Activate
 ================
 */
 void idTarget_LevelTrigger::Event_Activate( idEntity *activator ) {
-	for( int i = 0; i < gameLocal.numClients; i++ ) {
+	for ( size_t i = 0; i < gameLocal.numClients; i++ ) {
 		if ( gameLocal.entities[ i ] ) {
 			idPlayer *player = static_cast< idPlayer* >( gameLocal.entities[i] );
 			player->SetLevelTrigger( spawnArgs.GetString( "levelName" ), spawnArgs.GetString( "triggerName" ) );
@@ -1807,7 +1807,7 @@ idTarget_EnableStamina::Event_Activate
 ================
 */
 void idTarget_EnableStamina::Event_Activate( idEntity *activator ) {
-	for( int i = 0; i < gameLocal.numClients; i++ ) {
+	for ( size_t i = 0; i < gameLocal.numClients; i++ ) {
 		if ( gameLocal.entities[ i ] ) {
 			idPlayer *player = static_cast< idPlayer* >( gameLocal.entities[i] );
 			if ( spawnArgs.GetBool( "enable" ) ) {

@@ -120,7 +120,7 @@ idLangDict::Clear
 */
 void idLangDict::Clear() {
 	//mem.PushHeap();
-	for ( int i = 0; i < keyVals.Num(); i++ ) {
+	for ( size_t i = 0; i < keyVals.Num(); i++ ) {
 		if ( keyVals[i].value == nullptr) {
 			continue;
 		}
@@ -171,11 +171,11 @@ bool idLangDict::Load( const byte * buffer, const size_t bufferLen, const char *
 		idLib::Printf( " as ASCII\n" );
 	}
 
-	idStr tempKey;
-	idStr tempVal;
+	idStr tempKey = {};
+	idStr tempVal = {};
 
-	int line = 0;
-	int numStrings = 0;
+	index_t line = 0;
+	size_t numStrings = 0;
 
 	size_t i = 0;
 	while ( i < bufferLen ) {
@@ -193,12 +193,12 @@ bool idLangDict::Load( const byte * buffer, const size_t bufferLen, const char *
 		} else if ( c == '\n' ) {
 			line++;
 		} else if ( c == '\"' ) {
-			const size_t keyStart = i;
-			int64 keyEnd = -1;
+			const index_t keyStart = numeric_cast<BASE_TYPE(keyStart)>(i);
+			index_t keyEnd = -1;
 			while ( i < bufferLen ) {
 				c = buffer[i++];
 				if ( c == '\"' ) {
-					keyEnd = idMath::integer_cast<int64>(i) - 1;
+					keyEnd = numeric_cast<index_t>(i) - 1;
 					break;
 				}
 			}
@@ -207,27 +207,27 @@ bool idLangDict::Load( const byte * buffer, const size_t bufferLen, const char *
 			}
 			tempKey.CopyRange( reinterpret_cast<const char *>(buffer), keyStart, keyEnd );
 
-			int64 valStart = -1;
+			index_t valStart = -1;
 			while ( i < bufferLen ) {
 				c = buffer[i++];
 				if ( c == '\"' ) {
-					valStart = idMath::integer_cast<int64>(i);
+					valStart = numeric_cast<BASE_TYPE(valStart)>(i);
 					break;
 				}
 			}
 			if ( valStart < 0 ) {
 				idLib::FatalError( "%s File ended while reading value at line %d", name, line );
 			}
-			int64 valEnd = -1;
+			index_t valEnd = -1;
 			tempVal.CapLength( 0 );
 			while ( i < bufferLen ) {
 				c = utf8 ? idStr::UTF8Char( buffer, i ) : buffer[i++];
 				if ( !utf8 && c >= 0x80 ) {
-					// this is a serious error and we must check this to avoid accidentally shipping a file where someone squased UTF-8 encodings
+					// this is a serious error and we must check this to avoid accidentally shipping a file where someone squashed UTF-8 encodings
 					idLib::FatalError( "Language file %s is supposed to be plain ASCII, but has byte values > 127!", name );
 				}
 				if ( c == '\"' ) {
-					valEnd = idMath::integer_cast<int64>(i) - 1;
+					valEnd = numeric_cast<int64>(i) - 1;
 					continue;
 				}
 				if ( c == '\n' ) {
@@ -294,14 +294,14 @@ bool idLangDict::Save( const char * fileName ) {
 	constexpr byte bof[3] = { 0xEF, 0xBB, 0xBF };
 	outFile->Write( bof, 3 );
 	outFile->WriteFloatString( "// string table\n//\n\n{\n" );
-	for ( int j = 0; j < keyVals.Num(); j++ ) {
+	for ( size_t j = 0; j < keyVals.Num(); j++ ) {
 		const idLangKeyValue & kvp = keyVals[j];
 		if ( kvp.value == nullptr) {
 			continue;
 		}
 		outFile->WriteFloatString( "\t\"%s\"\t\"", kvp.key );
-		for ( int k = 0; kvp.value[k] != 0; k++ ) {
-			char ch = kvp.value[k];
+		for ( size_t k = 0; kvp.value[k] != 0; k++ ) {
+			const char ch = kvp.value[k];
 			if ( ch == '\t' ) {
 				outFile->Write( "\\t", 2 );
 			} else if ( ch == '\n' || ch == '\r' ) {
@@ -544,7 +544,7 @@ idLangDict::GetLocalizedString
 ========================
 */
 const char * idLangDict::GetLocalizedString( const idStrId & strId ) const {
-	if ( strId.GetIndex() >= 0 && strId.GetIndex() < keyVals.Num() ) {
+	if ( strId.GetIndex() >= 0 && std::cmp_less(strId.GetIndex(), keyVals.Num()) ) {
 		if ( keyVals[ strId.GetIndex() ].value == nullptr) {
 			return keyVals[ strId.GetIndex() ].key;
 		} else {

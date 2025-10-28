@@ -28,30 +28,32 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_BITSTREAM_H__
 #define __SWF_BITSTREAM_H__
 
+#pragma once
+
 class idSWFBitStream {
 public:
 					idSWFBitStream();
-					idSWFBitStream( const byte * data, uint32 len, bool copy ) { free = false; Load( data, len, copy ); }
+					idSWFBitStream( const byte * data, const size_t len, const bool copy ) { free = false; Load( data, len, copy ); }
 					~idSWFBitStream() { Free(); }
 
 	idSWFBitStream & operator=( idSWFBitStream & other );
 
-	void			Load( const byte * data, uint32 len, bool copy );
+	void			Load( const byte * data, size_t len, bool copy );
 	void			Free();
-					[[nodiscard]] const byte *	Ptr() const { return startp; }
+	[[nodiscard]] const byte *	Ptr() const { return startp; }
 
-					[[nodiscard]] uint32			Length() const { return static_cast<uint32>(endp - startp); }
-					[[nodiscard]] uint32			Tell() const { return static_cast<uint32>(readp - startp); }
-	void			Seek( int32 offset ) { readp += offset; }
+	[[nodiscard]] size_t			Length() const { return static_cast<size_t>(endp - startp); }
+	[[nodiscard]] uint32			Tell() const { return static_cast<uint32>(readp - startp); }
+	void			Seek(const size_t offset ) { readp += offset; }
 	void			Rewind() { readp = startp; }
 
 	void			ResetBits();
 
-	int				ReadS( unsigned int numBits );
-	unsigned int	ReadU( unsigned int numBits );
+	int				ReadS( short numBits );
+	unsigned int	ReadU( short numBits );
 	bool			ReadBool();
 
-	const byte *	ReadData( int size );
+	const byte *	ReadData( size_t size );
 
 	template< typename T >
 	void			ReadLittle( T & val );
@@ -86,8 +88,8 @@ private:
 	uint64			currentBit;
 	uint64			currentByte;
 
-	int				ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits );
-	unsigned int	ReadInternalU( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits );
+	int				ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, short numBits );
+	unsigned int	ReadInternalU( uint64 & regCurrentBit, uint64 & regCurrentByte, short numBits );
 };
 
 /*
@@ -137,7 +139,7 @@ ID_INLINE double idSWFBitStream::ReadDouble() {
 	buffer[5] = swfIsRetarded[1];
 	buffer[6] = swfIsRetarded[2];
 	buffer[7] = swfIsRetarded[3];
-	double d = *(double *)buffer;
+	double d = *reinterpret_cast<double*>(buffer);
 	idSwap::Little( d );
 	return d;
 }

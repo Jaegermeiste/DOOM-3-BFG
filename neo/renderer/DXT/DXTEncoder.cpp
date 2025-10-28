@@ -57,10 +57,10 @@ idDxtEncoder::NV4XHardwareBugFix
 void idDxtEncoder::NV4XHardwareBugFix( byte *minColor, byte *maxColor ) const {
 #ifdef ID_WIN_X86_ASM
 	int minq = ( ( minColor[0] << 16 ) | ( minColor[1] << 8 ) | minColor[2] ) & 0x00F8FCF8;
-	int maxq = ( ( maxColor[0] << 16 ) | ( maxColor[1] << 8 ) | maxColor[2] ) & 0x00F8FCF8;
+	size_t maxq = ( ( maxColor[0] << 16 ) | ( maxColor[1] << 8 ) | maxColor[2] ) & 0x00F8FCF8;
 	int mask = -( minq > maxq ) & 0x00FFFFFF;
 	int min = *(int *)minColor;
-	int max = *(int *)maxColor;
+	size_t max = *(int *)maxColor;
 	min ^= max;
 	max ^= ( min & mask );
 	min ^= max;
@@ -330,8 +330,8 @@ paramO:	maxColor	- 4 byte max color
 ========================
 */
 void idDxtEncoder::GetMinMaxColorsMaxDist( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
-	int maxDistC = -1;
-	int maxDistA = -1;
+	size_t maxDistC = -1;
+	size_t maxDistA = -1;
 
 	for ( size_t i = 0; i < 64 - 4; i += 4 ) {
 		for ( size_t j = i + 4; j < 64; j += 4 ) {
@@ -367,8 +367,8 @@ paramO:	maxColor	- 4 byte max color
 ========================
 */
 void idDxtEncoder::GetMinMaxColorsLuminance( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
-	int maxLumC = 0, minLumC = 256 * 4;
-	int maxAlpha = 0, minAlpha = 256 * 4;
+	size_t maxLumC = 0, minLumC = 256 * 4;
+	size_t maxAlpha = 0, minAlpha = 256 * 4;
 
 	for ( size_t i = 0; i < 16; i++ ) {
 		const int luminance = colorBlock[i*4+0] + colorBlock[i*4+1] * 2 + colorBlock[i*4+2];
@@ -405,7 +405,7 @@ paramO:	maxAlpha	- Max alpha found
 return: 4 byte color index block
 ========================
 */
-uint32 idDxtEncoder::GetSquareAlphaError( const byte *colorBlock, const int alphaOffset, const byte minAlpha, const byte maxAlpha, uint32 lastError ) const {
+uint32 idDxtEncoder::GetSquareAlphaError( const byte *colorBlock, const int alphaOffset, const byte minAlpha, const byte maxAlpha, const uint32 lastError ) const {
 	size_t i = 0, j = 0;
 	byte alphas[8] = {};
 
@@ -474,18 +474,18 @@ uint32 idDxtEncoder::GetMinMaxAlphaHQ( const byte *colorBlock, const int alphaOf
 	for ( i = alphaMin; i <= alphaMax; i++ ) {
 		for ( j = alphaMax; j >= i; j-- ) {
 
-			error = GetSquareAlphaError( colorBlock, alphaOffset, idMath::integer_cast<byte>(i), idMath::integer_cast<byte>(j), bestError );
+			error = GetSquareAlphaError( colorBlock, alphaOffset, numeric_cast<byte>(i), numeric_cast<byte>(j), bestError );
 			if ( error < bestError ) {
 				bestError = error;
-				minColor[alphaOffset] = idMath::integer_cast<byte>(i);
-				maxColor[alphaOffset] = idMath::integer_cast<byte>(j);
+				minColor[alphaOffset] = numeric_cast<byte>(i);
+				maxColor[alphaOffset] = numeric_cast<byte>(j);
 			}
 
-			error = GetSquareAlphaError( colorBlock, alphaOffset, idMath::integer_cast<byte>(j), idMath::integer_cast<byte>(i), bestError );
+			error = GetSquareAlphaError( colorBlock, alphaOffset, numeric_cast<byte>(j), numeric_cast<byte>(i), bestError );
 			if ( error < bestError ) {
 				bestError = error;
-				minColor[alphaOffset] = idMath::integer_cast<byte>(i);
-				maxColor[alphaOffset] = idMath::integer_cast<byte>(j);
+				minColor[alphaOffset] = numeric_cast<byte>(i);
+				maxColor[alphaOffset] = numeric_cast<byte>(j);
 			}
 		}
 	}
@@ -503,7 +503,7 @@ paramO:	color1		- 4 byte max color found
 return: 4 byte color index block
 ========================
 */
-uint32 idDxtEncoder::GetSquareColorsError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, uint32 lastError ) const {
+uint32 idDxtEncoder::GetSquareColorsError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, const uint32 lastError ) const {
 	size_t i = 0, j = 0;
 	byte colors[4][4] = {};
 
@@ -553,7 +553,7 @@ paramO:	color1		- 4 byte max color found
 return: 4 byte color index block
 ========================
 */
-uint32 idDxtEncoder::GetSquareNormalYError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, uint32 lastError, int scale ) const {
+uint32 idDxtEncoder::GetSquareNormalYError( const byte *colorBlock, const unsigned short color0, const unsigned short color1, const uint32 lastError, const int scale ) const {
 	size_t i = 0, j = 0;
 	byte colors[4][4] = {};
 
@@ -582,7 +582,7 @@ uint32 idDxtEncoder::GetSquareNormalYError( const byte *colorBlock, const unsign
 		for ( j = 0; j < 4; j++ ) {
 			const float r = static_cast<float>(colorBlock[i * 4 + 1]) / scale;
 			const float s = static_cast<float>(colors[j][1]) / scale;
-			uint32 dist = idMath::Ftoi( ( r - s ) * ( r - s ) );
+			uint32 dist = numeric_cast<int>( ( r - s ) * ( r - s ) );
 			minDist = std::min(dist, minDist);
 		}
 		// accumulated error
@@ -607,7 +607,7 @@ paramO:	minColor	- 4 byte min color found
 paramO:	maxColor	- 4 byte max color found
 ========================
 */
-uint32 idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, byte *maxColor, bool noBlack ) const {
+uint32 idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, byte *maxColor, const bool noBlack ) const {
 	size_t i = 0;
 	int i0 = 0, i1 = 0, i2 = 0, j0 = 0, j1 = 0, j2 = 0;
 	unsigned short minColor565 = 0, maxColor565 = 0, bestMinColor565 = 0, bestMaxColor565 = 0;
@@ -680,8 +680,8 @@ uint32 idDxtEncoder::GetMinMaxColorsHQ( const byte *colorBlock, byte *minColor, 
 								continue;
 							}
 
-							minColor565 = idMath::integer_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0)); 
-							maxColor565 = idMath::integer_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
+							minColor565 = numeric_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0)); 
+							maxColor565 = numeric_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
 
 							if ( !noBlack ) {
 								error = GetSquareColorsError( colorBlock, maxColor565, minColor565, bestError );
@@ -725,7 +725,7 @@ paramO:	color1		- Max color found
 return: 4 byte color index block
 ========================
 */
-uint32 idDxtEncoder::GetSquareCTX1Error( const byte *colorBlock, const byte *color0, const byte *color1, uint32 lastError ) const {
+uint32 idDxtEncoder::GetSquareCTX1Error( const byte *colorBlock, const byte *color0, const byte *color1, const uint32 lastError ) const {
 	size_t i = 0, j = 0;
 	byte colors[4][4] = {};
 
@@ -852,7 +852,7 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-uint32 idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, byte *maxColor, bool noBlack, int scale ) const {
+uint32 idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, byte *maxColor, const bool noBlack, const int scale ) const {
 	unsigned short bestMinColor565 = 0, bestMaxColor565 = 0;
 	byte bboxMin[3] = {}, bboxMax[3] = {};
 	uint32 error = 0, bestError = MAX_TYPE( int );
@@ -881,12 +881,12 @@ uint32 idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor,
 
 	for ( size_t i1 = bboxMin[1]; i1 <= bboxMax[1]; i1++ ) {
 		for ( size_t j1 = bboxMax[1]; j1 >= bboxMin[1]; j1-- ) {
-			if ( _abs64(idMath::integer_cast<int64>(i1 - j1 )) < 0 ) {
+			if ( _abs64(numeric_cast<int64>(i1 - j1 )) < 0 ) {
 				continue;
 			}
 
-			unsigned short minColor565 = idMath::integer_cast<unsigned short>(i1 << 5);
-			unsigned short maxColor565 = idMath::integer_cast<unsigned short>(j1 << 5);
+			unsigned short minColor565 = numeric_cast<unsigned short>(i1 << 5);
+			unsigned short maxColor565 = numeric_cast<unsigned short>(j1 << 5);
 
 			if ( !noBlack ) {
 				error = GetSquareNormalYError( colorBlock, maxColor565, minColor565, bestError, scale );
@@ -916,8 +916,8 @@ uint32 idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor,
 	const int bias = colorBlock[0*4+0];
 	const int size = colorBlock[0*4+2];
 
-	minColor[0] = maxColor[0] = idMath::integer_cast<byte>(bias);
-	minColor[2] = maxColor[2] = idMath::integer_cast<byte>(size);
+	minColor[0] = maxColor[0] = numeric_cast<byte>(bias);
+	minColor[2] = maxColor[2] = numeric_cast<byte>(size);
 
 	return bestError;
 }
@@ -1097,7 +1097,7 @@ paramO:	color1		- 4 byte Max color found
 return: 4 byte color index block
 ========================
 */
-uint32 idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const unsigned short color0, const unsigned short color1, uint32 lastError, unsigned int &colorIndices ) const {
+uint32 idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const unsigned short color0, const unsigned short color1, const uint32 lastError, unsigned int &colorIndices ) const {
 	byte byteColors[2][4] = {};
 	ALIGN16( int colors[4][4] {} );
 
@@ -1135,7 +1135,7 @@ uint32 idDxtEncoder::GetSquareNormalsDXT1Error( const int *colorBlock, const uns
 			const uint32 dist = NormalDistanceDXT1( &colors[j][0], &colorBlock[i*4] );
 			if ( dist < minDist ) {
 				minDist = dist;
-				tempColorIndices[i] = idMath::integer_cast<int>(j);
+				tempColorIndices[i] = numeric_cast<int>(j);
 			}
 		}
 		// accumulated error
@@ -1166,7 +1166,7 @@ paramO:	minColor	- 4 byte Min color found
 paramO:	maxColor	- 4 byte Max color found
 ========================
 */
-uint32 idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, bool noBlack ) const {
+uint32 idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minColor, byte *maxColor, unsigned int &colorIndices, const bool noBlack ) const {
 	size_t i = 0;
 	int i0 = 0, i1 = 0, i2 = 0, j0 = 0, j1 = 0, j2 = 0;
 	unsigned short bestMinColor565 = 0;
@@ -1234,8 +1234,8 @@ uint32 idDxtEncoder::GetMinMaxNormalsDXT1HQ( const byte *colorBlock, byte *minCo
 								continue;
 							}
 
-							unsigned short minColor565 = idMath::integer_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0));
-							unsigned short maxColor565 = idMath::integer_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
+							unsigned short minColor565 = numeric_cast<unsigned short>((i0 << 11) | (i1 << 5) | (i2 << 0));
+							unsigned short maxColor565 = numeric_cast<unsigned short>((j0 << 11) | (j1 << 5) | (j2 << 0));
 
 							if ( !noBlack ) {
 								error = GetSquareNormalsDXT1Error( intColorBlock, maxColor565, minColor565, bestError, tempColorIndices );
@@ -1280,7 +1280,7 @@ paramO:	minNormal	- Min normal found
 paramO:	maxNormal	- Max normal found
 ========================
 */
-uint32 idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const byte *minNormal, const byte *maxNormal, uint32 lastError, unsigned int &colorIndices, byte *alphaIndices ) const {
+uint32 idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const byte *minNormal, const byte *maxNormal, const uint32 lastError, unsigned int &colorIndices, byte *alphaIndices ) const {
 	byte alphas[8] = {};
 	byte colors[4][4] = {};
 
@@ -1367,7 +1367,7 @@ uint32 idDxtEncoder::GetSquareNormalsDXT5Error( const int *normalBlock, const by
 
 	colorIndices = 0;
 	for ( size_t i = 0; i < 16; i++ ) {
-		colorIndices |= ( tempColorIndices[i] << idMath::integer_cast<unsigned int>(i << 1) );
+		colorIndices |= ( tempColorIndices[i] << numeric_cast<unsigned int>(i << 1) );
 	}
 
 	return error;
@@ -1462,8 +1462,8 @@ uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minCo
 								continue;
 							}
 
-							tmin[3] = idMath::integer_cast<byte>(j3);
-							tmax[3] = idMath::integer_cast<byte>(i3);
+							tmin[3] = numeric_cast<byte>(j3);
+							tmax[3] = numeric_cast<byte>(i3);
 
 							error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 							if ( error < bestError ) {
@@ -1474,8 +1474,8 @@ uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte *colorBlock, byte *minCo
 								memcpy( alphaIndices, tempAlphaIndices, 6 );
 							}
 
-							tmin[3] = idMath::integer_cast<byte>(i3);
-							tmax[3] = idMath::integer_cast<byte>(j3);
+							tmin[3] = numeric_cast<byte>(i3);
+							tmax[3] = numeric_cast<byte>(j3);
 
 							error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 							if ( error < bestError ) {
@@ -1591,8 +1591,8 @@ uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *m
 								continue;
 							}
 
-							unsigned short minColor565 = idMath::integer_cast<unsigned short>((i0 << 11) | (i1 << 5) | i2);
-							unsigned short maxColor565 = idMath::integer_cast<unsigned short>((j0 << 11) | (j1 << 5) | j2);
+							unsigned short minColor565 = numeric_cast<unsigned short>((i0 << 11) | (i1 << 5) | i2);
+							unsigned short maxColor565 = numeric_cast<unsigned short>((j0 << 11) | (j1 << 5) | j2);
 
 							if ( minColor565 > maxColor565 ) {
 								SwapValues( minColor565, maxColor565 );
@@ -1623,8 +1623,8 @@ uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *m
 				continue;
 			}
 
-			tmin[3] = idMath::integer_cast<byte>(j3);
-			tmax[3] = idMath::integer_cast<byte>(i3);
+			tmin[3] = numeric_cast<byte>(j3);
+			tmax[3] = numeric_cast<byte>(i3);
 
 			error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 			if ( error < bestError ) {
@@ -1635,8 +1635,8 @@ uint32 idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte *colorBlock, byte *m
 				memcpy( alphaIndices, tempAlphaIndices, 6 );
 			}
 
-			tmin[3] = idMath::integer_cast<byte>(i3);
-			tmax[3] = idMath::integer_cast<byte>(j3);
+			tmin[3] = numeric_cast<byte>(i3);
+			tmax[3] = numeric_cast<byte>(j3);
 
 			error = GetSquareNormalsDXT5Error( intColorBlock, tmin, tmax, bestError, tempColorIndices, tempAlphaIndices );
 			if ( error < bestError ) {
@@ -1664,7 +1664,7 @@ return: 4 byte color index block
 */
 uint32 idDxtEncoder::FindColorIndices( const byte *colorBlock, const unsigned short color0, const unsigned short color1, unsigned int &result ) const {
 	size_t i = 0, j = 0;
-	unsigned int indexes[16] = {};
+	unsigned index_t indexes[16] = {};
 	byte colors[4][4] = {};
 
 	ColorFrom565( color0, colors[0] );
@@ -1702,7 +1702,7 @@ uint32 idDxtEncoder::FindColorIndices( const byte *colorBlock, const unsigned sh
 
 	result = 0;
 	for ( i = 0; i < 16; i++ ) {
-		result |= ( indexes[i] << idMath::integer_cast<unsigned int>(i << 1) );
+		result |= ( indexes[i] << numeric_cast<unsigned int>(i << 1) );
 	}
 
 	return error;
@@ -1721,7 +1721,7 @@ return: error metric for this compression
 */
 uint32 idDxtEncoder::FindAlphaIndices( const byte *colorBlock, const int alphaOffset, const byte alpha0, const byte alpha1, byte *rindexes ) const {
 	size_t i = 0, j = 0;
-	unsigned int indexes[16] = {};
+	unsigned index_t indexes[16] = {};
 	byte alphas[8] = {};
 
 	alphas[0] = alpha0;
@@ -1779,7 +1779,7 @@ return: 4 byte color index block
 */
 uint32 idDxtEncoder::FindCTX1Indices( const byte *colorBlock, const byte *color0, const byte *color1, unsigned int &result ) const {
 	size_t i = 0, j = 0;
-	unsigned int indexes[16] = {};
+	unsigned index_t indexes[16] = {};
 	byte colors[4][4] = {};
 
 	colors[0][0] = color1[0];
@@ -1808,7 +1808,7 @@ uint32 idDxtEncoder::FindCTX1Indices( const byte *colorBlock, const byte *color0
 
 	result = 0;
 	for ( i = 0; i < 16; i++ ) {
-		result |= ( indexes[i] << idMath::integer_cast<unsigned int>(i << 1) );
+		result |= ( indexes[i] << numeric_cast<unsigned int>(i << 1) );
 	}
 
 	return error;
@@ -2071,9 +2071,9 @@ void idDxtEncoder::ScaleYCoCg( byte *colorBlock ) const {
 	const int scale = 1 + ( m0 <= s0 ) + 2 * ( m0 <= s1 );
 
 	for ( size_t i = 0; i < 16; i++ ) {
-		colorBlock[i*4+0] = idMath::integer_cast<byte>((colorBlock[i * 4 + 0] - 128) * scale + 128);
-		colorBlock[i*4+1] = idMath::integer_cast<byte>((colorBlock[i * 4 + 1] - 128) * scale + 128);
-		colorBlock[i*4+2] = idMath::integer_cast<byte>((scale - 1) << 3);
+		colorBlock[i*4+0] = numeric_cast<byte>((colorBlock[i * 4 + 0] - 128) * scale + 128);
+		colorBlock[i*4+1] = numeric_cast<byte>((colorBlock[i * 4 + 1] - 128) * scale + 128);
+		colorBlock[i*4+2] = numeric_cast<byte>((scale - 1) << 3);
 	}
 }
 
@@ -3073,7 +3073,7 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 #elif 1
 
 	byte colors[4][4];
-	unsigned int indexes[16];
+	unsigned index_t indexes[16];
 
 	colors[0][0] = ( maxColor[0] & C565_5_MASK ) | ( maxColor[0] >> 6 );
 	colors[0][1] = ( maxColor[1] & C565_6_MASK ) | ( maxColor[1] >> 5 );
@@ -3156,7 +3156,7 @@ void idDxtEncoder::EmitColorIndices( const byte *colorBlock, const byte *minColo
 #else
 
 	byte colors[4][4];
-	unsigned int indexes[16];
+	unsigned index_t indexes[16];
 
 	colors[0][0] = ( maxColor[0] & C565_5_MASK ) | ( maxColor[0] >> 6 );
 	colors[0][1] = ( maxColor[1] & C565_6_MASK ) | ( maxColor[1] >> 5 );
@@ -3371,7 +3371,7 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 		const int b5 = ( a >= ab5 );
 		const int b6 = ( a >= ab6 );
 		const int b7 = ( a >= ab7 );
-		const int index = ( 8 - b1 - b2 - b3 - b4 - b5 - b6 - b7 ) & 7;
+		const index_t index = ( 8 - b1 - b2 - b3 - b4 - b5 - b6 - b7 ) & 7;
 		indexes[i] = static_cast<byte>(index ^ (2 > index));
 	}
 
@@ -3426,7 +3426,7 @@ void idDxtEncoder::EmitAlphaIndices( const byte *colorBlock, const int offset, c
 
 	for ( size_t i = 0; i < 16; i++ ) {
 		byte a = colorBlock[i*4];
-		int index = (ALPHA_RANGE+1) + ( ( minAlpha - a ) * ALPHA_RANGE - half ) / delta;
+		index_t index = (ALPHA_RANGE+1) + ( ( minAlpha - a ) * ALPHA_RANGE - half ) / delta;
 		int c0 = a > bottom;
 		int c1 = a < top;
 		indexes[i] = ( index & -( c0 & c1 ) ) | ( c0 ^ 1 );
@@ -3721,7 +3721,7 @@ ID_INLINE void idDxtEncoder::InsetYCoCgBBox( byte *minColor, byte *maxColor ) co
 
 	int inset[4];
 	int mini[4];
-	int maxi[4];
+	size_t maxi[4];
 
 	inset[0] = ( maxColor[0] - minColor[0] );
 	inset[1] = ( maxColor[1] - minColor[1] );
@@ -3763,7 +3763,7 @@ ID_INLINE void idDxtEncoder::InsetYCoCgBBox( byte *minColor, byte *maxColor ) co
 
 	int inset[4];
 	int mini[4];
-	int maxi[4];
+	size_t maxi[4];
 
 	inset[0] = ( maxColor[0] - minColor[0] ) - ((1<<(INSET_COLOR_SHIFT-1))-1);
 	inset[1] = ( maxColor[1] - minColor[1] ) - ((1<<(INSET_COLOR_SHIFT-1))-1);
@@ -3804,7 +3804,7 @@ idDxtEncoder::InsetYCoCgAlpaBBox
 ID_INLINE void idDxtEncoder::InsetYCoCgAlpaBBox( byte *minColor, byte *maxColor ) const {
 	int inset[4];
 	int mini[4];
-	int maxi[4];
+	size_t maxi[4];
 
 	inset[0] = ( maxColor[0] - minColor[0] ) - ((1<<(INSET_COLOR_SHIFT-1))-1);
 	inset[1] = ( maxColor[1] - minColor[1] ) - ((1<<(INSET_COLOR_SHIFT-1))-1);
@@ -4071,7 +4071,7 @@ void idDxtEncoder::EmitGreenIndices( const byte *block, const int offset, const 
 		const int b1 = ( y >= yb1 );
 		const int b2 = ( y >= yb2 );
 		const int b3 = ( y >= yb3 );
-		int index = ( 4 - b1 - b2 - b3 ) & 3;
+		index_t index = ( 4 - b1 - b2 - b3 ) & 3;
 		index ^= ( 2 > index );
 		result |= index;
 	}
@@ -4095,7 +4095,7 @@ void idDxtEncoder::EmitGreenIndices( const byte *block, const int offset, const 
 		result <<= 2;
 		byte y = block[i*4];
 		int minDist = INT_MAX;
-		int index;
+		index_t index;
 		for ( size_t j = 0; j < 4; j++ ) {
 			int dist = abs( y - green[j] );
 			if ( dist < minDist ) {
@@ -4119,7 +4119,7 @@ idDxtEncoder::InsetNormalsBBoxDXT5
 void idDxtEncoder::InsetNormalsBBoxDXT5( byte *minNormal, byte *maxNormal ) const {
 	int inset[4];
 	int mini[4];
-	int maxi[4];
+	size_t maxi[4];
 
 	inset[3] = ( maxNormal[3] - minNormal[3] ) - ((1<<(INSET_ALPHA_SHIFT-1))-1);
 	inset[1] = ( maxNormal[1] - minNormal[1] ) - ((1<<(INSET_COLOR_SHIFT-1))-1);
@@ -4151,7 +4151,7 @@ idDxtEncoder::InsetNormalsBBox3Dc
 void idDxtEncoder::InsetNormalsBBox3Dc( byte *minNormal, byte *maxNormal ) const {
     int inset[4];
     int mini[4];
-    int maxi[4];
+    size_t maxi[4];
 
     inset[0] = ( maxNormal[0] - minNormal[0] ) - ((1<<(INSET_ALPHA_SHIFT-1))-1);
     inset[1] = ( maxNormal[1] - minNormal[1] ) - ((1<<(INSET_ALPHA_SHIFT-1))-1);
@@ -4378,7 +4378,7 @@ void idDxtEncoder::EncodeNormalRGBIndices( byte *outBuf, const byte min, const b
 		const int b1 = ( y >= yb1 );
 		const int b2 = ( y >= yb2 );
 		const int b3 = ( y >= yb3 );
-		int index = ( 4 - b1 - b2 - b3 ) & 3;
+		index_t index = ( 4 - b1 - b2 - b3 ) & 3;
 		index ^= ( 2 > index );
 		result |= index;
 	}
@@ -4462,7 +4462,7 @@ idDxtEncoder::DecodeNormalYValues
 void idDxtEncoder::DecodeNormalYValues( const byte *inBuf, byte &min, byte &max, byte *values ) const
 {
 	int i;
-	unsigned int indexes;
+	unsigned index_t indexes;
 	unsigned short normal0, normal1;
 	byte normalsY[4];
 
@@ -4496,7 +4496,7 @@ void idDxtEncoder::EncodeDXNAlphaValues( byte *outBuf, const byte min, const byt
 	int i;
 	byte alphas[8];
 	int j;
-	unsigned int indexes[16];
+	unsigned index_t indexes[16];
 
 	alphas[0] = max;
 	alphas[1] = min;

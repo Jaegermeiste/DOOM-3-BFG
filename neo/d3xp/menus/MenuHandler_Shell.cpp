@@ -240,7 +240,7 @@ void idMenuHandler_Shell::Update() {
 idMenuHandler_Shell::SetCanContinue
 ========================
 */
-void idMenuHandler_Shell::SetCanContinue( bool valid ) {
+void idMenuHandler_Shell::SetCanContinue(const bool valid ) {
 
 	idMenuScreen_Shell_Singleplayer * screen = dynamic_cast< idMenuScreen_Shell_Singleplayer * >( menuScreens[ SHELL_AREA_CAMPAIGN ] );
 	if ( screen != nullptr) {
@@ -317,7 +317,7 @@ bool idMenuHandler_Shell::HandleGuiEvent( const sysEvent_t * sev ) {
 						if ( bindScreen != nullptr) {
 							class idSWFScriptFunction_RebindKey : public idSWFScriptFunction_RefCounted {
 							public:
-								idSWFScriptFunction_RebindKey( idMenuScreen_Shell_Bindings * _menu, gameDialogMessages_t _msg, bool _accept, idMenuHandler_Shell * _mgr, int _key, const char * _bind ) {
+								idSWFScriptFunction_RebindKey( idMenuScreen_Shell_Bindings * _menu, const gameDialogMessages_t _msg, const bool _accept, idMenuHandler_Shell * _mgr, const int _key, const char * _bind ) {
 									menu = _menu;
 									msg = _msg;
 									accept = _accept;
@@ -378,7 +378,7 @@ void idMenuHandler_Shell::Initialize( const char * swfFile, idSoundWorld * sw ) 
 	menuScreens[ (screenId) ]->Initialize( menuHandler );	\
 	menuScreens[ (screenId) ]->AddRef();
 
-	for ( int i = 0; i < SHELL_NUM_AREAS; ++i ) {
+	for ( size_t i = 0; i < SHELL_NUM_AREAS; ++i ) {
 		menuScreens[ i ] = nullptr;
 	}
 
@@ -552,7 +552,7 @@ void idMenuHandler_Shell::Cleanup() {
 idMenuHandler_Shell::ActivateMenu
 ========================
 */
-void idMenuHandler_Shell::ActivateMenu( bool show ) {
+void idMenuHandler_Shell::ActivateMenu(const bool show ) {
 
 	if ( show && gui != nullptr && gui->IsActive() ) {
 		return;
@@ -595,7 +595,7 @@ void idMenuHandler_Shell::ActivateMenu( bool show ) {
 						const idMaterial * mat = marsRotation;
 						if ( mat != nullptr) {
 							int c = mat->GetNumStages();
-							for ( int i = 0; i < c; i++ ) {
+							for ( size_t i = 0; i < c; i++ ) {
 								const shaderStage_t *stage = mat->GetStage( i );
 								if ( stage != nullptr && stage->texture.cinematic ) {
 									stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
@@ -664,7 +664,7 @@ void idMenuHandler_Shell::SetupPCOptions() {
 			navOptions.Append( "#str_swf_quit" );	// quit
 
 			idMenuWidget_MenuButton * buttonWidget = nullptr;
-			int index = 0;
+			index_t index = 0;
 			buttonWidget = dynamic_cast< idMenuWidget_MenuButton * >( &menuBar->GetChildByIndex( index ) );
 			if ( buttonWidget != nullptr) {
 				buttonWidget->ClearEventActions();
@@ -706,7 +706,7 @@ void idMenuHandler_Shell::SetupPCOptions() {
 
 			
 			idMenuWidget_MenuButton * buttonWidget = nullptr;
-			int index = 0;
+			index_t index = 0;
 #if !defined ( ID_RETAIL ) 
 			buttonWidget = dynamic_cast< idMenuWidget_MenuButton * >( &menuBar->GetChildByIndex( index ) );
 			if ( buttonWidget != nullptr) {
@@ -779,7 +779,7 @@ idMenuHandler_Shell::HandleExitGameBtn
 void idMenuHandler_Shell::HandleExitGameBtn() {
 	class idSWFScriptFunction_QuitDialog : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_QuitDialog( gameDialogMessages_t _msg, int _accept ) {
+		idSWFScriptFunction_QuitDialog(const gameDialogMessages_t _msg, const int _accept ) {
 			msg = _msg;
 			accept = _accept;
 		}
@@ -815,7 +815,7 @@ void idMenuHandler_Shell::HandleExitGameBtn() {
 idMenuHandler_Shell::HandleAction
 ========================
 */
-bool idMenuHandler_Shell::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuHandler_Shell::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( activeScreen == SHELL_AREA_INVALID ) {
 		return true;
@@ -864,7 +864,7 @@ bool idMenuHandler_Shell::HandleAction( idWidgetAction & action, const idWidgetE
 				cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
 			}
 
-			const int index = parms[1].ToInteger();
+			const index_t index = parms[1].ToInteger();
 			menuBar->SetFocusIndex( index );
 			menuBar->SetViewIndex( index );
 
@@ -926,7 +926,7 @@ bool idMenuHandler_Shell::HandleAction( idWidgetAction & action, const idWidgetE
 idMenuHandler_Shell::GetMenuScreen
 ========================
 */
-idMenuScreen * idMenuHandler_Shell::GetMenuScreen( int index ) {
+idMenuScreen * idMenuHandler_Shell::GetMenuScreen(const index_t index ) {
 
 	if ( index < 0 || index >= SHELL_NUM_AREAS ) {
 		return nullptr;
@@ -940,7 +940,7 @@ idMenuScreen * idMenuHandler_Shell::GetMenuScreen( int index ) {
 idMenuHandler_Shell::ShowSmallFrame
 ========================
 */
-void idMenuHandler_Shell::ShowSmallFrame( bool show ) {
+void idMenuHandler_Shell::ShowSmallFrame(const bool show ) {
 
 	if ( gui == nullptr) {
 		return;
@@ -968,7 +968,7 @@ void idMenuHandler_Shell::ShowSmallFrame( bool show ) {
 idMenuHandler_Shell::ShowMPFrame
 ========================
 */
-void idMenuHandler_Shell::ShowMPFrame( bool show ) {
+void idMenuHandler_Shell::ShowMPFrame(const bool show ) {
 
 	if ( gui == nullptr) {
 		return;
@@ -996,7 +996,7 @@ void idMenuHandler_Shell::ShowMPFrame( bool show ) {
 idMenuHandler_Shell::ShowSmallFrame
 ========================
 */
-void idMenuHandler_Shell::ShowLogo( bool show ) {
+void idMenuHandler_Shell::ShowLogo(const bool show ) {
 
 	if ( gui == nullptr) {
 		return;
@@ -1131,11 +1131,11 @@ void idMenuHandler_Shell::UpdateLobby( idMenuWidget_LobbyList * lobbyList ) {
 	}
 
 	idLobbyBase & lobby = session->GetActivePlatformLobbyBase();
-	const int numLobbyPlayers = lobby.GetNumLobbyUsers();
-	int maxPlayers = session->GetTitleStorageInt("MAX_PLAYERS_ALLOWED", 4 );
+	const size_t numLobbyPlayers = lobby.GetNumLobbyUsers();
+	size_t maxPlayers = session->GetTitleStorageInt("MAX_PLAYERS_ALLOWED", 4 );
 
 	idStaticList< lobbyPlayerInfo_t, MAX_PLAYERS > lobbyPlayers;
-	for ( int i = 0; i < numLobbyPlayers; ++i ) {
+	for ( size_t i = 0; i < numLobbyPlayers; ++i ) {
 		lobbyPlayerInfo_t * lobbyPlayer = lobbyPlayers.Alloc();
 
 		lobbyUserID_t lobbyUserID = lobby.GetLobbyUserIdByOrdinal( i );
@@ -1150,7 +1150,7 @@ void idMenuHandler_Shell::UpdateLobby( idMenuWidget_LobbyList * lobbyList ) {
 	}
 
 	
-	for ( int i = 0; i < maxPlayers; ++i ) {
+	for ( size_t i = 0; i < maxPlayers; ++i ) {
 		if ( i >= lobbyPlayers.Num() ) {
 			lobbyList->SetEntryData( i, "", VOICECHAT_DISPLAY_NONE );
 		} else {
@@ -1168,7 +1168,7 @@ void idMenuHandler_Shell::UpdateLobby( idMenuWidget_LobbyList * lobbyList ) {
 idMenuHandler_Shell::StartGame
 ========================
 */
-void idMenuHandler_Shell::StartGame( int index ) {
+void idMenuHandler_Shell::StartGame(const index_t index ) {
 	if ( index == 0 ) {
 		cmdSystem->AppendCommandText( va( "map %s %d\n", "game/mars_city1", 0 ) );
 	} else if ( index == 1 ) {
@@ -1197,7 +1197,7 @@ idMenuHandler_Shell::ShowIntroVideo
 		const idMaterial * mat = doom3Intro;
 		if ( mat != nullptr) {
 			int c = mat->GetNumStages();
-			for ( int i = 0; i < c; i++ ) {
+			for ( size_t i = 0; i < c; i++ ) {
 				const shaderStage_t *stage = mat->GetStage( i );
 				if ( stage != nullptr && stage->texture.cinematic ) {
 					stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
@@ -1207,7 +1207,7 @@ idMenuHandler_Shell::ShowIntroVideo
 
 		introGui->Activate( true );
 
-		int numTextFields = NUM_DOOM_INTRO_LINES;
+		size_t numTextFields = NUM_DOOM_INTRO_LINES;
 		idStr textEntries[NUM_DOOM_INTRO_LINES] = { va( "%s %s", idLocalization::GetString("#str_04052"), idLocalization::GetString( "#str_04053" ) ),
 								va( "%s %s", idLocalization::GetString("#str_04054"), idLocalization::GetString( "#str_04055" ) ),
 								idLocalization::GetString( "#str_03012" ),
@@ -1216,7 +1216,7 @@ idMenuHandler_Shell::ShowIntroVideo
 								va( "%s %s", idLocalization::GetString("#str_04058"), idLocalization::GetString( "#str_04059" ) ),
 								va( "%s %s", idLocalization::GetString("#str_04060"), idLocalization::GetString( "#str_04061" ) ) };
 
-		for ( int i = 0; i < numTextFields; ++i ) {
+		for ( size_t i = 0; i < numTextFields; ++i ) {
 			
 			idSWFTextInstance * txtVal = introGui->GetRootObject().GetNestedText( va( "info%d", i ), "txtInfo", "txtVal" );
 			if ( txtVal != nullptr) {
@@ -1235,7 +1235,7 @@ idMenuHandler_Shell::ShowIntroVideo
 			if ( infoSprite != nullptr && txtVal != nullptr) {
 				class idIntroTextUpdate : public idSWFScriptFunction_RefCounted {
 				public:
-					idIntroTextUpdate( idSWFTextInstance * _txtVal, int _numLines, int _nextIndex, idMenuHandler_Shell * _shell, idSWF * _gui ) {
+					idIntroTextUpdate( idSWFTextInstance * _txtVal, const int _numLines, const int _nextIndex, idMenuHandler_Shell * _shell, idSWF * _gui ) {
 						txtVal = _txtVal;
 						generating = false;
 						numLines = _numLines;
@@ -1354,7 +1354,7 @@ void idMenuHandler_Shell::ShowROEIntro() {
 		const idMaterial * mat = roeIntro;
 		if ( mat != nullptr) {
 			int c = mat->GetNumStages();
-			for ( int i = 0; i < c; i++ ) {
+			for ( size_t i = 0; i < c; i++ ) {
 				const shaderStage_t *stage = mat->GetStage( i );
 				if ( stage != nullptr && stage->texture.cinematic ) {
 					stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
@@ -1364,7 +1364,7 @@ void idMenuHandler_Shell::ShowROEIntro() {
 
 		introGui->Activate( true );
 
-		int numTextFields = NUM_ROE_INTRO_LINES;
+		size_t numTextFields = NUM_ROE_INTRO_LINES;
 		idStr textEntries[NUM_ROE_INTRO_LINES] = { 
 			idLocalization::GetString( "#str_00100870" ),
 			idLocalization::GetString( "#str_00100854" ),
@@ -1374,7 +1374,7 @@ void idMenuHandler_Shell::ShowROEIntro() {
 			idLocalization::GetString( "#str_00100856" ),
 		};				
 
-		for ( int i = 0; i < numTextFields; ++i ) {
+		for ( size_t i = 0; i < numTextFields; ++i ) {
 
 			idSWFTextInstance * txtVal = introGui->GetRootObject().GetNestedText( va( "info%d", i ), "txtInfo", "txtVal" );
 			if ( txtVal != nullptr) {
@@ -1393,7 +1393,7 @@ void idMenuHandler_Shell::ShowROEIntro() {
 			if ( infoSprite != nullptr && txtVal != nullptr) {
 				class idIntroTextUpdate : public idSWFScriptFunction_RefCounted {
 				public:
-					idIntroTextUpdate( idSWFTextInstance * _txtVal, int _numLines, int _nextIndex, idMenuHandler_Shell * _shell, idSWF * _gui ) {
+					idIntroTextUpdate( idSWFTextInstance * _txtVal, const int _numLines, const int _nextIndex, idMenuHandler_Shell * _shell, idSWF * _gui ) {
 						txtVal = _txtVal;
 						generating = false;
 						numLines = _numLines;

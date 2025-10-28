@@ -42,7 +42,7 @@ idGuiModel::idGuiModel
 */
 idGuiModel::idGuiModel() {
 	// identity color for drawsurf register evaluation
-	for ( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ ) {
+	for ( size_t i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ ) {
 		shaderParms[i] = 1.0f;
 	}
 }
@@ -98,8 +98,8 @@ EmitSurfaces
 For full screen GUIs, we can add in per-surface stereoscopic depth effects
 ================
 */
-void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], 
-	bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity ) {
+void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
+	const bool depthHack, const bool allowFullScreenStereoDepth, const bool linkAsEntity ) {
 
 	viewEntity_t * guiSpace = static_cast<viewEntity_t*>(R_ClearedFrameAlloc(sizeof(*guiSpace), FRAME_ALLOC_VIEW_ENTITY));
 	memcpy( guiSpace->modelMatrix, modelMatrix, sizeof( guiSpace->modelMatrix ) );
@@ -132,7 +132,7 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 	float defaultStereoDepth = stereoRender_defaultGuiDepth.GetFloat();	// default to at-screen
 
 	// add the surfaces to this view
-	for ( int i = 0; i < surfaces.Num(); i++ ) {
+	for ( size_t i = 0; i < surfaces.Num(); i++ ) {
 		const guiModelSurface_t & guiSurf = surfaces[i];
 		if ( guiSurf.numIndexes == 0 ) {
 			continue;
@@ -187,7 +187,7 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 EmitToCurrentView
 ====================
 */
-void idGuiModel::EmitToCurrentView( float modelMatrix[16], bool depthHack ) {
+void idGuiModel::EmitToCurrentView( float modelMatrix[16], const bool depthHack ) {
 	float	modelViewMatrix[16];
 
 	R_MatrixMultiply( modelMatrix, tr.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
@@ -359,11 +359,11 @@ idDrawVert * idGuiModel::AllocTris( const size_t vertCount, const triIndex_t * t
 	if ( ( startIndex & 1 ) || ( indexCount & 1 ) ) {
 		// slow for write combined memory!
 		// this should be very rare, since quads are always an even index count
-		for ( int i = 0; i < indexCount; i++ ) {
+		for ( size_t i = 0; i < indexCount; i++ ) {
 			indexPointer[startIndex + i] = startVert + tempIndexes[i];
 		}
 	} else {
-		for ( int i = 0; i < indexCount; i += 2 ) {
+		for ( size_t i = 0; i < indexCount; i += 2 ) {
 			WriteIndexPair( indexPointer + startIndex + i, startVert + tempIndexes[i], startVert + tempIndexes[i+1] );
 		}
 	}

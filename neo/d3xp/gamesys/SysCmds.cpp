@@ -40,9 +40,7 @@ Cmd_GetFloatArg
 ==================
 */
 float Cmd_GetFloatArg( const idCmdArgs &args, int &argNum ) {
-	const char *value;
-
-	value = args.Argv( argNum++ );
+	const char* value = args.Argv(argNum++);
 	return atof( value );
 }
 
@@ -403,7 +401,7 @@ void Cmd_Give_f( const idCmdArgs &args ) {
 		} else if ( idStr::Icmp( args.Argv(2), "all" ) == 0 ) {
 			// Give the personal PDA first
 			player->GivePDA( NULL, NULL );
-			for ( int i = 0; i < declManager->GetNumDecls( DECL_PDA ); i++ ) {
+			for ( size_t i = 0; i < declManager->GetNumDecls( DECL_PDA ); i++ ) {
 				player->GivePDA( static_cast<const idDeclPDA *>( declManager->DeclByIndex( DECL_PDA, i ) ), NULL );
 			}
 		} else {
@@ -2075,7 +2073,7 @@ helper function for Cmd_NextGUI_f.  Checks the passed entity to determine if it
 has any valid gui surfaces.
 =================
 */
-bool FindEntityGUIs( idEntity *ent, const modelSurface_t ** surfaces,  int maxSurfs, int &guiSurfaces ) {
+bool FindEntityGUIs( idEntity *ent, const modelSurface_t ** surfaces,  size_t maxSurfs, int &guiSurfaces ) {
 	renderEntity_t			*renderEnt;
 	idRenderModel			*renderModel;
 	const modelSurface_t	*surf;

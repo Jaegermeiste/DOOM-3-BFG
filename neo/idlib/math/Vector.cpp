@@ -56,7 +56,7 @@ const char *idVec2::ToString( const size_t precision ) const {
 =============
 Lerp
 
-Linearly inperpolates one vector to another.
+Linearly interpolates one vector to another.
 =============
 */
 void idVec2::Lerp( const idVec2 &v1, const idVec2 &v2, const float l ) {
@@ -222,7 +222,7 @@ const char *idVec3::ToString( const size_t precision ) const {
 =============
 Lerp
 
-Linearly inperpolates one vector to another.
+Linearly interpolates one vector to another.
 =============
 */
 void idVec3::Lerp( const idVec3 &v1, const idVec3 &v2, const float l ) {
@@ -243,7 +243,7 @@ Spherical linear interpolation from v1 to v2.
 Vectors are expected to be normalized.
 =============
 */
-#define LERP_DELTA 1e-6
+constexpr auto LERP_DELTA = 1e-6;
 
 void idVec3::SLerp( const idVec3 &v1, const idVec3 &v2, const float t ) {
 	float scale0, scale1;
@@ -308,7 +308,7 @@ const char *idVec4::ToString( const size_t precision ) const {
 =============
 Lerp
 
-Linearly inperpolates one vector to another.
+Linearly interpolates one vector to another.
 =============
 */
 void idVec4::Lerp( const idVec4 &v1, const idVec4 &v2, const float l ) {

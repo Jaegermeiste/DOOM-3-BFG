@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 
 This routine performs a tight packing of a list of rectangles, attempting to minimize the area
-of the rectangle that encloses all of them.  Algorithm order is N^2, so it is not apropriate
+of the rectangle that encloses all of them.  Algorithm order is N^2, so it is not appropriate
 for lists with many thousands of elements.
 
 Contrast with idBitBlockAllocator, which is used incrementally with either fixed size or
@@ -54,23 +54,29 @@ static float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec
 		return 0;
 	}
 	int	inputArea = 0;
-	for ( int i = 0 ; i < inputSizes.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < inputSizes.Num() ; i++ ) {
 		inputArea += inputSizes[i].Area();
 	}
-	return static_cast<float>(inputArea) / totalArea;
+	return numeric_cast<float>(inputArea) / numeric_cast<float>(totalArea);
 }
 
-class idSortrects : public idSort_Quick< int, idSortrects > {
+
+class idSortrects : public idSort_Quick< size_t, idSortrects > {
 public:
-	[[nodiscard]] int SizeMetric(const idVec2i v ) const {
+	[[nodiscard]] static size_t SizeMetric( const idVec2i v )
+	{
 		// skinny rects will sort earlier than square ones, because
 		// they are more likely to grow the entire region
-		return v.x * v.x + v.y * v.y;
+		return (v.x * v.x) + (v.y * v.y);
 	}
 
-	[[nodiscard]] int Compare( const int & a, const int & b ) const {
+	[[nodiscard]] size_t Compare( const Ordinal auto & a, const Ordinal auto & b ) const {
+		ORDINAL_CHECK( a, inputSizes->Num() );
+		ORDINAL_CHECK( b, inputSizes->Num() );
+
 		return SizeMetric( (*inputSizes)[b] ) - SizeMetric( (*inputSizes)[a] );
 	}
+
 	const idList<idVec2i> *inputSizes;
 };
 
@@ -80,16 +86,16 @@ static void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &o
 		totalSize.Set( 0, 0 );
 		return;
 	}
-	idList<int> sizeRemap;
+	idList<size_t> sizeRemap = {};
 	sizeRemap.SetNum( inputSizes.Num() );
-	for ( int i = 0; i < inputSizes.Num(); i++ ) {
+	for ( size_t i = 0; i < inputSizes.Num(); i++ ) {
 		sizeRemap[i] = i;
 	}
 
 	// Sort the rects from largest to smallest (it makes allocating them in the image better)
-	idSortrects sortrectsBySize;
-	sortrectsBySize.inputSizes = &inputSizes;
-	sizeRemap.SortWithTemplate( sortrectsBySize );
+	idSortrects sortRectsBySize = {};
+	sortRectsBySize.inputSizes = &inputSizes;
+	sizeRemap.SortWithTemplate( sortRectsBySize );
 
 	// the largest rect goes to the top-left corner
 	outputPositions[sizeRemap[0]].Set( 0, 0 );
@@ -102,19 +108,19 @@ static void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &o
 	// in the allocated rectangles, rather than just the corners of each rectangle, but it
 	// still does a pretty good job.
 	static constexpr int START_MAX = 1<<14;
-	for ( int i = 1; i < inputSizes.Num(); i++ ) {
+	for ( size_t i = 1; i < inputSizes.Num(); i++ ) {
 		idVec2i	best( 0, 0 );
 		idVec2i	bestMax( START_MAX, START_MAX );
 		idVec2i	size = inputSizes[sizeRemap[i]];
-		for ( int j = 0; j < i; j++ ) {
-			for ( int k = 1;  k < 4; k++ ) {
-				idVec2i	test;
-				for ( int n = 0 ; n < 2 ; n++ ) {
-					test[n] = outputPositions[sizeRemap[j]][n] + ( ( k >> n ) & 1 ) * inputSizes[sizeRemap[j]][n];
+		for ( size_t j = 0; j < i; j++ ) {
+			for ( size_t k = 1;  k < 4; k++ ) {
+				idVec2i	test = {};
+				for ( size_t n = 0 ; n < 2 ; n++ ) {
+					test[n] = numeric_cast<int32>(outputPositions[sizeRemap[j]][n] + ( ( k >> n ) & 1 ) * inputSizes[sizeRemap[j]][n]);
 				}
 
-				idVec2i	newMax;
-				for ( int n = 0 ; n < 2 ; n++ ) {
+				idVec2i	newMax = {};
+				for ( size_t n = 0 ; n < 2 ; n++ ) {
 					newMax[n] = Max( totalSize[n], test[n] + size[n] );
 				}
 				// widths must be multiples of 128 pixels / 32 DXT blocks to
@@ -131,8 +137,8 @@ static void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &o
 				// if we have already found a spot that keeps the image smaller, don't bother checking here
 				// This calculation biases the rect towards more square shapes instead of
 				// allowing it to extend in one dimension for a long time.
-				const int	newSize = newMax.x * newMax.x + newMax.y * newMax.y;
-				const int	bestSize = bestMax.x * bestMax.x + bestMax.y * bestMax.y;
+				const int32	newSize = newMax.x * newMax.x + newMax.y * newMax.y;
+				const int32	bestSize = bestMax.x * bestMax.x + bestMax.y * bestMax.y;
 				if ( newSize > bestSize ) {
 					continue;
 				}
@@ -143,7 +149,7 @@ static void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &o
 				}
 
 				// see if this spot overlaps any already allocated rect
-				int n = 0;
+				size_t n = 0;
 				for ( ; n < i; n++ ) {
 					const idVec2i &check = outputPositions[sizeRemap[n]];
 					const idVec2i &checkSize = inputSizes[sizeRemap[n]];

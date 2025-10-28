@@ -97,7 +97,7 @@ typedef struct {
 
 static WinConData s_wcd;
 
-static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+static LONG WINAPI ConWndProc(const HWND hWnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
 	char *cmdString;
 	static bool s_timePolarity;
 
@@ -191,7 +191,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
-static LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+static LONG WINAPI InputLineWndProc(const HWND hWnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
 	int key = 0, cursor = 0;
 	switch ( uMsg ) {
 	case WM_KILLFOCUS:
@@ -428,7 +428,7 @@ void Sys_DestroyConsole() {
 /*
 ** Sys_ShowConsole
 */
-void Sys_ShowConsole( int visLevel, bool quitOnClose ) {
+void Sys_ShowConsole(const int visLevel, const bool quitOnClose ) {
 
 	s_wcd.quitOnClose = quitOnClose;
 

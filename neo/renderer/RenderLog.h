@@ -83,11 +83,11 @@ public:
 	void		StartFrame();
 	void		EndFrame();
 	void		Close();
-				[[nodiscard]] int			Active() const { return activeLevel; }	// returns greater than 1 for more detailed logging
+	[[nodiscard]] int			Active() const { return activeLevel; }	// returns greater than 1 for more detailed logging
 
 	// The label must be a constant string literal and may not point to a temporary.
-	void		OpenMainBlock( renderLogMainBlock_t block );
-	void		CloseMainBlock();
+	static void		OpenMainBlock( renderLogMainBlock_t block );
+	static void		CloseMainBlock();
 
 	void		OpenBlock( const char * label );
 	void		CloseBlock();
@@ -97,7 +97,7 @@ public:
 
 	void		Printf( VERIFY_FORMAT_STRING const char *fmt, ... );
 
-	static constexpr int		MAX_LOG_LEVELS = 20;
+	static constexpr size_t		MAX_LOG_LEVELS = 20;
 
 	int						activeLevel;
 	renderLogIndentLabel_t	indentLabel[MAX_LOG_LEVELS];
@@ -127,7 +127,7 @@ public:
 idRenderLog::Indent
 ========================
 */
-ID_INLINE void idRenderLog::Indent( renderLogIndentLabel_t label ) {
+ID_INLINE void idRenderLog::Indent(const renderLogIndentLabel_t label ) {
 	if ( logFile != nullptr) {
 		indentLabel[indentLevel] = label;
 		indentLevel++;
@@ -143,7 +143,7 @@ ID_INLINE void idRenderLog::Indent( renderLogIndentLabel_t label ) {
 idRenderLog::Outdent
 ========================
 */
-ID_INLINE void idRenderLog::Outdent( renderLogIndentLabel_t label ) {
+ID_INLINE void idRenderLog::Outdent(const renderLogIndentLabel_t label ) {
 	if ( logFile != nullptr && indentLevel > 0 ) {
 		indentLevel--;
 		assert( indentLabel[indentLevel] == label );	// indent and outdent out of sync ?

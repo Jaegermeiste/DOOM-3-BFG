@@ -45,7 +45,7 @@ void idHashIndex::Init( const size_t initialHashSize, const size_t initialIndexS
 	indexSize = initialIndexSize;
 	indexChain = INVALID_INDEX;
 	granularity = DEFAULT_HASH_GRANULARITY;
-	hashMask = idMath::integer_cast<int64>(hashSize) - 1;
+	hashMask = numeric_cast<int64>(hashSize) - 1;
 	lookupMask = 0;
 }
 
@@ -64,7 +64,7 @@ void idHashIndex::Allocate( const size_t newHashSize, const size_t newIndexSize 
 	indexSize = newIndexSize;
 	indexChain = new (TAG_IDLIB_HASH) int64[indexSize];
 	memset( indexChain, 0xff, indexSize * sizeof( indexChain[0] ) );
-	hashMask = idMath::integer_cast<int64>(hashSize) - 1;
+	hashMask = numeric_cast<int64>(hashSize) - 1;
 	lookupMask = -1;
 }
 
@@ -130,7 +130,7 @@ uint8 idHashIndex::GetSpread() const {
 	}
 
 	size_t totalItems = 0;
-	int64* numHashItems = new(TAG_IDLIB_HASH) int64[hashSize];
+	auto* numHashItems = new(TAG_IDLIB_HASH) size_t[hashSize];
 	for ( i = 0; i < hashSize; i++ ) {
 		numHashItems[i] = 0;
 		for ( int64 index = hash[i]; index >= 0; index = indexChain[index] ) {
@@ -143,14 +143,14 @@ uint8 idHashIndex::GetSpread() const {
 		delete[] numHashItems;
 		return 100;
 	}
-	const int64 average = totalItems / hashSize;
+	const auto average = totalItems / hashSize;
 	int64 error = 0;
 	for ( i = 0; i < hashSize; i++ ) {
-		const int64 e = abs(numHashItems[i] - average);
+		const int64 e = abs(numeric_cast<BASE_TYPE(e)>(numHashItems[i]) - numeric_cast<BASE_TYPE(e)>(average));
 		if ( e > 1 ) {
 			error += e - 1;
 		}
 	}
 	delete[] numHashItems;
-	return idMath::integer_cast<uint8>(100 - (error * 100 / idMath::integer_cast<int64>(totalItems)));
+	return numeric_cast<uint8>(100 - (error * 100 / totalItems));
 }

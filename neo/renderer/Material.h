@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -338,14 +340,14 @@ class idSoundEmitter;
 class idMaterial : public idDecl {
 public:
 						idMaterial();
-	virtual				~idMaterial();
+						~idMaterial() override;
 
-	virtual size_t		Size() const;
-	virtual bool		SetDefaultText();
-	virtual const char *DefaultDefinition() const;
-	virtual bool		Parse( const char *text, const size_t textLength, bool allowBinaryVersion );
-	virtual void		FreeData();
-	virtual void		Print() const;
+	size_t		Size() const override;
+	bool		SetDefaultText() override;
+	const char *DefaultDefinition() const override;
+	bool		Parse( const char *text, const size_t textLength, const bool allowBinaryVersion ) override;
+	void		FreeData() override;
+	void		Print() const override;
 
 	//BSM Nerve: Added for material editor
 	bool				Save( const char *fileName = nullptr) const;
@@ -363,12 +365,12 @@ public:
 						// if the material is simple, all that needs to be known are
 						// the images for drawing.
 						// These will either all return valid images, or all return NULL
-	idImage *			GetFastPathBumpImage() const { return fastPathBumpImage; };
-	idImage *			GetFastPathDiffuseImage() const { return fastPathDiffuseImage; };
-	idImage *			GetFastPathSpecularImage() const { return fastPathSpecularImage; };
+	idImage *			GetFastPathBumpImage() const { return fastPathBumpImage; }
+	idImage *			GetFastPathDiffuseImage() const { return fastPathDiffuseImage; }
+	idImage *			GetFastPathSpecularImage() const { return fastPathSpecularImage; }
 
 						// get a specific stage
-	const shaderStage_t *GetStage( const Ordinal auto index ) const { ORDINAL_CHECK(index, numStages); return &stages[index]; }
+	const shaderStage_t *GetStage( const index_t index ) const { ORDINAL_CHECK(index, numStages); return &stages[index]; }
 
 						// get the first bump map stage, or NULL if not present.
 						// used for bumpy-specular
@@ -380,7 +382,7 @@ public:
 						// as noShadow
 	bool				IsDrawn() const { return ( numStages > 0 || entityGui != 0 || gui != nullptr); }
 
-						// returns true if the material will draw any non light interaction stages
+						// returns true if the material will draw any non-light interaction stages
 	bool				HasAmbient() const { return ( numAmbientStages > 0 ); }
 
 						// returns true if material has a gui
@@ -411,7 +413,7 @@ public:
 						// the normal and tangent vectors won't be correct for the back sides.  When two
 						// sided lighting is desired. typically for alpha tested surfaces, this is
 						// addressed by having CleanupModelSurfaces() create duplicates of all the triangles
-						// with apropriate order reversal.
+						// with appropriate order reversal.
 	bool				ShouldCreateBackSides() const { return shouldCreateBackSides; }
 
 						// characters and models that are created by a complete renderbump can use a faster
@@ -438,10 +440,10 @@ public:
 	idUserInterface	*	GlobalGui() const { return gui; }
 
 						// a discrete surface will never be merged with other surfaces by dmap, which is
-						// necessary to prevent mutliple gui surfaces, mirrors, autosprites, and some other
+						// necessary to prevent multiple gui surfaces, mirrors, autosprites, and some other
 						// special effects from being combined into a single surface
 						// guis, merging sprites or other effects, mirrors and remote views are always discrete
-	bool				IsDiscrete() const { return ( entityGui || gui || deform != DFRM_NONE || sort == static_cast<int>(SS_SUBVIEW) ||
+	bool				IsDiscrete() const { return ( entityGui || gui || deform != DFRM_NONE || std::equal_to<>()(sort, numeric_cast<float>(SS_SUBVIEW)) ||
 												( surfaceFlags & SURF_DISCRETE ) != 0 ); }
 
 						// Normally, dmap chops each surface by every BSP boundary, then reoptimizes.
@@ -473,7 +475,7 @@ public:
 
 						// fog lights, blend lights, ambient lights, etc will all have to have interaction
 						// triangles generated for sides facing away from the light as well as those
-						// facing towards the light.  It is debatable if noshadow lights should effect back
+						// facing towards the light.  It is debatable if noshadow lights should affect back
 						// sides, making everything "noSelfShadow", but that would make noshadow lights
 						// potentially slower than normal lights, which detracts from their optimization
 						// ability, so they currently do not.
@@ -485,7 +487,7 @@ public:
 	//------------------------------------------------------------------
 
 						// returns the renderbump command line for this shader, or an empty string if not present
-	const char *		GetRenderBump() const { return renderBump; };
+	const char *		GetRenderBump() const { return renderBump; }
 
 						// set specific material flag(s)
 	void				SetMaterialFlag( const int flag ) const { materialFlags |= flag; }
@@ -516,13 +518,13 @@ public:
 						// this is only used by the gui system to force sorting order
 						// on images referenced from tga's instead of materials. 
 						// this is done this way as there are 2000 tgas the guis use
-	void				SetSort( float s ) const { sort = s; };
+	void				SetSort(const float s ) const { sort = s; }
 
 						// DFRM_NONE, DFRM_SPRITE, etc
 	deform_t			Deform() const { return deform; }
 
 						// flare size, expansion size, etc
-	const int			GetDeformRegister( int index ) const { return deformRegisters[index]; }
+	const int			GetDeformRegister(const index_t index ) const { return deformRegisters[index]; }
 
 						// particle system to emit from surface and table for turbulent
 	const idDecl		*GetDeformDecl() const { return deformDecl; }
@@ -549,7 +551,7 @@ public:
 	float				GetPolygonOffset() const { return polygonOffset; }
 
 	float				GetSurfaceArea() const { return surfaceArea; }
-	void				AddToSurfaceArea( float area ) { surfaceArea += area; }
+	void				AddToSurfaceArea(const float area ) { surfaceArea += area; }
 
 	//------------------------------------------------------------------
 
@@ -559,11 +561,11 @@ public:
 
 	void				CloseCinematic() const;
 
-	void				ResetCinematicTime( int time ) const;
+	void				ResetCinematicTime( ID_TIME_T time ) const;
 
 	ID_TIME_T			GetCinematicStartTime() const;
 
-	void				UpdateCinematic( int time ) const;
+	void				UpdateCinematic( ID_TIME_T time ) const;
 
 	//------------------------------------------------------------------
 
@@ -592,10 +594,10 @@ public:
 						// if a material only uses constants (no entityParm or globalparm references), this
 						// will return a pointer to an internal table, and EvaluateRegisters will not need
 						// to be called.  If NULL is returned, EvaluateRegisters must be used.
-	const float *		ConstantRegisters() const				{ return constantRegisters; };
+	const float *		ConstantRegisters() const				{ return constantRegisters; }
 
-	bool				SuppressInSubview() const				{ return suppressInSubview; };
-	bool				IsPortalSky() const						{ return portalSky; };
+	bool				SuppressInSubview() const				{ return suppressInSubview; }
+	bool				IsPortalSky() const						{ return portalSky; }
 	void				AddReference();
 
 private:
@@ -695,7 +697,7 @@ private:
 
 	// we defer loading of the editor image until it is asked for, so the game doesn't load up
 	// all the invisible and uncompressed images.
-	// If editorImage is NULL, it will atempt to load editorImageName, and set editorImage to that or defaultImage
+	// If editorImage is NULL, it will attempt to load editorImageName, and set editorImage to that or defaultImage
 	idStr				editorImageName;
 	mutable idImage *	editorImage;		// image used for non-shaded preview
 	float				editorAlpha;

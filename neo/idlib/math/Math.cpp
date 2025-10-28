@@ -80,13 +80,13 @@ idMath::Init
 void idMath::Init() {
     union _flint fi = {}, fo = {};
 
-    for ( int i = 0; i < SQRT_TABLE_SIZE; i++ ) {
-        fi.i	 = ((EXP_BIAS-1) << EXP_POS) | (i << LOOKUP_POS);
-        fo.f	 = static_cast<float>(1.0 / sqrt(fi.f));
+    for ( size_t i = 0; i < SQRT_TABLE_SIZE; i++ ) {
+        fi.i	 = numeric_cast<decltype(fi.i)>(((EXP_BIAS-1) << EXP_POS) | (i << LOOKUP_POS));
+        fo.f	 = (1.0f / sqrtf(fi.f));
         iSqrt[i] = ((((fo.i + (1<<(SEED_POS-2))) >> SEED_POS) & 0xFF))<<SEED_POS;
     }
     
-	iSqrt[SQRT_TABLE_SIZE / 2] = static_cast<dword>(0xFF)<<(SEED_POS); 
+	iSqrt[SQRT_TABLE_SIZE / 2] = numeric_cast<dword>(0xFF)<<(SEED_POS);
 
 	initialized = true;
 }
@@ -126,7 +126,7 @@ int idMath::FloatToBits( float f, int exponentBits, const int mantissaBits ) {
 	const int exponent = ((i >> IEEE_FLT_MANTISSA_BITS) & ((1 << IEEE_FLT_EXPONENT_BITS) - 1)) - IEEE_FLT_EXPONENT_BIAS;
 	const int mantissa = i & ((1 << IEEE_FLT_MANTISSA_BITS) - 1);
 	int value = sign << (1 + exponentBits + mantissaBits);
-	value |= ( ( INT32_SIGNBITSET( exponent ) << exponentBits ) | ( abs( exponent ) & ( ( 1 << exponentBits ) - 1 ) ) ) << mantissaBits;
+	value |= ( (INTEGER_SIGN_BIT_IS_SET( exponent ) << exponentBits ) | ( abs( exponent ) & ( ( 1 << exponentBits ) - 1 ) ) ) << mantissaBits;
 	value |= mantissa >> ( IEEE_FLT_MANTISSA_BITS - mantissaBits );
 	return value;
 }

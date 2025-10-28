@@ -62,7 +62,7 @@ stereoDepth( 0 )
 idSWFSpriteInstance::Init
 ========================
 */
-void idSWFSpriteInstance::Init( idSWFSprite * _sprite, idSWFSpriteInstance * _parent, int _depth )  {
+void idSWFSpriteInstance::Init( idSWFSprite * _sprite, idSWFSpriteInstance * _parent, const int _depth )  {
 	sprite = _sprite;
 	parent = _parent;
 	depth = _depth;
@@ -114,7 +114,7 @@ idSWFSpriteInstance::FreeDisplayList
 ========================
 */
 void idSWFSpriteInstance::FreeDisplayList() {
-	for ( int i = 0; i < displayList.Num(); i++ ) {
+	for ( size_t i = 0; i < displayList.Num(); i++ ) {
 		sprite->swf->spriteInstanceAllocator.Free( displayList[i].spriteInstance );
 		sprite->swf->textInstanceAllocator.Free( displayList[i].textInstance );
 	}
@@ -127,8 +127,8 @@ void idSWFSpriteInstance::FreeDisplayList() {
 idSWFSpriteInstance::FindDisplayEntry
 ========================
 */
-swfDisplayEntry_t * idSWFSpriteInstance::FindDisplayEntry( int depth ) {
-	int len = displayList.Num();
+swfDisplayEntry_t * idSWFSpriteInstance::FindDisplayEntry(const int depth ) {
+	size_t len = displayList.Num();
 	int mid = len;
 	int offset = 0;
 	while ( mid > 0 ) {
@@ -149,7 +149,7 @@ swfDisplayEntry_t * idSWFSpriteInstance::FindDisplayEntry( int depth ) {
 idSWFSpriteInstance::AddDisplayEntry
 ========================
 */
-swfDisplayEntry_t * idSWFSpriteInstance::AddDisplayEntry( int depth, int characterID ) {
+swfDisplayEntry_t * idSWFSpriteInstance::AddDisplayEntry(const int depth, const int characterID ) {
 	int i = 0;
 	for ( ; i < displayList.Num(); i++ ) {
 		if ( displayList[i].depth == depth ) {
@@ -183,7 +183,7 @@ swfDisplayEntry_t * idSWFSpriteInstance::AddDisplayEntry( int depth, int charact
 idSWFSpriteInstance::RemoveDisplayEntry
 ========================
 */
-void idSWFSpriteInstance::RemoveDisplayEntry( int depth ) {
+void idSWFSpriteInstance::RemoveDisplayEntry(const int depth ) {
 	swfDisplayEntry_t * entry = FindDisplayEntry( depth );
 	if ( entry != nullptr) {
 		sprite->swf->spriteInstanceAllocator.Free( entry->spriteInstance );
@@ -207,8 +207,8 @@ public:
 idSWFSpriteInstance::SwapDepths
 ========================
 */
-void idSWFSpriteInstance::SwapDepths( int depth1, int depth2 ) {
-	for ( int i = 0; i < displayList.Num(); i++ ) {
+void idSWFSpriteInstance::SwapDepths(const int depth1, const int depth2 ) {
+	for ( size_t i = 0; i < displayList.Num(); i++ ) {
 		if ( displayList[i].depth == depth1 ) {
 			displayList[i].depth = depth2;
 
@@ -235,12 +235,12 @@ bool idSWFSpriteInstance::Run() {
 
 	if ( childrenRunning ) {
 		childrenRunning = false;
-		for ( int i = 0; i < displayList.Num(); i++ ) {
+		for ( size_t i = 0; i < displayList.Num(); i++ ) {
 			if ( displayList[i].spriteInstance != nullptr) {
 				Prefetch( displayList[i].spriteInstance, 0 );
 			}
 		}
-		for ( int i = 0; i < displayList.Num(); i++ ) {
+		for ( size_t i = 0; i < displayList.Num(); i++ ) {
 			if ( displayList[i].spriteInstance != nullptr) {
 				childrenRunning |= displayList[i].spriteInstance->Run();
 			}
@@ -280,18 +280,18 @@ bool idSWFSpriteInstance::RunActions() {
 		onEnterFrame.GetFunction()->Call( scriptObject, idSWFParmList() );
 	}
 
-	for ( int i = 0; i < actions.Num(); i++ ) {
+	for ( size_t i = 0; i < actions.Num(); i++ ) {
 		actionScript->SetData( actions[i].data, actions[i].dataLength );
 		actionScript->Call( scriptObject, idSWFParmList() );
 	}
 	actions.SetNum( 0 );
 
-	for ( int i = 0; i < displayList.Num(); i++ ) {
+	for ( size_t i = 0; i < displayList.Num(); i++ ) {
 		if ( displayList[i].spriteInstance != nullptr) {
 			Prefetch( displayList[i].spriteInstance, 0 );
 		}
 	}
-	for ( int i = 0; i < displayList.Num(); i++ ) {
+	for ( size_t i = 0; i < displayList.Num(); i++ ) {
 		if ( displayList[i].spriteInstance != nullptr) {
 			displayList[i].spriteInstance->RunActions();
 		}
@@ -380,11 +380,11 @@ void idSWFSpriteInstance::RunTo( int targetFrame ) {
 		command.stream.Rewind();
 		switch ( command.tag ) {
 #define HANDLE_SWF_TAG( x ) case Tag_##x: x( command.stream ); break;
-		HANDLE_SWF_TAG( PlaceObject2 );
-		HANDLE_SWF_TAG( PlaceObject3 );
-		HANDLE_SWF_TAG( RemoveObject2 );
-		HANDLE_SWF_TAG( StartSound );
-		HANDLE_SWF_TAG( DoAction );
+	HANDLE_SWF_TAG( PlaceObject2 )
+HANDLE_SWF_TAG( PlaceObject3 )
+HANDLE_SWF_TAG( RemoveObject2 )
+HANDLE_SWF_TAG( StartSound )
+HANDLE_SWF_TAG( DoAction )
 #undef HANDLE_SWF_TAG
 		default:
 			idLib::Printf( "Run Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
@@ -411,7 +411,7 @@ idSWFSpriteInstance::FindChildSprite
 ========================
 */
 idSWFSpriteInstance * idSWFSpriteInstance::FindChildSprite( const char * targetName ) {
-	for ( int i = 0; i < displayList.Num(); i++ ) {
+	for ( size_t i = 0; i < displayList.Num(); i++ ) {
 		if ( displayList[i].spriteInstance != nullptr) {
 			if ( displayList[i].spriteInstance->name.Icmp( targetName ) == 0 ) {
 				return displayList[i].spriteInstance;
@@ -444,11 +444,11 @@ idSWFSpriteInstance * idSWFSpriteInstance::ResolveTarget( const char * targetNam
 	}
 	idStrList spriteNames;
 	spriteNames.Append( c );
-	for ( int index = 0, ofs = spriteNames[index].Find( '/' ); ofs != -1; index++, ofs = spriteNames[index].Find( '/' ) ) {
+	for ( index_t index = 0, ofs = spriteNames[index].Find( '/' ); ofs != -1; index++, ofs = spriteNames[index].Find( '/' ) ) {
 		spriteNames.Append( spriteNames[index].c_str() + ofs + 1 );
 		spriteNames[index].CapLength( ofs );
 	}
-	for ( int i = 0; i < spriteNames.Num(); i++ ) {
+	for ( size_t i = 0; i < spriteNames.Num(); i++ ) {
 		if ( spriteNames[i] == ".." ) {
 			target = target->parent;
 		} else {
@@ -468,12 +468,12 @@ idSWFSpriteInstance * idSWFSpriteInstance::ResolveTarget( const char * targetNam
 idSWFSpriteInstance::FindFrame
 ========================
 */
-uint32 idSWFSpriteInstance::FindFrame( const char * labelName ) const {
-	int frameNum = atoi( labelName );
+index_t idSWFSpriteInstance::FindFrame( const char * labelName ) const {
+	index_t frameNum = idStr::AtoI<index_t>( labelName );
 	if ( frameNum > 0 ) {
 		return frameNum;
 	}
-	for ( int i = 0; i < sprite->frameLabels.Num(); i++ ) {
+	for ( size_t i = 0; i < sprite->frameLabels.Num(); i++ ) {
 		if ( sprite->frameLabels[i].frameLabel.Icmp( labelName ) == 0 ) {
 			return sprite->frameLabels[i].frameNum;
 		}
@@ -493,7 +493,7 @@ bool idSWFSpriteInstance::FrameExists( const char * labelName ) const {
 		return frameNum <= sprite->frameCount;
 	}
 
-	for ( int i = 0; i < sprite->frameLabels.Num(); i++ ) {
+	for ( size_t i = 0; i < sprite->frameLabels.Num(); i++ ) {
 		if ( sprite->frameLabels[i].frameLabel.Icmp( labelName ) == 0 ) {
 			return true;
 		}
@@ -517,7 +517,7 @@ bool idSWFSpriteInstance::IsBetweenFrames( const char * frameLabel1, const char 
 idSWFSpriteInstance::SetMaterial
 ========================
 */
-void idSWFSpriteInstance::SetMaterial( const idMaterial * material, int width, int height ) {
+void idSWFSpriteInstance::SetMaterial( const idMaterial * material, const int16 width, const int16 height ) {
 	materialOverride = material;
 
 	if ( materialOverride != nullptr) {
@@ -528,8 +528,8 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial * material, int width, i
 		} else {
 			assert( materialOverride->GetImageWidth() > 0 && materialOverride->GetImageHeight() > 0 );
 			assert( materialOverride->GetImageWidth() <= 8192 && materialOverride->GetImageHeight() <= 8192 );
-			materialWidth = static_cast<uint16>(materialOverride->GetImageWidth());
-			materialHeight = static_cast<uint16>(materialOverride->GetImageHeight());
+			materialWidth = numeric_cast<uint16>(materialOverride->GetImageWidth());
+			materialHeight = numeric_cast<uint16>(materialOverride->GetImageHeight());
 		}
 	} else {
 		materialWidth = 0;
@@ -537,11 +537,11 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial * material, int width, i
 	}
 
 	if ( width >= 0 ) {
-		materialWidth = static_cast<uint16>(width);
+		materialWidth = numeric_cast<uint16>(width);
 	}
 
 	if ( height >= 0 ) {
-		materialHeight = static_cast<uint16>(height);
+		materialHeight = numeric_cast<uint16>(height);
 	}
 }
 
@@ -550,7 +550,7 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial * material, int width, i
 idSWFSpriteInstance::SetVisible
 ========================
 */
-void idSWFSpriteInstance::SetVisible( bool visible ) {
+void idSWFSpriteInstance::SetVisible(const bool visible ) {
 	isVisible = visible;
 	if ( isVisible ) {
 		for ( idSWFSpriteInstance * p = parent; p != nullptr; p = p->parent ) {
@@ -635,7 +635,7 @@ float idSWFSpriteInstance::GetYPos( bool overallPos ) const {
 idSWFSpriteInstance::SetXPos
 ========================
 */
-void idSWFSpriteInstance::SetXPos( float xPos ) const
+void idSWFSpriteInstance::SetXPos(const float xPos ) const
 {
 	if ( parent == nullptr) {
 		return;
@@ -655,7 +655,7 @@ void idSWFSpriteInstance::SetXPos( float xPos ) const
 idSWFSpriteInstance::SetYPos
 ========================
 */
-void idSWFSpriteInstance::SetYPos( float yPos ) const
+void idSWFSpriteInstance::SetYPos(const float yPos ) const
 {
 	if ( parent == nullptr) {
 		return;
@@ -675,7 +675,7 @@ void idSWFSpriteInstance::SetYPos( float yPos ) const
 idSWFSpriteInstance::SetPos
 ========================
 */
-void idSWFSpriteInstance::SetPos( float xPos, float yPos ) const
+void idSWFSpriteInstance::SetPos(const float xPos, const float yPos ) const
 {
 	if ( parent == nullptr) {
 		return;
@@ -696,7 +696,7 @@ void idSWFSpriteInstance::SetPos( float xPos, float yPos ) const
 idSWFSpriteInstance::SetRotation
 ========================
 */
-void idSWFSpriteInstance::SetRotation( float rot ) const
+void idSWFSpriteInstance::SetRotation(const float rot ) const
 {
 	if ( parent == nullptr) {
 		return;
@@ -724,7 +724,7 @@ void idSWFSpriteInstance::SetRotation( float rot ) const
 idSWFSpriteInstance::SetScale
 ========================
 */
-void idSWFSpriteInstance::SetScale( float x, float y ) const
+void idSWFSpriteInstance::SetScale(const float x, const float y ) const
 {
 	if ( parent == nullptr) {
 		return;
@@ -763,7 +763,7 @@ void idSWFSpriteInstance::SetScale( float x, float y ) const
 idSWFSpriteInstance::SetMoveToScale
 ========================
 */
-void idSWFSpriteInstance::SetMoveToScale( float x, float y ) {
+void idSWFSpriteInstance::SetMoveToScale(const float x, const float y ) {
 	moveToXScale = x;
 	moveToYScale = y;
 }
@@ -773,7 +773,7 @@ void idSWFSpriteInstance::SetMoveToScale( float x, float y ) {
 idSWFSpriteInstance::SetMoveToScale
 ========================
 */
-bool idSWFSpriteInstance::UpdateMoveToScale( float speed ) {
+bool idSWFSpriteInstance::UpdateMoveToScale(const float speed ) {
 
 	if ( parent == nullptr) {
 		return false;
@@ -798,10 +798,10 @@ bool idSWFSpriteInstance::UpdateMoveToScale( float speed ) {
 		toY = moveToYScale * 100.0f;
 	}
 
-	int rXTo = idMath::Ftoi( toX + 0.5f );
-	int rYTo = idMath::Ftoi( toY + 0.5f );
-	int rXScale = idMath::Ftoi( xscale + 0.5f );
-	int rYScale = idMath::Ftoi( yscale + 0.5f );
+	int rXTo = numeric_cast<int>( toX + 0.5f );
+	int rYTo = numeric_cast<int>( toY + 0.5f );
+	int rXScale = numeric_cast<int>( xscale + 0.5f );
+	int rYScale = numeric_cast<int>( yscale + 0.5f );
 
 	if ( rXTo == rXScale && rYTo == rYScale ) {
 		return false;
@@ -839,7 +839,7 @@ bool idSWFSpriteInstance::UpdateMoveToScale( float speed ) {
 idSWFSpriteInstance::SetAlpha
 ========================
 */
-void idSWFSpriteInstance::SetAlpha( float val ) const
+void idSWFSpriteInstance::SetAlpha(const float val ) const
 {
 	if ( parent == nullptr) {
 		return;
@@ -869,52 +869,53 @@ idSWFScriptObject_SpriteInstancePrototype
 #define SWF_SPRITE_FUNCTION_SET( x ) scriptFunction_##x.AddRef(); Set( #x, &scriptFunction_##x );
 #define SWF_SPRITE_NATIVE_VAR_SET( x ) SetNative( #x, &swfScriptVar_##x );
 
-idSWFScriptObject_SpriteInstancePrototype::idSWFScriptObject_SpriteInstancePrototype() {
-	SWF_SPRITE_FUNCTION_SET( duplicateMovieClip );
-	SWF_SPRITE_FUNCTION_SET( gotoAndPlay );
-	SWF_SPRITE_FUNCTION_SET( gotoAndStop );
-	SWF_SPRITE_FUNCTION_SET( swapDepths );
-	SWF_SPRITE_FUNCTION_SET( nextFrame );
-	SWF_SPRITE_FUNCTION_SET( prevFrame );
-	SWF_SPRITE_FUNCTION_SET( play );
-	SWF_SPRITE_FUNCTION_SET( stop );
+idSWFScriptObject_SpriteInstancePrototype::idSWFScriptObject_SpriteInstancePrototype()
+{
+	SWF_SPRITE_FUNCTION_SET(duplicateMovieClip)
+	SWF_SPRITE_FUNCTION_SET(gotoAndPlay)
+	SWF_SPRITE_FUNCTION_SET(gotoAndStop)
+	SWF_SPRITE_FUNCTION_SET(swapDepths)
+	SWF_SPRITE_FUNCTION_SET(nextFrame)
+	SWF_SPRITE_FUNCTION_SET(prevFrame)
+	SWF_SPRITE_FUNCTION_SET(play)
+	SWF_SPRITE_FUNCTION_SET(stop)
 
-	SWF_SPRITE_NATIVE_VAR_SET( _x );
-	SWF_SPRITE_NATIVE_VAR_SET( _y );
-	SWF_SPRITE_NATIVE_VAR_SET( _xscale );
-	SWF_SPRITE_NATIVE_VAR_SET( _yscale );
-	SWF_SPRITE_NATIVE_VAR_SET( _alpha );
-	SWF_SPRITE_NATIVE_VAR_SET( _brightness );
-	SWF_SPRITE_NATIVE_VAR_SET( _visible );
-	SWF_SPRITE_NATIVE_VAR_SET( _width );
-	SWF_SPRITE_NATIVE_VAR_SET( _height );
-	SWF_SPRITE_NATIVE_VAR_SET( _rotation );
-	SWF_SPRITE_NATIVE_VAR_SET( _name );
-	SWF_SPRITE_NATIVE_VAR_SET( _currentframe );
-	SWF_SPRITE_NATIVE_VAR_SET( _totalframes );
-	SWF_SPRITE_NATIVE_VAR_SET( _target );
-	SWF_SPRITE_NATIVE_VAR_SET( _framesloaded );
-	SWF_SPRITE_NATIVE_VAR_SET( _droptarget );
-	SWF_SPRITE_NATIVE_VAR_SET( _url );
-	SWF_SPRITE_NATIVE_VAR_SET( _highquality );
-	SWF_SPRITE_NATIVE_VAR_SET( _focusrect );
-	SWF_SPRITE_NATIVE_VAR_SET( _soundbuftime );
-	SWF_SPRITE_NATIVE_VAR_SET( _quality );
-	SWF_SPRITE_NATIVE_VAR_SET( _mousex );
-	SWF_SPRITE_NATIVE_VAR_SET( _mousey );
+	SWF_SPRITE_NATIVE_VAR_SET(_x)
+	SWF_SPRITE_NATIVE_VAR_SET(_y)
+	SWF_SPRITE_NATIVE_VAR_SET(_xscale)
+	SWF_SPRITE_NATIVE_VAR_SET(_yscale)
+	SWF_SPRITE_NATIVE_VAR_SET(_alpha)
+	SWF_SPRITE_NATIVE_VAR_SET(_brightness)
+	SWF_SPRITE_NATIVE_VAR_SET(_visible)
+	SWF_SPRITE_NATIVE_VAR_SET(_width)
+	SWF_SPRITE_NATIVE_VAR_SET(_height)
+	SWF_SPRITE_NATIVE_VAR_SET(_rotation)
+	SWF_SPRITE_NATIVE_VAR_SET(_name)
+	SWF_SPRITE_NATIVE_VAR_SET(_currentframe)
+	SWF_SPRITE_NATIVE_VAR_SET(_totalframes)
+	SWF_SPRITE_NATIVE_VAR_SET(_target)
+	SWF_SPRITE_NATIVE_VAR_SET(_framesloaded)
+	SWF_SPRITE_NATIVE_VAR_SET(_droptarget)
+	SWF_SPRITE_NATIVE_VAR_SET(_url)
+	SWF_SPRITE_NATIVE_VAR_SET(_highquality)
+	SWF_SPRITE_NATIVE_VAR_SET(_focusrect)
+	SWF_SPRITE_NATIVE_VAR_SET(_soundbuftime)
+	SWF_SPRITE_NATIVE_VAR_SET(_quality)
+	SWF_SPRITE_NATIVE_VAR_SET(_mousex)
+	SWF_SPRITE_NATIVE_VAR_SET(_mousey)
 
-	SWF_SPRITE_NATIVE_VAR_SET( _stereoDepth );
-	SWF_SPRITE_NATIVE_VAR_SET( _itemindex );
-	SWF_SPRITE_NATIVE_VAR_SET( material );
-	SWF_SPRITE_NATIVE_VAR_SET( materialWidth );
-	SWF_SPRITE_NATIVE_VAR_SET( materialHeight );
-	SWF_SPRITE_NATIVE_VAR_SET( xOffset );
+	SWF_SPRITE_NATIVE_VAR_SET(_stereoDepth)
+	SWF_SPRITE_NATIVE_VAR_SET(_itemindex)
+	SWF_SPRITE_NATIVE_VAR_SET(material)
+	SWF_SPRITE_NATIVE_VAR_SET(materialWidth)
+	SWF_SPRITE_NATIVE_VAR_SET(materialHeight)
+	SWF_SPRITE_NATIVE_VAR_SET(xOffset)
 
-	SWF_SPRITE_NATIVE_VAR_SET( onEnterFrame );
+	SWF_SPRITE_NATIVE_VAR_SET(onEnterFrame)
 	//SWF_SPRITE_NATIVE_VAR_SET( onLoad );
 }
 
-SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _target ) { return ""; }
+SWF_SPRITE_NATIVE_VAR_DEFINE_GET(_target) { return ""; }
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _droptarget ) { return ""; }
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _url ) { return ""; }
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _highquality ) { return 2; }
@@ -929,7 +930,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _height ) { return 0.0f; }
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _height ) { }
 
 SWF_SPRITE_FUNCTION_DEFINE( duplicateMovieClip ) {
-	SWF_SPRITE_PTHIS_FUNC( "duplicateMovieClip" );
+	SWF_SPRITE_PTHIS_FUNC( "duplicateMovieClip" )
 
 	if ( pThis->parent == nullptr) {
 		idLib::Warning( "Tried to duplicate root movie clip" );
@@ -964,7 +965,7 @@ SWF_SPRITE_FUNCTION_DEFINE( duplicateMovieClip ) {
 }
 
 SWF_SPRITE_FUNCTION_DEFINE( gotoAndPlay ) {
-	SWF_SPRITE_PTHIS_FUNC( "gotoAndPlay" );
+	SWF_SPRITE_PTHIS_FUNC( "gotoAndPlay" )
 
 	if ( parms.Num() > 0 ) {
 		pThis->actions.Clear();
@@ -977,7 +978,7 @@ SWF_SPRITE_FUNCTION_DEFINE( gotoAndPlay ) {
 }
 
 SWF_SPRITE_FUNCTION_DEFINE( gotoAndStop ) {
-	SWF_SPRITE_PTHIS_FUNC( "gotoAndStop" );
+	SWF_SPRITE_PTHIS_FUNC( "gotoAndStop" )
 
 	if ( parms.Num() > 0 ) {
 		// Flash forces frames values less than 1 to 1.
@@ -994,7 +995,7 @@ SWF_SPRITE_FUNCTION_DEFINE( gotoAndStop ) {
 }
 
 SWF_SPRITE_FUNCTION_DEFINE( swapDepths ) {
-	SWF_SPRITE_PTHIS_FUNC( "swapDepths" );
+	SWF_SPRITE_PTHIS_FUNC( "swapDepths" )
 
 	if ( pThis->parent == nullptr) {
 		idLib::Warning( "Tried to swap depths on root movie clip" );
@@ -1009,49 +1010,49 @@ SWF_SPRITE_FUNCTION_DEFINE( swapDepths ) {
 }
 
 SWF_SPRITE_FUNCTION_DEFINE( nextFrame ) {
-	SWF_SPRITE_PTHIS_FUNC( "nextFrame" );
+	SWF_SPRITE_PTHIS_FUNC( "nextFrame" )
 	pThis->NextFrame();
 	return idSWFScriptVar();
 }
 
 SWF_SPRITE_FUNCTION_DEFINE( prevFrame ) {
-	SWF_SPRITE_PTHIS_FUNC( "prevFrame" );
+	SWF_SPRITE_PTHIS_FUNC( "prevFrame" )
 	pThis->PrevFrame();
 	return idSWFScriptVar();
 }
 SWF_SPRITE_FUNCTION_DEFINE( play ) {
-	SWF_SPRITE_PTHIS_FUNC( "play" );
+	SWF_SPRITE_PTHIS_FUNC( "play" )
 	pThis->Play();
 	return idSWFScriptVar();
 }
 SWF_SPRITE_FUNCTION_DEFINE( stop ) {
-	SWF_SPRITE_PTHIS_FUNC( "stop" );
+	SWF_SPRITE_PTHIS_FUNC( "stop" )
 	pThis->Stop();
 	return idSWFScriptVar();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _x ) {
-	SWF_SPRITE_PTHIS_GET( "_x" );
+	SWF_SPRITE_PTHIS_GET( "_x" )
 	return pThis->GetXPos();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _x ) {
-	SWF_SPRITE_PTHIS_SET( "_x" );
+	SWF_SPRITE_PTHIS_SET( "_x" )
 	pThis->SetXPos( value.ToFloat() );
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _y ) {
-	SWF_SPRITE_PTHIS_GET( "_y" );
+	SWF_SPRITE_PTHIS_GET( "_y" )
 	return pThis->GetYPos();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _y ) {
-	SWF_SPRITE_PTHIS_SET( "_y" );
+	SWF_SPRITE_PTHIS_SET( "_y" )
 	pThis->SetYPos( value.ToFloat() );
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _xscale ) {
-	SWF_SPRITE_PTHIS_GET( "_xscale" );
+	SWF_SPRITE_PTHIS_GET( "_xscale" )
 	if ( pThis->parent == nullptr) {
 		return 1.0f;
 	}
@@ -1064,7 +1065,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _xscale ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _xscale ) {
-	SWF_SPRITE_PTHIS_SET( "_xscale" );
+	SWF_SPRITE_PTHIS_SET( "_xscale" )
 	if ( pThis->parent == nullptr) {
 		return;
 	}
@@ -1086,7 +1087,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _xscale ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _yscale ) {
-	SWF_SPRITE_PTHIS_GET( "_yscale" );
+	SWF_SPRITE_PTHIS_GET( "_yscale" )
 	if ( pThis->parent == nullptr) {
 		return 1.0f;
 	}
@@ -1099,7 +1100,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _yscale ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _yscale ) {
-	SWF_SPRITE_PTHIS_SET( "_yscale" );
+	SWF_SPRITE_PTHIS_SET( "_yscale" )
 	if ( pThis->parent == nullptr) {
 		return;
 	}
@@ -1121,7 +1122,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _yscale ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _alpha ) {
-	SWF_SPRITE_PTHIS_GET( "_alpha" );
+	SWF_SPRITE_PTHIS_GET( "_alpha" )
 	if ( pThis->parent == nullptr) {
 		return 1.0f;
 	}
@@ -1134,13 +1135,13 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _alpha ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _alpha ) {
-	SWF_SPRITE_PTHIS_SET( "_alpha" );
+	SWF_SPRITE_PTHIS_SET( "_alpha" )
 
 	pThis->SetAlpha( value.ToFloat() );
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _brightness ) {
-	SWF_SPRITE_PTHIS_GET( "_brightness" );
+	SWF_SPRITE_PTHIS_GET( "_brightness" )
 	if ( pThis->parent == nullptr) {
 		return 1.0f;
 	}
@@ -1163,7 +1164,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _brightness ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _brightness ) {
-	SWF_SPRITE_PTHIS_SET( "_brightness" );
+	SWF_SPRITE_PTHIS_SET( "_brightness" )
 	if ( pThis->parent == nullptr) {
 		return;
 	}
@@ -1185,12 +1186,12 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _brightness ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _visible ) {
-	SWF_SPRITE_PTHIS_GET( "_visible" );
+	SWF_SPRITE_PTHIS_GET( "_visible" )
 	return pThis->isVisible;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _visible ) {
-	SWF_SPRITE_PTHIS_SET( "_visible" );
+	SWF_SPRITE_PTHIS_SET( "_visible" )
 	pThis->isVisible = value.ToBool();
 	if ( pThis->isVisible ) {
 		for ( idSWFSpriteInstance * p = pThis->parent; p != nullptr; p = p->parent ) {
@@ -1200,7 +1201,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _visible ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _rotation ) {
-	SWF_SPRITE_PTHIS_GET( "_rotation" );
+	SWF_SPRITE_PTHIS_GET( "_rotation" )
 	if ( pThis->parent == nullptr) {
 		return 0.0f;
 	}
@@ -1219,7 +1220,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _rotation ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _rotation ) {
-	SWF_SPRITE_PTHIS_SET( "_rotation" );
+	SWF_SPRITE_PTHIS_SET( "_rotation" )
 	if ( pThis->parent == nullptr) {
 		return;
 	}
@@ -1241,27 +1242,27 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _rotation ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _name ) {
-	SWF_SPRITE_PTHIS_GET( "_name" );
+	SWF_SPRITE_PTHIS_GET( "_name" )
 	return pThis->name.c_str();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _currentframe ) {
-	SWF_SPRITE_PTHIS_GET( "_currentframe" );
+	SWF_SPRITE_PTHIS_GET( "_currentframe" )
 	return pThis->currentFrame;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _totalframes ) {
-	SWF_SPRITE_PTHIS_GET( "_totalframes" );
+	SWF_SPRITE_PTHIS_GET( "_totalframes" )
 	return pThis->frameCount;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _framesloaded ) {
-	SWF_SPRITE_PTHIS_GET( "_framesloaded" );
+	SWF_SPRITE_PTHIS_GET( "_framesloaded" )
 	return pThis->frameCount;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _mousex ) {
-	SWF_SPRITE_PTHIS_GET( "_mousex" );
+	SWF_SPRITE_PTHIS_GET( "_mousex" )
 	if ( pThis->parent == nullptr) {
 		return pThis->sprite->GetSWF()->GetMouseX();
 	}
@@ -1273,7 +1274,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _mousex ) {
 	return pThis->sprite->GetSWF()->GetMouseX() - thisDisplayEntry->matrix.ty;
 }
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _mousey ) {
-	SWF_SPRITE_PTHIS_GET( "_mousey" );
+	SWF_SPRITE_PTHIS_GET( "_mousey" )
 	if ( pThis->parent == nullptr) {
 		return pThis->sprite->GetSWF()->GetMouseY();
 	}
@@ -1286,27 +1287,27 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _mousey ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _itemindex ) {
-	SWF_SPRITE_PTHIS_GET( "_itemindex" );
+	SWF_SPRITE_PTHIS_GET( "_itemindex" )
 	return pThis->itemIndex;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _itemindex ) {
-	SWF_SPRITE_PTHIS_SET( "_itemindex" );
+	SWF_SPRITE_PTHIS_SET( "_itemindex" )
 	pThis->itemIndex = value.ToInteger();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( _stereoDepth ) {
-	SWF_SPRITE_PTHIS_SET( "_stereoDepth" );
+	SWF_SPRITE_PTHIS_SET( "_stereoDepth" )
 	pThis->stereoDepth = value.ToInteger();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( _stereoDepth ) {
-	SWF_SPRITE_PTHIS_GET( "_stereoDepth" );
+	SWF_SPRITE_PTHIS_GET( "_stereoDepth" )
 	return pThis->stereoDepth;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( material ) {
-	SWF_SPRITE_PTHIS_GET( "material" );
+	SWF_SPRITE_PTHIS_GET( "material" )
 	if ( pThis->materialOverride == nullptr) {
 		return idSWFScriptVar();
 	} else {
@@ -1315,7 +1316,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_GET( material ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( material ) {
-	SWF_SPRITE_PTHIS_SET( "material" );
+	SWF_SPRITE_PTHIS_SET( "material" )
 	if ( !value.IsString() ) {
 		pThis->materialOverride = nullptr;
 	} else {
@@ -1325,45 +1326,45 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( material ) {
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( materialWidth ) {
-	SWF_SPRITE_PTHIS_GET( "materialWidth" );
+	SWF_SPRITE_PTHIS_GET( "materialWidth" )
 	return pThis->materialWidth;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( materialWidth ) {
-	SWF_SPRITE_PTHIS_SET( "materialWidth" );
+	SWF_SPRITE_PTHIS_SET( "materialWidth" )
 	assert( value.ToInteger() > 0 );
 	assert( value.ToInteger() <= 8192 );
 	pThis->materialWidth = static_cast<uint16>(value.ToInteger());
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( materialHeight ) {
-	SWF_SPRITE_PTHIS_GET( "materialHeight" );
+	SWF_SPRITE_PTHIS_GET( "materialHeight" )
 	return pThis->materialHeight;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( materialHeight ) {
-	SWF_SPRITE_PTHIS_SET( "materialHeight" );
+	SWF_SPRITE_PTHIS_SET( "materialHeight" )
 	assert( value.ToInteger() > 0 );
 	assert( value.ToInteger() <= 8192 );
 	pThis->materialHeight = static_cast<uint16>(value.ToInteger());
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( xOffset ) {
-	SWF_SPRITE_PTHIS_GET( "xOffset" );
+	SWF_SPRITE_PTHIS_GET( "xOffset" )
 	return pThis->xOffset;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( xOffset ) {
-	SWF_SPRITE_PTHIS_SET( "xOffset" );
+	SWF_SPRITE_PTHIS_SET( "xOffset" )
 	pThis->xOffset = value.ToFloat();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( onEnterFrame ) {
-	SWF_SPRITE_PTHIS_GET( "onEnterFrame" );
+	SWF_SPRITE_PTHIS_GET( "onEnterFrame" )
 	return pThis->onEnterFrame;
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_SET( onEnterFrame ) {
-	SWF_SPRITE_PTHIS_SET( "onEnterFrame" );
+	SWF_SPRITE_PTHIS_SET( "onEnterFrame" )
 	pThis->onEnterFrame = value;
 }

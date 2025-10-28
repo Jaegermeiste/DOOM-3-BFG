@@ -39,7 +39,7 @@ void idAchievementSystem::SyncAchievementBits( idLocalUser * user ) const
 		idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > achievements;
 
 		if ( GetAchievementState( user, achievements ) ) {
-			for ( int i = 0; i < achievements.Num(); i++ ) {
+			for ( size_t i = 0; i < achievements.Num(); i++ ) {
 				if ( achievements[i] ) {
 					user->GetProfile()->SetAchievement( i );
 				}

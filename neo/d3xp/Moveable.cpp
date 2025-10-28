@@ -395,7 +395,7 @@ void idMoveable::BecomeNonSolid() {
 idMoveable::EnableDamage
 ================
 */
-void idMoveable::EnableDamage( bool enable, float duration ) {
+void idMoveable::EnableDamage(const bool enable, const float duration ) {
 	if ( canDamage == enable ) {
 		return;
 	}
@@ -411,7 +411,7 @@ void idMoveable::EnableDamage( bool enable, float duration ) {
 idMoveable::InitInitialSpline
 ================
 */
-void idMoveable::InitInitialSpline( int startTime ) {
+void idMoveable::InitInitialSpline( ID_TIME_T startTime ) {
 	int initialSplineTime;
 
 	initialSpline = GetSpline();
@@ -459,7 +459,7 @@ bool idMoveable::FollowInitialSplinePath() {
 idMoveable::ClientThink
 ================
 */
-void idMoveable::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idMoveable::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	InterpolatePhysicsOnly( fraction );
 	Present();
 }
@@ -596,7 +596,7 @@ void idMoveable::Event_IsAtRest() {
 idMoveable::Event_EnableDamage
 ================
 */
-void idMoveable::Event_EnableDamage( float enable ) {
+void idMoveable::Event_EnableDamage(const float enable ) {
 	// clear out attacker
 	attacker = nullptr;
 
@@ -784,7 +784,7 @@ void idBarrel::Spawn() {
 idBarrel::ClientThink
 ================
 */
-void idBarrel::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idBarrel::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	InterpolatePhysics( fraction );
 	Present();
 }
@@ -950,7 +950,7 @@ void idExplodingBarrel::UpdateLight() {
 idExplodingBarrel::ClientThink
 ================
 */
-void idExplodingBarrel::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idExplodingBarrel::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	UpdateLight();
 	InterpolatePhysics( fraction );
 	Present();
@@ -983,7 +983,7 @@ void idExplodingBarrel::Think() {
 idExplodingBarrel::SetStability
 ================
 */
-void idExplodingBarrel::SetStability( bool stability ) {
+void idExplodingBarrel::SetStability(const bool stability ) {
 	isStable = stability;
 }
 
@@ -1028,7 +1028,7 @@ void idExplodingBarrel::StopBurning() {
 idExplodingBarrel::AddParticles
 ================
 */
-void idExplodingBarrel::AddParticles( const char *name, bool burn ) {
+void idExplodingBarrel::AddParticles( const char *name, const bool burn ) {
 	if ( name && *name ) {
 		int explicitTimeGroup = timeGroup;
 		SetTimeState explicitTS( explicitTimeGroup );
@@ -1339,7 +1339,7 @@ void idExplodingBarrel::ReadFromSnapshot( const idBitMsg &msg ) {
 idExplodingBarrel::ClientReceiveEvent
 ================
 */
-bool idExplodingBarrel::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idExplodingBarrel::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_EXPLODE: {

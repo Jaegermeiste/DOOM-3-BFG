@@ -64,7 +64,7 @@ void idPhysics::Restore( idRestoreGame *savefile ) {
 idPhysics::SetClipBox
 ================
 */
-void idPhysics::SetClipBox( const idBounds &bounds, float density ) {
+void idPhysics::SetClipBox( const idBounds &bounds, const float density ) {
 	SetClipModel( new (TAG_PHYSICS_CLIP) idClipModel( idTraceModel( bounds ) ), density );
 }
 

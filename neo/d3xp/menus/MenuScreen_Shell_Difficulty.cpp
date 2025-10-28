@@ -204,7 +204,7 @@ void idMenuScreen_Shell_Difficulty::HideScreen( const mainMenuTransition_t trans
 idMenuScreen_Shell_Difficulty::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_Difficulty::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Difficulty::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

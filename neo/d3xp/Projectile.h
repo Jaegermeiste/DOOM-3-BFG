@@ -76,20 +76,20 @@ public :
 		EVENT_MAXEVENTS
 	};
 
-	void					SetLaunchedFromGrabber( bool bl ) { launchedFromGrabber = bl; }
+	void					SetLaunchedFromGrabber(const bool bl ) { launchedFromGrabber = bl; }
 	bool					GetLaunchedFromGrabber() { return launchedFromGrabber; }
 
 	static void				DefaultDamageEffect( idEntity *soundEnt, const idDict &projectileDef, const trace_t &collision, const idVec3 &velocity );
 	static bool				ClientPredictionCollide( idEntity *soundEnt, const idDict &projectileDef, const trace_t &collision, const idVec3 &velocity, bool addDamageEffect );
 	void			ClientPredictionThink() override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			WriteToSnapshot( idBitMsg &msg ) const override;
 	void			ReadFromSnapshot( const idBitMsg &msg ) override;
 	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
-	void					QueueToSimulate( int startTime );
-	virtual void			SimulateProjectileFrame( int msec, int endTime );
-	virtual void			PostSimulate( int endTime );
+	void					QueueToSimulate( ID_TIME_T startTime );
+	virtual void			SimulateProjectileFrame( int msec, ID_TIME_T endTime );
+	virtual void			PostSimulate( ID_TIME_T endTime );
 
 	struct simulatedProjectile_t {
 		simulatedProjectile_t(): projectile(nullptr), startTime( 0 ) {}

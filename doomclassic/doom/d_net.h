@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_NET__
 #define __D_NET__
 
+#pragma once
+
 #include "d_player.h"
 
 
@@ -48,13 +50,13 @@ If you have questions concerning this license or the applicable additional terms
 #define DOOMCOM_ID		0x12345678l
 
 // Max computers/players in a game.
-#define MAXNETNODES		8
+constexpr size_t MAXNETNODES = 8;
 
 
 // Networking and tick handling related.
-#define BACKUPTICS		64
+constexpr size_t BACKUPTICS = 64;
 
-typedef enum
+typedef enum command_e : uint8
 {
     CMD_SEND	= 1,
     CMD_GET	= 2
@@ -65,7 +67,7 @@ typedef enum
 //
 // Network packet data.
 //
-typedef struct
+typedef struct doomdata_s
 {
     // High bit is retransmit request.
     unsigned		checksum;
@@ -102,7 +104,7 @@ struct doomcom_t
 
     // Info common to all nodes.
     // Console is allways node 0.
-    short		numnodes;
+	size_t		numnodes;
     // Flag: 1 = no duplication, 2-5 = dup for slow nets.
     short		ticdup;
     // Flag: 1 = send a backup tic in every packet.
@@ -117,7 +119,7 @@ struct doomcom_t
 
     // Info specific to this node.
     short		consoleplayer;
-    short		numplayers;
+	size_t		numplayers;
     
     // These are related to the 3-display mode,
     //  in which two drones looking left and right

@@ -12,9 +12,9 @@
 ===============================================================================
 */
 
-void CRC32_InitChecksum( unsigned long &crcvalue );
-void CRC32_UpdateChecksum(unsigned long &crcvalue, const void *data, size_t length);
-void CRC32_FinishChecksum( unsigned long &crcvalue );
-unsigned long CRC32_BlockChecksum(const void *data, size_t length);
+void CRC32_InitChecksum( uint32 &crcvalue );
+void CRC32_UpdateChecksum( uint32 &crcvalue, const void *data, size_t length);
+void CRC32_FinishChecksum( uint32 &crcvalue );
+uint32 CRC32_BlockChecksum( const void *data, size_t length);
 
 #endif /* !__CRC32_H__ */

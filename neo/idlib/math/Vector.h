@@ -43,8 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../containers/Array.h" // for idTupleSize
 
-#include "../sys/sys_type_ordinal.hpp" // For Ordinal
-
 constexpr auto VECTOR_EPSILON = 0.001f;
 
 class idAngles;
@@ -105,7 +103,7 @@ public:
 	void			Snap();				// snap to closest integer value
 	void			SnapInt();			// snap towards integer (floor)
 
-	static size_t	GetDimension();
+	[[nodiscard]] static size_t	GetDimension();
 
 	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
@@ -156,13 +154,13 @@ ID_INLINE bool idVec2::operator!=( const idVec2 &a ) const {
 }
 
 
-float idVec2::operator[]( const Ordinal auto index ) const {
+float idVec2::operator[](const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, 2);
 	return ( &x )[ index ];
 }
 
 
-float& idVec2::operator[]( const Ordinal auto index ) {
+float& idVec2::operator[](const Ordinal auto index ) {
 	ORDINAL_CHECK(index, 2);
 	return ( &x )[ index ];
 }
@@ -249,7 +247,7 @@ ID_INLINE idVec2 idVec2::operator*( const float a ) const {
 }
 
 idVec2 idVec2::operator*( const std::integral auto a ) const {
-	return operator*(idMath::Itof<float>(a));
+	return operator*(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec2 idVec2::operator/( const float a ) const {
@@ -258,7 +256,7 @@ ID_INLINE idVec2 idVec2::operator/( const float a ) const {
 }
 
 idVec2 idVec2::operator/( const std::integral auto a ) const {
-	return operator/(idMath::Itof<float>(a));
+	return operator/(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec2 operator*( const float a, const idVec2 b ) {
@@ -292,7 +290,7 @@ ID_INLINE idVec2 &idVec2::operator/=( const float a ) {
 }
 
 idVec2 &idVec2::operator/=( const std::integral auto a ) {
-	return &operator/=(idMath::Itof<float>(a));
+	return &operator/=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec2 &idVec2::operator-=( const idVec2 &a ) {
@@ -310,7 +308,7 @@ ID_INLINE idVec2 &idVec2::operator*=( const float a ) {
 }
 
 idVec2 &idVec2::operator*=( const std::integral auto a ) {
-	return operator*=(idMath::Itof<float>(a));
+	return operator*=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec2 idVec2::Scale( const idVec2 &a ) const {
@@ -425,13 +423,13 @@ ID_INLINE idVec3::idVec3( const float x, const float y, const float z ) {
 }
 
 
-float idVec3::operator[]( const Ordinal auto index ) const {
+float idVec3::operator[](const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, 3);
 	return ( &x )[ index ];
 }
 
 
-float &idVec3::operator[]( const Ordinal auto index ) {
+float &idVec3::operator[](const Ordinal auto index ) {
 	ORDINAL_CHECK(index, 3);
 	return ( &x )[ index ];
 }
@@ -466,7 +464,7 @@ ID_INLINE idVec3 idVec3::operator*( const float a ) const {
 }
 
 ID_INLINE idVec3 idVec3::operator*( const std::integral auto a ) const {
-	return operator*(idMath::Itof<float>(a));
+	return operator*(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec3 idVec3::operator/( const float a ) const {
@@ -475,7 +473,7 @@ ID_INLINE idVec3 idVec3::operator/( const float a ) const {
 }
 
 ID_INLINE idVec3 idVec3::operator/( const std::integral auto a ) const {
-	return operator/(idMath::Itof<float>(a));
+	return operator/(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec3 operator*( const float a, const idVec3& b ) {
@@ -516,7 +514,7 @@ ID_INLINE idVec3 &idVec3::operator/=( const float a ) {
 }
 
 idVec3& idVec3::operator/=( const std::integral auto a ) {
-	return operator/=(idMath::Itof<float>(a));
+	return operator/=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec3 &idVec3::operator-=( const idVec3 &a ) {
@@ -536,7 +534,7 @@ ID_INLINE idVec3 &idVec3::operator*=( const float a ) {
 }
 
 idVec3& idVec3::operator*=( const std::integral auto a ) {
-	return operator*=(idMath::Itof<float>(a));
+	return operator*=(numeric_cast<float>(a));
 }
 
 ID_INLINE bool idVec3::Compare( const idVec3 &a ) const {
@@ -889,7 +887,7 @@ public:
 	float			Normalize();			// returns length
 	float			NormalizeFast();		// returns length
 
-	static size_t	GetDimension();
+	[[nodiscard]] static size_t	GetDimension();
 
 	[[nodiscard]] const idVec2 &	ToVec2() const;
 	idVec2 &		ToVec2();
@@ -945,7 +943,7 @@ ID_INLINE idVec4 idVec4::operator*( const float a ) const {
 }
 
 idVec4 idVec4::operator*( const std::integral auto a ) const {
-	return operator*(idMath::Itof<float>(a));
+	return operator*(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec4 idVec4::operator/( const float a ) const {
@@ -954,7 +952,7 @@ ID_INLINE idVec4 idVec4::operator/( const float a ) const {
 }
 
 idVec4 idVec4::operator/( const std::integral auto a ) const {
-	return operator/(idMath::Itof<float>(a));
+	return operator/(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec4 operator*( const float a, const idVec4 b ) {
@@ -994,7 +992,7 @@ ID_INLINE idVec4 &idVec4::operator/=( const float a ) {
 }
 
 idVec4 &idVec4::operator/=( const std::integral auto a ) {
-	return operator/=(idMath::Itof<float>(a));
+	return operator/=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec4 &idVec4::operator-=( const idVec4 &a ) {
@@ -1016,7 +1014,7 @@ ID_INLINE idVec4 &idVec4::operator*=( const float a ) {
 }
 
 idVec4 &idVec4::operator*=( const std::integral auto a ) {
-	return operator*=(idMath::Itof<float>(a));
+	return operator*=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec4 idVec4::Multiply( const idVec4 & a ) const {
@@ -1121,11 +1119,11 @@ ID_INLINE float *idVec4::ToFloatPtr() {
 
 class idVec5 {
 public:
-	float			x;
-	float			y;
-	float			z;
-	float			s;
-	float			t;
+	float			x = 0.0f;
+	float			y = 0.0f;
+	float			z = 0.0f;
+	float			s = 0.0f;
+	float			t = 0.0f;
 
 					idVec5() noexcept;
 					explicit idVec5( const idVec3 &xyz, const idVec2 &st );
@@ -1135,7 +1133,7 @@ public:
 	float &			operator[]( const Ordinal auto index );
 	idVec5 &		operator=( const idVec3 &a );
 
-	static int				GetDimension();
+	[[nodiscard]] static size_t	GetDimension();
 
 	[[nodiscard]] const idVec3 &	ToVec3() const;
 	idVec3 &		ToVec3();
@@ -1168,13 +1166,13 @@ ID_INLINE idVec5::idVec5( const float x, const float y, const float z, const flo
 }
 
 
-float idVec5::operator[]( const Ordinal auto index ) const {
+float idVec5::operator[](const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, 5);
 	return ( &x )[ index ];
 }
 
 
-float& idVec5::operator[]( const Ordinal auto index ) {
+float& idVec5::operator[](const Ordinal auto index ) {
 	ORDINAL_CHECK(index, 5);
 	return ( &x )[ index ];
 }
@@ -1187,7 +1185,7 @@ ID_INLINE idVec5 &idVec5::operator=( const idVec3 &a ) {
 	return *this;
 }
 
-ID_INLINE int idVec5::GetDimension()
+ID_INLINE size_t idVec5::GetDimension()
 {
 	return 5;
 }
@@ -1251,18 +1249,18 @@ public:
 	float			Normalize();			// returns length
 	float			NormalizeFast();		// returns length
 
-	static int				GetDimension();
+	[[nodiscard]] static size_t		GetDimension();
 
 	
-	const idVec3 &	SubVec3( Ordinal auto index ) const;
+	const idVec3 &	SubVec3( const Ordinal auto index ) const;
 	
-	idVec3 &		SubVec3( Ordinal auto index );
+	idVec3 &		SubVec3( const Ordinal auto index );
 	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
 	[[nodiscard]] const char *	ToString( const size_t precision = 2 ) const;
 
 private:
-	float			p[6];
+	float			p[6] = {};
 };
 
 extern idVec6 vec6_origin;
@@ -1289,14 +1287,14 @@ ID_INLINE idVec6 idVec6::operator-() const {
 }
 
 
-float idVec6::operator[]( const Ordinal auto index ) const {
-	assert(index >= 0 && std::cmp_less(index, 6));
+float idVec6::operator[](const Ordinal auto index ) const {
+	ORDINAL_CHECK(index, 6);
 	return p[index];
 }
 
 
-float &idVec6::operator[]( const Ordinal auto index ) {
-	assert(index >= 0 && std::cmp_less(index, 6));
+float &idVec6::operator[](const Ordinal auto index ) {
+	ORDINAL_CHECK(index, 6);
 	return p[index];
 }
 
@@ -1333,7 +1331,7 @@ ID_INLINE idVec6 &idVec6::operator*=( const float a ) {
 }
 
 ID_INLINE idVec6& idVec6::operator*=( const std::integral auto a ) {
-	return operator*=(idMath::Itof<float>(a));
+	return operator*=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec6 &idVec6::operator/=( const float a ) {
@@ -1349,7 +1347,7 @@ ID_INLINE idVec6 &idVec6::operator/=( const float a ) {
 }
 
 ID_INLINE idVec6& idVec6::operator/=( const std::integral auto a ) {
-	return operator/=(idMath::Itof<float>(a));
+	return operator/=(numeric_cast<float>(a));
 }
 
 ID_INLINE idVec6 &idVec6::operator+=( const idVec6 &a ) {
@@ -1462,19 +1460,19 @@ ID_INLINE float idVec6::NormalizeFast() {
 	return invLength * sqrLength;
 }
 
-ID_INLINE int idVec6::GetDimension()
+ID_INLINE size_t idVec6::GetDimension()
 {
 	return 6;
 }
 
 
-const idVec3 &idVec6::SubVec3(const Ordinal auto index ) const {
+const idVec3 &idVec6::SubVec3( const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, 3);
 	return *reinterpret_cast<const idVec3 *>(p + index * 3);
 }
 
 
-idVec3 &idVec6::SubVec3(const Ordinal auto index ) {
+idVec3 &idVec6::SubVec3( const Ordinal auto index ) {
 	ORDINAL_CHECK(index, 3);
 	return *reinterpret_cast<idVec3 *>(p + index * 3);
 }
@@ -1502,9 +1500,7 @@ public:
 
 	void 			Set(float radius, float theta, float phi );
 
-	
 	float			operator[]( const Ordinal auto index ) const;
-	
 	float &			operator[]( const Ordinal auto index );
 	idPolar3		operator-() const;
 	idPolar3 &		operator=( const idPolar3 &a );
@@ -1527,13 +1523,13 @@ ID_INLINE void idPolar3::Set( const float radius, const float theta, const float
 }
 
 
-float idPolar3::operator[]( const Ordinal auto index ) const {
+float idPolar3::operator[](const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, 3);
 	return ( &radius )[ index ];
 }
 
 
-float &idPolar3::operator[]( const Ordinal auto index ) {
+float &idPolar3::operator[](const Ordinal auto index ) {
 	ORDINAL_CHECK(index, 3);
 	return ( &radius )[ index ];
 }

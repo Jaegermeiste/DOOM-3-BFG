@@ -60,11 +60,11 @@ void R_CalcInteractionFacing( const idRenderEntityLocal *ent, const srfTriangles
 	idVec3 localLightOrigin;
 	R_GlobalPointToLocal( ent->modelMatrix, light->globalLightOrigin, localLightOrigin );
 
-	const int numFaces = tri->numIndexes / 3;
+	const size_t numFaces = tri->numIndexes / 3;
 	cullInfo.facing = static_cast<byte*>(R_StaticAlloc((numFaces + 1) * sizeof(cullInfo.facing[0]), TAG_RENDER_INTERACTION));
 
 	// exact geometric cull against face
-	for ( int i = 0, face = 0; i < tri->numIndexes; i += 3, face++ ) {
+	for ( size_t i = 0, face = 0; i < tri->numIndexes; i += 3, face++ ) {
 		const idDrawVert & v0 = tri->verts[tri->indexes[i + 0]];
 		const idDrawVert & v1 = tri->verts[tri->indexes[i + 1]];
 		const idDrawVert & v2 = tri->verts[tri->indexes[i + 2]];
@@ -100,7 +100,7 @@ void R_CalcInteractionCullBits( const idRenderEntityLocal *ent, const srfTriangl
 	int frontBits = 0;
 
 	// cull the triangle surface bounding box
-	for ( int i = 0; i < 6; i++ ) {
+	for ( size_t i = 0; i < 6; i++ ) {
 		R_GlobalPlaneToLocal( ent->modelMatrix, frustumPlanes[i], cullInfo.localClipPlanes[i] );
 
 		// get front bits for the whole surface
@@ -118,12 +118,12 @@ void R_CalcInteractionCullBits( const idRenderEntityLocal *ent, const srfTriangl
 	cullInfo.cullBits = static_cast<byte*>(R_StaticAlloc(tri->numVerts * sizeof(cullInfo.cullBits[0]), TAG_RENDER_INTERACTION));
 	memset( cullInfo.cullBits, 0, tri->numVerts * sizeof( cullInfo.cullBits[0] ) );
 
-	for ( int i = 0; i < 6; i++ ) {
+	for ( size_t i = 0; i < 6; i++ ) {
 		// if completely infront of this clipping plane
 		if ( frontBits & ( 1 << i ) ) {
 			continue;
 		}
-		for ( int j = 0; j < tri->numVerts; j++ ) {
+		for ( size_t j = 0; j < tri->numVerts; j++ ) {
 			 float d = cullInfo.localClipPlanes[i].Distance( tri->verts[j].xyz );
 			 cullInfo.cullBits[j] |= ( d < LIGHT_CLIP_EPSILON ) << i;
 		}
@@ -332,7 +332,7 @@ static srfTriangles_t *R_CreateInteractionShadowVolume( const idRenderEntityLoca
 	R_CalcInteractionFacing( ent, tri, light, cullInfo );
 	R_CalcInteractionCullBits( ent, tri, light, cullInfo );
 
-	int numFaces = tri->numIndexes / 3;
+	size_t numFaces = tri->numIndexes / 3;
 	int	numShadowingFaces = 0;
 	const byte * facing = cullInfo.facing;
 
@@ -340,7 +340,7 @@ static srfTriangles_t *R_CreateInteractionShadowVolume( const idRenderEntityLoca
 	if ( cullInfo.cullBits == LIGHT_CULL_ALL_FRONT ) {
 
 		// count the number of shadowing faces
-		for ( int i = 0; i < numFaces; i++ ) {
+		for ( size_t i = 0; i < numFaces; i++ ) {
 			numShadowingFaces += facing[i];
 		}
 		numShadowingFaces = numFaces - numShadowingFaces;
@@ -351,7 +351,7 @@ static srfTriangles_t *R_CreateInteractionShadowVolume( const idRenderEntityLoca
 		const triIndex_t * indexes = tri->indexes;
 		byte *modifyFacing = cullInfo.facing;
 		const byte *cullBits = cullInfo.cullBits;
-		for ( int i = 0, j = 0; i < tri->numIndexes; i += 3, j++ ) {
+		for ( size_t i = 0, j = 0; i < tri->numIndexes; i += 3, j++ ) {
 			if ( !modifyFacing[j] ) {
 				int	i1 = indexes[i+0];
 				int	i2 = indexes[i+1];
@@ -424,7 +424,7 @@ static srfTriangles_t *R_CreateInteractionShadowVolume( const idRenderEntityLoca
 	// put some faces on the model and some on the distant projection
 	const triIndex_t * indexes = tri->indexes;
 	shadowIndexes = newTri->indexes + numShadowIndexes;
-	for ( int i = 0, j = 0; i < tri->numIndexes; i += 3, j++ ) {
+	for ( size_t i = 0, j = 0; i < tri->numIndexes; i += 3, j++ ) {
 		if ( facing[j] ) {
 			continue;
 		}
@@ -509,7 +509,7 @@ idInteraction *idInteraction::AllocAndLink( idRenderEntityLocal *edef, idRenderL
 
 	// update the interaction table
 	if ( renderWorld->interactionTable != nullptr) {
-		int index = ldef->index * renderWorld->interactionTableWidth + edef->index;
+		index_t index = ldef->index * renderWorld->interactionTableWidth + edef->index;
 		if ( renderWorld->interactionTable[index] != nullptr) {
 			common->Error( "idInteraction::AllocAndLink: non NULL table entry" );
 		}
@@ -532,7 +532,7 @@ void idInteraction::FreeSurfaces() {
 	this->staticInteraction = false;
 
 	if ( this->surfaces != nullptr) {
-		for ( int i = 0; i < this->numSurfaces; i++ ) {
+		for ( size_t i = 0; i < this->numSurfaces; i++ ) {
 			surfaceInteraction_t &srf = this->surfaces[i];
 			Mem_Free( srf.shadowIndexes );
 			srf.shadowIndexes = nullptr;
@@ -587,7 +587,7 @@ Removes links and puts it back on the free list.
 void idInteraction::UnlinkAndFree() {
 	// clear the table pointer
 	idRenderWorldLocal *renderWorld = this->lightDef->world;
-	int index = this->lightDef->index * renderWorld->interactionTableWidth + this->entityDef->index;
+	index_t index = this->lightDef->index * renderWorld->interactionTableWidth + this->entityDef->index;
 	if ( renderWorld->interactionTable[index] != this && renderWorld->interactionTable[index] != INTERACTION_EMPTY ) {
 		common->Error( "idInteraction::UnlinkAndFree: interactionTable wasn't set" );
 	}
@@ -772,15 +772,15 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 	int lightTriIndexes = 0;
 	int shadowTris = 0;
 	int shadowTriIndexes = 0;
-	int maxInteractionsForEntity = 0;
-	int maxInteractionsForLight = 0;
+	size_t maxInteractionsForEntity = 0;
+	size_t maxInteractionsForLight = 0;
 
-	for ( int i = 0; i < tr.primaryWorld->lightDefs.Num(); i++ ) {
+	for ( size_t i = 0; i < tr.primaryWorld->lightDefs.Num(); i++ ) {
 		idRenderLightLocal * light = tr.primaryWorld->lightDefs[i];
 		if ( light == nullptr) {
 			continue;
 		}
-		int numInteractionsForLight = 0;
+		size_t numInteractionsForLight = 0;
 		for ( idInteraction *inter = light->firstInteraction; inter != nullptr; inter = inter->lightNext ) {
 			if ( !inter->IsEmpty() ) {
 				numInteractionsForLight++;
@@ -791,7 +791,7 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 		}
 	}
 
-	for ( int i = 0; i < tr.primaryWorld->entityDefs.Num(); i++ ) {
+	for ( size_t i = 0; i < tr.primaryWorld->entityDefs.Num(); i++ ) {
 		idRenderEntityLocal	*def = tr.primaryWorld->entityDefs[i];
 		if ( def == nullptr) {
 			continue;
@@ -801,7 +801,7 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 		}
 		entities++;
 
-		int numInteractionsForEntity = 0;
+		size_t numInteractionsForEntity = 0;
 		for ( idInteraction *inter = def->firstInteraction; inter != nullptr; inter = inter->entityNext ) {
 			interactions++;
 
@@ -818,7 +818,7 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 				continue;
 			}
 
-			for ( int j = 0; j < inter->numSurfaces; j++ ) {
+			for ( size_t j = 0; j < inter->numSurfaces; j++ ) {
 				surfaceInteraction_t *srf = &inter->surfaces[j];
 
 				if ( srf->numLightTrisIndexes ) {

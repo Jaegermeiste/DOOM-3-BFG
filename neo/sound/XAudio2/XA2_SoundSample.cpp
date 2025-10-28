@@ -38,12 +38,13 @@ constexpr uint32 SOUND_MAGIC_IDMSA = 0x6D7A7274;
 
 extern idCVar sys_lang;
 
+
 /*
 ========================
 AllocBuffer
 ========================
 */
-static void * AllocBuffer( int size, const char * name ) {
+static void * AllocBuffer(const int size, const char * name ) {
 	return Mem_Alloc( size, TAG_AUDIO );
 }
 
@@ -102,7 +103,7 @@ void idSoundSample_XAudio2::WriteGeneratedSample( idFile *fileOut ) {
 	fileOut->Write( amplitude.Ptr(), amplitude.Num() );
 	fileOut->WriteBig( totalBufferSize );
 	fileOut->WriteBig( ( int )buffers.Num() );
-	for ( int i = 0; i < buffers.Num(); i++ ) {
+	for ( size_t i = 0; i < buffers.Num(); i++ ) {
 		fileOut->WriteBig( buffers[ i ].numSamples );
 		fileOut->WriteBig( buffers[ i ].bufferSize );
 		fileOut->Write( buffers[ i ].buffer, buffers[ i ].bufferSize );
@@ -149,7 +150,7 @@ bool idSoundSample_XAudio2::LoadGeneratedSample( const idStr &filename ) {
 		fileIn->ReadBig( playBegin );
 		fileIn->ReadBig( playLength );
 		idWaveFile::ReadWaveFormatDirect( format, fileIn );
-		int num;
+		size_t num;
 		fileIn->ReadBig( num );
 		amplitude.Clear();
 		amplitude.SetNum( num );
@@ -157,7 +158,7 @@ bool idSoundSample_XAudio2::LoadGeneratedSample( const idStr &filename ) {
 		fileIn->ReadBig( totalBufferSize );
 		fileIn->ReadBig( num );
 		buffers.SetNum( num );
-		for ( int i = 0; i < num; i++ ) {
+		for ( size_t i = 0; i < num; i++ ) {
 			fileIn->ReadBig( buffers[ i ].numSamples );
 			fileIn->ReadBig( buffers[ i ].bufferSize );
 			buffers[ i ].buffer = AllocBuffer( buffers[ i ].bufferSize, GetName() );
@@ -188,7 +189,7 @@ void idSoundSample_XAudio2::LoadResource() {
 
 	loaded = false;
 
-	for ( int i = 0; i < 2; i++ ) {
+	for ( size_t i = 0; i < 2; i++ ) {
 		idStrStatic< MAX_OSPATH > sampleName = GetName();
 		if ( ( i == 0 ) && !sampleName.Replace( "/vo/", va( "/vo/%s/", sys_lang.GetString() ) ) ) {
 			i++;
@@ -217,7 +218,7 @@ void idSoundSample_XAudio2::LoadResource() {
 				WriteAllSamples( GetName() );
 
 				if ( sampleName.Find( "/vo/" ) >= 0 ) {
-					for ( int i = 0; i < Sys_NumLangs(); i++ ) {
+					for ( size_t i = 0; i < Sys_NumLangs(); i++ ) {
 						const char * lang = Sys_Lang( i );
 						if ( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 ) {
 							continue;
@@ -319,7 +320,7 @@ bool idSoundSample_XAudio2::LoadWav( const idStr & filename ) {
 		assert( format.extra.xma2.blockCount * bytesPerBlock < totalBufferSize + bytesPerBlock );
 
 		buffers.SetNum( format.extra.xma2.blockCount );
-		for ( int i = 0; i < buffers.Num(); i++ ) {
+		for ( size_t i = 0; i < buffers.Num(); i++ ) {
 			if ( i == buffers.Num() - 1 ) {
 				buffers[i].bufferSize = totalBufferSize - ( i * bytesPerBlock );
 			} else {
@@ -338,7 +339,7 @@ bool idSoundSample_XAudio2::LoadWav( const idStr & filename ) {
 			return false;
 		}
 
-		for ( int i = 0; i < buffers.Num(); i++ ) {
+		for ( size_t i = 0; i < buffers.Num(); i++ ) {
 			wave.Read( &buffers[i].numSamples, sizeof( buffers[i].numSamples ) );
 			idSwap::Big( buffers[i].numSamples );
 		}
@@ -351,7 +352,7 @@ bool idSoundSample_XAudio2::LoadWav( const idStr & filename ) {
 			playLength = buffers[buffers.Num()-1].numSamples - playBegin;
 		} else {
 			// Discard samples beyond playLength
-			for ( int i = 0; i < buffers.Num(); i++ ) {
+			for ( size_t i = 0; i < buffers.Num(); i++ ) {
 				if ( buffers[i].numSamples > playBegin + playLength ) {
 					buffers[i].numSamples = playBegin + playLength;
 					// Ideally, the following loop should always have 0 iterations because playBegin + playLength ends in the last block already
@@ -411,7 +412,7 @@ void idSoundSample_XAudio2::MakeDefault() {
 	totalBufferSize = DEFAULT_NUM_SAMPLES * 2;
 
 	short * defaultBuffer = static_cast<short*>(AllocBuffer(totalBufferSize, GetName()));
-	for ( int i = 0; i < DEFAULT_NUM_SAMPLES; i += 2 ) {
+	for ( size_t i = 0; i < DEFAULT_NUM_SAMPLES; i += 2 ) {
 		defaultBuffer[i + 0] = SHRT_MIN;
 		defaultBuffer[i + 1] = SHRT_MAX;
 	}
@@ -436,7 +437,7 @@ Called before deleting the object and at the start of LoadResource()
 void idSoundSample_XAudio2::FreeData() {
 	if ( buffers.Num() > 0 ) {
 		soundSystemLocal.StopVoicesWithSample( static_cast<idSoundSample*>(this) );
-		for ( int i = 0; i < buffers.Num(); i++ ) {
+		for ( size_t i = 0; i < buffers.Num(); i++ ) {
 			FreeBuffer( buffers[i].buffer );
 		}
 		buffers.Clear();

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DECLPARTICLE_H__
 #define __DECLPARTICLE_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -37,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static constexpr int MAX_PARTICLE_STAGES	= 32;
+static constexpr size_t MAX_PARTICLE_STAGES	= 32;
 
 class idParticleParm {
 public:
@@ -52,7 +54,7 @@ public:
 };
 
 
-typedef enum {
+typedef enum prtDistribution_e : uint8 {
 	PDIST_RECT,				// ( sizeX sizeY sizeZ )
 	PDIST_CYLINDER,			// ( sizeX sizeY sizeZ )
 	PDIST_SPHERE			// ( sizeX sizeY sizeZ ringFraction )
@@ -60,12 +62,12 @@ typedef enum {
 							// allow the outer 10% of the sphere
 } prtDistribution_t;
 
-typedef enum {
+typedef enum prtDirection_e : uint8 {
 	PDIR_CONE,				// parm0 is the solid cone angle
 	PDIR_OUTWARD			// direction is relative to offset from origin, parm0 is an upward bias
 } prtDirection_t;
 
-typedef enum {
+typedef enum prtCustomPth_e : uint8 {
 	PPATH_STANDARD,
 	PPATH_HELIX,			// ( sizeX sizeY sizeZ radialSpeed climbSpeed )
 	PPATH_FLIES,
@@ -73,7 +75,7 @@ typedef enum {
 	PPATH_DRIP
 } prtCustomPth_t;
 
-typedef enum {
+typedef enum prtOrientation_e : uint8 {
 	POR_VIEW,
 	POR_AIMED,				// angle and aspect are disregarded
 	POR_X,
@@ -84,7 +86,7 @@ typedef enum {
 typedef struct renderEntity_s renderEntity_t;
 typedef struct renderView_s renderView_t;
 
-typedef struct {
+typedef struct particleGen_s {
 	const renderEntity_t *	renderEnt;			// for shaderParms, etc
 	const renderView_t *	renderView;
 	int						index;				// particle number in the system
@@ -109,7 +111,7 @@ public:
 							~idParticleStage() {}
 
 	void					Default();
-							[[nodiscard]] int						NumQuadsPerParticle() const;	// includes trails and cross faded animations
+	[[nodiscard]] size_t	NumQuadsPerParticle() const;	// includes trails and cross faded animations
 	// returns the number of verts created, which will range from 0 to 4*NumQuadsPerParticle()
 	int						CreateParticle( particleGen_t *g, idDrawVert *verts ) const;
 
@@ -118,9 +120,9 @@ public:
 	void					ParticleTexCoords( particleGen_t *g, idDrawVert *verts ) const;
 	void					ParticleColors( particleGen_t *g, idDrawVert *verts ) const;
 
-							[[nodiscard]] const char *			GetCustomPathName() const;
-							[[nodiscard]] const char *			GetCustomPathDesc() const;
-							[[nodiscard]] int						NumCustomPathParms() const;
+	[[nodiscard]] const char *	GetCustomPathName() const;
+	[[nodiscard]] const char *	GetCustomPathDesc() const;
+	[[nodiscard]] size_t		NumCustomPathParms() const;
 	void					SetCustomPathType( const char *p );
 	void					operator=( const idParticleStage &src );
 
@@ -129,11 +131,11 @@ public:
 
 	const idMaterial *		material;
 
-	int						totalParticles;		// total number of particles, although some may be invisible at a given time
+	size_t					totalParticles;		// total number of particles, although some may be invisible at a given time
 	float					cycles;				// allows things to oneShot ( 1 cycle ) or run for a set number of cycles
 												// on a per stage basis
 
-	int						cycleMsec;			// ( particleLife + deadTime ) in msec
+	ID_TIME_T				cycleMsec;			// ( particleLife + deadTime ) in msec
 
 	float					spawnBunching;		// 0.0 = all come out at first instant, 1.0 = evenly spaced over cycle time
 	float					particleLife;		// total seconds of life for each particle
@@ -214,7 +216,7 @@ private:
 	bool					RebuildTextSource();
 	void					GetStageBounds( idParticleStage *stage );
 	idParticleStage *		ParseParticleStage( idLexer &src );
-	void					ParseParms( idLexer &src, float *parms, int maxParms );
+	void					ParseParms( idLexer &src, float *parms, size_t maxParms );
 	void					ParseParametric( idLexer &src, idParticleParm *parm );
 	void					WriteStage( idFile *f, idParticleStage *stage );
 	void					WriteParticleParm( idFile *f, idParticleParm *parm, const char *name );

@@ -49,7 +49,7 @@ void idSysLocal::DebugPrintf( const char *fmt, ... ) {
 	va_end( argptr );
 }
 
-void idSysLocal::DebugVPrintf( const char *fmt, va_list arg ) {
+void idSysLocal::DebugVPrintf( const char *fmt, const va_list arg ) {
 	Sys_DebugVPrintf( fmt, arg );
 }
 
@@ -77,19 +77,19 @@ bool idSysLocal::FPU_StackIsEmpty() {
 	return Sys_FPU_StackIsEmpty();
 }
 
-void idSysLocal::FPU_SetFTZ( bool enable ) {
+void idSysLocal::FPU_SetFTZ(const bool enable ) {
 	Sys_FPU_SetFTZ( enable );
 }
 
-void idSysLocal::FPU_SetDAZ( bool enable ) {
+void idSysLocal::FPU_SetDAZ(const bool enable ) {
 	Sys_FPU_SetDAZ( enable );
 }
 
-bool idSysLocal::LockMemory( void *ptr, size_t bytes ) {
+bool idSysLocal::LockMemory( void *ptr, const size_t bytes ) {
 	return Sys_LockMemory( ptr, bytes );
 }
 
-bool idSysLocal::UnlockMemory( void *ptr, size_t bytes ) {
+bool idSysLocal::UnlockMemory( void *ptr, const size_t bytes ) {
 	return Sys_UnlockMemory( ptr, bytes );
 }
 
@@ -101,7 +101,7 @@ const char * idSysLocal::GetCallStackStr( const address_t *callStack, const size
 	return Sys_GetCallStackStr( callStack, callStackSize );
 }
 
-const char * idSysLocal::GetCallStackCurStr( size_t depth ) {
+const char * idSysLocal::GetCallStackCurStr(const size_t depth ) {
 	return Sys_GetCallStackCurStr( depth );
 }
 
@@ -113,19 +113,19 @@ dllHandle_t idSysLocal::DLL_Load( const char *dllName ) {
 	return Sys_DLL_Load( dllName );
 }
 
-address_t idSysLocal::DLL_GetProcAddress( dllHandle_t dllHandle, const char *procName ) {
+address_t idSysLocal::DLL_GetProcAddress(const dllHandle_t dllHandle, const char *procName ) {
 	return Sys_DLL_GetProcAddress( dllHandle, procName );
 }
 
-void idSysLocal::DLL_Unload( dllHandle_t dllHandle ) {
+void idSysLocal::DLL_Unload(const dllHandle_t dllHandle ) {
 	Sys_DLL_Unload( dllHandle );
 }
 
-void idSysLocal::DLL_GetFileName( const char *baseName, char *dllName, size_t maxLength ) {
+void idSysLocal::DLL_GetFileName( const char *baseName, char *dllName, const size_t maxLength ) {
 	idStr::snPrintf( dllName, maxLength, "%s%s.dll", baseName, CPUSTRING );
 }
 
-sysEvent_t idSysLocal::GenerateMouseButtonEvent( int button, bool down ) {
+sysEvent_t idSysLocal::GenerateMouseButtonEvent(const int button, const bool down ) {
 	sysEvent_t ev = {};
 	ev.evType = SE_KEY;
 	ev.evValue = K_MOUSE1 + button - 1;
@@ -135,7 +135,7 @@ sysEvent_t idSysLocal::GenerateMouseButtonEvent( int button, bool down ) {
 	return ev;
 }
 
-sysEvent_t idSysLocal::GenerateMouseMoveEvent( int deltax, int deltay ) {
+sysEvent_t idSysLocal::GenerateMouseMoveEvent(const int deltax, const int deltay ) {
 	sysEvent_t ev = {};
 	ev.evType = SE_MOUSE;
 	ev.evValue = deltax;
@@ -145,7 +145,7 @@ sysEvent_t idSysLocal::GenerateMouseMoveEvent( int deltax, int deltay ) {
 	return ev;
 }
 
-void idSysLocal::FPU_EnableExceptions( int exceptions ) {
+void idSysLocal::FPU_EnableExceptions(const int exceptions ) {
 	Sys_FPU_EnableExceptions( exceptions );
 }
 
@@ -243,7 +243,7 @@ size_t Sys_NumLangs() {
 }
 
 // get language name by index
-const char * Sys_Lang( int idx ) {
+const char * Sys_Lang(const int idx ) {
 	if ( idx >= 0 && idx < numLanguages ) {
 		return sysLanguageNames[ idx ];
 	}

@@ -307,7 +307,7 @@ idImage *idImageManager::ImageFromFunction( const char *_name, void (*generatorF
 GetImageWithParameters
 ==============
 */
-idImage	*idImageManager::GetImageWithParameters( const char *_name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap ) const {
+idImage	*idImageManager::GetImageWithParameters( const char *_name, const textureFilter_t filter, const textureRepeat_t repeat, textureUsage_t usage, const cubeFiles_t cubeMap ) const {
 	if ( !_name || !_name[0] || idStr::Icmp( _name, "default" ) == 0 || idStr::Icmp( _name, "_default" ) == 0 ) {
 		declManager->MediaPrint( "DEFAULTED\n" );
 		return globalImages->defaultImage;
@@ -355,8 +355,8 @@ Finds or loads the given image, always returning a valid image pointer.
 Loading of the image may be deferred for dynamic loading.
 ==============
 */
-idImage	*idImageManager::ImageFromFile( const char *_name, textureFilter_t filter, 
-						 textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap ) {
+idImage	*idImageManager::ImageFromFile( const char *_name, const textureFilter_t filter,
+						 const textureRepeat_t repeat, textureUsage_t usage, const cubeFiles_t cubeMap ) {
 
 	if ( !_name || !_name[0] || idStr::Icmp( _name, "default" ) == 0 || idStr::Icmp( _name, "_default" ) == 0 ) {
 		declManager->MediaPrint( "DEFAULTED\n" );
@@ -440,7 +440,7 @@ idImage	*idImageManager::ImageFromFile( const char *_name, textureFilter_t filte
 idImageManager::ScratchImage
 ========================
 */
-idImage * idImageManager::ScratchImage( const char *_name, idImageOpts *imgOpts, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage ) {
+idImage * idImageManager::ScratchImage( const char *_name, idImageOpts *imgOpts, const textureFilter_t filter, textureRepeat_t repeat, const textureUsage_t usage ) {
 	if ( !_name || !_name[0] ) {
 		idLib::FatalError( "idImageManager::ScratchImage called with empty name" );
 	}
@@ -548,8 +548,8 @@ void idImageManager::PurgeAllImages() {
 ReloadImages
 ===============
 */
-void idImageManager::ReloadImages( bool all ) {
-	for ( int i = 0 ; i < globalImages->images.Num() ; i++ ) {
+void idImageManager::ReloadImages(const bool all ) {
+	for ( size_t i = 0 ; i < globalImages->images.Num() ; i++ ) {
 		globalImages->images[ i ]->Reload( all );
 	}
 }
@@ -616,7 +616,7 @@ void R_CombineCubeImages_f( const idCmdArgs &args ) {
 		}
 
 		if ( side != 6 ) {
-			for ( int i = 0 ; i < side ; side++ ) {
+			for ( size_t i = 0 ; i < side ; side++ ) {
 				Mem_Free( pics[side] );
 			}
 			break;
@@ -643,7 +643,7 @@ UnbindAll
 */
 void idImageManager::UnbindAll() {
 	int oldTMU = backEnd.glState.currenttmu;
-	for ( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i ) {
+	for ( size_t i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i ) {
 		backEnd.glState.currenttmu = i;
 		BindNull();
 	}
@@ -699,7 +699,7 @@ Frees all images used by the previous level
 void idImageManager::BeginLevelLoad() {
 	insideLevelLoad = true;
 
-	for ( int i = 0 ; i < images.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < images.Num() ; i++ ) {
 		idImage	*image = images[ i ];
 
 		// generator function images are always kept around
@@ -750,10 +750,10 @@ void idImageManager::Preload( const idPreloadManifest &manifest, const bool & ma
 		common->Printf( "Preloading images...\n" );
 		preloadingMapImages = mapPreload;
 		int	start = Sys_Milliseconds();
-		int numLoaded = 0;
+		size_t numLoaded = 0;
 
 		//fileSystem->StartPreload( preloadImageFiles );
-		for ( int i = 0; i < manifest.NumResources(); i++ ) {
+		for ( size_t i = 0; i < manifest.NumResources(); i++ ) {
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( i );
 			if ( p.resType == PRELOAD_IMAGE && !ExcludePreloadImage( p.resourceName ) ) {
 				globalImages->ImageFromFile( p.resourceName, static_cast<textureFilter_t>(p.imgData.filter), static_cast<textureRepeat_t>(p.imgData.repeat), static_cast<textureUsage_t>(p.imgData.usage), static_cast<cubeFiles_t>(p.imgData.cubeMap) );
@@ -773,9 +773,9 @@ void idImageManager::Preload( const idPreloadManifest &manifest, const bool & ma
 idImageManager::LoadLevelImages
 ===============
 */
-int idImageManager::LoadLevelImages( bool pacifier ) {
+int idImageManager::LoadLevelImages(const bool pacifier ) {
 	int	loadCount = 0;
-	for ( int i = 0 ; i < images.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < images.Num() ; i++ ) {
 		if ( pacifier ) {
 			common->UpdateLevelLoadPacifier();
 

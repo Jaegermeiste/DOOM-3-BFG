@@ -41,24 +41,32 @@ If you have questions concerning this license or the applicable additional terms
 
 void M_ClearBox (fixed_t *box)
 {
-    box[BOXTOP] = box[BOXRIGHT] = MININT;
-    box[BOXBOTTOM] = box[BOXLEFT] = MAXINT;
+    box[BOXTOP] = box[BOXRIGHT] = std::numeric_limits<fixed_t>::min();
+    box[BOXBOTTOM] = box[BOXLEFT] = std::numeric_limits<fixed_t>::max();
 }
 
 void
 M_AddToBox
 ( fixed_t*	box,
-  fixed_t	x,
-  fixed_t	y )
+  const std::integral auto x,
+  const std::integral auto y )
 {
-    if (x<box[BOXLEFT])
-	box[BOXLEFT] = x;
-    else if (x>box[BOXRIGHT])
-	box[BOXRIGHT] = x;
-    if (y<box[BOXBOTTOM])
-	box[BOXBOTTOM] = y;
-    else if (y>box[BOXTOP])
-	box[BOXTOP] = y;
+    if (std::cmp_less(x, box[BOXLEFT]))
+    {
+	    box[BOXLEFT] = numeric_cast<fixed_t>(x);
+    }
+    else if (std::cmp_greater(x, box[BOXRIGHT]))
+    {
+	    box[BOXRIGHT] = numeric_cast<fixed_t>(x);
+    }
+    if (std::cmp_less(y, box[BOXBOTTOM]))
+    {
+	    box[BOXBOTTOM] = numeric_cast<fixed_t>(y);
+    }
+    else if (std::cmp_greater(y, box[BOXTOP]))
+    {
+	    box[BOXTOP] = numeric_cast<fixed_t>(y);
+    }
 }
 
 

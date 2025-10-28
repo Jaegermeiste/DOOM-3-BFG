@@ -60,7 +60,7 @@ void idMenuWidget_PDA_Objective::Update() {
 		if ( player->GetInventory().objectiveNames.Num() == 0 ) {
 			dataSprite->StopFrame( 1 );
 		} else {
-			int numObjectives = player->GetInventory().objectiveNames.Num();
+			size_t numObjectives = player->GetInventory().objectiveNames.Num();
 			
 			int objStartIndex = 0;
 			if ( numObjectives == 1 ) {
@@ -74,7 +74,7 @@ void idMenuWidget_PDA_Objective::Update() {
 			idSWFTextInstance * txtDesc = dataObj->GetNestedText( "txtDesc" );
 
 			int displayCount = 0;
-			for ( int index = numObjectives - 1; displayCount < 2 && index >= 0; --index ) {
+			for ( index_t index = numObjectives - 1; displayCount < 2 && index >= 0; --index ) {
 
 				if ( img != nullptr) {
 					if ( player->GetInventory().objectiveNames[index].screenshot == nullptr) {

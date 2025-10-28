@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
@@ -64,7 +65,7 @@ void S_Start(void);
 void
 S_StartSound
 ( void*		origin,
-  int		sound_id );
+  index_t	sound_id );
 
 
 
@@ -72,7 +73,7 @@ S_StartSound
 void
 S_StartSoundAtVolume
 ( void*		origin,
-  int		sound_id,
+  index_t	sound_id,
   int		volume );
 
 
@@ -81,14 +82,14 @@ void S_StopSound(void* origin);
 
 
 // Start music using <music_id> from sounds.h
-void S_StartMusic(int music_id);
+void S_StartMusic(index_t music_id);
 
 // Start music using <music_id> from sounds.h,
 //  and set whether looping
 void
 S_ChangeMusic
-( int		music_id,
-  int		looping );
+( index_t	music_id,
+  bool		looping );
 
 // Stops the music fer sure.
 void S_StopMusic(void);

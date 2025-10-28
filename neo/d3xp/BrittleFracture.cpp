@@ -132,7 +132,7 @@ void idBrittleFracture::Save( idSaveGame *savefile ) const {
 
 	// So we can re-break the object on load if needed
 	savefile->WriteInt( storedEvents.Num() );
-	for ( int i = 0; i < storedEvents.Num(); ++i ) {
+	for ( size_t i = 0; i < storedEvents.Num(); ++i ) {
 		savefile->WriteInt( storedEvents[i].eventType );
 		savefile->WriteVec3( storedEvents[i].point );
 		savefile->WriteVec3( storedEvents[i].vector );
@@ -180,10 +180,10 @@ void idBrittleFracture::Restore( idRestoreGame *savefile ) {
 	CreateFractures( defaultRenderModel );
 	FindNeighbours();
 
-	int numEvents = 0;
+	size_t numEvents = 0;
 	bool resolveBreaks = false;
 	savefile->ReadInt( numEvents );
-	for( int i = 0; i < numEvents; i++ ) {
+	for ( size_t i = 0; i < numEvents; i++ ) {
 		fractureEvent_s restoredEvent;
 
 		savefile->ReadInt( restoredEvent.eventType );
@@ -199,7 +199,7 @@ void idBrittleFracture::Restore( idRestoreGame *savefile ) {
 	}
 
 	// remove any dropped shards
-	for ( int i = 0; resolveBreaks && i < shards.Num(); i++ ) {
+	for ( size_t i = 0; resolveBreaks && i < shards.Num(); i++ ) {
 		if ( shards[i]->droppedTime!= -1 ) {
 			RemoveShard( i );
 			i--;
@@ -262,7 +262,7 @@ void idBrittleFracture::Spawn() {
 
 		isXraySurface = false;
 
-		for ( int i = 0; i < model->NumSurfaces(); i++ ) {
+		for ( size_t i = 0; i < model->NumSurfaces(); i++ ) {
 			const modelSurface_t *surf = model->Surface( i );
 
 			if ( idStr( surf->shader->GetName() ) == "textures/smf/window_scratch" ) {
@@ -307,7 +307,7 @@ void idBrittleFracture::AddShard( idClipModel *clipModel, idFixedWinding &w ) {
 idBrittleFracture::RemoveShard
 ================
 */
-void idBrittleFracture::RemoveShard( int index ) {
+void idBrittleFracture::RemoveShard(const index_t index ) {
 	int i;
 
 	delete shards[index];
@@ -624,7 +624,7 @@ void idBrittleFracture::Think() {
 idBrittleFracture::ApplyImpulse
 ================
 */
-void idBrittleFracture::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) {
+void idBrittleFracture::ApplyImpulse( idEntity *ent, const int id, const idVec3 &point, const idVec3 &impulse ) {
 
 	if ( id < 0 || id >= shards.Num() ) {
 		return;
@@ -642,7 +642,7 @@ void idBrittleFracture::ApplyImpulse( idEntity *ent, int id, const idVec3 &point
 idBrittleFracture::AddForce
 ================
 */
-void idBrittleFracture::AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force ) {
+void idBrittleFracture::AddForce( idEntity *ent, const int id, const idVec3 &point, const idVec3 &force ) {
 
 	if ( id < 0 || id >= shards.Num() ) {
 		return;
@@ -1130,7 +1130,7 @@ void idBrittleFracture::CreateFractures( const idRenderModel *renderModel ) {
 	if ( isXraySurface ) {
 		idFixedWinding w;
 
-		for ( int i = 0; i < 4; i++ ) {
+		for ( size_t i = 0; i < 4; i++ ) {
 			const idDrawVert * v = &surf->geometry->verts[i];
 			w.AddPoint( idVec5( v->xyz, v->GetTexCoord() ) );
 		}
@@ -1143,7 +1143,7 @@ void idBrittleFracture::CreateFractures( const idRenderModel *renderModel ) {
 		const idDrawVert * verts = surf->geometry->verts;
 		triIndex_t * indexes = surf->geometry->indexes;
 
-		for ( int j = 0; j < surf->geometry->numIndexes; j += 3 ) {
+		for ( size_t j = 0; j < surf->geometry->numIndexes; j += 3 ) {
 			int i0 = indexes[ j + 0 ];
 			int i1 = indexes[ j + 1 ];
 			int i2 = indexes[ j + 2 ];
@@ -1326,7 +1326,7 @@ void idBrittleFracture::Event_Touch( idEntity *other, trace_t *trace ) {
 idBrittleFracture::ClientThink
 ================
 */
-void idBrittleFracture::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idBrittleFracture::ClientThink( const int curTime, const double fraction, const bool predict ) {
 
 	// only think forward because the state is not synced through snapshots
 	if ( !gameLocal.isNewFrame ) {
@@ -1355,7 +1355,7 @@ void idBrittleFracture::ClientPredictionThink() {
 idBrittleFracture::ClientReceiveEvent
 ================
 */
-bool idBrittleFracture::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idBrittleFracture::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	idVec3 point, dir;
 
 	switch( event ) {

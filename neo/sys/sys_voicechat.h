@@ -59,7 +59,7 @@ public:
 	[[nodiscard]] bool			IsRestrictedByPrivleges() const;
 
 	void			SetHeadsetState( int talkerIndex, bool state );
-	[[nodiscard]] bool			GetHeadsetState( int talkerIndex ) const	{ return talkers[ talkerIndex ].hasHeadset; }
+	[[nodiscard]] bool			GetHeadsetState(const int talkerIndex ) const	{ return talkers[ talkerIndex ].hasHeadset; }
 	bool			HasHeadsetStateChanged( int talkerIndex );
 
 	enum disableVoiceReason_t {
@@ -120,8 +120,8 @@ protected:
 		[[nodiscard]] bool IsLocal() const { return isLocal; }
 	};
 
-	virtual bool	RegisterTalkerInternal( int index ) = 0;
-	virtual void	UnregisterTalkerInternal( int index ) = 0;
+	virtual bool	RegisterTalkerInternal( index_t index ) = 0;
+	virtual void	UnregisterTalkerInternal( index_t index ) = 0;
 
 	int		FindTalkerIndex( const lobbyUser_t * user, int lobbyType );
 	int		FindMachine( const lobbyAddress_t & address, int lobbyType );

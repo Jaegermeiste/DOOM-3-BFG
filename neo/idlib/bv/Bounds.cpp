@@ -40,7 +40,7 @@ idBounds::GetRadius
 */
 float idBounds::GetRadius() const {
 	float total = 0.0f;
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		const float b0 = idMath::Fabs(b[0][i]);
 		const float b1 = idMath::Fabs(b[1][i]);
 		if ( b0 > b1 ) {
@@ -59,7 +59,7 @@ idBounds::GetRadius
 */
 float idBounds::GetRadius( const idVec3 &center ) const {
 	float total = 0.0f;
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		const float b0 = idMath::Fabs(center[i] - b[0][i]);
 		const float b1 = idMath::Fabs(b[1][i] - center[i]);
 		if ( b0 > b1 ) {
@@ -171,12 +171,12 @@ idBounds::RayIntersection
 ============
 */
 bool idBounds::RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale ) const {
-	int side;
-	idVec3 hit;
+	int side = 0;
+	idVec3 hit = {};
 
-	int ax0 = -1;
-	int inside = 0;
-	for ( int i = 0; i < 3; i++ ) {
+	index_t ax0 = -1;
+	int64 inside = 0;
+	for ( index_t i = 0; i < 3; i++ ) {
 		if ( start[i] < b[0][i] ) {
 			side = 0;
 		}
@@ -203,8 +203,8 @@ bool idBounds::RayIntersection( const idVec3 &start, const idVec3 &dir, float &s
 		return ( inside == 3 );
 	}
 
-	const int ax1 = (ax0 + 1) % 3;
-	const int ax2 = (ax0 + 2) % 3;
+	const index_t ax1 = (ax0 + 1) % 3;
+	const index_t ax2 = (ax0 + 2) % 3;
 	hit[ax1] = start[ax1] + scale * dir[ax1];
 	hit[ax2] = start[ax2] + scale * dir[ax2];
 
@@ -223,7 +223,7 @@ void idBounds::FromTransformedBounds( const idBounds &bounds, const idVec3 &orig
 	idVec3 center = (bounds[0] + bounds[1]) * 0.5f;
 	idVec3 extents = bounds[1] - center;
 
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		rotatedExtents[i] = idMath::Fabs( extents[0] * axis[0][i] ) +
 							idMath::Fabs( extents[1] * axis[1][i] ) +
 							idMath::Fabs( extents[2] * axis[2][i] );
@@ -241,7 +241,7 @@ idBounds::FromPoints
   Most tight bounds for a point set.
 ============
 */
-void idBounds::FromPoints( const idVec3 *points, const int numPoints ) {
+void idBounds::FromPoints( const idVec3 *points, const size_t numPoints ) {
 	SIMDProcessor->MinMax( b[0], b[1], points, numPoints );
 }
 
@@ -253,7 +253,7 @@ idBounds::FromPointTranslation
 ============
 */
 void idBounds::FromPointTranslation( const idVec3 &point, const idVec3 &translation ) {
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		if ( translation[i] < 0.0f ) {
 			b[0][i] = point[i] + translation[i];
 			b[1][i] = point[i];
@@ -280,7 +280,7 @@ void idBounds::FromBoundsTranslation( const idBounds &bounds, const idVec3 &orig
 		b[0] = bounds[0] + origin;
 		b[1] = bounds[1] + origin;
 	}
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		if ( translation[i] < 0.0f ) {
 			b[0][i] += translation[i];
 		}
@@ -307,7 +307,7 @@ static idBounds BoundsForPointRotation( const idVec3 &start, const idRotation &r
 	idVec3 v1 = (start - origin).Cross(axis);
 	idVec3 v2 = (end - origin).Cross(axis);
 
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		// if the derivative changes sign along this axis during the rotation from start to end
 		if ( ( v1[i] > 0.0f && v2[i] < 0.0f ) || ( v1[i] < 0.0f && v2[i] > 0.0f ) ) {
 			if ( ( 0.5f * (start[i] + end[i]) - origin[i] ) > 0.0f ) {
@@ -391,7 +391,7 @@ idBounds::ToPoints
 ============
 */
 void idBounds::ToPoints( idVec3 points[8] ) const {
-	for ( int i = 0; i < 8; i++ ) {
+	for ( size_t i = 0; i < 8; i++ ) {
 		points[i][0] = b[(i^(i>>1))&1][0];
 		points[i][1] = b[(i>>1)&1][1];
 		points[i][2] = b[(i>>2)&1][2];

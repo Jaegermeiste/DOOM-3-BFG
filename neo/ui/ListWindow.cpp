@@ -61,19 +61,19 @@ idListWindow::idListWindow(idUserInterfaceLocal *g) : idWindow(g) {
 	CommonInit();
 }
 
-void idListWindow::SetCurrentSel( int sel ) {
+void idListWindow::SetCurrentSel(const int sel ) {
 	currentSel.Clear();
 	currentSel.Append( sel );
 }
 
-void idListWindow::ClearSelection( int sel ) {
+void idListWindow::ClearSelection(const int sel ) {
 	int cur = currentSel.FindIndex( sel );
 	if ( cur >= 0 ) {
 		currentSel.RemoveIndex( cur );
 	}
 }
 
-void idListWindow::AddCurrentSel( int sel ) {
+void idListWindow::AddCurrentSel(const int sel ) {
 	currentSel.Append( sel );
 }
 
@@ -81,7 +81,7 @@ int idListWindow::GetCurrentSel() {
 	return ( currentSel.Num() ) ? currentSel[0] : 0;
 }
 
-bool idListWindow::IsSelected( int index ) const
+bool idListWindow::IsSelected(const index_t index ) const
 {
 	return ( currentSel.FindIndex( index ) >= 0 );
 }
@@ -91,7 +91,7 @@ const char *idListWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 	const char *ret = idWindow::HandleEvent(event, updateVisuals);
 
 	float vert = GetMaxCharHeight();
-	int numVisibleLines = textRect.h / vert;
+	size_t numVisibleLines = textRect.h / vert;
 
 	int key = event->evValue;
 
@@ -144,7 +144,7 @@ const char *idListWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 				}
 			}
 		} else if ( key == K_UPARROW || key == K_PGUP || key == K_DOWNARROW || key == K_PGDN ) {
-			int numLines = 1;
+			size_t numLines = 1;
 
 			if ( key == K_PGUP || key == K_PGDN ) {
 				numLines = numVisibleLines / 2;
@@ -221,7 +221,7 @@ const char *idListWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 	}
 
 	if ( currentSel.Num() > 0 ) {
-		for ( int i = 0; i < currentSel.Num(); i++ ) {
+		for ( size_t i = 0; i < currentSel.Num(); i++ ) {
 			gui->SetStateInt( va( "%s_sel_%i", listName.c_str(), i ), currentSel[i] );
 		}
 	} else {
@@ -288,7 +288,7 @@ bool idListWindow::ParseInternalVar(const char *_name, idTokenParser *src) {
 	return idWindow::ParseInternalVar(_name, src);
 }
 
-idWinVar *idListWindow::GetWinVarByName(const char *_name, bool fixup, drawWin_t** owner) {
+idWinVar *idListWindow::GetWinVarByName(const char *_name, const bool fixup, drawWin_t** owner) {
 	return idWindow::GetWinVarByName(_name, fixup, owner);
 }
 
@@ -412,7 +412,7 @@ idListWindow::InitScroller
 This is the same as in idEditWindow
 ================
 */
-void idListWindow::InitScroller( bool horizontal )
+void idListWindow::InitScroller(const bool horizontal )
 {
 	const char *thumbImage = "guis/assets/scrollbar_thumb.tga";
 	const char *barImage = "guis/assets/scrollbarv.tga";
@@ -446,7 +446,7 @@ void idListWindow::InitScroller( bool horizontal )
 	scroller->SetBuddy(this);
 }
 
-void idListWindow::Draw(int time, float x, float y) {
+void idListWindow::Draw(ID_TIME_T time, float x, float y) {
 	idVec4 color;
 	idStr work;
 	size_t count = listItems.Num();
@@ -567,7 +567,7 @@ void idListWindow::Draw(int time, float x, float y) {
 	}
 }
 
-void idListWindow::Activate(bool activate, idStr &act) {
+void idListWindow::Activate(const bool activate, idStr &act) {
 	idWindow::Activate(activate, act);
 
 	if ( activate ) {

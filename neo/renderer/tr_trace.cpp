@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 R_TracePointCullStatic
 ====================
 */
-static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idDrawVert *verts, const int numVerts ) {
+static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idDrawVert *verts, const size_t numVerts ) {
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
@@ -85,7 +85,7 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 
 	__m128i vecTotalOrInt = { 0, 0, 0, 0 };
 
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
@@ -170,7 +170,7 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
 	byte tOr = 0;
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
@@ -220,7 +220,7 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 R_TracePointCullSkinned
 ====================
 */
-static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idDrawVert *verts, const int numVerts, const idJointMat * joints ) {
+static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idDrawVert *verts, const size_t numVerts, const idJointMat * joints ) {
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
@@ -266,7 +266,7 @@ static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float 
 
 	__m128i vecTotalOrInt = { 0, 0, 0, 0 };
 
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
@@ -351,7 +351,7 @@ static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
 	byte tOr = 0;
-	for ( int i = 0; i < numVerts; ) {
+	for ( size_t i = 0; i < numVerts; ) {
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
@@ -423,7 +423,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t & hit, cons
 		return false;		// coming at the triangle from behind or parallel
 	}
 
-	const float fraction = planeDistStart / planeDelta;
+	const double fraction = planeDistStart / planeDelta;
 
 	if ( fraction < 0.0f ) {
 		return false;		// shouldn't happen
@@ -593,7 +593,7 @@ localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float r
 	// start streaming the indexes
 	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->indexes, tri->numIndexes );
 
-	for ( int i = 0; i < tri->numIndexes; ) {
+	for ( size_t i = 0; i < tri->numIndexes; ) {
 
 		const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 

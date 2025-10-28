@@ -92,10 +92,10 @@ ID_INLINE halfFloat_t F32toF16( float a ) {
 		return 0;
 	}
 	if ( exponent > 30 ) {
-		return static_cast<halfFloat_t>(signbit | 0x7BFF);
+		return numeric_cast<halfFloat_t>(signbit | 0x7BFF);
 	}
 
-	return static_cast<halfFloat_t>(signbit | (exponent << 10) | (mantissa >> 13));
+	return numeric_cast<halfFloat_t>(signbit | (exponent << 10) | (mantissa >> 13));
 }
 
 /*
@@ -175,13 +175,13 @@ public:
 	static idVec3		GetSkinnedDrawVertPosition( const idDrawVert & vert, const idJointMat * joints );
 };
 
-constexpr auto DRAWVERT_SIZE               = 32;
-constexpr auto DRAWVERT_XYZ_OFFSET     = (0*4);
-constexpr auto DRAWVERT_ST_OFFSET      = (3*4);
-constexpr auto DRAWVERT_NORMAL_OFFSET  = (4*4);
-constexpr auto DRAWVERT_TANGENT_OFFSET = (5*4);
-constexpr auto DRAWVERT_COLOR_OFFSET   = (6*4);
-constexpr auto DRAWVERT_COLOR2_OFFSET  = (7*4);
+constexpr size_t DRAWVERT_SIZE           = 32;
+constexpr size_t DRAWVERT_XYZ_OFFSET     = (0ULL * 4ULL);
+constexpr size_t DRAWVERT_ST_OFFSET      = (3ULL * 4ULL);
+constexpr size_t DRAWVERT_NORMAL_OFFSET  = (4ULL * 4ULL);
+constexpr size_t DRAWVERT_TANGENT_OFFSET = (5ULL * 4ULL);
+constexpr size_t DRAWVERT_COLOR_OFFSET   = (6ULL * 4ULL);
+constexpr size_t DRAWVERT_COLOR2_OFFSET  = (7ULL * 4ULL);
 
 assert_offsetof( idDrawVert, xyz,		DRAWVERT_XYZ_OFFSET );
 assert_offsetof( idDrawVert, normal,	DRAWVERT_NORMAL_OFFSET );
@@ -357,7 +357,7 @@ idDrawVert::GetBiTangent
 */
 ID_INLINE const idVec3 idDrawVert::GetBiTangent() const {
 	// derive from the normal, tangent, and bitangent direction flag
-	idVec3 bitangent;
+	idVec3 bitangent = {};
 	bitangent.Cross( GetNormal(), GetTangent() );
 	bitangent *= GetBiTangentSign();
 	return bitangent;
@@ -371,7 +371,7 @@ idDrawVert::GetBiTangentRaw
 ID_INLINE const idVec3 idDrawVert::GetBiTangentRaw() const {
 	// derive from the normal, tangent, and bitangent direction flag
 	// don't re-normalize just like we do in the vertex programs
-	idVec3 bitangent;
+	idVec3 bitangent = {};
 	bitangent.Cross( GetNormalRaw(), GetTangentRaw() );
 	bitangent *= GetBiTangentSign();
 	return bitangent;
@@ -392,7 +392,7 @@ idDrawVert::SetBiTangent
 ========================
 */
 ID_INLINE void idDrawVert::SetBiTangent( const idVec3 &t ) {
-	idVec3 bitangent;
+	idVec3 bitangent = {};
 	bitangent.Cross( GetNormal(), GetTangent() );
 	SetBiTangentSign( bitangent * t );
 }
@@ -462,15 +462,8 @@ ID_INLINE void idDrawVert::LerpAll( const idDrawVert &a, const idDrawVert &b, co
 	SetTangent( tangent );
 	SetBiTangent( bitangent );
 
-	color[0] = static_cast<byte>(a.color[0] + f * (b.color[0] - a.color[0]));
-	color[1] = static_cast<byte>(a.color[1] + f * (b.color[1] - a.color[1]));
-	color[2] = static_cast<byte>(a.color[2] + f * (b.color[2] - a.color[2]));
-	color[3] = static_cast<byte>(a.color[3] + f * (b.color[3] - a.color[3]));
-
-	color2[0] = static_cast<byte>(a.color2[0] + f * (b.color2[0] - a.color2[0]));
-	color2[1] = static_cast<byte>(a.color2[1] + f * (b.color2[1] - a.color2[1]));
-	color2[2] = static_cast<byte>(a.color2[2] + f * (b.color2[2] - a.color2[2]));
-	color2[3] = static_cast<byte>(a.color2[3] + f * (b.color2[3] - a.color2[3]));
+	::LerpArray(a.color, b.color, color, f);
+	::LerpArray(a.color2, b.color2, color2, f);
 }
 
 /*
@@ -623,14 +616,14 @@ WriteDrawVerts16
 Use 16-byte in-order SIMD writes because the destVerts may live in write-combined memory
 ========================
 */
-ID_INLINE void WriteDrawVerts16( idDrawVert * destVerts, const idDrawVert * localVerts, const int numVerts ) {
+ID_INLINE void WriteDrawVerts16( idDrawVert * destVerts, const idDrawVert * localVerts, const size_t numVerts ) {
 	assert_sizeof( idDrawVert, 32 );
 	assert_16_byte_aligned( destVerts );
 	assert_16_byte_aligned( localVerts );
 
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
-	for ( int i = 0; i < numVerts; i++ ) {
+	for ( size_t i = 0; i < numVerts; i++ ) {
 		__m128i v0 = _mm_load_si128( (const __m128i *)( (byte *)( localVerts + i ) +  0 ) );
 		__m128i v1 = _mm_load_si128( (const __m128i *)( (byte *)( localVerts + i ) + 16 ) );
 		_mm_stream_si128( (__m128i *)( (byte *)( destVerts + i ) +  0 ), v0 );
@@ -676,7 +669,7 @@ ID_INLINE idDrawVert idDrawVert::GetSkinnedDrawVert( const idDrawVert & vert, co
 	outVert.SetNormal( accum * vert.GetNormal() );
 	outVert.SetTangent( accum * vert.GetTangent() );
 	outVert.tangent[3] = vert.tangent[3];
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		outVert.color[i] = vert.color[i];
 		outVert.color2[i] = vert.color2[i];
 	}
@@ -722,10 +715,10 @@ public:
 	idVec4			xyzw;
 
 	void			Clear();
-	static int		CreateShadowCache( idShadowVert * vertexCache, const idDrawVert *verts, const int numVerts );
+	static size_t	CreateShadowCache( idShadowVert * vertexCache, const idDrawVert *verts, const size_t numVerts );
 };
 
-#define SHADOWVERT_XYZW_OFFSET		(0)
+constexpr size_t SHADOWVERT_XYZW_OFFSET = (0);
 
 assert_offsetof( idShadowVert, xyzw, SHADOWVERT_XYZW_OFFSET );
 
@@ -746,12 +739,12 @@ public:
 	byte			pad[8];		// pad to multiple of 32-byte for glDrawElementsBaseVertex
 
 	void			Clear();
-	static int		CreateShadowCache( idShadowVertSkinned * vertexCache, const idDrawVert *verts, const int numVerts );
+	static size_t	CreateShadowCache( idShadowVertSkinned * vertexCache, const idDrawVert *verts, const size_t numVerts );
 };
 
-#define SHADOWVERTSKINNED_XYZW_OFFSET		(0)
-#define SHADOWVERTSKINNED_COLOR_OFFSET		(16)
-#define SHADOWVERTSKINNED_COLOR2_OFFSET		(20)
+constexpr size_t SHADOWVERTSKINNED_XYZW_OFFSET   = (0);
+constexpr size_t SHADOWVERTSKINNED_COLOR_OFFSET  = (16);
+constexpr size_t SHADOWVERTSKINNED_COLOR2_OFFSET = (20);
 
 assert_offsetof( idShadowVertSkinned, xyzw, SHADOWVERTSKINNED_XYZW_OFFSET );
 assert_offsetof( idShadowVertSkinned, color, SHADOWVERTSKINNED_COLOR_OFFSET );

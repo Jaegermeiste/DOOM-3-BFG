@@ -98,7 +98,7 @@ int idGameThread::Run() {
 
 	if ( isClient ) {
 		// run the game logic
-		for ( int i = 0; i < numGameFrames; i++ ) {
+		for ( size_t i = 0; i < numGameFrames; i++ ) {
 			SCOPED_PROFILE_EVENT( "Client Prediction" );
 			if ( userCmdMgr ) {
 				game->ClientRunFrame( *userCmdMgr, ( i == numGameFrames - 1 ), ret );
@@ -109,7 +109,7 @@ int idGameThread::Run() {
 		}
 	} else {
 		// run the game logic
-		for ( int i = 0; i < numGameFrames; i++ ) {
+		for ( size_t i = 0; i < numGameFrames; i++ ) {
 			SCOPED_PROFILE_EVENT( "GameTic" );
 			if ( userCmdMgr ) {
 				game->RunFrame( *userCmdMgr, ret );
@@ -152,7 +152,7 @@ idGameThread::RunGameAndDraw
 
 ===============
 */
-gameReturn_t idGameThread::RunGameAndDraw( int numGameFrames_, idUserCmdMgr & userCmdMgr_, bool isClient_, int startGameFrame ) {
+gameReturn_t idGameThread::RunGameAndDraw(const size_t numGameFrames_, idUserCmdMgr & userCmdMgr_, const bool isClient_, int startGameFrame ) {
 	// this should always immediately return
 	this->WaitForThread();
 
@@ -193,7 +193,7 @@ void idCommonLocal::DrawWipeModel() const
 		return;
 	}
 
-	int currentTime = Sys_Milliseconds();
+	ID_TIME_T currentTime = Sys_Milliseconds();
 
 	if ( !wipeHold && currentTime > wipeStopTime ) {
 		return;
@@ -293,7 +293,7 @@ idCommonLocal::UpdateScreen
 This is an out-of-sequence screen update, not the normal game rendering
 ===============
 */
-void idCommonLocal::UpdateScreen( bool captureToImage ) {
+void idCommonLocal::UpdateScreen(const bool captureToImage ) {
 	if ( insideUpdateScreen ) {
 		return;
 	}
@@ -330,7 +330,7 @@ void idCommonLocal::ProcessGameReturn( const gameReturn_t & ret ) {
 	if ( in_useJoystick.GetBool() && in_joystickRumble.GetBool() && !game->Shell_IsActive() && session->GetSignInManager().GetMasterInputDevice() >= 0 ) {
 		Sys_SetRumble( session->GetSignInManager().GetMasterInputDevice(), ret.vibrationLow, ret.vibrationHigh );		// Only set the rumble on the active controller
 	} else {
-		for ( int i = 0; i < MAX_INPUT_DEVICES; i++ ) {
+		for ( size_t i = 0; i < MAX_INPUT_DEVICES; i++ ) {
 			Sys_SetRumble( i, 0, 0 );
 		}
 	}
@@ -468,7 +468,7 @@ void idCommonLocal::Frame() {
 		// numGameFrames
 
 		// How many game frames to run
-		int numGameFrames = 0;
+		size_t numGameFrames = 0;
 
 		for(;;) {
 			const int thisFrameTime = Sys_Milliseconds();
@@ -587,7 +587,7 @@ void idCommonLocal::Frame() {
 		int deviceNum = session->GetSignInManager().GetMasterInputDevice();
 		usercmdGen->BuildCurrentUsercmd( deviceNum );
 		if ( deviceNum == -1 ) {
-			for ( int i = 0; i < MAX_INPUT_DEVICES; i++ ) {
+			for ( size_t i = 0; i < MAX_INPUT_DEVICES; i++ ) {
 				Sys_PollJoystickInputEvents( i );
 				Sys_EndJoystickInputEvents();
 			}
@@ -610,7 +610,7 @@ void idCommonLocal::Frame() {
 		// Stuff a copy of this userCmd for each game frame we are going to run.
 		// Ideally, the usercmds would be built in another thread so you could
 		// still get 60hz control accuracy when the game is running slower.
-		for ( int i = 0 ; i < numGameFrames ; i++ ) {
+		for ( size_t i = 0 ; i < numGameFrames ; i++ ) {
 			newCmd.clientGameMilliseconds = FRAME_TO_MSEC( gameFrame-numGameFrames+i+1 );
 			userCmdMgr.PutUserCmdForPlayer( game->GetLocalClientNum(), newCmd );
 		}

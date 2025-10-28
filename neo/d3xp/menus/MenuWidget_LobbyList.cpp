@@ -46,7 +46,7 @@ void idMenuWidget_LobbyList::Update() {
 		return;
 	}
 
-	for ( int i = 0; i < headings.Num(); ++i ) {
+	for ( size_t i = 0; i < headings.Num(); ++i ) {
 		idSWFTextInstance * txtHeading = GetSprite()->GetScriptObject()->GetNestedText( va( "heading%d", i ) );
 		if ( txtHeading != nullptr) {
 			txtHeading->SetText( headings[i] );
@@ -99,7 +99,7 @@ idMenuWidget_LobbyList::SetHeadingInfo
 */
 void idMenuWidget_LobbyList::SetHeadingInfo( idList< idStr > & list ) {
 	headings.Clear();
-	for ( int index = 0; index < list.Num(); ++index ) {
+	for ( index_t index = 0; index < list.Num(); ++index ) {
 		headings.Append( list[ index ] );
 	}
 }
@@ -109,7 +109,7 @@ void idMenuWidget_LobbyList::SetHeadingInfo( idList< idStr > & list ) {
 idMenuWidget_LobbyList::SetEntryData
 ========================
 */
-void idMenuWidget_LobbyList::SetEntryData( int index, idStr name, voiceStateDisplay_t voiceState ) {
+void idMenuWidget_LobbyList::SetEntryData(const index_t index, idStr name, const voiceStateDisplay_t voiceState ) {
 
 	if ( GetChildren().Num() == 0 || index >= GetChildren().Num() ) {
 		return;

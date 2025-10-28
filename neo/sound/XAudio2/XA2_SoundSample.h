@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __XA2_SOUNDSAMPLE_H__
 #define __XA2_SOUNDSAMPLE_H__
 
+#pragma once
+
 /*
 ================================================
 idSoundSample_XAudio2
@@ -54,7 +56,7 @@ public:
 	[[nodiscard]] ID_TIME_T			LengthInMsec() const { return SamplesToMsec( NumSamples(), SampleRate() ); }
 	[[nodiscard]] uint32			SampleRate() const { return format.basic.samplesPerSec; }
 	[[nodiscard]] size_t			NumSamples() const { return playLength; }
-	[[nodiscard]] size_t			NumChannels() const { return idMath::integer_cast<size_t>(format.basic.numChannels); }
+	[[nodiscard]] size_t			NumChannels() const { return numeric_cast<size_t>(format.basic.numChannels); }
 	[[nodiscard]] size_t			BufferSize() const { return totalBufferSize; }
 
 	[[nodiscard]] bool			IsCompressed() const { return ( format.basic.formatTag != idWaveFile::FORMAT_PCM ); }
@@ -101,7 +103,7 @@ protected:
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
 
-	uint32			lastPlayedTime;
+	ID_TIME_T		lastPlayedTime;
 
 	size_t			totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;

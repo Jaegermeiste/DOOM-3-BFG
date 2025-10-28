@@ -286,8 +286,8 @@ private:
 	void					Event_Footstep();
 	void					Event_EnableWalkIK();
 	void					Event_DisableWalkIK();
-	void					Event_EnableLegIK( int num );
-	void					Event_DisableLegIK( int num );
+	void					Event_EnableLegIK( size_t num );
+	void					Event_DisableLegIK( size_t num );
 	void					Event_SetAnimPrefix( const char *name );
 	void					Event_LookAtEntity( idEntity *ent, float duration );
 	void					Event_PreventPain( float duration );

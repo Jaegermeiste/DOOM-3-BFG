@@ -109,7 +109,7 @@ public:	// common physics interface
 	const idBounds &		GetAbsBounds( int id = -1 ) const override;
 
 	bool					Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) override;
-	bool					Interpolate( const float fraction ) override;
+	bool					Interpolate( const double fraction ) override;
 	void					UpdateTime( ID_TIME_T endTimeMSec ) override;
 	ID_TIME_T				GetTime() const override;
 

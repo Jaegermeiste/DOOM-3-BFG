@@ -86,7 +86,7 @@ typedef union {
  */
 
 METHODDEF void
-start_pass( j_decompress_ptr cinfo ) {
+start_pass(const j_decompress_ptr cinfo ) {
     my_idct_ptr idct = (my_idct_ptr) cinfo->idct;
     int ci, i;
     jpeg_component_info * compptr;
@@ -246,7 +246,7 @@ start_pass( j_decompress_ptr cinfo ) {
  */
 
 GLOBAL void
-jinit_inverse_dct( j_decompress_ptr cinfo ) {
+jinit_inverse_dct(const j_decompress_ptr cinfo ) {
     my_idct_ptr idct;
     int ci;
     jpeg_component_info * compptr;

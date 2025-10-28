@@ -221,7 +221,7 @@ void idMenuScreen_Shell_PartyLobby::UpdateOptions() {
 		menuOptions.Append( option );
 
 		idMenuWidget_Button * buttonWidget = nullptr;
-		int index = 0;
+		index_t index = 0;
 		options->GetChildByIndex( index ).ClearEventActions();
 		options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PARTY_CMD_QUICK, index );
 		buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
@@ -286,7 +286,7 @@ void idMenuScreen_Shell_PartyLobby::UpdateOptions() {
 			option.Append( "#str_swf_invite_friends" );	// Play With Friends
 			menuOptions.Append( option );
 
-			int index = 0;
+			index_t index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PARTY_CMD_LEADERBOARDS, index );
 			buttonWidget = dynamic_cast< idMenuWidget_Button * >( &options->GetChildByIndex( index ) );
@@ -463,7 +463,7 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction & action, const
 				return true;
 			}
 
-			int index = parms[0].ToInteger();
+			index_t index = parms[0].ToInteger();
 
 			idLobbyBase & activeLobby = session->GetPartyLobbyBase();
 			lobbyUserID_t luid = activeLobby.GetLobbyUserIdByOrdinal( index );

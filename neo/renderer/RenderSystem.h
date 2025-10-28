@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-struct emptyCommand_s;
+struct emptyCommand_t;
 /*
 ===============================================================================
 
@@ -233,7 +233,7 @@ public:
 	virtual void			ResetFonts() = 0;
 
 	virtual void			SetColor( const idVec4 & rgba ) = 0;
-	virtual void			SetColor4( float r, float g, float b, float a ) { SetColor( idVec4( r, g, b, a ) ); }
+	virtual void			SetColor4(const float r, const float g, const float b, const float a ) { SetColor( idVec4( r, g, b, a ) ); }
 
 	virtual uint32			GetColor() = 0;
 
@@ -269,17 +269,17 @@ public:
 	//
 	// After this is called, new command buffers can be built up in parallel
 	// with the rendering of the closed off command buffers by RenderCommandBuffers()
-	virtual const emptyCommand_s *	SwapCommandBuffers( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) = 0;
+	virtual const emptyCommand_t *	SwapCommandBuffers( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) = 0;
 
 	// SwapCommandBuffers operation can be split in two parts for non-smp rendering
 	// where the GPU is idled intentionally for minimal latency.
 	virtual void			SwapCommandBuffers_FinishRendering( uint64 *frontEndMicroSec, uint64 *backEndMicroSec, uint64 *shadowMicroSec, uint64 *gpuMicroSec ) = 0;
-	virtual const emptyCommand_s *	SwapCommandBuffers_FinishCommandBuffers() = 0;
+	virtual const emptyCommand_t *	SwapCommandBuffers_FinishCommandBuffers() = 0;
 
 	// issues GPU commands to render a built up list of command buffers returned
 	// by SwapCommandBuffers().  No references should be made to the current frameData,
 	// so new scenes and GUIs can be built up in parallel with the rendering.
-	virtual void			RenderCommandBuffers( const emptyCommand_s * commandBuffers ) = 0;
+	virtual void			RenderCommandBuffers( const emptyCommand_t * commandBuffers ) = 0;
 
 	// aviDemo uses this.
 	// Will automatically tile render large screenshots if necessary

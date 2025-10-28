@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define	__SWF_PARMLIST_H__
 
 // static list for script parameters
-static constexpr int SWF_MAX_PARMS = 16;
+static constexpr size_t SWF_MAX_PARMS = 16;
 
 /*
 ================================================
@@ -42,7 +42,7 @@ class idSWFParmList : public idStaticList< idSWFScriptVar, SWF_MAX_PARMS > {
 public:
 					idSWFParmList() noexcept {
 					}
-	explicit		idSWFParmList( const int num_ ) {
+	explicit		idSWFParmList( const size_t num_ ) {
 						SetNum( num_ );
 					}
 
@@ -52,8 +52,8 @@ public:
 	void	Append( const char * s );
 	void	Append( const idStr & s );
 	void	Append( idSWFScriptString * s );
-	void	Append( const float f );
-	void	Append( const int32 i );
+	void	Append( const std::floating_point auto f );
+	void	Append( const std::integral auto i );
 	void	Append( const bool b );
 };
 

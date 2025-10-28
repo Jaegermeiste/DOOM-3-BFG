@@ -56,7 +56,7 @@ public:
 
 	void			Clear();
 	void			AddPoint( const idVec2 &point );
-					[[nodiscard]] size_t          GetNumPoints() const;
+	[[nodiscard]] size_t          GetNumPoints() const;
 
 	void			Expand( const float d );
 	void			ExpandForAxialBox( const idVec2 bounds[2] );
@@ -68,24 +68,24 @@ public:
 					// if there is nothing at the front the number of points is set to zero
 	bool			ClipInPlace( const idVec3 &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
 
-					[[nodiscard]] idWinding2D *	Copy() const;
-					[[nodiscard]] idWinding2D *	Reverse() const;
+	[[nodiscard]] idWinding2D *	Copy() const;
+	[[nodiscard]] idWinding2D *	Reverse() const;
 
-					[[nodiscard]] float			GetArea() const;
-					[[nodiscard]] idVec2			GetCenter() const;
-					[[nodiscard]] float			GetRadius( const idVec2 &center ) const;
+	[[nodiscard]] float			GetArea() const;
+	[[nodiscard]] idVec2			GetCenter() const;
+	[[nodiscard]] float			GetRadius( const idVec2 &center ) const;
 	void			GetBounds( idVec2 bounds[2] ) const;
 
-					[[nodiscard]] bool			IsTiny() const;
-					[[nodiscard]] bool			IsHuge() const;	// base winding for a plane is typically huge
+	[[nodiscard]] bool			IsTiny() const;
+	[[nodiscard]] bool			IsHuge() const;	// base winding for a plane is typically huge
 	void			Print() const;
 
-					[[nodiscard]] float			PlaneDistance( const idVec3 &plane ) const;
-					[[nodiscard]] int				PlaneSide( const idVec3 &plane, const float epsilon = ON_EPSILON ) const;
+	[[nodiscard]] float			PlaneDistance( const idVec3 &plane ) const;
+	[[nodiscard]] int				PlaneSide( const idVec3 &plane, const float epsilon = ON_EPSILON ) const;
 
-					[[nodiscard]] bool			PointInside( const idVec2 &point, const float epsilon ) const;
-					[[nodiscard]] bool			LineIntersection( const idVec2 &start, const idVec2 &end ) const;
-	bool			RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, size_t *edgeNums = nullptr) const;
+	[[nodiscard]] bool			PointInside( const idVec2 &point, const float epsilon ) const;
+	[[nodiscard]] bool			LineIntersection( const idVec2 &start, const idVec2 &end ) const;
+	bool			RayIntersection( const idVec2 &start, const idVec2 &dir, float &scale1, float &scale2, index_t *edgeNums = nullptr) const;
 
 	static idVec3	Plane2DFromPoints( const idVec2 &start, const idVec2 &end, const bool normalize = false );
 	static idVec3	Plane2DFromVecs( const idVec2 &start, const idVec2 &dir, const bool normalize = false );
@@ -101,7 +101,7 @@ ID_INLINE idWinding2D::idWinding2D() noexcept {
 }
 
 ID_INLINE idWinding2D &idWinding2D::operator=( const idWinding2D &winding ) {
-	for ( int i = 0; std::cmp_less(i, winding.numPoints); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, winding.numPoints); i++ ) {
 		p[i] = winding.p[i];
 	}
 	numPoints = winding.numPoints;
@@ -110,11 +110,13 @@ ID_INLINE idWinding2D &idWinding2D::operator=( const idWinding2D &winding ) {
 
 
 ID_INLINE const idVec2 &idWinding2D::operator[]( const Ordinal auto index ) const {
+	ORDINAL_CHECK(index, numPoints);
 	return p[ index ];
 }
 
 
 ID_INLINE idVec2 &idWinding2D::operator[]( const Ordinal auto index ) {
+	ORDINAL_CHECK(index, numPoints);
 	return p[ index ];
 }
 

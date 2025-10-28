@@ -202,7 +202,7 @@ void idMenuScreen_Shell_PressStart::HideScreen( const mainMenuTransition_t trans
 idMenuScreen_Shell_PressStart::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;
@@ -230,7 +230,7 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction & action, const
 			}
 
 			if ( parms.Num() > 0 ) {
-				const int index = parms[0].ToInteger();
+				const index_t index = parms[0].ToInteger();
 				if ( index != 0 ) {
 					itemList->MoveToIndex( index );
 					Update();

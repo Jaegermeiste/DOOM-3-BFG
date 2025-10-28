@@ -60,20 +60,25 @@ If you have questions concerning this license or the applicable additional terms
 #define GRIDRANGE	0
 #define XHAIRCOLORS	GRAYS
 #define	FB		0
-#define AM_PANDOWNKEY	KEY_DOWNARROW
-#define AM_PANUPKEY	KEY_UPARROW
-#define AM_PANRIGHTKEY	KEY_RIGHTARROW
-#define AM_PANLEFTKEY	KEY_LEFTARROW
-#define AM_ZOOMINKEY	K_EQUALS
-#define AM_ZOOMOUTKEY	K_MINUS
-#define AM_STARTKEY	KEY_TAB
-#define AM_ENDKEY	KEY_TAB
-#define AM_GOBIGKEY	K_0
-#define AM_FOLLOWKEY	K_F
-#define AM_GRIDKEY	K_G
-#define AM_MARKKEY	K_M
-#define AM_CLEARMARKKEY	K_C
-#define AM_NUMMARKPOINTS 10
+
+enum autoMap_e : uint8
+{
+	AM_PANDOWNKEY    = KEY_DOWNARROW,
+	AM_PANUPKEY      = KEY_UPARROW,
+	AM_PANRIGHTKEY   = KEY_RIGHTARROW,
+	AM_PANLEFTKEY    = KEY_LEFTARROW,
+	AM_ZOOMINKEY     = K_EQUALS,
+	AM_ZOOMOUTKEY    = K_MINUS,
+	AM_STARTKEY      = KEY_TAB,
+	AM_ENDKEY        = KEY_TAB,
+	AM_GOBIGKEY      = K_0,
+	AM_FOLLOWKEY     = K_F,
+	AM_GRIDKEY       = K_G,
+	AM_MARKKEY       = K_M,
+	AM_CLEARMARKKEY  = K_C,
+	AM_NUMMARKPOINTS = 10
+};
+
 #define INITSCALEMTOF (.2*FRACUNIT)
 #define F_PANINC	4
 #define M_ZOOMIN        ((int) (1.02*FRACUNIT))
@@ -106,21 +111,21 @@ If you have questions concerning this license or the applicable additional terms
 #define	NCMD_SETUP		0x20000000
 #define	NCMD_KILL		0x10000000	// kill game
 #define	NCMD_CHECKSUM	 	0x0fffffff
-#define	RESENDCOUNT	10
+constexpr size_t RESENDCOUNT = 10;
 #define	PL_DRONE	0x80	// bit flag in doomdata->player
 // d_net.defs end // 
 //  f_finale.defs begin // 
 #define	TEXTSPEED	3
-#define	TEXTWAIT	250
+constexpr ID_TIME_T TEXTWAIT = 250;
 // f_finale.defs end // 
 //  g_game.defs begin // 
-#define SAVESTRINGSIZE	64
+constexpr size_t SAVESTRINGSIZE = 64;
 #define MAXPLMOVE		(::g->forwardmove[1]) 
 #define TURBOTHRESHOLD	0x32
 #define SLOWTURNTICS	6 
-#define NUMKEYS		256 
-#define	BODYQUESIZE	32
-#define VERSIONSIZE		16 
+constexpr size_t NUMKEYS = 256 ;
+constexpr size_t BODYQUEUESIZE = 32;
+constexpr size_t VERSIONSIZE = 16;
 #define DEMOMARKER		0x80
 // g_game.defs end // 
 //  hu_lib.defs begin // 
@@ -137,9 +142,9 @@ If you have questions concerning this license or the applicable additional terms
 #define HU_INPUTTOGGLE	K_T
 #define HU_INPUTX	HU_MSGX
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT*(SHORT(::g->hu_font[0]->height) +1))
-#define HU_INPUTWIDTH	64
-#define HU_INPUTHEIGHT	1
-#define QUEUESIZE		128
+constexpr size_t HU_INPUTWIDTH = 64;
+constexpr size_t HU_INPUTHEIGHT = 1;
+constexpr size_t QUEUESIZE = 128;
 // hu_stuff.defs end // 
 //  i_net.defs begin // 
 // SMF
@@ -169,35 +174,38 @@ If you have questions concerning this license or the applicable additional terms
 #define htons(x) ntohs(x)
 */	  
 
-#define IPPORT_USERRESERVED	5000
+constexpr auto IPPORT_USERRESERVED = 5000;
 // i_net_xbox.defs end // 
 //  i_sound_xbox.defs begin // 
-#define SAMPLECOUNT		512
-#define NUM_SOUNDBUFFERS		64
-#define BUFMUL                  4
-#define MIXBUFFERSIZE		(SAMPLECOUNT*BUFMUL)
+constexpr size_t SAMPLECOUNT = 512;
+constexpr size_t NUM_SOUNDBUFFERS = 64;
+constexpr size_t BUFMUL = 4;
+constexpr size_t MIXBUFFERSIZE = (SAMPLECOUNT * BUFMUL);
 // i_sound_xbox.defs end // 
 //  i_video_xbox.defs begin // 
 //#define TEXTUREWIDTH	512
 //#define TEXTUREHEIGHT	256
 // i_video_xbox.defs end // 
-//  mus2midi.defs begin // 
-#define MUSEVENT_KEYOFF	0
-#define MUSEVENT_KEYON	1
-#define MUSEVENT_PITCHWHEEL	2
-#define MUSEVENT_CHANNELMODE	3
-#define MUSEVENT_CONTROLLERCHANGE	4
-#define MUSEVENT_END	6
-#define MIDI_MAXCHANNELS	16
-#define MIDIHEADERSIZE 14
+//  mus2midi.defs begin //
+enum musEvent_e : uint8
+{
+	MUSEVENT_KEYOFF = 0,
+	MUSEVENT_KEYON = 1,
+	MUSEVENT_PITCHWHEEL = 2,
+	MUSEVENT_CHANNELMODE = 3,
+	MUSEVENT_CONTROLLERCHANGE = 4,
+	MUSEVENT_END = 6
+};
+constexpr size_t MIDI_MAXCHANNELS = 16;
+constexpr size_t MIDIHEADERSIZE = 14;
 // mus2midi.defs end // 
 //  m_menu.defs begin // 
-#define SAVESTRINGSIZE 	64
+//constexpr size_t SAVESTRINGSIZE = 64;
 #define SKULLXOFF		-32
-#define LINEHEIGHT		16
+constexpr size_t LINEHEIGHT = 16;
 // m_menu.defs end // 
 //  p_enemy.defs begin // 
-#define MAXSPECIALCROSS	8
+constexpr size_t MAXSPECIALCROSS = 8;
 #define	FATSPREAD	(ANG90/8)
 #define	SKULLSPEED		(20*FRACUNIT)
 // p_enemy.defs end // 
@@ -205,7 +213,7 @@ If you have questions concerning this license or the applicable additional terms
 #define BONUSADD	6
 // p_inter.defs end // 
 //  p_map.defs begin // 
-#define MAXSPECIALCROSS		8
+//constexpr size_t MAXSPECIALCROSS = 8;
 // p_map.defs end // 
 //  p_mobj.defs begin // 
 #define STOPSPEED		0x1000
@@ -222,24 +230,24 @@ If you have questions concerning this license or the applicable additional terms
 #define PADSAVEP()	::g->save_p += (4 - ((int) ::g->save_p & 3)) & 3
 // p_saveg.defs end // 
 //  p_setup.defs begin // 
-#define MAX_DEATHMATCH_STARTS	10
+constexpr size_t MAX_DEATHMATCH_STARTS = 10;
 // p_setup.defs end // 
 //  p_spec.defs begin // 
-#define MAXANIMS                32
-#define MAXLINEANIMS            64
-#define MAX_ADJOINING_SECTORS    	20
+constexpr size_t MAXANIMS = 32;
+constexpr size_t MAXLINEANIMS = 64;
+constexpr size_t MAX_ADJOINING_SECTORS = 20;
 // p_spec.defs end // 
 //  p_user.defs begin // 
 #define INVERSECOLORMAP		32
 
 // DHM - NERVE :: MAXBOB reduced 25%
 //#define MAXBOB	0x100000
-#define MAXBOB	0xC0000
+constexpr auto MAXBOB = 0xC0000;
 
 #define ANG5   	(ANG90/18)
 // p_user.defs end // 
 //  r_bsp.defs begin // 
-#define MAXSEGS		32
+constexpr size_t MAXSEGS = 32;
 // r_bsp.defs end // 
 //  r_draw.defs begin // 
 //#define MAXWIDTH			1120
@@ -254,8 +262,8 @@ If you have questions concerning this license or the applicable additional terms
 // r_main.defs end // 
 //  r_plane.defs begin // 
 //#define MAXVISPLANES	128
-#define MAXVISPLANES	384
-#define MAXOPENINGS	SCREENWIDTH*64
+constexpr size_t MAXVISPLANES = 384;
+constexpr size_t MAXOPENINGS = SCREENWIDTH * 64;
 // r_plane.defs end // 
 //  r_segs.defs begin // 
 #define HEIGHTBITS		12
@@ -271,6 +279,7 @@ If you have questions concerning this license or the applicable additional terms
 #define NUMREDPALS			8
 #define NUMBONUSPALS		4
 #define RADIATIONPAL		13
+
 #define ST_FACEPROBABILITY		96
 #define ST_TOGGLECHAT		KEY_ENTER
 #define ST_X				0
@@ -385,6 +394,7 @@ If you have questions concerning this license or the applicable additional terms
 	(SCREENWIDTH - ST_MAPWIDTH * ST_CHATFONTWIDTH)
 #define ST_MAPTITLEY		0
 #define ST_MAPHEIGHT		1
+
 // st_stuff.defs end // 
 //  s_sound.defs begin // 
 #define S_MAX_VOLUME		127
@@ -436,7 +446,7 @@ If you have questions concerning this license or the applicable additional terms
 // w_wad.defs end // 
 //  z_zone.defs begin // 
 #define ZONEID	0x1d4a11
-#define NUM_ZONES 11
-#define MINFRAGMENT		64
+constexpr size_t NUM_ZONES = 11;
+constexpr size_t MINFRAGMENT = 64;
 #define NO_SHARE_LUMPS
 // z_zone.defs end // 

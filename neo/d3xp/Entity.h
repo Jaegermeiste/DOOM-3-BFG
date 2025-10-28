@@ -121,7 +121,7 @@ the client would never handle it. By incrementing a wrapped counter, we are guar
 the state change no matter what happens at the net layer).
 ================================================
 */
-template < int max >
+template < size_t max >
 struct idNetEvent {
 	idNetEvent() : count(0), lastCount(0) { }
 	void	Set() { count = ( ( count + 1 ) % max ); }
@@ -334,9 +334,9 @@ public:
 							// run the physics for this entity
 	bool					RunPhysics();
 							// Interpolates the physics, used on MP clients.
-	void					InterpolatePhysics( const float fraction );
+	void					InterpolatePhysics( const double fraction );
 							// InterpolatePhysics actually calls evaluate, this version doesn't.
-	void					InterpolatePhysicsOnly( const float fraction, bool updateTeam = false );
+	void					InterpolatePhysicsOnly( const double fraction, bool updateTeam = false );
 							// set the origin of the physics object (relative to bindMaster if not NULL)
 	void					SetOrigin( const idVec3 &org );
 							// set the axis of the physics object (relative to bindMaster if not NULL)
@@ -417,7 +417,7 @@ public:
 
 	// Called on clients in an MP game, does the actual interpolation for the entity.
 	// This function will eventually replace ClientPredictionThink completely.
-	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
+	virtual void			ClientThink( const int curTime, const double fraction, const bool predict );
 
 	virtual void			ClientPredictionThink();
 	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
@@ -436,7 +436,7 @@ public:
 	void					ServerSendEvent( int eventId, const idBitMsg *msg, bool saveEvent, lobbyUserID_t excluding = lobbyUserID_t() ) const;
 	void					ClientSendEvent( int eventId, const idBitMsg *msg ) const;
 
-	void					SetUseClientInterpolation( bool use ) { useClientInterpolation = use; }
+	void					SetUseClientInterpolation(const bool use ) { useClientInterpolation = use; }
 
 	void					SetSkipReplication( const bool skip ) { fl.skipReplication = skip; }
 	bool					GetSkipReplication() const { return fl.skipReplication; }
@@ -445,7 +445,7 @@ public:
 	void					CreateDeltasFromOldOriginAndAxis( const idVec3 & oldOrigin, const idMat3 & oldAxis );
 	void					DecayOriginAndAxisDelta();
 	uint32					GetPredictedKey() { return predictionKey; }
-	void					SetPredictedKey( uint32 key_ ) { predictionKey = key_; }
+	void					SetPredictedKey(const uint32 key_ ) { predictionKey = key_; }
 
 	void					FlagNewSnapshot();
 
@@ -615,7 +615,7 @@ public:
 	void					Restore( idRestoreGame *savefile );
 
 	void			ClientPredictionThink() override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void			Think() override;
 
 	void					UpdateAnimation();

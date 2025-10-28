@@ -91,7 +91,7 @@ void P_RemoveThinker (thinker_t* thinker)
 // P_AllocateThinker
 // Allocates memory and adds a new thinker at the end of the list.
 //
-void P_AllocateThinker (thinker_t*	thinker)
+static void P_AllocateThinker (thinker_t*	thinker)
 {
 }
 
@@ -100,7 +100,7 @@ void P_AllocateThinker (thinker_t*	thinker)
 //
 // P_RunThinkers
 //
-void P_RunThinkers (void)
+static void P_RunThinkers (void)
 {
     thinker_t*	currentthinker;
 
@@ -117,7 +117,9 @@ void P_RunThinkers (void)
 		 else
 		 {
 			 if (currentthinker->function.acp1)
+			 {
 				 currentthinker->function.acp1 ((mobj_t*)currentthinker);
+			 }
 		 }
 	currentthinker = currentthinker->next;
     }
@@ -130,15 +132,17 @@ void P_RunThinkers (void)
 //
 extern byte demoversion;
 
-void P_Ticker (void)
+static void P_Ticker (void)
 {
     int		i;
     
     // run the tic
     if (::g->paused)
-		return;
+    {
+	    return;
+    }
 
-	// don't think during wipe
+    // don't think during wipe
 	if ( !::g->netgame && (!::g->demoplayback || demoversion == VERSION ) && ::g->wipe ) {
 		return;
 	}

@@ -52,7 +52,7 @@ typedef my_fdct_controller * my_fdct_ptr;
  */
 
 METHODDEF void
-start_pass_fdctmgr( j_compress_ptr cinfo ) {
+start_pass_fdctmgr(const j_compress_ptr cinfo ) {
     my_fdct_ptr fdct = (my_fdct_ptr) cinfo->fdct;
     int ci, qtblno, i;
     jpeg_component_info * compptr;
@@ -178,10 +178,10 @@ start_pass_fdctmgr( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-forward_DCT( j_compress_ptr cinfo, jpeg_component_info * compptr,
+forward_DCT(const j_compress_ptr cinfo, jpeg_component_info * compptr,
              JSAMPARRAY sample_data, JBLOCKROW coef_blocks,
-             JDIMENSION start_row, JDIMENSION start_col,
-             JDIMENSION num_blocks ) {
+             const JDIMENSION start_row, JDIMENSION start_col,
+             const JDIMENSION num_blocks ) {
 /* This version is used for integer DCT implementations. */
 /* This routine is heavily used, so it's worth coding it tightly. */
     my_fdct_ptr fdct = (my_fdct_ptr) cinfo->fdct;
@@ -267,10 +267,10 @@ forward_DCT( j_compress_ptr cinfo, jpeg_component_info * compptr,
 #ifdef DCT_FLOAT_SUPPORTED
 
 METHODDEF void
-forward_DCT_float( j_compress_ptr cinfo, jpeg_component_info * compptr,
+forward_DCT_float(const j_compress_ptr cinfo, jpeg_component_info * compptr,
                    JSAMPARRAY sample_data, JBLOCKROW coef_blocks,
-                   JDIMENSION start_row, JDIMENSION start_col,
-                   JDIMENSION num_blocks ) {
+                   const JDIMENSION start_row, JDIMENSION start_col,
+                   const JDIMENSION num_blocks ) {
 /* This version is used for floating-point DCT implementations. */
 /* This routine is heavily used, so it's worth coding it tightly. */
     my_fdct_ptr fdct = (my_fdct_ptr) cinfo->fdct;
@@ -341,7 +341,7 @@ forward_DCT_float( j_compress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 GLOBAL void
-jinit_forward_dct( j_compress_ptr cinfo ) {
+jinit_forward_dct(const j_compress_ptr cinfo ) {
     my_fdct_ptr fdct;
     int i;
 

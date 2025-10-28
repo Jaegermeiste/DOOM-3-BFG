@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_SIGNIN_H__
 #define __SYS_SIGNIN_H__
 
+#pragma once
+
 /*
 ================================================
 idSignInManagerBase 
@@ -43,15 +45,15 @@ public:
 	  virtual							~idSignInManagerBase() {}
 
 	  virtual void					Pump() = 0;
-	[[nodiscard]] virtual int					GetNumLocalUsers() const = 0;
-	  virtual idLocalUser *			GetLocalUserByIndex( int index ) = 0;
-	[[nodiscard]] virtual const idLocalUser *	GetLocalUserByIndex( int index ) const = 0;
-	  virtual void					RemoveLocalUserByIndex( int index ) = 0;
-	  virtual void					RegisterLocalUser( int inputDevice ) = 0;								// Register a local controller user to the passed in input device
+	[[nodiscard]] virtual size_t	GetNumLocalUsers() const = 0;
+	  virtual idLocalUser *			GetLocalUserByIndex( index_t index ) = 0;
+	[[nodiscard]] virtual const idLocalUser *	GetLocalUserByIndex( index_t index ) const = 0;
+	  virtual void					RemoveLocalUserByIndex( index_t index ) = 0;
+	  virtual void					RegisterLocalUser( index_t inputDevice ) = 0;								// Register a local controller user to the passed in input device
 	  virtual idLocalUser *			GetRegisteringUser() { return nullptr; }									// This is a user that has started the registration process but is not yet a local user.
-	  virtual idLocalUser *			GetRegisteringUserByInputDevice( int inputDevice ) { return nullptr; }
+	  virtual idLocalUser *			GetRegisteringUserByInputDevice( index_t inputDevice ) { return nullptr; }
 	  virtual void					SignIn() {}
-	  virtual bool					IsDeviceBeingRegistered( int intputDevice ) { return false; }
+	  virtual bool					IsDeviceBeingRegistered( index_t inputDevice ) { return false; }
 	  virtual bool					IsAnyDeviceBeingRegistered() { return false; }
 	  virtual void					Shutdown() {}
 
@@ -62,7 +64,7 @@ public:
 	  // Common helper functions
 	  //================================================================================
 
-	  void 					SetDesiredLocalUsers( int minDesiredLocalUsers, int maxDesiredLocalUsers ) { this->minDesiredLocalUsers = minDesiredLocalUsers; this->maxDesiredLocalUsers = maxDesiredLocalUsers; }
+	  void 					SetDesiredLocalUsers(const size_t minDesiredLocalUsers, const size_t maxDesiredLocalUsers ) { this->minDesiredLocalUsers = minDesiredLocalUsers; this->maxDesiredLocalUsers = maxDesiredLocalUsers; }
 	  bool 					ProcessInputEvent( const sysEvent_t * ev );
 	  idPlayerProfile *		GetDefaultProfile();
 
@@ -74,10 +76,10 @@ public:
 	[[nodiscard]] bool 					IsMasterLocalUserOnline() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->IsOnline() : false; }
 	[[nodiscard]] int					GetMasterInputDevice() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->GetInputDevice() : -1; }
 	[[nodiscard]] localUserHandle_t		GetMasterLocalUserHandle() const { return ( GetMasterLocalUser() != nullptr) ? GetMasterLocalUser()->GetLocalUserHandle() : localUserHandle_t(); }
-	  idLocalUser *			GetLocalUserByInputDevice( int index );
+	  idLocalUser *			GetLocalUserByInputDevice( index_t index );
 	  idLocalUser *			GetLocalUserByHandle( localUserHandle_t handle );
-	  idPlayerProfile *		GetPlayerProfileByInputDevice( int index );
-	  bool					RemoveLocalUserByInputDevice( int index );
+	  idPlayerProfile *		GetPlayerProfileByInputDevice( index_t index );
+	  bool					RemoveLocalUserByInputDevice( index_t index );
 	  bool					RemoveLocalUserByHandle( localUserHandle_t handle );
 	  void					RemoveAllLocalUsers();
 	  void					SaveUserProfiles();
@@ -91,8 +93,8 @@ public:
 	  localUserHandle_t		GetUniqueLocalUserHandle( const char * name );
 
 protected:
-	int					minDesiredLocalUsers;
-	int					maxDesiredLocalUsers;
+	size_t				minDesiredLocalUsers;
+	size_t				maxDesiredLocalUsers;
 	idPlayerProfile *	defaultProfile;
 };
 

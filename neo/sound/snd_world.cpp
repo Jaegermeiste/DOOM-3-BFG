@@ -33,18 +33,18 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "snd_local.h"
 
-idCVar s_lockListener( "s_lockListener", "0", CVAR_BOOL, "lock listener updates" );
-idCVar s_constantAmplitude( "s_constantAmplitude", "-1", CVAR_FLOAT, "" );
-idCVar s_maxEmitterChannels( "s_maxEmitterChannels", "48", CVAR_INTEGER, "Can be set lower than the absolute max of MAX_HARDWARE_VOICES" );
-idCVar s_cushionFadeChannels( "s_cushionFadeChannels", "2", CVAR_INTEGER, "Ramp currentCushionDB so this many emitter channels should be silent" );
-idCVar s_cushionFadeRate( "s_cushionFadeRate", "60", CVAR_FLOAT, "DB / second change to currentCushionDB" );
-idCVar s_cushionFadeLimit( "s_cushionFadeLimit", "-30", CVAR_FLOAT, "Never cushion fade beyond this level" );
-idCVar s_cushionFadeOver( "s_cushionFadeOver", "10", CVAR_FLOAT, "DB above s_cushionFadeLimit to start ramp to silence" );
-idCVar s_unpauseFadeInTime( "s_unpauseFadeInTime", "250", CVAR_INTEGER, "When unpausing a sound world, milliseconds to fade sounds in over" );
-idCVar s_doorDistanceAdd( "s_doorDistanceAdd", "150", CVAR_FLOAT, "reduce sound volume with this distance when going through a door" );
-idCVar s_drawSounds( "s_drawSounds", "0", CVAR_INTEGER, "", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
-idCVar s_showVoices( "s_showVoices", "0", CVAR_BOOL, "show active voices" );
-idCVar s_volume_dB( "s_volume_dB", "0", CVAR_ARCHIVE | CVAR_FLOAT, "volume in dB" );
+static idCVar s_lockListener( "s_lockListener", "0", CVAR_BOOL, "lock listener updates" );
+static idCVar s_constantAmplitude( "s_constantAmplitude", "-1", CVAR_FLOAT, "" );
+static idCVar s_maxEmitterChannels( "s_maxEmitterChannels", "48", CVAR_INTEGER, "Can be set lower than the absolute max of MAX_HARDWARE_VOICES" );
+static idCVar s_cushionFadeChannels( "s_cushionFadeChannels", "2", CVAR_INTEGER, "Ramp currentCushionDB so this many emitter channels should be silent" );
+static idCVar s_cushionFadeRate( "s_cushionFadeRate", "60", CVAR_FLOAT, "DB / second change to currentCushionDB" );
+static idCVar s_cushionFadeLimit( "s_cushionFadeLimit", "-30", CVAR_FLOAT, "Never cushion fade beyond this level" );
+static idCVar s_cushionFadeOver( "s_cushionFadeOver", "10", CVAR_FLOAT, "DB above s_cushionFadeLimit to start ramp to silence" );
+static idCVar s_unpauseFadeInTime( "s_unpauseFadeInTime", "250", CVAR_INTEGER, "When unpausing a sound world, milliseconds to fade sounds in over" );
+static idCVar s_doorDistanceAdd( "s_doorDistanceAdd", "150", CVAR_FLOAT, "reduce sound volume with this distance when going through a door" );
+static idCVar s_drawSounds( "s_drawSounds", "0", CVAR_INTEGER, "", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
+static idCVar s_showVoices( "s_showVoices", "0", CVAR_BOOL, "show active voices" );
+static idCVar s_volume_dB( "s_volume_dB", "0", CVAR_ARCHIVE | CVAR_FLOAT, "volume in dB" );
 extern idCVar s_noSound;
 
 /*
@@ -54,8 +54,9 @@ idSoundWorldLocal::idSoundWorldLocal
 */
 idSoundWorldLocal::idSoundWorldLocal() {
 	volumeFade.Clear();
-	for ( size_t i = 0; i < SOUND_MAX_CLASSES; i++ ) {
-		soundClassFade[i].Clear();
+	for (auto& i : soundClassFade)
+	{
+		i.Clear();
 	}
 	renderWorld = nullptr;
 	writeDemo = nullptr;
@@ -155,13 +156,13 @@ float idSoundWorldLocal::CurrentShakeAmplitude() {
 idSoundWorldLocal::PlaceListener
 ========================
 */
-void idSoundWorldLocal::PlaceListener( const idVec3 & origin, const idMat3 & axis, const int id ) {
+void idSoundWorldLocal::PlaceListener( const idVec3 & origin, const idMat3 & axis, const index_t listenerId ) {
 	if ( writeDemo ) {
 		writeDemo->WriteInt( DS_SOUND );
 		writeDemo->WriteInt( SCMD_PLACE_LISTENER );
 		writeDemo->WriteVec3( origin );
 		writeDemo->WriteMat3( axis );
-		writeDemo->WriteInt( id );
+		writeDemo->WriteInt64( listenerId );
 	}
 
 	if ( s_lockListener.GetBool() ) {
@@ -170,7 +171,7 @@ void idSoundWorldLocal::PlaceListener( const idVec3 & origin, const idMat3 & axi
 
 	listener.axis = axis;
 	listener.pos = origin;
-	listener.id = id;
+	listener.id = listenerId;
 
 	if ( renderWorld ) {
 		listener.area = renderWorld->PointInArea( origin );	// where are we?
@@ -189,7 +190,7 @@ public:
 						idActiveChannel() :
 							channel(nullptr),
 							sortKey( 0 ) {}
-						idActiveChannel( idSoundChannel * channel_, int sortKey_ ) :
+						idActiveChannel( idSoundChannel * channel_, const int sortKey_ ) :
 							channel( channel_ ),
 							sortKey( sortKey_ ) {}
 
@@ -204,7 +205,7 @@ MapVolumeFromFadeDB
 Ramp down volumes that are close to fadeDB so that fadeDB is DB_SILENCE
 ========================
 */
-float MapVolumeFromFadeDB( const float volumeDB, const float fadeDB ) {
+static float MapVolumeFromFadeDB( const float volumeDB, const float fadeDB ) {
 	if ( volumeDB <= fadeDB ) {
 		return DB_SILENCE;
 	}
@@ -301,7 +302,7 @@ void idSoundWorldLocal::Update() {
 	int	totalEmitterChannels = 0;
 
 	ID_TIME_T currentTime = GetSoundTime();
-	for ( int64 e = idMath::integer_cast<int64>(emitters.Num()) - 1; e >= 0; e-- ) {
+	for ( int64 e = numeric_cast<int64>(emitters.Num()) - 1; e >= 0; e-- ) {
 		// check for freeing a one-shot emitter that is finished playing
 		if ( emitters[e]->CheckForCompletion( currentTime ) ) {
 			// do a fast list collapse by swapping the last element into
@@ -334,7 +335,7 @@ void idSoundWorldLocal::Update() {
 
 			// Calculate the sort key.
 			// VO can't be stopped and restarted accurately, so always keep VO channels by adding a large value to the sort key.
-			const int sortKey = idMath::Ftoi( channel->volumeDB * 100.0f + ( canMute ? 0.0f : 100000.0f ) );
+			const int sortKey = numeric_cast<int>( channel->volumeDB * 100.0f + ( canMute ? 0.0f : 100000.0f ) );
 
 			// Keep track of the total number of hardware channels.
 			// This is done after calculating the sort key to avoid a load-hit-store that
@@ -367,7 +368,7 @@ void idSoundWorldLocal::Update() {
 			// If we are over our voice limit or at our channel limit, mute sounds until it fits.
 			// If activeEmitterChannels is full, always remove the last one so there is room to insert sort a potentially louder sound later.
 			while ( activeEmitterChannels.Num() == maxEmitterChannels || activeHardwareChannels > MAX_HARDWARE_CHANNELS ) {
-				const int indexToRemove = activeEmitterChannels.Num() - 1;
+				const index_t indexToRemove = activeEmitterChannels.Num() - 1;
 				idSoundChannel * const channelToMute = activeEmitterChannels[ indexToRemove ].channel;
 				channelToMute->Mute();
 				activeHardwareChannels -= channelToMute->leadinSample->NumChannels();
@@ -403,7 +404,7 @@ void idSoundWorldLocal::Update() {
 			soundSystemLocal.hardware.GetNumFreeVoices(), soundSystemLocal.hardware.GetNumZombieVoices(),
 			soundSystemLocal.activeStreamBufferContexts.Num(), soundSystemLocal.freeStreamBufferContexts.Num() );
 	}
-	for ( int i = 0; i < activeEmitterChannels.Num(); i++ ) {
+	for ( size_t i = 0; i < activeEmitterChannels.Num(); i++ ) {
 		idSoundChannel * chan = activeEmitterChannels[i].channel;
 		chan->UpdateHardware( 0.0f, currentTime );
 
@@ -469,13 +470,13 @@ void idSoundWorldLocal::Update() {
 			textPos.z += 8;
 
 			// run through all the channels
-			for ( int k = 0; k < emitter->channels.Num(); k++ ) {
+			for ( size_t k = 0; k < emitter->channels.Num(); k++ ) {
 				idSoundChannel * chan = emitter->channels[k];
 				float	min = chan->parms.minDistance;
 				float	max = chan->parms.maxDistance;
 				const char * defaulted = chan->leadinSample->IsDefault() ? " *DEFAULTED*" : "";
 				idStr text;
-				text.Format( "%s (%i %i/%i)%s", chan->soundShader->GetName(), idMath::Ftoi( emitter->spatializedDistance ), idMath::Ftoi( min ), idMath::Ftoi( max ), defaulted );
+				text.Format( "%s (%i %i/%i)%s", chan->soundShader->GetName(), numeric_cast<int>( emitter->spatializedDistance ), numeric_cast<int>( min ), numeric_cast<int>( max ), defaulted );
 				renderWorld->DrawText( text, textPos, 0.1f, idVec4(1,0,0,1), listener.axis, 1, lifetime );
 				textPos.z += 8;
 			}
@@ -489,7 +490,7 @@ idSoundWorldLocal::OnReloadSound
 ========================
 */
 void idSoundWorldLocal::OnReloadSound( const idDecl *shader ) {
-	for ( int i = 0; i < emitters.Num(); i++ ) {
+	for ( size_t i = 0; i < emitters.Num(); i++ ) {
 		emitters[i]->OnReloadSound( shader );
 	}
 }
@@ -499,7 +500,7 @@ void idSoundWorldLocal::OnReloadSound( const idDecl *shader ) {
 idSoundWorldLocal::EmitterForIndex
 ========================
 */
-idSoundEmitter *idSoundWorldLocal::EmitterForIndex( const Ordinal auto index ) {
+idSoundEmitter *idSoundWorldLocal::EmitterForIndex(const index_t index ) {
 	// This is only used by save/load code which assumes index = 0 is invalid
 	// Which is fine since we use index 0 for the local sound emitter anyway
 	if ( index <= 0 ) {
@@ -517,7 +518,7 @@ idSoundWorldLocal::ClearAllSoundEmitters
 ========================
 */
 void idSoundWorldLocal::ClearAllSoundEmitters() {
-	for ( int i = 0; i < emitters.Num(); i++ ) {
+	for ( size_t i = 0; i < emitters.Num(); i++ ) {
 		emitters[i]->Reset();
 		emitterAllocator.Free( emitters[i] );
 	}
@@ -533,7 +534,7 @@ This is called from the main thread.
 ========================
 */
 void idSoundWorldLocal::StopAllSounds() {
-	for ( int i = 0; i < emitters.Num(); i++ ) {
+	for ( size_t i = 0; i < emitters.Num(); i++ ) {
 		emitters[i]->Reset();
 	}
 }
@@ -543,7 +544,7 @@ void idSoundWorldLocal::StopAllSounds() {
 idSoundWorldLocal::PlayShaderDirectly
 ========================
 */
-int idSoundWorldLocal::PlayShaderDirectly( const char * name, const s_channelType channel ) {
+ID_TIME_T idSoundWorldLocal::PlayShaderDirectly( const char * name, const s_channelType channel ) {
 	if ( name == nullptr || name[0] == 0 ) {
 		localSound->StopSound( channel );
 		return 0;
@@ -578,7 +579,7 @@ void idSoundWorldLocal::Pause() {
 		pausedTime = soundSystemLocal.SoundTime();
 		isPaused = true;
 		// just pause all unmutable voices (normally just voice overs)
-		for ( int64 e = idMath::integer_cast<int64>(emitters.Num()) - 1; e > 0; e-- ) {
+		for ( int64 e = numeric_cast<int64>(emitters.Num()) - 1; e > 0; e-- ) {
 			for ( size_t i = 0; i < emitters[e]->channels.Num(); i++ ) {
 				idSoundChannel * channel = emitters[e]->channels[i];
 				if ( !channel->CanMute() && channel->hardwareVoice != nullptr) {
@@ -603,7 +604,7 @@ void idSoundWorldLocal::UnPause() {
 
 		// just unpause all unmutable voices (normally just voice overs)
 		for ( int e = emitters.Num() - 1; e > 0; e-- ) {
-			for ( int i = 0; i < emitters[e]->channels.Num(); i++ ) {
+			for ( size_t i = 0; i < emitters[e]->channels.Num(); i++ ) {
 				idSoundChannel * channel = emitters[e]->channels[i];
 				if ( !channel->CanMute() && channel->hardwareVoice != nullptr) {
 					channel->hardwareVoice->UnPause();
@@ -668,7 +669,7 @@ void idSoundWorldLocal::ResolveOrigin( const int stackDepth, const soundPortalTr
 	newStack.portalArea = soundArea;
 	newStack.prevStack = prevStack;
 
-	int numPortals = renderWorld->NumPortalsInArea( soundArea );
+	size_t numPortals = renderWorld->NumPortalsInArea( soundArea );
 	for( int p = 0; p < numPortals; p++ ) {
 		exitPortal_t re = renderWorld->GetPortal( soundArea, p );
 
@@ -699,12 +700,12 @@ void idSoundWorldLocal::ResolveOrigin( const int stackDepth, const soundPortalTr
 		}
 
 		// pick a point on the portal to serve as our virtual sound origin
-		idVec3	source;
+		idVec3	source = {};
 
-		idPlane	pl;
+		idPlane	pl = {};
 		re.w->GetPlane( pl );
 
-		float	scale;
+		float	scale = 0.0f;
 		idVec3	dir = listener.pos - soundOrigin;
 		if ( !pl.RayIntersection( soundOrigin, dir, scale ) ) {
 			source = re.w->GetCenter();
@@ -712,10 +713,10 @@ void idSoundWorldLocal::ResolveOrigin( const int stackDepth, const soundPortalTr
 			source = soundOrigin + scale * dir;
 
 			// if this point isn't inside the portal edges, slide it in
-			for ( int i = 0 ; i < re.w->GetNumPoints() ; i++ ) {
-				int j = ( i + 1 ) % re.w->GetNumPoints();
+			for ( size_t i = 0 ; i < re.w->GetNumPoints() ; i++ ) {
+				size_t j = ( i + 1 ) % re.w->GetNumPoints();
 				idVec3	edgeDir = (*(re.w))[j].ToVec3() - (*(re.w))[i].ToVec3();
-				idVec3	edgeNormal;
+				idVec3	edgeNormal = {};
 
 				edgeNormal.Cross( pl.Normal(), edgeDir );
 
@@ -774,10 +775,10 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		return;
 	}
 
-	int index;
-	soundDemoCommand_t	dc;
+	index_t index = 0;
+	soundDemoCommand_t	dc = {};
 
-	if ( !readDemo->ReadInt( (int&)dc ) ) {
+	if ( !readDemo->ReadInt( reinterpret_cast<int&>(dc) ) ) {
 		return;
 	}
 
@@ -788,9 +789,9 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		break;
 	case SCMD_PLACE_LISTENER:
 		{
-			idVec3	origin;
-			idMat3	axis;
-			int		listenerId;
+			idVec3	origin = {};
+			idMat3	axis = {};
+			int		listenerId = 0;
 
 			readDemo->ReadVec3( origin );
 			readDemo->ReadMat3( axis );
@@ -801,7 +802,7 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		break;
 	case SCMD_ALLOC_EMITTER:
 		{
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			if ( index < 1 || index > emitters.Num() ) {
 				common->Error( "idSoundWorldLocal::ProcessDemoCommand: bad emitter number" );
 			}
@@ -813,20 +814,20 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		break;
 	case SCMD_FREE:
 		{
-			int	immediate;
+			int	immediate = 0;
 
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			readDemo->ReadInt( immediate );
 			EmitterForIndex( index )->Free( immediate != 0 );
 		}
 		break;
 	case SCMD_UPDATE:
 		{
-			idVec3 origin;
-			int listenerId;
-			soundShaderParms_t parms;
+			idVec3 origin = {};
+			int listenerId = 0;
+			soundShaderParms_t parms = {};
 
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			readDemo->ReadVec3( origin );
 			readDemo->ReadInt( listenerId );
 			readDemo->ReadFloat( parms.minDistance );
@@ -840,12 +841,12 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		break;
 	case SCMD_START:
 		{
-			const idSoundShader *shader;
-			int			channel;
-			float		diversity;
-			int			shaderFlags;
+			const idSoundShader *shader = nullptr;
+			int			channel = 0;
+			float		diversity = 0;
+			int			shaderFlags = 0;
 
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			shader = declManager->FindSound( readDemo->ReadHashString() );
 			readDemo->ReadInt( channel );
 			readDemo->ReadFloat( diversity );
@@ -855,10 +856,10 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		break;
 	case SCMD_MODIFY:
 		{
-			int		channel;
-			soundShaderParms_t parms;
+			int		channel = 0;
+			soundShaderParms_t parms = {};
 
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			readDemo->ReadInt( channel );
 			readDemo->ReadFloat( parms.minDistance );
 			readDemo->ReadFloat( parms.maxDistance );
@@ -871,19 +872,19 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile * readDemo ) {
 		break;
 	case SCMD_STOP:
 		{
-			int		channel;
+			int		channel = 0;
 
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			readDemo->ReadInt( channel );
 			EmitterForIndex( index )->StopSound( (s_channelType)channel );
 		}
 		break;
 	case SCMD_FADE:
 		{
-			int		channel;
-			float	to, over;
+			int		channel = 0;
+			float	to = 0.0f, over = 0.0f;
 
-			readDemo->ReadInt( index );
+			readDemo->ReadInt64( index );
 			readDemo->ReadInt( channel );
 			readDemo->ReadFloat( to );
 			readDemo->ReadFloat( over );
@@ -971,10 +972,10 @@ void idSoundWorldLocal::WriteToSaveGame( idFile * savefile ) {
 			int64 looping = -1;
 			for ( size_t i = 0; i < channel->soundShader->entries.Num(); i++ ) {
 				if ( channel->soundShader->entries[i] == channel->leadinSample ) {
-					leadin = idMath::integer_cast<int64>(i);
+					leadin = numeric_cast<int64>(i);
 				}
 				if ( channel->soundShader->entries[i] == channel->loopingSample ) {
-					looping = idMath::integer_cast<int64>(i);
+					looping = numeric_cast<int64>(i);
 				}
 			}
 			savefile->WriteInt64( leadin );
@@ -1106,7 +1107,7 @@ void idSoundWorldLocal::FadeSoundClasses( const int soundClass, const float to, 
 idSoundWorldLocal::SetSlowmoSpeed
 =================
 */
-void idSoundWorldLocal::SetSlowmoSpeed( float speed ) {
+void idSoundWorldLocal::SetSlowmoSpeed(const float speed ) {
 	slowmoSpeed = speed;
 }
 
@@ -1115,6 +1116,6 @@ void idSoundWorldLocal::SetSlowmoSpeed( float speed ) {
 idSoundWorldLocal::SetEnviroSuit
 =================
 */
-void idSoundWorldLocal::SetEnviroSuit( bool active ) {
+void idSoundWorldLocal::SetEnviroSuit(const bool active ) {
 	enviroSuitActive = active;
 }

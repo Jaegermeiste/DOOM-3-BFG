@@ -97,7 +97,7 @@ idEntityFx::Restore
 */
 void idEntityFx::Restore( idRestoreGame *savefile ) {
 	int i;
-	int num;
+	size_t num;
 	bool hasObject;
 
 	savefile->ReadInt( started );
@@ -169,7 +169,7 @@ void idEntityFx::Setup( const char *fx ) {
 
 		actions.AssureSize( fxEffect->events.Num(), localAction );
 
-		for( int i = 0; i<fxEffect->events.Num(); i++ ) {
+		for ( size_t i = 0; i<fxEffect->events.Num(); i++ ) {
 			const idFXSingleAction& fxaction = fxEffect->events[i];
 
 			idFXLocalAction& laction = actions[i];
@@ -216,7 +216,7 @@ void idEntityFx::CleanUp() {
 	if ( !fxEffect ) {
 		return;
 	}
-	for( int i = 0; i < fxEffect->events.Num(); i++ ) {
+	for ( size_t i = 0; i < fxEffect->events.Num(); i++ ) {
 		const idFXSingleAction& fxaction = fxEffect->events[i];
 		idFXLocalAction& laction = actions[i];
 		CleanUpSingleAction( fxaction, laction );		
@@ -250,7 +250,7 @@ void idEntityFx::Start( const ID_TIME_T time ) {
 		return;
 	}
 	started = time;
-	for( int i = 0; i < fxEffect->events.Num(); i++ ) {
+	for ( size_t i = 0; i < fxEffect->events.Num(); i++ ) {
 		idFXLocalAction& laction = actions[i];
 		laction.start = time;
 		laction.soundStarted = false;
@@ -277,12 +277,12 @@ idEntityFx::Duration
 ================
 */
 const int idEntityFx::Duration() {
-	int max = 0;
+	size_t max = 0;
 
 	if ( !fxEffect ) {
 		return max;
 	}
-	for( int i = 0; i < fxEffect->events.Num(); i++ ) {
+	for ( size_t i = 0; i < fxEffect->events.Num(); i++ ) {
 		const idFXSingleAction& fxaction = fxEffect->events[i];
 		int d = ( fxaction.delay + fxaction.duration ) * 1000.0f;
 		max = std::max(d, max);
@@ -707,7 +707,7 @@ void idEntityFx::Event_Trigger( idEntity *activator ) {
 idEntityFx::StartFx
 ================
 */
-idEntityFx *idEntityFx::StartFx( const char *fx, const idVec3 *useOrigin, const idMat3 *useAxis, idEntity *ent, bool bind ) {
+idEntityFx *idEntityFx::StartFx( const char *fx, const idVec3 *useOrigin, const idMat3 *useAxis, idEntity *ent, const bool bind ) {
 
 	if ( g_skipFX.GetBool() || !fx || !*fx ) {
 		return nullptr;
@@ -782,7 +782,7 @@ void idEntityFx::ReadFromSnapshot( const idBitMsg &msg ) {
 idEntityFx::ClientThink
 =================
 */
-void idEntityFx::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idEntityFx::ClientThink( const int curTime, const double fraction, const bool predict ) {
 
 	if ( gameLocal.isNewFrame ) { 
 		Run( gameLocal.serverTime ); 

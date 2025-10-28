@@ -205,7 +205,7 @@ void idMenuScreen_Shell_GameOptions::HideScreen( const mainMenuTransition_t tran
 idMenuScreen_Shell_GameOptions::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_GameOptions::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_GameOptions::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData == nullptr) {
 		return true;

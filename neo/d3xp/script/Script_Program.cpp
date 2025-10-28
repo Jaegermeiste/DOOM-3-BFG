@@ -136,7 +136,7 @@ void function_t::Clear() {
 idTypeDef::idTypeDef
 ================
 */
-idTypeDef::idTypeDef( etype_t etype, idVarDef *edef, const char *ename, size_t esize, idTypeDef *aux ) {
+idTypeDef::idTypeDef(const etype_t etype, idVarDef *edef, const char *ename, const size_t esize, idTypeDef *aux ) {
 	name		= ename;
 	type		= etype;
 	def			= edef;
@@ -479,7 +479,7 @@ size_t idTypeDef::NumParameters() const {
 idTypeDef::GetParmType
 ================
 */
-idTypeDef *idTypeDef::GetParmType( const Ordinal auto parmNumber ) const {
+idTypeDef *idTypeDef::GetParmType(const index_t parmNumber ) const {
 	ORDINAL_CHECK( parmNumber, parmTypes.Num() );
 	return parmTypes[ parmNumber ];
 }
@@ -489,7 +489,7 @@ idTypeDef *idTypeDef::GetParmType( const Ordinal auto parmNumber ) const {
 idTypeDef::GetParmName
 ================
 */
-const char *idTypeDef::GetParmName( const Ordinal auto parmNumber ) const {
+const char *idTypeDef::GetParmName(const index_t parmNumber ) const {
 	ORDINAL_CHECK(parmNumber, parmTypes.Num());
 	return parmNames[ parmNumber ];
 }
@@ -522,7 +522,7 @@ int64 idTypeDef::GetFunctionNumber( const function_t *func ) const {
 idTypeDef::GetFunction
 ================
 */
-const function_t *idTypeDef::GetFunction( const Ordinal auto funcNumber ) const {
+const function_t *idTypeDef::GetFunction(const index_t funcNumber ) const {
 	ORDINAL_CHECK(funcNumber, functions.Num());
 	return functions[ funcNumber ];
 }
@@ -650,7 +650,7 @@ void idVarDef::SetObject( idScriptObject *object ) {
 idVarDef::SetValue
 ============
 */
-void idVarDef::SetValue( const eval_t &_value, bool constant ) {
+void idVarDef::SetValue( const eval_t &_value, const bool constant ) {
 	assert( typeDef );
 	if ( constant ) {
 		initialized = initializedConstant;
@@ -714,7 +714,7 @@ void idVarDef::SetValue( const eval_t &_value, bool constant ) {
 idVarDef::SetString
 ============
 */
-void idVarDef::SetString( const char *string, bool constant ) {
+void idVarDef::SetString( const char *string, const bool constant ) {
 	if ( constant ) {
 		initialized = initializedConstant;
 	} else {
@@ -730,7 +730,7 @@ void idVarDef::SetString( const char *string, bool constant ) {
 idVarDef::PrintInfo
 ============
 */
-void idVarDef::PrintInfo( idFile *file, int instructionPointer ) const {
+void idVarDef::PrintInfo( idFile *file, const int instructionPointer ) const {
 	statement_t	*jumpst;
 	int			jumpto;
 	etype_t		etype;
@@ -1066,7 +1066,7 @@ const function_t *idScriptObject::GetFunction( const char *name ) const {
 idScriptObject::GetVariable
 ============
 */
-byte *idScriptObject::GetVariable( const char *name, etype_t etype ) const {
+byte *idScriptObject::GetVariable( const char *name, const etype_t etype ) const {
 	int				i;
 	int				pos;
 	const idTypeDef	*t = type;
@@ -1125,7 +1125,7 @@ idTypeDef *idProgram::AllocType( idTypeDef &type ) {
 idProgram::AllocType
 ============
 */
-idTypeDef *idProgram::AllocType( etype_t etype, idVarDef *edef, const char *ename, size_t esize, idTypeDef *aux ) {
+idTypeDef *idProgram::AllocType(const etype_t etype, idVarDef *edef, const char *ename, const size_t esize, idTypeDef *aux ) {
 	idTypeDef * newtype	= new (TAG_SCRIPT) idTypeDef( etype, edef, ename, esize, aux );
 	typesHash.Add( idStr::Hash( ename ), types.Append( newtype ) );
 	return newtype;
@@ -1139,7 +1139,7 @@ Returns a preexisting complex type that matches the parm, or allocates
 a new one and copies it out.
 ============
 */
-idTypeDef *idProgram::GetType( idTypeDef &type, bool allocate ) {
+idTypeDef *idProgram::GetType( idTypeDef &type, const bool allocate ) {
 
 	for ( int64 i = typesHash.First( idStr::Hash( type.Name() ) ); i != -1; i = typesHash.Next( i ) ) {
 		if ( types[ i ]->MatchesType( type ) && !strcmp( types[ i ]->Name(), type.Name() ) ) {
@@ -1217,7 +1217,7 @@ void idProgram::AddDefToNameList( idVarDef *def, const char *name ) {
 idProgram::AllocDef
 ============
 */
-idVarDef *idProgram::AllocDef( idTypeDef *type, const char *name, idVarDef *scope, bool constant ) {
+idVarDef *idProgram::AllocDef( idTypeDef *type, const char *name, idVarDef *scope, const bool constant ) {
 	idVarDef	*def = nullptr;
 	idStr		element;
 	idVarDef	*def_x = nullptr;
@@ -1606,7 +1606,7 @@ void idProgram::BeginCompilation() {
 idProgram::DisassembleStatement
 ==============
 */
-void idProgram::DisassembleStatement( idFile *file, const Ordinal auto instructionPointer ) const {
+void idProgram::DisassembleStatement( idFile *file, const index_t instructionPointer ) const {
 	ORDINAL_CHECK(instructionPointer, statements.Num());
 
 	opcode_t			*op = nullptr;
@@ -1751,7 +1751,7 @@ void idProgram::CompileStats() {
 idProgram::CompileText
 ================
 */
-bool idProgram::CompileText( const char *source, const char *text, bool console ) {
+bool idProgram::CompileText( const char *source, const char *text, const bool console ) {
 	idCompiler	compiler = {};
 	size_t		i = 0;
 	idVarDef	*def = nullptr;
@@ -2005,17 +2005,17 @@ int idProgram::CalculateChecksum() const {
 		statementList[i].op = statements[i].op;
 
 		if ( statements[i].a ) {
-			statementList[i].a = idMath::integer_cast<int64>(statements[i].a->num);
+			statementList[i].a = numeric_cast<int64>(statements[i].a->num);
 		} else {
 			statementList[i].a = -1;
 		}
 		if ( statements[i].b ) {
-			statementList[i].b = idMath::integer_cast<int64>(statements[i].b->num);
+			statementList[i].b = numeric_cast<int64>(statements[i].b->num);
 		} else {
 			statementList[i].b = -1;
 		}
 		if ( statements[i].c ) {
-			statementList[i].c = idMath::integer_cast<int64>(statements[i].c->num);
+			statementList[i].c = numeric_cast<int64>(statements[i].c->num);
 		} else {
 			statementList[i].c = -1;
 		}

@@ -61,7 +61,7 @@ END_CLASS
 idAI_Vagary::Event_ChooseObjectToThrow
 ================
 */
-void idAI_Vagary::Event_ChooseObjectToThrow( const idVec3 &mins, const idVec3 &maxs, float speed, float minDist, float offset ) {
+void idAI_Vagary::Event_ChooseObjectToThrow( const idVec3 &mins, const idVec3 &maxs, const float speed, const float minDist, const float offset ) {
 	idEntity *	ent;
 	idEntity *	entityList[ MAX_GENTITIES ];
 	int			numListedEntities;
@@ -125,7 +125,7 @@ void idAI_Vagary::Event_ChooseObjectToThrow( const idVec3 &mins, const idVec3 &m
 idAI_Vagary::Event_ThrowObjectAtEnemy
 ================
 */
-void idAI_Vagary::Event_ThrowObjectAtEnemy( idEntity *ent, float speed ) {
+void idAI_Vagary::Event_ThrowObjectAtEnemy( idEntity *ent, const float speed ) {
 	idVec3		vel;
 	idEntity	*enemyEnt;
 	idPhysics	*entPhys;

@@ -41,7 +41,7 @@ constexpr float STOP_SPEED		= 10.0f;
 
 #ifdef RB_TIMINGS
 static int lastTimerReset = 0;
-static int numRigidBodies = 0;
+static size_t numRigidBodies = 0;
 static idTimer timer_total, timer_collision;
 #endif
 
@@ -80,7 +80,7 @@ idPhysics_RigidBody::Integrate
   Calculate next state from the current state using an integrator.
 ================
 */
-void idPhysics_RigidBody::Integrate( float deltaTime, rigidBodyPState_t &next_ ) {
+void idPhysics_RigidBody::Integrate(const float deltaTime, rigidBodyPState_t &next_ ) {
 	idVec3 position;
 
 	position = current.i.position;
@@ -594,7 +594,7 @@ idPhysics_RigidBody::SetClipModel
 */
 #define MAX_INERTIA_SCALE		10.0f
 
-void idPhysics_RigidBody::SetClipModel( idClipModel *model, const float density, int id, bool freeOld ) {
+void idPhysics_RigidBody::SetClipModel( idClipModel *model, const float density, int id, const bool freeOld ) {
 	int minIndex;
 	idMat3 inertiaScale;
 
@@ -667,7 +667,7 @@ int idPhysics_RigidBody::GetNumClipModels() const {
 idPhysics_RigidBody::SetMass
 ================
 */
-void idPhysics_RigidBody::SetMass( float mass, int id ) {
+void idPhysics_RigidBody::SetMass(const float mass, int id ) {
 	assert( mass > 0.0f );
 	inertiaTensor *= mass / this->mass;
 	inverseInertiaTensor = inertiaTensor.Inverse() * (1.0f / 6.0f);
@@ -787,7 +787,7 @@ void idPhysics_RigidBody::DisableImpact() {
 idPhysics_RigidBody::SetContents
 ================
 */
-void idPhysics_RigidBody::SetContents( int contents, int id ) {
+void idPhysics_RigidBody::SetContents(const int contents, int id ) {
 	clipModel->SetContents( contents );
 }
 
@@ -827,7 +827,7 @@ idPhysics_RigidBody::Evaluate
   the remaining time after the collision is ignored.
 ================
 */
-bool idPhysics_RigidBody::Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec ) {
+bool idPhysics_RigidBody::Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) {
 	rigidBodyPState_t next_step;
 	idAngles angles;
 	trace_t collision;
@@ -1003,7 +1003,7 @@ idPhysics_RigidBody::Interpolate
   for MP clients.
 ================
 */
-bool idPhysics_RigidBody::Interpolate( const float fraction ) {
+bool idPhysics_RigidBody::Interpolate( const double fraction ) {
 	if ( !self ) {
 		return false;
 	}
@@ -1036,7 +1036,7 @@ void idPhysics_RigidBody::ResetInterpolationState( const idVec3 & origin, const 
 idPhysics_RigidBody::UpdateTime
 ================
 */
-void idPhysics_RigidBody::UpdateTime( int endTimeMSec ) {
+void idPhysics_RigidBody::UpdateTime( ID_TIME_T endTimeMSec ) {
 }
 
 /*
@@ -1387,7 +1387,7 @@ idPhysics_RigidBody::EvaluateContacts
 */
 bool idPhysics_RigidBody::EvaluateContacts() {
 	idVec6 dir;
-	int num;
+	size_t num;
 
 	ClearContacts();
 
@@ -1411,7 +1411,7 @@ bool idPhysics_RigidBody::EvaluateContacts() {
 idPhysics_RigidBody::SetPushed
 ================
 */
-void idPhysics_RigidBody::SetPushed( int deltaTime ) {
+void idPhysics_RigidBody::SetPushed(const int deltaTime ) {
 	idRotation rotation;
 
 	rotation = ( saved.i.orientation * current.i.orientation ).ToRotation();

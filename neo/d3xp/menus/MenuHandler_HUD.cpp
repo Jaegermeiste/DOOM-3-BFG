@@ -86,7 +86,7 @@ void idMenuHandler_HUD::Update() {
 idMenuHandler_HUD::ActivateMenu
 ========================
 */
-void idMenuHandler_HUD::ActivateMenu( bool show ) {
+void idMenuHandler_HUD::ActivateMenu(const bool show ) {
 
 	idMenuHandler::ActivateMenu( show );
 	
@@ -121,7 +121,7 @@ void idMenuHandler_HUD::Initialize( const char * swfFile, idSoundWorld * sw ) {
 	menuScreens[ (screenId) ]->Initialize( menuHandler );				\
 	menuScreens[ (screenId) ]->AddRef();
 
-	for ( int i = 0; i < HUD_NUM_AREAS; ++i ) {
+	for ( size_t i = 0; i < HUD_NUM_AREAS; ++i ) {
 		menuScreens[ i ] = nullptr;
 	}
 
@@ -133,7 +133,7 @@ void idMenuHandler_HUD::Initialize( const char * swfFile, idSoundWorld * sw ) {
 idMenuHandler_HUD::GetMenuScreen
 ========================
 */
-idMenuScreen * idMenuHandler_HUD::GetMenuScreen( int index ) {
+idMenuScreen * idMenuHandler_HUD::GetMenuScreen(const index_t index ) {
 
 	if ( index < 0 || index >= HUD_NUM_AREAS ) {
 		return nullptr;

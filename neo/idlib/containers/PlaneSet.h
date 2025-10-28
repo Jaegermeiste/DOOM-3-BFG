@@ -44,18 +44,18 @@ public:
 
 	void					Clear() { idList<idPlane>::Clear(); hash.Free(); }
 
-	size_t					FindPlane( const idPlane &plane, const float normalEps, const float distEps );
+	index_t					FindPlane( const idPlane &plane, const float normalEps, const float distEps );
 
 private:
 	idHashIndex				hash;
 };
 
-ID_INLINE size_t idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
+ID_INLINE index_t idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
 	assert( distEps <= 0.125f );
 
-	const int64 hashKey = idMath::Ftoi64(idMath::Fabs(plane.Dist()) * 0.125f);
+	const int64 hashKey = numeric_cast<int64>(idMath::Fabs(plane.Dist()) * 0.125f);
 	for ( int border = -1; border <= 1; border++ ) {
-		for ( int64 i = hash.First(hashKey + border); i >= 0; i = hash.Next( i ) ) {
+		for ( index_t i = hash.First(hashKey + border); i >= 0; i = hash.Next( i ) ) {
 			if ( (*this)[i].Compare( plane, normalEps, distEps ) ) {
 				return i;
 			}
@@ -64,17 +64,17 @@ ID_INLINE size_t idPlaneSet::FindPlane( const idPlane &plane, const float normal
 
 	if ( plane.Type() >= PLANETYPE_NEGX && plane.Type() < PLANETYPE_TRUEAXIAL ) {
 		Append( -plane );
-		hash.Add( hashKey, Num()-1 );
+		hash.Add( hashKey, numeric_cast<index_t>(Num()-1) );
 		Append( plane );
-		hash.Add( hashKey, Num()-1 );
-		return ( Num() - 1 );
+		hash.Add( hashKey, numeric_cast<index_t>(Num() - 1));
+		return numeric_cast<index_t>( Num() - 1 );
 	}
 	else {
 		Append( plane );
-		hash.Add( hashKey, Num()-1 );
+		hash.Add( hashKey, numeric_cast<index_t>(Num() - 1));
 		Append( -plane );
-		hash.Add( hashKey, Num()-1 );
-		return ( Num() - 2 );
+		hash.Add( hashKey, numeric_cast<index_t>(Num() - 1));
+		return numeric_cast<index_t>( Num() - 2 );
 	}
 }
 

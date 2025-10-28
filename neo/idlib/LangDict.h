@@ -124,7 +124,7 @@ public:
 	idStrId( const idStrId & other ) = default;
 
 	
-	explicit idStrId(const Ordinal auto i ) : index(idMath::integer_cast<int64>(i)) { }
+	explicit idStrId( const Ordinal auto i ) : index(numeric_cast<BASE_TYPE(index)>(i)) { }
 	explicit idStrId( const char * key ) { Set( key ); }
 	explicit idStrId( const idStr & key ) { Set( key ); }
 
@@ -143,12 +143,12 @@ public:
 	[[nodiscard]] const char *	GetKey() const;
 	[[nodiscard]] const char *	GetLocalizedString() const;
 
-	[[nodiscard]] size_t			GetIndex() const { return idMath::integer_cast<size_t>(index); }
+	[[nodiscard]] index_t			GetIndex() const { return index; }
 	
-	void			SetIndex(const Ordinal auto i) { ORDINAL_CHECK(i, INT64_MAX); index = idMath::integer_cast<int64>(i); }
+	void			SetIndex( const Ordinal auto i ) { ORDINAL_CHECK(i, INT64_MAX); index = numeric_cast<BASE_TYPE(index)>(i); }
 
 private:
-	int64 index;	// Index into the language dictionary
+	index_t index;	// Index into the language dictionary
 };
 
 #endif // !__LANGDICT_H__

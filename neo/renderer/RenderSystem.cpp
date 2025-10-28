@@ -140,7 +140,7 @@ drawSurfsCommand_t, etc) and links it to the end of the
 current command chain.
 ============
 */
-void *R_GetCommandBuffer( int bytes ) {
+void *R_GetCommandBuffer(const int bytes ) {
 	emptyCommand_t	*cmd;
 
 	cmd = static_cast<emptyCommand_t*>(R_FrameAlloc(bytes, FRAME_ALLOC_DRAW_COMMAND));
@@ -172,7 +172,7 @@ This is the main 3D rendering command.  A single scene may
 have multiple views if a mirror, portal, or dynamic texture is present.
 =============
 */
-void	R_AddDrawViewCmd( viewDef_t *parms, bool guiOnly ) {
+void	R_AddDrawViewCmd( viewDef_t *parms, const bool guiOnly ) {
 	drawSurfsCommand_t	*cmd;
 
 	cmd = static_cast<drawSurfsCommand_t*>(R_GetCommandBuffer(sizeof(*cmd)));
@@ -225,7 +225,7 @@ static void R_CheckCvars() {
 		r_maxAnisotropicFiltering.ClearModified();
 		r_useTrilinearFiltering.ClearModified();
 		r_lodBias.ClearModified();
-		for ( int i = 0 ; i < globalImages->images.Num() ; i++ ) {
+		for ( size_t i = 0 ; i < globalImages->images.Num() ; i++ ) {
 			if ( globalImages->images[i] ) {
 				globalImages->images[i]->Bind();
 				globalImages->images[i]->SetTexParameters();
@@ -322,7 +322,7 @@ void idRenderSystemLocal::SetGLState( const uint64 glState ) {
 idRenderSystemLocal::DrawFilled
 =============
 */
-void idRenderSystemLocal::DrawFilled( const idVec4 & color, float x, float y, float w, float h ) {
+void idRenderSystemLocal::DrawFilled( const idVec4 & color, const float x, const float y, const float w, const float h ) {
 	SetColor( color );
 	DrawStretchPic( x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f, whiteMaterial );
 }
@@ -332,7 +332,7 @@ void idRenderSystemLocal::DrawFilled( const idVec4 & color, float x, float y, fl
 idRenderSystemLocal::DrawStretchPic
 =============
 */
-void idRenderSystemLocal::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial *material ) {
+void idRenderSystemLocal::DrawStretchPic(const float x, const float y, const float w, const float h, const float s1, const float t1, const float s2, const float t2, const idMaterial *material ) {
 	DrawStretchPic( idVec4( x, y, s1, t1 ), idVec4( x+w, y, s2, t1 ), idVec4( x+w, y+h, s2, t2 ), idVec4( x, y+h, s1, t2 ), material );
 }
 
@@ -466,10 +466,10 @@ void idRenderSystemLocal::DrawSmallChar( const int x, const int y, int ch ) {
 	const int row = ch >> 4;
 	const int col = ch & 15;
 
-	const float frow = idMath::Itof<float>(row) * size;
-	const float fcol = idMath::Itof<float>(col) * size;
+	const float frow = numeric_cast<float>(row) * size;
+	const float fcol = numeric_cast<float>(col) * size;
 
-	DrawStretchPic( idMath::Itof<float>(x), idMath::Itof<float>(y), SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
+	DrawStretchPic( numeric_cast<float>(x), numeric_cast<float>(y), SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   charSetMaterial );
@@ -485,7 +485,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idRenderSystemLocal::DrawSmallStringExt( const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) {
+void idRenderSystemLocal::DrawSmallStringExt( const int x, const int y, const char *string, const idVec4 &setColor, const bool forceColor ) {
 	idVec4		color = {};
 	const unsigned char	*s = nullptr;
 	int			xx = 0;
@@ -536,10 +536,10 @@ void idRenderSystemLocal::DrawBigChar( const int x, const int y, int ch ) {
 	const int row = ch >> 4;
 	const int col = ch & 15;
 
-	const float frow = idMath::Itof<float>(row) * size;
-	const float fcol = idMath::Itof<float>(col) * size;
+	const float frow = numeric_cast<float>(row) * size;
+	const float fcol = numeric_cast<float>(col) * size;
 
-	DrawStretchPic( idMath::Itof<float>(x), idMath::Itof<float>(y), BIGCHAR_WIDTH, BIGCHAR_HEIGHT,
+	DrawStretchPic( numeric_cast<float>(x), numeric_cast<float>(y), BIGCHAR_WIDTH, BIGCHAR_HEIGHT,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
 					   charSetMaterial );
@@ -555,7 +555,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void idRenderSystemLocal::DrawBigStringExt( const int x, const int y, const char *string, const idVec4 &setColor, bool forceColor ) {
+void idRenderSystemLocal::DrawBigStringExt( const int x, const int y, const char *string, const idVec4 &setColor, const bool forceColor ) {
 	idVec4		color = {};
 	const char	*s = nullptr;
 	int			xx = 0;
@@ -751,7 +751,7 @@ const emptyCommand_t * idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuff
 //	primaryWorld = NULL;
 
 	// set the time for shader effects in 2D rendering
-	frameShaderTime = idMath::Itof<float>(Sys_Milliseconds()) * 0.001f;
+	frameShaderTime = numeric_cast<float>(Sys_Milliseconds()) * 0.001f;
 
 	setBufferCommand_t * cmd2 = static_cast<setBufferCommand_t*>(R_GetCommandBuffer(sizeof(*cmd2)));
 	cmd2->commandId = RC_SET_BUFFER;
@@ -807,8 +807,8 @@ void idRenderSystemLocal::PerformResolutionScaling( size_t& newWidth, size_t& ne
 	float yScale = 1.0f;
 	resolutionScale.GetCurrentResolutionScale( xScale, yScale );
 
-	newWidth = idMath::Ftoi( idMath::Itof<float>(GetWidth()) * xScale );
-	newHeight = idMath::Ftoi(idMath::Itof<float>(GetHeight()) * yScale );
+	newWidth = numeric_cast<int>( numeric_cast<float>(GetWidth()) * xScale );
+	newHeight = numeric_cast<int>(numeric_cast<float>(GetHeight()) * yScale );
 }
 
 /*
@@ -833,8 +833,8 @@ void idRenderSystemLocal::CropRenderSize( const size_t width, const size_t heigh
 	if ( common->WriteDemo() ) {
 		common->WriteDemo()->WriteInt( DS_RENDER );
 		common->WriteDemo()->WriteInt( DC_CROP_RENDER );
-		common->WriteDemo()->WriteInt( idMath::integer_cast<int>(width) );
-		common->WriteDemo()->WriteInt(idMath::integer_cast<int>(height) );
+		common->WriteDemo()->WriteInt( numeric_cast<int>(width) );
+		common->WriteDemo()->WriteInt(numeric_cast<int>(height) );
 
 		if ( r_showDemo.GetBool() ) {
 			common->Printf( "write DC_CROP_RENDER\n" );
@@ -888,7 +888,7 @@ void idRenderSystemLocal::UnCrop() {
 idRenderSystemLocal::CaptureRenderToImage
 ================
 */
-void idRenderSystemLocal::CaptureRenderToImage( const char *imageName, bool clearColorAfterCopy ) {
+void idRenderSystemLocal::CaptureRenderToImage( const char *imageName, const bool clearColorAfterCopy ) {
 	if ( !R_IsInitialized() ) {
 		return;
 	}

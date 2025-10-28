@@ -64,7 +64,7 @@ Used by both FreeEntityDef and UpdateEntityDef
 Does not actually free the entityDef.
 ===================
 */
-void R_FreeEntityDefDerivedData( idRenderEntityLocal *def, bool keepDecals, bool keepCachedDynamicModel ) {
+void R_FreeEntityDefDerivedData( idRenderEntityLocal *def, const bool keepDecals, const bool keepCachedDynamicModel ) {
 	// demo playback needs to free the joints, while normal play
 	// leaves them in the control of the game
 	if ( common->ReadDemo() ) {
@@ -76,7 +76,7 @@ void R_FreeEntityDefDerivedData( idRenderEntityLocal *def, bool keepDecals, bool
 			Mem_Free( def->parms.callbackData );
 			def->parms.callbackData = nullptr;
 		}
-		for ( int i = 0; i < MAX_RENDERENTITY_GUI; i++ ) {
+		for ( size_t i = 0; i < MAX_RENDERENTITY_GUI; i++ ) {
 			if ( def->parms.gui[ i ] ) {
 				delete def->parms.gui[ i ];
 				def->parms.gui[ i ] = nullptr;
@@ -134,7 +134,7 @@ void R_FreeEntityDefDecals( idRenderEntityLocal *def ) {
 R_FreeEntityDefFadedDecals
 ===================
 */
-void R_FreeEntityDefFadedDecals( idRenderEntityLocal *def, int time ) {
+void R_FreeEntityDefFadedDecals( idRenderEntityLocal *def, ID_TIME_T time ) {
 	if ( def->decals != nullptr) {
 		def->decals->RemoveFadedDecals( time );
 	}
@@ -401,7 +401,7 @@ static void R_DeriveLightData( idRenderLightLocal * light ) {
 	// transform the lightProject
 	float lightTransform[16];
 	R_AxisToModelMatrix( light->parms.axis, light->parms.origin, lightTransform );
-	for ( int i = 0; i < 4; i++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
 		idPlane temp = light->lightProject[i];
 		R_LocalPlaneToGlobal( lightTransform, temp, light->lightProject[i] );
 	}
@@ -481,7 +481,7 @@ WindingCompletelyInsideLight
 ===============
 */
 static bool WindingCompletelyInsideLight( const idWinding *w, const idRenderLightLocal *ldef ) {
-	for ( int i = 0; i < w->GetNumPoints(); i++ ) {
+	for ( size_t i = 0; i < w->GetNumPoints(); i++ ) {
 		if ( idRenderMatrix::CullPointToMVP( ldef->baseLightProject, (*w)[i].ToVec3(), true ) ) {
 			return false;
 		}
@@ -584,10 +584,10 @@ ReloadModels and RegenerateWorld call this
 ===================
 */
 void R_FreeDerivedData() {
-	for ( int j = 0; j < tr.worlds.Num(); j++ ) {
+	for ( size_t j = 0; j < tr.worlds.Num(); j++ ) {
 		idRenderWorldLocal * rw = tr.worlds[j];
 
-		for ( int i = 0; i < rw->entityDefs.Num(); i++ ) {
+		for ( size_t i = 0; i < rw->entityDefs.Num(); i++ ) {
 			idRenderEntityLocal * def = rw->entityDefs[i];
 			if ( def == nullptr) {
 				continue;
@@ -595,7 +595,7 @@ void R_FreeDerivedData() {
 			R_FreeEntityDefDerivedData( def, false, false );
 		}
 
-		for ( int i = 0; i < rw->lightDefs.Num(); i++ ) {
+		for ( size_t i = 0; i < rw->lightDefs.Num(); i++ ) {
 			idRenderLightLocal * light = rw->lightDefs[i];
 			if ( light == nullptr) {
 				continue;
@@ -611,10 +611,10 @@ R_CheckForEntityDefsUsingModel
 ===================
 */
 void R_CheckForEntityDefsUsingModel( idRenderModel *model ) {
-	for ( int j = 0; j < tr.worlds.Num(); j++ ) {
+	for ( size_t j = 0; j < tr.worlds.Num(); j++ ) {
 		idRenderWorldLocal * rw = tr.worlds[j];
 
-		for ( int i = 0; i < rw->entityDefs.Num(); i++ ) {
+		for ( size_t i = 0; i < rw->entityDefs.Num(); i++ ) {
 			idRenderEntityLocal	* def = rw->entityDefs[i];
 			if ( !def ) {
 				continue;
@@ -640,10 +640,10 @@ void R_ReCreateWorldReferences() {
 	// shouldn't be optimized for a particular view
 	tr.viewDef = nullptr;
 
-	for ( int j = 0; j < tr.worlds.Num(); j++ ) {
+	for ( size_t j = 0; j < tr.worlds.Num(); j++ ) {
 		idRenderWorldLocal * rw = tr.worlds[j];
 
-		for ( int i = 0; i < rw->entityDefs.Num(); i++ ) {
+		for ( size_t i = 0; i < rw->entityDefs.Num(); i++ ) {
 			idRenderEntityLocal * def = rw->entityDefs[i];
 			if ( def == nullptr) {
 				continue;
@@ -657,7 +657,7 @@ void R_ReCreateWorldReferences() {
 			}
 		}
 
-		for ( int i = 0; i < rw->lightDefs.Num(); i++ ) {
+		for ( size_t i = 0; i < rw->lightDefs.Num(); i++ ) {
 			idRenderLightLocal * light = rw->lightDefs[i];
 			if ( light == nullptr) {
 				continue;
@@ -688,16 +688,16 @@ void R_ModulateLights_f( const idCmdArgs &args ) {
 	}
 
 	float modulate[3];
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		modulate[i] = atof( args.Argv( i+1 ) );
 	}
 
 	int count = 0;
-	for ( int i = 0; i < tr.primaryWorld->lightDefs.Num(); i++ ) {
+	for ( size_t i = 0; i < tr.primaryWorld->lightDefs.Num(); i++ ) {
 		idRenderLightLocal * light = tr.primaryWorld->lightDefs[i];
 		if ( light != nullptr) {
 			count++;
-			for ( int j = 0; j < 3; j++ ) {
+			for ( size_t j = 0; j < 3; j++ ) {
 				light->parms.shaderParms[j] *= modulate[j];
 			}
 		}

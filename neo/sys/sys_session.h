@@ -32,13 +32,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys_localuser.h"
 
 typedef uint8 peerMask_t;
-static constexpr int MAX_PLAYERS			= 8;
+static constexpr size_t MAX_PLAYERS			    = 8;
 
-static constexpr int MAX_REDUNDANT_CMDS	= 3;
+static constexpr size_t MAX_REDUNDANT_CMDS	    = 3;
 
-static constexpr int MAX_LOCAL_PLAYERS		= 2;
-static constexpr int MAX_INPUT_DEVICES		= 4;
-enum matchFlags_t {
+static constexpr size_t MAX_LOCAL_PLAYERS		= 2;
+static constexpr size_t MAX_INPUT_DEVICES		= 4;
+typedef enum matchFlags_e : uint8 {
 	MATCH_STATS						= BIT( 0 ),		// Match will upload leaderboard/achievement scores
 	MATCH_ONLINE					= BIT( 1 ),		// Match will require users to be online
 	MATCH_RANKED					= BIT( 2 ),		// Match will affect rank
@@ -48,16 +48,16 @@ enum matchFlags_t {
 	MATCH_REQUIRE_PARTY_LOBBY		= BIT( 5 ),		// This session uses a party lobby
 	MATCH_PARTY_INVITE_PLACEHOLDER	= BIT( 6 ),		// Party is never shown in the UI, it's simply used as a placeholder for invites
 	MATCH_JOIN_IN_PROGRESS			= BIT( 7 ),		// Join in progress supported for this match
-};
+} matchFlags_t;
 
-ID_INLINE bool MatchTypeIsOnline( uint8 matchFlags )		{ return ( matchFlags & MATCH_ONLINE ) ? true : false; }
-ID_INLINE bool MatchTypeIsLocal( uint8 matchFlags )			{ return !MatchTypeIsOnline( matchFlags ); }
-ID_INLINE bool MatchTypeIsPrivate( uint8 matchFlags )		{ return ( matchFlags & MATCH_PRIVATE ) ? true : false; }
-ID_INLINE bool MatchTypeIsRanked( uint8 matchFlags )		{ return ( matchFlags & MATCH_RANKED ) ? true : false; }
-ID_INLINE bool MatchTypeHasStats( uint8 matchFlags )		{ return ( matchFlags & MATCH_STATS ) ? true : false; }
-ID_INLINE bool MatchTypeInviteOnly( uint8 matchFlags )		{ return ( matchFlags & MATCH_INVITE_ONLY ) ? true : false; }
-ID_INLINE bool MatchTypeIsSearchable( uint8 matchFlags )	{ return !MatchTypeIsPrivate( matchFlags ); }
-ID_INLINE bool MatchTypeIsJoinInProgress( uint8 matchFlags ){ return ( matchFlags & MATCH_JOIN_IN_PROGRESS ) ? true : false; }
+ID_INLINE bool MatchTypeIsOnline(const uint8 matchFlags )		{ return ( matchFlags & MATCH_ONLINE ) ? true : false; }
+ID_INLINE bool MatchTypeIsLocal(const uint8 matchFlags )			{ return !MatchTypeIsOnline( matchFlags ); }
+ID_INLINE bool MatchTypeIsPrivate(const uint8 matchFlags )		{ return ( matchFlags & MATCH_PRIVATE ) ? true : false; }
+ID_INLINE bool MatchTypeIsRanked(const uint8 matchFlags )		{ return ( matchFlags & MATCH_RANKED ) ? true : false; }
+ID_INLINE bool MatchTypeHasStats(const uint8 matchFlags )		{ return ( matchFlags & MATCH_STATS ) ? true : false; }
+ID_INLINE bool MatchTypeInviteOnly(const uint8 matchFlags )		{ return ( matchFlags & MATCH_INVITE_ONLY ) ? true : false; }
+ID_INLINE bool MatchTypeIsSearchable(const uint8 matchFlags )	{ return !MatchTypeIsPrivate( matchFlags ); }
+ID_INLINE bool MatchTypeIsJoinInProgress(const uint8 matchFlags ){ return ( matchFlags & MATCH_JOIN_IN_PROGRESS ) ? true : false; }
 
 class idCompressor;
 class idLeaderboardSubmission;
@@ -161,8 +161,8 @@ struct serverInfo_t {
 	int8	gameMode;
 	int8 	gameMap;
 	bool	joinable;
-	int 	numPlayers;
-	int 	maxPlayers;
+	size_t 	numPlayers;
+	size_t 	maxPlayers;
 };
 
 //------------------------
@@ -228,7 +228,7 @@ public:
 
 	lobbyUserID_t() noexcept : lobbyType( 0xFF ) {}
 
-	explicit lobbyUserID_t( localUserHandle_t localUser_, byte lobbyType_ ) : localUserHandle( localUser_ ), lobbyType( lobbyType_ ) {}
+	explicit lobbyUserID_t(const localUserHandle_t localUser_, const byte lobbyType_ ) : localUserHandle( localUser_ ), lobbyType( lobbyType_ ) {}
 
 	bool operator == ( const lobbyUserID_t & other ) const {
 		return localUserHandle == other.localUserHandle && lobbyType == other.lobbyType;		// Lobby type must match
@@ -281,47 +281,47 @@ idLobbyBase
 class idLobbyBase {
 public:
 	// General lobby functionality
-	[[nodiscard]] virtual bool						IsHost() const = 0;
-	[[nodiscard]] virtual bool						IsPeer() const = 0;
-	[[nodiscard]] virtual bool						HasActivePeers() const = 0;
-	[[nodiscard]] virtual int							GetNumLobbyUsers() const = 0;
-	[[nodiscard]] virtual int							GetNumActiveLobbyUsers() const = 0;
-	[[nodiscard]] virtual bool						IsLobbyUserConnected( int index ) const = 0;
+	[[nodiscard]] virtual bool			IsHost() const = 0;
+	[[nodiscard]] virtual bool			IsPeer() const = 0;
+	[[nodiscard]] virtual bool			HasActivePeers() const = 0;
+	[[nodiscard]] virtual size_t		GetNumLobbyUsers() const = 0;
+	[[nodiscard]] virtual size_t		GetNumActiveLobbyUsers() const = 0;
+	[[nodiscard]]         bool			IsLobbyUserConnected( index_t index ) const;
 
-	[[nodiscard]] virtual lobbyUserID_t				GetLobbyUserIdByOrdinal( int userIndex ) const = 0;
-	[[nodiscard]] virtual	int							GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]]         lobbyUserID_t	GetLobbyUserIdByOrdinal( index_t userIndex ) const;
+	[[nodiscard]] virtual index_t		GetLobbyUserIndexFromLobbyUserID( lobbyUserID_t lobbyUserID ) const = 0;
 
 	virtual void						SendReliable( int type, idBitMsg & msg, bool callReceiveReliable = true, peerMask_t sessionUserMask = MAX_UNSIGNED_TYPE( peerMask_t ) ) = 0;
 	virtual void						SendReliableToLobbyUser( lobbyUserID_t lobbyUserID, int type, idBitMsg & msg ) = 0;
 	virtual void						SendReliableToHost( int type, idBitMsg & msg ) = 0;
 
 	// Lobby user access
-	[[nodiscard]] virtual const char *				GetLobbyUserName( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual const char *	GetLobbyUserName( lobbyUserID_t lobbyUserID ) const = 0;
 	virtual void						KickLobbyUser( lobbyUserID_t lobbyUserID ) = 0;
-	[[nodiscard]] virtual bool						IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual bool						IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual bool						LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual bool			IsLobbyUserValid( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual bool			IsLobbyUserLoaded( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual bool			LobbyUserHasFirstFullSnap( lobbyUserID_t lobbyUserID ) const = 0;
 	virtual void						EnableSnapshotsForLobbyUser( lobbyUserID_t lobbyUserID ) = 0;
 
-	[[nodiscard]] virtual int							GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual bool						GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual bool						GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual int							GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual int							GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual int							GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const = 0;
-	virtual bool						SetLobbyUserTeam( lobbyUserID_t lobbyUserID, int teamNumber ) = 0;
-	[[nodiscard]] virtual int							GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual index_t		GetLobbyUserSkinIndex( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual bool			GetLobbyUserWeaponAutoReload( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual bool			GetLobbyUserWeaponAutoSwitch( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual index_t		GetLobbyUserLevel( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual index_t		GetLobbyUserQoS( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual index_t		GetLobbyUserTeam( lobbyUserID_t lobbyUserID ) const = 0;
+	                      bool			SetLobbyUserTeam( lobbyUserID_t lobbyUserID, index_t teamNumber );
+	[[nodiscard]] virtual int			GetLobbyUserPartyToken( lobbyUserID_t lobbyUserID ) const = 0;
 	virtual idPlayerProfile *			GetProfileFromLobbyUser( lobbyUserID_t lobbyUserID ) = 0;
 	virtual idLocalUser *				GetLocalUserFromLobbyUser( lobbyUserID_t lobbyUserID ) = 0;
-	[[nodiscard]] virtual int							GetNumLobbyUsersOnTeam( int teamNumber ) const = 0;
+	[[nodiscard]]         size_t		GetNumLobbyUsersOnTeam( index_t teamNumber ) const;
 
-	[[nodiscard]] virtual int							PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const = 0;
-	[[nodiscard]] virtual int							GetPeerTimeSinceLastPacket( int peerIndex ) const = 0;
-	[[nodiscard]] virtual int							PeerIndexForHost() const = 0;
+	[[nodiscard]] virtual index_t		PeerIndexFromLobbyUser( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]]         ID_TIME_T		GetPeerTimeSinceLastPacket( index_t peerIndex ) const;
+	[[nodiscard]] virtual index_t		PeerIndexForHost() const = 0;
 
 	virtual lobbyUserID_t				AllocLobbyUserSlotForBot( const char * botName ) = 0;
 	virtual void						RemoveBotFromLobbyUserList( lobbyUserID_t lobbyUserID ) = 0;
-	[[nodiscard]] virtual bool						GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const = 0;
+	[[nodiscard]] virtual bool			GetLobbyUserIsBot( lobbyUserID_t lobbyUserID ) const = 0;
 
 	[[nodiscard]] virtual const char *				GetHostUserName() const = 0;
 	[[nodiscard]] virtual const idMatchParameters &	GetMatchParms() const = 0;
@@ -329,11 +329,11 @@ public:
 
 	// Peer access
 	virtual bool						EnsureAllPeersHaveBaseState() = 0;
-	[[nodiscard]] virtual bool						AllPeersInGame() const = 0;
-	[[nodiscard]] virtual int							GetNumConnectedPeers() const = 0;
-	[[nodiscard]] virtual int							GetNumConnectedPeersInGame() const = 0;
-	[[nodiscard]] virtual int							PeerIndexOnHost() const = 0;
-	[[nodiscard]] virtual bool						IsPeerDisconnected( int peerIndex ) const = 0;
+	[[nodiscard]] virtual bool			AllPeersInGame() const = 0;
+	[[nodiscard]] virtual size_t		GetNumConnectedPeers() const = 0;
+	[[nodiscard]] virtual size_t		GetNumConnectedPeersInGame() const = 0;
+	[[nodiscard]] virtual index_t		PeerIndexOnHost() const = 0;
+	[[nodiscard]]         bool			IsPeerDisconnected( index_t peerIndex ) const;
 
 	// Snapshots
 	virtual bool						AllPeersHaveStaleSnapObj( int objId ) = 0;
@@ -417,7 +417,7 @@ public:
 	virtual bool			GetMigrationGameData( idBitMsg & msg, bool reading ) = 0;
 	virtual bool			GetMigrationGameDataUser( lobbyUserID_t lobbyUserID, idBitMsg & msg, bool reading ) = 0;
 
-	virtual bool			GetMatchParamUpdate( int & peer, int & msg ) = 0;
+	virtual bool			GetMatchParamUpdate( index_t & peer, int & msg ) = 0;
 
 	virtual void			Pump() = 0;
 	virtual void			ProcessSnapAckQueue() = 0;
@@ -449,27 +449,27 @@ public:
 	virtual bool			ProcessInputEvent( const sysEvent_t * ev ) = 0;
 	virtual float			GetUpstreamDropRate() = 0;
 	virtual float			GetUpstreamQueueRate() = 0;
-	virtual int				GetQueuedBytes() = 0;
+	virtual size_t			GetQueuedBytes() = 0;
 
 	virtual	int				GetLoadingID() = 0;
 	[[nodiscard]] virtual bool			IsAboutToLoad() const = 0;
 
-	[[nodiscard]] virtual const char *	GetLocalUserName( int i ) const = 0;
+	[[nodiscard]] virtual const char *	GetLocalUserName( index_t i ) const = 0;
 
 	[[nodiscard]] virtual sessionState_t	GetState() const = 0;
 	[[nodiscard]] virtual const char *	GetStateString() const = 0;
 
-	[[nodiscard]] virtual int				NumServers() const = 0;
+	[[nodiscard]] virtual size_t			NumServers() const = 0;
 	virtual void			ListServers( const idCallback & callback ) = 0;
 	virtual void			CancelListServers() = 0;
-	virtual void			ConnectToServer( int i ) = 0;
-	[[nodiscard]] virtual const serverInfo_t * ServerInfo( int i ) const = 0;
-	virtual const idList< idStr > * ServerPlayerList( int i ) = 0;
-	virtual void			ShowServerGamerCardUI( int i ) = 0;
+	virtual void			ConnectToServer( index_t i ) = 0;
+	[[nodiscard]] virtual const serverInfo_t * ServerInfo( index_t i ) const = 0;
+	virtual const idList< idStr > * ServerPlayerList( index_t i ) = 0;
+	virtual void			ShowServerGamerCardUI( index_t i ) = 0;
 
 	virtual void			ShowOnlineSignin() = 0;
 
-	virtual void			DropClient( int peerNum, int lobbyType ) = 0;
+	virtual void			DropClient( index_t peerNum, int lobbyType ) = 0;
 
 	virtual void			JoinAfterSwap( void * joinID ) = 0;
 
@@ -477,10 +477,10 @@ public:
 	//	Downloadable Content
 	//=====================================================================================================
 	virtual void			EnumerateDownloadableContent() = 0;
-	[[nodiscard]] virtual int				GetNumContentPackages() const = 0;
-	[[nodiscard]] virtual int				GetContentPackageID( int contentIndex ) const = 0;
-	[[nodiscard]] virtual const char *	GetContentPackagePath( int contentIndex ) const = 0;
-	[[nodiscard]] virtual int				GetContentPackageIndexForID( int contentID ) const = 0;
+	[[nodiscard]] virtual size_t		GetNumContentPackages() const = 0;
+	[[nodiscard]] virtual index_t		GetContentPackageID( const index_t contentIndex ) const = 0;
+	[[nodiscard]] virtual const char *	GetContentPackagePath( const index_t contentIndex ) const = 0;
+	[[nodiscard]] virtual index_t		GetContentPackageIndexForID( const index_t contentID ) const = 0;
 
 	virtual void			ShowSystemMarketplaceUI() const = 0;
 	[[nodiscard]] virtual bool			GetSystemMarketplaceHasNewContent() const = 0;
@@ -491,12 +491,14 @@ public:
 	//=====================================================================================================
 	virtual float			GetTitleStorageFloat( const char * name, float defaultFloat ) const = 0;
 	virtual int				GetTitleStorageInt( const char * name, int defaultInt ) const = 0;
+	virtual int64			GetTitleStorageInt64(const char* name, int64 defaultInt) const = 0;
 	virtual bool			GetTitleStorageBool( const char * name, bool defaultBool ) const = 0;
 	virtual const char *	GetTitleStorageString( const char * name, const char * defaultString ) const = 0;
 
-	virtual bool			GetTitleStorageFloat( const char * name, float defaultFloat, float & out ) const { out = defaultFloat; return false; }
-	virtual bool			GetTitleStorageInt( const char * name, int defaultInt, int & out ) const { out = defaultInt; return false; }
-	virtual bool			GetTitleStorageBool( const char * name, bool defaultBool, bool & out ) const { out = defaultBool; return false; }
+	virtual bool			GetTitleStorageFloat( const char * name, const float defaultFloat, float & out ) const { out = defaultFloat; return false; }
+	virtual bool			GetTitleStorageInt( const char * name, const int defaultInt, int & out ) const { out = defaultInt; return false; }
+	virtual bool			GetTitleStorageInt64(const char* name, const int64 defaultInt, int64& out) const { out = defaultInt; return false; }
+	virtual bool			GetTitleStorageBool( const char * name, const bool defaultBool, bool & out ) const { out = defaultBool; return false; }
 	virtual bool			GetTitleStorageString( const char * name, const char * defaultString, const char ** out ) const { if ( out != nullptr) { *out = defaultString; } return false; }
 
 	virtual bool			IsTitleStorageLoaded() = 0;
@@ -505,14 +507,14 @@ public:
 	// Leaderboard
 	//=====================================================================================================
 	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment = nullptr) = 0;
-	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback ) = 0;
-	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID ) = 0;
+	virtual void			LeaderboardDownload( index_t sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, size_t numRows, const idLeaderboardCallback & callback ) = 0;
+	virtual void			LeaderboardDownloadAttachment( index_t sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID ) = 0;
 	virtual void			LeaderboardFlush() = 0;
 
 	//=====================================================================================================
 	// Scoring (currently just for TrueSkill)
 	//=====================================================================================================
-	virtual void			SetLobbyUserRelativeScore( lobbyUserID_t lobbyUserID, int relativeScore, int team ) = 0;
+	virtual void			SetLobbyUserRelativeScore( lobbyUserID_t lobbyUserID, int relativeScore, index_t team ) = 0;
 
 
 	//=====================================================================================================
@@ -590,7 +592,7 @@ public:
 	//	Bandwidth / QoS checking
 	//=====================================================================================================
 	virtual bool				StartOrContinueBandwidthChallenge( bool forceStart ) = 0;
-	virtual void				DebugSetPeerSnaprate( int peerIndex, int snapRateMS ) = 0;
+	virtual void				DebugSetPeerSnaprate( index_t peerIndex, ID_TIME_T snapRateMS ) = 0;
 	virtual float				GetIncomingByteRate() = 0;
 
 	//=====================================================================================================
@@ -632,7 +634,7 @@ idSession::idGetInputRouting
 ========================
 */
 ID_INLINE int idSession::GetInputRouting( int inputRouting[ MAX_INPUT_DEVICES ] ) { 
-	for ( int i = 0; i < MAX_INPUT_DEVICES; i++ ) {
+	for ( size_t i = 0; i < MAX_INPUT_DEVICES; i++ ) {
 		inputRouting[ i ] = -1;
 	}
 	inputRouting[0] = 0;

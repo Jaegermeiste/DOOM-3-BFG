@@ -50,64 +50,64 @@ public:
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 
-	void					RemoveIndex( int id = 0, bool freeClipModel = true );
+	void					RemoveIndex( index_t id = 0, bool freeClipModel = true );
 
 public:	// common physics interface
 
 	void					SetSelf( idEntity *e ) override;
 
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true ) override;
-	idClipModel *			GetClipModel( int id = 0 ) const override;
-	int						GetNumClipModels() const override;
+	void					SetClipModel( idClipModel *model, float density, const index_t id = 0, bool freeOld = true ) override;
+	[[nodiscard]] idClipModel *			GetClipModel( const index_t id = 0 ) const;
+	[[nodiscard]] size_t					GetNumClipModels() const override;
 
-	void					SetMass( float mass, int id = -1 ) override;
-	float					GetMass( int id = -1 ) const override;
+	void					SetMass( float mass, const index_t id = -1 );
+	[[nodiscard]] float					GetMass( const index_t id = -1 ) const;
 
-	void					SetContents( int contents, int id = -1 ) override;
-	int						GetContents( int id = -1 ) const override;
+	void					SetContents( int contents, const index_t id = -1 );
+	[[nodiscard]] int						GetContents( const index_t id = -1 ) const;
 
-	void					SetClipMask( int mask, int id = -1 ) override;
-	int						GetClipMask( int id = -1 ) const override;
+	void					SetClipMask( int mask, const index_t id = -1 );
+	[[nodiscard]] int						GetClipMask( const index_t id = -1 ) const;
 
-	const idBounds &		GetBounds( int id = -1 ) const override;
-	const idBounds &		GetAbsBounds( int id = -1 ) const override;
+	[[nodiscard]] const idBounds &		GetBounds( const index_t id = -1 ) const;
+	[[nodiscard]] const idBounds &		GetAbsBounds( const index_t id = -1 ) const;
 
-	bool					Evaluate( const ID_TIME_T timeStepMSec, int endTimeMSec );
-	bool					Interpolate( const float fraction ) override;
+	bool					Evaluate( const ID_TIME_T timeStepMSec, ID_TIME_T endTimeMSec ) override;
+	bool					Interpolate( const double fraction ) override;
 	void					ResetInterpolationState( const idVec3 & origin, const idMat3 & axis ) override {}
-	void					UpdateTime( int endTimeMSec );
-	int						GetTime() const override;
+	void					UpdateTime( ID_TIME_T endTimeMSec ) override;
+	ID_TIME_T				GetTime() const override;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const override;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse ) override;
-	void					AddForce( const int id, const idVec3 &point, const idVec3 &force ) override;
+	void					GetImpactInfo( const index_t id, const idVec3 &point, impactInfo_t *info ) const;
+	void					ApplyImpulse( const index_t id, const idVec3 &point, const idVec3 &impulse );
+	void					AddForce( const index_t id, const idVec3 &point, const idVec3 &force );
 	void					Activate() override;
 	void					PutToRest() override;
-	bool					IsAtRest() const override;
-	int						GetRestStartTime() const override;
-	bool					IsPushable() const override;
+	[[nodiscard]] bool					IsAtRest() const override;
+	ID_TIME_T				GetRestStartTime() const override;
+	[[nodiscard]] bool					IsPushable() const override;
 
 	void					SaveState() override;
 	void					RestoreState() override;
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 ) override;
-	void					SetAxis( const idMat3 &newAxis, int id = -1 ) override;
+	void					SetOrigin( const idVec3 &newOrigin, index_t id = -1 );
+	void					SetAxis( const idMat3 &newAxis, index_t id = -1 );
 
-	void					Translate( const idVec3 &translation, int id = -1 ) override;
-	void					Rotate( const idRotation &rotation, int id = -1 ) override;
+	void					Translate( const idVec3 &translation, index_t id = -1 );
+	void					Rotate( const idRotation &rotation, index_t id = -1 );
 
-	const idVec3 &			GetOrigin( int id = 0 ) const override;
-	const idMat3 &			GetAxis( int id = 0 ) const override;
+	[[nodiscard]] const idVec3 &			GetOrigin( const index_t id = 0 ) const;
+	[[nodiscard]] const idMat3 &			GetAxis( const index_t id = 0 ) const;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 ) override;
-	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 ) override;
+	void					SetLinearVelocity( const idVec3 &newLinearVelocity, index_t id = 0 );
+	void					SetAngularVelocity( const idVec3 &newAngularVelocity, index_t id = 0 );
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const override;
-	const idVec3 &			GetAngularVelocity( int id = 0 ) const override;
+	[[nodiscard]] const idVec3 &			GetLinearVelocity( const index_t id = 0 ) const;
+	[[nodiscard]] const idVec3 &			GetAngularVelocity( const index_t id = 0 ) const;
 
 	void					SetGravity( const idVec3 &newGravity ) override;
-	const idVec3 &			GetGravity() const override;
-	const idVec3 &			GetGravityNormal() const override;
+	[[nodiscard]] const idVec3 &			GetGravity() const override;
+	[[nodiscard]] const idVec3 &			GetGravityNormal() const override;
 
 	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const override;
 	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const override;
@@ -120,27 +120,27 @@ public:	// common physics interface
 	void					LinkClip() override;
 
 	bool					EvaluateContacts() override;
-	int						GetNumContacts() const override;
-	const contactInfo_t &	GetContact( int num ) const;
+	[[nodiscard]] size_t					GetNumContacts() const override;
+	[[nodiscard]] const contactInfo_t &	GetContact( const index_t num ) const;
 	void					ClearContacts() override;
 	void					AddContactEntity( idEntity *e ) override;
 	void					RemoveContactEntity( idEntity *e ) override;
 
-	bool					HasGroundContacts() const override;
-	bool					IsGroundEntity( int entityNum ) const;
-	bool					IsGroundClipModel( int entityNum, int id ) const;
+	[[nodiscard]] bool					HasGroundContacts() const override;
+	[[nodiscard]] bool					IsGroundEntity( const index_t entityNum ) const;
+	[[nodiscard]] bool					IsGroundClipModel( const index_t entityNum, const index_t id ) const;
 
-	void					SetPushed( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const override;
-	const idVec3 &			GetPushedAngularVelocity( const int id = 0 ) const override;
+	void					SetPushed( ID_TIME_T deltaTime );
+	[[nodiscard]] const idVec3 &			GetPushedLinearVelocity( const index_t id = 0 ) const;
+	[[nodiscard]] const idVec3 &			GetPushedAngularVelocity( const index_t id = 0 ) const;
 
 	void					SetMaster( idEntity *master, const bool orientated = true ) override;
 
-	const trace_t *			GetBlockingInfo() const override;
-	idEntity *				GetBlockingEntity() const override;
+	[[nodiscard]] const trace_t *			GetBlockingInfo() const override;
+	[[nodiscard]] idEntity *				GetBlockingEntity() const override;
 
-	int						GetLinearEndTime() const override;
-	int						GetAngularEndTime() const override;
+	ID_TIME_T				GetLinearEndTime() const override;
+	ID_TIME_T				GetAngularEndTime() const override;
 
 	void					WriteToSnapshot( idBitMsg &msg ) const override;
 	void					ReadFromSnapshot( const idBitMsg &msg ) override;

@@ -337,7 +337,7 @@ bool idSecurityCamera::CanSeePlayer() {
 idSecurityCamera::SetAlertMode
 ================
 */
-void idSecurityCamera::SetAlertMode( int alert ) {
+void idSecurityCamera::SetAlertMode(const int alert ) {
 	if (alert >= SCANNING && alert <= ACTIVATED) {
 		alertMode = alert;
 	}

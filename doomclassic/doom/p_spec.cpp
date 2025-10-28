@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <stdlib.h>
 
+#include <algorithm>
+
 #include "doomdef.h"
 #include "doomstat.h"
 
@@ -132,13 +134,15 @@ void P_InitPicAnims (void)
 
 	//	Init animation
 	::g->lastanim = ::g->anims;
-	for (i=0 ; animdefs[i].istexture != (qboolean)-1 ; i++)
+	for (i=0 ; animdefs[i].istexture != (qboolean)true ; i++)
 	{
 		if (animdefs[i].istexture)
 		{
 			// different episode ?
 			if (R_CheckTextureNumForName(animdefs[i].startname) == -1)
-				continue;	
+			{
+				continue;
+			}
 
 			::g->lastanim->picnum = R_TextureNumForName (animdefs[i].endname);
 			::g->lastanim->basepic = R_TextureNumForName (animdefs[i].startname);
@@ -146,7 +150,9 @@ void P_InitPicAnims (void)
 		else
 		{
 			if (W_CheckNumForName(animdefs[i].startname) == -1)
+			{
 				continue;
+			}
 
 			::g->lastanim->picnum = R_FlatNumForName (animdefs[i].endname);
 			::g->lastanim->basepic = R_FlatNumForName (animdefs[i].startname);
@@ -156,9 +162,11 @@ void P_InitPicAnims (void)
 		::g->lastanim->numpics = ::g->lastanim->picnum - ::g->lastanim->basepic + 1;
 
 		if (::g->lastanim->numpics < 2)
+		{
 			I_Error ("P_InitPicAnims: bad cycle from %s to %s",
-			animdefs[i].startname,
-			animdefs[i].endname);
+			         animdefs[i].startname,
+			         animdefs[i].endname);
+		}
 
 		::g->lastanim->speed = animdefs[i].speed;
 		::g->lastanim++;
@@ -182,9 +190,9 @@ void P_InitPicAnims (void)
 //
 side_t*
 getSide
-( int		currentSector,
- int		line,
- int		side )
+(const index_t		currentSector,
+ const index_t		line,
+ const index_t		side )
 {
 	return &::g->sides[ (::g->sectors[currentSector].lines[line])->sidenum[side] ];
 }
@@ -198,9 +206,9 @@ getSide
 //
 sector_t*
 getSector
-( int		currentSector,
- int		line,
- int		side )
+(const index_t		currentSector,
+ const index_t		line,
+ const index_t		side )
 {
 	return ::g->sides[ (::g->sectors[currentSector].lines[line])->sidenum[side] ].sector;
 }
@@ -211,10 +219,10 @@ getSector
 // Given the sector number and the line number,
 //  it will tell you whether the line is two-sided or not.
 //
-int
+bool
 twoSided
-( int	sector,
- int	line )
+(const index_t	sector,
+ const index_t	line )
 {
 	return (::g->sectors[sector].lines[line])->flags & ML_TWOSIDED;
 }
@@ -233,10 +241,14 @@ getNextSector
  sector_t*	sec )
 {
 	if (!(line->flags & ML_TWOSIDED))
-		return NULL;
+	{
+		return nullptr;
+	}
 
 	if (line->frontsector == sec)
+	{
 		return line->backsector;
+	}
 
 	return line->frontsector;
 }
@@ -260,10 +272,11 @@ fixed_t	P_FindLowestFloorSurrounding(sector_t* sec)
 		other = getNextSector(check,sec);
 
 		if (!other)
+		{
 			continue;
+		}
 
-		if (other->floorheight < floor)
-			floor = other->floorheight;
+		floor = Min(other->floorheight, floor);
 	}
 	return floor;
 }
@@ -287,10 +300,11 @@ fixed_t	P_FindHighestFloorSurrounding(sector_t *sec)
 		other = getNextSector(check,sec);
 
 		if (!other)
+		{
 			continue;
+		}
 
-		if (other->floorheight > floor)
-			floor = other->floorheight;
+		floor = Max(other->floorheight, floor);
 	}
 	return floor;
 }
@@ -307,14 +321,14 @@ fixed_t	P_FindHighestFloorSurrounding(sector_t *sec)
 fixed_t
 P_FindNextHighestFloor
 ( sector_t*	sec,
- int		currentheight )
+ const int		currentheight )
 {
 	int			i;
 	int			h;
 	int			min;
 	line_t*		check;
 	sector_t*		other;
-	fixed_t		height = currentheight;
+	const fixed_t		height = currentheight;
 
 
 	fixed_t		heightlist[MAX_ADJOINING_SECTORS];		
@@ -325,10 +339,14 @@ P_FindNextHighestFloor
 		other = getNextSector(check,sec);
 
 		if (!other)
+		{
 			continue;
+		}
 
 		if (other->floorheight > height)
+		{
 			heightlist[h++] = other->floorheight;
+		}
 
 		// Check for overflow. Exit.
 		if ( h >= MAX_ADJOINING_SECTORS )
@@ -340,14 +358,17 @@ P_FindNextHighestFloor
 
 	// Find lowest height in list
 	if (!h)
+	{
 		return currentheight;
+	}
 
 	min = heightlist[0];
 
 	// Range checking? 
 	for (i = 1;i < h;i++)
-		if (heightlist[i] < min)
-			min = heightlist[i];
+	{
+		min = Min(heightlist[i], min);
+	}
 
 	return min;
 }
@@ -370,10 +391,11 @@ P_FindLowestCeilingSurrounding(sector_t* sec)
 		other = getNextSector(check,sec);
 
 		if (!other)
+		{
 			continue;
+		}
 
-		if (other->ceilingheight < height)
-			height = other->ceilingheight;
+		height = Min(other->ceilingheight, height);
 	}
 	return height;
 }
@@ -395,10 +417,11 @@ fixed_t	P_FindHighestCeilingSurrounding(sector_t* sec)
 		other = getNextSector(check,sec);
 
 		if (!other)
+		{
 			continue;
+		}
 
-		if (other->ceilingheight > height)
-			height = other->ceilingheight;
+		height = Max(other->ceilingheight, height);
 	}
 	return height;
 }
@@ -408,16 +431,20 @@ fixed_t	P_FindHighestCeilingSurrounding(sector_t* sec)
 //
 // RETURN NEXT SECTOR # THAT LINE TAG REFERS TO
 //
-int
+static index_t
 P_FindSectorFromLineTag
 ( line_t*	line,
- int		start )
+ const index_t		start )
 {
-	int	i;
+	index_t	i = 0;
 
-	for (i = start+1; i < ::g->numsectors; i++)
+	for (i = start + 1; i < ::g->numsectors; i++)
+	{
 		if (::g->sectors[i].tag == line->tag)
+		{
 			return i;
+		}
+	}
 
 	return -1;
 }
@@ -431,7 +458,7 @@ P_FindSectorFromLineTag
 int
 P_FindMinSurroundingLight
 ( sector_t*	sector,
- int		max )
+ const int		max )
 {
 	int		i;
 	int		min;
@@ -445,10 +472,11 @@ P_FindMinSurroundingLight
 		check = getNextSector(line,sector);
 
 		if (!check)
+		{
 			continue;
+		}
 
-		if (check->lightlevel < min)
-			min = check->lightlevel;
+		min = Min<int>(check->lightlevel, min);
 	}
 	return min;
 }
@@ -468,8 +496,8 @@ P_FindMinSurroundingLight
 //
 void
 P_CrossSpecialLine
-( int		linenum,
- int		side,
+(const int		linenum,
+ const int		side,
  mobj_t*	thing )
 {
 	line_t*	line;
@@ -509,7 +537,9 @@ P_CrossSpecialLine
 			break;
 		}
 		if (!ok)
+		{
 			return;
+		}
 	}
 
 
@@ -917,7 +947,9 @@ P_CrossSpecialLine
 	case 126:
 		// TELEPORT MonsterONLY.
 		if (!thing->player)
+		{
 			EV_Teleport( line, side, thing );
+		}
 		break;
 
 	case 128:
@@ -957,7 +989,9 @@ P_ShootSpecialLine
 			break;
 		}
 		if (!ok)
+		{
 			return;
+		}
 	}
 
 	switch(line->special)
@@ -997,7 +1031,9 @@ void P_PlayerInSpecialSector (player_t* player)
 
 	// Falling, not all the way down yet?
 	if (player->mo->z != sector->floorheight)
-		return;	
+	{
+		return;
+	}
 
 	// Has hitten ground.
 	switch (sector->special)
@@ -1005,15 +1041,23 @@ void P_PlayerInSpecialSector (player_t* player)
 	case 5:
 		// HELLSLIME DAMAGE
 		if (!player->powers[pw_ironfeet])
+		{
 			if (!(::g->leveltime&0x1f))
-				P_DamageMobj (player->mo, NULL, NULL, 10);
+			{
+				P_DamageMobj (player->mo, nullptr, nullptr, 10);
+			}
+		}
 		break;
 
 	case 7:
 		// NUKAGE DAMAGE
 		if (!player->powers[pw_ironfeet])
+		{
 			if (!(::g->leveltime&0x1f))
-				P_DamageMobj (player->mo, NULL, NULL, 5);
+			{
+				P_DamageMobj (player->mo, nullptr, nullptr, 5);
+			}
+		}
 		break;
 
 	case 16:
@@ -1024,7 +1068,9 @@ void P_PlayerInSpecialSector (player_t* player)
 		|| (P_Random()<5) )
 		{
 			if (!(::g->leveltime&0x1f))
-				P_DamageMobj (player->mo, NULL, NULL, 20);
+			{
+				P_DamageMobj (player->mo, nullptr, nullptr, 20);
+			}
 		}
 		break;
 
@@ -1069,10 +1115,14 @@ void P_PlayerInSpecialSector (player_t* player)
 		player->cheats &= ~CF_GODMODE;
 
 		if (!(::g->leveltime&0x1f))
-			P_DamageMobj (player->mo, NULL, NULL, 20);
+		{
+			P_DamageMobj (player->mo, nullptr, nullptr, 20);
+		}
 
 		if (player->health <= 10)
+		{
 			G_ExitLevel();
+		}
 		break;
 
 	default:
@@ -1090,7 +1140,7 @@ void P_PlayerInSpecialSector (player_t* player)
 // P_UpdateSpecials
 // Animate planes, scroll walls, etc.
 //
-int PlayerFrags( int playernum ) {
+static int PlayerFrags(const int playernum ) {
 	int	frags = 0;
 
 	for( int i=0 ; i<MAXPLAYERS ; i++) {
@@ -1117,7 +1167,9 @@ void P_UpdateSpecials (void)
 	{
 		::g->levelTimeCount--;
 		if (!::g->levelTimeCount)
+		{
 			G_ExitLevel();
+		}
 	}
 
 	// DHM - Nerve :: FRAG COUNT
@@ -1144,9 +1196,13 @@ void P_UpdateSpecials (void)
 		{
 			pic = anim->basepic + ( (::g->leveltime/anim->speed + i)%anim->numpics );
 			if (anim->istexture)
+			{
 				::g->texturetranslation[i] = pic;
+			}
 			else
+			{
 				::g->flattranslation[i] = pic;
+			}
 		}
 	}
 
@@ -1167,6 +1223,7 @@ void P_UpdateSpecials (void)
 
 	//	DO BUTTONS
 	for (i = 0; i < MAXBUTTONS; i++)
+	{
 		if (::g->buttonlist[i].btimer)
 		{
 			::g->buttonlist[i].btimer--;
@@ -1193,7 +1250,7 @@ void P_UpdateSpecials (void)
 				memset(&::g->buttonlist[i],0,sizeof(button_t));
 			}
 		}
-
+	}
 }
 
 
@@ -1219,7 +1276,9 @@ int EV_DoDonut(line_t*	line)
 
 		// ALREADY MOVING?  IF SO, KEEP GOING...
 		if (s1->specialdata)
+		{
 			continue;
+		}
 
 		rtn = 1;
 		s2 = getNextSector(s1->lines[0],s1);
@@ -1227,11 +1286,13 @@ int EV_DoDonut(line_t*	line)
 		{
 			if ((!(s2->lines[i]->flags & ML_TWOSIDED)) ||
 				(s2->lines[i]->backsector == s1))
+			{
 				continue;
+			}
 			s3 = s2->lines[i]->backsector;
 
 			//	Spawn rising slime
-			floor = (floormove_t*)DoomLib::Z_Malloc (sizeof(*floor), PU_LEVEL, 0);
+			floor = static_cast<floormove_t*>(DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, nullptr));
 			P_AddThinker (&floor->thinker);
 			s2->specialdata = floor;
 			floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
@@ -1245,7 +1306,7 @@ int EV_DoDonut(line_t*	line)
 			floor->floordestheight = s3->floorheight;
 
 			//	Spawn lowering donut-hole
-			floor = (floormove_t*)DoomLib::Z_Malloc (sizeof(*floor), PU_LEVEL, 0);
+			floor = static_cast<floormove_t*>(DoomLib::Z_Malloc(sizeof(*floor), PU_LEVEL, nullptr));
 			P_AddThinker (&floor->thinker);
 			s1->specialdata = floor;
 			floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
@@ -1283,7 +1344,9 @@ void P_SpawnSpecials (void)
 
 	episode = 1;
 	if (W_CheckNumForName("texture2") >= 0)
+	{
 		episode = 2;
+	}
 
 
 	// See if -TIMER needs to be used.
@@ -1299,9 +1362,9 @@ void P_SpawnSpecials (void)
 	//i = M_CheckParm("-timer");
 	//if (i && ::g->deathmatch)
 #ifdef ID_ENABLE_DOOM_CLASSIC_NETWORKING
-	const int timeLimit = session->GetActingGameStateLobbyBase().GetMatchParms().gameTimeLimit;
+	const ID_TIME_T timeLimit = session->GetActingGameStateLobbyBase().GetMatchParms().gameTimeLimit;
 #else
-	const int timeLimit = 0;
+	const ID_TIME_T timeLimit = 0;
 #endif
 	if (timeLimit != 0 && g->deathmatch)
 	{
@@ -1332,7 +1395,9 @@ void P_SpawnSpecials (void)
 	for (i=0 ; i < ::g->numsectors ; i++, sector++)
 	{
 		if (!sector->special)
+		{
 			continue;
+		}
 
 		switch (sector->special)
 		{
@@ -1410,13 +1475,19 @@ void P_SpawnSpecials (void)
 
 	//	Init other misc stuff
 	for (i = 0;i < MAXCEILINGS;i++)
-		::g->activeceilings[i] = NULL;
+	{
+		::g->activeceilings[i] = nullptr;
+	}
 
 	for (i = 0;i < MAXPLATS;i++)
-		::g->activeplats[i] = NULL;
+	{
+		::g->activeplats[i] = nullptr;
+	}
 
 	for (i = 0;i < MAXBUTTONS;i++)
+	{
 		memset(&::g->buttonlist[i],0,sizeof(button_t));
+	}
 
 	// UNUSED: no horizonal sliders.
 	//	P_InitSlidingDoorFrames();

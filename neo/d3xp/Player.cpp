@@ -180,7 +180,7 @@ void idInventory::Clear() {
 	ClearPowerUps();
 
 	// set to -1 so that the gun knows to have a full clip the first time we get it and at the start of the level
-	for ( int i = 0; i < clip.Num(); ++i ) {
+	for ( size_t i = 0; i < clip.Num(); ++i ) {
 		clip[i].Set( -1 );
 	}
 	
@@ -217,7 +217,7 @@ void idInventory::Clear() {
 idInventory::GivePowerUp
 ==============
 */
-void idInventory::GivePowerUp( idPlayer *player, int powerup, int msec ) {
+void idInventory::GivePowerUp( idPlayer *player, const int powerup, const int msec ) {
 	powerups |= 1 << powerup;
 	powerupEndTime[ powerup ] = gameLocal.time + msec;
 }
@@ -693,7 +693,7 @@ int idInventory::MaxAmmoForAmmoClass( const idPlayer *owner, const char *ammo_cl
 idInventory::AmmoPickupNameForIndex
 ==============
 */
-const char *idInventory::AmmoPickupNameForIndex( ammo_t ammonum )
+const char *idInventory::AmmoPickupNameForIndex(const ammo_t ammonum )
 {
 	return idWeapon::GetAmmoPickupNameForNum( ammonum );
 }
@@ -749,7 +749,7 @@ idInventory::AddPickupName
 ==============
 */
 void idInventory::AddPickupName( const char * name, idPlayer * owner ) { //_D3XP
-	const int num = pickupItemNames.Num();
+	const size_t num = pickupItemNames.Num();
 	if ( ( num == 0 ) || ( pickupItemNames[ num - 1 ].Icmp( name ) != 0 ) ) {
 		if ( idStr::Cmpn( name, STRTABLE_ID, STRTABLE_ID_LENGTH ) == 0 ) {
 			pickupItemNames.Append( idLocalization::GetString( name ) );
@@ -765,7 +765,7 @@ idInventory::Give
 ==============
 */
 bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *statname, const char *value,
-						idPredictedValue< int > * idealWeapon, bool updateHud, unsigned int giveFlags ) {
+						idPredictedValue< int > * idealWeapon, const bool updateHud, const unsigned int giveFlags ) {
 	int						i;
 	const char				*pos;
 	const char				*end;
@@ -928,7 +928,7 @@ bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *st
 						
 
 						if ( weaponName != "weapon_pda" ) {
-							for ( int index = 0; index < NUM_QUICK_SLOTS; ++index ) {
+							for ( index_t index = 0; index < NUM_QUICK_SLOTS; ++index ) {
 								if ( owner->GetQuickSlot( index ) == -1 ) {
 									owner->SetQuickSlot( index, i );
 									break;
@@ -986,7 +986,7 @@ void idInventory::Drop( const idDict &spawnArgs, const char *weapon_classname, i
 idInventory::HasAmmo
 ===============
 */
-int idInventory::HasAmmo( ammo_t type, int amount ) {
+int idInventory::HasAmmo(const ammo_t type, const int amount ) {
 	if ( ( type == 0 ) || !amount ) {
 		// always allow weapons that don't use ammo to fire
 		return -1;
@@ -1007,7 +1007,7 @@ int idInventory::HasAmmo( ammo_t type, int amount ) {
 idInventory::HasAmmo
 ===============
 */
-int idInventory::HasAmmo( const char *weapon_classname, bool includeClip, idPlayer* owner ) {		//_D3XP
+int idInventory::HasAmmo( const char *weapon_classname, const bool includeClip, idPlayer* owner ) {		//_D3XP
 	int ammoRequired;
 	const ammo_t ammo_i = AmmoIndexForWeaponClass( weapon_classname, &ammoRequired );
 
@@ -1055,7 +1055,7 @@ bool idInventory::HasEmptyClipCannotRefill(const char *weapon_classname, idPlaye
 idInventory::UseAmmo
 ===============
 */
-bool idInventory::UseAmmo( ammo_t type, int amount ) {
+bool idInventory::UseAmmo(const ammo_t type, const int amount ) {
 	if ( g_infiniteAmmo.GetBool() ) {
 		return true;
 	}
@@ -1130,7 +1130,7 @@ void idInventory::RechargeAmmo(idPlayer *owner) {
 				const int intervals = (gameLocal.time - rechargeAmmo[i].rechargeTime)/rechargeAmmo[i].ammo;
 				ammo[i] += intervals;
 
-				const int max = MaxAmmoForAmmoClass(owner, rechargeAmmo[i].ammoName);
+				const size_t max = MaxAmmoForAmmoClass(owner, rechargeAmmo[i].ammoName);
 				if(max > 0) {
 					if(ammo[i].Get() > max) {
 						ammo[i] = max;
@@ -1150,7 +1150,7 @@ idInventory::CanGive
 bool idInventory::CanGive( idPlayer *owner, const idDict &spawnArgs, const char *statname, const char *value ) {
 
 	if ( !idStr::Icmp( statname, "ammo_bloodstone" ) ) {
-		const int max = MaxAmmoForAmmoClass(owner, statname);
+		const size_t max = MaxAmmoForAmmoClass(owner, statname);
 		const int i = AmmoIndexForAmmoClass(statname);
 
 		if(max <= 0) {
@@ -1194,7 +1194,7 @@ is stored so the predicted value doesn't get overwritten by snapshots. Of course
 the snapshot-reading function must check this value.
 ===============
 */
-void idInventory::SetInventoryAmmoForType( int ammoType, const int amount ) {
+void idInventory::SetInventoryAmmoForType(const int ammoType, const int amount ) {
 	ammo[ammoType] = amount;
 }
 
@@ -1236,11 +1236,11 @@ idInventory::ReadAmmoFromSnapshot
 ===============
 */
 void idInventory::ReadAmmoFromSnapshot( const idBitMsg & msg, const int ownerEntityNumber ) {
-	for( int i = 0; i < ammo.Num(); i++ ) {
+	for ( size_t i = 0; i < ammo.Num(); i++ ) {
 		const int snapshotAmmo = msg.ReadBits( ASYNC_PLAYER_INV_AMMO_BITS );
 		ammo[i].UpdateFromSnapshot( snapshotAmmo, ownerEntityNumber );
 	}
-	for( int i = 0; i < clip.Num(); i++ ) {
+	for ( size_t i = 0; i < clip.Num(); i++ ) {
 		const int snapshotClip = msg.ReadBits( ASYNC_PLAYER_INV_CLIP_BITS );
 		clip[i].UpdateFromSnapshot( snapshotClip, ownerEntityNumber );
 	}
@@ -1254,7 +1254,7 @@ Doesn't really matter what remote client's ammo count is, so just set it to 999.
 ===============
 */
 void idInventory::SetRemoteClientAmmo( const int ownerEntityNumber ) {
-	for ( int i = 0; i < ammo.Num(); ++i ) {
+	for ( size_t i = 0; i < ammo.Num(); ++i ) {
 		ammo[i].UpdateFromSnapshot( 999, ownerEntityNumber );
 	}
 }
@@ -1904,7 +1904,7 @@ void idPlayer::Spawn() {
 
 	if ( hud ) {
 		if ( weapon_soulcube > 0 && ( inventory.weapons & ( 1 << weapon_soulcube ) ) ) {
-			const int max_souls = inventory.MaxAmmoForAmmoClass( this, "ammo_souls" );
+			const size_t max_souls = inventory.MaxAmmoForAmmoClass( this, "ammo_souls" );
 			if ( inventory.GetInventoryAmmoForType( idWeapon::GetAmmoNumForName( "ammo_souls" ) ) >= max_souls ) {
 				hud->SetShowSoulCubeOnLoad( true );
 			}
@@ -1913,7 +1913,7 @@ void idPlayer::Spawn() {
 
 	if ( GetPDA() ) {
 		// Add any emails from the inventory
-		for ( int i = 0; i < inventory.emails.Num(); i++ ) {
+		for ( size_t i = 0; i < inventory.emails.Num(); i++ ) {
 			GetPDA()->AddEmail( inventory.emails[i] );
 		}
 		GetPDA()->SetSecurity( idLocalization::GetString( "#str_00066" ) );
@@ -1976,7 +1976,7 @@ void idPlayer::Spawn() {
 			if(!src.ReadToken(&token)) {
 				break;
 			}
-			int index = atoi(token.c_str());
+			index_t index = atoi(token.c_str());
 			newToggle.toggleList.Append(index);
 
 			//Skip the ,
@@ -2581,7 +2581,7 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 		savefile->ReadString(name);
 		strcpy(newToggle.name, name.c_str());
 
-		int indexCount;
+		index_t indexCount;
 		savefile->ReadInt(indexCount);
 		for(int j = 0; j < indexCount; j++) {
 			int temp;
@@ -2643,7 +2643,7 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	// Update the soul cube HUD indicator
 	if ( hud ) {
 		if ( weapon_soulcube > 0 && ( inventory.weapons & ( 1 << weapon_soulcube ) ) ) {
-			const int max_souls = inventory.MaxAmmoForAmmoClass( this, "ammo_souls" );
+			const size_t max_souls = inventory.MaxAmmoForAmmoClass( this, "ammo_souls" );
 			if ( inventory.GetInventoryAmmoForType( idWeapon::GetAmmoNumForName( "ammo_souls" ) ) >= max_souls ) {
 				hud->SetShowSoulCubeOnLoad( true );
 			}
@@ -2712,7 +2712,7 @@ void idPlayer::Restart() {
 idPlayer::ServerSpectate
 ================
 */
-void idPlayer::ServerSpectate( bool spectate ) {
+void idPlayer::ServerSpectate(const bool spectate ) {
 	assert( !common->IsClient() );
 
 	if ( spectating != spectate ) {
@@ -2720,7 +2720,7 @@ void idPlayer::ServerSpectate( bool spectate ) {
 		if ( !spectate ) {
 			// When coming out of spectate, join the team with the least number of players
 			if ( gameLocal.mpGame.IsGametypeTeamBased() ) {
-				int teamCounts[2] = { 0, 0 };
+				index_t teamCounts[2] = { 0, 0 };
 				gameLocal.mpGame.NumActualClients( false, teamCounts );
 				teamCounts[team]--;
 				if ( teamCounts[0] < teamCounts[1] ) {
@@ -3034,7 +3034,7 @@ void idPlayer::UpdateHudStats( idMenuHandler_HUD * _hudManager ) {
 idPlayer::UpdateHudWeapon
 ===============
 */
-void idPlayer::UpdateHudWeapon( bool flashWeapon ) {
+void idPlayer::UpdateHudWeapon(const bool flashWeapon ) {
 
 	idMenuScreen_HUD * curDisplay = hud;		
 	idPlayer *p = this;
@@ -3128,7 +3128,7 @@ void idPlayer::UpdateSpectatingText() {
 idPlayer::UpdateMpMessages
 ===============
 */
-void idPlayer::AddChatMessage( int index, int alpha, const idStr & message ) const
+void idPlayer::AddChatMessage(const index_t index, const int alpha, const idStr & message ) const
 {
 
 	if ( mpMessages == nullptr || !mpMessages->IsActive() ) {
@@ -3167,7 +3167,7 @@ void idPlayer::AddChatMessage( int index, int alpha, const idStr & message ) con
 idPlayer::UpdateMpMessages
 ===============
 */
-void idPlayer::ClearChatMessage( int index ) const
+void idPlayer::ClearChatMessage(const index_t index ) const
 {
 
 	if ( mpMessages == nullptr || !mpMessages->IsActive() ) {
@@ -3523,7 +3523,7 @@ void idPlayer::CacheWeapons() {
 idPlayer::SetQuickSlot
 ===============
 */
-void idPlayer::SetQuickSlot( int index, int val ) {
+void idPlayer::SetQuickSlot(const index_t index, const int val ) {
 	if ( index >= NUM_QUICK_SLOTS || index < 0 ) {
 		return;
 	}
@@ -3536,7 +3536,7 @@ void idPlayer::SetQuickSlot( int index, int val ) {
 idPlayer::GetQuickSlot
 ===============
 */
-int idPlayer::GetQuickSlot( int index ) const
+int idPlayer::GetQuickSlot(const index_t index ) const
 {
 
 	if ( index >= NUM_QUICK_SLOTS || index < 0 ) {
@@ -3551,7 +3551,7 @@ int idPlayer::GetQuickSlot( int index ) const
 idPlayer::Give
 ===============
 */
-bool idPlayer::Give( const char *statname, const char *value, unsigned int giveFlags ) {
+bool idPlayer::Give( const char *statname, const char *value, const unsigned int giveFlags ) {
 	int amount;
 
 	if ( AI_DEAD ) {
@@ -3612,7 +3612,7 @@ idPlayer::GiveHealthPool
 adds health to the player health pool
 ===============
 */
-void idPlayer::GiveHealthPool( float amt ) {
+void idPlayer::GiveHealthPool(const float amt ) {
 	
 	if ( AI_DEAD ) {
 		return;
@@ -3632,7 +3632,7 @@ idPlayer::GiveItem
 Returns false if the item shouldn't be picked up
 ===============
 */
-bool idPlayer::GiveItem( idItem *item, unsigned int giveFlags ) {
+bool idPlayer::GiveItem( idItem *item, const unsigned int giveFlags ) {
 	int					i;
 	const idKeyValue	*arg;
 	idDict				attr;
@@ -3686,7 +3686,7 @@ bool idPlayer::GiveItem( idItem *item, unsigned int giveFlags ) {
 idPlayer::PowerUpModifier
 ===============
 */
-float idPlayer::PowerUpModifier( int type ) {
+float idPlayer::PowerUpModifier(const int type ) {
 	float mod = 1.0f;
 
 	if ( PowerUpActive( BERSERK ) ) {
@@ -3737,7 +3737,7 @@ float idPlayer::PowerUpModifier( int type ) {
 idPlayer::PowerUpActive
 ===============
 */
-bool idPlayer::PowerUpActive( int powerup ) const {
+bool idPlayer::PowerUpActive(const int powerup ) const {
 	return ( inventory.powerups & ( 1 << powerup ) ) != 0;
 }
 
@@ -3746,7 +3746,7 @@ bool idPlayer::PowerUpActive( int powerup ) const {
 idPlayer::GivePowerUp
 ===============
 */
-bool idPlayer::GivePowerUp( int powerup, const ID_TIME_T time, unsigned int giveFlags ) {
+bool idPlayer::GivePowerUp(const int powerup, const ID_TIME_T time, const unsigned int giveFlags ) {
 	const char *sound;
 
 	if ( powerup >= 0 && powerup < MAX_POWERUPS ) {
@@ -3904,7 +3904,7 @@ bool idPlayer::GivePowerUp( int powerup, const ID_TIME_T time, unsigned int give
 idPlayer::ClearPowerup
 ==============
 */
-void idPlayer::ClearPowerup( int i ) {
+void idPlayer::ClearPowerup(const int i ) {
 
 	if ( common->IsServer() ) {
 		idBitMsg	msg;
@@ -4081,7 +4081,7 @@ void idPlayer::ClearPowerUps() {
 idPlayer::GiveInventoryItem
 ===============
 */
-bool idPlayer::GiveInventoryItem( idDict * item, unsigned int giveFlags ) {
+bool idPlayer::GiveInventoryItem( idDict * item, const unsigned int giveFlags ) {
 	if ( common->IsMultiplayer() && spectating ) {
 		return false;
 	}
@@ -4109,7 +4109,7 @@ bool idPlayer::GiveInventoryItem( idDict * item, unsigned int giveFlags ) {
 	if( ( giveFlags & ITEM_GIVE_UPDATE_STATE ) && item->GetInt("inv_powercell") && focusUI) {
 		//Reset the powercell count
 		int powerCellCount = 0;
-		for ( int j = 0; j < inventory.items.Num(); j++ ) {
+		for ( size_t j = 0; j < inventory.items.Num(); j++ ) {
 			const idDict *item = inventory.items[ j ];
 			if(item->GetInt("inv_powercell")) {
 				powerCellCount++;
@@ -4163,7 +4163,7 @@ idPlayer::CompleteObjective
 */
 void idPlayer::CompleteObjective( const char *title ) {
 	const int c = inventory.objectiveNames.Num();
-	for ( int i = 0;  i < c; i++ ) {
+	for ( size_t i = 0;  i < c; i++ ) {
 		if ( idStr::Icmp(inventory.objectiveNames[i].title, title) == 0 ) {
 			inventory.objectiveNames.RemoveIndex( i );
 			break;
@@ -4283,7 +4283,7 @@ void idPlayer::GivePDA( const idDeclPDA * pda, const char * securityItem ) {
 	}
 
 	// Copy any videos over
-	for ( int i = 0; i < pda->GetNumVideos(); i++ ) {
+	for ( size_t i = 0; i < pda->GetNumVideos(); i++ ) {
 		const idDeclVideo * video = pda->GetVideoByIndex( i );
 		if ( video != nullptr) {
 			inventory.videos.AddUnique( video );
@@ -4313,7 +4313,7 @@ idPlayer::FindInventoryItem
 ===============
 */
 idDict *idPlayer::FindInventoryItem( const char *name ) {
-	for ( int i = 0; i < inventory.items.Num(); i++ ) {
+	for ( size_t i = 0; i < inventory.items.Num(); i++ ) {
 		const char *iname = inventory.items[i]->GetString( "inv_name" );
 		if ( iname != nullptr && *iname != NULL ) {
 			if ( idStr::Icmp( name, iname ) == 0 ) {
@@ -4329,7 +4329,7 @@ idDict *idPlayer::FindInventoryItem( const char *name ) {
 idPlayer::FindInventoryItem
 ===============
 */
-idDict * idPlayer::FindInventoryItem( int index ) {
+idDict * idPlayer::FindInventoryItem(const index_t index ) {
 	if ( index <= inventory.items.Num() ) {
 		return inventory.items[ index ];
 	}
@@ -4373,7 +4373,7 @@ void idPlayer::RemoveInventoryItem( idDict *item ) {
 	if(item->GetInt("inv_powercell") && focusUI) {
 		//Reset the powercell count
 		int powerCellCount = 0;
-		for ( int j = 0; j < inventory.items.Num(); j++ ) {
+		for ( size_t j = 0; j < inventory.items.Num(); j++ ) {
 			const idDict *item = inventory.items[ j ];
 			if(item->GetInt("inv_powercell")) {
 				powerCellCount++;
@@ -4581,7 +4581,7 @@ void idPlayer::PrevWeapon() {
 idPlayer::SelectWeapon
 ===============
 */
-void idPlayer::SelectWeapon( int num, bool force ) {
+void idPlayer::SelectWeapon( size_t num, const bool force ) {
 	const char *weap;
 
 	if ( !weaponEnabled || spectating || gameLocal.inCinematic || health < 0 ) {
@@ -4682,7 +4682,7 @@ void idPlayer::SelectWeapon( int num, bool force ) {
 idPlayer::DropWeapon
 =================
 */
-void idPlayer::DropWeapon( bool died ) {
+void idPlayer::DropWeapon(const bool died ) {
 	idVec3 forward, up;
 	int inclip, ammoavailable;
 
@@ -5206,7 +5206,7 @@ void idPlayer::FlashlightOn() const
 	if ( !flashlight.IsValid() ) {
 		return;
 	}
-	if ( flashlightBattery < idMath::Ftoi( flashlight_minActivatePercent.GetFloat() * flashlight_batteryDrainTimeMS.GetFloat() ) ) {
+	if ( flashlightBattery < numeric_cast<int>( flashlight_minActivatePercent.GetFloat() * flashlight_batteryDrainTimeMS.GetFloat() ) ) {
 		return;
 	}
 	if ( gameLocal.inCinematic ) {
@@ -5246,7 +5246,7 @@ void idPlayer::FlashlightOff() const
 idPlayer::SpectateFreeFly
 ===============
 */
-void idPlayer::SpectateFreeFly( bool force ) {
+void idPlayer::SpectateFreeFly(const bool force ) {
 	idPlayer	*player;
 	idVec3		newOrig;
 	idVec3		spawn_origin;
@@ -5424,7 +5424,7 @@ void idPlayer::PlayVideoDisk( const idDeclVideo * decl ) {
 	pdaVideoMat = decl->GetRoq();
 	if ( pdaVideoMat ) {
 		const int c = pdaVideoMat->GetNumStages();
-		for ( int i = 0; i < c; i++ ) {
+		for ( size_t i = 0; i < c; i++ ) {
 			const shaderStage_t *stage = pdaVideoMat->GetStage( i );
 			if ( stage != nullptr && stage->texture.cinematic ) {
 				stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
@@ -5803,7 +5803,7 @@ void idPlayer::CrashLand( const idVec3 &oldOrigin, const idVec3 &oldVelocity ) {
 
 	// no falling damage if touching a nodamage surface
 	noDamage = false;
-	for ( int i = 0; i < physicsObj.GetNumContacts(); i++ ) {
+	for ( size_t i = 0; i < physicsObj.GetNumContacts(); i++ ) {
 		const contactInfo_t &contact = physicsObj.GetContact( i );
 		if ( contact.material->GetSurfaceFlags() & SURF_NODAMAGE ) {
 			noDamage = true;
@@ -6027,7 +6027,7 @@ idPlayer::UpdateDeltaViewAngles
 void idPlayer::UpdateDeltaViewAngles( const idAngles &angles ) {
 	// set the delta angle
 	idAngles delta;
-	for( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		delta[ i ] = angles[ i ] - SHORT2ANGLE( usercmd.angles[ i ] );
 	}
 	SetDeltaViewAngles( delta );
@@ -6157,7 +6157,7 @@ Exception to the above rule is once the player is dead, the dying heart rate sta
 it is audible or -10db and scales to 8db on the last few beats
 ==============
 */
-void idPlayer::AdjustHeartRate( int target, float timeInSecs, float delay, bool force ) {
+void idPlayer::AdjustHeartRate(const int target, const float timeInSecs, const float delay, const bool force ) {
 
 	if ( heartInfo.GetEndValue() == target ) {
 		return;
@@ -6169,7 +6169,7 @@ void idPlayer::AdjustHeartRate( int target, float timeInSecs, float delay, bool 
 
     lastHeartAdjust = gameLocal.time;
 
-	heartInfo.Init( gameLocal.time + delay * 1000, idMath::integer_cast<ID_TIME_T>(timeInSecs * 1000.0f), heartRate, target );
+	heartInfo.Init( gameLocal.time + delay * 1000, numeric_cast<ID_TIME_T>(timeInSecs * 1000.0f), heartRate, target );
 }
 
 /*
@@ -6179,8 +6179,8 @@ idPlayer::GetBaseHeartRate
 */
 int idPlayer::GetBaseHeartRate() const
 {
-	const int base = idMath::Ftoi( ( BASE_HEARTRATE + LOWHEALTH_HEARTRATE_ADJ ) - ( static_cast<float>(health) / 100.0f ) * LOWHEALTH_HEARTRATE_ADJ );
-	int rate = idMath::Ftoi( base + ( ZEROSTAMINA_HEARTRATE - base ) * ( 1.0f - stamina / pm_stamina.GetFloat() ) );
+	const int base = numeric_cast<int>( ( BASE_HEARTRATE + LOWHEALTH_HEARTRATE_ADJ ) - ( static_cast<float>(health) / 100.0f ) * LOWHEALTH_HEARTRATE_ADJ );
+	int rate = numeric_cast<int>( base + ( ZEROSTAMINA_HEARTRATE - base ) * ( 1.0f - stamina / pm_stamina.GetFloat() ) );
 	const int diff = ( lastDmgTime ) ? gameLocal.time - lastDmgTime : 99999;
 	rate += ( diff < 5000 ) ? ( diff < 2500 ) ? ( diff < 1000 ) ? 15 : 10 : 5 : 0;
 	return rate;
@@ -6193,19 +6193,19 @@ idPlayer::SetCurrentHeartRate
 */
 void idPlayer::SetCurrentHeartRate() {
 
-	const int base = idMath::Ftoi( ( BASE_HEARTRATE + LOWHEALTH_HEARTRATE_ADJ ) - ( static_cast<float>(health) / 100.0f ) * LOWHEALTH_HEARTRATE_ADJ );
+	const int base = numeric_cast<int>( ( BASE_HEARTRATE + LOWHEALTH_HEARTRATE_ADJ ) - ( static_cast<float>(health) / 100.0f ) * LOWHEALTH_HEARTRATE_ADJ );
 
 	if ( PowerUpActive( ADRENALINE )) {
 		heartRate = 135;
 	} else {
-		heartRate = idMath::Ftoi( heartInfo.GetCurrentValue( gameLocal.time ) );
+		heartRate = numeric_cast<int>( heartInfo.GetCurrentValue( gameLocal.time ) );
 		const int currentRate = GetBaseHeartRate();
 		if ( health >= 0 && gameLocal.time > lastHeartAdjust + 2500 ) {
 			AdjustHeartRate( currentRate, 2.5f, 0.0f, false );
 		}
 	}
 
-	const int bps = idMath::Ftoi( 60.0f / heartRate * 1000.0f );
+	const int bps = numeric_cast<int>( 60.0f / heartRate * 1000.0f );
 	if ( gameLocal.time - lastHeartBeat > bps ) {
 		const int dmgVol = DMG_VOLUME;
 		const int deathVol = DEATH_VOLUME;
@@ -6364,7 +6364,7 @@ const idDeclPDA * idPlayer::GetPDA() const {
 idPlayer::GetVideo
 ==============
 */
-const idDeclVideo *idPlayer::GetVideo( int index ) {
+const idDeclVideo *idPlayer::GetVideo(const index_t index ) {
 	if ( index >= 0 && index < inventory.videos.Num() ) {
 		return inventory.videos[index];
 	}
@@ -6400,7 +6400,7 @@ void idPlayer::TogglePDA() {
 idPlayer::Spectate
 ==============
 */
-void idPlayer::Spectate( bool spectate, bool force ) {
+void idPlayer::Spectate(const bool spectate, bool force ) {
 	spectating = spectate;
 
 	if ( spectating ) {
@@ -6494,7 +6494,7 @@ void idPlayer::UseVehicle() {
 idPlayer::PerformImpulse
 ==============
 */
-void idPlayer::PerformImpulse( int impulse ) {
+void idPlayer::PerformImpulse(const int impulse ) {
 	const bool isIntroMap = ( idStr::FindText( gameLocal.GetMapFileName(), "mars_city1" ) >= 0 );
 
 	// Normal 1 - 0 Keys.
@@ -6889,7 +6889,7 @@ void idPlayer::GetAASLocation( idAAS *aas, idVec3 &pos, int &areaNum ) const {
 idPlayer::Move_Interpolated
 ==============
 */
-void idPlayer::Move_Interpolated( float fraction ) {
+void idPlayer::Move_Interpolated(const double fraction ) {
 
 	float newEyeOffset;
 	idVec3 oldOrigin;
@@ -7384,7 +7384,7 @@ void idPlayer::UpdateHud() {
 idPlayer::UpdateDeathSkin
 ==============
 */
-void idPlayer::UpdateDeathSkin( bool state_hitch ) {
+void idPlayer::UpdateDeathSkin(const bool state_hitch ) {
 	if ( !( common->IsMultiplayer() || g_testDeath.GetBool() ) ) {
 		return;
 	}
@@ -7749,7 +7749,7 @@ void idPlayer::Think() {
 
 	if ( g_showEnemies.GetBool() ) {
 		idActor *ent;
-		int num = 0;
+		size_t num = 0;
 		for( ent = enemyList.Next(); ent != nullptr; ent = ent->enemyNode.Next() ) {
 			gameLocal.Printf( "enemy (%d)'%s'\n", ent->entityNumber, ent->name.c_str() );
 			gameRenderWorld->DebugBounds( colorRed, ent->GetPhysics()->GetBounds().Expand( 2 ), ent->GetPhysics()->GetOrigin() );
@@ -7803,7 +7803,7 @@ void idPlayer::Think() {
 idPlayer::StartHealthRecharge
 =================
 */
-void idPlayer::StartHealthRecharge(int speed) {
+void idPlayer::StartHealthRecharge(const int speed) {
 	lastHealthRechargeTime = gameLocal.time;
 	healthRecharge = true;
 	rechargeSpeed = speed;
@@ -7876,7 +7876,7 @@ idPlayer::StopHelltime
 provides a quick non-ramping way of stopping helltime
 =================
 */
-void idPlayer::StopHelltime( bool quick ) {
+void idPlayer::StopHelltime(const bool quick ) {
 	if ( !PowerUpActive( HELLTIME ) ) {
 		return;
 	}
@@ -7908,7 +7908,7 @@ void idPlayer::StopHelltime( bool quick ) {
 idPlayer::Event_ToggleBloom
 =================
 */
-void idPlayer::Event_ToggleBloom( int on ) {
+void idPlayer::Event_ToggleBloom(const int on ) {
 	if ( on ) {
 		bloomEnabled = true;
 	}
@@ -7922,7 +7922,7 @@ void idPlayer::Event_ToggleBloom( int on ) {
 idPlayer::Event_SetBloomParms
 =================
 */
-void idPlayer::Event_SetBloomParms( float speed, float intensity ) {
+void idPlayer::Event_SetBloomParms(const float speed, const float intensity ) {
 	bloomSpeed = speed;
 	bloomIntensity = intensity;
 }
@@ -7982,7 +7982,7 @@ void idPlayer::LookAtKiller( idEntity *inflictor, idEntity *attacker ) {
 idPlayer::Kill
 ==============
 */
-void idPlayer::Kill( bool delayRespawn, bool nodamage ) {
+void idPlayer::Kill(const bool delayRespawn, const bool nodamage ) {
 	if ( spectating ) {
 		SpectateFreeFly( false );
 	} else if ( health > 0 ) {
@@ -8174,14 +8174,14 @@ void idPlayer::CalcDamagePoints( idEntity *inflictor, idEntity *attacker, const 
 		if ( inflictor != gameLocal.world ) {
 			switch ( g_skill.GetInteger() ) {
 				case 0: 
-					damage = idMath::integer_cast<int>(damage * 0.50);
+					damage = numeric_cast<int>(damage * 0.50);
 					damage = std::max(damage, 1);
 					break;
 				case 2:
-					damage = idMath::integer_cast<int>(damage * 1.70);
+					damage = numeric_cast<int>(damage * 1.70);
 					break;
 				case 3:
-					damage = idMath::integer_cast<int>(damage * 3.50);
+					damage = numeric_cast<int>(damage * 3.50);
 					break;
 				default:
 					break;
@@ -8189,15 +8189,15 @@ void idPlayer::CalcDamagePoints( idEntity *inflictor, idEntity *attacker, const 
 		}
 	}
 
-	damage = idMath::integer_cast<int>(idMath::Itof<float>(damage) * damageScale);
+	damage = numeric_cast<int>(numeric_cast<float>(damage) * damageScale);
 
 	// always give half damage if hurting self
 	if ( attacker == this ) {
 		if ( common->IsMultiplayer() ) {
 			// only do this in mp so single player plasma and rocket splash is very dangerous in close quarters
-			damage = idMath::integer_cast<int>(idMath::Itof<float>(damage) * damageDef->GetFloat( "selfDamageScale", "0.5" ));
+			damage = numeric_cast<int>(numeric_cast<float>(damage) * damageDef->GetFloat( "selfDamageScale", "0.5" ));
 		} else {
-			damage = idMath::integer_cast<int>(idMath::Itof<float>(damage) * damageDef->GetFloat( "selfDamageScale", "1" ));
+			damage = numeric_cast<int>(numeric_cast<float>(damage) * damageDef->GetFloat( "selfDamageScale", "1" ));
 		}
 	}
 
@@ -8222,7 +8222,7 @@ void idPlayer::CalcDamagePoints( idEntity *inflictor, idEntity *attacker, const 
 
 		armor_protection = ( common->IsMultiplayer() ) ? g_armorProtectionMP.GetFloat() : g_armorProtection.GetFloat();
 
-		armorSave = idMath::integer_cast<int>(ceil( idMath::Itof<float>(damage) * armor_protection ));
+		armorSave = numeric_cast<int>(ceil( numeric_cast<float>(damage) * armor_protection ));
 		armorSave = std::min(armorSave, inventory.armor);
 
 		if ( !damage ) {
@@ -8256,7 +8256,7 @@ void idPlayer::CalcDamagePoints( idEntity *inflictor, idEntity *attacker, const 
 idPlayer::ControllerShakeFromDamage
 ============
 */
-void idPlayer::ControllerShakeFromDamage( int damage ) {
+void idPlayer::ControllerShakeFromDamage(const int damage ) {
 
 	// If the player is local. SHAkkkkkkeeee!
 	if( common->IsMultiplayer() && IsLocallyControlled() ) {
@@ -8266,8 +8266,8 @@ void idPlayer::ControllerShakeFromDamage( int damage ) {
 
 		// determine rumble
 		// >= 100 damage - will be 300 Mag
-		const float highMag = ( idMath::Itof<float>(Max( damage, 100 )) / 100.0f ) * maxMagScale;
-		const ID_TIME_T highDuration = idMath::Ftoi( (idMath::Itof<float>(Max(damage, 100)) / 100.0f ) * maxDurScale );
+		const float highMag = ( numeric_cast<float>(Max( damage, 100 )) / 100.0f ) * maxMagScale;
+		const ID_TIME_T highDuration = numeric_cast<int>( (numeric_cast<float>(Max(damage, 100)) / 100.0f ) * maxDurScale );
 		const float lowMag = highMag * 0.75f;
 		const ID_TIME_T lowDuration = highDuration;
 
@@ -8323,7 +8323,7 @@ sound effects happen elsewhere so that clients can get instant
 feedback and hide lag.
 ============
 */
-void idPlayer::ServerDealDamage( int damage, idEntity & inflictor, idEntity & attacker, const idVec3 & dir, const char * damageDefName, const int location  ) {
+void idPlayer::ServerDealDamage(const int damage, idEntity & inflictor, idEntity & attacker, const idVec3 & dir, const char * damageDefName, const int location  ) {
 	assert( !common->IsClient() );
 
 	const idDeclEntityDef *damageDef = gameLocal.FindEntityDef( damageDefName, false );
@@ -8654,7 +8654,7 @@ idPlayer::CalcFov
 Fixed fov at intermissions, otherwise account for fov variable and zooms.
 ====================
 */
-float idPlayer::CalcFov( bool honorZoom ) const
+float idPlayer::CalcFov(const bool honorZoom ) const
 {
 	float fov;
 
@@ -8727,7 +8727,7 @@ idAngles idPlayer::GunTurningOffset() const
 
 	a = ( av - current ) * weaponAngleOffsetScale;
 
-	for ( int i = 0 ; i < 3 ; i++ ) {
+	for ( size_t i = 0 ; i < 3 ; i++ ) {
 		if ( a[i] < -weaponAngleOffsetMax ) {
 			a[i] = -weaponAngleOffsetMax;
 		} else if ( a[i] > weaponAngleOffsetMax ) {
@@ -8851,7 +8851,7 @@ void idPlayer::CalculateViewWeaponPos( idVec3 &origin, idMat3 &axis ) {
 idPlayer::OffsetThirdPersonView
 ===============
 */
-void idPlayer::OffsetThirdPersonView( float angle, float range, float height, bool clip ) const
+void idPlayer::OffsetThirdPersonView(const float angle, const float range, const float height, const bool clip ) const
 {
 	idVec3			view;
 	idVec3			focusAngles;
@@ -9079,7 +9079,7 @@ idPlayer::AddAIKill
 =============
 */
 void idPlayer::AddAIKill() {
-	int max_souls;
+	size_t max_souls;
 	int ammo_souls;
 
 	if ( ( weapon_soulcube < 0 ) || ( inventory.weapons & ( 1 << weapon_soulcube ) ) == 0 ) {
@@ -9115,7 +9115,7 @@ void idPlayer::SetSoulCubeProjectile( idProjectile *projectile ) {
 idPlayer::AddProjectilesFired
 =============
 */
-void idPlayer::AddProjectilesFired( int count ) {
+void idPlayer::AddProjectilesFired(const int count ) {
 	numProjectilesFired += count;
 }
 
@@ -9124,7 +9124,7 @@ void idPlayer::AddProjectilesFired( int count ) {
 idPlayer::AddProjectileHites
 =============
 */
-void idPlayer::AddProjectileHits( int count ) {
+void idPlayer::AddProjectileHits(const int count ) {
 	numProjectileHits += count;
 }
 
@@ -9193,7 +9193,7 @@ void idPlayer::SetLastHitTime( const ID_TIME_T time ) {
 idPlayer::SetInfluenceLevel
 =============
 */
-void idPlayer::SetInfluenceLevel( int level ) {
+void idPlayer::SetInfluenceLevel(const int level ) {
 	if ( level != influenceActive ) {
 		if ( level ) {
 			for ( idEntity *ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() ) {
@@ -9220,7 +9220,7 @@ void idPlayer::SetInfluenceLevel( int level ) {
 idPlayer::SetInfluenceView
 =============
 */
-void idPlayer::SetInfluenceView( const char *mtr, const char *skinname, float radius, idEntity *ent ) {
+void idPlayer::SetInfluenceView( const char *mtr, const char *skinname, const float radius, idEntity *ent ) {
 	influenceMaterial = nullptr;
 	influenceEntity = nullptr;
 	influenceSkin = nullptr;
@@ -9245,7 +9245,7 @@ void idPlayer::SetInfluenceView( const char *mtr, const char *skinname, float ra
 idPlayer::SetInfluenceFov
 =============
 */
-void idPlayer::SetInfluenceFov( float fov ) {
+void idPlayer::SetInfluenceFov(const float fov ) {
 	influenceFov = fov;
 }
 
@@ -9303,7 +9303,7 @@ void idPlayer::Event_StopFxFov() {
 idPlayer::StartFxFov 
 ==================
 */
-void idPlayer::StartFxFov( float duration ) { 
+void idPlayer::StartFxFov(const float duration ) { 
 	fxFov = true;
 	PostEventSec( &EV_Player_StopFxFov, duration );
 }
@@ -9374,7 +9374,7 @@ void idPlayer::Event_GetIdealWeapon() const
 idPlayer::Event_SetPowerupTime 
 ==================
 */
-void idPlayer::Event_SetPowerupTime( int powerup, const ID_TIME_T time ) {
+void idPlayer::Event_SetPowerupTime(const int powerup, const ID_TIME_T time ) {
 	if ( time > 0 ) {
 		GivePowerUp( powerup, time, ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
 	} else {
@@ -9387,7 +9387,7 @@ void idPlayer::Event_SetPowerupTime( int powerup, const ID_TIME_T time ) {
 idPlayer::Event_IsPowerupActive 
 ==================
 */
-void idPlayer::Event_IsPowerupActive( int powerup ) const
+void idPlayer::Event_IsPowerupActive(const int powerup ) const
 {
 	idThread::ReturnInt(this->PowerUpActive(powerup) ? 1 : 0);
 }
@@ -9406,7 +9406,7 @@ void idPlayer::Event_StartWarp() {
 idPlayer::Event_StopHelltime
 ==================
 */
-void idPlayer::Event_StopHelltime( int mode ) {
+void idPlayer::Event_StopHelltime(const int mode ) {
 	if ( mode == 1 ) {
 		StopHelltime( true );
 	}
@@ -9427,7 +9427,7 @@ void idPlayer::Event_WeaponAvailable( const char* name ) {
 
 bool idPlayer::WeaponAvailable( const char* name ) const
 {
-	for( int i = 0; i < MAX_WEAPONS; i++ ) {
+	for ( size_t i = 0; i < MAX_WEAPONS; i++ ) {
 		if ( inventory.weapons & ( 1 << i ) ) {
 			const char *weap = spawnArgs.GetString( va( "def_weapon%d", i ) );
 			if ( !idStr::Cmp( weap, name ) ) {
@@ -9552,7 +9552,7 @@ void idPlayer::Event_InPDA() const
 idPlayer::TeleportDeath
 ==================
 */
-void idPlayer::TeleportDeath( int killer ) {
+void idPlayer::TeleportDeath(const int killer ) {
 	teleportKiller = killer;
 }
 
@@ -9622,7 +9622,7 @@ void idPlayer::Event_ExitTeleporter() {
 idPlayer::ClientThink
 ================
 */
-void idPlayer::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idPlayer::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	if ( IsLocallyControlled() ) {
 		aimAssist.Update();
 	}
@@ -10228,7 +10228,7 @@ void idPlayer::ReadPlayerStateFromSnapshot( const idBitMsg &msg ) {
 idPlayer::ServerReceiveEvent
 ================
 */
-bool idPlayer::ServerReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idPlayer::ServerReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	if ( idEntity::ServerReceiveEvent( event, time, msg ) ) {
 		return true;
@@ -10242,7 +10242,7 @@ bool idPlayer::ServerReceiveEvent( int event, const ID_TIME_T time, const idBitM
 idPlayer::ClientReceiveEvent
 ================
 */
-bool idPlayer::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idPlayer::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 	switch ( event ) {
 		case EVENT_EXIT_TELEPORTER:
 			Event_ExitTeleporter();
@@ -10363,7 +10363,7 @@ bool idPlayer::IsSoundChannelPlaying( const s_channelType channel ) const
 idPlayer::ShowTip
 ===============
 */
-void idPlayer::ShowTip( const char *title, const char *tip, bool autoHide ) {
+void idPlayer::ShowTip( const char *title, const char *tip, const bool autoHide ) {
 	if ( tipUp ) {
 		return;
 	}
@@ -10624,7 +10624,7 @@ void idPlayer::FreeModelDef() {
 idView::SetControllerShake
 ========================
 */
-void idPlayer::SetControllerShake( float highMagnitude, ID_TIME_T highDuration, float lowMagnitude, ID_TIME_T lowDuration ) {
+void idPlayer::SetControllerShake(const float highMagnitude, ID_TIME_T highDuration, const float lowMagnitude, ID_TIME_T lowDuration ) {
 
 	// the main purpose of having these buffer is so multiple, individual shake events can co-exist with each other,
 	// for instance, a constant low rumble from the chainsaw when it's idle and a harsh rumble when it's being used.
@@ -10635,12 +10635,12 @@ void idPlayer::SetControllerShake( float highMagnitude, ID_TIME_T highDuration, 
 	for ( size_t i=0; i < MAX_SHAKE_BUFFER; i++ ) {
 		if ( gameLocal.GetTime() <= controllerShakeHighTime[i] || gameLocal.GetTime() <= controllerShakeLowTime[i] ) {
 			if ( idMath::Fabs( highMagnitude - controllerShakeHighMag[i] ) <= 0.1f && idMath::Fabs( lowMagnitude - controllerShakeLowMag[i] ) <= 0.1f ) {
-				activeBufferWithSimilarMags = idMath::integer_cast<int64>(i);
+				activeBufferWithSimilarMags = numeric_cast<int64>(i);
 				break;
 			}
 		} else {
 			if ( inactiveBuffer == -1 ) {
-				inactiveBuffer = idMath::integer_cast<int64>(i);		// first, inactive buffer..
+				inactiveBuffer = numeric_cast<int64>(i);		// first, inactive buffer..
 			}
 		}
 	}
@@ -10727,8 +10727,8 @@ void idPlayer::GetControllerShake( int & highMagnitude, int & lowMagnitude ) con
 		}
 	}
 
-	lowMagnitude = idMath::Ftoi( lowMag * 65535.0f );
-	highMagnitude = idMath::Ftoi( highMag * 65535.0f );
+	lowMagnitude = numeric_cast<int>( lowMag * 65535.0f );
+	highMagnitude = numeric_cast<int>( highMag * 65535.0f );
 }
 
 /*

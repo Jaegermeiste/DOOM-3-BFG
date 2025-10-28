@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
+#include <algorithm>
 #include <utility>
 
 #include "precompiled.h"
@@ -43,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 idBitMsg::CheckOverflow
 ========================
 */
-bool idBitMsg::CheckOverflow(const size_t numBits ) {
+bool idBitMsg::CheckOverflow( const size_t numBits ) {
 	if ( numBits > GetRemainingWriteBits() ) {
 		if ( !allowOverflow ) {
 			idLib::FatalError( "idBitMsg: overflow without allowOverflow set; maxsize=%i size=%i numBits=%i numRemainingWriteBits=%i",
@@ -55,8 +56,10 @@ bool idBitMsg::CheckOverflow(const size_t numBits ) {
 		idLib::Printf( "idBitMsg: overflow\n" );
 		BeginWriting();
 		overflowed = true;
+
 		return true;
 	}
+
 	return false;
 }
 
@@ -65,7 +68,7 @@ bool idBitMsg::CheckOverflow(const size_t numBits ) {
 idBitMsg::GetByteSpace
 ========================
 */
-byte *idBitMsg::GetByteSpace(const size_t length ) {
+byte *idBitMsg::GetByteSpace( const size_t length ) {
 	if ( !writeData ) {
 		idLib::FatalError( "idBitMsg::GetByteSpace: cannot write to message" );
 	}
@@ -78,6 +81,7 @@ byte *idBitMsg::GetByteSpace(const size_t length ) {
 
 	byte* ptr = writeData + curSize;
 	curSize += length;
+
 	return ptr;
 }
 
@@ -98,7 +102,7 @@ idBitMsg::WriteBits
 If the number of bits is negative a sign is included.
 ========================
 */
-void idBitMsg::WriteBits(const int value, short numBits ) {
+void idBitMsg::WriteBits ( const int value, short numBits ) {
 	if ( !writeData ) {
 		idLib::FatalError( "idBitMsg::WriteBits: cannot write to message" );
 	}
@@ -165,14 +169,14 @@ void idBitMsg::WriteBits(const int value, short numBits ) {
 idBitMsg::WriteString
 ========================
 */
-void idBitMsg::WriteString( const char * s, const int64 maxLength, const bool make7Bit ) {
+void idBitMsg::WriteString( const char * s, const size_t maxLength, const bool make7Bit ) {
 	if ( !s ) {
 		WriteData( "", 1 );
 	} else {
-		size_t i;
+		size_t i = 0;
 
 		size_t l = idStr::Length(s);
-		if ( maxLength >= 0 && std::cmp_greater_equal(l, maxLength)) {
+		if ( maxLength > 0 && std::cmp_greater_equal(l, maxLength)) {
 			l = maxLength - 1;
 		}
 		byte* dataPtr = GetByteSpace(l + 1);
@@ -208,10 +212,32 @@ void idBitMsg::WriteData( const void *data, const size_t length ) {
 idBitMsg::WriteNetadr
 ========================
 */
-void idBitMsg::WriteNetadr( const netadr_t adr ) {
-	WriteData( adr.ip, 4 );
-	WriteUShort( adr.port );
-	WriteByte( adr.type );
+void idBitMsg::WriteNetadr( const netadr_t &adr ) {
+	WriteByte(adr.type);
+	WriteULong(adr.flags);
+
+	// Make IPv4 mapped to IPv6 if necessary
+	uint8 outAddr16[16] = {};
+
+	memset(outAddr16, 0, 16);
+	if (adr.type == NA_IPv4 || adr.type == NA_BROADCAST || adr.type == NA_LOOPBACK) {
+		// IPv4 path → write IPv6-mapped form ::ffff:w.x.y.z
+		outAddr16[10] = 0xFF; outAddr16[11] = 0xFF;
+		outAddr16[12] = adr.addr.ip4[0];
+		outAddr16[13] = adr.addr.ip4[1];
+		outAddr16[14] = adr.addr.ip4[2];
+		outAddr16[15] = adr.addr.ip4[3];
+	}
+	else { // NA_IPv6
+		memcpy(outAddr16, adr.addr.ip6, 16);
+	}
+
+	WriteData(outAddr16, 16 );
+	WriteUShort(adr.port);
+
+	// IPv6 specific
+	WriteULong(adr.v6_scope_id);
+	WriteByte(adr.v6_mcast_scope);
 }
 
 /*
@@ -220,19 +246,23 @@ idBitMsg::WriteDeltaDict
 ========================
 */
 bool idBitMsg::WriteDeltaDict( const idDict &dict, const idDict *base ) {
-	int i;
-	const idKeyValue *kv, *basekv;
+	size_t i = 0;
+	const idKeyValue *kv = nullptr, *basekv = nullptr;
 	bool changed = false;
 
 	if ( base != nullptr) {
 
 		for ( i = 0; i < dict.GetNumKeyVals(); i++ ) {
 			kv = dict.GetKeyVal( i );
-			basekv = base->FindKey( kv->GetKey() );
-			if ( basekv == nullptr || basekv->GetValue().Icmp( kv->GetValue() ) != 0 ) {
-				WriteString( kv->GetKey() );
-				WriteString( kv->GetValue() );
-				changed = true;
+			if ( kv )
+			{
+				basekv = base->FindKey(kv->GetKey());
+
+				if (basekv == nullptr || basekv->GetValue().Icmp(kv->GetValue()) != 0) {
+					WriteString(kv->GetKey());
+					WriteString(kv->GetValue());
+					changed = true;
+				}
 			}
 		}
 
@@ -240,10 +270,14 @@ bool idBitMsg::WriteDeltaDict( const idDict &dict, const idDict *base ) {
 
 		for ( i = 0; i < base->GetNumKeyVals(); i++ ) {
 			basekv = base->GetKeyVal( i );
-			kv = dict.FindKey( basekv->GetKey() );
-			if ( kv == nullptr) {
-				WriteString( basekv->GetKey() );
-				changed = true;
+
+			if ( basekv )
+			{
+				kv = dict.FindKey(basekv->GetKey());
+				if (kv == nullptr) {
+					WriteString(basekv->GetKey());
+					changed = true;
+				}
 			}
 		}
 
@@ -253,9 +287,12 @@ bool idBitMsg::WriteDeltaDict( const idDict &dict, const idDict *base ) {
 
 		for ( i = 0; i < dict.GetNumKeyVals(); i++ ) {
 			kv = dict.GetKeyVal( i );
-			WriteString( kv->GetKey() );
-			WriteString( kv->GetValue() );
-			changed = true;
+
+			if (kv) {
+				WriteString(kv->GetKey());
+				WriteString(kv->GetValue());
+				changed = true;
+			}
 		}
 		WriteString( "" );
 
@@ -273,41 +310,40 @@ idBitMsg::ReadBits
 If the number of bits is negative a sign is included.
 ========================
 */
-int idBitMsg::ReadBits( int numBits ) const {
-	bool	sgn;
-
+int idBitMsg::ReadBits( int16 numBits ) const {
 	if ( !readData ) {
 		idLib::FatalError( "idBitMsg::ReadBits: cannot read from message" );
 	}
 
 	// check if the number of bits is valid
-	if ( numBits == 0 || numBits < -31 || numBits > 32 ) {
+	if ( numBits == 0 || std::cmp_less(numBits, -31) || numBits > 32 ) {
 		idLib::FatalError( "idBitMsg::ReadBits: bad numBits %i", numBits );
 	}
 
 	int value = 0;
 	int valueBits = 0;
 
+	size_t bitCount = 0;
+	bool   sign = false;
 	if ( numBits < 0 ) {
-		numBits = -numBits;
-		sgn = true;
+		bitCount = -numBits;
+		sign = true;
 	} else {
-		sgn = false;
+		bitCount = numBits;
+		sign = false;
 	}
 
 	// check for overflow
-	if ( numBits > GetRemainingReadBits() ) {
+	if (bitCount > GetRemainingReadBits() ) {
 		return -1;
 	}
 
-	while ( valueBits < numBits ) {
+	while (std::cmp_less(valueBits, bitCount)) {
 		if ( readBit == 0 ) {
 			readCount++;
 		}
 		int get = 8 - readBit;
-		if ( get > (numBits - valueBits) ) {
-			get = (numBits - valueBits);
-		}
+		get = numeric_cast<decltype(get)>(Min(get, bitCount - valueBits));
 		int fraction = readData[readCount - 1];
 		fraction >>= readBit;
 		fraction &= ( 1 << get ) - 1;
@@ -317,9 +353,9 @@ int idBitMsg::ReadBits( int numBits ) const {
 		readBit = ( readBit + get ) & 7;
 	}
 
-	if ( sgn ) {
-		if ( value & ( 1 << ( numBits - 1 ) ) ) {
-			value |= -1 ^ ( ( 1 << numBits ) - 1 );
+	if ( sign ) {
+		if ( value & ( 1 << (bitCount - 1 ) ) ) {
+			value |= -1 ^ ( ( 1 << bitCount) - 1 );
 		}
 	}
 
@@ -409,10 +445,51 @@ size_t idBitMsg::ReadData( void *data, const size_t length ) const {
 idBitMsg::ReadNetadr
 ========================
 */
+static int NetAdr_IsV6MappedV4(const uint8 in16[16]) {
+	static constexpr uint8 zero10[10] = { 0 };
+	return memcmp(in16, zero10, 10) == 0 && in16[10] == 0xFF && in16[11] == 0xFF;
+}
+
+static int NetAdr_IsV6Loopback(const uint8 in16[16]) {
+	for (int i = 0; i < 15; ++i)
+	{
+		if (in16[i] != 0)
+		{
+			return 0;
+		}
+	}
+	return in16[15] == 1;
+}
+
 void idBitMsg::ReadNetadr( netadr_t *adr ) const {
-	ReadData( adr->ip, 4 );
-	adr->port = ReadUShort();
 	adr->type = static_cast<netadrtype_t>(ReadByte());
+	adr->flags = ReadULong();
+
+	uint8 inAddr16[16] = {};
+	ReadData( &inAddr16, 16 );
+
+	if (NetAdr_IsV6MappedV4(inAddr16)) {
+		adr->type = NA_IPv4;
+		adr->addr.ip4[0] = inAddr16[12];
+		adr->addr.ip4[1] = inAddr16[13];
+		adr->addr.ip4[2] = inAddr16[14];
+		adr->addr.ip4[3] = inAddr16[15];
+		adr->v6_scope_id = 0;
+	}
+	else {
+		adr->type = NA_IPv6;
+		memcpy(adr->addr.ip6, inAddr16, 16);
+		if (NetAdr_IsV6Loopback(adr->addr.ip6)) {
+			adr->type = NA_LOOPBACK;
+			adr->v6_scope_id = 0;
+		}
+	}
+
+	adr->port = ReadUShort();
+
+	// IPv6 Specific
+	adr->v6_scope_id = ReadULong();
+	adr->v6_mcast_scope = ReadByte();
 }
 
 /*
@@ -450,20 +527,20 @@ bool idBitMsg::ReadDeltaDict( idDict &dict, const idDict *base ) const {
 idBitMsg::DirToBits
 ========================
 */
-int idBitMsg::DirToBits( const idVec3 &dir, size_t numBits ) {
+int idBitMsg::DirToBits( const idVec3 &dir, short numBits ) {
 	assert( numBits >= 6 && numBits <= 32 );
 	assert( dir.LengthSqr() - 1.0f < 0.01f );
 
 	numBits /= 3;
-	const int max = (1 << (numBits - 1)) - 1;
+	const size_t max = (1 << (numBits - 1)) - 1;
 	const float bias = 0.5f / max;
 
 	int bits = IEEE_FLT_SIGNBITSET(dir.x) << (numBits * 3 - 1);
-	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.x ) + bias ) * max ) ) << ( numBits * 2 );
+	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.x ) + bias ) * max ) ) << ( numBits * 2 );
 	bits |= IEEE_FLT_SIGNBITSET( dir.y ) << ( numBits * 2 - 1 );
-	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.y ) + bias ) * max ) ) << ( numBits * 1 );
+	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.y ) + bias ) * max ) ) << ( numBits * 1 );
 	bits |= IEEE_FLT_SIGNBITSET( dir.z ) << ( numBits * 1 - 1 );
-	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.z ) + bias ) * max ) ) << ( numBits * 0 );
+	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.z ) + bias ) * max ) ) << ( numBits * 0 );
 	return bits;
 }
 
@@ -472,14 +549,14 @@ int idBitMsg::DirToBits( const idVec3 &dir, size_t numBits ) {
 idBitMsg::BitsToDir
 ========================
 */
-idVec3 idBitMsg::BitsToDir(const int bits, size_t numBits ) {
+idVec3 idBitMsg::BitsToDir(const int bits, short numBits ) {
 	static float sign[2] = { 1.0f, -1.0f };
-	idVec3 dir;
+	idVec3 dir = {};
 
 	assert( numBits >= 6 && numBits <= 32 );
 
 	numBits /= 3;
-	const int max = (1 << (numBits - 1)) - 1;
+	const size_t max = (1 << (numBits - 1)) - 1;
 	const float invMax = 1.0f / max;
 
 	dir.x = sign[( bits >> ( numBits * 3 - 1 ) ) & 1] * ( ( bits >> ( numBits * 2 ) ) & max ) 

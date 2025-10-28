@@ -161,7 +161,7 @@ public:
 	void					GetWeaponAngleOffsets( int *average, float *scale, float *max ) const;
 	void					GetWeaponTimeOffsets( ID_TIME_T *time, float *scale ) const;
 	bool					BloodSplat( float size );
-	void					SetIsPlayerFlashlight( bool bl ) { isPlayerFlashlight = bl; }
+	void					SetIsPlayerFlashlight(const bool bl ) { isPlayerFlashlight = bl; }
 	void					FlashlightOn();
 	void					FlashlightOff();
 
@@ -195,7 +195,7 @@ public:
 	bool			ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) override;
 
 	void			ClientPredictionThink() override;
-	void			ClientThink( const int curTime, const float fraction, const bool predict ) override;
+	void			ClientThink( const int curTime, const double fraction, const bool predict ) override;
 	void					MuzzleFlashLight();
 	void					RemoveMuzzleFlashlight();
 
@@ -405,7 +405,7 @@ private:
 	void					Event_GetLightParm( int parmnum ) const;
 	void					Event_SetLightParm( int parmnum, float value );
 	void					Event_SetLightParms( float parm0, float parm1, float parm2, float parm3 );
-	void					Event_LaunchProjectiles( int num_projectiles, float spread, float fuseOffset, float launchPower, float dmgPower );
+	void					Event_LaunchProjectiles( size_t num_projectiles, float spread, float fuseOffset, float launchPower, float dmgPower );
 	void					Event_CreateProjectile();
 	void					Event_EjectBrass();
 	void					Event_Melee();
@@ -422,7 +422,7 @@ private:
 	void					Event_Grabber( int enable );
 	void					Event_GrabberHasTarget() const;
 	void					Event_GrabberSetGrabDistance( float dist );
-	void					Event_LaunchProjectilesEllipse( int num_projectiles, float spreada, float spreadb, float fuseOffset, float power );
+	void					Event_LaunchProjectilesEllipse( size_t num_projectiles, float spreada, float spreadb, float fuseOffset, float power );
 	void					Event_LaunchPowerup( const char* powerup, float duration, int useAmmo );
 
 	void					Event_StartWeaponSmoke();

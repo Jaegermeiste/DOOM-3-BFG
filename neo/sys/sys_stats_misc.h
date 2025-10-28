@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_STATS_MISC_H__
 #define __SYS_STATS_MISC_H__
 
+#pragma once
+
 /*
 ================================================================================================
 
@@ -53,34 +55,34 @@ the level for matchmaking, etc.
 ================================================================================================
 */
 
-constexpr int MAX_LEADERBOARDS			= 256;
-constexpr int MAX_LEADERBOARD_COLUMNS	= 16;
+constexpr size_t MAX_LEADERBOARDS			= 256;
+constexpr size_t MAX_LEADERBOARD_COLUMNS	= 16;
 
-enum aggregationMethod_t {
+typedef enum aggregationMethod_e : uint8 {
 	AGGREGATE_MIN,  // Write the new value if it is less than the existing value.
 	AGGREGATE_MAX,  // Write the new value if it is greater than the existing value.
 	AGGREGATE_SUM,  // Add the new value to the existing value and write the result.
 	AGGREGATE_LAST, // Write the new value.
-};
+} aggregationMethod_t;
 
-enum rankOrder_t {
+typedef enum rankOrder_e : uint8 {
 	RANK_GREATEST_FIRST, // Rank the in descending order, greatest score is best score
 	RANK_LEAST_FIRST,	 // Rank the in ascending order, lowest score is best score
-};
+} rankOrder_t;
 
-enum statsColumnDisplayType_t {
+typedef enum statsColumnDisplayType_e : uint8 {
 	STATS_COLUMN_DISPLAY_NUMBER,
 	STATS_COLUMN_DISPLAY_TIME_MILLISECONDS,
 	STATS_COLUMN_DISPLAY_CASH,
 	STATS_COLUMN_NEVER_DISPLAY,
-};
+} statsColumnDisplayType_t;
 
-struct columnDef_t {
+typedef struct columnDef_s {
 	const char *				locDisplayName;
 	int							bits;
 	aggregationMethod_t			aggregationMethod;
 	statsColumnDisplayType_t	displayType;
-};
+} columnDef_t;
 
 struct leaderboardDefinition_t {
 
@@ -93,7 +95,7 @@ struct leaderboardDefinition_t {
 		checkAgainstCurrent( false ) {
 	}
 
-	leaderboardDefinition_t( int id_, int numColumns_, const columnDef_t * columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ ) :
+	leaderboardDefinition_t(const int id_, const size_t numColumns_, const columnDef_t * columnDefs_, const rankOrder_t rankOrder_, const bool supportsAttachments_, const bool checkAgainstCurrent_ ) :
 		id ( id_ ),
 		numColumns( numColumns_ ),
 		columnDefs( columnDefs_ ),
@@ -103,7 +105,7 @@ struct leaderboardDefinition_t {
 	}
 
 	int32				id;
-	int32				numColumns;
+	size_t				numColumns;
 	const columnDef_t *	columnDefs;
 	rankOrder_t			rankOrder;
 	bool				supportsAttachments;
@@ -112,8 +114,8 @@ struct leaderboardDefinition_t {
 };
 
 struct column_t {
-	column_t( int64 value_ ) : value( value_ ) {}
-	column_t() noexcept {}
+	column_t(const int64 value_ ) : value( value_ ) {}
+	column_t() noexcept = default;
 
 	int64				value;
 };
@@ -134,14 +136,14 @@ idLeaderBoardEntry
 */
 class idLeaderBoardEntry {
 public:
-	static constexpr int MAX_LEADERBOARD_COLUMNS = 16;
+	static constexpr size_t MAX_LEADERBOARD_COLUMNS = 16;
 	idStr username; // aka gamertag
 	int64 score;
 	int64 columns[ MAX_LEADERBOARD_COLUMNS ];
 };
 
-const leaderboardDefinition_t * Sys_FindLeaderboardDef( int id );
-leaderboardDefinition_t *		Sys_CreateLeaderboardDef( int id_, int numColumns_, const columnDef_t * columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ );
+const leaderboardDefinition_t * Sys_FindLeaderboardDef( leaderboardHandle_t id );
+leaderboardDefinition_t *		Sys_CreateLeaderboardDef( leaderboardHandle_t id_, size_t numColumns_, const columnDef_t * columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ );
 void							Sys_DestroyLeaderboardDefs();
 
 #endif // !__SYS_STATS_MISC_H__

@@ -58,7 +58,7 @@ void idMenuWidget_MenuBar::Update() {
 	totalWidth = 0.0f;
 	buttonPos = 0.0f;
 
-	for ( int index = 0; index < GetNumVisibleOptions(); ++index ) {
+	for ( index_t index = 0; index < GetNumVisibleOptions(); ++index ) {
 			
 		if ( index >= children.Num() ) {
 			break;
@@ -99,7 +99,7 @@ idMenuWidget_MenuBar::SetListHeadings
 */
 void idMenuWidget_MenuBar::SetListHeadings( idList< idStr > & list ) {
 	headings.Clear();
-	for ( int index = 0; index < list.Num(); ++index ) {
+	for ( index_t index = 0; index < list.Num(); ++index ) {
 		headings.Append( list[ index ] );
 	}
 }

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __I_SOUND__
 #define __I_SOUND__
 
+#pragma once
+
 #include "doomdef.h"
 
 // UNIX hack, to be removed.
@@ -45,7 +47,7 @@ extern char* sndserver_filename;
 
 // Init at program start...
 void I_InitSound();
-void I_InitSoundHardware( int numOutputChannels_, int channelMask );
+void I_InitSoundHardware( size_t numOutputChannels_, const unsigned int channelMask );
 
 // ... update sound buffer and audio device at runtime...
 void I_UpdateSound(void);
@@ -94,7 +96,7 @@ void I_SetMusicVolume(int volume);
 void I_PauseSong(int handle);
 void I_ResumeSong(int handle);
 // Registers a song handle to song data.
-int I_RegisterSong(void *data, int length);
+int I_RegisterSong(void *data, size_t length);
 // Called by anything that wishes to start music.
 //  plays a song, and when the song is done,
 //  starts playing it again in an endless loop.
@@ -107,7 +109,7 @@ void I_UnRegisterSong(int handle);
 // Update Music (XMP), check for notifications
 void I_UpdateMusic(void);
 
-int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len);
+int Mus2Midi(unsigned char* bytes, unsigned char* out, size_t* len);
 
 #endif
 

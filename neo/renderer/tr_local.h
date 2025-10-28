@@ -57,7 +57,7 @@ constexpr float	DEFAULT_FOG_DISTANCE	= 500.0f;
 constexpr size_t FOG_ENTER_SIZE			= 64;
 constexpr float FOG_ENTER				= (FOG_ENTER_SIZE+1.0f)/(FOG_ENTER_SIZE*2);
 
-typedef enum demoCommand_e : uint8 {
+enum demoCommand_t : uint8 {
 	DC_BAD,
 	DC_RENDERVIEW,
 	DC_UPDATE_ENTITYDEF,
@@ -73,7 +73,7 @@ typedef enum demoCommand_e : uint8 {
 	DC_SET_PORTAL_STATE,
 	DC_UPDATE_SOUNDOCCLUSION,
 	DC_GUI_MODEL
-} demoCommand_t;
+};
 
 /*
 ==============================================================================
@@ -88,8 +88,8 @@ SURFACES
 #include "Interaction.h"
 
 class idRenderWorldLocal;
-struct viewEntity_s;
-struct viewLight_s;
+struct viewEntity_t;
+struct viewLight_t;
 
 // drawSurf_t structures command the back end to render surfaces
 // a given srfTriangles_t may be used with multiple viewEntity_t,
@@ -99,34 +99,34 @@ struct viewLight_s;
 // unique srfTriangles_t
 // drawSurf_t are always allocated and freed every frame, they are never cached
 
-typedef struct drawSurf_s {
+struct drawSurf_t {
 	const srfTriangles_t *	frontEndGeo;		// don't use on the back end, it may be updated by the front end!
 	int						numIndexes;
 	vertCacheHandle_t		indexCache;			// triIndex_t
 	vertCacheHandle_t		ambientCache;		// idDrawVert
 	vertCacheHandle_t		shadowCache;		// idShadowVert / idShadowVertSkinned
 	vertCacheHandle_t		jointCache;			// idJointMat
-	const viewEntity_s *	space;
+	const viewEntity_t *	space;
 	const idMaterial *		material;			// may be NULL for shadow volumes
 	uint64					extraGLState;		// Extra GL state |'d with material->stage[].drawStateBits
 	float					sort;				// material->sort, modified by gui / entity sort offsets
 	const float	 *			shaderRegisters;	// evaluated and adjusted for referenceShaders
-	drawSurf_s *			nextOnLight;		// viewLight chains
-	drawSurf_s **			linkChain;			// defer linking to lights to a serial section to avoid a mutex
+	drawSurf_t *			nextOnLight;		// viewLight chains
+	drawSurf_t **			linkChain;			// defer linking to lights to a serial section to avoid a mutex
 	idScreenRect			scissorRect;		// for scissor clipping, local inside renderView viewport
 	int						renderZFail;
 	volatile shadowVolumeState_t shadowVolumeState;
-} drawSurf_t;
+};
 
 // areas have references to hold all the lights and entities in them
-typedef struct areaReference_s {
-	areaReference_s *		areaNext;				// chain in the area
-	areaReference_s *		areaPrev;
-	areaReference_s *		ownerNext;				// chain on either the entityDef or lightDef
+struct areaReference_t {
+	areaReference_t *		areaNext;				// chain in the area
+	areaReference_t *		areaPrev;
+	areaReference_t *		ownerNext;				// chain on either the entityDef or lightDef
 	idRenderEntityLocal *	entity;					// only one of entity / light will be non-NULL
 	idRenderLightLocal *	light;					// only one of entity / light will be non-NULL
 	struct portalArea_s	*	area;					// so owners can find all the areas they are in
-} areaReference_t;
+};
 
 
 // idRenderLight should become the new public interface replacing the qhandle_t to light defs in the idRenderWorld interface
@@ -151,7 +151,7 @@ public:
 	virtual void			UpdateRenderEntity( const renderEntity_t *re, bool forceUpdate = false ) = 0;
 	virtual void			GetRenderEntity( renderEntity_t *re ) = 0;
 	virtual void			ForceUpdate() = 0;
-	virtual size_t			GetIndex() = 0;
+	virtual index_t			GetIndex() = 0;
 
 	// overlays are extra polygons that deform with animating models for blood and damage marks
 	virtual void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material ) = 0;
@@ -199,7 +199,7 @@ public:
 	idBounds				globalLightBounds;
 
 	size_t					viewCount;				// if == tr.viewCount, the light is on the viewDef->viewLights list
-	viewLight_s *			viewLight;
+	viewLight_t *			viewLight;
 
 	areaReference_t *		references;				// each area the light is present in will have a lightRef
 	idInteraction *			firstInteraction;		// doubly linked list
@@ -213,15 +213,15 @@ class idRenderEntityLocal : public idRenderEntity {
 public:
 							idRenderEntityLocal();
 
-							void			FreeRenderEntity() override;
-							void			UpdateRenderEntity( const renderEntity_t *re, bool forceUpdate = false ) override;
-							void			GetRenderEntity( renderEntity_t *re ) override;
-							void			ForceUpdate() override;
-							size_t			GetIndex() override;
+			void			FreeRenderEntity() override;
+			void			UpdateRenderEntity( const renderEntity_t *re, bool forceUpdate = false ) override;
+			void			GetRenderEntity( renderEntity_t *re ) override;
+			void			ForceUpdate() override;
+			index_t			GetIndex() override;
 
 	// overlays are extra polygons that deform with animating models for blood and damage marks
-							void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material ) override;
-							void			RemoveDecals() override;
+			void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material ) override;
+			void			RemoveDecals() override;
 
 	[[nodiscard]] bool		IsDirectlyVisible() const;
 
@@ -256,7 +256,7 @@ public:
 	// in a given view, even if it turns out to not be visible
 	size_t					viewCount;				// if tr.viewCount == viewCount, viewEntity is valid,
 													// but the entity may still be off screen
-	viewEntity_s *			viewEntity;				// in frame temporary memory
+	viewEntity_t *			viewEntity;				// in frame temporary memory
 
 	idRenderModelDecal *	decals;					// decals that have been projected on this model
 	idRenderModelOverlay *	overlays;				// blood overlays on animated models
@@ -268,18 +268,18 @@ public:
 	bool					needsPortalSky;
 };
 
-typedef struct shadowOnlyEntity_s {
-	shadowOnlyEntity_s *	next;
+struct shadowOnlyEntity_t {
+	shadowOnlyEntity_t *	next;
 	idRenderEntityLocal	*	edef;
-} shadowOnlyEntity_t;
+};
 
 // viewLights are allocated on the frame temporary stack memory
 // a viewLight contains everything that the back end needs out of an idRenderLightLocal,
 // which the front end may be modifying simultaniously if running in SMP mode.
 // a viewLight may exist even without any surfaces, and may be relevent for fogging,
 // but should never exist if its volume does not intersect the view frustum
-typedef struct viewLight_s {
-	viewLight_s *			next;
+struct viewLight_t {
+	viewLight_t *			next;
 
 	// back end should NOT reference the lightDef, because it can change when running SMP
 	idRenderLightLocal *	lightDef;
@@ -320,7 +320,7 @@ typedef struct viewLight_s {
 
 	// R_AddSingleLight will build a chain of parameters here to setup shadow volumes
 	preLightShadowVolumeParms_t *	preLightShadowVolumes;
-} viewLight_t;
+};
 
 // a viewEntity is created whenever a idRenderEntityLocal is considered for inclusion
 // in the current view, but it may still turn out to be culled.
@@ -328,8 +328,8 @@ typedef struct viewLight_s {
 // a viewEntity contains everything that the back end needs out of a idRenderEntityLocal,
 // which the front end may be modifying simultaneously if running in SMP mode.
 // A single entityDef can generate multiple viewEntity_t in a single frame, as when seen in a mirror
-typedef struct viewEntity_s {
-	viewEntity_s *			next;
+struct viewEntity_t {
+	viewEntity_t *			next;
 
 	// back end should NOT reference the entityDef, because it can change when running SMP
 	idRenderEntityLocal	*	entityDef;
@@ -360,13 +360,13 @@ typedef struct viewEntity_s {
 	// R_AddSingleModel will build a chain of parameters here to set up shadow volumes
 	staticShadowVolumeParms_t *		staticShadowVolumes;
 	dynamicShadowVolumeParms_t *	dynamicShadowVolumes;
-} viewEntity_t;
+};
 
 
 constexpr size_t	MAX_CLIP_PLANES_RENDER	= 6;				// we may expand this to six for some subview issues
 
 // viewDefs are allocated on the frame temporary stack memory
-typedef struct viewDef_s {
+struct viewDef_t {
 	// specified in the call to DrawScene()
 	renderView_t		renderView;
 
@@ -427,12 +427,12 @@ typedef struct viewDef_s {
 	// crossing a closed door.  This is used to avoid drawing interactions
 	// when the light is behind a closed door.
 	bool *				connectedAreas;
-} viewDef_t;
+};
 
 
 // complex light / surface interactions are broken up into multiple passes of a
 // simple interaction shader
-typedef struct drawInteraction_s {
+struct drawInteraction_t {
 	const drawSurf_t *	surf;
 
 	idImage *			bumpImage;
@@ -449,7 +449,7 @@ typedef struct drawInteraction_s {
 	idVec4				bumpMatrix[2];
 	idVec4				diffuseMatrix[2];
 	idVec4				specularMatrix[2];
-} drawInteraction_t;
+};
 
 /*
 =============================================================
@@ -461,33 +461,33 @@ TR_CMDS
 =============================================================
 */
 
-typedef enum renderCommand_e : uint8 {
+enum renderCommand_t : uint8 {
 	RC_NOP,
 	RC_DRAW_VIEW_3D,	// may be at a reduced resolution, will be upsampled before 2D GUIs
 	RC_DRAW_VIEW_GUI,	// not resolution scaled
 	RC_SET_BUFFER,
 	RC_COPY_RENDER,
 	RC_POST_PROCESS,
-} renderCommand_t;
+};
 
-typedef struct emptyCommand_s {
+struct emptyCommand_t {
 	renderCommand_t		commandId;
 	renderCommand_t *	next;
-} emptyCommand_t;
+};
 
-typedef struct setBufferCommand_s {
+struct setBufferCommand_t {
 	renderCommand_t		commandId;
 	renderCommand_t *	next;
 	GLenum	buffer;
-} setBufferCommand_t;
+};
 
-typedef struct drawSurfsCommand_s {
+struct drawSurfsCommand_t {
 	renderCommand_t		commandId;
 	renderCommand_t *	next;
 	viewDef_t *			viewDef;
-} drawSurfsCommand_t;
+};
 
-typedef struct copyRenderCommand_s {
+struct copyRenderCommand_t {
 	renderCommand_t		commandId;
 	renderCommand_t *	next;
 	size_t				x;
@@ -497,21 +497,21 @@ typedef struct copyRenderCommand_s {
 	idImage	*			image;
 	size_t				cubeFace;					// when copying to a cubeMap
 	bool				clearColorAfterCopy;
-} copyRenderCommand_t;
+};
 
-typedef struct postProcessCommand_s {
+struct postProcessCommand_t {
 	renderCommand_t		commandId;
 	renderCommand_t *	next;
 	viewDef_t *			viewDef;
-} postProcessCommand_t;
+};
 
 //=======================================================================
 
-// this is the inital allocation for max number of drawsurfs
+// this is the initial allocation for max number of drawsurfs
 // in a given view, but it will automatically grow if needed
 constexpr size_t INITIAL_DRAWSURFS =		2048;
 
-typedef enum frameAllocType_e : uint8 {
+enum frameAllocType_t : uint8 {
 	FRAME_ALLOC_VIEW_DEF,
 	FRAME_ALLOC_VIEW_ENTITY,
 	FRAME_ALLOC_VIEW_LIGHT,
@@ -525,7 +525,7 @@ typedef enum frameAllocType_e : uint8 {
 	FRAME_ALLOC_DRAW_COMMAND,
 	FRAME_ALLOC_UNKNOWN,
 	FRAME_ALLOC_MAX
-} frameAllocType_t;
+};
 
 // all of the information needed by the back end must be
 // contained in a idFrameData.  This entire structure is
@@ -571,7 +571,7 @@ const idMaterial *R_RemapShaderBySkin( const idMaterial *shader, const idDeclSki
 /*
 ** performanceCounters_t
 */
-typedef struct performanceCounters_s {
+struct performanceCounters_t {
 	size_t		c_box_cull_in;
 	size_t		c_box_cull_out;
 	size_t		c_createInteractions;	// number of calls to idInteraction::CreateInteraction
@@ -593,8 +593,8 @@ typedef struct performanceCounters_s {
 	size_t		c_entityReferences;
 	size_t		c_lightReferences;
 	size_t		c_guiSurfs;
-	ID_TIME_T	frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
-} performanceCounters_t;
+	uint64  	frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
+};
 
 
 typedef struct tmu_s {
@@ -612,10 +612,10 @@ typedef enum vertexLayoutType_e : uint8 {
 	LAYOUT_DRAW_SHADOW_VERT_SKINNED
 } vertexLayoutType_t;
 
-typedef struct glstate_s {
+struct glstate_t {
 	tmu_t				tmu[MAX_MULTITEXTURE_UNITS];
 
-	int					currenttmu;
+	index_t				currenttmu;
 
 	int					faceCulling;
 
@@ -627,9 +627,9 @@ typedef struct glstate_s {
 	float				polyOfsBias;
 
 	uint64				glStateBits;
-} glstate_t;
+};
 
-typedef struct backEndCounters_s {
+struct backEndCounters_t {
 	size_t		c_surfaces;
 	size_t		c_shaders;
 
@@ -643,13 +643,13 @@ typedef struct backEndCounters_s {
 
 	float   	c_overDraw;	
 
-	ID_TIME_T	totalMicroSec;			// total microseconds for backend run
-	ID_TIME_T	shadowMicroSec;
-} backEndCounters_t;
+	uint64  	totalMicroSec;			// total microseconds for backend run
+	uint64  	shadowMicroSec;
+};
 
 // all state modified by the back end is separated
 // from the front end state
-typedef struct backEndState_s {
+struct backEndState_t {
 	const viewDef_t	*	viewDef;
 	backEndCounters_t	pc;
 
@@ -665,7 +665,7 @@ typedef struct backEndState_s {
 	drawSurf_t			unitSquareSurface;
 	drawSurf_t			zeroOneCubeSurface;
 	drawSurf_t			testImageSurface;
-} backEndState_t;
+};
 
 class idParallelJobList;
 

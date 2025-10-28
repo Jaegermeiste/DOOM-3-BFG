@@ -57,7 +57,7 @@ for PS3, a device number is sent in, for the game to register as a local
 user by default, when title initializes.
 ================
 */
-void idCommonLocal::LaunchExternalTitle( int titleIndex, int device, const lobbyConnectInfo_t * const connectInfo ) {
+void idCommonLocal::LaunchExternalTitle(const index_t titleIndex, const index_t device, const lobbyConnectInfo_t * const connectInfo ) {
 
 	idStr deviceString( device );
 
@@ -103,7 +103,7 @@ idCommonLocal::StartWipe
 Draws and captures the current state, then starts a wipe with that image
 ================
 */
-void idCommonLocal::StartWipe( const char *_wipeMaterial, bool hold ) {
+void idCommonLocal::StartWipe( const char *_wipeMaterial, const bool hold ) {
 	console->Close();
 
 	Draw();
@@ -150,7 +150,7 @@ void idCommonLocal::ClearWipe() {
 idCommonLocal::StartNewGame
 ===============
 */
-void idCommonLocal::StartNewGame( const char * mapName, bool devmap, int gameMode ) {
+void idCommonLocal::StartNewGame( const char * mapName, const bool devmap, const int8 gameMode ) {
 	if ( session->GetSignInManager().GetMasterLocalUser() == nullptr) {
 		// For development make sure a controller is registered
 		// Can't just register the local user because it will be removed because of it's persistent state
@@ -169,12 +169,12 @@ void idCommonLocal::StartNewGame( const char * mapName, bool devmap, int gameMod
 		matchParameters.gameMode = GAME_MODE_SINGLEPLAYER;
 		matchParameters.gameMap = GAME_MAP_SINGLEPLAYER;
 	} else {
-		matchParameters.gameMap = mpGameMaps.Num();	// If this map isn't found in mpGameMaps, then set it to some undefined value (this happens when, for example, we load a box map with netmap)
+		matchParameters.gameMap = numeric_cast<int8>(mpGameMaps.Num());	// If this map isn't found in mpGameMaps, then set it to some undefined value (this happens when, for example, we load a box map with netmap)
 		matchParameters.gameMode = gameMode;
 		matchParameters.matchFlags = DefaultPartyFlags;
-		for ( int i = 0; i < mpGameMaps.Num(); i++ ) {
+		for ( size_t i = 0; i < mpGameMaps.Num(); i++ ) {
 			if ( idStr::Icmp( mpGameMaps[i].mapFile, mapNameClean ) == 0 ) {
-				matchParameters.gameMap = i;
+				matchParameters.gameMap = numeric_cast<int8>(i);
 				break;
 			}
 		}
@@ -207,7 +207,7 @@ idCommonLocal::MoveToNewMap
 Single player transition from one map to another
 ===============
 */
-void idCommonLocal::MoveToNewMap( const char *mapName, bool devmap ) {
+void idCommonLocal::MoveToNewMap( const char *mapName, const bool devmap ) {
 	idMatchParameters matchParameters;
 	matchParameters.numSlots = 1;
 	matchParameters.gameMode = GAME_MODE_SINGLEPLAYER;
@@ -301,7 +301,7 @@ void idCommonLocal::LoadLoadingGui( const char *mapName, bool & hellMap ) {
 	}
 
 	loadTipList.SetNum( loadTipList.Max() );
-	for ( int i = 0; i < loadTipList.Max(); ++i ) {
+	for ( size_t i = 0; i < loadTipList.Max(); ++i ) {
 		loadTipList[i] = i;
 	}
 
@@ -424,7 +424,7 @@ void idCommonLocal::ExecuteMapChange() {
 
 	int start = Sys_Milliseconds();
 
-	for ( int i = 0; i < MAX_INPUT_DEVICES; i++ ) {
+	for ( size_t i = 0; i < MAX_INPUT_DEVICES; i++ ) {
 		Sys_SetRumble( i, 0, 0 );
 	}
 
@@ -585,7 +585,7 @@ void idCommonLocal::ExecuteMapChange() {
 		// In single player, run a bunch of frames to make sure ragdolls are settled
 		idUserCmdMgr emptyCommandManager;
 		gameReturn_t emptyGameReturn;
-		for ( int i = 0; i < 100; i++ ) {
+		for ( size_t i = 0; i < 100; i++ ) {
 			for ( int playerIndex = 0; playerIndex < MAX_PLAYERS; ++playerIndex ) {
 				emptyCommandManager.PutUserCmdForPlayer( playerIndex, usercmd_t() );
 			}
@@ -604,7 +604,7 @@ void idCommonLocal::ExecuteMapChange() {
 
 	{
 		int vertexMemUsedKB = vertexCache.staticData.vertexMemUsed.GetValue() / 1024;
-		int indexMemUsedKB = vertexCache.staticData.indexMemUsed.GetValue() / 1024;
+		index_t indexMemUsedKB = vertexCache.staticData.indexMemUsed.GetValue() / 1024;
 		idLib::Printf( "Used %dkb of static vertex memory (%d%%)\n", vertexMemUsedKB, vertexMemUsedKB * 100 / ( STATIC_VERTEX_MEMORY / 1024 ) );
 		idLib::Printf( "Used %dkb of static index memory (%d%%)\n", indexMemUsedKB, indexMemUsedKB * 100 / ( STATIC_INDEX_MEMORY / 1024 ) );
 	}
@@ -673,7 +673,7 @@ void idCommonLocal::UpdateLevelLoadPacifier() {
 
 	const int sessionUpdateTime = common->IsMultiplayer() ? 16 : 100;
 
-	const int time = Sys_Milliseconds();
+	const ID_TIME_T time = Sys_Milliseconds();
 
 	// Throttle session pumps.
 	if ( time - lastPacifierSessionTime >= sessionUpdateTime ) {
@@ -694,7 +694,7 @@ void idCommonLocal::UpdateLevelLoadPacifier() {
 			renderSystem->EndAutomaticBackgroundSwaps();
 			if ( dialogState ) {
 				icon = AUTORENDER_DIALOGICON; // Done this way to handle the rare case of a tip changing at the same time a dialog comes up
-				for ( int i = 0; i < NumScreenUpdatesToShowDialog; ++i ) {
+				for ( size_t i = 0; i < NumScreenUpdatesToShowDialog; ++i ) {
 					UpdateScreen( false );
 				}
 			}
@@ -751,7 +751,7 @@ void idCommonLocal::ScrubSaveGameFileName( idStr &saveFileName ) const {
 
 	saveFileName.Clear();
 
-	int len = inFileName.Length();
+	size_t len = inFileName.Length();
 	for ( i = 0; i < len; i++ ) {
 		if ( strchr( "',.~!@#$%^&*()[]{}<>\\|/=?+;:-\'\"", inFileName[i] ) ) {
 			// random junk
@@ -807,7 +807,7 @@ bool idCommonLocal::SaveGame( const char * saveName ) {
 	} else {
 		// Heremake sure we pump the gui enough times to show the 'saving' dialog
 		constexpr bool captureToImage = false;
-		for ( int i = 0; i < NumScreenUpdatesToShowDialog; ++i ) {
+		for ( size_t i = 0; i < NumScreenUpdatesToShowDialog; ++i ) {
 			UpdateScreen( captureToImage );
 		}
 		renderSystem->BeginAutomaticBackgroundSwaps( AUTORENDER_DIALOGICON );
@@ -893,7 +893,7 @@ bool idCommonLocal::LoadGame( const char * saveName ) {
 
 	bool found = false;
 	const saveGameDetailsList_t & sgdl = session->GetSaveGameManager().GetEnumeratedSavegames();
-	for ( int i = 0; i < sgdl.Num(); i++ ) {
+	for ( size_t i = 0; i < sgdl.Num(); i++ ) {
 		if ( sgdl[i].slotName == saveName ) {
 			if ( sgdl[i].GetLanguage() != sys_lang.GetString() ) {
 				idStaticList< idSWFScriptFunction *, 4 > callbacks;
@@ -970,7 +970,7 @@ bool HandleCommonErrors( const idSaveLoadParms & parms ) {
 
 		// Find the game in the enumerated details, mark as corrupt so the menus can show as corrupt
 		saveGameDetailsList_t & list = session->GetSaveGameManager().GetEnumeratedSavegamesNonConst();
-		for ( int i = 0; i < list.Num(); i++ ) {
+		for ( size_t i = 0; i < list.Num(); i++ ) {
 			if ( idStr::Icmp( list[i].slotName, parms.description.slotName ) == 0 ) {
 				list[i].damaged = true;
 			}
@@ -1085,7 +1085,7 @@ void idCommonLocal::OnLoadFilesCompleted( idSaveLoadParms & parms ) {
 idCommonLocal::TriggerScreenWipe
 ========================
 */
-void idCommonLocal::TriggerScreenWipe( const char * _wipeMaterial, bool hold ) {
+void idCommonLocal::TriggerScreenWipe( const char * _wipeMaterial, const bool hold ) {
 	StartWipe( _wipeMaterial, hold );
 	CompleteWipe();
 	wipeForced = true;

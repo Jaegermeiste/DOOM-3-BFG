@@ -32,18 +32,22 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../Game_local.h"
 
-#if defined( _DEBUG )
-	#define	BUILD_DEBUG	"-debug"
-#else
-	#define	BUILD_DEBUG "-release"
-#endif
-
 /*
 All game cvars should be defined here.
 */
 
 struct gameVersion_s {
-	gameVersion_s() { sprintf( string, "%s.%d%s %s %s %s", ENGINE_VERSION, BUILD_NUMBER, BUILD_DEBUG, BUILD_STRING, __DATE__, __TIME__ ); }
+	gameVersion_s()
+	{
+		if (BUILD_NUMBER_MINOR > 0)
+		{
+			std::ignore = sprintf(string, "%s.%d.%d%s %s-%s %s %s", ENGINE_VERSION, BUILD_NUMBER, BUILD_NUMBER_MINOR, BUILD_TYPE, BUILD_OS, CPUSTRING, __DATE__, __TIME__);
+		}
+		else
+		{
+			std::ignore = sprintf(string, "%s.%d%s %s-%s %s %s", ENGINE_VERSION, BUILD_NUMBER, BUILD_TYPE, BUILD_OS, CPUSTRING, __DATE__, __TIME__);
+		}
+	}
 	char	string[256];
 } gameVersion;
 

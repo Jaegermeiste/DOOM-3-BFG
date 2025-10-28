@@ -89,7 +89,7 @@ idTimerReport::AddReport
 int64 idTimerReport::AddReport( const char *name ) {
 	if ( name && *name ) {
 		names.Append( name );
-		return idMath::integer_cast<int64>(timers.Append( new (TAG_IDLIB) idTimer() ));
+		return numeric_cast<int64>(timers.Append( new (TAG_IDLIB) idTimer() ));
 	}
 	return -1;
 }
@@ -112,7 +112,7 @@ idTimerReport::Reset
 */
 void idTimerReport::Reset() {
 	assert ( timers.Num() == names.Num() );
-	for ( int i = 0; i < timers.Num(); i++ ) {
+	for ( size_t i = 0; i < timers.Num(); i++ ) {
 		timers[i]->Clear();
 	}
 }
@@ -150,7 +150,7 @@ void idTimerReport::PrintReport() {
 	idLib::common->Printf( "Timing Report for %s\n", reportName.c_str() );
 	idLib::common->Printf( "-------------------------------\n" );
 	double total = 0.0f;
-	for ( int i = 0; i < names.Num(); i++ ) {
+	for ( size_t i = 0; i < names.Num(); i++ ) {
 		idLib::common->Printf( "%s consumed %5.2f seconds\n", names[i].c_str(), timers[i]->Milliseconds() * 0.001f );
 		total += timers[i]->Milliseconds();
 	}

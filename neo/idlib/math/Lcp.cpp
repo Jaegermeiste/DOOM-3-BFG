@@ -404,7 +404,7 @@ static void LowerTriangularSolve_SIMD(const idMatX & L, float * x, const float *
 	// work up to a multiple of 4 rows
 	for ( ; ( i & 3 ) != 0 && i < n; i++ ) {
 		float sum = b[i];
-		for ( int j = 0; std::cmp_less(j, i); j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, i); j++ ) {
 			sum -= lptr[j] * x[j];
 		}
 		x[i] = sum;
@@ -582,7 +582,7 @@ static void LowerTriangularSolveTranspose_SIMD( const idMatX & L, float * x, con
 			lptr2 += 4 * nc;
 			xptr2 += 4;
 		}
-		for ( int j = 0; j < r; j++ ) {
+		for ( size_t j = 0; j < r; j++ ) {
 			s0 = _mm_sub_ps( s0, _mm_mul_ps( _mm_load_ps( lptr2 ), _mm_load1_ps( &xptr2[j] ) ) );
 			lptr2 += nc;
 		}
@@ -1416,7 +1416,7 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 	for ( size_t i = numClamped; i < d; i++ ) {
 		const float negAccel = -a[i];
 		const float deltaAccel = delta_a[i];
-		const bool m0 = (idMath::Itof<float>( side[i] ) * deltaAccel > LCP_DELTA_ACCEL_EPSILON);
+		const bool m0 = (numeric_cast<float>( side[i] ) * deltaAccel > LCP_DELTA_ACCEL_EPSILON);
 		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
 		const bool m1 = ( lo[i] < -LCP_BOUND_EPSILON || hi[i] > LCP_BOUND_EPSILON );
 		const bool m2 = ( step < maxStep );
@@ -1460,9 +1460,9 @@ static void PrintClocks( const char * string, int dataCount, int64 clocks, int64
 	if ( clocks && otherClocks ) {
 		int p = 0;
 		if ( clocks <= otherClocks ) {
-			p = idMath::Ftoi( (float) ( otherClocks - clocks ) * 100.0f / (float) otherClocks );
+			p = numeric_cast<int>( (float) ( otherClocks - clocks ) * 100.0f / (float) otherClocks );
 		} else {
-			p = - idMath::Ftoi( (float) ( clocks - otherClocks ) * 100.0f / (float) clocks );
+			p = - numeric_cast<int>( (float) ( clocks - otherClocks ) * 100.0f / (float) clocks );
 		}
 		idLib::Printf( "c = %4d, clcks = %5lld, %d%%\n", dataCount, clocks, p );
 	} else {
@@ -1481,18 +1481,18 @@ static void DotProduct_Test() {
 
 	idRandom srnd( 13 );
 
-	for ( int i = 0; i < TEST_TRIANGULAR_SOLVE_SIZE; i++ ) {
+	for ( size_t i = 0; i < TEST_TRIANGULAR_SOLVE_SIZE; i++ ) {
 		fsrc0[i] = srnd.CRandomFloat() * 10.0f;
 		fsrc1[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
 	idTimer timer;
 
-	for ( int i = 0; i < TEST_TRIANGULAR_SOLVE_SIZE; i++ ) {
+	for ( size_t i = 0; i < TEST_TRIANGULAR_SOLVE_SIZE; i++ ) {
 
 		float dot1 = DotProduct_Generic( fsrc0, fsrc1, i );
 		int64 clocksGeneric = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			fsrc1[TEST_TRIANGULAR_SOLVE_SIZE] = j;
 			timer.Clear();
 			timer.Start();
@@ -1505,7 +1505,7 @@ static void DotProduct_Test() {
 
 		float dot2 = DotProduct_SIMD( fsrc0, fsrc1, i );
 		int64 clocksSIMD = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			fsrc1[TEST_TRIANGULAR_SOLVE_SIZE] = j;
 			timer.Clear();
 			timer.Start();
@@ -1544,7 +1544,7 @@ static void LowerTriangularSolve_Test() {
 
 		LowerTriangularSolve_Generic( L, x.ToFloatPtr(), b.ToFloatPtr(), i, skip );
 		int64 clocksGeneric = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			timer.Clear();
 			timer.Start();
 			LowerTriangularSolve_Generic( L, x.ToFloatPtr(), b.ToFloatPtr(), i, skip );
@@ -1559,7 +1559,7 @@ static void LowerTriangularSolve_Test() {
 
 		LowerTriangularSolve_SIMD( L, x.ToFloatPtr(), b.ToFloatPtr(), i, skip );
 		int64 clocksSIMD = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			timer.Clear();
 			timer.Start();
 			LowerTriangularSolve_SIMD( L, x.ToFloatPtr(), b.ToFloatPtr(), i, skip );
@@ -1595,7 +1595,7 @@ static void LowerTriangularSolveTranspose_Test() {
 
 		LowerTriangularSolveTranspose_Generic( L, x.ToFloatPtr(), b.ToFloatPtr(), i );
 		int64 clocksGeneric = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			timer.Clear();
 			timer.Start();
 			LowerTriangularSolveTranspose_Generic( L, x.ToFloatPtr(), b.ToFloatPtr(), i );
@@ -1610,7 +1610,7 @@ static void LowerTriangularSolveTranspose_Test() {
 
 		LowerTriangularSolveTranspose_SIMD( L, x.ToFloatPtr(), b.ToFloatPtr(), i );
 		int64 clocksSIMD = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			timer.Clear();
 			timer.Start();
 			LowerTriangularSolveTranspose_SIMD( L, x.ToFloatPtr(), b.ToFloatPtr(), i );
@@ -1643,7 +1643,7 @@ static void LDLT_Factor_Test() {
 	for ( int i = 1; i < TEST_FACTOR_SOLVE_SIZE; i++ ) {
 
 		int64 clocksGeneric = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			mat1 = original;
 			invDiag1.Zero( TEST_FACTOR_SOLVE_SIZE );
 			timer.Clear();
@@ -1656,7 +1656,7 @@ static void LDLT_Factor_Test() {
 		PrintClocks( va( "LDLT_Factor_Generic %dx%d", i, i ), 1, clocksGeneric );
 
 		int64 clocksSIMD = 0xFFFFFFFFFFFF;
-		for ( int j = 0; j < NUM_TESTS; j++ ) {
+		for ( size_t j = 0; j < NUM_TESTS; j++ ) {
 			mat2 = original;
 			invDiag2.Zero( TEST_FACTOR_SOLVE_SIZE );
 			timer.Clear();
@@ -1718,19 +1718,19 @@ private:
 	bool			FactorClamped();
 	void			SolveClamped( idVecX & x, const float * b );
 
-	void			Swap(Ordinal auto i, Ordinal auto j);
+	void			Swap( const Ordinal auto i, const Ordinal auto j );
 	
-	void			AddClamped(Ordinal auto r);
+	void			AddClamped( const Ordinal auto r );
 	
-	void			RemoveClamped(Ordinal auto r);
+	void			RemoveClamped( const Ordinal auto r );
 	
-	void			CalcForceDelta(Ordinal auto d, float dir);
+	void			CalcForceDelta( const Ordinal auto d, float dir );
 	
-	void			CalcAccelDelta(Ordinal auto d);
+	void			CalcAccelDelta( const Ordinal auto d );
 	
-	void			ChangeForce(Ordinal auto d, float step);
+	void			ChangeForce( const Ordinal auto d, float step );
 	
-	void			ChangeAccel(Ordinal auto d, float step);
+	void			ChangeAccel( const Ordinal auto d, float step );
 };
 
 /*
@@ -1763,7 +1763,7 @@ void idLCP_Square::SolveClamped( idVecX & x, const float * b ) {
 idLCP_Square::Swap
 ========================
 */
-void idLCP_Square::Swap(const Ordinal auto i, const Ordinal auto j) {
+void idLCP_Square::Swap( const Ordinal auto i, const Ordinal auto j ) {
 	ORDINAL_CHECK(i, m.GetNumRows());
 	ORDINAL_CHECK(j, m.GetNumRows());
 	if ( std::equal_to<>()(i, j) ) {
@@ -1790,7 +1790,7 @@ idLCP_Square::AddClamped
 ========================
 */
 
-void idLCP_Square::AddClamped(const Ordinal auto r) {
+void idLCP_Square::AddClamped( const Ordinal auto r ) {
 
 	assert( std::cmp_greater_equal(r, numClamped) );
 
@@ -1802,7 +1802,7 @@ void idLCP_Square::AddClamped(const Ordinal auto r) {
 	// add row to L
 	for ( size_t i = 0; i < numClamped; i++ ) {
 		float sum = rowPtrs[numClamped][i];
-		for ( int j = 0; std::cmp_less(j, i); j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, i); j++ ) {
 			sum -= clamped[numClamped][j] * clamped[j][i];
 		}
 		clamped[numClamped][i] = sum * diagonal[i];
@@ -1828,9 +1828,9 @@ idLCP_Square::RemoveClamped
 ========================
 */
 
-void idLCP_Square::RemoveClamped(const Ordinal auto r) {
+void idLCP_Square::RemoveClamped( const Ordinal auto r ) {
 	ORDINAL_CHECK(r, numClamped);
-	if ( !verify( r < numClamped ) ) {
+	if ( !verify(std::cmp_less(r , numClamped ))) {
 		// complete fail, most likely due to exceptional floating point values
 		return;
 	}
@@ -1838,7 +1838,7 @@ void idLCP_Square::RemoveClamped(const Ordinal auto r) {
 	numClamped--;
 
 	// no need to swap and update the factored matrix when the last row and column are removed
-	if ( r == numClamped ) {
+	if (std::cmp_equal(r, numClamped)) {
 		return;
 	}
 
@@ -1876,7 +1876,7 @@ void idLCP_Square::RemoveClamped(const Ordinal auto r) {
 	z1[r] = 0.0f;
 
 	// update the beginning of the to be updated row and column
-	for (size_t i = 0; i < r; i++ ) {
+	for (size_t i = 0; std::cmp_less(i, r); i++ ) {
 		const float p0 = y0[i];
 		const float beta1 = z1[i] * diagonal[i];
 
@@ -1957,7 +1957,7 @@ Modifies this->delta_f.
 ========================
 */
 
-void idLCP_Square::CalcForceDelta(const Ordinal auto d, const float dir) {
+void idLCP_Square::CalcForceDelta( const Ordinal auto d, const float dir ) {
 	ORDINAL_CHECK(d, numClamped);
 
 	delta_f[d] = dir;
@@ -1992,10 +1992,10 @@ Modifies this->delta_a and uses this->delta_f.
 ========================
 */
 
-ID_INLINE void idLCP_Square::CalcAccelDelta(const Ordinal auto d) {
+ID_INLINE void idLCP_Square::CalcAccelDelta( const Ordinal auto d ) {
 	ORDINAL_CHECK(d, numClamped);
 	// only the not clamped variables, including the current variable, can have a change in acceleration
-	for ( size_t j = numClamped; j <= d; j++ ) {
+	for ( size_t j = numClamped; std::cmp_less_equal(j, d); j++ ) {
 		// only the clamped variables and the current variable have a force delta unequal zero
 		const float dot = BigDotProduct( rowPtrs[j], delta_f.ToFloatPtr(), numClamped );
 		delta_a[j] = dot + rowPtrs[j][d] * delta_f[d];
@@ -2010,7 +2010,7 @@ Modifies this->f and uses this->delta_f.
 ========================
 */
 
-ID_INLINE void idLCP_Square::ChangeForce(const Ordinal auto d, const float step) {
+ID_INLINE void idLCP_Square::ChangeForce( const Ordinal auto d, const float step ) {
 	ORDINAL_CHECK(d, numClamped);
 	// only the clamped variables and current variable have a force delta unequal zero
 	MultiplyAdd( f.ToFloatPtr(), step, delta_f.ToFloatPtr(), numClamped );
@@ -2025,7 +2025,7 @@ Modifies this->a and uses this->delta_a.
 ========================
 */
 
-ID_INLINE void idLCP_Square::ChangeAccel(const Ordinal auto d, const float step) {
+ID_INLINE void idLCP_Square::ChangeAccel( const Ordinal auto d, const float step ) {
 	ORDINAL_CHECK(d, numClamped);
 	// only the not clamped variables, including the current variable, can have an acceleration unequal zero
 	MultiplyAdd( a.ToFloatPtr() + numClamped, step, delta_a.ToFloatPtr() + numClamped, d - numClamped + 1 );
@@ -2070,7 +2070,7 @@ bool idLCP_Square::Solve(const idMatX &o_m, idVecX &o_x, const idVecX &o_b, cons
 
 	// pointers to the rows of m
 	rowPtrs = static_cast<float**>(_alloca16(m.GetNumRows() * sizeof( float * )));
-	for ( int i = 0; i < m.GetNumRows(); i++ ) {
+	for ( size_t i = 0; i < m.GetNumRows(); i++ ) {
 		rowPtrs[i] = m[i];
 	}
 
@@ -2131,7 +2131,7 @@ bool idLCP_Square::Solve(const idMatX &o_m, idVecX &o_x, const idVecX &o_b, cons
 		}
 	}
 
-	int numIgnored = 0;
+	size_t numIgnored = 0;
 
 	// allocate for delta force and delta acceleration
 	delta_f.SetData( m.GetNumRows(), VECX_ALLOCA(m.GetNumRows()));
@@ -2276,9 +2276,9 @@ bool idLCP_Square::Solve(const idMatX &o_m, idVecX &o_x, const idVecX &o_b, cons
 #if defined(_DEBUG) && 0
 	if ( failed.Length() ) {
 		// test whether or not the solution satisfies the complementarity conditions
-		for ( int i = 0; i < m.GetNumRows(); i++ ) {
+		for ( size_t i = 0; i < m.GetNumRows(); i++ ) {
 			a[i] = -b[i];
-			for ( int j = 0; j < m.GetNumRows(); j++ ) {
+			for ( size_t j = 0; j < m.GetNumRows(); j++ ) {
 				a[i] += rowPtrs[i][j] * f[j];
 			}
 
@@ -2960,7 +2960,7 @@ bool idLCP_Symmetric::Solve(const idMatX &o_m, idVecX &o_x, const idVecX &o_b, c
 #if defined(_DEBUG) && 0
 	if ( failed.Length() ) {
 		// test whether or not the solution satisfies the complementarity conditions
-		for ( int i = 0; i < m.GetNumRows(); i++ ) {
+		for ( size_t i = 0; i < m.GetNumRows(); i++ ) {
 			a[i] = -b[i];
 			for ( j = 0; j < m.GetNumRows(); j++ ) {
 				a[i] += rowPtrs[i][j] * f[j];

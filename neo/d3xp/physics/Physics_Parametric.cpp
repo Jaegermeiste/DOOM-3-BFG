@@ -311,7 +311,7 @@ void idPhysics_Parametric::Restore( idRestoreGame *savefile ) {
 idPhysics_Parametric::SetPusher
 ================
 */
-void idPhysics_Parametric::SetPusher( int flags ) {
+void idPhysics_Parametric::SetPusher(const int flags ) {
 	assert( clipModel );
 	isPusher = true;
 	pushFlags = flags;
@@ -331,7 +331,7 @@ bool idPhysics_Parametric::IsPusher() const {
 idPhysics_Parametric::SetLinearExtrapolation
 ================
 */
-void idPhysics_Parametric::SetLinearExtrapolation( extrapolation_t type, ID_TIME_T time, ID_TIME_T duration, const idVec3 &base, const idVec3 &speed, const idVec3 &baseSpeed ) {
+void idPhysics_Parametric::SetLinearExtrapolation(const extrapolation_t type, ID_TIME_T time, ID_TIME_T duration, const idVec3 &base, const idVec3 &speed, const idVec3 &baseSpeed ) {
 	current.time = gameLocal.time;
 	current.linearExtrapolation.Init( time, duration, base, baseSpeed, speed, type );
 	current.localOrigin = base;
@@ -343,7 +343,7 @@ void idPhysics_Parametric::SetLinearExtrapolation( extrapolation_t type, ID_TIME
 idPhysics_Parametric::SetAngularExtrapolation
 ================
 */
-void idPhysics_Parametric::SetAngularExtrapolation( extrapolation_t type, ID_TIME_T time, ID_TIME_T duration, const idAngles &base, const idAngles &speed, const idAngles &baseSpeed ) {
+void idPhysics_Parametric::SetAngularExtrapolation(const extrapolation_t type, ID_TIME_T time, ID_TIME_T duration, const idAngles &base, const idAngles &speed, const idAngles &baseSpeed ) {
 	current.time = gameLocal.time;
 	current.angularExtrapolation.Init( time, duration, base, baseSpeed, speed, type );
 	current.localAngles = base;
@@ -397,7 +397,7 @@ void idPhysics_Parametric::SetAngularInterpolation( ID_TIME_T time, ID_TIME_T ac
 idPhysics_Parametric::SetSpline
 ================
 */
-void idPhysics_Parametric::SetSpline( idCurve_Spline<idVec3> *spline, ID_TIME_T accelTime, ID_TIME_T decelTime, bool useSplineAngles ) {
+void idPhysics_Parametric::SetSpline( idCurve_Spline<idVec3> *spline, ID_TIME_T accelTime, ID_TIME_T decelTime, const bool useSplineAngles ) {
 	if ( current.spline != nullptr) {
 		delete current.spline;
 		current.spline = nullptr;
@@ -472,7 +472,7 @@ void idPhysics_Parametric::GetLocalAngles( idAngles &curAngles ) const {
 idPhysics_Parametric::SetClipModel
 ================
 */
-void idPhysics_Parametric::SetClipModel( idClipModel *model, float density, int id, bool freeOld ) {
+void idPhysics_Parametric::SetClipModel( idClipModel *model, float density, int id, const bool freeOld ) {
 
 	assert( self );
 	assert( model );
@@ -529,7 +529,7 @@ float idPhysics_Parametric::GetMass( int id ) const {
 idPhysics_Parametric::SetClipMask
 ================
 */
-void idPhysics_Parametric::SetContents( int contents, int id ) {
+void idPhysics_Parametric::SetContents(const int contents, int id ) {
 	if ( clipModel ) {
 		clipModel->SetContents( contents );
 	}
@@ -666,7 +666,7 @@ bool idPhysics_Parametric::Evaluate( ID_TIME_T timeStepMSec, ID_TIME_T endTimeMS
 Sets the currentInterpolated state based on previous, next, and the fraction.
 ================
 */
-bool idPhysics_Parametric::Interpolate( const float fraction ) {
+bool idPhysics_Parametric::Interpolate( const double fraction ) {
 
 	if( self->GetNumSnapshotsReceived() <= 1 ) {
 		return false;

@@ -260,7 +260,7 @@ void idMenuScreen_Shell_Load::HideScreen( const mainMenuTransition_t transitionT
 idMenuScreen_Shell_Load::LoadDamagedGame
 ========================
 */
-void idMenuScreen_Shell_Load::LoadDamagedGame( int index ) {
+void idMenuScreen_Shell_Load::LoadDamagedGame(const index_t index ) {
 
 	if ( index >= sortedSaves.Num() ) {
 		return;
@@ -268,7 +268,7 @@ void idMenuScreen_Shell_Load::LoadDamagedGame( int index ) {
 
 	class idSWFScriptFunction_LoadDamaged : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_LoadDamaged( gameDialogMessages_t _msg, bool _accept, int _index, idMenuScreen_Shell_Load * _screen ) {
+		idSWFScriptFunction_LoadDamaged(const gameDialogMessages_t _msg, const bool _accept, const int _index, idMenuScreen_Shell_Load * _screen ) {
 			msg = _msg;
 			accept = _accept;
 			index = _index;
@@ -284,7 +284,7 @@ void idMenuScreen_Shell_Load::LoadDamagedGame( int index ) {
 		}
 	private:
 		gameDialogMessages_t msg;
-		int index;
+		index_t index;
 		bool accept;
 		idMenuScreen_Shell_Load * screen;
 	};
@@ -304,7 +304,7 @@ void idMenuScreen_Shell_Load::LoadDamagedGame( int index ) {
 idMenuScreen_Shell_Load::LoadGame
 ========================
 */
-void idMenuScreen_Shell_Load::LoadGame( int index ) {
+void idMenuScreen_Shell_Load::LoadGame(const index_t index ) {
 
 	if ( menuData == nullptr) {
 		return;
@@ -326,7 +326,7 @@ void idMenuScreen_Shell_Load::LoadGame( int index ) {
 		
 		class idSWFScriptFunction_LoadDialog : public idSWFScriptFunction_RefCounted {
 		public:
-			idSWFScriptFunction_LoadDialog( gameDialogMessages_t _msg, bool _accept, const char * _name ) {
+			idSWFScriptFunction_LoadDialog(const gameDialogMessages_t _msg, const bool _accept, const char * _name ) {
 				msg = _msg;
 				accept = _accept;
 				name = _name;
@@ -365,11 +365,11 @@ void idMenuScreen_Shell_Load::LoadGame( int index ) {
 idMenuScreen_Shell_Save::DeleteGame
 ========================
 */
-void idMenuScreen_Shell_Load::DeleteGame( int index ) {
+void idMenuScreen_Shell_Load::DeleteGame(const index_t index ) {
 
 	class idSWFScriptFunction_DeleteGame : public idSWFScriptFunction_RefCounted {
 	public:
-		idSWFScriptFunction_DeleteGame( gameDialogMessages_t _msg, bool _accept, int _index, idMenuScreen_Shell_Load * _screen ) {
+		idSWFScriptFunction_DeleteGame(const gameDialogMessages_t _msg, const bool _accept, const int _index, idMenuScreen_Shell_Load * _screen ) {
 			msg = _msg;
 			accept = _accept;
 			index = _index;
@@ -387,7 +387,7 @@ void idMenuScreen_Shell_Load::DeleteGame( int index ) {
 		}
 	private:
 		gameDialogMessages_t msg;
-		int index;
+		index_t index;
 		bool accept;
 		idMenuScreen_Shell_Load * screen;
 	};
@@ -401,7 +401,7 @@ void idMenuScreen_Shell_Load::DeleteGame( int index ) {
 idMenuScreen_Shell_Load::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_Load::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Load::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData != nullptr) {
 		if ( menuData->ActiveScreen() != SHELL_AREA_LOAD ) {

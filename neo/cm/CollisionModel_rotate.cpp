@@ -122,7 +122,7 @@ idCollisionModelManagerLocal::CollisionBetweenEdgeBounds
 ================
 */
 int idCollisionModelManagerLocal::CollisionBetweenEdgeBounds( cm_traceWork_t *tw, const idVec3 &va, const idVec3 &vb,
-												   const idVec3 &vc, const idVec3 &vd, float tanHalfAngle,
+												   const idVec3 &vc, const idVec3 &vd, const float tanHalfAngle,
 												   idVec3 &collisionPoint, idVec3 &collisionNormal ) {
 	float d1, d2, d;
 	idVec3 at, bt, dir, dir1, dir2;
@@ -1616,8 +1616,8 @@ static int entered = 0;
 #endif
 
 void idCollisionModelManagerLocal::Rotation( trace_t *results, const idVec3 &start, const idRotation &rotation,
-										const idTraceModel *trm, const idMat3 &trmAxis, int contentMask,
-										cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
+										const idTraceModel *trm, const idMat3 &trmAxis, const int contentMask,
+										const cmHandle_t model, const idVec3 &modelOrigin, const idMat3 &modelAxis ) {
 	idVec3 tmp;
 	float maxa, stepa, a, lasta;
 

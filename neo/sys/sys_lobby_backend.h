@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef	__SYS_LOBBY_BACKEND_H__
 #define	__SYS_LOBBY_BACKEND_H__
 
+#pragma once
 
 extern idCVar net_verboseResource;
 #define NET_VERBOSERESOURCE_PRINT if ( net_verboseResource.GetBool() ) idLib::Printf
@@ -41,7 +42,7 @@ public:
 	
 	void InitFromNetadr( const netadr_t & netadr );
 
-	void InitFromIPandPort( const char * ip, int port );
+	void InitFromIPandPort( const char * ip, uint16 port );
 
 	[[nodiscard]] const char * ToString() const;
 	[[nodiscard]] bool UsingRelay() const;
@@ -59,7 +60,13 @@ public:
 		msg.WriteNetadr( netAddr );
 	}
 	void ReadFromMsg( idBitMsg & msg ) {
-		msg.ReadNetadr( &netAddr );
+		// First try the 10-byte magic
+		if (msg.GetSize() >= LEGACY_NETADR_WIRE_SIZE && memcmp(msg.GetReadData(), NADR_MAGIC10, LEGACY_NETADR_WIRE_SIZE) == 0) {
+			// Need the trailing V2 payload
+			msg.ReadNetadr(&netAddr);
+		}
+
+		msg.ReadLegacyNetadr( &netAddr );
 	}
 	lobbyConnectInfo_t() : netAddr() { }
 
@@ -70,24 +77,25 @@ class idNetSessionPort {
 public:
 	idNetSessionPort();
 
-	bool InitPort( int portNumber, bool useBackend );
-	bool ReadRawPacket( lobbyAddress_t & from, void * data, int & size, int maxSize  );
-	void SendRawPacket( const lobbyAddress_t & to, const void * data, int size );
+	bool InitPort( uint16 portNumber, bool useBackend );
+	bool ReadRawPacket( lobbyAddress_t & from, void * data, size_t & size, size_t maxSize  );
+	void SendRawPacket( const lobbyAddress_t & to, const void * data, size_t size );
 
 	[[nodiscard]] bool IsOpen() const;
 	void Close();
 	
 private:
-	float	forcePacketDropCurr;	// Used with net_forceDrop and net_forceDropCorrelation
-	float	forcePacketDropPrev;
+	ID_TIME_T	forcePacketDropPrev;
+	ID_TIME_T	forcePacketDropCurr;	// Used with net_forceDrop and net_forceDropCorrelation
+	
 
 	idUDP	UDP;
 };
 
 struct lobbyUser_t {
-	static constexpr int INVALID_PING = 9999;
+	static constexpr ID_TIME_T INVALID_PING = 9999;
 	// gamertags can be up to 16 4-byte characters + \0
-	static constexpr int MAX_GAMERTAG	= 64 + 1; 
+	static constexpr size_t MAX_GAMERTAG	= 64 + 1; 
 
 	lobbyUser_t() {
 		isBot				= false;
@@ -111,7 +119,7 @@ struct lobbyUser_t {
 	int					peerIndex;			// peer number on host
 	lobbyUserID_t		lobbyUserID;		// Locally generated to be unique, and internally keeps the local user handle
 	char				gamertag[MAX_GAMERTAG];
-	int					pingMs;				// round trip time in milliseconds
+	ID_TIME_T			pingMs;				// round trip time in milliseconds
 	
 	bool				disconnecting;		// true if we've sent a msg to disconnect this user from the session
 	int					level;
@@ -192,7 +200,7 @@ public:
 		NUM_STATES
 	};
 
-	static const char * GetStateString( lobbyBackendState_t state_ ) { 
+	static const char * GetStateString(const lobbyBackendState_t state_ ) { 
 		static const char * stateToString[NUM_STATES] = {
 			"STATE_INVALID",
 			"STATE_READY",
@@ -216,10 +224,10 @@ public:
 	};
 
 	idLobbyBackend() : type( TYPE_INVALID ), isHost( false ), isLocal( false ) {}
-	idLobbyBackend( lobbyBackendType_t lobbyType ) : type( lobbyType ), isHost( false ), isLocal( false ) {}
+	idLobbyBackend(const lobbyBackendType_t lobbyType ) : type( lobbyType ), isHost( false ), isLocal( false ) {}
 
 	virtual void			StartHosting( const idMatchParameters & p, float skillLevel, lobbyBackendType_t type ) = 0;
-	virtual void			StartFinding( const idMatchParameters & p, int numPartyUsers, float skillLevel ) = 0;
+	virtual void			StartFinding( const idMatchParameters & p, size_t numPartyUsers, float skillLevel ) = 0;
 	virtual void			JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo ) = 0;
 	virtual void			GetSearchResults( idList< lobbyConnectInfo_t > & searchResults ) = 0;
 	virtual lobbyConnectInfo_t GetConnectInfo()	= 0;
@@ -252,11 +260,11 @@ public:
 	virtual bool			IsSessionStarted() { return false; }
 	virtual void			FlushStats() {}
 
-	virtual void			BecomeHost( int numInvites ) {}						// Become the host of this lobby
+	virtual void			BecomeHost( size_t numInvites ) {}						// Become the host of this lobby
 	virtual	void			RegisterAddress( lobbyAddress_t & address ) {}	// Called after becoming a new host, to register old addresses to send invites to
 	virtual void			FinishBecomeHost() {}
 	
-	void					SetLobbyType( lobbyBackendType_t lobbyType ) { type = lobbyType; }
+	void					SetLobbyType(const lobbyBackendType_t lobbyType ) { type = lobbyType; }
 	[[nodiscard]] lobbyBackendType_t		GetLobbyType() const { return type; }
 	[[nodiscard]] const char *			GetLobbyTypeString() const { return ( GetLobbyType() == TYPE_PARTY ) ? "Party" : "Game"; }
 

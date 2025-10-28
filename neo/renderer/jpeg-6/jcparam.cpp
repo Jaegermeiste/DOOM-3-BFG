@@ -20,9 +20,9 @@
  */
 
 GLOBAL void
-jpeg_add_quant_table( j_compress_ptr cinfo, int which_tbl,
+jpeg_add_quant_table(const j_compress_ptr cinfo, const int which_tbl,
                       const unsigned int * basic_table,
-                      int scale_factor, boolean force_baseline ) {
+                      const int scale_factor, const boolean force_baseline ) {
 /* Define a quantization table equal to the basic_table times
  * a scale factor (given as a percentage).
  * If force_baseline is TRUE, the computed quantization table entries
@@ -62,8 +62,8 @@ jpeg_add_quant_table( j_compress_ptr cinfo, int which_tbl,
 
 
 GLOBAL void
-jpeg_set_linear_quality( j_compress_ptr cinfo, int scale_factor,
-                         boolean force_baseline ) {
+jpeg_set_linear_quality(const j_compress_ptr cinfo, const int scale_factor,
+                         const boolean force_baseline ) {
 /* Set or change the 'quality' (quantization) setting, using default tables
  * and a straight percentage-scaling quality scale.  In most cases it's better
  * to use jpeg_set_quality (below); this entry point is provided for
@@ -134,7 +134,7 @@ jpeg_quality_scaling( int quality ) {
 
 
 GLOBAL void
-jpeg_set_quality( j_compress_ptr cinfo, int quality, boolean force_baseline ) {
+jpeg_set_quality(const j_compress_ptr cinfo, int quality, const boolean force_baseline ) {
 /* Set or change the 'quality' (quantization) setting, using default tables.
  * This is the standard quality-adjusting entry point for typical user
  * interfaces; only those who want detailed control over quantization tables
@@ -153,7 +153,7 @@ jpeg_set_quality( j_compress_ptr cinfo, int quality, boolean force_baseline ) {
  */
 
 LOCAL void
-add_huff_table( j_compress_ptr cinfo,
+add_huff_table(const j_compress_ptr cinfo,
                 JHUFF_TBL ** htblptr, const UINT8 * bits, const UINT8 * val ) {
 /* Define a Huffman table */
     if ( *htblptr == NULL ) {
@@ -169,7 +169,7 @@ add_huff_table( j_compress_ptr cinfo,
 
 
 LOCAL void
-std_huff_tables( j_compress_ptr cinfo ) {
+std_huff_tables(const j_compress_ptr cinfo ) {
 /* Set up the standard Huffman tables (cf. JPEG standard section K.3) */
 /* IMPORTANT: these are only valid for 8-bit data precision! */
     static const UINT8 bits_dc_luminance[17] =
@@ -254,7 +254,7 @@ std_huff_tables( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_set_defaults( j_compress_ptr cinfo ) {
+jpeg_set_defaults(const j_compress_ptr cinfo ) {
     int i;
 
     /* Safety check to ensure start_compress not called yet. */
@@ -339,7 +339,7 @@ jpeg_set_defaults( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_default_colorspace( j_compress_ptr cinfo ) {
+jpeg_default_colorspace(const j_compress_ptr cinfo ) {
     switch ( cinfo->in_color_space ) {
         case JCS_GRAYSCALE:
             jpeg_set_colorspace( cinfo, JCS_GRAYSCALE );
@@ -370,7 +370,7 @@ jpeg_default_colorspace( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_set_colorspace( j_compress_ptr cinfo, J_COLOR_SPACE colorspace ) {
+jpeg_set_colorspace(const j_compress_ptr cinfo, const J_COLOR_SPACE colorspace ) {
     jpeg_component_info * compptr;
     int ci;
 
@@ -455,8 +455,8 @@ jpeg_set_colorspace( j_compress_ptr cinfo, J_COLOR_SPACE colorspace ) {
 #ifdef C_PROGRESSIVE_SUPPORTED
 
 LOCAL jpeg_scan_info *
-fill_a_scan( jpeg_scan_info * scanptr, int ci,
-             int Ss, int Se, int Ah, int Al ) {
+fill_a_scan( jpeg_scan_info * scanptr, const int ci,
+             const int Ss, const int Se, const int Ah, const int Al ) {
 /* Support routine: generate one scan for specified component */
     scanptr->comps_in_scan = 1;
     scanptr->component_index[0] = ci;
@@ -469,8 +469,8 @@ fill_a_scan( jpeg_scan_info * scanptr, int ci,
 }
 
 LOCAL jpeg_scan_info *
-fill_scans( jpeg_scan_info * scanptr, int ncomps,
-            int Ss, int Se, int Ah, int Al ) {
+fill_scans( jpeg_scan_info * scanptr, const int ncomps,
+            const int Ss, const int Se, const int Ah, const int Al ) {
 /* Support routine: generate one scan for each component */
     int ci;
 
@@ -487,7 +487,7 @@ fill_scans( jpeg_scan_info * scanptr, int ncomps,
 }
 
 LOCAL jpeg_scan_info *
-fill_dc_scans( jpeg_scan_info * scanptr, int ncomps, int Ah, int Al ) {
+fill_dc_scans( jpeg_scan_info * scanptr, const int ncomps, const int Ah, const int Al ) {
 /* Support routine: generate interleaved DC scan if possible, else N scans */
     int ci;
 
@@ -515,7 +515,7 @@ fill_dc_scans( jpeg_scan_info * scanptr, int ncomps, int Ah, int Al ) {
  */
 
 GLOBAL void
-jpeg_simple_progression( j_compress_ptr cinfo ) {
+jpeg_simple_progression(const j_compress_ptr cinfo ) {
     int ncomps = cinfo->num_components;
     int nscans;
     jpeg_scan_info * scanptr;

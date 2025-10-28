@@ -43,8 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 typedef struct surfaceEdge_s {
-	size_t					verts[2];	// edge vertices always with ( verts[0] < verts[1] )
-	int64					tris[2];	// edge triangles
+	index_t					verts[2];	// edge vertices always with ( verts[0] < verts[1] )
+	index_t					tris[2];	// edge triangles
 } surfaceEdge_t;
 
 
@@ -52,7 +52,7 @@ class idSurface {
 public:
 							idSurface() noexcept;
 							explicit idSurface( const idSurface &surf );
-							explicit idSurface( const idDrawVert *verts, const size_t numVerts, const size_t*indexes, const size_t numIndexes );
+							explicit idSurface( const idDrawVert *verts, const size_t numVerts, const index_t* indexes, const size_t numIndexes );
 							~idSurface();
 
 	
@@ -61,12 +61,12 @@ public:
 	idDrawVert &			operator[]( const Ordinal auto index );
 	idSurface &				operator+=( const idSurface &surf );
 
-							[[nodiscard]] size_t					GetNumIndexes() const { return indexes.Num(); }
-							[[nodiscard]] const size_t*			GetIndexes() const { return indexes.Ptr(); }
-							[[nodiscard]] size_t					GetNumVertices() const { return verts.Num(); }
-							[[nodiscard]] const idDrawVert *		GetVertices() const { return verts.Ptr(); }
-							[[nodiscard]] const int64*			GetEdgeIndexes() const { return edgeIndexes.Ptr(); }
-							[[nodiscard]] const surfaceEdge_t *	GetEdges() const { return edges.Ptr(); }
+	[[nodiscard]] size_t				GetNumIndexes() const { return indexes.Num(); }
+	[[nodiscard]] const index_t*		GetIndexes() const { return indexes.Ptr(); }
+	[[nodiscard]] size_t				GetNumVertices() const { return verts.Num(); }
+	[[nodiscard]] const idDrawVert *	GetVertices() const { return verts.Ptr(); }
+	[[nodiscard]] const index_t*		GetEdgeIndexes() const { return edgeIndexes.Ptr(); }
+	[[nodiscard]] const surfaceEdge_t *	GetEdges() const { return edges.Ptr(); }
 
 	void					Clear();
 	void					TranslateSelf( const idVec3 &translation );
@@ -75,35 +75,35 @@ public:
 							// splits the surface into a front and back surface, the surface itself stays unchanged
 							// frontOnPlaneEdges and backOnPlaneEdges optionally store the indexes to the edges that lay on the split plane
 							// returns a SIDE_?
-	int						Split( const idPlane &plane, const float epsilon, idSurface **front, idSurface **back, size_t *frontOnPlaneEdges = nullptr, size_t *backOnPlaneEdges = nullptr) const;
+	int						Split( const idPlane &plane, const float epsilon, idSurface **front, idSurface **back, index_t *frontOnPlaneEdges = nullptr, index_t *backOnPlaneEdges = nullptr) const;
 							// cuts off the part at the back side of the plane, returns true if some part was at the front
 							// if there is nothing at the front the number of points is set to zero
 	bool					ClipInPlace( const idPlane &plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
 
 							// returns true if each triangle can be reached from any other triangle by a traversal
-							[[nodiscard]] bool					IsConnected() const;
+	[[nodiscard]] bool		IsConnected() const;
 							// returns true if the surface is closed
-							[[nodiscard]] bool					IsClosed() const;
+	[[nodiscard]] bool		IsClosed() const;
 							// returns true if the surface is a convex hull
-							[[nodiscard]] bool					IsPolytope( const float epsilon = 0.1f ) const;
+	[[nodiscard]] bool		IsPolytope( const float epsilon = 0.1f ) const;
 
-							[[nodiscard]] float					PlaneDistance( const idPlane &plane ) const;
-							[[nodiscard]] sides_e					PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+	[[nodiscard]] float		PlaneDistance( const idPlane &plane ) const;
+	[[nodiscard]] sides_e	PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
 
 							// returns true if the line intersects one of the surface triangles
-							[[nodiscard]] bool					LineIntersection( const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
+	[[nodiscard]] bool		LineIntersection( const idVec3 &start, const idVec3 &end, bool backFaceCull = false ) const;
 							// intersection point is start + dir * scale
 	bool					RayIntersection( const idVec3 &start, const idVec3 &dir, float &scale, bool backFaceCull = false ) const;
 
 protected:
 	idList<idDrawVert, TAG_IDLIB_LIST_SURFACE>		verts;			// vertices
-	idList<size_t, TAG_IDLIB_LIST_SURFACE>			indexes;		// 3 references to vertices for each triangle
+	idList<index_t, TAG_IDLIB_LIST_SURFACE>			indexes;		// 3 references to vertices for each triangle
 	idList<surfaceEdge_t, TAG_IDLIB_LIST_SURFACE>	edges;			// edges
-	idList<int64, TAG_IDLIB_LIST_SURFACE>			edgeIndexes;	// 3 references to edges for each triangle, may be negative for reversed edge
+	idList<index_t, TAG_IDLIB_LIST_SURFACE>			edgeIndexes;	// 3 references to edges for each triangle, may be negative for reversed edge
 
 protected:
 	void					GenerateEdgeIndexes();
-							[[nodiscard]] int64					FindEdge( size_t v1, size_t v2 ) const;
+	[[nodiscard]] index_t	FindEdge( const Ordinal auto v1, const Ordinal auto v2 ) const;
 };
 
 /*
@@ -118,10 +118,10 @@ ID_INLINE idSurface::idSurface() noexcept = default;
 idSurface::idSurface
 =================
 */
-ID_INLINE idSurface::idSurface( const idDrawVert *verts, const size_t numVerts, const size_t*indexes, const size_t numIndexes ) {
+ID_INLINE idSurface::idSurface( const idDrawVert *verts, const size_t numVerts, const index_t* indexes, const size_t numIndexes ) {
 	assert( verts != nullptr && indexes != NULL && numVerts > 0 && numIndexes > 0 );
 	this->verts.SetNum( numVerts );
-	memcpy( this->verts.Ptr(), verts, numVerts * sizeof( verts[0] ) );
+	memcpy( reinterpret_cast<void*>(this->verts.Ptr()), verts, numVerts * sizeof( verts[0] ) );
 	this->indexes.SetNum( numIndexes );
 	memcpy( this->indexes.Ptr(), indexes, numIndexes * sizeof( indexes[0] ) );
 	GenerateEdgeIndexes();
@@ -152,7 +152,7 @@ idSurface::operator[]
 =================
 */
 
-ID_INLINE const idDrawVert &idSurface::operator[]( const Ordinal auto index ) const {
+ID_INLINE const idDrawVert &idSurface::operator[](const Ordinal auto index ) const {
 	ORDINAL_CHECK(index, verts.Num());
 	return verts[ index ];
 };
@@ -163,7 +163,7 @@ idSurface::operator[]
 =================
 */
 
-ID_INLINE idDrawVert &idSurface::operator[]( const Ordinal auto index ) {
+ID_INLINE idDrawVert &idSurface::operator[](const Ordinal auto index ) {
 	ORDINAL_CHECK(index, verts.Num());
 	return verts[ index ];
 };
@@ -174,14 +174,18 @@ idSurface::operator+=
 =================
 */
 ID_INLINE idSurface &idSurface::operator+=( const idSurface &surf ) {
-	const size_t n = verts.Num();
-	const size_t m = indexes.Num();
+	const auto n = verts.Num();
+	const auto m = indexes.Num();
+
+	const index_t n_idx = numeric_cast<index_t>(n);
+
 	verts.Append( surf.verts );			// merge verts where possible ?
 	indexes.Append( surf.indexes );
 	for (size_t i = m; i < indexes.Num(); i++ ) {
-		indexes[i] += n;
+		indexes[i] += n_idx;
 	}
 	GenerateEdgeIndexes();
+
 	return *this;
 }
 

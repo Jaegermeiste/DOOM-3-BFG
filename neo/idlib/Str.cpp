@@ -26,9 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <utility>
-#include <charconv>
-
 #include "precompiled.h"
 #pragma hdrstop
 
@@ -183,11 +180,11 @@ idStr::FindChar
 returns -1 if not found otherwise the index of the char
 ============
 */
-int64 idStr::FindChar(const char* str, const char c) {
+index_t idStr::FindChar(const char* str, const char c) {
 	return FindChar(str, c, 0, -1);
 }
 
-int64 idStr::FindChar(const char* str, const char c, const Ordinal auto start, const Ordinal auto end) {
+index_t idStr::FindChar(const char* str, const char c, const Ordinal auto start, const Ordinal auto end) {
 	size_t calculated_end = 0;
 
 	if (end < 0 ) 
@@ -196,13 +193,13 @@ int64 idStr::FindChar(const char* str, const char c, const Ordinal auto start, c
 	}
 	else 
 	{
-		calculated_end = idMath::integer_cast<size_t>(end);
+		calculated_end = numeric_cast<size_t>(end);
 	}
 
-	for ( size_t i = idMath::integer_cast<size_t>(start); std::cmp_less_equal(i, calculated_end); ++i ) {
+	for ( size_t i = numeric_cast<size_t>(start); std::cmp_less_equal(i, calculated_end); ++i ) {
 		if ( str[i] == c ) 
 		{
-			return idMath::integer_cast<int64>(i);
+			return numeric_cast<index_t>(i);
 		}
 	}
 	return -1;
@@ -215,11 +212,11 @@ idStr::FindText
 returns -1 if not found otherwise the index of the text
 ============
 */
-int64 idStr::FindText(const char* str, const char* text, const bool casesensitive) {
+index_t idStr::FindText(const char* str, const char* text, const bool casesensitive) {
 	return FindText(str, text,casesensitive, 0, -1);
 }
 
-int64 idStr::FindText(const char* str, const char* text, const bool casesensitive, const Ordinal auto start, const Ordinal auto end) {
+index_t idStr::FindText(const char* str, const char* text, const bool casesensitive, const Ordinal auto start, const Ordinal auto end) {
 	size_t j = 0;
 	size_t calculated_end = 0;
 
@@ -229,11 +226,11 @@ int64 idStr::FindText(const char* str, const char* text, const bool casesensitiv
 	}
 	else 
 	{
-		calculated_end = idMath::integer_cast<size_t>(end);
+		calculated_end = numeric_cast<size_t>(end);
 	}
 
 	const size_t l = calculated_end - strlen(text);
-	for (size_t i = idMath::integer_cast<size_t>(start); i <= l; ++i ) {
+	for (size_t i = numeric_cast<size_t>(start); i <= l; ++i ) {
 		if ( casesensitive ) {
 			for ( j = 0; text[j]; j++ ) {
 				if ( str[i+j] != text[j] ) {
@@ -248,7 +245,7 @@ int64 idStr::FindText(const char* str, const char* text, const bool casesensitiv
 			}
 		}
 		if ( !text[j] ) {
-			return idMath::integer_cast<int64>(i);
+			return numeric_cast<index_t>(i);
 		}
 	}
 	return -1;
@@ -269,13 +266,13 @@ Several metacharacter may be used in the filter.
 ============
 */
 bool idStr::Filter( const char *filter, const char *name, const bool casesensitive ) {
-	idStr buf;
+	idStr buf = {};
 
 	while(*filter) {
 		if (*filter == '*') {
 			filter++;
 			buf.Empty();
-			for (int i = 0; *filter; i++) {
+			for (size_t i = 0; *filter; i++) {
 				if ( *filter == '*' || *filter == '?' || (*filter == '[' && *(filter+1) != '[') ) {
 					break;
 				}
@@ -286,7 +283,7 @@ bool idStr::Filter( const char *filter, const char *name, const bool casesensiti
 				filter++;
 			}
 			if ( buf.Length() ) {
-				const int64 index = idStr(name).Find(buf.c_str(), casesensitive);
+				const index_t index = idStr(name).Find(buf.c_str(), casesensitive);
 				if ( index == -1 ) {
 					return false;
 				}
@@ -307,7 +304,7 @@ bool idStr::Filter( const char *filter, const char *name, const bool casesensiti
 			}
 			else {
 				filter++;
-				int found = false;
+				bool found = false;
 				while(*filter && !found) {
 					if (*filter == ']' && *(filter+1) != ']') {
 						break;
@@ -443,7 +440,7 @@ const char *idStr::FloatArrayToString( const float *array, const size_t length, 
 	index = (index + 1) & 3;
 
 	idStr::snPrintf( format, sizeof( format ), "%%.%df", precision );
-	int64 n = idStr::snPrintf(s, sizeof(str[0]), format, array[0]);
+	index_t n = idStr::snPrintf(s, sizeof(str[0]), format, array[0]);
 	if ( precision > 0 ) {
 		while( n > 0 && s[n-1] == '0' )
 		{
@@ -477,7 +474,7 @@ idStr::CStyleQuote
 ========================
 */
 const char *idStr::CStyleQuote( const char *str ) {
-	static int index = 0;
+	static index_t index = 0;
 	static char buffers[4][16384] = {};	// in case called by nested functions
 	size_t i = 0;
 
@@ -561,10 +558,10 @@ idStr::Last
 returns -1 if not found otherwise the index of the char
 ============
 */
-int64 idStr::Last( const char c ) const {
+index_t idStr::Last( const char c ) const {
 	for(size_t i = Length(); i > 0; i-- ) {
 		if ( data[ i - 1 ] == c ) {
-			return idMath::integer_cast<int64>(i) - 1;
+			return numeric_cast<index_t>(i) - 1;
 		}
 	}
 
@@ -579,7 +576,7 @@ perform a threadsafe sprintf to the string
 ========================
 */
 void idStr::Format( const char *fmt, ... ) {
-	va_list argptr;
+	va_list argptr = {};
 	char text[MAX_PRINT_MSG] = {};
 
 	va_start( argptr, fmt );
@@ -587,7 +584,7 @@ void idStr::Format( const char *fmt, ... ) {
 	va_end( argptr );
 	text[ sizeof( text ) - 1 ] = '\0';
 
-	if ( idMath::integer_cast<size_t>(len) >= sizeof( text ) - 1 ) {
+	if ( numeric_cast<size_t>(len) >= sizeof( text ) - 1 ) {
 		idLib::common->FatalError( "Tried to set a large buffer using %s", fmt );
 	}
 	*this = text;
@@ -725,7 +722,7 @@ idStr::Replace
 bool  idStr::ReplaceChar( const char old, const char nw ) const
 {
 	bool replaced = false;
-	for ( int i = 0; i < Length(); i++ ) {
+	for ( size_t i = 0; i < Length(); i++ ) {
 		if ( data[i] == old ) {
 			data[i] = nw;
 			replaced = true;
@@ -781,11 +778,11 @@ bool idStr::Replace( const char *old, const char *nw ) {
 idStr::Mid
 ============
 */
-const char *idStr::Mid(const size_t start, size_t len, idStr &result ) const {
+const char *idStr::Mid( const Ordinal auto start, size_t len, idStr &result ) const {
 	result.Empty();
 
 	const size_t i = Length();
-	if ( i == 0 || len <= 0 || start >= i ) {
+	if ( i == 0 || len <= 0 || std::cmp_greater_equal(start, i) ) {
 		return nullptr;
 	}
 
@@ -802,11 +799,11 @@ const char *idStr::Mid(const size_t start, size_t len, idStr &result ) const {
 idStr::Mid
 ============
 */
-idStr idStr::Mid(const size_t start, size_t len ) const {
-	idStr result;
+idStr idStr::Mid( const Ordinal auto start, size_t len ) const {
+	idStr result = {};
 
 	const size_t i = Length();
-	if ( i == 0 || len <= 0 || start >= i ) {
+	if ( i == 0 || len <= 0 || std::cmp_greater_equal(start, i) ) {
 		return result;
 	}
 
@@ -897,7 +894,7 @@ idStr::BackSlashesToSlashes
 ============
 */
 idStr &idStr::BackSlashesToSlashes() {
-	for ( int i = 0; std::cmp_less(i, len); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, len); i++ ) {
 		if ( data[ i ] == '\\' ) {
 			data[ i ] = '/';
 		}
@@ -911,7 +908,7 @@ idStr::SlashesToBackSlashes
 ============
 */
 idStr &idStr::SlashesToBackSlashes() {
-	for ( int i = 0; std::cmp_less(i, len); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, len); i++ ) {
 		if ( data[ i ] == '/' ) {
 			data[ i ] = '\\';
 		}
@@ -955,7 +952,7 @@ idStr::StripAbsoluteFileExtension
 ============
 */
 idStr &idStr::StripAbsoluteFileExtension() {
-	for ( int i = 0; std::cmp_less(i, len); i++ ) {
+	for ( size_t i = 0; std::cmp_less(i, len); i++ ) {
 		if ( data[i] == '.' ) {
 			data[i] = '\0';
 			len = i;
@@ -1177,7 +1174,7 @@ T idStr::AtoF(const char* str) noexcept {
 
 	// Check for special tokens after the sign
 	const char* t = (*p == '+' || *p == '-') ? p + 1 : p;
-	auto ci_eq = [](char a, char b) {
+	auto ci_eq = [](const char a, const char b) {
 		return std::tolower(static_cast<unsigned char>(a)) ==
 			std::tolower(static_cast<unsigned char>(b));
 		};
@@ -1292,8 +1289,8 @@ T idStr::AtoI(const char* str) noexcept {
 		{
 			return T(0);
 		}
-		constexpr unsigned long long umax =
-			static_cast<unsigned long long>((std::numeric_limits<T>::max)());
+		const unsigned long long umax =
+			numeric_cast<unsigned long long>((std::numeric_limits<T>::max)());
 		return (u > umax) ? (std::numeric_limits<T>::max)() : static_cast<T>(u);
 	}
 	else {
@@ -1326,6 +1323,107 @@ T idStr::AtoI(const char* str) noexcept {
 
 /*
 ============
+idStr::WideToUtf8
+
+Convert a wide string (UTF-16) to UTF-8 in-place, always null-terminates if capacity > 0. Returns the number of bytes written (not counting the null terminator).
+============
+*/
+size_t idStr::WideToUtf8( const wchar_t* src, char* out, const size_t capacity ) noexcept {
+	if (!out || capacity == 0)
+	{
+		return 0;
+	}
+
+	out[0] = '\0';
+
+	if (!src)
+	{
+		return 0;
+	}
+
+#if defined (ID_WIN64) || defined(ID_WIN32)
+	// --- Windows path ---
+	const int needed = WideCharToMultiByte(CP_UTF8, 0, src, -1, nullptr, 0, nullptr, nullptr);
+	if (needed <= 0)
+	{
+		return 0;
+	}
+
+	// If it fits entirely:
+	if (numeric_cast<size_t>(needed) <= capacity) {
+		const int written = WideCharToMultiByte(CP_UTF8, 0, src, -1, out, numeric_cast<int>(capacity), nullptr, nullptr);
+
+		return (written > 0) ? numeric_cast<size_t>(written - 1) : 0; // exclude null terminator
+	}
+
+	// Otherwise truncate safely
+	const int written = WideCharToMultiByte(CP_UTF8, 0, src, -1, out, numeric_cast<int>(capacity), nullptr, nullptr);
+
+	if (written <= 0) {
+		out[capacity - 1] = '\0';
+		return 0;
+	}
+
+	out[capacity - 1] = '\0';
+
+	return capacity - 1;
+
+#else
+	// --- POSIX / macOS / Linux path ---
+	try {
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv = {};
+		std::string tmp = conv.to_bytes(src);
+		size_t n = tmp.size();
+		if (n >= capacity)
+		{
+			n = capacity - 1; // truncate
+		}
+		std::memcpy(out, tmp.data(), n);
+		out[n] = '\0';
+		return n;
+	}
+	catch (...) {
+		out[0] = '\0';
+		return 0;
+	}
+#endif
+}
+
+/*
+============
+idStr::WideCopy
+
+Copy a wide string (UTF-16) to UTF-16
+============
+*/
+size_t idStr::WideCopy( const wchar_t* src, wchar_t* dst, const size_t capacity ) noexcept {
+	if (!dst || capacity == 0)
+	{
+		return 0;
+	}
+	dst[0] = L'\0';
+	if (!src)
+	{
+		return 0;
+	}
+#if defined(_MSC_VER)
+	// wcsncpy_s always null-terminates up to cap
+	wcsncpy_s(dst, capacity, src, _TRUNCATE);
+	return wcsnlen(dst, capacity);
+#else
+	size_t i = 0;
+	for (; i + 1 < capacity && src[i] != L'\0'; ++i)
+	{
+		dst[i] = src[i];
+	}
+	dst[i] = L'\0';
+	return i;
+#endif
+}
+
+
+/*
+============
 idStr::IsNumeric
 
 Checks a string to see if it contains only numerical values.
@@ -1337,7 +1435,7 @@ bool idStr::IsNumeric( const char *s ) {
 	}
 
 	bool dot = false;
-	for ( int i = 0; s[i]; i++ ) {
+	for ( size_t i = 0; s[i]; i++ ) {
 		if ( !isdigit( static_cast<const unsigned char>(s[i]) ) ) {
 			if ( ( s[ i ] == '.' ) && !dot ) {
 				dot = true;
@@ -1400,7 +1498,7 @@ idStr::Cmp
 ================
 */
 int idStr::Cmp( const char *s1, const char *s2 ) {
-	int c1;
+	int c1 = 0;
 
 	do {
 		c1 = *s1++;
@@ -1408,7 +1506,7 @@ int idStr::Cmp( const char *s1, const char *s2 ) {
 
 		const int d = c1 - c2;
 		if ( d ) {
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1435,7 +1533,7 @@ int idStr::Cmpn( const char *s1, const char *s2, size_t n ) {
 
 		const int d = c1 - c2;
 		if ( d ) {
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1468,7 +1566,7 @@ int idStr::Icmp( const char *s1, const char *s2 ) {
 					break;
 				}
 			}
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1507,7 +1605,7 @@ int idStr::Icmpn( const char *s1, const char *s2, size_t n ) {
 					break;
 				}
 			}
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1546,7 +1644,7 @@ int idStr::IcmpNoColor( const char *s1, const char *s2 ) {
 					break;
 				}
 			}
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1615,7 +1713,7 @@ int idStr::IcmpPath( const char *s1, const char *s2 ) {
 				return 1;
 			}
 			// same folder depth so use the regular compare
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1690,7 +1788,7 @@ int idStr::IcmpnPath( const char *s1, const char *s2, size_t n ) {
 				return 1;
 			}
 			// same folder depth so use the regular compare
-			return ( INT32_SIGNBITNOTSET( d ) << 1 ) - 1;
+			return ( INTEGER_SIGN_BIT_IS_NOT_SET( d ) << 1 ) - 1;
 		}
 	} while( c1 );
 
@@ -1753,7 +1851,7 @@ bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & 
 				// 4 byte encoding
 				return 4;
 			} 
-			// this isnt' a valid UTF-8 precursor character
+			// this isn't a valid UTF-8 precursor character
 			return 0;
 		}
 		static bool RemainingCharsAreUTF8FollowingBytes(const uint8 * s, const size_t curChar, const size_t maxLen, const size_t num) {
@@ -1779,8 +1877,8 @@ bool idStr::IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & 
 		utf8Type = UTF8_ENCODED_BOM;
 	}
 
-	for ( int i = 0; s[ i ] != '\0' && std::cmp_less(i, maxLen); i++ ) {
-		const int numBytes = local_t::GetNumEncodedUTF8Bytes( s[ i ] );
+	for ( size_t i = 0; s[ i ] != '\0' && std::cmp_less(i, maxLen); i++ ) {
+		const size_t numBytes = local_t::GetNumEncodedUTF8Bytes( s[ i ] );
 		if ( numBytes == 1 ) {
 			continue;	// just low ASCII
 		} else if ( numBytes == 2 ) {
@@ -1966,19 +2064,19 @@ char *idStr::RemoveColors( char *string ) {
 idStr::snPrintf
 ================
 */
-int64 idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
+index_t idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
 	va_list argptr = nullptr;
 	char buffer[32000] = {};	// big, but small enough to fit in PPC stack
 
 	va_start( argptr, fmt );
-	int64 len = vsprintf(buffer, fmt, argptr);
+	index_t len = vsprintf(buffer, fmt, argptr);
 	va_end( argptr );
-	if ( idMath::integer_cast<size_t>(len) >= sizeof( buffer ) ) {
+	if ( numeric_cast<size_t>(len) >= sizeof( buffer ) ) {
 		idLib::common->Error( "idStr::snPrintf: overflowed buffer" );
 	}
-	if ( len >= idMath::integer_cast<int64>(size) ) {
+	if (std::cmp_greater_equal(len, size)) {
 		idLib::common->Warning( "idStr::snPrintf: overflow of %i in %i\n", len, size );
-		len = idMath::integer_cast<int64>(size);
+		len = numeric_cast<index_t>(size);
 	}
 	idStr::Copynz( dest, buffer, size );
 	return len;
@@ -2066,7 +2164,7 @@ NOTE: not thread safe
 */
 char *va( const char *fmt, ... ) {
 	va_list argptr = nullptr;
-	static int index = 0;
+	static index_t index = 0;
 	static char string[4][16384];	// in case called by nested functions
 
 	char* buf = string[index];

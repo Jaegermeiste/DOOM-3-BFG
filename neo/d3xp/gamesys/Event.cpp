@@ -58,7 +58,7 @@ static char eventErrorMsg[ 128 ];
 idEventDef::idEventDef
 ================
 */
-idEventDef::idEventDef( const char *command, const char *formatspec, char returnType ) {
+idEventDef::idEventDef( const char *command, const char *formatspec, const char returnType ) {
 	idEventDef	*ev;
 	int			i;
 	unsigned int	bits;
@@ -181,7 +181,7 @@ size_t	idEventDef::NumEventCommands() {
 idEventDef::GetEventCommand
 ================
 */
-const idEventDef *idEventDef::GetEventCommand( size_t eventnum ) {
+const idEventDef *idEventDef::GetEventCommand(const size_t eventnum ) {
 	return eventDefList[ eventnum ];
 }
 
@@ -237,7 +237,7 @@ idEvent::~idEvent() {
 idEvent::Alloc
 ================
 */
-idEvent *idEvent::Alloc( const idEventDef *evdef, size_t numargs, va_list args ) {
+idEvent *idEvent::Alloc( const idEventDef *evdef, const size_t numargs, va_list args ) {
 	idEvent		*ev = nullptr;
 	size_t		size = 0;
 	const char	*format;
@@ -334,7 +334,7 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, size_t numargs, va_list args )
 idEvent::CopyArgs
 ================
 */
-void idEvent::CopyArgs( const idEventDef *evdef, size_t numargs, va_list args, address_t data[ D_EVENT_MAXARGS ] ) {
+void idEvent::CopyArgs( const idEventDef *evdef, const size_t numargs, va_list args, address_t data[ D_EVENT_MAXARGS ] ) {
 	size_t		i = 0;
 	const char	*format;
 	idEventArg	*arg = nullptr;

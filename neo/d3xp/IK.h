@@ -89,8 +89,8 @@ public:
 
 	void					EnableAll();
 	void					DisableAll();
-	void					EnableLeg( int num );
-	void					DisableLeg( int num );
+	void					EnableLeg( size_t num );
+	void					DisableLeg( size_t num );
 
 private:
 	static constexpr int		MAX_LEGS		= 8;

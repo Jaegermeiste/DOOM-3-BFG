@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __M_MISC__
 #define __M_MISC__
 
+#pragma once
 
 #include "doomtype.h"
 //
@@ -38,14 +39,14 @@ boolean
 M_WriteFile
 ( char const*	name,
   void*		source,
-  int		length );
+  size_t		length );
 
-int
+size_t
 	M_ReadFile
 	( char const*	name,
 	byte**	buffer );
 
-qboolean M_WriteSaveGame( void* source, int length );
+qboolean M_WriteSaveGame( void* source, size_t length );
 int M_ReadSaveGame ( byte** buffer );
 
 void M_ScreenShot (void);

@@ -28,16 +28,21 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __VERTEXCACHE2_H__
 #define __VERTEXCACHE2_H__
 
-constexpr int VERTCACHE_INDEX_MEMORY_PER_FRAME = 31 * 1024 * 1024;
-constexpr int VERTCACHE_VERTEX_MEMORY_PER_FRAME = 31 * 1024 * 1024;
-constexpr int VERTCACHE_JOINT_MEMORY_PER_FRAME = 256 * 1024;
+#pragma once
+#include <utility>
 
-constexpr int VERTCACHE_NUM_FRAMES = 2;
+#include "BufferObject.h"
+
+constexpr size_t VERTCACHE_INDEX_MEMORY_PER_FRAME  = 31ULL  * 1024ULL * 1024ULL;
+constexpr size_t VERTCACHE_VERTEX_MEMORY_PER_FRAME = 31ULL  * 1024ULL * 1024ULL;
+constexpr size_t VERTCACHE_JOINT_MEMORY_PER_FRAME  = 256ULL * 1024ULL;
+
+constexpr size_t VERTCACHE_NUM_FRAMES = 2;
 
 // there are a lot more static indexes than vertexes, because interactions are just new
 // index lists that reference existing vertexes
-constexpr int STATIC_INDEX_MEMORY = 31 * 1024 * 1024;
-constexpr int STATIC_VERTEX_MEMORY = 31 * 1024 * 1024;	// make sure it fits in VERTCACHE_OFFSET_MASK!
+constexpr size_t STATIC_INDEX_MEMORY  = 31ULL * 1024ULL * 1024ULL;
+constexpr size_t STATIC_VERTEX_MEMORY = 31ULL * 1024ULL * 1024ULL;	// make sure it fits in VERTCACHE_OFFSET_MASK!
 
 // vertCacheHandle_t packs size, offset, and frame number into 64 bits
 typedef uint64 vertCacheHandle_t;
@@ -53,11 +58,11 @@ constexpr int VERTEX_CACHE_ALIGN		= 32;
 constexpr int INDEX_CACHE_ALIGN			= 16;
 constexpr int JOINT_CACHE_ALIGN			= 16;
 
-enum cacheType_t {
+typedef enum cacheType_e : uint8 {
 	CACHE_VERTEX,
 	CACHE_INDEX,
 	CACHE_JOINT
-};
+} cacheType_t;
 
 struct geoBufferSet_t {
 	idIndexBuffer			indexBuffer;
@@ -69,7 +74,7 @@ struct geoBufferSet_t {
 	idSysInterlockedInteger	indexMemUsed;
 	idSysInterlockedInteger	vertexMemUsed;
 	idSysInterlockedInteger	jointMemUsed;
-	int						allocations;	// number of index and vertex allocations combined
+	size_t					allocations;	// number of index and vertex allocations combined
 };
 
 class idVertexCache {
@@ -82,31 +87,31 @@ public:
 	void			FreeStaticData();
 
 	// this data is only valid for one frame of rendering
-	vertCacheHandle_t	AllocVertex( const void * data, int bytes ) {
+	vertCacheHandle_t	AllocVertex( const void * data, const int bytes ) {
 		return ActuallyAlloc( frameData[listNum], data, bytes, CACHE_VERTEX );
 	}
-	vertCacheHandle_t	AllocIndex( const void * data, int bytes ) {
+	vertCacheHandle_t	AllocIndex( const void * data, const int bytes ) {
 		return ActuallyAlloc( frameData[listNum], data, bytes, CACHE_INDEX );
 	}
-	vertCacheHandle_t	AllocJoint( const void * data, int bytes ) {
+	vertCacheHandle_t	AllocJoint( const void * data, const int bytes ) {
 		return ActuallyAlloc( frameData[listNum], data, bytes, CACHE_JOINT );
 	}
 
 	// this data is valid until the next map load
-	vertCacheHandle_t	AllocStaticVertex( const void * data, int bytes ) {
-		if ( staticData.vertexMemUsed.GetValue() + bytes > STATIC_VERTEX_MEMORY ) {
+	vertCacheHandle_t	AllocStaticVertex( const void * data, const int bytes ) {
+		if (std::cmp_greater(staticData.vertexMemUsed.GetValue() + bytes, STATIC_VERTEX_MEMORY)) {
 			idLib::FatalError( "AllocStaticVertex failed, increase STATIC_VERTEX_MEMORY" );
 		}
 		return ActuallyAlloc( staticData, data, bytes, CACHE_VERTEX );
 	}
-	vertCacheHandle_t	AllocStaticIndex( const void * data, int bytes ) {
-		if ( staticData.indexMemUsed.GetValue() + bytes > STATIC_INDEX_MEMORY ) {
+	vertCacheHandle_t	AllocStaticIndex( const void * data, const int bytes ) {
+		if (std::cmp_greater(staticData.indexMemUsed.GetValue() + bytes, STATIC_INDEX_MEMORY)) {
 			idLib::FatalError( "AllocStaticIndex failed, increase STATIC_INDEX_MEMORY" );
 		}
 		return ActuallyAlloc( staticData, data, bytes, CACHE_INDEX );
 	}
 
-	[[nodiscard]] byte *			MappedVertexBuffer( vertCacheHandle_t handle ) const
+	[[nodiscard]] byte *			MappedVertexBuffer(const vertCacheHandle_t handle ) const
 	{
 		release_assert( !CacheIsStatic( handle ) );
 		const uint64 offset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
@@ -115,7 +120,7 @@ public:
 		return frameData[ listNum ].mappedVertexBase + offset;
 	}
 
-	[[nodiscard]] byte *			MappedIndexBuffer( vertCacheHandle_t handle ) const
+	[[nodiscard]] byte *			MappedIndexBuffer(const vertCacheHandle_t handle ) const
 	{
 		release_assert( !CacheIsStatic( handle ) );
 		const uint64 offset = static_cast<int>(handle >> VERTCACHE_OFFSET_SHIFT) & VERTCACHE_OFFSET_MASK;
@@ -129,11 +134,11 @@ public:
 	// vertCacheHandle_t that are already validated.
 	[[nodiscard]] bool			CacheIsCurrent( const vertCacheHandle_t handle ) const
 	{
-		const int isStatic = handle & VERTCACHE_STATIC;
+		const bool isStatic = handle & VERTCACHE_STATIC;
 		if ( isStatic ) {
 			return true;
 		}
-		const uint64 frameNum = static_cast<int>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
+		const uint64 frameNum = static_cast<uint64>(handle >> VERTCACHE_FRAME_SHIFT) & VERTCACHE_FRAME_MASK;
 		if ( frameNum != ( currentFrame & VERTCACHE_FRAME_MASK ) ) {
 			return false;
 		}
@@ -152,25 +157,25 @@ public:
 	void			BeginBackEnd();
 
 public:
-	int				currentFrame;	// for determining the active buffers
-	int				listNum;		// currentFrame % VERTCACHE_NUM_FRAMES
-	int				drawListNum;	// (currentFrame-1) % VERTCACHE_NUM_FRAMES
+	uint64			currentFrame;	// for determining the active buffers
+	uint64			listNum;		// currentFrame % VERTCACHE_NUM_FRAMES
+	uint64			drawListNum;	// (currentFrame-1) % VERTCACHE_NUM_FRAMES
 
 	geoBufferSet_t	staticData;
 	geoBufferSet_t	frameData[VERTCACHE_NUM_FRAMES];
 
 	// High water marks for the per-frame buffers
-	int				mostUsedVertex;
-	int				mostUsedIndex;
-	int				mostUsedJoint;
+	index_t			mostUsedVertex;
+	index_t			mostUsedIndex;
+	index_t			mostUsedJoint;
 
 	// Try to make room for <bytes> bytes
-	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t & vcs, const void * data, int bytes, cacheType_t type ) const;
+	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t & vcs, const void * data, size_t bytes, cacheType_t type ) const;
 };
 
 // platform specific code to memcpy into vertex buffers efficiently
 // 16 byte alignment is guaranteed
-void CopyBuffer( byte * dst, const byte * src, int numBytes );
+void CopyBuffer( byte * dst, const byte * src, size_t numBytes );
 
 extern	idVertexCache	vertexCache;
 

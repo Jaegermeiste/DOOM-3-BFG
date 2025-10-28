@@ -43,12 +43,12 @@ class idSIMD_SSE : public idSIMD_Generic {
 public:
 	[[nodiscard]] const char * VPCALL GetName() const override;
 
-	void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t*index, const size_t numJoints ) override;
-	void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const size_t*index, const size_t numJoints ) override;
+	void VPCALL BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const jointHandle_t* index, const size_t numJoints ) override;
+	void VPCALL BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const jointHandle_t* index, const size_t numJoints ) override;
 	void VPCALL ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const size_t numJoints ) override;
 	void VPCALL ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const size_t numJoints ) override;
-	void VPCALL TransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) override;
-	void VPCALL UntransformJoints( idJointMat *jointMats, const size_t *parents, const size_t firstJoint, const size_t lastJoint ) override;
+	void VPCALL TransformJoints( idJointMat *jointMats, const jointHandle_t*parents, const jointHandle_t firstJoint, const jointHandle_t lastJoint ) override;
+	void VPCALL UntransformJoints( idJointMat *jointMats, const jointHandle_t*parents, const jointHandle_t firstJoint, const jointHandle_t lastJoint ) override;
 };
 
 #endif /* !__MATH_SIMD_SSE_H__ */

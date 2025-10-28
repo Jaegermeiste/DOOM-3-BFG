@@ -72,9 +72,9 @@ public:
 						// should the force field apply a force, velocity or impulse
 	void				SetApplyType( const forceFieldApplyType type ) { applyType = type; }
 						// make the force field only push players
-	void				SetPlayerOnly( bool set ) { playerOnly = set; }
+	void				SetPlayerOnly(const bool set ) { playerOnly = set; }
 						// make the force field only push monsters
-	void				SetMonsterOnly( bool set ) { monsterOnly = set; }
+	void				SetMonsterOnly(const bool set ) { monsterOnly = set; }
 						// clip model describing the extents of the force field
 	void				SetClipModel( idClipModel *clipModel );
 

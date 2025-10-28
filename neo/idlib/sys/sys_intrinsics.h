@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __SYS_INTRIINSICS_H__
-#define __SYS_INTRIINSICS_H__
+#ifndef __SYS_INTRINSICS_H__
+#define __SYS_INTRINSICS_H__
 
 #pragma once
 
@@ -62,7 +62,7 @@ ID_INLINE_EXTERN float __frndz(const float x )						{	return static_cast<float>(
 
 // The code below assumes that a cache line is 64 bytes.
 // We specify the cache line size as 128 here to make the code consistent with the consoles.
-#define CACHE_LINE_SIZE						128
+constexpr size_t CACHE_LINE_SIZE = 128;
 
 ID_FORCE_INLINE void Prefetch( const void * ptr, int offset ) {
 //	const char * bytePtr = ( (const char *) ptr ) + offset;
@@ -95,7 +95,7 @@ ID_FORCE_INLINE void FlushCacheLine( const void * ptr, int offset ) {
 */
 #else
 
-constexpr auto CACHE_LINE_SIZE = 128;
+constexpr size_t CACHE_LINE_SIZE = 128;
 
 ID_INLINE void Prefetch(const void* ptr, const size_t offset) { [[maybe_unused]] auto cache = static_cast<const byte*>(ptr) + offset; }
 ID_INLINE void ZeroCacheLine( void * ptr, const size_t offset ) {
@@ -174,8 +174,8 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) __m128c {
 #define _mm_perm_ps( x, perm )				__m128c( _mm_shuffle_epi32( __m128c( x ), perm ) )
 #define _mm_sel_ps( a, b, c )  				_mm_or_ps( _mm_andnot_ps( __m128c( c ), a ), _mm_and_ps( __m128c( c ), b ) )
 #define _mm_sel_si128( a, b, c )			_mm_or_si128( _mm_andnot_si128( __m128c( c ), a ), _mm_and_si128( __m128c( c ), b ) )
-#define _mm_sld_ps( x, y, imm )				__m128c( _mm_or_si128( _mm_srli_si128( __m128c( x ), imm ), _mm_slli_si128( __m128c( y ), 16 - imm ) ) )
-#define _mm_sld_si128( x, y, imm )			_mm_or_si128( _mm_srli_si128( x, imm ), _mm_slli_si128( y, 16 - imm ) )
+#define _mm_sld_ps( x, y, imm )				__m128c( _mm_or_si128( _mm_srli_si128( __m128c( x ), imm ), _mm_slli_si128( __m128c( y ), 16 - (imm) ) ) )
+#define _mm_sld_si128( x, y, imm )			_mm_or_si128( _mm_srli_si128( x, imm ), _mm_slli_si128( y, 16 - (imm) ) )
 
 ID_FORCE_INLINE_EXTERN __m128 _mm_msum3_ps(const __m128 a, const __m128 b )	{
 	const __m128 c = _mm_mul_ps( a, b );
@@ -190,8 +190,8 @@ ID_FORCE_INLINE_EXTERN __m128 _mm_msum4_ps(const __m128 a, const __m128 b ) {
 }
 
 #define _mm_shufmix_epi32( x, y, perm )		__m128c( _mm_shuffle_ps( __m128c( x ), __m128c( y ), perm ) )
-#define _mm_loadh_epi64( x, address )		__m128c( _mm_loadh_pi( __m128c( x ), (__m64 *)address ) )
-#define _mm_storeh_epi64( address, x )		_mm_storeh_pi( (__m64 *)address, __m128c( x ) )
+#define _mm_loadh_epi64( x, address )		__m128c( _mm_loadh_pi( __m128c( x ), (__m64 *)(address) ) )
+#define _mm_storeh_epi64( address, x )		_mm_storeh_pi( (__m64 *)(address), __m128c( x ) )
 
 // floating-point reciprocal with close to full precision
 ID_FORCE_INLINE_EXTERN __m128 _mm_rcp32_ps(const __m128 x ) {
@@ -215,8 +215,8 @@ ID_FORCE_INLINE_EXTERN __m128 _mm_div16_ps(const __m128 x, const __m128 y ) {
 	return _mm_mul_ps( x, _mm_rcp16_ps( y ) );
 }
 // load idBounds::GetMins()
-#define _mm_loadu_bounds_0( bounds )		_mm_perm_ps( _mm_loadh_pi( _mm_load_ss( & bounds[0].x ), (__m64 *) & bounds[0].y ), _MM_SHUFFLE( 1, 3, 2, 0 ) )
+#define _mm_loadu_bounds_0( bounds )		_mm_perm_ps( _mm_loadh_pi( _mm_load_ss( & (bounds)[0].x ), (__m64 *) & (bounds)[0].y ), _MM_SHUFFLE( 1, 3, 2, 0 ) )
 // load idBounds::GetMaxs()
-#define _mm_loadu_bounds_1( bounds )		_mm_perm_ps( _mm_loadh_pi( _mm_load_ss( & bounds[1].x ), (__m64 *) & bounds[1].y ), _MM_SHUFFLE( 1, 3, 2, 0 ) )
+#define _mm_loadu_bounds_1( bounds )		_mm_perm_ps( _mm_loadh_pi( _mm_load_ss( & (bounds)[1].x ), (__m64 *) & (bounds)[1].y ), _MM_SHUFFLE( 1, 3, 2, 0 ) )
 
-#endif	// !__SYS_INTRIINSICS_H__
+#endif	// !__SYS_INTRINSICS_H__

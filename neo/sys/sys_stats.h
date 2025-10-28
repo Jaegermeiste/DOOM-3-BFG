@@ -63,11 +63,11 @@ public:
 	// Used by the platform handlers to set data
 	void 							ResetRows() { rows.Clear(); }
 	void 							AddRow( const row_t & row ) { rows.Append( row ); }
-	void 							SetNumRowsInLeaderboard( int32 i ) { numRowsInLeaderboard = i; }
+	void 							SetNumRowsInLeaderboard(const int32 i ) { numRowsInLeaderboard = i; }
 	void 							SetDef( const leaderboardDefinition_t * def_ ) { def = def_; }
-	void 							SetStartIndex( int startIndex_ ) { startIndex = startIndex_; }
-	void 							SetLocalIndex( int localIndex_ ) { localIndex = localIndex_; }
-	void							SetErrorCode( leaderboardError_t errorCode ) { this->errorCode = errorCode; }
+	void 							SetStartIndex(const int startIndex_ ) { startIndex = startIndex_; }
+	void 							SetLocalIndex(const int localIndex_ ) { localIndex = localIndex_; }
+	void							SetErrorCode(const leaderboardError_t errorCode ) { this->errorCode = errorCode; }
 
 	// Used in user callback for information retrieval
 	[[nodiscard]] const leaderboardDefinition_t *	GetDef() const { return def; }

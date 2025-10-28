@@ -145,15 +145,18 @@ public:
 	void			WriteShort( int16 c );
 	void			WriteUShort( uint16 c );
 	void			WriteLong( int32 c );
+	void			WriteULong( uint32 c );
 	void			WriteLongLong( int64 c );
+	void			WriteULongLong( uint64 c );
 	void			WriteFloat( float f );
 	void			WriteFloat( float f, unsigned short exponentBits, unsigned short mantissaBits );
+	void			WriteDouble( double d );
 	void			WriteAngle8( float f );
 	void			WriteAngle16( float f );
 	void			WriteDir(const idVec3 &dir, short numBits);
-	void			WriteString( const char *s, int64 maxLength = -1, bool make7Bit = true );
+	void			WriteString( const char *s, size_t maxLength = 0, bool make7Bit = true );
 	void			WriteData( const void *data, size_t length );
-	void			WriteNetadr( const netadr_t adr );
+	void			WriteNetadr( const netadr_t &adr );
 
 	void			WriteUNorm8(const float f ) { WriteByte( idMath::Ftob( f * 255.0f ) ); }
 	void			WriteUNorm16(const float f ) { WriteUShort( idMath::Ftoi16( f * 65535.0f ) ); }
@@ -164,8 +167,12 @@ public:
 	void			WriteDeltaShort(const int16 oldValue, const int16 newValue ) { WriteUShort( newValue - oldValue ); }
 	void			WriteDeltaUShort(const uint16 oldValue, const uint16 newValue ) { WriteUShort( newValue - oldValue ); }
 	void			WriteDeltaLong(const int32 oldValue, const int32 newValue ) { WriteLong( newValue - oldValue ); }
+	void			WriteDeltaULong(const uint32 oldValue, const uint32 newValue) { WriteULong(newValue - oldValue); }
+	void            WriteDeltaLongLong(const int64 oldValue, const int64 newValue) { WriteLongLong(newValue - oldValue); }
+	void			WriteDeltaULongLong(const uint64 oldValue, const uint64 newValue) { WriteULongLong(newValue - oldValue); }
 	void			WriteDeltaFloat(const float oldValue, const float newValue ) { WriteFloat( newValue - oldValue ); }
 	void			WriteDeltaFloat(const float oldValue, const float newValue, const uint16 exponentBits, const uint16 mantissaBits ) { WriteFloat( newValue - oldValue, exponentBits, mantissaBits ); }
+	void			WriteDeltaDouble(const double oldValue, const double newValue) { WriteDouble(newValue - oldValue); }
 
 	bool			WriteDeltaDict( const idDict &dict, const idDict *base );
 
@@ -175,17 +182,17 @@ public:
 	void			WriteQuantizedUFloat( float value );		// Quantize a float to a variable number of bits (assumes unsigned, uses simple quantization)
 
 	template< typename T >
-	void			WriteVectorFloat( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteFloat( v[i] ); } }
+	void			WriteVectorFloat( const T & v ) { for ( size_t i = 0; i < v.GetDimension(); i++ ) { WriteFloat( v[i] ); } }
 	template< typename T >
-	void			WriteVectorUNorm8( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteUNorm8( v[i] ); } }
+	void			WriteVectorUNorm8( const T & v ) { for ( size_t i = 0; i < v.GetDimension(); i++ ) { WriteUNorm8( v[i] ); } }
 	template< typename T >
-	void			WriteVectorUNorm16( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteUNorm16( v[i] ); } }
+	void			WriteVectorUNorm16( const T & v ) { for ( size_t i = 0; i < v.GetDimension(); i++ ) { WriteUNorm16( v[i] ); } }
 	template< typename T >
-	void			WriteVectorNorm16( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteNorm16( v[i] ); } }
+	void			WriteVectorNorm16( const T & v ) { for ( size_t i = 0; i < v.GetDimension(); i++ ) { WriteNorm16( v[i] ); } }
 
 	// Compress a vector to a variable number of bits (assumes signed, uses simple quantization)
 	template< typename T, int _max_, int _numBits_  >
-	void			WriteQuantizedVector( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteQuantizedFloat< _max_, _numBits_ >( v[i] ); } }
+	void			WriteQuantizedVector( const T & v ) { for ( size_t i = 0; i < v.GetDimension(); i++ ) { WriteQuantizedFloat< _max_, _numBits_ >( v[i] ); } }
 
 	// begin reading.
 	void			BeginReading() const;
@@ -194,7 +201,7 @@ public:
 	void			ReadByteAlign() const;
 
 	// read the specified number of bits
-	int				ReadBits( int numBits ) const;
+	int				ReadBits( int16 numBits ) const;
 
 	bool			ReadBool() const;
 	int8			ReadChar() const;
@@ -202,28 +209,35 @@ public:
 	int16			ReadShort() const;
 	uint16			ReadUShort() const;
 	int32			ReadLong() const;
+	uint32			ReadULong() const;
 	int64			ReadLongLong() const;
+	uint64			ReadULongLong() const;
 	float			ReadFloat() const;
 	float			ReadFloat( int exponentBits, int mantissaBits ) const;
+	double			ReadDouble() const;
 	float			ReadAngle8() const;
 	float			ReadAngle16() const;
-	idVec3			ReadDir( int numBits ) const;
+	idVec3			ReadDir( short numBits ) const;
 	size_t			ReadString( char *buffer, size_t bufferSize ) const;
 	size_t			ReadString( idStr & str ) const;
 	size_t			ReadData( void *data, size_t length ) const;
 	void			ReadNetadr( netadr_t *adr ) const;
 
-	float			ReadUNorm8() const { return ReadByte() / 255.0f; }
-	float			ReadUNorm16() const { return ReadUShort() / 65535.0f; }
-	float			ReadNorm16() const { return ReadShort() / 32767.0f; }
+	float			ReadUNorm8() const { return numeric_cast<float>(ReadByte()) / 255.0f; }
+	float			ReadUNorm16() const { return numeric_cast<float>(ReadUShort()) / 65535.0f; }
+	float			ReadNorm16() const { return numeric_cast<float>(ReadShort()) / 32767.0f; }
 
 	int8			ReadDeltaChar(const int8 oldValue ) const { return oldValue + ReadChar(); }
 	uint8			ReadDeltaByte(const uint8 oldValue ) const { return oldValue + ReadByte(); }
 	int16			ReadDeltaShort(const int16 oldValue ) const { return oldValue + ReadShort(); }
 	uint16			ReadDeltaUShort(const uint16 oldValue ) const { return oldValue + ReadUShort(); }
 	int32			ReadDeltaLong(const int32 oldValue ) const { return oldValue + ReadLong(); }
+	uint32			ReadDeltaULong(const uint32 oldValue) const { return oldValue + ReadULong(); }
+	int64			ReadDeltaLongLong(const int64 oldValue) const { return oldValue + ReadLongLong(); }
+	uint64			ReadDeltaULongLong(const uint64 oldValue) const { return oldValue + ReadULongLong(); }
 	float			ReadDeltaFloat(const float oldValue ) const { return oldValue + ReadFloat(); }
 	float			ReadDeltaFloat(const float oldValue, const int exponentBits, const int mantissaBits ) const { return oldValue + ReadFloat( exponentBits, mantissaBits ); }
+	double			ReadDeltaDouble(const double oldValue) const { return oldValue + ReadDouble(); }
 	bool			ReadDeltaDict( idDict &dict, const idDict *base ) const;
 
 	template< int _max_, int _numBits_ >
@@ -232,18 +246,18 @@ public:
 	float			ReadQuantizedUFloat() const;
 
 	template< typename T >
-	void			ReadVectorFloat( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadFloat(); } }
+	void			ReadVectorFloat( T & v ) const { for ( size_t i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadFloat(); } }
 	template< typename T >
-	void			ReadVectorUNorm8( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadUNorm8(); } }
+	void			ReadVectorUNorm8( T & v ) const { for ( size_t i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadUNorm8(); } }
 	template< typename T >
-	void			ReadVectorUNorm16( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadUNorm16(); } }
+	void			ReadVectorUNorm16( T & v ) const { for ( size_t i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadUNorm16(); } }
 	template< typename T >
-	void			ReadVectorNorm16( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadNorm16(); } }
+	void			ReadVectorNorm16( T & v ) const { for ( size_t i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadNorm16(); } }
 	template< typename T, int _max_, int _numBits_ >
-	void			ReadQuantizedVector( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadQuantizedFloat< _max_, _numBits_ >(); } }
+	void			ReadQuantizedVector( T & v ) const { for ( size_t i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadQuantizedFloat< _max_, _numBits_ >(); } }
 
-	static int		DirToBits( const idVec3 &dir, size_t numBits );
-	static idVec3	BitsToDir( int bits, size_t numBits );
+	static int		DirToBits( const idVec3 &dir, short numBits );
+	static idVec3	BitsToDir( int bits, short numBits );
 
 	void			SetHasChanged(const bool b ) { hasChanged = b; }
 	bool			HasChanged() const { return hasChanged; }
@@ -263,8 +277,8 @@ private:
 	mutable uint64	tempValue;
 
 private:
-	bool			CheckOverflow(size_t numBits );
-	byte *			GetByteSpace(size_t length );
+	bool			CheckOverflow( const size_t numBits );
+	byte *			GetByteSpace( const size_t length );
 };
 
 /*
@@ -448,7 +462,7 @@ idBitMsg::RestoreWriteState
 */
 ID_INLINE void idBitMsg::RestoreWriteState(const size_t s, const size_t b, const uint64 t ) {
 	curSize = s;
-	writeBit = b & 7;
+	writeBit = numeric_cast<int>(b & 7);
 	if ( writeBit ) {
 		writeData[curSize] &= ( 1 << writeBit ) - 1;
 	}
@@ -542,7 +556,7 @@ ID_INLINE void idBitMsg::RestoreReadState(const size_t c, const size_t b ) const
 {
 	assert( writeBit == 0 );
 	readCount = c;
-	readBit = b & 7;
+	readBit = numeric_cast<int>(b & 7);
 }
 
 /*
@@ -627,6 +641,14 @@ idBitMsg::WriteLong
 ID_INLINE void idBitMsg::WriteLong(const int32 c ) {
 	WriteBits( c, 32 );
 }
+/*
+========================
+idBitMsg::WriteULong
+========================
+*/
+ID_INLINE void idBitMsg::WriteULong(const uint32 c) {
+	WriteData(&c, 32);
+}
 
 /*
 ========================
@@ -634,10 +656,19 @@ idBitMsg::WriteLongLong
 ========================
 */
 ID_INLINE void idBitMsg::WriteLongLong(const int64 c) {
-	const int32_t low = static_cast<int32_t>(c & 0xFFFFFFFFLL);
-	const int32_t high = static_cast<int32_t>((c >> 32) & 0xFFFFFFFFLL);
+	const int32 low = numeric_cast<int32>(c & 0xFFFFFFFFLL);
+	const int32 high = numeric_cast<int32>((c >> 32) & 0xFFFFFFFFLL);
 	WriteBits( low, 32 );
 	WriteBits( high, 32 );
+}
+
+/*
+========================
+idBitMsg::WriteULongLong
+========================
+*/
+ID_INLINE void idBitMsg::WriteULongLong(const uint64 c) {
+	WriteData(&c, 64);
 }
 
 /*
@@ -656,7 +687,16 @@ idBitMsg::WriteFloat
 */
 ID_INLINE void idBitMsg::WriteFloat(const float f, const unsigned short exponentBits, const unsigned short mantissaBits ) {
 	const int bits = idMath::FloatToBits( f, exponentBits, mantissaBits );
-	WriteBits(bits, static_cast<short>(1) + exponentBits + mantissaBits);
+	WriteBits(bits, numeric_cast<short>(1) + exponentBits + mantissaBits);
+}
+
+/*
+========================
+idBitMsg::WriteDouble
+========================
+*/
+ID_INLINE void idBitMsg::WriteDouble ( double d ) {
+	WriteData(&d, sizeof(double));
 }
 
 /*
@@ -764,6 +804,17 @@ ID_INLINE int32 idBitMsg::ReadLong() const {
 
 /*
 ========================
+idBitMsg::ReadULong
+========================
+*/
+ID_INLINE uint32 idBitMsg::ReadULong() const {
+	uint32 data = 0;
+	std::ignore = ReadData(&data, 32);
+	return data;
+}
+
+/*
+========================
 idBitMsg::ReadLongLong
 ========================
 */
@@ -772,6 +823,17 @@ ID_INLINE int64 idBitMsg::ReadLongLong() const {
 	const int64 b = ReadBits( 32 );
 	const int64 c = ( 0x00000000ffffffff & a ) | ( b << 32 );
 	return c;
+}
+
+/*
+========================
+idBitMsg::ReadULongLong
+========================
+*/
+ID_INLINE uint64 idBitMsg::ReadULongLong() const {
+	uint64 data = 0;
+	std::ignore = ReadData(&data, 64);
+	return data;
 }
 
 /*
@@ -791,8 +853,19 @@ idBitMsg::ReadFloat
 ========================
 */
 ID_INLINE float idBitMsg::ReadFloat(const int exponentBits, const int mantissaBits ) const {
-	const int bits = ReadBits( 1 + exponentBits + mantissaBits );
+	const int bits = ReadBits( numeric_cast<short>(1 + exponentBits + mantissaBits) );
 	return idMath::BitsToFloat( bits, exponentBits, mantissaBits );
+}
+
+/*
+========================
+idBitMsg::ReadDouble
+========================
+*/
+ID_INLINE double idBitMsg::ReadDouble() const {
+	double data = 0;
+	std::ignore = ReadData(&data, sizeof(double));
+	return data;
 }
 
 /*
@@ -818,7 +891,7 @@ ID_INLINE float idBitMsg::ReadAngle16() const {
 idBitMsg::ReadDir
 ========================
 */
-ID_INLINE idVec3 idBitMsg::ReadDir(const int numBits ) const {
+ID_INLINE idVec3 idBitMsg::ReadDir(const short numBits ) const {
 	return BitsToDir( ReadBits( numBits ), numBits );
 }
 
@@ -833,11 +906,11 @@ ID_INLINE void idBitMsg::WriteQuantizedFloat( float value ) {
 	if ( _max_ > storeMax ) {
 		// Scaling down (scale should be < 1)
 		const float scale = static_cast<float>(storeMax) / static_cast<float>(_max_);
-		WriteBits( idMath::ClampInt( -storeMax, storeMax, idMath::Ftoi( value * scale ) ), -_numBits_ );	
+		WriteBits( idMath::ClampInt( -storeMax, storeMax, numeric_cast<int>( value * scale ) ), -_numBits_ );	
 	} else {
 		// Scaling up (scale should be >= 1) (Preserve whole numbers when possible)
 		enum { scale = storeMax / _max_ };
-		WriteBits( idMath::ClampInt( -storeMax, storeMax, idMath::Ftoi( value * scale ) ), -_numBits_ );	
+		WriteBits( idMath::ClampInt( -storeMax, storeMax, numeric_cast<int>( value * scale ) ), -_numBits_ );	
 	}
 }
 
@@ -852,11 +925,11 @@ ID_INLINE void idBitMsg::WriteQuantizedUFloat( float value ) {
 	if ( _max_ > storeMax ) {
 		// Scaling down (scale should be < 1)
 		const float scale = static_cast<float>(storeMax) / static_cast<float>(_max_);
-		WriteBits( idMath::ClampInt( 0, storeMax, idMath::Ftoi( value * scale ) ), _numBits_ );	
+		WriteBits( idMath::ClampInt( 0, storeMax, numeric_cast<int>( value * scale ) ), _numBits_ );	
 	} else {
 		// Scaling up (scale should be >= 1) (Preserve whole numbers when possible)
 		enum { scale = storeMax / _max_ };
-		WriteBits( idMath::ClampInt( 0, storeMax, idMath::Ftoi( value * scale ) ), _numBits_ );	
+		WriteBits( idMath::ClampInt( 0, storeMax, numeric_cast<int>( value * scale ) ), _numBits_ );	
 	}
 }
 
@@ -912,7 +985,7 @@ Writes all the values from the array to the bit message.
 */
 template< class _arrayType_ >
 void WriteFloatArray( idBitMsg & message, const _arrayType_ & sourceArray ) {
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+	for ( size_t i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
 		message.WriteFloat( sourceArray[i] );
 	}
 }
@@ -925,7 +998,7 @@ Writes _num_ values from the array to the bit message.
 */
 template< class _arrayType_ >
 void WriteDeltaFloatArray( idBitMsg & message, const _arrayType_ & oldArray, const _arrayType_ & newArray ) {
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+	for ( size_t i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
 		message.WriteDeltaFloat( oldArray[i], newArray[i] );
 	}
 }
@@ -940,7 +1013,7 @@ template< class _arrayType_ >
 _arrayType_ ReadFloatArray( const idBitMsg & message ) {
 	_arrayType_ result = {};
 
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+	for ( size_t i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
 		result[i] = message.ReadFloat();
 	}
 
@@ -957,7 +1030,7 @@ template< class _arrayType_ >
 _arrayType_ ReadDeltaFloatArray( const idBitMsg & message, const _arrayType_ & oldArray ) {
 	_arrayType_ result = {};
 
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+	for ( size_t i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
 		result[i] = message.ReadDeltaFloat( oldArray[i] );
 	}
 

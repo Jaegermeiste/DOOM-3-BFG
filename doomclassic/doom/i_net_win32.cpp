@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <algorithm>
 #include <string>
 
 #include <errno.h>
@@ -80,28 +81,28 @@ namespace {
 //
 // NETWORKING
 //
-int	DOOMPORT = 1002;	// DHM - Nerve :: On original XBox, ports 1000 - 1255 saved you a byte on every packet.  360 too?
+static int	DOOMPORT = 1002;	// DHM - Nerve :: On original XBox, ports 1000 - 1255 saved you a byte on every packet.  360 too?
 
 
-unsigned long GetServerIP() {
+static unsigned long GetServerIP() {
 	return ::g->sendaddress[::g->doomcom.consoleplayer].sin_addr.s_addr;
 }
 
-void	(*netget) (void);
-void	(*netsend) (void);
+static void	(*netget) (void);
+static void	(*netsend) (void);
 
 
 //
 // UDPsocket
 //
-int UDPsocket (void)
+static int UDPsocket (void)
 {
 	int	s;
 
 	// allocate a socket
 	s = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if ( !IsValidSocket( s ) ) {
-		int err = GetLastSocketError();
+		const int err = GetLastSocketError();
 		I_Error( "can't create socket, error %d", err );
 	}
 
@@ -111,7 +112,7 @@ int UDPsocket (void)
 //
 // BindToLocalPort
 //
-void BindToLocalPort( int	s, int	port )
+static void BindToLocalPort( int	s, int	port )
 {
 
 }
@@ -120,7 +121,7 @@ void BindToLocalPort( int	s, int	port )
 //
 // PacketSend
 //
-void PacketSend (void)
+static void PacketSend (void)
 {
 
 }
@@ -129,7 +130,7 @@ void PacketSend (void)
 //
 // PacketGet
 //
-void PacketGet (void)
+static void PacketGet (void)
 {
 
 }
@@ -158,18 +159,22 @@ void I_InitNetwork (void)
 	if (i && i< ::g->myargc-1)
 	{
 		::g->doomcom.ticdup = ::g->myargv[i+1][0]-'0';
-		if (::g->doomcom.ticdup < 1)
-			::g->doomcom.ticdup = 1;
-		if (::g->doomcom.ticdup > 9)
-			::g->doomcom.ticdup = 9;
+		::g->doomcom.ticdup = Max<short>(::g->doomcom.ticdup, 1);
+		::g->doomcom.ticdup = Min<short>(::g->doomcom.ticdup, 9);
 	}
 	else
+	{
 		::g->doomcom.ticdup = 1;
+	}
 
 	if (M_CheckParm ("-extratic"))
+	{
 		::g->doomcom.extratics = 1;
+	}
 	else
+	{
 		::g->doomcom.extratics = 0;
+	}
 
 	p = M_CheckParm ("-port");
 	if (p && p < ::g->myargc-1)
@@ -273,6 +278,8 @@ void I_NetCmd (void)
 		netget ();
 	}
 	else
-		I_Error ("Bad net cmd: %i\n",::g->doomcom.command); 
+	{
+		I_Error ("Bad net cmd: %i\n",::g->doomcom.command);
+	}
 }
 

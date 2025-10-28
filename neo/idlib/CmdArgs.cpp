@@ -37,7 +37,7 @@ idCmdArgs::operator=
 void idCmdArgs::operator=( const idCmdArgs &args ) {
 	argc = args.argc;
 	memcpy( tokenized, args.tokenized, MAX_COMMAND_STRING );
-	for ( int i = 0; i < argc; i++ ) {
+	for ( size_t i = 0; i < argc; i++ ) {
 		argv[ i ] = tokenized + ( args.argv[ i ] - args.tokenized );
 	}
 }
@@ -50,20 +50,20 @@ idCmdArgs::Args
 const char* idCmdArgs::Args() const {
 	return Args(1, -1, false);
 }
-const char *idCmdArgs::Args(const Ordinal auto start, Ordinal auto end, const bool escapeArgs ) const {
+const char *idCmdArgs::Args( const Ordinal auto start, Ordinal auto end, const bool escapeArgs ) const {
 	static char cmd_args[MAX_COMMAND_STRING] = {};
 
 	assert( argc < MAX_COMMAND_ARGS );
-	if ( end < 0 ) {
-		end = argc - 1;
-	} else if ( end >= argc ) {
+	if (( end < 0 ) || (end >= argc)) {
 		end = argc - 1;
 	}
+
 	cmd_args[0] = '\0';
+
 	if ( escapeArgs ) {
 		strcat_s( cmd_args, "\"" );
 	}
-	for ( int i = start; i <= end; i++ ) {
+	for ( index_t i = start; i <= end; i++ ) {
 		if ( i > start ) {
 			if ( escapeArgs ) {
 				strcat_s( cmd_args, "\" \"" );

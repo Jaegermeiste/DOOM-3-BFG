@@ -29,7 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __SYS_THREADING_H__
 
 #pragma once
-#include "idlib/precompiled.h"
 
 #ifndef __TYPEINFOGEN__
 
@@ -38,7 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef USE_STL_MUTEX
 #include <mutex>
 #endif
-#include <idlib/precompiled.h>
 
 /*
 ================================================================================================
@@ -185,7 +183,7 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-enum core_t {
+typedef enum core_e : int8 {
 	CORE_ANY = -1,
 	CORE_0A,
 	CORE_0B,
@@ -193,7 +191,7 @@ enum core_t {
 	CORE_1B,
 	CORE_2A,
 	CORE_2B
-};
+} core_t;
 
 typedef unsigned int (*xthread_t)( void * );
 
@@ -212,7 +210,7 @@ uintptr_t			Sys_GetCurrentThreadID();
 
 // returns a threadHandle
 uintptr_t			Sys_CreateThread( xthread_t function, void *parms, xthreadPriority priority, 
-									  const char *name, core_t core, int stackSize = DEFAULT_THREAD_STACK_SIZE, 
+									  const char *name, core_t core, size_t stackSize = DEFAULT_THREAD_STACK_SIZE, 
 									  bool suspended = false );
 
 void				Sys_WaitForThread( uintptr_t threadHandle );

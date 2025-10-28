@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_CVAR_H__
 #define __SYS_CVAR_H__
 
+#pragma once
+
 extern idCVar	developer;
 
 extern idCVar	g_cinematic;

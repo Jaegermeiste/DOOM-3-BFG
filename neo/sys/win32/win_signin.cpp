@@ -70,7 +70,7 @@ void idSignInManagerWin::Pump() {
 #endif
 	
 	// See if we need to save settings on any of the profiles
-	for ( int i = 0; i < localUsers.Num(); i++ ) {
+	for ( size_t i = 0; i < localUsers.Num(); i++ ) {
 		localUsers[i].Pump();
 	}
 }
@@ -80,7 +80,7 @@ void idSignInManagerWin::Pump() {
 idSignInManagerWin::RemoveLocalUserByIndex
 ========================
 */
-void idSignInManagerWin::RemoveLocalUserByIndex( int index ) {
+void idSignInManagerWin::RemoveLocalUserByIndex(const index_t index ) {
 	session->OnLocalUserSignout( &localUsers[index] );
 	localUsers.RemoveIndex( index );
 }
@@ -90,7 +90,7 @@ void idSignInManagerWin::RemoveLocalUserByIndex( int index ) {
 idSignInManagerWin::RegisterLocalUser
 ========================
 */
-void idSignInManagerWin::RegisterLocalUser( int inputDevice ) {
+void idSignInManagerWin::RegisterLocalUser(const int inputDevice ) {
 	if ( GetLocalUserByInputDevice( inputDevice ) != nullptr) {
 		return;
 	}
@@ -105,7 +105,7 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice ) {
 	int nameLength = name.Length();
 	if ( idStr::IsValidUTF8( nameSource, nameLength ) ) {
 		int nameIndex = 0;
-		int numChars = 0;
+		size_t numChars = 0;
 		name.Empty();
 		while ( nameIndex < nameLength && numChars++ < idLocalUserWin::MAX_GAMERTAG_CHARS ) {
 			uint32 c = idStr::UTF8Char( nameSource, nameIndex );

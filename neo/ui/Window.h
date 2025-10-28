@@ -112,7 +112,7 @@ typedef struct {
 struct idRegEntry {
 	const char *name;
 	idRegister::REGTYPE type;
-	int index;
+	index_t index;
 };
 
 
@@ -126,7 +126,7 @@ struct idTimeLineEvent {
 	~idTimeLineEvent() {
 		delete event;
 	}
-	int time;
+	ID_TIME_T time;
 	idGuiScriptList *event;
 	bool pending;
 
@@ -235,12 +235,12 @@ public:
 	void SetFont() const;
 	void SetInitialState(const char *_name);
 	void AddChild(idWindow *win);
-	void DebugDraw(int time, float x, float y) const;
+	void DebugDraw(ID_TIME_T time, float x, float y) const;
 	void CalcClientRect(float xofs, float yofs);
 	void CommonInit();
 	void CleanUp();
 	void DrawBorderAndCaption(const idRectangle &drawRect) const;
-	void DrawCaption(int time, float x, float y);
+	void DrawCaption(ID_TIME_T time, float x, float y);
 	void SetupTransforms(float x, float y) const;
 	[[nodiscard]] bool Contains(const idRectangle &sr, float x, float y) const;
 	const char *GetName() { return name; };
@@ -261,7 +261,7 @@ public:
 	virtual void LoseCapture();
 	virtual void Sized();
 	virtual void Moved();
-	virtual void Draw(int time, float x, float y);
+	virtual void Draw(ID_TIME_T time, float x, float y);
 	virtual void MouseExit();
 	virtual void MouseEnter();
 	virtual void DrawBackground(const idRectangle &drawRect);
@@ -290,8 +290,8 @@ public:
 	[[nodiscard]] bool HasOps() const {	return (ops.Num() > 0); };
 	float EvalRegs(int test = -1, bool force = false);
 	void StartTransition();
-	void AddTransition(idWinVar *dest, idVec4 from, idVec4 to, int time, float accelTime, float decelTime);
-	void ResetTime(int time);
+	void AddTransition(idWinVar *dest, idVec4 from, idVec4 to, ID_TIME_T time, float accelTime, float decelTime);
+	void ResetTime(ID_TIME_T time);
 	void ResetCinematics() const;
 
 	int NumTransitions();
@@ -322,7 +322,7 @@ public:
 	idWindow*	FindChildByPoint	( float x, float y, idWindow* below = nullptr);
 	int			GetChildIndex		( idWindow* window );
 	[[nodiscard]] int			GetChildCount		() const;
-	idWindow*	GetChild			( int index );
+	idWindow*	GetChild			( index_t index );
 	void		RemoveChild			( idWindow *win );
 	bool		InsertChild			( idWindow *win, idWindow* before );
 
@@ -345,7 +345,7 @@ protected:
 	void DisableRegister(const char *_name);
 	void Transition();
 	void Time();
-	bool RunTimeEvents(int time);
+	bool RunTimeEvents(ID_TIME_T time);
 	void Dump();
 
 	int ExpressionTemporary();
@@ -374,7 +374,7 @@ protected:
 	idRectangle clientRect;			// client area
 	idVec2	origin;
 
-	int timeLine;					// time stamp used for various fx
+	ID_TIME_T timeLine;					// time stamp used for various fx
 	float xOffset;			
 	float yOffset;
 	float forceAspectWidth;

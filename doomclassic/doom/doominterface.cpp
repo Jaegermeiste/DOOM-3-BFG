@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 
 extern void I_SetTime( int );
 
-bool waitingForWipe;
+static bool waitingForWipe;
 
 static const int dargc = 7;
 static char* dargv[4][7] =
@@ -65,16 +65,15 @@ DoomInterface::~DoomInterface() {
 }
 
 
-void DoomInterface::Startup( int playerscount, bool multiplayer )
+void DoomInterface::Startup(const size_t playerscount, const bool multiplayer )
 {
-	int i;
 	int localdargc = 1; // for the commandline
 
 	numplayers			= playerscount;
 	globalNetworking	= multiplayer;
 	lastTicRun			= 0;
 
-	if (DoomLib::Z_Malloc == NULL) {
+	if (DoomLib::Z_Malloc == nullptr) {
 		DoomLib::Z_Malloc = Z_Malloc;
 	}
 
@@ -91,16 +90,16 @@ void DoomInterface::Startup( int playerscount, bool multiplayer )
 	}
 
 	// Start up DooM Classic
-	for ( i = 0; i < numplayers; ++i)
+	for ( size_t i = 0; i < numplayers; ++i)
 	{
 		DoomLib::SetPlayer(i);
 
 		bFinished[i] = false;
-		DoomLib::InitGlobals( NULL );
+		DoomLib::InitGlobals(nullptr);
 
 		if ( globalNetworking ) {
 			printf( "Starting mulitplayer game, argv = " );
-			for ( int j = 0; j < mpArgc[0]; ++j ) {
+			for ( size_t j = 0; j < mpArgc[0]; ++j ) {
 				printf( " %s", mpArgVPtr[0][j] );
 			}
 			printf( "\n" );
@@ -112,21 +111,21 @@ void DoomInterface::Startup( int playerscount, bool multiplayer )
 		if( DoomLib::skipToLoad ) {
 			G_LoadGame( DoomLib::loadGamePath );
 			 DoomLib::skipToLoad = false;
-			 ::g->menuactive = 0;
+			 ::g->menuactive = false;
 		}
 
 		if( DoomLib::skipToNew ) {
 			static int startLevel = 1;
-			G_DeferedInitNew((skill_t)DoomLib::chosenSkill,DoomLib::chosenEpisode+1, startLevel);
+			G_DeferedInitNew(static_cast<skill_t>(DoomLib::chosenSkill),DoomLib::chosenEpisode+1, startLevel);
 			DoomLib::skipToNew = false;
-			::g->menuactive = 0;
+			::g->menuactive = false;
 		}
 
 		DoomLib::SetPlayer(-1);
 	}
 }
 
-bool DoomInterface::Frame( int iTime, idUserCmdMgr * userCmdMgr )
+bool DoomInterface::Frame(const int iTime, idUserCmdMgr * userCmdMgr )
 {
 	int i;
 	bool bAllFinished = true;
@@ -214,7 +213,7 @@ void DoomInterface::Shutdown() {
 qboolean G_CheckDemoStatus( void );
 
 void DoomInterface::QuitCurrentGame() {
-	for ( int i = 0; i < numplayers; i++ ) {
+	for ( size_t i = 0; i < numplayers; i++ ) {
 		DoomLib::SetPlayer( i );
 
 		if(::g->netgame) {
@@ -243,7 +242,7 @@ void DoomInterface::QuitCurrentGame() {
 
 void DoomInterface::EndDMGame() {
 
-	for ( int i = 0; i < numplayers; i++ ) {
+	for ( index_t i = 0; std::cmp_less(i, numplayers); i++ ) {
 		DoomLib::SetPlayer( i );
 
 		if(::g->netgame) {
@@ -264,11 +263,11 @@ void DoomInterface::EndDMGame() {
 }
 
 //static 
-int DoomInterface::CurrentPlayer() {
+index_t DoomInterface::CurrentPlayer() {
 	return DoomLib::GetPlayer();
 }
 
-int DoomInterface::GetNumPlayers() const {
+size_t DoomInterface::GetNumPlayers() const {
 	return numplayers;
 }
 
@@ -278,13 +277,13 @@ void DoomInterface::SetNetworking( DoomLib::RecvFunc recv, DoomLib::SendFunc sen
 }
 #endif
 
-void DoomInterface::SetMultiplayerPlayers(int localPlayerIndex, int playerCount, int localPlayer, std::vector<std::string> playerAddresses) {
+void DoomInterface::SetMultiplayerPlayers(const index_t localPlayerIndex, const size_t playerCount, const index_t localPlayer, idList<idStr> playerAddresses) {
 	
-	for(int i = 0; i < 10; i++) {
+	for( size_t i = 0; i < 10; i++ ) {
 		mpArgVPtr[localPlayerIndex][i] = mpArgV[localPlayerIndex][i];
 	}
 	
-	mpArgc[localPlayerIndex] = playerCount+5;
+	mpArgc[localPlayerIndex] = numeric_cast<int>(playerCount + 5);
 
 	strcpy(mpArgV[localPlayerIndex][0], "doomlauncher");
 	strcpy(mpArgV[localPlayerIndex][1], "-dup");
@@ -295,8 +294,10 @@ void DoomInterface::SetMultiplayerPlayers(int localPlayerIndex, int playerCount,
 	strcpy(mpArgV[localPlayerIndex][5], playerAddresses[localPlayer].c_str());
 
 	int currentArg = 6;
-	for(int i = 0; i < playerCount; i++) {
-		if(i != localPlayer) {
+	for( index_t i = 0; std::cmp_less(i, playerCount); i++ ) 
+	{
+		if(i != localPlayer) 
+		{
 			strcpy(mpArgV[localPlayerIndex][currentArg], playerAddresses[i].c_str());
 			currentArg++;
 		}

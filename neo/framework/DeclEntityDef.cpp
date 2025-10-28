@@ -116,7 +116,7 @@ bool idDeclEntityDef::Parse( const char *text, const int textLength, bool allowB
 	}
 
 	// now copy over the inherited key / value pairs
-	for ( int i = 0 ; i < defList.Num() ; i++ ) {
+	for ( size_t i = 0 ; i < defList.Num() ; i++ ) {
 		dict.SetDefaults( &defList[ i ]->dict );
 	}
 

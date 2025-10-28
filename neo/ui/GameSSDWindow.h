@@ -492,7 +492,7 @@ public:
 	virtual idWinVar*	GetWinVarByName	(const char *_name, bool winLookup = false, drawWin_t** owner = nullptr);
 	
 	
-	virtual void		Draw(int time, float x, float y);
+	virtual void		Draw(ID_TIME_T time, float x, float y);
 
 	void				AddHealth(int health);
 	void				AddScore(SSDEntity* ent, int points);

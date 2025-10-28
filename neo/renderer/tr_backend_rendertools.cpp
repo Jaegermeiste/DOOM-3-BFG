@@ -217,7 +217,7 @@ void RB_ScanStencilBuffer() {
 	memset( counts, 0, sizeof( counts ) );
 
 	stencilReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS));
-	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	qglReadPixels( 0, 0, numeric_cast<GLsizei>(renderSystem->GetWidth()), numeric_cast<GLsizei>(renderSystem->GetHeight()), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
 		counts[ stencilReadback[i] ]++;
@@ -249,7 +249,7 @@ static void RB_CountStencilBuffer() {
 
 
 	stencilReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS));
-	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	qglReadPixels( 0, 0, numeric_cast<GLsizei>(renderSystem->GetWidth()), numeric_cast<GLsizei>(renderSystem->GetHeight()), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	count = 0;
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -259,7 +259,7 @@ static void RB_CountStencilBuffer() {
 	R_StaticFree( stencilReadback );
 
 	// print some stats (not supposed to do from back end in SMP...)
-	common->Printf( "overdraw: %5.1f\n", idMath::Itof<float>(count)/ idMath::Itof<float>(renderSystem->GetWidth() * renderSystem->GetHeight())  );
+	common->Printf( "overdraw: %5.1f\n", numeric_cast<float>(count)/ numeric_cast<float>(renderSystem->GetWidth() * renderSystem->GetHeight())  );
 }
 
 /*
@@ -395,7 +395,7 @@ static void RB_ShowIntensity() {
 	}
 
 	colorReadback = static_cast<byte*>(R_StaticAlloc(renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS));
-	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
+	qglReadPixels( 0, 0, numeric_cast<GLsizei>(renderSystem->GetWidth()), numeric_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
 
 	c = renderSystem->GetWidth() * renderSystem->GetHeight() * 4;
 	for ( i = 0; i < c; i+=4 ) {
@@ -403,13 +403,13 @@ static void RB_ShowIntensity() {
 		j = std::max<size_t>(colorReadback[i + 1], j);
 		j = std::max<size_t>(colorReadback[i + 2], j);
 		if ( j < 128 ) {
-			colorReadback[i+0] = idMath::integer_cast<byte>(2*(128-j));
-			colorReadback[i+1] = idMath::integer_cast<byte>(2*j);
+			colorReadback[i+0] = numeric_cast<byte>(2*(128-j));
+			colorReadback[i+1] = numeric_cast<byte>(2*j);
 			colorReadback[i+2] = 0;
 		} else {
 			colorReadback[i+0] = 0;
-			colorReadback[i+1] = idMath::integer_cast<byte>(2*(255-j));
-			colorReadback[i+2] = idMath::integer_cast<byte>(2*(j-128));
+			colorReadback[i+1] = numeric_cast<byte>(2*(255-j));
+			colorReadback[i+2] = numeric_cast<byte>(2*(j-128));
 		}
 	}
 
@@ -426,7 +426,7 @@ static void RB_ShowIntensity() {
 	globalImages->BindNull();
 	qglMatrixMode( GL_MODELVIEW );
 
-	qglDrawPixels(idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
+	qglDrawPixels(numeric_cast<GLsizei>(renderSystem->GetWidth()), numeric_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
 
 	R_StaticFree( colorReadback );
 }
@@ -464,7 +464,7 @@ static void RB_ShowDepthBuffer() {
 	depthReadback = R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight()*4, TAG_RENDER_TOOLS );
 	memset( depthReadback, 0, renderSystem->GetWidth() * renderSystem->GetHeight()*4 );
 
-	qglReadPixels( 0, 0, idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
+	qglReadPixels( 0, 0, numeric_cast<GLsizei>(renderSystem->GetWidth()), numeric_cast<GLsizei>(renderSystem->GetHeight()), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
 
 #if 0
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -475,7 +475,7 @@ static void RB_ShowDepthBuffer() {
 	}
 #endif
 
-	qglDrawPixels(idMath::integer_cast<GLsizei>(renderSystem->GetWidth()), idMath::integer_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
+	qglDrawPixels(numeric_cast<GLsizei>(renderSystem->GetWidth()), numeric_cast<GLsizei>(renderSystem->GetHeight()), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
 	R_StaticFree( depthReadback );
 }
 
@@ -568,7 +568,7 @@ static void RB_EnterWeaponDepthHack() {
 RB_EnterModelDepthHack
 ===============
 */
-static void RB_EnterModelDepthHack( float depth ) {
+static void RB_EnterModelDepthHack(const float depth ) {
 	float matrix[16];
 
 	memcpy( matrix, backEnd.viewDef->projectionMatrix, sizeof( matrix ) );
@@ -612,10 +612,10 @@ matrix will already have been loaded, and backEnd.currentSpace will
 be updated after the triangle function completes.
 ====================
 */
-static void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, int numDrawSurfs, void (*triFunc_)( const drawSurf_t *) ) {
+static void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, const size_t numDrawSurfs, void (*triFunc_)( const drawSurf_t *) ) {
 	backEnd.currentSpace = nullptr;
 
-	for ( int i = 0 ; i < numDrawSurfs ; i++ ) {
+	for ( size_t i = 0 ; i < numDrawSurfs ; i++ ) {
 		const drawSurf_t * drawSurf = drawSurfs[i];
 		if ( drawSurf == nullptr) {
 			continue;
@@ -726,7 +726,7 @@ static void RB_ShowSilhouette() {
 				qglVertexPointer( 3, GL_FLOAT, sizeof( idShadowVert ), (void *)vertOffset );
 				qglBegin( GL_LINES );
 
-				for ( int j = 0; j < tri->numIndexes; j+=3 ) {
+				for ( size_t j = 0; j < tri->numIndexes; j+=3 ) {
 					int		i1 = tri->indexes[j+0];
 					int		i2 = tri->indexes[j+1];
 					int		i3 = tri->indexes[j+2];
@@ -759,7 +759,7 @@ RB_ShowTris
 Debugging tool
 =====================
 */
-static void RB_ShowTris( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowTris( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 
 	modelTrace_t mt;
 	idVec3 end;
@@ -807,7 +807,7 @@ RB_ShowSurfaceInfo
 Debugging tool
 =====================
 */
-static void RB_ShowSurfaceInfo( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowSurfaceInfo( drawSurf_t **drawSurfs, size_t numDrawSurfs ) {
 	modelTrace_t mt;
 	idVec3 start, end;
 	
@@ -935,7 +935,7 @@ Shade triangle red if they have a positive texture area
 green if they have a negative texture area, or blue if degenerate area
 =====================
 */
-static void RB_ShowTexturePolarity( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowTexturePolarity( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int		i, j;
 	drawSurf_t	*drawSurf;
 	const srfTriangles_t	*tri;
@@ -1004,7 +1004,7 @@ RB_ShowUnsmoothedTangents
 Shade materials that are using unsmoothed tangents
 =====================
 */
-static void RB_ShowUnsmoothedTangents( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowUnsmoothedTangents( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int		i, j;
 	drawSurf_t	*drawSurf;
 	const srfTriangles_t	*tri;
@@ -1056,7 +1056,7 @@ Shade a triangle by the RGB colors of its tangent space
 3 = normal
 =====================
 */
-static void RB_ShowTangentSpace( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowTangentSpace( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int		i, j;
 	drawSurf_t	*drawSurf;
 	const srfTriangles_t	*tri;
@@ -1111,7 +1111,7 @@ RB_ShowVertexColor
 Draw each triangle with the solid vertex colors
 =====================
 */
-static void RB_ShowVertexColor( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowVertexColor( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int		i, j;
 	drawSurf_t	*drawSurf;
 	const srfTriangles_t	*tri;
@@ -1153,7 +1153,7 @@ RB_ShowNormals
 Debugging tool
 =====================
 */
-static void RB_ShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowNormals( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int			i, j;
 	drawSurf_t	*drawSurf;
 	idVec3		end;
@@ -1249,7 +1249,7 @@ RB_ShowNormals
 Debugging tool
 =====================
 */
-static void RB_AltShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_AltShowNormals( drawSurf_t **drawSurfs, size_t numDrawSurfs ) {
 	if ( r_showNormals.GetFloat() == 0.0f ) {
 		return;
 	}
@@ -1258,7 +1258,7 @@ static void RB_AltShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		drawSurf_t * drawSurf = drawSurfs[i];
 
 		RB_SimpleSurfaceSetup( drawSurf );
@@ -1266,7 +1266,7 @@ static void RB_AltShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		const srfTriangles_t * tri = drawSurf->geo;
 
 		qglBegin( GL_LINES );
-		for ( int j = 0; j < tri->numIndexes; j += 3 ) {
+		for ( size_t j = 0; j < tri->numIndexes; j += 3 ) {
 			const idDrawVert *v[3] = {
 				&tri->verts[tri->indexes[j+0]],
 				&tri->verts[tri->indexes[j+1]],
@@ -1278,7 +1278,7 @@ static void RB_AltShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 			// make the midpoint slightly above the triangle
 			const idVec3 mid = ( v[0]->xyz + v[1]->xyz + v[2]->xyz ) * ( 1.0f / 3.0f ) + 0.1f * plane.Normal();
 
-			for ( int k = 0; k < 3; k++ ) {
+			for ( size_t k = 0; k < 3; k++ ) {
 				const idVec3 pos = ( mid + v[k]->xyz * 3.0f ) * 0.25f;
 				idVec3 end;
 
@@ -1315,7 +1315,7 @@ RB_ShowTextureVectors
 Draw texture vectors in the center of each triangle
 =====================
 */
-static void RB_ShowTextureVectors( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowTextureVectors( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	if ( r_showTextureVectors.GetFloat() == 0.0f ) {
 		return;
 	}
@@ -1324,7 +1324,7 @@ static void RB_ShowTextureVectors( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 
 	globalImages->BindNull();
 
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		drawSurf_t * drawSurf = drawSurfs[i];
 
 		const srfTriangles_t * tri = drawSurf->frontEndGeo;
@@ -1338,7 +1338,7 @@ static void RB_ShowTextureVectors( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		// draw non-shared edges in yellow
 		qglBegin( GL_LINES );
 
-		for ( int j = 0; j < tri->numIndexes; j+= 3 ) {
+		for ( size_t j = 0; j < tri->numIndexes; j+= 3 ) {
 			float d0[5], d1[5];
 			idVec3 temp;
 			idVec3 tangents[2];
@@ -1411,7 +1411,7 @@ RB_ShowDominantTris
 Draw lines from each vertex to the dominant triangle center
 =====================
 */
-static void RB_ShowDominantTris( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowDominantTris( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int			i, j;
 	drawSurf_t	*drawSurf;
 	const srfTriangles_t	*tri;
@@ -1471,7 +1471,7 @@ RB_ShowEdges
 Debugging tool
 =====================
 */
-static void RB_ShowEdges( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+static void RB_ShowEdges( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int			i, j, k, m, n, o;
 	drawSurf_t	*drawSurf;
 	const srfTriangles_t	*tri;
@@ -1651,7 +1651,7 @@ static void RB_ShowPortals() {
 RB_ClearDebugText
 ================
 */
-void RB_ClearDebugText( int time ) {
+void RB_ClearDebugText( ID_TIME_T time ) {
 	int			i;
 	int			num;
 	debugText_t	*text;
@@ -1687,7 +1687,7 @@ void RB_ClearDebugText( int time ) {
 RB_AddDebugText
 ================
 */
-void RB_AddDebugText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align, const int lifetime, const bool depthTest ) {
+void RB_AddDebugText( const char *text, const idVec3 &origin, const float scale, const idVec4 &color, const idMat3 &viewAxis, const int align, const int lifetime, const bool depthTest ) {
 	debugText_t *debugText;
 
 	if ( rb_numDebugText < MAX_DEBUG_TEXT ) {
@@ -1710,7 +1710,7 @@ RB_DrawTextLength
   returns the length of the given text
 ================
 */
-float RB_DrawTextLength( const char *text, float scale, int len ) {
+float RB_DrawTextLength( const char *text, const float scale, size_t len ) {
 	int i, num, index, charIndex;
 	float spacing, textLen = 0.0f;
 
@@ -1752,7 +1752,7 @@ RB_DrawText
   align can be 0-left, 1-center (default), 2-right
 ================
 */
-static void RB_DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align ) {
+static void RB_DrawText( const char *text, const idVec3 &origin, const float scale, const idVec4 &color, const idMat3 &viewAxis, const int align ) {
 	renderProgManager.BindShader_Color();
 
 
@@ -1887,7 +1887,7 @@ void RB_ShowDebugText() {
 RB_ClearDebugLines
 ================
 */
-void RB_ClearDebugLines( int time ) {
+void RB_ClearDebugLines( ID_TIME_T time ) {
 	int			i;
 	int			num;
 	debugLine_t	*line;
@@ -2004,7 +2004,7 @@ void RB_ShowDebugLines() {
 RB_ClearDebugPolygons
 ================
 */
-void RB_ClearDebugPolygons( int time ) {
+void RB_ClearDebugPolygons( ID_TIME_T time ) {
 	int				i;
 	int				num;
 	debugPolygon_t	*poly;
@@ -2285,8 +2285,8 @@ static void RB_TestGammaBias() {
 			} else if ( v > 255 ) {
 				v = 255;
 			}
-			for ( int i = 0; i < BAR_HEIGHT; i++ ) {
-				for ( int j = 0; j < G_WIDTH/4; j++ ) {
+			for ( size_t i = 0; i < BAR_HEIGHT; i++ ) {
+				for ( size_t j = 0; j < G_WIDTH/4; j++ ) {
 					image[y+i][c*G_WIDTH/4+j][0] = v;
 					image[y+i][c*G_WIDTH/4+j][1] = v;
 					image[y+i][c*G_WIDTH/4+j][2] = v;
@@ -2495,7 +2495,7 @@ Debug visualization
 FIXME: not thread safe!
 ================
 */
-void RB_ShowTrace( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+void RB_ShowTrace( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	int						i;
 	const srfTriangles_t	*tri;
 	const drawSurf_t		*surf;
@@ -2573,7 +2573,7 @@ void RB_ShowTrace( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 RB_RenderDebugTools
 =================
 */
-void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+void RB_RenderDebugTools( drawSurf_t **drawSurfs, const size_t numDrawSurfs ) {
 	// don't do much if this was a 2D rendering
 	if ( !backEnd.viewDef->viewEntities ) {
 		RB_TestImage();
@@ -2632,7 +2632,7 @@ RB_ShutdownDebugTools
 =================
 */
 void RB_ShutdownDebugTools() {
-	for ( int i = 0; i < MAX_DEBUG_POLYGONS; i++ ) {
+	for ( size_t i = 0; i < MAX_DEBUG_POLYGONS; i++ ) {
 		rb_debugPolygons[i].winding.Clear();
 	}
 }

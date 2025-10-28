@@ -104,7 +104,7 @@ ID_INLINE type idInterpolate<type>::GetCurrentValue( const ID_TIME_T time ) cons
 		return endValue;
 	} else {
 		const auto deltaTime = time - startTime;
-		const float f = idMath::Itof<float>(deltaTime) / idMath::Itof<float>(duration);
+		const float f = numeric_cast<float>(deltaTime) / numeric_cast<float>(duration);
 		const type range = ( endValue - startValue );
 		return startValue + ( range * f );
 	}
@@ -188,7 +188,7 @@ ID_INLINE void idInterpolateAccelDecelLinear<type>::Init( const ID_TIME_T startT
 		this->decelTime = duration - this->accelTime;
 	}
 	this->linearTime = duration - this->accelTime - this->decelTime;
-	const type speed = ( endValue - startValue ) * ( 1000.0f / ( idMath::Itof<float>(this->linearTime + this->accelTime + this->decelTime ) * 0.5f ) );
+	const type speed = ( endValue - startValue ) * ( 1000.0f / ( numeric_cast<float>(this->linearTime + this->accelTime + this->decelTime ) * 0.5f ) );
 
 	if ( this->accelTime ) {
 		extrapolate.Init( startTime, this->accelTime, startValue, ( startValue - startValue ), speed, EXTRAPOLATION_ACCELLINEAR ); //-V501
@@ -333,7 +333,7 @@ ID_INLINE void idInterpolateAccelDecelSine<type>::Init( const ID_TIME_T startTim
 		this->decelTime = duration - this->accelTime;
 	}
 	this->linearTime = duration - this->accelTime - this->decelTime;
-	const type speed = ( endValue - startValue ) * ( 1000.0f / (idMath::Itof<float>(this->linearTime + this->accelTime + this->decelTime ) * idMath::SQRT_1OVER2 ) );
+	const type speed = ( endValue - startValue ) * ( 1000.0f / (numeric_cast<float>(this->linearTime + this->accelTime + this->decelTime ) * idMath::SQRT_1OVER2 ) );
 
 	if ( this->accelTime ) {
 		extrapolate.Init( startTime, this->accelTime, startValue, ( startValue - startValue ), speed, EXTRAPOLATION_ACCELSINE ); //-V501

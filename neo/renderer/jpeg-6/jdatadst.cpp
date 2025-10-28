@@ -40,7 +40,7 @@ typedef my_destination_mgr * my_dest_ptr;
  */
 
 METHODDEF void
-init_destination( j_compress_ptr cinfo ) {
+init_destination(const j_compress_ptr cinfo ) {
     my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
 
     /* Allocate the output buffer --- it will be released when done with image */
@@ -77,7 +77,7 @@ init_destination( j_compress_ptr cinfo ) {
  */
 
 METHODDEF boolean
-empty_output_buffer( j_compress_ptr cinfo ) {
+empty_output_buffer(const j_compress_ptr cinfo ) {
     my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
 
     if ( JFWRITE( dest->outfile, dest->buffer, OUTPUT_BUF_SIZE ) !=
@@ -102,7 +102,7 @@ empty_output_buffer( j_compress_ptr cinfo ) {
  */
 
 METHODDEF void
-term_destination( j_compress_ptr cinfo ) {
+term_destination(const j_compress_ptr cinfo ) {
     my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
     size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
 
@@ -127,7 +127,7 @@ term_destination( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_stdio_dest( j_compress_ptr cinfo, FILE * outfile ) {
+jpeg_stdio_dest(const j_compress_ptr cinfo, FILE * outfile ) {
     my_dest_ptr dest;
 
     /* The destination object is made permanent so that multiple JPEG images

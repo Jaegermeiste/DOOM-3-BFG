@@ -95,7 +95,7 @@ local uInt longest_match_fast OF((deflate_state *s, IPos cur_match));
 
 #ifdef DEBUG
 local  void check_match OF((deflate_state *s, IPos start, IPos match,
-                            int length));
+                            size_t length));
 #endif
 
 /* ===========================================================================
@@ -454,9 +454,9 @@ int ZEXPORT deflateParams(strm, level, strategy)
 int ZEXPORT deflateTune(strm, good_length, max_lazy, nice_length, max_chain)
     z_streamp strm;
     int good_length;
-    int max_lazy;
+    size_t max_lazy;
     int nice_length;
-    int max_chain;
+    size_t max_chain;
 {
     deflate_state *s;
 
@@ -1031,7 +1031,7 @@ local uInt longest_match(s, cur_match)
     unsigned chain_length = s->max_chain_length;/* max hash chain length */
     register Bytef *scan = s->window + s->strstart; /* current string */
     register Bytef *match;                       /* matched string */
-    register int len;                           /* length of current match */
+    register size_t len;                           /* length of current match */
     int best_len = s->prev_length;              /* best match length so far */
     int nice_match = s->nice_match;             /* stop if match long enough */
     IPos limit = s->strstart > (IPos)MAX_DIST(s) ?
@@ -1178,7 +1178,7 @@ local uInt longest_match_fast(s, cur_match)
 {
     register Bytef *scan = s->window + s->strstart; /* current string */
     register Bytef *match;                       /* matched string */
-    register int len;                           /* length of current match */
+    register size_t len;                           /* length of current match */
     register Bytef *strend = s->window + s->strstart + MAX_MATCH;
 
     /* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
@@ -1232,7 +1232,7 @@ local uInt longest_match_fast(s, cur_match)
 local void check_match(s, start, match, length)
     deflate_state *s;
     IPos start, match;
-    int length;
+    size_t length;
 {
     /* check that the match is indeed a match */
     if (zmemcmp(s->window + match,

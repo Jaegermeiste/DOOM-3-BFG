@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+#pragma once
+
 #include "idlib/precompiled.h"
 
 #include "../doom/doomlib.h"
@@ -47,17 +49,17 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 struct SplitscreenData {
-	int		PLAYERCOUNT;
+	size_t	PLAYERCOUNT;
 	int		globalSkill;
 	int		globalEpisode;
 	int		globalLevel;
-	int		globalTimeLimit;
+	ID_TIME_T	globalTimeLimit;
 	int		globalFragLimit;
 };
 
 void			DL_InitNetworking( DoomInterface *pdi );
 
-extern int		PLAYERCOUNT;
+extern size_t	PLAYERCOUNT;
 extern bool		globalNetworking;
 extern bool		debugOutput;
 extern BOOL		globalLicenseFullGame;
@@ -68,7 +70,7 @@ extern int		globalNeedUpsell;
 extern bool		globalPauseTime;
 
 
-enum MenuStates{
+enum MenuStates : uint8 {
 	MENU_NONE,
 	MENU_XBOX_SYSTEM,
 	MENU_PAUSE,
@@ -90,8 +92,8 @@ enum MenuStates{
 	MENU_COUNT
 };
 
-typedef struct {
-	int maxPing;
+typedef struct PingImage_s {
+	size_t maxPing;
 	
 	const wchar_t *	image;
 } PingImage_t;

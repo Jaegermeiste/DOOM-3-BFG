@@ -65,7 +65,7 @@ public:
 	void Clear() {
 		tokenIndexes.Clear();
 	}
-	size_t Append( short sdx ) {
+	size_t Append(const short sdx ) {
 		return tokenIndexes.Append( sdx );
 	}
 
@@ -73,7 +73,7 @@ public:
 	{
 		return tokenIndexes.Num();
 	}
-	void SetNum( int num ) {
+	void SetNum(const size_t num ) {
 		tokenIndexes.SetNum( num );
 	}
 	short &	operator[]( const size_t index ) {
@@ -89,12 +89,12 @@ public:
 	}
 	void Write( idFile *outFile ) {
 		outFile->WriteString( fileName );
-		outFile->WriteBig( idMath::integer_cast<int>(tokenIndexes.Num()) );
+		outFile->WriteBig( numeric_cast<int>(tokenIndexes.Num()) );
 		outFile->WriteBigArray( tokenIndexes.Ptr(), tokenIndexes.Num() );
 	}
 	void Read( idFile *inFile ) {
 		inFile->ReadString( fileName );
-		int num = 0;
+		size_t num = 0;
 		inFile->ReadBig( num );
 		tokenIndexes.SetNum( num );
 		inFile->ReadBigArray( tokenIndexes.Ptr(), num );
@@ -141,8 +141,8 @@ public:
 	int ParseInt();
 	bool ParseBool();
 	float ParseFloat( bool *errorFlag = nullptr );
-	void UpdateTimeStamp( ID_TIME_T &t ) {
-		timeStamp = (std::max)(t, timeStamp);
+	void UpdateTimeStamp( const ID_TIME_T &t ) {
+		timeStamp = Max(t, timeStamp);
 	}
 private:
 	idList< idBinaryToken > tokens;

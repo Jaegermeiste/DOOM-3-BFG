@@ -159,7 +159,7 @@ void idMenuScreen_Shell_NewGame::HideScreen( const mainMenuTransition_t transiti
 idMenuScreen_Shell_NewGame::HandleAction h
 ========================
 */
-bool idMenuScreen_Shell_NewGame::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_NewGame::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, const bool forceHandled ) {
 
 	if ( menuData != nullptr) {
 		if ( menuData->ActiveScreen() != SHELL_AREA_NEW_GAME ) {

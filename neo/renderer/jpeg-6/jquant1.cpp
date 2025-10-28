@@ -188,7 +188,7 @@ select_ncolors( j_decompress_ptr cinfo, int Ncolors[] ) {
 /* and fill in Ncolors[] array to indicate choice. */
 /* Return value is total number of colors (product of Ncolors[] values). */
     int nc = cinfo->out_color_components;/* number of color components */
-    int max_colors = cinfo->desired_number_of_colors;
+    size_t max_colors = cinfo->desired_number_of_colors;
     int total_colors, iroot, i, j;
     boolean changed;
     long temp;
@@ -244,7 +244,7 @@ select_ncolors( j_decompress_ptr cinfo, int Ncolors[] ) {
 
 
 LOCAL int
-output_value( j_decompress_ptr cinfo, int ci, int j, int maxj ) {
+output_value( j_decompress_ptr cinfo, int ci, int j, size_t maxj ) {
 /* Return j'th output value, where j will range from 0 to maxj */
 /* The output values must fall in 0..MAXJSAMPLE in increasing order */
 /* We always provide values 0 and MAXJSAMPLE for each component;
@@ -257,7 +257,7 @@ output_value( j_decompress_ptr cinfo, int ci, int j, int maxj ) {
 
 
 LOCAL int
-largest_input_value( j_decompress_ptr cinfo, int ci, int j, int maxj ) {
+largest_input_value( j_decompress_ptr cinfo, int ci, int j, size_t maxj ) {
 /* Return largest input value that should map to j'th output value */
 /* Must have largest(j=0) >= 0, and largest(j=maxj) >= MAXJSAMPLE */
 /* Breakpoints are halfway between values returned by output_value */
@@ -459,7 +459,7 @@ create_odither_tables( j_decompress_ptr cinfo ) {
 
 METHODDEF void
 color_quantize( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
-                JSAMPARRAY output_buf, int num_rows ) {
+                JSAMPARRAY output_buf, size_t num_rows ) {
 /* General case, no dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     JSAMPARRAY colorindex = cquantize->colorindex;
@@ -486,7 +486,7 @@ color_quantize( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 
 METHODDEF void
 color_quantize3( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
-                 JSAMPARRAY output_buf, int num_rows ) {
+                 JSAMPARRAY output_buf, size_t num_rows ) {
 /* Fast path for out_color_components==3, no dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     register int pixcode;
@@ -513,7 +513,7 @@ color_quantize3( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 
 METHODDEF void
 quantize_ord_dither( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
-                     JSAMPARRAY output_buf, int num_rows ) {
+                     JSAMPARRAY output_buf, size_t num_rows ) {
 /* General case, with ordered dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     register JSAMPROW input_ptr;
@@ -562,7 +562,7 @@ quantize_ord_dither( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 
 METHODDEF void
 quantize3_ord_dither( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
-                      JSAMPARRAY output_buf, int num_rows ) {
+                      JSAMPARRAY output_buf, size_t num_rows ) {
 /* Fast path for out_color_components==3, with ordered dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     register int pixcode;
@@ -606,7 +606,7 @@ quantize3_ord_dither( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 
 METHODDEF void
 quantize_fs_dither( j_decompress_ptr cinfo, JSAMPARRAY input_buf,
-                    JSAMPARRAY output_buf, int num_rows ) {
+                    JSAMPARRAY output_buf, size_t num_rows ) {
 /* General case, with Floyd-Steinberg dithering */
     my_cquantize_ptr cquantize = (my_cquantize_ptr) cinfo->cquantize;
     register LOCFSERROR cur;/* current error or pixel value */

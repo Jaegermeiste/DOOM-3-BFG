@@ -295,11 +295,11 @@ idCompiler::SizeConstant
 Creates a def for a size constant
 ============
 */
-ID_INLINE idVarDef *idCompiler::SizeConstant( size_t size ) {
+ID_INLINE idVarDef *idCompiler::SizeConstant(const size_t size ) {
 	eval_t eval = {};
 
 	memset( &eval, 0, sizeof( eval ) );
-	eval._int = idMath::integer_cast<int64>(size);
+	eval._int = numeric_cast<int64>(size);
 	return GetImmediate( &type_argsize, &eval, "" );
 }
 
@@ -310,7 +310,7 @@ idCompiler::JumpConstant
 Creates a def for a jump constant
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpConstant( int64 value ) {
+ID_INLINE idVarDef *idCompiler::JumpConstant(const int64 value ) {
 	eval_t eval = {};
 
 	memset( &eval, 0, sizeof( eval ) );
@@ -325,7 +325,7 @@ idCompiler::JumpDef
 Creates a def for a relative jump from one code location to another
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpDef( int64 jumpfrom, int64 jumpto ) {
+ID_INLINE idVarDef *idCompiler::JumpDef(const int64 jumpfrom, const int64 jumpto ) {
 	return JumpConstant( jumpto - jumpfrom );
 }
 
@@ -336,7 +336,7 @@ idCompiler::JumpTo
 Creates a def for a relative jump from current code location
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpTo( int64 jumpto ) {
+ID_INLINE idVarDef *idCompiler::JumpTo(const int64 jumpto ) {
 	return JumpDef( gameLocal.program.NumStatements(), jumpto );
 }
 
@@ -347,7 +347,7 @@ idCompiler::JumpFrom
 Creates a def for a relative jump from code location to current code location
 ============
 */
-ID_INLINE idVarDef *idCompiler::JumpFrom( int64 jumpfrom ) {
+ID_INLINE idVarDef *idCompiler::JumpFrom(const int64 jumpfrom ) {
 	return JumpDef( jumpfrom, gameLocal.program.NumStatements() );
 }
 
@@ -356,7 +356,7 @@ ID_INLINE idVarDef *idCompiler::JumpFrom( int64 jumpfrom ) {
 idCompiler::Divide
 ============
 */
-ID_INLINE float idCompiler::Divide( float numerator, float denominator ) {
+ID_INLINE float idCompiler::Divide(const float numerator, const float denominator ) {
 	if ( denominator == 0 ) {
 		Error( "Divide by zero" );
 	}
@@ -612,7 +612,7 @@ idCompiler::EmitOpcode
 Emits a primitive statement, returning the var it places it's value in
 ============
 */
-ID_INLINE idVarDef *idCompiler::EmitOpcode( int op, idVarDef *var_a, idVarDef *var_b ) {
+ID_INLINE idVarDef *idCompiler::EmitOpcode(const int op, idVarDef *var_a, idVarDef *var_b ) {
 	return EmitOpcode( &opcodes[ op ], var_a, var_b );
 }
 
@@ -923,7 +923,7 @@ idVarDef *idCompiler::ParseImmediate() {
 idCompiler::EmitFunctionParms
 ============
 */
-idVarDef *idCompiler::EmitFunctionParms( scriptOp_t op, idVarDef *func, size_t startarg, size_t startsize, idVarDef *object ) {
+idVarDef *idCompiler::EmitFunctionParms(const scriptOp_t op, idVarDef *func, const size_t startarg, const size_t startsize, idVarDef *object ) {
 	idVarDef		*e = nullptr;
 	idVarDef		*returnDef = nullptr;
 	idTypeDef		*returnType = nullptr;
@@ -1428,7 +1428,7 @@ idVarDef *idCompiler::GetTerm() {
 idCompiler::TypeMatches
 ==============
 */
-bool idCompiler::TypeMatches( etype_t type1, etype_t type2 )
+bool idCompiler::TypeMatches(const etype_t type1, const etype_t type2 )
 {
 	if ( type1 == type2 ) {
 		return true;
@@ -1450,7 +1450,7 @@ bool idCompiler::TypeMatches( etype_t type1, etype_t type2 )
 idCompiler::GetExpression
 ==============
 */
-idVarDef *idCompiler::GetExpression( int priority ) {
+idVarDef *idCompiler::GetExpression(const int priority ) {
 	opcode_t		*op = nullptr;
 	opcode_t		*oldop = nullptr;
 	idVarDef		*e = nullptr;
@@ -1632,7 +1632,7 @@ idVarDef *idCompiler::GetExpression( int priority ) {
 idCompiler::PatchLoop
 ================
 */
-void idCompiler::PatchLoop( int64 start, int64 continuePos ) {
+void idCompiler::PatchLoop(const int64 start, const int64 continuePos ) {
 	int64		i = 0;
 	statement_t	*pos = nullptr;
 
@@ -1718,7 +1718,7 @@ void idCompiler::ParseWhileStatement() {
 
 	ExpectToken( "(" );
 	
-	patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+	patch2 = numeric_cast<int64>(gameLocal.program.NumStatements());
 	e = GetExpression( TOP_PRIORITY );
 	ExpectToken( ")" );
 
@@ -1727,7 +1727,7 @@ void idCompiler::ParseWhileStatement() {
 		ParseStatement();
 		EmitOpcode( OP_GOTO, JumpTo( patch2 ), nullptr );
 	} else {
-		patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+		patch1 = numeric_cast<int64>(gameLocal.program.NumStatements());
         EmitOpcode( OP_IFNOT, e, nullptr );
 		ParseStatement();
 		EmitOpcode( OP_GOTO, JumpTo( patch2 ), nullptr );
@@ -1789,7 +1789,7 @@ void idCompiler::ParseForStatement() {
 
 	loopDepth++;
 
-	start = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+	start = numeric_cast<int64>(gameLocal.program.NumStatements());
 
 	ExpectToken( "(" );
 	
@@ -1803,22 +1803,22 @@ void idCompiler::ParseForStatement() {
 	}
 
 	// condition
-	patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+	patch2 = numeric_cast<int64>(gameLocal.program.NumStatements());
 
 	e = GetExpression( TOP_PRIORITY );
 	ExpectToken( ";" );
 
 	//FIXME: add check for constant expression
-	patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+	patch1 = numeric_cast<int64>(gameLocal.program.NumStatements());
 	EmitOpcode( OP_IFNOT, e, nullptr );
 
 	// counter
 	if ( !CheckToken( ")" ) ) {
-		patch3 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+		patch3 = numeric_cast<int64>(gameLocal.program.NumStatements());
 		EmitOpcode( OP_IF, e, nullptr );
 
 		patch4 = patch2;
-		patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+		patch2 = numeric_cast<int64>(gameLocal.program.NumStatements());
 		do {
 			GetExpression( TOP_PRIORITY );
 		} while( CheckToken( "," ) );
@@ -1857,7 +1857,7 @@ void idCompiler::ParseDoWhileStatement() {
 
 	loopDepth++;
 
-	patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+	patch1 = numeric_cast<int64>(gameLocal.program.NumStatements());
 	ParseStatement();
 	ExpectToken( "while" );
 	ExpectToken( "(" );
@@ -1888,13 +1888,13 @@ void idCompiler::ParseIfStatement() {
 	ExpectToken( ")" );
 
 	//FIXME: add check for constant expression
-	patch1 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+	patch1 = numeric_cast<int64>(gameLocal.program.NumStatements());
 	EmitOpcode( OP_IFNOT, e, nullptr );
 
 	ParseStatement();
 	
 	if ( CheckToken( "else" ) ) {
-		patch2 = idMath::integer_cast<int64>(gameLocal.program.NumStatements());
+		patch2 = numeric_cast<int64>(gameLocal.program.NumStatements());
 		EmitOpcode( OP_GOTO, nullptr, nullptr );
 		gameLocal.program.GetStatement( patch1 ).b = JumpFrom( patch1 );
 		ParseStatement();
@@ -2326,7 +2326,7 @@ void idCompiler::ParseVariableDef( idTypeDef *type, const char *name ) {
 idCompiler::GetTypeForEventArg
 ================
 */
-idTypeDef *idCompiler::GetTypeForEventArg( char argType ) {
+idTypeDef *idCompiler::GetTypeForEventArg(const char argType ) {
 	idTypeDef *type;
 
 	switch( argType ) {
@@ -2554,7 +2554,7 @@ idCompiler::CompileFile
 compiles the 0 terminated text, adding definitions to the program structure
 ============
 */
-void idCompiler::CompileFile( const char *text, const char *filename, bool toConsole ) {
+void idCompiler::CompileFile( const char *text, const char *filename, const bool toConsole ) {
 	idTimer compile_time;
 	bool error;
 

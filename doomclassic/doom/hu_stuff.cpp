@@ -92,7 +92,7 @@ const char*	const player_names[] =
 // The actual names can be found in DStrings.h.
 //
 
-const char*	mapnames[] =
+static const char*	mapnames[] =
 {
 
 	HUSTR_E1M1,
@@ -146,7 +146,7 @@ const char*	mapnames[] =
 		"NEWLEVEL"
 };
 
-const char*	mapnames2[] =
+static const char*	mapnames2[] =
 {
 	HUSTR_1,
 		HUSTR_2,
@@ -187,7 +187,7 @@ const char*	mapnames2[] =
 };
 
 
-const char*	mapnamesp[] =
+static const char*	mapnamesp[] =
 {
 	PHUSTR_1,
 		PHUSTR_2,
@@ -226,7 +226,7 @@ const char*	mapnamesp[] =
 };
 
 	// TNT WAD map names.
-const char *mapnamest[] =
+static const char *mapnamest[] =
 {
 	THUSTR_1,
 		THUSTR_2,
@@ -265,7 +265,7 @@ const char *mapnamest[] =
 };
 
 
-const char*	shiftxform;
+static const char*	shiftxform;
 
 const char english_shiftxform[] =
 {
@@ -309,7 +309,7 @@ const char english_shiftxform[] =
 		'{', '|', '}', '~', 127
 };
 
-char ForeignTranslation(unsigned char ch)
+static char ForeignTranslation(const unsigned char ch)
 {
 	return ch;
 }
@@ -328,12 +328,12 @@ void HU_Init(void)
 	for (i=0;i<HU_FONTSIZE;i++)
 	{
 		sprintf(buffer, "STCFN%.3d", j++);
-		::g->hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC_SHARED);
+		::g->hu_font[i] = static_cast<patch_t*>(W_CacheLumpName(buffer, PU_STATIC_SHARED));
 	}
 
 }
 
-void HU_Stop(void)
+static void HU_Stop(void)
 {
 	::g->headsupactive = false;
 }
@@ -345,7 +345,9 @@ void HU_Start(void)
 	const char*	s;
 
 	if (::g->headsupactive)
+	{
 		HU_Stop();
+	}
 
 	::g->plr = &::g->players[::g->consoleplayer];
 	::g->message_on = false;
@@ -390,7 +392,9 @@ void HU_Start(void)
 	}
 
 	while (*s)
+	{
 		HUlib_addCharToTextLine(&::g->w_title, *(s++));
+	}
 
 	// create the chat widget
 	HUlib_initIText(&::g->w_chat,
@@ -400,7 +404,9 @@ void HU_Start(void)
 
 	// create the inputbuffer widgets
 	for (i=0 ; i<MAXPLAYERS ; i++)
-		HUlib_initIText(&::g->w_inputbuffer[i], 0, 0, 0, 0, &::g->always_off);
+	{
+		HUlib_initIText(&::g->w_inputbuffer[i], 0, 0, nullptr, 0, &::g->always_off);
+	}
 
 	::g->headsupactive = true;
 
@@ -412,8 +418,9 @@ void HU_Drawer(void)
 	HUlib_drawSText(&::g->w_message);
 	HUlib_drawIText(&::g->w_chat);
 	if (::g->automapactive)
+	{
 		HUlib_drawTextLine(&::g->w_title, false);
-
+	}
 }
 
 void HU_Erase(void)
@@ -441,21 +448,19 @@ void HU_Ticker(void)
 		if ((::g->plr->message && !::g->message_nottobefuckedwith)
 			|| (::g->plr->message && ::g->message_dontfuckwithme))
 		{
-			HUlib_addMessageToSText(&::g->w_message, 0, ::g->plr->message);
-			::g->plr->message = 0;
+			HUlib_addMessageToSText(&::g->w_message, nullptr, ::g->plr->message);
+			::g->plr->message = nullptr;
 			::g->message_on = true;
 			::g->message_counter = HU_MSGTIMEOUT;
 			::g->message_nottobefuckedwith = ::g->message_dontfuckwithme;
-			::g->message_dontfuckwithme = 0;
+			::g->message_dontfuckwithme = false;
 		}
 
 	} // else ::g->message_on = false;
 }
 
 
-
-
-void HU_queueChatChar(char c)
+static void HU_queueChatChar(const char c)
 {
 	if (((::g->head + 1) & (QUEUESIZE-1)) == ::g->tail)
 	{
@@ -505,7 +510,9 @@ qboolean HU_Responder(event_t *ev)
 
 	numplayers = 0;
 	for (i=0 ; i<MAXPLAYERS ; i++)
+	{
 		numplayers += ::g->playeringame[i];
+	}
 
 	if (ev->data1 == KEY_RSHIFT)
 	{
@@ -519,7 +526,9 @@ qboolean HU_Responder(event_t *ev)
 	}
 
 	if (ev->type != ev_keydown)
+	{
 		return false;
+	}
 
 	if (!::g->chat_on)
 	{
@@ -552,15 +561,25 @@ qboolean HU_Responder(event_t *ev)
 					{
 						::g->num_nobrainers++;
 						if (::g->num_nobrainers < 3)
+						{
 							::g->plr->message = HUSTR_TALKTOSELF1;
+						}
 						else if (::g->num_nobrainers < 6)
+						{
 							::g->plr->message = HUSTR_TALKTOSELF2;
+						}
 						else if (::g->num_nobrainers < 9)
+						{
 							::g->plr->message = HUSTR_TALKTOSELF3;
+						}
 						else if (::g->num_nobrainers < 32)
+						{
 							::g->plr->message = HUSTR_TALKTOSELF4;
+						}
 						else
+						{
 							::g->plr->message = HUSTR_TALKTOSELF5;
+						}
 					}
 				}
 			}
@@ -574,7 +593,9 @@ qboolean HU_Responder(event_t *ev)
 		{
 			c = c - '0';
 			if (c > 9)
+			{
 				return false;
+			}
 			// I_PrintfE( "got here\n");
 			macromessage = temp_chat_macros[c];
 
@@ -583,7 +604,9 @@ qboolean HU_Responder(event_t *ev)
 
 			// send the macro message
 			while (*macromessage)
+			{
 				HU_queueChatChar(*macromessage++);
+			}
 			HU_queueChatChar(KEY_ENTER);
 
 			// leave chat mode and notify that it was sent
@@ -595,7 +618,9 @@ qboolean HU_Responder(event_t *ev)
 		else
 		{
 			if (::g->shiftdown || (c >= 'a' && c <= 'z'))
+			{
 				c = shiftxform[c];
+			}
 			eatkey = HUlib_keyInIText(&::g->w_chat, c);
 			if (eatkey)
 			{
@@ -615,7 +640,9 @@ qboolean HU_Responder(event_t *ev)
 				}
 			}
 			else if (c == KEY_ESCAPE)
+			{
 				::g->chat_on = false;
+			}
 		}
 	}
 

@@ -72,7 +72,7 @@ idAASLocal::~idAASLocal() {
 idAASLocal::Init
 ============
 */
-bool idAASLocal::Init( const idStr &mapName, unsigned int mapFileCRC ) {
+bool idAASLocal::Init( const idStr &mapName, const unsigned int mapFileCRC ) {
 	if ( file && mapName.Icmp( file->GetName() ) == 0 && mapFileCRC == file->GetCRC() ) {
 		common->Printf( "Keeping %s\n", file->GetName() );
 		RemoveAllObstacles();
@@ -173,7 +173,7 @@ int idAASLocal::BoundsReachableAreaNum( const idBounds &bounds, const int areaFl
 idAASLocal::PushPointIntoAreaNum
 ============
 */
-void idAASLocal::PushPointIntoAreaNum( int areaNum, idVec3 &origin ) const {
+void idAASLocal::PushPointIntoAreaNum(const index_t areaNum, idVec3 &origin ) const {
 	if ( !file ) {
 		return;
 	}
@@ -185,7 +185,7 @@ void idAASLocal::PushPointIntoAreaNum( int areaNum, idVec3 &origin ) const {
 idAASLocal::AreaCenter
 ============
 */
-idVec3 idAASLocal::AreaCenter( int areaNum ) const {
+idVec3 idAASLocal::AreaCenter(const index_t areaNum ) const {
 	if ( !file ) {
 		return vec3_origin;
 	}
@@ -197,7 +197,7 @@ idVec3 idAASLocal::AreaCenter( int areaNum ) const {
 idAASLocal::AreaFlags
 ============
 */
-int idAASLocal::AreaFlags( int areaNum ) const {
+int idAASLocal::AreaFlags(const index_t areaNum ) const {
 	if ( !file ) {
 		return 0;
 	}
@@ -209,7 +209,7 @@ int idAASLocal::AreaFlags( int areaNum ) const {
 idAASLocal::AreaTravelFlags
 ============
 */
-int idAASLocal::AreaTravelFlags( int areaNum ) const {
+int idAASLocal::AreaTravelFlags(const index_t areaNum ) const {
 	if ( !file ) {
 		return 0;
 	}
@@ -236,7 +236,7 @@ bool idAASLocal::Trace( aasTrace_t &trace, const idVec3 &start, const idVec3 &en
 idAASLocal::GetPlane
 ============
 */
-const idPlane &idAASLocal::GetPlane( int planeNum ) const {
+const idPlane &idAASLocal::GetPlane(const index_t planeNum ) const {
 	if ( !file ) {
 		static idPlane dummy;
 		return dummy;
@@ -249,7 +249,7 @@ const idPlane &idAASLocal::GetPlane( int planeNum ) const {
 idAASLocal::GetEdgeVertexNumbers
 ============
 */
-void idAASLocal::GetEdgeVertexNumbers( int edgeNum, int verts[2] ) const {
+void idAASLocal::GetEdgeVertexNumbers(const index_t edgeNum, int verts[2] ) const {
 	if ( !file ) {
 		verts[0] = verts[1] = 0;
 		return;
@@ -264,7 +264,7 @@ void idAASLocal::GetEdgeVertexNumbers( int edgeNum, int verts[2] ) const {
 idAASLocal::GetEdge
 ============
 */
-void idAASLocal::GetEdge( int edgeNum, idVec3 &start, idVec3 &end ) const {
+void idAASLocal::GetEdge(const index_t edgeNum, idVec3 &start, idVec3 &end ) const {
 	if ( !file ) {
 		start.Zero();
 		end.Zero();

@@ -39,7 +39,7 @@ Contains the DebugGraph implementation.
 idDebugGraph::idDebugGraph
 ========================
 */
-idDebugGraph::idDebugGraph( int numItems ) :
+idDebugGraph::idDebugGraph(const size_t numItems ) :
 	bgColor( 0.0f, 0.0f, 0.0f, 0.5f ),
 	fontColor( 1.0f, 1.0f, 1.0f, 1.0f ),
 	enable( true ),
@@ -56,7 +56,7 @@ idDebugGraph::idDebugGraph( int numItems ) :
 idDebugGraph::Init
 ========================
 */
-void idDebugGraph::Init( size_t numBars ) {
+void idDebugGraph::Init(const size_t numBars ) {
 	bars.SetNum( numBars );
 	labels.Clear();
 
@@ -70,7 +70,7 @@ void idDebugGraph::Init( size_t numBars ) {
 idDebugGraph::AddGridLine
 ========================
 */
-void idDebugGraph::AddGridLine( float value, const idVec4 & color ) {
+void idDebugGraph::AddGridLine(const float value, const idVec4 & color ) {
 	graphPlot_t & line = grid.Alloc();
 	line.value = value;
 	line.color = color;
@@ -81,7 +81,7 @@ void idDebugGraph::AddGridLine( float value, const idVec4 & color ) {
 idDebugGraph::SetValue
 ========================
 */
-void idDebugGraph::SetValue( Ordinal auto b, float value, const idVec4 & color ) {
+void idDebugGraph::SetValue( index_t b, float value, const idVec4 & color ) {
 	ORDINAL_CHECK(b, bars.Num());
 	if ( !enable ) {
 		return;
@@ -102,7 +102,7 @@ void idDebugGraph::SetValue( Ordinal auto b, float value, const idVec4 & color )
 idDebugGraph::SetLabel
 ========================
 */
-void idDebugGraph::SetLabel( Ordinal auto b, const char * text ) {
+void idDebugGraph::SetLabel( index_t b, const char * text ) {
 	ORDINAL_CHECK(b, bars.Num());
 	if ( labels.Num() != bars.Num() ) {
 		labels.SetNum( bars.Num() );
@@ -154,7 +154,7 @@ void idDebugGraph::Render( idRenderSystem * gui ) {
 			gui->DrawFilled( bgColor, rect.x, rect.y, rect.z, rect.w );
 			for ( size_t i = 0; i < labels.Num(); i++ ) {
 				idVec2 pos( barLeft - SMALLCHAR_WIDTH * maxLen, barTop + i * barHeight );
-				gui->DrawSmallStringExt( idMath::Ftoi( pos.x ), idMath::Ftoi( pos.y ), labels[i], fontColor, true );
+				gui->DrawSmallStringExt( numeric_cast<int>( pos.x ), numeric_cast<int>( pos.y ), labels[i], fontColor, true );
 			}
 		}
 	} else {
@@ -186,7 +186,7 @@ void idDebugGraph::Render( idRenderSystem * gui ) {
 			gui->DrawFilled( bgColor, rect.x, rect.y, rect.z, rect.w );
 			for ( size_t i = 0; i < labels.Num(); i++ ) {
 				idVec2 pos( barLeft + i * barWidth, barBottom + border );
-				gui->DrawSmallStringExt( idMath::Ftoi( pos.x ), idMath::Ftoi( pos.y ), labels[i], fontColor, true );
+				gui->DrawSmallStringExt( numeric_cast<int>( pos.x ), numeric_cast<int>( pos.y ), labels[i], fontColor, true );
 			}
 		}
 	}

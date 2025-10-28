@@ -1593,7 +1593,7 @@ idWeapon::GetGlobalJointTransform
 This returns the offset and axis of a weapon bone in world space, suitable for attaching models or lights
 ================
 */
-bool idWeapon::GetGlobalJointTransform( bool viewModel, const jointHandle_t jointHandle, idVec3 &offset, idMat3 &axis ) {
+bool idWeapon::GetGlobalJointTransform(const bool viewModel, const jointHandle_t jointHandle, idVec3 &offset, idMat3 &axis ) {
 	if ( viewModel ) {
 		// view model
 		if ( animator.GetJointTransform( jointHandle, gameLocal.time, offset, axis ) ) {
@@ -1909,7 +1909,7 @@ void idWeapon::WeaponStolen() {
 idWeapon::DropItem
 =====================
 */
-idEntity * idWeapon::DropItem( const idVec3 &velocity, int activateDelay, int removeDelay, bool died ) {
+idEntity * idWeapon::DropItem( const idVec3 &velocity, const int activateDelay, const int removeDelay, bool died ) {
 	if ( !weaponDef || !worldModel.GetEntity() ) {
 		return nullptr;
 	}
@@ -1937,7 +1937,7 @@ idEntity * idWeapon::DropItem( const idVec3 &velocity, int activateDelay, int re
 idWeapon::SetState
 =====================
 */
-void idWeapon::SetState( const char *statename, int blendFrames ) {
+void idWeapon::SetState( const char *statename, const int blendFrames ) {
 	const function_t *func;
 
 	if ( !isLinked ) {
@@ -2029,7 +2029,7 @@ void idWeapon::UpdateNozzleFx() {
 idWeapon::BloodSplat
 ================
 */
-bool idWeapon::BloodSplat( float size ) {
+bool idWeapon::BloodSplat(const float size ) {
 	float s, c;
 	idMat3 localAxis, axistemp;
 	idVec3 localOrigin, normal;
@@ -2349,7 +2349,7 @@ bool idWeapon::GetMuzzlePositionWithHacks( idVec3 & origin, idMat3 & axis ) {
 idWeapon::PresentWeapon
 ================
 */
-void idWeapon::PresentWeapon( bool showViewModel ) {
+void idWeapon::PresentWeapon(const bool showViewModel ) {
 	playerViewOrigin = owner->firstPersonViewOrigin;
 	playerViewAxis = owner->firstPersonViewAxis;
 
@@ -2470,7 +2470,7 @@ void idWeapon::PresentWeapon( bool showViewModel ) {
 
 	if ( showViewModel && !hide ) {
 
-		for( int i = 0; i < weaponParticles.Num(); i++ ) {
+		for ( size_t i = 0; i < weaponParticles.Num(); i++ ) {
 			WeaponParticle_t* part = weaponParticles.GetIndex(i);
 
 			if(part->active) {
@@ -2690,7 +2690,7 @@ idWeapon::GetAmmoNumForName
 ================
 */
 ammo_t idWeapon::GetAmmoNumForName( const char *ammoname ) {
-	int num = 0;
+	size_t num = 0;
 
 	assert( ammoname );
 
@@ -2713,7 +2713,7 @@ ammo_t idWeapon::GetAmmoNumForName( const char *ammoname ) {
 		num = 0;
 	}
 
-	return idMath::integer_cast<ammo_t>(num);
+	return numeric_cast<ammo_t>(num);
 }
 
 /*
@@ -2721,9 +2721,9 @@ ammo_t idWeapon::GetAmmoNumForName( const char *ammoname ) {
 idWeapon::GetAmmoNameForNum
 ================
 */
-const char *idWeapon::GetAmmoNameForNum( ammo_t ammonum ) {
+const char *idWeapon::GetAmmoNameForNum(const ammo_t ammonum ) {
 	int i;
-	int num;
+	size_t num;
 	const idDict *ammoDict;
 	const idKeyValue *kv;
 	char text[ 32 ];
@@ -2752,9 +2752,9 @@ const char *idWeapon::GetAmmoNameForNum( ammo_t ammonum ) {
 idWeapon::GetAmmoPickupNameForNum
 ================
 */
-const char *idWeapon::GetAmmoPickupNameForNum( ammo_t ammonum ) {
+const char *idWeapon::GetAmmoPickupNameForNum(const ammo_t ammonum ) {
 	int i;
-	int num;
+	size_t num;
 	const idDict *ammoDict;
 	const idKeyValue *kv;
 
@@ -2939,7 +2939,7 @@ void idWeapon::ReadFromSnapshot( const idBitMsg &msg ) {
 idWeapon::ClientReceiveEvent
 ================
 */
-bool idWeapon::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitMsg &msg ) {
+bool idWeapon::ClientReceiveEvent(const int event, const ID_TIME_T time, const idBitMsg &msg ) {
 
 	switch( event ) {
 		case EVENT_RELOAD: {
@@ -2960,7 +2960,7 @@ bool idWeapon::ClientReceiveEvent( int event, const ID_TIME_T time, const idBitM
 			return true;
 		}
 		case EVENT_CHANGESKIN: {
-			int index = gameLocal.ClientRemapDecl( DECL_SKIN, msg.ReadLong() );
+			index_t index = gameLocal.ClientRemapDecl( DECL_SKIN, msg.ReadLong() );
 			renderEntity.customSkin = ( index != -1 ) ? dynamic_cast<const idDeclSkin *>( declManager->DeclByIndex( DECL_SKIN, index ) ) : nullptr;
 			UpdateVisuals();
 			if ( worldModel.GetEntity() ) {
@@ -3004,7 +3004,7 @@ void idWeapon::Event_GetOwner() const
 idWeapon::Event_WeaponState
 ===============
 */
-void idWeapon::Event_WeaponState( const char *statename, int blendFrames ) {
+void idWeapon::Event_WeaponState( const char *statename, const int blendFrames ) {
 	const function_t *func;
 
 	func = scriptObject.GetFunction( statename );
@@ -3120,7 +3120,7 @@ void idWeapon::Event_WeaponLowering() {
 idWeapon::Event_UseAmmo
 ===============
 */
-void idWeapon::Event_UseAmmo( int amount ) {
+void idWeapon::Event_UseAmmo(const int amount ) {
 	if ( owner == nullptr || ( common->IsClient() && !owner->IsLocallyControlled() ) ) {
 		return;
 	}
@@ -3139,7 +3139,7 @@ void idWeapon::Event_UseAmmo( int amount ) {
 idWeapon::Event_AddToClip
 ===============
 */
-void idWeapon::Event_AddToClip( int amount ) {
+void idWeapon::Event_AddToClip(const int amount ) {
 	int ammoAvail;
 
 	if ( owner == nullptr || ( common->IsClient() && !owner->IsLocallyControlled() ) ) {
@@ -3256,7 +3256,7 @@ void idWeapon::Event_NetEndReload() {
 idWeapon::Event_PlayAnim
 ===============
 */
-void idWeapon::Event_PlayAnim( int channel, const char *animname ) {
+void idWeapon::Event_PlayAnim(const int channel, const char *animname ) {
 	int anim;
 	
 	anim = animator.GetAnim( animname );
@@ -3286,7 +3286,7 @@ void idWeapon::Event_PlayAnim( int channel, const char *animname ) {
 idWeapon::Event_PlayCycle
 ===============
 */
-void idWeapon::Event_PlayCycle( int channel, const char *animname ) {
+void idWeapon::Event_PlayCycle(const int channel, const char *animname ) {
 	int anim;
 
 	anim = animator.GetAnim( animname );
@@ -3314,7 +3314,7 @@ void idWeapon::Event_PlayCycle( int channel, const char *animname ) {
 idWeapon::Event_AnimDone
 ===============
 */
-void idWeapon::Event_AnimDone( int channel, int blendFrames ) const
+void idWeapon::Event_AnimDone( int channel, const int blendFrames ) const
 {
 	if ( animDoneTime - FRAME2MS( blendFrames ) <= gameLocal.time ) {
 		idThread::ReturnInt( true );
@@ -3328,7 +3328,7 @@ void idWeapon::Event_AnimDone( int channel, int blendFrames ) const
 idWeapon::Event_SetBlendFrames
 ===============
 */
-void idWeapon::Event_SetBlendFrames( int channel, int blendFrames ) {
+void idWeapon::Event_SetBlendFrames( int channel, const int blendFrames ) {
 	animBlendFrames = blendFrames;
 }
 
@@ -3394,7 +3394,7 @@ void idWeapon::Event_SetSkin( const char *skinname ) {
 idWeapon::Event_Flashlight
 ================
 */
-void idWeapon::Event_Flashlight( int enable ) {
+void idWeapon::Event_Flashlight(const int enable ) {
 	if ( enable ) {
 		lightOn = true;
 		MuzzleFlashLight();
@@ -3409,7 +3409,7 @@ void idWeapon::Event_Flashlight( int enable ) {
 idWeapon::Event_GetLightParm
 ================
 */
-void idWeapon::Event_GetLightParm( int parmnum ) const
+void idWeapon::Event_GetLightParm(const int parmnum ) const
 {
 	if ( ( parmnum < 0 ) || (std::cmp_greater_equal(parmnum, MAX_ENTITY_SHADER_PARMS)) ) {
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
@@ -3424,7 +3424,7 @@ void idWeapon::Event_GetLightParm( int parmnum ) const
 idWeapon::Event_SetLightParm
 ================
 */
-void idWeapon::Event_SetLightParm( int parmnum, float value ) {
+void idWeapon::Event_SetLightParm(const int parmnum, const float value ) {
 	if ( ( parmnum < 0 ) || (std::cmp_greater_equal(parmnum, MAX_ENTITY_SHADER_PARMS)) ) {
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
@@ -3440,7 +3440,7 @@ void idWeapon::Event_SetLightParm( int parmnum, float value ) {
 idWeapon::Event_SetLightParms
 ================
 */
-void idWeapon::Event_SetLightParms( float parm0, float parm1, float parm2, float parm3 ) {
+void idWeapon::Event_SetLightParms(const float parm0, const float parm1, const float parm2, const float parm3 ) {
 	muzzleFlash.shaderParms[ SHADERPARM_RED ]			= parm0;
 	muzzleFlash.shaderParms[ SHADERPARM_GREEN ]			= parm1;
 	muzzleFlash.shaderParms[ SHADERPARM_BLUE ]			= parm2;
@@ -3459,7 +3459,7 @@ void idWeapon::Event_SetLightParms( float parm0, float parm1, float parm2, float
 idWeapon::Event_Grabber
 ================
 */
-void idWeapon::Event_Grabber( int enable ) {
+void idWeapon::Event_Grabber(const int enable ) {
 	if ( enable ) {
 		grabberState = 0;
 	} else {
@@ -3482,7 +3482,7 @@ void idWeapon::Event_GrabberHasTarget() const
 idWeapon::Event_GrabberSetGrabDistance
 ================
 */
-void idWeapon::Event_GrabberSetGrabDistance( float dist ) {
+void idWeapon::Event_GrabberSetGrabDistance(const float dist ) {
 
 	grabber.SetDragDistance( dist );
 }
@@ -3534,7 +3534,7 @@ void idWeapon::GetProjectileLaunchOriginAndAxis( idVec3 & origin, idMat3 & axis 
 idWeapon::Event_LaunchProjectiles
 ================
 */
-void idWeapon::Event_LaunchProjectiles( int num_projectiles, float spread, float fuseOffset, float launchPower, float dmgPower ) {
+void idWeapon::Event_LaunchProjectiles(const size_t num_projectiles, const float spread, const float fuseOffset, const float launchPower, float dmgPower ) {
 	idProjectile	*proj;
 	idEntity		*ent;
 	int				i;
@@ -3696,7 +3696,7 @@ void idWeapon::Event_LaunchProjectiles( int num_projectiles, float spread, float
 
 				int delta = idMath::ClampInt( 0, cg_projectile_clientAuthoritative_maxCatchup.GetInteger(), gameLocal.GetServerGameTimeMs() - serverTimeOnClient );
 
-				int startTime = gameLocal.GetServerGameTimeMs() - delta;
+				ID_TIME_T startTime = gameLocal.GetServerGameTimeMs() - delta;
 
 				proj->Launch( muzzle_pos, dir, pushVelocity, fuseOffset, launchPower, dmgPower );
 
@@ -3734,7 +3734,7 @@ void idWeapon::Event_LaunchProjectiles( int num_projectiles, float spread, float
 idWeapon::Event_LaunchProjectilesEllipse
 ================
 */
-void idWeapon::Event_LaunchProjectilesEllipse( int num_projectiles, float spreada, float spreadb, float fuseOffset, float power ) {
+void idWeapon::Event_LaunchProjectilesEllipse(const size_t num_projectiles, const float spreada, const float spreadb, const float fuseOffset, const float power ) {
 	idProjectile	*proj;
 	idEntity		*ent;
 	int				i;
@@ -3874,7 +3874,7 @@ void idWeapon::Event_LaunchProjectilesEllipse( int num_projectiles, float spread
 * Gives the player a powerup as if it were a weapon shot. It will use the ammo amount specified
 * as ammoRequired.
 */
-void idWeapon::Event_LaunchPowerup( const char* powerup, float duration, int useAmmo ) {
+void idWeapon::Event_LaunchPowerup( const char* powerup, const float duration, const int useAmmo ) {
 
 	if ( IsHidden() ) {
 		return; 
@@ -4128,7 +4128,7 @@ void idWeapon::Event_GetWorldModel() const
 idWeapon::Event_AllowDrop
 =====================
 */
-void idWeapon::Event_AllowDrop( int allow ) {
+void idWeapon::Event_AllowDrop(const int allow ) {
 	if ( allow ) {
 		allowDrop = true;
 	} else {
@@ -4198,7 +4198,7 @@ void idWeapon::Event_IsInvisible() const
 idWeapon::ClientThink
 ===============
 */
-void idWeapon::ClientThink( const int curTime, const float fraction, const bool predict ) {
+void idWeapon::ClientThink( const int curTime, const double fraction, const bool predict ) {
 	UpdateAnimation();	
 }
 

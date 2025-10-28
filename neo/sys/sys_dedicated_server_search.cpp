@@ -84,7 +84,7 @@ idDedicatedServerSearch::Clear
 void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & msg ) {
 	bool found = false;
 	// Find the server this ack belongs to
-	for ( int i = 0; i < list.Num(); i++ ) {
+	for ( size_t i = 0; i < list.Num(); i++ ) {
 		serverInfoDedicated_t & query = list[i];
 
 
@@ -102,7 +102,7 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 				
 			query.serverInfo.Read( msg );
 			query.connectedPlayers.Clear();
-			for ( int i = 0; i < query.serverInfo.numPlayers; i++ ) {
+			for ( size_t i = 0; i < query.serverInfo.numPlayers; i++ ) {
 				idStr user;
 				msg.ReadString( user );
 				query.connectedPlayers.Append( user );
@@ -114,14 +114,14 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 	if ( !found ) {
 		bool canJoin = msg.ReadBool();
 		if ( canJoin ) {
-			serverInfoDedicated_t newServer;
+			serverInfoDedicated_t newServer = {};
 			newServer.addr = addr;
 			newServer.serverInfo.Read( msg );
 			if ( newServer.serverInfo.serverName.IsEmpty() ) {
 				newServer.serverInfo.serverName = addr.ToString();
 			}
 			newServer.connectedPlayers.Clear();
-			for ( int i = 0; i < newServer.serverInfo.numPlayers; i++ ) {
+			for ( size_t i = 0; i < newServer.serverInfo.numPlayers; i++ ) {
 				idStr user;
 				msg.ReadString( user );
 				newServer.connectedPlayers.Append( user );
@@ -141,7 +141,7 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 idDedicatedServerSearch::GetAddrAtIndex
 ========================
 */
-bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t & addr, int i ) {
+bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t & addr, const index_t i ) {
 	if ( i >= 0 && i < list.Num() ) {
 		addr = list[i].addr.netAddr;
 		return true;
@@ -154,7 +154,7 @@ bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t & addr, int i ) {
 idDedicatedServerSearch::DescribeServerAtIndex
 ========================
 */
-const serverInfo_t * idDedicatedServerSearch::DescribeServerAtIndex( int i ) const {
+const serverInfo_t * idDedicatedServerSearch::DescribeServerAtIndex(const index_t i ) const {
 	if ( i >= 0 && i < list.Num() ) {
 		return &list[i].serverInfo;
 	}
@@ -166,7 +166,7 @@ const serverInfo_t * idDedicatedServerSearch::DescribeServerAtIndex( int i ) con
 idDedicatedServerSearch::GetServerPlayersAtIndex
 ========================
 */
-const idList< idStr > * idDedicatedServerSearch::GetServerPlayersAtIndex( int i ) const {
+const idList< idStr > * idDedicatedServerSearch::GetServerPlayersAtIndex(const index_t i ) const {
 	if ( i >= 0 && i < list.Num() ) {
 		return &list[i].connectedPlayers;
 	}
@@ -178,6 +178,6 @@ const idList< idStr > * idDedicatedServerSearch::GetServerPlayersAtIndex( int i 
 idDedicatedServerSearch::NumServers
 ========================
 */
-int idDedicatedServerSearch::NumServers() const {
+size_t idDedicatedServerSearch::NumServers() const {
 	return list.Num();
 }

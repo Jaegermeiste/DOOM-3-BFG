@@ -61,8 +61,8 @@ public:
 					explicit idMat2( const float xx, const float xy, const float yx, const float yy );
 					explicit idMat2( const float src[ 2 ][ 2 ] );
 
-	const idVec2 &	operator[]( Ordinal auto index ) const;
-	idVec2 &		operator[]( Ordinal auto index );
+	const idVec2 &	operator[]( const Ordinal auto index ) const;
+	idVec2 &		operator[]( const Ordinal auto index );
 	idMat2			operator-() const;
 	idMat2			operator*( const float a ) const;
 	idVec2			operator*( const idVec2 &vec ) const;
@@ -78,31 +78,31 @@ public:
 	friend idVec2	operator*( const idVec2 &vec, const idMat2 &mat );
 	friend idVec2 &	operator*=( idVec2 &vec, const idMat2 &mat );
 
-					[[nodiscard]] bool			Compare( const idMat2 &a ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idMat2 &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idMat2 &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idMat2 &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==( const idMat2 &a ) const;					// exact compare, no epsilon
 	bool			operator!=( const idMat2 &a ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Identity();
-					[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
 
-					[[nodiscard]] float			Trace() const;
-					[[nodiscard]] float			Determinant() const;
-					[[nodiscard]] idMat2			Transpose() const;	// returns transpose
+	[[nodiscard]] float			Trace() const;
+	[[nodiscard]] float			Determinant() const;
+	[[nodiscard]] idMat2			Transpose() const;	// returns transpose
 	idMat2 &		TransposeSelf();
-					[[nodiscard]] idMat2			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat2			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseSelf();		// returns false if determinant is zero
-					[[nodiscard]] idMat2			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat2			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseFastSelf();	// returns false if determinant is zero
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t				GetDimension();
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] float *		ToFloatPtr();
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	idVec2			mat[ 2 ];
@@ -129,14 +129,14 @@ ID_INLINE idMat2::idMat2( const float src[ 2 ][ 2 ] ) {
 }
 
 
-ID_INLINE const idVec2 &idMat2::operator[](const Ordinal auto index ) const {
-	assert( ( index >= 0 ) && ( index < 2 ) );
+ID_INLINE const idVec2 &idMat2::operator[]( const Ordinal auto index ) const {
+	ORDINAL_CHECK(index, 2);
 	return mat[ index ];
 }
 
 
-ID_INLINE idVec2 &idMat2::operator[](const Ordinal auto index ) {
-	assert( ( index >= 0 ) && ( index < 2 ) );
+ID_INLINE idVec2 &idMat2::operator[]( const Ordinal auto index ) {
+	ORDINAL_CHECK(index, 2);
 	return mat[ index ];
 }
 
@@ -303,7 +303,8 @@ ID_INLINE idMat2 idMat2::InverseFast() const {
 	return invMat;
 }
 
-ID_INLINE int idMat2::GetDimension() const {
+ID_INLINE size_t idMat2::GetDimension()
+{
 	return 4;
 }
 
@@ -331,10 +332,8 @@ public:
 					explicit idMat3( const float xx, const float xy, const float xz, const float yx, const float yy, const float yz, const float zx, const float zy, const float zz );
 					explicit idMat3( const float src[ 3 ][ 3 ] );
 
-	
-	const idVec3 &	operator[]( Ordinal auto index ) const;
-	
-	idVec3 &		operator[]( Ordinal auto index );
+	const idVec3 &	operator[]( const Ordinal auto index ) const;
+	idVec3 &		operator[]( const Ordinal auto index );
 	idMat3			operator-() const;
 	idMat3			operator*( const float a ) const;
 	idVec3			operator*( const idVec3 &vec ) const;
@@ -350,17 +349,17 @@ public:
 	friend idVec3	operator*( const idVec3 &vec, const idMat3 &mat );
 	friend idVec3 &	operator*=( idVec3 &vec, const idMat3 &mat );
 
-					[[nodiscard]] bool			Compare( const idMat3 &a ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idMat3 &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idMat3 &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idMat3 &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==( const idMat3 &a ) const;					// exact compare, no epsilon
 	bool			operator!=( const idMat3 &a ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Identity();
-					[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsRotated() const;
+	[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsRotated() const;
 
 	void			ProjectVector( const idVec3 &src, idVec3 &dst ) const;
 	void			UnprojectVector( const idVec3 &src, idVec3 &dst ) const;
@@ -368,34 +367,34 @@ public:
 	bool			FixDegeneracies();	// fix degenerate axial cases
 	bool			FixDenormals();		// change tiny numbers to zero
 
-					[[nodiscard]] float			Trace() const;
-					[[nodiscard]] float			Determinant() const;
-					[[nodiscard]] idMat3			OrthoNormalize() const;
+	[[nodiscard]] float			Trace() const;
+	[[nodiscard]] float			Determinant() const;
+	[[nodiscard]] idMat3			OrthoNormalize() const;
 	idMat3 &		OrthoNormalizeSelf();
-					[[nodiscard]] idMat3			Transpose() const;	// returns transpose
+	[[nodiscard]] idMat3			Transpose() const;	// returns transpose
 	idMat3 &		TransposeSelf();
-					[[nodiscard]] idMat3			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat3			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseSelf();		// returns false if determinant is zero
-					[[nodiscard]] idMat3			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat3			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseFastSelf();	// returns false if determinant is zero
-					[[nodiscard]] idMat3			TransposeMultiply( const idMat3 &b ) const;
+	[[nodiscard]] idMat3			TransposeMultiply( const idMat3 &b ) const;
 
-					[[nodiscard]] idMat3			InertiaTranslate( const float mass, const idVec3 &centerOfMass, const idVec3 &translation ) const;
+	[[nodiscard]] idMat3			InertiaTranslate( const float mass, const idVec3 &centerOfMass, const idVec3 &translation ) const;
 	idMat3 &		InertiaTranslateSelf( const float mass, const idVec3 &centerOfMass, const idVec3 &translation );
-					[[nodiscard]] idMat3			InertiaRotate( const idMat3 &rotation ) const;
+	[[nodiscard]] idMat3			InertiaRotate( const idMat3 &rotation ) const;
 	idMat3 &		InertiaRotateSelf( const idMat3 &rotation );
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t				GetDimension();
 
-					[[nodiscard]] idAngles		ToAngles() const;
-					[[nodiscard]] idQuat			ToQuat() const;
-					[[nodiscard]] idCQuat			ToCQuat() const;
-					[[nodiscard]] idRotation		ToRotation() const;
-					[[nodiscard]] idMat4			ToMat4() const;
-					[[nodiscard]] idVec3			ToAngularVelocity() const;
-					[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] idAngles		ToAngles() const;
+	[[nodiscard]] idQuat			ToQuat() const;
+	[[nodiscard]] idCQuat			ToCQuat() const;
+	[[nodiscard]] idRotation		ToRotation() const;
+	[[nodiscard]] idMat4			ToMat4() const;
+	[[nodiscard]] idVec3			ToAngularVelocity() const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
 	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 	friend void		TransposeMultiply( const idMat3 &inv, const idMat3 &b, idMat3 &dst );
 	friend idMat3	SkewSymmetric( idVec3 const &src );
@@ -428,13 +427,13 @@ ID_INLINE idMat3::idMat3( const float src[ 3 ][ 3 ] ) {
 
 
 ID_INLINE const idVec3 &idMat3::operator[](const Ordinal auto index ) const {
-	assert( ( index >= 0 ) && ( index < 3 ) );
+	ORDINAL_CHECK(index, 3);
 	return mat[ index ];
 }
 
 
 ID_INLINE idVec3 &idMat3::operator[](const Ordinal auto index ) {
-	assert( ( index >= 0 ) && ( index < 3 ) );
+	ORDINAL_CHECK(index, 3);
 	return mat[ index ];
 }
 
@@ -452,17 +451,17 @@ ID_INLINE idVec3 idMat3::operator*( const idVec3 &vec ) const {
 }
 
 ID_INLINE idMat3 idMat3::operator*( const idMat3 &a ) const {
-	idMat3 dst;
+	idMat3 dst = {};
 
 	const float* m1Ptr = reinterpret_cast<const float*>(this);
 	const float* m2Ptr = reinterpret_cast<const float*>(&a);
 	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( int i = 0; i < 3; i++ ) {
-		for ( int j = 0; j < 3; j++ ) {
-			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 3 + j ]
-					+ m1Ptr[1] * m2Ptr[ 1 * 3 + j ]
-					+ m1Ptr[2] * m2Ptr[ 2 * 3 + j ];
+	for ( size_t i = 0; i < 3; i++ ) {
+		for ( size_t j = 0; j < 3; j++ ) {
+			*dstPtr = m1Ptr[0ULL] * m2Ptr[ 0ULL * 3ULL + j ]
+					+ m1Ptr[1ULL] * m2Ptr[ 1ULL * 3ULL + j ]
+					+ m1Ptr[2ULL] * m2Ptr[ 2ULL * 3ULL + j ];
 			dstPtr++;
 		}
 		m1Ptr += 3;
@@ -505,11 +504,11 @@ ID_INLINE idMat3 &idMat3::operator*=( const idMat3 &a ) {
 	float* m1Ptr = reinterpret_cast<float*>(this);
 	const float* m2Ptr = reinterpret_cast<const float*>(&a);
 
-	for ( int i = 0; i < 3; i++ ) {
-		for ( int j = 0; j < 3; j++ ) {
-			dst[j]  = m1Ptr[0] * m2Ptr[ 0 * 3 + j ]
-					+ m1Ptr[1] * m2Ptr[ 1 * 3 + j ]
-					+ m1Ptr[2] * m2Ptr[ 2 * 3 + j ];
+	for ( size_t i = 0; i < 3; i++ ) {
+		for ( size_t j = 0; j < 3; j++ ) {
+			dst[j]  = m1Ptr[0] * m2Ptr[ 0ULL * 3ULL + j ]
+					+ m1Ptr[1] * m2Ptr[ 1ULL * 3ULL + j ]
+					+ m1Ptr[2] * m2Ptr[ 2ULL * 3ULL + j ];
 		}
 		m1Ptr[0] = dst[0]; m1Ptr[1] = dst[1]; m1Ptr[2] = dst[2];
 		m1Ptr += 3;
@@ -724,7 +723,8 @@ ID_INLINE idMat3 SkewSymmetric( idVec3 const &src ) {
 	return idMat3( 0.0f, -src.z,  src.y, src.z,   0.0f, -src.x, -src.y,  src.x,   0.0f );
 }
 
-ID_INLINE int idMat3::GetDimension() const {
+ID_INLINE size_t idMat3::GetDimension()
+{
 	return 9;
 }
 
@@ -755,9 +755,8 @@ public:
 					explicit idMat4( const float src[ 4 ][ 4 ] );
 
 	
-	const idVec4 &	operator[]( Ordinal auto index ) const;
-	
-	idVec4 &		operator[]( Ordinal auto index );
+	const idVec4 &	operator[]( const Ordinal auto index ) const;
+	idVec4 &		operator[]( const Ordinal auto index );
 	idMat4			operator*( const float a ) const;
 	idVec4			operator*( const idVec4 &vec ) const;
 	idVec3			operator*( const idVec3 &vec ) const;
@@ -775,36 +774,36 @@ public:
 	friend idVec4 &	operator*=( idVec4 &vec, const idMat4 &mat );
 	friend idVec3 &	operator*=( idVec3 &vec, const idMat4 &mat );
 
-					[[nodiscard]] bool			Compare( const idMat4 &a ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idMat4 &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idMat4 &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idMat4 &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==( const idMat4 &a ) const;					// exact compare, no epsilon
 	bool			operator!=( const idMat4 &a ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Identity();
-					[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsRotated() const;
+	[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsRotated() const;
 
 	void			ProjectVector( const idVec4 &src, idVec4 &dst ) const;
 	void			UnprojectVector( const idVec4 &src, idVec4 &dst ) const;
 
-					[[nodiscard]] float			Trace() const;
-					[[nodiscard]] float			Determinant() const;
-					[[nodiscard]] idMat4			Transpose() const;	// returns transpose
+	[[nodiscard]] float			Trace() const;
+	[[nodiscard]] float			Determinant() const;
+	[[nodiscard]] idMat4			Transpose() const;	// returns transpose
 	idMat4 &		TransposeSelf();
-					[[nodiscard]] idMat4			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat4			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseSelf();		// returns false if determinant is zero
-					[[nodiscard]] idMat4			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat4			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseFastSelf();	// returns false if determinant is zero
-					[[nodiscard]] idMat4			TransposeMultiply( const idMat4 &b ) const;
+	[[nodiscard]] idMat4			TransposeMultiply( const idMat4 &b ) const;
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t		GetDimension();
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] float *		ToFloatPtr();
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	idVec4			mat[ 4 ];
@@ -859,13 +858,13 @@ ID_INLINE idMat4::idMat4( const float src[ 4 ][ 4 ] ) {
 
 
 ID_INLINE const idVec4 &idMat4::operator[](const Ordinal auto index ) const {
-	assert( ( index >= 0 ) && ( index < 4 ) );
+	ORDINAL_CHECK(index, 4);
 	return mat[ index ];
 }
 
 
 ID_INLINE idVec4 &idMat4::operator[](const Ordinal auto index ) {
-	assert( ( index >= 0 ) && ( index < 4 ) );
+	ORDINAL_CHECK(index, 4);
 	return mat[ index ];
 }
 
@@ -912,12 +911,12 @@ ID_INLINE idMat4 idMat4::operator*( const idMat4 &a ) const {
 	const float* m2Ptr = reinterpret_cast<const float*>(&a);
 	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( int i = 0; i < 4; i++ ) {
-		for ( int j = 0; j < 4; j++ ) {
-			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 4 + j ]
-					+ m1Ptr[1] * m2Ptr[ 1 * 4 + j ]
-					+ m1Ptr[2] * m2Ptr[ 2 * 4 + j ]
-					+ m1Ptr[3] * m2Ptr[ 3 * 4 + j ];
+	for ( size_t i = 0; i < 4; i++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
+			*dstPtr = m1Ptr[0] * m2Ptr[ 0ULL * 4ULL + j ]
+					+ m1Ptr[1] * m2Ptr[ 1ULL * 4ULL + j ]
+					+ m1Ptr[2] * m2Ptr[ 2ULL * 4ULL + j ]
+					+ m1Ptr[3] * m2Ptr[ 3ULL * 4ULL + j ];
 			dstPtr++;
 		}
 		m1Ptr += 4;
@@ -1036,7 +1035,7 @@ ID_INLINE bool idMat4::IsIdentity( const float epsilon ) const {
 
 ID_INLINE bool idMat4::IsSymmetric( const float epsilon ) const {
 	for ( int i = 1; i < 4; i++ ) {
-		for ( int j = 0; j < i; j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, i); j++ ) {
 			if ( idMath::Fabs( mat[i][j] - mat[j][i] ) > epsilon ) {
 				return false;
 			}
@@ -1046,8 +1045,8 @@ ID_INLINE bool idMat4::IsSymmetric( const float epsilon ) const {
 }
 
 ID_INLINE bool idMat4::IsDiagonal( const float epsilon ) const {
-	for ( int i = 0; i < 4; i++ ) {
-		for ( int j = 0; j < 4; j++ ) {
+	for ( size_t i = 0; i < 4; i++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			if ( i != j && idMath::Fabs( mat[i][j] ) > epsilon ) {
 				return false;
 			}
@@ -1100,7 +1099,8 @@ ID_INLINE idMat4 idMat3::ToMat4() const {
 					0.0f,		0.0f,		0.0f,		1.0f );
 }
 
-ID_INLINE int idMat4::GetDimension() const {
+ID_INLINE size_t idMat4::GetDimension()
+{
 	return 16;
 }
 
@@ -1125,10 +1125,8 @@ public:
 					explicit idMat5( const idVec5 &v0, const idVec5 &v1, const idVec5 &v2, const idVec5 &v3, const idVec5 &v4 );
 					explicit idMat5( const float src[ 5 ][ 5 ] );
 
-	
-	const idVec5 &	operator[]( Ordinal auto index ) const;
-	
-	idVec5 &		operator[]( Ordinal auto index );
+	const idVec5 &	operator[]( const Ordinal auto index ) const;
+	idVec5 &		operator[]( const Ordinal auto index );
 	idMat5			operator*( const float a ) const;
 	idVec5			operator*( const idVec5 &vec ) const;
 	idMat5			operator*( const idMat5 &a ) const;
@@ -1143,31 +1141,31 @@ public:
 	friend idVec5	operator*( const idVec5 &vec, const idMat5 &mat );
 	friend idVec5 &	operator*=( idVec5 &vec, const idMat5 &mat );
 
-					[[nodiscard]] bool			Compare( const idMat5 &a ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idMat5 &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idMat5 &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idMat5 &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==( const idMat5 &a ) const;					// exact compare, no epsilon
 	bool			operator!=( const idMat5 &a ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Identity();
-					[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
 
-					[[nodiscard]] float			Trace() const;
-					[[nodiscard]] float			Determinant() const;
-					[[nodiscard]] idMat5			Transpose() const;	// returns transpose
+	[[nodiscard]] float			Trace() const;
+	[[nodiscard]] float			Determinant() const;
+	[[nodiscard]] idMat5			Transpose() const;	// returns transpose
 	idMat5 &		TransposeSelf();
-					[[nodiscard]] idMat5			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat5			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseSelf();		// returns false if determinant is zero
-					[[nodiscard]] idMat5			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat5			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseFastSelf();	// returns false if determinant is zero
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t				GetDimension();
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] float *		ToFloatPtr();
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	idVec5			mat[ 5 ];
@@ -1193,13 +1191,13 @@ ID_INLINE idMat5::idMat5( const idVec5 &v0, const idVec5 &v1, const idVec5 &v2, 
 
 
 ID_INLINE const idVec5 &idMat5::operator[](const Ordinal auto index ) const {
-	assert( ( index >= 0 ) && ( index < 5 ) );
+	ORDINAL_CHECK(index, 5);
 	return mat[ index ];
 }
 
 
 ID_INLINE idVec5 &idMat5::operator[](const Ordinal auto index ) {
-	assert( ( index >= 0 ) && ( index < 5 ) );
+	ORDINAL_CHECK(index, 5);
 	return mat[ index ];
 }
 
@@ -1210,13 +1208,13 @@ ID_INLINE idMat5 idMat5::operator*( const idMat5 &a ) const {
 	const float* m2Ptr = reinterpret_cast<const float*>(&a);
 	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( int i = 0; i < 5; i++ ) {
-		for ( int j = 0; j < 5; j++ ) {
-			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 5 + j ]
-					+ m1Ptr[1] * m2Ptr[ 1 * 5 + j ]
-					+ m1Ptr[2] * m2Ptr[ 2 * 5 + j ]
-					+ m1Ptr[3] * m2Ptr[ 3 * 5 + j ]
-					+ m1Ptr[4] * m2Ptr[ 4 * 5 + j ];
+	for ( size_t i = 0; i < 5; i++ ) {
+		for ( size_t j = 0; j < 5; j++ ) {
+			*dstPtr = m1Ptr[0] * m2Ptr[ 0ULL * 5ULL + j ]
+					+ m1Ptr[1] * m2Ptr[ 1ULL * 5ULL + j ]
+					+ m1Ptr[2] * m2Ptr[ 2ULL * 5ULL + j ]
+					+ m1Ptr[3] * m2Ptr[ 3ULL * 5ULL + j ]
+					+ m1Ptr[4] * m2Ptr[ 4ULL * 5ULL + j ];
 			dstPtr++;
 		}
 		m1Ptr += 5;
@@ -1349,7 +1347,7 @@ ID_INLINE bool idMat5::IsIdentity( const float epsilon ) const {
 
 ID_INLINE bool idMat5::IsSymmetric( const float epsilon ) const {
 	for ( int i = 1; i < 5; i++ ) {
-		for ( int j = 0; j < i; j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, i); j++ ) {
 			if ( idMath::Fabs( mat[i][j] - mat[j][i] ) > epsilon ) {
 				return false;
 			}
@@ -1359,8 +1357,8 @@ ID_INLINE bool idMat5::IsSymmetric( const float epsilon ) const {
 }
 
 ID_INLINE bool idMat5::IsDiagonal( const float epsilon ) const {
-	for ( int i = 0; i < 5; i++ ) {
-		for ( int j = 0; j < 5; j++ ) {
+	for ( size_t i = 0; i < 5; i++ ) {
+		for ( size_t j = 0; j < 5; j++ ) {
 			if ( i != j && idMath::Fabs( mat[i][j] ) > epsilon ) {
 				return false;
 			}
@@ -1385,7 +1383,8 @@ ID_INLINE idMat5 idMat5::InverseFast() const {
 	return invMat;
 }
 
-ID_INLINE int idMat5::GetDimension() const {
+ID_INLINE size_t idMat5::GetDimension()
+{
 	return 25;
 }
 
@@ -1411,10 +1410,8 @@ public:
 					explicit idMat6( const idMat3 &m0, const idMat3 &m1, const idMat3 &m2, const idMat3 &m3 );
 					explicit idMat6( const float src[ 6 ][ 6 ] );
 
-	
-	const idVec6 &	operator[]( Ordinal auto index ) const;
-	
-	idVec6 &		operator[]( Ordinal auto index );
+	const idVec6 &	operator[]( const Ordinal auto index ) const;
+	idVec6 &		operator[]( const Ordinal auto index );
 	idMat6			operator*( const float a ) const;
 	idVec6			operator*( const idVec6 &vec ) const;
 	idMat6			operator*( const idMat6 &a ) const;
@@ -1429,32 +1426,32 @@ public:
 	friend idVec6	operator*( const idVec6 &vec, const idMat6 &mat );
 	friend idVec6 &	operator*=( idVec6 &vec, const idMat6 &mat );
 
-					[[nodiscard]] bool			Compare( const idMat6 &a ) const;						// exact compare, no epsilon
-					[[nodiscard]] bool			Compare( const idMat6 &a, const float epsilon ) const;	// compare with epsilon
+	[[nodiscard]] bool			Compare( const idMat6 &a ) const;						// exact compare, no epsilon
+	[[nodiscard]] bool			Compare( const idMat6 &a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==( const idMat6 &a ) const;					// exact compare, no epsilon
 	bool			operator!=( const idMat6 &a ) const;					// exact compare, no epsilon
 
 	void			Zero();
 	void			Identity();
-					[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
-					[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsIdentity( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsSymmetric( const float epsilon = MATRIX_EPSILON ) const;
+	[[nodiscard]] bool			IsDiagonal( const float epsilon = MATRIX_EPSILON ) const;
 
-					[[nodiscard]] idMat3			SubMat3( int n ) const;
-					[[nodiscard]] float			Trace() const;
-					[[nodiscard]] float			Determinant() const;
-					[[nodiscard]] idMat6			Transpose() const;	// returns transpose
+	[[nodiscard]] idMat3			SubMat3( int n ) const;
+	[[nodiscard]] float			Trace() const;
+	[[nodiscard]] float			Determinant() const;
+	[[nodiscard]] idMat6			Transpose() const;	// returns transpose
 	idMat6 &		TransposeSelf();
-					[[nodiscard]] idMat6			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat6			Inverse() const;		// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseSelf();		// returns false if determinant is zero
-					[[nodiscard]] idMat6			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
+	[[nodiscard]] idMat6			InverseFast() const;	// returns the inverse ( m * m.Inverse() = identity )
 	bool			InverseFastSelf();	// returns false if determinant is zero
 
-					[[nodiscard]] int				GetDimension() const;
+	[[nodiscard]] static size_t				GetDimension();
 
-					[[nodiscard]] const float *	ToFloatPtr() const;
-	float *			ToFloatPtr();
-					[[nodiscard]] const char *	ToString( int precision = 2 ) const;
+	[[nodiscard]] const float *	ToFloatPtr() const;
+	[[nodiscard]] float *		ToFloatPtr();
+	[[nodiscard]] const char *	ToString( int precision = 2 ) const;
 
 private:
 	idVec6			mat[ 6 ];
@@ -1490,13 +1487,13 @@ ID_INLINE idMat6::idMat6( const float src[ 6 ][ 6 ] ) {
 
 
 ID_INLINE const idVec6 &idMat6::operator[](const Ordinal auto index ) const {
-	assert( ( index >= 0 ) && ( index < 6 ) );
+	ORDINAL_CHECK(index, 6);
 	return mat[ index ];
 }
 
 
 ID_INLINE idVec6 &idMat6::operator[](const Ordinal auto index ) {
-	assert( ( index >= 0 ) && ( index < 6 ) );
+	ORDINAL_CHECK(index, 6);
 	return mat[ index ];
 }
 
@@ -1507,14 +1504,14 @@ ID_INLINE idMat6 idMat6::operator*( const idMat6 &a ) const {
 	const float* m2Ptr = reinterpret_cast<const float*>(&a);
 	float* dstPtr = reinterpret_cast<float*>(&dst);
 
-	for ( int i = 0; i < 6; i++ ) {
-		for ( int j = 0; j < 6; j++ ) {
-			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 6 + j ]
-					+ m1Ptr[1] * m2Ptr[ 1 * 6 + j ]
-					+ m1Ptr[2] * m2Ptr[ 2 * 6 + j ]
-					+ m1Ptr[3] * m2Ptr[ 3 * 6 + j ]
-					+ m1Ptr[4] * m2Ptr[ 4 * 6 + j ]
-					+ m1Ptr[5] * m2Ptr[ 5 * 6 + j ];
+	for ( size_t i = 0; i < 6; i++ ) {
+		for ( size_t j = 0; j < 6; j++ ) {
+			*dstPtr = m1Ptr[0] * m2Ptr[ 0ULL * 6ULL + j ]
+					+ m1Ptr[1] * m2Ptr[ 1ULL * 6ULL + j ]
+					+ m1Ptr[2] * m2Ptr[ 2ULL * 6ULL + j ]
+					+ m1Ptr[3] * m2Ptr[ 3ULL * 6ULL + j ]
+					+ m1Ptr[4] * m2Ptr[ 4ULL * 6ULL + j ]
+					+ m1Ptr[5] * m2Ptr[ 5ULL * 6ULL + j ];
 			dstPtr++;
 		}
 		m1Ptr += 6;
@@ -1654,7 +1651,7 @@ ID_INLINE bool idMat6::IsIdentity( const float epsilon ) const {
 
 ID_INLINE bool idMat6::IsSymmetric( const float epsilon ) const {
 	for ( int i = 1; i < 6; i++ ) {
-		for ( int j = 0; j < i; j++ ) {
+		for ( size_t j = 0; std::cmp_less(j, i); j++ ) {
 			if ( idMath::Fabs( mat[i][j] - mat[j][i] ) > epsilon ) {
 				return false;
 			}
@@ -1664,8 +1661,8 @@ ID_INLINE bool idMat6::IsSymmetric( const float epsilon ) const {
 }
 
 ID_INLINE bool idMat6::IsDiagonal( const float epsilon ) const {
-	for ( int i = 0; i < 6; i++ ) {
-		for ( int j = 0; j < 6; j++ ) {
+	for ( size_t i = 0; i < 6; i++ ) {
+		for ( size_t j = 0; j < 6; j++ ) {
 			if ( i != j && idMath::Fabs( mat[i][j] ) > epsilon ) {
 				return false;
 			}
@@ -1700,7 +1697,8 @@ ID_INLINE idMat6 idMat6::InverseFast() const {
 	return invMat;
 }
 
-ID_INLINE int idMat6::GetDimension() const {
+ID_INLINE size_t idMat6::GetDimension()
+{
 	return 36;
 }
 

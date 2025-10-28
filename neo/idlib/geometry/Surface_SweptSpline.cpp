@@ -156,7 +156,7 @@ void idSurface_SweptSpline::Tessellate( const size_t splineSubdivisions, const s
 		                     : sweptSplineSubdivisions - 1;
 	const size_t baseOffset = (splineSubdivisions - 1) * sweptSplineSubdivisions;
 	for ( i = 0; i < sweptSplineSubdivisions; i++ ) {
-		t = idMath::integer_cast<ID_TIME_T>(idMath::Itof<double>(totalTime) * (idMath::Itof<double>(i) / idMath::Itof<double>(sweptSplineDiv)));
+		t = numeric_cast<ID_TIME_T>(numeric_cast<double>(totalTime) * (numeric_cast<double>(i) / numeric_cast<double>(sweptSplineDiv)));
 		splinePos = sweptSpline->GetCurrentValue( t );
 		splineD1 = sweptSpline->GetCurrentFirstDerivative( t );
 		verts[baseOffset+i].xyz = splinePos.ToVec3();
@@ -171,7 +171,7 @@ void idSurface_SweptSpline::Tessellate( const size_t splineSubdivisions, const s
 		                : splineSubdivisions - 1;
 	splineMat.Identity();
 	for ( i = 0; i < splineSubdivisions; i++ ) {
-		t = idMath::integer_cast<ID_TIME_T>(idMath::Itof<double>(totalTime) * (idMath::Itof<double>(i) / idMath::Itof<double>(splineDiv)));
+		t = numeric_cast<ID_TIME_T>(numeric_cast<double>(totalTime) * (numeric_cast<double>(i) / numeric_cast<double>(splineDiv)));
 
 		splinePos = spline->GetCurrentValue( t );
 		splineD1 = spline->GetCurrentFirstDerivative( t );

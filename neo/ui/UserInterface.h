@@ -63,13 +63,13 @@ public:
 
 								// handles an event, can return an action string, the caller interprets
 								// any return and acts accordingly
-	virtual const char *		HandleEvent( const sysEvent_t *event, int time, bool *updateVisuals = nullptr) = 0;
+	virtual const char *		HandleEvent( const sysEvent_t *event, ID_TIME_T time, bool *updateVisuals = nullptr) = 0;
 
 								// handles a named event
 	virtual void				HandleNamedEvent( const char *eventName ) = 0;
 
 								// repaints the ui
-	virtual void				Redraw( int time, bool hud = false ) = 0;
+	virtual void				Redraw( ID_TIME_T time, bool hud = false ) = 0;
 
 								// repaints the cursor
 	virtual void				DrawCursor() = 0;
@@ -93,13 +93,13 @@ public:
 	virtual float				GetStateFloat( const char *varName, const char* defaultString = "0" ) const = 0;
 
 								// The state has changed and the gui needs to update from the state idDict.
-	virtual void				StateChanged( int time, bool redraw = false ) = 0;
+	virtual void				StateChanged( ID_TIME_T time, bool redraw = false ) = 0;
 
 								// Activated the gui.
-	virtual const char *		Activate( bool activate, int time ) = 0;
+	virtual const char *		Activate( bool activate, ID_TIME_T time ) = 0;
 
 								// Triggers the gui and runs the onTrigger scripts.
-	virtual void				Trigger( int time ) = 0;
+	virtual void				Trigger( ID_TIME_T time ) = 0;
 
 	virtual	void				ReadFromDemoFile( class idDemoFile *f ) = 0;
 	virtual	void				WriteToDemoFile( class idDemoFile *f ) = 0;

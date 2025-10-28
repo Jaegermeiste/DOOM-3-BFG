@@ -53,7 +53,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #if  1
 
-
+constexpr size_t MSG_SIZE = 1024;
+constexpr size_t ERROR_MSG_SIZE = 1024;
 
 ticcmd_t*	I_BaseTiccmd(void)
 {
@@ -61,7 +62,7 @@ ticcmd_t*	I_BaseTiccmd(void)
 }
 
 
-int  I_GetHeapSize (void)
+static int  I_GetHeapSize (void)
 {
     return ::g->mb_used*1024*1024;
 }
@@ -76,7 +77,7 @@ int  I_GetTime (void)
 	return ::g->current_time;
 }
 
-void I_SetTime( int time_in )
+static void I_SetTime( ID_TIME_T time_in )
 {
 	::g->current_time = time_in;
 }
@@ -126,15 +127,15 @@ void I_EndRead(void)
 // I_Error
 //
 extern bool debugOutput;
-void I_Printf(char* msg, ...)
+void I_Printf(const char* msg, ...)
 {
-	char pmsg[1024];
-    va_list	argptr;
+	char pmsg[MSG_SIZE] = {};
+    va_list	argptr = {};
 
     // Message first.
 	if( debugOutput ) {
 		va_start (argptr,msg);
-		vsprintf (pmsg, msg, argptr);
+		idStr::vsnPrintf(pmsg, MSG_SIZE, msg, argptr);
 
 		safeOutputDebug(pmsg);
 
@@ -143,15 +144,15 @@ void I_Printf(char* msg, ...)
 }
 
 
-void I_PrintfE(char* msg, ...)
+void I_PrintfE(const char* msg, ...)
 {
-	char pmsg[1024];
-    va_list	argptr;
+	char pmsg[MSG_SIZE] = {};
+    va_list	argptr = {};
 
     // Message first.
 	if( debugOutput ) {
 		va_start (argptr,msg);
-		vsprintf (pmsg, msg, argptr);
+		idStr::vsnPrintf(pmsg, MSG_SIZE, msg, argptr);
 
 		safeOutputDebug("ERROR: ");
 		safeOutputDebug(pmsg);
@@ -160,11 +161,10 @@ void I_PrintfE(char* msg, ...)
 	}
 }
 
-void I_Error(char *error, ...)
+void I_Error(const char *error, ...)
 {
-	const int ERROR_MSG_SIZE = 1024;
-	char error_msg[ERROR_MSG_SIZE];
-    va_list	argptr;
+	char error_msg[ERROR_MSG_SIZE] = {};
+    va_list	argptr = {};
 
     // Message first.
 	if( debugOutput ) {

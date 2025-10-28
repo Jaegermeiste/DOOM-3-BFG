@@ -34,9 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 idSWF::Inflate
 ========================
 */
-bool idSWF::Inflate( const byte * input, int inputSize, byte * output, int outputSize ) {
+bool idSWF::Inflate( const byte * input, const int inputSize, byte * output, const int outputSize ) {
 	struct local_swf_alloc_t {
-		static void * zalloc( void * opaque, uint32 items, uint32 size ) {
+		static void * zalloc( void * opaque, const uint32 items, const uint32 size ) {
 			return Mem_Alloc( items * size, TAG_SWF );
 		}
 		static void zfree( void * opaque, void * ptr ) {

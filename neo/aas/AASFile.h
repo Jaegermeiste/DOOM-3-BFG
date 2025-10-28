@@ -141,7 +141,7 @@ typedef idVec3 aasVertex_t;
 
 // edge
 typedef struct aasEdge_s {
-	int							vertexNum[2];		// numbers of the vertexes of this edge
+	index_t						vertexNum[2];		// numbers of the vertexes of this edge
 } aasEdge_t;
 
 // area boundary face
@@ -149,7 +149,7 @@ typedef struct aasFace_s {
 	unsigned short				planeNum;			// number of the plane this face is on
 	unsigned short				flags;				// face flags
 	size_t						numEdges;			// number of edges in the boundary of the face
-	int							firstEdge;			// first edge in the edge index
+	index_t						firstEdge;			// first edge in the edge index
 	short						areas[2];			// area at the front and back of this face
 } aasFace_t;
 
@@ -171,7 +171,7 @@ typedef struct aasArea_s {
 // nodes of the bsp tree
 typedef struct aasNode_s {
 	size_t       				planeNum;			// number of the plane that splits the subspace at this node
-	int							children[2];		// child nodes, zero is solid, negative is -(area number)
+	index_t						children[2];		// child nodes, zero is solid, negative is -(area number)
 } aasNode_t;
 
 // cluster portal
@@ -200,11 +200,11 @@ typedef struct aasTrace_s {
 								// output
 	float						fraction;			// fraction of trace completed
 	idVec3						endpos;				// end position of trace
-	int							planeNum;			// plane hit
-	int							lastAreaNum;		// number of last area the trace went through
-	int							blockingAreaNum;	// area that could not be entered
+	index_t						planeNum;			// plane hit
+	index_t						lastAreaNum;		// number of last area the trace went through
+	index_t						blockingAreaNum;	// area that could not be entered
 	size_t						numAreas;			// number of areas the trace went through
-	int *						areas;				// array to store areas the trace went through
+	index_t *					areas;				// array to store areas the trace went through
 	idVec3 *					points;				// points where the trace entered each new area
 	         					aasTrace_s() noexcept : fraction(0), endpos({}), planeNum(0), lastAreaNum(0),
 					                                    blockingAreaNum(0), numAreas(0)
@@ -241,10 +241,10 @@ public:
 	float						maxFallHeight;
 	float						minFloorCos;
 								// fixed travel times
-	int							tt_barrierJump;
-	int							tt_startCrouching;
-	int							tt_waterJump;
-	int							tt_startWalkOffLedge;
+	ID_TIME_T					tt_barrierJump;
+	ID_TIME_T					tt_startCrouching;
+	ID_TIME_T					tt_waterJump;
+	ID_TIME_T					tt_startWalkOffLedge;
 
 public:
 								idAASSettings();
@@ -253,12 +253,13 @@ public:
 	bool						FromParser( idLexer &src );
 	bool						FromDict( const char *name, const idDict *dict );
 	bool						WriteToFile( idFile *fp ) const;
-								[[nodiscard]] bool						ValidForBounds( const idBounds &bounds ) const;
+	[[nodiscard]] bool			ValidForBounds( const idBounds &bounds ) const;
 	bool						ValidEntity( const char *classname ) const;
 
 private:
 	bool						ParseBool( idLexer &src, bool &b );
 	bool						ParseInt( idLexer &src, int &i );
+	bool						ParseInt64(idLexer& src, int64& i);
 	bool						ParseFloat( idLexer &src, float &f );
 	bool						ParseVector( idLexer &src, idVec3 &vec );
 	bool						ParseBBoxes( idLexer &src );
@@ -297,46 +298,46 @@ public:
 	[[nodiscard]] unsigned int				GetCRC() const noexcept { return crc; }
 
 	[[nodiscard]] size_t						GetNumPlanes() const { return planeList.Num(); }
-	[[nodiscard]] const idPlane& GetPlane(Ordinal auto index) const { ORDINAL_CHECK(index, planeList.Num());  return planeList[index]; }
+	[[nodiscard]] const idPlane& GetPlane(const index_t index) const { ORDINAL_CHECK(index, planeList.Num());  return planeList[index]; }
 	[[nodiscard]] size_t						GetNumVertices() const { return vertices.Num(); }
-	[[nodiscard]] const aasVertex_t &			GetVertex( Ordinal auto index ) const { ORDINAL_CHECK(index, vertices.Num()); return vertices[index]; }
+	[[nodiscard]] const aasVertex_t &			GetVertex(const index_t index ) const { ORDINAL_CHECK(index, vertices.Num()); return vertices[index]; }
 	[[nodiscard]] size_t						GetNumEdges() const { return edges.Num(); }
-	[[nodiscard]] const aasEdge_t &			    GetEdge( Ordinal auto index ) const { ORDINAL_CHECK(index, edges.Num()); return edges[index]; }
+	[[nodiscard]] const aasEdge_t &			    GetEdge(const index_t index ) const { ORDINAL_CHECK(index, edges.Num()); return edges[index]; }
 	[[nodiscard]] size_t						GetNumEdgeIndexes() const { return edgeIndex.Num(); }
-	[[nodiscard]] const aasIndex_t &			GetEdgeIndex( Ordinal auto index ) const { ORDINAL_CHECK(index, edgeIndex.Num()); return edgeIndex[index]; }
+	[[nodiscard]] const aasIndex_t &			GetEdgeIndex(const index_t index ) const { ORDINAL_CHECK(index, edgeIndex.Num()); return edgeIndex[index]; }
 	[[nodiscard]] size_t						GetNumFaces() const { return faces.Num(); }
-	[[nodiscard]] const aasFace_t &			    GetFace( Ordinal auto index ) const { ORDINAL_CHECK(index, faces.Num()); return faces[index]; }
+	[[nodiscard]] const aasFace_t &			    GetFace(const index_t index ) const { ORDINAL_CHECK(index, faces.Num()); return faces[index]; }
 	[[nodiscard]] size_t						GetNumFaceIndexes() const { return faceIndex.Num(); }
-	[[nodiscard]] const aasIndex_t &			GetFaceIndex( Ordinal auto index ) const { ORDINAL_CHECK(index, faceIndex.Num()); return faceIndex[index]; }
+	[[nodiscard]] const aasIndex_t &			GetFaceIndex(const index_t index ) const { ORDINAL_CHECK(index, faceIndex.Num()); return faceIndex[index]; }
 	[[nodiscard]] size_t						GetNumAreas() const { return areas.Num(); }
-	[[nodiscard]] const aasArea_t &			    GetArea( Ordinal auto index ) { ORDINAL_CHECK(index, areas.Num()); return areas[index]; }
+	[[nodiscard]] const aasArea_t &			    GetArea(const index_t index ) { ORDINAL_CHECK(index, areas.Num()); return areas[index]; }
 	[[nodiscard]] size_t						GetNumNodes() const { return nodes.Num(); }
-	[[nodiscard]] const aasNode_t &			    GetNode( Ordinal auto index ) const { ORDINAL_CHECK(index, nodes.Num()); return nodes[index]; }
+	[[nodiscard]] const aasNode_t &			    GetNode(const index_t index ) const { ORDINAL_CHECK(index, nodes.Num()); return nodes[index]; }
 	[[nodiscard]] size_t						GetNumPortals() const { return portals.Num(); }
-	[[nodiscard]] const aasPortal_t &			GetPortal( Ordinal auto index ) { ORDINAL_CHECK(index, portals.Num()); return portals[index]; }
+	[[nodiscard]] const aasPortal_t &			GetPortal(const index_t index ) { ORDINAL_CHECK(index, portals.Num()); return portals[index]; }
 	[[nodiscard]] size_t						GetNumPortalIndexes() const { return portalIndex.Num(); }
-	[[nodiscard]] const aasIndex_t &			GetPortalIndex( Ordinal auto index ) const { ORDINAL_CHECK(index, portalIndex.Num()); return portalIndex[index]; }
+	[[nodiscard]] const aasIndex_t &			GetPortalIndex(const index_t index ) const { ORDINAL_CHECK(index, portalIndex.Num()); return portalIndex[index]; }
 	[[nodiscard]] size_t						GetNumClusters() const { return clusters.Num(); }
-	[[nodiscard]] const aasCluster_t &		GetCluster( Ordinal auto index ) const { ORDINAL_CHECK(index, clusters.Num()); return clusters[index]; }
+	[[nodiscard]] const aasCluster_t &		GetCluster(const index_t index ) const { ORDINAL_CHECK(index, clusters.Num()); return clusters[index]; }
 
 	[[nodiscard]] const idAASSettings &		GetSettings() const noexcept { return settings; }
 
-	void						SetPortalMaxTravelTime( Ordinal auto index, ID_TIME_T time ) { ORDINAL_CHECK(index, portals.Num()); portals[index].maxAreaTravelTime = idMath::integer_cast<uint16>(time); }
-	void						SetAreaTravelFlag( Ordinal auto index, int flag ) { ORDINAL_CHECK(index, areas.Num()); areas[index].travelFlags |= flag; }
-	void						RemoveAreaTravelFlag( Ordinal auto index, int flag ) { ORDINAL_CHECK(index, areas.Num()); areas[index].travelFlags &= ~flag; }
+	void						SetPortalMaxTravelTime(const index_t index, ID_TIME_T time ) { ORDINAL_CHECK(index, portals.Num()); portals[index].maxAreaTravelTime = numeric_cast<uint16>(time); }
+	void						SetAreaTravelFlag(const index_t index, const int flag ) { ORDINAL_CHECK(index, areas.Num()); areas[index].travelFlags |= flag; }
+	void						RemoveAreaTravelFlag(const index_t index, const int flag ) { ORDINAL_CHECK(index, areas.Num()); areas[index].travelFlags &= ~flag; }
 
-	[[nodiscard]] virtual idVec3				EdgeCenter( int edgeNum ) const = 0;
-	[[nodiscard]] virtual idVec3				FaceCenter( int faceNum ) const = 0;
-	[[nodiscard]] virtual idVec3				AreaCenter( int areaNum ) const = 0;
+	[[nodiscard]] virtual idVec3				EdgeCenter( index_t edgeNum ) const = 0;
+	[[nodiscard]] virtual idVec3				FaceCenter( index_t faceNum ) const = 0;
+	[[nodiscard]] virtual idVec3				AreaCenter( index_t areaNum ) const = 0;
 
-	[[nodiscard]] virtual idBounds			EdgeBounds( int edgeNum ) const = 0;
-	[[nodiscard]] virtual idBounds			FaceBounds( int faceNum ) const = 0;
-	[[nodiscard]] virtual idBounds			AreaBounds( int areaNum ) const = 0;
+	[[nodiscard]] virtual idBounds			EdgeBounds( index_t edgeNum ) const = 0;
+	[[nodiscard]] virtual idBounds			FaceBounds( index_t faceNum ) const = 0;
+	[[nodiscard]] virtual idBounds			AreaBounds( index_t areaNum ) const = 0;
 
-	[[nodiscard]] virtual int					PointAreaNum( const idVec3 &origin ) const = 0;
-	[[nodiscard]] virtual int					PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
-	[[nodiscard]] virtual int					BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
-	virtual void				PushPointIntoAreaNum( int areaNum, idVec3 &point ) const = 0;
+	[[nodiscard]] virtual index_t			PointAreaNum( const idVec3 &origin ) const = 0;
+	[[nodiscard]] virtual index_t			PointReachableAreaNum( const idVec3 &origin, const idBounds &searchBounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
+	[[nodiscard]] virtual index_t			BoundsReachableAreaNum( const idBounds &bounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
+	virtual void				PushPointIntoAreaNum( index_t areaNum, idVec3 &point ) const = 0;
 	virtual bool				Trace( aasTrace_t &trace, const idVec3 &start, const idVec3 &end ) const = 0;
 	virtual void				PrintInfo() const = 0;
 

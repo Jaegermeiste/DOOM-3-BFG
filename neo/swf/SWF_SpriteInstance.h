@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_SPRITEINSTANCE_H__
 #define __SWF_SPRITEINSTANCE_H__
 
+#pragma once
+
 /*
 ================================================
 There can be multiple instances of a single sprite running
@@ -46,30 +48,30 @@ public:
 	[[nodiscard]] const char * GetName() const { return name.c_str(); }
 
 	[[nodiscard]] idSWFScriptObject * GetScriptObject() const { return scriptObject; }
-	void SetAlignment( float x, float y ) { xOffset = x; yOffset = y; }
+	void SetAlignment(const float x, const float y ) { xOffset = x; yOffset = y; }
 
-	void SetMaterial( const idMaterial * material, int width = -1, int height = -1 );
+	void SetMaterial( const idMaterial * material, int16 width = -1, int16 height = -1 );
 	void SetVisible( bool visible );
 	[[nodiscard]] bool IsVisible() const { return isVisible; }
 	void PlayFrame( const idSWFParmList & parms );
 	void PlayFrame( const char * frameName ) {
-		idSWFParmList parms;
+		idSWFParmList parms = {};
 		parms.Append( frameName );
 		PlayFrame( parms );
 	}
-	void PlayFrame( const int frameNum ) {
-		idSWFParmList parms;
+	void PlayFrame( const index_t frameNum ) {
+		idSWFParmList parms = {};
 		parms.Append( frameNum );
 		PlayFrame( parms );
 	}
 	void StopFrame( const idSWFParmList & parms );
 	void StopFrame( const char * frameName ) {
-		idSWFParmList parms;
+		idSWFParmList parms = {};
 		parms.Append( frameName );
 		StopFrame( parms );
 	}
-	void StopFrame( const int frameNum ) {
-		idSWFParmList parms;
+	void StopFrame( const index_t frameNum ) {
+		idSWFParmList parms = {};
 		parms.Append( frameNum );
 		StopFrame( parms );
 	}
@@ -187,7 +189,7 @@ public:
 
 	idSWFSpriteInstance *	FindChildSprite( const char * childName );
 	idSWFSpriteInstance *	ResolveTarget( const char * targetName );
-	uint32					FindFrame( const char * frameLabel ) const;
+	index_t					FindFrame( const char * frameLabel ) const;
 	bool					FrameExists( const char * frameLabel ) const;
 	bool					IsBetweenFrames( const char * frameLabel1, const char * frameLabel2 ) const;
 };

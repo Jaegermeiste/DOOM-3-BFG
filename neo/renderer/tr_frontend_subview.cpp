@@ -54,7 +54,7 @@ static void R_MirrorPoint( const idVec3 in, orientation_t *surface, orientation_
 	const idVec3 local = in - surface->origin;
 
 	idVec3 transformed( 0.0f );
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		const float d = local * surface->axis[i];
 		transformed += d * camera->axis[i];
 	}
@@ -69,7 +69,7 @@ R_MirrorVector
 */
 static void R_MirrorVector( const idVec3 in, orientation_t *surface, orientation_t *camera, idVec3 &out ) {
 	out.Zero();
-	for ( int i = 0; i < 3; i++ ) {
+	for ( size_t i = 0; i < 3; i++ ) {
 		const float d = in * surface->axis[i];
 		out += d * camera->axis[i];
 	}
@@ -114,14 +114,14 @@ bool R_PreciseCullSurface( const drawSurf_t *drawSurf, idBounds &ndcBounds ) {
 
 	const idJointMat * joints = ( tri->staticModelWithJoints != nullptr && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : nullptr;
 
-	for ( int i = 0; i < tri->numVerts; i++ ) {
+	for ( size_t i = 0; i < tri->numVerts; i++ ) {
 		const idVec3 vXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[i], joints );
 
 		idPlane eye, clip;
 		R_TransformModelToClip( vXYZ, drawSurf->space->modelViewMatrix, tr.viewDef->projectionMatrix, eye, clip );
 
 		unsigned int pointFlags = 0;
-		for ( int j = 0; j < 3; j++ ) {
+		for ( size_t j = 0; j < 3; j++ ) {
 			if ( clip[j] >= clip[3] ) {
 				pointFlags |= ( 1 << (j*2+0) );
 			} else if ( clip[j] <= -clip[3] ) {	// FIXME: the D3D near clip plane is at zero instead of -1
@@ -142,7 +142,7 @@ bool R_PreciseCullSurface( const drawSurf_t *drawSurf, idBounds &ndcBounds ) {
 	idVec3 localViewOrigin;
 	R_GlobalPointToLocal( drawSurf->space->modelMatrix, tr.viewDef->renderView.vieworg, localViewOrigin );
 
-	for ( int i = 0; i < tri->numIndexes; i += 3 ) {
+	for ( size_t i = 0; i < tri->numIndexes; i += 3 ) {
 		const idVec3 v1 = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[ i+0 ] ], joints );
 		const idVec3 v2 = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[ i+1 ] ], joints );
 		const idVec3 v3 = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[ i+2 ] ], joints );
@@ -173,12 +173,12 @@ bool R_PreciseCullSurface( const drawSurf_t *drawSurf, idBounds &ndcBounds ) {
 		R_LocalPointToGlobal( drawSurf->space->modelMatrix, v3, w[2].ToVec3() );
 		w[0].s = w[0].t = w[1].s = w[1].t = w[2].s = w[2].t = 0.0f;
 
-		for ( int j = 0; j < 4; j++ ) {
+		for ( size_t j = 0; j < 4; j++ ) {
 			if ( !w.ClipInPlace( -tr.viewDef->frustum[j], 0.1f ) ) {
 				break;
 			}
 		}
-		for ( int j = 0; j < w.GetNumPoints(); j++ ) {
+		for ( size_t j = 0; j < w.GetNumPoints(); j++ ) {
 			idVec3 screen;
 
 			R_GlobalToNormalizedDeviceCoordinates( w[j].ToVec3(), screen );
@@ -444,10 +444,10 @@ bool R_GenerateSurfaceSubview( const drawSurf_t *drawSurf ) {
 	assert( tr.viewDef != NULL );
 	idScreenRect * v = &tr.viewDef->viewport;
 	idScreenRect scissor;
-	scissor.x1 = v->x1 + idMath::Ftoi( ( v->x2 - v->x1 + 1 ) * 0.5f * ( ndcBounds[0][0] + 1.0f ) );
-	scissor.y1 = v->y1 + idMath::Ftoi( ( v->y2 - v->y1 + 1 ) * 0.5f * ( ndcBounds[0][1] + 1.0f ) );
-	scissor.x2 = v->x1 + idMath::Ftoi( ( v->x2 - v->x1 + 1 ) * 0.5f * ( ndcBounds[1][0] + 1.0f ) );
-	scissor.y2 = v->y1 + idMath::Ftoi( ( v->y2 - v->y1 + 1 ) * 0.5f * ( ndcBounds[1][1] + 1.0f ) );
+	scissor.x1 = v->x1 + numeric_cast<int>( ( v->x2 - v->x1 + 1 ) * 0.5f * ( ndcBounds[0][0] + 1.0f ) );
+	scissor.y1 = v->y1 + numeric_cast<int>( ( v->y2 - v->y1 + 1 ) * 0.5f * ( ndcBounds[0][1] + 1.0f ) );
+	scissor.x2 = v->x1 + numeric_cast<int>( ( v->x2 - v->x1 + 1 ) * 0.5f * ( ndcBounds[1][0] + 1.0f ) );
+	scissor.y2 = v->y1 + numeric_cast<int>( ( v->y2 - v->y1 + 1 ) * 0.5f * ( ndcBounds[1][1] + 1.0f ) );
 
 	// nudge a bit for safety
 	scissor.Expand();
@@ -461,7 +461,7 @@ bool R_GenerateSurfaceSubview( const drawSurf_t *drawSurf ) {
 
 	// see what kind of subview we are making
 	if ( shader->GetSort() != SS_SUBVIEW ) {
-		for ( int i = 0; i < shader->GetNumStages(); i++ ) {
+		for ( size_t i = 0; i < shader->GetNumStages(); i++ ) {
 			const shaderStage_t	*stage = shader->GetStage( i );
 			switch ( stage->texture.dynamic ) {
 			case DI_REMOTE_RENDER:
@@ -509,7 +509,7 @@ view have been generated, because it may create a subview which
 would change tr.viewCount.
 ================
 */
-bool R_GenerateSubViews( const drawSurf_t * const drawSurfs[], const int numDrawSurfs ) {
+bool R_GenerateSubViews( const drawSurf_t * const drawSurfs[], const size_t numDrawSurfs ) {
 	SCOPED_PROFILE_EVENT( "R_GenerateSubViews" );
 
 	// for testing the performance hit
@@ -520,7 +520,7 @@ bool R_GenerateSubViews( const drawSurf_t * const drawSurfs[], const int numDraw
 	// scan the surfaces until we either find a subview, or determine
 	// there are no more subview surfaces.
 	bool subviews = false;
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for ( size_t i = 0; i < numDrawSurfs; i++ ) {
 		const drawSurf_t * drawSurf = drawSurfs[i];
 
 		if ( !drawSurf->material->HasSubview() ) {

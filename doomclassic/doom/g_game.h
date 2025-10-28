@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __G_GAME__
 #define __G_GAME__
 
+#pragma once
+
 #include "doomdef.h"
 #include "d_event.h"
 
@@ -37,16 +39,16 @@ If you have questions concerning this license or the applicable additional terms
 //
 // GAME
 //
-void G_DeathMatchSpawnPlayer (int playernum);
+void G_DeathMatchSpawnPlayer (index_t playernum);
 
-void G_InitNew ( skill_t skill, int episode, int map );
+void G_InitNew ( skill_t skill, index_t episode, index_t map );
 
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1,
 // but a warp test can start elsewhere
-void G_DeferedInitNew (skill_t skill, int episode, int map);
+void G_DeferedInitNew (skill_t skill, index_t episode, index_t map);
 
-void G_DeferedPlayDemo (char* demo);
+void G_DeferedPlayDemo (const char* demo);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
@@ -55,15 +57,15 @@ void G_LoadGame (char* name);
 qboolean G_DoLoadGame ();
 
 // Called by M_Responder.
-void G_SaveGame (int slot, char* description);
+void G_SaveGame (index_t slot, const char* description);
 
 // Only called by startup code.
-void G_RecordDemo (char* name);
+void G_RecordDemo (const char* name);
 
 void G_BeginRecording (void);
 
-void G_PlayDemo (char* name);
-void G_TimeDemo (char* name);
+void G_PlayDemo (const char* name);
+void G_TimeDemo (const char* name);
 qboolean G_CheckDemoStatus (void);
 
 void G_ExitLevel (void);
@@ -76,8 +78,8 @@ qboolean G_Responder (event_t*	ev);
 
 void G_ScreenShot (void);
 
-#define MAXDEMOSIZE		512 * 1024
-#define SAVEGAMESIZE	256 * 1024 + MAXDEMOSIZE
+constexpr size_t MAXDEMOSIZE = 512ULL * 1024ULL;
+constexpr size_t SAVEGAMESIZE = 256ULL * 1024ULL + MAXDEMOSIZE;
 
 
 #endif

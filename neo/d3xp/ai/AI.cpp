@@ -157,7 +157,7 @@ idAASFindCover::~idAASFindCover() {
 idAASFindCover::TestArea
 ============
 */
-bool idAASFindCover::TestArea( const idAAS *aas, int areaNum ) {
+bool idAASFindCover::TestArea( const idAAS *aas, const index_t areaNum ) {
 	idVec3	areaCenter;
 	int		numPVSAreas;
 	int		PVSAreas[ idEntity::MAX_PVS_AREAS ];
@@ -178,7 +178,7 @@ bool idAASFindCover::TestArea( const idAAS *aas, int areaNum ) {
 idAASFindAreaOutOfRange::idAASFindAreaOutOfRange
 ============
 */
-idAASFindAreaOutOfRange::idAASFindAreaOutOfRange( const idVec3 &targetPos, float maxDist ) {
+idAASFindAreaOutOfRange::idAASFindAreaOutOfRange( const idVec3 &targetPos, const float maxDist ) {
 	this->targetPos		= targetPos;
 	this->maxDistSqr	= maxDist * maxDist;
 }
@@ -188,7 +188,7 @@ idAASFindAreaOutOfRange::idAASFindAreaOutOfRange( const idVec3 &targetPos, float
 idAASFindAreaOutOfRange::TestArea
 ============
 */
-bool idAASFindAreaOutOfRange::TestArea( const idAAS *aas, int areaNum ) {
+bool idAASFindAreaOutOfRange::TestArea( const idAAS *aas, const index_t areaNum ) {
 	const idVec3 &areaCenter = aas->AreaCenter( areaNum );
 	trace_t	trace;
 	float dist;
@@ -244,7 +244,7 @@ idAASFindAttackPosition::~idAASFindAttackPosition() {
 idAASFindAttackPosition::TestArea
 ============
 */
-bool idAASFindAttackPosition::TestArea( const idAAS *aas, int areaNum ) {
+bool idAASFindAttackPosition::TestArea( const idAAS *aas, const index_t areaNum ) {
 	idVec3	dir;
 	idVec3	local_dir;
 	idVec3	fromPos;
@@ -1061,7 +1061,7 @@ void idAI::DormantBegin() {
 	// since dormant happens on a timer, we wont get to update particles to
 	// hidden through the think loop, but we need to hide them though.
 	if ( particles.Num() ) {
-		for ( int i = 0; i < particles.Num(); i++ ) {
+		for ( size_t i = 0; i < particles.Num(); i++ ) {
 			particles[i].time = 0;
 		}
 	}
@@ -1087,7 +1087,7 @@ void idAI::DormantEnd() {
 	}
 	
 	if ( particles.Num() ) {
-		for ( int i = 0; i < particles.Num(); i++ ) {
+		for ( size_t i = 0; i < particles.Num(); i++ ) {
 			particles[i].time = gameLocal.time;
 		}
 	}
@@ -1277,7 +1277,7 @@ void idAI::UpdateAIScript() {
 idAI::KickObstacles
 ============
 */
-void idAI::KickObstacles( const idVec3 &dir, float force, idEntity *alwaysKick ) {
+void idAI::KickObstacles( const idVec3 &dir, const float force, idEntity *alwaysKick ) {
 	int i, numListedClipModels;
 	idBounds clipBounds;
 	idEntity *obEnt;
@@ -1428,7 +1428,7 @@ idAI::PointReachableAreaNum
 =====================
 */
 int idAI::PointReachableAreaNum( const idVec3 &pos, const float boundsScale ) const {
-	int areaNum;
+	index_t areaNum;
 	idVec3 size;
 	idBounds bounds;
 
@@ -1455,7 +1455,7 @@ int idAI::PointReachableAreaNum( const idVec3 &pos, const float boundsScale ) co
 idAI::PathToGoal
 =====================
 */
-bool idAI::PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const {
+bool idAI::PathToGoal( aasPath_t &path, const index_t areaNum, const idVec3 &origin, const index_t goalAreaNum, const idVec3 &goalOrigin ) const {
 	idVec3 org;
 	idVec3 goal;
 
@@ -1555,7 +1555,7 @@ float idAI::TravelDistance( const idVec3 &start, const idVec3 &end ) const {
 idAI::StopMove
 =====================
 */
-void idAI::StopMove( moveStatus_t status ) {
+void idAI::StopMove(const moveStatus_t status ) {
 	AI_MOVE_DONE		= true;
 	AI_FORWARD			= false;
 	move.moveCommand	= MOVE_NONE;
@@ -1837,7 +1837,7 @@ bool idAI::MoveToEntity( idEntity *ent ) {
 idAI::MoveOutOfRange
 =====================
 */
-bool idAI::MoveOutOfRange( idEntity *ent, float range ) {
+bool idAI::MoveOutOfRange( idEntity *ent, const float range ) {
 	int				areaNum;
 	aasObstacle_t	obstacle;
 	aasGoal_t		goal;
@@ -1894,7 +1894,7 @@ bool idAI::MoveOutOfRange( idEntity *ent, float range ) {
 idAI::MoveToAttackPosition
 =====================
 */
-bool idAI::MoveToAttackPosition( idEntity *ent, int attack_anim ) {
+bool idAI::MoveToAttackPosition( idEntity *ent, const int attack_anim ) {
 	int				areaNum;
 	aasObstacle_t	obstacle;
 	aasGoal_t		goal;
@@ -2043,7 +2043,7 @@ bool idAI::MoveToCover( idEntity *entity, const idVec3 &hideFromPos ) {
 idAI::SlideToPosition
 =====================
 */
-bool idAI::SlideToPosition( const idVec3 &pos, float time ) {
+bool idAI::SlideToPosition( const idVec3 &pos, const float time ) {
 	StopMove( MOVE_STATUS_DONE );
 
 	move.moveDest		= pos;
@@ -2106,7 +2106,7 @@ bool idAI::MoveDone() const {
 idAI::StepDirection
 ================
 */
-bool idAI::StepDirection( float dir ) {
+bool idAI::StepDirection(const float dir ) {
 	predictedPath_t path;
 	idVec3 org;
 
@@ -2522,7 +2522,7 @@ bool idAI::FacingIdeal() {
 idAI::TurnToward
 =====================
 */
-bool idAI::TurnToward( float yaw ) {
+bool idAI::TurnToward(const float yaw ) {
 	ideal_yaw = idMath::AngleNormalize180( yaw );
 	bool result = FacingIdeal();
 	return result;
@@ -2561,7 +2561,7 @@ bool idAI::TurnToward( const idVec3 &pos ) {
 idAI::ApplyImpulse
 ================
 */
-void idAI::ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse ) {
+void idAI::ApplyImpulse( idEntity *ent, const int id, const idVec3 &point, const idVec3 &impulse ) {
 	// FIXME: Jim take a look at this and see if this is a reasonable thing to do
 	// instead of a spawnArg flag.. Sabaoth is the only slide monster ( and should be the only one for D3 )
 	// and we don't want him taking physics impulses as it can knock him off the path
@@ -2812,7 +2812,7 @@ void idAI::AnimMove() {
 Seek
 =====================
 */
-idVec3 Seek( idVec3 &vel, const idVec3 &org, const idVec3 &goal, float prediction ) {
+idVec3 Seek( idVec3 &vel, const idVec3 &org, const idVec3 &goal, const float prediction ) {
 	idVec3 predictedPos;
 	idVec3 goalDelta;
 	idVec3 seekVel;
@@ -3276,7 +3276,7 @@ int idAI::ReactionTo( const idEntity *ent ) {
 idAI::Pain
 =====================
 */
-bool idAI::Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) {
+bool idAI::Pain( idEntity *inflictor, idEntity *attacker, const int damage, const idVec3 &dir, const int location ) {
 	idActor	*actor;
 
 	AI_PAIN = idActor::Pain( inflictor, attacker, damage, dir, location );
@@ -3377,7 +3377,7 @@ const idDeclParticle *idAI::SpawnParticlesOnJoint( particleEmitter_t &pe, const 
 idAI::Killed
 =====================
 */
-void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location ) {
+void idAI::Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, const int location ) {
 	idAngles ang;
 	const char *modelDeath;
 
@@ -3972,7 +3972,7 @@ void idAI::SetEnemy( idActor *newEnemy ) {
 idAI::FirstVisiblePointOnPath
 ============
 */
-idVec3 idAI::FirstVisiblePointOnPath( const idVec3 origin, const idVec3 &target, int travelFlags ) const {
+idVec3 idAI::FirstVisiblePointOnPath( const idVec3 origin, const idVec3 &target, const int travelFlags ) const {
 	int i, areaNum, targetAreaNum, curAreaNum, travelTime;
 	idVec3 curOrigin;
 	idReachability *reach;
@@ -4534,16 +4534,16 @@ idAI::PushWithAF
 ================
 */
 void idAI::PushWithAF() {
-	int i, j;
+	size_t i = 0, j = 0;
 	afTouch_t touchList[ MAX_GENTITIES ];
 	idEntity *pushed_ents[ MAX_GENTITIES ];
 	idEntity *ent;
 	idVec3 vel;
-	int num_pushed;
+	size_t num_pushed;
 
 	num_pushed = 0;
 	af.ChangePose( this, gameLocal.time );
-	int num = af.EntitiesTouchingAF( touchList );
+	size_t num = af.EntitiesTouchingAF( touchList );
 	for( i = 0; i < num; i++ ) {
 		if ( touchList[ i ].touchedEnt->IsType( idProjectile::Type ) ) {
 			// skip projectiles
@@ -4777,7 +4777,7 @@ void idAI::UpdateParticles() {
 		idMat3 realAxis;
 
 		int particlesAlive = 0;
-		for ( int i = 0; i < particles.Num(); i++ ) {
+		for ( size_t i = 0; i < particles.Num(); i++ ) {
 			// Smoke particles on AI characters will always be "slow", even when held by grabber
 			SetTimeState ts(TIME_GROUP1);
 			if ( particles[i].particle && particles[i].time ) {
@@ -4816,7 +4816,7 @@ void idAI::TriggerParticles( const char *jointName ) {
 	jointHandle_t jointNum;
 
 	jointNum = animator.GetJointHandle( jointName );
-	for ( int i = 0; i < particles.Num(); i++ ) {
+	for ( size_t i = 0; i < particles.Num(); i++ ) {
 		if ( particles[i].joint == jointNum ) {
 			particles[i].time = gameLocal.time;
 			BecomeActive( TH_UPDATEPARTICLES );

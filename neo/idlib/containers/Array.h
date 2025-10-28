@@ -53,7 +53,7 @@ actual raw data, and the size is fixed.
 template<class T_, size_t numElements > class idArray {
 public:
 	// returns number of elements in list
-	[[nodiscard]] size_t			Num() const { return numElements; }
+	[[nodiscard]] static size_t			Num() { return numElements; }
 
 	// returns the number of bytes the array takes up
 	[[nodiscard]] size_t			ByteSize() const { return sizeof( ptr ); }
@@ -65,8 +65,8 @@ public:
 	void			Memset( const char fill ) { memset( ptr, fill, numElements * sizeof( *ptr ) ); }
 
 	// array operators
-	const T_ &		operator[]( Ordinal auto index ) const { ORDINAL_CHECK(index, numElements); return ptr[index]; }
-	T_ &			operator[]( Ordinal auto index ) { ORDINAL_CHECK(index, numElements); return ptr[index]; }
+	const T_ &		operator[]( const Ordinal auto index ) const { ORDINAL_CHECK(index, numElements); return ptr[index]; }
+	T_ &			operator[]( const Ordinal auto index ) { ORDINAL_CHECK(index, numElements); return ptr[index]; }
 
 	// returns a pointer to the list
 	[[nodiscard]] const T_ *		Ptr() const { return ptr; }
@@ -91,7 +91,7 @@ Usage:
 
 ================================================
 */
-template<class _type_, int _dim1_, int _dim2_ >
+template<class _type_, size_t _dim1_, size_t _dim2_ >
 struct id2DArray {
 	typedef idArray< idArray< _type_, _dim2_ >, _dim1_ > type;
 };
@@ -109,9 +109,9 @@ which works for std::arrays also.
 template< class _type_ >
 struct idTupleSize;
 
-template< class _type_, int _num_ >
+template< class _type_, size_t _num_ >
 struct idTupleSize< idArray< _type_, _num_ > > {
-	enum { value = _num_ };
+	enum idTupleSizeValue_e : size_t { value = _num_ };
 };
 
 #endif // !__ARRAY_H__

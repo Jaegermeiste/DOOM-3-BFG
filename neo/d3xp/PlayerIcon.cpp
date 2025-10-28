@@ -63,7 +63,7 @@ idPlayerIcon::~idPlayerIcon() {
 idPlayerIcon::Draw
 ===============
 */
-void idPlayerIcon::Draw( idPlayer *player, jointHandle_t joint ) {
+void idPlayerIcon::Draw( idPlayer *player, const jointHandle_t joint ) {
 	idVec3 origin;
 	idMat3 axis;
 
@@ -129,7 +129,7 @@ void idPlayerIcon::FreeIcon() {
 idPlayerIcon::CreateIcon
 ===============
 */
-bool idPlayerIcon::CreateIcon( idPlayer *player, playerIconType_t type, const idVec3 &origin, const idMat3 &axis ) {
+bool idPlayerIcon::CreateIcon( idPlayer *player, const playerIconType_t type, const idVec3 &origin, const idMat3 &axis ) {
 	assert( type < ICON_NONE );
 	const char *mtr = player->spawnArgs.GetString( iconKeys[ type ], "_default" );
 	return CreateIcon( player, type, mtr, origin, axis );
@@ -140,7 +140,7 @@ bool idPlayerIcon::CreateIcon( idPlayer *player, playerIconType_t type, const id
 idPlayerIcon::CreateIcon
 ===============
 */
-bool idPlayerIcon::CreateIcon( idPlayer *player, playerIconType_t type, const char *mtr, const idVec3 &origin, const idMat3 &axis ) {
+bool idPlayerIcon::CreateIcon( idPlayer *player, const playerIconType_t type, const char *mtr, const idVec3 &origin, const idMat3 &axis ) {
 	assert( type != ICON_NONE );
 
 	if ( type == iconType ) {

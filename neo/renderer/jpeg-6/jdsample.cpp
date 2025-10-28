@@ -66,7 +66,7 @@ typedef my_upsampler * my_upsample_ptr;
  */
 
 METHODDEF void
-start_pass_upsample( j_decompress_ptr cinfo ) {
+start_pass_upsample(const j_decompress_ptr cinfo ) {
     my_upsample_ptr upsample = (my_upsample_ptr) cinfo->upsample;
 
     /* Mark the conversion buffer empty */
@@ -85,10 +85,10 @@ start_pass_upsample( j_decompress_ptr cinfo ) {
  */
 
 METHODDEF void
-sep_upsample( j_decompress_ptr cinfo,
-              JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr,
+sep_upsample(const j_decompress_ptr cinfo,
+              const JSAMPIMAGE input_buf, JDIMENSION * in_row_group_ctr,
               JDIMENSION in_row_groups_avail,
-              JSAMPARRAY output_buf, JDIMENSION * out_row_ctr,
+              const JSAMPARRAY output_buf, JDIMENSION * out_row_ctr,
               JDIMENSION out_rows_avail ) {
     my_upsample_ptr upsample = (my_upsample_ptr) cinfo->upsample;
     int ci;
@@ -156,7 +156,7 @@ sep_upsample( j_decompress_ptr cinfo,
 
 METHODDEF void
 fullsize_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
-                   JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
+                   const JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     *output_data_ptr = input_data;
 }
 
@@ -185,8 +185,8 @@ noop_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 METHODDEF void
-int_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
-              JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
+int_upsample(const j_decompress_ptr cinfo, jpeg_component_info * compptr,
+              const JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     my_upsample_ptr upsample = (my_upsample_ptr) cinfo->upsample;
     JSAMPARRAY output_data = *output_data_ptr;
     register JSAMPROW inptr, outptr;
@@ -228,8 +228,8 @@ int_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 METHODDEF void
-h2v1_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
-               JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
+h2v1_upsample(const j_decompress_ptr cinfo, jpeg_component_info * compptr,
+               const JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
     register JSAMPROW inptr, outptr;
     register JSAMPLE invalue;
@@ -255,8 +255,8 @@ h2v1_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 METHODDEF void
-h2v2_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
-               JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
+h2v2_upsample(const j_decompress_ptr cinfo, jpeg_component_info * compptr,
+               const JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
     register JSAMPROW inptr, outptr;
     register JSAMPLE invalue;
@@ -297,8 +297,8 @@ h2v2_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 METHODDEF void
-h2v1_fancy_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
-                     JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
+h2v1_fancy_upsample(const j_decompress_ptr cinfo, jpeg_component_info * compptr,
+                     const JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
     register JSAMPROW inptr, outptr;
     register int invalue;
@@ -337,8 +337,8 @@ h2v1_fancy_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 METHODDEF void
-h2v2_fancy_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
-                     JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
+h2v2_fancy_upsample(const j_decompress_ptr cinfo, jpeg_component_info * compptr,
+                     const JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
     register JSAMPROW inptr0, inptr1, outptr;
 #if BITS_IN_JSAMPLE == 8
@@ -393,7 +393,7 @@ h2v2_fancy_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
  */
 
 GLOBAL void
-jinit_upsampler( j_decompress_ptr cinfo ) {
+jinit_upsampler(const j_decompress_ptr cinfo ) {
     my_upsample_ptr upsample;
     int ci;
     jpeg_component_info * compptr;
