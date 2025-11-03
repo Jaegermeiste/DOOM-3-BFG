@@ -62,7 +62,7 @@ public:
 
 	static index_t CurrentPlayer();
 
-			static void	SetMultiplayerPlayers(index_t localPlayerIndex, size_t playerCount, index_t localPlayer, idList<idStr> playerAddresses );
+	static void	SetMultiplayerPlayers(index_t localPlayerIndex, size_t playerCount, index_t localPlayer, idList<idStr> playerAddresses );
 
 protected:
 	size_t				numplayers;

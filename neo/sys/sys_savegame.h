@@ -162,12 +162,12 @@ public:
 	[[nodiscard]] idStr	GetLocation() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP_LOCATE, "" ); }
 	[[nodiscard]] idStr	GetLanguage() const { return descriptors.GetString( SAVEGAME_DETAIL_FIELD_LANGUAGE, "" ); }
 	[[nodiscard]] ID_TIME_T	GetPlaytime() const { return descriptors.GetInt64( SAVEGAME_DETAIL_FIELD_PLAYTIME, 0LL ); }
-	[[nodiscard]] int		GetExpansion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_EXPANSION, 0 ); }
+	[[nodiscard]] int		GetExpansion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_EXPANSION, 0L ); }
 	[[nodiscard]] int		GetDifficulty() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_DIFFICULTY, -1 ); }
-	[[nodiscard]] int		GetSaveVersion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_SAVE_VERSION, 0 ); }
+	[[nodiscard]] int		GetSaveVersion() const { return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_SAVE_VERSION, 0L ); }
 
 public:
-	idDict				descriptors;						// [in] Descriptors available to be shown on the save/load screen.  Each game can define their own, e.g. Difficulty, level, map, score, time.
+	idDict<>			descriptors;						// [in] Descriptors available to be shown on the save/load screen.  Each game can define their own, e.g. Difficulty, level, map, score, time.
 	bool				damaged;							// [out]
 	time_t				date;								// [out] read from the filesystem, not set by client
 	idStrStatic< MAX_FOLDER_NAME_LENGTH >	slotName;		// [out] folder/slot name, e.g. AUTOSAVE

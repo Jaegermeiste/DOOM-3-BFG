@@ -267,41 +267,40 @@ EV_DoPlat
 
 void P_ActivateInStasis(const int tag)
 {
-    int		i;
-	
-    for (i = 0;i < MAXPLATS;i++)
+    for (index_t i = 0; std::cmp_less(i, ::g->activeplats.Num()); ++i)
     {
 	    if (::g->activeplats[i]
 		    && (::g->activeplats[i])->tag == tag
 		    && (::g->activeplats[i])->status == in_stasis)
 	    {
 		    (::g->activeplats[i])->status = (::g->activeplats[i])->oldstatus;
-		    (::g->activeplats[i])->thinker.function.acp1
-			    = (actionf_p1) T_PlatRaise;
+		    (::g->activeplats[i])->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_PlatRaise);
 	    }
     }
 }
 
-void EV_StopPlat(line_t* line)
+void EV_StopPlat(const line_t* line)
 {
-    int		j;
-	
-    for (j = 0;j < MAXPLATS;j++)
-    {
-	    if (::g->activeplats[j]
-		    && ((::g->activeplats[j])->status != in_stasis)
-		    && ((::g->activeplats[j])->tag == line->tag))
-	    {
-		    (::g->activeplats[j])->oldstatus = (::g->activeplats[j])->status;
-		    (::g->activeplats[j])->status = in_stasis;
-		    (::g->activeplats[j])->thinker.function.acv = static_cast<actionf_v>(nullptr);
-	    }
-    }
+	if (line)
+	{
+		for (index_t i = 0; std::cmp_less(i, ::g->activeplats.Num()); ++i)
+		{
+			if (::g->activeplats[i]
+				&& ((::g->activeplats[i])->status != in_stasis)
+				&& ((::g->activeplats[i])->tag == line->tag))
+			{
+				(::g->activeplats[i])->oldstatus = (::g->activeplats[i])->status;
+				(::g->activeplats[i])->status = in_stasis;
+				(::g->activeplats[i])->thinker.function.acv = static_cast<actionf_v>(nullptr);
+			}
+		}
+	}
 }
 
 void P_AddActivePlat(plat_t* plat)
 {
-    int		i;
+	// https://doomwiki.org/wiki/Moving_platforms_limit
+    /*int		i;
     
     for (i = 0;i < MAXPLATS;i++)
     {
@@ -311,23 +310,31 @@ void P_AddActivePlat(plat_t* plat)
 		    return;
 	    }
     }
-    I_Error ("P_AddActivePlat: no more plats!");
+    I_Error ("P_AddActivePlat: no more plats!");*/
+
+	if (plat)
+	{
+		::g->activeplats.AddUnique(plat);
+	}
 }
 
 void P_RemoveActivePlat(plat_t* plat)
 {
-    int		i;
-    for (i = 0;i < MAXPLATS;i++)
+    const index_t i = ::g->activeplats.FindIndex(plat);
+    
+	if (i >= 0)
     {
 	    if (plat == ::g->activeplats[i])
 	    {
 		    (::g->activeplats[i])->sector->specialdata = nullptr;
 		    P_RemoveThinker(&(::g->activeplats[i])->thinker);
-		    ::g->activeplats[i] = nullptr;
+		    
+			::g->activeplats.RemoveIndex(i);
 	    
 		    return;
 	    }
     }
+
     I_Error ("P_RemoveActivePlat: can't find plat!");
 }
 

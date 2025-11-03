@@ -2993,7 +2993,7 @@ Based on whether the depth range is [0,1] or [-1,1], either transform (0,0,0) or
 ========================
 */
 static idVec3 LocalNearClipCenterFromMVP( const idRenderMatrix & mvp ) {
-	idRenderMatrix inverseMVP;
+	idRenderMatrix inverseMVP = {};
 	idRenderMatrix::Inverse( mvp, inverseMVP );
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 	const float x = inverseMVP[0][3];

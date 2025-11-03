@@ -26,42 +26,52 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//  am_map.defs begin // 
-#define REDS		(256-5*16)
-#define REDRANGE	16
-#define BLUES		(256-4*16+8)
-#define BLUERANGE	8
-#define GREENS		(7*16)
-#define GREENRANGE	16
-#define GRAYS		(6*16)
-#define GRAYSRANGE	16
-#define BROWNS		(4*16)
-#define BROWNRANGE	16
-#define YELLOWS		(256-32+7)
-#define YELLOWRANGE	1
-#define BLACK		0
-#define WHITE		(256-47)
-#define BACKGROUND	BLACK
-#define YOURCOLORS	WHITE
-#define YOURRANGE	0
-#define WALLCOLORS	REDS
-#define WALLRANGE	REDRANGE
-#define TSWALLCOLORS	GRAYS
-#define TSWALLRANGE	GRAYSRANGE
-#define FDWALLCOLORS	BROWNS
-#define FDWALLRANGE	BROWNRANGE
-#define CDWALLCOLORS	YELLOWS
-#define CDWALLRANGE	YELLOWRANGE
-#define THINGCOLORS	GREENS
-#define THINGRANGE	GREENRANGE
-#define SECRETWALLCOLORS WALLCOLORS
-#define SECRETWALLRANGE WALLRANGE
-#define GRIDCOLORS	(GRAYS + GRAYSRANGE/2)
-#define GRIDRANGE	0
-#define XHAIRCOLORS	GRAYS
-#define	FB		0
+#ifndef __DEFS_H__
+#define __DEFS_H__
 
-enum autoMap_e : uint8
+#pragma once
+
+
+//  am_map.defs begin // 
+constexpr auto  REDS = (256 - 5 * 16);
+constexpr auto  REDRANGE = 16;
+constexpr auto  BLUES = (256 - 4 * 16 + 8);
+constexpr auto  BLUERANGE = 8;
+constexpr auto  GREENS = (7 * 16);
+constexpr auto  GREENRANGE = 16;
+constexpr auto  GRAYS = (6 * 16);
+constexpr auto  GRAYSRANGE = 16;
+constexpr auto  BROWNS = (4 * 16);
+constexpr auto  BROWNRANGE = 16;
+constexpr auto  YELLOWS = (256 - 32 + 7);
+constexpr auto  YELLOWRANGE = 1;
+constexpr auto  BLACK = 0;
+constexpr auto  WHITE = (256 - 47);
+constexpr auto  BACKGROUND = BLACK;
+constexpr auto  YOURCOLORS = WHITE;
+constexpr auto  YOURRANGE = 0;
+constexpr auto  WALLCOLORS = REDS;
+constexpr auto  WALLRANGE = REDRANGE;
+constexpr auto  TSWALLCOLORS = GRAYS;
+constexpr auto  TSWALLRANGE = GRAYSRANGE;
+constexpr auto  FDWALLCOLORS = BROWNS;
+constexpr auto  FDWALLRANGE = BROWNRANGE;
+constexpr auto  CDWALLCOLORS = YELLOWS;
+constexpr auto  CDWALLRANGE = YELLOWRANGE;
+constexpr auto  THINGCOLORS = GREENS;
+constexpr auto  THINGRANGE = GREENRANGE;
+#if defined (_DEBUG) || defined(DEBUG)
+constexpr auto  SECRETWALLCOLORS = GREENS;
+#else
+constexpr auto  SECRETWALLCOLORS = WALLCOLORS;
+#endif
+constexpr auto  SECRETWALLRANGE = WALLRANGE;
+constexpr auto  GRIDCOLORS = (GRAYS + GRAYSRANGE / 2);
+constexpr auto  GRIDRANGE = 0;
+constexpr auto  XHAIRCOLORS = GRAYS;
+constexpr index_t	FB = 0;
+
+enum autoMapKeys_e : uint8
 {
 	AM_PANDOWNKEY    = KEY_DOWNARROW,
 	AM_PANUPKEY      = KEY_UPARROW,
@@ -75,58 +85,72 @@ enum autoMap_e : uint8
 	AM_FOLLOWKEY     = K_F,
 	AM_GRIDKEY       = K_G,
 	AM_MARKKEY       = K_M,
-	AM_CLEARMARKKEY  = K_C,
-	AM_NUMMARKPOINTS = 10
+	AM_CLEARMARKKEY  = K_C
 };
 
-#define INITSCALEMTOF (.2*FRACUNIT)
-#define F_PANINC	4
-#define M_ZOOMIN        ((int) (1.02*FRACUNIT))
-#define M_ZOOMOUT       ((int) (FRACUNIT/1.02))
-#define FTOM(x) FixedMul(((x)<<16),::g->scale_ftom)
-#define MTOF(x) (FixedMul((x),::g->scale_mtof)>>16)
-#define CXMTOF(x)  (::g->f_x + MTOF((x)-::g->m_x))
-#define CYMTOF(y)  (::g->f_y + (::g->f_h - MTOF((y)-::g->m_y)))
-#define LINE_NEVERSEE ML_DONTDRAW
+constexpr size_t AM_NUMMARKPOINTS = 10;
+
+constexpr auto INITSCALEMTOF = (0.2 * FRACUNIT);
+constexpr size_t F_PANINC = 4;
+constexpr auto  M_ZOOMIN = (1.02 * FRACUNIT);
+constexpr auto  M_ZOOMOUT = (FRACUNIT / 1.02);
+#define FTOM(_v) (((_v)<<16) *::g->scale_ftom)
+#define MTOF(_v) (((_v) * ::g->scale_mtof)>>16)
+#define CXMTOF(_x)  (::g->f_x + MTOF(((_x) - ::g->map_window_LL.x)))
+#define CYMTOF(_y)  (::g->f_y + (::g->f_h - MTOF((_y) - ::g->map_window_LL.y)))
+constexpr auto LINE_NEVERSEE = ML_DONTDRAW;
 #define NUMPLYRLINES (sizeof(player_arrow)/sizeof(mline_t))
 #define NUMCHEATPLYRLINES (sizeof(cheat_player_arrow)/sizeof(mline_t))
 #define NUMTRIANGLEGUYLINES (sizeof(triangle_guy)/sizeof(mline_t))
 #define NUMTHINTRIANGLEGUYLINES (sizeof(thintriangle_guy)/sizeof(mline_t))
 #define DOOUTCODE(oc, mx, my) \
-	(oc) = 0; \
-	if ((my) < 0) (oc) |= TOP; \
-	else if ((my) >= ::g->f_h) (oc) |= BOTTOM; \
-	if ((mx) < 0) (oc) |= LEFT; \
-	else if ((mx) >= ::g->f_w) (oc) |= RIGHT;
-#define PUTDOT(xx,yy,cc) ::g->fb[(yy)*::g->f_w+(xx)]=(cc)
+	do { \
+		(oc) = 0; \
+		if ((my) < 0) (oc) |= TOP; \
+		else if ((my) >= ::g->f_h) (oc) |= BOTTOM; \
+		if ((mx) < 0) (oc) |= LEFT; \
+		else if ((mx) >= ::g->f_w) (oc) |= RIGHT; \
+	} while (0)
+#define PUTDOT(xx,yy,cc) \
+    do { \
+        uint32 _c_ = static_cast<uint32>(cc); \
+        memcpy(&::g->fb[(yy) * ::g->f_w + (xx)], &_c_, sizeof(_c_)); \
+    } while(0)
 // am_map.defs end // 
 //  d_main.defs begin // 
-#define	BGCOLOR		7
-#define	FGCOLOR		8
-#define DOOMWADDIR "wads/"
+//#define	BGCOLOR		7
+//#define	FGCOLOR		8
+constexpr auto DOOMWADDIR = "wads/";
 // d_main.defs end // 
 //  d_net.defs begin // 
-#define	NCMD_EXIT		0x80000000
-#define	NCMD_RETRANSMIT		0x40000000
-#define	NCMD_SETUP		0x20000000
-#define	NCMD_KILL		0x10000000	// kill game
-#define	NCMD_CHECKSUM	 	0x0fffffff
+enum NCMD_e : uint32
+{
+	NCMD_EXIT       = 0x80000000,
+	NCMD_RETRANSMIT = 0x40000000,
+	NCMD_SETUP      = 0x20000000,
+	NCMD_KILL       = 0x10000000, // kill game
+	NCMD_CHECKSUM   = 0x0fffffff
+};
+
 constexpr size_t RESENDCOUNT = 10;
 #define	PL_DRONE	0x80	// bit flag in doomdata->player
 // d_net.defs end // 
 //  f_finale.defs begin // 
-#define	TEXTSPEED	3
+constexpr ID_SECONDS_T	TEXTSPEED = 3;
 constexpr ID_TIME_T TEXTWAIT = 250;
 // f_finale.defs end // 
-//  g_game.defs begin // 
+//  g_game.defs begin //
+constexpr size_t MAX_SAVE_GAMES = 10;
 constexpr size_t SAVESTRINGSIZE = 64;
 #define MAXPLMOVE		(::g->forwardmove[1]) 
-#define TURBOTHRESHOLD	0x32
-#define SLOWTURNTICS	6 
-constexpr size_t NUMKEYS = 256 ;
+constexpr auto TURBOTHRESHOLD = 0x32;
+constexpr ID_TIME_T SLOWTURNTICS = 6;
+constexpr size_t NUMKEYS = 256;
+constexpr size_t MAX_MOUSEBUTTONS = 4;
+constexpr size_t MAX_JOYBUTTONS = 5;
 constexpr size_t BODYQUEUESIZE = 32;
 constexpr size_t VERSIONSIZE = 16;
-#define DEMOMARKER		0x80
+constexpr auto DEMOMARKER = 0x80;
 // g_game.defs end // 
 //  hu_lib.defs begin // 
 #define noterased ::g->viewwindowx
@@ -136,10 +160,10 @@ constexpr size_t VERSIONSIZE = 16;
 #define HU_TITLE2	(mapnames2[::g->gamemap-1])
 #define HU_TITLEP	(mapnamesp[::g->gamemap-1])
 #define HU_TITLET	(mapnamest[::g->gamemap-1])
-#define HU_TITLEHEIGHT	1
-#define HU_TITLEX	0
+constexpr size_t  HU_TITLEHEIGHT = 1;
+constexpr int HU_TITLEX = 0;
 #define HU_TITLEY	(167 - SHORT(::g->hu_font[0]->height))
-#define HU_INPUTTOGGLE	K_T
+constexpr auto HU_INPUTTOGGLE = K_T;
 #define HU_INPUTX	HU_MSGX
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT*(SHORT(::g->hu_font[0]->height) +1))
 constexpr size_t HU_INPUTWIDTH = 64;
@@ -201,50 +225,49 @@ constexpr size_t MIDIHEADERSIZE = 14;
 // mus2midi.defs end // 
 //  m_menu.defs begin // 
 //constexpr size_t SAVESTRINGSIZE = 64;
-#define SKULLXOFF		-32
+constexpr int SKULLXOFF = -32;
 constexpr size_t LINEHEIGHT = 16;
 // m_menu.defs end // 
 //  p_enemy.defs begin // 
 constexpr size_t MAXSPECIALCROSS = 8;
-#define	FATSPREAD	(ANG90/8)
-#define	SKULLSPEED		(20*FRACUNIT)
+constexpr auto	FATSPREAD = ANG10 + ANG1 + ANG0_25; // (ANG90/8) = 11.25
+constexpr auto	SKULLSPEED = (20 * FRACUNIT);
 // p_enemy.defs end // 
 //  p_inter.defs begin // 
-#define BONUSADD	6
+constexpr auto	 BONUSADD = 6;
 // p_inter.defs end // 
 //  p_map.defs begin // 
 //constexpr size_t MAXSPECIALCROSS = 8;
 // p_map.defs end // 
 //  p_mobj.defs begin // 
-#define STOPSPEED		0x1000
-#define FRICTION		0xe800
+constexpr auto	 STOPSPEED = 0x1000;
+constexpr auto	 FRICTION = 0xe800;
 // p_mobj.defs end // 
 //  p_pspr.defs begin // 
-#define LOWERSPEED		FRACUNIT*6
-#define RAISESPEED		FRACUNIT*6
-#define WEAPONBOTTOM	128*FRACUNIT
-#define WEAPONTOP		32*FRACUNIT
-#define BFGCELLS		40		
+constexpr auto	 LOWERSPEED = FRACUNIT * 6;
+constexpr auto	 RAISESPEED = FRACUNIT * 6;
+constexpr auto	 WEAPONBOTTOM = 128 * FRACUNIT;
+constexpr auto	 WEAPONTOP = 32 * FRACUNIT;
+constexpr auto	 BFGCELLS = 40;
 // p_pspr.defs end // 
 //  p_saveg.defs begin // 
-#define PADSAVEP()	::g->save_p += (4 - ((int) ::g->save_p & 3)) & 3
+#define PADSAVEP()	(::g->save_p += (4 - ((int) ::g->save_p & 3)) & 3)
 // p_saveg.defs end // 
 //  p_setup.defs begin // 
 constexpr size_t MAX_DEATHMATCH_STARTS = 10;
 // p_setup.defs end // 
 //  p_spec.defs begin // 
-constexpr size_t MAXANIMS = 32;
-constexpr size_t MAXLINEANIMS = 64;
+constexpr size_t MAXANIMS = 40;     // https://doomwiki.org/wiki/Static_limits
+constexpr size_t MAXLINEANIMS = 96;    // https://doomwiki.org/wiki/Static_limits
 constexpr size_t MAX_ADJOINING_SECTORS = 20;
 // p_spec.defs end // 
 //  p_user.defs begin // 
-#define INVERSECOLORMAP		32
+constexpr auto	 INVERSECOLORMAP = 32;
 
 // DHM - NERVE :: MAXBOB reduced 25%
 //#define MAXBOB	0x100000
 constexpr auto MAXBOB = 0xC0000;
 
-#define ANG5   	(ANG90/18)
 // p_user.defs end // 
 //  r_bsp.defs begin // 
 constexpr size_t MAXSEGS = 32;
@@ -252,201 +275,197 @@ constexpr size_t MAXSEGS = 32;
 //  r_draw.defs begin // 
 //#define MAXWIDTH			1120
 //#define MAXHEIGHT			832
-#define SBARHEIGHT		32 * GLOBAL_IMAGE_SCALER
-#define FUZZTABLE		50 
-#define FUZZOFF	(SCREENWIDTH)
+constexpr size_t SBARHEIGHT = 32 * GLOBAL_IMAGE_SCALER;
+constexpr size_t FUZZTABLE = 50;
+constexpr auto FUZZOFF = numeric_cast<index_t>(SCREENWIDTH);
 // r_draw.defs end // 
 //  r_main.defs begin // 
-#define FIELDOFVIEW		2048	
-#define DISTMAP		2
+constexpr int32 FIELDOFVIEW = FINEANGLES / 4; // =2048, 90 degrees
+constexpr auto DISTMAP = 2;
 // r_main.defs end // 
 //  r_plane.defs begin // 
 //#define MAXVISPLANES	128
 constexpr size_t MAXVISPLANES = 384;
-constexpr size_t MAXOPENINGS = SCREENWIDTH * 64;
+constexpr size_t MAXOPENINGS = SCREENWIDTH * SCREENHEIGHT; //SCREENWIDTH * 64;    // https://doomwiki.org/wiki/Static_limits
 // r_plane.defs end // 
 //  r_segs.defs begin // 
-#define HEIGHTBITS		12
-#define HEIGHTUNIT		(1<<HEIGHTBITS)
+constexpr size_t HEIGHTBITS = 12;
+constexpr size_t HEIGHTUNIT = (1 << HEIGHTBITS);
 // r_segs.defs end // 
 //  r_things.defs begin // 
-#define MINZ				(FRACUNIT*4)
-#define BASEYCENTER			100
+constexpr auto MINZ = (FRACUNIT * 4);
+constexpr int BASEYCENTER = 100;
 // r_things.defs end // 
 //  st_stuff.defs begin // 
-#define STARTREDPALS		1
-#define STARTBONUSPALS		9
-#define NUMREDPALS			8
-#define NUMBONUSPALS		4
-#define RADIATIONPAL		13
+constexpr index_t STARTREDPALS = 1;
+constexpr index_t STARTBONUSPALS = 9;
+constexpr size_t NUMREDPALS = 8;
+constexpr size_t NUMBONUSPALS = 4;
+constexpr index_t RADIATIONPAL = 13;
 
-#define ST_FACEPROBABILITY		96
-#define ST_TOGGLECHAT		KEY_ENTER
-#define ST_X				0
-#define ST_X2				104
-#define ST_FX  			143
-#define ST_FY  			169
-#define ST_TALLNUMWIDTH		(::g->tallnum[0]->width)
-#define ST_NUMPAINFACES		5
-#define ST_NUMSTRAIGHTFACES	3
-#define ST_NUMTURNFACES		2
-#define ST_NUMSPECIALFACES		3
-#define ST_FACESTRIDE \
-	(ST_NUMSTRAIGHTFACES+ST_NUMTURNFACES+ST_NUMSPECIALFACES)
-#define ST_NUMEXTRAFACES		2
-#define ST_NUMFACES \
-	(ST_FACESTRIDE*ST_NUMPAINFACES+ST_NUMEXTRAFACES)
-#define ST_TURNOFFSET		(ST_NUMSTRAIGHTFACES)
-#define ST_OUCHOFFSET		(ST_TURNOFFSET + ST_NUMTURNFACES)
-#define ST_EVILGRINOFFSET		(ST_OUCHOFFSET + 1)
-#define ST_RAMPAGEOFFSET		(ST_EVILGRINOFFSET + 1)
-#define ST_GODFACE			(ST_NUMPAINFACES*ST_FACESTRIDE)
-#define ST_DEADFACE			(ST_GODFACE+1)
-#define ST_FACESX			143
-#define ST_FACESY			168
-#define ST_EVILGRINCOUNT		(2*TICRATE)
-#define ST_STRAIGHTFACECOUNT	(TICRATE/2)
-#define ST_TURNCOUNT		(1*TICRATE)
-#define ST_OUCHCOUNT		(1*TICRATE)
-#define ST_RAMPAGEDELAY		(2*TICRATE)
-#define ST_MUCHPAIN			20
-#define ST_AMMOWIDTH		3	
-#define ST_AMMOX			44
-#define ST_AMMOY			171
-#define ST_HEALTHWIDTH		3	
-#define ST_HEALTHX			90
-#define ST_HEALTHY			171
-#define ST_ARMSX			111
-#define ST_ARMSY			172
-#define ST_ARMSBGX			104
-#define ST_ARMSBGY			168
-#define ST_ARMSXSPACE		12
-#define ST_ARMSYSPACE		10
-#define ST_FRAGSX			138
-#define ST_FRAGSY			171	
-#define ST_FRAGSWIDTH		2
-#define ST_ARMORWIDTH		3
-#define ST_ARMORX			221
-#define ST_ARMORY			171
-#define ST_KEY0WIDTH		8
-#define ST_KEY0HEIGHT		5
-#define ST_KEY0X			239
-#define ST_KEY0Y			171
-#define ST_KEY1WIDTH		ST_KEY0WIDTH
-#define ST_KEY1X			239
-#define ST_KEY1Y			181
-#define ST_KEY2WIDTH		ST_KEY0WIDTH
-#define ST_KEY2X			239
-#define ST_KEY2Y			191
-#define ST_AMMO0WIDTH		3
-#define ST_AMMO0HEIGHT		6
-#define ST_AMMO0X			288
-#define ST_AMMO0Y			173
-#define ST_AMMO1WIDTH		ST_AMMO0WIDTH
-#define ST_AMMO1X			288
-#define ST_AMMO1Y			179
-#define ST_AMMO2WIDTH		ST_AMMO0WIDTH
-#define ST_AMMO2X			288
-#define ST_AMMO2Y			191
-#define ST_AMMO3WIDTH		ST_AMMO0WIDTH
-#define ST_AMMO3X			288
-#define ST_AMMO3Y			185
-#define ST_MAXAMMO0WIDTH		3
-#define ST_MAXAMMO0HEIGHT		5
-#define ST_MAXAMMO0X		314
-#define ST_MAXAMMO0Y		173
-#define ST_MAXAMMO1WIDTH		ST_MAXAMMO0WIDTH
-#define ST_MAXAMMO1X		314
-#define ST_MAXAMMO1Y		179
-#define ST_MAXAMMO2WIDTH		ST_MAXAMMO0WIDTH
-#define ST_MAXAMMO2X		314
-#define ST_MAXAMMO2Y		191
-#define ST_MAXAMMO3WIDTH		ST_MAXAMMO0WIDTH
-#define ST_MAXAMMO3X		314
-#define ST_MAXAMMO3Y		185
-#define ST_WEAPON0X			110 
-#define ST_WEAPON0Y			172
-#define ST_WEAPON1X			122 
-#define ST_WEAPON1Y			172
-#define ST_WEAPON2X			134 
-#define ST_WEAPON2Y			172
-#define ST_WEAPON3X			110 
-#define ST_WEAPON3Y			181
-#define ST_WEAPON4X			122 
-#define ST_WEAPON4Y			181
-#define ST_WEAPON5X			134
-#define ST_WEAPON5Y			181
-#define ST_WPNSX			109 
-#define ST_WPNSY			191
-#define ST_DETHX			109
-#define ST_DETHY			191
-#define ST_MSGTEXTX			0
-#define ST_MSGTEXTY			0
-#define ST_MSGWIDTH			52
-#define ST_MSGHEIGHT		1
-#define ST_OUTTEXTX			0
-#define ST_OUTTEXTY			6
-#define ST_OUTWIDTH			52 
-#define ST_OUTHEIGHT		1
-#define ST_MAPWIDTH	\
-	(strlen(mapnames[(::g->gameepisode-1)*9+(::g->gamemap-1)]))
-#define ST_MAPTITLEX \
-	(SCREENWIDTH - ST_MAPWIDTH * ST_CHATFONTWIDTH)
-#define ST_MAPTITLEY		0
-#define ST_MAPHEIGHT		1
+//#define ST_FACEPROBABILITY		96
+constexpr auto ST_TOGGLECHAT = KEY_ENTER;
+constexpr int ST_X = 0;
+constexpr int  ST_X2 = 104;
+constexpr int  ST_FX = 143;
+constexpr int  ST_FY = 169;
+#define        ST_TALLNUMWIDTH		(::g->tallnum[0]->width)
+constexpr size_t  ST_NUMPAINFACES = 5;
+constexpr size_t  ST_NUMSTRAIGHTFACES = 3;
+constexpr size_t  ST_NUMTURNFACES = 2;
+constexpr size_t  ST_NUMSPECIALFACES = 3;
+constexpr size_t  ST_FACESTRIDE = (ST_NUMSTRAIGHTFACES + ST_NUMTURNFACES + ST_NUMSPECIALFACES);
+constexpr size_t  ST_NUMEXTRAFACES = 2;
+constexpr size_t  ST_NUMFACES = (ST_FACESTRIDE* ST_NUMPAINFACES + ST_NUMEXTRAFACES);
+constexpr size_t  ST_TURNOFFSET = (ST_NUMSTRAIGHTFACES);
+constexpr size_t  ST_OUCHOFFSET = (ST_TURNOFFSET + ST_NUMTURNFACES);
+constexpr size_t  ST_EVILGRINOFFSET = (ST_OUCHOFFSET + 1);
+constexpr size_t  ST_RAMPAGEOFFSET = (ST_EVILGRINOFFSET + 1);
+constexpr index_t ST_GODFACE = (ST_NUMPAINFACES * ST_FACESTRIDE);
+constexpr index_t ST_DEADFACE = (ST_GODFACE + 1);
+constexpr int  ST_FACESX = 143;
+constexpr int  ST_FACESY = 168;
+constexpr ID_TIME_T  ST_EVILGRINCOUNT = (2 * TICRATE);
+constexpr ID_TIME_T   ST_STRAIGHTFACECOUNT = (TICRATE / 2);
+constexpr ID_TIME_T   ST_TURNCOUNT = (1 * TICRATE);
+constexpr ID_TIME_T   ST_OUCHCOUNT = (1 * TICRATE);
+constexpr ID_TIME_T   ST_RAMPAGEDELAY = (2 * TICRATE);
+constexpr size_t  ST_MUCHPAIN = 20;
+constexpr size_t  ST_AMMOWIDTH = 3;
+constexpr int32  ST_AMMOX = 44;
+constexpr int32  ST_AMMOY = 171;
+constexpr size_t  ST_HEALTHWIDTH = 3;
+constexpr int32 ST_HEALTHX = 90;
+constexpr int32  ST_HEALTHY = 171;
+constexpr int32  ST_ARMSX = 111;
+constexpr int32  ST_ARMSY = 172;
+constexpr int32  ST_ARMSBGX = 104;
+constexpr int32  ST_ARMSBGY = 168;
+constexpr size_t  ST_ARMSXSPACE = 12;
+constexpr size_t  ST_ARMSYSPACE = 10;
+constexpr int32  ST_FRAGSX = 138;
+constexpr int32  ST_FRAGSY = 171;
+constexpr size_t  ST_FRAGSWIDTH = 2;
+constexpr size_t  ST_ARMORWIDTH = 3;
+constexpr int32  ST_ARMORX = 221;
+constexpr int32  ST_ARMORY = 171;
+constexpr size_t  ST_KEY0WIDTH = 8;
+constexpr size_t  ST_KEY0HEIGHT = 5;
+constexpr int32  ST_KEY0X = 239;
+constexpr int32  ST_KEY0Y = 171;
+constexpr size_t  ST_KEY1WIDTH = ST_KEY0WIDTH;
+constexpr int32  ST_KEY1X = 239;
+constexpr int32  ST_KEY1Y = 181;
+constexpr size_t  ST_KEY2WIDTH = ST_KEY0WIDTH;
+constexpr int32  ST_KEY2X = 239;
+constexpr int32  ST_KEY2Y = 191;
+constexpr size_t  ST_AMMO0WIDTH = 3;
+constexpr size_t  ST_AMMO0HEIGHT = 6;
+constexpr int32  ST_AMMO0X = 288;
+constexpr int32  ST_AMMO0Y = 173;
+constexpr size_t  ST_AMMO1WIDTH = ST_AMMO0WIDTH;
+constexpr int32  ST_AMMO1X = 288;
+constexpr int32  ST_AMMO1Y = 179;
+constexpr size_t  ST_AMMO2WIDTH = ST_AMMO0WIDTH;
+constexpr int32  ST_AMMO2X = 288;
+constexpr int32  ST_AMMO2Y = 191;
+constexpr size_t  ST_AMMO3WIDTH = ST_AMMO0WIDTH;
+constexpr int32  ST_AMMO3X = 288;
+constexpr int32  ST_AMMO3Y = 185;
+constexpr size_t  ST_MAXAMMO0WIDTH = 3;
+constexpr size_t  ST_MAXAMMO0HEIGHT = 5;
+constexpr int32  ST_MAXAMMO0X = 314;
+constexpr int32  ST_MAXAMMO0Y = 173;
+constexpr size_t  ST_MAXAMMO1WIDTH = ST_MAXAMMO0WIDTH;
+constexpr int32  ST_MAXAMMO1X = 314;
+constexpr int32  ST_MAXAMMO1Y = 179;
+constexpr size_t  ST_MAXAMMO2WIDTH = ST_MAXAMMO0WIDTH;
+constexpr int32  ST_MAXAMMO2X = 314;
+constexpr int32  ST_MAXAMMO2Y = 191;
+constexpr size_t  ST_MAXAMMO3WIDTH = ST_MAXAMMO0WIDTH;
+constexpr int32  ST_MAXAMMO3X = 314;
+constexpr int32  ST_MAXAMMO3Y = 185;
+constexpr int32  ST_WEAPON0X = 110;
+constexpr int32  ST_WEAPON0Y = 172;
+constexpr int32  ST_WEAPON1X = 122;
+constexpr int32  ST_WEAPON1Y = 172;
+constexpr int32  ST_WEAPON2X = 134;
+constexpr int32  ST_WEAPON2Y = 172;
+constexpr int32  ST_WEAPON3X = 110;
+constexpr int32  ST_WEAPON3Y = 181;
+constexpr int32  ST_WEAPON4X = 122;
+constexpr int32  ST_WEAPON4Y = 181;
+constexpr int32  ST_WEAPON5X = 134;
+constexpr int32  ST_WEAPON5Y = 181;
+constexpr int32  ST_WPNSX = 109;
+constexpr int32  ST_WPNSY = 191;
+constexpr int32  ST_DETHX = 109;
+constexpr int32  ST_DETHY = 191;
+constexpr int32  ST_MSGTEXTX = 0;
+constexpr int32  ST_MSGTEXTY = 0;
+constexpr size_t  ST_MSGWIDTH = 52;
+constexpr size_t  ST_MSGHEIGHT = 1;
+constexpr int32  ST_OUTTEXTX = 0;
+constexpr int32  ST_OUTTEXTY = 6;
+constexpr size_t  ST_OUTWIDTH = 52;
+constexpr size_t  ST_OUTHEIGHT = 1;
+//#define ST_MAPWIDTH	(strlen(mapnames[(::g->gameepisode-1)*9+(::g->gamemap-1)]))
+//#define ST_MAPTITLEX  (SCREENWIDTH - ST_MAPWIDTH * ST_CHATFONTWIDTH);
+constexpr int32  ST_MAPTITLEY = 0;
+constexpr size_t  ST_MAPHEIGHT = 1;
 
 // st_stuff.defs end // 
 //  s_sound.defs begin // 
-#define S_MAX_VOLUME		127
-#define S_CLIPPING_DIST		(1200*0x10000)
-#define S_CLOSE_DIST		(160*0x10000)
-#define S_ATTENUATOR		((S_CLIPPING_DIST-S_CLOSE_DIST)>>FRACBITS)
+constexpr size_t  S_MAX_VOLUME = 127;
+constexpr size_t  S_CLIPPING_DIST = (1200ULL * 0x10000);
+constexpr size_t  S_CLOSE_DIST = (160ULL * 0x10000);
+constexpr auto  S_ATTENUATOR((S_CLIPPING_DIST - S_CLOSE_DIST));
 #define NORM_VOLUME    		snd_MaxVolume
-#define NORM_PITCH     		128
-#define NORM_PRIORITY		64
-#define NORM_SEP		128
-#define S_PITCH_PERTURB		1
-#define S_STEREO_SWING		(96*0x10000)
-#define S_IFRACVOL		30
-#define NA			0
-#define S_NUMCHANNELS		256
+constexpr auto  NORM_PITCH = 128;
+constexpr auto  NORM_PRIORITY = 64;
+constexpr auto  NORM_SEP = 128;
+constexpr auto  S_PITCH_PERTURB = 1;
+constexpr auto  S_STEREO_SWING = (96 * 0x10000);
+constexpr auto  S_IFRACVOL = 30;
+constexpr auto  NA = 0;
+constexpr size_t  S_NUMCHANNELS = 256;
 // s_sound.defs end // 
 //  wi_stuff.defs begin // 
-#define NUMEPISODES	4
-#define NUMMAPS		9
-#define WI_TITLEY		2
-#define WI_SPACINGY    		33
-#define SP_STATSX		50
-#define SP_STATSY		50
-#define SP_TIMEX		16
-#define SP_TIMEY		(ORIGINAL_HEIGHT-32)
-#define NG_STATSY		50
-#define NG_STATSX		(32 + SHORT(::g->star->width)/2 + 32*!::g->dofrags)
-#define NG_SPACINGX    		64
-#define DM_MATRIXX		42
-#define DM_MATRIXY		68
-#define DM_SPACINGX		40
-#define DM_TOTALSX		269
-#define DM_KILLERSX		10
-#define DM_KILLERSY		100
-#define DM_VICTIMSX    		5
-#define DM_VICTIMSY		50
-#define FB 0
-#define SP_KILLS		0
-#define SP_ITEMS		2
-#define SP_SECRET		4
-#define SP_FRAGS		6 
-#define SP_TIME			8 
-#define SP_PAR			ST_TIME
-#define SP_PAUSE		1
-#define SHOWNEXTLOCDELAY	4
+constexpr size_t NUMEPISODES = 4;
+constexpr size_t NUMMAPS = 9;
+constexpr int32  WI_TITLEY = 2;
+constexpr size_t  WI_SPACINGY = 33;
+constexpr int32  SP_STATSX = 50;
+constexpr int32  SP_STATSY = 50;
+constexpr int32  SP_TIMEX = 16;
+constexpr int32  SP_TIMEY(ORIGINAL_HEIGHT - 32);
+constexpr int32  NG_STATSY = 50;
+#define          NG_STATSX (32 + SHORT(::g->star->width) / 2 + 32 * !::g->dofrags)
+constexpr size_t  NG_SPACINGX = 64;
+constexpr int32  DM_MATRIXX = 42;
+constexpr int32  DM_MATRIXY = 68;
+constexpr size_t  DM_SPACINGX = 40;
+constexpr int32  DM_TOTALSX = 269;
+constexpr int32  DM_KILLERSX = 10;
+constexpr int32  DM_KILLERSY = 100;
+constexpr int32  DM_VICTIMSX = 5;
+constexpr int32  DM_VICTIMSY = 50;
+//#define SP_KILLS		0
+//#define SP_ITEMS		2
+//#define SP_SECRET		4
+//#define SP_FRAGS		6 
+//#define SP_TIME			8 
+//#define SP_PAR			ST_TIME
+//#define SP_PAUSE		1
+constexpr ID_SECONDS_T SHOWNEXTLOCDELAY = 4;
 // wi_stuff.defs end // 
 //  w_wad.defs begin // 
 
 // w_wad.defs end // 
 //  z_zone.defs begin // 
-#define ZONEID	0x1d4a11
+constexpr auto   ZONEID = 0x1d4a11;
 constexpr size_t NUM_ZONES = 11;
 constexpr size_t MINFRAGMENT = 64;
-#define NO_SHARE_LUMPS
+//#define NO_SHARE_LUMPS
 // z_zone.defs end // 
+#endif // __DEFS_H__

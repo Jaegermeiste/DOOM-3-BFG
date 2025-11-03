@@ -174,7 +174,8 @@ public:
 	void			WriteDeltaFloat(const float oldValue, const float newValue, const uint16 exponentBits, const uint16 mantissaBits ) { WriteFloat( newValue - oldValue, exponentBits, mantissaBits ); }
 	void			WriteDeltaDouble(const double oldValue, const double newValue) { WriteDouble(newValue - oldValue); }
 
-	bool			WriteDeltaDict( const idDict &dict, const idDict *base );
+	template < Formattable T >
+	bool			WriteDeltaDict( const idDict<T> &dict, const idDict<T> *base );
 
 	template< int _max_, int _numBits_ >
 	void			WriteQuantizedFloat( float value );
@@ -238,7 +239,8 @@ public:
 	float			ReadDeltaFloat(const float oldValue ) const { return oldValue + ReadFloat(); }
 	float			ReadDeltaFloat(const float oldValue, const int exponentBits, const int mantissaBits ) const { return oldValue + ReadFloat( exponentBits, mantissaBits ); }
 	double			ReadDeltaDouble(const double oldValue) const { return oldValue + ReadDouble(); }
-	bool			ReadDeltaDict( idDict &dict, const idDict *base ) const;
+	template < Formattable T >
+	bool			ReadDeltaDict( idDict<T> &dict, const idDict<T> *base ) const;
 
 	template< int _max_, int _numBits_ >
 	float			ReadQuantizedFloat() const;

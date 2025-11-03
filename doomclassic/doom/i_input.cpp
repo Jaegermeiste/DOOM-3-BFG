@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cstdlib>
+#include <cstdarg>
 #include <sys/types.h>
 
 #include "i_video.h"
@@ -45,6 +45,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys/sys_public.h"
 
+#include "g_game.h"
+
 #define ALLOW_CHEATS	1
 
 
@@ -53,7 +55,7 @@ extern size_t PLAYERCOUNT;
 
 constexpr size_t NUM_BUTTONS = 4;
 
-static bool Cheat_God( void ) {
+static bool Cheat_God() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -75,145 +77,154 @@ static bool Cheat_God( void ) {
 	return true;
 }
 
-#include "g_game.h"
-static bool Cheat_NextLevel( void ) {
+
+static bool Cheat_NextLevel() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
+
 	G_ExitLevel();
 
 	return true;
 }
 
-static bool Cheat_GiveAll( void ) {
+static bool Cheat_GiveAll() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	::g->plyr->armorpoints = 200;
-	::g->plyr->armortype = 2;
+	::g->plyr->armorpoints = ARMOR_VALUES[ARMOR_MEGA];
+	::g->plyr->armortype = ARMOR_MEGA;
 
-	int i;
-	for (i=0;i<NUMWEAPONS;i++)
+	size_t i = 0;
+	for (i = 0; i < NUMWEAPONS; ++i)
 	{
 		::g->plyr->weaponowned[i] = true;
 	}
 
-	for (i=0;i<NUMAMMO;i++)
+	for (i = 0; i < NUMAMMO; ++i)
 	{
 		::g->plyr->ammo[i] = ::g->plyr->maxammo[i];
 	}
 
-	for (i=0;i<NUMCARDS;i++)
+	for (i = 0; i < NUMCARDS; ++i)
 	{
 		::g->plyr->cards[i] = true;
 	}
 
 	::g->plyr->message = STSTR_KFAADDED;
+
 	return true;
 }
 
-static bool Cheat_GiveAmmo( void ) {
+static bool Cheat_GiveAmmo() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
-	::g->plyr->armorpoints = 200;
-	::g->plyr->armortype = 2;
 
-	int i;
-	for (i=0;i<NUMWEAPONS;i++)
+	::g->plyr->armorpoints = ARMOR_VALUES[ARMOR_MEGA];
+	::g->plyr->armortype = ARMOR_MEGA;
+
+	size_t i = 0;
+	for (i = 0; i < NUMWEAPONS; ++i)
 	{
 		::g->plyr->weaponowned[i] = true;
 	}
 
-	for (i=0;i<NUMAMMO;i++)
+	for (i = 0; i < NUMAMMO; ++i)
 	{
 		::g->plyr->ammo[i] = ::g->plyr->maxammo[i];
 	}
 
 	::g->plyr->message = STSTR_KFAADDED;
+
 	return true;
 }
 
-static bool Cheat_Choppers( void ) {
+static bool Cheat_Choppers() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
+
 	::g->plyr->weaponowned[wp_chainsaw] = true;
 	::g->plyr->message = "Chainsaw!";
+
 	return true;
 }
 
-extern qboolean P_GivePower ( player_t*	player, int /*powertype_t*/	power );
+extern bool P_GivePower ( player_t*	player, const powertype_t power );
 
-static void TogglePowerUp(const int i ) {
-	if (!::g->plyr->powers[i])
+static void TogglePowerUp( const powertype_t power ) {
+	ORDINAL_CHECK(power, NUMPOWERS);
+
+	if (!::g->plyr->powers[power])
 	{
-		P_GivePower( ::g->plyr, i);
+		P_GivePower( ::g->plyr, power);
 	}
-	else if (i!=pw_strength)
+	else if (power != pw_strength)
 	{
-		::g->plyr->powers[i] = 1;
+		::g->plyr->powers[power] = 1;
 	}
 	else
 	{
-		::g->plyr->powers[i] = 0;
+		::g->plyr->powers[power] = 0;
 	}
 
 	::g->plyr->message = STSTR_BEHOLDX;
 }
 
-static bool Cheat_GiveInvul( void ) {
+static bool Cheat_GiveInvul() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	TogglePowerUp( 0 );
+	TogglePowerUp( pw_invulnerability );
+
 	return true;
 }
 
-static bool Cheat_GiveBerserk( void ) {
+static bool Cheat_GiveBerserk() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	TogglePowerUp( 1 );
+	TogglePowerUp( pw_strength );
 	return true;
 }
 
-static bool Cheat_GiveBlur( void ) {
+static bool Cheat_GiveBlur() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	TogglePowerUp( 2 );
+	TogglePowerUp( pw_invisibility );
 	return true;
 }
 
-static bool Cheat_GiveRad( void ) {
+static bool Cheat_GiveRad() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	TogglePowerUp( 3 );
+	TogglePowerUp( pw_ironfeet );
 	return true;
 }
 
-static bool Cheat_GiveMap( void ) {
+static bool Cheat_GiveMap() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	TogglePowerUp( 4 );
+	TogglePowerUp( pw_allmap );
 	return true;
 }
 
-static bool Cheat_GiveLight( void ) {
+static bool Cheat_GiveLight() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
 
-	TogglePowerUp( 5 );
+	TogglePowerUp( pw_infrared );
 	return true;
 }
 
@@ -222,36 +233,36 @@ static bool Cheat_GiveLight( void ) {
 #ifndef __PS3__
 
 static bool			tracking		= false;
-static int			currentCode[NUM_BUTTONS];
-static size_t		currentCheatLength;
+static index_t		currentCode[NUM_BUTTONS]{};
+static size_t		currentCheatLength = 0;
 
 #endif
 
-typedef bool(*cheat_command)(void);
+typedef bool(*cheat_command)();
 struct cheatcode_t
 {
-	int			code[NUM_BUTTONS];
+	int			code[NUM_BUTTONS]{};
 	cheat_command	function;
 };
 
 static cheatcode_t codes[] = {
-	{ {0, 1, 1, 0}, Cheat_God }, // a b b a
-	{ {0, 0, 1, 1}, Cheat_NextLevel }, // a a b b
-	{ {1, 0, 1, 0}, Cheat_GiveAmmo }, // b a b a
-	{ {1, 1, 0, 0}, Cheat_Choppers}, // b b a a
-	{ {0, 1, 0, 1}, Cheat_GiveAll },  // a b a b
-	{ {2, 3, 3, 2}, Cheat_GiveInvul }, // x y y x
-	{ {2, 2, 2, 3}, Cheat_GiveBerserk }, // x x x y
-	{ {2, 2, 3, 3}, Cheat_GiveBlur }, // x x y y
-	{ {2, 3, 3, 3}, Cheat_GiveRad }, // x y y y
-	{ {3, 2, 3, 2}, Cheat_GiveMap }, // y x y x
-	{ {3, 3, 3, 2}, Cheat_GiveLight}, // y y y x
+	{.code = {0, 1, 1, 0}, .function = Cheat_God }, // a b b a
+	{.code = {0, 0, 1, 1}, .function = Cheat_NextLevel }, // a a b b
+	{.code = {1, 0, 1, 0}, .function = Cheat_GiveAmmo }, // b a b a
+	{.code = {1, 1, 0, 0}, .function = Cheat_Choppers}, // b b a a
+	{.code = {0, 1, 0, 1}, .function = Cheat_GiveAll },  // a b a b
+	{.code = {2, 3, 3, 2}, .function = Cheat_GiveInvul }, // x y y x
+	{.code = {2, 2, 2, 3}, .function = Cheat_GiveBerserk }, // x x x y
+	{.code = {2, 2, 3, 3}, .function = Cheat_GiveBlur }, // x x y y
+	{.code = {2, 3, 3, 3}, .function = Cheat_GiveRad }, // x y y y
+	{.code = {3, 2, 3, 2}, .function = Cheat_GiveMap }, // y x y x
+	{.code = {3, 3, 3, 2}, .function = Cheat_GiveLight}, // y y y x
 };
 
-static constexpr size_t numberOfCodes = sizeof(codes) / sizeof(codes[0]);
+static constexpr size_t numberOfCodes = std::size(codes);
 
 
-static void BeginTrackingCheat( void ) {
+static void BeginTrackingCheat() {
 #if ALLOW_CHEATS
 	tracking = true;
 	currentCheatLength = 0;
@@ -259,24 +270,25 @@ static void BeginTrackingCheat( void ) {
 #endif
 }
 
-static void EndTrackingCheat( void ) {
+static void EndTrackingCheat() {
 #if ALLOW_CHEATS
 	tracking = false;
 #endif
 }
 
-extern void S_StartSound ( void*		origin, int		sfx_id );
+extern void S_StartSound ( void* origin, const sfxenum_e sfx_id );
 
-static void CheckCheat(const int button ) {
+static void CheckCheat(const index_t button ) {
 #if ALLOW_CHEATS
 	if( tracking && !::g->netgame ) {
 
 		currentCode[ currentCheatLength++ ] = button;
 
 		if( currentCheatLength == NUM_BUTTONS ) {
-			for ( size_t i = 0; i < numberOfCodes; ++i) {
-				if( memcmp( &codes[i].code[0], &currentCode[0], sizeof(currentCode) ) == 0 ) {
-					if(codes[i].function()) {
+			for (auto& code : codes)
+			{
+				if( memcmp( &code.code[0], &currentCode[0], sizeof(currentCode) ) == 0 ) {
+					if(code.function()) {
 						S_StartSound(nullptr, sfx_cybsit);
 					}
 				}
@@ -290,18 +302,18 @@ static void CheckCheat(const int button ) {
 }
 
 
-static float xbox_deadzone = 0.28f;
+static constexpr float xbox_deadzone = 0.28f;
 
 // input event storage
 //PRIVATE TO THE INPUT THREAD!
 
 
 
-void I_InitInput(void)
+void I_InitInput()
 {
 }
 
-void I_ShutdownInput( void ) 
+void I_ShutdownInput() 
 {
 }
 
@@ -315,38 +327,44 @@ static float _joyAxisConvert(const short x, const float xbxScale, const float dS
 }
 
 
-size_t I_PollMouseInputEvents( controller_t *con) 
+size_t I_PollMouseInputEvents() 
 {
-	const size_t numEvents = 0;
+	constexpr size_t numEvents = 0;
 
 	return numEvents;
 }
 
-int I_ReturnMouseInputEvent( const int n, event_t* e) {
-	e->type = ev_mouse;
-	e->data1 = e->data2 = e->data3 = 0;
+bool I_ReturnMouseInputEvent(const index_t n, event_t* e) {
+	if (e)
+	{
+		e->type = ev_mouse;
+		e->data1 = e->data2 = e->data3 = 0;
 
-	switch(::g->mouseEvents[n].type) {
-	case IETAxis:
-		switch (::g->mouseEvents[n].action)
-		{
-		case M_DELTAX:
-			e->data2 = ::g->mouseEvents[n].data;
-			break;
-		case M_DELTAY:
-			e->data3 = ::g->mouseEvents[n].data;
+		switch (::g->mouseEvents[n].type) {
+		case IETAxis:
+			switch (::g->mouseEvents[n].action)
+			{
+			case M_DELTAX:
+				e->data2 = ::g->mouseEvents[n].data;
+				break;
+			case M_DELTAY:
+				e->data3 = ::g->mouseEvents[n].data;
+				break;
+			default:
+				break;
+			}
+			return true;
+
+		default:
 			break;
 		}
-		return 1;
-
-	default:
-		break;
 	}
-	return 0;
+
+	return false;
 }
 
-size_t I_PollJoystickInputEvents( controller_t *con ) {
-	const size_t numEvents	= 0;
+size_t I_PollJoystickInputEvents() {
+	constexpr size_t numEvents	= 0;
 
 	return numEvents;
 }
@@ -354,30 +372,33 @@ size_t I_PollJoystickInputEvents( controller_t *con ) {
 //
 //  Translates the key currently in X_event
 //
-static int xlatekey(const int key)
+static keys_e xlatekey(const int key)
 {
-	int rc = KEY_F1;
+	keys_e rc = KEY_F1;
 	
 	switch (key)
 	{
 	case 0:	// A
 		//rc = KEY_ENTER;
-		rc = ' ';
-		break;
-	case 3: // Y
-		rc = '1';
+		//rc = ' ';
+		rc = KEY_SPACE;
 		break;
 	case 1:	// B
 		if( ::g->menuactive ) {
 			rc = KEY_BACKSPACE;
 		}
 		else {
-			rc = '2';
+			//rc = '2';
+			rc = KEY_2;
 		}
 		break;
 	case 2: // X
 		//rc = ' ';
 		rc = KEY_TAB;
+		break;
+	case 3: // Y
+		//rc = '1';
+		rc = KEY_1;
 		break;
 	case 4:	// White
 		rc = KEY_MINUS;
@@ -397,7 +418,8 @@ static int xlatekey(const int key)
 		}
 		else {
 			//rc = KEY_ENTER;
-			rc = '3';
+			//rc = '3';
+			rc = KEY_3;
 		}
 		break;
 	case 9:
@@ -406,7 +428,8 @@ static int xlatekey(const int key)
 		}
 		else {
 			//rc = KEY_TAB;
-			rc = '5';
+			//rc = '5';
+			rc = KEY_5;
 		}
 		break;
 	case 10:
@@ -415,7 +438,8 @@ static int xlatekey(const int key)
 		}
 		else {
 			//rc = '1';
-			rc = '6';
+			//rc = '6';
+			rc = KEY_6;
 		}
 		break;
 	case 11:
@@ -424,7 +448,8 @@ static int xlatekey(const int key)
 		}
 		else {
 			//rc = '2';
-			rc = '4';
+			//rc = '4';
+			rc = KEY_4;
 		}
 		break;
 	case 12:	// start
@@ -437,59 +462,65 @@ static int xlatekey(const int key)
 	case 15:	// rclick
 		//rc = ' ';
 		break;
+	default:
+		break;
 	}
     return rc;
 }
 
-int I_ReturnJoystickInputEvent( const int n, event_t* e) {
-
-	e->data1 = e->data2 = e->data3 = 0;
-
-	switch(::g->joyEvents[n].type)
+bool I_ReturnJoystickInputEvent( const index_t n, event_t* e) {
+	if (e)
 	{
-	case IETAxis:
-		e->type = ev_joystick;//ev_mouse;
-		switch (::g->joyEvents[n].action)
-		{
-		case J_DELTAX:
-/*
-			if (::g->joyEvents[n].data < 0) 
-				e->data2 = -1;
-			else if (::g->joyEvents[n].data > 0)
-				e->data2 = 1;
-*/
-			e->data2 = ::g->joyEvents[n].data;
-			break;
-		case J_DELTAY:
-			e->type = ev_mouse;
-			e->data3 = ::g->joyEvents[n].data;
-			break;
-		}
-		return 1;
-	case IETButtonAnalog:
-	case IETButtonDigital:
-		if (::g->joyEvents[n].data)
-		{
-			e->type = ev_keydown;
-		}
-		else
-		{
-			e->type = ev_keyup;
-		}
-		e->data1 = xlatekey(::g->joyEvents[n].action);
-		return 1;
+		e->data1 = e->data2 = e->data3 = 0;
 
-	case IETNone:
-		break;
+		switch (::g->joyEvents[n].type)
+		{
+		case IETAxis:
+			e->type = ev_joystick;//ev_mouse;
+			switch (::g->joyEvents[n].action)
+			{
+			case J_DELTAX:
+				/*
+							if (::g->joyEvents[n].data < 0)
+								e->data2 = -1;
+							else if (::g->joyEvents[n].data > 0)
+								e->data2 = 1;
+				*/
+				e->data2 = ::g->joyEvents[n].data;
+				break;
+			case J_DELTAY:
+				e->type = ev_mouse;
+				e->data3 = ::g->joyEvents[n].data;
+				break;
+			default:
+				break;
+			}
+			return true;
+		case IETButtonAnalog:
+		case IETButtonDigital:
+			if (::g->joyEvents[n].data)
+			{
+				e->type = ev_keydown;
+			}
+			else
+			{
+				e->type = ev_keyup;
+			}
+			e->data1 = xlatekey(::g->joyEvents[n].action);
+			return true;
+
+		case IETNone:
+			break;
+		}
 	}
 
-	return 0;
+	return false;
 }
 
-void I_EndJoystickInputEvents( void ) {
-	for(size_t i = 0; i < 18; i++)
+void I_EndJoystickInputEvents() {
+	for (auto& joyEvent : ::g->joyEvents)
 	{
-		::g->joyEvents[i].type = IETNone;
+		joyEvent.type = IETNone;
 	}
 
 }

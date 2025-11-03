@@ -95,7 +95,9 @@ public:
 					~idToken();
 
 	void			operator=( const idStr& text );
-	void			operator=( const char *text );
+	template< StringLikeOrEnum S >
+		requires (!std::same_as<std::remove_cvref_t<S>, idStr>)
+	void			operator=( const S& text );
 
 	double			GetDoubleValue();				// double value of TT_NUMBER
 	float			GetFloatValue();				// float value of TT_NUMBER
@@ -131,7 +133,9 @@ ID_INLINE idToken::idToken( const idToken *token ) {
 
 ID_INLINE idToken::~idToken() = default;
 
-ID_INLINE void idToken::operator=( const char *text) {
+template< StringLikeOrEnum S >
+	requires (!std::same_as<std::remove_cvref_t<S>, idStr>)
+ID_INLINE void idToken::operator=( const S& text) {
 	*static_cast<idStr *>(this) = text;
 }
 

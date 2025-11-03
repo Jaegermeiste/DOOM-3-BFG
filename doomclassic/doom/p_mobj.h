@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 //  tied to animation frames.
 // Needs precompiled tables/data structures.
 #include "info.h"
-
+#include "structs.h"
 
 
 #ifdef __GNUG__
@@ -227,7 +227,7 @@ struct mobj_t
     //More drawing info: to determine current sprite.
     angle_t		angle;	// orientation
     spritenum_t		sprite;	// used to find patch_t and flip value
-    int			frame;	// might be ORed with FF_FULLBRIGHT
+    size_t			frame;	// might be ORed with FF_FULLBRIGHT
 
     // Interaction info, by BLOCKMAP.
     // Links in blocks (if needed).
@@ -255,14 +255,14 @@ struct mobj_t
     mobjtype_t		type;
     const mobjinfo_t*		info;	// &mobjinfo[mobj->type]
     
-    int			tics;	// state tic counter
+    ID_TIME_T	tics;	// state tic counter
     const state_t*		state;
-    int			flags;
-    int			health;
+    int32		flags;
+    int16		health;
 
     // Movement direction, movement generation (zig-zagging).
-    int			movedir;	// 0-7
-    int			movecount;	// when 0, select a new dir
+	dirtype_t	movedir;	// 0-7
+    int64		movecount;	// when 0, select a new dir
 
     // Thing being chased/attacked (or NULL),
     // also the originator for missiles.
@@ -270,7 +270,7 @@ struct mobj_t
 
     // Reaction time: if non 0, don't attack yet.
     // Used by player to freeze a bit after teleporting.
-    int			reactiontime;   
+    ID_TIME_T	reactiontime;   
 
     // If >0, the target will be chased
     // no matter what (even if shot)
@@ -278,17 +278,16 @@ struct mobj_t
 
     // Additional info record for player avatars only.
     // Only valid if type == MT_PLAYER
-    struct player_s*	player;
+    index_t   	player;
 
     // Player number last looked for.
-    int			lastlook;	
+    index_t			lastlook;	
 
     // For nightmare respawn.
     mapthing_t		spawnpoint;	
 
     // Thing being chased/attacked for tracers.
     mobj_t*	tracer;	
-    
 };
 
 

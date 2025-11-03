@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __M_CHEAT__
 #define __M_CHEAT__
 
+#pragma once
+
 //
 // CHEAT SEQUENCE PACKAGE
 //
@@ -46,16 +48,10 @@ struct cheatseq_t
     
 };
 
-int
-cht_CheckCheat
-( cheatseq_t*		cht,
-  char			key );
+bool cht_CheckCheat ( cheatseq_t* cht, char key );
 
 
-void
-cht_GetParam
-( cheatseq_t*		cht,
-  char*			buffer );
+void cht_GetParam ( cheatseq_t* cht, char* buffer );
 
 
 #endif

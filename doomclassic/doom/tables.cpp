@@ -33,30 +33,64 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tables.h"
 
-
-
-
-int
-SlopeDiv
-(const unsigned	num,
-  const unsigned	den)
+template<class A, class B>
+	requires ((IsFixed<A> || IsFixed<B>) &&
+(IsFixed<A> || IsArithmeticOrEnumButNotFixed<A>) &&
+(IsFixed<B> || IsArithmeticOrEnumButNotFixed<B>))
+static inline size_t SlopeDiv(const A num, const B den)
 {
-    unsigned 	ans;
-    
-    if (den < 512)
+	if (std::cmp_less(den, 512))
+	{
+		// Early out
+		return SLOPERANGE;
+	}
+
+	long double numerator = 0;
+	long double denominator = 0;
+
+	if constexpr (is_numeric_v<A>)
+	{
+		numerator = numeric_cast<long double>(num); // already numeric
+	}
+	else // fixed_t
+	{
+		numerator = num;
+	}
+
+	if constexpr (is_numeric_v<B>)
+	{
+		denominator = numeric_cast<long double>(den); // already numeric
+	}
+	else // fixed_t
+	{
+		denominator = den;
+	}
+
+	return SlopeDiv( numerator, denominator );    // Numeric version
+}
+
+static inline size_t SlopeDiv( const Numeric auto num, const Numeric auto den )
+{
+	if (den < 512)
     {
+		// Early out
 	    return SLOPERANGE;
     }
 
-    ans = (num<<3)/(den>>8);
+	auto numerator = numeric_cast<long double>(numeric_cast<int64>(num) << 3);
+	auto denominator = numeric_cast<long double>(numeric_cast<int64>(den) >> 8);
+	if (std::equal_to<>()(denominator, 0))
+	{
+		return SLOPERANGE;
+	}
 
-    return ans <= SLOPERANGE ? ans : SLOPERANGE;
+    auto ans = numerator / denominator;
+
+    return std::cmp_less_equal(ans, SLOPERANGE) ? numeric_cast<size_t>(ans) : SLOPERANGE;
 }
 
-
-
-
-const int finetangent[4096] =
+/*
+const fixed_t finetangent[4096] =
 {
     -170910304,-56965752,-34178904,-24413316,-18988036,-15535599,-13145455,-11392683,
     -10052327,-8994149,-8137527,-7429880,-6835455,-6329090,-5892567,-5512368,
@@ -573,7 +607,7 @@ const int finetangent[4096] =
 };
 
 
-const int finesine[10240] =
+const fixed_t finesine[10240] =
 {
     25,75,125,175,226,276,326,376,
     427,477,527,578,628,678,728,779,
@@ -2119,5 +2153,5 @@ const angle_t tantoangle[2049] =
     535533216,535700704,535868128,536035456,536202720,536369888,536536992,536704000,
     536870912
 };
-
+*/
 

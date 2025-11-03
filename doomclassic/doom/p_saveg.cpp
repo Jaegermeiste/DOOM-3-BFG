@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // P_ArchivePlayers
 //
-static void P_ArchivePlayers (void)
+static void P_ArchivePlayers ()
 {
     int		i;
     int		j;
@@ -81,7 +81,7 @@ static void P_ArchivePlayers (void)
 //
 // P_UnArchivePlayers
 //
-static void P_UnArchivePlayers (void)
+static void P_UnArchivePlayers ()
 {
     int		i;
     int		j;
@@ -118,7 +118,7 @@ static void P_UnArchivePlayers (void)
 //
 // P_ArchiveWorld
 //
-static void P_ArchiveWorld (void)
+static void P_ArchiveWorld ()
 {
     int			i;
     int			j;
@@ -132,8 +132,8 @@ static void P_ArchiveWorld (void)
     // do ::g->sectors
     for (i=0, sec = ::g->sectors ; i < ::g->numsectors ; i++,sec++)
     {
-	*put++ = sec->floorheight >> FRACBITS;
-	*put++ = sec->ceilingheight >> FRACBITS;
+	*put++ = sec->floorheight;
+	*put++ = sec->ceilingheight;
 	*put++ = sec->floorpic;
 	*put++ = sec->ceilingpic;
 	*put++ = sec->lightlevel;
@@ -157,8 +157,8 @@ static void P_ArchiveWorld (void)
 
 	    si = &::g->sides[li->sidenum[j]];
 
-	    *put++ = si->textureoffset >> FRACBITS;
-	    *put++ = si->rowoffset >> FRACBITS;
+	    *put++ = si->textureoffset;
+	    *put++ = si->rowoffset;
 	    *put++ = si->toptexture;
 	    *put++ = si->bottomtexture;
 	    *put++ = si->midtexture;	
@@ -169,7 +169,7 @@ static void P_ArchiveWorld (void)
 	*put++ = ::g->braintargeton;
 	*put++ = ::g->easy;
 
-    ::g->save_p = (byte *)put;
+    ::g->save_p = reinterpret_cast<byte*>(put);
 }
 
 
@@ -177,7 +177,7 @@ static void P_ArchiveWorld (void)
 //
 // P_UnArchiveWorld
 //
-static void P_UnArchiveWorld (void)
+static void P_UnArchiveWorld ()
 {
     int			i;
     int			j;
@@ -186,13 +186,13 @@ static void P_UnArchiveWorld (void)
     side_t*		si;
     short*		get;
 	
-    get = (short *)::g->save_p;
+    get = reinterpret_cast<short*>(::g->save_p);
     
     // do ::g->sectors
     for (i=0, sec = ::g->sectors ; i < ::g->numsectors ; i++,sec++)
     {
-	sec->floorheight = *get++ << FRACBITS;
-	sec->ceilingheight = *get++ << FRACBITS;
+	sec->floorheight = *get++;
+	sec->ceilingheight = *get++;
 	sec->floorpic = *get++;
 	sec->ceilingpic = *get++;
 	sec->lightlevel = *get++;
@@ -215,8 +215,8 @@ static void P_UnArchiveWorld (void)
 		    continue;
 	    }
 	    si = &::g->sides[li->sidenum[j]];
-	    si->textureoffset = *get++ << FRACBITS;
-	    si->rowoffset = *get++ << FRACBITS;
+	    si->textureoffset = *get++;
+	    si->rowoffset = *get++;
 	    si->toptexture = *get++;
 	    si->bottomtexture = *get++;
 	    si->midtexture = *get++;
@@ -245,7 +245,7 @@ static int GetMOIndex( mobj_t* findme ) {
 
 	for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
 	{
-		if (th->function.acp1 == static_cast<actionf_p1>(P_MobjThinker)) {
+		if (th->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker)) {
 			index++;
 			mobj = (mobj_t*)th;
 
@@ -268,7 +268,7 @@ static mobj_t* GetMO(const index_t index ) {
 
 	for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
 	{
-		if (th->function.acp1 == static_cast<actionf_p1>(P_MobjThinker)) {
+		if (th->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker)) {
 			testindex++;
 
 			if ( testindex == index ) {
@@ -283,7 +283,7 @@ static mobj_t* GetMO(const index_t index ) {
 //
 // P_ArchiveThinkers
 //
-static void P_ArchiveThinkers (void)
+static void P_ArchiveThinkers ()
 {
 	thinker_t*		th;
 	mobj_t*			mobj;
@@ -306,7 +306,7 @@ static void P_ArchiveThinkers (void)
 		//mobj_t*	test = (mobj_t*)th;
 		//I_Printf( "%3d: %x == function\n", index++, th->function.acp1 );
 
-		if (th->function.acp1 == static_cast<actionf_p1>(P_MobjThinker))
+		if (th->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker))
 		{
 			*::g->save_p++ = tc_mobj;
 			PADSAVEP();
@@ -318,7 +318,7 @@ static void P_ArchiveThinkers (void)
 
 			if (mobj->player)
 			{
-				mobj->player = (player_t *)((mobj->player-::g->players) + 1);
+				mobj->player = static_cast<player_t*>((mobj->player - ::g->players) + 1);
 			}
 
 			// Save out 'target'
@@ -340,7 +340,7 @@ static void P_ArchiveThinkers (void)
 			*::g->save_p++ = moIndex;
 
 			// Is this the head of a sector list?
-			if ( mobj->subsector->sector->thinglist == (mobj_t*)th ) {
+			if ( mobj->subsector->sector->thinglist == reinterpret_cast<mobj_t*>(th) ) {
 				*::g->save_p++ = 1;
 			}
 			else {
@@ -356,10 +356,10 @@ static void P_ArchiveThinkers (void)
 			*::g->save_p++ = moIndex;
 
 			// Is this the head of a block list?
-			const int	blockx = (mobj->x - ::g->bmaporgx)>>MAPBLOCKSHIFT;
-			const int	blocky = (mobj->y - ::g->bmaporgy)>>MAPBLOCKSHIFT;
-			if ( blockx >= 0 && blockx < ::g->bmapwidth && blocky >= 0 && blocky < ::g->bmapheight 
-				&& (mobj_t*)th == ::g->blocklinks[blocky*::g->bmapwidth+blockx] ) {
+			const auto blockx = (mobj->x - ::g->blockmap_origin.x);
+			const auto blocky = (mobj->y - ::g->blockmap_origin.y);
+			if ( blockx >= 0 && blockx < ::g->blockmap_width && blocky >= 0 && blocky < ::g->blockmap_height 
+				&& reinterpret_cast<mobj_t*>(th) == ::g->blocklinks[blocky*::g->blockmap_width+blockx] ) {
 
 					*::g->save_p++ = 1;
 			}
@@ -371,22 +371,24 @@ static void P_ArchiveThinkers (void)
 
 		if (th->function.acv == static_cast<actionf_v>(nullptr))
 		{
-			for (i = 0; i < MAXCEILINGS;i++)
+			/*for (i = 0; i < MAXCEILINGS;i++)
 			{
-				if (::g->activeceilings[i] == (ceiling_t *)th)
+				if (::g->activeceilings[i] == reinterpret_cast<ceiling_t*>(th))
 				{
 					break;
 				}
-			}
+			}*/
 
-			if (i<MAXCEILINGS)
+			const index_t idx = ::g->activeceilings.FindIndex(reinterpret_cast<ceiling_t*>(th));
+
+			if (idx >= 0)
 			{
 				*::g->save_p++ = tc_ceiling;
 				PADSAVEP();
-				ceiling = (ceiling_t *)::g->save_p;
+				ceiling = reinterpret_cast<ceiling_t*>(::g->save_p);
 				memcpy (ceiling, th, sizeof(*ceiling));
 				::g->save_p += sizeof(*ceiling);
-				ceiling->sector = (sector_t *)(ceiling->sector - ::g->sectors);
+				ceiling->sector = reinterpret_cast<sector_t*>(ceiling->sector - ::g->sectors);
 			}
 			continue;
 		}
@@ -500,7 +502,7 @@ static void P_ArchiveThinkers (void)
 //
 // P_UnArchiveThinkers
 //
-static void P_UnArchiveThinkers (void)
+static void P_UnArchiveThinkers ()
 {
 	byte			tclass;
 	thinker_t*		currentthinker;
@@ -536,7 +538,7 @@ static void P_UnArchiveThinkers (void)
 	{
 		next = currentthinker->next;
 
-		if (currentthinker->function.acp1 == static_cast<actionf_p1>(P_MobjThinker))
+		if (currentthinker->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker))
 		{
 			P_RemoveMobj ((mobj_t *)currentthinker);
 		}
@@ -565,7 +567,7 @@ static void P_UnArchiveThinkers (void)
 			}
 
 			// clear blockmap thing lists
-			count = sizeof(*::g->blocklinks) * ::g->bmapwidth * ::g->bmapheight;
+			count = sizeof(*::g->blocklinks) * ::g->blockmap_width * ::g->blockmap_height;
 			memset (::g->blocklinks, 0, count);
 
 			// Doom 2 level 30 requires some global pointers, wheee!
@@ -574,7 +576,7 @@ static void P_UnArchiveThinkers (void)
 			// fixup mobj_t pointers now that all thinkers have been restored
 			mo_index = 0;
 			for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next) {
-				if (th->function.acp1 == static_cast<actionf_p1>(P_MobjThinker)) {
+				if (th->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker)) {
 					mobj = (mobj_t*)th;
 
 					mobj->target = GetMO( mo_targets[mo_index] );
@@ -592,10 +594,10 @@ static void P_UnArchiveThinkers (void)
 
 					if ( mo_bhead[mo_index] ) {
 						// Is this the head of a block list?
-						const int	blockx = (mobj->x - ::g->bmaporgx)>>MAPBLOCKSHIFT;
-						const int	blocky = (mobj->y - ::g->bmaporgy)>>MAPBLOCKSHIFT;
-						if ( blockx >= 0 && blockx < ::g->bmapwidth && blocky >= 0 && blocky < ::g->bmapheight ) {
-							::g->blocklinks[blocky*::g->bmapwidth+blockx] = mobj;
+						const int	blockx = (mobj->x - ::g->blockmap_origin);
+						const int	blocky = (mobj->y - ::g->bmaporgy);
+						if ( blockx >= 0 && blockx < ::g->blockmap_width && blocky >= 0 && blocky < ::g->blockmap_height ) {
+							::g->blocklinks[blocky*::g->blockmap_width+blockx] = mobj;
 						}
 					}
 
@@ -656,7 +658,7 @@ static void P_UnArchiveThinkers (void)
 			mobj->info = &mobjinfo[mobj->type];
 			mobj->floorz = mobj->subsector->sector->floorheight;
 			mobj->ceilingz = mobj->subsector->sector->ceilingheight;
-			mobj->thinker.function.acp1 = static_cast<actionf_p1>(P_MobjThinker);
+			mobj->thinker.function.acp1 = reinterpret_cast<actionf_p1>(P_MobjThinker);
 
 			// Read in 'target' and store for fixup
 			int a, b, foundIndex;
@@ -716,7 +718,7 @@ static void P_UnArchiveThinkers (void)
 
 			if (ceiling->thinker.function.acp1)
 			{
-				ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
+				ceiling->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_MoveCeiling);
 			}
 
 			P_AddThinker (&ceiling->thinker);
@@ -730,7 +732,7 @@ static void P_UnArchiveThinkers (void)
 			::g->save_p += sizeof(*door);
 			door->sector = &::g->sectors[(int)door->sector];
 			door->sector->specialdata = door;
-			door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
+			door->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_VerticalDoor);
 			P_AddThinker (&door->thinker);
 			break;
 
@@ -741,7 +743,7 @@ static void P_UnArchiveThinkers (void)
 			::g->save_p += sizeof(*floor);
 			floor->sector = &::g->sectors[(int)floor->sector];
 			floor->sector->specialdata = floor;
-			floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
+			floor->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_MoveFloor);
 			P_AddThinker (&floor->thinker);
 			break;
 
@@ -755,7 +757,7 @@ static void P_UnArchiveThinkers (void)
 
 			if (plat->thinker.function.acp1)
 			{
-				plat->thinker.function.acp1 = (actionf_p1)T_PlatRaise;
+				plat->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_PlatRaise);
 			}
 
 			P_AddThinker (&plat->thinker);
@@ -768,7 +770,7 @@ static void P_UnArchiveThinkers (void)
 			memcpy (fire, ::g->save_p, sizeof(*fire));
 			::g->save_p += sizeof(*fire);
 			fire->sector = &::g->sectors[(int)fire->sector];
-			fire->thinker.function.acp1 = (actionf_p1)T_FireFlicker;
+			fire->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_FireFlicker);
 			P_AddThinker (&fire->thinker);
 			break;
 
@@ -778,7 +780,7 @@ static void P_UnArchiveThinkers (void)
 			memcpy (flash, ::g->save_p, sizeof(*flash));
 			::g->save_p += sizeof(*flash);
 			flash->sector = &::g->sectors[(int)flash->sector];
-			flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
+			flash->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_LightFlash);
 			P_AddThinker (&flash->thinker);
 			break;
 
@@ -788,7 +790,7 @@ static void P_UnArchiveThinkers (void)
 			memcpy (strobe, ::g->save_p, sizeof(*strobe));
 			::g->save_p += sizeof(*strobe);
 			strobe->sector = &::g->sectors[(int)strobe->sector];
-			strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
+			strobe->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_StrobeFlash);
 			P_AddThinker (&strobe->thinker);
 			break;
 
@@ -798,7 +800,7 @@ static void P_UnArchiveThinkers (void)
 			memcpy (glow, ::g->save_p, sizeof(*glow));
 			::g->save_p += sizeof(*glow);
 			glow->sector = &::g->sectors[(int)glow->sector];
-			glow->thinker.function.acp1 = (actionf_p1)T_Glow;
+			glow->thinker.function.acp1 = reinterpret_cast<actionf_p1>(T_Glow);
 			P_AddThinker (&glow->thinker);
 			break;
 
@@ -826,7 +828,7 @@ static void P_UnArchiveThinkers (void)
 // T_Glow, (glow_t: sector_t *),
 // T_PlatRaise, (plat_t: sector_t *), - active list
 //
-static void P_ArchiveSpecials (void)
+static void P_ArchiveSpecials ()
 {
     thinker_t*		th;
     ceiling_t*		ceiling;
@@ -843,27 +845,29 @@ static void P_ArchiveSpecials (void)
     {
 	if (th->function.acv == static_cast<actionf_v>(nullptr))
 	{
-	    for (i = 0; i < MAXCEILINGS;i++)
+	    /*for (i = 0; i < MAXCEILINGS;i++)
 	    {
-		    if (::g->activeceilings[i] == (ceiling_t *)th)
+		    if (::g->activeceilings[i] == reinterpret_cast<ceiling_t*>(th))
 		    {
 			    break;
 		    }
-	    }
+	    }*/
 
-	    if (i<MAXCEILINGS)
-	    {
-		*::g->save_p++ = tc_ceiling;
-		PADSAVEP();
-		ceiling = (ceiling_t *)::g->save_p;
-		memcpy (ceiling, th, sizeof(*ceiling));
-		::g->save_p += sizeof(*ceiling);
-		ceiling->sector = (sector_t *)(ceiling->sector - ::g->sectors);
-	    }
-	    continue;
+		const index_t idx = ::g->activeceilings.FindIndex(reinterpret_cast<ceiling_t*>(th));
+
+		if (idx >= 0)
+		{
+			*::g->save_p++ = tc_ceiling;
+			PADSAVEP();
+			ceiling = reinterpret_cast<ceiling_t*>(::g->save_p);
+			memcpy(ceiling, th, sizeof(*ceiling));
+			::g->save_p += sizeof(*ceiling);
+			ceiling->sector = reinterpret_cast<sector_t*>(ceiling->sector - ::g->sectors);
+		}
+		continue;
 	}
 			
-	if (th->function.acp1 == (actionf_p1)T_MoveCeiling)
+	if (th->function.acp1 == reinterpret_cast<actionf_p1>(T_MoveCeiling))
 	{
 	    *::g->save_p++ = tc_ceiling;
 	    PADSAVEP();
@@ -950,7 +954,7 @@ static void P_ArchiveSpecials (void)
 //
 // P_UnArchiveSpecials
 //
-static void P_UnArchiveSpecials (void)
+static void P_UnArchiveSpecials ()
 {
     byte		tclass;
     ceiling_t*		ceiling;

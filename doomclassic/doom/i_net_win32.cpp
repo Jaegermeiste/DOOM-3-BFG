@@ -30,13 +30,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 #include <algorithm>
 #include <string>
 
-#include <errno.h>
+#include <cerrno>
 
 #include "i_system.h"
 #include "d_event.h"
@@ -49,11 +49,15 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "doomlib.h"
 
-void	NetSend (void);
-qboolean NetListen (void);
+void	NetSend ();
+bool NetListen ();
 
 namespace {
+#if defined(ID_WIN64) || defined(ID_WIN32)
+	bool IsValidSocket(SOCKET socketDescriptor);
+#else
 	bool IsValidSocket( int socketDescriptor );
+#endif
 	int GetLastSocketError();
 
 
@@ -64,7 +68,11 @@ namespace {
 	between WinSock (used on Xbox) and BSD sockets, which the PS3 follows more closely.
 	========================
 	*/
-	bool IsValidSocket( int socketDescriptor ) {
+#if defined(ID_WIN64) || defined(ID_WIN32)
+	bool IsValidSocket( SOCKET socketDescriptor ) {
+#else
+	bool IsValidSocket( int socketDescriptor );
+#endif
 		return false;
 	}
 
@@ -81,26 +89,24 @@ namespace {
 //
 // NETWORKING
 //
-static int	DOOMPORT = 1002;	// DHM - Nerve :: On original XBox, ports 1000 - 1255 saved you a byte on every packet.  360 too?
+static uint16	DOOMPORT = 1002;	// DHM - Nerve :: On original XBox, ports 1000 - 1255 saved you a byte on every packet.  360 too?
 
 
-static unsigned long GetServerIP() {
+static uint32 GetServerIP() {
 	return ::g->sendaddress[::g->doomcom.consoleplayer].sin_addr.s_addr;
 }
 
-static void	(*netget) (void);
-static void	(*netsend) (void);
+static void	(*netget) ();
+static void	(*netsend) ();
 
 
 //
 // UDPsocket
 //
-static int UDPsocket (void)
+static SOCKET UDPsocket ()
 {
-	int	s;
-
 	// allocate a socket
-	s = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	SOCKET s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if ( !IsValidSocket( s ) ) {
 		const int err = GetLastSocketError();
 		I_Error( "can't create socket, error %d", err );
@@ -112,7 +118,7 @@ static int UDPsocket (void)
 //
 // BindToLocalPort
 //
-static void BindToLocalPort( int	s, int	port )
+static void BindToLocalPort( int s, uint16 port )
 {
 
 }
@@ -121,7 +127,7 @@ static void BindToLocalPort( int	s, int	port )
 //
 // PacketSend
 //
-static void PacketSend (void)
+static void PacketSend ()
 {
 
 }
@@ -130,12 +136,12 @@ static void PacketSend (void)
 //
 // PacketGet
 //
-static void PacketGet (void)
+static void PacketGet ()
 {
 
 }
 
-static int I_TrySetupNetwork(void)
+static int I_TrySetupNetwork()
 {
 	// DHM - Moved to Session
 	return 1;
@@ -144,23 +150,21 @@ static int I_TrySetupNetwork(void)
 //
 // I_InitNetwork
 //
-void I_InitNetwork (void)
+void I_InitNetwork ()
 {
-	//qboolean		trueval = true;
-	int			i;
-	int			p;
+	//bool		trueval = true;
 	//int a = 0;
 	//    struct hostent*	hostentry;	// host information entry
 
 	memset (&::g->doomcom, 0, sizeof(::g->doomcom) );
 
 	// set up for network
-	i = M_CheckParm ("-dup");
-	if (i && i< ::g->myargc-1)
+	index_t i = M_CheckParm("-dup");
+	if (i && std::cmp_less(i, ::g->myargc - 1))
 	{
-		::g->doomcom.ticdup = ::g->myargv[i+1][0]-'0';
-		::g->doomcom.ticdup = Max<short>(::g->doomcom.ticdup, 1);
-		::g->doomcom.ticdup = Min<short>(::g->doomcom.ticdup, 9);
+		::g->doomcom.ticdup = numeric_cast<BASE_TYPE(::g->doomcom.ticdup)>(::g->myargv[i+1][0]-'0');
+		::g->doomcom.ticdup = numeric_cast<BASE_TYPE(::g->doomcom.ticdup)>(Max(::g->doomcom.ticdup, 1));
+		::g->doomcom.ticdup = numeric_cast<BASE_TYPE(::g->doomcom.ticdup)>(Min(::g->doomcom.ticdup, 9));
 	}
 	else
 	{
@@ -169,17 +173,17 @@ void I_InitNetwork (void)
 
 	if (M_CheckParm ("-extratic"))
 	{
-		::g->doomcom.extratics = 1;
+		::g->doomcom.extratics = true;
 	}
 	else
 	{
-		::g->doomcom.extratics = 0;
+		::g->doomcom.extratics = false;
 	}
 
-	p = M_CheckParm ("-port");
-	if (p && p < ::g->myargc-1)
+	index_t p = M_CheckParm("-port");
+	if (p && std::cmp_less(p, ::g->myargc - 1))
 	{
-		DOOMPORT = atoi (::g->myargv[p+1]);
+		DOOMPORT = idStr::AtoI<BASE_TYPE(DOOMPORT)>(::g->myargv[p+1]);
 		I_Printf ("using alternate port %i\n",DOOMPORT);
 	}
 
@@ -263,11 +267,11 @@ void I_InitNetwork (void)
 }
 
 // DHM - Nerve
-void I_ShutdownNetwork( void ) {
+void I_ShutdownNetwork() {
 	
 }
 
-void I_NetCmd (void)
+void I_NetCmd ()
 {
 	if (::g->doomcom.command == CMD_SEND)
 	{

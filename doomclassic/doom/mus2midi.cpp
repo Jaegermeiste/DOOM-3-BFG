@@ -28,33 +28,34 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Precompiled.h"
 #include "globaldata.h"
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdlib>
+#include <cstdio>
 #include "idlib/sys/sys_defines.h"
 // mus header
 
 
 // reads a variable length integer
-static unsigned long ReadVarLen( char* buffer ) {
-	unsigned long value;
-	byte c;
+static uint64 ReadVarLen( const byte* buffer ) {
+	uint64 value = 0;
 
 	if ((value = *buffer++) & 0x80) {
+		byte c = 0;
 		value &= 0x7f;
 		do  {
 			value = (value << 7) + ((c = *buffer++) & 0x7f);
 		}  while (c & 0x80);
 	}
+
 	return value;
 }
 
 // Writes a variable length integer to a buffer, and returns bytes written
-static int WriteVarLen( long value, byte* out ) 
+static size_t WriteVarLen( uint64 value, byte* out ) 
 {
-	long buffer = 0, count = 0;
+	size_t count = 0;
 
-	buffer = value & 0x7f;
+	uint64 buffer = value & 0x7f;
 	while ((value >>= 7) > 0) {
 		buffer <<= 8;
 		buffer += 0x80;
@@ -74,50 +75,65 @@ static int WriteVarLen( long value, byte* out )
 			break;
 		}
 	}
+
 	return count;
 }
 
 // writes a byte, and returns the buffer
-static unsigned char* WriteByte(void* buf, const byte b)
+static inline byte* WriteByte( byte* buf, const byte b )
 {
-	unsigned char* buffer = static_cast<unsigned char*>(buf);
-	*buffer++ = b;
-	return buffer;
+	byte* bufferPtr = buf;
+	++*bufferPtr = b;
+	return bufferPtr;
 }
 
-static unsigned char* WriteShort(void* b, const unsigned short s)
+static inline byte* WriteUInt16( void* b, const uint16 i16 )
 {
-	unsigned char* buffer = static_cast<unsigned char*>(b);
-	*buffer++ = (s >> 8);
-	*buffer++ = (s & 0x00FF);
-	return buffer;
+	byte* bufferPtr = static_cast<byte*>(b);
+	++*bufferPtr = (i16 >> 8);
+	++*bufferPtr = (i16 & 0x00FF);
+	return bufferPtr;
 }
 
-static unsigned char* WriteInt(void* b, const unsigned int i)
+static inline byte* WriteUInt32( void* b, const uint32 i32 )
 {
-	unsigned char* buffer = static_cast<unsigned char*>(b);
-	*buffer++ = (i & 0xff000000) >> 24;
-	*buffer++ = (i & 0x00ff0000) >> 16;
-	*buffer++ = (i & 0x0000ff00) >> 8;
-	*buffer++ = (i & 0x000000ff);
-	return buffer;
+	byte* bufferPtr = static_cast<byte*>(b);
+	++*bufferPtr = (i32 & 0xff000000) >> 24;
+	++*bufferPtr = (i32 & 0x00ff0000) >> 16;
+	++*bufferPtr = (i32 & 0x0000ff00) >> 8;
+	++*bufferPtr = (i32 & 0x000000ff);
+	return bufferPtr;
+}
+
+static inline byte* WriteUInt64( void* b, const uint64 i64 )
+{
+	byte* bufferPtr = static_cast<byte*>(b);
+	++*bufferPtr = (i64 & 0xff00000000000000) >> 56;
+	++*bufferPtr = (i64 & 0x00ff000000000000) >> 48;
+	++*bufferPtr = (i64 & 0x0000ff0000000000) >> 40;
+	++*bufferPtr = (i64 & 0x000000ff00000000) >> 32;
+	++*bufferPtr = (i64 & 0x00000000ff000000) >> 24;
+	++*bufferPtr = (i64 & 0x0000000000ff0000) >> 16;
+	++*bufferPtr = (i64 & 0x000000000000ff00) >> 8;
+	++*bufferPtr = (i64 & 0x00000000000000ff);
+	return bufferPtr;
 }
 
 // Format - 0(1 track only), 1(1 or more tracks, each play same time), 2(1 or more, each play seperatly)
 static void Midi_CreateHeader(MidiHeaderChunk_t* header, const short format, const short track_count, const short division)
 {
-	WriteInt(header->name, 'MThd');
-	WriteInt(&header->length, 6);
-	WriteShort(&header->format, format);
-	WriteShort(&header->ntracks, track_count);
-	WriteShort(&header->division, division);
+	WriteUInt32( header->name, static_cast<uint32>('MThd'));
+	WriteUInt32( &header->length, 6);
+	WriteUInt16( &header->format, format);
+	WriteUInt16( &header->ntracks, track_count);
+	WriteUInt16( &header->division, division);
 }
 
-static unsigned char* Midi_WriteTempo(unsigned char* buffer, const int tempo)
+static unsigned char* Midi_WriteTempo( byte* buffer, const int32 tempo)
 {
 	buffer = WriteByte(buffer, 0x00);	// delta time
 	buffer = WriteByte(buffer, 0xff);	// sys command
-	buffer = WriteShort(buffer, 0x5103); // command - set tempo
+	buffer = WriteUInt16(buffer, 0x5103); // command - set tempo
 	
 	buffer = WriteByte(buffer, tempo & 0x000000ff);
 	buffer = WriteByte(buffer, (tempo & 0x0000ff00) >> 8);
@@ -126,22 +142,23 @@ static unsigned char* Midi_WriteTempo(unsigned char* buffer, const int tempo)
 	return buffer;
 }
 
-static int Midi_UpdateBytesWritten(int* bytes_written, const int to_add, const size_t max)
+static bool Midi_UpdateBytesWritten( size_t* bytes_written, const size_t to_add, const size_t max)
 {
 	*bytes_written += to_add;
+
 	if (max && *bytes_written > max)
 	{
 		assert(0);
-		return 0;
+		return false;
 	}
-	return 1;
+	return true;
 }
 
-static unsigned char MidiMap[] = 
+static constexpr auto MidiMap[] = 
 {
 	0,				// prog change
 	0,				// bank sel
-	1,	//2			// mod pot
+	1,	    //2		// mod pot
 	0x07,	//3		// volume
 	0x0A,	//4		// pan pot
 	0x0B,	//5		// expression pot
@@ -149,222 +166,228 @@ static unsigned char MidiMap[] =
 	0x5D,	//7		// chorus depth
 	0x40,	//8		// sustain pedal
 	0x43,	//9		// soft pedal
-	0x78,	//10		// all sounds off
-	0x7B,	//11		// all notes off
-	0x7E,	//12		// mono(use numchannels + 1)
-	0x7F,	//13		// poly
+	0x78,	//10	// all sounds off
+	0x7B,	//11	// all notes off
+	0x7E,	//12	// mono(use numchannels + 1)
+	0x7F,	//13	// poly
 	0x79,	//14	// reset all controllers
 };
 
 // The MUS data is stored in little-endian.
 namespace {
-	unsigned short LittleToNative( const unsigned short value ) {
+	uint16 LittleToNative( const uint16 value ) {
 		return value;
 	}
 }
 
-static int Mus2Midi(unsigned char* bytes, unsigned char* out, size_t* len)
+static bool Mus2Midi(byte* bytes, byte* out, size_t* len)
 {
-	// mus header and instruments
-	MUSheader_t header;
-	
-	// current position in read buffer
-	unsigned char* cur = bytes,* end;
-
-	// Midi header(format 0)
-	MidiHeaderChunk_t midiHeader;
-	// Midi track header, only 1 needed(format 0)
-	MidiTrackChunk_t midiTrackHeader;
-	// Stores the position of the midi track header(to change the size)
-	byte* midiTrackHeaderOut;
-	
-	// Delta time for midi event
-	int delta_time = 0;
-	int temp;
-	int channel_volume[MIDI_MAXCHANNELS] = {0};
-	int bytes_written = 0;
-	int channelMap[MIDI_MAXCHANNELS], currentChannel = 0;
-	byte last_status = 0;
-
-	// read the mus header
-	memcpy(&header, cur, sizeof(header));
-	cur += sizeof(header);
-
-	header.scoreLen = LittleToNative( header.scoreLen );
-	header.scoreStart = LittleToNative( header.scoreStart );
-	header.channels = LittleToNative( header.channels );
-	header.sec_channels = LittleToNative( header.sec_channels );
-	header.instrCnt = LittleToNative( header.instrCnt );
-	header.dummy = LittleToNative( header.dummy );
-	
-	// only 15 supported
-	if (header.channels > MIDI_MAXCHANNELS - 1)
+	if (bytes && out && len)
 	{
-		return 0;
-	}
+		// mus header and instruments
+		MUSheader_t header = {};
 
-	// Map channel 15 to 9(percussions)
-	for (temp = 0; temp < MIDI_MAXCHANNELS; ++temp) {
-		channelMap[temp] = -1;
-		channel_volume[temp] = 0x40;
-	}
-	channelMap[15] = 9;
+		// current position in read buffer
+		byte* cur = bytes, * end = nullptr;
 
-	// Get current position, and end of position
-	cur = bytes + header.scoreStart;
-	end = cur + header.scoreLen;
+		// Midi header(format 0)
+		MidiHeaderChunk_t midiHeader = {};
+		// Midi track header, only 1 needed(format 0)
+		MidiTrackChunk_t midiTrackHeader = {};
+		// Stores the position of the midi track header(to change the size)
+		byte* midiTrackHeaderOut = nullptr;
 
-	// Write out midi header
-	Midi_CreateHeader(&midiHeader, 0, 1, 0x0059);
-	Midi_UpdateBytesWritten(&bytes_written, MIDIHEADERSIZE, *len);
-	memcpy(out, &midiHeader, MIDIHEADERSIZE);	// cannot use sizeof(packs it to 16 bytes)
-	out += MIDIHEADERSIZE;
-	 
-	// Store this position, for later filling in the midiTrackHeader
-	Midi_UpdateBytesWritten(&bytes_written, sizeof(midiTrackHeader), *len);
-	midiTrackHeaderOut = out;
-	out += sizeof(midiTrackHeader);
-	
+		// Delta time for midi event
+		ID_TIME_T delta_time = 0;
+		size_t i = 0;
+		int8 channel_volume[MIDI_MAXCHANNELS] = {};
+		size_t bytes_written = 0;
+		int8 channelMap[MIDI_MAXCHANNELS] = {};
+		index_t currentChannel = 0;
 
-	// microseconds per quarter note(yikes)
-	Midi_UpdateBytesWritten(&bytes_written, 7, *len);
-	out = Midi_WriteTempo(out, 0x001aa309);
-	
-	// Percussion channel starts out at full volume
-	Midi_UpdateBytesWritten(&bytes_written, 4, *len);
-	out = WriteByte(out, 0x00);
-	out = WriteByte(out, 0xB9);
-	out = WriteByte(out, 0x07);
-	out = WriteByte(out, 127);
-	
-	// Main Loop
-	while (cur < end) {
-		byte channel; 
-		byte event;
-		byte temp_buffer[32];	// temp buffer for current iterator
-		byte *out_local = temp_buffer;
-		byte status, bit1, bit2, bitc = 2;
-		
-		// Read in current bit
-		event		= *cur++;
-		channel		= (event & 15);		// current channel
-		
-		// Write variable length delta time
-		out_local += WriteVarLen(delta_time, out_local);
-		
-		if (channelMap[channel] < 0) {
-			// Set all channels to 127 volume
-			out_local = WriteByte(out_local, 0xB0 + currentChannel);
-			out_local = WriteByte(out_local, 0x07);
-			out_local = WriteByte(out_local, 127);
-			out_local = WriteByte(out_local, 0x00);
+		// read the mus header
+		memcpy(&header, cur, sizeof(header));
+		cur += sizeof(header);
 
-			channelMap[channel] = currentChannel++;
-			if (currentChannel == 9)
-			{
-				++currentChannel;
-			}
+		header.scoreLen = LittleToNative(header.scoreLen);
+		header.scoreStart = LittleToNative(header.scoreStart);
+		header.channels = LittleToNative(header.channels);
+		header.sec_channels = LittleToNative(header.sec_channels);
+		header.instrCnt = LittleToNative(header.instrCnt);
+		header.dummy = LittleToNative(header.dummy);
+
+		// only 15 supported
+		if (header.channels > MIDI_MAXCHANNELS - 1)
+		{
+			return false;
 		}
 
-		status = channelMap[channel];
+		// Map channel 15 to 9(percussions)
+		for (i = 0; i < MIDI_MAXCHANNELS; ++i) {
+			channelMap[i] = -1;
+			channel_volume[i] = 0x40;
+		}
+		channelMap[15] = 9;
 
-		// Handle ::g->events
-		switch ((event & 122) >> 4)
-		{
-		default:
-			assert(0);
-			break;
-		case MUSEVENT_KEYOFF:
-			status |=  0x80;
-			bit1 = *cur++;
-			bit2 = 0x40;
-			break;
-		case MUSEVENT_KEYON:
-			status |= 0x90;
-			bit1 = *cur & 127;
-			if (*cur++ & 128)	// volume bit?
-			{
-				channel_volume[channelMap[channel]] = *cur++;
+		// Get current position, and end of position
+		cur = bytes + header.scoreStart;
+		end = cur + header.scoreLen;
+
+		// Write out midi header
+		Midi_CreateHeader(&midiHeader, 0, 1, 0x0059);
+		Midi_UpdateBytesWritten(&bytes_written, MIDIHEADERSIZE, *len);
+		memcpy(out, &midiHeader, MIDIHEADERSIZE);	// cannot use sizeof(packs it to 16 bytes)
+		out += MIDIHEADERSIZE;
+
+		// Store this position, for later filling in the midiTrackHeader
+		Midi_UpdateBytesWritten(&bytes_written, sizeof(midiTrackHeader), *len);
+		midiTrackHeaderOut = out;
+		out += sizeof(midiTrackHeader);
+
+		// microseconds per quarter note (yikes)
+		Midi_UpdateBytesWritten(&bytes_written, 7, *len);
+		out = Midi_WriteTempo(out, 0x001aa309);
+
+		// Percussion channel starts out at full volume
+		Midi_UpdateBytesWritten(&bytes_written, 4, *len);
+		out = WriteByte(out, 0x00);
+		out = WriteByte(out, 0xB9);
+		out = WriteByte(out, 0x07);
+		out = WriteByte(out, 127);
+
+		// Main Loop
+		while (cur < end) {
+			index_t channel = 0;
+			byte event = 0;
+			byte temp_buffer[32] = {};	// temp buffer for current iterator
+			byte* out_local = temp_buffer;
+			byte status = 0, bit1 = 0, bit2 = 0, bitc = 2;
+
+			// Read in current bit
+			event = *cur++;
+			channel = (event & 15);		// current channel
+
+			// Write variable length delta time
+			out_local += WriteVarLen(numeric_cast<uint32>(delta_time), out_local);
+
+			if (channelMap[channel] < 0) {
+				// Set all channels to 127 volume
+				out_local = WriteByte(out_local, 0xB0 + numeric_cast<byte>(currentChannel));
+				out_local = WriteByte(out_local, 0x07);
+				out_local = WriteByte(out_local, 127);
+				out_local = WriteByte(out_local, 0x00);
+
+				channelMap[channel] = numeric_cast<int8>(++currentChannel);
+				if (currentChannel == 9)
+				{
+					++currentChannel;
+				}
 			}
-			bit2 = channel_volume[channelMap[channel]];
-			break;
-		case MUSEVENT_PITCHWHEEL:
-			status |= 0xE0;
-			bit1 = (*cur & 1) >> 6;
-			bit2 = (*cur++ >> 1) & 127;
-			break;
-		case MUSEVENT_CHANNELMODE:
-			status |= 0xB0;
-			assert(*cur < sizeof(MidiMap) / sizeof(MidiMap[0]));
-			bit1 = MidiMap[*cur++];
-			bit2 = (*cur++ == 12) ? header.channels + 1 : 0x00;
-			break;
-		case MUSEVENT_CONTROLLERCHANGE:
-			if (*cur == 0) {
-				cur++;
-				status |= 0xC0;
+
+			status = channelMap[channel];
+
+			// Handle ::g->events
+			switch ((event & 122) >> 4)
+			{
+			default:
+				assert(0);
+				break;
+			case MUSEVENT_KEYOFF:
+				status |= 0x80;
 				bit1 = *cur++;
-				bitc = 1;
-			} else {
+				bit2 = 0x40;
+				break;
+			case MUSEVENT_KEYON:
+				status |= 0x90;
+				bit1 = *cur & 127;
+				if (*cur++ & 128)	// volume bit?
+				{
+					channel_volume[channelMap[channel]] = numeric_cast<int8>(++*cur);
+				}
+				bit2 = channel_volume[channelMap[channel]];
+				break;
+			case MUSEVENT_PITCHWHEEL:
+				status |= 0xE0;
+				bit1 = (*cur & 1) >> 6;
+				bit2 = (*cur++ >> 1) & 127;
+				break;
+			case MUSEVENT_CHANNELMODE:
 				status |= 0xB0;
-				assert(*cur < sizeof(MidiMap) / sizeof(MidiMap[0]));
+				assert(*cur < std::size(MidiMap));
 				bit1 = MidiMap[*cur++];
-				bit2 = *cur++;
+				bit2 = (*cur++ == 12) ? numeric_cast<byte>(header.channels + 1) : 0x00;
+				break;
+			case MUSEVENT_CONTROLLERCHANGE:
+				if (*cur == 0) {
+					cur++;
+					status |= 0xC0;
+					bit1 = *cur++;
+					bitc = 1;
+				}
+				else {
+					status |= 0xB0;
+					assert(*cur < std::size(MidiMap));
+					bit1 = MidiMap[*cur++];
+					bit2 = *cur++;
+				}
+				break;
+			case 5:	// Unknown
+				assert(0);
+				break;
+			case MUSEVENT_END:	// End
+				status = 0xff;
+				bit1 = 0x2f;
+				bit2 = 0x00;
+				assert(cur == end);
+				break;
+			case 7:	// Unknown
+				assert(0);
+				break;
 			}
-			break;
-		case 5:	// Unknown
-			assert(0);
-			break;
-		case MUSEVENT_END:	// End
-			status = 0xff;
-			bit1 = 0x2f;
-			bit2 = 0x00;
-			assert(cur == end);
-			break;
-		case 7:	// Unknown
-			assert(0);
-			break;
-		}
 
-		// Write it out
-		out_local = WriteByte(out_local, status);
-		out_local = WriteByte(out_local, bit1);
-		if (bitc == 2)
-		{
-			out_local = WriteByte(out_local, bit2);
-		}
+			// Write it out
+			out_local = WriteByte(out_local, status);
+			out_local = WriteByte(out_local, bit1);
+			if (bitc == 2)
+			{
+				out_local = WriteByte(out_local, bit2);
+			}
 
 
-		// Write out temp stuff
-		if (out_local != temp_buffer)
-		{
-			Midi_UpdateBytesWritten(&bytes_written, out_local - temp_buffer, *len);
-			memcpy(out, temp_buffer, out_local - temp_buffer);
-			out += out_local - temp_buffer;
+			// Write out temp stuff
+			if (out_local != temp_buffer)
+			{
+				Midi_UpdateBytesWritten(&bytes_written, out_local - temp_buffer, *len);
+				memcpy(out, temp_buffer, out_local - temp_buffer);
+				out += out_local - temp_buffer;
+			}
+
+			if (event & 128) {
+				delta_time = 0;
+				do {
+					delta_time = delta_time * 128 + (*cur & 127);
+				} while ((*cur++ & 128));
+			}
+			else {
+				delta_time = 0;
+			}
 		}
 
-		if (event & 128) {
-			delta_time = 0;
-			do {
-				delta_time = delta_time * 128 + (*cur & 127);
-			} while ((*cur++ & 128));
-		} else {
-			delta_time = 0;
-		}
+		// Write out track header
+		WriteUInt32(midiTrackHeader.name, static_cast<uint32>('MTrk'));
+		WriteUInt32(&midiTrackHeader.length, out - midiTrackHeaderOut - sizeof(midiTrackHeader));
+		memcpy(midiTrackHeaderOut, &midiTrackHeader, sizeof(midiTrackHeader));
+
+		// Store length written
+		*len = bytes_written;
+		/*{
+			FILE* file = f o pen("d:\\test.midi", "wb");
+			fwrite(midiTrackHeaderOut - sizeof(MidiHeaderChunk_t), bytes_written, 1, file);
+			fclose(file);
+		}*/
+		return true;
 	}
 
-	// Write out track header
-	WriteInt(midiTrackHeader.name, 'MTrk');
-	WriteInt(&midiTrackHeader.length, out - midiTrackHeaderOut - sizeof(midiTrackHeader));
-	memcpy(midiTrackHeaderOut, &midiTrackHeader, sizeof(midiTrackHeader));
-	
-	// Store length written
-	*len = bytes_written;
-	/*{
-		FILE* file = f o pen("d:\\test.midi", "wb");
-		fwrite(midiTrackHeaderOut - sizeof(MidiHeaderChunk_t), bytes_written, 1, file);
-		fclose(file);
-	}*/
-	return 1;
+	return false;
 }
 

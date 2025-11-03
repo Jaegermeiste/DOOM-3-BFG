@@ -73,7 +73,7 @@ public:
 	
 	const idPoolStr*    operator[](const Ordinal auto index) const { ORDINAL_CHECK(index, pool.Num()); return pool[index]; }
 
-	const idPoolStr *	AllocString( const char *string );
+	const idPoolStr *	AllocString( const StringLikeOrEnum auto string );
 	void				FreeString( const idPoolStr *poolStr );
 	const idPoolStr *	CopyString( const idPoolStr *poolStr );
 	void				Clear();
@@ -98,7 +98,7 @@ ID_INLINE void idStrPool::SetCaseSensitive(const bool caseSensitive ) {
 idStrPool::AllocString
 ================
 */
-ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
+ID_INLINE const idPoolStr *idStrPool::AllocString( const StringLikeOrEnum auto string ) {
 	index_t i = 0;
 
 	const int64 hash = poolHash.GenerateKey(string, caseSensitive);

@@ -30,10 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#include <string.h>
-
-
-
+#include <cstring>
 
 
 //
@@ -44,13 +41,16 @@ If you have questions concerning this license or the applicable additional terms
 // or 0 if not present
 static index_t M_CheckParm (const char *check)
 {
-	for (index_t i = 1; std::cmp_less(i, ::g->myargc); i++)
-    {
-		if ( !idStr::Icmp(check, ::g->myargv[i]) )
+	if (check)
+	{
+		for (index_t i = 1; std::cmp_less(i, ::g->myargc); i++)
 		{
-			return i;
+			if (!idStr::Icmp(check, ::g->myargv[i]))
+			{
+				return i;
+			}
 		}
-    }
+	}
 
     return 0;
 }

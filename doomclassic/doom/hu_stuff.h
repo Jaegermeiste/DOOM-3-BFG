@@ -29,41 +29,46 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __HU_STUFF_H__
 #define __HU_STUFF_H__
 
+#pragma once
+
 #include "d_event.h"
 
 
 //
 // Globally visible constants.
 //
-#define HU_FONTSTART	'!'	// the first font characters
-#define HU_FONTEND	'_'	// the last font characters
+enum headsUpChars_e : char
+{
+	HU_FONTSTART = '!', // the first font characters
+	HU_FONTEND = '_'	// the last font characters
+};
 
 // Calculate # of glyphs in font.
-#define HU_FONTSIZE	(HU_FONTEND - HU_FONTSTART + 1)	
+constexpr auto      HU_FONTSIZE = (HU_FONTEND - HU_FONTSTART + 1);
 
-#define HU_BROADCAST	5
+constexpr auto      HU_BROADCAST = 5;
 
-#define HU_MSGREFRESH	KEY_ENTER
-#define HU_MSGX		0
-#define HU_MSGY		0
-#define HU_MSGWIDTH	64	// in characters
-#define HU_MSGHEIGHT	1	// in lines
+constexpr auto      HU_MSGREFRESH = KEY_ENTER;
+constexpr int       HU_MSGX = 0;
+constexpr int       HU_MSGY = 0;
+constexpr size_t    HU_MSGWIDTH = 64;	// in characters
+constexpr size_t    HU_MSGHEIGHT = 1;	// in lines
 
-#define HU_MSGTIMEOUT	(4*TICRATE)
+constexpr ID_TIME_T HU_MSGTIMEOUT = (4 * TICRATE);
 
 //
 // HEADS UP TEXT
 //
 
-void HU_Init(void);
-void HU_Start(void);
+void HU_Init();
+void HU_Start();
 
-qboolean HU_Responder(event_t* ev);
+bool HU_Responder(event_t* ev);
 
-void HU_Ticker(void);
-void HU_Drawer(void);
-char HU_dequeueChatChar(void);
-void HU_Erase(void);
+void HU_Ticker();
+void HU_Drawer();
+unsigned char HU_dequeueChatChar();
+void HU_Erase();
 
 
 #endif

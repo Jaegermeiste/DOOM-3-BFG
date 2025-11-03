@@ -85,7 +85,7 @@ static void *I_ZoneBase( size_t *size )
 //
 // Z_Init
 //
-void Z_Init (void)
+void Z_Init ()
 {
     memblock_t*	block = nullptr;
     size_t		size = 0;
@@ -424,7 +424,7 @@ void Z_FileDumpHeap (FILE* f)
 //
 // Z_CheckHeap
 //
-void Z_CheckHeap (void)
+void Z_CheckHeap ()
 {
     memblock_t*	block = nullptr;
 	
@@ -485,7 +485,7 @@ void Z_ChangeTag2( void** pp, const int tag ) { Z_ChangeTag2( *pp, tag ); }
 //
 // Z_FreeMemory
 //
-size_t Z_FreeMemory (void)
+size_t Z_FreeMemory ()
 {
     const memblock_t*		block = nullptr;
 

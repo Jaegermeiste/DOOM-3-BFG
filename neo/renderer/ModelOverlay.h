@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MODELOVERLAY_H__
 #define __MODELOVERLAY_H__
 
+#pragma once
+
 /*
 ===============================================================================
 
@@ -47,9 +49,9 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-static constexpr int MAX_DEFERRED_OVERLAYS		= 4;
-static constexpr int DEFFERED_OVERLAY_TIMEOUT	= 200;	// don't create a overlay if it wasn't visible within the first 200 milliseconds
-static constexpr int MAX_OVERLAYS				= 8;
+static constexpr size_t    MAX_DEFERRED_OVERLAYS	= 4;
+static constexpr ID_TIME_T DEFERRED_OVERLAY_TIMEOUT	= 200;	// don't create a overlay if it wasn't visible within the first 200 milliseconds
+static constexpr size_t    MAX_OVERLAYS				= 8;
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_OVERLAYS ) );
 

@@ -62,9 +62,10 @@ R_StoreWallRange
 //
 // R_ClearDrawSegs
 //
-void R_ClearDrawSegs (void)
+void R_ClearDrawSegs ()
 {
-    ::g->ds_p = ::g->drawsegs;
+    //::g->ds_p = ::g->drawsegs;
+	::g->drawsegs.Clear();
 }
 
 
@@ -240,7 +241,7 @@ R_ClipPassWallSegment
 //
 // R_ClearClipSegs
 //
-void R_ClearClipSegs (void)
+void R_ClearClipSegs ()
 {
     ::g->solidsegs[0].first = -0x7fffffff;
     ::g->solidsegs[0].last = -1;
@@ -519,11 +520,11 @@ static qboolean R_CheckBBox (fixed_t*	bspcoord)
 // Add ::g->sprites of things in sector.
 // Draw one or more line segments.
 //
-static void R_Subsector (size_t num)
+static void R_Subsector (const size_t num)
 {
-    int			count;
-    seg_t*		line;
-    subsector_t*	sub;
+    size_t			count = 0;
+    seg_t*		line = nullptr;
+    subsector_t*	sub = nullptr;
 	
 #ifdef RANGECHECK
     if (num>=::g->numsubsectors)
@@ -543,24 +544,24 @@ static void R_Subsector (size_t num)
     if (::g->frontsector->floorheight < ::g->viewz)
     {
 		::g->floorplane = R_FindPlane (::g->frontsector->floorheight,
-					::g->frontsector->floorpic,
-					::g->frontsector->lightlevel);
+										::g->frontsector->floorpic,
+										::g->frontsector->lightlevel);
     }
     else
     {
-	    ::g->floorplane = nullptr;
+	    ::g->floorplane = -1;
     }
 
     if (::g->frontsector->ceilingheight > ::g->viewz 
 	|| ::g->frontsector->ceilingpic == ::g->skyflatnum)
     {
 		 ::g->ceilingplane = R_FindPlane (::g->frontsector->ceilingheight,
-						::g->frontsector->ceilingpic,
-						::g->frontsector->lightlevel);
+											::g->frontsector->ceilingpic,
+											::g->frontsector->lightlevel);
     }
     else
     {
-	    ::g->ceilingplane = nullptr;
+	    ::g->ceilingplane = -1;
     }
 
     R_AddSprites (::g->frontsector);	

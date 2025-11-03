@@ -30,9 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/types.h>
-#include <string.h>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <vector>
@@ -205,7 +205,7 @@ static void W_AddFile ( const char *filename )
 // Flushes any of the reloadable lumps in memory
 //  and reloads the directory.
 //
-void W_Reload (void)
+void W_Reload ()
 {
 	// DHM - unused development tool
 }
@@ -238,6 +238,11 @@ void W_FreeLumps() {
 // Free this list of wad files so that a new list can be created
 //
 void W_FreeWadFiles() {
+	for (auto& wad : ::g->wadFileHandles)
+	{
+		wad.;
+	}
+
 	for (size_t i = 0; i < MAXWADFILES; i++) {
 		wadfiles[i] = nullptr;
 		if ( ::g->wadFileHandles[i] ) {
@@ -311,7 +316,7 @@ void W_InitMultipleFiles (const char** filenames)
 }
 
 
-void W_Shutdown( void ) {
+void W_Shutdown() {
 /*
 	for (int i = 0 ; i < MAXWADFILES ; i++) {
 		if ( ::g->wadFileHandles[i] ) {
@@ -331,7 +336,7 @@ void W_Shutdown( void ) {
 //
 // W_NumLumps
 //
-static size_t W_NumLumps (void)
+static size_t W_NumLumps ()
 {
     return numlumps;
 }
@@ -501,7 +506,7 @@ W_CacheLumpName
 }
 
 
-static void W_Profile (void)
+static void W_Profile ()
 {
 }
 

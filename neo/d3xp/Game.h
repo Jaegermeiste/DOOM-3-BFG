@@ -75,10 +75,10 @@ public:
 	virtual void				Shutdown() = 0;
 
 	// Sets the serverinfo at map loads and when it changes.
-	virtual void				SetServerInfo( const idDict &serverInfo ) = 0;
+	virtual void				SetServerInfo( const idDict<> &serverInfo ) = 0;
 
 	// Gets the serverinfo, common calls this before saving the game
-	virtual const idDict &		GetServerInfo() = 0;
+	virtual const idDict<> &		GetServerInfo() = 0;
 
 	// Interpolated server time
 	virtual void				SetServerGameTimeMs( const ID_TIME_T time ) = 0;										
@@ -90,10 +90,10 @@ public:
 	virtual ID_TIME_T			GetSSStartTime() const = 0;
 
 	// common calls this before moving the single player game to a new level.
-	        const idDict &		GetPersistentPlayerInfo( index_t clientNum );
+	        const idDict<> &		GetPersistentPlayerInfo( index_t clientNum );
 
 	// common calls this right before a new level is loaded.
-	        void				SetPersistentPlayerInfo( index_t clientNum, const idDict &playerInfo );
+	        void				SetPersistentPlayerInfo( index_t clientNum, const idDict<> &playerInfo );
 
 	// Loads a map and spawns all the entities.
 	virtual void				InitFromNewMap( const char *mapName, idRenderWorld *renderWorld, idSoundWorld *soundWorld, int gameMode, int randseed ) = 0;
@@ -111,7 +111,7 @@ public:
 	virtual void				MapShutdown() = 0;
 
 	// Caches media referenced from in key/value pairs in the given dictionary.
-	virtual void				CacheDictionaryMedia( const idDict *dict ) = 0;
+	virtual void				CacheDictionaryMedia( const idDict<> *dict ) = 0;
 
 	virtual void				Preload( const idPreloadManifest &manifest ) = 0;
 
@@ -225,19 +225,19 @@ class idGameEdit {
 public:
 	virtual						~idGameEdit() {}
 
-	// These are the canonical idDict to parameter parsing routines used by both the game and tools.
-	virtual void				ParseSpawnArgsToRenderLight( const idDict *args, renderLight_t *renderLight );
-	virtual void				ParseSpawnArgsToRenderEntity( const idDict *args, renderEntity_t *renderEntity );
-	virtual void				ParseSpawnArgsToRefSound( const idDict *args, refSound_t *refSound );
+	// These are the canonical idDict<> to parameter parsing routines used by both the game and tools.
+	virtual void				ParseSpawnArgsToRenderLight( const idDict<> *args, renderLight_t *renderLight );
+	virtual void				ParseSpawnArgsToRenderEntity( const idDict<> *args, renderEntity_t *renderEntity );
+	virtual void				ParseSpawnArgsToRefSound( const idDict<> *args, refSound_t *refSound );
 
 	// Animation system calls for non-game based skeletal rendering.
 	virtual idRenderModel *		ANIM_GetModelFromEntityDef( const char *classname );
 	virtual const idVec3 		&ANIM_GetModelOffsetFromEntityDef( const char *classname );
-	virtual idRenderModel *		ANIM_GetModelFromEntityDef( const idDict *args );
+	virtual idRenderModel *		ANIM_GetModelFromEntityDef( const idDict<> *args );
 	virtual idRenderModel *		ANIM_GetModelFromName( const char *modelName );
 	virtual const idMD5Anim *	ANIM_GetAnimFromEntityDef( const char *className, const char *animName );
-	virtual size_t				ANIM_GetNumAnimsFromEntityDef( const idDict *args );
-	static  const char *		ANIM_GetAnimNameFromEntityDef( const idDict *args, index_t animNum );
+	virtual size_t				ANIM_GetNumAnimsFromEntityDef( const idDict<> *args );
+	static  const char *		ANIM_GetAnimNameFromEntityDef( const idDict<> *args, index_t animNum );
 	virtual const idMD5Anim *	ANIM_GetAnim( const char *fileName );
 	virtual ID_TIME_T			ANIM_GetLength( const idMD5Anim *anim );
 	virtual size_t				ANIM_GetNumFrames( const idMD5Anim *anim );
@@ -248,7 +248,7 @@ public:
 	virtual bool				AF_SpawnEntity( const char *fileName );
 	virtual void				AF_UpdateEntities( const char *fileName );
 	virtual void				AF_UndoChanges();
-	virtual idRenderModel *		AF_CreateMesh( const idDict &args, idVec3 &meshOrigin, idMat3 &meshAxis, bool &poseIsSet );
+	virtual idRenderModel *		AF_CreateMesh( const idDict<> &args, idVec3 &meshOrigin, idMat3 &meshAxis, bool &poseIsSet );
 
 
 	// Entity selection.
@@ -260,8 +260,8 @@ public:
 	virtual void				TriggerSelected();
 
 	// Entity defs and spawning.
-	virtual const idDict *		FindEntityDefDict( const char *name, bool makeDefault = true ) const;
-	virtual void				SpawnEntityDef( const idDict &args, idEntity **ent );
+	virtual const idDict<> *		FindEntityDefDict( const char *name, bool makeDefault = true ) const;
+	virtual void				SpawnEntityDef( const idDict<> &args, idEntity **ent );
 	virtual idEntity *			FindEntity( const char *name ) const;
 	virtual const char *		GetUniqueEntityName( const char *className ) const;
 
@@ -271,9 +271,9 @@ public:
 	virtual void				EntitySetOrigin( idEntity *ent, const idVec3 &org );
 	virtual void				EntitySetAxis( idEntity *ent, const idMat3 &axis );
 	virtual void				EntityTranslate( idEntity *ent, const idVec3 &org );
-	virtual const idDict *		EntityGetSpawnArgs( idEntity *ent ) const;
-	virtual void				EntityUpdateChangeableSpawnArgs( idEntity *ent, const idDict *dict );
-	virtual void				EntityChangeSpawnArgs( idEntity *ent, const idDict *newArgs );
+	virtual const idDict<> *		EntityGetSpawnArgs( idEntity *ent ) const;
+	virtual void				EntityUpdateChangeableSpawnArgs( idEntity *ent, const idDict<> *dict );
+	virtual void				EntityChangeSpawnArgs( idEntity *ent, const idDict<> *newArgs );
 	virtual void				EntityUpdateVisuals( idEntity *ent );
 	virtual void				EntitySetModel( idEntity *ent, const char *val );
 	virtual void				EntityStopSound( idEntity *ent );
@@ -288,12 +288,12 @@ public:
 	virtual void				PlayerGetEyePosition( idVec3 &org ) const;
 
 	// In game map editing support.
-	virtual const idDict *		MapGetEntityDict( const char *name ) const;
+	virtual const idDict<> *		MapGetEntityDict( const char *name ) const;
 	virtual void				MapSave( const char *path = nullptr ) const;
 	virtual void				MapSetEntityKeyVal( const char *name, const char *key, const char *val ) const ;
-	virtual void				MapCopyDictToEntity( const char *name, const idDict *dict ) const;
+	virtual void				MapCopyDictToEntity( const char *name, const idDict<> *dict ) const;
 	virtual size_t				MapGetUniqueMatchingKeyVals( const char *key, const char *list[], const size_t max ) const;
-	virtual void				MapAddEntity( const idDict *dict ) const;
+	virtual void				MapAddEntity( const idDict<> *dict ) const;
 	virtual size_t				MapGetEntitiesMatchingClassWithString( const char *classname, const char *match, const char *list[], const size_t max ) const;
 	virtual void				MapRemoveEntity( const char *name ) const;
 	virtual void				MapEntityTranslate( const char *name, const idVec3 &v ) const;

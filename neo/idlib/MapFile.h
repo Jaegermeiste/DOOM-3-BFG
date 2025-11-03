@@ -58,7 +58,7 @@ class idMapPrimitive {
 public:
 	typedef enum mapPrimitiveType_e : int8 { TYPE_INVALID = -1, TYPE_BRUSH, TYPE_PATCH } mapPrimitiveType_t;
 
-	idDict					epairs;
+	idDict<>                epairs;
 
 							idMapPrimitive() noexcept { type = TYPE_INVALID; }
 	virtual					~idMapPrimitive() = default;
@@ -168,7 +168,7 @@ class idMapEntity {
 	friend class			idMapFile;
 
 public:
-	idDict					epairs;
+	idDict<>				epairs;
 
 public:
 							idMapEntity() noexcept { epairs.SetHashSize( 64 ); }

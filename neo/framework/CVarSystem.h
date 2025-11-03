@@ -261,8 +261,8 @@ public:
 	virtual void			WriteFlaggedVariables( int flags, const char *setCmd, idFile *f ) const = 0;
 
 							// Moves CVars to and from dictionaries.
-	virtual void			MoveCVarsToDict( int flags, idDict & dict, bool onlyModified = false ) const = 0;
-	virtual void			SetCVarsFromDict( const idDict &dict ) = 0;
+	virtual void			MoveCVarsToDict( int flags, idDict<> & dict, bool onlyModified = false ) const = 0;
+	virtual void			SetCVarsFromDict( const idDict<> &dict ) = 0;
 };
 
 extern idCVarSystem *		cvarSystem;

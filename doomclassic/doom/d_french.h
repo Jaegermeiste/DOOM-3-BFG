@@ -26,4 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#ifndef __D_FRENCH_H__
+#define __D_FRENCH_H__
 
+#pragma once
+
+#endif // __D_FRENCH_H__

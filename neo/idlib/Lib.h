@@ -326,6 +326,7 @@ public:
 #include "containers/LinkList.h"
 #include "containers/Hierarchy.h"
 #include "containers/Queue.h"
+#include "containers/PriorityQueue.h"
 #include "containers/Stack.h"
 #include "containers/StrList.h"
 #include "containers/StrPool.h"

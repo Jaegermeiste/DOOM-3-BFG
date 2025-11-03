@@ -464,7 +464,7 @@ typedef struct {
 *	Data that is used for the game that is currently running. Memset this
 *	to completely reset the game
 */
-typedef struct {
+typedef struct SSDGameStats_s {
 	bool				gameRunning;
 
 	int					score;

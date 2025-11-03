@@ -52,8 +52,8 @@ extern short		ceilingclip[SCREENWIDTH];
 extern fixed_t		yslope[SCREENHEIGHT];
 extern fixed_t		distscale[SCREENWIDTH];
 
-void R_InitPlanes (void);
-void R_ClearPlanes (void);
+void R_InitPlanes ();
+void R_ClearPlanes ();
 
 void
 R_MapPlane
@@ -69,19 +69,11 @@ R_MakeSpans
   int		t2,
   int		b2 );
 
-void R_DrawPlanes (void);
+void R_DrawPlanes ();
 
-visplane_t*
-R_FindPlane
-( fixed_t	height,
-  int		picnum,
-  int		lightlevel );
+index_t R_FindPlane ( fixed_t	height, const index_t picnum, int lightlevel );
 
-visplane_t*
-R_CheckPlane
-( visplane_t*	pl,
-  int		start,
-  int		stop );
+index_t R_CheckPlane ( const index_t pl, const int start, const int stop );
 
 
 

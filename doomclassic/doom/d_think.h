@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_THINK__
 #define __D_THINK__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
@@ -40,26 +41,60 @@ If you have questions concerning this license or the applicable additional terms
 //  we will need to handle the various
 //  action functions cleanly.
 //
-struct mobj_t;
-typedef  void (*actionf_v)();
-typedef  void (*actionf_p1)( mobj_t* );
-typedef  void (*actionf_p2)( void*, void* );
 
-typedef union
-{
-  actionf_p1	acp1;
-  actionf_v	acv;
-  actionf_p2	acp2;
+// One “universal” action type: pass N args as an array of void*
+using actionf_t = void (*)(void* const* args, size_t nargs);
 
-} actionf_t;
+// ---- Generic adapter: deduce param types from the function pointer ----
+template<auto F>
+struct action_adapter;
+
+// Partial specialization for plain function pointers with any parameter pack
+template<typename... Ps, void (*F)(Ps...)>
+struct action_adapter<F> {
+	static void thunk(void* const* args, size_t nargs) noexcept {
+		// Arity check (debug-time); remove if you prefer purely UB-free runtime
+		if (nargs != sizeof...(Ps)) [[unlikely]] return;
+		call(std::make_index_sequence<sizeof...(Ps)>{}, args);
+	}
+
+	static constexpr actionf_t ptr = &thunk;
+
+private:
+	template<size_t... I>
+	static void call(std::index_sequence<I...>, void* const* args) noexcept {
+		// For each parameter P:
+		//  - if P is a pointer type, we expect args[I] is that pointer (void* upcast is OK)
+		//  - if P is a non-pointer type, we expect args[I] points to that object (P*),
+		//    and we dereference to pass by value.
+		(F(arg_cast<Ps>(args[I])...), void());
+	}
+
+	template<typename P>
+	static auto arg_cast(void* p) noexcept {
+		if constexpr (std::is_pointer_v<P>) {
+			// object/function pointer upcast back to P
+			return static_cast<P>(p);
+		}
+		else {
+			// treat arg slot as pointer-to-P and pass by value
+			return *static_cast<std::add_pointer_t<std::remove_reference_t<P>>>(p);
+		}
+	}
+};
+
+// Convenience macro for deducing and creating erased action adapters automatically.
+// Usage:  ACTION_ADAPTER(FunctionName)
+// Expands to:  action_adapter<&FunctionName>::ptr
+#define ACTIONF_T(fn) (action_adapter<&(fn)>::ptr)
 
 
 
 
 
 // Historically, "think_t" is yet another
-//  function pointer to a routine to handle
-//  an actor.
+// function pointer to a routine to handle
+// an actor.
 typedef actionf_t  think_t;
 
 

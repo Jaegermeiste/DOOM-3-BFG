@@ -67,23 +67,23 @@ enum purgeTags_e : uint8
 
 bool Z_IsStatic( int tag );
 
-void	Z_Init (void);
+void	Z_Init ();
 void*	Z_Malloc (size_t size, int tag, void *ptr);
 void    Z_Free (void *ptr);
 void    Z_FreeTag(int lowtag );
 void    Z_FreeTags(int lowtag, int hightag );
 void    Z_DumpHeap (int lowtag, int hightag);
 void    Z_FileDumpHeap (FILE *f);
-void    Z_CheckHeap (void);
+void    Z_CheckHeap ();
 void Z_ChangeTag2 (void **ptr, int tag);
-size_t     Z_FreeMemory (void);
+size_t     Z_FreeMemory ();
 
 
 //bool MallocForLump( int lump, size_t size, void **ptr, int tag );
 
 
 template< class _type_ >
-bool MallocForLump( int lump, const size_t size, _type_ * & ptr, const int tag ) {
+bool MallocForLump( const index_t lump, const size_t size, _type_ * & ptr, const int tag ) {
 	ptr = static_cast< _type_ * >( Z_Malloc( size, tag, nullptr ) );
 
 	return true;

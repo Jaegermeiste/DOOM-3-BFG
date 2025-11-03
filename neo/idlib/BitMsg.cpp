@@ -245,7 +245,8 @@ void idBitMsg::WriteNetadr( const netadr_t &adr ) {
 idBitMsg::WriteDeltaDict
 ========================
 */
-bool idBitMsg::WriteDeltaDict( const idDict &dict, const idDict *base ) {
+template < Formattable T >
+bool idBitMsg::WriteDeltaDict( const idDict<T> &dict, const idDict<T> *base ) {
 	size_t i = 0;
 	const idKeyValue *kv = nullptr, *basekv = nullptr;
 	bool changed = false;
@@ -497,7 +498,8 @@ void idBitMsg::ReadNetadr( netadr_t *adr ) const {
 idBitMsg::ReadDeltaDict
 ========================
 */
-bool idBitMsg::ReadDeltaDict( idDict &dict, const idDict *base ) const {
+template < Formattable T >
+bool idBitMsg::ReadDeltaDict( idDict<T> &dict, const idDict<T> *base ) const {
 	char		key[MAX_STRING_CHARS];
 	char		value[MAX_STRING_CHARS];
 	bool		changed = false;

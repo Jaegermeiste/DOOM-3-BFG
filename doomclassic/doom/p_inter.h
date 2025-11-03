@@ -29,13 +29,14 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __P_INTER__
 #define __P_INTER__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
 #endif
 
 
-qboolean	P_GivePower(player_t*, int);
+bool	P_GivePower( player_t* player, const powertype_t power );
 
 
 

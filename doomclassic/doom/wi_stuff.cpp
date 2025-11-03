@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "d3xp/Game_Local.h"
 
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <algorithm>
 
@@ -270,7 +270,7 @@ void localCalculateAchievements(bool epComplete)
 // UNUSED static unsigned char *background=0;
 
 
-static void WI_slamBackground(void)
+static void WI_slamBackground()
 {
     memcpy(::g->screens[0], ::g->screens[1], SCREENWIDTH * SCREENHEIGHT);
     V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
@@ -284,7 +284,7 @@ static qboolean WI_Responder(event_t* ev)
 }
 
 // Draws "<Levelname> Finished!"
-static void WI_drawLF(void)
+static void WI_drawLF()
 {
     int y = WI_TITLEY;
 
@@ -302,7 +302,7 @@ static void WI_drawLF(void)
 
 
 // Draws "Entering <LevelName>"
-static void WI_drawEL(void)
+static void WI_drawEL()
 {
     int y = WI_TITLEY;
 
@@ -365,7 +365,7 @@ WI_drawOnLnode
 }
 
 
-static void WI_initAnimatedBack(void)
+static void WI_initAnimatedBack()
 {
     int		i;
     anim_t*	a;
@@ -405,7 +405,7 @@ static void WI_initAnimatedBack(void)
 }
 
 
-static void WI_updateAnimatedBack(void)
+static void WI_updateAnimatedBack()
 {
     int		i;
     anim_t*	a;
@@ -469,7 +469,7 @@ static void WI_updateAnimatedBack(void)
 
 }
 
-static void WI_drawAnimatedBack(void)
+static void WI_drawAnimatedBack()
 {
     int			i;
     anim_t*		a;
@@ -627,20 +627,20 @@ WI_drawTime
 }
 
 
-static void WI_End(void)
+static void WI_End()
 {
-	static void WI_unloadData(void);
+	static void WI_unloadData();
     WI_unloadData();
 }
 
-static void WI_initNoState(void)
+static void WI_initNoState()
 {
     ::g->state = NoState;
     ::g->acceleratestage = 0;
     ::g->cnt = 10;
 }
 
-static void WI_updateNoState(void) {
+static void WI_updateNoState() {
 
     WI_updateAnimatedBack();
 
@@ -654,7 +654,7 @@ static void WI_updateNoState(void) {
 }
 
 
-static void WI_initShowNextLoc(void)
+static void WI_initShowNextLoc()
 {
     ::g->state = ShowNextLoc;
     ::g->acceleratestage = 0;
@@ -665,7 +665,7 @@ static void WI_initShowNextLoc(void)
 	DoomLib::ActivateGame();
 }
 
-static void WI_updateShowNextLoc(void)
+static void WI_updateShowNextLoc()
 {
     WI_updateAnimatedBack();
 
@@ -677,7 +677,7 @@ static void WI_updateShowNextLoc(void)
 	}
 }
 
-static void WI_drawShowNextLoc(void)
+static void WI_drawShowNextLoc()
 {
 
     int		i;
@@ -734,20 +734,19 @@ static void WI_drawShowNextLoc(void)
     }
 }
 
-static void WI_drawNoState(void)
+static void WI_drawNoState()
 {
     ::g->snl_pointeron = true;
     WI_drawShowNextLoc();
 }
 
-static int WI_fragSum(const int playernum)
+static int WI_fragSum(const index_t playernum)
 {
-    int		i;
-    int		frags = 0;
+	int		frags = 0;
     
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	for (size_t i = 0; i < MAXPLAYERS; ++i)
 	{
-		if (/*::g->playeringame[i] &&*/ i!=playernum)
+		if (/*::g->playeringame[i] &&*/ std::not_equal_to<>()(i, playernum))
 		{
 			frags += plrs[playernum].frags[i];
 		}
@@ -795,7 +794,7 @@ static int WI_deathSum(const int playernum)
 }
 
 
-static void WI_initDeathmatchStats(void)
+static void WI_initDeathmatchStats()
 {
 
     int		i;
@@ -843,7 +842,7 @@ static void WI_initDeathmatchStats(void)
 }
 
 
-static void WI_updateDeathmatchStats(void)
+static void WI_updateDeathmatchStats()
 {
 
     int		i;
@@ -952,7 +951,7 @@ static void WI_updateDeathmatchStats(void)
 }
 
 
-static void WI_drawDeathmatchStats(void)
+static void WI_drawDeathmatchStats()
 {
 
     int		i;
@@ -1049,7 +1048,7 @@ static void WI_drawDeathmatchStats(void)
 }
 
 
-static void WI_initNetgameStats(void)
+static void WI_initNetgameStats()
 {
 
     int i;
@@ -1099,7 +1098,7 @@ static void WI_initNetgameStats(void)
 }
 
 
-static void WI_updateNetgameStats(void)
+static void WI_updateNetgameStats()
 {
 
     int		i;
@@ -1297,7 +1296,7 @@ static void WI_updateNetgameStats(void)
 }
 
 
-static void WI_drawNetgameStats(void)
+static void WI_drawNetgameStats()
 {
     int		i;
     int		x;
@@ -1312,19 +1311,15 @@ static void WI_drawNetgameStats(void)
     WI_drawLF();
 
     // draw stat titles (top line)
-    V_DrawPatch(NG_STATSX+NG_SPACINGX-SHORT(::g->kills->width),
-		NG_STATSY, FB, ::g->kills);
+    V_DrawPatch(NG_STATSX + NG_SPACINGX - SHORT(::g->kills->width), NG_STATSY, FB, ::g->kills);
 
-    V_DrawPatch(NG_STATSX+2*NG_SPACINGX-SHORT(::g->items->width),
-		NG_STATSY, FB, ::g->items);
+    V_DrawPatch(NG_STATSX + 2 * NG_SPACINGX - SHORT(::g->items->width), NG_STATSY, FB, ::g->items);
 
-    V_DrawPatch(NG_STATSX+3*NG_SPACINGX-SHORT(::g->secret->width),
-		NG_STATSY, FB, ::g->secret);
+    V_DrawPatch(NG_STATSX + 3 * NG_SPACINGX - SHORT(::g->secret->width), NG_STATSY, FB, ::g->secret);
     
     if (::g->dofrags)
     {
-	    V_DrawPatch(NG_STATSX+4*NG_SPACINGX-SHORT(::g->wistuff_frags->width),
-	                NG_STATSY, FB, ::g->wistuff_frags);
+	    V_DrawPatch(NG_STATSX + 4 * NG_SPACINGX - SHORT(::g->wistuff_frags->width), NG_STATSY, FB, ::g->wistuff_frags);
     }
 
     // draw stats
@@ -1362,7 +1357,7 @@ static void WI_drawNetgameStats(void)
 }
 
 
-static void WI_initStats(void)
+static void WI_initStats()
 {
     ::g->state = StatCount;
     ::g->acceleratestage = 0;
@@ -1376,7 +1371,7 @@ static void WI_initStats(void)
 	DoomLib::ShowXToContinue( true );
 }
 
-static void WI_updateStats(void)
+static void WI_updateStats()
 {
 
     WI_updateAnimatedBack();
@@ -1497,7 +1492,7 @@ static void WI_updateStats(void)
 
 }
 
-static void WI_drawStats(void)
+static void WI_drawStats()
 {
     // line height
     int lh;	
@@ -1532,7 +1527,7 @@ static void WI_drawStats(void)
 
 }
 
-static void WI_checkForAccelerate(void)
+static void WI_checkForAccelerate()
 {
     int   i;
     player_t  *player;
@@ -1568,7 +1563,7 @@ static void WI_checkForAccelerate(void)
 
 
 // Updates stuff each tick
-void WI_Ticker(void)
+void WI_Ticker()
 {
     // counter for general background animation
     ::g->bcnt++;  
@@ -1616,7 +1611,7 @@ void WI_Ticker(void)
 
 }
 
-static void WI_loadData(void)
+static void WI_loadData()
 {	
 	int		i;
 	int		j;
@@ -1625,20 +1620,20 @@ static void WI_loadData(void)
 
 	if (::g->gamemode == commercial)
 	{
-		strcpy(name, "INTERPIC");
+		strncpy_s(name, "INTERPIC");
 	}
 	// DHM - Nerve :: Use our background image
-		//strcpy(name, "DMENUPIC");
+		//strncpy_s(name, "DMENUPIC");
 	else
 	{
-		sprintf(name, "WIMAP%d", ::g->wbs->epsd);
+		idStr::snPrintf(name, "WIMAP%d", ::g->wbs->epsd);
 	}
 
 	if ( ::g->gamemode == retail )
 	{
 		if (::g->wbs->epsd == 3)
 		{
-			strcpy(name,"INTERPIC");
+			strncpy_s(name,"INTERPIC");
 		}
 	}
 
@@ -1665,7 +1660,7 @@ static void WI_loadData(void)
 		::g->lnames = static_cast<patch_t**>(DoomLib::Z_Malloc(sizeof(patch_t*) * ::g->NUMCMAPS, PU_LEVEL_SHARED, nullptr));
 		for (i=0 ; i < ::g->NUMCMAPS ; i++)
 		{								
-			sprintf(name, "CWILV%2.2d", i);
+			idStr::snPrintf(name, "CWILV%2.2d", i);
 			::g->lnames[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 		}					
 	}
@@ -1674,7 +1669,7 @@ static void WI_loadData(void)
 		::g->lnames = static_cast<patch_t**>(DoomLib::Z_Malloc(sizeof(patch_t*) * (NUMMAPS), PU_LEVEL_SHARED, nullptr));
 		for (i=0 ; i<NUMMAPS ; i++)
 		{
-			sprintf(name, "WILV%d%d", ::g->wbs->epsd, i);
+			idStr::snPrintf(name, "WILV%d%d", ::g->wbs->epsd, i);
 			::g->lnames[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 		}
 
@@ -1698,7 +1693,7 @@ static void WI_loadData(void)
 					if (::g->wbs->epsd != 1 || j != 8) 
 					{
 						// animations
-						sprintf(name, "WIA%d%.2d%.2d", ::g->wbs->epsd, j, i);  
+						idStr::snPrintf(name, "WIA%d%.2d%.2d", ::g->wbs->epsd, j, i);  
 						a->p[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 					}
 					else
@@ -1717,7 +1712,7 @@ static void WI_loadData(void)
 	for (i=0;i<10;i++)
 	{
 		// numbers 0-9
-		sprintf(name, "WINUM%d", i);     
+		idStr::snPrintf(name, "WINUM%d", i);     
 		::g->num[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 	}
 
@@ -1774,17 +1769,17 @@ static void WI_loadData(void)
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
 		// "1,2,3,4"
-		sprintf(name, "STPB%d", i);      
+		idStr::snPrintf(name, "STPB%d", i);      
 		::g->wistuff_p[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 
 		// "1,2,3,4"
-		sprintf(name, "WIBP%d", i+1);     
+		idStr::snPrintf(name, "WIBP%d", i+1);     
 		::g->wistuff_bp[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 	}
 
 }
 
-void WI_unloadData(void)
+void WI_unloadData()
 {
 	Z_FreeTags( PU_LEVEL_SHARED, PU_LEVEL_SHARED );
 	// HACK ALERT - reset these to help stability? they are used for consistency checking
@@ -1798,7 +1793,7 @@ void WI_unloadData(void)
 	::g->bg = nullptr;	
 }
 
-void WI_Drawer (void)
+void WI_Drawer ()
 {
     switch (::g->state)
     {

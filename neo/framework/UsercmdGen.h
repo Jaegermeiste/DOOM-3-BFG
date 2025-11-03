@@ -42,42 +42,51 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // usercmd_t->button bits
-constexpr int BUTTON_ATTACK			= BIT(0);
-constexpr int BUTTON_RUN			= BIT(1);
-constexpr int BUTTON_ZOOM			= BIT(2);
-constexpr int BUTTON_SCORES			= BIT(3);
-constexpr int BUTTON_USE			= BIT(4);
-constexpr int BUTTON_JUMP			= BIT(5);
-constexpr int BUTTON_CROUCH			= BIT(6);
-constexpr int BUTTON_CHATTING		= BIT(7);
+constexpr uint8 BUTTON_ATTACK		= BIT(0);
+constexpr uint8 BUTTON_RUN			= BIT(1);
+constexpr uint8 BUTTON_ZOOM			= BIT(2);
+constexpr uint8 BUTTON_SCORES		= BIT(3);
+constexpr uint8 BUTTON_USE			= BIT(4);
+constexpr uint8 BUTTON_JUMP			= BIT(5);
+constexpr uint8 BUTTON_CROUCH		= BIT(6);
+constexpr uint8 BUTTON_CHATTING		= BIT(7);
 
 // usercmd_t->impulse commands
-constexpr int IMPULSE_0				= 0;			// weap 0
-constexpr int IMPULSE_1				= 1;			// weap 1
-constexpr int IMPULSE_2				= 2;			// weap 2
-constexpr int IMPULSE_3				= 3;			// weap 3
-constexpr int IMPULSE_4				= 4;			// weap 4
-constexpr int IMPULSE_5				= 5;			// weap 5
-constexpr int IMPULSE_6				= 6;			// weap 6
-constexpr int IMPULSE_7				= 7;			// weap 7
-constexpr int IMPULSE_8				= 8;			// weap 8
-constexpr int IMPULSE_9				= 9;			// weap 9
-constexpr int IMPULSE_10			= 10;			// weap 10
-constexpr int IMPULSE_11			= 11;			// weap 11
-constexpr int IMPULSE_12			= 12;			// weap 12
-constexpr int IMPULSE_13			= 13;			// weap reload
-constexpr int IMPULSE_14			= 14;			// weap next
-constexpr int IMPULSE_15			= 15;			// weap prev
-constexpr int IMPULSE_16			= 16;			// toggle flashlight on/off
-constexpr int IMPULSE_18			= 18;			// center view
-constexpr int IMPULSE_19			= 19;			// show PDA/SCORES
-constexpr int IMPULSE_22			= 22;			// spectate
-constexpr int IMPULSE_25			= 25;			// Envirosuit light
-constexpr int IMPULSE_27			= 27;			// Chainsaw
-constexpr int IMPULSE_28			= 28;			// quick 0
-constexpr int IMPULSE_29			= 29;			// quick 1
-constexpr int IMPULSE_30			= 30;			// quick 2
-constexpr int IMPULSE_31			= 31;			// quick 3
+enum impulse_e : uint8 {
+	IMPULSE_0, 			// weap 0
+	IMPULSE_1, 			// weap 1
+	IMPULSE_2, 			// weap 2
+	IMPULSE_3, 			// weap 3
+	IMPULSE_4, 			// weap 4
+	IMPULSE_5, 			// weap 5
+	IMPULSE_6, 			// weap 6
+	IMPULSE_7, 			// weap 7
+	IMPULSE_8, 			// weap 8
+	IMPULSE_9, 			// weap 9
+	IMPULSE_10,			// weap 10
+	IMPULSE_11,			// weap 11
+	IMPULSE_12,			// weap 12
+	IMPULSE_13,			// weap reload
+	IMPULSE_14,			// weap next
+	IMPULSE_15,			// weap prev
+	IMPULSE_16,			// toggle flashlight on/off
+	IMPULSE_17,			// UNUSED
+	IMPULSE_18,			// center view
+	IMPULSE_19,			// show PDA/SCORES
+	IMPULSE_20,         // UNUSED
+	IMPULSE_21,         // UNUSED
+	IMPULSE_22,			// spectate
+	IMPULSE_23,         // UNUSED
+	IMPULSE_24,         // UNUSED
+	IMPULSE_25,			// Envirosuit light
+	IMPULSE_26,			// UNUSED
+	IMPULSE_27,			// Chainsaw
+	IMPULSE_28,			// quick 0
+	IMPULSE_29,			// quick 1
+	IMPULSE_30,			// quick 2
+	IMPULSE_31,			// quick 3
+	MAX_IMPULSE
+};
 
 class usercmd_t {
 public:
@@ -102,19 +111,19 @@ public:
 
 	// Synchronized
 	short		angles[3];						// view angles
-	signed char	forwardmove;					// forward/backward movement
-	signed char	rightmove;						// left/right movement
+	int8	    forwardmove;					// forward/backward movement
+	int8	    rightmove;						// left/right movement
 	byte		buttons;						// buttons
 	ID_TIME_T	clientGameMilliseconds;			// time this usercmd was sent from the client
 	ID_TIME_T	serverGameMilliseconds;			// interpolated server time this was applied on
-	uint16		fireCount;						// number of times we've fired
+	size_t		fireCount;						// number of times we've fired
 
 	// Not synchronized
-	byte		impulse;						// impulse command
-	byte		impulseSequence;				// incremented every time there's a new impulse
+	impulse_e	impulse;						// impulse command
+	size_t		impulseSequence;				// incremented every time there's a new impulse
 
-	short		mx;								// mouse delta x
-	short		my;								// mouse delta y
+	int 		mx;								// mouse delta x
+	int 		my;								// mouse delta y
 
 	// Clients are authoritative on their positions
 	idVec3		pos;
@@ -218,9 +227,9 @@ public:
 		writeFrame[ playerIndex ]++;
 	}
 
-	void ResetPlayer(const index_t playerIndex ) {
+	void ResetPlayer( const index_t playerIndex ) {
 		for ( size_t i = 0; i < USERCMD_BUFFER_SIZE; i++ ) {
-			memset( &cmdBuffer[i][playerIndex], 0, sizeof( usercmd_t ) );
+			memset( static_cast<void*>(&cmdBuffer[i][playerIndex]), 0, sizeof( usercmd_t ) );
 		}
 		writeFrame[ playerIndex ] = 0;
 		readFrame[ playerIndex ] = -1;
@@ -309,7 +318,7 @@ public:
 		return result;
 	}
 
-	void MakeReadPtrCurrentForPlayer(const index_t playerIndex ) {
+	void MakeReadPtrCurrentForPlayer( const index_t playerIndex ) {
 		//forces us to the head of our read buffer. As if we have processed every cmd available to us and now HasUserCmdForPlayer() returns FALSE
 		//Note we do -1 to point us to the last written cmd.
 		//If a read before the next write, you will get the last write. (not garbage)
@@ -319,7 +328,7 @@ public:
 		readFrame[ playerIndex ] = writeFrame[ playerIndex ] - 1; 
 	}
 
-	void SkipBufferedCmdsForPlayer(const index_t playerIndex ) {
+	void SkipBufferedCmdsForPlayer( const index_t playerIndex ) {
 		// Similar to MakeReadPtrCurrentForPlayer, except:
 		// -After calling this, HasUserCmdForPlayer() will return TRUE iff there was >= 1 fresh cmd in the buffer
 		// Also, If there are no fresh frames, we wont roll the readFrame back
@@ -330,7 +339,7 @@ public:
 		return (writeFrame[ playerIndex ] - 1) - readFrame[ playerIndex ];
 	}
 	
-	size_t GetPlayerCmds(const index_t user, usercmd_t ** buffer, const size_t bufferSize ) { 
+	size_t GetPlayerCmds( const index_t user, usercmd_t ** buffer, const size_t bufferSize ) { 
 		// Fallback to getting cmds from the userCmdMgr
 		const auto start = Max( writeFrame[user] - numeric_cast<index_t>(Min( bufferSize, USERCMD_BUFFER_SIZE )), 0LL );
 		const size_t numCmds = writeFrame[user] - start;

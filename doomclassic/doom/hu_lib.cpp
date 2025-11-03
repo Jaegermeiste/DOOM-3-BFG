@@ -29,7 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 
-#include <ctype.h>
+#include <cctype>
+#include <utility>
 
 #include "doomdef.h"
 
@@ -40,364 +41,366 @@ If you have questions concerning this license or the applicable additional terms
 #include "r_local.h"
 #include "r_draw.h"
 
-// qboolean : whether the screen is always erased
+// bool : whether the screen is always erased
 
 
-void HUlib_init(void)
+void HUlib_init()
 {
 }
 
 void HUlib_clearTextLine(hu_textline_t* t)
 {
-    t->len = 0;
-    t->l[0] = 0;
-    t->needsupdate = true;
-}
-
-void
-HUlib_initTextLine
-( hu_textline_t*	t,
-  const int			x,
-  const int			y,
-  patch_t**		f,
-  const int			sc )
-{
-    t->x = x;
-    t->y = y;
-    t->f = f;
-    t->sc = sc;
-    HUlib_clearTextLine(t);
-}
-
-qboolean
-HUlib_addCharToTextLine
-( hu_textline_t*	t,
-  const char			ch )
-{
-
-    if (t->len == HU_MAXLINELENGTH)
-    {
-	    return false;
-    }
-    else
-    {
-	t->l[t->len++] = ch;
-	t->l[t->len] = 0;
-	t->needsupdate = 4;
-	return true;
-    }
-
-}
-
-qboolean HUlib_delCharFromTextLine(hu_textline_t* t)
-{
-
-    if (!t->len)
-    {
-	    return false;
-    }
-    else
-    {
-	t->l[--t->len] = 0;
-	t->needsupdate = 4;
-	return true;
-    }
-
-}
-
-void
-HUlib_drawTextLine
-( hu_textline_t*	l,
-  const qboolean		drawcursor )
-{
-
-    int			i;
-    int			w;
-    int			x;
-    unsigned char	c;
-
-    // draw the new stuff
-    x = l->x;
-    for (i=0;i<l->len;i++)
-    {
-	c = toupper(l->l[i]);
-	if (c != ' '
-	    && c >= l->sc
-	    && c <= '_')
+	if (t)
 	{
-	    w = SHORT(l->f[c - l->sc]->width);
-	    if (x+w > SCREENWIDTH)
-	    {
-		    break;
-	    }
-	    V_DrawPatchDirect(x, l->y, FG, l->f[c - l->sc]);
-	    x += w;
+		t->len = 0;
+		t->l[0] = 0;
+		t->needsupdate = true;
 	}
-	else
-	{
-	    x += 4;
-	    if (x >= SCREENWIDTH)
-	    {
-		    break;
-	    }
-	}
-    }
+}
 
-    // draw the cursor if requested
-    if (drawcursor
-	&& x + SHORT(l->f['_' - l->sc]->width) <= SCREENWIDTH)
-    {
-	V_DrawPatchDirect(x, l->y, FG, l->f['_' - l->sc]);
-    }
+void HUlib_initTextLine ( hu_textline_t* t, const int x, const int y, patch_t**	f, const index_t sc )
+{
+	if (t)
+	{
+		t->x = x;
+		t->y = y;
+		t->f = f;
+		t->sc = sc;
+		HUlib_clearTextLine(t);
+	}
+}
+
+bool HUlib_addCharToTextLine ( hu_textline_t* t, const char	ch )
+{
+	if (t)
+	{
+		if (t->len == HU_MAXLINELENGTH)
+		{
+			return false;
+		}
+
+		t->l[t->len++] = ch;
+		t->l[t->len] = 0;
+		t->needsupdate = 4;
+
+		return true;
+	}
+
+	return false;
+}
+
+bool HUlib_delCharFromTextLine(hu_textline_t* t)
+{
+	if (t)
+	{
+		if (!t->len)
+		{
+			return false;
+		}
+
+		t->l[--t->len] = 0;
+		t->needsupdate = 4;
+
+		return true;
+	}
+
+	return false;
+}
+
+void HUlib_drawTextLine (const hu_textline_t* l, const bool drawcursor )
+{
+	if (l)
+	{
+		// draw the new stuff
+		int x = l->x;
+		for (size_t i = 0; std::cmp_less(i, l->len); ++i)
+		{
+			const unsigned char c = idStr::ToUpper(l->l[i]);
+			if (c != ' '
+				&& std::cmp_greater_equal(c, l->sc)
+				&& c <= '_')
+			{
+				const size_t w = SHORT(l->f[c - l->sc]->width);
+				if (std::cmp_greater(x + w, SCREENWIDTH))
+				{
+					break;
+				}
+				V_DrawPatchDirect(x, l->y, FG, l->f[c - l->sc]);
+				x += numeric_cast<BASE_TYPE(x)>(w);
+			}
+			else
+			{
+				x += 4;
+				if (std::cmp_greater_equal(x, SCREENWIDTH))
+				{
+					break;
+				}
+			}
+		}
+
+		// draw the cursor if requested
+		if (drawcursor && x + SHORT(l->f['_' - l->sc]->width) <= SCREENWIDTH)
+		{
+			V_DrawPatchDirect(x, l->y, FG, l->f['_' - l->sc]);
+		}
+	}
 }
 
 
 // sorta called by HU_Erase and just better darn get things straight
 void HUlib_eraseTextLine(hu_textline_t* l)
 {
-    int			lh;
-    int			y;
-    int			yoffset;
-
-    // Only erases when NOT in automap and the screen is reduced,
-    // and the text must either need updating or refreshing
-    // (because of a recent change back from the automap)
-
-    if (!::g->automapactive &&
-	::g->viewwindowx && l->needsupdate)
-    {
-	lh = SHORT(l->f[0]->height) + 1;
-	for (y=l->y,yoffset=y*SCREENWIDTH ; y<l->y+lh ; y++,yoffset+=SCREENWIDTH)
+	if (l)
 	{
-	    if (y < ::g->viewwindowy || y >= ::g->viewwindowy + ::g->viewheight)
-	    {
-		    R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
-	    }
-	    else
-	    {
-		R_VideoErase(yoffset, ::g->viewwindowx); // erase left border
-		R_VideoErase(yoffset + ::g->viewwindowx + ::g->viewwidth, ::g->viewwindowx);
-		// erase right border
-	    }
+		// Only erases when NOT in automap and the screen is reduced,
+		// and the text must either need updating or refreshing
+		// (because of a recent change back from the automap)
+
+		if (!::g->automapactive &&
+			::g->viewwindowx && l->needsupdate)
+		{
+			size_t yoffset = 0;
+			int y = 0;
+			const size_t lh = SHORT(l->f[0]->height) + 1;
+			for (y = l->y, yoffset = y * SCREENWIDTH; std::cmp_less(y, l->y + lh); y++, yoffset += SCREENWIDTH)
+			{
+				if (y < ::g->viewwindowy || std::cmp_greater_equal(y, ::g->viewwindowy + ::g->viewheight))
+				{
+					R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
+				}
+				else
+				{
+					R_VideoErase(yoffset, ::g->viewwindowx); // erase left border
+					R_VideoErase(yoffset + ::g->viewwindowx + ::g->viewwidth, ::g->viewwindowx);
+					// erase right border
+				}
+			}
+		}
+
+		::g->lastautomapactive = ::g->automapactive;
+		if (l->needsupdate)
+		{
+			l->needsupdate--;
+		}
 	}
-    }
-
-    ::g->lastautomapactive = ::g->automapactive;
-    if (l->needsupdate)
-    {
-	    l->needsupdate--;
-    }
 }
 
-void
-HUlib_initSText
-( hu_stext_t*	s,
-  const int		x,
-  const int		y,
-  const int		h,
-  patch_t**	font,
-  const int		startchar,
-  qboolean*	on )
+void HUlib_initSText ( hu_stext_t*	s, const int x, const int y, const size_t h, patch_t** font, const index_t startchar, bool*	on )
 {
-
-    int i;
-
-    s->h = h;
-    s->on = on;
-    s->laston = true;
-    s->cl = 0;
-    for (i=0;i<h;i++)
-    {
-	    HUlib_initTextLine(&s->l[i],
-	                       x, y - i*(SHORT(font[0]->height)+1),
-	                       font, startchar);
-    }
-}
-
-void HUlib_addLineToSText(hu_stext_t* s)
-{
-
-    int i;
-
-    // add a clear line
-    if (++s->cl == s->h)
-    {
-	    s->cl = 0;
-    }
-    HUlib_clearTextLine(&s->l[s->cl]);
-
-    // everything needs updating
-    for (i=0 ; i<s->h ; i++)
-    {
-	    s->l[i].needsupdate = 4;
-    }
-}
-
-void
-HUlib_addMessageToSText
-( hu_stext_t*	s,
-  const char*		prefix,
-  const char*		msg )
-{
-    HUlib_addLineToSText(s);
-    if (prefix)
-    {
-	    while (*prefix)
-	    {
-		    HUlib_addCharToTextLine(&s->l[s->cl], *(prefix++));
-	    }
-    }
-
-    while (*msg)
-    {
-	    HUlib_addCharToTextLine(&s->l[s->cl], *(msg++));
-    }
-}
-
-void HUlib_drawSText(hu_stext_t* s)
-{
-    int i, idx;
-    hu_textline_t *l;
-
-    if (!*s->on)
-    {
-	    return; // if not on, don't draw
-    }
-
-    // draw everything
-    for (i=0 ; i<s->h ; i++)
-    {
-	idx = s->cl - i;
-	if (idx < 0)
+	if (s)
 	{
-		idx += s->h; // handle queue of ::g->lines
+		s->h = h;
+		s->on = on;
+		s->laston = true;
+		s->cl = 0;
+		for (size_t i = 0; i < h; ++i)
+		{
+			HUlib_initTextLine(&s->l[i],
+				x, y - numeric_cast<int>(i * (SHORT(font[0]->height)) + 1),
+				font, startchar);
+		}
 	}
-
-	l = &s->l[idx];
-
-	// need a decision made here on whether to skip the draw
-	HUlib_drawTextLine(l, false); // no cursor, please
-    }
-
 }
 
-void HUlib_eraseSText(hu_stext_t* s)
+void HUlib_addLineToSText( hu_stext_t* s )
 {
-
-    int i;
-
-    for (i=0 ; i<s->h ; i++)
-    {
-	if (s->laston && !*s->on)
+	if (s)
 	{
-		s->l[i].needsupdate = 4;
-	}
-	HUlib_eraseTextLine(&s->l[i]);
-    }
-    s->laston = *s->on;
+		// add a clear line
+		if (++s->cl == s->h)
+		{
+			s->cl = 0;
+		}
 
+		HUlib_clearTextLine(&s->l[s->cl]);
+
+		// everything needs updating
+		for (size_t i = 0; i < s->h; i++)
+		{
+			s->l[i].needsupdate = 4;
+		}
+	}
 }
 
-void
-HUlib_initIText
-( hu_itext_t*	it,
-  const int		x,
-  const int		y,
-  patch_t**	font,
-  const int		startchar,
-  qboolean*	on )
+void HUlib_addMessageToSText ( hu_stext_t* s, const char* prefix, const char* msg )
 {
-    it->lm = 0; // default left margin is start of text
-    it->on = on;
-    it->laston = true;
-    HUlib_initTextLine(&it->l, x, y, font, startchar);
+	if (s)
+	{
+		HUlib_addLineToSText(s);
+
+		if (prefix)
+		{
+			while (*prefix)
+			{
+				HUlib_addCharToTextLine(&s->l[s->cl], *(prefix++));
+			}
+		}
+
+		while (*msg)
+		{
+			HUlib_addCharToTextLine(&s->l[s->cl], *(msg++));
+		}
+	}
+}
+
+void HUlib_drawSText( hu_stext_t* s )
+{
+	if (s)
+	{
+		if (!*s->on)
+		{
+			return; // if not on, don't draw
+		}
+
+		// draw everything
+		for (size_t i = 0; i < s->h; i++)
+		{
+			index_t idx = s->cl - numeric_cast<index_t>(i);
+			if (idx < 0)
+			{
+				idx += numeric_cast<index_t>(s->h); // handle queue of ::g->lines
+			}
+
+			hu_textline_t* l = &s->l[idx];
+
+			// need a decision made here on whether to skip the draw
+			HUlib_drawTextLine(l, false); // no cursor, please
+		}
+	}
+}
+
+void HUlib_eraseSText( hu_stext_t* s )
+{
+	if (s)
+	{
+		for (size_t i = 0; i < s->h; ++i)
+		{
+			if (s->laston && !*s->on)
+			{
+				s->l[i].needsupdate = 4;
+			}
+
+			HUlib_eraseTextLine(&s->l[i]);
+		}
+
+		s->laston = *s->on;
+	}
+}
+
+void HUlib_initIText ( hu_itext_t*	it, const int x, const int y, patch_t** font, const index_t startchar, bool* on )
+{
+	if (it)
+	{
+		it->lm = 0; // default left margin is start of text
+		it->on = on;
+		it->laston = true;
+
+		HUlib_initTextLine(&it->l, x, y, font, startchar);
+	}
 }
 
 
 // The following deletion routines adhere to the left margin restriction
-void HUlib_delCharFromIText(hu_itext_t* it)
+void HUlib_delCharFromIText( hu_itext_t* it )
 {
-    if (it->l.len != it->lm)
-    {
-	    HUlib_delCharFromTextLine(&it->l);
-    }
+	if (it)
+	{
+		if (std::cmp_not_equal(it->l.len, it->lm))
+		{
+			HUlib_delCharFromTextLine(&it->l);
+		}
+	}
 }
 
-void HUlib_eraseLineFromIText(hu_itext_t* it)
+void HUlib_eraseLineFromIText( hu_itext_t* it )
 {
-    while (it->lm != it->l.len)
-    {
-	    HUlib_delCharFromTextLine(&it->l);
-    }
+	if (it)
+	{
+		while (std::cmp_not_equal(it->lm, it->l.len))
+		{
+			HUlib_delCharFromTextLine(&it->l);
+		}
+	}
 }
 
 // Resets left margin as well
-void HUlib_resetIText(hu_itext_t* it)
+void HUlib_resetIText( hu_itext_t* it )
 {
-    it->lm = 0;
-    HUlib_clearTextLine(&it->l);
+	if (it)
+	{
+		it->lm = 0;
+
+		HUlib_clearTextLine(&it->l);
+	}
 }
 
-void
-HUlib_addPrefixToIText
-( hu_itext_t*	it,
-  char*		str )
+void HUlib_addPrefixToIText ( hu_itext_t* it, const char* str )
 {
-    while (*str)
-    {
-	    HUlib_addCharToTextLine(&it->l, *(str++));
-    }
-    it->lm = it->l.len;
+	if (it)
+	{
+		while (*str)
+		{
+			HUlib_addCharToTextLine(&it->l, *(str++));
+		}
+
+		it->lm = numeric_cast<BASE_TYPE(it->lm)>(it->l.len);
+	}
 }
 
 // wrapper function for handling general keyed input.
 // returns true if it ate the key
-qboolean
-HUlib_keyInIText
-( hu_itext_t*	it,
-  const unsigned char ch )
+bool HUlib_keyInIText( hu_itext_t* it, const unsigned char ch )
 {
-
-    if (ch >= ' ' && ch <= '_')
-    {
-	    HUlib_addCharToTextLine(&it->l, static_cast<char>(ch));
-    }
-    else 
-	if (ch == KEY_BACKSPACE)
+	if (it)
 	{
-		HUlib_delCharFromIText(it);
+		if (ch >= ' ' && ch <= '_')
+		{
+			HUlib_addCharToTextLine(&it->l, static_cast<char>(ch));
+		}
+		else
+			if (ch == KEY_BACKSPACE)
+			{
+				HUlib_delCharFromIText(it);
+			}
+			else if (ch != KEY_ENTER)
+			{
+				return false; // did not eat key
+			}
+
+		return true; // ate the key
 	}
-	else 
-	    if (ch != KEY_ENTER)
-	    {
-		    return false; // did not eat key
-	    }
 
-    return true; // ate the key
-
+	return false;
 }
 
-void HUlib_drawIText(hu_itext_t* it)
+void HUlib_drawIText( hu_itext_t* it )
 {
+	if (it)
+	{
+		const hu_textline_t* l = &it->l;
 
-    hu_textline_t *l = &it->l;
+		if (!*it->on)
+		{
+			return;
+		}
 
-    if (!*it->on)
-    {
-	    return;
-    }
-    HUlib_drawTextLine(l, true); // draw the line w/ cursor
-
+		HUlib_drawTextLine(l, true); // draw the line w/ cursor
+	}
 }
 
-void HUlib_eraseIText(hu_itext_t* it)
+void HUlib_eraseIText( hu_itext_t* it )
 {
-    if (it->laston && !*it->on)
-    {
-	    it->l.needsupdate = 4;
-    }
-    HUlib_eraseTextLine(&it->l);
-    it->laston = *it->on;
+	if (it)
+	{
+		if (it->laston && !*it->on)
+		{
+			it->l.needsupdate = 4;
+		}
+
+		HUlib_eraseTextLine(&it->l);
+
+		it->laston = *it->on;
+	}
 }
 
 

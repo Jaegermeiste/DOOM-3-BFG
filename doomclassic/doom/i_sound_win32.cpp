@@ -35,15 +35,15 @@ If you have questions concerning this license or the applicable additional terms
 //
 //-----------------------------------------------------------------------------
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
+#include <cmath>
 #include <sys/types.h>
 #include <fcntl.h>
 // Timer stuff. Experimental.
-#include <time.h>
-#include <signal.h>
+#include <ctime>
+#include <csignal>
 #include "z_zone.h"
 #include "i_system.h"
 #include "i_sound.h"
@@ -80,7 +80,7 @@ If you have questions concerning this license or the applicable additional terms
 static IXAudio2SourceVoice*	pMusicSourceVoice;
 static MidiSong*				doomMusic;
 static byte*					musicBuffer;
-static int						totalBufferSize;
+static size_t					totalBufferSize;
 
 static HANDLE	hMusicThread;
 static bool	waitingForMusic;
@@ -94,21 +94,21 @@ typedef struct tagActiveSound_t {
 	X3DAUDIO_CONE           m_Cone;
 	int id;
 	int valid;
-	int start;
-	int player;
+	ID_TIME_T start;
+	index_t player;
 	bool localSound;
 	mobj_t *originator;
 } activeSound_t;
 
 
 // cheap little struct to hold a sound
-typedef struct {
+typedef struct soundEvent_s {
 	int vol;
-	int player;
+	index_t player;
 	int pitch;
 	int priority;
-	mobj_t *originator;
-	mobj_t *listener;
+	const mobj_t *originator;
+	const mobj_t *listener;
 } soundEvent_t;
 
 // array of all the possible sounds
@@ -123,7 +123,7 @@ static float			x_SoundVolume = GLOBAL_VOLUME_MULTIPLIER;
 static float			x_MusicVolume = GLOBAL_VOLUME_MULTIPLIER;
 
 // The actual lengths of all sound effects.
-static int 		lengths[NUMSFX];
+static size_t 		lengths[NUMSFX] = {};
 static activeSound_t	activeSounds[NUM_SOUNDBUFFERS] = {nullptr};
 
 static bool			S_initialized = false;
@@ -153,62 +153,76 @@ getsfx
 // This function loads the sound data from the WAD lump,
 //  for single sound.
 //
-static void* getsfx ( char* sfxname, int* len )
+static void* getsfx ( const char* sfxname, size_t* len )
 {
-	unsigned char*      sfx;
-	unsigned char*	    sfxmem;
-	int                 size;
-	char                name[20];
-	int                 sfxlump;
-	float				scale = 1.0f;
-
-	// Get the sound data from the WAD, allocate lump
-	//  in zone memory.
-	sprintf(name, "ds%s", sfxname);
-
-	// Scale down the plasma gun, it clips
-	if ( strcmp( sfxname, "plasma" ) == 0 ) {
-		scale = 0.75f;
-	}
-	if ( strcmp( sfxname, "itemup" ) == 0 ) {
-		scale = 1.333f;
-	}
-
-	// If sound requested is not found in current WAD, use pistol as default
-	if ( W_CheckNumForName(name) == -1 )
+	if (sfxname)
 	{
-		sfxlump = W_GetNumForName("dspistol");
+		char                name[MAX_STRING_CHARS] = {};
+		index_t             sfxlump = 0;
+		float				scale = 1.0f;
+
+		// Get the sound data from the WAD, allocate lump
+		//  in zone memory.
+		idStr::snPrintf(name, sizeof(name), "ds%s", sfxname);
+
+		// Scale down the plasma gun, it clips
+		if (strcmp(sfxname, "plasma") == 0) {
+			scale = 0.75f;
+		}
+		if (strcmp(sfxname, "itemup") == 0) {
+			scale = 1.333f;
+		}
+
+		// If sound requested is not found in current WAD, use pistol as default
+		if (W_CheckNumForName(name) == -1)
+		{
+			sfxlump = W_GetNumForName("dspistol");
+		}
+		else
+		{
+			sfxlump = W_GetNumForName(name);
+		}
+
+		// Sound lump headers are 8 bytes.
+		constexpr size_t SOUND_LUMP_HEADER_SIZE_IN_BYTES = 8;
+
+		size_t size = W_LumpLength(sfxlump) - SOUND_LUMP_HEADER_SIZE_IN_BYTES;
+
+		byte* sfx = static_cast<byte*>(W_CacheLumpNum(sfxlump, PU_CACHE_SHARED));
+
+		if (sfx)
+		{
+			const byte* sfxSampleStart = sfx + SOUND_LUMP_HEADER_SIZE_IN_BYTES;
+
+			// Allocate from zone memory.
+			//sfxmem = (float*)DoomLib::Z_Malloc( size*(sizeof(float)), PU_SOUND_SHARED, 0 );
+			byte* sfxmem = static_cast<byte*>(malloc(size * sizeof(byte)));
+
+			if (sfxmem)
+			{
+				// Now copy, and convert to Xbox360 native float samples, do initial volume ramp, and scale
+				for (index_t i = 0; std::cmp_less(i, size); ++i) {
+					sfxmem[i] = sfxSampleStart[i];// * scale;
+				}
+			}
+
+			// Remove the cached lump.
+			Z_Free(sfx);
+
+			if (sfxmem)
+			{
+				// Set length.
+				*len = size;
+
+				// Return allocated padded data.
+				return (void*)(sfxmem);
+			}
+
+			*len = 0;
+		}
 	}
-	else
-	{
-		sfxlump = W_GetNumForName(name);
-	}
 
-	// Sound lump headers are 8 bytes.
-	constexpr int SOUND_LUMP_HEADER_SIZE_IN_BYTES = 8;
-
-	size = W_LumpLength( sfxlump ) - SOUND_LUMP_HEADER_SIZE_IN_BYTES;
-
-	sfx = static_cast<unsigned char*>(W_CacheLumpNum(sfxlump, PU_CACHE_SHARED));
-	const unsigned char * sfxSampleStart = sfx + SOUND_LUMP_HEADER_SIZE_IN_BYTES;
-
-	// Allocate from zone memory.
-	//sfxmem = (float*)DoomLib::Z_Malloc( size*(sizeof(float)), PU_SOUND_SHARED, 0 );
-	sfxmem = static_cast<unsigned char*>(malloc(size * sizeof(unsigned char)));
-
-	// Now copy, and convert to Xbox360 native float samples, do initial volume ramp, and scale
-	for ( int i=0; i<size; i++ ) {
-		sfxmem[i] = sfxSampleStart[i];// * scale;
-	}
-
-	// Remove the cached lump.
-	Z_Free( sfx );
-
-	// Set length.
-	*len = size;
-
-	// Return allocated padded data.
-	return (void *) (sfxmem);
+	return nullptr;
 }
 
 /*
@@ -226,7 +240,7 @@ I_SetSfxVolume
 ======================
 */
 void I_SetSfxVolume(const int volume) {
-	x_SoundVolume = (static_cast<float>(volume) / 15.f) * GLOBAL_VOLUME_MULTIPLIER;
+	x_SoundVolume = (static_cast<float>(volume) / 15.0f) * GLOBAL_VOLUME_MULTIPLIER;
 }
 
 /*
@@ -238,11 +252,16 @@ I_GetSfxLumpNum
 // Retrieve the raw data lump index
 //  for a given SFX name.
 //
-int I_GetSfxLumpNum(sfxinfo_t* sfx)
+index_t I_GetSfxLumpNum( const sfxinfo_t* sfx )
 {
-	char namebuf[9];
-	sprintf(namebuf, "ds%s", sfx->name);
-	return W_GetNumForName(namebuf);
+	if (sfx)
+	{
+		char namebuf[MAX_STRING_CHARS] = {};
+		idStr::snPrintf(namebuf, sizeof(namebuf), "ds%s", sfx->name);
+		return W_GetNumForName(namebuf);
+	}
+
+	return -1;
 }
 
 /*
@@ -260,7 +279,7 @@ I_StartSound2
 //  priority, it is ignored.
 // Pitching (that is, increased speed of playback) is set
 //
-static int I_StartSound2 (const int id, const int player, mobj_t *origin, mobj_t *listener_origin, const int pitch, int priority ) {
+static int I_StartSound2 (const sfxenum_e id, const index_t player, const mobj_t *origin, const mobj_t *listener_origin, const int pitch, int priority ) {
 	if ( !soundHardwareInitialized ) {
 		return id;
 	}
@@ -273,7 +292,7 @@ static int I_StartSound2 (const int id, const int player, mobj_t *origin, mobj_t
 	// these id's should not overlap
 	if ( id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit || id == sfx_stnmov ) {
 		// Loop all channels, check.
-		for (i=0 ; std::cmp_less(i, NUM_SOUNDBUFFERS); i++)
+		for (i=0 ; std::cmp_less(i, NUM_SOUNDBUFFERS); ++i)
 		{
 			sound = &activeSounds[i];
 
@@ -337,9 +356,9 @@ static int I_StartSound2 (const int id, const int player, mobj_t *origin, mobj_t
 	// Set initial spatialization
 	if ( origin && origin != listener_origin ) {
 		// Update Emitter Position
-		sound->m_Emitter.Position.x = static_cast<float>(origin->x >> FRACBITS);
+		sound->m_Emitter.Position.x = origin->x;
 		sound->m_Emitter.Position.y = 0.f;
-		sound->m_Emitter.Position.z = static_cast<float>(origin->y >> FRACBITS);
+		sound->m_Emitter.Position.z = origin->y;
 
 		// Calculate 3D positioned speaker volumes
 		constexpr DWORD dwCalculateFlags = X3DAUDIO_CALCULATE_MATRIX;
@@ -357,7 +376,7 @@ static int I_StartSound2 (const int id, const int player, mobj_t *origin, mobj_t
 	}
 
 	// Submit packet
-	HRESULT hr;
+	HRESULT hr = {};
 	if( FAILED( hr = sound->m_pSourceVoice->SubmitSourceBuffer( &Packet ) ) ) {
 		int fail = 1;
 	}
@@ -372,7 +391,7 @@ static int I_StartSound2 (const int id, const int player, mobj_t *origin, mobj_t
 	sound->start = ::g->gametic;
 	sound->valid = 1;
 	sound->player = player;
-	sound->originator = origin;
+	sound->originator = const_cast<mobj_t*>(origin);
 
 	return id;
 }
@@ -382,10 +401,10 @@ static int I_StartSound2 (const int id, const int player, mobj_t *origin, mobj_t
 I_ProcessSoundEvents
 ======================
 */
-static void I_ProcessSoundEvents( void ) {
-	for ( size_t i = 0; i < 128; i++ ) {
+static void I_ProcessSoundEvents() {
+	for ( index_t i = sfx_None; i < 128; ++i ) {
 		if( soundEvents[i].pitch ) {
-			I_StartSound2( i, soundEvents[i].player, soundEvents[i].originator, soundEvents[i].listener, soundEvents[i].pitch, soundEvents[i].priority );
+			I_StartSound2( static_cast<sfxenum_e>(i), soundEvents[i].player, soundEvents[i].originator, soundEvents[i].listener, soundEvents[i].pitch, soundEvents[i].priority );
 		}
 	}
 	memset( soundEvents, 0, sizeof( soundEvents ) );
@@ -396,7 +415,7 @@ static void I_ProcessSoundEvents( void ) {
 I_StartSound
 ======================
 */
-int I_StartSound (const int id, mobj_t *origin, mobj_t *listener_origin, const int vol, const int pitch, const int priority ) {
+int I_StartSound (const sfxenum_e id, const mobj_t *origin, const mobj_t *listener_origin, const int vol, const int pitch, const int priority ) {
 	// only allow player 0s sounds in intermission and finale screens
 	if( ::g->gamestate != GS_LEVEL && DoomLib::GetPlayer() != 0 ) {
 		return 0;
@@ -404,7 +423,7 @@ int I_StartSound (const int id, mobj_t *origin, mobj_t *listener_origin, const i
 
 	// if we're only one player or we're trying to play the chainsaw sound, do it normal
 	// otherwise only allow one sound of each type per frame
-	if( PLAYERCOUNT == 1 || id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit ) {
+	if( ::g->players.Num() == 1 || id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit ) {
 		return I_StartSound2( id, ::g->consoleplayer, origin, listener_origin, pitch, priority );
 	}
 	else {
@@ -469,13 +488,11 @@ int I_SoundIsPlaying(const int handle) {
 		return 0;
 	}
 
-	int i;
 	XAUDIO2_VOICE_STATE	state;
-	activeSound_t* sound;
 
-	for (i = 0; std::cmp_less(i, NUM_SOUNDBUFFERS); ++i)
+	for (int i = 0; std::cmp_less(i, NUM_SOUNDBUFFERS); ++i)
 	{
-		sound = &activeSounds[i];
+		activeSound_t* sound = &activeSounds[i];
 		if (!sound->valid || sound->id != handle)
 		{
 			continue;
@@ -497,17 +514,15 @@ I_UpdateSound
 */
 // Update Listener Position and go through all the
 // channels and update speaker volumes for 3D sound.
-void I_UpdateSound( void ) {
+void I_UpdateSound() {
 	if ( !soundHardwareInitialized ) {
 		return;
 	}
 
-	int i;
 	XAUDIO2_VOICE_STATE	state;
-	activeSound_t* sound;
 
-	for ( i=0; std::cmp_less(i, NUM_SOUNDBUFFERS); i++ ) {
-		sound = &activeSounds[i];
+	for ( int i = 0; std::cmp_less(i, NUM_SOUNDBUFFERS); ++i ) {
+		activeSound_t* sound = &activeSounds[i];
 
 		if ( !sound->valid || sound->localSound ) {
 			continue;
@@ -527,18 +542,18 @@ void I_UpdateSound( void ) {
 			fx = finecosine[pAngle];
 			fz = finesine[pAngle];
 
-			doom_Listener.OrientFront.x = static_cast<float>(fx) / 65535.f;
-			doom_Listener.OrientFront.y = 0.f;
-			doom_Listener.OrientFront.z = static_cast<float>(fz) / 65535.f;
+			doom_Listener.OrientFront.x = fx / 65535.f;
+			doom_Listener.OrientFront.y = 0.0f;
+			doom_Listener.OrientFront.z = fz / 65535.f;
 
-			doom_Listener.Position.x = static_cast<float>(playerObj->x >> FRACBITS);
-			doom_Listener.Position.y = 0.f;
-			doom_Listener.Position.z = static_cast<float>(playerObj->y >> FRACBITS);
+			doom_Listener.Position.x = playerObj->x;
+			doom_Listener.Position.y = 0.0f;
+			doom_Listener.Position.z = playerObj->y;
 
 			// Update Emitter Position
-			sound->m_Emitter.Position.x = static_cast<float>(sound->originator->x >> FRACBITS);
-			sound->m_Emitter.Position.y = 0.f;
-			sound->m_Emitter.Position.z = static_cast<float>(sound->originator->y >> FRACBITS);
+			sound->m_Emitter.Position.x = sound->originator->x;
+			sound->m_Emitter.Position.y = 0.0f;
+			sound->m_Emitter.Position.z = sound->originator->y;
 
 			// Calculate 3D positioned speaker volumes
 			constexpr DWORD dwCalculateFlags = X3DAUDIO_CALCULATE_MATRIX;
@@ -563,7 +578,7 @@ void I_UpdateSoundParams( int handle, int vol, int sep, int pitch) {
 I_ShutdownSound
 ======================
 */
-void I_ShutdownSound(void) {
+void I_ShutdownSound() {
 	int done = 0;
 
 	if ( S_initialized ) {
@@ -583,7 +598,7 @@ void I_ShutdownSound(void) {
 			}
 		}
 
-		for (i = 1; i < NUMSFX; i++) {
+		for (i = 1; i < NUMSFX; ++i) {
 			if ( S_sfx[i].data && !(S_sfx[i].link) ) {
 				//Z_Free( S_sfx[i].data );
 				free( S_sfx[i].data );
@@ -742,7 +757,7 @@ void I_InitSound() {
 		doom_Listener.Position             = ZeroVector;
 		doom_Listener.Velocity             = ZeroVector;
 
-		for (size_t i = 1; i < NUMSFX; i++)
+		for (size_t i = 1; i < NUMSFX; ++i)
 		{ 
 			// Alias? Example is the chaingun sound linked to pistol.
 			if (!S_sfx[i].link)
@@ -767,7 +782,7 @@ void I_InitSound() {
 I_SubmitSound
 ======================
 */
-void I_SubmitSound(void)
+void I_SubmitSound()
 {
 	// Only do this for player 0, it will still handle positioning
 	//		for other players, but it can't be outside the game 
@@ -803,7 +818,7 @@ void I_SetMusicVolume(const int volume)
 I_InitMusic
 ======================
 */
-void I_InitMusic(void)		
+void I_InitMusic()		
 {
 	if ( !Music_initialized ) {
 		// Initialize Timidity
@@ -841,7 +856,7 @@ void I_InitMusic(void)
 I_ShutdownMusic
 ======================
 */
-void I_ShutdownMusic(void)	
+void I_ShutdownMusic()	
 {
 	I_StopSong( 0 );
 
@@ -983,7 +998,7 @@ void I_PlaySong( const char *songname, const int looping)
 I_UpdateMusic
 ======================
 */
-void I_UpdateMusic( void ) {
+void I_UpdateMusic() {
 	if ( !Music_initialized ) {
 		return;
 	}
@@ -1006,7 +1021,7 @@ void I_UpdateMusic( void ) {
 				Packet.pContext = nullptr;
 
 				// Submit packet
-				HRESULT hr;
+				HRESULT hr = {};
 				if( FAILED( hr = pMusicSourceVoice->SubmitSourceBuffer( &Packet ) ) ) {
 					int fail = 1;
 				}

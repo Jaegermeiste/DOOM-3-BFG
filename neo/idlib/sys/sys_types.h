@@ -77,6 +77,8 @@ assert_sizeof( uint32,	4 );
 assert_sizeof( int64,	8 );
 assert_sizeof( uint64,	8 );
 
+#include "sys_type_qboolean.h"
+
 /*
 #define MAX_TYPE( x )			( ( ( ( 1 << ( ( sizeof( x ) - 1 ) * 8 - 1 ) ) - 1 ) << 8 ) | 255 )
 #define MIN_TYPE( x )			( - MAX_TYPE( x ) - 1 )
@@ -149,6 +151,16 @@ bool IsSignedType( const _type_ t ) {
 	return _type_( -1 ) < 0;
 }
 
+#ifndef STRING_LIMITS
+#define STRING_LIMITS
+constexpr size_t MAX_STRING_CHARS = 1024U;		// max length of a static string;
+constexpr size_t MAX_PRINT_MSG = 16384U;		// buffer size for our various printf routines;
+#endif
+
+#include "sys_concept_stringlikeorenum.h"
+#include "sys_concept_formattable.h"
+
+
 class idFile;
 
 struct idNullPtr {
@@ -182,12 +194,6 @@ struct idNullPtr {
 
 #ifndef NUMBITS
 #define NUMBITS( _type_ )		( sizeof( _type_ ) * 8 )
-#endif
-
-#ifndef STRING_LIMITS
-#define STRING_LIMITS
-constexpr size_t MAX_STRING_CHARS = 1024U;		// max length of a static string;
-constexpr size_t MAX_PRINT_MSG = 16384U;		// buffer size for our various printf routines;
 #endif
 
 #ifndef WORLD_LIMITS

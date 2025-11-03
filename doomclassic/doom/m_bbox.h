@@ -46,11 +46,7 @@ enum bbox_e : uint8
 // Bounding box functions.
 void M_ClearBox (fixed_t*	box);
 
-void
-M_AddToBox
-( fixed_t*	box,
-  const std::integral auto x,
-  const std::integral auto y );
+void M_AddToBox ( fixed_t*	box, const fixed_t x, const fixed_t y );
 
 
 #endif

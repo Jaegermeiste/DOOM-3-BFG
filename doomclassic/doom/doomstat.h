@@ -49,11 +49,11 @@ If you have questions concerning this license or the applicable additional terms
 // ------------------------
 // Command line parameters.
 //
-extern  qboolean	nomonsters;	// checkparm of -nomonsters
-extern  qboolean	respawnparm;	// checkparm of -respawn
-extern  qboolean	fastparm;	// checkparm of -fast
+extern  bool	nomonsters;	// checkparm of -nomonsters
+extern  bool	respawnparm;	// checkparm of -respawn
+extern  bool	fastparm;	// checkparm of -fast
 
-extern  qboolean	devparm;	// DEBUG: launched with -devparm
+extern  bool	devparm;	// DEBUG: launched with -devparm
 
 
 
@@ -64,7 +64,7 @@ extern GameMode_t	gamemode;
 extern index_t	gamemission;
 
 // Set if homebrew PWAD stuff has been added.
-extern  qboolean	modifiedgame;
+extern  bool	modifiedgame;
 
 
 // -------------------------------------------
@@ -81,7 +81,7 @@ extern  skill_t		startskill;
 extern  index_t     startepisode;
 extern	index_t		startmap;
 
-extern  qboolean		autostart;
+extern  bool		autostart;
 
 // Selected by user. 
 extern  skill_t     gameskill;
@@ -89,14 +89,14 @@ extern  index_t		gameepisode;
 extern  index_t		gamemap;
 
 // Nightmare mode flag, single player.
-extern  qboolean    respawnmonsters;
+extern  bool    respawnmonsters;
 
 // Netgame? Only true if >1 player.
-extern  qboolean	netgame;
+extern  bool	netgame;
 
 // Flag: true only if started as net deathmatch.
 // An enum might handle altdeath/cooperative better.
-extern  qboolean	deathmatch;	
+extern  bool	deathmatch;	
 	
 // -------------------------
 // Internal parameters for sound rendering.
@@ -123,20 +123,20 @@ extern index_t snd_DesiredSfxDevice;
 // Depending on view size - no status bar?
 // Note that there is no way to disable the
 //  status bar explicitely.
-extern  qboolean statusbaractive;
+extern  bool statusbaractive;
 
-extern  qboolean automapactive;	// In AutoMap mode?
-extern  qboolean	menuactive;	// Menu overlayed?
-extern  qboolean	paused;		// Game Pause?
+extern  bool automapactive;	// In AutoMap mode?
+extern  bool	menuactive;	// Menu overlayed?
+extern  bool	paused;		// Game Pause?
 
 
-extern  qboolean		viewactive;
+extern  bool		viewactive;
 
-extern  qboolean		nodrawers;
-extern  qboolean		noblit;
+extern  bool		nodrawers;
+extern  bool		noblit;
 
-extern	size_t		viewwindowx;
-extern	size_t		viewwindowy;
+extern	int		viewwindowx;
+extern	int		viewwindowy;
 extern	size_t		viewheight;
 extern	size_t		viewwidth;
 extern	size_t		scaledviewwidth;
@@ -173,13 +173,13 @@ extern  ID_TIME_T	leveltime;	// tics in game play for par
 // DEMO playback/recording related stuff.
 // No demo, there is a human player in charge?
 // Disable save/end game?
-extern  qboolean	usergame;
+extern  bool	usergame;
 
 //?
-extern  qboolean	demoplayback;
+extern  bool	demoplayback;
 
 // Quit after playing a demo from cmdline.
-extern  qboolean		singledemo;	
+extern  bool		singledemo;	
 
 
 
@@ -207,13 +207,13 @@ extern	ID_TIME_T		gametic;
 extern	player_t	players[MAXPLAYERS];
 
 // Alive? Disconnected?
-extern  qboolean		playeringame[MAXPLAYERS];
+extern  bool		playeringame[MAXPLAYERS];
 
 
 // Player spawn spots for deathmatch.
-#define MAX_DM_STARTS   10
-extern  mapthing_t      deathmatchstarts[MAX_DM_STARTS];
-extern  mapthing_t*	deathmatch_p;
+//constexpr size_t MAX_DM_STARTS = 16; // https://doomwiki.org/wiki/Static_limits
+//extern  mapthing_t      deathmatchstarts[MAX_DM_STARTS];
+//extern  mapthing_t*	deathmatch_p;
 
 // Player spawn spots.
 extern  mapthing_t      playerstarts[MAXPLAYERS];
@@ -225,7 +225,7 @@ extern  wbstartstruct_t		wminfo;
 
 // LUT of ammunition limits for each kind.
 // This doubles with BackPack powerup item.
-const extern  int		maxammo[NUMAMMO];
+const extern  size_t  maxammo[NUMAMMO];
 
 
 
@@ -240,7 +240,7 @@ extern	char		basedefault[1024];
 extern  FILE*		debugfile;
 
 // if true, load all graphics at level load
-extern  qboolean         precache;
+extern  bool         precache;
 
 
 // wipegamestate can be set to -1
@@ -250,7 +250,7 @@ extern  gamestate_t     wipegamestate;
 extern  int             mouseSensitivity;
 //?
 // debug flag to cancel adaptiveness
-extern  qboolean         singletics;	
+extern  bool         singletics;	
 
 extern  int             bodyqueslot;
 

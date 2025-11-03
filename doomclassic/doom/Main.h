@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #define _DEMO_RECORDING
 
 #ifdef _DEBUG
-	#define safeOutputDebug(x) printf( "%s", x );
+	#define safeOutputDebug(x) printf( "%s", x )
 #else
 	#define safeOutputDebug(x)
 #endif

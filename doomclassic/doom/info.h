@@ -29,10 +29,15 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __INFO__
 #define __INFO__
 
+#pragma once
+
 // Needed for action function pointer handling.
 #include "d_think.h"
+#include "m_fixed.h"
 
-typedef enum
+enum sfxenum_e : uint8;
+
+typedef enum spritenum_e : uint8
 {
     SPR_TROO,
     SPR_SHTG,
@@ -176,7 +181,7 @@ typedef enum
 
 } spritenum_t;
 
-typedef enum
+typedef enum statenum_e : uint16
 {
     S_NULL,
     S_LIGHTDONE,
@@ -1149,29 +1154,29 @@ typedef enum
 } statenum_t;
 
 
-typedef struct
+typedef struct state_s
 {
   spritenum_t	sprite;
-  long			frame;
-  long			tics;
+  size_t		frame;
+  ID_TIME_T		tics;
   // void		(*action) ();
 
   // GCC 4.1 for PS3 gives the error "braces around scalar initializer"
   // for these actionf_p2s. So, let's make it not a scalar!
-  // The second value of the struct will be initalized to 0.
+  // The second value of the struct will be initialized to 0.
  // struct {
-	  actionf_p2			action;
+	  actionf_t			action;
 	//  int					filler;
  // };
 
   statenum_t			nextstate;
-  long			misc1, misc2;
+  int32			misc1, misc2;
 } state_t;
 
 extern const state_t	tempStates[NUMSTATES];
 extern const char * const sprnames[NUMSPRITES+1];
 
-typedef enum {
+typedef enum mobjtype_e : uint8 {
     MT_PLAYER,
     MT_POSSESSED,
     MT_SHOTGUY,
@@ -1313,31 +1318,31 @@ typedef enum {
 
 } mobjtype_t;
 
-typedef struct
+typedef struct mobjinfo_s
 {
-    int	doomednum;
-    int	spawnstate;
-    int	spawnhealth;
-    int	seestate;
-    int	seesound;
-    int	reactiontime;
-    int	attacksound;
-    int	painstate;
-    int	painchance;
-    int	painsound;
-    int	meleestate;
-    int	missilestate;
-    int	deathstate;
-    int	xdeathstate;
-    int	deathsound;
-    int	speed;
-    int	radius;
-    int	height;
-    int	mass;
-    int	damage;
-    int	activesound;
-    int	flags;
-    int	raisestate;
+    int32	    doomednum;
+	statenum_t  spawnstate;
+    int16	    spawnhealth;
+    statenum_t  seestate;
+	sfxenum_e	seesound;
+    ID_TIME_T	reactiontime;
+	sfxenum_e	attacksound;
+    statenum_t	painstate;
+    uint8	    painchance;
+	sfxenum_e	painsound;
+	statenum_t	meleestate;
+	statenum_t	missilestate;
+	statenum_t	deathstate;
+	statenum_t	xdeathstate;
+	sfxenum_e	deathsound;
+	fixed_t	    speed;
+    fixed_t	    radius;
+	fixed_t	    height;
+	size_t	    mass;
+    int16   	damage;
+    sfxenum_e	activesound;
+    int32   	flags;
+	statenum_t	raisestate;
 
 } mobjinfo_t;
 

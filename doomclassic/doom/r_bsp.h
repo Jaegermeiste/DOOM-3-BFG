@@ -51,7 +51,7 @@ extern qboolean		markceiling;
 
 extern qboolean		skymap;
 
-extern drawseg_t	drawsegs[MAXDRAWSEGS];
+//extern drawseg_t	drawsegs[MAXDRAWSEGS];
 extern drawseg_t*	ds_p;
 
 extern lighttable_t**	hscalelight;
@@ -63,8 +63,8 @@ typedef void (*drawfunc_t) (int start, int stop);
 
 
 // BSP?
-void R_ClearClipSegs (void);
-void R_ClearDrawSegs (void);
+void R_ClearClipSegs ();
+void R_ClearDrawSegs ();
 
 
 void R_RenderBSPNode (int bspnum);

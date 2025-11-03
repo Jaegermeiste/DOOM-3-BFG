@@ -39,44 +39,44 @@ If you have questions concerning this license or the applicable additional terms
 //
 // GAME
 //
-void G_DeathMatchSpawnPlayer (index_t playernum);
+void G_DeathMatchSpawnPlayer (const index_t playernum);
 
 void G_InitNew ( skill_t skill, index_t episode, index_t map );
 
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1,
 // but a warp test can start elsewhere
-void G_DeferedInitNew (skill_t skill, index_t episode, index_t map);
+void G_DeferredInitNew (skill_t skill, index_t episode, index_t map);
 
-void G_DeferedPlayDemo (const char* demo);
+void G_DeferredPlayDemo (const char* demo);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
-void G_LoadGame (char* name);
+void G_LoadGame (const char* name);
 
-qboolean G_DoLoadGame ();
+bool G_DoLoadGame ();
 
 // Called by M_Responder.
-void G_SaveGame (index_t slot, const char* description);
+void G_SaveGame (const index_t slot, const char* description);
 
 // Only called by startup code.
 void G_RecordDemo (const char* name);
 
-void G_BeginRecording (void);
+void G_BeginRecording ();
 
 void G_PlayDemo (const char* name);
 void G_TimeDemo (const char* name);
-qboolean G_CheckDemoStatus (void);
+bool G_CheckDemoStatus ();
 
-void G_ExitLevel (void);
-void G_SecretExitLevel (void);
+void G_ExitLevel ();
+void G_SecretExitLevel ();
 
-void G_WorldDone (void);
+void G_WorldDone ();
 
-void G_Ticker (void);
-qboolean G_Responder (event_t*	ev);
+void G_Ticker ();
+bool G_Responder (event_t*	ev);
 
-void G_ScreenShot (void);
+void G_ScreenShot ();
 
 constexpr size_t MAXDEMOSIZE = 512ULL * 1024ULL;
 constexpr size_t SAVEGAMESIZE = 256ULL * 1024ULL + MAXDEMOSIZE;

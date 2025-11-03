@@ -29,14 +29,16 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __HULIB__
 #define __HULIB__
 
+#pragma once
+
 // We are referring to patches.
 #include "r_defs.h"
 
 // font stuff
-#define HU_CHARERASE	KEY_BACKSPACE
+constexpr auto HU_CHARERASE = KEY_BACKSPACE;
 
-#define HU_MAXLINES		4
-#define HU_MAXLINELENGTH	80
+constexpr size_t HU_MAXLINES = 4;
+constexpr size_t HU_MAXLINELENGTH = 80;
 
 //
 // Typedefs of widgets
@@ -44,19 +46,19 @@ If you have questions concerning this license or the applicable additional terms
 
 // Text Line widget
 //  (parent of Scrolling Text and Input Text widgets)
-typedef struct
+typedef struct hu_textline_s
 {
     // left-justified position of scrolling text window
     int		x;
     int		y;
     
     patch_t**	f;			// font
-    int		sc;			// start character
-    char	l[HU_MAXLINELENGTH+1];	// line of text
-    int		len;		      	// current line length
+    index_t		sc;			// start character
+    char	l[HU_MAXLINELENGTH + 1];	// line of text
+    size_t		len;		      	// current line length
 
-    // whether this line needs to be udpated
-    int		needsupdate;	      
+    // whether this line needs to be updated
+    size_t		needsupdate;	      
 
 } hu_textline_t;
 
@@ -64,15 +66,15 @@ typedef struct
 
 // Scrolling Text window widget
 //  (child of Text Line widget)
-typedef struct
+typedef struct hu_stext_s
 {
     hu_textline_t	l[HU_MAXLINES];	// text lines to draw
-    int			h;		// height in lines
-    int			cl;		// current line number
+    size_t			h;		// height in lines
+    index_t			cl;		// current line number
 
-    // pointer to qboolean stating whether to update window
-    qboolean*		on;
-    qboolean		laston;		// last value of *->on.
+    // pointer to bool stating whether to update window
+    bool*		on;
+    bool		laston;		// last value of *->on.
 
 } hu_stext_t;
 
@@ -80,16 +82,16 @@ typedef struct
 
 // Input Text Line widget
 //  (child of Text Line widget)
-typedef struct
+typedef struct hu_itext_s
 {
     hu_textline_t	l;		// text line to input on
 
      // left margin past which I am not to delete characters
     int			lm;
 
-    // pointer to qboolean stating whether to update window
-    qboolean*		on; 
-    qboolean		laston; // last value of *->on;
+    // pointer to bool stating whether to update window
+    bool*		on; 
+    bool		laston; // last value of *->on;
 
 } hu_itext_t;
 
@@ -99,7 +101,7 @@ typedef struct
 //
 
 // initializes heads-up widget library
-void HUlib_init(void);
+void HUlib_init();
 
 //
 // textline code
@@ -108,16 +110,16 @@ void HUlib_init(void);
 // clear a line of text
 void	HUlib_clearTextLine(hu_textline_t *t);
 
-void	HUlib_initTextLine(hu_textline_t *t, int x, int y, patch_t **f, int sc);
+void	HUlib_initTextLine(hu_textline_t *t, int x, int y, patch_t **f, index_t sc);
 
 // returns success
-qboolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
+bool HUlib_addCharToTextLine(hu_textline_t *t, const char ch);
 
 // returns success
-qboolean HUlib_delCharFromTextLine(hu_textline_t *t);
+bool HUlib_delCharFromTextLine(hu_textline_t *t);
 
 // draws tline
-void	HUlib_drawTextLine(hu_textline_t *l, qboolean drawcursor);
+void	HUlib_drawTextLine(const hu_textline_t *l, const bool drawcursor);
 
 // erases text line
 void	HUlib_eraseTextLine(hu_textline_t *l); 
@@ -136,7 +138,7 @@ HUlib_initSText
   int		h,
   patch_t**	font,
   int		startchar,
-  qboolean*	on );
+  bool*	on );
 
 // add a new line
 void HUlib_addLineToSText(hu_stext_t* s);  
@@ -162,7 +164,7 @@ HUlib_initIText
   int		y,
   patch_t**	font,
   int		startchar,
-  qboolean*	on );
+  bool*	on );
 
 // enforces left margin
 void HUlib_delCharFromIText(hu_itext_t* it);
@@ -177,10 +179,10 @@ void HUlib_resetIText(hu_itext_t* it);
 void
 HUlib_addPrefixToIText
 ( hu_itext_t*	it,
-  char*		str );
+  const char*		str );
 
 // whether eaten
-qboolean
+bool
 HUlib_keyInIText
 ( hu_itext_t*	it,
   unsigned char ch );

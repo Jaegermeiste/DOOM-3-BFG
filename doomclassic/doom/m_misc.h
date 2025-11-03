@@ -35,32 +35,20 @@ If you have questions concerning this license or the applicable additional terms
 //
 // MISC
 //
-boolean
-M_WriteFile
-( char const*	name,
-  void*		source,
-  size_t		length );
+bool M_WriteFile ( char const* name, const void* source, const size_t length );
 
-size_t
-	M_ReadFile
-	( char const*	name,
-	byte**	buffer );
+size_t M_ReadFile ( char const*	name, byte** buffer );
 
-qboolean M_WriteSaveGame( void* source, size_t length );
-int M_ReadSaveGame ( byte** buffer );
+bool M_WriteSaveGame( const void* source, const size_t length );
 
-void M_ScreenShot (void);
+size_t M_ReadSaveGame ( byte** buffer );
 
-void M_LoadDefaults (void);
-void M_SaveDefaults (void);
+void M_ScreenShot ();
 
+void M_LoadDefaults ();
+void M_SaveDefaults ();
 
-int
-M_DrawText
-( int		x,
-  int		y,
-  qboolean	direct,
-  char*		string );
+int M_DrawText ( int x, int y, bool	direct, const char* string );
 
 
 #endif

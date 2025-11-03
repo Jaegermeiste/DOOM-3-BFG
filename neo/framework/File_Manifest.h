@@ -121,7 +121,7 @@ struct imagePreload_s {
 	int cubeMap;
 };
 
-enum preloadType_t {
+enum preloadType_t : uint8 {
 	PRELOAD_IMAGE,
 	PRELOAD_MODEL,
 	PRELOAD_SAMPLE,
@@ -133,7 +133,7 @@ enum preloadType_t {
 // preload
 struct preloadEntry_s {
 	preloadEntry_s() noexcept {
-		resType = 0;
+		resType = PRELOAD_IMAGE;
 	}
 	bool operator==( const preloadEntry_s &b ) const { 
 		bool ret = ( resourceName.Icmp( b.resourceName ) == 0 );
@@ -155,7 +155,7 @@ struct preloadEntry_s {
 		imgData.Read( inFile );
 	}
 
-	int				resType;		// type
+	preloadType_t	resType;		// type
 	idStr			resourceName;	// resource name
 	imagePreload_s	imgData;		// image specific data
 };
@@ -164,6 +164,7 @@ struct preloadSort_t {
 	size_t idx;
 	size_t ofs;
 };
+
 class idSort_Preload : public idSort_Quick< preloadSort_t, idSort_Preload > {
 public:
 	[[nodiscard]] static int64 Compare( const preloadSort_t & a, const preloadSort_t & b ) { return numeric_cast<int64>(a.ofs) - numeric_cast<int64>(b.ofs); }

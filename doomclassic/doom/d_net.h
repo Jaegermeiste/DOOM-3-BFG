@@ -47,10 +47,10 @@ If you have questions concerning this license or the applicable additional terms
 //  be transmitted.
 //
 
-#define DOOMCOM_ID		0x12345678l
+constexpr uint32 DOOMCOM_ID = 0x12345678l;
 
 // Max computers/players in a game.
-constexpr size_t MAXNETNODES = 8;
+constexpr size_t MAXNETNODES = 16;          // https://doomwiki.org/wiki/Static_limits
 
 
 // Networking and tick handling related.
@@ -70,16 +70,16 @@ typedef enum command_e : uint8
 typedef struct doomdata_s
 {
     // High bit is retransmit request.
-    unsigned		checksum;
+    uint32		checksum;
     // Only valid if NCMD_RETRANSMIT.
-    byte		retransmitfrom;
+    ID_TIME_T	retransmitfrom;
 	
 	byte		sourceDest;
     
-    byte		starttic;
-    byte		player;
-    byte		numtics;
-    ticcmd_t		cmds[BACKUPTICS];
+    ID_TIME_T	starttic;
+    index_t		player;
+    size_t		numtics;
+    ticcmd_t	cmds[BACKUPTICS];
 
 } doomdata_t;
 
@@ -89,18 +89,18 @@ typedef struct doomdata_s
 struct doomcom_t
 {
     // Supposed to be DOOMCOM_ID?
-    long		id;
+    uint32		id;
     
     // DOOM executes an int to execute commands.
     short		intnum;		
     // Communication between DOOM and the driver.
     // Is CMD_SEND or CMD_GET.
-    short		command;
+	command_t	command;
     // Is dest for send, set by get (-1 = no packet).
-    short		remotenode;
+    index_t		remotenode;
     
     // Number of bytes in doomdata to be sent
-    short		datalength;
+    size_t		datalength;
 
     // Info common to all nodes.
     // Console is allways node 0.
@@ -108,17 +108,17 @@ struct doomcom_t
     // Flag: 1 = no duplication, 2-5 = dup for slow nets.
     short		ticdup;
     // Flag: 1 = send a backup tic in every packet.
-    short		extratics;
+    bool		extratics;
     // Flag: 1 = deathmatch.
-    short		deathmatch;
+    bool		deathmatch;
     // Flag: -1 = new game, 0-5 = load savegame
-    short		savegame;
-    short		episode;	// 1-3
-    short		map;		// 1-9
+    index_t		savegame;
+	index_t		episode;	// 1-3
+	index_t		map;		// 1-9
     short		skill;		// 1-5
 
     // Info specific to this node.
-    short		consoleplayer;
+    index_t		consoleplayer;
 	size_t		numplayers;
     
     // These are related to the 3-display mode,
@@ -136,6 +136,14 @@ struct doomcom_t
     
 } ;
 
+struct netNode_s
+{
+	ID_TIME_T   nettics;
+	bool		nodeingame;		// set false as nodes leave game
+	bool		remoteresend;	// set when local needs tics
+	ID_TIME_T	resendto;		// set when remote needs tics
+	size_t		resendcount;
+};
 
 class idUserCmdMgr;
 
@@ -144,10 +152,10 @@ void NetUpdate ( idUserCmdMgr * userCmdMgr );
 
 // Broadcasts special packets to other players
 //  to notify of game exit
-void D_QuitNetGame (void);
+void D_QuitNetGame ();
 
 //? how many ticks to run?
-bool TryRunTics (void);
+bool TryRunTics ();
 
 
 #endif

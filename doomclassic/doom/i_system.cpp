@@ -30,11 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "doomdef.h"
 #include "m_misc.h"
@@ -56,13 +56,13 @@ If you have questions concerning this license or the applicable additional terms
 constexpr size_t MSG_SIZE = 1024;
 constexpr size_t ERROR_MSG_SIZE = 1024;
 
-ticcmd_t*	I_BaseTiccmd(void)
+ticcmd_t*	I_BaseTiccmd()
 {
     return &::g->emptycmd;
 }
 
 
-static int  I_GetHeapSize (void)
+static int  I_GetHeapSize ()
 {
     return ::g->mb_used*1024*1024;
 }
@@ -72,7 +72,7 @@ static int  I_GetHeapSize (void)
 // I_GetTime
 // returns time in 1/70th second tics
 //
-int  I_GetTime (void)
+ID_TIME_T  I_GetTime ()
 {
 	return ::g->current_time;
 }
@@ -87,7 +87,7 @@ static void I_SetTime( ID_TIME_T time_in )
 //
 // I_Init
 //
-void I_Init (void)
+void I_Init ()
 {
     I_InitSound();
     //  I_InitGraphics();
@@ -96,7 +96,7 @@ void I_Init (void)
 //
 // I_Quit
 //
-void I_Quit (void)
+void I_Quit ()
 {
     D_QuitNetGame ();
     I_ShutdownSound();
@@ -109,17 +109,17 @@ void I_Quit (void)
 //	throw;
 }
 
-void I_WaitVBL(int count)
+void I_WaitVBL(const ID_TIME_T count)
 {
 	// PS3 fixme
 	//Sleep(0);
 }
 
-void I_BeginRead(void)
+void I_BeginRead()
 {
 }
 
-void I_EndRead(void)
+void I_EndRead()
 {
 }
 
@@ -161,6 +161,28 @@ void I_PrintfE(const char* msg, ...)
 	}
 }
 
+void I_Warning(const char* warning, ...)
+{
+	char warning_msg[ERROR_MSG_SIZE] = {};
+	va_list	argptr = {};
+
+	// Message first.
+	if (debugOutput) {
+		va_start(argptr, warning);
+		idStr::vsnPrintf(warning_msg, ERROR_MSG_SIZE, warning, argptr);
+
+		safeOutputDebug("Warning: ");
+		safeOutputDebug(warning_msg);
+		safeOutputDebug("\n");
+
+		va_end(argptr);
+	}
+
+	// CRASH DUMP - enable this to get extra info on error from crash dumps
+	//*(int*)0x0 = 21;
+	idLib::Warning("DOOM Classic warning: %s", warning_msg);
+}
+
 void I_Error(const char *error, ...)
 {
 	char error_msg[ERROR_MSG_SIZE] = {};
@@ -181,7 +203,7 @@ void I_Error(const char *error, ...)
 	// CRASH DUMP - enable this to get extra info on error from crash dumps
 	//*(int*)0x0 = 21;
 	DoomLib::Interface.QuitCurrentGame();
-	idLib::Printf( "DOOM Classic error: %s", error_msg );
+	idLib::Warning( "DOOM Classic error: %s", error_msg );
 	common->SwitchToGame( DOOM3_BFG );
 }
 

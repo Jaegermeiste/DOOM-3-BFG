@@ -123,7 +123,7 @@ void R_DrawColumn ( lighttable_t * dc_colormap,
 		{
 			// Re-map color indices from wall texture column
 			//  using a lighting/special effects LUT.
-			const int truncated1 = frac >> FRACBITS;
+			const int truncated1 = frac;
 			const int wrapped1 = truncated1 & 127;
 
 			*dest = dc_colormap[dc_source[wrapped1]];
@@ -139,7 +139,7 @@ void R_DrawColumn ( lighttable_t * dc_colormap,
 // UNUSED.
 // Loop unrolled.
 #if 0
-void R_DrawColumn (void) 
+void R_DrawColumn () 
 { 
 	int			count; 
 	byte*		source;
@@ -443,7 +443,7 @@ void R_DrawTranslatedColumn ( lighttable_t * dc_colormap,
 // Assumes a given structure of the PLAYPAL.
 // Could be read from a lump instead.
 //
-void R_InitTranslationTables (void)
+void R_InitTranslationTables ()
 {
 	size_t		i = 0;
 
@@ -549,7 +549,7 @@ void R_DrawSpan ( fixed_t xfrac,
 // UNUSED.
 // Loop unrolled by 4.
 #if 0
-void R_DrawSpan (void) 
+void R_DrawSpan () 
 { 
 	unsigned	position, step;
 
@@ -721,7 +721,7 @@ R_InitBuffer
 //  for variable screen sizes
 // Also draws a beveled edge.
 //
-void R_FillBackScreen (void) 
+void R_FillBackScreen () 
 { 
 	byte*		src = nullptr;
 	byte*		dest = nullptr; 
@@ -828,7 +828,7 @@ V_MarkRect
 	const std::integral auto		width,
 	const std::integral auto		height);
 
-void R_DrawViewBorder (void) 
+void R_DrawViewBorder () 
 { 
 	int		top;
 	int		side;

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __P_PSPR__
 #define __P_PSPR__
 
+#pragma once
+
 // Basic data types.
 // Needs fixed point, and BAM angles.
 #include "m_fixed.h"
@@ -63,7 +65,7 @@ If you have questions concerning this license or the applicable additional terms
 // drawn directly on the view screen,
 // coordinates are given for a 320*200 view screen.
 //
-typedef enum
+typedef enum psprnum_e : uint8
 {
     ps_weapon,
     ps_flash,
@@ -71,10 +73,10 @@ typedef enum
 
 } psprnum_t;
 
-typedef struct
+typedef struct pspdef_s
 {
     const state_t*	state;	// a NULL state means not active
-    int		tics;
+    ID_TIME_T		tics;
     fixed_t	sx;
     fixed_t	sy;
 

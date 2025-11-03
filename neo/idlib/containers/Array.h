@@ -70,7 +70,14 @@ public:
 
 	// returns a pointer to the list
 	[[nodiscard]] const T_ *		Ptr() const { return ptr; }
-	T_ *			Ptr() { return ptr; }
+	[[nodiscard]] T_ *  			Ptr() { return ptr; }
+
+	constexpr       T_* begin()  noexcept { return ptr; }
+	constexpr       T_* end()    noexcept { return ptr + numElements; }
+	constexpr const T_* begin()  const noexcept { return ptr; }
+	constexpr const T_* end()    const noexcept { return ptr + numElements; }
+	constexpr const T_* cbegin() const noexcept { return begin(); }
+	constexpr const T_* cend()   const noexcept { return end(); }
 
 private:
 	T_				ptr[numElements];

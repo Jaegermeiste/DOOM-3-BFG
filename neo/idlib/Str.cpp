@@ -136,41 +136,47 @@ void idStr::FreeData() {
 idStr::operator=
 ============
 */
-void idStr::operator=( const char *text ) {
-	if ( !text ) {
-		// safe behavior if NULL
-		EnsureAlloced( 1, false );
-		data[ 0 ] = '\0';
-		len = 0;
-		return;
+idStr& idStr::operator=( const StringLike auto &text ) {
+	// Self-assignment check
+	if (safe_equal(this, text)) {
+		return *this;
 	}
 
-	if ( text == data ) {
-		return; // copying same thing
+	if (safe_equal(text, data)) {
+		return *this; // copying same thing
 	}
 
-	// check if we're aliasing
-	if ( text >= data && text <= data + len ) {
-		size_t i = 0;
-		const size_t diff = text - data;
+	using U = std::remove_cvref_t<decltype(text)>;
 
-		assert( strlen( text ) < (unsigned)len );
+	char string_buffer[MAX_STRING_CHARS] = {};
 
-		for ( i = 0; text[ i ]; i++ ) {
-			data[ i ] = text[ i ];
-		}
+	this->CopyToData(idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
 
-		data[ i ] = '\0';
+	current_type = std::type_index(typeid(U));
 
-		len -= diff;
+	return *this;
+}
 
-		return;
+idStr& idStr::operator=( const FormattableNoStrings auto &value ) {
+	// Self-assignment check
+	if (safe_equal(this, value)) {
+		return *this;
 	}
 
-	const size_t l = strlen(text);
-	EnsureAlloced( l + 1, false );
-	strcpy( data, text );
-	len = l;
+	if (safe_equal(value, data)) {
+		return *this; // copying same thing
+	}
+	using U = std::remove_cvref_t<decltype(value)>;
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	this->CopyToData(idStr::ToCString(value, string_buffer, sizeof(string_buffer)));
+
+	current_type = std::type_index(typeid(U));
+
+	return *this;
+
+	qboolean temp;
 }
 
 /*
@@ -1289,15 +1295,13 @@ T idStr::AtoI(const char* str) noexcept {
 		{
 			return T(0);
 		}
-		const unsigned long long umax =
-			numeric_cast<unsigned long long>((std::numeric_limits<T>::max)());
+		const unsigned long long umax = static_cast<unsigned long long>((std::numeric_limits<T>::max)());
 		return (u > umax) ? (std::numeric_limits<T>::max)() : static_cast<T>(u);
 	}
 	else {
 		// Signed targets:
 		// Let Tmax = max(T), TminAbs = |min(T)| = Tmax + 1 (two's complement).
-		constexpr unsigned long long tmax_u64 =
-			static_cast<unsigned long long>((std::numeric_limits<T>::max)());
+		constexpr unsigned long long tmax_u64 = static_cast<unsigned long long>((std::numeric_limits<T>::max)());
 		constexpr unsigned long long tmin_abs_u64 = tmax_u64 + 1ULL; // |min|
 
 		if (neg) {
@@ -1319,6 +1323,169 @@ T idStr::AtoI(const char* str) noexcept {
 			return static_cast<T>(s64);
 		}
 	}
+}
+
+template <typename E> requires std::is_enum_v<E>
+E idStr::GetEnum( const E fallback ) const noexcept
+{
+	static_assert(std::is_enum_v<E>, "E must be an enum");
+	if ((len == 0) || !data)
+	{
+		return fallback;
+	}
+
+	if (original_type != std::type_index(typeid(E)))
+	{
+		return fallback;
+	}
+
+	std::string_view sv{ data };
+	const size_t pos = sv.find("::");
+	if (pos != std::string_view::npos)
+	{
+		sv.remove_prefix(pos + 2); // strip "Type::" if present
+	}
+
+	if (auto e = magic_enum::enum_cast<E>(sv))
+	{
+		return *e;
+	}
+
+	return fallback;
+}
+
+template < typename T >
+	requires (StringLikeOrEnum< T > || Formattable< T>)
+const char* idStr::ToCString(const T& value, char* string_out, const size_t buffer_length, const EnumNameOptions options) noexcept
+{
+	if (safe_equal(value, nullptr)) {
+		idLib::common->Warning("idStr::ToCString: NULL value");
+		return nullptr;
+	}
+	if (safe_equal(string_out, nullptr)) {
+		idLib::common->Warning("idStr::ToCString: NULL string_out");
+		return nullptr;
+	}
+	if (buffer_length < 1) {
+		idLib::common->Warning("idStr::ToCString: buffer_length < 1");
+		return nullptr;
+	}
+
+	using U = std::remove_cvref_t<decltype(value)>;
+
+	if constexpr (std::same_as<U, idStr>) {
+		Copynz(string_out, value.data, Min(value.len + 1, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::same_as<U, const char*> || std::same_as<U, char*>) {
+		Copynz(string_out, value, Min(strlen(value) + 1, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::convertible_to<U, const char*>) {
+		const char* text_chars = static_cast<const char*>(value);
+		Copynz(string_out, text_chars, Min(strlen(text_chars) + 1, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::is_array_v<U> && std::is_same_v<std::remove_cv_t<std::remove_extent_t<U>>, char>) {
+		const char* text_chars = static_cast<const char*>(value);
+		const size_t array_length = std::extent_v<decltype(value)>;
+		Copynz(string_out, text_chars, Min(Min(array_length, strlen(text_chars)) + 1, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::is_enum_v<U>) {
+		// magic_enum::enum_name handles both regular enums and flags if you've marked
+		// your enum as flags via magic_enum::customize::enum_range<E>::is_flags = true.
+		const std::string_view bare = magic_enum::enum_name(value);
+		if (bare.empty() && !options.allow_empty) {
+			Copynz(string_out, STR_UNKNOWN_ENUM, Min(strlen(STR_UNKNOWN_ENUM) + 1, buffer_length));
+			return string_out;
+		}
+
+		const std::string_view type_name = magic_enum::enum_type_name<U>();
+
+		size_t k = 0;
+
+		const auto put_char = [&](char c) {
+			if (k + 1 < buffer_length)
+			{
+				string_out[k++] = c;
+			}
+			};
+
+		const auto put_sv = [&](std::string_view sv) {
+			const size_t n = (buffer_length > k) ? Min(sv.size(), (buffer_length - 1) - k) : 0;
+			if (n) { std::memcpy(string_out + k, sv.data(), n); k += n; }
+			};
+
+		if (options.qualified) {
+			put_sv(type_name);
+			put_char(':'); put_char(':');
+		}
+
+		put_sv(bare);
+
+		if (buffer_length > 0)
+		{
+			string_out[k] = '\0';
+		}
+
+		return string_out;
+	}
+	else if constexpr (std::same_as<U, std::string>) {
+		Copynz(string_out, value.c_str(), Min(value.length() + 1, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::same_as<U, std::string_view>) {
+		std::string tmp(value);             // copy ensures null terminator
+		Copynz(string_out, tmp.c_str(), Min(tmp.length() + 1, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::is_same_v<U, qboolean>) {
+		Copynz(string_out, value.c_str(), Min(strlen(value.c_str()), buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::is_same_v<U, bool>) {
+		Copynz(string_out, value ? '1' : '0', Min(2, buffer_length));
+		return string_out;
+	}
+	else if constexpr (std::is_integral_v<U>) {
+		return std::format("{}", value);
+	}
+	else if constexpr (std::is_floating_point_v<U>) {
+		constexpr int precision = std::numeric_limits<T>::max_digits10;
+
+		// Step 1: Format in fixed-point with full precision, std::format is locale-independent => '.' is always the decimal separator here.
+		std::string tmp = std::format("{:.{}f}", value, precision);
+
+		// Step 2: Trim trailing zeros
+		tmp.erase(std::find_if(tmp.rbegin(), tmp.rend(), [](const unsigned char ch) { return ch != '0'; }).base(), tmp.end());
+
+		// Step 3: Remove dangling decimal point(s)
+		while (!tmp.empty() && tmp.back() == '.')
+		{
+			tmp.pop_back();
+		}
+
+		// Step 4: Preserve "0.0" form for zero
+		if (tmp.empty() || static_cast<T>(0))
+		{
+			tmp = "0.0";
+		}
+
+		// Step 5: If there's no decimal point left (i.e., now it's an integer value), append ".0"
+		if (tmp.find('.') == std::string::npos)
+		{
+			tmp += ".0";
+		}
+
+		Copynz(string_out, tmp.c_str(), Min(tmp.length() + 1, buffer_length));
+		return string_out;
+	}
+	else {
+		static_assert(!sizeof(U), "ToCString matched an unsupported case.");
+	}
+
+	return nullptr;
 }
 
 /*
@@ -2069,7 +2236,7 @@ index_t idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
 	char buffer[32000] = {};	// big, but small enough to fit in PPC stack
 
 	va_start( argptr, fmt );
-	index_t len = vsprintf(buffer, fmt, argptr);
+	index_t len = vsnPrintf(buffer, sizeof(buffer), fmt, argptr);
 	va_end( argptr );
 	if ( numeric_cast<size_t>(len) >= sizeof( buffer ) ) {
 		idLib::common->Error( "idStr::snPrintf: overflowed buffer" );
@@ -2111,9 +2278,11 @@ int64 idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, const va
 	const int64 ret = _vsnprintf(dest, buffer_count, fmt, argptr);
 #define _vsnprintf	use_idStr_vsnPrintf
 	dest[buffer_count] = '\0';
+
 	if ( ret < 0 || std::cmp_greater_equal(ret, size)) {
 		return -1;
 	}
+
 	return ret;
 }
 
@@ -2155,23 +2324,71 @@ int64 vsprintf( idStr &string, const char *fmt, const va_list argptr ) {
 }
 
 /*
+================
+idStr::CopyToData
+================
+*/
+size_t idStr::CopyToData(const char* text, const size_t textLength)
+{
+	if (text == nullptr) {
+		// safe behavior if NULL
+		EnsureAlloced(1, false);
+		data[0] = '\0';
+		len = 0;
+		return len;
+	}
+
+	size_t l = strlen(text);
+
+	if (textLength > 0)
+	{
+		l = Min(strlen(text), textLength);
+	}
+
+	// check if we're aliasing
+	if (text >= data && text <= data + len) {
+		size_t i = 0;
+		const size_t diff = text - data;
+
+		assert(l < len);
+
+		for (i = 0; text[i]; i++) {
+			data[i] = text[i];
+		}
+
+		data[i] = '\0';
+
+		len -= diff;
+
+		return len;
+	}
+
+	EnsureAlloced(l + 1, false);
+
+	Copynz(data, text, l + 1);
+
+	len = l;
+
+	return len;
+}
+
+/*
 ============
 va
 
 does a varargs printf into a temp buffer
-NOTE: not thread safe
 ============
 */
 char *va( const char *fmt, ... ) {
-	va_list argptr = nullptr;
-	static index_t index = 0;
-	static char string[4][16384];	// in case called by nested functions
+	thread_local va_list argptr = nullptr;
+	thread_local static index_t index = 0;
+	thread_local static char string[4][16384];	// in case called by nested functions
 
-	char* buf = string[index];
+	thread_local char* buf = string[index];
 	index = (index + 1) & 3;
 
 	va_start( argptr, fmt );
-	vsprintf( buf, fmt, argptr );
+	std::ignore = vsprintf( buf, fmt, argptr );
 	va_end( argptr );
 
 	return buf;

@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // MISC
 //
-extern  int	myargc;
+extern  size_t	myargc;
 extern  char**	myargv;
 
 // Returns the position of the given parameter

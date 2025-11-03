@@ -105,9 +105,9 @@ will point into this temporary buffer.
 ============
 */
 void idCmdArgs::TokenizeString( const char *text, bool keepAsStrings ) {
-	idLexer		lex;
-	idToken		token, number;
-	size_t		len, totalLen;
+	idLexer		lex = {};
+	idToken		token = {}, number = {};
+	size_t		len = 0, totalLen = 0;
 
 	// clear previous args
 	argc = 0;

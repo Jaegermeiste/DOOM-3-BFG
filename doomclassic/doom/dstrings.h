@@ -37,20 +37,19 @@ If you have questions concerning this license or the applicable additional terms
 #include "d_englsh.h"
 
 // Misc. other strings.
-#define SAVEGAMENAME	"doomsav"
-
+constexpr auto SAVEGAMENAME = "doomsav";
 
 //
 // File locations,
 //  relative to current position.
 // Path names are OS-sensitive.
 //
-#define DEVMAPS "devmaps"
-#define DEVDATA "devdata"
+constexpr auto DEVMAPS = "devmaps";
+constexpr auto DEVDATA = "devdata";
 
 
 // QuitDOOM messages
-#define NUM_QUITMESSAGES   22
+constexpr size_t NUM_QUITMESSAGES = 22;
 
 extern const char* endmsg[];
 

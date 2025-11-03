@@ -130,7 +130,7 @@ class idReachability_Fly : public idReachability {
 
 class idReachability_Special : public idReachability {
 public:
-	idDict						dict;
+	idDict<>					dict;
 };
 
 // index
@@ -251,7 +251,7 @@ public:
 
 	bool						FromFile( const idStr &fileName );
 	bool						FromParser( idLexer &src );
-	bool						FromDict( const char *name, const idDict *dict );
+	bool						FromDict( const char *name, const idDict<> *dict );
 	bool						WriteToFile( idFile *fp ) const;
 	[[nodiscard]] bool			ValidForBounds( const idBounds &bounds ) const;
 	bool						ValidEntity( const char *classname ) const;

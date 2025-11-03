@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 
-#include <ctype.h>
+#include <cctype>
+
+#include <utility>
 
 #include "doomdef.h"
 
@@ -56,9 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 
-
-extern const char* const temp_chat_macros[];
-const char*	const temp_chat_macros[] =
+static constexpr const char* temp_chat_macros[] =
 {
 	HUSTR_CHATMACRO0,
 	HUSTR_CHATMACRO1,
@@ -72,8 +72,7 @@ const char*	const temp_chat_macros[] =
 	HUSTR_CHATMACRO9
 };
 
-extern const char* const player_names[];
-const char*	const player_names[] =
+static constexpr const char* player_names[] =
 {
 	HUSTR_PLRGREEN,
 	HUSTR_PLRINDIGO,
@@ -83,19 +82,14 @@ const char*	const player_names[] =
 
 
 
-
-
-
-
 //
 // Builtin map names.
 // The actual names can be found in DStrings.h.
 //
 
-static const char*	mapnames[] =
+static constexpr const char*	mapnames[] =
 {
-
-	HUSTR_E1M1,
+	    HUSTR_E1M1,
 		HUSTR_E1M2,
 		HUSTR_E1M3,
 		HUSTR_E1M4,
@@ -146,9 +140,9 @@ static const char*	mapnames[] =
 		"NEWLEVEL"
 };
 
-static const char*	mapnames2[] =
+static constexpr const char*	mapnames2[] =
 {
-	HUSTR_1,
+	    HUSTR_1,
 		HUSTR_2,
 		HUSTR_3,
 		HUSTR_4,
@@ -187,9 +181,9 @@ static const char*	mapnames2[] =
 };
 
 
-static const char*	mapnamesp[] =
+static constexpr const char*	mapnamesp[] =
 {
-	PHUSTR_1,
+	    PHUSTR_1,
 		PHUSTR_2,
 		PHUSTR_3,
 		PHUSTR_4,
@@ -226,9 +220,9 @@ static const char*	mapnamesp[] =
 };
 
 	// TNT WAD map names.
-static const char *mapnamest[] =
+static constexpr const char *mapnamest[] =
 {
-	THUSTR_1,
+	    THUSTR_1,
 		THUSTR_2,
 		THUSTR_3,
 		THUSTR_4,
@@ -267,10 +261,10 @@ static const char *mapnamest[] =
 
 static const char*	shiftxform;
 
-const char english_shiftxform[] =
+constexpr const char english_shiftxform[] =
 {
 
-	0,
+	    0,
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 		11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 		21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
@@ -309,40 +303,35 @@ const char english_shiftxform[] =
 		'{', '|', '}', '~', 127
 };
 
-static char ForeignTranslation(const unsigned char ch)
+static unsigned char ForeignTranslation(const unsigned char ch)
 {
 	return ch;
 }
 
-void HU_Init(void)
+void HU_Init()
 {
-
-	int		i;
-	int		j;
-	char	buffer[9];
+	char	buffer[128] = {};
 
 	shiftxform = english_shiftxform;
 
 	// load the heads-up font
-	j = HU_FONTSTART;
-	for (i=0;i<HU_FONTSIZE;i++)
+	index_t j = HU_FONTSTART;
+	for (auto& i : ::g->hu_font)
 	{
-		sprintf(buffer, "STCFN%.3d", j++);
-		::g->hu_font[i] = static_cast<patch_t*>(W_CacheLumpName(buffer, PU_STATIC_SHARED));
-	}
+		idStr::snPrintf(buffer, sizeof(buffer), "STCFN%.3lld", j++);
 
+		i = static_cast<patch_t*>(W_CacheLumpName(buffer, PU_STATIC_SHARED));
+	}
 }
 
-static void HU_Stop(void)
+static void HU_Stop()
 {
 	::g->headsupactive = false;
 }
 
-void HU_Start(void)
+void HU_Start()
 {
-
-	int		i;
-	const char*	s;
+	const char*	s = nullptr;
 
 	if (::g->headsupactive)
 	{
@@ -374,10 +363,13 @@ void HU_Start(void)
 	case retail:
 		s = HU_TITLE;
 		break;
+	case indetermined:
+		s = nullptr;
+		break;
 	case commercial:
 	default:
 		if( DoomLib::expansionSelected == 5 ) {
-			int map = ::g->gamemap;
+			index_t map = ::g->gamemap;
 			if( ::g->gamemap > 9 ) {
 				map = 0;
 			} 
@@ -403,39 +395,38 @@ void HU_Start(void)
 		HU_FONTSTART, &::g->chat_on);
 
 	// create the inputbuffer widgets
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	for (auto& i : ::g->w_inputbuffer)
 	{
-		HUlib_initIText(&::g->w_inputbuffer[i], 0, 0, nullptr, 0, &::g->always_off);
+		HUlib_initIText(&i, 0, 0, nullptr, 0, &::g->always_off);
 	}
 
 	::g->headsupactive = true;
 
 }
 
-void HU_Drawer(void)
+void HU_Drawer()
 {
-
 	HUlib_drawSText(&::g->w_message);
 	HUlib_drawIText(&::g->w_chat);
+
 	if (::g->automapactive)
 	{
 		HUlib_drawTextLine(&::g->w_title, false);
 	}
 }
 
-void HU_Erase(void)
+void HU_Erase()
 {
-
 	HUlib_eraseSText(&::g->w_message);
 	HUlib_eraseIText(&::g->w_chat);
 	HUlib_eraseTextLine(&::g->w_title);
 
 }
 
-void HU_Ticker(void)
+void HU_Ticker()
 {
 	// tick down message counter if message is up
-	if (::g->message_counter && !--::g->message_counter)
+	if (::g->message_counter && !(::g->message_counter -= 1))
 	{
 		::g->message_on = false;
 		::g->message_nottobefuckedwith = false;
@@ -460,27 +451,27 @@ void HU_Ticker(void)
 }
 
 
-static void HU_queueChatChar(const char c)
+static void HU_queueChatChar(const unsigned char c)
 {
-	if (((::g->head + 1) & (QUEUESIZE-1)) == ::g->tail)
+	if (((::g->head + 1) & (QUEUESIZE - 1)) == ::g->tail)
 	{
 		::g->plr->message = HUSTR_MSGU;
 	}
 	else
 	{
 		::g->chatchars[::g->head] = c;
-		::g->head = (::g->head + 1) & (QUEUESIZE-1);
+		::g->head = numeric_cast<index_t>((::g->head + 1) & (QUEUESIZE - 1));
 	}
 }
 
-char HU_dequeueChatChar(void)
+unsigned char HU_dequeueChatChar()
 {
-	char c;
+	unsigned char c = 0;
 
 	if (::g->head != ::g->tail)
 	{
 		c = ::g->chatchars[::g->tail];
-		::g->tail = (::g->tail + 1) & (QUEUESIZE-1);
+		::g->tail = numeric_cast<index_t>((::g->tail + 1) & (QUEUESIZE - 1));
 	}
 	else
 	{
@@ -490,162 +481,165 @@ char HU_dequeueChatChar(void)
 	return c;
 }
 
-qboolean HU_Responder(event_t *ev)
+bool HU_Responder(event_t *ev)
 {
+	bool		eatkey = false;
 
-	const char*		macromessage;
-	qboolean		eatkey = false;
-	unsigned char 	c;
-	int			i;
-	int			numplayers;
-
-	const static char		destination_keys[MAXPLAYERS] =
+	if (ev)
 	{
-		HUSTR_KEYGREEN,
+		const char* macromessage = nullptr;
+		size_t			i = 0;
+
+		static constexpr char destination_keys[MAXPLAYERS] =
+		{
+			HUSTR_KEYGREEN,
 			HUSTR_KEYINDIGO,
 			HUSTR_KEYBROWN,
 			HUSTR_KEYRED
-	};
+		};
 
 
-	numplayers = 0;
-	for (i=0 ; i<MAXPLAYERS ; i++)
-	{
-		numplayers += ::g->playeringame[i];
-	}
-
-	if (ev->data1 == KEY_RSHIFT)
-	{
-		::g->shiftdown = ev->type == ev_keydown;
-		return false;
-	}
-	else if (ev->data1 == KEY_RALT || ev->data1 == KEY_LALT)
-	{
-		::g->altdown = ev->type == ev_keydown;
-		return false;
-	}
-
-	if (ev->type != ev_keydown)
-	{
-		return false;
-	}
-
-	if (!::g->chat_on)
-	{
-		if (ev->data1 == HU_MSGREFRESH)
+		size_t numplayers = 0;
+		for (const auto& player : ::g->players)
 		{
-			::g->message_on = true;
-			::g->message_counter = HU_MSGTIMEOUT;
-			eatkey = true;
+			numplayers += player.playerInGame;
 		}
-		else if (::g->netgame && ev->data1 == HU_INPUTTOGGLE)
+
+		if (ev->data1 == KEY_RSHIFT)
 		{
-			eatkey = ::g->chat_on = true;
-			HUlib_resetIText(&::g->w_chat);
-			HU_queueChatChar(HU_BROADCAST);
+			::g->shiftdown = ev->type == ev_keydown;
+			return false;
 		}
-		else if (::g->netgame && numplayers > 2)
+		else if (ev->data1 == KEY_RALT || ev->data1 == KEY_LALT)
 		{
-			for (i=0; i<MAXPLAYERS ; i++)
+			::g->altdown = ev->type == ev_keydown;
+			return false;
+		}
+
+		if (ev->type != ev_keydown)
+		{
+			return false;
+		}
+
+		if (!::g->chat_on)
+		{
+			if (ev->data1 == HU_MSGREFRESH)
 			{
-				if (ev->data1 == destination_keys[i])
+				::g->message_on = true;
+				::g->message_counter = HU_MSGTIMEOUT;
+				eatkey = true;
+			}
+			else if (::g->netgame && ev->data1 == HU_INPUTTOGGLE)
+			{
+				eatkey = ::g->chat_on = true;
+				HUlib_resetIText(&::g->w_chat);
+				HU_queueChatChar(HU_BROADCAST);
+			}
+			else if (::g->netgame && numplayers > 2)
+			{
+				for (const auto& player : ::g->players)
 				{
-					if (::g->playeringame[i] && i!=::g->consoleplayer)
+					if (ev->data1 == destination_keys[i])
 					{
-						eatkey = ::g->chat_on = true;
-						HUlib_resetIText(&::g->w_chat);
-						HU_queueChatChar(i+1);
-						break;
-					}
-					else if (i == ::g->consoleplayer)
-					{
-						::g->num_nobrainers++;
-						if (::g->num_nobrainers < 3)
+						if (player.playerInGame && std::not_equal_to<>()(i, ::g->consoleplayer))
 						{
-							::g->plr->message = HUSTR_TALKTOSELF1;
+							eatkey = ::g->chat_on = true;
+							HUlib_resetIText(&::g->w_chat);
+							HU_queueChatChar(numeric_cast<char>(i + 1));
+							break;
 						}
-						else if (::g->num_nobrainers < 6)
+						else if (std::cmp_equal(i, ::g->consoleplayer))
 						{
-							::g->plr->message = HUSTR_TALKTOSELF2;
-						}
-						else if (::g->num_nobrainers < 9)
-						{
-							::g->plr->message = HUSTR_TALKTOSELF3;
-						}
-						else if (::g->num_nobrainers < 32)
-						{
-							::g->plr->message = HUSTR_TALKTOSELF4;
-						}
-						else
-						{
-							::g->plr->message = HUSTR_TALKTOSELF5;
+							::g->num_nobrainers++;
+							if (::g->num_nobrainers < 3)
+							{
+								::g->plr->message = HUSTR_TALKTOSELF1;
+							}
+							else if (::g->num_nobrainers < 6)
+							{
+								::g->plr->message = HUSTR_TALKTOSELF2;
+							}
+							else if (::g->num_nobrainers < 9)
+							{
+								::g->plr->message = HUSTR_TALKTOSELF3;
+							}
+							else if (::g->num_nobrainers < 32)
+							{
+								::g->plr->message = HUSTR_TALKTOSELF4;
+							}
+							else
+							{
+								::g->plr->message = HUSTR_TALKTOSELF5;
+							}
 						}
 					}
 				}
 			}
-		}
-	}
-	else
-	{
-		c = ev->data1;
-		// send a macro
-		if (::g->altdown)
-		{
-			c = c - '0';
-			if (c > 9)
-			{
-				return false;
-			}
-			// I_PrintfE( "got here\n");
-			macromessage = temp_chat_macros[c];
-
-			// kill last message with a '\n'
-			HU_queueChatChar(KEY_ENTER); // DEBUG!!!
-
-			// send the macro message
-			while (*macromessage)
-			{
-				HU_queueChatChar(*macromessage++);
-			}
-			HU_queueChatChar(KEY_ENTER);
-
-			// leave chat mode and notify that it was sent
-			::g->chat_on = false;
-			strcpy(::g->lastmessage, temp_chat_macros[c]);
-			::g->plr->message = ::g->lastmessage;
-			eatkey = true;
 		}
 		else
 		{
-			if (::g->shiftdown || (c >= 'a' && c <= 'z'))
+			unsigned char c = numeric_cast<BASE_TYPE(c)>(ev->data1);
+			// send a macro
+			if (::g->altdown)
 			{
-				c = shiftxform[c];
-			}
-			eatkey = HUlib_keyInIText(&::g->w_chat, c);
-			if (eatkey)
-			{
-				// static unsigned char buf[20]; // DEBUG
-				HU_queueChatChar(c);
+				c = numeric_cast<BASE_TYPE(c)>(c - '0');
 
-				// sprintf(buf, "KEY: %d => %d", ev->data1, c);
-				//      ::g->plr->message = buf;
-			}
-			if (c == KEY_ENTER)
-			{
-				::g->chat_on = false;
-				if (::g->w_chat.l.len)
+				if (c > 9)
 				{
-					strcpy(::g->lastmessage, ::g->w_chat.l.l);
-					::g->plr->message = ::g->lastmessage;
+					return false;
 				}
-			}
-			else if (c == KEY_ESCAPE)
-			{
+
+				// I_PrintfE( "got here\n");
+				macromessage = temp_chat_macros[c];
+
+				// kill last message with a '\n'
+				HU_queueChatChar(KEY_ENTER); // DEBUG!!!
+
+				// send the macro message
+				while (*macromessage)
+				{
+					HU_queueChatChar(*macromessage++);
+				}
+
+				HU_queueChatChar(KEY_ENTER);
+
+				// leave chat mode and notify that it was sent
 				::g->chat_on = false;
+				strncpy_s(::g->lastmessage, temp_chat_macros[c], strlen(temp_chat_macros[c]));
+				::g->plr->message = ::g->lastmessage;
+				eatkey = true;
+			}
+			else
+			{
+				if (::g->shiftdown || (c >= 'a' && c <= 'z'))
+				{
+					c = shiftxform[c];
+				}
+				eatkey = HUlib_keyInIText(&::g->w_chat, c);
+				if (eatkey)
+				{
+					// static unsigned char buf[20]; // DEBUG
+					HU_queueChatChar(c);
+
+					// idStr::snPrintf(buf, "KEY: %d => %d", ev->data1, c);
+					//      ::g->plr->message = buf;
+				}
+				if (c == KEY_ENTER)
+				{
+					::g->chat_on = false;
+					if (::g->w_chat.l.len)
+					{
+						strncpy_s(::g->lastmessage, ::g->w_chat.l.l, strlen(::g->w_chat.l.l));
+						::g->plr->message = ::g->lastmessage;
+					}
+				}
+				else if (c == KEY_ESCAPE)
+				{
+					::g->chat_on = false;
+				}
 			}
 		}
 	}
-
 	return eatkey;
 
 }

@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 
-#include <ctype.h>
+#include <cctype>
 
 #include "doomdef.h"
 
@@ -57,7 +57,7 @@ If you have questions concerning this license or the applicable additional terms
 //  Loads and store the stminus lump.
 //
 
-void STlib_init(void)
+void STlib_init()
 {
     ::g->sttminus = static_cast<patch_t*>(W_CacheLumpName("STTMINUS", PU_STATIC_SHARED));
 }

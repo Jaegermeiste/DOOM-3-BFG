@@ -569,7 +569,7 @@ A_Punch
 	if (::g->linetarget)
 	{
 		S_StartSound (player->mo, sfx_punch);
-		player->mo->angle = R_PointToAngle2 (player->mo->x,
+		player->mo->angle = R_PointToAngle (player->mo->x,
 			player->mo->y,
 			::g->linetarget->x,
 			::g->linetarget->y);
@@ -611,7 +611,7 @@ A_Saw
 	}
 
 	// turn to face target
-	angle = R_PointToAngle2 (player->mo->x, player->mo->y,
+	angle = R_PointToAngle (player->mo->x, player->mo->y,
 		::g->linetarget->x, ::g->linetarget->y);
 	if (angle - player->mo->angle > ANG180)
 	{

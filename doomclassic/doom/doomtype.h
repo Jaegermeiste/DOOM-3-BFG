@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define false 0
 //#define true 1
-typedef bool qboolean;
+//typedef bool qboolean;
 
 
 
@@ -43,4 +43,4 @@ typedef float FLOAT;
 
 
 
-#endif
+#endif // __DOOMTYPE__

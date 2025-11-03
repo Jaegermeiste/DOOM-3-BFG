@@ -60,11 +60,10 @@ extern	bool	usegamma;
 
 
 // Allocates buffer screens, call before R_Init.
-void V_Init (void);
+void V_Init ();
 
 
-void
-V_CopyRect
+void V_CopyRect
 (   std::integral auto		srcx,
 	std::integral auto		srcy,
     const index_t		srcscrn,

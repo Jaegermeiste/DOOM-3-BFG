@@ -75,7 +75,7 @@ public:
 	virtual void				DrawCursor() = 0;
 
 								// Provides read access to the idDict that holds this gui's state.
-	[[nodiscard]] virtual const idDict &		State() const = 0;
+	[[nodiscard]] virtual const idDict<> &		State() const = 0;
 
 								// Removes a gui state variable
 	virtual void				DeleteStateVar( const char *varName ) = 0;

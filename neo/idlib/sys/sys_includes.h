@@ -131,6 +131,9 @@ If you have questions concerning this license or the applicable additional terms
 #include <utility>
 #include <locale>
 #include <codecvt>
+#include <functional>
+#include <typeindex>
+
 
 #include "magic_enum/magic_enum.hpp"
 //-----------------------------------------------------

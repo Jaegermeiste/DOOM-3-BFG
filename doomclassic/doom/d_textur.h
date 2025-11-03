@@ -29,20 +29,21 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_TEXTUR__
 #define __D_TEXTUR__
 
+#pragma once
+
 #include "doomtype.h"
-
-
+#include "typedefs.h"
 
 
 //
 // Flats?
 //
 // a pic is an unmasked block of pixels
-typedef struct
+typedef struct pic_s
 {
-    byte		width;
-    byte		height;
-    byte		data;
+    size_t	width;
+    size_t	height;
+    byte	data;
 } pic_t;
 
 

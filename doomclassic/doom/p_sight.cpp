@@ -51,63 +51,59 @@ If you have questions concerning this license or the applicable additional terms
 // P_DivlineSide
 // Returns side 0 (front), 1 (back), or 2 (on).
 //
-static int
-P_DivlineSide
-(const fixed_t	x,
-  const fixed_t	y,
-  divline_t*	node )
+static int8 P_DivlineSide ( const fixed_t x, const fixed_t y, const divline_t* node )
 {
-    fixed_t	dx;
-    fixed_t	dy;
-    fixed_t	left;
-    fixed_t	right;
-
-    if (!node->dx)
-    {
-	if (x==node->x)
+	if (node)
 	{
-		return 2;
+		if (!node->dx)
+		{
+			if (x == node->x)
+			{
+				return 2;
+			}
+
+			if (x <= node->x)
+			{
+				return static_cast<int8>(node->dy > 0);
+			}
+
+			return static_cast<int8>(node->dy < 0);
+		}
+
+		if (!node->dy)
+		{
+			if (x == node->y)
+			{
+				return 2;
+			}
+
+			if (y <= node->y)
+			{
+				return static_cast<int8>(node->dx < 0);
+			}
+
+			return static_cast<int8>(node->dx > 0);
+		}
+
+		const fixed_t dx = (x - node->x);
+		const fixed_t dy = (y - node->y);
+
+		const fixed_t left = (node->dy) * (dx);
+		const fixed_t right = (dy) * (node->dx);
+
+		if (right < left)
+		{
+			return 0; // front side
+		}
+
+		if (left == right)
+		{
+			return 2;
+		}
+		return 1;		// back side
 	}
 
-	if (x <= node->x)
-	{
-		return node->dy > 0;
-	}
-
-	return node->dy < 0;
-    }
-    
-    if (!node->dy)
-    {
-	if (x==node->y)
-	{
-		return 2;
-	}
-
-	if (y <= node->y)
-	{
-		return node->dx < 0;
-	}
-
-	return node->dx > 0;
-    }
-	
-    dx = (x - node->x);
-    dy = (y - node->y);
-
-    left =  (node->dy>>FRACBITS) * (dx>>FRACBITS);
-    right = (dy>>FRACBITS) * (node->dx>>FRACBITS);
-	
-    if (right < left)
-    {
-	    return 0; // front side
-    }
-
-    if (left == right)
-    {
-	    return 2;
-    }
-    return 1;		// back side
+	return -1;
 }
 
 
@@ -126,7 +122,7 @@ P_InterceptVector2
     fixed_t	num;
     fixed_t	den;
 	
-    den = FixedMul (v1->dy>>8,v2->dx) - FixedMul(v1->dx>>8,v2->dy);
+    den = ((v1->dy>>8) * v2->dx) - ((v1->dx>>8) * v2->dy);
 
     if (den == 0)
     {
@@ -134,9 +130,9 @@ P_InterceptVector2
     }
     //	I_Error ("P_InterceptVector: parallel");
     
-    num = FixedMul ( (v1->x - v2->x)>>8 ,v1->dy) + 
-	FixedMul ( (v2->y - v1->y)>>8 , v1->dx);
-    frac = FixedDiv (num , den);
+    num = (((v1->x - v2->x)>>8) * v1->dy) + 
+			(((v2->y - v1->y)>>8) * v1->dx);
+    frac = (num / den);
 
     return frac;
 }
@@ -146,7 +142,7 @@ P_InterceptVector2
 // Returns true
 //  if ::g->strace crosses the given subsector successfully.
 //
-static qboolean P_CrossSubsector (size_t num)
+static bool P_CrossSubsector (size_t num)
 {
     seg_t*		seg;
     line_t*		line;
@@ -165,11 +161,11 @@ static qboolean P_CrossSubsector (size_t num)
     fixed_t		slope;
 	
 #ifdef RANGECHECK
-    if (num>=::g->numsubsectors)
+    if (num >=::g->subsectors.Num())
     {
 	    I_Error ("P_CrossSubsector: ss %i with numss = %i",
 	             num,
-	             ::g->numsubsectors);
+	             ::g->subsectors.Num());
     }
 #endif
 
@@ -264,13 +260,13 @@ static qboolean P_CrossSubsector (size_t num)
 		
 	if (front->floorheight != back->floorheight)
 	{
-	    slope = FixedDiv (psight_openbottom - ::g->sightzstart , frac);
+	    slope = ((psight_openbottom - ::g->sightzstart) / frac);
 	    ::g->bottomslope = Max(slope, ::g->bottomslope);
 	}
 		
 	if (front->ceilingheight != back->ceilingheight)
 	{
-	    slope = FixedDiv (psight_opentop - ::g->sightzstart , frac);
+	    slope = ((psight_opentop - ::g->sightzstart) / frac);
 	    ::g->topslope = Min(slope, ::g->topslope);
 	}
 		
@@ -290,47 +286,44 @@ static qboolean P_CrossSubsector (size_t num)
 // Returns true
 //  if ::g->strace crosses the given node successfully.
 //
-static qboolean P_CrossBSPNode (const int bspnum)
+static bool P_CrossBSPNode( const index_t bspnum )
 {
-    node_t*	bsp;
-    int		side;
-
-    if (bspnum & NF_SUBSECTOR)
-    {
-	if (bspnum == -1)
+	if (bspnum & NF_SUBSECTOR)
 	{
-		return P_CrossSubsector (0);
+		if (bspnum == -1)
+		{
+			return P_CrossSubsector(0);
+		}
+		else
+		{
+			return P_CrossSubsector(bspnum & (~NF_SUBSECTOR));
+		}
 	}
-	else
+
+	node_t* bsp = &::g->nodes[bspnum];
+
+	// decide which side the start point is on
+	int8 side = P_DivlineSide(::g->strace.x, ::g->strace.y, reinterpret_cast<divline_t*>(bsp));
+	if (side == 2)
 	{
-		return P_CrossSubsector (bspnum&(~NF_SUBSECTOR));
+		side = 0; // an "on" should cross both ::g->sides
 	}
-    }
-		
-    bsp = &::g->nodes[bspnum];
-    
-    // decide which side the start point is on
-    side = P_DivlineSide (::g->strace.x, ::g->strace.y, (divline_t *)bsp);
-    if (side == 2)
-    {
-	    side = 0; // an "on" should cross both ::g->sides
-    }
 
-    // cross the starting side
-    if (!P_CrossBSPNode (bsp->children[side]) )
-    {
-	    return false;
-    }
+	// cross the starting side
+	if (!P_CrossBSPNode(bsp->children[side]))
+	{
+		return false;
+	}
 
-    // the partition plane is crossed here
-    if (side == P_DivlineSide (::g->t2x, ::g->t2y,(divline_t *)bsp))
-    {
-	// the line doesn't touch the other side
-	return true;
-    }
-    
-    // cross the ending side		
-    return P_CrossBSPNode (bsp->children[side^1]);
+	// the partition plane is crossed here
+	if (side == P_DivlineSide(::g->t2x, ::g->t2y, reinterpret_cast<divline_t*>(bsp)))
+	{
+		// the line doesn't touch the other side
+		return true;
+	}
+
+	// cross the ending side		
+	return P_CrossBSPNode(bsp->children[side ^ 1]);
 }
 
 
@@ -340,54 +333,49 @@ static qboolean P_CrossBSPNode (const int bspnum)
 //  if a straight line between t1 and t2 is unobstructed.
 // Uses REJECT.
 //
-qboolean
-P_CheckSight
-( mobj_t*	t1,
-  mobj_t*	t2 )
+bool P_CheckSight(const mobj_t* t1, const mobj_t* t2)
 {
-    int		s1;
-    int		s2;
-    int		pnum;
-    int		bytenum;
-    int		bitnum;
-    
-    // First check for trivial rejection.
+	// First check for trivial rejection.
+	if (t1 && t2)
+	{
+		// Determine subsector entries in REJECT table.
+		const size_t s1 = (t1->subsector->sector - ::g->sectors);
+		const size_t s2 = (t2->subsector->sector - ::g->sectors);
+		const size_t pnum = s1 * ::g->sectors.Num() + s2;
+		const index_t bytenum = pnum >> 3;
+		const size_t bitnum = 1 << (pnum & 7);
 
-    // Determine subsector entries in REJECT table.
-    s1 = (t1->subsector->sector - ::g->sectors);
-    s2 = (t2->subsector->sector - ::g->sectors);
-    pnum = s1*::g->numsectors + s2;
-    bytenum = pnum>>3;
-    bitnum = 1 << (pnum&7);
+		// Check in REJECT table.
+		if (::g->rejectmatrix[bytenum] & bitnum)
+		{
+			::g->sightcounts[0]++;
 
-    // Check in REJECT table.
-    if (::g->rejectmatrix[bytenum]&bitnum)
-    {
-	::g->sightcounts[0]++;
+			// can't possibly be connected
+			return false;
+		}
 
-	// can't possibly be connected
-	return false;	
-    }
+		// An unobstructed LOS is possible.
+		// Now look from eyes of t1 to any part of t2.
+		::g->sightcounts[1]++;
 
-    // An unobstructed LOS is possible.
-    // Now look from eyes of t1 to any part of t2.
-    ::g->sightcounts[1]++;
+		::g->validcount++;
 
-    ::g->validcount++;
-	
-    ::g->sightzstart = t1->z + t1->height - (t1->height>>2);
-    ::g->topslope = (t2->z+t2->height) - ::g->sightzstart;
-    ::g->bottomslope = (t2->z) - ::g->sightzstart;
-	
-    ::g->strace.x = t1->x;
-    ::g->strace.y = t1->y;
-    ::g->t2x = t2->x;
-    ::g->t2y = t2->y;
-    ::g->strace.dx = t2->x - t1->x;
-    ::g->strace.dy = t2->y - t1->y;
+		::g->sightzstart = t1->z + t1->height - (t1->height >> 2);
+		::g->topslope = (t2->z + t2->height) - ::g->sightzstart;
+		::g->bottomslope = (t2->z) - ::g->sightzstart;
 
-    // the head node is the last node output
-    return P_CrossBSPNode (::g->numnodes-1);	
+		::g->strace.x = t1->x;
+		::g->strace.y = t1->y;
+		::g->t2x = t2->x;
+		::g->t2y = t2->y;
+		::g->strace.dx = t2->x - t1->x;
+		::g->strace.dy = t2->y - t1->y;
+
+		// the head node is the last node output
+		return P_CrossBSPNode(numeric_cast<index_t>(::g->netNodes.Num()) - 1);
+	}
+
+	return false;
 }
 
 

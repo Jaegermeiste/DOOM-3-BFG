@@ -31,17 +31,21 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-idStrPool		idDict::globalKeys;
-idStrPool		idDict::globalValues;
+template < Formattable T >
+idStrPool		idDict<T>::globalKeys;
+
+template < Formattable T >
+idStrPool		idDict<T>::globalValues;
 
 /*
 ================
-idDict::operator=
+idDict< T >::operator=
 
   clear existing key/value pairs and copy all key/value pairs from other
 ================
 */
-idDict &idDict::operator=( const idDict &other ) {
+template < Formattable T >
+idDict< T >  &idDict< T >::operator=( const idDict &other ) {
 	// check for assignment to self
 	if ( this == &other ) {
 		return *this;
@@ -62,12 +66,68 @@ idDict &idDict::operator=( const idDict &other ) {
 
 /*
 ================
-idDict::Copy
+idDict< T >::operator[]
+
+  return type T for a key
+================
+*/
+template < Formattable T > template < Formattable F > requires (!StringLikeOrEnum< F >)
+const T& idDict< T >::operator[](const F& key) const noexcept
+{
+	const idKeyValue* kv = FindKey(key);
+
+	if (kv) {
+		return ParseValueToT(kv->GetValue());
+	}
+
+	return T{};
+}
+
+template < Formattable T > template < Formattable F > requires (!StringLikeOrEnum< F >)
+T& idDict< T >::operator[](const F& key) noexcept
+{
+	const idKeyValue* kv = FindKey(key);
+
+	if (kv) {
+		return ParseValueToT(kv->GetValue());
+	}
+
+	return T{};
+}
+
+template < Formattable T >
+const T& idDict< T >::operator[](const StringLikeOrEnum auto& key) const noexcept
+{
+	const idKeyValue* kv = FindKey(key);
+
+	if (kv) {
+		return ParseValueToT(kv->GetValue());
+	}
+
+	return T{};
+}
+
+template < Formattable T >
+T& idDict< T >::operator[](const StringLikeOrEnum auto& key) noexcept
+{
+	const idKeyValue* kv = FindKey(key);
+
+	if (kv) {
+		return ParseValueToT(kv->GetValue());
+	}
+
+	return T{};
+}
+
+/*
+================
+idDict< T >::Copy
 
   copy all key value pairs without removing existing key/value pairs not present in the other dict
 ================
 */
-void idDict::Copy( const idDict &other ) {
+template < Formattable T >
+void idDict< T >::Copy( const idDict &other ) {
 	size_t i = 0;
 	index_t *found = nullptr;
 	idKeyValue kv = {};
@@ -107,18 +167,19 @@ void idDict::Copy( const idDict &other ) {
 
 /*
 ================
-idDict::TransferKeyValues
+idDict< T >::TransferKeyValues
 
   clear existing key/value pairs and transfer key/value pairs from other
 ================
 */
-void idDict::TransferKeyValues( idDict &other ) {
+template < Formattable T >
+void idDict< T >::TransferKeyValues( idDict &other ) {
 	if ( this == &other ) {
 		return;
 	}
 
 	if ( other.args.Num() && other.args[0].key->GetPool() != &globalKeys ) {
-		common->FatalError( "idDict::TransferKeyValues: can't transfer values across a DLL boundary" );
+		common->FatalError( "idDict< T >::TransferKeyValues: can't transfer values across a DLL boundary" );
 		return;
 	}
 
@@ -138,12 +199,13 @@ void idDict::TransferKeyValues( idDict &other ) {
 
 /*
 ================
-idDict::Parse
+idDict< T >::Parse
 ================
 */
-bool idDict::Parse( idParser &parser ) {
-	idToken	token;
-	idToken	token2;
+template < Formattable T >
+bool idDict< T >::Parse( idParser &parser ) {
+	idToken	token = {};
+	idToken	token2 = {};
 
 	bool errors = false;
 
@@ -174,10 +236,11 @@ bool idDict::Parse( idParser &parser ) {
 
 /*
 ================
-idDict::SetDefaults
+idDict< T >::SetDefaults
 ================
 */
-void idDict::SetDefaults( const idDict *dict ) {
+template < Formattable T >
+void idDict< T >::SetDefaults( const idDict *dict ) {
 	idKeyValue newkv = {};
 
 	const size_t n = dict->args.Num();
@@ -194,10 +257,11 @@ void idDict::SetDefaults( const idDict *dict ) {
 
 /*
 ================
-idDict::Clear
+idDict< T >::Clear
 ================
 */
-void idDict::Clear() {
+template < Formattable T >
+void idDict< T >::Clear() {
 	for ( size_t i = 0; i < args.Num(); i++ ) {
 		globalKeys.FreeString( args[i].key );
 		globalValues.FreeString( args[i].value );
@@ -209,10 +273,11 @@ void idDict::Clear() {
 
 /*
 ================
-idDict::Print
+idDict< T >::Print
 ================
 */
-void idDict::Print() const {
+template < Formattable T >
+void idDict< T >::Print() const {
 	const size_t n = args.Num();
 	for(size_t i = 0; i < n; i++ ) {
 		idLib::common->Printf( "%s = %s\n", args[i].GetKey().c_str(), args[i].GetValue().c_str() );
@@ -225,10 +290,11 @@ static int KeyCompare( const idKeyValue *a, const idKeyValue *b ) {
 
 /*
 ================
-idDict::Checksum
+idDict< T >::Checksum
 ================
 */
-int	idDict::Checksum() const {
+template < Formattable T >
+int	idDict< T >::Checksum() const {
 	unsigned long ret = 0;
 
 	idList<idKeyValue> sorted = args;
@@ -245,10 +311,11 @@ int	idDict::Checksum() const {
 
 /*
 ================
-idDict::Allocated
+idDict< T >::Allocated
 ================
 */
-size_t idDict::Allocated() const {
+template < Formattable T >
+size_t idDict< T >::Allocated() const {
 	size_t size = args.Allocated() + argHash.Allocated();
 	for(size_t i = 0; i < args.Num(); i++ ) {
 		size += args[i].Size();
@@ -259,10 +326,11 @@ size_t idDict::Allocated() const {
 
 /*
 ================
-idDict::Set
+idDict< T >::Set
 ================
 */
-void idDict::Set(const char* key, const char* value) {
+template < Formattable T >
+void idDict< T >::Set(const StringLikeOrEnum auto &key, const StringLikeOrEnum auto &value) {
 	idKeyValue kv = {};
 
 	if ( key == nullptr || key[0] == '\0' ) {
@@ -270,9 +338,10 @@ void idDict::Set(const char* key, const char* value) {
 	}
 
 	const index_t i = FindKeyIndex(key);
+
 	if ( i != -1 ) {
 		// first set the new value and then free the old value to allow proper self copying
-		const idPoolStr *oldValue = args[i].value;
+		const idPoolStr *oldValue = idDict< T >::args[i].value;
 		args[i].value = globalValues.AllocString( value );
 		globalValues.FreeString( oldValue );
 	} else {
@@ -284,11 +353,12 @@ void idDict::Set(const char* key, const char* value) {
 
 /*
 ================
-idDict::GetFloat
+idDict< T >::GetFloat
 ================
 */
-bool idDict::GetFloat( const char *key, const char *defaultString, float &out ) const {
-	const char	*s = nullptr;
+template < Formattable T >
+bool idDict< T >::GetFloat( const StringLikeOrEnum auto &key, const char* defaultString, float &out ) const {
+	const char *s = nullptr;
 
 	const bool found = GetString(key, defaultString, &s);
 	out = idStr::AtoF<float>( s );
@@ -297,11 +367,12 @@ bool idDict::GetFloat( const char *key, const char *defaultString, float &out ) 
 
 /*
 ================
-idDict::GetDouble
+idDict< T >::GetDouble
 ================
 */
-bool idDict::GetDouble(const char* key, const char* defaultString, double& out) const {
-	const char* s = nullptr;
+template < Formattable T >
+bool idDict< T >::GetDouble(const StringLikeOrEnum auto & key, const char* defaultString, double& out) const {
+	const char * s = nullptr;
 
 	const bool found = GetString(key, defaultString, &s);
 	out = idStr::AtoF<double>(s);
@@ -310,24 +381,26 @@ bool idDict::GetDouble(const char* key, const char* defaultString, double& out) 
 
 /*
 ================
-idDict::GetInt
+idDict< T >::GetInt
 ================
 */
-bool idDict::GetInt( const char *key, const char *defaultString, int &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetInt( const StringLikeOrEnum auto &key, const char* defaultString, int32 &out ) const {
+	const char *s = nullptr;
 
 	const bool found = GetString(key, defaultString, &s);
-	out = idStr::AtoI<int>( s );
+	out = idStr::AtoI<int32>( s );
 	return found;
 }
 
 /*
 ================
-idDict::GetInt64
+idDict< T >::GetInt64
 ================
 */
-bool idDict::GetInt64(const char* key, const char* defaultString, int64& out) const {
-	const char* s;
+template < Formattable T >
+bool idDict< T >::GetInt64(const StringLikeOrEnum auto & key, const char* defaultString, int64& out) const {
+	const char *s = nullptr;
 
 	const bool found = GetString(key, defaultString, &s);
 	out = idStr::AtoI<int64>(s);
@@ -336,11 +409,12 @@ bool idDict::GetInt64(const char* key, const char* defaultString, int64& out) co
 
 /*
 ================
-idDict::GetBool
+idDict< T >::GetBool
 ================
 */
-bool idDict::GetBool( const char *key, const char *defaultString, bool &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetBool( const StringLikeOrEnum auto &key, const char* defaultString, bool &out ) const {
+	const char *s = nullptr;
 
 	const bool found = GetString(key, defaultString, &s);
 	out = ( idStr::AtoI<bool>( s ) != 0 );
@@ -349,10 +423,11 @@ bool idDict::GetBool( const char *key, const char *defaultString, bool &out ) co
 
 /*
 ================
-idDict::GetFloat
+idDict< T >::GetFloat
 ================
 */
-bool idDict::GetFloat( const char *key, const float defaultFloat, float &out ) const {
+template < Formattable T >
+bool idDict< T >::GetFloat( const StringLikeOrEnum auto &key, const float defaultFloat, float &out ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
 		out = idStr::AtoF<float>( kv->GetValue() );
@@ -365,10 +440,11 @@ bool idDict::GetFloat( const char *key, const float defaultFloat, float &out ) c
 
 /*
 ================
-idDict::GetDouble
+idDict< T >::GetDouble
 ================
 */
-bool idDict::GetDouble( const char* key, const double defaultDouble, double& out) const {
+template < Formattable T >
+bool idDict< T >::GetDouble( const StringLikeOrEnum auto & key, const double defaultDouble, double& out) const {
 	const idKeyValue* kv = FindKey(key);
 	if (kv) {
 		out = idStr::AtoF<double>(kv->GetValue());
@@ -382,13 +458,14 @@ bool idDict::GetDouble( const char* key, const double defaultDouble, double& out
 
 /*
 ================
-idDict::GetInt
+idDict< T >::GetInt
 ================
 */
-bool idDict::GetInt( const char *key, const int defaultInt, int &out ) const {
+template < Formattable T >
+bool idDict< T >::GetInt( const StringLikeOrEnum auto &key, const int32 defaultInt, int32 &out ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
-		out = atoi( kv->GetValue() );
+		out = idStr::AtoI<int32>( kv->GetValue() );
 		return true;
 	} else {
 		out = defaultInt;
@@ -398,13 +475,14 @@ bool idDict::GetInt( const char *key, const int defaultInt, int &out ) const {
 
 /*
 ================
-idDict::GetInt64
+idDict< T >::GetInt64
 ================
 */
-bool idDict::GetInt64(const char* key, const int64 defaultInt, int64& out) const {
+template < Formattable T >
+bool idDict< T >::GetInt64(const StringLikeOrEnum auto & key, const int64 defaultInt, int64& out) const {
 	const idKeyValue* kv = FindKey(key);
 	if (kv) {
-		out = _atoi64(kv->GetValue());
+		out = idStr::AtoI<int64>(kv->GetValue());
 		return true;
 	}
 	else {
@@ -415,13 +493,14 @@ bool idDict::GetInt64(const char* key, const int64 defaultInt, int64& out) const
 
 /*
 ================
-idDict::GetBool
+idDict< T >::GetBool
 ================
 */
-bool idDict::GetBool( const char *key, const bool defaultBool, bool &out ) const {
+template < Formattable T >
+bool idDict< T >::GetBool( const StringLikeOrEnum auto &key, const bool defaultBool, bool &out ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
-		out = ( atoi( kv->GetValue() ) != 0 );
+		out = (idStr::AtoI<int64>( kv->GetValue() ) != 0 );
 		return true;
 	} else {
 		out = defaultBool;
@@ -431,11 +510,12 @@ bool idDict::GetBool( const char *key, const bool defaultBool, bool &out ) const
 
 /*
 ================
-idDict::GetAngles
+idDict< T >::GetAngles
 ================
 */
-bool idDict::GetAngles( const char *key, const char *defaultString, idAngles &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetAngles( const StringLikeOrEnum auto &key, const char* defaultString, idAngles &out ) const {
+	const char *s = nullptr;
 	
 	if ( !defaultString ) {
 		defaultString = "0 0 0";
@@ -443,17 +523,18 @@ bool idDict::GetAngles( const char *key, const char *defaultString, idAngles &ou
 
 	const bool found = GetString(key, defaultString, &s);
 	out.Zero();	
-	sscanf( s, "%f %f %f", &out.pitch, &out.yaw, &out.roll );
+	std::ignore = sscanf( s, "%f %f %f", &out.pitch, &out.yaw, &out.roll );
 	return found;
 }
 
 /*
 ================
-idDict::GetVector
+idDict< T >::GetVector
 ================
 */
-bool idDict::GetVector( const char *key, const char *defaultString, idVec3 &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetVector( const StringLikeOrEnum auto &key, const char* defaultString, idVec3 &out ) const {
+	const char *s = nullptr;
 	
 	if ( !defaultString ) {
 		defaultString = "0 0 0";
@@ -461,17 +542,18 @@ bool idDict::GetVector( const char *key, const char *defaultString, idVec3 &out 
 
 	const bool found = GetString(key, defaultString, &s);
 	out.Zero();
-	sscanf( s, "%f %f %f", &out.x, &out.y, &out.z );
+	std::ignore = sscanf( s, "%f %f %f", &out.x, &out.y, &out.z );
 	return found;
 }
 
 /*
 ================
-idDict::GetVec2
+idDict< T >::GetVec2
 ================
 */
-bool idDict::GetVec2( const char *key, const char *defaultString, idVec2 &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetVec2( const StringLikeOrEnum auto &key, const char* defaultString, idVec2 &out ) const {
+	const char *s = nullptr;
 	
 	if ( !defaultString ) {
 		defaultString = "0 0";
@@ -479,17 +561,18 @@ bool idDict::GetVec2( const char *key, const char *defaultString, idVec2 &out ) 
 
 	const bool found = GetString(key, defaultString, &s);
 	out.Zero();
-	sscanf( s, "%f %f", &out.x, &out.y );
+	std::ignore = sscanf( s, "%f %f", &out.x, &out.y );
 	return found;
 }
 
 /*
 ================
-idDict::GetVec4
+idDict< T >::GetVec4
 ================
 */
-bool idDict::GetVec4( const char *key, const char *defaultString, idVec4 &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetVec4( const StringLikeOrEnum auto &key, const char* defaultString, idVec4 &out ) const {
+	const char *s = nullptr;
 	
 	if ( !defaultString ) {
 		defaultString = "0 0 0 0";
@@ -497,17 +580,18 @@ bool idDict::GetVec4( const char *key, const char *defaultString, idVec4 &out ) 
 
 	const bool found = GetString(key, defaultString, &s);
 	out.Zero();
-	sscanf( s, "%f %f %f %f", &out.x, &out.y, &out.z, &out.w );
+	std::ignore = sscanf( s, "%f %f %f %f", &out.x, &out.y, &out.z, &out.w );
 	return found;
 }
 
 /*
 ================
-idDict::GetMatrix
+idDict< T >::GetMatrix
 ================
 */
-bool idDict::GetMatrix( const char *key, const char *defaultString, idMat3 &out ) const {
-	const char	*s;
+template < Formattable T >
+bool idDict< T >::GetMatrix( const StringLikeOrEnum auto &key, const char* defaultString, idMat3 &out ) const {
+	const char *s = nullptr;
 
 	if ( !defaultString ) {
 		defaultString = "1 0 0 0 1 0 0 0 1";
@@ -515,7 +599,7 @@ bool idDict::GetMatrix( const char *key, const char *defaultString, idMat3 &out 
 
 	const bool found = GetString(key, defaultString, &s);
 	out.Identity();		// sccanf has a bug in it on Mac OS 9.  Sigh.
-	sscanf( s, "%f %f %f %f %f %f %f %f %f", &out[0].x, &out[0].y, &out[0].z, &out[1].x, &out[1].y, &out[1].z, &out[2].x, &out[2].y, &out[2].z );
+	std::ignore = sscanf( s, "%f %f %f %f %f %f %f %f %f", &out[0].x, &out[0].y, &out[0].z, &out[1].x, &out[1].y, &out[1].z, &out[2].x, &out[2].y, &out[2].z );
 	return found;
 }
 
@@ -527,25 +611,35 @@ WriteString
 static void WriteString( const char *s, idFile *f ) {
 	const size_t	len = strlen( s );
 	if (len >= MAX_STRING_CHARS - 1) {
-		idLib::common->Error( "idDict::WriteToFileHandle: bad string" );
+		idLib::common->Error( "idDict< T >::WriteToFileHandle: bad string" );
 	}
 	f->Write( s, strlen(s) + 1 );
 }
 
 /*
 ================
-idDict::FindKey
+idDict< T >::FindKey
 ================
 */
-const idKeyValue *idDict::FindKey( const char *key ) const {
-	if ( key == nullptr || key[0] == '\0' ) {
-		idLib::common->DWarning( "idDict::FindKey: empty key" );
+template < Formattable T >
+const idKeyValue *idDict< T >::FindKey( const StringLikeOrEnum auto &key ) const {
+	if ( key == nullptr ) {
+		idLib::common->DWarning( "idDict< T >::FindKey: null key" );
 		return nullptr;
 	}
 
-	const int64 hash = argHash.GenerateKey(key, false);
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_key = idStr::ToCString(key, string_buffer, sizeof(string_buffer));
+
+	if ( cstring_key[0] == '\0' ) {
+		idLib::common->DWarning( "idDict< T >::FindKey: empty key" );
+		return nullptr;
+	}
+
+	const int64 hash = argHash.GenerateKey(cstring_key, false);
 	for ( int64 i = argHash.First(hash); i != -1; i = argHash.Next( i ) ) {
-		if ( args[i].GetKey().Icmp( key ) == 0 ) {
+		if ( args[i].GetKey().Icmp(cstring_key) == 0 ) {
 			return &args[i];
 		}
 	}
@@ -555,19 +649,29 @@ const idKeyValue *idDict::FindKey( const char *key ) const {
 
 /*
 ================
-idDict::FindKeyIndex
+idDict< T >::FindKeyIndex
 ================
 */
-int64 idDict::FindKeyIndex( const char *key ) const {
+template < Formattable T >
+int64 idDict< T >::FindKeyIndex( const StringLikeOrEnum auto &key ) const {
 
-	if ( key == nullptr || key[0] == '\0' ) {
-		idLib::common->DWarning( "idDict::FindKeyIndex: empty key" );
-		return 0;
+	if (key == nullptr) {
+		idLib::common->DWarning("idDict< T >::FindKeyIndex: null key");
+		return -1;
 	}
 
-	const int64 hash = argHash.GenerateKey( key, false );
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_key = idStr::ToCString(key, string_buffer, sizeof(string_buffer));
+
+	if (cstring_key[0] == '\0') {
+		idLib::common->DWarning("idDict< T >::FindKeyIndex: empty key");
+		return -1;
+	}
+
+	const int64 hash = argHash.GenerateKey( cstring_key, false );
 	for ( int64 i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
-		if ( args[i].GetKey().Icmp( key ) == 0 ) {
+		if ( args[i].GetKey().Icmp( cstring_key ) == 0 ) {
 			return i;
 		}
 	}
@@ -577,10 +681,11 @@ int64 idDict::FindKeyIndex( const char *key ) const {
 
 /*
 ================
-idDict::Delete
+idDict< T >::Delete
 ================
 */
-void idDict::Delete( const char *key ) {
+template < Formattable T >
+void idDict< T >::Delete( const StringLikeOrEnum auto &key ) {
 	int64 i = 0;
 
 	const int64 hash = argHash.GenerateKey(key, false);
@@ -604,12 +709,12 @@ void idDict::Delete( const char *key ) {
 
 /*
 ================
-idDict::MatchPrefix
+idDict< T >::MatchPrefix
 ================
 */
-const idKeyValue *idDict::MatchPrefix( const char *prefix, const idKeyValue *lastMatch ) const {
+template < Formattable T >
+const idKeyValue *idDict< T >::MatchPrefix( const StringLikeOrEnum auto &prefix, const idKeyValue *lastMatch ) const {
 	assert( prefix );
-	const size_t len = strlen(prefix);
 
 	int64 start = -1;
 	if ( lastMatch ) {
@@ -621,7 +726,7 @@ const idKeyValue *idDict::MatchPrefix( const char *prefix, const idKeyValue *las
 	}
 
 	for(size_t i = start + 1; i < args.Num(); i++ ) {
-		if ( !args[i].GetKey().Icmpn( prefix, len ) ) {
+		if ( !args[i].GetKey().Icmp( prefix ) ) {
 			return &args[i];
 		}
 	}
@@ -630,17 +735,18 @@ const idKeyValue *idDict::MatchPrefix( const char *prefix, const idKeyValue *las
 
 /*
 ================
-idDict::RandomPrefix
+idDict< T >::RandomPrefix
 ================
 */
-const char *idDict::RandomPrefix( const char *prefix, idRandom &random ) const {
-	int count;
+template < Formattable T >
+const char *idDict< T >::RandomPrefix( const StringLikeOrEnum auto &prefix, idRandom &random ) const {
+	size_t count = 0;
 	constexpr int MAX_RANDOM_KEYS = 2048;
 	const char *list[MAX_RANDOM_KEYS] = { nullptr };
 	const idKeyValue *kv = nullptr;
 
 	list[0] = "";
-	for ( count = 0, kv = MatchPrefix( prefix ); kv != nullptr && count < MAX_RANDOM_KEYS; kv = MatchPrefix( prefix, kv ) ) {
+	for ( count = 0, kv = idDict< T >::MatchPrefix( prefix ); kv != nullptr && count < MAX_RANDOM_KEYS; kv = idDict< T >::MatchPrefix( prefix, kv ) ) {
 		list[count++] = kv->GetValue().c_str();
 	}
 	return list[random.RandomInt( count )];
@@ -648,10 +754,11 @@ const char *idDict::RandomPrefix( const char *prefix, idRandom &random ) const {
 
 /*
 ================
-idDict::WriteToFileHandle
+idDict< T >::WriteToFileHandle
 ================
 */
-void idDict::WriteToFileHandle( idFile *f ) const {
+template < Formattable T >
+void idDict< T >::WriteToFileHandle( idFile *f ) const {
 	const auto c = LittleULongLong( args.Num() );
 	f->Write( &c, sizeof( c ) );
 	for (size_t i = 0; i < args.Num(); i++ ) {	// don't loop on the swapped count use the original
@@ -676,7 +783,7 @@ static idStr ReadString( idFile *f ) {
 		}
 	}
 	if ( len == MAX_STRING_CHARS ) {
-		idLib::common->Error( "idDict::ReadFromFileHandle: bad string" );
+		idLib::common->Error( "idDict< T >::ReadFromFileHandle: bad string" );
 	}
 
 	return idStr( str );
@@ -684,10 +791,11 @@ static idStr ReadString( idFile *f ) {
 
 /*
 ================
-idDict::ReadFromFileHandle
+idDict< T >::ReadFromFileHandle
 ================
 */
-void idDict::ReadFromFileHandle( idFile *f ) {
+template < Formattable T >
+void idDict< T >::ReadFromFileHandle( idFile *f ) {
 	int c = 0;
 
 	Clear();
@@ -703,10 +811,11 @@ void idDict::ReadFromFileHandle( idFile *f ) {
 
 /*
 ========================
-idDict::Serialize
+idDict< T >::Serialize
 ========================
 */
-void idDict::Serialize( idSerializer & ser ) {
+template < Formattable T >
+void idDict< T >::Serialize( idSerializer & ser ) {
 	if ( ser.IsReading() ) {
 		Clear();
 	}
@@ -733,10 +842,11 @@ void idDict::Serialize( idSerializer & ser ) {
 
 /*
 ================
-idDict::WriteToIniFile
+idDict< T >::WriteToIniFile
 ================
 */
-void idDict::WriteToIniFile( idFile * f ) const {
+template < Formattable T >
+void idDict< T >::WriteToIniFile( idFile * f ) const {
 	// make a copy so we don't affect the checksum of the original dict
 	idList< idKeyValue > sortedArgs( args );
 	sortedArgs.SortWithTemplate( idSort_KeyValue() );
@@ -796,10 +906,11 @@ void idDict::WriteToIniFile( idFile * f ) const {
 
 /*
 ================
-idDict::ReadFromIniFile
+idDict< T >::ReadFromIniFile
 ================
 */
-bool idDict::ReadFromIniFile( idFile * f ) {
+template < Formattable T >
+bool idDict< T >::ReadFromIniFile( idFile * f ) {
 	size_t length = f->Length();
 	idTempArray< char > buffer( length );
 	if ( f->Read(buffer.Ptr(), length) != length ) {
@@ -908,40 +1019,91 @@ CONSOLE_COMMAND( TestDictIniFile, "Tests the writing/reading of various items in
 
 /*
 ================
-idDict::Init
+idDict< T >::ParseValueToT
 ================
 */
-void idDict::Init() {
+template < Formattable T >
+T idDict< T >::ParseValueToT( const idStr &value ) {
+	using U = std::remove_cvref_t<T>;
+
+	if constexpr (std::is_same_v<U, idStr>) {
+		return value;
+	}
+	else if constexpr (std::is_same_v<U, const char*>) {
+		return value.c_str();
+	}
+	else if constexpr (std::is_same_v<U, char*>) {
+		// Caller must ensure lifetime if they really want char*
+		return const_cast<char*>(value.c_str());
+	}
+	else if constexpr (std::is_same_v<U, std::string>) {
+		return std::string{ value.c_str() };
+	}
+	else if constexpr (std::is_same_v<U, std::string_view>) {
+		return std::string_view{ value.c_str() };
+	}
+	else if constexpr (std::is_enum_v<U>) {
+		return enum_from_cstr<T>(value.c_str());
+	}
+	else if constexpr (std::is_integral_v<U>) {
+		return idStr::AtoI<T>(value.c_str());
+	}
+	else if constexpr (std::is_floating_point_v<U>) {
+		return idStr::AtoF<T>(value.c_str());
+	}
+	else if constexpr (std::is_constructible_v<U, const char*>) {
+		return U{ value.c_str() };
+	}
+	else if constexpr (std::is_constructible_v<U, std::string_view>) {
+		return U{ std::string_view{ value.c_str() } };
+	}
+	else {
+		static_assert(!sizeof(U), "T is Formattable but not constructible from string data.");
+	}
+
+	return T{};
+}
+
+/*
+================
+idDict< T >::Init
+================
+*/
+template < Formattable T >
+void idDict< T >::Init() {
 	globalKeys.SetCaseSensitive( false );
 	globalValues.SetCaseSensitive( true );
 }
 
 /*
 ================
-idDict::Shutdown
+idDict< T >::Shutdown
 ================
 */
-void idDict::Shutdown() {
+template < Formattable T >
+void idDict< T >::Shutdown() {
 	globalKeys.Clear();
 	globalValues.Clear();
 }
 
 /*
 ================
-idDict::ShowMemoryUsage_f
+idDict< T >::ShowMemoryUsage_f
 ================
 */
-void idDict::ShowMemoryUsage_f( const idCmdArgs &args ) {
+template < Formattable T >
+void idDict< T >::ShowMemoryUsage_f( const idCmdArgs &args ) {
 	idLib::common->Printf( "%5d KB in %d keys\n", globalKeys.Size() >> 10, globalKeys.Num() );
 	idLib::common->Printf( "%5d KB in %d values\n", globalValues.Size() >> 10, globalValues.Num() );
 }
 
 /*
 ================
-idDict::ListKeys_f
+idDict< T >::ListKeys_f
 ================
 */
-void idDict::ListKeys_f( const idCmdArgs &args ) {
+template < Formattable T >
+void idDict< T >::ListKeys_f( const idCmdArgs &args ) {
 	idLib::Printf( "Not implemented due to sort impl issues.\n" );
 	//int i;
 	//idList<const idPoolStr *> keyStrings;
@@ -958,10 +1120,11 @@ void idDict::ListKeys_f( const idCmdArgs &args ) {
 
 /*
 ================
-idDict::ListValues_f
+idDict< T >::ListValues_f
 ================
 */
-void idDict::ListValues_f( const idCmdArgs &args ) {
+template < Formattable T >
+void idDict< T >::ListValues_f( const idCmdArgs &args ) {
 	idLib::Printf( "Not implemented due to sort impl issues.\n" );
 	//int i;
 	//idList<const idPoolStr *> valueStrings;

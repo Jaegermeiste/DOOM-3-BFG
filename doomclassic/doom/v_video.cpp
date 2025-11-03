@@ -512,7 +512,7 @@ V_GetBlock
 //
 // V_Init
 // 
-void V_Init (void) 
+void V_Init () 
 {
 	// stick these in low dos memory on PCs
 

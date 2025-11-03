@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <algorithm>
 
@@ -338,9 +338,9 @@ const extern char*	mapnames[];
 //
 // STATUS BAR CODE
 //
-static void ST_Stop(void);
+static void ST_Stop();
 
-static void ST_refreshBackground(void)
+static void ST_refreshBackground()
 {
 
 	if (::g->st_statusbaron)
@@ -542,7 +542,7 @@ ST_Responder (event_t* ev)
 			else if (cht_CheckCheat(&cheat_mypos, ev->data1))
 			{
 				static char	buf[ST_MSGWIDTH];
-				sprintf(buf, "ang=0x%x;x,y=(0x%x,0x%x)",
+				idStr::snPrintf(buf, "ang=0x%x;x,y=(0x%x,0x%x)",
 					::g->players[::g->consoleplayer].mo->angle,
 					::g->players[::g->consoleplayer].mo->x,
 					::g->players[::g->consoleplayer].mo->y);
@@ -609,14 +609,14 @@ ST_Responder (event_t* ev)
 
 			// So be it.
 			::g->plyr->message = STSTR_CLEV;
-			G_DeferedInitNew(::g->gameskill, epsd, map);
+			G_DeferredInitNew(::g->gameskill, epsd, map);
 		}    
 	}
 	return false;
 }
 
 
-static int ST_calcPainOffset(void)
+static int ST_calcPainOffset()
 {
 	int		health;
 
@@ -637,7 +637,7 @@ static int ST_calcPainOffset(void)
 // the precedence of expressions is:
 //  dead > evil grin > turned head > straight ahead
 //
-static void ST_updateFaceWidget(void)
+static void ST_updateFaceWidget()
 {
 	int		i;
 	angle_t	badguyangle;
@@ -697,22 +697,22 @@ static void ST_updateFaceWidget(void)
 			}
 			else
 			{
-				badguyangle = R_PointToAngle2(::g->plyr->mo->x,
-					::g->plyr->mo->y,
-					::g->plyr->attacker->x,
-					::g->plyr->attacker->y);
+				badguyangle = R_PointToAngle(::g->plyr->mo->x,
+												::g->plyr->mo->y,
+												::g->plyr->attacker->x,
+												::g->plyr->attacker->y);
 
 				if (badguyangle > ::g->plyr->mo->angle)
 				{
 					// whether right or left
 					diffang = badguyangle - ::g->plyr->mo->angle;
-					i = diffang > ANG180; 
+					i = diffang > ANG180;
 				}
 				else
 				{
 					// whether left or right
 					diffang = ::g->plyr->mo->angle - badguyangle;
-					i = diffang <= ANG180; 
+					i = diffang <= ANG180;
 				} // confusing, aint it?
 
 
@@ -810,7 +810,7 @@ static void ST_updateFaceWidget(void)
 
 }
 
-static void ST_updateWidgets(void)
+static void ST_updateWidgets()
 {
 	int		i;
 
@@ -884,7 +884,7 @@ static void ST_updateWidgets(void)
 	}
 }
 
-void ST_Ticker (void)
+void ST_Ticker ()
 {
 
 	::g->st_clock++;
@@ -895,7 +895,7 @@ void ST_Ticker (void)
 }
 
 
-static void ST_doPaletteStuff(void)
+static void ST_doPaletteStuff()
 {
 
 	int		palette;
@@ -997,7 +997,7 @@ static void ST_drawWidgets(const qboolean refresh)
 
 }
 
-static void ST_doRefresh(void)
+static void ST_doRefresh()
 {
 	::g->st_firsttime = false;
 
@@ -1008,7 +1008,7 @@ static void ST_doRefresh(void)
 	ST_drawWidgets(true);
 }
 
-static void ST_diffDraw(void)
+static void ST_diffDraw()
 {
 	// update all widgets
 	ST_drawWidgets(false);
@@ -1034,7 +1034,7 @@ void ST_Drawer (const qboolean fullscreen, const qboolean refresh)
 	}
 }
 
-static void ST_loadGraphics(void)
+static void ST_loadGraphics()
 {
 	static bool ST_HasBeenCalled = false;
 
@@ -1051,10 +1051,10 @@ static void ST_loadGraphics(void)
 	// Load the numbers, tall and short
 	for (i=0;i<10;i++)
 	{
-		sprintf(namebuf, "STTNUM%d", i);
+		idStr::snPrintf(namebuf, "STTNUM%d", i);
 		::g->tallnum[i] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 
-		sprintf(namebuf, "STYSNUM%d", i);
+		idStr::snPrintf(namebuf, "STYSNUM%d", i);
 		::g->shortnum[i] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 	}
 
@@ -1065,7 +1065,7 @@ static void ST_loadGraphics(void)
 	// key cards
 	for (i=0;i<NUMCARDS;i++)
 	{
-		sprintf(namebuf, "STKEYS%d", i);
+		idStr::snPrintf(namebuf, "STKEYS%d", i);
 		::g->keys[i] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 	}
 
@@ -1075,7 +1075,7 @@ static void ST_loadGraphics(void)
 	// ::g->arms ownership widgets
 	for (i=0;i<6;i++)
 	{
-		sprintf(namebuf, "STGNUM%d", i+2);
+		idStr::snPrintf(namebuf, "STGNUM%d", i+2);
 
 		// gray #
 		::g->arms[i][0] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
@@ -1085,7 +1085,7 @@ static void ST_loadGraphics(void)
 	}
 
 	// face backgrounds for different color ::g->players
-	sprintf(namebuf, "STFB%d", ::g->consoleplayer);
+	idStr::snPrintf(namebuf, "STFB%d", ::g->consoleplayer);
 	::g->faceback = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 
 	// status bar background bits
@@ -1097,18 +1097,18 @@ static void ST_loadGraphics(void)
 	{
 		for (j=0;j<ST_NUMSTRAIGHTFACES;j++)
 		{
-			sprintf(namebuf, "STFST%d%d", i, j);
+			idStr::snPrintf(namebuf, "STFST%d%d", i, j);
 			::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 		}
-		sprintf(namebuf, "STFTR%d0", i);	// turn right
+		idStr::snPrintf(namebuf, "STFTR%d0", i);	// turn right
 		::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
-		sprintf(namebuf, "STFTL%d0", i);	// turn left
+		idStr::snPrintf(namebuf, "STFTL%d0", i);	// turn left
 		::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
-		sprintf(namebuf, "STFOUCH%d", i);	// ouch!
+		idStr::snPrintf(namebuf, "STFOUCH%d", i);	// ouch!
 		::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
-		sprintf(namebuf, "STFEVL%d", i);	// evil grin ;)
+		idStr::snPrintf(namebuf, "STFEVL%d", i);	// evil grin ;)
 		::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
-		sprintf(namebuf, "STFKILL%d", i);	// pissed off
+		idStr::snPrintf(namebuf, "STFKILL%d", i);	// pissed off
 		::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName(namebuf, PU_STATIC_SHARED));
 	}
 	::g->faces[facenum++] = static_cast<patch_t*>(W_CacheLumpName("STFGOD0", PU_STATIC_SHARED));
@@ -1116,23 +1116,23 @@ static void ST_loadGraphics(void)
 
 }
 
-static void ST_loadData(void)
+static void ST_loadData()
 {
 	::g->lu_palette = W_GetNumForName ("PLAYPAL");
 	ST_loadGraphics();
 }
 
-static void ST_unloadGraphics(void)
+static void ST_unloadGraphics()
 {
 	// These things are always reloaded... so just don't bother to clean them up!
 }
 
-static void ST_unloadData(void)
+static void ST_unloadData()
 {
 	ST_unloadGraphics();
 }
 
-static void ST_initData(void)
+static void ST_initData()
 {
 
 	int		i;
@@ -1168,7 +1168,7 @@ static void ST_initData(void)
 }
 
 
-static void ST_createWidgets(void)
+static void ST_createWidgets()
 {
 
 	int i;
@@ -1329,7 +1329,7 @@ static void ST_createWidgets(void)
 
 
 
-void ST_Start (void)
+void ST_Start ()
 {
 
 	if (!::g->st_stopped)
@@ -1343,7 +1343,7 @@ void ST_Start (void)
 
 }
 
-void ST_Stop (void)
+void ST_Stop ()
 {
 	if (::g->st_stopped)
 	{
@@ -1355,7 +1355,7 @@ void ST_Stop (void)
 	::g->st_stopped = true;
 }
 
-void ST_Init (void)
+void ST_Init ()
 {
 	::g->veryfirsttime = 0;
 	ST_loadData();
@@ -1496,7 +1496,7 @@ CONSOLE_COMMAND_SHIP( idmypos, "for player position", 0 ) {
 	}
 
 	static char	buf[ST_MSGWIDTH];
-	sprintf(buf, "ang=0x%x;x,y=(0x%x,0x%x)",
+	idStr::snPrintf(buf, "ang=0x%x;x,y=(0x%x,0x%x)",
 		::g->players[::g->consoleplayer].mo->angle,
 		::g->players[::g->consoleplayer].mo->x,
 		::g->players[::g->consoleplayer].mo->y);
@@ -1583,7 +1583,7 @@ CONSOLE_COMMAND_SHIP( idclev, "warp to next level", 0 ) {
 
 	// So be it.
 	::g->plyr->message = STSTR_CLEV;
-	G_DeferedInitNew(::g->gameskill, epsd, map);
+	G_DeferredInitNew(::g->gameskill, epsd, map);
 
 	DoomLib::SetPlayer( oldPlayer );
 }

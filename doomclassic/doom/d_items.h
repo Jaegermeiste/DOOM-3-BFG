@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __D_ITEMS__
 #define __D_ITEMS__
 
+#pragma once
 #include "doomdef.h"
+#include "info.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -37,14 +39,14 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // Weapon info: sprite frames, ammunition use.
-typedef struct
+typedef struct weaponinfo_s
 {
     ammotype_t	ammo;
-    int		upstate;
-    int		downstate;
-    int		readystate;
-    int		atkstate;
-    int		flashstate;
+	statenum_t	upstate;
+	statenum_t	downstate;
+	statenum_t	readystate;
+	statenum_t	atkstate;
+	statenum_t	flashstate;
 
 } weaponinfo_t;
 

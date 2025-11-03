@@ -41,12 +41,10 @@ If you have questions concerning this license or the applicable additional terms
 // Called in st_stuff module, which handles the input.
 // Returns a 1 if the cheat was successful, 0 if failed.
 //
-int
-cht_CheckCheat
-( cheatseq_t*	cht,
-  char		key )
+bool cht_CheckCheat ( cheatseq_t* cht, char key )
 {
-	return 0; // ALAN : Checking the cheats CRASHES??
+	return false; // ALAN : Checking the cheats CRASHES??
+#if 0
     int i;
     int rc = 0;
 
@@ -107,45 +105,42 @@ cht_CheckCheat
     }
 
     return rc;
+#endif
 }
 
-void
-cht_GetParam
-( cheatseq_t*	cht,
-  char*		buffer )
+void cht_GetParam ( cheatseq_t*	cht, char* buffer )
 {
-
-
-    unsigned char pb[16];
-	unsigned char *p;
-    unsigned char c;
-
-	const int isize = 0;
-
-	while(cht->sequence[isize] != 0xff)
+	if (cht && buffer)
 	{
-		pb[isize] = cht->sequence[isize];
+		unsigned char pb[16] = {};
+		unsigned char c = 0;
+
+		const size_t isize = 0;
+
+		while (cht->sequence[isize] != 0xff)
+		{
+			pb[isize] = cht->sequence[isize];
+		}
+		pb[isize] = 0xff;
+		unsigned char* p = &pb[0];
+
+		while (*(p++) != 1)
+		{
+			// NO-OP
+		}
+
+		do
+		{
+			c = *p;
+			*(buffer++) = numeric_cast<char>(c);
+			*(p++) = 0;
+		} while (c && *p != 0xff);
+
+		if (*p == 0xff)
+		{
+			*buffer = 0;
+		}
 	}
-    pb[isize] = 0xff;
-	p = &pb[0];
-
-    while (*(p++) != 1)
-    {
-	    ;
-    }
-
-    do
-    {
-	c = *p;
-	*(buffer++) = c;
-	*(p++) = 0;
-    }
-    while (c && *p!=0xff );
-
-    if (*p==0xff)
-    {
-	    *buffer = 0;
-    }
 }
 
 

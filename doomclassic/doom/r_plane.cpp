@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <algorithm>
 
@@ -77,7 +77,7 @@ If you have questions concerning this license or the applicable additional terms
 // R_InitPlanes
 // Only at game startup.
 //
-void R_InitPlanes (void)
+void R_InitPlanes ()
 {
   // Doh!
 }
@@ -102,12 +102,9 @@ R_MapPlane
   const int		x1,
   const int		x2 )
 {
-    angle_t	angle;
-    fixed_t	distance;
-    fixed_t	length;
-    unsigned	index;
-	
-//#ifdef RANGECHECK
+	fixed_t	distance;
+
+	//#ifdef RANGECHECK
     if ( x2 < x1 || x1<0 || x2>=::g->viewwidth || y>::g->viewheight )
     {
 		//I_Error ("R_MapPlane: %i, %i at %i",x1,x2,y);
@@ -118,9 +115,9 @@ R_MapPlane
     if (::g->planeheight != ::g->cachedheight[y])
     {
 	::g->cachedheight[y] = ::g->planeheight;
-	distance = ::g->cacheddistance[y] = FixedMul (::g->planeheight, ::g->yslope[y]);
-	::g->ds_xstep = ::g->cachedxstep[y] = FixedMul (distance,::g->basexscale);
-	::g->ds_ystep = ::g->cachedystep[y] = FixedMul (distance,::g->baseyscale);
+	distance = ::g->cacheddistance[y] = (::g->planeheight * ::g->yslope[y]);
+	::g->ds_xstep = ::g->cachedxstep[y] = (distance *::g->basexscale);
+	::g->ds_ystep = ::g->cachedystep[y] = (distance *::g->baseyscale);
     }
     else
     {
@@ -130,11 +127,11 @@ R_MapPlane
     }
 	
 	extern angle_t GetViewAngle();
-    length = FixedMul (distance,::g->distscale[x1]);
-    angle = (GetViewAngle() + ::g->xtoviewangle[x1])>>ANGLETOFINESHIFT;
+    fixed_t length = (distance * ::g->distscale[x1]);
+    angle_t angle = (GetViewAngle() + ::g->xtoviewangle[x1]) >> ANGLETOFINESHIFT;
 	extern fixed_t GetViewX(); extern fixed_t GetViewY();
-    ::g->ds_xfrac = GetViewX() + FixedMul(finecosine[angle], length);
-    ::g->ds_yfrac = -GetViewY() - FixedMul(finesine[angle], length);
+    ::g->ds_xfrac = GetViewX() + (finecosine[angle] * length);
+    ::g->ds_yfrac = -GetViewY() - (finesine[angle] * length);
 
     if (::g->fixedcolormap)
     {
@@ -142,7 +139,7 @@ R_MapPlane
     }
     else
     {
-	index = distance >> LIGHTZSHIFT;
+	unsigned index = distance >> LIGHTZSHIFT;
 	
 	if (index >= MAXLIGHTZ )
 	{
@@ -172,21 +169,18 @@ R_MapPlane
 
 //
 // R_ClearPlanes
-// At begining of frame.
+// At beginning of frame.
 //
-void R_ClearPlanes (void)
+void R_ClearPlanes ()
 {
-    int		i;
-    angle_t	angle;
-    
-    // opening / clipping determination
-    for (i=0 ; i < ::g->viewwidth ; i++)
+	// opening / clipping determination
+    for (index_t i = 0 ; std::cmp_less(i, ::g->viewwidth); ++i)
     {
-	::g->floorclip[i] = ::g->viewheight;
+	::g->floorclip[i] = numeric_cast<BASE_TYPE(::g->floorclip)>(::g->viewheight);
 	::g->ceilingclip[i] = -1;
     }
 
-	::g->lastvisplane = ::g->visplanes;
+	::g->visplanes.Clear();
     ::g->lastopening = ::g->openings;
 
     // texture calculation
@@ -194,11 +188,11 @@ void R_ClearPlanes (void)
 
     // left to right mapping
 	extern angle_t GetViewAngle();
-    angle = (GetViewAngle()-ANG90)>>ANGLETOFINESHIFT;
+    angle_t angle = (GetViewAngle() - ANG90) >> ANGLETOFINESHIFT;
 	
     // scale will be unit scale at SCREENWIDTH/2 distance
-    ::g->basexscale = FixedDiv (finecosine[angle],::g->centerxfrac);
-    ::g->baseyscale = -FixedDiv (finesine[angle],::g->centerxfrac);
+    ::g->basexscale = (finecosine[angle] *::g->centerxfrac);
+    ::g->baseyscale = -(finesine[angle] *::g->centerxfrac);
 }
 
 
@@ -207,33 +201,42 @@ void R_ClearPlanes (void)
 //
 // R_FindPlane
 //
-visplane_t* R_FindPlane( fixed_t height, const int picnum, int lightlevel ) {
-    visplane_t*	check;
-	
+visplane_t* R_FindPlane( fixed_t height, const index_t picnum, int lightlevel ) {
+
     if (picnum == ::g->skyflatnum) {
 		height = 0;			// all skys map together
 		lightlevel = 0;
 	}
-	
-	for (check=::g->visplanes; check < ::g->lastvisplane; check++) {
-		if (height == check->height && picnum == check->picnum && lightlevel == check->lightlevel) {
-			break;
+
+	index_t visplane_index = 0;
+	visplane_t* check = nullptr;
+
+	for (visplane_index = 0; std::cmp_less(visplane_index, ::g->visplanes.Num()); ++visplane_index)
+	{
+		check = &::g->visplanes[visplane_index];
+
+		if (check)
+		{
+			if (height == check->height && picnum == check->picnum && lightlevel == check->lightlevel) 
+			{
+				break;
+			}
 		}
 	}
 
-	if (check < ::g->lastvisplane)
+	if (std::cmp_less(visplane_index, ::g->visplanes.Num()))
 	{
 		return check;
 	}
 
     //if (::g->lastvisplane - ::g->visplanes == MAXVISPLANES)
 		//I_Error ("R_FindPlane: no more visplanes");
-	if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
+	/*if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
 		check = ::g->visplanes;
 		return check;
 	}
 		
-    ::g->lastvisplane++;
+    ::g->lastvisplane++;*/
 
     check->height = height;
     check->picnum = picnum;
@@ -250,43 +253,43 @@ visplane_t* R_FindPlane( fixed_t height, const int picnum, int lightlevel ) {
 //
 // R_CheckPlane
 //
-visplane_t*
-R_CheckPlane
-( visplane_t*	pl,
-  const int		start,
-  const int		stop )
+index_t R_CheckPlane ( const index_t pl, const int start, const int stop )
 {
-    int		intrl;
-    int		intrh;
-    int		unionl;
-    int		unionh;
-    int		x;
+    int		intrl = 0;
+    int		intrh = 0;
+    int		unionl = 0;
+    int		unionh = 0;
+    int		x = 0;
+
+	ORDINAL_CHECK(pl, ::g->visplanes.Num());
+
+	visplane_t* visplane = &::g->visplanes[pl];
 	
-	if (start < pl->minx)
+	if (start < visplane->minx)
 	{
-		intrl = pl->minx;
+		intrl = visplane->minx;
 		unionl = start;
 	}
 	else
 	{
-		unionl = pl->minx;
+		unionl = visplane->minx;
 		intrl = start;
 	}
 
-	if (stop > pl->maxx)
+	if (stop > visplane->maxx)
 	{
-		intrh = pl->maxx;
+		intrh = visplane->maxx;
 		unionh = stop;
 	}
 	else
 	{
-		unionh = pl->maxx;
+		unionh = visplane->maxx;
 		intrh = stop;
 	}
 
 	for (x=intrl ; x<= intrh ; x++)
 	{
-		if (pl->top[x] != 0xffff)
+		if (visplane->top[x] != 0xffff)
 		{
 			break;
 		}
@@ -294,29 +297,28 @@ R_CheckPlane
 
     if (x > intrh)
 	{
-		pl->minx = unionl;
-		pl->maxx = unionh;
+		visplane->minx = unionl;
+		visplane->maxx = unionh;
 
 		// use the same one
 		return pl;		
 	}
 	
-	if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
+	/*if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
 		return pl;
-	}
+	}*/
 
     // make a new visplane
-    ::g->lastvisplane->height = pl->height;
-    ::g->lastvisplane->picnum = pl->picnum;
-    ::g->lastvisplane->lightlevel = pl->lightlevel;
-    
-    pl = ::g->lastvisplane++;
-    pl->minx = start;
-    pl->maxx = stop;
+	visplane_t new_visplane = {};
+	new_visplane.height = visplane->height;
+	new_visplane.picnum = visplane->picnum;
+	new_visplane.lightlevel = visplane->lightlevel;
+	new_visplane.minx = start;
+	new_visplane.maxx = stop;
 
-    memset(pl->top,0xff,sizeof(pl->top));
-		
-    return pl;
+    memset(new_visplane.top,0xff,sizeof(new_visplane.top));
+
+	return ::g->visplanes.AddUnique(new_visplane);
 }
 
 
@@ -360,26 +362,25 @@ R_MakeSpans
 // R_DrawPlanes
 // At the end of each frame.
 //
-void R_DrawPlanes (void)
+void R_DrawPlanes ()
 {
-    visplane_t*		pl;
-    int			light;
+	int			light;
     int			x;
     int			stop;
-    int			angle;
+    angle_t		angle;
 				
 #ifdef RANGECHECK
-    if (::g->ds_p - ::g->drawsegs > MAXDRAWSEGS)
+    /*if (::g->ds_p - ::g->drawsegs > MAXDRAWSEGS)
     {
 	    I_Error ("R_DrawPlanes: ::g->drawsegs overflow (%i)",
 	             ::g->ds_p - ::g->drawsegs);
-    }
+    }*/
 
-    if (::g->lastvisplane - ::g->visplanes > MAXVISPLANES)
+    /*if (::g->lastvisplane - ::g->visplanes > MAXVISPLANES)
     {
 	    I_Error ("R_DrawPlanes: visplane overflow (%i)",
 	             ::g->lastvisplane - ::g->visplanes);
-    }
+    }*/
 
     if (::g->lastopening - ::g->openings > MAXOPENINGS)
     {
@@ -388,7 +389,7 @@ void R_DrawPlanes (void)
     }
 #endif
 
-    for (pl = ::g->visplanes ; pl < ::g->lastvisplane ; pl++)
+    for (visplane_t* pl = ::g->visplanes ; pl < ::g->lastvisplane ; pl++)
     {
 	if (pl->minx > pl->maxx)
 	{

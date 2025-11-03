@@ -33,10 +33,15 @@ If you have questions concerning this license or the applicable additional terms
 #include <utility>
 #include <concepts>
 #include <type_traits>
+#include <memory>          // unique_ptr, shared_ptr
+#include <wrl/client.h>  // Microsoft::WRL::ComPtr
 
 #include "sys_numeric_cast.h"
 
 template<class T> concept Numeric = std::is_arithmetic_v<T> || std::is_enum_v<T>;
+
+template <class T>
+constexpr bool is_numeric_v = std::is_arithmetic_v<T> || std::is_enum_v<T>;
 
 // Implementation for Min
 template<Numeric T, Numeric U>
@@ -260,5 +265,206 @@ namespace type_determination {
 #define BASE_TYPE_DECAY_FROM_TYPE(T_) \
     BASE_TYPE_DECAY( *static_cast<std::add_pointer_t<(T_)>>(nullptr) )
 
+
+namespace concat_string_literals {
+	template <size_t N>
+	constexpr std::array<char, N> to_array(const char(&s)[N]) {
+		std::array<char, N> out{};
+		for (size_t i = 0; i < N; ++i)
+		{
+			out[i] = s[i];
+		}
+		return out;
+	}
+
+	// Base concat of two arrays
+	template <size_t N1, size_t N2>
+	constexpr auto concat_array(const std::array<char, N1>& a, const std::array<char, N2>& b) {
+		std::array<char, N1 + N2 - 1> out{};
+		for (size_t i = 0; i < N1 - 1; ++i)
+		{
+			out[i] = a[i];
+		}
+		for (size_t i = 0; i < N2; ++i)
+		{
+			out[(N1 - 1) + i] = b[i];
+		}
+		return out;
+	}
+
+	// Variadic concat for any number of strings
+	template <typename... Parts>
+	constexpr auto concat_impl(const Parts&... parts);
+
+	template <typename First>
+	constexpr auto concat_impl(const First& first) { return to_array(first); }
+
+	template <typename First, typename Second, typename... Rest>
+	constexpr auto concat_impl(const First& a, const Second& b, const Rest&... rest) {
+		if constexpr (sizeof...(Rest) == 0)
+		{
+			return concat_array(to_array(a), to_array(b));
+		}
+		else
+		{
+			return concat_impl(concat_array(to_array(a), to_array(b)), rest...);
+		}
+	}
+}
+
+// Public user-facing helper: returns constexpr const char*
+template <typename... Parts>
+constexpr auto concat(const Parts&... parts) {
+	constexpr auto arr = concat_string_literals::concat_impl(parts...);
+	return arr.data();
+}
+
+//------------------------------------------------------------------------------
+// Helper: unify "pointer-like" access into a raw pointer via addr(p).
+// Supports raw pointer, smart pointers with .get(), WRL::ComPtr with .Get(),
+// and (as a last resort) things that only expose operator->().
+//------------------------------------------------------------------------------
+template <typename P>
+constexpr auto addr(const P& p) noexcept {
+	if constexpr (std::is_pointer_v<P>) {
+		return p;                    // raw pointer
+	}
+	else if constexpr (requires { p.get(); }) {
+		return p.get();              // std::unique_ptr / std::shared_ptr / etc.
+	}
+	else if constexpr (requires { p.Get(); }) {
+		return p.Get();              // Microsoft::WRL::ComPtr
+	}
+	else if constexpr (requires { p.operator->(); }) {
+		return p.operator->();       // fallback: has operator->()
+	}
+	else {
+		// Not pointer-like; this return will only be used if this branch is taken.
+		return static_cast<void*>(nullptr);
+	}
+}
+
+// Compares addresses of object pointers (or nullptr) safely.
+// Accepts P1/P2 being either an object pointer OR std::nullptr_t.
+template <typename P1, typename P2>
+constexpr bool same_address(P1 p1, P2 p2) noexcept {
+	// Fast path: any type that can become a 'void const *' (object pointers, nullptr)
+	if constexpr (std::is_convertible_v<P1, void const*> &&
+		std::is_convertible_v<P2, void const*>) {
+		return static_cast<void const*>(p1) == static_cast<void const*>(p2);
+	}
+	else {
+		// If either side is nullptr, rely on built-in comparisons against nullptr.
+		if constexpr (std::is_null_pointer_v<P1>) {
+			return p2 == nullptr;
+		}
+		else if constexpr (std::is_null_pointer_v<P2>) {
+			return p1 == nullptr;
+		}
+		else {
+			// Fallback: function pointers or exotic cases not convertible to void*
+			// MSVC handles reinterpret_cast to uintptr_t for function pointers.
+			// This is implementation-defined but widely supported in practice.
+#if defined(_MSC_VER)
+			return reinterpret_cast<std::uintptr_t>(p1) ==
+				reinterpret_cast<std::uintptr_t>(p2);
+#else
+			// On strictly conforming compilers, only allow same-type comparison.
+			if constexpr (std::is_same_v<P1, P2>) {
+				return p1 == p2;
+			}
+			else {
+				// Different function-pointer types: best we can do portably is "not equal".
+				return false;
+			}
+#endif
+		}
+	}
+}
+
+// Is pointer-like if addr(x) is a raw pointer type.
+template <typename T>
+concept PointerLike = requires (const T & x) {
+	{ addr(x) } -> std::same_as<decltype(addr(x))>;
+}&& std::is_pointer_v<decltype(addr(std::declval<const T&>()))>;
+
+// Pointee type helper: only valid when PointerLike<T> is true.
+template <PointerLike P>
+using pointee_t = std::remove_pointer_t<decltype(addr(std::declval<const P&>()))>;
+
+//------------------------------------------------------------------------------
+// Equality that handles:
+//   * value vs value -> a == b
+//   * pointer-like vs value -> *p == v (if p non-null), else false
+//   * pointer-like vs pointer-like:
+//         if pointee types are equality-comparable and both non-null -> *pa == *pb
+//         else compare addresses (pa == pb)
+//------------------------------------------------------------------------------
+template <typename A, typename B>
+constexpr bool safe_equal(const A& a, const B& b) noexcept {
+	if constexpr (PointerLike<A> && PointerLike<B>) {
+		auto pa = addr(a);
+		auto pb = addr(b);
+
+		// If both null or one null:
+		if (!pa || !pb)
+		{
+			return same_address(pa, pb);
+		}
+
+		// If pointee types are the same and equality-comparable, compare values.
+		using AX = pointee_t<A>;
+		using BX = pointee_t<B>;
+		if constexpr (std::is_same_v<std::remove_cv_t<AX>, std::remove_cv_t<BX>>
+			&& requires (const AX & x, const BX & y) { { x == y } -> std::convertible_to<bool>; }) {
+			return *pa == *pb;
+		}
+		else {
+			// Different (or non-comparable) pointee types → compare addresses.
+			return same_address(pa, pb);
+		}
+	}
+	else if constexpr (PointerLike<A> && !PointerLike<B>) {
+		auto pa = addr(a);
+		if (!pa)
+		{
+			return false;
+		}
+
+		using AX = pointee_t<A>;
+		if constexpr (requires (const AX & x, const B & y) { { x == y } -> std::convertible_to<bool>; }) {
+			return *pa == b;
+		}
+		else {
+			// No valid value comparison.
+			return false;
+		}
+	}
+	else if constexpr (!PointerLike<A> && PointerLike<B>) {
+		auto pb = addr(b);
+		if (!pb)
+		{
+			return false;
+		}
+
+		using BX = pointee_t<B>;
+		if constexpr (requires (const A & x, const BX & y) { { x == y } -> std::convertible_to<bool>; }) {
+			return a == *pb;
+		}
+		else {
+			// No valid value comparison.
+			return false;
+		}
+	}
+	else {
+		// Neither side is pointer-like.
+		return a == b;
+	}
+}
+
+template <typename A, typename B>
+constexpr bool safe_not_equal(const A& a, const B& b) noexcept {
+	return !safe_equal(a, b);
+}
 
 #endif // __SYS_HELPERS_H__

@@ -105,7 +105,7 @@ const switchlist_t alphSwitchList[] =
 // P_InitSwitchList
 // Only called at game initialization.
 //
-void P_InitSwitchList(void)
+void P_InitSwitchList()
 {
     int		i;
     int		index;

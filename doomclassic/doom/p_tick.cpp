@@ -52,7 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // P_InitThinkers
 //
-void P_InitThinkers (void)
+void P_InitThinkers ()
 {
     ::g->thinkercap.prev = ::g->thinkercap.next  = &::g->thinkercap;
 }
@@ -100,7 +100,7 @@ static void P_AllocateThinker (thinker_t*	thinker)
 //
 // P_RunThinkers
 //
-static void P_RunThinkers (void)
+static void P_RunThinkers ()
 {
     thinker_t*	currentthinker;
 
@@ -132,7 +132,7 @@ static void P_RunThinkers (void)
 //
 extern byte demoversion;
 
-static void P_Ticker (void)
+static void P_Ticker ()
 {
     int		i;
     

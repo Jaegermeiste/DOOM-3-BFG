@@ -29,16 +29,18 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __WI_STUFF__
 #define __WI_STUFF__
 
+#pragma once
+
 //#include "v_video.h"
 
 #include "doomdef.h"
 
 // Called by main loop, animate the intermission.
-void WI_Ticker (void);
+void WI_Ticker ();
 
 // Called by main loop,
 // draws the intermission directly into the screen buffer.
-void WI_Drawer (void);
+void WI_Drawer ();
 
 // Setup for an intermission screen.
 void WI_Start(wbstartstruct_t*	 wbstartstruct);

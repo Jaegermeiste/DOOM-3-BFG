@@ -50,6 +50,7 @@ Does not allocate memory until the first key/value pair is added.
 */
 
 class idKeyValue {
+	template < Formattable T >
 	friend class idDict;
 
 public:
@@ -76,10 +77,11 @@ public:
 	[[nodiscard]] int Compare( const idKeyValue & a, const idKeyValue & b ) const { return a.GetKey().Icmp( b.GetKey() ); }
 };
 
+template< Formattable T = idStr >
 class idDict {
 public:
 						idDict() noexcept;
-						idDict( const idDict &other );	// allow declaration with assignment
+	           explicit idDict( const idDict<T> &other );	// allow declaration with assignment
 						~idDict();
 
 						// set the granularity for the index
@@ -87,7 +89,15 @@ public:
 						// set hash size
 	void				SetHashSize( size_t hashSize );
 						// clear existing key/value pairs and copy all key/value pairs from other
-	idDict &			operator=( const idDict &other );
+	idDict<T>&		operator=( const idDict<T>&other );
+
+	template < Formattable F > requires (!StringLikeOrEnum< F >)
+	[[nodiscard]] const T& operator[]( const F& key ) const noexcept;
+	template < Formattable F > requires (!StringLikeOrEnum< F >)
+	[[nodiscard]]       T& operator[]( const F& key ) noexcept;
+	[[nodiscard]] const T& operator[]( const StringLikeOrEnum auto& key ) const noexcept;
+	[[nodiscard]]       T& operator[]( const StringLikeOrEnum auto& key ) noexcept;
+
 						// copy from other while leaving existing key/value pairs in place
 	void				Copy( const idDict &other );
 						// clear existing key/value pairs and transfer key/value pairs from other
@@ -104,70 +114,70 @@ public:
 	[[nodiscard]] size_t				Allocated() const;
 	[[nodiscard]] size_t				Size() const { return sizeof( *this ) + Allocated(); }
 
-	void				Set( const char *key, const char *value );
-	void				SetFloat( const char *key, float val );
-	void				SetDouble( const char* key, double val );
-	void				SetInt( const char *key, int val );
-	void				SetInt64( const char* key, int64 val );
-	void				SetBool( const char *key, bool val );
-	void				SetVector( const char *key, const idVec3 &val );
-	void				SetVec2( const char *key, const idVec2 &val );
-	void				SetVec4( const char *key, const idVec4 &val );
-	void				SetAngles( const char *key, const idAngles &val );
-	void				SetMatrix( const char *key, const idMat3 &val );
+	void				Set( const StringLikeOrEnum auto &key, const StringLikeOrEnum auto &value );
+	void				SetFloat( const StringLikeOrEnum auto &key, float val );
+	void				SetDouble( const StringLikeOrEnum auto & key, double val );
+	void				SetInt( const StringLikeOrEnum auto &key, int32 val );
+	void				SetInt64( const StringLikeOrEnum auto & key, int64 val );
+	void				SetBool( const StringLikeOrEnum auto &key, bool val );
+	void				SetVector( const StringLikeOrEnum auto &key, const idVec3 &val );
+	void				SetVec2( const StringLikeOrEnum auto &key, const idVec2 &val );
+	void				SetVec4( const StringLikeOrEnum auto &key, const idVec4 &val );
+	void				SetAngles( const StringLikeOrEnum auto &key, const idAngles &val );
+	void				SetMatrix( const StringLikeOrEnum auto &key, const idMat3 &val );
 
 						// these return default values of 0.0, 0 and false
-	const char *		GetString( const char *key, const char *defaultString = "" ) const;
-	float				GetFloat( const char *key, const char *defaultString ) const;
-	double				GetDouble( const char* key, const char* defaultString ) const;
-	int					GetInt( const char *key, const char *defaultString ) const;
-	int64				GetInt64( const char* key, const char* defaultString ) const;
-	bool				GetBool( const char *key, const char *defaultString ) const;
-	float				GetFloat( const char *key, const float defaultFloat = 0.0f ) const;
-	double				GetDouble( const char* key, const double defaultDouble = 0.0 ) const;
-	int					GetInt( const char *key, const int defaultInt = 0 ) const;
-	int64				GetInt64( const char* key, const int64 defaultInt = 0 ) const;
-	bool				GetBool( const char *key, const bool defaultBool = false ) const;
-	idVec3				GetVector( const char *key, const char *defaultString = nullptr ) const;
-	idVec2				GetVec2( const char *key, const char *defaultString = nullptr ) const;
-	idVec4				GetVec4( const char *key, const char *defaultString = nullptr ) const;
-	idAngles			GetAngles( const char *key, const char *defaultString = nullptr ) const;
-	idMat3				GetMatrix( const char *key, const char *defaultString = nullptr ) const;
+	[[nodiscard]] const char *	GetString( const StringLikeOrEnum auto &key, const char* defaultString = "" ) const;
+	[[nodiscard]] float			GetFloat( const StringLikeOrEnum auto &key, const char* defaultString ) const;
+	[[nodiscard]] double		GetDouble( const StringLikeOrEnum auto & key, const char* defaultString ) const;
+	[[nodiscard]] int32			GetInt( const StringLikeOrEnum auto &key, const char* defaultString ) const;
+	[[nodiscard]] int64			GetInt64( const StringLikeOrEnum auto & key, const char* defaultString ) const;
+	[[nodiscard]] bool			GetBool( const StringLikeOrEnum auto &key, const char* defaultString ) const;
+	[[nodiscard]] float			GetFloat( const StringLikeOrEnum auto &key, const float defaultFloat = 0.0f ) const;
+	[[nodiscard]] double		GetDouble( const StringLikeOrEnum auto & key, const double defaultDouble = 0.0 ) const;
+	[[nodiscard]] int32			GetInt( const StringLikeOrEnum auto &key, const int32 defaultInt = 0 ) const;
+	[[nodiscard]] int64			GetInt64(const StringLikeOrEnum auto& key, const int64 defaultInt = 0 ) const;
+	[[nodiscard]] bool			GetBool( const StringLikeOrEnum auto &key, const bool defaultBool = false ) const;
+	[[nodiscard]] idVec3		GetVector( const StringLikeOrEnum auto &key, const char* defaultString = nullptr ) const;
+	[[nodiscard]] idVec2		GetVec2( const StringLikeOrEnum auto &key, const char* defaultString = nullptr ) const;
+	[[nodiscard]] idVec4		GetVec4( const StringLikeOrEnum auto &key, const char* defaultString = nullptr ) const;
+	[[nodiscard]] idAngles		GetAngles( const StringLikeOrEnum auto &key, const char* defaultString = nullptr ) const;
+	[[nodiscard]] idMat3		GetMatrix( const StringLikeOrEnum auto &key, const char* defaultString = nullptr ) const;
 
-	bool				GetString( const char *key, const char *defaultString, const char **out ) const;
-	bool				GetString( const char *key, const char *defaultString, idStr &out ) const;
-	bool				GetFloat( const char *key, const char *defaultString, float &out ) const;
-	bool				GetDouble( const char* key, const char* defaultString, double &out ) const;
-	bool				GetInt( const char *key, const char *defaultString, int &out ) const;
-	bool				GetInt64( const char* key, const char* defaultString, int64& out ) const;
-	bool				GetBool( const char *key, const char *defaultString, bool &out ) const;
-	bool				GetFloat( const char *key, const float defaultFloat, float &out ) const;
-	bool				GetDouble( const char* key, const double defaultDouble, double &out ) const;
-	bool				GetInt( const char *key, const int defaultInt, int &out ) const;
-	bool				GetInt64( const char* key, const int64 defaultInt, int64& out ) const;
-	bool				GetBool( const char *key, const bool defaultBool, bool &out ) const;
-	bool				GetVector( const char *key, const char *defaultString, idVec3 &out ) const;
-	bool				GetVec2( const char *key, const char *defaultString, idVec2 &out ) const;
-	bool				GetVec4( const char *key, const char *defaultString, idVec4 &out ) const;
-	bool				GetAngles( const char *key, const char *defaultString, idAngles &out ) const;
-	bool				GetMatrix( const char *key, const char *defaultString, idMat3 &out ) const;
+	bool				GetString( const StringLikeOrEnum auto &key, const char* defaultString, const char ** out ) const;
+	bool				GetString( const StringLikeOrEnum auto &key, const char* defaultString, idStr &out ) const;
+	bool				GetFloat( const StringLikeOrEnum auto &key, const char* defaultString, float &out ) const;
+	bool				GetDouble(const StringLikeOrEnum auto& key, const char* defaultString, double &out ) const;
+	bool				GetInt( const StringLikeOrEnum auto &key, const char* defaultString, int32 &out ) const;
+	bool				GetInt64(const StringLikeOrEnum auto& key, const char* defaultString, int64& out ) const;
+	bool				GetBool( const StringLikeOrEnum auto &key, const char* defaultString, bool &out ) const;
+	bool				GetFloat( const StringLikeOrEnum auto &key, const float defaultFloat, float &out ) const;
+	bool				GetDouble(const StringLikeOrEnum auto& key, const double defaultDouble, double &out ) const;
+	bool				GetInt( const StringLikeOrEnum auto &key, const int32 defaultInt, int32 &out ) const;
+	bool				GetInt64(const StringLikeOrEnum auto& key, const int64 defaultInt, int64& out ) const;
+	bool				GetBool( const StringLikeOrEnum auto &key, const bool defaultBool, bool &out ) const;
+	bool				GetVector( const StringLikeOrEnum auto &key, const char* defaultString, idVec3 &out ) const;
+	bool				GetVec2( const StringLikeOrEnum auto &key, const char* defaultString, idVec2 &out ) const;
+	bool				GetVec4( const StringLikeOrEnum auto &key, const char* defaultString, idVec4 &out ) const;
+	bool				GetAngles( const StringLikeOrEnum auto &key, const char* defaultString, idAngles &out ) const;
+	bool				GetMatrix( const StringLikeOrEnum auto &key, const char* defaultString, idMat3 &out ) const;
 
 	[[nodiscard]] size_t				GetNumKeyVals() const;
 	
 	const idKeyValue *	GetKeyVal( const Ordinal auto index ) const;
 						// returns the key/value pair with the given key
 						// returns NULL if the key/value pair does not exist
-	const idKeyValue *	FindKey( const char *key ) const;
+	const idKeyValue *	FindKey( const StringLikeOrEnum auto &key ) const;
 						// returns the index to the key/value pair with the given key
 						// returns -1 if the key/value pair does not exist
-	index_t				FindKeyIndex( const char *key ) const;
+	index_t				FindKeyIndex( const StringLikeOrEnum auto &key ) const;
 						// delete the key/value pair with the given key
-	void				Delete( const char *key );
+	void				Delete( const StringLikeOrEnum auto &key );
 						// finds the next key/value pair with the given key prefix.
 						// lastMatch can be used to do additional searches past the first match.
-	const idKeyValue *	MatchPrefix( const char *prefix, const idKeyValue *lastMatch = nullptr) const;
+	const idKeyValue *	MatchPrefix( const StringLikeOrEnum auto &prefix, const idKeyValue *lastMatch = nullptr) const;
 						// randomly chooses one of the key/value pairs with the given key prefix and returns it's value
-	const char *		RandomPrefix( const char *prefix, idRandom &random ) const;
+	const char *		RandomPrefix(const StringLikeOrEnum auto &prefix, idRandom &random ) const;
 
 	void				WriteToFileHandle( idFile *f ) const;
 	void				ReadFromFileHandle( idFile *f );
@@ -193,123 +203,159 @@ private:
 
 	static idStrPool	globalKeys;
 	static idStrPool	globalValues;
+
+	T                   ParseValueToT( const idStr& value );
 };
 
-
-ID_INLINE idDict::idDict() noexcept {
+template< Formattable T>
+ID_INLINE idDict<T>::idDict() noexcept {
 	args.SetGranularity( 16 );
 	argHash.SetGranularity( 16 );
 	argHash.Clear( 128, 16 );
 }
 
-ID_INLINE idDict::idDict( const idDict &other ) {
+template< Formattable T>
+ID_INLINE idDict<T>::idDict( const idDict &other ) {
 	*this = other;
 }
 
-ID_INLINE idDict::~idDict() {
+template< Formattable T>
+ID_INLINE idDict<T>::~idDict() {
 	Clear();
 }
 
-ID_INLINE void idDict::SetGranularity(const size_t granularity ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetGranularity(const size_t granularity ) {
 	args.SetGranularity( granularity );
 	argHash.SetGranularity( granularity );
 }
 
-ID_INLINE void idDict::SetHashSize(const size_t hashSize ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetHashSize(const size_t hashSize ) {
 	if ( args.Num() == 0 ) {
 		argHash.Clear( hashSize, 16 );
 	}
 }
 
-ID_INLINE void idDict::SetFloat( const char *key, const float val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetFloat( const StringLikeOrEnum auto &key, const float val ) {
 	Set( key, va( "%f", val ) );
 }
 
-ID_INLINE void idDict::SetDouble(const char* key, const double val) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetDouble(const StringLikeOrEnum auto & key, const double val) {
 	Set(key, va("%lf", val));
 }
 
-ID_INLINE void idDict::SetInt( const char *key, const int val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetInt( const StringLikeOrEnum auto &key, const int32 val ) {
 	Set( key, va( "%i", val ) );
 }
 
-ID_INLINE void idDict::SetInt64(const char* key, const int64 val) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetInt64(const StringLikeOrEnum auto & key, const int64 val) {
 	Set(key, va("%lli", val));
 }
 
-ID_INLINE void idDict::SetBool( const char *key, const bool val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetBool( const StringLikeOrEnum auto &key, const bool val ) {
 	Set( key, va( "%i", val ) );
 }
 
-ID_INLINE void idDict::SetVector( const char *key, const idVec3 &val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetVector( const StringLikeOrEnum auto &key, const idVec3 &val ) {
 	Set( key, val.ToString() );
 }
 
-ID_INLINE void idDict::SetVec4( const char *key, const idVec4 &val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetVec4( const StringLikeOrEnum auto &key, const idVec4 &val ) {
 	Set( key, val.ToString() );
 }
 
-ID_INLINE void idDict::SetVec2( const char *key, const idVec2 &val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetVec2( const StringLikeOrEnum auto &key, const idVec2 &val ) {
 	Set( key, val.ToString() );
 }
 
-ID_INLINE void idDict::SetAngles( const char *key, const idAngles &val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetAngles( const StringLikeOrEnum auto &key, const idAngles &val ) {
 	Set( key, val.ToString() );
 }
 
-ID_INLINE void idDict::SetMatrix( const char *key, const idMat3 &val ) {
+template< Formattable T>
+ID_INLINE void idDict<T>::SetMatrix( const StringLikeOrEnum auto &key, const idMat3 &val ) {
 	Set( key, val.ToString() );
 }
 
-ID_INLINE bool idDict::GetString( const char *key, const char *defaultString, const char **out ) const {
+template< Formattable T>
+ID_INLINE bool idDict<T>::GetString( const StringLikeOrEnum auto &key, const char* defaultString, const char **out ) const {
 	const idKeyValue *kv = FindKey( key );
+
 	if ( kv ) {
 		*out = kv->GetValue();
+
 		return true;
 	}
+
 	*out = defaultString;
+
 	return false;
 }
 
-ID_INLINE bool idDict::GetString( const char *key, const char *defaultString, idStr &out ) const {
+template< Formattable T>
+ID_INLINE bool idDict<T>::GetString( const StringLikeOrEnum auto& key, const char* defaultString, idStr &out ) const {
 	const idKeyValue *kv = FindKey( key );
+
 	if ( kv ) {
 		out = kv->GetValue();
+
 		return true;
 	}
+
 	out = defaultString;
+
 	return false;
 }
 
-ID_INLINE const char *idDict::GetString( const char *key, const char *defaultString ) const {
+template< Formattable T>
+ID_INLINE const char *idDict<T>::GetString( const StringLikeOrEnum auto& key, const char* defaultString ) const {
 	const idKeyValue *kv = FindKey( key );
+
 	if ( kv ) {
 		return kv->GetValue();
 	}
+
 	return defaultString;
 }
 
-ID_INLINE float idDict::GetFloat( const char *key, const char *defaultString ) const {
-	return idStr::AtoF<float>( GetString( key, defaultString ) );
+template< Formattable T>
+ID_INLINE float idDict<T>::GetFloat( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	return idStr::AtoF<float>(GetString( key, defaultString ) );
 }
 
-ID_INLINE double idDict::GetDouble(const char* key, const char* defaultString) const {
+
+template< Formattable T>
+ID_INLINE double idDict<T>::GetDouble(const StringLikeOrEnum auto& key, const char* defaultString) const {
 	return idStr::AtoF<double>(GetString(key, defaultString));
 }
 
-ID_INLINE int idDict::GetInt( const char *key, const char *defaultString ) const {
-	return idStr::AtoI<int>( GetString( key, defaultString ) );
+template< Formattable T>
+ID_INLINE int32 idDict<T>::GetInt( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	return idStr::AtoI<int32>(GetString( key, defaultString ) );
 }
 
-ID_INLINE int64 idDict::GetInt64(const char* key, const char* defaultString) const {
+template< Formattable T>
+ID_INLINE int64 idDict<T>::GetInt64(const StringLikeOrEnum auto& key, const char* defaultString) const {
 	return idStr::AtoI<int64>(GetString(key, defaultString));
 }
 
-ID_INLINE bool idDict::GetBool( const char *key, const char *defaultString ) const {
-	return ( idStr::AtoI<bool>( GetString( key, defaultString ) ) != 0 );
+template< Formattable T>
+ID_INLINE bool idDict<T>::GetBool( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	return ( idStr::AtoI<bool>(GetString( key, defaultString ) ) != 0 );
 }
 
-ID_INLINE float idDict::GetFloat( const char *key, const float defaultFloat ) const {
+template< Formattable T>
+ID_INLINE float idDict<T>::GetFloat( const StringLikeOrEnum auto &key, const float defaultFloat ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) 
 	{
@@ -318,7 +364,8 @@ ID_INLINE float idDict::GetFloat( const char *key, const float defaultFloat ) co
 	return defaultFloat;
 }
 
-ID_INLINE double idDict::GetDouble( const char* key, const double defaultDouble ) const {
+template< Formattable T>
+ID_INLINE double idDict<T>::GetDouble( const StringLikeOrEnum auto& key, const double defaultDouble ) const {
 	const idKeyValue* kv = FindKey(key);
 	if (kv)
 	{
@@ -327,66 +374,75 @@ ID_INLINE double idDict::GetDouble( const char* key, const double defaultDouble 
 	return defaultDouble;
 }
 
-ID_INLINE int idDict::GetInt( const char *key, const int defaultInt ) const {
+template< Formattable T>
+ID_INLINE int32 idDict<T>::GetInt( const StringLikeOrEnum auto &key, const int32 defaultInt ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
-		return atoi( kv->GetValue() );
+		return idStr::AtoI<int32>( kv->GetValue() );
 	}
 	return defaultInt;
 }
 
-ID_INLINE int64 idDict::GetInt64(const char* key, const int64 defaultInt) const {
+template< Formattable T>
+ID_INLINE int64 idDict<T>::GetInt64(const StringLikeOrEnum auto& key, const int64 defaultInt) const {
 	const idKeyValue* kv = FindKey(key);
 	if (kv) {
-		return _atoi64(kv->GetValue());
+		return idStr::AtoI<int64>(kv->GetValue());
 	}
 	return defaultInt;
 }
 
-ID_INLINE bool idDict::GetBool( const char *key, const bool defaultBool ) const {
+template< Formattable T>
+ID_INLINE bool idDict<T>::GetBool( const StringLikeOrEnum auto &key, const bool defaultBool ) const {
 	const idKeyValue *kv = FindKey( key );
 	if ( kv ) {
-		return atoi( kv->GetValue() ) != 0;
+		return idStr::AtoI<int8>( kv->GetValue() ) != 0;
 	}
 	return defaultBool;
 }
 
-ID_INLINE idVec3 idDict::GetVector( const char *key, const char *defaultString ) const {
-	idVec3 out;
-	GetVector( key, defaultString, out );
+template< Formattable T>
+ID_INLINE idVec3 idDict<T>::GetVector( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	idVec3 out = {};
+	idDict<T>::GetVector( key, defaultString, out );
 	return out;
 }
 
-ID_INLINE idVec2 idDict::GetVec2( const char *key, const char *defaultString ) const {
-	idVec2 out;
-	GetVec2( key, defaultString, out );
+template< Formattable T>
+ID_INLINE idVec2 idDict<T>::GetVec2( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	idVec2 out = {};
+	idDict<T>::GetVec2( key, defaultString, out );
 	return out;
 }
 
-ID_INLINE idVec4 idDict::GetVec4( const char *key, const char *defaultString ) const {
-	idVec4 out;
-	GetVec4( key, defaultString, out );
+template< Formattable T>
+ID_INLINE idVec4 idDict<T>::GetVec4( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	idVec4 out = {};
+	idDict<T>::GetVec4( key, defaultString, out );
 	return out;
 }
 
-ID_INLINE idAngles idDict::GetAngles( const char *key, const char *defaultString ) const {
-	idAngles out;
-	GetAngles( key, defaultString, out );
+template< Formattable T>
+ID_INLINE idAngles idDict<T>::GetAngles( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	idAngles out = {};
+	idDict<T>::GetAngles( key, defaultString, out );
 	return out;
 }
 
-ID_INLINE idMat3 idDict::GetMatrix( const char *key, const char *defaultString ) const {
-	idMat3 out;
-	GetMatrix( key, defaultString, out );
+template< Formattable T>
+ID_INLINE idMat3 idDict<T>::GetMatrix( const StringLikeOrEnum auto &key, const char* defaultString ) const {
+	idMat3 out = {};
+	idDict<T>::GetMatrix( key, defaultString, out );
 	return out;
 }
 
-ID_INLINE size_t idDict::GetNumKeyVals() const {
+template< Formattable T>
+ID_INLINE size_t idDict<T>::GetNumKeyVals() const {
 	return args.Num();
 }
 
-
-ID_INLINE const idKeyValue *idDict::GetKeyVal( const Ordinal auto index ) const {
+template< Formattable T>
+ID_INLINE const idKeyValue *idDict<T>::GetKeyVal( const Ordinal auto index ) const {
 	if ( index >= 0 && std::cmp_less(index, args.Num()) ) {
 		return &args[ index ];
 	}

@@ -69,10 +69,7 @@ void	R_DrawTranslatedColumn ( lighttable_t * dc_colormap,
 void	R_DrawTranslatedColumnLow ( lighttable_t * dc_colormap,
 						  byte * dc_source );
 
-void
-R_VideoErase
-( unsigned	ofs,
-  int		count );
+void    R_VideoErase ( size_t ofs, size_t count );
 
 extern int		ds_y;
 extern int		ds_x1;
@@ -125,15 +122,15 @@ R_InitBuffer
 
 // Initialize color translation tables,
 //  for player rendering etc.
-void	R_InitTranslationTables (void);
+void	R_InitTranslationTables ();
 
 
 
 // Rendering function.
-void R_FillBackScreen (void);
+void R_FillBackScreen ();
 
 // If the view size is not full screen, draws a border around it.
-void R_DrawViewBorder (void);
+void R_DrawViewBorder ();
 
 
 

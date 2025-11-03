@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __P_SETUP__
 #define __P_SETUP__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
@@ -36,15 +37,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // NOT called by W_Ticker. Fixme.
-void
-P_SetupLevel
-( int		episode,
-  int		map,
-  int		playermask,
-  skill_t	skill);
+void P_SetupLevel ( const index_t episode, const index_t map, int playermask, const skill_t skill);
 
 // Called by startup code.
-void P_Init (void);
+void P_Init ();
 
 #endif
 

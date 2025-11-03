@@ -190,8 +190,18 @@ public:
 	// Changing the memTag when the list has an allocated buffer will
 	// result in corruption of the memory statistics.
 	//------------------------
-	[[nodiscard]] memTag_t		GetMemTag() const { return static_cast<memTag_t>(memTag); };
-	void			SetMemTag(const memTag_t tag_ ) { memTag = static_cast<byte>(tag_); };
+	[[nodiscard]] memTag_t		GetMemTag() const { return static_cast<memTag_t>(memTag); }
+	void			SetMemTag(const memTag_t tag_ ) { memTag = static_cast<byte>(tag_); }
+
+	// Modern Range-Based for-loop Iteration
+	_type_* begin() noexcept { return list; }
+	_type_* end() noexcept { return list + num; }
+
+	const _type_* begin() const noexcept { return list; }
+	const _type_* end() const noexcept { return list + num; }
+
+	const _type_* cbegin() const noexcept { return begin(); }
+	const _type_* cend()   const noexcept { return end(); }
 
 private:
 	size_t			num;

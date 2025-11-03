@@ -49,13 +49,15 @@ typedef enum evtype_e : uint8
 } evtype_t;
 
 // Event structure.
-typedef struct event_s
+struct event_t
 {
     evtype_t	type;
     int		data1;		// keys / mouse/joystick buttons
     int		data2;		// mouse/joystick x move
     int		data3;		// mouse/joystick y move
-} event_t;
+
+	idQueueNode<event_t>	queueNode;
+};
 
  
 typedef enum gameaction_e : uint8
@@ -113,13 +115,8 @@ typedef enum buttoncode_e : uint8
 //
 // GLOBAL VARIABLES
 //
-constexpr auto MAXEVENTS = 64;
+constexpr size_t MAXEVENTS = 1024;    // https://doomwiki.org/wiki/Static_limits
 
-extern  event_t		events[MAXEVENTS];
-extern  int             eventhead;
-extern	int		eventtail;
-
-extern  gameaction_t    gameaction;
 
 
 #endif

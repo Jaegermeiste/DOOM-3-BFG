@@ -356,7 +356,7 @@ R_GetColumn
 // Initializes the texture list
 //  with the s_textures from the world map.
 //
-static void R_InitTextures (void)
+static void R_InitTextures ()
 {
     maptexture_t*	mtexture;
     texture_t*		texture;
@@ -548,7 +548,7 @@ static void R_InitTextures (void)
 //
 // R_InitFlats
 //
-static void R_InitFlats (void)
+static void R_InitFlats ()
 {
     int		i;
 	
@@ -572,7 +572,7 @@ static void R_InitFlats (void)
 //  so the sprite does not need to be cached completely
 //  just for having the header info ready during rendering.
 //
-static void R_InitSpriteLumps (void)
+static void R_InitSpriteLumps ()
 {
     int		i;
     patch_t	*patch;
@@ -604,7 +604,7 @@ static void R_InitSpriteLumps (void)
 //
 // R_InitColormaps
 //
-static void R_InitColormaps (void)
+static void R_InitColormaps ()
 {
     int	lump, length;
     
@@ -625,7 +625,7 @@ static void R_InitColormaps (void)
 //  that will be used by all views
 // Must be called after W_Init.
 //
-void R_InitData (void)
+void R_InitData ()
 {
     R_InitTextures ();
     I_Printf ("\nInitTextures");
@@ -643,10 +643,10 @@ void R_InitData (void)
 // R_FlatNumForName
 // Retrieval, get a flat number for a flat name.
 //
-int R_FlatNumForName (const char* name)
+index_t R_FlatNumForName (const char* name)
 {
-    int		i;
-    char	namet[9];
+    int		i = 0;
+    char	namet[9] = {};
 
     i = W_CheckNumForName (name);
 
@@ -713,7 +713,7 @@ index_t	R_TextureNumForName (const char* name)
 // Preloads all relevant graphics for the level.
 //
 
-void R_PrecacheLevel (void)
+void R_PrecacheLevel ()
 {
     size_t			i = 0;
 	size_t			j = 0;
@@ -764,7 +764,7 @@ void R_PrecacheLevel (void)
     // Note that F_SKY1 is the name used to
     //  indicate a sky floor/ceiling as a flat,
     //  while the sky texture is stored like
-    //  a wall texture, with an episode dependend
+    //  a wall texture, with an episode dependent
     //  name.
     texturepresent[::g->skytexture] = 1;
 	

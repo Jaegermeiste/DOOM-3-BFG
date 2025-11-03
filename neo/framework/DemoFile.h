@@ -61,8 +61,10 @@ public:
 	const char *	ReadHashString();
 	void			WriteHashString( const char *str );
 
-	void			ReadDict( idDict &dict );
-	void			WriteDict( const idDict &dict );
+	template<class T>
+	void			ReadDict( idDict<T> &dict );
+	template<class T>
+	void			WriteDict( const idDict<T> &dict );
 
 	int				Read( void *buffer, size_t len ) const;
 	int				Write( const void *buffer, size_t len ) const;

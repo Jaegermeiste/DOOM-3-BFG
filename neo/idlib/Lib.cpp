@@ -86,7 +86,7 @@ void idLib::Init() {
 #endif
 
 	// initialize the dictionary string pools
-	idDict::Init();
+	idDict<>::Init();
 }
 
 /*
@@ -97,7 +97,7 @@ idLib::ShutDown
 void idLib::ShutDown() {
 
 	// shut down the dictionary string pools
-	idDict::Shutdown();
+	idDict<>::Shutdown();
 
 	// shut down the string memory allocator
 	idStr::ShutdownMemory();

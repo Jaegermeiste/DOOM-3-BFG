@@ -33,9 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include <stdlib.h>
+#include <cstdlib>
 
-#include <ctype.h>
+#include <cctype>
 
 
 #include "doomdef.h"
@@ -68,77 +68,79 @@ If you have questions concerning this license or the applicable additional terms
 // HU_Init must have been called to init the font
 //
 
-int
-M_DrawText
-( int		x,
-  const int		y,
-  const qboolean	direct,
-  char*		string )
+int M_DrawText ( int x, const int y, const bool direct, const char* string )
 {
 	while (*string)
-    {
-	const int c = toupper(*string) - HU_FONTSTART;
-	string++;
-	if (c < 0 || c> HU_FONTSIZE)
 	{
-	    x += 4;
-	    continue;
+		const auto c = idStr::ToUpper(*string) - HU_FONTSTART;
+
+		++string;
+
+		if (c < 0 || c > HU_FONTSIZE)
+		{
+			x += 4;
+			continue;
+		}
+
+		const size_t w = ::g->hu_font[c]->width;
+
+		if (x + w > SCREENWIDTH)
+		{
+			break;
+		}
+
+		if (direct)
+		{
+			V_DrawPatchDirect(x, y, 0, ::g->hu_font[c]);
+		}
+		else
+		{
+			V_DrawPatch(x, y, 0, ::g->hu_font[c]);
+		}
+
+		x += numeric_cast<int>(w);
 	}
 
-	const int w = SHORT(::g->hu_font[c]->width);
-	if (x+w > SCREENWIDTH)
-	{
-		break;
-	}
-	if (direct)
-	{
-		V_DrawPatchDirect(x, y, 0, ::g->hu_font[c]);
-	}
-	else
-	{
-		V_DrawPatch(x, y, 0, ::g->hu_font[c]);
-	}
-	x+=w;
-    }
-
-    return x;
+	return x;
 }
 
 
 //
 // M_WriteFile
 //
-boolean M_WriteFile ( char const*	name, void*		source, const size_t		length ) {
-	
-	idFile *		handle = nullptr;
-	size_t		count = 0;
-
-	handle = fileSystem->OpenFileWrite( name, "fs_savepath" );
-
-	if (handle == nullptr)
+bool M_WriteFile ( const char* name, const void* source, const size_t length ) {
+	if (name && source)
 	{
-		return false;
+		idFile* handle = fileSystem->OpenFileWrite(name, "fs_savepath");
+
+		if (handle == nullptr)
+		{
+			return false;
+		}
+
+		size_t count = handle->Write(source, length);
+
+		fileSystem->CloseFile(handle);
+
+		if (count < length)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
-	count = handle->Write( source, length );
-	fileSystem->CloseFile( handle );
-
-	if (count < length)
-	{
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 
 //
 // M_ReadFile
 //
-size_t M_ReadFile ( char const*	name, byte**	buffer ) {
+size_t M_ReadFile ( const char * name, byte** buffer ) {
 	size_t count = 0, length = 0;
 	idFile * handle = nullptr;
-	byte		*buf = nullptr;
+	byte	 *buf = nullptr;
 
 	handle = fileSystem->OpenFileRead( name, false );
 
@@ -158,24 +160,25 @@ size_t M_ReadFile ( char const*	name, byte**	buffer ) {
 	fileSystem->CloseFile( handle );
 
 	*buffer = buf;
+
 	return length;
 }
 
 //
 // Write a save game to the specified device using the specified game name.
 //
-static qboolean SaveGame( void* source, DWORD length )
+static bool SaveGame( void* source, const size_t length )
 {
 	return false;
 }
 
 
-qboolean M_WriteSaveGame( void* source, const size_t length )
+bool M_WriteSaveGame( void* source, const size_t length )
 {
 	return SaveGame( source, length );
 }
 
-int M_ReadSaveGame( byte** buffer )
+size_t M_ReadSaveGame( byte** buffer )
 {
 	return 0;
 }
@@ -216,7 +219,7 @@ extern const char* const temp_chat_macros[];
 //
 // M_SaveDefaults
 //
-void M_SaveDefaults (void)
+void M_SaveDefaults ()
 {
 /*
     int		i;
@@ -249,9 +252,9 @@ void M_SaveDefaults (void)
 // M_LoadDefaults
 //
 
-void M_LoadDefaults (void)
+void M_LoadDefaults ()
 {
-    int		i;
+    index_t		i = 0;
     //int		len;
     //FILE*	f;
     //char	def[80];
@@ -261,15 +264,14 @@ void M_LoadDefaults (void)
     //qboolean	isstring;
     
     // set everything to base values
-    ::g->numdefaults = sizeof(::g->defaults)/sizeof(::g->defaults[0]);
-    for (i=0 ; i < ::g->numdefaults ; i++)
+    for (auto& dflt : ::g->defaults)
     {
-	    *::g->defaults[i].location = ::g->defaults[i].defaultvalue;
+	    *dflt.location = dflt.defaultvalue;
     }
 
     // check for a custom default file
     i = M_CheckParm ("-config");
-    if (i && i < ::g->myargc-1)
+    if (i && std::cmp_less(i, ::g->myargc-1))
     {
 		::g->defaultfile = ::g->myargv[i+1];
 		I_Printf ("	default file: %s\n",::g->defaultfile);
@@ -296,7 +298,7 @@ void M_LoadDefaults (void)
 					len = strlen(strparm);
 					newstring = (char *)DoomLib::Z_Malloc(len, PU_STATIC, 0);
 					strparm[len-1] = 0;
-					strcpy(newstring, strparm+1);
+					strncpy_s(newstring, strparm+1);
 				}
 				else if (strparm[0] == '0' && strparm[1] == 'x')
 					sscanf(strparm+2, "%x", &parm);
@@ -346,7 +348,7 @@ WritePCXfile
 //
 // M_ScreenShot
 //
-void M_ScreenShot (void)
+void M_ScreenShot ()
 {
 /*
     int		i;
@@ -358,7 +360,7 @@ void M_ScreenShot (void)
     I_ReadScreen (linear);
     
     // find a file name to save it to
-    strcpy(lbmname,"DOOM00.pcx");
+    strncpy_s(lbmname,"DOOM00.pcx");
 		
     for (i=0 ; i<=99 ; i++)
     {

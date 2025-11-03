@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __F_FINALE__
 #define __F_FINALE__
 
-
+#pragma once
 #include "doomtype.h"
 #include "d_event.h"
 //
@@ -37,16 +37,16 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 // Called by main loop.
-qboolean F_Responder (event_t* ev);
+bool F_Responder (event_t* ev);
 
 // Called by main loop.
-void F_Ticker (void);
+void F_Ticker ();
 
 // Called by main loop.
-void F_Drawer (void);
+void F_Drawer ();
 
 
-void F_StartFinale (void);
+void F_StartFinale ();
 
 
 

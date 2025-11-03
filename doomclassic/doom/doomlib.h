@@ -97,13 +97,13 @@ namespace DoomLib
 	typedef int ( *SendRemoteFunc)();
 
 	void InitGlobals( void *ptr = nullptr);
-	void InitGame( int argc, char ** argv );
+	void InitGame( size_t argc, const char ** argv );
 	void InitControlRemap();
 	keyNum_t RemapControl( keyNum_t key );
 	bool Poll();
 	bool Tic( idUserCmdMgr * userCmdMgr );
 	void Wipe();
-	void Frame( fixed_t realoffset = 0, int buffer = 0 );
+	void Frame( fixed_t realoffset = 0 );
 	void Draw();
 	void Shutdown();
 
@@ -115,8 +115,8 @@ namespace DoomLib
 	byte BuildSourceDest( index_t toNode );
 	void GetSourceDest( byte sourceDest, index_t* source, index_t* dest );
 
-	int RemoteNodeToPlayerIndex( index_t node );
-	int PlayerIndexToRemoteNode( index_t index );
+	index_t RemoteNodeToPlayerIndex( index_t node );
+	index_t PlayerIndexToRemoteNode( index_t index );
 
 	void PollNetwork();
 	void SendNetwork();
@@ -130,7 +130,7 @@ namespace DoomLib
 	extern SendRemoteFunc SendRemote;
 
 	extern void* 	(*Z_Malloc)( size_t size, int tag, void* user );
-	extern void 	(*Z_FreeTag)(int lowtag );
+	extern void 	(*Z_FreeTag)( int lowtag );
 
 	extern DoomInterface		Interface;
 	extern index_t				idealExpansion;

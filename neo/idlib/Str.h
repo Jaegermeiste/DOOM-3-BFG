@@ -122,6 +122,8 @@ constexpr size_t STR_ALLOC_BASE		= 20;
 constexpr size_t STR_ALLOC_BASE_NUM = 64;
 constexpr size_t STR_ALLOC_GRAN		= 32;
 
+constexpr auto STR_UNKNOWN_ENUM = "<unknown>";
+
 typedef enum : uint8 {
 	MEASURE_SIZE = 0,
 	MEASURE_BANDWIDTH
@@ -131,83 +133,82 @@ class idStr {
 
 public:
 						idStr() noexcept;
-						idStr( const idStr &text );
-						idStr( const idStr &text, size_t start, size_t end );
-						idStr( const char *text );
-						idStr( const char *text, size_t start, size_t end );
-						explicit idStr( const bool b );
-						explicit idStr( const char c );
-						idStr( const std::integral auto i );
-						idStr( const std::floating_point auto f );
+						idStr( const StringLike auto &text );
+	           explicit idStr( const FormattableNoStrings auto &value );
+						idStr( const StringLike auto &text, size_t start, size_t end );
+			   explicit idStr( const FormattableNoStrings auto& text, size_t start, size_t end);
 						~idStr();
 
-						[[nodiscard]] size_t				Size() const;
-						[[nodiscard]] const char *		c_str() const;
-	operator			const char *() const;
-	operator			const char *();
+	[[nodiscard]] size_t			Size() const;
+	[[nodiscard]] const char* 		c_str() const;
+	operator			const char* () const;
+	operator			const char* ();
 
 	
 	char				operator[]( const Ordinal auto index ) const;
 	char &				operator[]( const Ordinal auto index );
 
-	void				operator=( const idStr &text );
-	void				operator=( const char *text );
+	idStr &             operator=( const StringLike auto &text );
+	idStr &             operator=( const FormattableNoStrings auto &value );
 
-	friend idStr		operator+( const idStr &a, const idStr &b );
-	friend idStr		operator+( const idStr &a, const char *b );
-	friend idStr		operator+( const char *a, const idStr &b );
+	friend idStr        operator+( const StringLike auto &a, const StringLike auto &b );
+	friend idStr        operator+( const StringLike auto &a, const FormattableNoStrings auto &b );
+	friend idStr        operator+( const FormattableNoStrings auto &a, const StringLike auto &b );
 
-	friend idStr		operator+( const idStr &a, const std::floating_point auto b );
-	friend idStr		operator+( const idStr &a, const std::integral auto b );
-	friend idStr		operator+( const idStr &a, const bool b );
-	friend idStr		operator+( const idStr &a, const char b );
-
-	idStr &				operator+=( const idStr &a );
-	idStr &				operator+=( const char *a );
-	idStr &				operator+=( const std::floating_point auto a );
-	idStr &				operator+=( const char a );
-	idStr &				operator+=( const std::integral auto a );
-	idStr &				operator+=( const bool a );
+	idStr &				operator+=( const StringLike auto &a );
+	idStr &				operator+=( const FormattableNoStrings auto &a );
 
 						// case sensitive compare
-	friend bool			operator==( const idStr &a, const idStr &b );
-	friend bool			operator==( const idStr &a, const char *b );
-	friend bool			operator==( const char *a, const idStr &b );
+	friend bool         operator==( const idStr& a, const idStr& b );
+	friend bool         operator==( const idStr& a, const StringLike auto &b );
+	friend bool         operator==( const idStr& a, const FormattableNoStrings auto &b );
+	friend bool         operator==( const StringLike auto& a, const idStr& b );
+	friend bool         operator==( const FormattableNoStrings auto &a, const idStr& b);
+	friend bool    		operator==( const StringLike auto &a, const StringLike auto &b );
 
 						// case sensitive compare
-	friend bool			operator!=( const idStr &a, const idStr &b );
-	friend bool			operator!=( const idStr &a, const char *b );
-	friend bool			operator!=( const char *a, const idStr &b );
+	friend bool         operator!=( const idStr& a, const idStr& b );
+	friend bool         operator!=( const idStr& a, const StringLike auto& b );
+	friend bool         operator!=( const idStr& a, const FormattableNoStrings auto &b );
+	friend bool         operator!=( const StringLike auto& a, const idStr& b );
+	friend bool         operator!=( const FormattableNoStrings auto &a, const idStr& b );
+	friend bool    		operator!=( const StringLike auto &a, const StringLike auto &b );
 
 						// case sensitive compare
-	int					Cmp( const char *text ) const;
-	int					Cmpn( const char *text, size_t n ) const;
-	int					CmpPrefix( const char *text ) const;
+	int					Cmp( const StringLikeOrEnum auto text ) const;
+	int					Cmpn( const StringLikeOrEnum auto text, const size_t n ) const;
+	int					CmpPrefix( const StringLikeOrEnum auto text ) const;
 
 						// case insensitive compare
-	int					Icmp( const char *text ) const;
-	int					Icmpn( const char *text, size_t n ) const;
-	int					IcmpPrefix( const char *text ) const;
+	int					Icmp( const StringLikeOrEnum auto text ) const;
+	int					Icmpn( const StringLikeOrEnum auto text, const size_t n ) const;
+	int					IcmpPrefix( const StringLikeOrEnum auto text ) const;
 
 						// case insensitive compare ignoring color
-	int					IcmpNoColor( const char *text ) const;
+	int					IcmpNoColor( const StringLikeOrEnum auto text ) const;
 
 						// compares paths and makes sure folders come first
-	int					IcmpPath( const char *text ) const;
-	int					IcmpnPath( const char *text, size_t n ) const;
-	int					IcmpPrefixPath( const char *text ) const;
+	int					IcmpPath( const StringLikeOrEnum auto text ) const;
+	int					IcmpnPath( const StringLikeOrEnum auto text, const size_t n ) const;
+	int					IcmpPrefixPath( const StringLikeOrEnum auto text ) const;
 
 	[[nodiscard]] size_t				Length() const;
 	[[nodiscard]] size_t				Allocated() const;
 	void				Empty();
-						[[nodiscard]] bool				IsEmpty() const;
+	[[nodiscard]] bool				IsEmpty() const;
 	void				Clear();
 	void				Append( const char a );
 	void				Append( const idStr &text );
-	void				Append( const char *text );
-	void				Append( const char *text, size_t len );
-	void				Insert( const char a, Ordinal auto index );
-	void				Insert( const char *text, Ordinal auto index );
+	void				Append( const StringLikeOrEnum auto text );
+	template < Formattable T >
+		requires (!StringLikeOrEnum< T >)
+	void				Append( const T &value );
+	void				Append( const char * text, const size_t len );
+	void				Insert( const char * text, Ordinal auto index );
+	void				Insert( const StringLikeOrEnum auto &text, Ordinal auto index );
+	template < Formattable T >
+		requires (!StringLikeOrEnum< T >)
+	void				Insert( const T &value, Ordinal auto index );
 	void				ToLower() const;
 	void				ToUpper() const;
 	[[nodiscard]] bool	IsNumeric() const;
@@ -224,63 +225,63 @@ public:
 	ID_INLINE uint32		UTF8Char( Ordinal auto & idx ) const;
 	static size_t			UTF8Length( const byte * s );
 	
-	static ID_INLINE uint32 UTF8Char( const char * s, Ordinal auto& idx );
+	static ID_INLINE uint32 UTF8Char( const char *  s, Ordinal auto& idx );
 	
 	static uint32			UTF8Char( const byte * s, Ordinal auto& idx );
 	void					AppendUTF8Char( uint32 c );
 	ID_INLINE void			ConvertToUTF8();
 	static bool				IsValidUTF8( const uint8 * s, const size_t maxLen, utf8Encoding_t & encoding );
-	static ID_INLINE bool	IsValidUTF8( const char * s, const size_t maxLen, utf8Encoding_t & encoding ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen, encoding ); }
+	static ID_INLINE bool	IsValidUTF8( const char *  s, const size_t maxLen, utf8Encoding_t & encoding ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen, encoding ); }
 	static ID_INLINE bool	IsValidUTF8( const uint8 * s, const size_t maxLen );
-	static ID_INLINE bool	IsValidUTF8( const char * s, const size_t maxLen ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen ); }
+	static ID_INLINE bool	IsValidUTF8( const char *  s, const size_t maxLen ) { return IsValidUTF8( reinterpret_cast<const uint8*>(s), maxLen ); }
 
 	[[nodiscard]] index_t   Find( const char c ) const;
 	[[nodiscard]] index_t   Find( const char c, const Ordinal auto start = 0, const Ordinal auto end = -1 ) const;
 	[[nodiscard]] index_t   Find( const char* text, bool casesensitive = true ) const;
 	[[nodiscard]] index_t   Find( const char* text, bool casesensitive, const Ordinal auto start ) const;
 	[[nodiscard]] index_t   Find( const char* text, bool casesensitive, const Ordinal auto start, const Ordinal auto end ) const;
-	bool				Filter( const char *filter, bool casesensitive ) const;
+	bool				Filter( const char * filter, bool casesensitive ) const;
 	[[nodiscard]] index_t	Last( const char c ) const;						// return the index to the last occurrence of 'c', returns -1 if not found
-	const char *		Left( size_t len, idStr &result ) const;			// store the leftmost 'len' characters in the result
-	const char *		Right( size_t len, idStr &result ) const;			// store the rightmost 'len' characters in the result
-	const char *		Mid( const Ordinal auto start, size_t len, idStr &result ) const;	// store 'len' characters starting at 'start' in result
+	const char* Left( size_t len, idStr &result ) const;			// store the leftmost 'len' characters in the result
+	const char* Right( size_t len, idStr &result ) const;			// store the rightmost 'len' characters in the result
+	const char* Mid( const Ordinal auto start, size_t len, idStr &result ) const;	// store 'len' characters starting at 'start' in result
 	[[nodiscard]] idStr				Left( size_t len ) const;							// return the leftmost 'len' characters
 	[[nodiscard]] idStr				Right( size_t len ) const;							// return the rightmost 'len' characters
 	[[nodiscard]] idStr				Mid( const Ordinal auto start, size_t len ) const;				// return 'len' characters starting at 'start'
-	void				Format( VERIFY_FORMAT_STRING const char *fmt, ... );					// perform a threadsafe sprintf to the string
+	void				Format( VERIFY_FORMAT_STRING const char * fmt, ... );					// perform a threadsafe sprintf to the string
 	static idStr		FormatInt( const std::integral auto num, bool isCash = false );			// formats an integer as a value with commas
 	static idStr		FormatCash( const std::integral auto num ) { return FormatInt( num, true ); }
 	void				StripLeading( const char c );					// strip char from front as many times as the char occurs
-	void				StripLeading( const char *string );				// strip string from front as many times as the string occurs
-	bool				StripLeadingOnce( const char *string );			// strip string from front just once if it occurs
+	void				StripLeading( const char * string );				// strip string from front as many times as the string occurs
+	bool				StripLeadingOnce( const char * string );			// strip string from front just once if it occurs
 	void				StripTrailing( const char c );					// strip char from end as many times as the char occurs
-	void				StripTrailing( const char *string );			// strip string from end as many times as the string occurs
-	bool				StripTrailingOnce( const char *string );		// strip string from end just once if it occurs
+	void				StripTrailing( const char * string );			// strip string from end as many times as the string occurs
+	bool				StripTrailingOnce( const char * string );		// strip string from end just once if it occurs
 	void				Strip( const char c );							// strip char from front and end as many times as the char occurs
-	void				Strip( const char *string );					// strip string from front and end as many times as the string occurs
+	void				Strip( const char * string );					// strip string from front and end as many times as the string occurs
 	void				StripTrailingWhitespace();				// strip trailing white space characters
 	idStr &				StripQuotes();							// strip quotes around string
-	bool				Replace( const char *old, const char *nw );
+	bool				Replace( const char * old, const char * nw );
 	[[nodiscard]] bool	ReplaceChar( const char old, const char nw ) const;
-	ID_INLINE void		CopyRange( const char * text, const Ordinal auto start, const Ordinal auto end );
+	ID_INLINE void		CopyRange( const char *  text, const Ordinal auto start, const Ordinal auto end );
 
 	// file name methods
-	[[nodiscard]] int					FileNameHash() const;						// hash key for the filename (skips extension)
+	[[nodiscard]] int	FileNameHash() const;						// hash key for the filename (skips extension)
 	idStr &				BackSlashesToSlashes();					// convert slashes
 	idStr &				SlashesToBackSlashes();					// convert slashes
-	idStr &				SetFileExtension( const char *extension );		// set the given file extension
+	idStr &				SetFileExtension( const char * extension );		// set the given file extension
 	idStr &				StripFileExtension();						// remove any file extension
 	idStr &				StripAbsoluteFileExtension();				// remove any file extension looking from front (useful if there are multiple .'s)
-	idStr &				DefaultFileExtension( const char *extension );	// if there's no file extension use the default
-	idStr &				DefaultPath( const char *basepath );			// if there's no path use the default
-	void				AppendPath( const char *text );					// append a partial path
+	idStr &				DefaultFileExtension( const char * extension );	// if there's no file extension use the default
+	idStr &				DefaultPath( const char * basepath );			// if there's no path use the default
+	void				AppendPath( const char * text );					// append a partial path
 	idStr &				StripFilename();							// remove the filename from a path
 	idStr &				StripPath();								// remove the path from the filename
 	void				ExtractFilePath( idStr &dest ) const;			// copy the file path to another string
 	void				ExtractFileName( idStr &dest ) const;			// copy the filename to another string
 	void				ExtractFileBase( idStr &dest ) const;			// copy the filename minus the extension to another string
 	void				ExtractFileExtension( idStr &dest ) const;		// copy the file extension to another string
-	bool				CheckExtension( const char *ext ) const;
+	bool				CheckExtension( const char * ext ) const;
 
 	// char * methods to replace library functions
 	static size_t	    Length( const char* s );
@@ -318,27 +319,41 @@ public:
 	template <std::integral T>
 	static T            AtoI(const char* str) noexcept;
 
+	// Converts stored string back to enum of the same type.
+	// Returns std::nullopt if the saved type doesn't match or conversion fails.
+	template <typename E>
+		requires std::is_enum_v<E>
+	E GetEnum( const E fallback = E{} ) const noexcept;
+
+	template < typename T >
+		requires (StringLikeOrEnum< T > || Formattable < T >)
+	[[nodiscard]] static const char* ToCString( const T &value_in, char* string_out, const size_t buffer_length, const EnumNameOptions options = {} ) noexcept;
+
 	static size_t       WideToUtf8( const wchar_t* src, char* out, const size_t capacity ) noexcept; // Convert a wide string (UTF-16) to UTF-8 in-place.
 	static size_t       WideCopy( const wchar_t* src, wchar_t* dst, const size_t capacity ) noexcept;
 
 	// hash keys
-	static int			Hash( const char *string );
-	static int			Hash( const char *string, size_t length );
-	static int			IHash( const char *string );					// case insensitive
-	static int			IHash( const char *string, size_t length );		// case insensitive
+	[[nodiscard]] static int			Hash( const StringLikeOrEnum auto &string );
+	[[nodiscard]] static int			Hash( const StringLikeOrEnum auto& string, size_t length );
+	[[nodiscard]] static int64	    	Hash64( const StringLikeOrEnum auto& string );
+	[[nodiscard]] static int64	    	Hash64( const StringLikeOrEnum auto& string, size_t length );
+	[[nodiscard]] static int			IHash( const StringLikeOrEnum auto& string );					// case insensitive
+	[[nodiscard]] static int			IHash( const StringLikeOrEnum auto &string, size_t length );		// case insensitive
+	[[nodiscard]] static int64	    	IHash64( const StringLikeOrEnum auto& string );					// case insensitive
+	[[nodiscard]] static int64	    	IHash64( const StringLikeOrEnum auto& string, size_t length );		// case insensitive
 
 	// character methods
-	static char			ToLower( const std::integral auto c );
-	static char			ToUpper( const std::integral auto c );
-	static bool			CharIsPrintable( const std::integral auto c );
-	static bool			CharIsLower( const std::integral auto c );
-	static bool			CharIsUpper( const std::integral auto c );
-	static bool			CharIsAlpha( const std::integral auto c );
-	static bool			CharIsNumeric( const std::integral auto c );
-	static bool			CharIsNewLine( const std::integral auto c );
-	static bool			CharIsTab( const std::integral auto c );
-	static index_t		ColorIndex( const std::integral auto c );
-	static idVec4 &		ColorForIndex( const Ordinal auto i );
+	[[nodiscard]] static char			ToLower( const std::integral auto c );
+	[[nodiscard]] static char			ToUpper( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsPrintable( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsLower( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsUpper( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsAlpha( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsNumeric( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsNewLine( const std::integral auto c );
+	[[nodiscard]] static bool			CharIsTab( const std::integral auto c );
+	[[nodiscard]] static index_t		ColorIndex( const std::integral auto c );
+	[[nodiscard]] static idVec4 &		ColorForIndex( const Ordinal auto i );
 
 	friend int64		sprintf( idStr &dest, const char *fmt, ... );
 	friend int64		vsprintf( idStr &dest, const char *fmt, va_list ap );
@@ -375,6 +390,11 @@ protected:
 	ID_INLINE void		SetStaticBuffer( char * buffer, const size_t bufferLength );
 
 private:
+	std::type_index original_type = { typeid(void*) };
+	std::type_index current_type = { typeid(void*) };
+
+	EnumNameOptions enumNameOptions;
+
 	// initialize string using base buffer... call ONLY FROM CONSTRUCTOR
 	ID_INLINE void		Construct();										
 
@@ -389,8 +409,10 @@ private:
 	ID_INLINE bool		IsStatic() const { return ( allocedAndFlag & STATIC_MASK ) != 0; }
 	ID_INLINE void		SetStatic( const bool isStatic ) { allocedAndFlag = ( allocedAndFlag & ALLOCED_MASK ) | ( isStatic << STATIC_BIT ); }
 
+	size_t CopyToData( const char * text, const size_t textLength = 0);
+
 public:
-	static constexpr int	INVALID_POSITION = -1;
+	static constexpr index_t	INVALID_POSITION = -1;
 };
 
 char *					va( VERIFY_FORMAT_STRING const char *fmt, ... );
@@ -457,66 +479,37 @@ ID_INLINE void idStr::SetStaticBuffer( char * buffer, const size_t bufferLength 
 
 ID_INLINE idStr::idStr() noexcept {
 	Construct();
+
+	original_type = std::type_index(typeid(void*));
+	current_type = original_type;
 }
 
-ID_INLINE idStr::idStr( const idStr &text ) {
+ID_INLINE idStr::idStr( const StringLike auto &text ) {
 	Construct();
 
-	const size_t l = text.Length();
-	EnsureAlloced( l + 1 );
+	original_type = std::type_index(typeid(text));
 
-	if (data)
-	{
-		strcpy(data, text.data);
-		len = l;
-	}
+	operator=(text);
 }
 
-ID_INLINE idStr::idStr( const idStr &text, size_t start, size_t end ) {
+ID_INLINE idStr::idStr(const FormattableNoStrings auto &value) {
 	Construct();
 
-	end = (std::min)(end, text.Length());
-	if ( start > text.Length() ) {
-		start = text.Length();
-	} else if ( start < 0 ) {
-		start = 0;
-	}
+	original_type = std::type_index(typeid(value));
 
-	size_t l = 0;
-	if ( start < end ) {
-		l = end - start;
-	}
-
-	EnsureAlloced( l + 1 );
-
-	for ( size_t i = 0; i < l; i++ ) {
-		data[ i ] = text[ start + i ];
-	}
-
-	data[ l ] = '\0';
-	len = l;
+	operator=(value);
 }
 
-ID_INLINE idStr::idStr( const char *text ) {
+ID_INLINE idStr::idStr( const StringLike auto &text, size_t start, size_t end ) {
 	Construct();
 
-	if ( text ) {
-		const size_t l = strlen(text);
-		EnsureAlloced( l + 1 );
+	const char * string_buffer[MAX_STRING_CHARS] = {};
 
-		if (data)
-		{
-			strcpy(data, text);
-			len = l;
-		}
-	}
-}
+	const char* cstring_text = idStr::ToCString(text, string_buffer, sizeof(string_buffer));
 
-ID_INLINE idStr::idStr( const char *text, size_t start, size_t end ) {
-	Construct();
-	size_t l = strlen( text );
+	size_t l = strlen(cstring_text);
 
-	end = (std::min)(end, l);
+	end = Min(end, l);
 	if ( start > l ) {
 		start = l;
 	} else if ( start < 0 ) {
@@ -524,14 +517,14 @@ ID_INLINE idStr::idStr( const char *text, size_t start, size_t end ) {
 	}
 
 	l = end - start;
-	l = (std::max<size_t>)(l, 0);
+	l = Max(l, 0);
 
 	EnsureAlloced( l + 1 );
 
 	if (data)
 	{
 		for (size_t i = 0; std::cmp_less(i, l); i++) {
-			data[i] = text[start + i];
+			data[i] = cstring_text[start + i];
 		}
 
 		data[l] = '\0';
@@ -539,64 +532,35 @@ ID_INLINE idStr::idStr( const char *text, size_t start, size_t end ) {
 	}
 }
 
-ID_INLINE idStr::idStr( const bool b ) {
+ID_INLINE idStr::idStr(const FormattableNoStrings auto& value, size_t start, size_t end) {
 	Construct();
-	EnsureAlloced( 2 );
-	if (data)
-	{
-		data[0] = b ? '1' : '0';
-		data[1] = '\0';
-		len = 1;
+
+	const char* string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_value = idStr::ToCString(value, string_buffer, sizeof(string_buffer));
+
+	size_t l = strlen(cstring_value);
+
+	end = Min(end, l);
+	if (start > l) {
+		start = l;
 	}
-}
-
-ID_INLINE idStr::idStr( const char c ) {
-	Construct();
-	EnsureAlloced( 2 );
-	if (data)
-	{
-		data[0] = c;
-		data[1] = '\0';
-		len = 1;
+	else if (start < 0) {
+		start = 0;
 	}
-}
 
-ID_INLINE idStr::idStr( const std::integral auto i ) {
-	Construct();
-	char text[STR_ALLOC_BASE_NUM] = {};
+	l = end - start;
+	l = Max(l, 0);
 
-	const size_t l = ItoA(text, sizeof(text), i);
-
-	EnsureAlloced( l + 1 );
+	EnsureAlloced(l + 1);
 
 	if (data)
 	{
-		strncpy_s(data, GetAlloced(), text, l);
-		len = l;
-	}
-}
+		for (size_t i = 0; std::cmp_less(i, l); i++) {
+			data[i] = cstring_value[start + i];
+		}
 
-ID_INLINE idStr::idStr( const std::floating_point auto f ) {
-	Construct();
-	char text[STR_ALLOC_BASE_NUM] = {};
-
-	size_t l = FtoA(text, sizeof(text), f);
-
-	// trim off trailing zeros
-	while( l > 0 && text[l-1] == '0' )
-	{
-		text[--l] = '\0';
-	}
-	while( l > 0 && text[l-1] == '.' )
-	{
-		text[--l] = '\0';
-	}
-
-	EnsureAlloced( l + 1 );
-
-	if (data)
-	{
-		strcpy(data, text);
+		data[l] = '\0';
 		len = l;
 	}
 }
@@ -633,183 +597,204 @@ ID_INLINE char &idStr::operator[]( const Ordinal auto index ) {
 	return data[ index ];
 }
 
-ID_INLINE void idStr::operator=( const idStr &text ) {
-	const size_t l = text.Length();
-	EnsureAlloced( l + 1, false );
-	if (data)
-	{
-		memcpy(data, text.data, l);
-		data[l] = '\0';
-		len = l;
-	}
-}
-
-ID_INLINE idStr operator+( const idStr &a, const idStr &b ) {
+ID_INLINE idStr operator+( const StringLike auto &a, const StringLike auto &b ) {
 	idStr result( a );
 	result.Append( b );
 	return result;
 }
 
-ID_INLINE idStr operator+( const idStr &a, const char *b ) {
-	idStr result( a );
-	result.Append( b );
-	return result;
+ID_INLINE idStr &idStr::operator+=( const StringLike auto &a ) {
+	Append( a );
+	return *this;
 }
 
-ID_INLINE idStr operator+( const char *a, const idStr &b ) {
-	idStr result( a );
-	result.Append( b );
-	return result;
+ID_INLINE idStr &idStr::operator+=( const FormattableNoStrings auto &a ) {
+	Append( a );
+	return *this;
 }
 
-ID_INLINE idStr operator+( const idStr &a, const bool b ) {
-	idStr result( a );
-	result.Append( b ? "true" : "false" );
-	return result;
+ID_INLINE bool operator==( const idStr& a, const idStr& b ) {
+	return (!idStr::Cmp(a.data, b.data));
 }
 
-ID_INLINE idStr operator+( const idStr &a, const char b ) {
-	idStr result( a );
-	result.Append( b );
-	return result;
-}
-
-ID_INLINE idStr operator+( const idStr &a, const std::floating_point auto b ) {
-	char	text[STR_ALLOC_BASE_NUM] = {};
-	idStr	result( a );
-
-	FtoA(text, sizeof(text), b);
-
-	result.Append( text );
-
-	return result;
-}
-
-ID_INLINE idStr operator+( const idStr &a, const std::integral auto b ) {
-	char	text[STR_ALLOC_BASE_NUM] = {};
-	idStr	result( a );
-
-	ItoA(text, sizeof(text), b);
-
-	result.Append( text );
-
-	return result;
-}
-
-ID_INLINE idStr &idStr::operator+=( const std::floating_point auto a ) {
-	char text[STR_ALLOC_BASE_NUM] = {};
-
-	FtoA(text, sizeof(text), a);
+ID_INLINE bool operator==( const idStr& a, const StringLike auto &b ) {
+	assert(safe_not_equal(b, nullptr));
 	
-	Append( text );
+	char b_string_buffer[MAX_STRING_CHARS] = {};
 
-	return *this;
+	return (!idStr::Cmp(a.data, idStr::ToCString(b, b_string_buffer, sizeof(b_string_buffer))));
 }
 
-ID_INLINE idStr &idStr::operator+=( const std::integral auto a ) {
-	char text[STR_ALLOC_BASE_NUM] = {};
+ID_INLINE bool operator==( const idStr &a, const FormattableNoStrings auto &b ) {
+	assert(safe_not_equal(b, nullptr));
 
-	ItoA(text, sizeof(text), a);
+	char b_string_buffer[MAX_STRING_CHARS] = {};
 
-	Append( text );
-
-	return *this;
+	return (!idStr::Cmp(a.data, idStr::ToCString(b, b_string_buffer, sizeof(b_string_buffer))));
 }
 
-ID_INLINE idStr &idStr::operator+=( const idStr &a ) {
-	Append( a );
-	return *this;
+ID_INLINE bool operator==( const StringLike auto &a, const idStr &b ) {
+	assert(safe_not_equal(a, nullptr));
+
+	char a_string_buffer[MAX_STRING_CHARS] = {};
+
+	return (!idStr::Cmp(idStr::ToCString(a, a_string_buffer, sizeof(a_string_buffer)), b.data));
 }
 
-ID_INLINE idStr &idStr::operator+=( const char *a ) {
-	Append( a );
-	return *this;
+ID_INLINE bool operator==( const FormattableNoStrings auto &a, const idStr& b ) {
+	assert(safe_not_equal(a, nullptr));
+
+	char a_string_buffer[MAX_STRING_CHARS] = {};
+
+	return (!idStr::Cmp(idStr::ToCString(a, a_string_buffer, sizeof(a_string_buffer)), b.data));
 }
 
-ID_INLINE idStr &idStr::operator+=( const char a ) {
-	Append( a );
-	return *this;
+ID_INLINE bool operator==( const StringLike auto &a, const StringLike auto &b ) {
+	assert(safe_not_equal(a, nullptr));
+	assert(safe_not_equal(b, nullptr));
+	
+	char a_string_buffer[MAX_STRING_CHARS] = {};
+	char b_string_buffer[MAX_STRING_CHARS] = {};
+
+	return (!idStr::Cmp(idStr::ToCString(a, a_string_buffer, sizeof(a_string_buffer)), idStr::ToCString(b, b_string_buffer, sizeof(b_string_buffer))));
 }
 
-ID_INLINE idStr &idStr::operator+=( const bool a ) {
-	Append( a ? "true" : "false" );
-	return *this;
+ID_INLINE bool operator==( const StringLike auto &a, const FormattableNoStrings auto &b ) {
+	assert(safe_not_equal(a, nullptr));
+	assert(safe_not_equal(b, nullptr));
+
+	char a_string_buffer[MAX_STRING_CHARS] = {};
+	char b_string_buffer[MAX_STRING_CHARS] = {};
+
+	return (!idStr::Cmp(idStr::ToCString(a, a_string_buffer, sizeof(a_string_buffer)), idStr::ToCString(b, b_string_buffer, sizeof(b_string_buffer))));
 }
 
-ID_INLINE bool operator==( const idStr &a, const idStr &b ) {
-	return ( !idStr::Cmp( a.data, b.data ) );
+ID_INLINE bool operator==( const FormattableNoStrings auto &a, const StringLike auto &b ) {
+	assert(safe_not_equal(a, nullptr));
+	assert(safe_not_equal(b, nullptr));
+
+	char a_string_buffer[MAX_STRING_CHARS] = {};
+	char b_string_buffer[MAX_STRING_CHARS] = {};
+
+	return (!idStr::Cmp(idStr::ToCString(a, a_string_buffer, sizeof(a_string_buffer)), idStr::ToCString(b, b_string_buffer, sizeof(b_string_buffer))));
 }
 
-ID_INLINE bool operator==( const idStr &a, const char *b ) {
-	assert( b );
-	return ( !idStr::Cmp( a.data, b ) );
+ID_INLINE bool operator!=( const idStr& a, const idStr& b ) {
+	return !operator==(a, b);
 }
 
-ID_INLINE bool operator==( const char *a, const idStr &b ) {
-	assert( a );
-	return ( !idStr::Cmp( a, b.data ) );
+ID_INLINE bool operator!=( const idStr& a, const StringLike auto& b ) {
+	return !operator==(a, b);
 }
 
-ID_INLINE bool operator!=( const idStr &a, const idStr &b ) {
-	return !( a == b );
+ID_INLINE bool operator!=( const idStr& a, const FormattableNoStrings auto &b ) {
+	return !operator==(a, b);
 }
 
-ID_INLINE bool operator!=( const idStr &a, const char *b ) {
-	return !( a == b );
+ID_INLINE bool operator!=( const StringLike auto& a, const idStr& b ) {
+	return !operator==(a, b);
 }
 
-ID_INLINE bool operator!=( const char *a, const idStr &b ) {
-	return !( a == b );
+ID_INLINE bool operator!=( const FormattableNoStrings auto &a, const idStr &b ) {
+	return !operator==(a, b);
 }
 
-ID_INLINE int idStr::Cmp( const char *text ) const {
-	assert( text );
-	return idStr::Cmp( data, text );
+ID_INLINE bool operator!=( const StringLike auto &a, const StringLike auto &b ) {
+	return !operator==( a, b );
 }
 
-ID_INLINE int idStr::Cmpn( const char *text, const size_t n ) const {
-	assert( text );
-	return idStr::Cmpn( data, text, n );
+ID_INLINE bool operator!=( const StringLike auto &a, const FormattableNoStrings auto &b ) {
+	return !operator==( a, b );
 }
 
-ID_INLINE int idStr::CmpPrefix( const char *text ) const {
-	assert( text );
-	return idStr::Cmpn( data, text, strlen( text ) );
+ID_INLINE bool operator!=( const FormattableNoStrings auto &a, const StringLike auto &b ) {
+	return !operator==( a, b );
 }
 
-ID_INLINE int idStr::Icmp( const char *text ) const {
-	assert( text );
-	return idStr::Icmp( data, text );
+ID_INLINE int idStr::Cmp( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::Cmp( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)) );
 }
 
-ID_INLINE int idStr::Icmpn( const char *text, const size_t n ) const {
-	assert( text );
-	return idStr::Icmpn( data, text, n );
+ID_INLINE int idStr::Cmpn( const StringLikeOrEnum auto text, const size_t n ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::Cmpn( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)), n );
 }
 
-ID_INLINE int idStr::IcmpPrefix( const char *text ) const {
-	assert( text );
-	return idStr::Icmpn( data, text, strlen( text ) );
+ID_INLINE int idStr::CmpPrefix( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_text = idStr::ToCString(text, string_buffer, sizeof(string_buffer));
+
+	return idStr::Cmpn( data, cstring_text, strlen(cstring_text) );
 }
 
-ID_INLINE int idStr::IcmpNoColor( const char *text ) const {
-	assert( text );
-	return idStr::IcmpNoColor( data, text );
+ID_INLINE int idStr::Icmp( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::Icmp( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
 }
 
-ID_INLINE int idStr::IcmpPath( const char *text ) const {
-	assert( text );
-	return idStr::IcmpPath( data, text );
+ID_INLINE int idStr::Icmpn( const StringLikeOrEnum auto text, const size_t n ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::Icmpn( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)), n );
 }
 
-ID_INLINE int idStr::IcmpnPath( const char *text, const size_t n ) const {
-	assert( text );
-	return idStr::IcmpnPath( data, text, n );
+ID_INLINE int idStr::IcmpPrefix( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_text = idStr::ToCString(text, string_buffer, sizeof(string_buffer));
+
+	return idStr::Icmpn( data, cstring_text, strlen(cstring_text) );
 }
 
-ID_INLINE int idStr::IcmpPrefixPath( const char *text ) const {
-	assert( text );
-	return idStr::IcmpnPath( data, text, strlen( text ) );
+ID_INLINE int idStr::IcmpNoColor( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::IcmpNoColor( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
+}
+
+ID_INLINE int idStr::IcmpPath( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::IcmpPath( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
+}
+
+ID_INLINE int idStr::IcmpnPath( const StringLikeOrEnum auto text, const size_t n ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	return idStr::IcmpnPath( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)), n );
+}
+
+ID_INLINE int idStr::IcmpPrefixPath( const StringLikeOrEnum auto text ) const {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_text = idStr::ToCString(text, string_buffer, sizeof(string_buffer));
+
+	return idStr::IcmpnPath( data, cstring_text, strlen(cstring_text) );
 }
 
 ID_INLINE size_t idStr::Length() const {
@@ -851,47 +836,43 @@ ID_INLINE void idStr::Clear() {
 }
 
 ID_INLINE void idStr::Append( const char a ) {
-	EnsureAlloced( len + 2 );
-	if (data)
-	{
-		data[len] = a;
-		len++;
-		data[len] = '\0';
-	}
+	const char char_array[] = { a, '\0' }; // creates a null-terminated string
+	const char* string_pointer = char_array;            // p now points to "x"
+	this->Append(string_pointer, 1);
 }
 
 ID_INLINE void idStr::Append( const idStr &text ) {
-	const size_t newLen = len + text.Length();
-	EnsureAlloced( newLen + 1 );
-	if (data)
-	{
-		for (size_t i = 0; i < text.len; i++) {
-			data[len + i] = text[i];
-		}
-		len = newLen;
-		data[len] = '\0';
-	}
+	this->Append(text.c_str(), text.Length());
 }
 
-ID_INLINE void idStr::Append( const char *text ) {
-	if ( text ) {
-		const size_t newLen = len + strlen(text);
-		EnsureAlloced( newLen + 1 );
-		if (data)
-		{
-			for (size_t i = 0; text[i]; i++) {
-				data[len + i] = text[i];
-			}
-			len = newLen;
-			data[len] = '\0';
-		}
-	}
+ID_INLINE void idStr::Append( const StringLikeOrEnum auto text ) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_text = idStr::ToCString(text, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = strlen(cstring_text);
+
+	this->Append(cstring_text, cstring_length);
 }
 
-ID_INLINE void idStr::Append( const char *text, const size_t l ) {
+template < Formattable T >
+	requires (!StringLikeOrEnum< T >)
+ID_INLINE void idStr::Append(const T &value) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring_value = idStr::ToCString(value, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = strlen(cstring_value);
+
+	this->Append(cstring_value, cstring_length);
+}
+
+ID_INLINE void idStr::Append( const char * text, const size_t l ) {
 	if ( text && l ) {
 		const size_t newLen = len + l;
+
 		EnsureAlloced( newLen + 1 );
+
 		if (data)
 		{
 			for (size_t i = 0; text[i] && i < l; i++) {
@@ -899,58 +880,67 @@ ID_INLINE void idStr::Append( const char *text, const size_t l ) {
 			}
 			len = newLen;
 			data[len] = '\0';
+
+			current_type = std::type_index(typeid(const char *));
 		}
 	}
 }
 
-ID_INLINE void idStr::Insert( const char a, Ordinal auto index ) {
+ID_INLINE void idStr::Insert(const char * text, Ordinal auto index) {
+	assert(safe_not_equal(text, nullptr));
+
 	if (index < 0) {
 		index = 0;
 	}
 	else if (std::cmp_greater(index, len)) {
-		index = numeric_cast<decltype(index)>(len);
-	}
-
-	constexpr size_t l = 1;
-	EnsureAlloced( len + l + 1 );
-	if (data)
-	{
-		for (size_t i = len; std::cmp_greater_equal(i, index); i--) {
-			data[i + l] = data[i];
-		}
-		data[index] = a;
-		len++;
-	}
-}
-
-ID_INLINE void idStr::Insert( const char *text, Ordinal auto index ) {
-	size_t i = 0;
-
-	if ( index < 0 ) {
-		index = 0;
-	} else if ( std::cmp_greater(index, len) ) {
-		index = numeric_cast<decltype(index)>(len);
+		index = numeric_cast<BASE_TYPE(index)>(len);
 	}
 
 	const size_t l = strlen(text);
-	EnsureAlloced( len + l + 1 );
+
+	EnsureAlloced(len + l + 1);
+
 	if (data)
 	{
+		size_t i = 0;
+
 		for (i = len; std::cmp_greater_equal(i, index); i--) {
 			data[i + l] = data[i];
 		}
+
 		for (i = 0; i < l; i++) {
 			data[index + i] = text[i];
 		}
+
 		len += l;
+
+		current_type = std::type_index(typeid(const char*));
 	}
+}
+
+ID_INLINE void idStr::Insert( const StringLikeOrEnum auto &text, Ordinal auto index ) {
+	assert(safe_not_equal(text, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	this->Insert(idStr::ToCString(text, string_buffer, sizeof(string_buffer)), index);
+}
+
+template < Formattable T >
+	requires (!StringLikeOrEnum< T >)
+ID_INLINE void idStr::Insert(const T &value, Ordinal auto index) {
+	assert(safe_not_equal(value, nullptr));
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	this->Insert(idStr::ToCString(value, string_buffer, sizeof(string_buffer)), index);
 }
 
 ID_INLINE void idStr::ToLower() const
 {
 	if (data)
 	{
-		for (int i = 0; data[i]; i++) {
+		for (index_t i = 0; data[i]; ++i) {
 			if (CharIsUpper(data[i])) {
 				data[i] += ('a' - 'A');
 			}
@@ -962,7 +952,7 @@ ID_INLINE void idStr::ToUpper() const
 {
 	if (data)
 	{
-		for (int i = 0; data[i]; i++) {
+		for (index_t i = 0; data[i]; ++i) {
 			if (CharIsLower(data[i])) {
 				data[i] -= ('a' - 'A');
 			}
@@ -1159,34 +1149,114 @@ ID_INLINE char *idStr::ToUpper( char *s ) {
 	return s;
 }
 
-ID_INLINE int idStr::Hash( const char *string ) {
+ID_INLINE int idStr::Hash( const StringLikeOrEnum auto& string ) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = strlen(cstring);
+
 	int hash = 0;
-	for ( int i = 0; *string != '\0'; i++ ) {
-		hash += ( *string++ ) * ( i + 119 );
+	for ( index_t i = 0; std::cmp_less(i ,cstring_length); ++i ) {
+		hash += ( *cstring++ ) * ( numeric_cast<int>(i) + 119 );
 	}
 	return hash;
 }
 
-ID_INLINE int idStr::Hash( const char *string, const size_t length ) {
+ID_INLINE int idStr::Hash( const StringLikeOrEnum auto& string, const size_t length ) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = Min(length, strlen(cstring));
+
 	int hash = 0;
-	for ( int i = 0; std::cmp_less(i, length); i++ ) {
-		hash += ( *string++ ) * ( i + 119 );
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += (*cstring++) * (numeric_cast<int>(i) + 119);
 	}
 	return hash;
 }
 
-ID_INLINE int idStr::IHash( const char *string ) {
-	int hash = 0;
-	for ( int i = 0; *string != '\0'; i++ ) {
-		hash += ToLower( *string++ ) * ( i + 119 );
+ID_INLINE int64 idStr::Hash64(const StringLikeOrEnum auto& string) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = strlen(cstring);
+
+	int64 hash = 0;
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
 	}
 	return hash;
 }
 
-ID_INLINE int idStr::IHash( const char *string, const size_t length ) {
+ID_INLINE int64 idStr::Hash64(const StringLikeOrEnum auto& string, const size_t length) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = Min(length, strlen(cstring));
+
+	int64 hash = 0;
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
+	}
+	return hash;
+}
+
+ID_INLINE int idStr::IHash( const StringLikeOrEnum auto& string ) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = strlen(cstring);
+
 	int hash = 0;
-	for ( int i = 0; std::cmp_less(i, length); i++ ) {
-		hash += ToLower( *string++ ) * ( i + 119 );
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += ToLower(*cstring++) * (numeric_cast<int>(i) + 119);
+	}
+	return hash;
+}
+
+ID_INLINE int idStr::IHash( const StringLikeOrEnum auto& string, const size_t length ) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = Min(length, strlen(cstring));
+
+	int hash = 0;
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += (*cstring++) * (numeric_cast<int>(i) + 119);
+	}
+	return hash;
+}
+
+ID_INLINE int64 idStr::IHash64(const StringLikeOrEnum auto& string) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = strlen(cstring);
+
+	int64 hash = 0;
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += ToLower(*cstring++) * (numeric_cast<int64>(i) + 119);
+	}
+	return hash;
+}
+
+ID_INLINE int64 idStr::IHash64(const StringLikeOrEnum auto& string, const size_t length) {
+
+	char string_buffer[MAX_STRING_CHARS] = {};
+
+	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
+	const size_t cstring_length = Min(length, strlen(cstring));
+
+	int64 hash = 0;
+	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
+		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
 	}
 	return hash;
 }

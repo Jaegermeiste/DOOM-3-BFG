@@ -26,12 +26,54 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-#ifndef __CONSTRUCTS_H__
-#define __CONSTRUCTS_H__
+#ifndef __SYS_CONCEPT_FORMATTABLE_H__
+#define __SYS_CONCEPT_FORMATTABLE_H__
 
 #pragma once
 
-// Moved to InitGlobals() in globaldata.cpp so that MSVC would stop being upset
+#include <concepts>
+#include <type_traits>
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <charconv>
+#include <format>
+#include "magic_enum/magic_enum.hpp"
 
-#endif // __CONSTRUCTS_H__
+template<class T>
+concept FormattableNoStrings =
+	// arithmetic (includes bool implicitly)
+	std::is_arithmetic_v<std::remove_cvref_t<T>> ||
+	// explicit size_t
+	std::is_same_v<std::remove_cvref_t<T>, size_t> ||
+	// enums
+	std::is_enum_v<std::remove_cvref_t<T>>;
+
+
+template<class T>
+concept Formattable =
+#if CPP_STD_VER >= 202302L
+	std::formattable<std::remove_cvref_t<T>, char> ||      // primary path if >=C++23
+#endif
+	FormattableNoStrings<T> ||
+	// character scalars
+	std::is_same_v<std::remove_cvref_t<T>, char> ||
+	std::is_same_v<std::remove_cvref_t<T>, signed char> ||
+	std::is_same_v<std::remove_cvref_t<T>, unsigned char> ||
+	// C-string pointers
+	std::is_same_v<std::remove_cvref_t<T>, const char*> ||
+	std::is_same_v<std::remove_cvref_t<T>, char*> ||
+	// fixed-size char arrays (string literals)
+	(std::is_array_v<std::remove_reference_t<T>> &&
+		std::is_same_v<
+		std::remove_cv_t<std::remove_extent_t<std::remove_reference_t<T>>>,
+		char
+		>
+		) ||
+		// std::string and std::string_view
+		std::is_same_v<std::remove_cvref_t<T>, std::string> ||
+		std::is_same_v<std::remove_cvref_t<T>, std::string_view> ||
+		// idStr or any custom type with operator const char *()
+		std::convertible_to<T, const char*>;
+
+#endif // __SYS_CONCEPT_FORMATTABLE_H__

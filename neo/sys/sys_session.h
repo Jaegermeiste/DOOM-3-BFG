@@ -118,15 +118,15 @@ public:
 		serverInfo.Serialize( serializer );
 	}
 
-	uint8 	numSlots;
+	size_t 	numSlots;
 	int8	gameMode;
-	int8 	gameMap;
-	int8	gameEpisode;		// Episode for doom classic support.
+	index_t	gameMap;
+	index_t gameEpisode;		// Episode for doom classic support.
 	int8	gameSkill;			// Skill for doom classic support.
 	uint8	matchFlags;
 
 	idStr	mapName; // This is only used for SP (gameMap == GAME_MAP_SINGLEPLAYER)
-	idDict	serverInfo;
+	idDict<>serverInfo;
 };
 
 /*

@@ -74,20 +74,20 @@ extern	lumpinfo_t*	lumpinfo;
 extern	size_t		numlumps;
 
 void    W_InitMultipleFiles (const char** filenames);
-void    W_Reload (void);
+void    W_Reload ();
 void	W_FreeLumps();
 void	W_FreeWadFiles();
 
 index_t	W_CheckNumForName (const char* name);
 index_t	W_GetNumForName (const char* name);
 
-size_t	W_LumpLength ( index_t lump );
-void    W_ReadLump ( index_t lump, void *dest );
+size_t	W_LumpLength ( const index_t lump );
+void    W_ReadLump ( const index_t lump, void *dest );
 
 void*	W_CacheLumpNum ( index_t lump, int tag );
 void*	W_CacheLumpName ( const char* name, int tag );
 
-void	W_Shutdown( void );
+void	W_Shutdown();
 
 
 #endif

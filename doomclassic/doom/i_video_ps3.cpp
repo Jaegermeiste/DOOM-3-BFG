@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cstdlib>
+#include <cstdarg>
 #include <sys/types.h>
 
 #include "i_video.h"
@@ -50,7 +50,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-void I_ShutdownGraphics(void)
+void I_ShutdownGraphics()
 {
   // VVTODO: Shutdown Graphics
 }
@@ -60,22 +60,22 @@ void I_ShutdownGraphics(void)
 //
 // I_StartFrame
 //
-void I_StartFrame (void)
+void I_StartFrame ()
 {
     // er?
 }
 
 static void I_CombineMouseEvent(const event_t* in, event_t* out)
 {
-	if (fabs(static_cast<float>(in->data1)) > fabs(static_cast<float>(out->data1)))
+	if (fabs(numeric_cast<float>(in->data1)) > fabs(numeric_cast<float>(out->data1)))
 	{
 		out->data1 = in->data1;
 	}
-	if (fabs(static_cast<float>(in->data2)) > fabs(static_cast<float>(out->data2)))
+	if (fabs(numeric_cast<float>(in->data2)) > fabs(numeric_cast<float>(out->data2)))
 	{
 		out->data2 = in->data2;
 	}
-	if (fabs(static_cast<float>(in->data3)) > fabs(static_cast<float>(out->data3)))
+	if (fabs(numeric_cast<float>(in->data3)) > fabs(numeric_cast<float>(out->data3)))
 	{
 		out->data3 = in->data3;
 	}
@@ -83,24 +83,22 @@ static void I_CombineMouseEvent(const event_t* in, event_t* out)
 
 static void I_GetEvents( controller_t *controller )
 {
-	event_t e_mouse, e_joystick;
-	size_t numEvents;
+	event_t e_mouse = {}, e_joystick = {};
 
 	e_mouse.type = ev_mouse;
 	e_mouse.data1 = e_mouse.data2 = e_mouse.data3 = 0;
 	e_joystick.type = ev_joystick;
 	e_joystick.data1 = e_joystick.data2 = e_joystick.data3 = 0;
 
-	numEvents = I_PollMouseInputEvents( controller );
+	size_t numEvents = I_PollMouseInputEvents();
 	if (numEvents) 
 	{
-		int i;
 		event_t e;
 	
 		// right thumb stick
-		for (i = 0; i < numEvents; ++i)
+		for (size_t i = 0; i < numEvents; ++i)
 		{
-			I_ReturnMouseInputEvent(i, &e);
+			I_ReturnMouseInputEvent(numeric_cast<index_t>(i), &e);
 			if (e.type == ev_mouse)
 			{
 				I_CombineMouseEvent(&e, &e_mouse);
@@ -112,12 +110,11 @@ static void I_GetEvents( controller_t *controller )
 		}
 	}
 
-	numEvents = I_PollJoystickInputEvents( controller );
+	numEvents = I_PollJoystickInputEvents();
 	if (numEvents) 
 	{
-		int i;
-		event_t e;
-		for (i = 0; i < numEvents; ++i)
+		event_t e = {};
+		for (size_t i = 0; i < numEvents; ++i)
 		{
 			I_ReturnJoystickInputEvent(i, &e);
 			if (e.type == ev_keydown || e.type == ev_keyup) {
@@ -137,7 +134,7 @@ static void I_GetEvents( controller_t *controller )
 //
 // I_UpdateNoBlit
 //
-void I_UpdateNoBlit (void)
+void I_UpdateNoBlit ()
 {
     // what is this?
 }
@@ -145,7 +142,7 @@ void I_UpdateNoBlit (void)
 //
 // I_FinishUpdate
 //
-void I_FinishUpdate (void)
+void I_FinishUpdate ()
 {
 // DHM - These buffers are not used
 }
@@ -156,11 +153,14 @@ void I_FinishUpdate (void)
 //
 void I_ReadScreen (byte* scr)
 {
-    memcpy(scr, ::g->screens[0], SCREENWIDTH*SCREENHEIGHT);
+	if (scr)
+	{
+		memcpy(scr, ::g->screens[0], SCREENWIDTH * SCREENHEIGHT);
+	}
 }
 
-static inline unsigned int I_PackColor(const unsigned int a, const unsigned int r, const unsigned int g, const unsigned int b ) {
-	unsigned int color = 0;
+static inline uint32 I_PackColor(const unsigned int a, const unsigned int r, const unsigned int g, const unsigned int b ) {
+	uint32 color = 0;
 
 	color |= (r & 255) << 24;
 	color |= (g & 255) << 16;
@@ -175,19 +175,17 @@ static inline unsigned int I_PackColor(const unsigned int a, const unsigned int 
 //
 void I_SetPalette (byte* palette)
 {
-
-	int i;
-
-	// set the X colormap entries
-	for (i=0 ; i<256 ; i++)
+	if (palette)
 	{
-		int r,b,g;
-		r = gammatable[::g->usegamma][*palette++];
-		g = gammatable[::g->usegamma][*palette++];
-		b = gammatable[::g->usegamma][*palette++];
-		::g->XColorMap[i] = I_PackColor(0xff, r, g, b);
+		// set the X colormap entries
+		for (uint32& i : ::g->XColorMap)
+		{
+			const auto r = gammatable[::g->usegamma][*palette++];
+			const auto g = gammatable[::g->usegamma][*palette++];
+			const auto b = gammatable[::g->usegamma][*palette++];
+			i = I_PackColor(0xff, r, g, b);
+		}
 	}
-
 }
 
 void I_InitGraphics()

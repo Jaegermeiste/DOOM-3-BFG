@@ -91,6 +91,13 @@ public:
 
 	void				Sort( const idSort<type> & sort = idSort_QuickDefault<type>() );
 
+	      type* begin()  noexcept { return list; }
+	      type* end()    noexcept { return list + num; }
+	const type* begin()  const noexcept { return list; }
+	const type* end()    const noexcept { return list + num; }
+	const type* cbegin() const noexcept { return begin(); }
+	const type* cend()   const noexcept { return end(); }
+
 private:
 	size_t				num;
 	type 				list[ size ];

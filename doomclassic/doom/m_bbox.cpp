@@ -45,27 +45,23 @@ void M_ClearBox (fixed_t *box)
     box[BOXBOTTOM] = box[BOXLEFT] = std::numeric_limits<fixed_t>::max();
 }
 
-void
-M_AddToBox
-( fixed_t*	box,
-  const std::integral auto x,
-  const std::integral auto y )
+void M_AddToBox ( fixed_t*	box, const fixed_t x, const fixed_t y )
 {
     if (std::cmp_less(x, box[BOXLEFT]))
     {
-	    box[BOXLEFT] = numeric_cast<fixed_t>(x);
+	    box[BOXLEFT] = x;
     }
     else if (std::cmp_greater(x, box[BOXRIGHT]))
     {
-	    box[BOXRIGHT] = numeric_cast<fixed_t>(x);
+	    box[BOXRIGHT] = x;
     }
     if (std::cmp_less(y, box[BOXBOTTOM]))
     {
-	    box[BOXBOTTOM] = numeric_cast<fixed_t>(y);
+	    box[BOXBOTTOM] = y;
     }
     else if (std::cmp_greater(y, box[BOXTOP]))
     {
-	    box[BOXTOP] = numeric_cast<fixed_t>(y);
+	    box[BOXTOP] = y;
     }
 }
 

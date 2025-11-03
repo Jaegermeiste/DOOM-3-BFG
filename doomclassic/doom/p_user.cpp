@@ -64,8 +64,8 @@ P_Thrust
 {
 	angle >>= ANGLETOFINESHIFT;
 
-	player->mo->momx += FixedMul(move,finecosine[angle]); 
-	player->mo->momy += FixedMul(move,finesine[angle]);
+	player->mo->momx += (move * finecosine[angle]); 
+	player->mo->momy += (move * finesine[angle]);
 }
 
 
@@ -87,13 +87,13 @@ static void P_CalcHeight (player_t* player)
 	// Note: a LUT allows for effects
 	//  like a ramp with low health.
 	player->bob =
-		FixedMul (player->mo->momx, player->mo->momx)
-		+ FixedMul (player->mo->momy,player->mo->momy);
+		(player->mo->momx * player->mo->momx)
+		+ (player->mo->momy * player->mo->momy);
 
 	player->bob >>= 2;
 
 	// DHM - NERVE :: player bob reduced by 25%, MAXBOB reduced by 25% as well
-	player->bob = static_cast<fixed_t>((float)(player->bob) * 0.75f);
+	player->bob *= 0.75f;
 	player->bob = Min(player->bob, MAXBOB);
 
 	if ((player->cheats & CF_NOMOMENTUM) || !::g->onground)
@@ -107,7 +107,7 @@ static void P_CalcHeight (player_t* player)
 	}
 
 	angle = (FINEANGLES/20*::g->leveltime)&FINEMASK;
-	bob = FixedMul ( player->bob/2, finesine[angle]);
+	bob = (( player->bob/2) * finesine[angle]);
 
 
 	// move ::g->viewheight
@@ -208,7 +208,7 @@ static void P_DeathThink (player_t* player)
 
 	if (player->attacker && player->attacker != player->mo)
 	{
-		angle = R_PointToAngle2 (player->mo->x,
+		angle = R_PointToAngle (player->mo->x,
 			player->mo->y,
 			player->attacker->x,
 			player->attacker->y);

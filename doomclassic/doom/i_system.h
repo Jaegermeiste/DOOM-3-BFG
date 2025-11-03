@@ -40,22 +40,22 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // Called by DoomMain.
-void I_Init (void);
+void I_Init ();
 
 // Called by D_DoomLoop,
 // returns current time in tics.
-int I_GetTime (void);
+ID_TIME_T I_GetTime ();
 
 
 //
 // Called by D_DoomLoop,
 // called before processing any tics in a frame
 // (just after displaying a frame).
-// Time consuming syncronous operations
+// Time-consuming synchronous operations
 // are performed here (joystick reading).
 // Can call D_PostEvent.
 //
-void I_StartFrame (void);
+void I_StartFrame ();
 
 
 //
@@ -73,14 +73,14 @@ void I_StartFrame (void);
 // or calls a loadable driver to build it.
 // This ticcmd will then be modified by the gameloop
 // for normal input.
-ticcmd_t* I_BaseTiccmd (void);
+ticcmd_t* I_BaseTiccmd ();
 
 
 // Called by M_Responder when quit is selected.
 // Clean exit, displays sell blurb.
-void I_Quit (void);
+void I_Quit ();
 
-
+void I_Warning(const char* warning, ...);
 void I_Error (const char *error, ...);
 void I_Printf(const char *msg, ...);
 void I_PrintfE(const char *msg, ...);

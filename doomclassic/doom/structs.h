@@ -27,6 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
+#include "sounds.h"
+#include "z_zone.h"
+
+struct patch_t;
 
 //  am_map.structs begin // 
 typedef struct fpoint_s
@@ -53,7 +57,7 @@ typedef struct islope_s
 //  f_finale.structs begin // 
 typedef struct castinfo_s
 {
-    char		*name;
+    const char	*name;
     mobjtype_t	type;
 } castinfo_t;
 // f_finale.structs end // 
@@ -114,21 +118,23 @@ typedef struct menuitem_s
 	// choice = menu item #.
 	// if status = 2,
 	//   choice=0:leftarrow,1:rightarrow
-	void	(*routine)(int choice);
+	void	(*routine)(const index_t choice);
 
 	// hotkey in menu
 	char	alphaKey;			
 } menuitem_t;
+
 typedef struct menu_s
 {
-	short		numitems;	// # of menu items
+	size_t		numitems;	// # of menu items
 	struct menu_s*	prevMenu;	// previous menu
 	menuitem_t*		menuitems;	// menu items
 	void		(*routine)();	// draw routine
-	short		x;
-	short		y;		// x,y of menu
-	short		lastOn;		// last item user was on in menu
+	int		x;
+	int		y;		// x,y of menu
+	index_t		lastOn;		// last item user was on in menu
 } menu_t;
+
 typedef enum : uint8
 {
     newgame = 0,
@@ -138,6 +144,7 @@ typedef enum : uint8
     quitdoom,
     main_end
 } main_e;
+
 typedef enum : uint8
 {
 	g_accept,
@@ -212,9 +219,9 @@ typedef enum : uint8
 //  m_misc.structs begin // 
 struct default_t
 {
-    char*	name;
+    const char*	name;
 	union {
-		int *			location;
+		address_t *			location;
 		const char * *	charLocation;
 	};
 	union {
@@ -232,13 +239,13 @@ struct default_t
 		untranslated( 0 ) {
 	}
 
-	default_t( char * name_, int * location_, const int defaultvalue_ ) :
+	default_t( const char * name_, address_t * location_, const int defaultvalue_ ) :
 		name( name_ ),
 		location( location_ ),
 		defaultvalue( defaultvalue_ ) {
 	}
 
-	default_t( char * name_, const char * * charLocation_, const char * charDefault_ ) :
+	default_t( const char * name_, const char * * charLocation_, const char * charDefault_ ) :
 		name( name_ ),
 		charLocation( charLocation_ ),
 		charDefault( charDefault_ ) {
@@ -407,7 +414,7 @@ typedef struct channel_s
 	void*	origin;
 
 	// handle of the sound being played
-	int		handle;
+	qhandle_t	handle;
 
 } channel_t;
 // s_sound.structs end // 
@@ -486,3 +493,5 @@ typedef struct memzone_s
     
 } memzone_t;
 // z_zone.structs end // 
+
+struct 

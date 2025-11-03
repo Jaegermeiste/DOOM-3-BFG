@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __STSTUFF_H__
 #define __STSTUFF_H__
 
+#pragma once
+
 #include "doomtype.h"
 #include "d_event.h"
 
@@ -44,24 +46,24 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 // Called by main loop.
-qboolean ST_Responder (event_t* ev);
+bool ST_Responder (event_t* ev);
 
 // Called by main loop.
-void ST_Ticker (void);
+void ST_Ticker ();
 
 // Called by main loop.
-void ST_Drawer (qboolean fullscreen, qboolean refresh);
+void ST_Drawer (bool fullscreen, bool refresh);
 
 // Called when the console player is spawned on each level.
-void ST_Start (void);
+void ST_Start ();
 
 // Called by startup code.
-void ST_Init (void);
+void ST_Init ();
 
 
 
 // States for status bar code.
-typedef enum
+typedef enum st_stateenum_e : uint8
 {
     AutomapState,
     FirstPersonState
@@ -70,7 +72,7 @@ typedef enum
 
 
 // States for the chat code.
-typedef enum
+typedef enum st_chatstateenum_e : uint8
 {
     StartChatState,
     WaitDestState,
@@ -79,7 +81,7 @@ typedef enum
 } st_chatstateenum_t;
 
 
-qboolean ST_Responder(event_t* ev);
+bool ST_Responder(event_t* ev);
 
 
 

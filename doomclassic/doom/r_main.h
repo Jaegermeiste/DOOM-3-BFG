@@ -48,8 +48,8 @@ extern fixed_t		viewsin;
 
 extern size_t		viewwidth;
 extern size_t		viewheight;
-extern size_t		viewwindowx;
-extern size_t		viewwindowy;
+extern int  		viewwindowx;
+extern int  		viewwindowy;
 
 
 
@@ -126,11 +126,7 @@ extern void		(*spanfunc) (
 
 //
 // Utility functions.
-int
-R_PointOnSide
-( fixed_t	x,
-  fixed_t	y,
-  node_t*	node );
+int8 R_PointOnSide ( const fixed_t x, const fixed_t y, const node_t* node );
 
 int
 R_PointOnSegSide
@@ -144,7 +140,7 @@ R_PointToAngle
   fixed_t	y );
 
 angle_t
-R_PointToAngle2
+R_PointToAngle
 ( fixed_t	x1,
   fixed_t	y1,
   fixed_t	x2,
@@ -156,12 +152,9 @@ R_PointToDist
   fixed_t	y );
 
 
-fixed_t R_ScaleFromGlobalAngle (angle_t visangle);
+fixed_t R_ScaleFromGlobalAngle ( const angle_t visangle );
 
-subsector_t*
-R_PointInSubsector
-( fixed_t	x,
-  fixed_t	y );
+subsector_t* R_PointInSubsector ( const fixed_t x, const fixed_t y );
 
 void
 R_AddPointToBox
@@ -179,7 +172,7 @@ R_AddPointToBox
 void R_RenderPlayerView (player_t *player);
 
 // Called by startup code.
-void R_Init (void);
+void R_Init ();
 
 // Called by M_Responder.
 void R_SetViewSize (size_t blocks, int detail);

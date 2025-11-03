@@ -73,7 +73,7 @@ public:
 	index_t			Next( const Ordinal auto index ) const;
 
 	// For porting purposes...
-	[[nodiscard]] index_t			GetFirst( const int key ) const { return First( key ); }
+	[[nodiscard]] index_t			GetFirst( const int64 key ) const { return First( key ); }
 	
 	index_t			GetNext( const Ordinal auto index ) const { return Next( index ); }
 
@@ -100,7 +100,7 @@ public:
 					// returns number in the range [0-100] representing the spread over the hash table
 	[[nodiscard]] uint8			GetSpread() const;
 					// returns a key for a string
-	int64			GenerateKey( const char *string, bool caseSensitive = true ) const;
+	[[nodiscard]] int64			GenerateKey( const StringLikeOrEnum auto &string, bool caseSensitive = true ) const;
 					// returns a key for a vector
 	[[nodiscard]] int64			GenerateKey( const idVec3 &v ) const;
 					// returns a key for two integers
@@ -397,11 +397,11 @@ ID_INLINE void idHashIndex::SetGranularity( const size_t newGranularity ) {
 idHashIndex::GenerateKey
 ================
 */
-ID_INLINE int64 idHashIndex::GenerateKey( const char *string, const bool caseSensitive ) const {
+ID_INLINE int64 idHashIndex::GenerateKey( const StringLikeOrEnum auto & string, const bool caseSensitive ) const {
 	if ( caseSensitive ) {
-		return ( idStr::Hash( string ) & hashMask );
+		return ( idStr::Hash64( string ) & hashMask );
 	} else {
-		return ( idStr::IHash( string ) & hashMask );
+		return ( idStr::IHash64( string ) & hashMask );
 	}
 }
 

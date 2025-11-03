@@ -104,32 +104,32 @@ typedef struct player_s
     // Base height above floor for viewz.
     fixed_t		viewheight;
     // Bob/squat speed.
-    fixed_t         	deltaviewheight;
+    fixed_t     deltaviewheight;
     // bounded/scaled total momentum.
-    fixed_t         	bob;	
+    fixed_t     bob;	
 
     // This is only used between levels,
     // mo->health is used during levels.
-    int			health;	
-    int			armorpoints;
+    int16			health;	
+    int16			armorpoints;
     // Armor type is 0-2.
-    int			armortype;	
+    armortype_t		armortype;	
 
     // Power ups. invinc and invis are tic counters.
-    int			powers[NUMPOWERS];
-    qboolean		cards[NUMCARDS];
-    qboolean		backpack;
+    idDict<ID_TIME_T> powers;
+    idDict<bool> cards;
+    bool		backpack;
     
     // Frags, kills of other players.
-    size_t			frags[MAXPLAYERS];
+    idDict<size_t> frags;
     weapontype_t	readyweapon;
     
     // Is wp_nochange if not changing.
     weapontype_t	pendingweapon;
 
-    int		weaponowned[NUMWEAPONS];
-    int			ammo[NUMAMMO];
-    int			maxammo[NUMAMMO];
+    idArray<bool, NUMWEAPONS> weaponowned;
+    idDict<size_t> ammo;
+	idDict<size_t> maxammo;
 
     // True if button down last tic.
     bool		attackdown;
@@ -151,7 +151,7 @@ typedef struct player_s
 	size_t		berserkKills;
 
     // Hint messages.
-    const char*		message;	
+    const char*	message;	
     
     // For screen flashing (red or bright).
 	size_t		damagecount;
@@ -172,11 +172,16 @@ typedef struct player_s
 	index_t		colormap;
 
     // Overlay view sprites (gun, etc).
-    pspdef_t		psprites[NUMPSPRITES];
+    idArray<pspdef_t, NUMPSPRITES>	psprites;
 
     // True if secret level has been done.
-    qboolean		didsecret;	
+    bool		didsecret;
 
+	// True if in Game
+	bool        playerInGame;
+
+	// Associated netNode
+	index_t     node;
 } player_t;
 
 
@@ -186,41 +191,41 @@ typedef struct player_s
 //
 typedef struct wbplayerstruct_s
 {
-    qboolean	in;	// whether the player is in game
+    bool	in;	// whether the player is in game
     
     // Player stats, kills, collected items etc.
-    int		skills;
-    int		sitems;
-    int		ssecret;
-    ID_TIME_T		stime; 
+    size_t	skills;
+    size_t	sitems;
+    size_t	ssecret;
+    ID_TIME_T	stime; 
     int		frags[4];
     int		score;	// current score on entry, modified on return
   
 } wbplayerstruct_t;
 
-typedef struct
+typedef struct wbstartstruct_s
 {
-    int		epsd;	// episode # (0-2)
+    index_t	epsd;	// episode # (0-2)
 
     // if true, splash the secret level
-    qboolean	didsecret;
+    bool	didsecret;
     
     // previous and next levels, origin 0
-    int		last;
-    int		next;	
+	index_t	last;
+	index_t	next;
     
-    int		maxkills;
-    int		maxitems;
-    int		maxsecret;
-    int		maxfrags;
+    size_t	maxkills;
+	size_t	maxitems;
+	size_t	maxsecret;
+	size_t	maxfrags;
 
     // the par time
-    int		partime;
+    ID_SECONDS_T partime;
     
     // index of this player in game
-    int		pnum;	
+	index_t	pnum;
 
-    wbplayerstruct_t	plyr[MAXPLAYERS];
+   idList<wbplayerstruct_t, TAG_CLASSIC_DOOM>	plyr;
 
 } wbstartstruct_t;
 

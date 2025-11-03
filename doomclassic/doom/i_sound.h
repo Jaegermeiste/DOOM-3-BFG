@@ -47,14 +47,14 @@ extern char* sndserver_filename;
 
 // Init at program start...
 void I_InitSound();
-void I_InitSoundHardware( size_t numOutputChannels_, const unsigned int channelMask );
+void I_InitSoundHardware( size_t numOutputChannels_, const uint32 channelMask );
 
 // ... update sound buffer and audio device at runtime...
-void I_UpdateSound(void);
-void I_SubmitSound(void);
+void I_UpdateSound();
+void I_SubmitSound();
 
-// ... shut down and relase at program termination.
-void I_ShutdownSound(void);
+// ... shut down and release at program termination.
+void I_ShutdownSound();
 void I_ShutdownSoundHardware();
 
 //
@@ -65,31 +65,31 @@ void I_ShutdownSoundHardware();
 void I_SetChannels();
 
 // Get raw data lump index for sound descriptor.
-int I_GetSfxLumpNum (sfxinfo_t* sfxinfo );
+index_t I_GetSfxLumpNum ( const sfxinfo_t* sfxinfo );
 
 
 // Starts a sound in a particular sound channel.
-int I_StartSound( int id, mobj_t *origin, mobj_t *listener_origin, int vol, int pitch, int priority );
+int I_StartSound( const sfxenum_e id, const mobj_t *origin, const mobj_t *listener_origin, const int vol, const int pitch, const int priority );
 
 
 // Stops a sound channel.
-void I_StopSound(int handle, int player = -1);
+void I_StopSound( qhandle_t handle, const index_t player = -1);
 
 // Called by S_*() functions
 //  to see if a channel is still playing.
 // Returns 0 if no longer playing, 1 if playing.
-int I_SoundIsPlaying(int handle);
+int I_SoundIsPlaying( qhandle_t handle );
 
 // Updates the volume, separation,
 //  and pitch of a sound channel.
-void I_UpdateSoundParams( int handle, int vol, int sep, int pitch );
+void I_UpdateSoundParams( qhandle_t handle, int vol, int sep, int pitch );
 
-void I_SetSfxVolume( int );
+void I_SetSfxVolume( const int volume );
 //
 //  MUSIC I/O
 //
-void I_InitMusic(void);
-void I_ShutdownMusic(void);
+void I_InitMusic();
+void I_ShutdownMusic();
 // Volume.
 void I_SetMusicVolume(int volume);
 // PAUSE game handling.
@@ -107,7 +107,7 @@ void I_StopSong(int handle);
 // See above (register), then think backwards
 void I_UnRegisterSong(int handle);
 // Update Music (XMP), check for notifications
-void I_UpdateMusic(void);
+void I_UpdateMusic();
 
 int Mus2Midi(unsigned char* bytes, unsigned char* out, size_t* len);
 

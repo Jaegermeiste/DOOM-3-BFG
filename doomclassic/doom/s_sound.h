@@ -35,77 +35,59 @@ If you have questions concerning this license or the applicable additional terms
 #pragma interface
 #endif
 
-
-
 //
 // Initializes sound stuff, including volume
 // Sets channels, SFX and music volume,
 //  allocates channel buffer, sets S_sfx lookup.
 //
-void
-S_Init
-( int		sfxVolume,
-  int		musicVolume );
-
-
-
+void S_Init ( int sfxVolume, int musicVolume );
 
 //
 // Per level startup code.
 // Kills playing sounds at start of level,
 //  determines music if any, changes music.
 //
-void S_Start(void);
+void S_Start();
 
 
 //
 // Start sound for thing at <origin>
 //  using <sound_id> from sounds.h
 //
-void
-S_StartSound
-( void*		origin,
-  index_t	sound_id );
+void S_StartSound ( void* origin, const sfxenum_e sound_id );
 
 
 
 // Will start a sound at a given volume.
-void
-S_StartSoundAtVolume
-( void*		origin,
-  index_t	sound_id,
-  int		volume );
+void S_StartSoundAtVolume ( void* origin, const sfxenum_e sound_id, int volume );
 
 
 // Stop sound for thing at <origin>
-void S_StopSound(void* origin);
+void S_StopSound( void* origin );
 
 
 // Start music using <music_id> from sounds.h
-void S_StartMusic(index_t music_id);
+void S_StartMusic( const index_t music_id );
 
 // Start music using <music_id> from sounds.h,
 //  and set whether looping
-void
-S_ChangeMusic
-( index_t	music_id,
-  bool		looping );
+void S_ChangeMusic ( const index_t music_id, bool looping );
 
 // Stops the music fer sure.
-void S_StopMusic(void);
+void S_StopMusic();
 
 // Stop and resume music, during game PAUSE.
-void S_PauseSound(void);
-void S_ResumeSound(void);
+void S_PauseSound();
+void S_ResumeSound();
 
 
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(void* listener);
+void S_UpdateSounds( void* listener );
 
-void S_SetMusicVolume(int volume);
-void S_SetSfxVolume(int volume);
+void S_SetMusicVolume( const int volume );
+void S_SetSfxVolume( const int volume );
 
 
 #endif

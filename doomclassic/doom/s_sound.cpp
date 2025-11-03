@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <algorithm>
 #include <utility>
@@ -143,7 +143,7 @@ void S_Init
 	S_SetMusicVolume(musicVolume);
 
 	// Allocating the internal ::g->channels for mixing
-	// (the maximum numer of sounds rendered
+	// (the maximum number of sounds rendered
 	// simultaneously) within zone memory.
 	::g->channels =
 		static_cast<channel_t*>(DoomLib::Z_Malloc(::g->numChannels * sizeof(channel_t), PU_STATIC, nullptr));
@@ -173,7 +173,7 @@ void S_Init
 // Kills playing sounds at start of level,
 //  determines music if any, changes music.
 //
-void S_Start(void)
+void S_Start()
 {
 	int cnum;
 	int mnum;
@@ -243,11 +243,7 @@ void S_Start(void)
 
 
 
-void
-S_StartSoundAtVolume
-( void*		origin_p,
- int		sfx_id,
- int		volume )
+void S_StartSoundAtVolume ( void* origin_p, const sfxenum_e sfx_id, int volume )
 {
 
 	int		rc;
@@ -373,7 +369,7 @@ S_StartSoundAtVolume
 	::g->channels[cnum].handle = I_StartSound(sfx_id, origin, ::g->players[::g->consoleplayer].mo, volume, pitch, priority);
 }	
 
-void S_StartSound ( void*		origin, const index_t		sfx_id )
+void S_StartSound ( void* origin, const sfxenum_e sfx_id )
 {
 	S_StartSoundAtVolume(origin, sfx_id, s_volume_sound.GetInteger() );
 }
@@ -381,7 +377,7 @@ void S_StartSound ( void*		origin, const index_t		sfx_id )
 
 
 
-void S_StopSound(void *origin)
+void S_StopSound( void *origin )
 {
 	for (size_t cnum = 0; std::cmp_less(cnum, ::g->numChannels); cnum++)
 	{
@@ -400,7 +396,7 @@ void S_StopSound(void *origin)
 //
 // Stop and resume music, during game PAUSE.
 //
-void S_PauseSound(void)
+void S_PauseSound()
 {
 	if (::g->mus_playing && !::g->mus_paused)
 	{
@@ -409,7 +405,7 @@ void S_PauseSound(void)
 	}
 }
 
-void S_ResumeSound(void)
+void S_ResumeSound()
 {
 	if (::g->mus_playing && ::g->mus_paused)
 	{
@@ -538,7 +534,7 @@ void S_ChangeMusic ( index_t musicnum, const bool looping )
 }
 
 
-void S_StopMusic(void)
+void S_StopMusic()
 {
 	if (::g->doomcom.consoleplayer)
 	{

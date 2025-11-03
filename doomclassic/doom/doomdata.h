@@ -104,43 +104,45 @@ typedef struct maplinedef_s
 // LineDef attributes.
 //
 
-// Solid, is an obstacle.
-#define ML_BLOCKING		1
+enum mlFLags_e
+{
+	// Solid, is an obstacle.
+	ML_BLOCKING = 1,
 
-// Blocks monsters only.
-#define ML_BLOCKMONSTERS	2
+	// Blocks monsters only.
+	ML_BLOCKMONSTERS = 2,
 
-// Backside will not be present at all
-//  if not two sided.
-#define ML_TWOSIDED		4
+	// Backside will not be present at all
+	//  if not two sided.
+	ML_TWOSIDED = 4,
 
-// If a texture is pegged, the texture will have
-// the end exposed to air held constant at the
-// top or bottom of the texture (stairs or pulled
-// down things) and will move with a height change
-// of one of the neighbor sectors.
-// Unpegged textures allways have the first row of
-// the texture at the top pixel of the line for both
-// top and bottom textures (use next to windows).
+	// If a texture is pegged, the texture will have
+	// the end exposed to air held constant at the
+	// top or bottom of the texture (stairs or pulled
+	// down things) and will move with a height change
+	// of one of the neighbor sectors.
+	// Unpegged textures allways have the first row of
+	// the texture at the top pixel of the line for both
+	// top and bottom textures (use next to windows).
 
-// upper texture unpegged
-#define ML_DONTPEGTOP		8
+	// upper texture unpegged
+	ML_DONTPEGTOP = 8,
 
-// lower texture unpegged
-#define ML_DONTPEGBOTTOM	16	
+	// lower texture unpegged
+	ML_DONTPEGBOTTOM = 16,
 
-// In AutoMap: don't map as two sided: IT'S A SECRET!
-#define ML_SECRET		32
+	// In AutoMap: don't map as two sided: IT'S A SECRET!
+	ML_SECRET = 32,
 
-// Sound rendering: don't let sound cross two of these.
-#define ML_SOUNDBLOCK		64
+	// Sound rendering: don't let sound cross two of these.
+	ML_SOUNDBLOCK = 64,
 
-// Don't draw on the automap at all.
-#define ML_DONTDRAW		128
+	// Don't draw on the automap at all.
+	ML_DONTDRAW = 128,
 
-// Set if already seen, thus drawn in automap.
-#define ML_MAPPED		256
-
+	// Set if already seen, thus drawn in automap.
+	ML_MAPPED = 256
+};
 
 
 
@@ -182,7 +184,7 @@ typedef struct mapseg_s
 // BSP node structure.
 
 // Indicate a leaf.
-#define	NF_SUBSECTOR	0x8000
+constexpr auto	NF_SUBSECTOR = 0x8000;
 
 typedef struct mapnode_s
 {
@@ -211,13 +213,20 @@ typedef struct mapthing_s
 {
     short		x;
     short		y;
-    short		angle;
+	short		angle;      // angle_t
     short		type;
     short		options;
 } mapthing_t;
 
+struct itemRespawn_s
+{
+	ID_TIME_T removalTime = 0; // this is the priority
+	mapthing_t thing = {};
 
+	idQueueNode<itemRespawn_s> queueNode = {};
+};
 
+using itemRespawnQueue_t = idPriorityQueue<itemRespawn_s, &itemRespawn_s::queueNode, MemberPriorityKey<itemRespawn_s, ID_TIME_T>>;
 
 
 #endif			// __DOOMDATA__

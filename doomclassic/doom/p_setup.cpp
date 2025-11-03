@@ -30,7 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#include <math.h>
+#include <cmath>
+
+#include <utility>
 
 #include "z_zone.h"
 
@@ -97,13 +99,8 @@ void	P_SpawnMapThing (mapthing_t*	mthing);
 //
 // P_LoadVertexes
 //
-static void P_LoadVertexes (const int lump)
+static void P_LoadVertexes (const index_t lump)
 {
-	byte*		data;
-	int			i;
-	mapvertex_t*	ml;
-	vertex_t*		li;
-
 	// Determine number of lumps:
 	//  total lump length / vertex record length.
 	::g->numvertexes = W_LumpLength (lump) / sizeof(mapvertex_t);
@@ -113,17 +110,17 @@ static void P_LoadVertexes (const int lump)
 	if (MallocForLump( lump, ::g->numvertexes*sizeof(vertex_t ), ::g->vertexes, PU_LEVEL_SHARED ))
 	{
 		// Load data into cache.
-		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
+		byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-		ml = (mapvertex_t *)data;
-		li = ::g->vertexes;
+		mapvertex_t* ml = reinterpret_cast<mapvertex_t*>(data);
+		vertex_t* li = ::g->vertexes;
 
 		// Copy and convert vertex coordinates,
 		// internal representation as fixed.
-		for (i=0 ; i < ::g->numvertexes ; i++, li++, ml++)
+		for (size_t i = 0 ; i < ::g->numvertexes ; i++, li++, ml++)
 		{
-			li->x = SHORT(ml->x)<<FRACBITS;
-			li->y = SHORT(ml->y)<<FRACBITS;
+			li->x = ml->x;
+			li->y = ml->y;
 		}
 
 		// Free buffer memory.
@@ -136,37 +133,29 @@ static void P_LoadVertexes (const int lump)
 //
 // P_LoadSegs
 //
-static void P_LoadSegs (const int lump)
+static void P_LoadSegs (const index_t lump)
 {
-	byte*		data;
-	int			i;
-	mapseg_t*		ml;
-	seg_t*		li;
-	line_t*		ldef;
-	int			psetup_linedef;
-	int			side;
-
 	::g->numsegs = W_LumpLength (lump) / sizeof(mapseg_t);
 //	::g->segs = (seg_t*)Z_Malloc (::g->numsegs*sizeof(seg_t),PU_LEVEL,0);	
 
 	if (MallocForLump( lump, ::g->numsegs*sizeof(seg_t), ::g->segs, PU_LEVEL_SHARED ))
 	{
 		memset (::g->segs, 0, ::g->numsegs*sizeof(seg_t));
-		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
+		byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-		ml = (mapseg_t *)data;
-		li = ::g->segs;
-		for (i=0 ; i < ::g->numsegs ; i++, li++, ml++)
+		mapseg_t* ml = reinterpret_cast<mapseg_t*>(data);
+		seg_t* li = ::g->segs;
+		for (size_t i = 0 ; i < ::g->numsegs ; i++, li++, ml++)
 		{
 			li->v1 = &::g->vertexes[SHORT(ml->v1)];
 			li->v2 = &::g->vertexes[SHORT(ml->v2)];
 
 			li->angle = (SHORT(ml->angle))<<16;
 			li->offset = (SHORT(ml->offset))<<16;
-			psetup_linedef = SHORT(ml->linedef);
-			ldef = &::g->lines[psetup_linedef];
+			int16 psetup_linedef = SHORT(ml->linedef);
+			line_t* ldef = &::g->lines[psetup_linedef];
 			li->linedef = ldef;
-			side = SHORT(ml->side);
+			int16 side = SHORT(ml->side);
 			li->sidedef = &::g->sides[ldef->sidenum[side]];
 			li->frontsector = ::g->sides[ldef->sidenum[side]].sector;
 			if (ldef-> flags & ML_TWOSIDED)
@@ -187,27 +176,22 @@ static void P_LoadSegs (const int lump)
 //
 // P_LoadSubsectors
 //
-static void P_LoadSubsectors (const int lump)
+static void P_LoadSubsectors (const index_t lump)
 {
-	byte*		data;
-	int			i;
-	mapsubsector_t*	ms;
-	subsector_t*	ss;
-
 	::g->numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
 
 	if (MallocForLump( lump, ::g->numsubsectors*sizeof(subsector_t), ::g->subsectors, PU_LEVEL_SHARED ))
 	{
-		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
+		byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-		ms = (mapsubsector_t *)data;
+		mapsubsector_t* ms = reinterpret_cast<mapsubsector_t*>(data);
 		memset (::g->subsectors,0, ::g->numsubsectors*sizeof(subsector_t));
-		ss = ::g->subsectors;
+		subsector_t* ss = ::g->subsectors;
 
-		for (i=0 ; i < ::g->numsubsectors ; i++, ss++, ms++)
+		for (size_t i = 0 ; i < ::g->numsubsectors ; i++, ss++, ms++)
 		{
-			ss->numlines = SHORT(ms->numsegs);
-			ss->firstline = SHORT(ms->firstseg);
+			ss->numlines = ms->numsegs;
+			ss->firstline = ms->firstseg;
 		}
 
 		Z_Free(data);
@@ -219,25 +203,20 @@ static void P_LoadSubsectors (const int lump)
 //
 // P_LoadSectors
 //
-static void P_LoadSectors (const int lump)
+static void P_LoadSectors (const index_t lump)
 {
-	byte*		data;
-	int			i;
-	mapsector_t*	ms;
-	sector_t*		ss;
-
 	::g->numsectors = W_LumpLength (lump) / sizeof(mapsector_t);
 	
 	::g->sectors = static_cast<sector_t*>(Z_Malloc(::g->numsectors * sizeof(sector_t), PU_LEVEL, nullptr));
 	memset (::g->sectors, 0, ::g->numsectors*sizeof(sector_t));
-	data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
+	byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-	ms = (mapsector_t *)data;
-	ss = ::g->sectors;
-	for (i=0 ; i < ::g->numsectors ; i++, ss++, ms++)
+	mapsector_t* ms = reinterpret_cast<mapsector_t*>(data);
+	sector_t* ss = ::g->sectors;
+	for (size_t i = 0; i < ::g->numsectors; i++, ss++, ms++)
 	{
-		ss->floorheight = SHORT(ms->floorheight)<<FRACBITS;
-		ss->ceilingheight = SHORT(ms->ceilingheight)<<FRACBITS;
+		ss->floorheight = SHORT(ms->floorheight);
+		ss->ceilingheight = SHORT(ms->ceilingheight);
 		ss->floorpic = R_FlatNumForName(ms->floorpic);
 		ss->ceilingpic = R_FlatNumForName(ms->ceilingpic);
 		ss->lightlevel = SHORT(ms->lightlevel);
@@ -277,35 +256,28 @@ static void P_LoadSectors (const int lump)
 //
 // P_LoadNodes
 //
-static void P_LoadNodes (const int lump)
+static void P_LoadNodes (const index_t lump)
 {
-	byte*	data;
-	int		i;
-	int		j;
-	int		k;
-	mapnode_t*	mn;
-	node_t*	no;
-
 	::g->numnodes = W_LumpLength (lump) / sizeof(mapnode_t);
 	if (MallocForLump( lump, ::g->numnodes*sizeof(node_t), ::g->nodes, PU_LEVEL_SHARED ))
 	{
-		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
+		byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-		mn = (mapnode_t *)data;
-		no = ::g->nodes;
+		mapnode_t* mn = reinterpret_cast<mapnode_t*>(data);
+		node_t* no = ::g->nodes;
 
-		for (i=0 ; i < ::g->numnodes ; i++, no++, mn++)
+		for (size_t i = 0; i < ::g->numnodes; ++i, ++no, ++mn)
 		{
-			no->x = SHORT(mn->x)<<FRACBITS;
-			no->y = SHORT(mn->y)<<FRACBITS;
-			no->dx = SHORT(mn->dx)<<FRACBITS;
-			no->dy = SHORT(mn->dy)<<FRACBITS;
-			for (j=0 ; j<2 ; j++)
+			no->x = SHORT(mn->x);
+			no->y = SHORT(mn->y);
+			no->dx = SHORT(mn->dx);
+			no->dy = SHORT(mn->dy);
+			for (size_t j = 0 ; j < 2; ++j)
 			{
 				no->children[j] = SHORT(mn->children[j]);
-				for (k=0 ; k<4 ; k++)
+				for (size_t k = 0 ; k<4 ; k++)
 				{
-					no->bbox[j][k] = SHORT(mn->bbox[j][k])<<FRACBITS;
+					no->bbox[j][k] = SHORT(mn->bbox[j][k]);
 				}
 			}
 		}
@@ -320,19 +292,13 @@ static void P_LoadNodes (const int lump)
 //
 static void P_LoadThings (const index_t lump)
 {
-	byte*		    data = nullptr;
-	size_t			i = 0;
-	mapthing_t*		mt = nullptr;
-	size_t			numthings = 0;
-	qboolean		spawn = false;
+	byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
+	size_t numthings = (W_LumpLength(lump) / sizeof(mapthing_t));
 
-	data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
-	numthings = (W_LumpLength (lump) / sizeof(mapthing_t));
-
-	mt = reinterpret_cast<mapthing_t*>(data);
-	for (i = 0; i < numthings; i++, mt++)
+	mapthing_t* mt = reinterpret_cast<mapthing_t*>(data);
+	for (size_t i = 0; i < numthings; ++i, ++mt)
 	{
-		spawn = true;
+		bool spawn = true;
 
 		// Do not spawn cool, new monsters if !commercial
 		if ( ::g->gamemode != commercial)
@@ -351,6 +317,8 @@ static void P_LoadThings (const index_t lump)
 			case 84:	// Wolf SS
 				spawn = false;
 				continue;                     // FIX: https://doomwiki.org/wiki/Doom_II_monster_exclusion_bug
+			default:
+				break;
 			}
 		}
 		if (spawn == false)
@@ -376,30 +344,23 @@ static void P_LoadThings (const index_t lump)
 // P_LoadLineDefs
 // Also counts secret ::g->lines for intermissions.
 //
-static void P_LoadLineDefs (const int lump)
+static void P_LoadLineDefs (const index_t lump)
 {
-	byte*		data;
-	int			i;
-	maplinedef_t*	mld;
-	line_t*		ld;
-	vertex_t*		v1;
-	vertex_t*		v2;
-
 	::g->numlines = W_LumpLength (lump) / sizeof(maplinedef_t);
 	if (MallocForLump( lump, ::g->numlines*sizeof(line_t), ::g->lines, PU_LEVEL_SHARED ))
 	{
 		memset (::g->lines, 0, ::g->numlines*sizeof(line_t));
-		data = static_cast<byte*>(W_CacheLumpNum(lump,PU_CACHE_SHARED)); // ALAN: LOADTIME
+		byte* data = static_cast<byte*>(W_CacheLumpNum(lump, PU_CACHE_SHARED)); // ALAN: LOADTIME
 
-		mld = (maplinedef_t *)data;
-		ld = ::g->lines;
-		for (i=0 ; i < ::g->numlines ; i++, mld++, ld++)
+		maplinedef_t* mld = reinterpret_cast<maplinedef_t*>(data);
+		line_t* ld = ::g->lines;
+		for (size_t i = 0; i < ::g->numlines; ++i, ++mld, ++ld)
 		{
 			ld->flags = SHORT(mld->flags);
 			ld->special = SHORT(mld->special);
 			ld->tag = SHORT(mld->tag);
-			v1 = ld->v1 = &::g->vertexes[SHORT(mld->v1)];
-			v2 = ld->v2 = &::g->vertexes[SHORT(mld->v2)];
+			vertex_t* v1 = ld->v1 = &::g->vertexes[SHORT(mld->v1)];
+			vertex_t* v2 = ld->v2 = &::g->vertexes[SHORT(mld->v2)];
 			ld->dx = v2->x - v1->x;
 			ld->dy = v2->y - v1->y;
 
@@ -413,7 +374,7 @@ static void P_LoadLineDefs (const int lump)
 			}
 			else
 			{
-				if (FixedDiv (ld->dy , ld->dx) > 0)
+				if ((ld->dy / ld->dx) > 0)
 				{
 					ld->slopetype = ST_POSITIVE;
 				}
@@ -475,7 +436,7 @@ static void P_LoadLineDefs (const int lump)
 //
 // P_LoadSideDefs
 //
-static void P_LoadSideDefs (const int lump)
+static void P_LoadSideDefs (const index_t lump)
 {
 	::g->numsides = W_LumpLength (lump) / sizeof(mapsidedef_t);
 	if (MallocForLump( lump, ::g->numsides*sizeof(side_t), ::g->sides, PU_LEVEL_SHARED))
@@ -503,36 +464,33 @@ static void P_LoadSideDefs (const int lump)
 //
 // P_LoadBlockMap
 //
-static void P_LoadBlockMap (const int lump)
+static void P_LoadBlockMap (const index_t lump)
 {
-	int		i;
-	int		count;
-
 	bool firstTime = false;
 	if (!lumpcache[lump]) {			// SMF - solution for double endian conversion issue
 		firstTime = true;
 	}
 
-	::g->blockmaplump = static_cast<short*>(W_CacheLumpNum(lump,PU_LEVEL_SHARED)); // ALAN: This is initialized somewhere else as shared...
+	::g->blockmaplump = static_cast<BASE_TYPE(::g->blockmaplump)*>(W_CacheLumpNum(lump,PU_LEVEL_SHARED)); // ALAN: This is initialized somewhere else as shared...
 	::g->blockmap = ::g->blockmaplump+4;
-	count = W_LumpLength (lump)/2;
+	size_t count = W_LumpLength(lump) / 2;
 
 	if ( firstTime ) {				// SMF
-		for (i=0 ; i<count ; i++)
+		for (size_t i = 0 ; i<count ; i++)
 		{
 			::g->blockmaplump[i] = SHORT(::g->blockmaplump[i]);
 		}
 	}
 
-	::g->bmaporgx = ( ::g->blockmaplump[0] )<<FRACBITS;
+	::g->blockmap_origin = ( ::g->blockmaplump[0] )<<FRACBITS;
 	::g->bmaporgy = ( ::g->blockmaplump[1] )<<FRACBITS;
-	::g->bmapwidth = ( ::g->blockmaplump[2] );
-	::g->bmapheight = ( ::g->blockmaplump[3] );
+	::g->blockmap_width = ( ::g->blockmaplump[2] );
+	::g->blockmap_height = ( ::g->blockmaplump[3] );
 
 	// clear out mobj chains
-	count = sizeof(*::g->blocklinks)* ::g->bmapwidth*::g->bmapheight;
+	count = sizeof(*::g->blocklinks)* ::g->blockmap_width*::g->blockmap_height;
 	::g->blocklinks = static_cast<mobj_t**>(Z_Malloc(count,PU_LEVEL, nullptr));
-	memset (::g->blocklinks, 0, count);
+	memset (static_cast<void*>(::g->blocklinks), 0, count);
 }
 
 
@@ -542,52 +500,44 @@ static void P_LoadBlockMap (const int lump)
 // Builds sector line lists and subsector sector numbers.
 // Finds block bounding boxes for ::g->sectors.
 //
-static void P_GroupLines (void)
+static void P_GroupLines ()
 {
-	line_t**		linebuffer;
-	int			i;
-	int			j;
-	int			total;
-	line_t*		li;
-	sector_t*		sector;
-	subsector_t*	ss;
-	seg_t*		seg;
-	fixed_t		bbox[4];
-	int			block;
+	size_t			i = 0;
+	fixed_t		bbox[4] = {};
 
-	
+
 	// look up sector number for each subsector
-	ss = ::g->subsectors;
+	subsector_t* ss = ::g->subsectors;
 	for (i=0 ; i < ::g->numsubsectors ; i++, ss++)
 	{
-		seg = &::g->segs[ss->firstline];
+		seg_t* seg = &::g->segs[ss->firstline];
 		ss->sector = seg->sidedef->sector;
 	}
 
 	// count number of ::g->lines in each sector
-	li = ::g->lines;
-	total = 0;
-	for (i=0 ; i < ::g->numlines ; i++, li++)
+	line_t* li = ::g->lines;
+	size_t total = 0;
+	for (i = 0; i < ::g->numlines; ++i, ++li)
 	{
-		total++;
-		li->frontsector->linecount++;
+		++total;
+		++li->frontsector->linecount;
 
 		if (li->backsector && li->backsector != li->frontsector)
 		{
-			li->backsector->linecount++;
-			total++;
+			++li->backsector->linecount;
+			++total;
 		}
 	}
 
 	// build line tables for each sector	
-	linebuffer = static_cast<line_t**>(Z_Malloc(total * 4, PU_LEVEL, nullptr));
-	sector = ::g->sectors;
-	for (i=0 ; i < ::g->numsectors ; i++, sector++)
+	line_t** linebuffer = static_cast<line_t**>(Z_Malloc(total * 4, PU_LEVEL, nullptr));
+	sector_t* sector = ::g->sectors;
+	for (i = 0; i < ::g->numsectors; ++i, ++sector)
 	{
 		M_ClearBox (bbox);
 		sector->lines = linebuffer;
 		li = ::g->lines;
-		for (j=0 ; j < ::g->numlines ; j++, li++)
+		for (int j = 0 ; std::cmp_less(j, ::g->numlines); j++, li++)
 		{
 			if (li->frontsector == sector || li->backsector == sector)
 			{
@@ -596,7 +546,7 @@ static void P_GroupLines (void)
 				M_AddToBox (bbox, li->v2->x, li->v2->y);
 			}
 		}
-		if (linebuffer - sector->lines != sector->linecount)
+		if (std::not_equal_to<>()(linebuffer - sector->lines, sector->linecount))
 		{
 			I_Error ("P_GroupLines: miscounted");
 		}
@@ -606,19 +556,19 @@ static void P_GroupLines (void)
 		sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
 
 		// adjust bounding box to map blocks
-		block = (bbox[BOXTOP]-::g->bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
-		block = block >= ::g->bmapheight ? ::g->bmapheight-1 : block;
+		int block = (bbox[BOXTOP] - ::g->bmaporgy + MAXRADIUS) ;
+		block = std::cmp_greater_equal(block, ::g->blockmap_height) ? numeric_cast<int>(::g->blockmap_height)-1 : block;
 		sector->blockbox[BOXTOP]=block;
 
-		block = (bbox[BOXBOTTOM]-::g->bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
+		block = (bbox[BOXBOTTOM]-::g->bmaporgy-MAXRADIUS);
 		block = block < 0 ? 0 : block;
 		sector->blockbox[BOXBOTTOM]=block;
 
-		block = (bbox[BOXRIGHT]-::g->bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
-		block = block >= ::g->bmapwidth ? ::g->bmapwidth-1 : block;
+		block = (bbox[BOXRIGHT]-::g->blockmap_origin+MAXRADIUS);
+		block = std::cmp_greater_equal(block, ::g->blockmap_width) ? numeric_cast<int>(::g->blockmap_width)-1 : block;
 		sector->blockbox[BOXRIGHT]=block;
 
-		block = (bbox[BOXLEFT]-::g->bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
+		block = (bbox[BOXLEFT]-::g->blockmap_origin-MAXRADIUS);
 		block = block < 0 ? 0 : block;
 		sector->blockbox[BOXLEFT]=block;
 	}
@@ -629,20 +579,17 @@ static void P_GroupLines (void)
 //
 // P_SetupLevel
 //
-static void
-P_SetupLevel
-(const int		episode,
- const int		map,
- int		playermask,
- skill_t	skill)
+void ST_loadData();
+void HU_Init();
+
+static void P_SetupLevel (const index_t episode, const index_t map, int playermask, const skill_t skill)
 {
-	int		i;
-	char	lumpname[9];
-	int		lumpnum;
+	size_t		i = 0;
+	char	lumpname[32] = {};
 
 	::g->totalkills = ::g->totalitems = ::g->totalsecret = ::g->wminfo.maxfrags = 0;
 	::g->wminfo.partime = 180;
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	for (i = 0; i < MAXPLAYERS; ++i)
 	{
 		::g->players[i].killcount = ::g->players[i].secretcount 
 			= ::g->players[i].itemcount = 0;
@@ -663,66 +610,64 @@ P_SetupLevel
 	// UNUSED W_Profile ();
 	P_InitThinkers ();
 
-	// if working with a devlopment map, reload it
+	// if working with a development map, reload it
 	// W_Reload ();
 
 	// DHM - NERVE :: Update the cached asset pointers in case the wad files were reloaded
 	{
-		void ST_loadData(void);
 		ST_loadData();
 
-		void HU_Init(void);
 		HU_Init();
 	}
 
 	// find map name
 	if ( ::g->gamemode == commercial)
 	{
-		if (map<10)
+		if (map < 10)
 		{
-			sprintf (lumpname,"map0%i", map);
+			idStr::snPrintf(lumpname, sizeof(lumpname),"map0%i", map);
 		}
 		else
 		{
-			sprintf (lumpname,"map%i", map);
+			idStr::snPrintf(lumpname, sizeof(lumpname), "map%i", map);
 		}
 	}
 	else
 	{
 		lumpname[0] = 'E';
-		lumpname[1] = '0' + episode;
+		lumpname[1] = numeric_cast<char>('0' + episode);
 		lumpname[2] = 'M';
-		lumpname[3] = '0' + map;
+		lumpname[3] = numeric_cast<char>('0' + map);
 		lumpname[4] = 0;
 	}
 
-	lumpnum = W_GetNumForName (lumpname);
+	index_t lumpnum = W_GetNumForName(lumpname);
 
 	::g->leveltime = 0;
 
 	// note: most of this ordering is important	
-	P_LoadBlockMap (lumpnum+ML_BLOCKMAP);
-	P_LoadVertexes (lumpnum+ML_VERTEXES);
-	P_LoadSectors (lumpnum+ML_SECTORS);
-	P_LoadSideDefs (lumpnum+ML_SIDEDEFS);
+	P_LoadBlockMap (lumpnum + ML_BLOCKMAP);
+	P_LoadVertexes (lumpnum + ML_VERTEXES);
+	P_LoadSectors (lumpnum + ML_SECTORS);
+	P_LoadSideDefs (lumpnum + ML_SIDEDEFS);
 
-	P_LoadLineDefs (lumpnum+ML_LINEDEFS);
-	P_LoadSubsectors (lumpnum+ML_SSECTORS);
-	P_LoadNodes (lumpnum+ML_NODES);
-	P_LoadSegs (lumpnum+ML_SEGS);
+	P_LoadLineDefs (lumpnum + ML_LINEDEFS);
+	P_LoadSubsectors (lumpnum + ML_SSECTORS);
+	P_LoadNodes (lumpnum + ML_NODES);
+	P_LoadSegs (lumpnum + ML_SEGS);
 
 	::g->rejectmatrix = static_cast<byte*>(W_CacheLumpNum(lumpnum + ML_REJECT,PU_LEVEL));
 
 	P_GroupLines ();
 
-	::g->bodyqueslot = 0;
+	::g->bodyqueueslot = 0;
 	::g->deathmatch_p = ::g->deathmatchstarts;
-	P_LoadThings (lumpnum+ML_THINGS);
+	P_LoadThings (lumpnum + ML_THINGS);
 
 	// if ::g->deathmatch, randomly spawn the active ::g->players
 	if (::g->deathmatch)
 	{
-		for (i=0 ; i<MAXPLAYERS ; i++)
+		for (i = 0; i < MAXPLAYERS; ++i)
 		{
 			if (::g->playeringame[i])
 			{
@@ -730,13 +675,13 @@ P_SetupLevel
 				::g->players[i].playerstate = PST_REBORN;
 
 				::g->players[i].mo = nullptr;
-				G_DeathMatchSpawnPlayer (i);
+				G_DeathMatchSpawnPlayer (numeric_cast<index_t>(i));
 			}
 		}
 	}
 
-	// clear special respawning que
-	::g->iquehead = ::g->iquetail = 0;		
+	// clear special respawning queue
+	::g->iqueuehead = ::g->iqueuetail = 0;		
 
 	// set up world state
 	P_SpawnSpecials ();
@@ -756,7 +701,7 @@ P_SetupLevel
 //
 // P_Init
 //
-static void P_Init (void)
+static void P_Init ()
 {
 	P_InitSwitchList ();
 	P_InitPicAnims ();

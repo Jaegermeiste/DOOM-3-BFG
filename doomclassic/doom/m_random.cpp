@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 // M_Random
 // Returns a 0-255 number
 //
-const unsigned char rndtable[256] = {
+constexpr byte rndtable[256] = {
     0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66 ,
     74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36 ,
     95, 110,  85,  48, 212, 140, 211, 249,  22,  79, 200,  50,  28, 188 ,
@@ -58,19 +58,19 @@ const unsigned char rndtable[256] = {
 
 
 // Which one is deterministic?
-static int P_Random (void)
+static int P_Random ()
 {
     ::g->prndindex = (::g->prndindex+1)&0xff;
     return rndtable[::g->prndindex];
 }
 
-static int M_Random (void)
+static int M_Random ()
 {
     ::g->rndindex = (::g->rndindex+1)&0xff;
     return rndtable[::g->rndindex];
 }
 
-static void M_ClearRandom (void)
+static void M_ClearRandom ()
 {
     ::g->rndindex = ::g->prndindex = 0;
 }

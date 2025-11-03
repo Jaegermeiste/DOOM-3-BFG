@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idDeclEntityDef : public idDecl {
 public:
-	idDict					dict;
+	idDict<>				dict;
 
 	[[nodiscard]] virtual size_t			Size() const;
 	[[nodiscard]] virtual const char *	DefaultDefinition() const;

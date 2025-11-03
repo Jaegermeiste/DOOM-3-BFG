@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __I_NET__
 #define __I_NET__
 
+#pragma once
 
 #ifdef __GNUG__
 #pragma interface
@@ -39,11 +40,11 @@ If you have questions concerning this license or the applicable additional terms
 // Called by D_DoomMain.
 
 
-void I_InitNetwork (void);
-void I_NetCmd (void);
+void I_InitNetwork ();
+void I_NetCmd ();
 
 // DHM - Nerve
-void I_ShutdownNetwork( void );
+void I_ShutdownNetwork();
 
 #endif
 

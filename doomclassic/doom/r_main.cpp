@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include <algorithm>
 #include <utility>
@@ -124,11 +124,7 @@ void (*spanfunc) (fixed_t xfrac,
 // Expand a given bbox
 // so that it encloses a given point.
 //
-void
-R_AddPointToBox
-(const int		x,
- const int		y,
- fixed_t*	box )
+void R_AddPointToBox (const int x, const int y, fixed_t* box )
 {
 	box[BOXLEFT] = Min(x, box[BOXLEFT]);
 	box[BOXRIGHT] = Max(x, box[BOXRIGHT]);
@@ -143,127 +139,115 @@ R_AddPointToBox
 //  check point against partition plane.
 // Returns side 0 (front) or 1 (back).
 //
-int
-R_PointOnSide
-(const fixed_t	x,
- const fixed_t	y,
- node_t*	node )
+int8 R_PointOnSide (const fixed_t x, const fixed_t y, const node_t* node )
 {
-	fixed_t	dx;
-	fixed_t	dy;
-	fixed_t	left;
-	fixed_t	right;
-
-	if (!node->dx)
+	if (node)
 	{
-		if (x <= node->x)
+		if (!node->dx)
 		{
-			return node->dy > 0;
+			if (x <= node->x)
+			{
+				return node->dy > 0;
+			}
+
+			return node->dy < 0;
+		}
+		if (!node->dy)
+		{
+			if (y <= node->y)
+			{
+				return node->dx < 0;
+			}
+
+			return node->dx > 0;
 		}
 
-		return node->dy < 0;
-	}
-	if (!node->dy)
-	{
-		if (y <= node->y)
+		const fixed_t dx = (x - node->x);
+		const fixed_t dy = (y - node->y);
+
+		// Try to quickly decide by looking at sign bits.
+		if ((node->dy ^ node->dx ^ dx ^ dy) & 0x80000000)
 		{
-			return node->dx < 0;
+			if ((node->dy ^ dx) & 0x80000000)
+			{
+				// (left is negative)
+				return 1;
+			}
+			return 0;
 		}
 
-		return node->dx > 0;
-	}
+		const fixed_t left = (node->dy * dx);
+		const fixed_t right = (dy * node->dx);
 
-	dx = (x - node->x);
-	dy = (y - node->y);
-
-	// Try to quickly decide by looking at sign bits.
-	if ( (node->dy ^ node->dx ^ dx ^ dy)&0x80000000 )
-	{
-		if  ( (node->dy ^ dx) & 0x80000000 )
+		if (right < left)
 		{
-			// (left is negative)
-			return 1;
+			// front side
+			return 0;
 		}
-		return 0;
+		// back side
+		return 1;
 	}
 
-	left = FixedMul ( node->dy>>FRACBITS , dx );
-	right = FixedMul ( dy , node->dx>>FRACBITS );
-
-	if (right < left)
-	{
-		// front side
-		return 0;
-	}
-	// back side
-	return 1;			
+	return -1;
 }
 
 
-int
-R_PointOnSegSide
-(const fixed_t	x,
- const fixed_t	y,
- seg_t*	line )
+int R_PointOnSegSide (const fixed_t	x, const fixed_t y, seg_t* line )
 {
-	fixed_t	lx;
-	fixed_t	ly;
-	fixed_t	ldx;
-	fixed_t	ldy;
-	fixed_t	dx;
-	fixed_t	dy;
-	fixed_t	left;
-	fixed_t	right;
-
-	lx = line->v1->x;
-	ly = line->v1->y;
-
-	ldx = line->v2->x - lx;
-	ldy = line->v2->y - ly;
-
-	if (!ldx)
+	if (line)
 	{
-		if (x <= lx)
+		const fixed_t lx = line->v1->x;
+		const fixed_t ly = line->v1->y;
+
+		const fixed_t ldx = line->v2->x - lx;
+		const fixed_t ldy = line->v2->y - ly;
+
+		if (!ldx)
 		{
-			return ldy > 0;
+			if (x <= lx)
+			{
+				return ldy > 0;
+			}
+
+			return ldy < 0;
+		}
+		if (!ldy)
+		{
+			if (y <= ly)
+			{
+				return ldx < 0;
+			}
+
+			return ldx > 0;
 		}
 
-		return ldy < 0;
-	}
-	if (!ldy)
-	{
-		if (y <= ly)
+		const fixed_t dx = (x - lx);
+		const fixed_t dy = (y - ly);
+
+		// Try to quickly decide by looking at sign bits.
+		if ((ldy ^ ldx ^ dx ^ dy) & 0x80000000)
 		{
-			return ldx < 0;
+			if ((ldy ^ dx) & 0x80000000)
+			{
+				// (left is negative)
+				return 1;
+			}
+			return 0;
 		}
 
-		return ldx > 0;
-	}
+		const fixed_t left = (ldy * dx);
+		const fixed_t right = (dy * ldx);
 
-	dx = (x - lx);
-	dy = (y - ly);
-
-	// Try to quickly decide by looking at sign bits.
-	if ( (ldy ^ ldx ^ dx ^ dy)&0x80000000 )
-	{
-		if  ( (ldy ^ dx) & 0x80000000 )
+		if (right < left)
 		{
-			// (left is negative)
-			return 1;
+			// front side
+			return 0;
 		}
-		return 0;
+		// back side
+		return 1;
 	}
 
-	left = FixedMul ( ldy>>FRACBITS , dx );
-	right = FixedMul ( dy , ldx>>FRACBITS );
-
-	if (right < left)
-	{
-		// front side
-		return 0;
-	}
-	// back side
-	return 1;			
+	return - 1;
 }
 
 
@@ -278,39 +262,41 @@ R_PointOnSegSide
 
 //
 
+extern fixed_t GetViewX();
+extern fixed_t GetViewY();
+
+angle_t R_PointToAngle( fixed_t x, fixed_t y )
+{
+	return R_PointToAngle(GetViewX(), GetViewY(),x, y);
+}
 
 
-
-angle_t
-R_PointToAngle
-( fixed_t	x,
- fixed_t	y )
+angle_t R_PointToAngle( const fixed_t x1, const fixed_t y1, const fixed_t x2, const fixed_t y2 )
 {	
-	extern fixed_t GetViewX(); extern fixed_t GetViewY();
-	x -= GetViewX();
-	y -= GetViewY();
+	fixed_t x = x2 - x1;
+	fixed_t y = y2 - y1;
 
 	if ( (!x) && (!y) )
 	{
 		return 0;
 	}
 
-	if (x>= 0)
+	if (x >= 0)
 	{
 		// x >=0
-		if (y>= 0)
+		if (y >= 0)
 		{
 			// y>= 0
 
-			if (x>y)
+			if (x > y)
 			{
 				// octant 0
-				return tantoangle[ SlopeDiv(y,x)];
+				return tantoangle[ SlopeDiv(y,x) ];
 			}
 			else
 			{
 				// octant 1
-				return ANG90-1-tantoangle[ SlopeDiv(x,y)];
+				return ANG90 - 1 - tantoangle[ SlopeDiv(x,y) ];
 			}
 		}
 		else
@@ -321,12 +307,12 @@ R_PointToAngle
 			if (x>y)
 			{
 				// octant 8
-				return -tantoangle[SlopeDiv(y,x)]; // // ALANHACK UNSIGNED
+				return -tantoangle[ SlopeDiv(y,x) ]; // // ALANHACK UNSIGNED
 			}
 			else
 			{
 				// octant 7
-				return ANG270+tantoangle[ SlopeDiv(x,y)];
+				return ANG270 + tantoangle[ SlopeDiv(x,y) ];
 			}
 		}
 	}
@@ -338,15 +324,15 @@ R_PointToAngle
 		if (y>= 0)
 		{
 			// y>= 0
-			if (x>y)
+			if (x > y)
 			{
 				// octant 3
-				return ANG180-1-tantoangle[ SlopeDiv(y,x)];
+				return ANG180 - 1 - tantoangle[ SlopeDiv(y,x) ];
 			}
 			else
 			{
 				// octant 2
-				return ANG90+ tantoangle[ SlopeDiv(x,y)];
+				return ANG90 + tantoangle[ SlopeDiv(x,y) ];
 			}
 		}
 		else
@@ -354,63 +340,37 @@ R_PointToAngle
 			// y<0
 			y = -y;
 
-			if (x>y)
+			if (x > y)
 			{
 				// octant 4
-				return ANG180+tantoangle[ SlopeDiv(y,x)];
+				return ANG180 + tantoangle[ SlopeDiv(y,x) ];
 			}
 			else
 			{
 				// octant 5
-				return ANG270-1-tantoangle[ SlopeDiv(x,y)];
+				return ANG270 - 1 - tantoangle[ SlopeDiv(x,y) ];
 			}
 		}
 	}
 	return 0;
 }
 
-
-angle_t
-R_PointToAngle2
-(const fixed_t	x1,
- const fixed_t	y1,
- const fixed_t	x2,
- const fixed_t	y2 )
-{	
-	extern void SetViewX( fixed_t ); extern void SetViewY( fixed_t );
-	SetViewX( x1 );
-	SetViewY( y1 );
-
-	return R_PointToAngle (x2, y2);
-}
-
-
-fixed_t
-R_PointToDist
-(const fixed_t	x,
- const fixed_t	y )
+fixed_t R_PointToDist (const fixed_t x, const fixed_t y )
 {
-	int		angle;
-	fixed_t	dx;
-	fixed_t	dy;
-	fixed_t	temp;
-	fixed_t	dist;
+	fixed_t dx = fixed_t::abs(x - GetViewX());
+	fixed_t dy = fixed_t::abs(y - GetViewY());
 
-	extern fixed_t GetViewX(); extern fixed_t GetViewY();
-	dx = abs(x - GetViewX());
-	dy = abs(y - GetViewY());
-
-	if (dy>dx)
+	if (dy > dx)
 	{
-		temp = dx;
+		const fixed_t temp = dx;
 		dx = dy;
 		dy = temp;
 	}
 
-	angle = (tantoangle[ FixedDiv(dy,dx)>>DBITS ]+ANG90) >> ANGLETOFINESHIFT;
+	const index_t angle = (tantoangle[(dy / dx)] + ANG90);
 
 	// use as cosine
-	dist = FixedDiv (dx, finesine[angle] );	
+	const fixed_t dist = (dx / finesine[angle]);	
 
 	return dist;
 }
@@ -421,7 +381,7 @@ R_PointToDist
 //
 // R_InitPointToAngle
 //
-static void R_InitPointToAngle (void)
+static void R_InitPointToAngle ()
 {
 	// UNUSED - now getting from tables.c
 #if 0
@@ -448,17 +408,16 @@ static void R_InitPointToAngle (void)
 //  at the given angle.
 // ::g->rw_distance must be calculated first.
 //
+extern angle_t GetViewAngle();
 fixed_t R_ScaleFromGlobalAngle (const angle_t visangle)
 {
-	fixed_t		scale;
-	//int			anglea;
-	//int			angleb;
-	angle_t		anglea;
-	angle_t		angleb;
-	int			sinea;
-	int			sineb;
-	fixed_t		num;
-	int			den;
+	fixed_t		scale = 0;
+	angle_t		anglea = 0;
+	angle_t		angleb = 0;
+	int			sinea = 0;
+	int			sineb = 0;
+	fixed_t		num = 0;
+	int			den = 1;
 
 	// UNUSED
 #if 0
@@ -477,20 +436,19 @@ fixed_t R_ScaleFromGlobalAngle (const angle_t visangle)
 	}
 #endif
 
-	extern angle_t GetViewAngle();
-	anglea = ANG90 + (visangle-GetViewAngle());
-	angleb = ANG90 + (visangle-::g->rw_normalangle);
+	anglea = ANG90 + (visangle - GetViewAngle());
+	angleb = ANG90 + (visangle - ::g->rw_normalangle);
 
-	// both sines are allways positive
-	sinea = finesine[anglea>>ANGLETOFINESHIFT];	
-	sineb = finesine[angleb>>ANGLETOFINESHIFT];
-	num = FixedMul(::g->projection,sineb) << ::g->detailshift;
-	den = FixedMul(::g->rw_distance,sinea);
+	// both sines are always positive
+	sinea = finesine[anglea];	
+	sineb = finesine[angleb];
+	num = (::g->projection * sineb) << ::g->detailshift;
+	den = (::g->rw_distance * sinea);
 
 	// DHM - Nerve :: If the den is pretty much 0, don't try the divide
 	if (den>>8 > 0 && den > num>>16)
 	{
-		scale = FixedDiv (num, den);
+		scale = (num / den);
 
 		if (scale > 64*FRACUNIT)
 		{
@@ -514,7 +472,7 @@ fixed_t R_ScaleFromGlobalAngle (const angle_t visangle)
 //
 // R_InitTables
 //
-static void R_InitTables (void)
+static void R_InitTables ()
 {
 	// UNUSED: now getting from tables.c
 #if 0
@@ -549,12 +507,10 @@ static void R_InitTables (void)
 //
 // R_InitTextureMapping
 //
-static void R_InitTextureMapping (void)
+static void R_InitTextureMapping ()
 {
 	size_t		i = 0;
-	size_t		x = 0;
-	size_t		t = 0;
-	fixed_t		focallength = 0;
+	int32		t = 0;
 
 	// Use tangent table to generate viewangletox:
 	//  ::g->viewangletox will give the next greatest x
@@ -562,8 +518,7 @@ static void R_InitTextureMapping (void)
 	//
 	// Calc focallength
 	//  so FIELDOFVIEW angles covers SCREENWIDTH.
-	focallength = FixedDiv (::g->centerxfrac,
-		finetangent[FINEANGLES/4+FIELDOFVIEW/2] );
+	fixed_t focallength = ::g->centerxfrac / finetangent[FINEANGLES / 4 + FIELDOFVIEW / 2];
 
 	for (i = 0; i < FINEANGLES/2; i++)
 	{
@@ -577,16 +532,16 @@ static void R_InitTextureMapping (void)
 		}
 		else
 		{
-			t = FixedMul (finetangent[i], focallength);
-			t = (::g->centerxfrac - t+FRACUNIT-1)>>FRACBITS;
+			t = (finetangent[i] * focallength);
+			t = (::g->centerxfrac - t + FRACUNIT - 1 );
 
 			if (t < -1)
 			{
 				t = -1;
 			}
-			else if (t>::g->viewwidth+1)
+			else if (std::cmp_greater(t, ::g->viewwidth + 1))
 			{
-				t = ::g->viewwidth+1;
+				t = numeric_cast<BASE_TYPE(t)>(::g->viewwidth) + 1;
 			}
 		}
 		::g->viewangletox[i] = t;
@@ -595,20 +550,20 @@ static void R_InitTextureMapping (void)
 	// Scan ::g->viewangletox[] to generate ::g->xtoviewangle[]:
 	//  ::g->xtoviewangle will give the smallest view angle
 	//  that maps to x.	
-	for (x = 0; x <= ::g->viewwidth;x++)
+	for (size_t x = 0; x <= ::g->viewwidth; ++x)
 	{
 		i = 0;
 		while (std::cmp_greater(::g->viewangletox[i], x))
 		{
-			i++;
+			++i;
 		}
-		::g->xtoviewangle[x] = (i<<ANGLETOFINESHIFT)-ANG90;
+		::g->xtoviewangle[x] = numeric_cast<angle_t>((i << ANGLETOFINESHIFT) - ANG90);
 	}
 
 	// Take out the fencepost cases from ::g->viewangletox.
-	for (i=0 ; i < FINEANGLES/2 ; i++)
+	for (i = 0; i < FINEANGLES/2 ; ++i)
 	{
-		t = FixedMul (finetangent[i], focallength);
+		t = (finetangent[i] * focallength);
 		t = ::g->centerx - t;
 
 		if (::g->viewangletox[i] == -1)
@@ -632,13 +587,13 @@ static void R_InitTextureMapping (void)
 //  because the ::g->scalelight table changes with view size.
 //
 
-static void R_InitLightTables (void)
+static void R_InitLightTables ()
 {
 	size_t	i = 0;
 	size_t	j = 0;
 	index_t	level = 0;
 	size_t	nocollide_startmap = 0;
-	int		scale = 0;
+	fixed_t		scale = 0;
 
 	// Calculate the light levels to use
 	//  for each level / distance combination.
@@ -647,9 +602,9 @@ static void R_InitLightTables (void)
 		nocollide_startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 		for (j = 0; j < MAXLIGHTZ; j++)
 		{
-			scale = FixedDiv ((SCREENWIDTH/2*FRACUNIT), numeric_cast<fixed_t>((j + 1) << LIGHTZSHIFT));
+			scale = ((SCREENWIDTH/2*FRACUNIT) / ((j + 1) << LIGHTZSHIFT));
 			scale >>= LIGHTSCALESHIFT;
-			level = numeric_cast<index_t>(nocollide_startmap - scale/DISTMAP);
+			level = (nocollide_startmap - scale/DISTMAP);
 
 			level = Max(level, 0);
 
@@ -687,7 +642,7 @@ R_SetViewSize
 //
 // R_ExecuteSetViewSize
 //
-static void R_ExecuteSetViewSize (void)
+static void R_ExecuteSetViewSize ()
 {
 	fixed_t	cosadj = 0;
 	fixed_t	dy = 0;
@@ -754,13 +709,13 @@ static void R_ExecuteSetViewSize (void)
 	{
 		dy = ((i-::g->viewheight/2)<<FRACBITS)+FRACUNIT/2;
 		dy = abs(dy);
-		::g->yslope[i] = FixedDiv ( (::g->viewwidth << ::g->detailshift)/2*FRACUNIT, dy);
+		::g->yslope[i] = ( (::g->viewwidth << ::g->detailshift)/2*FRACUNIT / dy);
 	}
 
 	for (i=0 ; i < ::g->viewwidth ; i++)
 	{
 		cosadj = abs(finecosine[::g->xtoviewangle[i]>>ANGLETOFINESHIFT]);
-		::g->distscale[i] = FixedDiv (FRACUNIT,cosadj);
+		::g->distscale[i] = (FRACUNIT / cosadj);
 	}
 
 	// Calculate the light levels to use
@@ -792,7 +747,7 @@ static void R_ExecuteSetViewSize (void)
 
 
 
-void R_Init (void)
+void R_Init ()
 {
 	R_InitData ();
 	I_Printf ("\nR_InitData");
@@ -819,31 +774,37 @@ void R_Init (void)
 //
 // R_PointInSubsector
 //
-subsector_t*
-R_PointInSubsector
-(const fixed_t	x,
- const fixed_t	y )
+subsector_t* R_PointInSubsector ( const fixed_t x, const fixed_t y )
 {
-	node_t*	node;
-	int		side;
-	int		nodenum;
-
 	// single subsector is a special case
 	if (!::g->numnodes)
 	{
 		return ::g->subsectors;
 	}
 
-	nodenum = ::g->numnodes-1;
+	index_t nodenum = numeric_cast<index_t>(::g->numnodes) - 1;
 
 	while (! (nodenum & NF_SUBSECTOR) )
 	{
-		node = &::g->nodes[nodenum];
-		side = R_PointOnSide (x, y, node);
-		nodenum = node->children[side];
+		const node_t* node = &::g->nodes[nodenum];
+
+		if (node)
+		{
+			const int8 side = R_PointOnSide(x, y, node);
+
+			if (side >= 0)
+			{
+				nodenum = node->children[side];
+			}
+		}
 	}
 
-	return &::g->subsectors[nodenum & ~NF_SUBSECTOR];
+	if (nodenum >= 0)
+	{
+		return &::g->subsectors[nodenum & ~NF_SUBSECTOR];
+	}
+
+	return nullptr;
 }
 
 //
@@ -877,9 +838,9 @@ static void R_SetupFrame (player_t* player)
 
 		::g->walllights = ::g->scalelightfixed;
 
-		for (size_t i = 0; i < MAXLIGHTSCALE; i++)
+		for (auto& i : ::g->scalelightfixed)
 		{
-			::g->scalelightfixed[i] = ::g->fixedcolormap;
+			i = ::g->fixedcolormap;
 		}
 	}
 	else

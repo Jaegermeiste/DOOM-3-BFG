@@ -402,6 +402,18 @@
     <ClInclude Include="idlib\sys\sys_helpers.h">
       <Filter>Sys</Filter>
     </ClInclude>
+    <ClInclude Include="idlib\containers\PriorityQueue.h">
+      <Filter>Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="idlib\sys\sys_concept_stringlikeorenum.h">
+      <Filter>Sys</Filter>
+    </ClInclude>
+    <ClInclude Include="idlib\sys\sys_concept_formattable.h">
+      <Filter>Sys</Filter>
+    </ClInclude>
+    <ClInclude Include="idlib\sys\sys_type_qboolean.h">
+      <Filter>Sys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

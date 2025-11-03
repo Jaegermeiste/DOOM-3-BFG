@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "doomdef.h"
 #include "f_wipe.h"
 
+#include <utility>
+
 //
 //                       SCREEN WIPE PACKAGE
 //
@@ -45,23 +47,16 @@ If you have questions concerning this license or the applicable additional terms
 
 
 static void
-wipe_shittyColMajorXform
-( short*	array,
-  const int		width,
-  const int		height )
+wipe_shittyColMajorXform ( short*	array,  const size_t width,  const size_t height )
 {
-    int		x;
-    int		y;
-    short*	dest;
+	//dest = (short*) DoomLib::Z_Malloc(width*height*2, PU_STATIC, 0 );
+	short* dest = new short[width * height];
 
-    //dest = (short*) DoomLib::Z_Malloc(width*height*2, PU_STATIC, 0 );
-	dest = new short[ width * height ];
-
-    for(y=0;y<height;y++)
+    for(size_t y = 0; y < height; ++y)
     {
-	    for(x=0;x<width;x++)
+	    for(size_t x = 0; x < width; ++x)
 	    {
-		    dest[x*height+y] = array[y*width+x];
+		    dest[x * height + y] = array[y * width + x];
 	    }
     }
 
@@ -72,33 +67,30 @@ wipe_shittyColMajorXform
 }
 
 
-static int
-wipe_initMelt
-(const int	width,
-  const int	height,
-  int	ticks )
+static void wipe_initMelt ( const size_t width, const size_t height )
 {
-    int i, r;
+	size_t i = 0;
+	int r = 0;
     
     // copy start screen to main screen
     memcpy(::g->wipe_scr, ::g->wipe_scr_start, width*height);
     
     // makes this wipe faster (in theory)
     // to have stuff in column-major format
-    wipe_shittyColMajorXform((short*)::g->wipe_scr_start, width/2, height);
-    wipe_shittyColMajorXform((short*)::g->wipe_scr_end, width/2, height);
+    wipe_shittyColMajorXform(reinterpret_cast<short*>(::g->wipe_scr_start), width / 2, height);
+    wipe_shittyColMajorXform(reinterpret_cast<short*>(::g->wipe_scr_end), width / 2, height);
     
     // setup initial column positions
     // (::g->wipe_y<0 => not ready to scroll yet)
-    ::g->wipe_y = static_cast<int*>(DoomLib::Z_Malloc(width * sizeof(int), PU_STATIC, nullptr));
+    ::g->wipe_y = static_cast<int32*>(DoomLib::Z_Malloc(width * sizeof(int), PU_STATIC, nullptr));
 
     ::g->wipe_y[0] = -(M_Random()%16);
 
-	for (i=1;i<width;i++)
+	for (i = 1; std::cmp_less(i, width); ++i)
 	{
 		r = (M_Random()%3) - 1;
 
-		::g->wipe_y[i] = ::g->wipe_y[i-1] + r;
+		::g->wipe_y[i] = ::g->wipe_y[i - 1] + r;
 
 		if (::g->wipe_y[i] > 0)
 		{
@@ -109,60 +101,51 @@ wipe_initMelt
 			::g->wipe_y[i] = -15;
 		}
 	}
-
-    return 0;
 }
 
-static int wipe_doMelt( int width, const int height, int ticks ) {
-	int		i;
-	int		j;
-	int		dy;
-	int		idx;
+static bool wipe_doMelt( const size_t width, const size_t height, ID_TIME_T ticks ) {
+	bool	done = true;
 
-	short*	s;
-	short*	d;
-	qboolean	done = true;
-
-	width/=2;
+	const index_t width_index = numeric_cast<index_t>(width / 2);
 
 	while (ticks--)
 	{
-		for (i=0;i<width;i++)
+		for (size_t i = 0; std::cmp_less(i, width_index); i++)
 		{
 			if (::g->wipe_y[i]<0) {
 
 				::g->wipe_y[i]++;
 				done = false;
 			}
-			else if (::g->wipe_y[i] < height) {
-
-				dy = (::g->wipe_y[i] < 16 * GLOBAL_IMAGE_SCALER) ? ::g->wipe_y[i]+1 : 8 * GLOBAL_IMAGE_SCALER;
+			else if (std::cmp_less(::g->wipe_y[i], height)) {
+				size_t dy = (::g->wipe_y[i] < 16 * GLOBAL_IMAGE_SCALER) ? ::g->wipe_y[i] + 1 : 8 * GLOBAL_IMAGE_SCALER;
 
 				if (::g->wipe_y[i]+dy >= height)
 				{
 					dy = height - ::g->wipe_y[i];
 				}
 
-				s = &((short *)::g->wipe_scr_end)[i*height+::g->wipe_y[i]];
-				d = &((short *)::g->wipe_scr)[::g->wipe_y[i]*width+i];
+				short* s = &reinterpret_cast<short*>(::g->wipe_scr_end)[i * height + ::g->wipe_y[i]];
+				short* d = &reinterpret_cast<short*>(::g->wipe_scr)[::g->wipe_y[i] * width + i];
 
-				idx = 0;
-				for (j=dy;j;j--)
+				size_t  j   = 0;
+				index_t idx = 0;
+				for (j = dy; j > 0; --j)
 				{
 					d[idx] = *(s++);
-					idx += width;
+					idx += width_index;
 				}
 
-				::g->wipe_y[i] += dy;
+				::g->wipe_y[i] += numeric_cast<BASE_TYPE(::g->wipe_y)>(dy);
 
-				s = &((short *)::g->wipe_scr_start)[i*height];
-				d = &((short *)::g->wipe_scr)[::g->wipe_y[i]*width+i];
+				s = &reinterpret_cast<short*>(::g->wipe_scr_start)[i * height];
+				d = &reinterpret_cast<short*>(::g->wipe_scr)[::g->wipe_y[i] * width_index + i];
 
 				idx = 0;
-				for (j=height-::g->wipe_y[i];j;j--)
+				for (j = height - ::g->wipe_y[i]; j > 0; --j)
 				{
 					d[idx] = *(s++);
-					idx += width;
+					idx += width_index;
 				}
 
 				done = false;
@@ -173,51 +156,28 @@ static int wipe_doMelt( int width, const int height, int ticks ) {
 	return done;
 }
 
-static int
-wipe_exitMelt
-( int	width,
-  int	height,
-  int	ticks )
+static void wipe_exitMelt()
 {
     Z_Free(::g->wipe_y);
 	::g->wipe_y = nullptr;
-    return 0;
 }
 
-int
-wipe_StartScreen
-( int	x,
-  int	y,
-  int	width,
-  int	height )
+static void wipe_StartScreen ()
 {
     ::g->wipe_scr_start = ::g->screens[2];
     I_ReadScreen(::g->wipe_scr_start);
-    return 0;
 }
 
-int
-wipe_EndScreen
-(const int	x,
-  const int	y,
-  const int	width,
-  const int	height )
+static void wipe_EndScreen (const int x,  const int y,  const size_t width,  const size_t height )
 {
     ::g->wipe_scr_end = ::g->screens[3];
     I_ReadScreen(::g->wipe_scr_end);
     V_DrawBlock(x, y, 0, width, height, ::g->wipe_scr_start); // restore start scr.
-    return 0;
 }
 
-int
-wipe_ScreenWipe
-( int	x,
-  int	y,
-  const int	width,
-  const int	height,
-  const int	ticks )
+static bool wipe_ScreenWipe ( const size_t width,  const size_t height, const ID_TIME_T ticks )
 {
-	int rc;
+	bool rc = false;
 
 	// initial stuff
 	if (!::g->go)
@@ -225,7 +185,7 @@ wipe_ScreenWipe
 		::g->go = true;
 		::g->wipe_scr = ::g->screens[0];
 
-		wipe_initMelt(width, height, ticks);
+		wipe_initMelt(width, height);
 	}
 
 	// do a piece of wipe-in
@@ -237,7 +197,7 @@ wipe_ScreenWipe
 	if (rc)
 	{
 		::g->go = false;
-		wipe_exitMelt(width, height, ticks);
+		wipe_exitMelt();
 	}
 
 	return !::g->go;

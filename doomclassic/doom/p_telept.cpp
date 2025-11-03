@@ -49,17 +49,12 @@ If you have questions concerning this license or the applicable additional terms
 //
 // TELEPORTATION
 //
-int
-EV_Teleport
-( line_t*	line,
-  const int		side,
-  mobj_t*	thing )
+bool EV_Teleport ( line_t* line, const int side, mobj_t* thing )
 {
     int		i;
     int		tag;
     mobj_t*	m;
     mobj_t*	fog;
-    unsigned	an;
     thinker_t*	thinker;
     sector_t*	sector;
     fixed_t	oldx;
@@ -129,9 +124,8 @@ EV_Teleport
 		// spawn teleport fog at source and destination
 		fog = P_SpawnMobj (oldx, oldy, oldz, MT_TFOG);
 		S_StartSound (fog, sfx_telept);
-		an = m->angle >> ANGLETOFINESHIFT;
-		fog = P_SpawnMobj (m->x+20*finecosine[an], m->y+20*finesine[an]
-				   , thing->z, MT_TFOG);
+
+		fog = P_SpawnMobj (m->x + 20 * finecosine[m->angle], m->y + 20 * finesine[m->angle], thing->z, MT_TFOG);
 
 		// emit sound, where?
 		S_StartSound (fog, sfx_telept);

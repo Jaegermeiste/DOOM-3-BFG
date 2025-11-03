@@ -295,6 +295,7 @@
     <ClInclude Include="idlib\containers\LinkList.h" />
     <ClInclude Include="idlib\containers\List.h" />
     <ClInclude Include="idlib\containers\PlaneSet.h" />
+    <ClInclude Include="idlib\containers\PriorityQueue.h" />
     <ClInclude Include="idlib\containers\Queue.h" />
     <ClInclude Include="idlib\containers\Sort.h" />
     <ClInclude Include="idlib\containers\Stack.h" />
@@ -351,6 +352,8 @@
     <ClInclude Include="idlib\sys\sys_alloc_tags.h" />
     <ClInclude Include="idlib\sys\sys_assert.h" />
     <ClInclude Include="idlib\sys\sys_builddefines.h" />
+    <ClInclude Include="idlib\sys\sys_concept_formattable.h" />
+    <ClInclude Include="idlib\sys\sys_concept_stringlikeorenum.h" />
     <ClInclude Include="idlib\sys\sys_defines.h" />
     <ClInclude Include="idlib\sys\sys_filesystem.h" />
     <ClInclude Include="idlib\sys\sys_helpers.h" />
@@ -360,6 +363,7 @@
     <ClInclude Include="idlib\sys\sys_threading.h" />
     <ClInclude Include="idlib\sys\sys_types.h" />
     <ClInclude Include="idlib\sys\sys_type_ordinal.hpp" />
+    <ClInclude Include="idlib\sys\sys_type_qboolean.h" />
     <ClInclude Include="idlib\Thread.h" />
     <ClInclude Include="idlib\Token.h" />
     <ClInclude Include="idlib\BitMsg.h" />

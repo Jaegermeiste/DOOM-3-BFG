@@ -200,9 +200,6 @@
     <ClInclude Include="doom\am_map.h">
       <Filter>Doom</Filter>
     </ClInclude>
-    <ClInclude Include="doom\constructs.h">
-      <Filter>Doom</Filter>
-    </ClInclude>
     <ClInclude Include="doom\d_englsh.h">
       <Filter>Doom</Filter>
     </ClInclude>
@@ -393,9 +390,6 @@
       <Filter>Doom</Filter>
     </ClInclude>
     <ClInclude Include="doom\v_video.h">
-      <Filter>Doom</Filter>
-    </ClInclude>
-    <ClInclude Include="doom\vars.h">
       <Filter>Doom</Filter>
     </ClInclude>
     <ClInclude Include="doom\w_wad.h">

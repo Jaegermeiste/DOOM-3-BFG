@@ -57,7 +57,7 @@ enum silhouette_e : uint8
 	SIL_BOTH = 3
 };
 
-constexpr size_t MAXDRAWSEGS = 1280;
+//constexpr size_t MAXDRAWSEGS = 4096;     // https://doomwiki.org/wiki/Static_limits
 
 
 
@@ -176,7 +176,6 @@ typedef enum slopetype_e : uint8
     ST_VERTICAL,
     ST_POSITIVE,
     ST_NEGATIVE
-
 } slopetype_t;
 
 
@@ -213,7 +212,7 @@ typedef struct line_s
     sector_t*	backsector;
 
     // if == validcount, already checked
-    int		validcount;
+    size_t		validcount;
 
     // thinker_t for reversable actions
     void*	specialdata;		
@@ -232,8 +231,8 @@ typedef struct line_s
 typedef struct subsector_s
 {
     sector_t*	sector;
-    short	numlines;
-    short	firstline;
+    size_t 	numlines;
+    index_t	firstline;
     
 } subsector_t;
 
@@ -278,8 +277,8 @@ typedef struct node_s
     // Bounding box for each child.
     fixed_t	bbox[2][4];
 
-    // If NF_SUBSECTOR its a subsector.
-    unsigned short children[2];
+    // If NF_SUBSECTOR it's a subsector.
+    index_t children[2];
     
 } node_t;
 
@@ -362,14 +361,18 @@ struct patch_t
 { 
     size_t		width;		// bounding box size 
     size_t		height; 
-    int 		leftoffset;	// pixels to the left of origin 
-    int 		topoffset;	// pixels below the origin 
+    int32 		leftoffset;	// pixels to the left of origin 
+    int32 		topoffset;	// pixels below the origin 
     size_t		columnofs[8];	// only [width] used
     // the [0] is &columnofs[width] 
 };
 
 
-
+struct marknum_t
+{
+	patch_t* patch = {};
+	mpoint_t position = {};
+};
 
 
 

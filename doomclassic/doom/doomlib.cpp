@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 #include "globaldata.h"
 #include "doomlib.h"
-#include <assert.h>
+#include <cassert>
 #include "Main.h"
 #include "sys/sys_session.h"
 #include "idlib/Thread.h"
@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <utility>
 
-// Store master volume settings in archived cvars, becausue we want them to apply
+// Store master volume settings in archived cvars, because we want them to apply
 // even if a user isn't signed in.
 // The range is from 0 to 15, which matches the setting in vanilla DOOM.
 idCVar s_volume_sound( "s_volume_sound", "8", CVAR_ARCHIVE | CVAR_INTEGER, "sound volume", 0, 15 );
@@ -100,7 +100,7 @@ namespace DoomLib
 
 	static const char * Mast_MapNames[] = {
 		"1: Attack", "2: Canyon","3: The Catwalk", "4: The Combine", "5: The Fistula", "6: The Garrison", "7: Titan Manor", "8: Paradox", "9: Subspace", "10: Subterra", "11: Trapped On Titan", "12: Virgil's Lead", "13: Minos' Judgement", 
-		"14: Bloodsea Keep", "15: Mephisto's Maosoleum", "16: Nessus", "17: Geryon", "18: Vesperas", "19: Black Tower", "20: The Express Elevator To Hell", "21: Bad Dream"
+		"14: Bloodsea Keep", "15: Mephisto's Mausoleum", "16: Nessus", "17: Geryon", "18: Vesperas", "19: Black Tower", "20: The Express Elevator To Hell", "21: Bad Dream"
 	};
 
 	static const char * Nerve_MapNames[] = {
@@ -108,12 +108,24 @@ namespace DoomLib
 	};
 
 	const ExpansionData App_Expansion_Data_Local[] = {
-		{	ExpansionData::IWAD, retail,		doom,			"DOOM",								DOOMWADDIR"DOOM.WAD", nullptr,							"base/textures/DOOMICON.PNG"	, Doom_MapNames },
-		{	ExpansionData::IWAD, commercial,	doom2,			"DOOM 2",							DOOMWADDIR"DOOM2.WAD", nullptr,							"base/textures/DOOM2ICON.PNG"	, Doom2_MapNames },
-		{	ExpansionData::IWAD, commercial,	pack_tnt,		"FINAL DOOM: TNT EVILUTION",		DOOMWADDIR"TNT.WAD", nullptr,							"base/textures/TNTICON.PNG"		, TNT_MapNames },
-		{	ExpansionData::IWAD, commercial,	pack_plut,		"FINAL DOOM: PLUTONIA EXPERIMENT",	DOOMWADDIR"PLUTONIA.WAD", nullptr,							"base/textures/PLUTICON.PNG"	, Plut_MapNames },
-		{	ExpansionData::PWAD, commercial,	pack_master,	"DOOM 2: MASTER LEVELS",			DOOMWADDIR"DOOM2.WAD",		DOOMWADDIR"MASTERLEVELS.WAD",	"base/textures/MASTICON.PNG"	, Mast_MapNames },
-		{	ExpansionData::PWAD, commercial,	pack_nerve,		"DOOM 2: NO REST FOR THE LIVING",	DOOMWADDIR"DOOM2.WAD",		DOOMWADDIR"NERVE.WAD",			"base/textures/NERVEICON.PNG"	, Nerve_MapNames },
+		{.type = ExpansionData::IWAD, .gameMode = retail,     .pack_type = doom,        .expansionName = "DOOM",
+			.iWadFilename = "DOOM.WAD",    .pWadFilename = nullptr,
+			.saveImageFile = "base/textures/DOOMICON.PNG", .mapNames = Doom_MapNames },
+		{.type = ExpansionData::IWAD, .gameMode = commercial, .pack_type = doom2,       .expansionName = "DOOM 2",
+			.iWadFilename = "DOOM2.WAD",   .pWadFilename = nullptr,
+			.saveImageFile = "base/textures/DOOM2ICON.PNG", .mapNames = Doom2_MapNames },
+		{.type = ExpansionData::IWAD, .gameMode = commercial, .pack_type = pack_tnt, 	   .expansionName = "FINAL DOOM: TNT EVILUTION",
+			.iWadFilename = "TNT.WAD",     .pWadFilename = nullptr,
+			.saveImageFile = "base/textures/TNTICON.PNG",   .mapNames = TNT_MapNames },
+		{.type = ExpansionData::IWAD, .gameMode = commercial, .pack_type = pack_plut,	   .expansionName = "FINAL DOOM: PLUTONIA EXPERIMENT",
+			.iWadFilename = "PLUTONIA.WAD", .pWadFilename = nullptr,
+			.saveImageFile = "base/textures/PLUTICON.PNG",  .mapNames = Plut_MapNames },
+		{.type = ExpansionData::PWAD, .gameMode = commercial, .pack_type = pack_master, .expansionName = "DOOM 2: MASTER LEVELS",
+			.iWadFilename = "DOOM2.WAD",    .pWadFilename = "MASTERLEVELS.WAD",
+			.saveImageFile = "base/textures/MASTICON.PNG",  .mapNames = Mast_MapNames },
+		{.type = ExpansionData::PWAD, .gameMode = commercial, .pack_type = pack_nerve,  .expansionName = "DOOM 2: NO REST FOR THE LIVING",
+			.iWadFilename = "DOOM2.WAD",    .pWadFilename = "NERVE.WAD",
+			.saveImageFile = "base/textures/NERVEICON.PNG", .mapNames = Nerve_MapNames },
 	};
 
 	static int classicRemap[K_LAST_KEY];
@@ -210,7 +222,7 @@ namespace DoomLib
 		const int originalPlayer = DoomLib::GetPlayer();
 
 		for ( size_t i = 0; i < Interface.GetNumPlayers(); i++ ) {
-			DoomLib::SetPlayer(i);
+			DoomLib::SetPlayer(numeric_cast<index_t>(i));
 			::g->menuactive = false;
 		}
 
@@ -234,14 +246,13 @@ namespace DoomLib
 
 
 extern void I_InitGraphics();
-extern void D_DoomMain();
 extern bool D_DoomMainPoll();
 extern void I_InitInput();
 extern void D_RunFrame( bool );
 extern void I_ShutdownSound();
 extern void I_ShutdownMusic();
 extern void I_ShutdownGraphics();
-extern void I_ProcessSoundEvents( void );
+extern void I_ProcessSoundEvents();
 
 
 void DoomLib::InitGlobals( void *ptr /* = NULL */ )
@@ -259,7 +270,9 @@ void DoomLib::InitGlobals( void *ptr /* = NULL */ )
 	
 }
 
-void *DoomLib::GetGlobalData(const index_t player ) {
+void *DoomLib::GetGlobalData( const index_t player ) {
+	ORDINAL_CHECK(player, MAXPLAYERS);
+
 	return globaldata[player];
 }
 
@@ -299,7 +312,7 @@ keyNum_t DoomLib::RemapControl( const keyNum_t key ) {
 
 }
 
-void DoomLib::InitGame( const int argc, char** argv )
+void DoomLib::InitGame( const size_t argc, const char** argv )
 {
 	::g->myargc = argc;
 	::g->myargv = argv;
@@ -328,7 +341,7 @@ void DoomLib::Wipe()
 	D_Wipe();
 }
 
-void DoomLib::Frame( const fixed_t realoffset, int buffer )
+void DoomLib::Frame( const fixed_t realoffset )
 {
 	::g->realoffset = realoffset;
 
@@ -437,8 +450,10 @@ index_t DoomLib::GetPlayer()
 
 byte DoomLib::BuildSourceDest( const index_t toNode ) {
 	byte sourceDest = 0;
+
 	sourceDest |= ::g->consoleplayer << 2;
 	sourceDest |= RemoteNodeToPlayerIndex( toNode );
+
 	return sourceDest;
 }
 
@@ -455,14 +470,14 @@ void DoomLib::GetSourceDest(const byte sourceDest, index_t* source, index_t* des
 	*dest = PlayerIndexToRemoteNode( dst );
 }
 
-static int nodeMap[4][4] = {
+static index_t nodeMap[MAXPLAYERS][4] = {
 	{0, 1, 2, 3},	//Player 0
 	{1, 0, 2, 3},	//Player 1
 	{2, 0, 1, 3},	//Player 2
 	{3, 0, 1, 2}	//Player 3
 };
 
-int DoomLib::RemoteNodeToPlayerIndex( const index_t node ) {
+index_t DoomLib::RemoteNodeToPlayerIndex( const index_t node ) {
 	//This needs to be called with the proper doom globals set so this calculation will work properly
 	
 	/*
@@ -481,14 +496,14 @@ int DoomLib::RemoteNodeToPlayerIndex( const index_t node ) {
 
 }
 
-static index_t indexMap[4][4] = {
+static index_t indexMap[MAXPLAYERS][4] = {
 	{0, 1, 2, 3},	//Player 0
 	{1, 0, 2, 3},	//Player 1
 	{1, 2, 0, 3},	//Player 2
 	{1, 2, 3, 0}	//Player 3
 };
 
-int DoomLib::PlayerIndexToRemoteNode(const index_t index ) {
+index_t DoomLib::PlayerIndexToRemoteNode( const index_t index ) {
 	/*int player = ::g->consoleplayer;
 	if( index == 0 ) {
 		return player;
@@ -500,7 +515,8 @@ int DoomLib::PlayerIndexToRemoteNode(const index_t index ) {
 	return indexMap[::g->consoleplayer][index];
 }
 
-void I_Error (char *error, ...);
+void I_Warning(const char* warning, ...);
+void I_Error (const char *error, ...);
 extern bool useTech5Packets;
 
 void DoomLib::PollNetwork() {

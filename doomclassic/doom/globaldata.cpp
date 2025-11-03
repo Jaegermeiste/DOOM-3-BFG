@@ -28,69 +28,70 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Precompiled.h"
 #include "globaldata.h"
-#include "globaldata.h"
 #include "Main.h"
 
 //
 // PROTOTYPES
 //
-void M_NewGame(int choice);
-void M_Episode(int choice);
-void M_Expansion(int choice);
-void M_ChooseSkill(int choice);
-void M_LoadGame(int choice);
-void M_LoadExpansion(int choice);
-void M_SaveGame(int choice);
-void M_Options(int choice);
-void M_EndGame(int choice);
-void M_ReadThis(int choice);
-void M_ReadThis2(int choice);
-void M_QuitDOOM(int choice);
-void M_ExitGame(int choice);
-void M_GameSelection(int choice);
-void M_CancelExit(int choice);
+void M_NewGame(const index_t choice);
+void M_Episode(const index_t choice);
+void M_Expansion(const index_t choice);
+void M_ChooseSkill(const index_t choice);
+void M_LoadGame(const index_t choice);
+void M_LoadExpansion(const index_t choice);
+void M_SaveGame(const index_t choice);
+void M_Options(const index_t choice);
+void M_EndGame(const index_t choice);
+void M_ReadThis(const index_t choice);
+void M_ReadThis2(const index_t choice);
+void M_QuitDOOM(const index_t choice);
+void M_ExitGame(const index_t choice);
+void M_GameSelection(const index_t choice);
+void M_CancelExit(const index_t choice);
 
-void M_ChangeMessages(int choice);
-void M_ChangeGPad(int choice);
-void M_FullScreen(int choice);
-void M_ChangeSensitivity(int choice);
-void M_SfxVol(int choice);
-void M_MusicVol(int choice);
-void M_ChangeDetail(int choice);
-void M_SizeDisplay(int choice);
-void M_StartGame(int choice);
-void M_Sound(int choice);
+void M_ChangeMessages(const index_t choice);
+void M_ChangeGPad(const index_t choice);
+void M_FullScreen(const index_t choice);
+void M_ChangeSensitivity(const index_t choice);
+void M_SfxVol(const index_t choice);
+void M_MusicVol(const index_t choice);
+void M_ChangeDetail(const index_t choice);
+void M_SizeDisplay(const index_t choice);
+void M_StartGame(const index_t choice);
+void M_Sound(const index_t choice);
 
-void M_FinishReadThis(int choice);
-void M_LoadSelect(int choice);
-void M_SaveSelect(int choice);
-void M_ReadSaveStrings(void);
-void M_QuickSave(void);
-void M_QuickLoad(void);
+void M_FinishReadThis(const index_t choice);
+void M_LoadSelect(const index_t choice);
+void M_SaveSelect(const index_t choice);
+void M_ReadSaveStrings();
+void M_QuickSave();
+void M_QuickLoad();
 
-void M_DrawMainMenu(void);
-void M_DrawQuit(void);
-void M_DrawReadThis1(void);
-void M_DrawReadThis2(void);
-void M_DrawNewGame(void);
-void M_DrawEpisode(void);
-void M_DrawOptions(void);
-void M_DrawSound(void);
-void M_DrawLoad(void);
-void M_DrawSave(void);
+void M_DrawMainMenu();
+void M_DrawQuit();
+void M_DrawReadThis1();
+void M_DrawReadThis2();
+void M_DrawNewGame();
+void M_DrawEpisode();
+void M_DrawOptions();
+void M_DrawSound();
+void M_DrawLoad();
+void M_DrawSave();
 
-void M_DrawSaveLoadBorder(int x,int y);
+static void M_DrawSaveLoadBorder(const std::integral auto x, const std::integral auto y);
 void M_SetupNextMenu(menu_t *menudef);
-void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
-void M_DrawEmptyCell(menu_t *menu,int item);
-void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, char *string);
-int  M_StringWidth(char *string);
-int  M_StringHeight(char *string);
-void M_StartControlPanel(void);
-void M_StartMessage(char *string,messageRoutine_t routine,qboolean input);
-void M_StopMessage(void);
-void M_ClearMenus (void);
+static void M_DrawThermo(const std::integral auto x, const std::integral auto y, const std::integral auto thermWidth, const std::integral auto thermDot);
+void M_DrawEmptyCell(const menu_t *menu, const int item );
+void M_DrawSelCell( const menu_t *menu, const int item );
+static void M_WriteText(const std::integral auto x, const std::integral auto y, const char *string);
+size_t  M_StringWidth( const char *string );
+size_t  M_StringHeight( const char *string );
+void M_StartControlPanel();
+void M_StartMessage( const char *string, const messageRoutine_t routine, const bool input);
+void M_StopMessage();
+void M_ClearMenus ();
+
+ID_TIME_T I_GetTime();
 
 extern const anim_t temp_epsd0animinfo[10];
 extern const anim_t temp_epsd1animinfo[9];
@@ -106,9 +107,9 @@ void Globals::InitGlobals()
 	::g->leveljuststarted = true; 	// kluge until AM_LevelInit() is called
 	::g->automapactive = false;
 	::g->finit_width = SCREENWIDTH;
-	::g->finit_height = SCREENHEIGHT - (32 * GLOBAL_IMAGE_SCALER);
-	::g->scale_mtof = numeric_cast<fixed_t>(INITSCALEMTOF);
-	::g->markpointnum = 0; // next point to be assigned
+	::g->finit_height = SCREENHEIGHT - 32 * GLOBAL_IMAGE_SCALER;
+	::g->scale_mtof = INITSCALEMTOF;
+	::g->nextMarkPointIndex = 0; // next point to be assigned
 	::g->followplayer = 1; // specifies whether to follow the player around
 	::g->stopped = true;
 	::g->lastlevel = -1;
@@ -131,6 +132,7 @@ void Globals::InitGlobals()
 	::g->menuactivestate = false;
 	::g->inhelpscreensstate = false;
 	::g->fullscreen = false;
+	::g->waitingForWipe = true;
 	::g->wipe = false;
 	::g->wipedone = true;
 	// d_main.constructs end // 
@@ -213,7 +215,7 @@ void Globals::InitGlobals()
 	memcpy(&::g->MainMenu, temp_MainMenu, sizeof(temp_MainMenu));
 	menu_t  temp_MainDef = {
 		main_end,
-			NULL,
+		nullptr,
 			::g->MainMenu,
 			M_DrawMainMenu,
 			97,64,
@@ -292,9 +294,9 @@ void Globals::InitGlobals()
 		{1,"M_MESSG",	M_ChangeMessages,'m'},
 		//{1,"M_DETAIL",	M_ChangeDetail,'g'},
 		//{2,"M_SCRNSZ",	M_SizeDisplay,'s'},
-		{-1,"",0},
+		{-1,"",nullptr},
 		{2,"M_MSENS",	M_ChangeSensitivity,'m'},
-		{-1,"",0},
+		{-1,"",nullptr},
 		{1,"M_SVOL",	M_Sound,'s'}
 	};
 	memcpy(::g->OptionsMenu, temp_OptionsMenu, sizeof(temp_OptionsMenu));
@@ -309,9 +311,9 @@ void Globals::InitGlobals()
 	memcpy(&::g->OptionsDef, &temp_OptionsDef, sizeof(temp_OptionsDef));
 	menuitem_t temp_SoundMenu[4] = {
 		{2,"M_SFXVOL",M_SfxVol,'s'},
-		{-1,"",0},
+		{-1,"",nullptr},
 		{2,"M_MUSVOL",M_MusicVol,'m'},
-		{-1,"",0}
+		{-1,"",nullptr}
 	};
 	memcpy(::g->SoundMenu, temp_SoundMenu, sizeof(temp_SoundMenu));
 	menu_t  temp_SoundDef = {
@@ -398,52 +400,50 @@ void Globals::InitGlobals()
 		chat_macros[i] = temp_chat_macros[i];
 	}
 	default_t temp_defaults[35] = {
-		default_t("mouse_sensitivity",&::g->mouseSensitivity, 7),
+		default_t("mouse_sensitivity", reinterpret_cast<address_t*>(&::g->mouseSensitivity), 7),
 
-		default_t("show_messages",&::g->showMessages, 1),
+		default_t("show_messages",     reinterpret_cast<address_t*>(&::g->showMessages),     1),
 
-		default_t("key_right",&::g->key_right, KEY_RIGHTARROW),
-		default_t("key_left",&::g->key_left, KEY_LEFTARROW),
-		default_t("key_up",&::g->key_up, KEY_UPARROW),
-		default_t("key_down",&::g->key_down, KEY_DOWNARROW),
-		default_t("key_strafeleft",&::g->key_strafeleft, ','),
-		default_t("key_straferight",&::g->key_straferight, '.'),
+		default_t("key_right",         reinterpret_cast<address_t*>(&::g->key_right),        KEY_RIGHTARROW),
+		default_t("key_left",          reinterpret_cast<address_t*>(&::g->key_left),         KEY_LEFTARROW),
+		default_t("key_up",            reinterpret_cast<address_t*>(&::g->key_up),           KEY_UPARROW),
+		default_t("key_down",          reinterpret_cast<address_t*>(&::g->key_down),         KEY_DOWNARROW),
+		default_t("key_strafeleft",    reinterpret_cast<address_t*>(&::g->key_strafeleft),   ','),
+		default_t("key_straferight",   reinterpret_cast<address_t*>(&::g->key_straferight),  '.'),
 
-		default_t("key_fire",&::g->key_fire, KEY_RCTRL),
-		default_t("key_use",&::g->key_use, ' '),
-		default_t("key_strafe",&::g->key_strafe, KEY_RALT),
-		default_t("key_speed",&::g->key_speed, KEY_RSHIFT),
+		default_t("key_fire",          reinterpret_cast<address_t*>(&::g->key_fire),         KEY_RCTRL),
+		default_t("key_use",           reinterpret_cast<address_t*>(&::g->key_use),          ' '),
+		default_t("key_strafe",        reinterpret_cast<address_t*>(&::g->key_strafe),       KEY_RALT),
+		default_t("key_speed",         reinterpret_cast<address_t*>(&::g->key_speed),        KEY_RSHIFT),
 
-		default_t("use_mouse",&::g->usemouse, 1),
-		default_t("mouseb_fire",&::g->mousebfire,0),
-		default_t("mouseb_strafe",&::g->mousebstrafe,1),
-		default_t("mouseb_forward",&::g->mousebforward,2),
+		default_t("use_mouse",         reinterpret_cast<address_t*>(&::g->usemouse),         1),
+		default_t("mouseb_fire",       reinterpret_cast<address_t*>(&::g->mousebfire),       0),
+		default_t("mouseb_strafe",     reinterpret_cast<address_t*>(&::g->mousebstrafe),     1),
+		default_t("mouseb_forward",    reinterpret_cast<address_t*>(&::g->mousebforward),    2),
 
-		default_t("use_joystick",&::g->usejoystick, 0),
-		default_t("joyb_fire",&::g->joybfire,0),
-		default_t("joyb_strafe",&::g->joybstrafe,1),
-		default_t("joyb_use",&::g->joybuse,3),
-		default_t("joyb_speed",&::g->joybspeed,2),
+		default_t("use_joystick",      reinterpret_cast<address_t*>(&::g->usejoystick),      0),
+		default_t("joyb_fire",         reinterpret_cast<address_t*>(&::g->joybfire),         0),
+		default_t("joyb_strafe",       reinterpret_cast<address_t*>(&::g->joybstrafe),       1),
+		default_t("joyb_use",          reinterpret_cast<address_t*>(&::g->joybuse),          3),
+		default_t("joyb_speed",        reinterpret_cast<address_t*>(&::g->joybspeed),        2),
 
-		default_t("screenblocks",&::g->screenblocks, 10),
-		default_t("detaillevel",&::g->detailLevel, 0),
+		default_t("screenblocks",      reinterpret_cast<address_t*>(&::g->screenblocks),     10),
+		default_t("detaillevel",       reinterpret_cast<address_t*>(&::g->detailLevel),      0),
 
-		default_t("snd_channels",&::g->numChannels, S_NUMCHANNELS),
+		default_t("snd_channels",      reinterpret_cast<address_t*>(&::g->numChannels),      S_NUMCHANNELS),
 
+		default_t("usegamma",          reinterpret_cast<address_t*>(&::g->usegamma),         0),
 
-
-		default_t("usegamma",&::g->usegamma, 0),
-
-		default_t("chatmacro0", &::g->chat_macros[0], HUSTR_CHATMACRO0),
-		default_t("chatmacro1", &::g->chat_macros[1], HUSTR_CHATMACRO1),
-		default_t("chatmacro2", &::g->chat_macros[2], HUSTR_CHATMACRO2),
-		default_t("chatmacro3", &::g->chat_macros[3], HUSTR_CHATMACRO3),
-		default_t("chatmacro4", &::g->chat_macros[4], HUSTR_CHATMACRO4),
-		default_t("chatmacro5", &::g->chat_macros[5], HUSTR_CHATMACRO5),
-		default_t("chatmacro6", &::g->chat_macros[6], HUSTR_CHATMACRO6),
-		default_t("chatmacro7", &::g->chat_macros[7], HUSTR_CHATMACRO7),
-		default_t("chatmacro8", &::g->chat_macros[8], HUSTR_CHATMACRO8),
-		default_t("chatmacro9", &::g->chat_macros[9], HUSTR_CHATMACRO9)
+		default_t("chatmacro0",        &::g->chat_macros[0],                                  HUSTR_CHATMACRO0),
+		default_t("chatmacro1",        &::g->chat_macros[1],                                  HUSTR_CHATMACRO1),
+		default_t("chatmacro2",        &::g->chat_macros[2],                                  HUSTR_CHATMACRO2),
+		default_t("chatmacro3",        &::g->chat_macros[3],                                  HUSTR_CHATMACRO3),
+		default_t("chatmacro4",        &::g->chat_macros[4],                                  HUSTR_CHATMACRO4),
+		default_t("chatmacro5",        &::g->chat_macros[5],                                  HUSTR_CHATMACRO5),
+		default_t("chatmacro6",        &::g->chat_macros[6],                                  HUSTR_CHATMACRO6),
+		default_t("chatmacro7",        &::g->chat_macros[7],                                  HUSTR_CHATMACRO7),
+		default_t("chatmacro8",        &::g->chat_macros[8],                                  HUSTR_CHATMACRO8),
+		default_t("chatmacro9",        &::g->chat_macros[9],                                  HUSTR_CHATMACRO9)
 
 	};
 	memcpy(::g->defaults, temp_defaults, sizeof(temp_defaults));
@@ -473,14 +473,14 @@ void Globals::InitGlobals()
 	memcpy(::g->checkcoord, temp_checkcoord, sizeof(temp_checkcoord));
 	// r_bsp.constructs end // 
 	//  r_draw.constructs begin // 
-	int temp_fuzzoffset[FUZZTABLE] = {
-		FUZZOFF,-FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
-			FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
-			FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,
-			FUZZOFF,-FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
-			FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,-FUZZOFF,FUZZOFF,
-			FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,
-			FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF
+	index_t temp_fuzzoffset[FUZZTABLE] = {
+			FUZZOFF, -FUZZOFF,  FUZZOFF, -FUZZOFF,  FUZZOFF,  FUZZOFF, -FUZZOFF,
+			FUZZOFF,  FUZZOFF, -FUZZOFF,  FUZZOFF,  FUZZOFF,  FUZZOFF, -FUZZOFF,
+			FUZZOFF,  FUZZOFF,  FUZZOFF, -FUZZOFF, -FUZZOFF, -FUZZOFF, -FUZZOFF,
+			FUZZOFF, -FUZZOFF, -FUZZOFF,  FUZZOFF,  FUZZOFF,  FUZZOFF,  FUZZOFF, -FUZZOFF,
+			FUZZOFF, -FUZZOFF,  FUZZOFF,  FUZZOFF, -FUZZOFF, -FUZZOFF,  FUZZOFF,
+			FUZZOFF, -FUZZOFF, -FUZZOFF, -FUZZOFF, -FUZZOFF,  FUZZOFF,  FUZZOFF,
+			FUZZOFF,  FUZZOFF, -FUZZOFF,  FUZZOFF,  FUZZOFF, -FUZZOFF,  FUZZOFF
 	};
 	memcpy(::g->fuzzoffset, temp_fuzzoffset, sizeof(temp_fuzzoffset));
 	::g->fuzzpos = 0;
@@ -490,7 +490,7 @@ void Globals::InitGlobals()
 	// r_main.constructs end // 
 	//  sounds.constructs begin // 
 	musicinfo_t temp_S_music[80] = {
-		{ 0 },
+		{ nullptr },
 		{ "e1m1", 0 },
 		{ "e1m2", 0 },
 		{ "e1m3", 0 },
@@ -575,7 +575,7 @@ void Globals::InitGlobals()
 	::g->st_stopped = true;
 	// st_stuff.constructs end // 
 	//  s_sound.constructs begin //
-	::g->mus_playing = 0;
+	::g->mus_playing = nullptr;
 	// s_sound.constructs end // 
 	//  wi_stuff.constructs begin // 
 	int temp_NUMANIMS[NUMEPISODES] = {
@@ -596,7 +596,7 @@ void Globals::InitGlobals()
 	wi_stuff_anims[2] = ::g->epsd2animinfo;
 	// wi_stuff.constructs end // 
 	//  z_zone.constructs begin // 
-	::g->zones[NUM_ZONES] = NULL;
+	::g->zones[NUM_ZONES] = nullptr;
 	::g->NumAlloc = 0;
 	// z_zone.constructs end // 
 	// info constructs begin //
@@ -604,11 +604,14 @@ void Globals::InitGlobals()
 	memcpy(::g->states, tempStates, sizeof(tempStates));
 	// info constructs end //
 	// p_local begin //
-	::g->rejectmatrix = NULL;
+	::g->rejectmatrix = nullptr;
 	// p_local end //
 	// r_data begin //]
 	::g->s_numtextures = 0;
 	// r_data end //
+
+	::g->itemRespawnQueue = { MemberPriorityKey<itemRespawn_s, ID_TIME_T>{ &itemRespawn_s::removalTime } };
+	::g->lastItemRemovalTime = I_GetTime();
 }
 
 Globals *g;

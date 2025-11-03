@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -87,18 +87,13 @@ If you have questions concerning this license or the applicable additional terms
 //  calls all ?_Responder, ?_Ticker, and ?_Drawer,
 //  calls I_GetTime, I_StartFrame, and I_StartTic
 //
-static void D_DoomLoop (void);
+static void D_DoomLoop ();
 
-void R_ExecuteSetViewSize (void);
-void D_CheckNetGame (void);
+void R_ExecuteSetViewSize ();
+void D_CheckNetGame ();
 bool D_PollNetworkStart();
-static void D_ProcessEvents (void);
-static void D_DoAdvanceDemo (void);
-
-const char*		wadfiles[MAXWADFILES] =
-{
-	nullptr
-};
+static void D_ProcessEvents ();
+static void D_DoAdvanceDemo ();
 
 const char*		extraWad = nullptr;
 
@@ -114,10 +109,13 @@ const char*		extraWad = nullptr;
 // D_PostEvent
 // Called by the I/O functions when input is detected
 //
-void D_PostEvent (event_t* ev)
+void D_PostEvent (const event_t* ev)
 {
-	::g->events[::g->eventhead] = *ev;
-	::g->eventhead = (++::g->eventhead)&(MAXEVENTS-1);
+	// Don't enqueue empty/null events
+	if (ev && ev->type != evtype_t::ev_none)
+	{
+		::g->events.Add(const_cast<event_t*>(ev));
+	}
 }
 
 
@@ -125,10 +123,8 @@ void D_PostEvent (event_t* ev)
 // D_ProcessEvents
 // Send all the ::g->events of the given timestamp down the responder chain
 //
-void D_ProcessEvents (void)
+void D_ProcessEvents ()
 {
-	event_t*	ev;
-
 	// IF STORE DEMO, DO NOT ACCEPT INPUT
 	if ( ( ::g->gamemode == commercial )
 		&& (W_CheckNumForName("map01")<0) )
@@ -136,14 +132,21 @@ void D_ProcessEvents (void)
 		return;
 	}
 
-	for ( ; ::g->eventtail != ::g->eventhead ; ::g->eventtail = (++::g->eventtail)&(MAXEVENTS-1) )
+	while (!::g->events.IsEmpty())
 	{
-		ev = &::g->events[::g->eventtail];
-		if (M_Responder (ev))
+		event_t* ev = ::g->events.RemoveFirst();
+
+		if (M_Responder(ev))
 		{
 			continue; // menu ate the event
 		}
-		G_Responder (ev);
+
+		if (G_Responder(ev))
+		{
+			continue; // game ate the event
+		}
+
+		ev = nullptr;// Goodbye, event
 	}
 }
 
@@ -155,11 +158,9 @@ void D_ProcessEvents (void)
 //  draw current display, possibly wiping it from the previous
 //
 // ::g->wipegamestate can be set to -1 to force a ::g->wipe on the next draw
-extern bool waitingForWipe;
-
 static void D_Wipe()
 {
-	int nowtime, tics;
+	ID_TIME_T nowtime = 0, tics = 0;
 
 	nowtime = I_GetTime();
 	tics = nowtime - ::g->wipestart;
@@ -167,29 +168,27 @@ static void D_Wipe()
 	if (tics != 0)
 	{
 		::g->wipestart = nowtime;
-		::g->wipedone = wipe_ScreenWipe( 0, 0, SCREENWIDTH, SCREENHEIGHT, tics );
+		::g->wipedone = wipe_ScreenWipe( SCREENWIDTH, SCREENHEIGHT, tics );
 
 		// DHM - Nerve :: Demo recording :: Stop large hitch on first frame after the wipe
 		if ( ::g->wipedone ) {
 			::g->oldtrt_entertics = nowtime / ::g->ticdup;
 			::g->gametime = nowtime;
 			::g->wipe = false;
-			waitingForWipe = false;
+			::g->waitingForWipe = false;
 		}
 	}
 }
 
 
-static void D_Display (void)
+static void D_Display ()
 {
-	qboolean			redrawsbar;
-
 	if (::g->nodrawers)
 	{
 		return; // for comparative timing / profiling
 	}
 
-	redrawsbar = false;
+	bool redrawsbar = false;
 
 	// change the view size if needed
 	if (::g->setsizeneeded)
@@ -203,7 +202,7 @@ static void D_Display (void)
 	if (::g->gamestate != ::g->wipegamestate)
 	{
 		::g->wipe = true;
-		wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+		wipe_StartScreen();
 	}
 	else
 	{
@@ -249,6 +248,9 @@ static void D_Display (void)
 
 	case GS_DEMOSCREEN:
 		D_PageDrawer ();
+		break;
+	case GS_INVALID:
+	default:
 		break;
 	}
 
@@ -353,14 +355,14 @@ static void D_RunFrame(const bool Sounds )
 //
 //  D_DoomLoop
 //
-void D_DoomLoop (void)
+void D_DoomLoop ()
 {
 	// DHM - Not used
 /*
 	if (M_CheckParm ("-debugfile"))
 	{
 		char    filename[20];
-		sprintf (filename,"debug%i.txt",::g->consoleplayer);
+		idStr::snPrintf (filename,"debug%i.txt",::g->consoleplayer);
 		I_Printf ("debug output to: %s\n",filename);
 		::g->debugfile = f o p e n(filename,"w");
 	}
@@ -386,7 +388,7 @@ void D_DoomLoop (void)
 // D_PageTicker
 // Handles timing for warped ::g->projection
 //
-void D_PageTicker (void)
+void D_PageTicker ()
 {
 	if (--::g->pagetic < 0)
 	{
@@ -399,7 +401,7 @@ void D_PageTicker (void)
 //
 // D_PageDrawer
 //
-void D_PageDrawer (void)
+void D_PageDrawer ()
 {
 	V_DrawPatch (0,0, 0, static_cast<patch_t*>(W_CacheLumpName(::g->pagename, PU_CACHE_SHARED)));
 }
@@ -409,7 +411,7 @@ void D_PageDrawer (void)
 // D_AdvanceDemo
 // Called after each demo or intro ::g->demosequence finishes
 //
-void D_AdvanceDemo (void)
+void D_AdvanceDemo ()
 {
 	::g->advancedemo = true;
 }
@@ -419,7 +421,7 @@ void D_AdvanceDemo (void)
 // This cycles through the demo sequences.
 // FIXME - version dependent demo numbers?
 //
-void D_DoAdvanceDemo (void)
+void D_DoAdvanceDemo ()
 {
 	::g->players[::g->consoleplayer].playerstate = PST_LIVE;  // not reborn
 	::g->advancedemo = false;
@@ -441,7 +443,7 @@ void D_DoAdvanceDemo (void)
 	case 0:
 		if ( ::g->gamemode == commercial )
 		{
-			::g->pagetic = 35 * 11;
+			::g->pagetic = numeric_cast<ID_TIME_T>(35) * 11;
 		}
 		else
 		{
@@ -462,7 +464,7 @@ void D_DoAdvanceDemo (void)
 
 		break;
 	case 1:
-		G_DeferedPlayDemo ("demo1");
+		G_DeferredPlayDemo ("demo1");
 		break;
 	case 2:
 		::g->pagetic = 3 * TICRATE;
@@ -470,7 +472,7 @@ void D_DoAdvanceDemo (void)
 		::g->pagename = "INTERPIC";
 		break;
 	case 3:
-		G_DeferedPlayDemo ("demo2");
+		G_DeferredPlayDemo ("demo2");
 		break;
 	case 4:
 		::g->pagetic = 3 * TICRATE;
@@ -478,7 +480,7 @@ void D_DoAdvanceDemo (void)
 		::g->pagename = "INTERPIC";
 		break;
 	case 5:
-		G_DeferedPlayDemo ("demo3");
+		G_DeferredPlayDemo ("demo3");
 		break;
 		// THE DEFINITIVE DOOM Special Edition demo
 	case 6:
@@ -487,7 +489,9 @@ void D_DoAdvanceDemo (void)
 		::g->pagename = "INTERPIC";
 		break;
 	case 7:
-		G_DeferedPlayDemo ("demo4");
+		G_DeferredPlayDemo ("demo4");
+		break;
+	default:
 		break;
 	}
 }
@@ -497,7 +501,7 @@ void D_DoAdvanceDemo (void)
 //
 // D_StartTitle
 //
-void D_StartTitle (void)
+void D_StartTitle ()
 {
 	::g->gameaction = ga_nothing;
 	::g->demosequence = -1;
@@ -523,13 +527,14 @@ void D_AddFile (const char *file)
 {
 	size_t     numwadfiles = 0;
 
-	for (numwadfiles = 0 ; wadfiles[numwadfiles] ; numwadfiles++)
+	for (numwadfiles = 0; wadfiles[numwadfiles]; numwadfiles++)
 	{
 		if (file == wadfiles[numwadfiles])
 		{
 			return;
 		}
-	};
+	}
+
 	wadfiles[numwadfiles] = file;
 }
 
@@ -540,7 +545,7 @@ void D_AddFile (const char *file)
 // should be executed (notably loading PWAD's).
 //
 
-static void IdentifyVersion (void)
+static void IdentifyVersion ()
 {
 	W_FreeWadFiles();
 
@@ -563,7 +568,7 @@ static void IdentifyVersion (void)
 //
 // Find a Response File
 //
-static void FindResponseFile (void)
+static void FindResponseFile ()
 {
 }
 
@@ -572,9 +577,8 @@ static void FindResponseFile (void)
 // D_DoomMain
 //
 
-void D_DoomMain (void)
+void D_DoomMain ()
 {
-	index_t             p = 0;
 	char                file[256] = {};
 
 
@@ -582,12 +586,16 @@ void D_DoomMain (void)
 
 	IdentifyVersion ();
 
-	setbuf (stdout, nullptr);
+	if (!setvbuf (stdout, nullptr, _IOLBF, BUFSIZ))
+	{
+		
+	}
+
 	::g->modifiedgame = false;
 
 	// TODO: Networking
 	//const bool isDeathmatch = gameLocal->GetMatchParms().GetGameType() == GAME_TYPE_PVP;
-	const bool isDeathmatch = false;
+	constexpr bool isDeathmatch = false;
 
 	::g->nomonsters = M_CheckParm ("-nomonsters") || isDeathmatch;
 	::g->respawnparm = M_CheckParm ("-respawn");
@@ -609,35 +617,36 @@ void D_DoomMain (void)
 			"                         "
 			"The Ultimate DOOM Startup v%i.%i"
 			"                           ",
-			VERSION/100,VERSION%100);
+			VERSION / 100, VERSION % 100);
 		break;
+	case indetermined:
 	case shareware:
 		idStr::snPrintf(::g->title, sizeof(::g->title),
 			"                            "
 			"DOOM Shareware Startup v%i.%i"
 			"                           ",
-			VERSION/100,VERSION%100);
+			VERSION / 100, VERSION % 100);
 		break;
 	case registered:
 		idStr::snPrintf(::g->title, sizeof(::g->title),
 			"                            "
 			"DOOM Registered Startup v%i.%i"
 			"                           ",
-			VERSION/100,VERSION%100);
+			VERSION / 100, VERSION % 100);
 		break;
 	case commercial:
 		idStr::snPrintf(::g->title, sizeof(::g->title),
 			"                         "
 			"DOOM 2: Hell on Earth v%i.%i"
 			"                           ",
-			VERSION/100,VERSION%100);
+			VERSION / 100, VERSION % 100);
 		break;
 	default:
 		idStr::snPrintf(::g->title, sizeof(::g->title),
 			"                     "
 			"Public DOOM - v%i.%i"
 			"                           ",
-			VERSION/100,VERSION%100);
+			VERSION / 100, VERSION % 100);
 		break;
 	}
 
@@ -652,20 +661,23 @@ void D_DoomMain (void)
 	{
 		I_Printf(D_CDROM);
 //c++		mkdir("c:\\doomdata",0);
-		strcpy (::g->basedefault,"c:/doomdata/default.cfg");
+
+		constexpr auto DEFAULT_CFG = "c:/doomdata/default.cfg";
+		strncpy_s(::g->basedefault, DEFAULT_CFG, strlen(DEFAULT_CFG));
 	}	
 
 	// add any files specified on the command line with -file ::g->wadfile
 	// to the wad list
 	//
-	p = M_CheckParm ("-file");
+	index_t p = M_CheckParm("-file");
 	if (p)
 	{
 		// the parms after p are ::g->wadfile/lump names,
 		// until end of parms or another - preceded parm
 		::g->modifiedgame = true;            // homebrew levels
-		while (++p != ::g->myargc && ::g->myargv[p][0] != '-')
+		while (p + 1 != ::g->myargc && ::g->myargv[p][0] != '-')
 		{
+			++p;
 			D_AddFile (::g->myargv[p]);
 		}
 	}
@@ -679,7 +691,7 @@ void D_DoomMain (void)
 
 	if (p && p < ::g->myargc-1)
 	{
-		sprintf (file,"d:\\%s.lmp", ::g->myargv[p+1]);
+		idStr::snPrintf(file, sizeof(file), "d:\\%s.lmp", ::g->myargv[p+1]);
 		D_AddFile (file);
 		I_Printf("Playing demo %s.lmp.\n",::g->myargv[p+1]);
 	}
@@ -725,7 +737,8 @@ void D_DoomMain (void)
 	{*/
 	// TODO: Networking
 	//const ID_TIME_T timeLimit = gameLocal->GetMatchParms().GetTimeLimit();
-	const ID_TIME_T timeLimit = 0;
+	constexpr
+	ID_TIME_T timeLimit = 0;
 	if (timeLimit != 0 && ::g->deathmatch) 
 	{
 		int     time;
@@ -768,7 +781,7 @@ void D_DoomMain (void)
 	V_Init ();
 
 	I_Printf ("M_LoadDefaults: Load system defaults.\n");
-	M_LoadDefaults ();              // load before initing other systems
+	M_LoadDefaults ();              // load before initializing other systems
 
 	I_Printf ("W_Init: Init WADfiles.\n");
 	W_InitMultipleFiles (wadfiles);
@@ -779,13 +792,12 @@ void D_DoomMain (void)
 	{
 		// These are the lumps that will be checked in IWAD,
 		// if any one is not present, execution will be aborted.
-		const char name[23][16]=
+		constexpr char name[23][16]=
 		{
 			"e2m1","e2m2","e2m3","e2m4","e2m5","e2m6","e2m7","e2m8","e2m9",
 				"e3m1","e3m3","e3m3","e3m4","e3m5","e3m6","e3m7","e3m8","e3m9",
 				"dphoof","bfgga0","heada1","cybra1","spida1d1"
 		};
-		int i;
 
 		if ( ::g->gamemode == shareware)
 		{
@@ -797,9 +809,9 @@ void D_DoomMain (void)
 		// but w/o all the lumps of the registered version. 
 		if (::g->gamemode == registered)
 		{
-			for (i = 0;i < 23; i++)
+			for (const auto i : name)
 			{
-				if (W_CheckNumForName(name[i])<0)
+				if (W_CheckNumForName(i)<0)
 				{
 					I_Error("\nThis is not the registered version.");
 				}
@@ -807,7 +819,7 @@ void D_DoomMain (void)
 		}
 	}
 
-	// Iff additonal PWAD files are used, print modified banner
+	// Iff additional PWAD files are used, print modified banner
 	if (::g->modifiedgame)
 	{
 		/*m*/I_Printf (
@@ -818,7 +830,7 @@ void D_DoomMain (void)
 			"                      press enter to continue\n"
 			"===========================================================================\n"
 			);
-		getchar ();
+		std::ignore = getchar ();
 	}
 
 
@@ -865,10 +877,9 @@ void D_DoomMain (void)
 	D_CheckNetGame ();
 }
 
-static bool D_DoomMainPoll(void)
+static bool D_DoomMainPoll()
 {
-	int             p;
-	char                    file[256];
+	char                    file[256] = {};
 
 	if (D_PollNetworkStart() == false)
 	{
@@ -885,8 +896,8 @@ static bool D_DoomMainPoll(void)
 	I_Printf ("ST_Init: Init status bar.\n");
 	ST_Init ();
 
-	// start the apropriate game based on parms
-	p = M_CheckParm ("-record");
+	// start the appropriate game based on parms
+	index_t p = M_CheckParm("-record");
 
 	if (p && p < ::g->myargc-1)
 	{
@@ -898,7 +909,7 @@ static bool D_DoomMainPoll(void)
 	if (p && p < ::g->myargc-1)
 	{
 		//::g->singledemo = true;              // quit after one demo
-		G_DeferedPlayDemo (::g->myargv[p+1]);
+		G_DeferredPlayDemo (::g->myargv[p+1]);
 		//D_DoomLoop ();  // never returns
 	}
 
@@ -914,11 +925,11 @@ static bool D_DoomMainPoll(void)
 	{
 		if (M_CheckParm("-cdrom"))
 		{
-			sprintf(file, "c:\\doomdata\\"SAVEGAMENAME"%c.dsg",::g->myargv[p+1][0]);
+			idStr::snPrintf(file, sizeof(file), "c:\\doomdata\\%s%c.dsg", SAVEGAMENAME, ::g->myargv[p+1][0]);
 		}
 		else
 		{
-			sprintf(file, SAVEGAMENAME"%c.dsg",::g->myargv[p+1][0]);
+			idStr::snPrintf(file, sizeof(file), "%s%c.dsg", SAVEGAMENAME, ::g->myargv[p+1][0]);
 		}
 		G_LoadGame (file);
 	}

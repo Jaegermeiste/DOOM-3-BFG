@@ -33,9 +33,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <algorithm>
+#include <utility>
 
 #include "i_system.h"
 
@@ -74,7 +75,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 void
 R_RenderMaskedSegRange
-( drawseg_t*	ds,
+(const drawseg_t*	ds,
   const int		x1,
   const int		x2 )
 {
@@ -107,7 +108,7 @@ R_RenderMaskedSegRange
     {
 	    ::g->walllights = ::g->scalelight[0];
     }
-    else if (lightnum >= LIGHTLEVELS)
+    else if (std::cmp_greater_equal(lightnum, LIGHTLEVELS))
     {
 	    ::g->walllights = ::g->scalelight[LIGHTLEVELS-1];
     }
@@ -161,7 +162,7 @@ R_RenderMaskedSegRange
 		::g->dc_colormap = ::g->walllights[index];
 	    }
 			
-	    ::g->sprtopscreen = ::g->centeryfrac - FixedMul(::g->dc_texturemid, ::g->spryscale);
+	    ::g->sprtopscreen = ::g->centeryfrac - (::g->dc_texturemid * ::g->spryscale);
 	    ::g->dc_iscale = 0xffffffffu / static_cast<unsigned>(::g->spryscale);
 	    
 	    // draw the texture
@@ -188,7 +189,7 @@ R_RenderMaskedSegRange
 // CALLED: CORE LOOPING ROUTINE.
 //
 
-static void R_RenderSegLoop (void)
+static void R_RenderSegLoop ()
 {
     angle_t		angle;
     unsigned		index;
@@ -221,8 +222,11 @@ static void R_RenderSegLoop (void)
 
 			if (top <= bottom)
 			{
-				::g->ceilingplane->top[::g->rw_x] = top;
-				::g->ceilingplane->bottom[::g->rw_x] = bottom;
+				if (::g->ceilingplane >= 0 && ::g->ceilingplane < ::g->visplanes.Num())
+				{
+					::g->visplanes[::g->ceilingplane].top[::g->rw_x] = top;
+					::g->visplanes[::g->ceilingplane].bottom[::g->rw_x] = bottom;
+				}
 			}
 		}
 		
@@ -243,8 +247,11 @@ static void R_RenderSegLoop (void)
 			}
 			if (top <= bottom)
 			{
-				::g->floorplane->top[::g->rw_x] = top;
-				::g->floorplane->bottom[::g->rw_x] = bottom;
+				if (::g->floorplane >= 0 && ::g->floorplane < ::g->visplanes.Num())
+				{
+					::g->visplanes[::g->floorplane].top[::g->rw_x] = top;
+					::g->visplanes[::g->floorplane].bottom[::g->rw_x] = bottom;
+				}
 			}
 		}
 		
@@ -253,7 +260,7 @@ static void R_RenderSegLoop (void)
 	{
 	    // calculate texture offset
 	    angle = (::g->rw_centerangle + ::g->xtoviewangle[::g->rw_x])>>ANGLETOFINESHIFT;
-	    texturecolumn = ::g->rw_offset-FixedMul(finetangent[angle],::g->rw_distance);
+	    texturecolumn = ::g->rw_offset-(finetangent[angle] *::g->rw_distance);
 	    texturecolumn >>= FRACBITS;
 	    // calculate lighting
 	    index = ::g->rw_scale>>LIGHTSCALESHIFT;
@@ -341,7 +348,7 @@ static void R_RenderSegLoop (void)
 			}
 			else
 			{
-				::g->floorclip[::g->rw_x] = yh+1;
+				::g->floorclip[::g->rw_x] = yh + 1;
 			}
 	    }
 	    else
@@ -349,7 +356,7 @@ static void R_RenderSegLoop (void)
 			// no bottom wall
 			if (::g->markfloor)
 			{
-				::g->floorclip[::g->rw_x] = yh+1;
+				::g->floorclip[::g->rw_x] = yh + 1;
 			}
 	    }
 			
@@ -375,6 +382,8 @@ static void R_RenderSegLoop (void)
 // A wall segment will be drawn
 //  between start and stop pixels (inclusive).
 //
+extern angle_t GetViewAngle();
+
 static void
 R_StoreWallRange
 ( int	start,
@@ -387,13 +396,13 @@ R_StoreWallRange
     int			lightnum;
 
     // don't overflow and crash
-    if (::g->ds_p == &::g->drawsegs[MAXDRAWSEGS])
+    /*if (::g->ds_p == &::g->drawsegs[MAXDRAWSEGS])
     {
 	    return;
-    }
+    }*/
 
 #ifdef RANGECHECK
-    if (start >=::g->viewwidth || start > stop)
+    if (std::cmp_greater_equal(start, ::g->viewwidth) || start > stop)
     {
 	    I_Error ("Bad R_RenderWallRange: %i to %i", start , stop);
     }
@@ -414,24 +423,25 @@ R_StoreWallRange
     distangle = ANG90 - offsetangle;
     hyp = R_PointToDist (::g->curline->v1->x, ::g->curline->v1->y);
     sineval = finesine[distangle>>ANGLETOFINESHIFT];
-    ::g->rw_distance = FixedMul (hyp, sineval);
-		
+    ::g->rw_distance = (hyp * sineval);
+
+	drawseg_t segment = {};
+	index_t seg_idx = ::g->drawsegs.Append(segment);
 	
-    ::g->ds_p->x1 = ::g->rw_x = start;
-    ::g->ds_p->x2 = stop;
-    ::g->ds_p->curline = ::g->curline;
+    ::g->drawsegs[seg_idx].x1 = ::g->rw_x = start;
+	::g->drawsegs[seg_idx].x2 = stop;
+	::g->drawsegs[seg_idx].curline = ::g->curline;
     ::g->rw_stopx = stop+1;
     
     // calculate scale at both ends and step
-	extern angle_t GetViewAngle();
-    ::g->ds_p->scale1 = ::g->rw_scale = 
+	::g->drawsegs[seg_idx].scale1 = ::g->rw_scale =
 	R_ScaleFromGlobalAngle (GetViewAngle() + ::g->xtoviewangle[start]);
     
     if (stop > start )
     {
-	::g->ds_p->scale2 = R_ScaleFromGlobalAngle (GetViewAngle() + ::g->xtoviewangle[stop]);
-	::g->ds_p->scalestep = ::g->rw_scalestep = 
-	    (::g->ds_p->scale2 - ::g->rw_scale) / (stop-start);
+		::g->drawsegs[seg_idx].scale2 = R_ScaleFromGlobalAngle (GetViewAngle() + ::g->xtoviewangle[stop]);
+		::g->drawsegs[seg_idx].scalestep = ::g->rw_scalestep =
+	    (::g->drawsegs[seg_idx].scale2 - ::g->rw_scale) / (stop-start);
     }
     else
     {
@@ -448,10 +458,10 @@ R_StoreWallRange
 			
 	    gxt = FixedMul(trx,::g->viewcos); 
 	    gyt = -FixedMul(try,::g->viewsin); 
-	    ::g->ds_p->scale1 = FixedDiv(::g->projection, gxt-gyt) << ::g->detailshift;
+	    ::g->drawsegs[seg_idx].scale1 = FixedDiv(::g->projection, gxt-gyt) << ::g->detailshift;
 	}
 #endif
-	::g->ds_p->scale2 = ::g->ds_p->scale1;
+	::g->drawsegs[seg_idx].scale2 = ::g->drawsegs[seg_idx].scale1;
     }
     
     // calculate texture boundaries
@@ -460,7 +470,7 @@ R_StoreWallRange
     ::g->worldbottom = ::g->frontsector->floorheight - ::g->viewz;
 	
     ::g->midtexture = ::g->toptexture = ::g->bottomtexture = ::g->maskedtexture = false;
-    ::g->ds_p->maskedtexturecol = nullptr;
+	::g->drawsegs[seg_idx].maskedtexturecol = nullptr;
 	
     if (!::g->backsector)
     {
@@ -482,54 +492,54 @@ R_StoreWallRange
 	}
 	::g->rw_midtexturemid += ::g->sidedef->rowoffset;
 
-	::g->ds_p->silhouette = SIL_BOTH;
-	::g->ds_p->sprtopclip = ::g->screenheightarray;
-	::g->ds_p->sprbottomclip = ::g->negonearray;
-	::g->ds_p->bsilheight = MAXINT;
-	::g->ds_p->tsilheight = MININT;
+	::g->drawsegs[seg_idx].silhouette = SIL_BOTH;
+	::g->drawsegs[seg_idx].sprtopclip = ::g->screenheightarray;
+	::g->drawsegs[seg_idx].sprbottomclip = ::g->negonearray;
+	::g->drawsegs[seg_idx].bsilheight = fixed_t::MAX;
+	::g->drawsegs[seg_idx].tsilheight = fixed_t::MIN;
     }
     else
     {
 	// two sided line
-	::g->ds_p->sprtopclip = ::g->ds_p->sprbottomclip = nullptr;
-	::g->ds_p->silhouette = 0;
+		::g->drawsegs[seg_idx].sprtopclip = ::g->drawsegs[seg_idx].sprbottomclip = nullptr;
+		::g->drawsegs[seg_idx].silhouette = 0;
 	
 	if (::g->frontsector->floorheight > ::g->backsector->floorheight)
 	{
-	    ::g->ds_p->silhouette = SIL_BOTTOM;
-	    ::g->ds_p->bsilheight = ::g->frontsector->floorheight;
+	    ::g->drawsegs[seg_idx].silhouette = SIL_BOTTOM;
+	    ::g->drawsegs[seg_idx].bsilheight = ::g->frontsector->floorheight;
 	}
 	else if (::g->backsector->floorheight > ::g->viewz)
 	{
-	    ::g->ds_p->silhouette = SIL_BOTTOM;
-	    ::g->ds_p->bsilheight = MAXINT;
-	    // ::g->ds_p->sprbottomclip = ::g->negonearray;
+	    ::g->drawsegs[seg_idx].silhouette = SIL_BOTTOM;
+	    ::g->drawsegs[seg_idx].bsilheight = fixed_t::MAX;
+	    // ::g->drawsegs[seg_idx].sprbottomclip = ::g->negonearray;
 	}
 	
 	if (::g->frontsector->ceilingheight < ::g->backsector->ceilingheight)
 	{
-	    ::g->ds_p->silhouette |= SIL_TOP;
-	    ::g->ds_p->tsilheight = ::g->frontsector->ceilingheight;
+	    ::g->drawsegs[seg_idx].silhouette |= SIL_TOP;
+	    ::g->drawsegs[seg_idx].tsilheight = ::g->frontsector->ceilingheight;
 	}
 	else if (::g->backsector->ceilingheight < ::g->viewz)
 	{
-	    ::g->ds_p->silhouette |= SIL_TOP;
-	    ::g->ds_p->tsilheight = MININT;
-	    // ::g->ds_p->sprtopclip = ::g->screenheightarray;
+	    ::g->drawsegs[seg_idx].silhouette |= SIL_TOP;
+	    ::g->drawsegs[seg_idx].tsilheight = fixed_t::MIN;
+	    // ::g->drawsegs[seg_idx].sprtopclip = ::g->screenheightarray;
 	}
 		
 	if (::g->backsector->ceilingheight <= ::g->frontsector->floorheight)
 	{
-	    ::g->ds_p->sprbottomclip = ::g->negonearray;
-	    ::g->ds_p->bsilheight = MAXINT;
-	    ::g->ds_p->silhouette |= SIL_BOTTOM;
+	    ::g->drawsegs[seg_idx].sprbottomclip = ::g->negonearray;
+	    ::g->drawsegs[seg_idx].bsilheight = fixed_t::MAX;
+	    ::g->drawsegs[seg_idx].silhouette |= SIL_BOTTOM;
 	}
 	
 	if (::g->backsector->floorheight >= ::g->frontsector->ceilingheight)
 	{
-	    ::g->ds_p->sprtopclip = ::g->screenheightarray;
-	    ::g->ds_p->tsilheight = MININT;
-	    ::g->ds_p->silhouette |= SIL_TOP;
+	    ::g->drawsegs[seg_idx].sprtopclip = ::g->screenheightarray;
+	    ::g->drawsegs[seg_idx].tsilheight = fixed_t::MIN;
+	    ::g->drawsegs[seg_idx].silhouette |= SIL_TOP;
 	}
 	
 	::g->worldhigh = ::g->backsector->ceilingheight - ::g->viewz;
@@ -619,7 +629,7 @@ R_StoreWallRange
 	{
 	    // masked ::g->midtexture
 	    ::g->maskedtexture = true;
-	    ::g->ds_p->maskedtexturecol = ::g->maskedtexturecol = ::g->lastopening - ::g->rw_x;
+		::g->drawsegs[seg_idx].maskedtexturecol = ::g->maskedtexturecol = ::g->lastopening - ::g->rw_x;
 	    ::g->lastopening += ::g->rw_stopx - ::g->rw_x;
 	}
     }
@@ -639,7 +649,7 @@ R_StoreWallRange
 		offsetangle = Min(offsetangle, ANG90);
 
 		sineval = finesine[offsetangle >>ANGLETOFINESHIFT];
-		::g->rw_offset = FixedMul (hyp, sineval);
+		::g->rw_offset = (hyp * sineval);
 
 		if (::g->rw_normalangle-::g->rw_angle1 < ANG180)
 		{
@@ -670,7 +680,7 @@ R_StoreWallRange
 			{
 				::g->walllights = ::g->scalelight[0];
 			}
-			else if (lightnum >= LIGHTLEVELS)
+			else if (std::cmp_greater_equal(lightnum, LIGHTLEVELS))
 			{
 				::g->walllights = ::g->scalelight[LIGHTLEVELS-1];
 			}
@@ -704,11 +714,11 @@ R_StoreWallRange
     ::g->worldtop >>= 4;
     ::g->worldbottom >>= 4;
 	
-    ::g->topstep = -FixedMul (::g->rw_scalestep, ::g->worldtop);
-    ::g->topfrac = (::g->centeryfrac>>4) - FixedMul (::g->worldtop, ::g->rw_scale);
+    ::g->topstep = - (::g->rw_scalestep * ::g->worldtop);
+    ::g->topfrac = (::g->centeryfrac>>4) - (::g->worldtop * ::g->rw_scale);
 
-    ::g->bottomstep = -FixedMul (::g->rw_scalestep,::g->worldbottom);
-    ::g->bottomfrac = (::g->centeryfrac>>4) - FixedMul (::g->worldbottom, ::g->rw_scale);
+    ::g->bottomstep = -(::g->rw_scalestep *::g->worldbottom);
+    ::g->bottomfrac = (::g->centeryfrac>>4) - (::g->worldbottom * ::g->rw_scale);
 	
     if (::g->backsector)
     {	
@@ -717,14 +727,14 @@ R_StoreWallRange
 
 	if (::g->worldhigh < ::g->worldtop)
 	{
-	    ::g->pixhigh = (::g->centeryfrac>>4) - FixedMul (::g->worldhigh, ::g->rw_scale);
-	    ::g->pixhighstep = -FixedMul (::g->rw_scalestep,::g->worldhigh);
+	    ::g->pixhigh = (::g->centeryfrac>>4) - (::g->worldhigh * ::g->rw_scale);
+	    ::g->pixhighstep = -(::g->rw_scalestep *::g->worldhigh);
 	}
 	
 	if (::g->worldlow > ::g->worldbottom)
 	{
-	    ::g->pixlow = (::g->centeryfrac>>4) - FixedMul (::g->worldlow, ::g->rw_scale);
-	    ::g->pixlowstep = -FixedMul (::g->rw_scalestep,::g->worldlow);
+	    ::g->pixlow = (::g->centeryfrac>>4) - (::g->worldlow * ::g->rw_scale);
+	    ::g->pixlowstep = -(::g->rw_scalestep * ::g->worldlow);
 	}
     }
     
@@ -743,33 +753,32 @@ R_StoreWallRange
 
     
     // save sprite clipping info
-    if ( ((::g->ds_p->silhouette & SIL_TOP) || ::g->maskedtexture)
-	 && !::g->ds_p->sprtopclip)
+    if ( ((::g->drawsegs[seg_idx].silhouette & SIL_TOP) || ::g->maskedtexture)
+	 && !::g->drawsegs[seg_idx].sprtopclip)
     {
-	memcpy (::g->lastopening, ::g->ceilingclip+start, 2*(::g->rw_stopx-start));
-	::g->ds_p->sprtopclip = ::g->lastopening - start;
+	memcpy (::g->lastopening, ::g->ceilingclip+start, 2 * numeric_cast<size_t>(::g->rw_stopx - start));
+	::g->drawsegs[seg_idx].sprtopclip = ::g->lastopening - start;
 	::g->lastopening += ::g->rw_stopx - start;
     }
     
-    if ( ((::g->ds_p->silhouette & SIL_BOTTOM) || ::g->maskedtexture)
-	 && !::g->ds_p->sprbottomclip)
+    if ( ((::g->drawsegs[seg_idx].silhouette & SIL_BOTTOM) || ::g->maskedtexture)
+	 && !::g->drawsegs[seg_idx].sprbottomclip)
     {
-	memcpy (::g->lastopening, ::g->floorclip+start, 2*(::g->rw_stopx-start));
-	::g->ds_p->sprbottomclip = ::g->lastopening - start;
+	memcpy (::g->lastopening, ::g->floorclip+start, 2 * numeric_cast<size_t>(::g->rw_stopx-start));
+	::g->drawsegs[seg_idx].sprbottomclip = ::g->lastopening - start;
 	::g->lastopening += ::g->rw_stopx - start;	
     }
 
-    if (::g->maskedtexture && !(::g->ds_p->silhouette&SIL_TOP))
+    if (::g->maskedtexture && !(::g->drawsegs[seg_idx].silhouette&SIL_TOP))
     {
-	::g->ds_p->silhouette |= SIL_TOP;
-	::g->ds_p->tsilheight = MININT;
+	::g->drawsegs[seg_idx].silhouette |= SIL_TOP;
+	::g->drawsegs[seg_idx].tsilheight = fixed_t::MAX;
     }
-    if (::g->maskedtexture && !(::g->ds_p->silhouette&SIL_BOTTOM))
+    if (::g->maskedtexture && !(::g->drawsegs[seg_idx].silhouette&SIL_BOTTOM))
     {
-	::g->ds_p->silhouette |= SIL_BOTTOM;
-	::g->ds_p->bsilheight = MAXINT;
+	::g->drawsegs[seg_idx].silhouette |= SIL_BOTTOM;
+	::g->drawsegs[seg_idx].bsilheight = fixed_t::MAX;
     }
-    ::g->ds_p++;
 }
 
 

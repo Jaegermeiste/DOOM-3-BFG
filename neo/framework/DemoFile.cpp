@@ -33,7 +33,7 @@ idCVar idDemoFile::com_logDemos( "com_logDemos", "0", CVAR_SYSTEM | CVAR_BOOL, "
 idCVar idDemoFile::com_compressDemos( "com_compressDemos", "1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_ARCHIVE, "Compression scheme for demo files\n0: None    (Fast, large files)\n1: LZW     (Fast to compress, Fast to decompress, medium/small files)\n2: LZSS    (Slow to compress, Fast to decompress, small files)\n3: Huffman (Fast to compress, Slow to decompress, medium files)\nSee also: The 'CompressDemo' command" );
 idCVar idDemoFile::com_preloadDemos( "com_preloadDemos", "0", CVAR_SYSTEM | CVAR_BOOL | CVAR_ARCHIVE, "Load the whole demo in to RAM before running it" );
 
-#define DEMO_MAGIC GAME_NAME " RDEMO"
+#define DEMO_MAGIC concat(GAME_NAME, " RDEMO")
 
 /*
 ================
@@ -82,7 +82,6 @@ bool idDemoFile::OpenForReading( const char *fileName ) {
 	static constexpr int magicLen = sizeof(DEMO_MAGIC) / sizeof(DEMO_MAGIC[0]);
 	char magicBuffer[magicLen];
 	int compression;
-	int fileLength;
 
 	Close();
 
@@ -91,7 +90,7 @@ bool idDemoFile::OpenForReading( const char *fileName ) {
 		return false;
 	}
 
-	fileLength = f->Length();
+	int fileLength = f->Length();
 
 	if ( com_preloadDemos.GetBool() ) {
 		fileImage = static_cast<byte*>(Mem_Alloc(fileLength, TAG_CRAP));
@@ -211,14 +210,14 @@ idDemoFile::ReadHashString
 ================
 */
 const char *idDemoFile::ReadHashString() {
-	int		index;
+	index_t	 index = -1;
 
 	if ( log && fLog ) {
 		const char *text = va( "%s > Reading hash string\n", logStr.c_str() );
 		fLog->Write( text, strlen( text ) );
 	} 
 
-	ReadInt( index );
+	ReadInt64( index );
 
 	if ( index == -1 ) {
 		// read a new string for the table
@@ -252,9 +251,9 @@ void idDemoFile::WriteHashString( const char *str ) {
 		fLog->Write( text, strlen( text ) );
 	}
 	// see if it is already in the has table
-	for ( size_t i = 0 ; i < demoStrings.Num() ; i++ ) {
+	for ( index_t i = 0 ; i < demoStrings.Num() ; i++ ) {
 		if ( !strcmp( demoStrings[i]->c_str(), str ) ) {
-			WriteInt( i );
+			WriteInt64( i );
 			return;
 		}
 	}
@@ -273,15 +272,15 @@ void idDemoFile::WriteHashString( const char *str ) {
 idDemoFile::ReadDict
 ================
 */
-void idDemoFile::ReadDict( idDict &dict ) {
-	int i, c;
-	idStr key, val;
+template<class T>
+void idDemoFile::ReadDict( idDict<T> &dict ) {
+	int c = 0;
 
 	dict.Clear();
 	ReadInt( c );
-	for ( i = 0; i < c; i++ ) {
-		key = ReadHashString();
-		val = ReadHashString();
+	for ( index_t i = 0; i < c; i++ ) {
+		idStr key = ReadHashString();
+		idStr val = ReadHashString();
 		dict.Set( key, val );
 	}
 }
@@ -291,12 +290,11 @@ void idDemoFile::ReadDict( idDict &dict ) {
 idDemoFile::WriteDict
 ================
 */
-void idDemoFile::WriteDict( const idDict &dict ) {
-	int i, c;
-
-	c = dict.GetNumKeyVals();
+template<class T>
+void idDemoFile::WriteDict( const idDict<T> &dict ) {
+	const size_t c = dict.GetNumKeyVals();
 	WriteInt( c );
-	for ( i = 0; i < c; i++ ) {
+	for ( int i = 0; i < c; i++ ) {
 		WriteHashString( dict.GetKeyVal( i )->GetKey() );
 		WriteHashString( dict.GetKeyVal( i )->GetValue() );
 	}

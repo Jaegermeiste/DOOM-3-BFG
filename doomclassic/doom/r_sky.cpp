@@ -52,7 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 // R_InitSkyMap
 // Called whenever the view size changes.
 //
-void R_InitSkyMap (void)
+void R_InitSkyMap ()
 {
   // ::g->skyflatnum = R_FlatNumForName ( SKYFLATNAME );
     ::g->skytexturemid = 100*FRACUNIT;

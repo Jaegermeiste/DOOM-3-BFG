@@ -29,33 +29,19 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __F_WIPE_H__
 #define __F_WIPE_H__
 
+#pragma once
+
 //
 //                       SCREEN WIPE PACKAGE
 //
 
-int
-wipe_StartScreen
-( int		x,
-  int		y,
-  int		width,
-  int		height );
+static void wipe_StartScreen ();
 
 
-int
-wipe_EndScreen
-( int		x,
-  int		y,
-  int		width,
-  int		height );
+static void wipe_EndScreen ( const int x, const int y, const size_t width, const size_t height );
 
 
-int
-wipe_ScreenWipe
-( int		x,
-  int		y,
-  int		width,
-  int		height,
-  int		ticks );
+static bool wipe_ScreenWipe ( const size_t width, const size_t height, const ID_TIME_T ticks );
 
 #endif
 

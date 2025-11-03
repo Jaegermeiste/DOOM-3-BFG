@@ -50,7 +50,7 @@ private:
 	type *					last;
 };
 
-#define QUEUE_NEXT_PTR( element )		(*((type**)(((byte*)element)+nextOffset)))
+#define QUEUE_NEXT_PTR( element )		(*(reinterpret_cast<type**>(reinterpret_cast<byte*>((element)) + nextOffset)))
 
 template< class type, int nextOffset >
 idQueueTemplate<type,nextOffset>::idQueueTemplate() {
@@ -116,9 +116,9 @@ public:
 
 	static void	Test();
 
-private:
-	type *		first;
-	type *		last;
+protected:
+	type *		first;     // head
+	type *		last;      // tail
 };
 
 /*

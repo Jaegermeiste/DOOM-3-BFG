@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 // This struct controls the weapon animations.
 //
 // Each entry is:
-//   ammo/amunition type
+//   ammo/ammunition type
 //  upstate
 //  downstate
 // readystate

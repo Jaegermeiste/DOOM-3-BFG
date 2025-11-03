@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SOUNDS__
 #define __SOUNDS__
 
+#pragma once
 
 //
 // SoundFX struct.
@@ -38,7 +39,7 @@ typedef struct sfxinfo_struct	sfxinfo_t;
 struct sfxinfo_struct
 {
     // up to 6-character name
-    char*	name;
+    const char*	name;
 
     // Sfx singularity (only one at a time)
     int		singularity;
@@ -64,7 +65,7 @@ struct sfxinfo_struct
     int		usefulness;
 
     // lump number of sfx
-    int		lumpnum;		
+    index_t		lumpnum;		
 };
 
 
@@ -73,19 +74,19 @@ struct sfxinfo_struct
 //
 // MusicInfo struct.
 //
-typedef struct
+typedef struct musicinfo_s
 {
     // up to 6-character name
     const char*	name;
 
     // lump number of music
-    int		lumpnum;
+    index_t		lumpnum;
     
     // music data
     void*	data;
 
     // music handle once registered
-    int handle;
+    qhandle_t handle;
     
 } musicinfo_t;
 
@@ -102,7 +103,7 @@ extern musicinfo_t	S_music[];
 // Identifiers for all music in game.
 //
 
-typedef enum
+typedef enum musicenum_e : uint8
 {
     mus_None,
     mus_e1m1,
@@ -180,7 +181,7 @@ typedef enum
 // Identifiers for all sfx in game.
 //
 
-typedef enum
+typedef enum sfxenum_e : uint8
 {
     sfx_None,
     sfx_pistol,

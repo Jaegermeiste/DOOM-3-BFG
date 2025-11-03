@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DOOMDEF__
 #define __DOOMDEF__
 
+#pragma once
+
 #include <stdio.h>
 #include <string.h>
 
@@ -42,7 +44,7 @@ enum doomVer_e : uint8 { VERSION =  111 };
 
 
 // Game mode handling - identify IWAD version
-//  to handle IWAD dependend animations etc.
+//  to handle IWAD dependent animations etc.
 typedef enum GameMode_e : uint8
 {
   shareware,	// DOOM 1 shareware, E1, M9
@@ -51,7 +53,6 @@ typedef enum GameMode_e : uint8
   // DOOM 2 german edition not handled
   retail,	// DOOM 1 retail, E4, M36
   indetermined	// Well, no IWAD found.
-  
 } GameMode_t;
 
 
@@ -167,7 +168,8 @@ typedef enum skill_e : uint8
     sk_easy,
     sk_medium,
     sk_hard,
-    sk_nightmare
+    sk_nightmare,
+	NUM_SKILLS
 } skill_t;
 
 
@@ -189,7 +191,15 @@ typedef enum card_e : uint8
     
 } card_t;
 
+typedef enum armortype_e : uint8
+{
+	ARMOR_NONE,
+	ARMOR_STANDARD,
+	ARMOR_MEGA,
+	MAX_ARMORS
+} armortype_t;
 
+static constexpr size_t ARMOR_VALUES[] = { 0, 100, 200, 0 };
 
 // The defined weapons,
 //  including a marker indicating
@@ -296,7 +306,21 @@ enum keys_e : uint8
 	KEY_RSHIFT     = K_RSHIFT,
 	KEY_RCTRL      = K_RCTRL,
 	KEY_RALT       = K_RALT,
-	KEY_LALT       = K_LALT
+	KEY_LALT       = K_LALT,
+
+	KEY_SPACE      = K_SPACE,
+
+	KEY_0          = K_0,
+	KEY_1          = K_1,
+	KEY_2          = K_2,
+	KEY_3          = K_3,
+	KEY_4          = K_4,
+	KEY_5          = K_5,
+	KEY_6          = K_6,
+	KEY_7          = K_7,
+	KEY_8          = K_8,
+	KEY_9          = K_9
+
 };
 
 // DOOM basic types (qboolean),
