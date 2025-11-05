@@ -318,6 +318,7 @@
     <ClInclude Include="idlib\hashing\CRC32.h" />
     <ClInclude Include="idlib\hashing\MD4.h" />
     <ClInclude Include="idlib\hashing\MD5.h" />
+    <ClInclude Include="idlib\hashing\xx_Hash.h" />
     <ClInclude Include="idlib\math\Angles.h" />
     <ClInclude Include="idlib\math\Complex.h" />
     <ClInclude Include="idlib\math\Curve.h" />

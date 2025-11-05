@@ -173,7 +173,7 @@ void idRenderModelManagerLocal::TouchModel_f( const idCmdArgs &args ) {
 	common->Printf( "touchModel %s\n", model );
 	constexpr bool captureToImage = false;
 	common->UpdateScreen( captureToImage );
-	idRenderModel *m = renderModelManager->CheckModel( model );
+	const idRenderModel *m = renderModelManager->CheckModel( model );
 	if ( !m ) {
 		common->Printf( "...not found\n" );
 	}
@@ -186,7 +186,7 @@ idRenderModelManagerLocal::WritePrecacheCommands
 */
 void idRenderModelManagerLocal::WritePrecacheCommands( idFile *f ) {
 	for ( size_t i = 0; i < models.Num(); i++ ) {
-		idRenderModel	*model = models[i];
+		const idRenderModel	*model = models[i];
 
 		if ( !model ) {
 			continue;
@@ -265,7 +265,7 @@ idRenderModel *idRenderModelManagerLocal::GetModel( const char *_modelName, cons
 	canonical.ExtractFileExtension( extension );
 
 	// see if it is already present
-	int key = hash.GenerateKey( canonical, false );
+	const uint64 key = hash.GenerateKey( canonical, false );
 	for ( int i = hash.First( key ); i != -1; i = hash.Next( i ) ) {
 		idRenderModel *model = models[i];
 
@@ -276,7 +276,7 @@ idRenderModel *idRenderModelManagerLocal::GetModel( const char *_modelName, cons
 				generatedFileName.AppendPath( canonical );
 				generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
 				if ( model->SupportsBinaryModel() && r_binaryLoadRenderModels.GetBool() ) {
-					idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
+					const idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 					model->PurgeModel();
 					if ( !model->LoadBinaryModel( file, 0 ) ) {
 						model->LoadModel();
@@ -324,7 +324,7 @@ idRenderModel *idRenderModelManagerLocal::GetModel( const char *_modelName, cons
 		// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
 		ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
 
-		idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
+		const idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 
 		if ( !model->SupportsBinaryModel() || !r_binaryLoadRenderModels.GetBool() ) {
 			model->InitFromFile( canonical );
@@ -332,7 +332,7 @@ idRenderModel *idRenderModelManagerLocal::GetModel( const char *_modelName, cons
 			if ( !model->LoadBinaryModel( file, sourceTimeStamp ) ) {
 				model->InitFromFile( canonical );
 
-				idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
+				const idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
 				idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
 				model->WriteBinaryModel( outputFile );
 			} /* else {
@@ -462,7 +462,7 @@ idRenderModelManagerLocal::RemoveModel
 =================
 */
 void idRenderModelManagerLocal::RemoveModel( idRenderModel *model ) {
-	index_t index = models.FindIndex( model );
+	const index_t index = models.FindIndex( model );
 	if ( index != -1 ) {
 		hash.RemoveIndex( hash.GenerateKey( model->Name(), false ), index );
 		models.RemoveIndex( index );
@@ -617,7 +617,7 @@ idRenderModelManagerLocal::EndLevelLoad
 void idRenderModelManagerLocal::EndLevelLoad() {
 	common->Printf( "----- idRenderModelManagerLocal::EndLevelLoad -----\n" );
 
-	int start = Sys_Milliseconds();
+	const int start = Sys_Milliseconds();
 
 	insideLevelLoad = false;
 	int	purgeCount = 0;
@@ -676,7 +676,7 @@ void idRenderModelManagerLocal::EndLevelLoad() {
 
 
 	// _D3XP added this
-	int	end = Sys_Milliseconds();
+	const int	end = Sys_Milliseconds();
 	common->Printf( "%5i models purged from previous level, ", purgeCount );
 	common->Printf( "%5i models kept.\n", keepCount );
 	if ( loadCount ) {
@@ -710,7 +710,7 @@ void idRenderModelManagerLocal::PrintMemInfo( MemInfo_t *mi ) {
 	for ( i = 0; i <  localModelManager.models.Num() - 1; i++ ) {
 		for ( j = i + 1; j <  localModelManager.models.Num(); j++ ) {
 			if (  localModelManager.models[sortIndex[i]]->Memory() <  localModelManager.models[sortIndex[j]]->Memory() ) {
-				int temp = sortIndex[i];
+				const int temp = sortIndex[i];
 				sortIndex[i] = sortIndex[j];
 				sortIndex[j] = temp;
 			}

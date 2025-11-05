@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/minizip-ng-x64-windows-4.0.10#1-cd2f7f0d-74d0-4dcb-b92e-6f89bf2d2b55",
-  "name": "minizip-ng:x64-windows@4.0.10#1 a0a151d4b5eed70eae39844cf7f423c97bdeb07c00d39f856705fc23122590ce",
+  "documentNamespace": "https://spdx.org/spdxdocs/minizip-ng-x64-windows-4.0.10#1-4f880ec4-9663-4e9e-ac09-b3a7cb8c34b9",
+  "name": "minizip-ng:x64-windows@4.0.10#1 76ac91c8bf4cb80913e15024029cb707121129ada48891af0aca9f101d2c9e6f",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:11:41Z"
+    "created": "2025-11-04T19:33:20Z"
   },
   "relationships": [
     {
@@ -204,7 +204,7 @@
     {
       "name": "minizip-ng:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a0a151d4b5eed70eae39844cf7f423c97bdeb07c00d39f856705fc23122590ce",
+      "versionInfo": "76ac91c8bf4cb80913e15024029cb707121129ada48891af0aca9f101d2c9e6f",
       "downloadLocation": "NONE",
       "licenseConcluded": "Zlib",
       "licenseDeclared": "NOASSERTION",
@@ -281,7 +281,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "02dde6f57958a0a08aa44325d9788d029e246b2b0f6991a9ff05b6bd1fab3572"
+          "checksumValue": "7582a2186813614dd2b15425a6e7230c11aceede682bde1f16f4c4adcb23d78b"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -533,7 +533,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "25279b7fb4feac76c162d373843a2d317f666a16cf6f6cfe35bff3da153b6437"
+          "checksumValue": "3b89df53b7ccfd8701ec1b56642bad8685883fa087b6cbeb09e0d1db5bb346e3"
         }
       ],
       "licenseConcluded": "NOASSERTION",

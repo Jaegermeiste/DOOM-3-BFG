@@ -91,12 +91,10 @@ public:
 						// clear existing key/value pairs and copy all key/value pairs from other
 	idDict<T>&		operator=( const idDict<T>&other );
 
-	template < Formattable F > requires (!StringLikeOrEnum< F >)
-	[[nodiscard]] const T& operator[]( const F& key ) const noexcept;
-	template < Formattable F > requires (!StringLikeOrEnum< F >)
-	[[nodiscard]]       T& operator[]( const F& key ) noexcept;
-	[[nodiscard]] const T& operator[]( const StringLikeOrEnum auto& key ) const noexcept;
-	[[nodiscard]]       T& operator[]( const StringLikeOrEnum auto& key ) noexcept;
+	[[nodiscard]] const T& operator[]( const FormattableNoStrings auto& key ) const noexcept;
+	[[nodiscard]]       T& operator[]( const FormattableNoStrings auto& key ) noexcept;
+	[[nodiscard]] const T& operator[]( const StringLike auto& key ) const noexcept;
+	[[nodiscard]]       T& operator[]( const StringLike auto& key ) noexcept;
 
 						// copy from other while leaving existing key/value pairs in place
 	void				Copy( const idDict &other );
@@ -167,17 +165,17 @@ public:
 	const idKeyValue *	GetKeyVal( const Ordinal auto index ) const;
 						// returns the key/value pair with the given key
 						// returns NULL if the key/value pair does not exist
-	const idKeyValue *	FindKey( const StringLikeOrEnum auto &key ) const;
+	const idKeyValue *	FindKey( const Formattable auto &key ) const;
 						// returns the index to the key/value pair with the given key
 						// returns -1 if the key/value pair does not exist
-	index_t				FindKeyIndex( const StringLikeOrEnum auto &key ) const;
+	index_t				FindKeyIndex( const Formattable auto &key ) const;
 						// delete the key/value pair with the given key
-	void				Delete( const StringLikeOrEnum auto &key );
+	void				Delete( const Formattable auto &key );
 						// finds the next key/value pair with the given key prefix.
 						// lastMatch can be used to do additional searches past the first match.
-	const idKeyValue *	MatchPrefix( const StringLikeOrEnum auto &prefix, const idKeyValue *lastMatch = nullptr) const;
+	const idKeyValue *	MatchPrefix( const Formattable auto &prefix, const idKeyValue *lastMatch = nullptr) const;
 						// randomly chooses one of the key/value pairs with the given key prefix and returns it's value
-	const char *		RandomPrefix(const StringLikeOrEnum auto &prefix, idRandom &random ) const;
+	const char *		RandomPrefix(const Formattable auto &prefix, idRandom &random ) const;
 
 	void				WriteToFileHandle( idFile *f ) const;
 	void				ReadFromFileHandle( idFile *f );

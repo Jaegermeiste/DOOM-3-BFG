@@ -117,7 +117,7 @@ enum saveGameModeBitfield_t : uint16 {
 
 typedef interlockedInt_t saveGameHandle_t;
 
-typedef int savegameUserId_t;		// [internal] hash of gamer tag for steam
+typedef int64 savegameUserId_t;		// [internal] hash of gamer tag for steam
 
 /*
 ================================================

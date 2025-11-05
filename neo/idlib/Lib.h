@@ -307,6 +307,13 @@ public:
 #include "geometry/Surface_SweptSpline.h"
 #include "geometry/TraceModel.h"
 
+
+// hashing
+#include "hashing/CRC32.h"
+#include "hashing/MD4.h"
+#include "hashing/MD5.h"
+#include "hashing/xx_Hash.h"
+
 // text manipulation
 #include "Str.h"
 #include "StrStatic.h"
@@ -332,11 +339,6 @@ public:
 #include "containers/StrPool.h"
 #include "containers/VectorSet.h"
 #include "containers/PlaneSet.h"
-
-// hashing
-#include "hashing/CRC32.h"
-#include "hashing/MD4.h"
-#include "hashing/MD5.h"
 
 // misc
 #include "Dict.h"

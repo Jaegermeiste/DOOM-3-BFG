@@ -5,7 +5,7 @@ includedir=${prefix}/../include
 Name: DirectXMesh
 Description: DirectXMesh geometry Library
 URL: https://go.microsoft.com/fwlink/?LinkID=324981
-Version: 1.6.9
+Version: 1.7.0
 Requires: DirectXMath, DirectX-Headers
 Cflags: "-I${includedir}"
 Libs: -lDirectXMesh

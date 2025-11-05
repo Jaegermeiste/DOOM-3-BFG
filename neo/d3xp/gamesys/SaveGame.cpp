@@ -287,8 +287,8 @@ void idSaveGame::WriteString( const char *string ) {
 	}
 
 	// If we already have this string in our hash, write out of the offset in the table and return
-	auto hash = stringHash.GenerateKey( string );
-	for ( int64 i = stringHash.First( hash); i != -1; i = stringHash.Next( i ) ) {
+	const uint64 hash = stringHash.GenerateKey( string );
+	for ( index_t i = stringHash.First( hash); i != -1; i = stringHash.Next( i ) ) {
 		if ( stringTable[i].string.Cmp( string ) == 0 ) {
 			WriteInt( stringTable[i].offset );
 			return;

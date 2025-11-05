@@ -414,6 +414,9 @@
     <ClInclude Include="idlib\sys\sys_type_qboolean.h">
       <Filter>Sys</Filter>
     </ClInclude>
+    <ClInclude Include="idlib\hashing\xx_Hash.h">
+      <Filter>Hashing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

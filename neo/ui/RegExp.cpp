@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 
 #include "RegExp.h"
+
+#include <utility>
 #include "DeviceContext.h"
 #include "Window.h"
 #include "UserInterfaceLocal.h"
@@ -43,11 +45,7 @@ idRegister::SetToRegs
 */
 void idRegister::SetToRegs( float *registers ) const
 {
-	int i;
 	idVec4 v;
-	idVec2 v2;
-	idVec3 v3;
-	idRectangle rect;
 
 	if ( !enabled || var == nullptr || ( var && ( var->GetDict() || !var->GetEval() ) ) ) {
 		return;
@@ -59,18 +57,18 @@ void idRegister::SetToRegs( float *registers ) const
 			break;
 		}
 		case RECTANGLE: {
-			rect = *static_cast<idWinRectangle*>(var);
+			idRectangle rect = *static_cast<idWinRectangle*>(var);
 			v = rect.ToVec4();
 			break;
 		}
 		case VEC2: {
-			v2 = *static_cast<idWinVec2*>(var);
+			idVec2 v2 = *static_cast<idWinVec2*>(var);
 			v[0] = v2[0];
 			v[1] = v2[1];
 			break;
 		}
 		case VEC3: {
-			v3 = *static_cast<idWinVec3*>(var);
+			idVec3 v3 = *static_cast<idWinVec3*>(var);
 			v[0] = v3[0];
 			v[1] = v3[1];
 			v[2] = v3[2];
@@ -93,7 +91,7 @@ void idRegister::SetToRegs( float *registers ) const
 			break;
 		}
 	}
-	for ( i = 0; i < regCount; i++ ) {
+	for ( int i = 0; i < regCount; ++i ) {
 		registers[ regs[ i ] ] = v[i];
 	}
 }
@@ -112,7 +110,7 @@ void idRegister::GetFromRegs( float *registers ) const
 		return;
 	}
 
-	for ( size_t i = 0; i < regCount; i++ ) {
+	for ( index_t i = 0; i < regCount; ++i ) {
 		v[i] = registers[regs[i]];
 	}
 	
@@ -165,7 +163,7 @@ void idRegister::ReadFromDemoFile(idDemoFile *f) {
 	f->ReadBool( enabled );
 	f->ReadShort( type );
 	f->ReadInt( regCount );
-	for ( size_t i = 0; i < 4; i++ )
+	for ( index_t i = 0; i < 4; ++i )
 		f->ReadUnsignedShort( regs[i] );
 	name = f->ReadHashString();
 }
@@ -233,13 +231,13 @@ idRegisterList::AddReg
 void idRegisterList::AddReg( const char *name, const int type, idVec4 data, idWindow *win, idWinVar *var ) {
 	if ( FindReg( name ) == nullptr) {
 		assert( type >= 0 && type < idRegister::NUMTYPES );
-		size_t numRegs = idRegister::REGCOUNT[type];
+		const size_t numRegs = idRegister::REGCOUNT[type];
 		idRegister *reg = new (TAG_OLD_UI) idRegister( name, type );
 		reg->var = var;
-		for ( size_t i = 0; i < numRegs; i++ ) {
+		for ( index_t i = 0; std::cmp_less(i, numRegs); ++i ) {
 			reg->regs[i] = win->ExpressionConstant(data[i]);
 		}
-		int hash = regHash.GenerateKey( name, false );
+		const uint64 hash = regHash.GenerateKey( name, false );
 		regHash.Add( hash, regs.Append( reg ) );
 	}
 }
@@ -250,13 +248,11 @@ idRegisterList::AddReg
 ====================
 */
 void idRegisterList::AddReg( const char *name, const int type, idTokenParser *src, idWindow *win, idWinVar *var ) {
-	idRegister* reg;
-
-	reg = FindReg( name );
+	idRegister* reg = FindReg(name);
 
 	if ( reg == nullptr) {
 		assert(type >= 0 && type < idRegister::NUMTYPES);
-		size_t numRegs = idRegister::REGCOUNT[type];
+		const size_t numRegs = idRegister::REGCOUNT[type];
 		reg = new (TAG_OLD_UI) idRegister( name, type );
 		reg->var = var;
 		if ( type == idRegister::STRING ) {
@@ -266,25 +262,25 @@ void idRegisterList::AddReg( const char *name, const int type, idTokenParser *sr
 				var->Init( tok, win );
 			}
 		} else {
-			for ( size_t i = 0; i < numRegs; i++ ) {
+			for ( index_t i = 0; std::cmp_less(i, numRegs); ++i ) {
 				reg->regs[i] = win->ParseExpression(src, nullptr);
 				if ( i < numRegs-1 ) {
 					src->ExpectTokenString(",");
 				}
 			}
 		}
-		int hash = regHash.GenerateKey( name, false );
+		const uint64 hash = regHash.GenerateKey( name, false );
 		regHash.Add( hash, regs.Append( reg ) );
 	} else {
-		size_t numRegs = idRegister::REGCOUNT[type];
+		const size_t numRegs = idRegister::REGCOUNT[type];
 		reg->var = var;
 		if ( type == idRegister::STRING ) {
-			idToken tok;
+			idToken tok = {};
 			if ( src->ReadToken( &tok ) ) {
 				var->Init( tok, win );
 			}
 		} else {
-			for ( size_t i = 0; i < numRegs; i++ ) {
+			for ( index_t i = 0; std::cmp_less(i, numRegs); ++i ) {
 				reg->regs[i] = win->ParseExpression( src, nullptr);
 				if ( i < numRegs-1 ) {
 					src->ExpectTokenString(",");
@@ -300,7 +296,7 @@ idRegisterList::GetFromRegs
 ====================
 */
 void idRegisterList::GetFromRegs(float *registers) {
-	for ( size_t i = 0; i < regs.Num(); i++ ) {
+	for ( index_t i = 0; i < regs.Num(); ++i ) {
 		regs[i]->GetFromRegs( registers );
 	}
 }
@@ -312,8 +308,7 @@ idRegisterList::SetToRegs
 */
 
 void idRegisterList::SetToRegs( float *registers ) {
-	int i;
-	for ( i = 0; i < regs.Num(); i++ ) {
+	for ( index_t i = 0; i < regs.Num(); ++i ) {
 		regs[i]->SetToRegs( registers );
 	}
 }
@@ -324,8 +319,8 @@ idRegisterList::FindReg
 ====================
 */
 idRegister *idRegisterList::FindReg( const char *name ) {
-	int hash = regHash.GenerateKey( name, false );
-	for ( int i = regHash.First( hash ); i != -1; i = regHash.Next( i ) ) {
+	const uint64 hash = regHash.GenerateKey( name, false );
+	for ( index_t i = regHash.First( hash ); i != -1; i = regHash.Next( i ) ) {
 		if ( regs[i]->name.Icmp( name ) == 0 ) {
 			return regs[i];
 		}
@@ -353,7 +348,7 @@ void idRegisterList::ReadFromDemoFile(idDemoFile *f) {
 
 	f->ReadInt( c );
 	regs.DeleteContents( true );
-	for ( size_t i = 0; i < c; i++ ) {
+	for ( index_t i = 0; i < c; ++i ) {
 		idRegister *reg = new (TAG_OLD_UI) idRegister;
 		reg->ReadFromDemoFile( f );
 		regs.Append( reg );
@@ -366,10 +361,10 @@ idRegisterList::ReadFromSaveGame
 ====================
 */
 void idRegisterList::WriteToDemoFile(idDemoFile *f) {
-	int c = regs.Num();
+	const int c = regs.Num();
 
 	f->WriteInt( c );
-	for ( size_t i = 0 ; i < c; i++ ) {
+	for ( size_t i = 0 ; std::cmp_less(i, c); ++i ) {
 		regs[i]->WriteToDemoFile(f);
 	}
 }
@@ -380,12 +375,12 @@ idRegisterList::WriteToSaveGame
 =====================
 */
 void idRegisterList::WriteToSaveGame( idFile *savefile ) {
-	int i, num;
+	int num;
 
 	num = regs.Num();
 	savefile->Write( &num, sizeof( num ) );
 
-	for ( i = 0; i < num; i++ ) {
+	for ( int i = 0; i < num; ++i ) {
 		regs[i]->WriteToSaveGame( savefile );
 	}
 }
@@ -396,10 +391,10 @@ idRegisterList::ReadFromSaveGame
 ====================
 */
 void idRegisterList::ReadFromSaveGame( idFile *savefile ) {
-	int i, num;
+	int num;
 
 	savefile->Read( &num, sizeof( num ) );
-	for ( i = 0; i < num; i++ ) {
+	for ( int i = 0; i < num; ++i ) {
 		regs[i]->ReadFromSaveGame( savefile );
 	}
 }

@@ -476,7 +476,8 @@ R_CreateSilRemap
 static int *R_CreateSilRemap( const srfTriangles_t *tri ) {
 	int		c_removed, c_unique;
 	int		*remap;
-	int		i, j, hashKey;
+	index_t	i = 0, j = 0;
+	uint64  hashKey = 0;
 	const idDrawVert *v1, *v2;
 
 	remap = static_cast<int*>(R_ClearedStaticAlloc(tri->numVerts * sizeof(remap[0])));
@@ -591,7 +592,8 @@ static constexpr int MAX_SIL_EDGES			= 0x7ffff;
 
 static void R_DefineEdge( const triIndex_t v1, const triIndex_t v2, const triIndex_t planeNum, const size_t numPlanes,
 	idList<silEdge_t> & silEdges, idHashIndex	& silEdgeHash ) {
-	int64		i = 0, hashKey = 0;
+	index_t		i = 0;
+	uint64      hashKey = 0;
 
 	// check for degenerate edge
 	if ( v1 == v2 ) {

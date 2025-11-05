@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/directx-dxc-x64-windows-2025-10-10-02d77278-2b41-454d-996d-5aafc9c1b42a",
-  "name": "directx-dxc:x64-windows@2025-10-10 407ec7b6942e14d8f324dbf28b5469aa5a99769791dbbd887783980e28b7b3b5",
+  "documentNamespace": "https://spdx.org/spdxdocs/directx-dxc-x64-windows-2025-10-10-b69dbd57-f189-48d9-8166-14a84d88a8ed",
+  "name": "directx-dxc:x64-windows@2025-10-10 cddbb8d9ac7bfb54ead42f72a2c32fa851db575f7ebe46c6f2f492cd22f2bb36",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:10:20Z"
+    "created": "2025-11-04T19:32:03Z"
   },
   "relationships": [
     {
@@ -144,7 +144,7 @@
     {
       "name": "directx-dxc:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "407ec7b6942e14d8f324dbf28b5469aa5a99769791dbbd887783980e28b7b3b5",
+      "versionInfo": "cddbb8d9ac7bfb54ead42f72a2c32fa851db575f7ebe46c6f2f492cd22f2bb36",
       "downloadLocation": "NONE",
       "licenseConcluded": "LicenseRef-vcpkg-null",
       "licenseDeclared": "NOASSERTION",

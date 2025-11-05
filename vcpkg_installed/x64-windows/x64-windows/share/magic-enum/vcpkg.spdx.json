@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/magic-enum-x64-windows-0.9.7#1-49b4d275-1872-4c0a-82a5-8deb64286241",
-  "name": "magic-enum:x64-windows@0.9.7#1 7fc02b7716de61804c73d8183b0777a4092e1a8785a5a87c271cd11ae6237fb0",
+  "documentNamespace": "https://spdx.org/spdxdocs/magic-enum-x64-windows-0.9.7#1-9c443aa3-0fca-4c55-9b69-9bc72fbcf2bb",
+  "name": "magic-enum:x64-windows@0.9.7#1 3f3f1da4a37d5b1a166123653b4873c122300794abae2e57e139c72400b73bf5",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:11:02Z"
+    "created": "2025-11-04T19:32:47Z"
   },
   "relationships": [
     {
@@ -134,7 +134,7 @@
     {
       "name": "magic-enum:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "7fc02b7716de61804c73d8183b0777a4092e1a8785a5a87c271cd11ae6237fb0",
+      "versionInfo": "3f3f1da4a37d5b1a166123653b4873c122300794abae2e57e139c72400b73bf5",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",

@@ -40,6 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #define ASSERT_ENUM_STRING( string, index )		( 1 / (int64)!( (string) - (index) ) ) ? #string : ""
+#include "hashing/xx_Hash.h"
 
 enum utf8Encoding_t : uint8 {
 	UTF8_PURE_ASCII,		// no characters with values > 127
@@ -175,22 +176,22 @@ public:
 	friend bool    		operator!=( const StringLike auto &a, const StringLike auto &b );
 
 						// case sensitive compare
-	int					Cmp( const StringLikeOrEnum auto text ) const;
-	int					Cmpn( const StringLikeOrEnum auto text, const size_t n ) const;
-	int					CmpPrefix( const StringLikeOrEnum auto text ) const;
+	int					Cmp( const Formattable auto& text ) const;
+	int					Cmpn( const Formattable auto& text, const size_t n ) const;
+	int					CmpPrefix( const Formattable auto& text ) const;
 
 						// case insensitive compare
-	int					Icmp( const StringLikeOrEnum auto text ) const;
-	int					Icmpn( const StringLikeOrEnum auto text, const size_t n ) const;
-	int					IcmpPrefix( const StringLikeOrEnum auto text ) const;
+	int					Icmp( const Formattable auto& text ) const;
+	int					Icmpn( const Formattable auto& text, const size_t n ) const;
+	int					IcmpPrefix( const Formattable auto& text ) const;
 
 						// case insensitive compare ignoring color
-	int					IcmpNoColor( const StringLikeOrEnum auto text ) const;
+	int					IcmpNoColor( const Formattable auto& text ) const;
 
 						// compares paths and makes sure folders come first
-	int					IcmpPath( const StringLikeOrEnum auto text ) const;
-	int					IcmpnPath( const StringLikeOrEnum auto text, const size_t n ) const;
-	int					IcmpPrefixPath( const StringLikeOrEnum auto text ) const;
+	int					IcmpPath( const Formattable auto& text ) const;
+	int					IcmpnPath( const Formattable auto& text, const size_t n ) const;
+	int					IcmpPrefixPath( const Formattable auto& text ) const;
 
 	[[nodiscard]] size_t				Length() const;
 	[[nodiscard]] size_t				Allocated() const;
@@ -209,8 +210,8 @@ public:
 	template < Formattable T >
 		requires (!StringLikeOrEnum< T >)
 	void				Insert( const T &value, Ordinal auto index );
-	void				ToLower() const;
-	void				ToUpper() const;
+	idStr &             ToLower();
+	idStr &             ToUpper();
 	[[nodiscard]] bool	IsNumeric() const;
 	[[nodiscard]] bool	IsColor() const;
 	[[nodiscard]] bool	HasLower() const;
@@ -284,7 +285,7 @@ public:
 	bool				CheckExtension( const char * ext ) const;
 
 	// char * methods to replace library functions
-	static size_t	    Length( const char* s );
+	static size_t	    Length( const Formattable auto& s );
 	static char *		ToLower( char *s );
 	static char *		ToUpper( char *s );
 	static bool			IsNumeric( const char *s );
@@ -333,14 +334,14 @@ public:
 	static size_t       WideCopy( const wchar_t* src, wchar_t* dst, const size_t capacity ) noexcept;
 
 	// hash keys
-	[[nodiscard]] static int			Hash( const StringLikeOrEnum auto &string );
-	[[nodiscard]] static int			Hash( const StringLikeOrEnum auto& string, size_t length );
-	[[nodiscard]] static int64	    	Hash64( const StringLikeOrEnum auto& string );
-	[[nodiscard]] static int64	    	Hash64( const StringLikeOrEnum auto& string, size_t length );
-	[[nodiscard]] static int			IHash( const StringLikeOrEnum auto& string );					// case insensitive
-	[[nodiscard]] static int			IHash( const StringLikeOrEnum auto &string, size_t length );		// case insensitive
-	[[nodiscard]] static int64	    	IHash64( const StringLikeOrEnum auto& string );					// case insensitive
-	[[nodiscard]] static int64	    	IHash64( const StringLikeOrEnum auto& string, size_t length );		// case insensitive
+	[[nodiscard]] static uint32			Hash( const Formattable auto &string );
+	[[nodiscard]] static uint32			Hash( const Formattable auto& string, size_t length );
+	[[nodiscard]] static uint64	    	Hash64( const Formattable auto& string );
+	[[nodiscard]] static uint64	    	Hash64( const Formattable auto& string, size_t length );
+	[[nodiscard]] static uint32			IHash( const Formattable auto& string );					// case insensitive
+	[[nodiscard]] static uint32			IHash( const Formattable auto &string, size_t length );		// case insensitive
+	[[nodiscard]] static uint64	    	IHash64( const Formattable auto& string );					// case insensitive
+	[[nodiscard]] static uint64	    	IHash64( const Formattable auto& string, size_t length );		// case insensitive
 
 	// character methods
 	[[nodiscard]] static char			ToLower( const std::integral auto c );
@@ -394,6 +395,9 @@ private:
 	std::type_index current_type = { typeid(void*) };
 
 	EnumNameOptions enumNameOptions;
+
+	static XXH32Hasher   hasher32;
+	static XXH3_64Hasher hasher64;
 
 	// initialize string using base buffer... call ONLY FROM CONSTRUCTOR
 	ID_INLINE void		Construct();										
@@ -711,7 +715,7 @@ ID_INLINE bool operator!=( const FormattableNoStrings auto &a, const StringLike 
 	return !operator==( a, b );
 }
 
-ID_INLINE int idStr::Cmp( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::Cmp( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -719,7 +723,7 @@ ID_INLINE int idStr::Cmp( const StringLikeOrEnum auto text ) const {
 	return idStr::Cmp( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)) );
 }
 
-ID_INLINE int idStr::Cmpn( const StringLikeOrEnum auto text, const size_t n ) const {
+ID_INLINE int idStr::Cmpn( const Formattable auto& text, const size_t n ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -727,7 +731,7 @@ ID_INLINE int idStr::Cmpn( const StringLikeOrEnum auto text, const size_t n ) co
 	return idStr::Cmpn( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)), n );
 }
 
-ID_INLINE int idStr::CmpPrefix( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::CmpPrefix( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -737,7 +741,7 @@ ID_INLINE int idStr::CmpPrefix( const StringLikeOrEnum auto text ) const {
 	return idStr::Cmpn( data, cstring_text, strlen(cstring_text) );
 }
 
-ID_INLINE int idStr::Icmp( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::Icmp( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -745,7 +749,7 @@ ID_INLINE int idStr::Icmp( const StringLikeOrEnum auto text ) const {
 	return idStr::Icmp( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
 }
 
-ID_INLINE int idStr::Icmpn( const StringLikeOrEnum auto text, const size_t n ) const {
+ID_INLINE int idStr::Icmpn( const Formattable auto& text, const size_t n ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -753,7 +757,7 @@ ID_INLINE int idStr::Icmpn( const StringLikeOrEnum auto text, const size_t n ) c
 	return idStr::Icmpn( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)), n );
 }
 
-ID_INLINE int idStr::IcmpPrefix( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::IcmpPrefix( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -763,7 +767,7 @@ ID_INLINE int idStr::IcmpPrefix( const StringLikeOrEnum auto text ) const {
 	return idStr::Icmpn( data, cstring_text, strlen(cstring_text) );
 }
 
-ID_INLINE int idStr::IcmpNoColor( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::IcmpNoColor( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -771,7 +775,7 @@ ID_INLINE int idStr::IcmpNoColor( const StringLikeOrEnum auto text ) const {
 	return idStr::IcmpNoColor( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
 }
 
-ID_INLINE int idStr::IcmpPath( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::IcmpPath( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -779,7 +783,7 @@ ID_INLINE int idStr::IcmpPath( const StringLikeOrEnum auto text ) const {
 	return idStr::IcmpPath( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)));
 }
 
-ID_INLINE int idStr::IcmpnPath( const StringLikeOrEnum auto text, const size_t n ) const {
+ID_INLINE int idStr::IcmpnPath( const Formattable auto& text, const size_t n ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -787,7 +791,7 @@ ID_INLINE int idStr::IcmpnPath( const StringLikeOrEnum auto text, const size_t n
 	return idStr::IcmpnPath( data, idStr::ToCString(text, string_buffer, sizeof(string_buffer)), n );
 }
 
-ID_INLINE int idStr::IcmpPrefixPath( const StringLikeOrEnum auto text ) const {
+ID_INLINE int idStr::IcmpPrefixPath( const Formattable auto& text ) const {
 	assert(safe_not_equal(text, nullptr));
 
 	char string_buffer[MAX_STRING_CHARS] = {};
@@ -936,7 +940,7 @@ ID_INLINE void idStr::Insert(const T &value, Ordinal auto index) {
 	this->Insert(idStr::ToCString(value, string_buffer, sizeof(string_buffer)), index);
 }
 
-ID_INLINE void idStr::ToLower() const
+ID_INLINE idStr & idStr::ToLower()
 {
 	if (data)
 	{
@@ -946,9 +950,11 @@ ID_INLINE void idStr::ToLower() const
 			}
 		}
 	}
+
+	return *this;
 }
 
-ID_INLINE void idStr::ToUpper() const
+ID_INLINE idStr & idStr::ToUpper()
 {
 	if (data)
 	{
@@ -958,6 +964,8 @@ ID_INLINE void idStr::ToUpper() const
 			}
 		}
 	}
+
+	return* this;
 }
 
 ID_INLINE bool idStr::IsNumeric() const {
@@ -1125,10 +1133,16 @@ ID_INLINE bool idStr::CheckExtension( const char *ext ) const
 	return idStr::CheckExtension( data, ext );
 }
 
-ID_INLINE size_t idStr::Length( const char *s ) {
-	size_t i;
+ID_INLINE size_t idStr::Length( const Formattable auto& s ) {
+	/*size_t i = 0;
 	for ( i = 0; s[i]; i++ ) {}
-	return i;
+	return i;*/
+
+	char string_buffer[MAX_STRING_CHARS + 1] = {};
+
+	const char* cstring = idStr::ToCString(s, string_buffer, sizeof(string_buffer));
+
+	return strlen(cstring);
 }
 
 ID_INLINE char *idStr::ToLower( char *s ) {
@@ -1149,9 +1163,9 @@ ID_INLINE char *idStr::ToUpper( char *s ) {
 	return s;
 }
 
-ID_INLINE int idStr::Hash( const StringLikeOrEnum auto& string ) {
+ID_INLINE uint32 idStr::Hash( const Formattable auto& string ) {
 
-	char string_buffer[MAX_STRING_CHARS] = {};
+	/*char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = strlen(cstring);
@@ -1160,26 +1174,30 @@ ID_INLINE int idStr::Hash( const StringLikeOrEnum auto& string ) {
 	for ( index_t i = 0; std::cmp_less(i ,cstring_length); ++i ) {
 		hash += ( *cstring++ ) * ( numeric_cast<int>(i) + 119 );
 	}
-	return hash;
+	return hash;*/
+
+	return idStr::Hash(string, 0);
 }
 
-ID_INLINE int idStr::Hash( const StringLikeOrEnum auto& string, const size_t length ) {
+ID_INLINE uint32 idStr::Hash( const Formattable auto& string, const size_t length ) {
 
 	char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = Min(length, strlen(cstring));
+	const size_t cstring_length = Min(Max(length, 0), strlen(cstring));
 
-	int hash = 0;
+	/*int hash = 0;
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += (*cstring++) * (numeric_cast<int>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	return hasher32(cstring, cstring_length, 0);
 }
 
-ID_INLINE int64 idStr::Hash64(const StringLikeOrEnum auto& string) {
+ID_INLINE uint64 idStr::Hash64(const Formattable auto& string) {
 
-	char string_buffer[MAX_STRING_CHARS] = {};
+	/*char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = strlen(cstring);
@@ -1188,26 +1206,30 @@ ID_INLINE int64 idStr::Hash64(const StringLikeOrEnum auto& string) {
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	return idStr::Hash64(string, 0);
 }
 
-ID_INLINE int64 idStr::Hash64(const StringLikeOrEnum auto& string, const size_t length) {
+ID_INLINE uint64 idStr::Hash64(const Formattable auto& string, const size_t length) {
 
 	char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = Min(length, strlen(cstring));
+	const size_t cstring_length = Min(Max(length, 0), strlen(cstring));
 
-	int64 hash = 0;
+	/*int64 hash = 0;
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	return hasher64(cstring, cstring_length, 0);
 }
 
-ID_INLINE int idStr::IHash( const StringLikeOrEnum auto& string ) {
+ID_INLINE uint32 idStr::IHash( const Formattable auto& string ) {
 
-	char string_buffer[MAX_STRING_CHARS] = {};
+	/*char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = strlen(cstring);
@@ -1216,12 +1238,16 @@ ID_INLINE int idStr::IHash( const StringLikeOrEnum auto& string ) {
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += ToLower(*cstring++) * (numeric_cast<int>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	const auto& string_lower = idStr(string).ToLower();
+
+	return idStr::Hash(string_lower, string_lower.Length());
 }
 
-ID_INLINE int idStr::IHash( const StringLikeOrEnum auto& string, const size_t length ) {
+ID_INLINE uint32 idStr::IHash( const Formattable auto& string, const size_t length ) {
 
-	char string_buffer[MAX_STRING_CHARS] = {};
+	/*char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = Min(length, strlen(cstring));
@@ -1230,12 +1256,16 @@ ID_INLINE int idStr::IHash( const StringLikeOrEnum auto& string, const size_t le
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += (*cstring++) * (numeric_cast<int>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	const auto& string_lower = idStr(string).ToLower();
+
+	return idStr::Hash(string_lower, Min(length, string_lower.Length()));
 }
 
-ID_INLINE int64 idStr::IHash64(const StringLikeOrEnum auto& string) {
+ID_INLINE uint64 idStr::IHash64(const Formattable auto& string) {
 
-	char string_buffer[MAX_STRING_CHARS] = {};
+	/*char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = strlen(cstring);
@@ -1244,12 +1274,16 @@ ID_INLINE int64 idStr::IHash64(const StringLikeOrEnum auto& string) {
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += ToLower(*cstring++) * (numeric_cast<int64>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	const auto& string_lower = idStr(string).ToLower();
+
+	return idStr::Hash64(string_lower, string_lower.Length());
 }
 
-ID_INLINE int64 idStr::IHash64(const StringLikeOrEnum auto& string, const size_t length) {
+ID_INLINE uint64 idStr::IHash64(const Formattable auto& string, const size_t length) {
 
-	char string_buffer[MAX_STRING_CHARS] = {};
+	/*char string_buffer[MAX_STRING_CHARS] = {};
 
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = Min(length, strlen(cstring));
@@ -1258,7 +1292,11 @@ ID_INLINE int64 idStr::IHash64(const StringLikeOrEnum auto& string, const size_t
 	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
 		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
 	}
-	return hash;
+	return hash;*/
+
+	const auto& string_lower = idStr(string).ToLower();
+
+	return idStr::Hash64(string_lower, Min(length, string_lower.Length()));
 }
 
 ID_INLINE bool idStr::IsColor( const char *s ) {

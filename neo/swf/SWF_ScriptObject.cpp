@@ -135,12 +135,12 @@ idSWFScriptObject::HasValidProperty
 ========================
 */
 bool idSWFScriptObject::HasValidProperty( const char * name ) {
-	idSWFScriptObject::swfNamedVar_t * const variable = GetVariable( name, false );
+	const idSWFScriptObject::swfNamedVar_t * const variable = GetVariable( name, false );
 	if ( variable == nullptr) {
 		return false;
 	}
 	if ( variable->native != nullptr) {
-		idSWFScriptVar nv = variable->native->Get( this );
+		const idSWFScriptVar nv = variable->native->Get( this );
 		if ( nv.IsNULL() || nv.IsUndefined() ) {
 			return false;
 		}
@@ -194,7 +194,7 @@ idSWFScriptObject::GetSprite
 ========================
 */
 idSWFSpriteInstance * idSWFScriptObject::GetSprite(const index_t index ) {
-	idSWFScriptVar var = Get( index );
+	const idSWFScriptVar var = Get( index );
 	return var.ToSprite();
 }
 
@@ -204,7 +204,7 @@ idSWFScriptObject::GetSprite
 ========================
 */
 idSWFSpriteInstance * idSWFScriptObject::GetSprite( const char * name ) {
-	idSWFScriptVar var = Get( name );
+	const idSWFScriptVar var = Get( name );
 	return var.ToSprite();
 }
 
@@ -268,7 +268,7 @@ idSWFScriptObject::Set
 void idSWFScriptObject::Set( const char * name, const idSWFScriptVar & value ) {
 	if ( objectType == SWF_OBJECT_ARRAY ) {
 		if ( idStr::Cmp( name, "length" ) == 0 ) {
-			int newLength = value.ToInteger();
+			const int newLength = value.ToInteger();
 			for ( size_t i = 0; i < variables.Num(); i++ ) {
 				if ( variables[i].index >= newLength ) {
 					variables.RemoveIndexFast( i );
@@ -280,12 +280,12 @@ void idSWFScriptObject::Set( const char * name, const idSWFScriptVar & value ) {
 				variablesHash[i] = -1;
 			}
 			for ( size_t i = 0; i < variables.Num(); i++ ) {
-				int hash = idStr::Hash( variables[i].name.c_str() ) & ( VARIABLE_HASH_BUCKETS - 1 );
+				const int hash = idStr::Hash( variables[i].name.c_str() ) & ( VARIABLE_HASH_BUCKETS - 1 );
 				variables[i].hashNext = variablesHash[hash];
 				variablesHash[hash] = i;
 			}
 		} else {
-			int iName = atoi( name );
+			const int iName = atoi( name );
 			if ( iName > 0 || ( iName == 0 && idStr::Cmp( name, "0" ) == 0 ) ) {
 				swfNamedVar_t * lengthVar = GetVariable( "length", true );
 				if ( lengthVar->value.ToInteger() <= iName ) {
@@ -414,7 +414,7 @@ idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable(const index_t 
 		variable->index = index;
 		variable->name = va( "%d", index );
 		variable->native = nullptr;
-		int hash = idStr::Hash( variable->name ) & ( VARIABLE_HASH_BUCKETS - 1 );
+		const uint64 hash = idStr::Hash64( variable->name ) & ( VARIABLE_HASH_BUCKETS - 1 );
 		variable->hashNext = variablesHash[hash];
 		variablesHash[hash] = variables.Num() - 1;
 		return variable;
@@ -428,8 +428,8 @@ idSWFScriptObject::GetVariable
 ========================
 */
 idSWFScriptObject::swfNamedVar_t * idSWFScriptObject::GetVariable( const char * name, const bool create ) {
-	int hash = idStr::Hash( name ) & ( VARIABLE_HASH_BUCKETS - 1 );
-	for ( int i = variablesHash[hash]; i >= 0; i = variables[i].hashNext ) {
+	const uint64 hash = idStr::Hash64( name ) & ( VARIABLE_HASH_BUCKETS - 1 );
+	for ( index_t i = variablesHash[hash]; i >= 0; i = variables[i].hashNext ) {
 		if ( variables[i].name == name ) {
 			return &variables[i];
 		}
@@ -530,7 +530,7 @@ idSWFScriptObject::GetNestedSprite
 ========================
 */
 idSWFSpriteInstance * idSWFScriptObject::GetNestedSprite( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
-	idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
+	const idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
 	return var.ToSprite();
 
 }
@@ -541,7 +541,7 @@ idSWFScriptObject::GetNestedText
 ========================
 */
 idSWFTextInstance * idSWFScriptObject::GetNestedText( const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6 ) {
-	idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
+	const idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
 	return var.ToText();
 
 }

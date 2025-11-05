@@ -185,7 +185,7 @@ static void W_AddFile ( const char *filename )
 
     lumpinfo_t* lump_p = &lumpinfo[startlump];
 
-	::g->wadFileHandles[ ::g->numWadFiles++ ] = handle;
+	::g->wadFileHandles.AddUnique(handle);
 
 	filelump_t * filelumpPointer = &fileinfo[0];
 	for (size_t i = startlump; i < numlumps; i++, lump_p++, filelumpPointer++)
@@ -240,17 +240,10 @@ void W_FreeLumps() {
 void W_FreeWadFiles() {
 	for (auto& wad : ::g->wadFileHandles)
 	{
-		wad.;
+		fileSystem->CloseFile(wad);
 	}
+	::g->wadFileHandles.Clear();
 
-	for (size_t i = 0; i < MAXWADFILES; i++) {
-		wadfiles[i] = nullptr;
-		if ( ::g->wadFileHandles[i] ) {
-			delete ::g->wadFileHandles[i];
-		}
-		::g->wadFileHandles[i] = nullptr;
-	}
-	::g->numWadFiles = 0;
 	extraWad = nullptr;
 }
 

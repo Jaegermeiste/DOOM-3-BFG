@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/ms-gsl-x64-windows-4.2.0-1cfb238c-1b2f-4502-8350-fff0af58a58a",
-  "name": "ms-gsl:x64-windows@4.2.0 94640a6274fd975925e549509ed95fec0bfdf929f2b6c74aae93a5721a1ed8f3",
+  "documentNamespace": "https://spdx.org/spdxdocs/ms-gsl-x64-windows-4.2.0-52ca8aab-828c-4172-a20a-0d1c7db860e0",
+  "name": "ms-gsl:x64-windows@4.2.0 022517109f61e7d4828bce68c732e11aa3b99ba790df61f45845812732e9c03f",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:12:14Z"
+    "created": "2025-11-04T19:33:55Z"
   },
   "relationships": [
     {
@@ -124,7 +124,7 @@
     {
       "name": "ms-gsl:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "94640a6274fd975925e549509ed95fec0bfdf929f2b6c74aae93a5721a1ed8f3",
+      "versionInfo": "022517109f61e7d4828bce68c732e11aa3b99ba790df61f45845812732e9c03f",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",

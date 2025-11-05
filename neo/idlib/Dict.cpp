@@ -71,20 +71,8 @@ idDict< T >::operator[]
   return type T for a key
 ================
 */
-template < Formattable T > template < Formattable F > requires (!StringLikeOrEnum< F >)
-const T& idDict< T >::operator[](const F& key) const noexcept
-{
-	const idKeyValue* kv = FindKey(key);
-
-	if (kv) {
-		return ParseValueToT(kv->GetValue());
-	}
-
-	return T{};
-}
-
-template < Formattable T > template < Formattable F > requires (!StringLikeOrEnum< F >)
-T& idDict< T >::operator[](const F& key) noexcept
+template < Formattable T >
+const T& idDict< T >::operator[](const FormattableNoStrings auto& key) const noexcept
 {
 	const idKeyValue* kv = FindKey(key);
 
@@ -96,7 +84,7 @@ T& idDict< T >::operator[](const F& key) noexcept
 }
 
 template < Formattable T >
-const T& idDict< T >::operator[](const StringLikeOrEnum auto& key) const noexcept
+T& idDict< T >::operator[](const FormattableNoStrings auto& key) noexcept
 {
 	const idKeyValue* kv = FindKey(key);
 
@@ -108,7 +96,19 @@ const T& idDict< T >::operator[](const StringLikeOrEnum auto& key) const noexcep
 }
 
 template < Formattable T >
-T& idDict< T >::operator[](const StringLikeOrEnum auto& key) noexcept
+const T& idDict< T >::operator[](const StringLike auto& key) const noexcept
+{
+	const idKeyValue* kv = FindKey(key);
+
+	if (kv) {
+		return ParseValueToT(kv->GetValue());
+	}
+
+	return T{};
+}
+
+template < Formattable T >
+T& idDict< T >::operator[](const StringLike auto& key) noexcept
 {
 	const idKeyValue* kv = FindKey(key);
 
@@ -622,8 +622,8 @@ idDict< T >::FindKey
 ================
 */
 template < Formattable T >
-const idKeyValue *idDict< T >::FindKey( const StringLikeOrEnum auto &key ) const {
-	if ( key == nullptr ) {
+const idKeyValue *idDict< T >::FindKey( const Formattable auto &key ) const {
+	if ( safe_equal( key,nullptr )) {
 		idLib::common->DWarning( "idDict< T >::FindKey: null key" );
 		return nullptr;
 	}
@@ -637,8 +637,8 @@ const idKeyValue *idDict< T >::FindKey( const StringLikeOrEnum auto &key ) const
 		return nullptr;
 	}
 
-	const int64 hash = argHash.GenerateKey(cstring_key, false);
-	for ( int64 i = argHash.First(hash); i != -1; i = argHash.Next( i ) ) {
+	const uint64 hash = argHash.GenerateKey(cstring_key, false);
+	for ( index_t i = argHash.First(hash); i != -1; i = argHash.Next( i ) ) {
 		if ( args[i].GetKey().Icmp(cstring_key) == 0 ) {
 			return &args[i];
 		}
@@ -653,7 +653,7 @@ idDict< T >::FindKeyIndex
 ================
 */
 template < Formattable T >
-int64 idDict< T >::FindKeyIndex( const StringLikeOrEnum auto &key ) const {
+index_t idDict< T >::FindKeyIndex( const Formattable auto &key ) const {
 
 	if (key == nullptr) {
 		idLib::common->DWarning("idDict< T >::FindKeyIndex: null key");
@@ -669,8 +669,8 @@ int64 idDict< T >::FindKeyIndex( const StringLikeOrEnum auto &key ) const {
 		return -1;
 	}
 
-	const int64 hash = argHash.GenerateKey( cstring_key, false );
-	for ( int64 i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
+	const uint64 hash = argHash.GenerateKey( cstring_key, false );
+	for ( index_t i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
 		if ( args[i].GetKey().Icmp( cstring_key ) == 0 ) {
 			return i;
 		}
@@ -685,10 +685,10 @@ idDict< T >::Delete
 ================
 */
 template < Formattable T >
-void idDict< T >::Delete( const StringLikeOrEnum auto &key ) {
-	int64 i = 0;
+void idDict< T >::Delete( const Formattable auto &key ) {
+	index_t i = 0;
 
-	const int64 hash = argHash.GenerateKey(key, false);
+	const uint64 hash = argHash.GenerateKey(key, false);
 	for ( i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
 		if ( args[i].GetKey().Icmp( key ) == 0 ) {
 			globalKeys.FreeString( args[i].key );
@@ -713,10 +713,10 @@ idDict< T >::MatchPrefix
 ================
 */
 template < Formattable T >
-const idKeyValue *idDict< T >::MatchPrefix( const StringLikeOrEnum auto &prefix, const idKeyValue *lastMatch ) const {
+const idKeyValue *idDict< T >::MatchPrefix( const Formattable auto &prefix, const idKeyValue *lastMatch ) const {
 	assert( prefix );
 
-	int64 start = -1;
+	index_t start = -1;
 	if ( lastMatch ) {
 		start = args.FindIndex( *lastMatch );
 		assert( start >= 0 );
@@ -725,7 +725,7 @@ const idKeyValue *idDict< T >::MatchPrefix( const StringLikeOrEnum auto &prefix,
 		}
 	}
 
-	for(size_t i = start + 1; i < args.Num(); i++ ) {
+	for (index_t i = start + 1; std::cmp_less(i, args.Num()); ++i) {
 		if ( !args[i].GetKey().Icmp( prefix ) ) {
 			return &args[i];
 		}
@@ -739,7 +739,7 @@ idDict< T >::RandomPrefix
 ================
 */
 template < Formattable T >
-const char *idDict< T >::RandomPrefix( const StringLikeOrEnum auto &prefix, idRandom &random ) const {
+const char *idDict< T >::RandomPrefix( const Formattable auto &prefix, idRandom &random ) const {
 	size_t count = 0;
 	constexpr int MAX_RANDOM_KEYS = 2048;
 	const char *list[MAX_RANDOM_KEYS] = { nullptr };

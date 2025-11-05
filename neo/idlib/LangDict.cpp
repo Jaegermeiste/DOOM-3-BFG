@@ -343,7 +343,7 @@ int64 idLangDict::FindStringIndex( const char * str ) const {
 	if ( str == nullptr) {
 		return -1;
 	}
-	const int hash = idStr::IHash( str );
+	const uint64 hash = idStr::IHash64( str );
 	for ( int64 i = keyIndex.GetFirst( hash ); i >= 0; i = keyIndex.GetNext( i ) ) {
 		if ( idStr::Icmp( str, keyVals[i].key ) == 0 ) {
 			return i;
@@ -489,7 +489,7 @@ void idLangDict::AddKeyVal( const char * key, const char * val ) {
 		idStr::Copynz( v, val, valLen + 1 );
 	}
 	const auto index = keyVals.Append( idLangKeyValue( k, v ) );
-	const int hash = idStr::IHash( key );
+	const uint64 hash = idStr::IHash64( key );
 	keyIndex.Add( hash, index );
 	//mem.PopHeap();
 }

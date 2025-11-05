@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/ms-gdk-x64-windows-2504.3.4084-705e36ee-4a34-48d3-bdd4-112a97812b1d",
-  "name": "ms-gdk:x64-windows@2504.3.4084 b08bd2f337310d441f44a7a42149bc573a58507178630892deae5047359d0119",
+  "documentNamespace": "https://spdx.org/spdxdocs/ms-gdk-x64-windows-2504.3.4084-c3a63171-298a-4aca-af59-7e5dea10ba01",
+  "name": "ms-gdk:x64-windows@2504.3.4084 c307ead490625f14ef135a80cc3c612aefc4064ee2282059ac5ccc99f0a5742e",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:12:11Z"
+    "created": "2025-11-04T19:33:52Z"
   },
   "relationships": [
     {
@@ -1139,7 +1139,7 @@
     {
       "name": "ms-gdk:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "b08bd2f337310d441f44a7a42149bc573a58507178630892deae5047359d0119",
+      "versionInfo": "c307ead490625f14ef135a80cc3c612aefc4064ee2282059ac5ccc99f0a5742e",
       "downloadLocation": "NONE",
       "licenseConcluded": "LicenseRef-vcpkg-null",
       "licenseDeclared": "NOASSERTION",

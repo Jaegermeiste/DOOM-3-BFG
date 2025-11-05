@@ -129,7 +129,7 @@ constexpr auto INV_ASPECT_RATIO = 0.625; // 0.75, ideally
 
 
 // The maximum number of players, multiplayer/networking.
-constexpr size_t MAXPLAYERS = 4;
+//constexpr size_t MAXPLAYERS = 4;
 
 // State updates, number of tics / second.
 constexpr ID_TIME_T TICRATE = 35;

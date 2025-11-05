@@ -388,8 +388,8 @@ idSoundSample * idSoundSystemLocal::LoadSample( const char * name ) {
 	canonical.ToLower();
 	canonical.BackSlashesToSlashes();
 	canonical.StripFileExtension();
-	int hashKey = idStr::Hash( canonical );
-	for ( int i = sampleHash.First( hashKey ); i != -1; i = sampleHash.Next( i ) ) {
+	const uint64 hashKey = idStr::Hash64( canonical );
+	for ( index_t i = sampleHash.First( hashKey ); i != -1; i = sampleHash.Next( i ) ) {
 		if ( idStr::Cmp( samples[i]->GetName(), canonical ) == 0 ) {
 			samples[i]->SetLevelLoadReferenced();
 			return samples[i];
@@ -523,7 +523,7 @@ void idSoundSystemLocal::Preload( idPreloadManifest & manifest ) {
 		}
 	}
 
-	int	end = Sys_Milliseconds();
+	const int	end = Sys_Milliseconds();
 	common->Printf( "%05d sounds preloaded in %5.1f seconds\n", numLoaded, ( end - start ) * 0.001 );
 	common->Printf( "----------------------------------------\n" );
 }
@@ -538,7 +538,7 @@ void idSoundSystemLocal::EndLevelLoad() {
 	insideLevelLoad = false;
 
 	common->Printf( "----- idSoundSystemLocal::EndLevelLoad -----\n" );
-	int		start = Sys_Milliseconds();
+	const int		start = Sys_Milliseconds();
 	int		keepCount = 0;
 	int		loadCount = 0;
 
@@ -579,7 +579,7 @@ void idSoundSystemLocal::EndLevelLoad() {
 
 		samples[ preloadSort[ i ].idx ]->LoadResource();
 	}
-	int	end = Sys_Milliseconds();
+	const int	end = Sys_Milliseconds();
 
 	common->Printf( "%5i sounds loaded in %5.1f seconds\n", loadCount, (end-start) * 0.001 );
 	common->Printf( "----------------------------------------\n" );

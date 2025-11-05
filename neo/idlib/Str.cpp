@@ -1979,7 +1979,8 @@ void idStr::Copynz( char *dest, const char *src, const size_t destsize ) {
 		return;
 	}
 
-	strncpy( dest, src, destsize-1 );
+	strncpy_s( dest, destsize, src, Min(destsize - 1, _TRUNCATE) );
+
     dest[destsize-1] = 0;
 }
 

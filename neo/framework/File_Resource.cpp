@@ -93,7 +93,7 @@ bool idResourceContainer::Init( const char *_fileName, const uint8 containerInde
 		rt.filename.ToLower();
 		rt.containerIndex = containerIndex;
 
-		const int key = cacheHash.GenerateKey( rt.filename, false );
+		const uint64 key = cacheHash.GenerateKey( rt.filename, false );
 		bool found = false;
 		//for ( index_t index = cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = cacheHash.GetNext( index ) ) {
 		//	idResourceCacheEntry & rtc = cacheTable[ index ];

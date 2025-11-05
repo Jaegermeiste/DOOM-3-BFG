@@ -2003,10 +2003,10 @@ uint32 idLobby::GetPartyTokenAsHost() {
 	if ( partyToken == 0 ) {
 		// I don't know if this is mathematically sound, but it seems reasonable.
 		// Don't do this at app startup (i.e. in the constructor) or it will be a lot less random.
-		unsigned long seed = Sys_Milliseconds(); // time app has been running
+		ID_TIME_T seed = Sys_Milliseconds(); // time app has been running
 		idLocalUser * masterUser = session->GetSignInManager().GetMasterLocalUser();
 		if ( masterUser != nullptr) {
-			seed += idStr::Hash( masterUser->GetGamerTag() );
+			seed += idStr::Hash64( masterUser->GetGamerTag() );
 		}
 		partyToken = idRandom( seed ).RandomInt();
 		idLib::Printf( "NET: PartyToken is %u (seed = %u)\n", partyToken, seed );

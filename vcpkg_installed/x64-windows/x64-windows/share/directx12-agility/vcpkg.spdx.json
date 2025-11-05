@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/directx12-agility-x64-windows-1.618.2-91c6f707-5a3d-4cd7-b638-5ce9109e2b4d",
-  "name": "directx12-agility:x64-windows@1.618.2 420f0d77e090979adf250d1ddadf9edf60f2c48479ca355e4b84f882cf1d26d0",
+  "documentNamespace": "https://spdx.org/spdxdocs/directx12-agility-x64-windows-1.618.2-4d36e3f5-3ac9-4f49-9486-358ef1e48cc0",
+  "name": "directx12-agility:x64-windows@1.618.2 b9f1d2d63baeb059ad598cb4d337fb7d2f7f4358449d621a8a8bb6ef32db69bd",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:09:08Z"
+    "created": "2025-11-04T19:30:39Z"
   },
   "relationships": [
     {
@@ -119,7 +119,7 @@
     {
       "name": "directx12-agility:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "420f0d77e090979adf250d1ddadf9edf60f2c48479ca355e4b84f882cf1d26d0",
+      "versionInfo": "b9f1d2d63baeb059ad598cb4d337fb7d2f7f4358449d621a8a8bb6ef32db69bd",
       "downloadLocation": "NONE",
       "licenseConcluded": "LicenseRef-vcpkg-null",
       "licenseDeclared": "NOASSERTION",

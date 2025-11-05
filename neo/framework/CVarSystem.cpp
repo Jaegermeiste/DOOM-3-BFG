@@ -143,8 +143,6 @@ idInternalCVar::CopyValueStrings
 */
 const char **idInternalCVar::CopyValueStrings( const char **strings ) {
 	size_t i;
-	const char **ptr;
-	char *str;
 
 	if ( !strings ) {
 		return nullptr;
@@ -155,8 +153,8 @@ const char **idInternalCVar::CopyValueStrings( const char **strings ) {
 		totalLength += idStr::Length( strings[i] ) + 1;
 	}
 
-	ptr = static_cast<const char**>(Mem_Alloc((i + 1) * sizeof(char*) + totalLength, TAG_CVAR));
-	str = reinterpret_cast<char*>(reinterpret_cast<byte*>(ptr) + (i + 1) * sizeof(char*));
+	const char** ptr = static_cast<const char**>(Mem_Alloc((i + 1) * sizeof(char*) + totalLength, TAG_CVAR));
+	char* str = reinterpret_cast<char*>(reinterpret_cast<byte*>(ptr) + (i + 1) * sizeof(char*));
 
 	for ( i = 0; strings[i] != nullptr; i++ ) {
 		ptr[i] = str;
@@ -518,8 +516,8 @@ idCVarSystemLocal::FindInternal
 ============
 */
 idInternalCVar *idCVarSystemLocal::FindInternal( const char *name ) const {
-	int hash = cvarHash.GenerateKey( name, false );
-	for ( int i = cvarHash.First( hash ); i != -1; i = cvarHash.Next( i ) ) {
+	const uint64 hash = cvarHash.GenerateKey( name, false );
+	for ( index_t i = cvarHash.First( hash ); i != -1; i = cvarHash.Next( i ) ) {
 		if ( cvars[i]->nameString.Icmp( name ) == 0 ) {
 			return cvars[i];
 		}
@@ -533,10 +531,7 @@ idCVarSystemLocal::SetInternal
 ============
 */
 void idCVarSystemLocal::SetInternal( const char *name, const char *value, const int flags ) {
-	int hash;
-	idInternalCVar *internal;
-
-	internal = FindInternal( name );
+	idInternalCVar* internal = FindInternal(name);
 
 	if ( internal ) {
 		internal->InternalSetString( value );
@@ -544,7 +539,7 @@ void idCVarSystemLocal::SetInternal( const char *name, const char *value, const 
 		internal->UpdateCheat();
 	} else {
 		internal = new (TAG_SYSTEM) idInternalCVar( name, value, flags );
-		hash = cvarHash.GenerateKey( internal->nameString.c_str(), false );
+		const uint64 hash = cvarHash.GenerateKey(internal->nameString.c_str(), false);
 		cvarHash.Add( hash, cvars.Append( internal ) );
 	}
 }
@@ -608,18 +603,15 @@ idCVarSystemLocal::Register
 ============
 */
 void idCVarSystemLocal::Register( idCVar *cvar ) {
-	int hash;
-	idInternalCVar *internal;
-
 	cvar->SetInternalVar( cvar );
 
-	internal = FindInternal( cvar->GetName() );
+	idInternalCVar* internal = FindInternal(cvar->GetName());
 
 	if ( internal ) {
 		internal->Update( cvar );
 	} else {
 		internal = new (TAG_SYSTEM) idInternalCVar( cvar );
-		hash = cvarHash.GenerateKey( internal->nameString.c_str(), false );
+		const uint64 hash = cvarHash.GenerateKey(internal->nameString.c_str(), false);
 		cvarHash.Add( hash, cvars.Append( internal ) );
 	}
 
@@ -677,7 +669,7 @@ idCVarSystemLocal::GetCVarString
 ============
 */
 const char *idCVarSystemLocal::GetCVarString( const char *name ) const {
-	idInternalCVar *internal = FindInternal( name );
+	const idInternalCVar *internal = FindInternal( name );
 	if ( internal ) {
 		return internal->GetString();
 	}
@@ -690,7 +682,7 @@ idCVarSystemLocal::GetCVarBool
 ============
 */
 bool idCVarSystemLocal::GetCVarBool( const char *name ) const {
-	idInternalCVar *internal = FindInternal( name );
+	const idInternalCVar *internal = FindInternal( name );
 	if ( internal ) {
 		return internal->GetBool();
 	}
@@ -703,7 +695,7 @@ idCVarSystemLocal::GetCVarInteger
 ============
 */
 int idCVarSystemLocal::GetCVarInteger( const char *name ) const {
-	idInternalCVar *internal = FindInternal( name );
+	const idInternalCVar *internal = FindInternal( name );
 	if ( internal ) {
 		return internal->GetInteger();
 	}
@@ -716,7 +708,7 @@ idCVarSystemLocal::GetCVarFloat
 ============
 */
 float idCVarSystemLocal::GetCVarFloat( const char *name ) const {
-	idInternalCVar *internal = FindInternal( name );
+	const idInternalCVar *internal = FindInternal( name );
 	if ( internal ) {
 		return internal->GetFloat();
 	}
@@ -729,9 +721,7 @@ idCVarSystemLocal::Command
 ============
 */
 bool idCVarSystemLocal::Command( const idCmdArgs &args ) {
-	idInternalCVar *internal;
-
-	internal = FindInternal( args.Argv( 0 ) );
+	idInternalCVar* internal = FindInternal(args.Argv(0));
 
 	if ( internal == nullptr) {
 		return false;
@@ -848,7 +838,7 @@ with the "flags" flag set to true.
 */
 void idCVarSystemLocal::WriteFlaggedVariables(const int flags, const char *setCmd, idFile *f ) const {
 	for ( size_t i = 0; i < cvars.Num(); i++ ) {
-		idInternalCVar *cvar = cvars[i];
+		const idInternalCVar *cvar = cvars[i];
 		if ( cvar->GetFlags() & flags ) {
 			f->Printf( "%s %s \"%s\"\n", setCmd, cvar->GetName(), cvar->GetString() );
 		}
@@ -863,7 +853,7 @@ idCVarSystemLocal::MoveCVarsToDict
 void idCVarSystemLocal::MoveCVarsToDict(const int flags, idDict & dict, const bool onlyModified ) const {
 	dict.Clear();
 	for ( size_t i = 0; i < cvars.Num(); i++ ) {
-		idCVar *cvar = cvars[i];
+		const idCVar *cvar = cvars[i];
 		if ( cvar->GetFlags() & flags ) {
 			if ( onlyModified && idStr::Icmp( cvar->GetString(), cvar->GetDefaultString() ) == 0 ) {
 				continue;
@@ -879,11 +869,9 @@ idCVarSystemLocal::SetCVarsFromDict
 ============
 */
 void idCVarSystemLocal::SetCVarsFromDict( const idDict &dict ) {
-	idInternalCVar *internal;
-
 	for ( size_t i = 0; i < dict.GetNumKeyVals(); i++ ) {
 		const idKeyValue *kv = dict.GetKeyVal( i );
-		internal = FindInternal( kv->GetKey() );
+		idInternalCVar* internal = FindInternal(kv->GetKey());
 		if ( internal ) {
 			internal->InternalServerSetString( kv->GetValue() );
 		}
@@ -896,11 +884,10 @@ idCVarSystemLocal::Toggle_f
 ============
 */
 void idCVarSystemLocal::Toggle_f( const idCmdArgs &args ) {
-	int argc, i;
-	float current, set;
-	const char *text;
+	int i;
+	float set;
 
-	argc = args.Argc();
+	const int argc = args.Argc();
 	if ( argc < 2 ) {
 		common->Printf ("usage:\n"
 			"   toggle <variable>  - toggles between 0 and 1\n"
@@ -918,7 +905,7 @@ void idCVarSystemLocal::Toggle_f( const idCmdArgs &args ) {
 
 	if ( argc > 3 ) {
 		// cycle through multiple values
-		text = cvar->GetString();
+		const char* text = cvar->GetString();
 		for( i = 2; i < argc; i++ ) {
 			if ( !idStr::Icmp( text, args.Argv( i ) ) ) {
 				// point to next value
@@ -934,7 +921,7 @@ void idCVarSystemLocal::Toggle_f( const idCmdArgs &args ) {
 		cvar->Set( va("%s", args.Argv( i ) ), false, false );
 	} else {
 		// toggle between 0 and 1
-		current = cvar->GetFloat();
+		float current = cvar->GetFloat();
 		if ( argc == 3 ) {
 			set = atof( args.Argv( 2 ) );
 		} else {
@@ -956,9 +943,7 @@ idCVarSystemLocal::Set_f
 ============
 */
 void idCVarSystemLocal::Set_f( const idCmdArgs &args ) {
-	const char *str;
-
-	str = args.Args( 2, args.Argc() - 1 );
+	const char* str = args.Args(2, args.Argc() - 1);
 	localCVarSystem.SetCVarString( args.Argv(1), str );
 }
 
@@ -968,13 +953,11 @@ idCVarSystemLocal::Reset_f
 ============
 */
 void idCVarSystemLocal::Reset_f( const idCmdArgs &args ) {
-	idInternalCVar *cvar;
-
 	if ( args.Argc() != 2 ) {
 		common->Printf ("usage: reset <variable>\n");
 		return;
 	}
-	cvar = localCVarSystem.FindInternal( args.Argv( 1 ) );
+	idInternalCVar* cvar = localCVarSystem.FindInternal(args.Argv(1));
 	if ( !cvar ) {
 		return;
 	}
@@ -992,7 +975,7 @@ void idCVarSystemLocal::CvarAdd_f( const idCmdArgs &args ) {
 		common->Printf ("usage: cvarAdd <variable> <value>\n");
 	}
 
-	idInternalCVar *cvar = localCVarSystem.FindInternal( args.Argv( 1 ) );
+	const idInternalCVar *cvar = localCVarSystem.FindInternal( args.Argv( 1 ) );
 	if ( !cvar ) {
 		return;
 	}
@@ -1180,11 +1163,8 @@ idCVarSystemLocal::Restart_f
 ============
 */
 void idCVarSystemLocal::Restart_f( const idCmdArgs &args ) {
-	int i, hash;
-	idInternalCVar *cvar;
-
-	for ( i = 0; i < localCVarSystem.cvars.Num(); i++ ) {
-		cvar = localCVarSystem.cvars[i];
+	for ( index_t i = 0; i < localCVarSystem.cvars.Num(); i++ ) {
+		idInternalCVar* cvar = localCVarSystem.cvars[i];
 
 		// don't mess with rom values
 		if ( cvar->flags & ( CVAR_ROM | CVAR_INIT ) ) {
@@ -1193,7 +1173,7 @@ void idCVarSystemLocal::Restart_f( const idCmdArgs &args ) {
 
 		// throw out any variables the user created
 		if ( !( cvar->flags & CVAR_STATIC ) ) {
-			hash = localCVarSystem.cvarHash.GenerateKey( cvar->nameString, false );
+			const uint64 hash = localCVarSystem.cvarHash.GenerateKey(cvar->nameString, false);
 			delete cvar;
 			localCVarSystem.cvars.RemoveIndex( i );
 			localCVarSystem.cvarHash.RemoveIndex( hash, i );

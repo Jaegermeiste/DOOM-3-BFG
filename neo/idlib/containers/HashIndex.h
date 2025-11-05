@@ -62,27 +62,27 @@ public:
 	idHashIndex &	operator=( const idHashIndex &other );
 					// add an index to the hash, assumes the index has not yet been added to the hash
 	
-	void			Add( const int64 key, const Ordinal auto index );
+	void			Add( const uint64 key, const Ordinal auto index );
 					// remove an index from the hash
 	
-	void			Remove( const int64 key, const Ordinal auto index ) const;
+	void			Remove( const uint64 key, const Ordinal auto index ) const;
 					// get the first index from the hash, returns -1 if empty hash entry
-	[[nodiscard]] index_t			First( const int64 key ) const;
+	[[nodiscard]] index_t			First( const uint64 key ) const;
 					// get the next index from the hash, returns -1 if at the end of the hash chain
 	
 	index_t			Next( const Ordinal auto index ) const;
 
 	// For porting purposes...
-	[[nodiscard]] index_t			GetFirst( const int64 key ) const { return First( key ); }
+	[[nodiscard]] index_t			GetFirst( const uint64 key ) const { return First( key ); }
 	
 	index_t			GetNext( const Ordinal auto index ) const { return Next( index ); }
 
 					// insert an entry into the index and add it to the hash, increasing all indexes >= index
 	
-	void			InsertIndex( const int64 key, const Ordinal auto index );
+	void			InsertIndex( const uint64 key, const Ordinal auto index );
 					// remove an entry from the index and remove it from the hash, decreasing all indexes >= index
 	
-	void			RemoveIndex( const int64 key, const Ordinal auto index );
+	void			RemoveIndex( const uint64 key, const Ordinal auto index );
 					// clear the hash
 	void			Clear() const;
 					// clear and resize
@@ -100,13 +100,13 @@ public:
 					// returns number in the range [0-100] representing the spread over the hash table
 	[[nodiscard]] uint8			GetSpread() const;
 					// returns a key for a string
-	[[nodiscard]] int64			GenerateKey( const StringLikeOrEnum auto &string, bool caseSensitive = true ) const;
+	[[nodiscard]] uint64		GenerateKey( const Formattable auto &string, bool caseSensitive = true ) const;
 					// returns a key for a vector
-	[[nodiscard]] int64			GenerateKey( const idVec3 &v ) const;
+	[[nodiscard]] uint64		GenerateKey( const idVec3 &v ) const;
 					// returns a key for two integers
-	[[nodiscard]] int64			GenerateKey( const int64 n1, const int64 n2 ) const;
+	[[nodiscard]] uint64		GenerateKey( const int64 n1, const int64 n2 ) const;
 					// returns a key for a single integer
-	[[nodiscard]] int64			GenerateKey( const int64 n ) const;
+	[[nodiscard]] uint64		GenerateKey( const int64 n ) const;
 
 private:
 	size_t			hashSize;
@@ -157,7 +157,7 @@ idHashIndex::Allocated
 ================
 */
 ID_INLINE size_t idHashIndex::Allocated() const {
-	return hashSize * sizeof( int64 ) + indexSize * sizeof( size_t );
+	return hashSize * sizeof( uint64 ) + indexSize * sizeof( size_t );
 }
 
 /*
@@ -214,7 +214,7 @@ idHashIndex::Add
 ================
 */
 
-ID_INLINE void idHashIndex::Add( const int64 key, const Ordinal auto index ) {
+ID_INLINE void idHashIndex::Add( const uint64 key, const Ordinal auto index ) {
 	assert( index >= 0 );
 	if ( hash == INVALID_HASH ) {
 		Allocate( hashSize, std::cmp_greater_equal(index, indexSize) ? index + 1 : indexSize );
@@ -233,7 +233,7 @@ idHashIndex::Remove
 ================
 */
 
-ID_INLINE void idHashIndex::Remove( const int64 key, const Ordinal auto index ) const
+ID_INLINE void idHashIndex::Remove( const uint64 key, const Ordinal auto index ) const
 {
 	ORDINAL_CHECK(index, indexSize);
 	const int64 k = key & hashMask;
@@ -260,7 +260,7 @@ ID_INLINE void idHashIndex::Remove( const int64 key, const Ordinal auto index ) 
 idHashIndex::First
 ================
 */
-ID_INLINE int64 idHashIndex::First( const int64 key ) const {
+ID_INLINE int64 idHashIndex::First( const uint64 key ) const {
 	return hash[key & hashMask & lookupMask];
 }
 
@@ -280,7 +280,7 @@ idHashIndex::InsertIndex
 ================
 */
 
-ID_INLINE void idHashIndex::InsertIndex( const int64 key, const Ordinal auto index ) {
+ID_INLINE void idHashIndex::InsertIndex( const uint64 key, const Ordinal auto index ) {
 	ORDINAL_CHECK(index, hashSize);
 
 	if ( hash != INVALID_HASH ) {
@@ -315,7 +315,7 @@ idHashIndex::RemoveIndex
 ================
 */
 
-ID_INLINE void idHashIndex::RemoveIndex( const int64 key, const Ordinal auto index ) {
+ID_INLINE void idHashIndex::RemoveIndex( const uint64 key, const Ordinal auto index ) {
 	ORDINAL_CHECK(index, hashSize);
 	Remove( key, index );
 	if ( hash != INVALID_HASH ) {
@@ -397,7 +397,7 @@ ID_INLINE void idHashIndex::SetGranularity( const size_t newGranularity ) {
 idHashIndex::GenerateKey
 ================
 */
-ID_INLINE int64 idHashIndex::GenerateKey( const StringLikeOrEnum auto & string, const bool caseSensitive ) const {
+ID_INLINE uint64 idHashIndex::GenerateKey( const Formattable auto & string, const bool caseSensitive ) const {
 	if ( caseSensitive ) {
 		return ( idStr::Hash64( string ) & hashMask );
 	} else {
@@ -410,7 +410,7 @@ ID_INLINE int64 idHashIndex::GenerateKey( const StringLikeOrEnum auto & string, 
 idHashIndex::GenerateKey
 ================
 */
-ID_INLINE int64 idHashIndex::GenerateKey(const idVec3& v) const {
+ID_INLINE uint64 idHashIndex::GenerateKey(const idVec3& v) const {
 	return ((numeric_cast<int64>(v[0]) + numeric_cast<int64>(v[1]) + numeric_cast<int64>(v[2])) & hashMask);
 }
 
@@ -419,7 +419,7 @@ ID_INLINE int64 idHashIndex::GenerateKey(const idVec3& v) const {
 idHashIndex::GenerateKey
 ================
 */
-ID_INLINE int64 idHashIndex::GenerateKey( const int64 n1, const int64 n2 ) const {
+ID_INLINE uint64 idHashIndex::GenerateKey( const int64 n1, const int64 n2 ) const {
 	return ( ( n1 + n2 ) & hashMask );
 }
 
@@ -428,7 +428,7 @@ ID_INLINE int64 idHashIndex::GenerateKey( const int64 n1, const int64 n2 ) const
 idHashIndex::GenerateKey
 ================
 */
-ID_INLINE int64 idHashIndex::GenerateKey( const int64 n ) const {
+ID_INLINE uint64 idHashIndex::GenerateKey( const int64 n ) const {
 	return n & hashMask;
 }
 

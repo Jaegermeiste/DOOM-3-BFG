@@ -64,7 +64,7 @@ public:
 	idStrStatic< 256 >	filename;
 	size_t				offset;							// into the resource file
 	size_t 				length;
-	uint8				containerIndex;
+	index_t				containerIndex;
 };
 
 static constexpr uint32 RESOURCE_FILE_MAGIC = 0xD000000D;

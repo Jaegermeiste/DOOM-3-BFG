@@ -343,11 +343,11 @@ Ignore case and separator char distinctions
 ===========
 */
 bool idFileSystemLocal::FilenameCompare( const char *s1, const char *s2 ) const {
-	int		c1, c2;
+	int		c1;
 	
 	do {
 		c1 = *s1++;
-		c2 = *s2++;
+		int c2 = *s2++;
 
 		if ( c1 >= 'a' && c1 <= 'z' ) {
 			c1 -= ('a' - 'A');
@@ -377,9 +377,6 @@ idFileSystemLocal::GetFileLength
 ========================
 */
 int64 idFileSystemLocal::GetFileLength( const char * relativePath ) {
-	idFile *	f = nullptr;
-	int64		len = -1;
-
 	if ( !IsInitialized() ) {
 		idLib::FatalError( "Filesystem call made without initialization" );
 	}
@@ -397,12 +394,12 @@ int64 idFileSystemLocal::GetFileLength( const char * relativePath ) {
 	}
 
 	// look for it in the filesystem or pack files
-	f = OpenFileRead( relativePath, false );
+	idFile* f = OpenFileRead(relativePath, false);
 	if ( f == nullptr) {
 		return -1;
 	}
 
-	len = numeric_cast<int64>(f->Length());
+	int64 len = numeric_cast<int64>(f->Length());
 
 	delete f;
 	return len;
@@ -414,9 +411,6 @@ idFileSystemLocal::OpenOSFile
 ================
 */
 idFileHandle idFileSystemLocal::OpenOSFile( const char *fileName, const fsMode_t mode ) {
-	idFileHandle fp;
-
-
 	DWORD dwAccess = 0;
 	DWORD dwShare = 0;
 	DWORD dwCreate = 0;
@@ -439,7 +433,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char *fileName, const fsMode_t
 		dwFlags = FILE_ATTRIBUTE_NORMAL;
 					}
 
-	fp = CreateFile( fileName, dwAccess, dwShare, nullptr, dwCreate, dwFlags, nullptr);
+	idFileHandle fp = CreateFile(fileName, dwAccess, dwShare, nullptr, dwCreate, dwFlags, nullptr);
 	if ( fp == INVALID_HANDLE_VALUE ) {
 		return nullptr;
 				}
@@ -472,8 +466,6 @@ Creates any directories needed to store the given filename
 ============
 */
 void idFileSystemLocal::CreateOSPath( const char *OSPath ) {
-	char	*ofs;
-	
 	// make absolutely sure that it can't back up the path
 	// FIXME: what about c: ?
 	if ( strstr( OSPath, ".." ) || strstr( OSPath, "::" ) ) {
@@ -485,7 +477,7 @@ void idFileSystemLocal::CreateOSPath( const char *OSPath ) {
 
 	idStrStatic< MAX_OSPATH > path( OSPath );
 	path.SlashesToBackSlashes();
-	for( ofs = &path[ 1 ]; *ofs ; ofs++ ) {
+	for( char* ofs = &path[1]; *ofs ; ofs++ ) {
 		if ( *ofs == PATHSEPARATOR_CHAR ) {	
 			// create the directory
 			*ofs = 0;
@@ -1378,9 +1370,7 @@ Fix things up differently for win/unix/mac
 ====================
 */
 void idFileSystemLocal::ReplaceSeparators( idStr &path, const char sep ) {
-	char *s;
-
-	for( s = &path[ 0 ]; *s ; s++ ) {
+	for( char* s = &path[0]; *s ; s++ ) {
 		if ( *s == '/' || *s == '\\' ) {
 			*s = sep;
 		}
@@ -1581,9 +1571,6 @@ timestamp can be NULL if not required
 ============
 */
 int64 idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIME_T *timestamp ) {
-
-	idFile *	f = nullptr;
-	byte *		buf = nullptr;
 	int64		len = -1;
 	bool		isConfig = false;
 
@@ -1615,21 +1602,19 @@ int64 idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_T
 		return size;
 	}
 
-	buf = nullptr;	// quiet compiler warning
+	byte* buf = nullptr;	// quiet compiler warning
 
 	// if this is a .cfg file and we are playing back a journal, read
 	// it from the journal file
 	if ( strstr( relativePath, ".cfg" ) == relativePath + strlen( relativePath ) - 4 ) {
 		isConfig = true;
 		if ( eventLoop && eventLoop->JournalLevel() == 2 ) {
-			int		r;
-
 			loadCount++;
 			loadStack++;
 
 			common->DPrintf( "Loading %s from journal file.\n", relativePath );
 			len = 0;
-			r = eventLoop->com_journalDataFile->Read( &len, sizeof( len ) );
+			int r = eventLoop->com_journalDataFile->Read(&len, sizeof(len));
 			if ( r != sizeof( len ) ) {
 				*buffer = nullptr;
 				return -1;
@@ -1651,7 +1636,7 @@ int64 idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_T
 	}
 
 	// look for it in the filesystem or pack files
-	f = OpenFileRead( relativePath, ( buffer != nullptr) );
+	idFile* f = OpenFileRead(relativePath, (buffer != nullptr));
 	if ( f == nullptr) {
 		if ( buffer ) {
 			*buffer = nullptr;
@@ -1717,8 +1702,6 @@ Filenames are relative to the search path
 ============
 */
 size_t idFileSystemLocal::WriteFile( const char *relativePath, const void *buffer, size_t size, const char *basePath ) {
-	idFile *f = nullptr;
-
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
@@ -1727,7 +1710,7 @@ size_t idFileSystemLocal::WriteFile( const char *relativePath, const void *buffe
 		common->FatalError( "idFileSystemLocal::WriteFile: NULL parameter" );
 	}
 
-	f = idFileSystemLocal::OpenFileWrite( relativePath, basePath );
+	idFile* f = idFileSystemLocal::OpenFileWrite(relativePath, basePath);
 	if ( !f ) {
 		common->Printf( "Failed to open %s\n", relativePath );
 		return -1;
@@ -1771,10 +1754,10 @@ bool idFileSystemLocal::RenameFile( const char * relativePath, const char * newN
 idFileSystemLocal::AddUnique
 ===============
 */
-int idFileSystemLocal::AddUnique( const char *name, idStrList &list, idHashIndex &hashIndex ) const {
-	int i, hashKey;
+index_t idFileSystemLocal::AddUnique( const char *name, idStrList &list, idHashIndex &hashIndex ) const {
+	index_t i = 0;
 
-	hashKey = hashIndex.GenerateKey( name );
+	uint64 hashKey = hashIndex.GenerateKey(name);
 	for ( i = hashIndex.First( hashKey ); i >= 0; i = hashIndex.Next( i ) ) {
 		if ( list[i].Icmp( name ) == 0 ) {
 			return i;
@@ -1791,12 +1774,10 @@ idFileSystemLocal::GetExtensionList
 ===============
 */
 void idFileSystemLocal::GetExtensionList( const char *extension, idStrList &extensionList ) const {
-	int s, e, l;
-
-	l = idStr::Length( extension );
-	s = 0;
+	size_t l = idStr::Length(extension);
+	int s = 0;
 	while( 1 ) {
-		e = idStr::FindChar( extension, '|', s, l );
+		int e = idStr::FindChar(extension, '|', s, l);
 		if ( e != -1 ) {
 			extensionList.Append( idStr( extension, s, e ) );
 			s = e + 1;
@@ -1815,7 +1796,7 @@ Does not clear the list first so this can be used to progressively build a file 
 When 'sort' is true only the new files added to the list are sorted.
 ===============
 */
-int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, const bool fullRelativePath, const char * gamedir ) {
+size_t idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, const bool fullRelativePath, const char * gamedir ) {
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
@@ -1835,11 +1816,11 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 
 	idStrStatic< MAX_OSPATH > strippedName;
 	if ( resourceFiles.Num() > 0 ) {
-		int idx = resourceFiles.Num() - 1;
+		index_t idx = numeric_cast<index_t>(resourceFiles.Num() - 1);
 		while ( idx >= 0 ) {
 			for ( size_t i = 0; i < resourceFiles[ idx ]->cacheTable.Num(); i++ ) {
 				idResourceCacheEntry & rt = resourceFiles[ idx ]->cacheTable[ i ];
-				// if the name is not long anough to at least contain the path
+				// if the name is not long enough to at least contain the path
 
 				if ( rt.filename.Length() <= pathLength ) {
 					continue;
@@ -1961,14 +1942,13 @@ idFileSystemLocal::GetFileListTree
 ===============
 */
 int idFileSystemLocal::GetFileListTree( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, const char* gamedir ) {
-	int i;
 	idStrList slash, folders( 128 );
 	idHashIndex folderHashIndex( 1024, 128 );
 
 	// recurse through the subdirectories
 	slash.Append( "/" );
 	GetFileList( relativePath, slash, folders, folderHashIndex, true, gamedir );
-	for ( i = 0; i < folders.Num(); i++ ) {
+	for ( int i = 0; i < folders.Num(); i++ ) {
 		if ( folders[i][0] == '.' ) {
 			continue;
 		}
@@ -2040,8 +2020,6 @@ idFileSystemLocal::Dir_f
 void idFileSystemLocal::Dir_f( const idCmdArgs &args ) {
 	idStr		relativePath;
 	idStr		extension;
-	idFileList *fileList;
-	int			i;
 
 	if ( args.Argc() < 2 || args.Argc() > 3 ) {
 		common->Printf( "usage: dir <directory> [extension]\n" );
@@ -2065,9 +2043,9 @@ void idFileSystemLocal::Dir_f( const idCmdArgs &args ) {
 	common->Printf( "Listing of %s/*%s\n", relativePath.c_str(), extension.c_str() );
 	common->Printf( "---------------\n" );
 
-	fileList = fileSystemLocal.ListFiles( relativePath, extension );
+	idFileList* fileList = fileSystemLocal.ListFiles(relativePath, extension);
 
-	for ( i = 0; i < fileList->GetNumFiles(); i++ ) {
+	for ( int i = 0; i < fileList->GetNumFiles(); i++ ) {
 		common->Printf( "%s\n", fileList->GetFile( i ) );
 	}
 	common->Printf( "%d files\n", fileList->list.Num() );
@@ -2083,8 +2061,6 @@ idFileSystemLocal::DirTree_f
 void idFileSystemLocal::DirTree_f( const idCmdArgs &args ) {
 	idStr		relativePath;
 	idStr		extension;
-	idFileList *fileList;
-	int			i;
 
 	if ( args.Argc() < 2 || args.Argc() > 3 ) {
 		common->Printf( "usage: dirtree <directory> [extension]\n" );
@@ -2108,9 +2084,9 @@ void idFileSystemLocal::DirTree_f( const idCmdArgs &args ) {
 	common->Printf( "Listing of %s/*%s /s\n", relativePath.c_str(), extension.c_str() );
 	common->Printf( "---------------\n" );
 
-	fileList = fileSystemLocal.ListFilesTree( relativePath, extension );
+	idFileList* fileList = fileSystemLocal.ListFilesTree(relativePath, extension);
 
-	for ( i = 0; i < fileList->GetNumFiles(); i++ ) {
+	for ( int i = 0; i < fileList->GetNumFiles(); i++ ) {
 		common->Printf( "%s\n", fileList->GetFile( i ) );
 	}
 	common->Printf( "%d files\n", fileList->list.Num() );
@@ -2209,14 +2185,12 @@ arbitrary files furing an "fs_copyfiles 1" run.
 ============
 */
 void idFileSystemLocal::TouchFile_f( const idCmdArgs &args ) {
-	idFile *f;
-
 	if ( args.Argc() != 2 ) {
 		common->Printf( "Usage: touchFile <file>\n" );
 		return;
 	}
 
-	f = fileSystemLocal.OpenFileRead( args.Argv( 1 ) );
+	idFile* f = fileSystemLocal.OpenFileRead(args.Argv(1));
 	if ( f ) {
 		fileSystemLocal.CloseFile( f );
 	}
@@ -2701,9 +2675,9 @@ bool idFileSystemLocal::GetResourceCacheEntry( const char *fileName, idResourceC
 
 	canonical.BackSlashesToSlashes();
 	canonical.ToLower();
-	int idx = resourceFiles.Num() - 1;
+	index_t idx = numeric_cast<index_t>(resourceFiles.Num() - 1);
 	while ( idx >= 0 ) {
-		const int key = resourceFiles[ idx ]->cacheHash.GenerateKey( canonical, false );
+		const uint64 key = resourceFiles[ idx ]->cacheHash.GenerateKey( canonical, false );
 		for ( index_t index = resourceFiles[ idx ]->cacheHash.GetFirst( key ); index != idHashIndex::NULL_INDEX; index = resourceFiles[ idx ]->cacheHash.GetNext( index ) ) {
 			idResourceCacheEntry & rt = resourceFiles[ idx ]->cacheTable[ index ];
 			if ( idStr::Icmp( rt.filename, canonical ) == 0 ) {
@@ -2965,16 +2939,13 @@ idFileSystemLocal::OpenFileWrite
 ===========
 */
 idFile *idFileSystemLocal::OpenFileWrite( const char *relativePath, const char *basePath ) {
-
-	const char *path;
 	idStr OSpath;
-	idFile_Permanent *f;
 
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
 
-	path = cvarSystem->GetCVarString( basePath );
+	const char* path = cvarSystem->GetCVarString(basePath);
 	if ( !path[0] ) {
 		path = fs_savepath.GetString();
 	}
@@ -2988,7 +2959,7 @@ idFile *idFileSystemLocal::OpenFileWrite( const char *relativePath, const char *
 	common->DPrintf( "writing to: %s\n", OSpath.c_str() );
 	CreateOSPath( OSpath );
 
-	f = new (TAG_IDFILE) idFile_Permanent();
+	idFile_Permanent* f = new(TAG_IDFILE) idFile_Permanent();
 	f->o = OpenOSFile( OSpath, FS_WRITE );
 	if ( !f->o ) {
 		delete f;
@@ -3009,8 +2980,6 @@ idFileSystemLocal::OpenExplicitFileRead
 ===========
 */
 idFile *idFileSystemLocal::OpenExplicitFileRead( const char *OSPath ) {
-	idFile_Permanent *f;
-
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
@@ -3021,7 +2990,7 @@ idFile *idFileSystemLocal::OpenExplicitFileRead( const char *OSPath ) {
 
 	//common->DPrintf( "idFileSystem::OpenExplicitFileRead - reading from: %s\n", OSPath );
 
-	f = new (TAG_IDFILE) idFile_Permanent();
+	idFile_Permanent* f = new(TAG_IDFILE) idFile_Permanent();
 	f->o = OpenOSFile( OSPath, FS_READ );
 	if ( !f->o ) {
 		delete f;
@@ -3042,8 +3011,6 @@ idFileSystemLocal::OpenExplicitPakFile
 ===========
 */
 idFile_Cached *idFileSystemLocal::OpenExplicitPakFile( const char *OSPath ) {
-	idFile_Cached *f;
-
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
@@ -3054,7 +3021,7 @@ idFile_Cached *idFileSystemLocal::OpenExplicitPakFile( const char *OSPath ) {
 
 	//common->DPrintf( "idFileSystem::OpenExplicitFileRead - reading from: %s\n", OSPath );
 
-	f = new (TAG_IDFILE) idFile_Cached();
+	idFile_Cached* f = new(TAG_IDFILE) idFile_Cached();
 	f->o = OpenOSFile( OSPath, FS_READ );
 	if ( !f->o ) {
 		delete f;
@@ -3075,8 +3042,6 @@ idFileSystemLocal::OpenExplicitFileWrite
 ===========
 */
 idFile *idFileSystemLocal::OpenExplicitFileWrite( const char *OSPath ) {
-	idFile_Permanent *f;
-
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
@@ -3088,7 +3053,7 @@ idFile *idFileSystemLocal::OpenExplicitFileWrite( const char *OSPath ) {
 	common->DPrintf( "writing to: %s\n", OSPath );
 	CreateOSPath( OSPath );
 
-	f = new (TAG_IDFILE) idFile_Permanent();
+	idFile_Permanent* f = new(TAG_IDFILE) idFile_Permanent();
 	f->o = OpenOSFile( OSPath, FS_WRITE );
 	if ( !f->o ) {
 		delete f;
@@ -3109,16 +3074,13 @@ idFileSystemLocal::OpenFileAppend
 ===========
 */
 idFile *idFileSystemLocal::OpenFileAppend( const char *relativePath, const bool sync, const char *basePath ) {
-
-	const char *path;
 	idStr OSpath;
-	idFile_Permanent *f;
 
 	if ( !IsInitialized() ) {
 		common->FatalError( "Filesystem call made without initialization\n" );
 	}
 
-	path = cvarSystem->GetCVarString( basePath );
+	const char* path = cvarSystem->GetCVarString(basePath);
 	if ( !path[0] ) {
 		path = fs_savepath.GetString();
 	}
@@ -3130,7 +3092,7 @@ idFile *idFileSystemLocal::OpenFileAppend( const char *relativePath, const bool 
 		common->Printf( "idFileSystem::OpenFileAppend: %s\n", OSpath.c_str() );
 	}
 
-	f = new (TAG_IDFILE) idFile_Permanent();
+	idFile_Permanent* f = new(TAG_IDFILE) idFile_Permanent();
 	f->o = OpenOSFile( OSpath, FS_APPEND );
 	if ( !f->o ) {
 		delete f;

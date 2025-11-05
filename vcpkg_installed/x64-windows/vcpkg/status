@@ -6,10 +6,10 @@ Abi: fcdf68e2b11302f4e2a66284cabd5d877355de03f07943f0dd5ac5ae38fb8895
 Status: install ok installed
 
 Package: vcpkg-cmake
-Version: 2025-08-07
+Version: 2024-04-23
 Architecture: x64-windows
 Multi-Arch: same
-Abi: cec985954c7dada10cdc4c883b162bac3dc475df645e9df97713e2b25efa95fc
+Abi: 79191c983e3bb619e358cd8e7f18a62ecee4ea323356cc1a2332d26deb3d77cf
 Status: install ok installed
 
 Package: directxmath
@@ -17,25 +17,25 @@ Version: 2025-04-03
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 418c95dbf617ed0d868782b66bc8b44ee279f02c9dff3c24fd72ea6913995402
+Abi: dfa8aaa8beee71a4674a6efa2ab5df68aa7e926f0e51d846a03684c1620c4880
 Description: DirectXMath SIMD C++ math library
 Status: install ok installed
 
 Package: directxmesh
-Version: 2025-07-10
+Version: 2025-10-27
 Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: b44ca5a32fcabfa70e0ebc4d91dd17e578bad4babaca7fe183da0a646b991645
+Abi: fa17afd65eebaee487b3bc2e4cd17cef9a91970e5ed080bdb892c852a3b97065
 Description: DirectXMesh geometry processing library
 Status: install ok installed
 
 Package: libdeflate
-Version: 1.24
+Version: 1.25
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: b072b1d8b04c55febf487c91e2c0e81724311b9bcdd9264b712524c6766e1adc
+Abi: 22d99e35b04e5b5e243de2cc9033030f1a1cffa3528332adba97b0fc65a77704
 Description: libdeflate is a library for fast, whole-buffer DEFLATE-based compression and decompression.
 Default-Features: compression, decompression, gzip, zlib
 Status: install ok installed
@@ -73,7 +73,7 @@ Version: 3.2.2
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: de83237e63eef664da1809c38cc77a5bbdf628384b5305a637f26fad4d04f1d1
+Abi: 9b53ec0c501b3a8943bf2e38ae1ffca7e4b20fc63c6ad568658e555fb5922180
 Description: Imath is a C++ and Python library of 2D and 3D vector, matrix, and math operations for computer graphics.
 Status: install ok installed
 
@@ -82,7 +82,7 @@ Version: 3.4.2
 Depends: imath, libdeflate, openjph, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 60d79198b9c74cced0fdf4a141f4f74954dc7081b48933322b7804548e36d14d
+Abi: b143cb1476644e1c653b5e408678b8efcfa0ad6eef76b771461c951f8ffb43f1
 Description: OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & Magic for use in computer imaging applications
 Status: install ok installed
 
@@ -91,16 +91,16 @@ Version: 1.618.2
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 1faffcac835fe271d1cfd23e1ec4240ad7157659159b1e9beea02d98642a4580
+Abi: e558a6bd4e7a722b9c77790399c942c28ba43c95833c6d8155c0febe233ac005
 Description: Official DirectX 12 Headers
 Status: install ok installed
 
 Package: directxtex
-Version: 2025-07-10
+Version: 2025-10-27
 Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 76e85accd983012041a4996c67e000c8c77de9eb4fe29c303c88d6408c23317e
+Abi: 416772b121710ad0c4299442053b001258c4a5bc26c311aa3c1b8db95fa7f0f4
 Description: DirectXTex texture processing library
 Default-Features: dx11
 Status: install ok installed
@@ -133,7 +133,7 @@ Version: 2025-10-10
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 407ec7b6942e14d8f324dbf28b5469aa5a99769791dbbd887783980e28b7b3b5
+Abi: cddbb8d9ac7bfb54ead42f72a2c32fa851db575f7ebe46c6f2f492cd22f2bb36
 Description: DirectX Shader Compiler (LLVM/Clang)
 Status: install ok installed
 
@@ -142,7 +142,7 @@ Version: 2025-07-10
 Depends: directx-dxc, directx-headers, directxmath, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 4ad05f885688c91d2766cbecc31adf78d489abf6307fce72899157300c74c18c
+Abi: 0b7b9be6f84e7500878abebaad820c76c58e55d40e8ae9c111a94f1f409053cb
 Description: A collection of helper classes for writing DirectX 12 code in C++.
 Default-Features: xaudio2-9
 Status: install ok installed
@@ -159,7 +159,7 @@ Version: 3.1.2
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 64d6fa291041ff068a61e8e90783103eaf454920fdac2f10cc2cbd23d65bceaf
+Abi: cbd99f0e8fe19ccd018c4ac8fc37d228f98efedbfcd84574ec1cd484ce30d555
 Description: libjpeg-turbo is a JPEG image codec that uses SIMD instructions (MMX, SSE2, NEON, AltiVec) to accelerate baseline JPEG compression and decompression on x86, x86-64, ARM, and PowerPC systems.
 Status: install ok installed
 
@@ -169,7 +169,7 @@ Port-Version: 1
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 7fc02b7716de61804c73d8183b0777a4092e1a8785a5a87c271cd11ae6237fb0
+Abi: 3f3f1da4a37d5b1a166123653b4873c122300794abae2e57e139c72400b73bf5
 Description: Header-only C++17 library provides static reflection for enums, work with any enum type without any macro or boilerplate code.
 Status: install ok installed
 
@@ -178,7 +178,7 @@ Version: 1.5.7
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: e14884ca8411eea4fa21f1048839e9e6792b7c4936adb8d6d781f3293d241ac3
+Abi: 86153ec25731515b762c49e6aa61723597727fafec3f033d359a0c21ef4d68bd
 Description: Zstandard - Fast real-time compression algorithm
 Status: install ok installed
 
@@ -187,7 +187,7 @@ Version: 1.3.1
 Depends: vcpkg-cmake
 Architecture: x64-windows
 Multi-Arch: same
-Abi: a3b0ff05a86fa9a43adece03dcf1455ba3adb6ae029d44caf145f3c099c19010
+Abi: fa712df8e3e5b73dde0eaec692dc7ea7d3734b36e0a49a569dfc31498a7a7b8d
 Description: A compression library
 Status: install ok installed
 
@@ -196,7 +196,7 @@ Version: 5.8.1
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 638bcf4f46cb21323c0ae91746fcb9778d55c5e91b8bf4cde2b03ba330f959df
+Abi: c5ae65c5d4f3d925db5ae915d57e192031a989f5461b308f9d6afc13f2048940
 Description: Compression library with an API similar to that of zlib.
 Status: install ok installed
 
@@ -206,7 +206,7 @@ Port-Version: 6
 Depends: vcpkg-cmake
 Architecture: x64-windows
 Multi-Arch: same
-Abi: e01cd5d8eee1e602e67d85752764c2e1f3651a72f9ff2f27c71a167e80e9d602
+Abi: 788abeb56245c24cc7da1280d0c0b991b5fab82eae7032992e99991192a1d551
 Description: bzip2 is a freely available, patent free, high-quality data compressor. It typically compresses files to within 10% to 15% of the best available techniques (the PPM family of statistical compressors), whilst being around twice as fast at compression and six times faster at decompression.
 Default-Features: tool
 Status: install ok installed
@@ -224,7 +224,7 @@ Port-Version: 1
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: a0a151d4b5eed70eae39844cf7f423c97bdeb07c00d39f856705fc23122590ce
+Abi: 76ac91c8bf4cb80913e15024029cb707121129ada48891af0aca9f101d2c9e6f
 Description: minizip-ng is a zip manipulation library written in C that is supported on Windows, macOS, and Linux.
 Default-Features: bzip2, lzma, pkcrypt, wzaes, zlib, zstd
 Status: install ok installed
@@ -276,12 +276,11 @@ Description: Enables ZSTD compression
 Status: install ok installed
 
 Package: brotli
-Version: 1.1.0
-Port-Version: 1
+Version: 1.2.0
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: f3f3aaf1b27847bb0c19bd850b26f75a1f0c6441cc8200f47b539d5fe9fb3431
+Abi: ef73692d1ea6ba7488a2fd9fbd3bfdecd448a3ec03d3920626d812ee75b872b3
 Description: a generic-purpose lossless compression algorithm that compresses data using a combination of a modern variant of the LZ77 algorithm, Huffman coding and 2nd order context modeling.
 Status: install ok installed
 
@@ -291,7 +290,7 @@ Port-Version: 3
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: b80b298c7956a2f3b4f34b92bbfdc71e92f3b76d122887b962bd8caf2013caa8
+Abi: 3ea9cf8c9ec93ec989da3c0c2700fceb08d01dc49591b12fc89d01c891c51188
 Description: C++11 JSON, REST, and OAuth library
     The C++ REST SDK is a Microsoft project for cloud-based client-server communication in native code using a modern asynchronous C++ API design. This project aims to help C++ developers connect to and interact with services.
 Default-Features: brotli, compression
@@ -318,7 +317,7 @@ Version: 2504.3.4084
 Depends: cpprestsdk, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: b08bd2f337310d441f44a7a42149bc573a58507178630892deae5047359d0119
+Abi: c307ead490625f14ef135a80cc3c612aefc4064ee2282059ac5ccc99f0a5742e
 Description: Microsoft Game Development Kit (GDK)
 Status: install ok installed
 
@@ -327,7 +326,7 @@ Version: 4.2.0
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 94640a6274fd975925e549509ed95fec0bfdf929f2b6c74aae93a5721a1ed8f3
+Abi: 022517109f61e7d4828bce68c732e11aa3b99ba790df61f45845812732e9c03f
 Description: Microsoft implementation of the Guidelines Support Library
 Status: install ok installed
 
@@ -337,7 +336,7 @@ Port-Version: 1
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: a5e94e40cb35c90561746ab46e9b28c86eed20d783ffa2b2a74e7e21bcf9e667
+Abi: 3881682b740995bbe7c3c2887ae1e8d5656f5dec38e6e7534897f2e6cc04fa26
 Description: PFFFT, a pretty fast Fourier Transform.
 Status: install ok installed
 
@@ -346,7 +345,7 @@ Version: 1.3.2
 Depends: vcpkg-cmake, vcpkg-cmake-config, zlib
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 8ad902c0519398bb944f458a2000e8e4dda94503948cb3aaa5fe51bf04c38336
+Abi: a8f8e4dee684e3500e570564f3794d0db1d55f566b3af9c4af93c2dc7f9a9790
 Description: Reader for AES SOFA files to get better HRTFs (Head-Relative Transfer Functions)
 Status: install ok installed
 
@@ -356,7 +355,7 @@ Port-Version: 1
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 5e892ebc425e99908ab7ed4f475305a0fb0f5b64739ef3cae5cd53035d46cd80
+Abi: 57d4f8061a216bf47b34445d7a358ec10f3814b44b070a1e3bd4529fa33432bc
 Description: FlatBuffers is a cross platform serialization library architected for maximum memory efficiency. It allows you to directly access serialized data without parsing/unpacking it first, while still having great forwards/backwards compatibility.
 Status: install ok installed
 
@@ -365,7 +364,7 @@ Version: 4.7.0
 Depends: flatbuffers, libmysofa, pffft, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: ec93503f89df0c5a10704640dc9145a89ea2ab791e9e41bbc6c5617eefb0af30
+Abi: 3c86de6b458f1adbbeecbde930c91c4d7242a742c776e3e00c1c617de6425350
 Description: Valve's steam audio library
 Status: install ok installed
 
@@ -374,7 +373,7 @@ Version: 2.2.5
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 8c1a4fa2cde38f4cfd2f270da5046144f7af100b743b0f2a16193835e1921c15
+Abi: dd5e3d6cc92fc70b5bb52a29b8ca099dd8b81660758d6d021e07b99acc8ca02d
 Description: zlib replacement with optimizations for 'next generation' systems
 Status: install ok installed
 
@@ -383,16 +382,25 @@ Version: 1.618.2
 Depends: directx-headers, vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 420f0d77e090979adf250d1ddadf9edf60f2c48479ca355e4b84f882cf1d26d0
+Abi: b9f1d2d63baeb059ad598cb4d337fb7d2f7f4358449d621a8a8bb6ef32db69bd
 Description: DirectX 12 Agility SDK
 Status: install ok installed
 
 Package: openjph
-Version: 0.24.2
+Version: 0.25.0
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: b0c9f20e2d36c12810956b99ccb566e7aac050e3d91f6a529d32e6ee9cfc9942
+Abi: d2a98758077ca80f8118d870575bffb89a60a094bdffacdecacc5745839857bf
 Description: Open-source implementation of JPEG2000 Part-15 (or JPH or HTJ2K)
+Status: install ok installed
+
+Package: xxhash
+Version: 0.8.3
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 427860cbfd1cc12ffc58374d949ec5886393a72480ad57fd172fa4df0edc07c9
+Description: Extremely fast hash algorithm
 Status: install ok installed
 

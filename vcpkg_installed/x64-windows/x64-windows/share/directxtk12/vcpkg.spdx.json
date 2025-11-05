@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/directxtk12-x64-windows-2025-07-10-ef6a2a0e-5531-46be-ab1a-35b60db9e8a6",
-  "name": "directxtk12:x64-windows@2025-07-10 4ad05f885688c91d2766cbecc31adf78d489abf6307fce72899157300c74c18c",
+  "documentNamespace": "https://spdx.org/spdxdocs/directxtk12-x64-windows-2025-07-10-b20b5f00-9685-4c1e-8ea3-b1bdbf000554",
+  "name": "directxtk12:x64-windows@2025-07-10 0b7b9be6f84e7500878abebaad820c76c58e55d40e8ae9c111a94f1f409053cb",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:10:43Z"
+    "created": "2025-11-04T19:32:27Z"
   },
   "relationships": [
     {
@@ -249,7 +249,7 @@
     {
       "name": "directxtk12:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "4ad05f885688c91d2766cbecc31adf78d489abf6307fce72899157300c74c18c",
+      "versionInfo": "0b7b9be6f84e7500878abebaad820c76c58e55d40e8ae9c111a94f1f409053cb",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -359,7 +359,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3b694d7b953e4e5f62b23fd672e75912e539ea1a900fd27c408d2c0953f6c535"
+          "checksumValue": "b83c05421bba8ad2389c285ccd11d07600ebe40d417d57d0ea1f6a27cdad658b"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -383,7 +383,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "cd3ed28cb9dc829b18d23103467594be82273209699018fd619cca4baa1bfc14"
+          "checksumValue": "50acb432ed14f96ae29a72448c2609c0f617747995a2b216093732ee7af6ff04"
         }
       ],
       "licenseConcluded": "NOASSERTION",

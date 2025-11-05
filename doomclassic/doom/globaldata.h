@@ -56,6 +56,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "defs.h"
 #include "structs.h"
 
+memTag_t test = TAG_CLASSIC_DOOM;
+
 struct Globals {
 	void InitGlobals();
 

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define DEBUG_EVAL
 constexpr size_t MAX_DEFINEPARMS = 128;
-constexpr size_t DEFINEHASHSIZE = 2048;
+constexpr size_t DEFINEHASHSIZE = 2048;// Must be a power of 2
 
 constexpr auto TOKEN_FL_RECURSIVE_DEFINE = 1;
 
@@ -146,12 +146,17 @@ static void PC_PrintDefineHashTable(define_t **definehash) {
 PC_NameHash
 ================
 */
-static ID_INLINE int32 PC_NameHash( const char *name ) {
-	int32 hash = 0;
+static ID_INLINE uint64 PC_NameHash( const char *name ) {
+	/*int32 hash = 0;
 	for ( size_t i = 0; name[i] != '\0'; i++ ) {
 		hash += name[i] * (119 + numeric_cast<int32>( i ));
 	}
 	hash = (hash ^ ( hash >> 10 ) ^ ( hash >> 20 )) & ( numeric_cast<int32>(DEFINEHASHSIZE) - 1 );
+	return hash;*/
+
+	uint64 hash = idStr::Hash64(name);
+	hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (DEFINEHASHSIZE - 1);
+
 	return hash;
 }
 
@@ -161,7 +166,7 @@ idParser::AddDefineToHash
 ================
 */
 void idParser::AddDefineToHash( define_t *define, define_t **definehash ) {
-	const int32 hash = PC_NameHash(define->name);
+	const uint64 hash = PC_NameHash(define->name);
 	define->hashnext = definehash[hash];
 	definehash[hash] = define;
 }
@@ -172,7 +177,7 @@ FindHashedDefine
 ================
 */
 define_t *idParser::FindHashedDefine( define_t **definehash, const char *name ) {
-	const int32 hash = PC_NameHash(name);
+	const uint64 hash = PC_NameHash(name);
 	for ( define_t* d = definehash[hash]; d; d = d->hashnext ) {
 		if ( !strcmp(d->name, name) ) {
 			return d;
@@ -1056,7 +1061,7 @@ bool idParser::Directive_undef() {
 		return false;
 	}
 
-	const int hash = PC_NameHash(token.c_str());
+	const uint64 hash = PC_NameHash(token.c_str());
 	for (lastdefine = nullptr, define = idParser::definehash[hash]; define; define = define->hashnext) {
 		if (!strcmp(define->name, token.c_str()))
 		{

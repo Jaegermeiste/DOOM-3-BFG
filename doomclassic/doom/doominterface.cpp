@@ -56,7 +56,6 @@ static const char*		mpArgVPtr[MAXPLAYERS][10] = {{nullptr} };
 static bool drawFullScreen = false;
 
 DoomInterface::DoomInterface() {
-	numplayers = 0;
 	bFinished[0] = bFinished[1] = bFinished[2] = bFinished[3] = false;
 	lastTicRun = 0;
 }
@@ -65,7 +64,7 @@ DoomInterface::~DoomInterface() {
 }
 
 
-void DoomInterface::Startup(const size_t playerscount, const bool multiplayer )
+void DoomInterface::Startup( const size_t playerscount, const bool multiplayer )
 {
 	size_t localdargc = 1; // for the commandline
 

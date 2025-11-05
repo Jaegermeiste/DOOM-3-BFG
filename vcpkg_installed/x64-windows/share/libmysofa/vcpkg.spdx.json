@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/libmysofa-x64-windows-1.3.2-aeb61761-551e-476f-a61f-efe42e49bb39",
-  "name": "libmysofa:x64-windows@1.3.2 8ad902c0519398bb944f458a2000e8e4dda94503948cb3aaa5fe51bf04c38336",
+  "documentNamespace": "https://spdx.org/spdxdocs/libmysofa-x64-windows-1.3.2-b9461407-b632-4ced-ac3d-66ed880f12fb",
+  "name": "libmysofa:x64-windows@1.3.2 a8f8e4dee684e3500e570564f3794d0db1d55f566b3af9c4af93c2dc7f9a9790",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-10-10-09baed229fa02ec5242fcf8e0cada24c6a81b0d7"
     ],
-    "created": "2025-10-25T06:12:24Z"
+    "created": "2025-11-04T19:34:04Z"
   },
   "relationships": [
     {
@@ -159,7 +159,7 @@
     {
       "name": "libmysofa:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "8ad902c0519398bb944f458a2000e8e4dda94503948cb3aaa5fe51bf04c38336",
+      "versionInfo": "a8f8e4dee684e3500e570564f3794d0db1d55f566b3af9c4af93c2dc7f9a9790",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -236,7 +236,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a2493c80293952462b370866bfa5d7d67926f9de230c49e2dc8b75a4d1625b9d"
+          "checksumValue": "c35fc03e5966ee165d41a06f9bc4f468c91c9a9bbd6739267207d99579a27737"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -248,7 +248,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "68e5a1012de8bd474edb881aa619864ea1390cc2fc678fe9af7caf562e6d835e"
+          "checksumValue": "25f0b4d70298e1c2ef5ceb65ce554d31afdd16f8843ea015a9f751adc0c57042"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -272,7 +272,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f8cdb96aa4607d71c18c44eed69b1a787528d084777c76f097f1ff8a390bd1e4"
+          "checksumValue": "4ae3c3e5bac288acc1972f403e2ceb21c3890657ea694dfae4e371caee8eef6a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -284,7 +284,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ea46d14b0f47e10e65674689e8684fa82e2fa4ba735883604b0e0dc8edee7b7e"
+          "checksumValue": "1acbed41870eb387151a7d1fbf99f1fb5675e9c6ce40c3dc1c84b5976911f458"
         }
       ],
       "licenseConcluded": "NOASSERTION",

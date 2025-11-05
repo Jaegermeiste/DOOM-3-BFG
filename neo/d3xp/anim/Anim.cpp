@@ -563,9 +563,6 @@ idMD5Anim::ConvertTimeToFrame
 ====================
 */
 void idMD5Anim::ConvertTimeToFrame( const ID_TIME_T time, const size_t cycleCount, frameBlend_t &frame ) const {
-	ID_TIME_T frameTime = 0;
-	size_t frameNum = 0;
-
 	if ( numFrames <= 1 ) {
 		frame.frame1		= 0;
 		frame.frame2		= 0;
@@ -583,9 +580,9 @@ void idMD5Anim::ConvertTimeToFrame( const ID_TIME_T time, const size_t cycleCoun
 		frame.cycleCount	= 0;
 		return;
 	}
-	
-	frameTime			= numeric_cast<ID_TIME_T>(time * frameRate);
-	frameNum			= frameTime / 1000;
+
+	ID_TIME_T frameTime = numeric_cast<ID_TIME_T>(time * frameRate);
+	const size_t frameNum = frameTime / 1000;
 	frame.cycleCount	= frameNum / ( numFrames - 1 );
 
 	if ( ( cycleCount > 0 ) && ( frame.cycleCount >= cycleCount ) ) {
@@ -652,7 +649,7 @@ idMD5Anim::GetOriginRotation
 ====================
 */
 void idMD5Anim::GetOriginRotation( idQuat &rotation, const ID_TIME_T time, const size_t cycleCount ) const {
-	int animBits = jointInfo[ 0 ].animBits;
+	const int animBits = jointInfo[ 0 ].animBits;
 	if ( !( animBits & ( ANIM_QX | ANIM_QY | ANIM_QZ ) ) ) {
 		// just use the baseframe
 		rotation = baseFrame[ 0 ].q;
@@ -880,7 +877,7 @@ void idMD5Anim::GetInterpolatedFrame( const frameBlend_t &frame, idJointQuat *jo
 	const float * frame1 = &componentFrames[frame.frame1 * numAnimatedComponents];
 	const float * frame2 = &componentFrames[frame.frame2 * numAnimatedComponents];
 
-	size_t numLerpJoints = DecodeInterpolatedFrames( joints, blendJoints, lerpIndex, frame1, frame2, jointInfo.Ptr(), index, numIndexes );
+	const size_t numLerpJoints = DecodeInterpolatedFrames( joints, blendJoints, lerpIndex, frame1, frame2, jointInfo.Ptr(), index, numIndexes );
 
 	SIMDProcessor->BlendJoints( joints, blendJoints, frame.backlerp, lerpIndex, numLerpJoints );
 
@@ -975,7 +972,7 @@ void idMD5Anim::CheckModelHierarchy( const idRenderModel *model ) const {
 
 	const idMD5Joint *modelJoints = model->GetJoints();
 	for( size_t i = 0; i < jointInfo.Num(); i++ ) {
-		size_t jointNum = jointInfo[ i ].nameIndex;
+		const size_t jointNum = jointInfo[ i ].nameIndex;
 		if ( modelJoints[ i ].name != animationLib.JointName( jointNum ) ) {
 			gameLocal.Error( "Model '%s''s joint names don't match anim '%s''s", model->Name(), name.c_str() );
 		}
@@ -1089,11 +1086,8 @@ idAnimManager::ReloadAnims
 */
 void idAnimManager::ReloadAnims() const
 {
-	size_t		i = 0;
-	idMD5Anim	**animptr = nullptr;
-
-	for( i = 0; i < animations.Num(); i++ ) {
-		animptr = animations.GetIndex( i );
+	for( size_t i = 0; i < animations.Num(); i++ ) {
+		idMD5Anim** animptr = animations.GetIndex(i);
 		if ( animptr != nullptr && *animptr != nullptr) {
 			( *animptr )->Reload();
 		}
@@ -1105,10 +1099,10 @@ void idAnimManager::ReloadAnims() const
 idAnimManager::JointIndex
 ================
 */
-int64	idAnimManager::JointIndex( const char *name ) {
-	int64 i = 0, hash = 0;
+index_t	idAnimManager::JointIndex( const char *name ) {
+	index_t i = 0;
 
-	hash = jointnamesHash.GenerateKey( name );
+	const uint64 hash = jointnamesHash.GenerateKey(name);
 	for ( i = jointnamesHash.First( hash ); i != -1; i = jointnamesHash.Next( i ) ) {
 		if ( jointnames[i].Cmp( name ) == 0 ) {
 			return i;
@@ -1137,27 +1131,21 @@ idAnimManager::ListAnims
 */
 void idAnimManager::ListAnims() const {
 	size_t		i = 0;
-	idMD5Anim	**animptr = nullptr;
-	idMD5Anim	*anim = nullptr;
-	size_t		size = 0;
-	size_t		s = 0;
-	size_t		namesize = 0;
-	size_t		num = 0;
 
-	num = 0;
-	size = 0;
+	size_t num = 0;
+	size_t size = 0;
 	for( i = 0; i < animations.Num(); i++ ) {
-		animptr = animations.GetIndex( i );
+		idMD5Anim** animptr = animations.GetIndex(i);
 		if ( animptr != nullptr && *animptr != nullptr) {
-			anim = *animptr;
-			s = anim->Size();
+			const idMD5Anim* anim = *animptr;
+			const size_t s = anim->Size();
 			gameLocal.Printf( "%8d bytes : %2d refs : %s\n", s, anim->NumRefs(), anim->Name() );
 			size += s;
 			num++;
 		}
 	}
 
-	namesize = jointnames.Size() + jointnamesHash.Size();
+	size_t namesize = jointnames.Size() + jointnamesHash.Size();
 	for( i = 0; i < jointnames.Num(); i++ ) {
 		namesize += jointnames[ i ].Size();
 	}
@@ -1173,11 +1161,10 @@ idAnimManager::FlushUnusedAnims
 */
 void idAnimManager::FlushUnusedAnims() {
 	size_t					i = 0;
-	idMD5Anim				**animptr = nullptr;
 	idList<idMD5Anim *>		removeAnims = {};
 	
 	for( i = 0; i < animations.Num(); i++ ) {
-		animptr = animations.GetIndex( i );
+		idMD5Anim** animptr = animations.GetIndex(i);
 		if ( animptr != nullptr && *animptr != nullptr) {
 			if ( ( *animptr )->NumRefs() <= 0 ) {
 				removeAnims.Append( *animptr );

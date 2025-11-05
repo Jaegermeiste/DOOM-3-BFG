@@ -606,7 +606,7 @@ public:
 	void						Preload( const idPreloadManifest &manifest );
 	void						ReloadAnims() const;
 	void						ListAnims() const;
-	int64						JointIndex( const char *name );
+	index_t						JointIndex( const char *name );
 	const char *				JointName( index_t index ) const;
 
 	void						ClearAnimsInUse();

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,49 +26,42 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef DOOM_INTERFACE_H
-#define DOOM_INTERFACE_H
+/*
+===============================================================================
+
+	xxHasher
+
+===============================================================================
+*/
+
+#ifndef __xx_HASH_H__
+#define __xx_HASH_H__
 
 #pragma once
 
-//#include "doomlib.h"
+#include "xxhash.h"  // assumes you have xxHash source/library in your project
 
-#include <vector>
-#include <string>
+struct XXH32Hasher {
+	uint32 operator()(void const* data, size_t len, uint32 seed = 0) const noexcept {
+		return static_cast<uint32>(XXH32(data, len, seed));
+	}
+	template <typename T>
+	uint32 operator()(T const& obj, uint32 seed = 0) const noexcept {
+		static_assert(std::is_trivially_copyable_v<T>);
+		return operator()(&obj, sizeof(obj), seed);
+	}
+};
 
-class idUserCmdMgr;
-
-class DoomInterface
-{
-public:
-			DoomInterface();
-	virtual ~DoomInterface();
-
-	typedef int ( *NoParamCallback)();
-	
-	void Startup( const size_t playerscount, const bool multiplayer = false );
-	bool Frame( ID_TIME_T time, idUserCmdMgr * userCmdMgr );
-	void Shutdown();
-	void QuitCurrentGame();
-	void EndDMGame();
-
-	// PS3
-	//void InitGraphics( int player = -1, int width = TEXTUREWIDTH, int height = TEXTUREHEIGHT, D3DCOLOR *pBuffer = NULL, D3DCOLOR *pBuffer2 = NULL );
-	void SetPostGlobalsCallback( NoParamCallback cb );
-#ifdef ID_ENABLE_DOOM_CLASSIC_NETWORKING
-	void SetNetworking( DoomLib::RecvFunc recv, DoomLib::SendFunc send, DoomLib::SendRemoteFunc sendRemote );
-#endif
-	size_t GetNumPlayers() const;
-
-	static index_t CurrentPlayer();
-
-	static void	SetMultiplayerPlayers(index_t localPlayerIndex, size_t playerCount, index_t localPlayer, idList<idStr> playerAddresses );
-
-protected:
-	idDict<bool>		bFinished;
-
-	ID_TIME_T			lastTicRun;
+struct XXH3_64Hasher {
+	uint64 operator()(void const* data, size_t len, uint64 seed = 0) const noexcept {
+		return static_cast<uint64>(XXH3_64bits_withSeed(data, len, seed));
+	}
+	template <typename T>
+	uint64 operator()(T const& obj, uint64 seed = 0) const noexcept {
+		static_assert(std::is_trivially_copyable_v<T>);
+		return operator()(&obj, sizeof(obj), seed);
+	}
 };
 
 
- #endif
+#endif // __xx_HASH_H__ 

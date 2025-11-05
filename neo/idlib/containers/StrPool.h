@@ -101,7 +101,7 @@ idStrPool::AllocString
 ID_INLINE const idPoolStr *idStrPool::AllocString( const StringLikeOrEnum auto string ) {
 	index_t i = 0;
 
-	const int64 hash = poolHash.GenerateKey(string, caseSensitive);
+	const uint64 hash = poolHash.GenerateKey(string, caseSensitive);
 	if ( caseSensitive ) {
 		for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
 			if ( pool[i]->Cmp( string ) == 0 ) {
@@ -138,7 +138,7 @@ ID_INLINE void idStrPool::FreeString( const idPoolStr *poolStr ) {
 	poolStr->numUsers--;
 	if ( poolStr->numUsers <= 0 ) {
 		index_t i = 0;
-		const int64 hash = poolHash.GenerateKey(poolStr->c_str(), caseSensitive);
+		const uint64 hash = poolHash.GenerateKey(poolStr->c_str(), caseSensitive);
 		if ( caseSensitive ) { 
 			for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
 				if ( pool[i]->Cmp( poolStr->c_str() ) == 0 ) {
