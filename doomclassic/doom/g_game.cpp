@@ -601,14 +601,14 @@ void G_DoLoadLevel ()
 
 	::g->gamestate = GS_LEVEL; 
 
-	for (size_t i = 0 ; std::cmp_less(i, MAXPLAYERS); i++) 
+	for (auto& player : ::g->players)
 	{ 
-		if (::g->players[i].playerInGame && ::g->players[i].playerstate == PST_DEAD)
+		if (player.playerInGame && player.playerstate == PST_DEAD)
 		{
-			::g->players[i].playerstate = PST_REBORN;
+			player.playerstate = PST_REBORN;
 		}
-		memset (::g->players[i].frags,0,sizeof(::g->players[i].frags));
-		memset (&(::g->players[i].cmd),0,sizeof(::g->players[i].cmd)); 
+		memset (player.frags,0,sizeof(player.frags));
+		memset (&(player.cmd),0,sizeof(player.cmd)); 
 	} 
 
 	const char * difficultyNames[] = {  "I'm Too Young To Die!", "Hey, Not Too Rough!", "Hurt Me Plenty!", "Ultra-Violence", "Nightmare" };
@@ -655,7 +655,7 @@ bool G_Responder (event_t* ev)
 			do
 			{
 				::g->displayplayer++;
-				if (std::cmp_equal(::g->displayplayer, MAXPLAYERS))
+				if (std::cmp_equal(::g->displayplayer, ::g->players.Num()))
 				{
 					::g->displayplayer = 0;
 				}
@@ -774,10 +774,8 @@ bool G_Responder (event_t* ev)
 //
 void G_Ticker () 
 { 
-	size_t		i = 0;
-
-	// do player reborns if needed
-	for (i = 0 ; std::cmp_less(i, MAXPLAYERS); ++i)
+	// do player rebirth if needed
+	for (index_t i = 0 ; std::cmp_less(i, ::g->players.Num()); ++i)
 	{
 		if (::g->players[i].playerInGame && ::g->players[i].playerstate == PST_REBORN)
 		{
@@ -828,11 +826,11 @@ void G_Ticker ()
 	// and build new ::g->consistency check
 	const size_t buf = (::g->gametic / ::g->ticdup) % BACKUPTICS; 
 
-	for (i = 0; std::cmp_less(i, MAXPLAYERS); ++i)
+	for (auto& player : ::g->players)
 	{
-		if (::g->players[i].playerInGame)
+		if (player.playerInGame)
 		{ 
-			ticcmd_t* cmd = &::g->players[i].cmd; 
+			ticcmd_t* cmd = &player.cmd; 
 
 			memcpy (cmd, &::g->netcmds[i][buf], sizeof(ticcmd_t)); 
 
@@ -865,9 +863,9 @@ void G_Ticker ()
 					common->Dialog().AddDialog( GDM_CONNECTION_LOST_HOST, DIALOG_ACCEPT, nullptr, nullptr, false );
 				}
 
-				if (::g->players[i].mo)
+				if (player.mo)
 				{
-					::g->consistency[i][buf] = ::g->players[i].mo->x;
+					::g->consistency[i][buf] = player.mo->x;
 				}
 				else
 				{
@@ -878,13 +876,13 @@ void G_Ticker ()
 	}
 
 	// check for special buttons
-	for (i = 0; std::cmp_less(i, MAXPLAYERS); ++i)
+	for (auto& player : ::g->players)
 	{
-		if (::g->players[i].playerInGame)
+		if (player.playerInGame)
 		{ 
-			if (::g->players[i].cmd.buttons & BT_SPECIAL) 
+			if (player.cmd.buttons & BT_SPECIAL) 
 			{ 
-				switch (::g->players[i].cmd.buttons & BT_SPECIALMASK) 
+				switch (player.cmd.buttons & BT_SPECIALMASK) 
 				{ 
 				case BTS_PAUSE: 
 					::g->paused ^= 1;
@@ -905,7 +903,7 @@ void G_Ticker ()
 						static constexpr auto NET_GAME = "NET GAME";
 						strncpy_s (::g->savedescription, NET_GAME, sizeof(NET_GAME));
 					}
-					::g->savegameslot = (::g->players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
+					::g->savegameslot = (player.cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
 					::g->gameaction = ga_savegame; 
 					
 					break;
@@ -1236,13 +1234,13 @@ void G_SecretExitLevel ()
 
 void G_DoCompleted () 
 { 
-	size_t i = 0;
+	index_t i = 0;
 
 	::g->gameaction = ga_nothing; 
 
-	for (i = 0; std::cmp_less(i, MAXPLAYERS); ++i) {
+	for (i = 0; std::cmp_less(i, ::g->players.Num()); ++i) {
 		if (::g->players[i].playerInGame) {
-			G_PlayerFinishLevel (numeric_cast<index_t>(i));        // take away cards and stuff
+			G_PlayerFinishLevel (i);        // take away cards and stuff
 		}
 	}
 
@@ -1267,9 +1265,9 @@ void G_DoCompleted ()
 			::g->gameaction = ga_victory;
 			return;
 		case 9: 
-			for (i=0 ; std::cmp_less(i, MAXPLAYERS); i++)
+			for (auto& player : ::g->players)
 			{
-				::g->players[i].didsecret = true;
+				player.didsecret = true;
 			}
 			break;
 		default:
@@ -1387,7 +1385,7 @@ void G_DoCompleted ()
 
 	::g->wminfo.pnum = ::g->consoleplayer; 
 
-	for (i = 0; std::cmp_less(i, MAXPLAYERS); ++i) 
+	for (i = 0; std::cmp_less(i, ::g->players.Num()); ++i) 
 	{ 
 		::g->wminfo.plyr[i].in = ::g->players[i].playerInGame;
 		::g->wminfo.plyr[i].skills = ::g->players[i].killcount; 

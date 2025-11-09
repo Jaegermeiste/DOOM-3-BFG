@@ -863,7 +863,7 @@ void idGameBearShootWindow::UpdateGame() {
 			}
 			wind->SetSize( width, 40 );
 
-			windUpdateTime = current_time + 7000 + rnd.RandomInt(5000);
+			windUpdateTime = current_time + 7000 + rnd.RandomInt32(5000);
 		}
 
 		// Update turret rotation angle

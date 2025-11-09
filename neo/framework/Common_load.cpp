@@ -422,9 +422,9 @@ void idCommonLocal::ExecuteMapChange() {
 		cvarSystem->ResetFlaggedVariables( CVAR_CHEAT );
 	}
 
-	int start = Sys_Milliseconds();
+	ID_TIME_T start = Sys_Milliseconds();
 
-	for ( size_t i = 0; i < MAX_INPUT_DEVICES; i++ ) {
+	for ( index_t i = 0; i < MAX_INPUT_DEVICES; i++ ) {
 		Sys_SetRumble( i, 0, 0 );
 	}
 
@@ -457,10 +457,10 @@ void idCommonLocal::ExecuteMapChange() {
 	StartWipe( "wipeMaterial", true );
 	CompleteWipe();
 
-	int sm = Sys_Milliseconds();
+	ID_TIME_T sm = Sys_Milliseconds();
 	// shut down the existing game if it is running
 	UnloadMap();
-	int ms = Sys_Milliseconds() - sm;
+	ID_TIME_T ms = Sys_Milliseconds() - sm;
 	common->Printf( "%6d msec to unload map\n", ms );
 
 	// Free media from previous level and
@@ -649,7 +649,7 @@ void idCommonLocal::ExecuteMapChange() {
 	Sys_ClearEvents();
 
 
-	int	msec = Sys_Milliseconds() - start;
+	ID_TIME_T	msec = Sys_Milliseconds() - start;
 	common->Printf( "%6d msec to load %s\n", msec, currentMapName.c_str() );
 	//Sys_DumpMemory( false );	
 

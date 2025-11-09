@@ -555,7 +555,7 @@ P_SpawnMobj
 		mobj->reactiontime = info->reactiontime;
 	}
 
-	mobj->lastlook = P_Random () % MAXPLAYERS;
+	mobj->lastlook = P_Random () % ::g->players.Num();
 	// do not set the state with P_SetMobjState,
 	// because action routines can not be called yet
 	const state_t* st = &::g->states[info->spawnstate];

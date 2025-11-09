@@ -2008,7 +2008,7 @@ uint32 idLobby::GetPartyTokenAsHost() {
 		if ( masterUser != nullptr) {
 			seed += idStr::Hash64( masterUser->GetGamerTag() );
 		}
-		partyToken = idRandom( seed ).RandomInt();
+		partyToken = idRandom( seed ).RandomInt32();
 		idLib::Printf( "NET: PartyToken is %u (seed = %u)\n", partyToken, seed );
 	}
 	return partyToken;
@@ -3327,7 +3327,7 @@ void idLobby::ServerUpdateBandwidthTest() {
 		msg.WriteLong( randomSize );
 		
 		for ( unsigned int j=0; j < randomSize; j++ ) {
-			msg.WriteByte( random.RandomInt( 255 ) );
+			msg.WriteByte( random.RandomInt32( 255 ) );
 		}
 		
 		unsigned int checksum = MD5_BlockChecksum( &buffer[8], randomSize );

@@ -679,7 +679,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject * thisObject, 
 				break;
 			case Action_RandomNumber:
 				assert( thisSprite && thisSprite->sprite && thisSprite->sprite->GetSWF() );
-				stack.A().SetInteger( thisSprite->sprite->GetSWF()->GetRandom().RandomInt( stack.A().ToInteger() ) );
+				stack.A().SetInteger( thisSprite->sprite->GetSWF()->GetRandom().RandomInt32( stack.A().ToInteger() ) );
 				break;
 			case Action_CallFunction: {
 				idStr functionName = stack.A().ToString();

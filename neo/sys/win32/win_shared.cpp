@@ -127,15 +127,15 @@ ID_TIME_T Sys_Milliseconds() {
 Sys_Microseconds
 ========================
 */
-uint64 Sys_Microseconds() {
-	static uint64 ticksPerMicrosecondTimes1024 = 0;
+ID_MICROSEC_T Sys_Microseconds() {
+	static ID_MICROSEC_T ticksPerMicrosecondTimes1024 = 0;
 
 	if ( ticksPerMicrosecondTimes1024 == 0 ) {
-		ticksPerMicrosecondTimes1024 = ( numeric_cast<uint64>(Sys_ClockTicksPerSecond()) << 10 ) / 1000000;
+		ticksPerMicrosecondTimes1024 = ( numeric_cast<ID_MICROSEC_T>(Sys_ClockTicksPerSecond()) << 10 ) / 1000000;
 		assert( ticksPerMicrosecondTimes1024 > 0 );
 	}
 
-	return (numeric_cast<uint64>(Sys_GetClockTicks()) << 10) / ticksPerMicrosecondTimes1024;
+	return (numeric_cast<ID_MICROSEC_T>(Sys_GetClockTicks()) << 10) / ticksPerMicrosecondTimes1024;
 }
 
 /*

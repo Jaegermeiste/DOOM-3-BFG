@@ -50,22 +50,20 @@ If you have questions concerning this license or the applicable additional terms
 static void P_ArchivePlayers ()
 {
     int		i;
-    int		j;
-    player_t*	dest;
-		
-    for (i=0 ; i<MAXPLAYERS ; i++)
+
+    for (auto& player : ::g->players)
     {
-	if (!::g->playeringame[i])
+	if (!player.playerInGame)
 	{
 		continue;
 	}
 
 	PADSAVEP();
 
-	dest = (player_t *)::g->save_p;
+	player_t* dest = (player_t*)::g->save_p;
 	memcpy (dest,&::g->players[i],sizeof(player_t));
 	::g->save_p += sizeof(player_t);
-	for (j=0 ; j<NUMPSPRITES ; j++)
+	for (int j = 0 ; j<NUMPSPRITES ; j++)
 	{
 	    if (dest->psprites[j].state)
 	    {
@@ -84,11 +82,10 @@ static void P_ArchivePlayers ()
 static void P_UnArchivePlayers ()
 {
     int		i;
-    int		j;
-	
-    for (i=0 ; i<MAXPLAYERS ; i++)
+
+    for (auto& player : ::g->players)
     {
-	if (!::g->playeringame[i])
+	if (!player.playerInGame)
 	{
 		continue;
 	}
@@ -103,7 +100,7 @@ static void P_UnArchivePlayers ()
 	::g->players[i].message = nullptr;
 	::g->players[i].attacker = nullptr;
 
-	for (j=0 ; j<NUMPSPRITES ; j++)
+	for (int j = 0 ; j<NUMPSPRITES ; j++)
 	{
 	    if (::g->players[i]. psprites[j].state)
 	    {
@@ -121,13 +118,10 @@ static void P_UnArchivePlayers ()
 static void P_ArchiveWorld ()
 {
     int			i;
-    int			j;
     sector_t*		sec;
     line_t*		li;
-    side_t*		si;
-    short*		put;
-	
-    put = (short *)::g->save_p;
+
+    short* put = (short*)::g->save_p;
     
     // do ::g->sectors
     for (i=0, sec = ::g->sectors ; i < ::g->numsectors ; i++,sec++)
@@ -148,14 +142,14 @@ static void P_ArchiveWorld ()
 	*put++ = li->flags;
 	*put++ = li->special;
 	*put++ = li->tag;
-	for (j=0 ; j<2 ; j++)
+	for (int j = 0 ; j<2 ; j++)
 	{
 	    if (li->sidenum[j] == -1)
 	    {
 		    continue;
 	    }
 
-	    si = &::g->sides[li->sidenum[j]];
+	    side_t* si = &::g->sides[li->sidenum[j]];
 
 	    *put++ = si->textureoffset;
 	    *put++ = si->rowoffset;
@@ -180,13 +174,10 @@ static void P_ArchiveWorld ()
 static void P_UnArchiveWorld ()
 {
     int			i;
-    int			j;
     sector_t*	sec;
     line_t*		li;
-    side_t*		si;
-    short*		get;
-	
-    get = reinterpret_cast<short*>(::g->save_p);
+
+    short* get = reinterpret_cast<short*>(::g->save_p);
     
     // do ::g->sectors
     for (i=0, sec = ::g->sectors ; i < ::g->numsectors ; i++,sec++)
@@ -208,13 +199,13 @@ static void P_UnArchiveWorld ()
 	li->flags = *get++;
 	li->special = *get++;
 	li->tag = *get++;
-	for (j=0 ; j<2 ; j++)
+	for (int j = 0 ; j<2 ; j++)
 	{
 	    if (li->sidenum[j] == -1)
 	    {
 		    continue;
 	    }
-	    si = &::g->sides[li->sidenum[j]];
+	    side_t* si = &::g->sides[li->sidenum[j]];
 	    si->textureoffset = *get++;
 	    si->rowoffset = *get++;
 	    si->toptexture = *get++;
@@ -239,15 +230,13 @@ static void P_UnArchiveWorld ()
 //
 
 static int GetMOIndex( mobj_t* findme ) {
-	thinker_t*	th;
-	mobj_t*		mobj;
 	int			index = 0;
 
-	for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
+	for (thinker_t* th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
 	{
 		if (th->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker)) {
 			index++;
-			mobj = (mobj_t*)th;
+			mobj_t* mobj = (mobj_t*)th;
 
 			if ( mobj == findme ) {
 				return index;
@@ -259,14 +248,13 @@ static int GetMOIndex( mobj_t* findme ) {
 }
 
 static mobj_t* GetMO(const index_t index ) {
-	thinker_t*	th;
 	int			testindex = 0;
 
 	if ( !index ) {
 		return nullptr;
 	}
 
-	for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
+	for (thinker_t* th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
 	{
 		if (th->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker)) {
 			testindex++;
@@ -285,23 +273,14 @@ static mobj_t* GetMO(const index_t index ) {
 //
 static void P_ArchiveThinkers ()
 {
-	thinker_t*		th;
-	mobj_t*			mobj;
 	ceiling_t*		ceiling;
-	vldoor_t*		door;
-	floormove_t*	floor;
-	plat_t*			plat;
-	fireflicker_t*	fire;
-	lightflash_t*	flash;
-	strobe_t*		strobe;
-	glow_t*			glow;
 
 	int i;
 	
 	// save off the current thinkers
 	//I_Printf( "Savegame on leveltime %d\n====================\n", ::g->leveltime );
 
-	for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
+	for (thinker_t* th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
 	{
 		//mobj_t*	test = (mobj_t*)th;
 		//I_Printf( "%3d: %x == function\n", index++, th->function.acp1 );
@@ -311,7 +290,7 @@ static void P_ArchiveThinkers ()
 			*::g->save_p++ = tc_mobj;
 			PADSAVEP();
 
-			mobj = (mobj_t *)::g->save_p;
+			mobj_t* mobj = (mobj_t*)::g->save_p;
 			memcpy (mobj, th, sizeof(*mobj));
 			::g->save_p += sizeof(*mobj);
 			mobj->state = (state_t *)(mobj->state - ::g->states);
@@ -408,7 +387,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_door;
 			PADSAVEP();
-			door = (vldoor_t *)::g->save_p;
+			vldoor_t* door = (vldoor_t*)::g->save_p;
 			memcpy (door, th, sizeof(*door));
 			::g->save_p += sizeof(*door);
 			door->sector = (sector_t *)(door->sector - ::g->sectors);
@@ -419,7 +398,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_floor;
 			PADSAVEP();
-			floor = (floormove_t *)::g->save_p;
+			floormove_t* floor = (floormove_t*)::g->save_p;
 			memcpy (floor, th, sizeof(*floor));
 			::g->save_p += sizeof(*floor);
 			floor->sector = (sector_t *)(floor->sector - ::g->sectors);
@@ -430,7 +409,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_plat;
 			PADSAVEP();
-			plat = (plat_t *)::g->save_p;
+			plat_t* plat = (plat_t*)::g->save_p;
 			memcpy (plat, th, sizeof(*plat));
 			::g->save_p += sizeof(*plat);
 			plat->sector = (sector_t *)(plat->sector - ::g->sectors);
@@ -441,7 +420,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_fire;
 			PADSAVEP();
-			fire = (fireflicker_t *)::g->save_p;
+			fireflicker_t* fire = (fireflicker_t*)::g->save_p;
 			memcpy (fire, th, sizeof(*fire));
 			::g->save_p += sizeof(*fire);
 			fire->sector = (sector_t *)(fire->sector - ::g->sectors);
@@ -452,7 +431,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_flash;
 			PADSAVEP();
-			flash = (lightflash_t *)::g->save_p;
+			lightflash_t* flash = (lightflash_t*)::g->save_p;
 			memcpy (flash, th, sizeof(*flash));
 			::g->save_p += sizeof(*flash);
 			flash->sector = (sector_t *)(flash->sector - ::g->sectors);
@@ -463,7 +442,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_strobe;
 			PADSAVEP();
-			strobe = (strobe_t *)::g->save_p;
+			strobe_t* strobe = (strobe_t*)::g->save_p;
 			memcpy (strobe, th, sizeof(*strobe));
 			::g->save_p += sizeof(*strobe);
 			strobe->sector = (sector_t *)(strobe->sector - ::g->sectors);
@@ -474,7 +453,7 @@ static void P_ArchiveThinkers ()
 		{
 			*::g->save_p++ = tc_glow;
 			PADSAVEP();
-			glow = (glow_t *)::g->save_p;
+			glow_t* glow = (glow_t*)::g->save_p;
 			memcpy (glow, th, sizeof(*glow));
 			::g->save_p += sizeof(*glow);
 			glow->sector = (sector_t *)(glow->sector - ::g->sectors);
@@ -504,9 +483,6 @@ static void P_ArchiveThinkers ()
 //
 static void P_UnArchiveThinkers ()
 {
-	byte			tclass;
-	thinker_t*		currentthinker;
-	thinker_t*		next;
 	mobj_t*			mobj;
 	ceiling_t*		ceiling;
 	vldoor_t*		door;
@@ -533,10 +509,10 @@ static void P_UnArchiveThinkers ()
 	bool		mo_bhead[1024];
 
 	// remove all the current thinkers
-	currentthinker = ::g->thinkercap.next;
+	thinker_t* currentthinker = ::g->thinkercap.next;
 	while (currentthinker != &::g->thinkercap)
 	{
-		next = currentthinker->next;
+		thinker_t* next = currentthinker->next;
 
 		if (currentthinker->function.acp1 == reinterpret_cast<actionf_p1>(P_MobjThinker))
 		{
@@ -555,7 +531,7 @@ static void P_UnArchiveThinkers ()
 	// read in saved thinkers
 	while (true)
 	{
-		tclass = *::g->save_p++;
+		byte tclass = *::g->save_p++;
 		switch (tclass)
 		{
 		case tc_end:
@@ -830,18 +806,11 @@ static void P_UnArchiveThinkers ()
 //
 static void P_ArchiveSpecials ()
 {
-    thinker_t*		th;
-    ceiling_t*		ceiling;
-    vldoor_t*		door;
-    floormove_t*	floor;
-    plat_t*		plat;
-    lightflash_t*	flash;
-    strobe_t*		strobe;
-    glow_t*		glow;
-    int			i;
+	ceiling_t*		ceiling;
+	int			i;
 	
     // save off the current thinkers
-    for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
+    for (thinker_t* th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
     {
 	if (th->function.acv == static_cast<actionf_v>(nullptr))
 	{
@@ -882,7 +851,7 @@ static void P_ArchiveSpecials ()
 	{
 	    *::g->save_p++ = tc_door;
 	    PADSAVEP();
-	    door = (vldoor_t *)::g->save_p;
+	    vldoor_t* door = (vldoor_t*)::g->save_p;
 	    memcpy (door, th, sizeof(*door));
 	    ::g->save_p += sizeof(*door);
 	    door->sector = (sector_t *)(door->sector - ::g->sectors);
@@ -893,7 +862,7 @@ static void P_ArchiveSpecials ()
 	{
 	    *::g->save_p++ = tc_floor;
 	    PADSAVEP();
-	    floor = (floormove_t *)::g->save_p;
+	    floormove_t* floor = (floormove_t*)::g->save_p;
 	    memcpy (floor, th, sizeof(*floor));
 	    ::g->save_p += sizeof(*floor);
 	    floor->sector = (sector_t *)(floor->sector - ::g->sectors);
@@ -904,7 +873,7 @@ static void P_ArchiveSpecials ()
 	{
 	    *::g->save_p++ = tc_plat;
 	    PADSAVEP();
-	    plat = (plat_t *)::g->save_p;
+	    plat_t* plat = (plat_t*)::g->save_p;
 	    memcpy (plat, th, sizeof(*plat));
 	    ::g->save_p += sizeof(*plat);
 	    plat->sector = (sector_t *)(plat->sector - ::g->sectors);
@@ -915,7 +884,7 @@ static void P_ArchiveSpecials ()
 	{
 	    *::g->save_p++ = tc_flash;
 	    PADSAVEP();
-	    flash = (lightflash_t *)::g->save_p;
+	    lightflash_t* flash = (lightflash_t*)::g->save_p;
 	    memcpy (flash, th, sizeof(*flash));
 	    ::g->save_p += sizeof(*flash);
 	    flash->sector = (sector_t *)(flash->sector - ::g->sectors);
@@ -926,7 +895,7 @@ static void P_ArchiveSpecials ()
 	{
 	    *::g->save_p++ = tc_strobe;
 	    PADSAVEP();
-	    strobe = (strobe_t *)::g->save_p;
+	    strobe_t* strobe = (strobe_t*)::g->save_p;
 	    memcpy (strobe, th, sizeof(*strobe));
 	    ::g->save_p += sizeof(*strobe);
 	    strobe->sector = (sector_t *)(strobe->sector - ::g->sectors);
@@ -937,7 +906,7 @@ static void P_ArchiveSpecials ()
 	{
 	    *::g->save_p++ = tc_glow;
 	    PADSAVEP();
-	    glow = (glow_t *)::g->save_p;
+	    glow_t* glow = (glow_t*)::g->save_p;
 	    memcpy (glow, th, sizeof(*glow));
 	    ::g->save_p += sizeof(*glow);
 	    glow->sector = (sector_t *)(glow->sector - ::g->sectors);
@@ -956,8 +925,7 @@ static void P_ArchiveSpecials ()
 //
 static void P_UnArchiveSpecials ()
 {
-    byte		tclass;
-    ceiling_t*		ceiling;
+	ceiling_t*		ceiling;
     vldoor_t*		door;
     floormove_t*	floor;
     plat_t*		plat;
@@ -968,7 +936,7 @@ static void P_UnArchiveSpecials ()
     // read in saved thinkers
     while (true)
     {
-	tclass = *::g->save_p++;
+	byte tclass = *::g->save_p++;
 	switch (tclass)
 	{
 	  case tc_endspecials:

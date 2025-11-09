@@ -4078,12 +4078,12 @@ void idEntity::Event_RandomTarget( const char *ignore ) {
 	}
 
 	if ( ignoreNum >= 0 ) {
-		num = gameLocal.random.RandomInt( targets.Num() - 1 );
+		num = gameLocal.random.RandomInt32( targets.Num() - 1 );
 		if ( num >= ignoreNum ) {
 			num++;
 		}
 	} else {
-		num = gameLocal.random.RandomInt( targets.Num() );
+		num = gameLocal.random.RandomInt32( targets.Num() );
 	}
 
 	ent = targets[ num ].GetEntity();

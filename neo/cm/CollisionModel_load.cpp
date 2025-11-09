@@ -3543,7 +3543,7 @@ void idCollisionModelManagerLocal::Preload( const char *mapName ) {
 	manifest.LoadManifest( manifestName );
 	if ( manifest.NumResources() >= 0 ) {
 		common->Printf( "Preloading collision models...\n" );
-		const int	start = Sys_Milliseconds();
+		const ID_TIME_T	start = Sys_Milliseconds();
 		size_t numLoaded = 0;
 		for ( size_t i = 0; i < manifest.NumResources(); i++ ) {
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( i );
@@ -3552,7 +3552,7 @@ void idCollisionModelManagerLocal::Preload( const char *mapName ) {
 				numLoaded++;
 			}
 		}
-		const int	end = Sys_Milliseconds();
+		const ID_TIME_T	end = Sys_Milliseconds();
 		common->Printf( "%05d collision models preloaded ( or were already loaded ) in %5.1f seconds\n", numLoaded, ( end - start ) * 0.001 );
 		common->Printf( "----------------------------------------\n" );
 	}

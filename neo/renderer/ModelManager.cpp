@@ -555,11 +555,11 @@ idRenderModelManagerLocal::Preload
 void idRenderModelManagerLocal::Preload( const idPreloadManifest &manifest  ) {
 	if ( preload_MapModels.GetBool() ) {
 		// preload this levels images
-		int	start = Sys_Milliseconds();
+		ID_TIME_T	start = Sys_Milliseconds();
 		size_t numLoaded = 0;
 		idList< preloadSort_t > preloadSort;
 		preloadSort.Resize( manifest.NumResources() );
-		for ( size_t i = 0; i < manifest.NumResources(); i++ ) {
+		for ( index_t i = 0; i < manifest.NumResources(); i++ ) {
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( i );
 			idResourceCacheEntry rc;
 			idStrStatic< MAX_OSPATH > filename;
@@ -587,7 +587,7 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest &manifest  ) {
 		
 		preloadSort.SortWithTemplate( idSort_Preload() );
 
-		for ( size_t i = 0; i < preloadSort.Num(); i++ ) {
+		for ( index_t i = 0; i < preloadSort.Num(); i++ ) {
 			const preloadSort_t & ps = preloadSort[ i ];
 			const preloadEntry_s & p = manifest.GetPreloadByIndex( ps.idx );
 			if ( p.resType == PRELOAD_MODEL ) {
@@ -601,7 +601,7 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest &manifest  ) {
 			numLoaded++;
 		}
 
-		int	end = Sys_Milliseconds();
+		ID_TIME_T	end = Sys_Milliseconds();
 		common->Printf( "%05d models preloaded ( or were already loaded ) in %5.1f seconds\n", numLoaded, ( end - start ) * 0.001 );
 		common->Printf( "----------------------------------------\n" );
 	}

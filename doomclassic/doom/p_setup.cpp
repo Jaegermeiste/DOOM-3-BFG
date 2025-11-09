@@ -584,18 +584,17 @@ void HU_Init();
 
 static void P_SetupLevel (const index_t episode, const index_t map, int playermask, const skill_t skill)
 {
-	size_t		i = 0;
+	index_t		i = 0;
 	char	lumpname[32] = {};
 
 	::g->totalkills = ::g->totalitems = ::g->totalsecret = ::g->wminfo.maxfrags = 0;
 	::g->wminfo.partime = 180;
-	for (i = 0; i < MAXPLAYERS; ++i)
+	for (auto& player : ::g->players)
 	{
-		::g->players[i].killcount = ::g->players[i].secretcount 
-			= ::g->players[i].itemcount = 0;
+		player.killcount = player.secretcount = player.itemcount = 0;
 
-		::g->players[i].chainsawKills = 0;
-		::g->players[i].berserkKills = 0;
+		player.chainsawKills = 0;
+		player.berserkKills = 0;
 	}
 
 	// Initial height of PointOfView
@@ -667,15 +666,15 @@ static void P_SetupLevel (const index_t episode, const index_t map, int playerma
 	// if ::g->deathmatch, randomly spawn the active ::g->players
 	if (::g->deathmatch)
 	{
-		for (i = 0; i < MAXPLAYERS; ++i)
+		for (i = 0; std::cmp_less(i, ::g->players.Num()); ++i)
 		{
-			if (::g->playeringame[i])
+			if (::g->players[i].playerInGame)
 			{
 				// DHM - Nerve :: In deathmatch, reset every player at match start
 				::g->players[i].playerstate = PST_REBORN;
 
 				::g->players[i].mo = nullptr;
-				G_DeathMatchSpawnPlayer (numeric_cast<index_t>(i));
+				G_DeathMatchSpawnPlayer (i);
 			}
 		}
 	}

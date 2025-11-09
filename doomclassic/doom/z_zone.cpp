@@ -53,14 +53,14 @@ If you have questions concerning this license or the applicable additional terms
 //
 static void Z_ClearZone (memzone_t* zone)
 {
-    memblock_t*		block;
+    memblock_t*		block = nullptr;
 	
     // set the entire zone to one free block
     zone->blocklist.next =
 	zone->blocklist.prev =
 	block = reinterpret_cast<memblock_t*>(reinterpret_cast<byte*>(zone) + sizeof(memzone_t));
     
-    zone->blocklist.user = reinterpret_cast<void**>(zone);
+    zone->blocklist.user = reinterpret_cast<address_t*>(zone);
     zone->blocklist.tag = PU_STATIC;
     zone->rover = block;
 	
@@ -100,7 +100,7 @@ void Z_Init ()
 	::g->mainzone->blocklist.prev =
 	block = reinterpret_cast<memblock_t*>(reinterpret_cast<byte*>(::g->mainzone) + sizeof(memzone_t));
 
-    ::g->mainzone->blocklist.user = reinterpret_cast<void**>(::g->mainzone);
+    ::g->mainzone->blocklist.user = reinterpret_cast<address_t*>(::g->mainzone);
     ::g->mainzone->blocklist.tag = PU_STATIC;
     ::g->mainzone->rover = block;
 	
@@ -128,13 +128,13 @@ void Z_Free (void* ptr)
 	    I_Error ("Z_Free: freed a pointer without ZONEID");
     }
 
-    if (block->user > reinterpret_cast<void**>(0x100))
+    if (block->user > reinterpret_cast<address_t*>(0x100))
     {
 	// smaller values are not pointers
 	// Note: OS-dependent?
 	
 	// clear the user's mark
-	*block->user = nullptr;
+	block->user = nullptr;
     }
 
     // mark as free
@@ -182,14 +182,9 @@ void Z_Free (void* ptr)
 //
 //constexpr auto MINFRAGMENT = 64;
 
-void*
-Z_Malloc
-( size_t		size,
-  const int		tag,
-  void*		user )
+void* Z_Malloc ( size_t size, const int tag, address_t* user )
 {
-	
-    size_t		extra = 0;
+    size_t extra = 0;
     const memblock_t*	start = nullptr;
     memblock_t* rover = nullptr;
     memblock_t* newblock = nullptr;
@@ -275,8 +270,8 @@ Z_Malloc
     if (user)
     {
 		// mark as an in use block
-		base->user = static_cast<void**>(user);			
-		*static_cast<void**>(user) = static_cast<void*>(reinterpret_cast<byte*>(base) + sizeof(memblock_t));
+		base->user = user;
+		user = static_cast<address_t*>(reinterpret_cast<address_t*>(base) + sizeof(memblock_t));
     }
     else
     {
@@ -286,7 +281,7 @@ Z_Malloc
 		}
 
 		// mark as in use, but unowned	
-		base->user = reinterpret_cast<void**>(2);		
+		base->user = reinterpret_cast<address_t*>(2);		
     }
     base->tag = tag;
 
@@ -303,10 +298,7 @@ Z_Malloc
 //
 // Z_FreeTags
 //
-void
-Z_FreeTags
-(const int		lowtag,
-  const int		hightag )
+void Z_FreeTags (const int lowtag, const int hightag )
 {
     memblock_t*	block = nullptr;
     memblock_t*	next = nullptr;
@@ -337,10 +329,7 @@ Z_FreeTags
 // Z_DumpHeap
 // Note: TFileDumpHeap( stdout ) ?
 //
-void
-Z_DumpHeap
-( int		lowtag,
-  int		hightag )
+void Z_DumpHeap ( int lowtag, int hightag )
 {
     memblock_t*	block = nullptr;
 	
@@ -389,12 +378,12 @@ void Z_FileDumpHeap (FILE* f)
 {
     memblock_t*	block = nullptr;
 	
-    fprintf (f,"zone size: %i  location: %p\n",::g->mainzone->size,::g->mainzone);
+    std::ignore = fprintf (f,"zone size: %i  location: %p\n",::g->mainzone->size,::g->mainzone);
 	
     for (block = ::g->mainzone->blocklist.next ; ; block = block->next)
     {
-	fprintf (f,"block:%p    size:%7llu    user:%p    tag:%3i\n",
-		 block, block->size, block->user, block->tag);
+		std::ignore = fprintf (f,"block:%p    size:%7llu    user:%p    tag:%3i\n",
+											block, block->size, block->user, block->tag);
 		
 	if (block->next == &::g->mainzone->blocklist)
 	{
@@ -404,17 +393,17 @@ void Z_FileDumpHeap (FILE* f)
 	
 	if ( reinterpret_cast<byte*>(block) + block->size != reinterpret_cast<byte*>(block->next))
 	{
-		fprintf (f,"ERROR: block size does not touch the next block\n");
+		std::ignore = fprintf (f,"ERROR: block size does not touch the next block\n");
 	}
 
 	if ( block->next->prev != block)
 	{
-		fprintf (f,"ERROR: next block doesn't have proper back link\n");
+		std::ignore = fprintf (f,"ERROR: next block doesn't have proper back link\n");
 	}
 
 	if (!block->user && !block->next->user)
 	{
-		fprintf (f,"ERROR: two consecutive free blocks\n");
+		std::ignore = fprintf (f,"ERROR: two consecutive free blocks\n");
 	}
     }
 }
@@ -459,10 +448,7 @@ void Z_CheckHeap ()
 //
 // Z_ChangeTag
 //
-static void
-Z_ChangeTag2
-( void*		ptr,
-  const int		tag )
+static void Z_ChangeTag2 ( void* ptr, const int tag )
 {
 	memblock_t* block = reinterpret_cast<memblock_t*>(static_cast<byte*>(ptr) - sizeof(memblock_t));
 
@@ -471,7 +457,7 @@ Z_ChangeTag2
 	    I_Error ("Z_ChangeTag: freed a pointer without ZONEID");
     }
 
-    if (tag >= PU_PURGELEVEL && reinterpret_cast<int32>(block->user) < 0x100)
+    if (tag >= PU_PURGELEVEL && reinterpret_cast<int64>(block->user) < 0x100)
     {
 	    I_Error ("Z_ChangeTag: an owner is required for purgeable blocks");
     }

@@ -1078,7 +1078,7 @@ void idThread::Event_Random(const float range )
 
 void idThread::Event_RandomInt(const int range )
 {
-	int result = gameLocal.random.RandomInt(range);
+	int result = gameLocal.random.RandomInt32(range);
 	ReturnFloat(numeric_cast<float>(result));
 }
 

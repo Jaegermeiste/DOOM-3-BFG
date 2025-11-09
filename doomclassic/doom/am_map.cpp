@@ -384,7 +384,7 @@ static void AM_initVariables()
 			 */
 
 			// random index in [i, n-1]
-			index_t j = i + idRandom::RandomInt() % (n - i);
+			index_t j = i + idRandom::RandomInt32() % (n - i);
 
 			// swap
 			index_t tmp = index_order[i];
@@ -1245,17 +1245,17 @@ static void AM_drawPlayers()
 		return;
 	}
 
-	for (size_t i = 0;i<MAXPLAYERS;i++)
+	for (auto& player : ::g->players)
 	{
 		their_color++;
-		p = &::g->players[i];
+		p = &player;
 
 		if ( (::g->deathmatch && !::g->singledemo) && p != ::g->amap_plr)
 		{
 			continue;
 		}
 
-		if (!::g->playeringame[i])
+		if (!player.playerInGame)
 		{
 			continue;
 		}

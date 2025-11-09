@@ -1914,7 +1914,7 @@ extern "C" {
 				}
 			}
 
-			if (i == MAXPLAYERS)
+			if (i == ::g->players.Num())
 			{
 				return; // no one left alive, so do not end game
 			}

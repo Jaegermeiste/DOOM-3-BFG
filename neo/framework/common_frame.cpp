@@ -252,11 +252,11 @@ void idCommonLocal::Draw() {
 		// normal drawing for both single and multi player
 		if ( !com_skipGameDraw.GetBool() && Game()->GetLocalClientNum() >= 0 ) {
 			// draw the game view
-			int	start = Sys_Milliseconds();
+			ID_TIME_T	start = Sys_Milliseconds();
 			if ( game ) {
 				gameDraw = game->Draw( Game()->GetLocalClientNum() );
 			}
-			int end = Sys_Milliseconds();
+			ID_TIME_T end = Sys_Milliseconds();
 			time_gameDraw += ( end - start );	// note time used for com_speeds
 		}
 		if ( !gameDraw ) {
@@ -471,14 +471,14 @@ void idCommonLocal::Frame() {
 		size_t numGameFrames = 0;
 
 		for(;;) {
-			const int thisFrameTime = Sys_Milliseconds();
-			static int lastFrameTime = thisFrameTime;	// initialized only the first time
-			const int deltaMilliseconds = thisFrameTime - lastFrameTime;
+			const ID_TIME_T thisFrameTime = Sys_Milliseconds();
+			static ID_TIME_T lastFrameTime = thisFrameTime;	// initialized only the first time
+			const ID_TIME_T deltaMilliseconds = thisFrameTime - lastFrameTime;
 			lastFrameTime = thisFrameTime;
 
 			// if there was a large gap in time since the last frame, or the frame
 			// rate is very very low, limit the number of frames we will run
-			const int clampedDeltaMilliseconds = Min( deltaMilliseconds, com_deltaTimeClamp.GetInteger() );
+			const ID_TIME_T clampedDeltaMilliseconds = Min( deltaMilliseconds, com_deltaTimeClamp.GetInteger() );
 
 			gameTimeResidual += clampedDeltaMilliseconds * timescale.GetFloat();
 
@@ -509,7 +509,7 @@ void idCommonLocal::Frame() {
 			for ( ;; ) {
 				// How much time to wait before running the next frame,
 				// based on com_engineHz
-				const int frameDelay = FRAME_TO_MSEC( gameFrame + 1 ) - FRAME_TO_MSEC( gameFrame );
+				const ID_TIME_T frameDelay = FRAME_TO_MSEC( gameFrame + 1 ) - FRAME_TO_MSEC( gameFrame );
 				if ( gameTimeResidual < frameDelay ) {
 					break;
 				}
@@ -610,7 +610,7 @@ void idCommonLocal::Frame() {
 		// Stuff a copy of this userCmd for each game frame we are going to run.
 		// Ideally, the usercmds would be built in another thread so you could
 		// still get 60hz control accuracy when the game is running slower.
-		for ( size_t i = 0 ; i < numGameFrames ; i++ ) {
+		for ( index_t i = 0 ; i < numGameFrames ; i++ ) {
 			newCmd.clientGameMilliseconds = FRAME_TO_MSEC( gameFrame-numGameFrames+i+1 );
 			userCmdMgr.PutUserCmdForPlayer( game->GetLocalClientNum(), newCmd );
 		}

@@ -2303,7 +2303,7 @@ void idGameLocal::RunFrame( idUserCmdMgr & cmdMgr, gameReturn_t & ret ) {
 
 		// make sure the random number counter is used each frame so random events
 		// are influenced by the player's actions
-		random.RandomInt();
+		random.RandomInt32();
 
 		if ( player ) {
 			// update the renderview so that any gui videos play from the right frame
@@ -4361,7 +4361,7 @@ void idGameLocal::RandomizeInitialSpawns() {
 
 	for ( int k = 0; k < 2; k++ ) {
 		for ( i = 0; i < teamInitialSpots[ k ].Num(); ++i ) {
-			j = random.RandomInt( teamInitialSpots[ k ].Num() );
+			j = random.RandomInt32( teamInitialSpots[ k ].Num() );
 			ent = teamInitialSpots[ k ][ i ];
 			teamInitialSpots[ k ][ i ] = teamInitialSpots[ k ][ j ];
 			teamInitialSpots[ k ][ j ] = ent;
@@ -4369,7 +4369,7 @@ void idGameLocal::RandomizeInitialSpawns() {
 	}
     
 	for ( i = 0; i < initialSpots.Num(); ++i ) {
-		j = random.RandomInt( initialSpots.Num() );
+		j = random.RandomInt32( initialSpots.Num() );
 		ent = initialSpots[ i ];
 		initialSpots[ i ] = initialSpots[ j ];
 		initialSpots[ j ] = ent;
@@ -4414,7 +4414,7 @@ idEntity *idGameLocal::SelectInitialSpawnPoint( idPlayer *player ) {
     
 	if ( player->spectating ) {
 		// plain random spot, don't bother
-		return spawnSpots[ random.RandomInt( spawnSpots.Num() ) ].ent;
+		return spawnSpots[ random.RandomInt32( spawnSpots.Num() ) ].ent;
 	} else if ( useInitialSpots ) {
 		if ( mpGame.IsGametypeFlagBased() ) { /* CTF */
 			assert( player->team == 0 || player->team == 1 );
@@ -4434,10 +4434,10 @@ idEntity *idGameLocal::SelectInitialSpawnPoint( idPlayer *player ) {
 		if ( alone ) {
 			if ( mpGame.IsGametypeFlagBased() ) { /* CTF */
 				assert( player->team == 0 || player->team == 1 );
-				return teamSpawnSpots[ player->team ][ random.RandomInt( teamSpawnSpots[ player->team ].Num() ) ].ent;
+				return teamSpawnSpots[ player->team ][ random.RandomInt32( teamSpawnSpots[ player->team ].Num() ) ].ent;
 			}
 			// don't do distance-based
-			return spawnSpots[ random.RandomInt( spawnSpots.Num() ) ].ent;
+			return spawnSpots[ random.RandomInt32( spawnSpots.Num() ) ].ent;
 		}
 
 		if ( mpGame.IsGametypeFlagBased() ) { /* CTF */
@@ -4473,7 +4473,7 @@ idEntity *idGameLocal::SelectInitialSpawnPoint( idPlayer *player ) {
 			qsort( ( void * )teamSpawnSpots[ team ].Ptr(), teamSpawnSpots[ team ].Num(), sizeof( spawnSpot_t ), ( int (*)(const void *, const void *) )sortSpawnPoints );
 
 			// choose a random one in the top half
-			which = random.RandomInt( teamSpawnSpots[ team ].Num() / 2 );
+			which = random.RandomInt32( teamSpawnSpots[ team ].Num() / 2 );
 			spot = teamSpawnSpots[ team ][ which ];
 //			assert( teamSpawnSpots[ team ][ which ].dist != 0 );
 
@@ -4500,7 +4500,7 @@ idEntity *idGameLocal::SelectInitialSpawnPoint( idPlayer *player ) {
 		qsort( ( void * )spawnSpots.Ptr(), spawnSpots.Num(), sizeof( spawnSpot_t ), ( int (*)(const void *, const void *) )sortSpawnPoints );
 
 		// choose a random one in the top half
-		which = random.RandomInt( spawnSpots.Num() / 2 );
+		which = random.RandomInt32( spawnSpots.Num() / 2 );
 		spot = spawnSpots[ which ];
 	}
 	return spot.ent;

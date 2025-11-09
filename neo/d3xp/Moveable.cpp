@@ -1047,7 +1047,7 @@ void idExplodingBarrel::AddParticles( const char *name, const bool burn ) {
 			particleRenderEntity.shaderParms[ SHADERPARM_BLUE ] = rgb;
 			particleRenderEntity.shaderParms[ SHADERPARM_ALPHA ] = rgb;
 			particleRenderEntity.shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.realClientTime );
-			particleRenderEntity.shaderParms[ SHADERPARM_DIVERSITY ] = ( burn ) ? 1.0f : gameLocal.random.RandomInt( 90 );
+			particleRenderEntity.shaderParms[ SHADERPARM_DIVERSITY ] = ( burn ) ? 1.0f : gameLocal.random.RandomInt32( 90 );
 			particleRenderEntity.timeGroup = explicitTimeGroup;
 			particleModelDefHandle = gameRenderWorld->AddEntityDef( &particleRenderEntity );
 			if ( burn ) {

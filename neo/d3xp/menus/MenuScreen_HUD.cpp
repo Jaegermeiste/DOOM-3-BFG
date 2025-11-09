@@ -1289,7 +1289,7 @@ void  idMenuScreen_HUD::UpdateAudioLog(const bool show ) {
 		for ( index_t index = 0; index < 13; ++index  ) {
 			idSWFSpriteInstance * node = audioLog->GetScriptObject()->GetNestedSprite( "bar", va( "node%d", index ) );
 			if ( node != nullptr) {
-				int frame = gameLocal.random.RandomInt( 100 );
+				int frame = gameLocal.random.RandomInt32( 100 );
 				node->SetScale( 100.0f, frame );
 				float toFrame = gameLocal.random.RandomFloat();
 				node->SetMoveToScale( -1.0f, toFrame );
@@ -1312,7 +1312,7 @@ void  idMenuScreen_HUD::UpdateAudioLog(const bool show ) {
 				float diff = gameLocal.time - audioLogPrevTime;
 				float speed = ( diff / 350.0f ) * 100.0f;
 				if ( !node->UpdateMoveToScale( speed ) ) {
-					int frame = gameLocal.random.RandomInt( 100 );
+					int frame = gameLocal.random.RandomInt32( 100 );
 					float scale = frame / 100.0f;
 					node->SetMoveToScale( -1.0f, scale );
 				}
@@ -1349,7 +1349,7 @@ void  idMenuScreen_HUD::UpdateCommunication(const bool show, idPlayer * player )
 		for ( index_t index = 0; index < 16; ++index  ) {
 			idSWFSpriteInstance * node = communication->GetScriptObject()->GetNestedSprite( "info", "bar", va( "node%d", index ) );
 			if ( node != nullptr) {
-				int frame = gameLocal.random.RandomInt( 100 );
+				int frame = gameLocal.random.RandomInt32( 100 );
 				node->SetScale( 100.0f, frame );
 				float toFrame = gameLocal.random.RandomFloat();
 				node->SetMoveToScale( -1.0f, toFrame );
@@ -1377,7 +1377,7 @@ void  idMenuScreen_HUD::UpdateCommunication(const bool show, idPlayer * player )
 				float diff = gameLocal.time - commPrevTime;
 				float speed = ( diff / 350.0f ) * 100.0f;
 				if ( !node->UpdateMoveToScale( speed ) ) {
-					int frame = gameLocal.random.RandomInt( 100 );
+					int frame = gameLocal.random.RandomInt32( 100 );
 					float scale = frame / 100.0f;
 					node->SetMoveToScale( -1.0f, scale );
 				}

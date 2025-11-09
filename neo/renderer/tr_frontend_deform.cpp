@@ -871,8 +871,8 @@ static drawSurf_t * R_ParticleDeform( drawSurf_t *surf, bool useArea ) {
 				g.index = index;
 
 				// bump the random
-				steppingRandom.RandomInt();
-				steppingRandom2.RandomInt();
+				steppingRandom.RandomInt32();
+				steppingRandom2.RandomInt32();
 
 				// calculate local age for this index 
 				int bunchOffset = numeric_cast<int>( stage->particleLife * 1000 * stage->spawnBunching * index / maxStageParticles[stageNum] );

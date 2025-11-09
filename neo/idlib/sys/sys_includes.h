@@ -133,7 +133,17 @@ If you have questions concerning this license or the applicable additional terms
 #include <codecvt>
 #include <functional>
 #include <typeindex>
-
+#include <array>
+#include <cstdint>
+#include <cstddef>
+#include <compare>
+#include <mutex>
+#include <random>
+#include <cassert>
+#include <algorithm>
+#include <bit>      // std::bit_cast
+#include <cstdint>
+#include <climits>
 
 #include "magic_enum/magic_enum.hpp"
 //-----------------------------------------------------

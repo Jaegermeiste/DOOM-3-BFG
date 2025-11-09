@@ -193,7 +193,7 @@ public:
 	void	Serialize( bool & value )		{ SanityCheck(); if ( writing ) { msg->WriteByte(value?1:0); }		else { value = msg->ReadByte() != 0; } }
 	void	Serialize( double & value)      { SanityCheck(); if ( writing ) { msg->WriteDouble(value); }        else { value = msg->ReadDouble(); } }
 	void	Serialize( float & value )		{ SanityCheck(); if ( writing ) { msg->WriteFloat(value); }			else { value = msg->ReadFloat(); } }
-	void	Serialize( idRandom2 & value )	{ SanityCheck(); if ( writing ) { msg->WriteULong(value.GetSeed()); } else { value.SetSeed( msg->ReadULong() ); } }
+	void	Serialize( idRandom2 & value )	{ SanityCheck(); if ( writing ) { msg->WriteULongLong(value.GetSeed()); } else { value.SetSeed( msg->ReadULongLong() ); } }
 	void	Serialize( idVec3 & value )		{ SanityCheck(); if ( writing ) { msg->WriteVectorFloat(value); }	else { msg->ReadVectorFloat(value); } }
 	void	Serialize( idVec2 & value )		{ SanityCheck(); if ( writing ) { msg->WriteVectorFloat(value); }	else { msg->ReadVectorFloat(value); } }
 	void	Serialize( idVec6 & value )		{ SanityCheck(); if ( writing ) { msg->WriteVectorFloat(value); }	else { msg->ReadVectorFloat(value); } }

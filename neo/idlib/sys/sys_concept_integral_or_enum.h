@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,24 +26,24 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __WI_STUFF__
-#define __WI_STUFF__
+#ifndef __SYS_CONCEPT_INTEGRAL_OR_ENUM_H__
+#define __SYS_CONCEPT_INTEGRAL_OR_ENUM_H__
 
 #pragma once
 
-//#include "v_video.h"
+template <class T>
+concept integral_or_enum = std::integral<std::remove_cvref_t<T>> || std::is_enum_v<std::remove_cvref_t<T>>;
 
-#include "doomdef.h"
+// Helper: get a numeric value (enum -> underlying, otherwise identity)
+static ID_INLINE constexpr auto integral_or_enum_to_value(const integral_or_enum auto& x) noexcept {
+	using U = std::remove_cvref_t<decltype(x)>;
+	if constexpr (std::is_enum_v<U>) {
+		return static_cast<std::underlying_type_t<U>>(x);
+	}
+	else {
+		return x;
+	}
+}
 
-// Called by main loop, animate the intermission.
-void WI_Ticker ();
 
-// Called by main loop,
-// draws the intermission directly into the screen buffer.
-void WI_Drawer ();
-
-// Setup for an intermission screen.
-void WI_Start(wbstartstruct_t* wbstartstruct);
-
-#endif
-
+#endif // __SYS_CONCEPT_INTEGRAL_OR_ENUM_H__

@@ -1097,7 +1097,7 @@ void idProjectile::Explode( const trace_t &collision, idEntity *ignore ) {
 	if ( fxdebris ) {
 		const idDict *debris = gameLocal.FindEntityDefDict( "projectile_debris", false );
 		if ( debris ) {
-			int amount = gameLocal.random.RandomInt( fxdebris );
+			int amount = gameLocal.random.RandomInt32( fxdebris );
 			for ( size_t i = 0; i < amount; i++ ) {
 				idEntity *ent;
 				idVec3 dir;
@@ -1119,7 +1119,7 @@ void idProjectile::Explode( const trace_t &collision, idEntity *ignore ) {
 		}
 		debris = gameLocal.FindEntityDefDict( "projectile_shrapnel", false );
 		if ( debris ) {
-			int amount = gameLocal.random.RandomInt( fxdebris );
+			int amount = gameLocal.random.RandomInt32( fxdebris );
 			for ( size_t i = 0; i < amount; i++ ) {
 				idEntity *ent;
 				idVec3 dir;

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -117,8 +117,8 @@ If you have questions concerning this license or the applicable additional terms
 
 const point_t lnodes[NUMEPISODES][NUMMAPS] =
 {
-    // Episode 0 World Map
-    {
+	// Episode 0 World Map
+	{
 	{ 185, 164 },	// location of level 0 (CJ)
 	{ 148, 143 },	// location of level 1 (CJ)
 	{ 69, 122 },	// location of level 2 (CJ)
@@ -128,10 +128,10 @@ const point_t lnodes[NUMEPISODES][NUMMAPS] =
 	{ 71, 56 },	// location of level 6 (CJ)
 	{ 135, 29 },	// location of level 7 (CJ)
 	{ 71, 24 }	// location of level 8 (CJ)
-    },
+	},
 
-    // Episode 1 World Map should go here
-    {
+	// Episode 1 World Map should go here
+	{
 	{ 254, 25 },	// location of level 0 (CJ)
 	{ 97, 50 },	// location of level 1 (CJ)
 	{ 188, 64 },	// location of level 2 (CJ)
@@ -141,10 +141,10 @@ const point_t lnodes[NUMEPISODES][NUMMAPS] =
 	{ 208, 136 },	// location of level 6 (CJ)
 	{ 148, 140 },	// location of level 7 (CJ)
 	{ 235, 158 }	// location of level 8 (CJ)
-    },
+	},
 
-    // Episode 2 World Map should go here
-    {
+	// Episode 2 World Map should go here
+	{
 	{ 156, 168 },	// location of level 0 (CJ)
 	{ 48, 154 },	// location of level 1 (CJ)
 	{ 174, 95 },	// location of level 2 (CJ)
@@ -154,7 +154,7 @@ const point_t lnodes[NUMEPISODES][NUMMAPS] =
 	{ 198, 48 },	// location of level 6 (CJ)
 	{ 140, 25 },	// location of level 7 (CJ)
 	{ 281, 136 }	// location of level 8 (CJ)
-    }
+	}
 
 };
 
@@ -167,41 +167,41 @@ const point_t lnodes[NUMEPISODES][NUMMAPS] =
 extern const anim_t temp_epsd0animinfo[10];
 const anim_t temp_epsd0animinfo[10] =
 {
-    { ANIM_ALWAYS, TICRATE/3, 3, { 224, 104 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 184, 160 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 112, 136 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 72, 112 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 88, 96 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 64, 48 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 192, 40 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 136, 16 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 80, 16 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 64, 24 } }
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 224, 104 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 184, 160 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 112, 136 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 72, 112 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 88, 96 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 64, 48 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 192, 40 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 136, 16 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 80, 16 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 64, 24 } }
 };
 
 extern const anim_t temp_epsd1animinfo[9];
 const anim_t temp_epsd1animinfo[9] =
 {
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 1 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 2 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 3 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 4 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 5 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 6 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 7 },
-    { ANIM_LEVEL, TICRATE/3, 3, { 192, 144 }, 8 },
-    { ANIM_LEVEL, TICRATE/3, 1, { 128, 136 }, 8 }
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 1 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 2 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 3 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 4 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 5 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 6 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 7 },
+	{ ANIM_LEVEL, TICRATE / 3, 3, { 192, 144 }, 8 },
+	{ ANIM_LEVEL, TICRATE / 3, 1, { 128, 136 }, 8 }
 };
 
 extern const anim_t temp_epsd2animinfo[6];
 const anim_t temp_epsd2animinfo[6] =
 {
-    { ANIM_ALWAYS, TICRATE/3, 3, { 104, 168 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 40, 136 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 160, 96 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 104, 80 } },
-    { ANIM_ALWAYS, TICRATE/3, 3, { 120, 32 } },
-    { ANIM_ALWAYS, TICRATE/4, 3, { 40, 0 } }
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 104, 168 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 40, 136 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 160, 96 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 104, 80 } },
+	{ ANIM_ALWAYS, TICRATE / 3, 3, { 120, 32 } },
+	{ ANIM_ALWAYS, TICRATE / 4, 3, { 40, 0 } }
 };
 
 
@@ -255,12 +255,12 @@ static const wbplayerstruct_t* plrs;  // ::g->wbs->plyr[]
 void localCalculateAchievements(bool epComplete)
 {
 
-	if( !common->IsMultiplayer() ) {
+	if (!common->IsMultiplayer()) {
 
-			const player_t  *player = &::g->players[::g->consoleplayer];
+		const player_t* player = &::g->players[::g->consoleplayer];
 
-			// Calculate Any Achievements earned from stat cumulation.
-			idAchievementManager::CheckDoomClassicsAchievements( player->killcount, player->itemcount, player->secretcount, ::g->gameskill, ::g->gamemission, ::g->gamemap, ::g->gameepisode, ::g->totalkills, ::g->totalitems, ::g->totalsecret );
+		// Calculate Any Achievements earned from stat cumulation.
+		idAchievementManager::CheckDoomClassicsAchievements(player->killcount, player->itemcount, player->secretcount, ::g->gameskill, ::g->gamemission, ::g->gamemap, ::g->gameepisode, ::g->totalkills, ::g->totalitems, ::g->totalsecret);
 
 
 	}
@@ -272,30 +272,30 @@ void localCalculateAchievements(bool epComplete)
 
 static void WI_slamBackground()
 {
-    memcpy(::g->screens[0], ::g->screens[1], SCREENWIDTH * SCREENHEIGHT);
-    V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
+	memcpy(::g->screens[0], ::g->screens[1], SCREENWIDTH * SCREENHEIGHT);
+	V_MarkRect(0, 0, SCREENWIDTH, SCREENHEIGHT);
 }
 
 // The ticker is used to detect keys
 //  because of timing issues in netgames.
 static qboolean WI_Responder(event_t* ev)
 {
-    return false;
+	return false;
 }
 
 // Draws "<Levelname> Finished!"
 static void WI_drawLF()
 {
-    int y = WI_TITLEY;
+	int y = WI_TITLEY;
 
-    // draw <LevelName> 
-	V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->lnames[::g->wbs->last]->width))/2,
+	// draw <LevelName> 
+	V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->lnames[::g->wbs->last]->width)) / 2,
 		y, FB, ::g->lnames[::g->wbs->last]);
 
-    // draw "Finished!"
-    y += (5*SHORT(::g->lnames[::g->wbs->last]->height))/4;
-    
-    V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->finished->width))/2,
+	// draw "Finished!"
+	y += (5 * SHORT(::g->lnames[::g->wbs->last]->height)) / 4;
+
+	V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->finished->width)) / 2,
 		y, FB, ::g->finished);
 }
 
@@ -304,16 +304,16 @@ static void WI_drawLF()
 // Draws "Entering <LevelName>"
 static void WI_drawEL()
 {
-    int y = WI_TITLEY;
+	int y = WI_TITLEY;
 
-    // draw "Entering"
-    V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->entering->width))/2,
+	// draw "Entering"
+	V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->entering->width)) / 2,
 		y, FB, ::g->entering);
 
-    // draw level
-    y += (5*SHORT(::g->lnames[::g->wbs->next]->height))/4;
+	// draw level
+	y += (5 * SHORT(::g->lnames[::g->wbs->next]->height)) / 4;
 
-    V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->lnames[::g->wbs->next]->width))/2,
+	V_DrawPatch((ORIGINAL_WIDTH - SHORT(::g->lnames[::g->wbs->next]->width)) / 2,
 		y, FB, ::g->lnames[::g->wbs->next]);
 
 }
@@ -321,178 +321,178 @@ static void WI_drawEL()
 static void
 WI_drawOnLnode
 (const int		n,
-  patch_t*	c[] )
+	patch_t* c[])
 {
 
-    int		i;
-    int		left;
-    int		top;
-    int		right;
-    int		bottom;
-    qboolean	fits = false;
+	int		i;
+	int		left;
+	int		top;
+	int		right;
+	int		bottom;
+	qboolean	fits = false;
 
-    i = 0;
-    do
-    {
-	left = lnodes[::g->wbs->epsd][n].x - SHORT(c[i]->leftoffset);
-	top = lnodes[::g->wbs->epsd][n].y - SHORT(c[i]->topoffset);
-	right = left + SHORT(c[i]->width);
-	bottom = top + SHORT(c[i]->height);
-
-	if (left >= 0
-	    && right < SCREENWIDTH
-	    && top >= 0
-	    && bottom < SCREENHEIGHT)
+	i = 0;
+	do
 	{
-	    fits = true;
+		left = lnodes[::g->wbs->epsd][n].x - SHORT(c[i]->leftoffset);
+		top = lnodes[::g->wbs->epsd][n].y - SHORT(c[i]->topoffset);
+		right = left + SHORT(c[i]->width);
+		bottom = top + SHORT(c[i]->height);
+
+		if (left >= 0
+			&& right < SCREENWIDTH
+			&& top >= 0
+			&& bottom < SCREENHEIGHT)
+		{
+			fits = true;
+		}
+		else
+		{
+			i++;
+		}
+	} while (!fits && i != 2);
+
+	if (fits && i < 2)
+	{
+		V_DrawPatch(lnodes[::g->wbs->epsd][n].x, lnodes[::g->wbs->epsd][n].y,
+			FB, c[i]);
 	}
 	else
 	{
-	    i++;
+		// DEBUG
+		I_Printf("Could not place patch on level %d", n + 1);
 	}
-    } while (!fits && i!=2);
-
-    if (fits && i<2)
-    {
-	V_DrawPatch(lnodes[::g->wbs->epsd][n].x, lnodes[::g->wbs->epsd][n].y,
-		    FB, c[i]);
-    }
-    else
-    {
-	// DEBUG
-	I_Printf("Could not place patch on level %d", n+1); 
-    }
 }
 
 
 static void WI_initAnimatedBack()
 {
-    int		i;
-    anim_t*	a;
+	int		i;
+	anim_t* a;
 
-    if (::g->gamemode == commercial)
-    {
-	    return;
-    }
-
-    if (::g->wbs->epsd > 2)
-    {
-	    return;
-    }
-
-    for (i=0;i < ::g->NUMANIMS[::g->wbs->epsd];i++)
-    {
-		 a = &::g->wi_stuff_anims[::g->wbs->epsd][i];
-
-	// init variables
-	a->ctr = -1;
-
-	// specify the next time to draw it
-	if (a->type == ANIM_ALWAYS)
+	if (::g->gamemode == commercial)
 	{
-		a->nexttic = ::g->bcnt + 1 + (M_Random()%a->period);
+		return;
 	}
-	else if (a->type == ANIM_RANDOM)
+
+	if (::g->wbs->epsd > 2)
 	{
-		a->nexttic = ::g->bcnt + 1 + a->data2+(M_Random()%a->data1);
+		return;
 	}
-	else if (a->type == ANIM_LEVEL)
+
+	for (i = 0; i < ::g->NUMANIMS[::g->wbs->epsd]; i++)
 	{
-		a->nexttic = ::g->bcnt + 1;
+		a = &::g->wi_stuff_anims[::g->wbs->epsd][i];
+
+		// init variables
+		a->ctr = -1;
+
+		// specify the next time to draw it
+		if (a->type == ANIM_ALWAYS)
+		{
+			a->nexttic = ::g->bcnt + 1 + (M_Random() % a->period);
+		}
+		else if (a->type == ANIM_RANDOM)
+		{
+			a->nexttic = ::g->bcnt + 1 + a->data2 + (M_Random() % a->data1);
+		}
+		else if (a->type == ANIM_LEVEL)
+		{
+			a->nexttic = ::g->bcnt + 1;
+		}
 	}
-    }
 
 }
 
 
 static void WI_updateAnimatedBack()
 {
-    int		i;
-    anim_t*	a;
+	int		i;
+	anim_t* a;
 
-    if (::g->gamemode == commercial)
-    {
-	    return;
-    }
-
-    if (::g->wbs->epsd > 2)
-    {
-	    return;
-    }
-
-    for (i=0;i < ::g->NUMANIMS[::g->wbs->epsd];i++)
-    {
-		 a = &::g->wi_stuff_anims[::g->wbs->epsd][i];
-
-	if (::g->bcnt == a->nexttic)
+	if (::g->gamemode == commercial)
 	{
-	    switch (a->type)
-	    {
-	      case ANIM_ALWAYS:
-		if (++a->ctr >= a->nanims)
-		{
-			a->ctr = 0;
-		}
-		a->nexttic = ::g->bcnt + a->period;
-		break;
-
-	      case ANIM_RANDOM:
-		a->ctr++;
-		if (a->ctr == a->nanims)
-		{
-		    a->ctr = -1;
-		    a->nexttic = ::g->bcnt+a->data2+(M_Random()%a->data1);
-		}
-		else
-		{
-			a->nexttic = ::g->bcnt + a->period;
-		}
-		break;
-		
-	      case ANIM_LEVEL:
-		// gawd-awful hack for level anims
-		if (!(::g->state == StatCount && i == 7)
-		    && ::g->wbs->next == a->data1)
-		{
-		    a->ctr++;
-		    if (a->ctr == a->nanims)
-		    {
-			    a->ctr--;
-		    }
-		    a->nexttic = ::g->bcnt + a->period;
-		}
-		break;
-	    }
+		return;
 	}
 
-    }
+	if (::g->wbs->epsd > 2)
+	{
+		return;
+	}
+
+	for (i = 0; i < ::g->NUMANIMS[::g->wbs->epsd]; i++)
+	{
+		a = &::g->wi_stuff_anims[::g->wbs->epsd][i];
+
+		if (::g->bcnt == a->nexttic)
+		{
+			switch (a->type)
+			{
+			case ANIM_ALWAYS:
+				if (++a->ctr >= a->nanims)
+				{
+					a->ctr = 0;
+				}
+				a->nexttic = ::g->bcnt + a->period;
+				break;
+
+			case ANIM_RANDOM:
+				a->ctr++;
+				if (a->ctr == a->nanims)
+				{
+					a->ctr = -1;
+					a->nexttic = ::g->bcnt + a->data2 + (M_Random() % a->data1);
+				}
+				else
+				{
+					a->nexttic = ::g->bcnt + a->period;
+				}
+				break;
+
+			case ANIM_LEVEL:
+				// gawd-awful hack for level anims
+				if (!(::g->state == StatCount && i == 7)
+					&& ::g->wbs->next == a->data1)
+				{
+					a->ctr++;
+					if (a->ctr == a->nanims)
+					{
+						a->ctr--;
+					}
+					a->nexttic = ::g->bcnt + a->period;
+				}
+				break;
+			}
+		}
+
+	}
 
 }
 
 static void WI_drawAnimatedBack()
 {
-    int			i;
-    anim_t*		a;
+	int			i;
+	anim_t* a;
 
-    if (commercial)
-    {
-	    return;
-    }
-
-    if (::g->wbs->epsd > 2)
-    {
-	    return;
-    }
-
-    for (i=0 ; i < ::g->NUMANIMS[::g->wbs->epsd] ; i++)
-    {
-		 a = &::g->wi_stuff_anims[::g->wbs->epsd][i];
-
-	if (a->ctr >= 0)
+	if (commercial)
 	{
-		V_DrawPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr]);
+		return;
 	}
-    }
+
+	if (::g->wbs->epsd > 2)
+	{
+		return;
+	}
+
+	for (i = 0; i < ::g->NUMANIMS[::g->wbs->epsd]; i++)
+	{
+		a = &::g->wi_stuff_anims[::g->wbs->epsd][i];
+
+		if (a->ctr >= 0)
+		{
+			V_DrawPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr]);
+		}
+	}
 
 }
 
@@ -505,80 +505,80 @@ static void WI_drawAnimatedBack()
 
 static int
 WI_drawNum
-( int		x,
-  const int		y,
-  int		n,
-  int		digits )
+(int		x,
+	const int		y,
+	int		n,
+	int		digits)
 {
 
-    const int		fontwidth = SHORT(::g->num[0]->width);
-    int		neg;
-    int		temp;
+	const int		fontwidth = SHORT(::g->num[0]->width);
+	int		neg;
+	int		temp;
 
-    if (digits < 0)
-    {
-	if (!n)
+	if (digits < 0)
 	{
-	    // make variable-length zeros 1 digit long
-	    digits = 1;
+		if (!n)
+		{
+			// make variable-length zeros 1 digit long
+			digits = 1;
+		}
+		else
+		{
+			// figure out # of digits in #
+			digits = 0;
+			temp = n;
+
+			while (temp)
+			{
+				temp /= 10;
+				digits++;
+			}
+		}
 	}
-	else
+
+	neg = n < 0;
+	if (neg)
 	{
-	    // figure out # of digits in #
-	    digits = 0;
-	    temp = n;
-
-	    while (temp)
-	    {
-		temp /= 10;
-		digits++;
-	    }
+		n = -n;
 	}
-    }
 
-    neg = n < 0;
-    if (neg)
-    {
-	    n = -n;
-    }
+	// if non-number, do not draw it
+	if (n == 1994)
+	{
+		return 0;
+	}
 
-    // if non-number, do not draw it
-    if (n == 1994)
-    {
-	    return 0;
-    }
+	// draw the new number
+	while (digits--)
+	{
+		x -= fontwidth;
+		V_DrawPatch(x, y, FB, ::g->num[n % 10]);
+		n /= 10;
+	}
 
-    // draw the new number
-    while (digits--)
-    {
-	x -= fontwidth;
-	V_DrawPatch(x, y, FB, ::g->num[ n % 10 ]);
-	n /= 10;
-    }
+	// draw a minus sign if necessary
+	if (neg)
+	{
+		V_DrawPatch(x -= 8, y, FB, ::g->wiminus);
+	}
 
-    // draw a minus sign if necessary
-    if (neg)
-    {
-	    V_DrawPatch(x-=8, y, FB, ::g->wiminus);
-    }
-
-    return x;
+	return x;
 
 }
 
 static void
 WI_drawPercent
 (const int		x,
-  const int		y,
-  const int		p )
+	const int		y,
+	const int		p)
 {
-    if (p < 0)
-    {
-	    return;
-    }
+	if (p < 0)
+	{
+		return;
+	}
 
-    V_DrawPatch(x, y, FB, ::g->percent);
-    WI_drawNum(x, y, p, -1);
+	V_DrawPatch(x, y, FB, ::g->percent);
+	WI_drawNum(x, y, p, -1);
 }
 
 
@@ -589,66 +589,66 @@ WI_drawPercent
 //
 static void
 WI_drawTime
-( int		x,
-  const int		y,
-  const int		t )
+(int		x,
+	const int		y,
+	const int		t)
 {
 
-    int		div;
-    int		n;
+	int		div;
+	int		n;
 
-    if (t<0)
-    {
-	    return;
-    }
-
-    if (t <= 61*59)
-    {
-	div = 1;
-
-	do
+	if (t < 0)
 	{
-	    n = (t / div) % 60;
-	    x = WI_drawNum(x, y, n, 2) - SHORT(::g->colon->width);
-	    div *= 60;
+		return;
+	}
 
-	    // draw
-	    if (div==60 || t / div)
-	    {
-		    V_DrawPatch(x, y, FB, ::g->colon);
-	    }
-	} while (t / div);
-    }
-    else
-    {
-	// "sucks"
-	V_DrawPatch(x - SHORT(::g->sucks->width), y, FB, ::g->sucks); 
-    }
+	if (t <= 61 * 59)
+	{
+		div = 1;
+
+		do
+		{
+			n = (t / div) % 60;
+			x = WI_drawNum(x, y, n, 2) - SHORT(::g->colon->width);
+			div *= 60;
+
+			// draw
+			if (div == 60 || t / div)
+			{
+				V_DrawPatch(x, y, FB, ::g->colon);
+			}
+		} while (t / div);
+	}
+	else
+	{
+		// "sucks"
+		V_DrawPatch(x - SHORT(::g->sucks->width), y, FB, ::g->sucks);
+	}
 }
 
 
 static void WI_End()
 {
 	static void WI_unloadData();
-    WI_unloadData();
+	WI_unloadData();
 }
 
 static void WI_initNoState()
 {
-    ::g->state = NoState;
-    ::g->acceleratestage = 0;
-    ::g->cnt = 10;
+	::g->state = NoState;
+	::g->acceleratestage = 0;
+	::g->cnt = 10;
 }
 
 static void WI_updateNoState() {
 
-    WI_updateAnimatedBack();
+	WI_updateAnimatedBack();
 
-    if (!--::g->cnt) {
+	if (!--::g->cnt) {
 		// Unload data
 		WI_End();
 		G_WorldDone();
-    }
+	}
 
 	DoomLib::ActivateGame();
 }
@@ -656,23 +656,24 @@ static void WI_updateNoState() {
 
 static void WI_initShowNextLoc()
 {
-    ::g->state = ShowNextLoc;
-    ::g->acceleratestage = 0;
-    ::g->cnt = SHOWNEXTLOCDELAY * TICRATE;
+	::g->state = ShowNextLoc;
+	::g->acceleratestage = 0;
+	::g->cnt = SHOWNEXTLOCDELAY * TICRATE;
 
-    WI_initAnimatedBack();
+	WI_initAnimatedBack();
 
 	DoomLib::ActivateGame();
 }
 
 static void WI_updateShowNextLoc()
 {
-    WI_updateAnimatedBack();
+	WI_updateAnimatedBack();
 
-    if (!--::g->cnt || ::g->acceleratestage) {
+	if (!--::g->cnt || ::g->acceleratestage) {
 		WI_initNoState();
-		DoomLib::ShowXToContinue( false );
-	} else {
+		DoomLib::ShowXToContinue(false);
+	}
+	else {
 		::g->snl_pointeron = (::g->cnt & 31) < 20;
 	}
 }
@@ -680,71 +681,71 @@ static void WI_updateShowNextLoc()
 static void WI_drawShowNextLoc()
 {
 
-    int		i;
-    int		last;
+	int		i;
+	int		last;
 
-    WI_slamBackground();
+	WI_slamBackground();
 
-    // draw animated background
-    WI_drawAnimatedBack(); 
+	// draw animated background
+	WI_drawAnimatedBack();
 
-    if ( ::g->gamemode != commercial)
-    {
-  	if (::g->wbs->epsd > 2)
+	if (::g->gamemode != commercial)
 	{
-	    WI_drawEL();
-	    return;
-	}
-	
-	last = (::g->wbs->last == 8) ? ::g->wbs->next - 1 : ::g->wbs->last;
-
-	// don't draw any splats for extra secret levels
-	if( last == 9 ) {
-		for (i=0 ; i<MAXPLAYERS ; i++) {
-				::g->players[i].didsecret = false; 
+		if (::g->wbs->epsd > 2)
+		{
+			WI_drawEL();
+			return;
 		}
-		::g->wbs->didsecret = false;
-		last = -1;
+
+		last = (::g->wbs->last == 8) ? ::g->wbs->next - 1 : ::g->wbs->last;
+
+		// don't draw any splats for extra secret levels
+		if (last == 9) {
+			for (auto& player : ::g->players) {
+				player.didsecret = false;
+			}
+			::g->wbs->didsecret = false;
+			last = -1;
+		}
+
+		// draw a splat on taken cities.
+		for (i = 0; i <= last; i++)
+		{
+			WI_drawOnLnode(i, &::g->splat);
+		}
+
+		// splat the secret level?
+		if (::g->wbs->didsecret)
+		{
+			WI_drawOnLnode(8, &::g->splat);
+		}
+
+		// draw flashing ptr
+		if (::g->snl_pointeron)
+		{
+			WI_drawOnLnode(::g->wbs->next, ::g->yah);
+		}
 	}
 
-	// draw a splat on taken cities.
-	for (i=0 ; i<=last ; i++)
+	// draws which level you are entering..
+	if ((::g->gamemode != commercial)
+		|| ::g->wbs->next != 30)
 	{
-		WI_drawOnLnode(i, &::g->splat);
+		WI_drawEL();
 	}
-
-    // splat the secret level?
-	if (::g->wbs->didsecret)
-	{
-		WI_drawOnLnode(8, &::g->splat);
-	}
-
-    // draw flashing ptr
-	if (::g->snl_pointeron)
-	{
-		WI_drawOnLnode(::g->wbs->next, ::g->yah);
-	}
-    }
-
-    // draws which level you are entering..
-    if ( (::g->gamemode != commercial)
-	 || ::g->wbs->next != 30)
-    {
-	    WI_drawEL();
-    }
 }
 
 static void WI_drawNoState()
 {
-    ::g->snl_pointeron = true;
-    WI_drawShowNextLoc();
+	::g->snl_pointeron = true;
+	WI_drawShowNextLoc();
 }
 
-static int WI_fragSum(const index_t playernum)
+static int64 WI_fragSum(const index_t playernum)
 {
-	int		frags = 0;
-    
-	for (size_t i = 0; i < MAXPLAYERS; ++i)
+	int64		frags = 0;
+
+	for (auto& player : ::g->players)
 	{
 		if (/*::g->playeringame[i] &&*/ std::not_equal_to<>()(i, playernum))
 		{
@@ -752,13 +753,13 @@ static int WI_fragSum(const index_t playernum)
 		}
 	}
 
-	
-    // JDC hack - negative frags.
-    frags -= plrs[playernum].frags[playernum];
-    // UNUSED if (frags < 0)
-    // 	frags = 0;
 
-    return frags;
+	// JDC hack - negative frags.
+	frags -= plrs[playernum].frags[playernum];
+	// UNUSED if (frags < 0)
+	// 	frags = 0;
+
+	return frags;
 }
 
 static int WI_fragOnlySum(const int playernum)
@@ -766,9 +767,9 @@ static int WI_fragOnlySum(const int playernum)
 	int		i;
 	int		frags = 0;
 
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
-		if (/*::g->playeringame[i] &&*/ i!=playernum)
+		if (/*::g->playeringame[i] &&*/ i != playernum)
 		{
 			frags += plrs[playernum].frags[i];
 		}
@@ -782,9 +783,9 @@ static int WI_deathSum(const int playernum)
 	int		i;
 	int		deaths = 0;
 
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
-		if ( true /*::g->playeringame[i]*/)
+		if (true /*::g->playeringame[i]*/)
 		{
 			deaths += plrs[i].frags[playernum];
 		}
@@ -797,37 +798,37 @@ static int WI_deathSum(const int playernum)
 static void WI_initDeathmatchStats()
 {
 
-    int		i;
-    int		j;
+	int		i;
+	int		j;
 
-    ::g->state = StatCount;
-    ::g->acceleratestage = 0;
-    ::g->dm_state = 1;
+	::g->state = StatCount;
+	::g->acceleratestage = 0;
+	::g->dm_state = 1;
 
-    ::g->cnt_pause = TICRATE;
+	::g->cnt_pause = TICRATE;
 
-    for (i=0 ; i<MAXPLAYERS ; i++)
-    {
-	if (::g->playeringame[i])
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
-	    for (j=0 ; j<MAXPLAYERS ; j++)
-	    {
-		    if (::g->playeringame[j])
-		    {
-			    ::g->dm_frags[i][j] = 0;
-		    }
-	    }
+		if (::g->playeringame[i])
+		{
+			for (j = 0; j < MAXPLAYERS; j++)
+			{
+				if (::g->playeringame[j])
+				{
+					::g->dm_frags[i][j] = 0;
+				}
+			}
 
-	    ::g->dm_totals[i] = 0;
+			::g->dm_totals[i] = 0;
+		}
 	}
-    }
-    
-    WI_initAnimatedBack();
 
-	if ( common->IsMultiplayer() ) {
+	WI_initAnimatedBack();
+
+	if (common->IsMultiplayer()) {
 		localCalculateAchievements(false);
 
-		/* JAF PS3 
+		/* JAF PS3
 		gameLocal->liveSession.GetDMSession().SetEndOfMatchStats();
 		gameLocal->liveSession.GetDMSession().WriteTrueskill();
 
@@ -838,242 +839,242 @@ static void WI_initDeathmatchStats()
 		*/
 	}
 
-	DoomLib::ShowXToContinue( true );
+	DoomLib::ShowXToContinue(true);
 }
 
 
 static void WI_updateDeathmatchStats()
 {
 
-    int		i;
-    int		j;
-    
-    qboolean	stillticking;
+	int		i;
+	int		j;
 
-    WI_updateAnimatedBack();
+	qboolean	stillticking;
 
-    if (::g->acceleratestage && ::g->dm_state != 4)
-    {
-	::g->acceleratestage = 0;
+	WI_updateAnimatedBack();
 
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	if (::g->acceleratestage && ::g->dm_state != 4)
 	{
-	    if (::g->playeringame[i])
-	    {
-		for (j=0 ; j<MAXPLAYERS ; j++)
+		::g->acceleratestage = 0;
+
+		for (i = 0; i < MAXPLAYERS; i++)
 		{
-			if (::g->playeringame[j])
+			if (::g->playeringame[i])
 			{
-				::g->dm_frags[i][j] = plrs[i].frags[j];
+				for (j = 0; j < MAXPLAYERS; j++)
+				{
+					if (::g->playeringame[j])
+					{
+						::g->dm_frags[i][j] = plrs[i].frags[j];
+					}
+				}
+
+				::g->dm_totals[i] = WI_fragSum(i);
 			}
 		}
 
-		::g->dm_totals[i] = WI_fragSum(i);
-	    }
-	}
-	
 
-	S_StartSound(nullptr, sfx_barexp);
-	::g->dm_state = 4;
-    }
-
-    
-    if (::g->dm_state == 2)
-    {
-	if (!(::g->bcnt&3))
-	{
-		S_StartSound(nullptr, sfx_pistol);
+		S_StartSound(nullptr, sfx_barexp);
+		::g->dm_state = 4;
 	}
 
-	stillticking = false;
 
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	if (::g->dm_state == 2)
 	{
-	    if (::g->playeringame[i])
-	    {
-		for (j=0 ; j<MAXPLAYERS ; j++)
+		if (!(::g->bcnt & 3))
 		{
-		    if (::g->playeringame[j]
-			&& ::g->dm_frags[i][j] != plrs[i].frags[j])
-		    {
-			if (plrs[i].frags[j] < 0)
-			{
-				::g->dm_frags[i][j]--;
-			}
-			else
-			{
-				::g->dm_frags[i][j]++;
-			}
-
-			::g->dm_frags[i][j] = Min(::g->dm_frags[i][j], 99);
-
-			::g->dm_frags[i][j] = Max(::g->dm_frags[i][j], -99);
-
-			stillticking = true;
-		    }
+			S_StartSound(nullptr, sfx_pistol);
 		}
-		::g->dm_totals[i] = WI_fragSum(i);
 
-		::g->dm_totals[i] = Min(::g->dm_totals[i], 99);
+		stillticking = false;
 
-		::g->dm_totals[i] = Max(::g->dm_totals[i], -99);
-	    }
-	    
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (::g->playeringame[i])
+			{
+				for (j = 0; j < MAXPLAYERS; j++)
+				{
+					if (::g->playeringame[j]
+						&& ::g->dm_frags[i][j] != plrs[i].frags[j])
+					{
+						if (plrs[i].frags[j] < 0)
+						{
+							::g->dm_frags[i][j]--;
+						}
+						else
+						{
+							::g->dm_frags[i][j]++;
+						}
+
+						::g->dm_frags[i][j] = Min(::g->dm_frags[i][j], 99);
+
+						::g->dm_frags[i][j] = Max(::g->dm_frags[i][j], -99);
+
+						stillticking = true;
+					}
+				}
+				::g->dm_totals[i] = WI_fragSum(i);
+
+				::g->dm_totals[i] = Min(::g->dm_totals[i], 99);
+
+				::g->dm_totals[i] = Max(::g->dm_totals[i], -99);
+			}
+
+		}
+		if (!stillticking)
+		{
+			S_StartSound(nullptr, sfx_barexp);
+			::g->dm_state++;
+		}
+
 	}
-	if (!stillticking)
+	else if (::g->dm_state == 4)
 	{
-	    S_StartSound(nullptr, sfx_barexp);
-	    ::g->dm_state++;
-	}
-
-    }
-    else if (::g->dm_state == 4)
-    {
 		if (::g->acceleratestage)
 		{
-			if ( !::g->demoplayback && ( ::g->usergame || ::g->netgame ) ) {
-					// This sound plays repeatedly after a player continues at the end of a deathmatch,
-					// and sounds bad. Quick fix is to just not play it.
-					//S_StartSound(0, sfx_slop);
+			if (!::g->demoplayback && (::g->usergame || ::g->netgame)) {
+				// This sound plays repeatedly after a player continues at the end of a deathmatch,
+				// and sounds bad. Quick fix is to just not play it.
+				//S_StartSound(0, sfx_slop);
 
-					DoomLib::HandleEndMatch();
+				DoomLib::HandleEndMatch();
 			}
 		}
-    }
-    else if (::g->dm_state & 1)
-    {
+	}
+	else if (::g->dm_state & 1)
+	{
 		if (!--::g->cnt_pause)
 		{
 			::g->dm_state++;
 			::g->cnt_pause = TICRATE;
 		}
-    }
+	}
 }
 
 
 static void WI_drawDeathmatchStats()
 {
 
-    int		i;
-    int		j;
-    int		x;
-    int		y;
-    int		w;
-    
-    int		lh;	// line height
+	int		i;
+	int		j;
+	int		x;
+	int		y;
+	int		w;
 
-    lh = WI_SPACINGY;
+	int		lh;	// line height
 
-    WI_slamBackground();
-    
-    // draw animated background
-    WI_drawAnimatedBack(); 
-    WI_drawLF();
+	lh = WI_SPACINGY;
 
-    // draw stat titles (top line)
-    V_DrawPatch(DM_TOTALSX-SHORT(::g->total->width)/2,
-		DM_MATRIXY-WI_SPACINGY+10,
+	WI_slamBackground();
+
+	// draw animated background
+	WI_drawAnimatedBack();
+	WI_drawLF();
+
+	// draw stat titles (top line)
+	V_DrawPatch(DM_TOTALSX - SHORT(::g->total->width) / 2,
+		DM_MATRIXY - WI_SPACINGY + 10,
 		FB,
 		::g->total);
-    
-    V_DrawPatch(DM_KILLERSX, DM_KILLERSY, FB, ::g->killers);
-    V_DrawPatch(DM_VICTIMSX, DM_VICTIMSY, FB, ::g->victims);
 
-    // draw P?
-    x = DM_MATRIXX + DM_SPACINGX;
-    y = DM_MATRIXY;
+	V_DrawPatch(DM_KILLERSX, DM_KILLERSY, FB, ::g->killers);
+	V_DrawPatch(DM_VICTIMSX, DM_VICTIMSY, FB, ::g->victims);
 
-    for (i=0 ; i<MAXPLAYERS ; i++)
-    {
-	if (::g->playeringame[i])
-	{
-	    V_DrawPatch(x-SHORT(::g->wistuff_p[i]->width)/2,
-			DM_MATRIXY - WI_SPACINGY,
-			FB,
-			::g->wistuff_p[i]);
-	    
-	    V_DrawPatch(DM_MATRIXX-SHORT(::g->wistuff_p[i]->width)/2,
-			y,
-			FB,
-			::g->wistuff_p[i]);
-
-		// No splitscreen on PC currently
-	    if (i == ::g->me /* && !gameLocal->IsSplitscreen() */ )
-	    {
-		V_DrawPatch(x-SHORT(::g->wistuff_p[i]->width)/2,
-			    DM_MATRIXY - WI_SPACINGY,
-			    FB,
-			    ::g->bstar);
-
-		V_DrawPatch(DM_MATRIXX-SHORT(::g->wistuff_p[i]->width)/2,
-			    y,
-			    FB,
-			    ::g->star);
-	    }
-	}
-	else
-	{
-		//V_DrawPatch(x-SHORT(::g->wistuff_bp[i]->width)/2,
-	    //  DM_MATRIXY - WI_SPACINGY, FB, ::g->wistuff_bp[i]);
-		//V_DrawPatch(DM_MATRIXX-SHORT(::g->wistuff_bp[i]->width)/2,
-		// y, FB, ::g->wistuff_bp[i]);
-	}
-	x += DM_SPACINGX;
-	y += WI_SPACINGY;
-    }
-
-    // draw stats
-    y = DM_MATRIXY+10;
-    w = SHORT(::g->num[0]->width);
-
-    for (i=0 ; i<MAXPLAYERS ; i++)
-    {
+	// draw P?
 	x = DM_MATRIXX + DM_SPACINGX;
+	y = DM_MATRIXY;
 
-	if (::g->playeringame[i])
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
-	    for (j=0 ; j<MAXPLAYERS ; j++)
-	    {
-		if (::g->playeringame[j])
+		if (::g->playeringame[i])
 		{
-			WI_drawNum(x+w, y, ::g->dm_frags[i][j], 2);
-		}
+			V_DrawPatch(x - SHORT(::g->wistuff_p[i]->width) / 2,
+				DM_MATRIXY - WI_SPACINGY,
+				FB,
+				::g->wistuff_p[i]);
 
+			V_DrawPatch(DM_MATRIXX - SHORT(::g->wistuff_p[i]->width) / 2,
+				y,
+				FB,
+				::g->wistuff_p[i]);
+
+			// No splitscreen on PC currently
+			if (i == ::g->me /* && !gameLocal->IsSplitscreen() */)
+			{
+				V_DrawPatch(x - SHORT(::g->wistuff_p[i]->width) / 2,
+					DM_MATRIXY - WI_SPACINGY,
+					FB,
+					::g->bstar);
+
+				V_DrawPatch(DM_MATRIXX - SHORT(::g->wistuff_p[i]->width) / 2,
+					y,
+					FB,
+					::g->star);
+			}
+		}
+		else
+		{
+			//V_DrawPatch(x-SHORT(::g->wistuff_bp[i]->width)/2,
+			//  DM_MATRIXY - WI_SPACINGY, FB, ::g->wistuff_bp[i]);
+			//V_DrawPatch(DM_MATRIXX-SHORT(::g->wistuff_bp[i]->width)/2,
+			// y, FB, ::g->wistuff_bp[i]);
+		}
 		x += DM_SPACINGX;
-	    }
-	    WI_drawNum(DM_TOTALSX+w, y, ::g->dm_totals[i], 2);
+		y += WI_SPACINGY;
 	}
-	y += WI_SPACINGY;
-    }
+
+	// draw stats
+	y = DM_MATRIXY + 10;
+	w = SHORT(::g->num[0]->width);
+
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		x = DM_MATRIXX + DM_SPACINGX;
+
+		if (::g->playeringame[i])
+		{
+			for (j = 0; j < MAXPLAYERS; j++)
+			{
+				if (::g->playeringame[j])
+				{
+					WI_drawNum(x + w, y, ::g->dm_frags[i][j], 2);
+				}
+
+				x += DM_SPACINGX;
+			}
+			WI_drawNum(DM_TOTALSX + w, y, ::g->dm_totals[i], 2);
+		}
+		y += WI_SPACINGY;
+	}
 }
 
 
 static void WI_initNetgameStats()
 {
 
-    int i;
+	int i;
 
-    ::g->state = StatCount;
-    ::g->acceleratestage = 0;
-    ::g->ng_state = 1;
+	::g->state = StatCount;
+	::g->acceleratestage = 0;
+	::g->ng_state = 1;
 
-    ::g->cnt_pause = TICRATE;
+	::g->cnt_pause = TICRATE;
 
-    for (i=0 ; i<MAXPLAYERS ; i++)
-    {
-	if (!::g->playeringame[i])
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
-		continue;
+		if (!::g->playeringame[i])
+		{
+			continue;
+		}
+
+		::g->cnt_kills[i] = ::g->cnt_items[i] = ::g->cnt_secret[i] = ::g->cnt_frags[i] = 0;
+
+		::g->dofrags += WI_fragSum(i);
 	}
 
-	::g->cnt_kills[i] = ::g->cnt_items[i] = ::g->cnt_secret[i] = ::g->cnt_frags[i] = 0;
+	::g->dofrags = !!::g->dofrags;
 
-	::g->dofrags += WI_fragSum(i);
-    }
-
-    ::g->dofrags = !!::g->dofrags;
-
-    WI_initAnimatedBack();
+	WI_initAnimatedBack();
 
 	// JAF PS3 
 	/*
@@ -1093,291 +1094,291 @@ static void WI_initNetgameStats()
 	}
 	*/
 
-	DoomLib::ShowXToContinue( true );
-	
+	DoomLib::ShowXToContinue(true);
+
 }
 
 
 static void WI_updateNetgameStats()
 {
 
-    int		i;
-    int		fsum;
-    
-    qboolean	stillticking;
+	int		i;
+	int		fsum;
 
-    WI_updateAnimatedBack();
+	qboolean	stillticking;
 
-    if (::g->acceleratestage && ::g->ng_state != 10)
-    {
-	::g->acceleratestage = 0;
+	WI_updateAnimatedBack();
 
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	if (::g->acceleratestage && ::g->ng_state != 10)
 	{
-	    if (!::g->playeringame[i])
-	    {
-		    continue;
-	    }
+		::g->acceleratestage = 0;
 
-	    ::g->cnt_kills[i] = (plrs[i].skills * 100) / ::g->wbs->maxkills;
-	    ::g->cnt_items[i] = (plrs[i].sitems * 100) / ::g->wbs->maxitems;
-	    ::g->cnt_secret[i] = (plrs[i].ssecret * 100) / ::g->wbs->maxsecret;
-
-	    if (::g->dofrags)
-	    {
-		    ::g->cnt_frags[i] = WI_fragSum(i);
-	    }
-	}
-	S_StartSound(nullptr, sfx_barexp);
-	::g->ng_state = 10;
-    }
-
-    if (::g->ng_state == 2)
-    {
-	if (!(::g->bcnt&3))
-	{
-		S_StartSound(nullptr, sfx_pistol);
-	}
-
-	stillticking = false;
-
-	for (i=0 ; i<MAXPLAYERS ; i++)
-	{
-	    if (!::g->playeringame[i])
-	    {
-		    continue;
-	    }
-
-	    ::g->cnt_kills[i] += 2;
-
-	    if (::g->cnt_kills[i] >= (plrs[i].skills * 100) / ::g->wbs->maxkills)
-	    {
-		    ::g->cnt_kills[i] = (plrs[i].skills * 100) / ::g->wbs->maxkills;
-	    }
-	    else
-	    {
-		    stillticking = true;
-	    }
-	}
-	
-	if (!stillticking)
-	{
-	    S_StartSound(nullptr, sfx_barexp);
-	    ::g->ng_state++;
-	}
-    }
-    else if (::g->ng_state == 4)
-    {
-	if (!(::g->bcnt&3))
-	{
-		S_StartSound(nullptr, sfx_pistol);
-	}
-
-	stillticking = false;
-
-	for (i=0 ; i<MAXPLAYERS ; i++)
-	{
-	    if (!::g->playeringame[i])
-	    {
-		    continue;
-	    }
-
-	    ::g->cnt_items[i] += 2;
-	    if (::g->cnt_items[i] >= (plrs[i].sitems * 100) / ::g->wbs->maxitems)
-	    {
-		    ::g->cnt_items[i] = (plrs[i].sitems * 100) / ::g->wbs->maxitems;
-	    }
-	    else
-	    {
-		    stillticking = true;
-	    }
-	}
-	if (!stillticking)
-	{
-	    S_StartSound(nullptr, sfx_barexp);
-	    ::g->ng_state++;
-	}
-    }
-    else if (::g->ng_state == 6)
-    {
-	if (!(::g->bcnt&3))
-	{
-		S_StartSound(nullptr, sfx_pistol);
-	}
-
-	stillticking = false;
-
-	for (i=0 ; i<MAXPLAYERS ; i++)
-	{
-	    if (!::g->playeringame[i])
-	    {
-		    continue;
-	    }
-
-	    ::g->cnt_secret[i] += 2;
-
-	    if (::g->cnt_secret[i] >= (plrs[i].ssecret * 100) / ::g->wbs->maxsecret)
-	    {
-		    ::g->cnt_secret[i] = (plrs[i].ssecret * 100) / ::g->wbs->maxsecret;
-	    }
-	    else
-	    {
-		    stillticking = true;
-	    }
-	}
-	
-	if (!stillticking)
-	{
-	    S_StartSound(nullptr, sfx_barexp);
-	    ::g->ng_state += 1 + 2*!::g->dofrags;
-	}
-    }
-    else if (::g->ng_state == 8)
-    {
-	if (!(::g->bcnt&3))
-	{
-		S_StartSound(nullptr, sfx_pistol);
-	}
-
-	stillticking = false;
-
-	for (i=0 ; i<MAXPLAYERS ; i++)
-	{
-	    if (!::g->playeringame[i])
-	    {
-		    continue;
-	    }
-
-	    ::g->cnt_frags[i] += 1;
-
-	    if (::g->cnt_frags[i] >= (fsum = WI_fragSum(i)))
-	    {
-		    ::g->cnt_frags[i] = fsum;
-	    }
-	    else
-	    {
-		    stillticking = true;
-	    }
-	}
-	
-	if (!stillticking)
-	{
-	    S_StartSound(nullptr, sfx_pldeth);
-	    ::g->ng_state++;
-	}
-    }
-    else if (::g->ng_state == 10)
-    {
-	if (::g->acceleratestage)
-	{
-		if ( !::g->demoplayback && ( ::g->usergame || ::g->netgame ) ) {
-			S_StartSound(nullptr, sfx_sgcock);
-
-			// need to do this again if they buy it
-			localCalculateAchievements(false);
-			if (::g->gamemode == commercial){
-				WI_initNoState();
-				DoomLib::ShowXToContinue( false );
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!::g->playeringame[i])
+			{
+				continue;
 			}
-			else{
-				WI_initShowNextLoc();
+
+			::g->cnt_kills[i] = (plrs[i].skills * 100) / ::g->wbs->maxkills;
+			::g->cnt_items[i] = (plrs[i].sitems * 100) / ::g->wbs->maxitems;
+			::g->cnt_secret[i] = (plrs[i].ssecret * 100) / ::g->wbs->maxsecret;
+
+			if (::g->dofrags)
+			{
+				::g->cnt_frags[i] = WI_fragSum(i);
+			}
+		}
+		S_StartSound(nullptr, sfx_barexp);
+		::g->ng_state = 10;
+	}
+
+	if (::g->ng_state == 2)
+	{
+		if (!(::g->bcnt & 3))
+		{
+			S_StartSound(nullptr, sfx_pistol);
+		}
+
+		stillticking = false;
+
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!::g->playeringame[i])
+			{
+				continue;
+			}
+
+			::g->cnt_kills[i] += 2;
+
+			if (::g->cnt_kills[i] >= (plrs[i].skills * 100) / ::g->wbs->maxkills)
+			{
+				::g->cnt_kills[i] = (plrs[i].skills * 100) / ::g->wbs->maxkills;
+			}
+			else
+			{
+				stillticking = true;
+			}
+		}
+
+		if (!stillticking)
+		{
+			S_StartSound(nullptr, sfx_barexp);
+			::g->ng_state++;
+		}
+	}
+	else if (::g->ng_state == 4)
+	{
+		if (!(::g->bcnt & 3))
+		{
+			S_StartSound(nullptr, sfx_pistol);
+		}
+
+		stillticking = false;
+
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!::g->playeringame[i])
+			{
+				continue;
+			}
+
+			::g->cnt_items[i] += 2;
+			if (::g->cnt_items[i] >= (plrs[i].sitems * 100) / ::g->wbs->maxitems)
+			{
+				::g->cnt_items[i] = (plrs[i].sitems * 100) / ::g->wbs->maxitems;
+			}
+			else
+			{
+				stillticking = true;
+			}
+		}
+		if (!stillticking)
+		{
+			S_StartSound(nullptr, sfx_barexp);
+			::g->ng_state++;
+		}
+	}
+	else if (::g->ng_state == 6)
+	{
+		if (!(::g->bcnt & 3))
+		{
+			S_StartSound(nullptr, sfx_pistol);
+		}
+
+		stillticking = false;
+
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!::g->playeringame[i])
+			{
+				continue;
+			}
+
+			::g->cnt_secret[i] += 2;
+
+			if (::g->cnt_secret[i] >= (plrs[i].ssecret * 100) / ::g->wbs->maxsecret)
+			{
+				::g->cnt_secret[i] = (plrs[i].ssecret * 100) / ::g->wbs->maxsecret;
+			}
+			else
+			{
+				stillticking = true;
+			}
+		}
+
+		if (!stillticking)
+		{
+			S_StartSound(nullptr, sfx_barexp);
+			::g->ng_state += 1 + 2 * !::g->dofrags;
+		}
+	}
+	else if (::g->ng_state == 8)
+	{
+		if (!(::g->bcnt & 3))
+		{
+			S_StartSound(nullptr, sfx_pistol);
+		}
+
+		stillticking = false;
+
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!::g->playeringame[i])
+			{
+				continue;
+			}
+
+			::g->cnt_frags[i] += 1;
+
+			if (::g->cnt_frags[i] >= (fsum = WI_fragSum(i)))
+			{
+				::g->cnt_frags[i] = fsum;
+			}
+			else
+			{
+				stillticking = true;
+			}
+		}
+
+		if (!stillticking)
+		{
+			S_StartSound(nullptr, sfx_pldeth);
+			::g->ng_state++;
+		}
+	}
+	else if (::g->ng_state == 10)
+	{
+		if (::g->acceleratestage)
+		{
+			if (!::g->demoplayback && (::g->usergame || ::g->netgame)) {
+				S_StartSound(nullptr, sfx_sgcock);
+
+				// need to do this again if they buy it
+				localCalculateAchievements(false);
+				if (::g->gamemode == commercial) {
+					WI_initNoState();
+					DoomLib::ShowXToContinue(false);
+				}
+				else {
+					WI_initShowNextLoc();
+				}
 			}
 		}
 	}
-    }
-    else if (::g->ng_state & 1)
-    {
-	if (!--::g->cnt_pause)
+	else if (::g->ng_state & 1)
 	{
-	    ::g->ng_state++;
-	    ::g->cnt_pause = TICRATE;
+		if (!--::g->cnt_pause)
+		{
+			::g->ng_state++;
+			::g->cnt_pause = TICRATE;
+		}
 	}
-    }
 }
 
 
 static void WI_drawNetgameStats()
 {
-    int		i;
-    int		x;
-    int		y;
-    const int		pwidth = SHORT(::g->percent->width);
+	int		i;
+	int		x;
+	int		y;
+	const int		pwidth = SHORT(::g->percent->width);
 
-    WI_slamBackground();
-    
-    // draw animated background
-    WI_drawAnimatedBack(); 
+	WI_slamBackground();
 
-    WI_drawLF();
+	// draw animated background
+	WI_drawAnimatedBack();
 
-    // draw stat titles (top line)
-    V_DrawPatch(NG_STATSX + NG_SPACINGX - SHORT(::g->kills->width), NG_STATSY, FB, ::g->kills);
+	WI_drawLF();
 
-    V_DrawPatch(NG_STATSX + 2 * NG_SPACINGX - SHORT(::g->items->width), NG_STATSY, FB, ::g->items);
+	// draw stat titles (top line)
+	V_DrawPatch(NG_STATSX + NG_SPACINGX - SHORT(::g->kills->width), NG_STATSY, FB, ::g->kills);
 
-    V_DrawPatch(NG_STATSX + 3 * NG_SPACINGX - SHORT(::g->secret->width), NG_STATSY, FB, ::g->secret);
-    
-    if (::g->dofrags)
-    {
-	    V_DrawPatch(NG_STATSX + 4 * NG_SPACINGX - SHORT(::g->wistuff_frags->width), NG_STATSY, FB, ::g->wistuff_frags);
-    }
+	V_DrawPatch(NG_STATSX + 2 * NG_SPACINGX - SHORT(::g->items->width), NG_STATSY, FB, ::g->items);
 
-    // draw stats
-    y = NG_STATSY + SHORT(::g->kills->height);
-
-    for (i=0 ; i<MAXPLAYERS ; i++)
-    {
-	if (!::g->playeringame[i])
-	{
-		continue;
-	}
-
-	x = NG_STATSX;
-	V_DrawPatch(x-SHORT(::g->wistuff_p[i]->width), y, FB, ::g->wistuff_p[i]);
-
-	// No splitscreen on PC
-	if (i == ::g->me /* && !gameLocal->IsSplitscreen() */ )
-	{
-		V_DrawPatch(x-SHORT(::g->wistuff_p[i]->width), y, FB, ::g->star);
-	}
-
-	x += NG_SPACINGX;
-	WI_drawPercent(x-pwidth, y+10, ::g->cnt_kills[i]);	x += NG_SPACINGX;
-	WI_drawPercent(x-pwidth, y+10, ::g->cnt_items[i]);	x += NG_SPACINGX;
-	WI_drawPercent(x-pwidth, y+10, ::g->cnt_secret[i]);	x += NG_SPACINGX;
+	V_DrawPatch(NG_STATSX + 3 * NG_SPACINGX - SHORT(::g->secret->width), NG_STATSY, FB, ::g->secret);
 
 	if (::g->dofrags)
 	{
-		WI_drawNum(x, y+10, ::g->cnt_frags[i], -1);
+		V_DrawPatch(NG_STATSX + 4 * NG_SPACINGX - SHORT(::g->wistuff_frags->width), NG_STATSY, FB, ::g->wistuff_frags);
 	}
 
-	y += WI_SPACINGY;
-    }
+	// draw stats
+	y = NG_STATSY + SHORT(::g->kills->height);
+
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		if (!::g->playeringame[i])
+		{
+			continue;
+		}
+
+		x = NG_STATSX;
+		V_DrawPatch(x - SHORT(::g->wistuff_p[i]->width), y, FB, ::g->wistuff_p[i]);
+
+		// No splitscreen on PC
+		if (i == ::g->me /* && !gameLocal->IsSplitscreen() */)
+		{
+			V_DrawPatch(x - SHORT(::g->wistuff_p[i]->width), y, FB, ::g->star);
+		}
+
+		x += NG_SPACINGX;
+		WI_drawPercent(x - pwidth, y + 10, ::g->cnt_kills[i]);	x += NG_SPACINGX;
+		WI_drawPercent(x - pwidth, y + 10, ::g->cnt_items[i]);	x += NG_SPACINGX;
+		WI_drawPercent(x - pwidth, y + 10, ::g->cnt_secret[i]);	x += NG_SPACINGX;
+
+		if (::g->dofrags)
+		{
+			WI_drawNum(x, y + 10, ::g->cnt_frags[i], -1);
+		}
+
+		y += WI_SPACINGY;
+	}
 
 }
 
 
 static void WI_initStats()
 {
-    ::g->state = StatCount;
-    ::g->acceleratestage = 0;
-    ::g->sp_state = 1;
-    ::g->cnt_kills[0] = ::g->cnt_items[0] = ::g->cnt_secret[0] = -1;
-    ::g->cnt_time = ::g->cnt_par = -1;
-    ::g->cnt_pause = TICRATE;
+	::g->state = StatCount;
+	::g->acceleratestage = 0;
+	::g->sp_state = 1;
+	::g->cnt_kills[0] = ::g->cnt_items[0] = ::g->cnt_secret[0] = -1;
+	::g->cnt_time = ::g->cnt_par = -1;
+	::g->cnt_pause = TICRATE;
 
-    WI_initAnimatedBack();
+	WI_initAnimatedBack();
 
-	DoomLib::ShowXToContinue( true );
+	DoomLib::ShowXToContinue(true);
 }
 
 static void WI_updateStats()
 {
 
-    WI_updateAnimatedBack();
+	WI_updateAnimatedBack();
 
-    if (::g->acceleratestage && ::g->sp_state != 10)
-    {
+	if (::g->acceleratestage && ::g->sp_state != 10)
+	{
 		::g->acceleratestage = 0;
 		::g->cnt_kills[0] = (plrs[::g->me].skills * 100) / ::g->wbs->maxkills;
 		::g->cnt_items[0] = (plrs[::g->me].sitems * 100) / ::g->wbs->maxitems;
@@ -1386,13 +1387,13 @@ static void WI_updateStats()
 		::g->cnt_par = ::g->wbs->partime / TICRATE;
 		S_StartSound(nullptr, sfx_barexp);
 		::g->sp_state = 10;
-    }
+	}
 
-    if (::g->sp_state == 2)
-    {
+	if (::g->sp_state == 2)
+	{
 		::g->cnt_kills[0] += 2;
 
-		if (!(::g->bcnt&3))
+		if (!(::g->bcnt & 3))
 		{
 			S_StartSound(nullptr, sfx_pistol);
 		}
@@ -1403,12 +1404,12 @@ static void WI_updateStats()
 			S_StartSound(nullptr, sfx_barexp);
 			::g->sp_state++;
 		}
-    }
-    else if (::g->sp_state == 4)
-    {
+	}
+	else if (::g->sp_state == 4)
+	{
 		::g->cnt_items[0] += 2;
 
-		if (!(::g->bcnt&3))
+		if (!(::g->bcnt & 3))
 		{
 			S_StartSound(nullptr, sfx_pistol);
 		}
@@ -1419,12 +1420,12 @@ static void WI_updateStats()
 			S_StartSound(nullptr, sfx_barexp);
 			::g->sp_state++;
 		}
-    }
-    else if (::g->sp_state == 6)
-    {
+	}
+	else if (::g->sp_state == 6)
+	{
 		::g->cnt_secret[0] += 2;
 
-		if (!(::g->bcnt&3))
+		if (!(::g->bcnt & 3))
 		{
 			S_StartSound(nullptr, sfx_pistol);
 		}
@@ -1435,11 +1436,11 @@ static void WI_updateStats()
 			S_StartSound(nullptr, sfx_barexp);
 			::g->sp_state++;
 		}
-    }
+	}
 
-    else if (::g->sp_state == 8)
-    {
-		if (!(::g->bcnt&3))
+	else if (::g->sp_state == 8)
+	{
+		if (!(::g->bcnt & 3))
 		{
 			S_StartSound(nullptr, sfx_pistol);
 		}
@@ -1460,12 +1461,12 @@ static void WI_updateStats()
 				::g->sp_state++;
 			}
 		}
-    }
-    else if (::g->sp_state == 10)
-    {
-        if (::g->acceleratestage)
+	}
+	else if (::g->sp_state == 10)
+	{
+		if (::g->acceleratestage)
 		{
-			if ( !::g->demoplayback && ( ::g->usergame || ::g->netgame ) ) {
+			if (!::g->demoplayback && (::g->usergame || ::g->netgame)) {
 
 				S_StartSound(nullptr, sfx_sgcock);
 
@@ -1475,89 +1476,91 @@ static void WI_updateStats()
 				if (::g->gamemode == commercial) {
 					WI_initNoState();
 				}
-				else{
+				else {
 					WI_initShowNextLoc();
 				}
 			}
 		}
-    }
-    else if (::g->sp_state & 1)
-    {
+	}
+	else if (::g->sp_state & 1)
+	{
 		if (!--::g->cnt_pause)
 		{
 			::g->sp_state++;
 			::g->cnt_pause = TICRATE;
 		}
-    }
+	}
 
 }
 
 static void WI_drawStats()
 {
-    // line height
-    int lh;	
+	// line height
+	int lh;
 
-    lh = (3*SHORT(::g->num[0]->height))/2;
+	lh = (3 * SHORT(::g->num[0]->height)) / 2;
 
-    WI_slamBackground();
+	WI_slamBackground();
 
-    // draw animated background
-    WI_drawAnimatedBack();
-    
-    WI_drawLF();
+	// draw animated background
+	WI_drawAnimatedBack();
 
-    V_DrawPatch(SP_STATSX, SP_STATSY, FB, ::g->kills);
-    WI_drawPercent(ORIGINAL_WIDTH - SP_STATSX, SP_STATSY, ::g->cnt_kills[0]);
+	WI_drawLF();
 
-    V_DrawPatch(SP_STATSX, SP_STATSY+lh, FB, ::g->items);
-    WI_drawPercent(ORIGINAL_WIDTH - SP_STATSX, SP_STATSY+lh, ::g->cnt_items[0]);
+	V_DrawPatch(SP_STATSX, SP_STATSY, FB, ::g->kills);
+	WI_drawPercent(ORIGINAL_WIDTH - SP_STATSX, SP_STATSY, ::g->cnt_kills[0]);
 
-    V_DrawPatch(SP_STATSX, SP_STATSY+2*lh, FB, ::g->sp_secret);
-    WI_drawPercent(ORIGINAL_WIDTH - SP_STATSX, SP_STATSY+2*lh, ::g->cnt_secret[0]);
+	V_DrawPatch(SP_STATSX, SP_STATSY + lh, FB, ::g->items);
+	WI_drawPercent(ORIGINAL_WIDTH - SP_STATSX, SP_STATSY + lh, ::g->cnt_items[0]);
 
-    V_DrawPatch(SP_TIMEX, SP_TIMEY, FB, ::g->time);
-    WI_drawTime(ORIGINAL_WIDTH/2 - SP_TIMEX, SP_TIMEY, ::g->cnt_time);
+	V_DrawPatch(SP_STATSX, SP_STATSY + 2 * lh, FB, ::g->sp_secret);
+	WI_drawPercent(ORIGINAL_WIDTH - SP_STATSX, SP_STATSY + 2 * lh, ::g->cnt_secret[0]);
+
+	V_DrawPatch(SP_TIMEX, SP_TIMEY, FB, ::g->time);
+	WI_drawTime(ORIGINAL_WIDTH / 2 - SP_TIMEX, SP_TIMEY, ::g->cnt_time);
 
 	// DHM - Nerve :: Added episode 4 par times
-    //if (::g->wbs->epsd < 3)
-    //{
-	V_DrawPatch(ORIGINAL_WIDTH/2 + SP_TIMEX, SP_TIMEY, FB, ::g->par);
+	//if (::g->wbs->epsd < 3)
+	//{
+	V_DrawPatch(ORIGINAL_WIDTH / 2 + SP_TIMEX, SP_TIMEY, FB, ::g->par);
 	WI_drawTime(ORIGINAL_WIDTH - SP_TIMEX, SP_TIMEY, ::g->cnt_par);
-    //}
+	//}
 
 }
 
 static void WI_checkForAccelerate()
 {
-    int   i;
-    player_t  *player;
+	int   i;
+	player_t* player;
 
-    // check for button presses to skip delays
-    for (i=0, player = ::g->players ; i<MAXPLAYERS ; i++, player++)
-    {
-		if (::g->playeringame[i])
+	// check for button presses to skip delays
+	for (auto& player : ::g->players)
+	{
+		if (player.playerInGame)
 		{
-			if (player->cmd.buttons & BT_ATTACK)
+			if (player.cmd.buttons & BT_ATTACK)
 			{
-				if (!player->attackdown) {
+				if (!player.attackdown) {
 					::g->acceleratestage = 1;
 				}
-				player->attackdown = true;
-			} else {
-				player->attackdown = false;
+				player.attackdown = true;
 			}
-			if (player->cmd.buttons & BT_USE)
+			else {
+				player.attackdown = false;
+			}
+			if (player.cmd.buttons & BT_USE)
 			{
-				if (!player->usedown) {
+				if (!player.usedown) {
 					::g->acceleratestage = 1;
 				}
-				player->usedown = true;
-				
-			} else {
-				player->usedown = false;
+				player.usedown = true;
+
+			}
+			else {
+				player.usedown = false;
 			}
 		}
-    }
+	}
 }
 
 
@@ -1565,58 +1568,58 @@ static void WI_checkForAccelerate()
 // Updates stuff each tick
 void WI_Ticker()
 {
-    // counter for general background animation
-    ::g->bcnt++;  
+	// counter for general background animation
+	::g->bcnt++;
 
-    if (::g->bcnt == 1)
-    {
-	// intermission music
-  	if ( ::g->gamemode == commercial )
-    {
-	    S_ChangeMusic(mus_dm2int, true);
-    }
-    else
-    {
-	    S_ChangeMusic(mus_inter, true);
-    }
-    }
+	if (::g->bcnt == 1)
+	{
+		// intermission music
+		if (::g->gamemode == commercial)
+		{
+			S_ChangeMusic(mus_dm2int, true);
+		}
+		else
+		{
+			S_ChangeMusic(mus_inter, true);
+		}
+	}
 
-    WI_checkForAccelerate();
+	WI_checkForAccelerate();
 
-    switch (::g->state)
-    {
-      case StatCount:
-	if (::g->deathmatch)
+	switch (::g->state)
 	{
-		WI_updateDeathmatchStats();
+	case StatCount:
+		if (::g->deathmatch)
+		{
+			WI_updateDeathmatchStats();
+		}
+		else if (::g->netgame)
+		{
+			WI_updateNetgameStats();
+		}
+		else
+		{
+			WI_updateStats();
+		}
+		break;
+
+	case ShowNextLoc:
+		WI_updateShowNextLoc();
+		break;
+
+	case NoState:
+		WI_updateNoState();
+		break;
 	}
-	else if (::g->netgame)
-	{
-		WI_updateNetgameStats();
-	}
-	else
-	{
-		WI_updateStats();
-	}
-	break;
-	
-      case ShowNextLoc:
-	WI_updateShowNextLoc();
-	break;
-	
-      case NoState:
-	WI_updateNoState();
-	break;
-    }
 
 }
 
 static void WI_loadData()
-{	
+{
 	int		i;
 	int		j;
 	char	name[9];
-	anim_t*	a;
+	anim_t* a;
 
 	if (::g->gamemode == commercial)
 	{
@@ -1629,45 +1632,45 @@ static void WI_loadData()
 		idStr::snPrintf(name, "WIMAP%d", ::g->wbs->epsd);
 	}
 
-	if ( ::g->gamemode == retail )
+	if (::g->gamemode == retail)
 	{
 		if (::g->wbs->epsd == 3)
 		{
-			strncpy_s(name,"INTERPIC");
+			strncpy_s(name, "INTERPIC");
 		}
 	}
 
 	// background
-	::g->bg = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));    
+	::g->bg = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 
 	V_DrawPatch(0, 0, 1, ::g->bg);
 
 
-    // UNUSED unsigned char *pic = ::g->screens[1];
-    // if (::g->gamemode == commercial)
-    // {
-    // darken the background image
-    // while (pic != ::g->screens[1] + SCREENHEIGHT*SCREENWIDTH)
-    // {
-    //   *pic = ::g->colormaps[256*25 + *pic];
-    //   pic++;
-    // }
-    //}
+	// UNUSED unsigned char *pic = ::g->screens[1];
+	// if (::g->gamemode == commercial)
+	// {
+	// darken the background image
+	// while (pic != ::g->screens[1] + SCREENHEIGHT*SCREENWIDTH)
+	// {
+	//   *pic = ::g->colormaps[256*25 + *pic];
+	//   pic++;
+	// }
+	//}
 
 	if (::g->gamemode == commercial)
 	{
 		::g->NUMCMAPS = 32;
 		::g->lnames = static_cast<patch_t**>(DoomLib::Z_Malloc(sizeof(patch_t*) * ::g->NUMCMAPS, PU_LEVEL_SHARED, nullptr));
-		for (i=0 ; i < ::g->NUMCMAPS ; i++)
-		{								
+		for (i = 0; i < ::g->NUMCMAPS; i++)
+		{
 			idStr::snPrintf(name, "CWILV%2.2d", i);
 			::g->lnames[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
-		}					
+		}
 	}
 	else
 	{
 		::g->lnames = static_cast<patch_t**>(DoomLib::Z_Malloc(sizeof(patch_t*) * (NUMMAPS), PU_LEVEL_SHARED, nullptr));
-		for (i=0 ; i<NUMMAPS ; i++)
+		for (i = 0; i < NUMMAPS; i++)
 		{
 			idStr::snPrintf(name, "WILV%d%d", ::g->wbs->epsd, i);
 			::g->lnames[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
@@ -1680,26 +1683,26 @@ static void WI_loadData()
 		::g->yah[1] = static_cast<patch_t*>(W_CacheLumpName("WIURH1", PU_LEVEL_SHARED));
 
 		// splat
-		::g->splat = static_cast<patch_t*>(W_CacheLumpName("WISPLAT", PU_LEVEL_SHARED)); 
-	
+		::g->splat = static_cast<patch_t*>(W_CacheLumpName("WISPLAT", PU_LEVEL_SHARED));
+
 		if (::g->wbs->epsd < 3)
 		{
-			for (j=0;j < ::g->NUMANIMS[::g->wbs->epsd];j++)
+			for (j = 0; j < ::g->NUMANIMS[::g->wbs->epsd]; j++)
 			{
 				a = &::g->wi_stuff_anims[::g->wbs->epsd][j];
-				for (i=0;i<a->nanims;i++)
+				for (i = 0; i < a->nanims; i++)
 				{
 					// MONDO HACK!
-					if (::g->wbs->epsd != 1 || j != 8) 
+					if (::g->wbs->epsd != 1 || j != 8)
 					{
 						// animations
-						idStr::snPrintf(name, "WIA%d%.2d%.2d", ::g->wbs->epsd, j, i);  
+						idStr::snPrintf(name, "WIA%d%.2d%.2d", ::g->wbs->epsd, j, i);
 						a->p[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 					}
 					else
 					{
 						// HACK ALERT!
-						a->p[i] = ::g->wi_stuff_anims[1][4].p[i]; 
+						a->p[i] = ::g->wi_stuff_anims[1][4].p[i];
 					}
 				}
 			}
@@ -1707,12 +1710,12 @@ static void WI_loadData()
 	}
 
 	// More hacks on minus sign.
-	::g->wiminus = static_cast<patch_t*>(W_CacheLumpName("WIMINUS", PU_LEVEL_SHARED)); 
+	::g->wiminus = static_cast<patch_t*>(W_CacheLumpName("WIMINUS", PU_LEVEL_SHARED));
 
-	for (i=0;i<10;i++)
+	for (i = 0; i < 10; i++)
 	{
 		// numbers 0-9
-		idStr::snPrintf(name, "WINUM%d", i);     
+		idStr::snPrintf(name, "WINUM%d", i);
 		::g->num[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 	}
 
@@ -1726,30 +1729,30 @@ static void WI_loadData()
 	::g->entering = static_cast<patch_t*>(W_CacheLumpName("WIENTER", PU_LEVEL_SHARED));
 
 	// "kills"
-	::g->kills = static_cast<patch_t*>(W_CacheLumpName("WIOSTK", PU_LEVEL_SHARED));   
+	::g->kills = static_cast<patch_t*>(W_CacheLumpName("WIOSTK", PU_LEVEL_SHARED));
 
 	// "scrt"
 	::g->secret = static_cast<patch_t*>(W_CacheLumpName("WIOSTS", PU_LEVEL_SHARED));
 
-	 // "secret"
+	// "secret"
 	::g->sp_secret = static_cast<patch_t*>(W_CacheLumpName("WISCRT2", PU_LEVEL_SHARED));
 
 	::g->items = static_cast<patch_t*>(W_CacheLumpName("WIOSTI", PU_LEVEL_SHARED));
 
 	// "frgs"
-	::g->wistuff_frags = static_cast<patch_t*>(W_CacheLumpName("WIFRGS", PU_LEVEL_SHARED));    
+	::g->wistuff_frags = static_cast<patch_t*>(W_CacheLumpName("WIFRGS", PU_LEVEL_SHARED));
 
 	// ":"
-	::g->colon = static_cast<patch_t*>(W_CacheLumpName("WICOLON", PU_LEVEL_SHARED)); 
+	::g->colon = static_cast<patch_t*>(W_CacheLumpName("WICOLON", PU_LEVEL_SHARED));
 
 	// "time"
-	::g->time = static_cast<patch_t*>(W_CacheLumpName("WITIME", PU_LEVEL_SHARED));   
+	::g->time = static_cast<patch_t*>(W_CacheLumpName("WITIME", PU_LEVEL_SHARED));
 
 	// "sucks"
-	::g->sucks = static_cast<patch_t*>(W_CacheLumpName("WISUCKS", PU_LEVEL_SHARED));  
+	::g->sucks = static_cast<patch_t*>(W_CacheLumpName("WISUCKS", PU_LEVEL_SHARED));
 
 	// "par"
-	::g->par = static_cast<patch_t*>(W_CacheLumpName("WIPAR", PU_LEVEL_SHARED));   
+	::g->par = static_cast<patch_t*>(W_CacheLumpName("WIPAR", PU_LEVEL_SHARED));
 
 	// "killers" (vertical)
 	::g->killers = static_cast<patch_t*>(W_CacheLumpName("WIKILRS", PU_LEVEL_SHARED));
@@ -1758,22 +1761,22 @@ static void WI_loadData()
 	::g->victims = static_cast<patch_t*>(W_CacheLumpName("WIVCTMS", PU_LEVEL_SHARED));
 
 	// "total"
-	::g->total = static_cast<patch_t*>(W_CacheLumpName("WIMSTT", PU_LEVEL_SHARED));   
+	::g->total = static_cast<patch_t*>(W_CacheLumpName("WIMSTT", PU_LEVEL_SHARED));
 
 	// your face
 	::g->star = static_cast<patch_t*>(W_CacheLumpName("STFST01", PU_STATIC_SHARED)); // ALAN: this is statically in the game...
 
 	// dead face
-	::g->bstar = static_cast<patch_t*>(W_CacheLumpName("STFDEAD0", PU_STATIC_SHARED));    
+	::g->bstar = static_cast<patch_t*>(W_CacheLumpName("STFDEAD0", PU_STATIC_SHARED));
 
-	for (i=0 ; i<MAXPLAYERS ; i++)
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		// "1,2,3,4"
-		idStr::snPrintf(name, "STPB%d", i);      
+		idStr::snPrintf(name, "STPB%d", i);
 		::g->wistuff_p[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 
 		// "1,2,3,4"
-		idStr::snPrintf(name, "WIBP%d", i+1);     
+		idStr::snPrintf(name, "WIBP%d", i + 1);
 		::g->wistuff_bp[i] = static_cast<patch_t*>(W_CacheLumpName(name, PU_LEVEL_SHARED));
 	}
 
@@ -1781,120 +1784,120 @@ static void WI_loadData()
 
 void WI_unloadData()
 {
-	Z_FreeTags( PU_LEVEL_SHARED, PU_LEVEL_SHARED );
+	Z_FreeTags(PU_LEVEL_SHARED, PU_LEVEL_SHARED);
 	// HACK ALERT - reset these to help stability? they are used for consistency checking
-	for (int i=0 ; i<MAXPLAYERS ; i++)
+	for (auto& player : ::g->players)
 	{
-		if (::g->playeringame[i]) 
-		{ 
-			::g->players[i].mo = nullptr;
+		if (player.playerInGame)
+		{
+			player.mo = nullptr;
 		}
 	}
-	::g->bg = nullptr;	
+	::g->bg = nullptr;
 }
 
-void WI_Drawer ()
+void WI_Drawer()
 {
-    switch (::g->state)
-    {
-      case StatCount:
-	if (::g->deathmatch)
+	switch (::g->state)
 	{
-		WI_drawDeathmatchStats();
+	case StatCount:
+		if (::g->deathmatch)
+		{
+			WI_drawDeathmatchStats();
+		}
+		else if (::g->netgame)
+		{
+			WI_drawNetgameStats();
+		}
+		else
+		{
+			WI_drawStats();
+		}
+		break;
+
+	case ShowNextLoc:
+		WI_drawShowNextLoc();
+		break;
+
+	case NoState:
+		WI_drawNoState();
+		break;
 	}
-	else if (::g->netgame)
-	{
-		WI_drawNetgameStats();
-	}
-	else
-	{
-		WI_drawStats();
-	}
-	break;
-	
-      case ShowNextLoc:
-	WI_drawShowNextLoc();
-	break;
-	
-      case NoState:
-	WI_drawNoState();
-	break;
-    }
 }
 
 
 static void WI_initVariables(wbstartstruct_t* wbstartstruct)
 {
 
-    ::g->wbs = wbstartstruct;
+	::g->wbs = wbstartstruct;
 
 #ifdef RANGECHECKING
-    if (::g->gamemode != commercial)
-    {
-      if ( ::g->gamemode == retail )
-      {
-	      RNGCHECK(::g->wbs->epsd, 0, 3);
-      }
-      else
-      {
-	      RNGCHECK(::g->wbs->epsd, 0, 2);
-      }
-    }
-    else
-    {
-	RNGCHECK(::g->wbs->last, 0, 8);
-	RNGCHECK(::g->wbs->next, 0, 8);
-    }
-    RNGCHECK(::g->wbs->pnum, 0, MAXPLAYERS);
-    RNGCHECK(::g->wbs->pnum, 0, MAXPLAYERS);
+	if (::g->gamemode != commercial)
+	{
+		if (::g->gamemode == retail)
+		{
+			RNGCHECK(::g->wbs->epsd, 0, 3);
+		}
+		else
+		{
+			RNGCHECK(::g->wbs->epsd, 0, 2);
+		}
+	}
+	else
+	{
+		RNGCHECK(::g->wbs->last, 0, 8);
+		RNGCHECK(::g->wbs->next, 0, 8);
+	}
+	RNGCHECK(::g->wbs->pnum, 0, MAXPLAYERS);
+	RNGCHECK(::g->wbs->pnum, 0, MAXPLAYERS);
 #endif
 
-    ::g->acceleratestage = 0;
-    ::g->cnt = ::g->bcnt = 0;
-    ::g->firstrefresh = 1;
-    ::g->me = ::g->wbs->pnum;
-    plrs = ::g->wbs->plyr;
+	::g->acceleratestage = 0;
+	::g->cnt = ::g->bcnt = 0;
+	::g->firstrefresh = 1;
+	::g->me = ::g->wbs->pnum;
+	plrs = ::g->wbs->plyr;
 
-    if (!::g->wbs->maxkills)
-    {
-	    ::g->wbs->maxkills = 1;
-    }
+	if (!::g->wbs->maxkills)
+	{
+		::g->wbs->maxkills = 1;
+	}
 
-    if (!::g->wbs->maxitems)
-    {
-	    ::g->wbs->maxitems = 1;
-    }
+	if (!::g->wbs->maxitems)
+	{
+		::g->wbs->maxitems = 1;
+	}
 
-    if (!::g->wbs->maxsecret)
-    {
-	    ::g->wbs->maxsecret = 1;
-    }
+	if (!::g->wbs->maxsecret)
+	{
+		::g->wbs->maxsecret = 1;
+	}
 
-    if ( ::g->gamemode != retail )
-    {
-	    if (::g->wbs->epsd > 2)
-	    {
-		    ::g->wbs->epsd -= 3;
-	    }
-    }
+	if (::g->gamemode != retail)
+	{
+		if (::g->wbs->epsd > 2)
+		{
+			::g->wbs->epsd -= 3;
+		}
+	}
 }
 
 void WI_Start(wbstartstruct_t* wbstartstruct)
 {
 
-    WI_initVariables(wbstartstruct);
-    WI_loadData();
+	WI_initVariables(wbstartstruct);
+	WI_loadData();
 
-    if (::g->deathmatch)
-    {
-	    WI_initDeathmatchStats();
-    }
-    else if (::g->netgame)
-    {
-	    WI_initNetgameStats();
-    }
-    else
-    {
-	    WI_initStats();
-    }
+	if (::g->deathmatch)
+	{
+		WI_initDeathmatchStats();
+	}
+	else if (::g->netgame)
+	{
+		WI_initNetgameStats();
+	}
+	else
+	{
+		WI_initStats();
+	}
 }

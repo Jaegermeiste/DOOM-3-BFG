@@ -308,9 +308,9 @@ struct Globals {
 	hu_itext_t	w_chat;
 	bool		always_off;
 	char		chat_dest[MAXPLAYERS];
-	hu_itext_t w_inputbuffer[MAXPLAYERS];
+	hu_itext_t  w_inputbuffer[MAXPLAYERS];
 	bool		message_on;
-	bool			message_dontfuckwithme;
+	bool		message_dontfuckwithme;
 	bool		message_nottobefuckedwith;
 	hu_stext_t	w_message;
 	size_t		message_counter;

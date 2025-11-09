@@ -562,7 +562,10 @@ public:
 	static int					BitCount( int x );			// returns the number of 1 bits in x
 	static int					BitReverse( int x );		// returns the bit reverse of x
 
-	static int					Abs( int x );				// returns the absolute value of the integer value (for reference only)
+	static int8			    	Abs( int8 x );				// returns the absolute value of the integer value
+	static int16				Abs( int16 x );				// returns the absolute value of the integer value
+	static int32				Abs( int32 x );				// returns the absolute value of the integer value
+	static int64				Abs( int64 x );				// returns the absolute value of the integer value
 	static float				Fabs( float f );			// returns the absolute value of the floating point value
 	static double				Fabs( double f );			// returns the absolute value of the floating point value
 	static auto			     	Floor( const std::floating_point auto f );			// returns the largest integer that is less than or equal to the given value
@@ -1597,13 +1600,25 @@ ID_INLINE int idMath::BitReverse( int x ) {
 idMath::Abs
 ========================
 */
-ID_INLINE int idMath::Abs(const int x ) {
+ID_INLINE int8 idMath::Abs(const int8 x) {
+	return numeric_cast<int8>(Abs(x));
+}
+
+ID_INLINE int16 idMath::Abs(const int16 x) {
+	return numeric_cast<int16>(Abs(x));
+}
+
+ID_INLINE int32 idMath::Abs( const int32 x ) {
 #if 1
 	return abs( x );
 #else
    int y = x >> INT32_SIGN_BIT;
    return ( ( x ^ y ) - y );
 #endif
+}
+
+ID_INLINE int64 idMath::Abs( const int64 x ) {
+	return _abs64(x);
 }
 
 /*

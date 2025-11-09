@@ -120,7 +120,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // Misc. mobj flags
 //
-typedef enum
+typedef enum mobjflag_e : uint32
 {
     // Call P_SpecialThing when touched.
     MF_SPECIAL		= 1,
@@ -250,7 +250,7 @@ struct mobj_t
     fixed_t		momz;
 
     // If == validcount, already checked.
-    int			validcount;
+    size_t		validcount;
 
     mobjtype_t		type;
     const mobjinfo_t*		info;	// &mobjinfo[mobj->type]
@@ -262,7 +262,7 @@ struct mobj_t
 
     // Movement direction, movement generation (zig-zagging).
 	dirtype_t	movedir;	// 0-7
-    int64		movecount;	// when 0, select a new dir
+    int16		movecount;	// when 0, select a new dir
 
     // Thing being chased/attacked (or NULL),
     // also the originator for missiles.
@@ -274,7 +274,7 @@ struct mobj_t
 
     // If >0, the target will be chased
     // no matter what (even if shot)
-    int			threshold;
+    ID_TIME_T	threshold;
 
     // Additional info record for player avatars only.
     // Only valid if type == MT_PLAYER

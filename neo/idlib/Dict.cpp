@@ -25,9 +25,6 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-
-#include <utility>
-
 #include "precompiled.h"
 #pragma hdrstop
 
@@ -981,7 +978,7 @@ const char *idDict< T >::RandomPrefix( const Formattable auto &prefix, idRandom 
 	for ( count = 0, kv = idDict< T >::MatchPrefix( prefix ); kv != nullptr && count < MAX_RANDOM_KEYS; kv = idDict< T >::MatchPrefix( prefix, kv ) ) {
 		list[count++] = kv->GetValue().c_str();
 	}
-	return list[random.RandomInt( count )];
+	return list[random.RandomInt32( count )];
 }
 
 /*

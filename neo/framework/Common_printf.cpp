@@ -442,7 +442,7 @@ void idCommonLocal::Error( const char *fmt, ... ) {
 	}
 
 	// if we are getting a solid stream of ERP_DROP, do an ERP_FATAL
-	int currentTime = Sys_Milliseconds();
+	ID_TIME_T currentTime = Sys_Milliseconds();
 	if ( currentTime - lastErrorTime < 100 ) {
 		if ( ++errorCount > 3 ) {
 			code = ERP_FATAL;

@@ -117,7 +117,7 @@ void idSIMD::Shutdown() {
 //===============================================================
 
 constexpr size_t COUNT = 999;			// data count (odd to catch edge cases)
-#define BIG_COUNT	(COUNT*5)		// Some tests need a larger count
+constexpr size_t BIG_COUNT(COUNT * 5);	// Some tests need a larger count
 constexpr size_t NUMTESTS = 2048;		// number of tests
 
 constexpr auto RANDOM_SEED = 1013904223L;	//((int)idLib::sys->GetClockTicks())
@@ -355,19 +355,19 @@ TestMemcpy
 */
 static void TestMemcpy() {
 	TIME_TYPE start = 0, end = 0;
-	int i = 0;
+	index_t i = 0;
 	byte test0[BIG_COUNT] = {};
 	byte test1[BIG_COUNT] = {};
 
 	idRandom random( RANDOM_SEED );
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		test0[i] = random.RandomInt( 255 );
+	for ( i = 0; std::cmp_less(i, BIG_COUNT); ++i ) {
+		test0[i] = random.RandomByte();
 	}
 
 	idLib::common->Printf("====================================\n" );
 
 	TIME_TYPE bestClocksGeneric = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
+	for ( i = 0; std::cmp_less(i, NUMTESTS); ++i ) {
 		StartRecordTime( start );
 		p_generic->Memcpy( test1, test0, BIG_COUNT );
 		StopRecordTime( end );
@@ -375,23 +375,23 @@ static void TestMemcpy() {
 	}
 	PrintClocks( "generic->Memcpy()", BIG_COUNT, bestClocksGeneric );
 
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		test0[i] = random.RandomInt( 255 );
+	for ( i = 0; std::cmp_less(i, BIG_COUNT); i++ ) {
+		test0[i] = random.RandomByte();
 	}
 
 	TIME_TYPE bestClocksSIMD = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
+	for ( i = 0; std::cmp_less(i, NUMTESTS); ++i ) {
 		StartRecordTime( start );
 		p_simd->Memcpy( test1, test0, BIG_COUNT );
 		StopRecordTime( end );
 		GetBest( start, end, bestClocksSIMD );
 	}
-	for ( i = 0; i < BIG_COUNT; i++ ) {
+	for ( i = 0; std::cmp_less(i, BIG_COUNT); ++i ) {
 		if ( test1[i] != test0[i] ) {
 			break;
 		}
 	}
-	const char* result = (i >= BIG_COUNT) ? "ok" : S_COLOR_RED"X";
+	const char* result = std::cmp_greater_equal(i, BIG_COUNT) ? "ok" : S_COLOR_RED"X";
 	PrintClocks( va( "   simd->Memcpy() %s", result), BIG_COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
@@ -406,7 +406,7 @@ static void TestMemset() {
 	byte test0[BIG_COUNT];
 
 	idRandom random( RANDOM_SEED );
-	int j = 1 + random.RandomInt(254);
+	int j = 1 + random.RandomInt32(254);
 
 	idLib::common->Printf("====================================\n" );
 
@@ -419,7 +419,7 @@ static void TestMemset() {
 	}
 	PrintClocks( "generic->Memset()", BIG_COUNT, bestClocksGeneric );
 
-	j = 1 + random.RandomInt( 254 );
+	j = 1 + random.RandomInt32( 254 );
 
 	TIME_TYPE bestClocksSIMD = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {

@@ -2964,7 +2964,7 @@ size_t idDeclModelDef::GetAnim( const char *name ) const {
 
 	// get a random anim
 	//FIXME: don't access gameLocal here?
-	const size_t which = numeric_cast<size_t>(gameLocal.random.RandomInt(numAnims));
+	const size_t which = numeric_cast<size_t>(gameLocal.random.RandomInt32(numAnims));
 	return animList[ which ] + 1;
 }
 

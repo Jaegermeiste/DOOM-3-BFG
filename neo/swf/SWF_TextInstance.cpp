@@ -226,7 +226,7 @@ void idSWFTextInstance::StartParagraphText( ID_TIME_T time ) {
 	}
 
 	for( index_t index = 0; index < indexArray.Num(); ++index ) {
-		int swapIndex = rnd.RandomInt( indexArray.Num() );
+		int swapIndex = rnd.RandomInt32( indexArray.Num() );
 		int val = indexArray[index];
 		indexArray[index] = indexArray[swapIndex];
 		indexArray[swapIndex] = val;		
@@ -329,7 +329,7 @@ idStr idSWFTextInstance::GetRandomText( ID_TIME_T time ) {
 			if ( time - rndTime >= waitTime ) {
 				rndTime = time;
 
-				int spotIndex = rnd.RandomInt( rndSpotsVisible );
+				int spotIndex = rnd.RandomInt32( rndSpotsVisible );
 				int cIndex = 0;
 				for( int c = 0; c < randomtext.Length(); ++ c ) {
 
@@ -353,9 +353,9 @@ idStr idSWFTextInstance::GetRandomText( ID_TIME_T time ) {
 						}
 
 						if ( useCaps || renderMode == SWF_TEXT_RENDER_RANDOM_APPEAR_CAPS ) {
-							randomtext[c] = rnd.RandomInt( 'Z' - 'A' ) + 'A';
+							randomtext[c] = rnd.RandomInt32( 'Z' - 'A' ) + 'A';
 						} else {
-							randomtext[c] = rnd.RandomInt( 'z' - 'a' ) + 'a';
+							randomtext[c] = rnd.RandomInt32( 'z' - 'a' ) + 'a';
 						}
 
 						rndSpotsVisible--;

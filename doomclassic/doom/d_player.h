@@ -93,6 +93,7 @@ typedef enum cheat_e : uint8
 //
 typedef struct player_s
 {
+	index_t     index;
     mobj_t*		mo;
     playerstate_t	playerstate;
     ticcmd_t		cmd;

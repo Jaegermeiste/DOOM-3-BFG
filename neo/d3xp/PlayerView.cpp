@@ -298,11 +298,11 @@ void idPlayerView::DamageImpulse( idVec3 localKickDir, const idDict *damageDef )
 		const char *materialName = damageDef->GetString( "mtr_blob" );
 		blob->material = declManager->FindMaterial( materialName );
 		blob->x = damageDef->GetFloat( "blob_x" );
-		blob->x += ( gameLocal.random.RandomInt()&63 ) - 32;
+		blob->x += ( gameLocal.random.RandomInt32()&63 ) - 32;
 		blob->y = damageDef->GetFloat( "blob_y" );
-		blob->y += ( gameLocal.random.RandomInt()&63 ) - 32;
+		blob->y += ( gameLocal.random.RandomInt32()&63 ) - 32;
 		
-		float scale = ( 256 + ( ( gameLocal.random.RandomInt()&63 ) - 32 ) ) / 256.0f;
+		float scale = ( 256 + ( ( gameLocal.random.RandomInt32()&63 ) - 32 ) ) / 256.0f;
 		blob->w = damageDef->GetFloat( "blob_width" ) * g_blobSize.GetFloat() * scale;
 		blob->h = damageDef->GetFloat( "blob_height" ) * g_blobSize.GetFloat() * scale;
 		blob->s1 = 0.0f;

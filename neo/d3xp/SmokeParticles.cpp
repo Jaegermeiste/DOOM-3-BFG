@@ -282,7 +282,7 @@ bool idSmokeParticles::EmitSmoke( const idDeclParticle *smoke, const int systemS
 			newSmoke->next = active->smokes;
 			active->smokes = newSmoke;
 
-			steppingRandom.RandomInt();	// advance the random
+			steppingRandom.RandomInt32();	// advance the random
 		}
 	}
 

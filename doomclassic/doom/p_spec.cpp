@@ -1143,15 +1143,16 @@ void P_PlayerInSpecialSector (player_t* player)
 // P_UpdateSpecials
 // Animate planes, scroll walls, etc.
 //
-static int PlayerFrags(const int playernum ) {
-	int	frags = 0;
+static int64 PlayerFrags( const index_t playernum ) {
+	int64	frags = 0;
 
-	for( int i=0 ; std::cmp_less(i, MAXPLAYERS); ++i) {
+	for( index_t i = 0 ; std::cmp_less(i, ::g->players.Num()); ++i) {
 		if ( i != playernum ) {
 			frags += ::g->players[playernum].frags[i];
 		}
 	}
 
+	// Subtract self-frags
 	frags -= ::g->players[playernum].frags[playernum];
 
 	return frags;
@@ -1179,9 +1180,9 @@ void P_UpdateSpecials ()
 	if ( ::g->deathmatch && ::g->levelFragCount > 0 ) {
 		bool fragCountHit = false;
 
-		for ( int i=0; std::cmp_less(i, MAXPLAYERS); ++i ) {
-			if ( ::g->playeringame[i] ) {
-				if (std::cmp_greater_equal(PlayerFrags(i), ::g->levelFragCount)) {
+		for (auto& player : ::g->players) {
+			if ( player.playerInGame ) {
+				if (std::cmp_greater_equal(PlayerFrags(player.index), ::g->levelFragCount)) {
 					fragCountHit = true;
 				}
 			}

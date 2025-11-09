@@ -1045,7 +1045,7 @@ void idItemTeam::Event_TakeFlag( idPlayer * player ) {
 		gameLocal.mpGame.PrintMessageEvent( idMultiplayerGame::MSG_FLAGTAKEN, team, player->entityNumber );
 
 		// dont drop a nugget RIGHT away
-		lastNuggetDrop = gameLocal.time - gameLocal.random.RandomInt( 1000 );
+		lastNuggetDrop = gameLocal.time - gameLocal.random.RandomInt32( 1000 );
 
 	}
 
@@ -1298,8 +1298,8 @@ idItemTeam::SpawnNugget
 */
 void idItemTeam::SpawnNugget(const idVec3& pos ) const
 {
-	const idAngles angle( gameLocal.random.RandomInt(spawnArgs.GetInt("nugget_pitch", "30")),	gameLocal.random.RandomInt(spawnArgs.GetInt("nugget_yaw", "360" )),	0 );
-	float velocity = numeric_cast<float>(gameLocal.random.RandomInt(40) + 15);
+	const idAngles angle( gameLocal.random.RandomInt32(spawnArgs.GetInt("nugget_pitch", "30")),	gameLocal.random.RandomInt32(spawnArgs.GetInt("nugget_yaw", "360" )),	0 );
+	float velocity = numeric_cast<float>(gameLocal.random.RandomInt32(40) + 15);
 
 	velocity *= spawnArgs.GetFloat("nugget_velocity", "1" );
 

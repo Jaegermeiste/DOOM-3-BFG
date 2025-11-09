@@ -2314,7 +2314,7 @@ void idAI::Event_GetRandomTarget( const char *type ) {
 		return;
 	}
 
-	which = gameLocal.random.RandomInt( num );
+	which = gameLocal.random.RandomInt32( num );
 	idThread::ReturnEntity( ents[ which ] );
 }
 

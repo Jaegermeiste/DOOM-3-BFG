@@ -749,7 +749,7 @@ void idImageManager::Preload( const idPreloadManifest &manifest, const bool & ma
 		// preload this levels images
 		common->Printf( "Preloading images...\n" );
 		preloadingMapImages = mapPreload;
-		int	start = Sys_Milliseconds();
+		ID_TIME_T	start = Sys_Milliseconds();
 		size_t numLoaded = 0;
 
 		//fileSystem->StartPreload( preloadImageFiles );
@@ -761,7 +761,7 @@ void idImageManager::Preload( const idPreloadManifest &manifest, const bool & ma
 			}
 		}
 		//fileSystem->StopPreload();
-		int	end = Sys_Milliseconds();
+		ID_TIME_T	end = Sys_Milliseconds();
 		common->Printf( "%05d images preloaded ( or were already loaded ) in %5.1f seconds\n", numLoaded, ( end - start ) * 0.001 );
 		common->Printf( "----------------------------------------\n" );
 		preloadingMapImages = false;
@@ -802,10 +802,10 @@ void idImageManager::EndLevelLoad() {
 	insideLevelLoad = false;
 
 	common->Printf( "----- idImageManager::EndLevelLoad -----\n" );
-	int start = Sys_Milliseconds();
+	ID_TIME_T start = Sys_Milliseconds();
 	int	loadCount = LoadLevelImages( true );
 
-	int	end = Sys_Milliseconds();
+	ID_TIME_T	end = Sys_Milliseconds();
 	common->Printf( "%5i images loaded in %5.1f seconds\n", loadCount, (end-start) * 0.001 );
 	common->Printf( "----------------------------------------\n" );
 	//R_ListImages_f( idCmdArgs( "sorted sorted", false ) );

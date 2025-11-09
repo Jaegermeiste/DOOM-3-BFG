@@ -28,8 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../idlib/precompiled.h"
 #include "sys_session_local.h"
-
-#include <algorithm>
 #include "sys_voicechat.h"
 #include "sys_dedicated_server_search.h"
 
@@ -2909,7 +2907,7 @@ void idSessionLocal::ComputeNextGameCoalesceTime() {
 	if ( coalesceTimeInSeconds != 0 ) {
 		static idRandom2 random( Sys_Milliseconds() );
 
-		nextGameCoalesceTime = Sys_Milliseconds() + numeric_cast<ID_TIME_T>(( coalesceTimeInSeconds + random.RandomInt( randomCoalesceTimeInSeconds ) ) * 1000);
+		nextGameCoalesceTime = Sys_Milliseconds() + numeric_cast<ID_TIME_T>(( coalesceTimeInSeconds + random.RandomInt32( randomCoalesceTimeInSeconds ) ) * 1000);
 	} else {
 		nextGameCoalesceTime = 0;
 	}
@@ -3822,7 +3820,7 @@ bool idNetSessionPort::ReadRawPacket( lobbyAddress_t & from, void * data, size_t
 	
 	static idRandom2 random( Sys_Milliseconds() );
 	if ( net_forceDrop.GetInteger() != 0 ) {
-		forcePacketDropCurr = random.RandomInt( 100 );		
+		forcePacketDropCurr = random.RandomInt32( 100 );		
 		if ( net_forceDrop.GetInteger() >= forcePacketDropCurr ) {
 			return false;
 		}
@@ -3838,7 +3836,7 @@ idNetSessionPort::SendRawPacket
 */
 void idNetSessionPort::SendRawPacket( const lobbyAddress_t & to, const void * data, const size_t size ) {
 	static idRandom2 random( Sys_Milliseconds() );
-	if ( net_forceDrop.GetInteger() != 0 && net_forceDrop.GetInteger() >= random.RandomInt( 100 ) ) {
+	if ( net_forceDrop.GetInteger() != 0 && net_forceDrop.GetInteger() >= random.RandomInt32( 100 ) ) {
 		return;
 	}
 	assert( size <= idPacketProcessor::MAX_FINAL_PACKET_SIZE );

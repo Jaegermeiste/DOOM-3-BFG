@@ -425,7 +425,7 @@ void SSDAsteroid::Init(idGameSSDWindow* _game, const idVec3& startPosition, cons
 	SetMaterial(ASTEROID_MATERIAL);
 	SetSize(_size);
 	SetRadius(Max(size.x, size.y), 0.3f);
-	SetRotation(game->random.RandomInt(360));
+	SetRotation(game->random.RandomInt32(360));
 
 	
 	position = startPosition;
@@ -523,7 +523,7 @@ void SSDAstronaut::Init(idGameSSDWindow* _game, const idVec3& startPosition, con
 	SetMaterial(ASTRONAUT_MATERIAL);
 	SetSize(idVec2(256,256));
 	SetRadius(Max(size.x, size.y), 0.3f);
-	SetRotation(game->random.RandomInt(360));
+	SetRotation(game->random.RandomInt32(360));
 	
 	position = startPosition;
 	health = _health;
@@ -1100,7 +1100,7 @@ void SSDPowerup::OnActivatePowerup() {
 			}
 		case POWERUP_TYPE_BONUS_POINTS:
 			{
-				int points = (game->random.RandomInt(5)+1) * 100;
+				int points = (game->random.RandomInt32(5)+1) * 100;
 				game->AddScore(this, points);
 				break;
 			}
@@ -1127,15 +1127,15 @@ void SSDPowerup::Init(idGameSSDWindow* _game, const float _speed, const float _r
 	type = SSD_ENTITY_POWERUP;
 	
 	idVec3 startPosition;
-	startPosition.x = game->random.RandomInt(V_WIDTH)-(V_WIDTH/2.0f);
-	startPosition.y = game->random.RandomInt(V_HEIGHT)-(V_HEIGHT/2.0f);
+	startPosition.x = game->random.RandomInt32(V_WIDTH)-(V_WIDTH/2.0f);
+	startPosition.y = game->random.RandomInt32(V_HEIGHT)-(V_HEIGHT/2.0f);
 	startPosition.z = ENTITY_START_DIST;
 
 	position = startPosition;
 	//SetPosition(startPosition);
 
 	powerupState = POWERUP_STATE_CLOSED;
-	powerupType = game->random.RandomInt(POWERUP_TYPE_MAX+1);
+	powerupType = game->random.RandomInt32(POWERUP_TYPE_MAX+1);
 	if(powerupType >= POWERUP_TYPE_MAX) {
 		powerupType = 0;
 	}
@@ -1880,18 +1880,18 @@ void idGameSSDWindow::SpawnAsteroid() {
 	idVec3 startPosition;
 
 	float spawnBuffer = levelData[gameStats.currentLevel].spawnBuffer*2.0f;
-	startPosition.x = random.RandomInt(V_WIDTH+spawnBuffer)-((V_WIDTH/2.0f)+spawnBuffer);
-	startPosition.y = random.RandomInt(V_HEIGHT+spawnBuffer)-((V_HEIGHT/2.0f)+spawnBuffer);
+	startPosition.x = random.RandomInt32(V_WIDTH+spawnBuffer)-((V_WIDTH/2.0f)+spawnBuffer);
+	startPosition.y = random.RandomInt32(V_HEIGHT+spawnBuffer)-((V_HEIGHT/2.0f)+spawnBuffer);
 	startPosition.z = ENTITY_START_DIST;
 
-	float speed = random.RandomInt(asteroidData[gameStats.currentLevel].speedMax - asteroidData[gameStats.currentLevel].speedMin) + asteroidData[gameStats.currentLevel].speedMin;
-	float size = random.RandomInt(asteroidData[gameStats.currentLevel].sizeMax - asteroidData[gameStats.currentLevel].sizeMin) + asteroidData[gameStats.currentLevel].sizeMin;
+	float speed = random.RandomInt32(asteroidData[gameStats.currentLevel].speedMax - asteroidData[gameStats.currentLevel].speedMin) + asteroidData[gameStats.currentLevel].speedMin;
+	float size = random.RandomInt32(asteroidData[gameStats.currentLevel].sizeMax - asteroidData[gameStats.currentLevel].sizeMin) + asteroidData[gameStats.currentLevel].sizeMin;
 	float rotate = (random.RandomFloat() * (asteroidData[gameStats.currentLevel].rotateMax - asteroidData[gameStats.currentLevel].rotateMin)) + asteroidData[gameStats.currentLevel].rotateMin;
 	
 	SSDAsteroid* asteroid = SSDAsteroid::GetNewAsteroid(this, startPosition, idVec2(size, size), speed, rotate, asteroidData[gameStats.currentLevel].asteroidHealth);
 	entities.Append(asteroid);
 	
-	gameStats.levelStats.nextAsteroidSpawnTime = currentTime + random.RandomInt(asteroidData[gameStats.currentLevel].spawnMax - asteroidData[gameStats.currentLevel].spawnMin) + asteroidData[gameStats.currentLevel].spawnMin;
+	gameStats.levelStats.nextAsteroidSpawnTime = currentTime + random.RandomInt32(asteroidData[gameStats.currentLevel].spawnMax - asteroidData[gameStats.currentLevel].spawnMin) + asteroidData[gameStats.currentLevel].spawnMin;
 }
 
 void idGameSSDWindow::FireWeapon(const int key) {
@@ -2158,17 +2158,17 @@ void idGameSSDWindow::SpawnAstronaut() {
 	//Lets spawn it
 	idVec3 startPosition;
 
-	startPosition.x = random.RandomInt(V_WIDTH)-(V_WIDTH/2.0f);
-	startPosition.y = random.RandomInt(V_HEIGHT)-(V_HEIGHT/2.0f);
+	startPosition.x = random.RandomInt32(V_WIDTH)-(V_WIDTH/2.0f);
+	startPosition.y = random.RandomInt32(V_HEIGHT)-(V_HEIGHT/2.0f);
 	startPosition.z = ENTITY_START_DIST;
 
-	float speed = random.RandomInt(astronautData[gameStats.currentLevel].speedMax - astronautData[gameStats.currentLevel].speedMin) + astronautData[gameStats.currentLevel].speedMin;
+	float speed = random.RandomInt32(astronautData[gameStats.currentLevel].speedMax - astronautData[gameStats.currentLevel].speedMin) + astronautData[gameStats.currentLevel].speedMin;
 	float rotate = (random.RandomFloat() * (astronautData[gameStats.currentLevel].rotateMax - astronautData[gameStats.currentLevel].rotateMin)) + astronautData[gameStats.currentLevel].rotateMin;
 
 	SSDAstronaut* astronaut = SSDAstronaut::GetNewAstronaut(this, startPosition, speed, rotate, astronautData[gameStats.currentLevel].health);
 	entities.Append(astronaut);
 
-	gameStats.levelStats.nextAstronautSpawnTime = currentTime + random.RandomInt(astronautData[gameStats.currentLevel].spawnMax - astronautData[gameStats.currentLevel].spawnMin) + astronautData[gameStats.currentLevel].spawnMin;
+	gameStats.levelStats.nextAstronautSpawnTime = currentTime + random.RandomInt32(astronautData[gameStats.currentLevel].spawnMax - astronautData[gameStats.currentLevel].spawnMin) + astronautData[gameStats.currentLevel].spawnMin;
 }
 
 void idGameSSDWindow::HitAstronaut(SSDAstronaut* astronaut, const int key) {
@@ -2229,13 +2229,13 @@ void idGameSSDWindow::SpawnPowerup() {
 		return;
 	}
 
-	float speed = random.RandomInt(powerupData[gameStats.currentLevel].speedMax - powerupData[gameStats.currentLevel].speedMin) + powerupData[gameStats.currentLevel].speedMin;
+	float speed = random.RandomInt32(powerupData[gameStats.currentLevel].speedMax - powerupData[gameStats.currentLevel].speedMin) + powerupData[gameStats.currentLevel].speedMin;
 	float rotate = (random.RandomFloat() * (powerupData[gameStats.currentLevel].rotateMax - powerupData[gameStats.currentLevel].rotateMin)) + powerupData[gameStats.currentLevel].rotateMin;
 
 	SSDPowerup* powerup = SSDPowerup::GetNewPowerup(this, speed, rotate);
 	entities.Append(powerup);
 
-	gameStats.levelStats.nextPowerupSpawnTime = currentTime + random.RandomInt(powerupData[gameStats.currentLevel].spawnMax - powerupData[gameStats.currentLevel].spawnMin) + powerupData[gameStats.currentLevel].spawnMin;
+	gameStats.levelStats.nextPowerupSpawnTime = currentTime + random.RandomInt32(powerupData[gameStats.currentLevel].spawnMax - powerupData[gameStats.currentLevel].spawnMin) + powerupData[gameStats.currentLevel].spawnMin;
 
 }
 

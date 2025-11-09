@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 struct overlayText_t {
 	idStr			text;
 	justify_t		justify;
-	int				time;
+	ID_TIME_T		time;
 };
 
 // the console will query the cvar and command systems for
@@ -201,14 +201,14 @@ idConsoleLocal::DrawFPS
 #define	FPS_FRAMES	6
 float idConsoleLocal::DrawFPS( float y ) const
 {
-	static int previousTimes[FPS_FRAMES];
+	static ID_TIME_T previousTimes[FPS_FRAMES];
 	static index_t index;
-	static int previous;
+	static ID_TIME_T previous;
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
-	int t = Sys_Milliseconds();
-	int frameTime = t - previous;
+	ID_TIME_T t = Sys_Milliseconds();
+	ID_TIME_T frameTime = t - previous;
 	previous = t;
 
 	previousTimes[index % FPS_FRAMES] = frameTime;

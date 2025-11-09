@@ -167,6 +167,7 @@
       <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="idlib\Table.cpp" />
+    <ClCompile Include="idlib\UUID7.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="idlib\bv\Bounds.h">
@@ -419,6 +420,10 @@
       <Filter>Hashing</Filter>
     </ClInclude>
     <ClInclude Include="idlib\Table.h" />
+    <ClInclude Include="idlib\UUID7.h" />
+    <ClInclude Include="idlib\sys\sys_concept_integral_or_enum.h">
+      <Filter>Sys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

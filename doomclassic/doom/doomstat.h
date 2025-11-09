@@ -203,13 +203,6 @@ extern  gamestate_t     gamestate;
 extern	ID_TIME_T		gametic;
 
 
-// Bookkeeping on players - state.
-extern	player_t	players[MAXPLAYERS];
-
-// Alive? Disconnected?
-extern  bool		playeringame[MAXPLAYERS];
-
-
 // Player spawn spots for deathmatch.
 //constexpr size_t MAX_DM_STARTS = 16; // https://doomwiki.org/wiki/Static_limits
 //extern  mapthing_t      deathmatchstarts[MAX_DM_STARTS];

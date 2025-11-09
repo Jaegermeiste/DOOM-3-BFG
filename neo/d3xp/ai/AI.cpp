@@ -2211,7 +2211,7 @@ bool idAI::NewWanderDir( const idVec3 &dest ) {
 	}
 
 	// try other directions
-	if ( ( gameLocal.random.RandomInt() & 1 ) || abs( deltay ) > abs( deltax ) ) {
+	if ( ( gameLocal.random.RandomInt32() & 1 ) || abs( deltay ) > abs( deltax ) ) {
 		tdir = d[ 1 ];
 		d[ 1 ] = d[ 2 ];
 		d[ 2 ] = tdir;
@@ -2231,7 +2231,7 @@ bool idAI::NewWanderDir( const idVec3 &dest ) {
 	}
 
 	 // randomly determine direction of search
-	if ( gameLocal.random.RandomInt() & 1 ) {
+	if ( gameLocal.random.RandomInt32() & 1 ) {
 		for( tdir = 0; tdir <= 315; tdir += 45 ) {
 			if ( tdir != turnaround && StepDirection( tdir ) ) {
                 return true;

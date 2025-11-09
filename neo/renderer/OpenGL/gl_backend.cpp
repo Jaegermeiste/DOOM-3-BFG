@@ -118,20 +118,20 @@ We want to exit this with the GPU idle, right at vsync
 const void GL_BlockingSwapBuffers() {
     RENDERLOG_PRINTF( "***************** GL_BlockingSwapBuffers *****************\n\n\n" );
 
-	const int beforeFinish = Sys_Milliseconds();
+	const ID_TIME_T beforeFinish = Sys_Milliseconds();
 
 	if ( !glConfig.syncAvailable ) {
 		glFinish();
 	}
 
-	const int beforeSwap = Sys_Milliseconds();
+	const ID_TIME_T beforeSwap = Sys_Milliseconds();
 	if ( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 ) {
 		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
 	}
 
 	GLimp_SwapBuffers();
 
-	const int beforeFence = Sys_Milliseconds();
+	const ID_TIME_T beforeFence = Sys_Milliseconds();
 	if ( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 ) {
 		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
 	}
@@ -143,12 +143,12 @@ const void GL_BlockingSwapBuffers() {
 			qglDeleteSync( renderSync[swapIndex] );
 		}
 		// draw something tiny to ensure the sync is after the swap
-		const int start = Sys_Milliseconds();
+		const ID_TIME_T start = Sys_Milliseconds();
 		qglScissor( 0, 0, 1, 1 );
 		qglEnable( GL_SCISSOR_TEST );
 		qglClear( GL_COLOR_BUFFER_BIT );
 		renderSync[swapIndex] = qglFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
-		const int end = Sys_Milliseconds();
+		const ID_TIME_T end = Sys_Milliseconds();
 		if ( r_showSwapBuffers.GetBool() && end - start > 1 ) {
 			common->Printf( "%i msec to start fence\n", end - start );
 		}
@@ -167,16 +167,16 @@ const void GL_BlockingSwapBuffers() {
 		}
 	}
 
-	const int afterFence = Sys_Milliseconds();
+	const ID_TIME_T afterFence = Sys_Milliseconds();
 	if ( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 ) {
 		common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
 	}
 
-	const int64 exitBlockTime = Sys_Microseconds();
+	const ID_MICROSEC_T exitBlockTime = Sys_Microseconds();
 
-	static int64 prevBlockTime;
+	static ID_MICROSEC_T prevBlockTime = 0;
 	if ( r_showSwapBuffers.GetBool() && prevBlockTime ) {
-		const int delta = static_cast<int>(exitBlockTime - prevBlockTime);
+		const ID_MICROSEC_T delta = static_cast<ID_MICROSEC_T>(exitBlockTime - prevBlockTime);
 		common->Printf( "blockToBlock: %i\n", delta );
 	}
 	prevBlockTime = exitBlockTime;

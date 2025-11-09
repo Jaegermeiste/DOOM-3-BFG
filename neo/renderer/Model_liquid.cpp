@@ -128,10 +128,10 @@ void idRenderModelLiquid::WaterDrop( int x, int y, float *page ) {
 	float	dist;
 
 	if ( x < 0 ) {
-		x = 1 + drop_radius + random.RandomInt( verts_x - 2 * drop_radius - 1 );
+		x = 1 + drop_radius + random.RandomInt32( verts_x - 2 * drop_radius - 1 );
 	}
 	if ( y < 0 ) {
-		y = 1 + drop_radius + random.RandomInt( verts_y - 2 * drop_radius - 1 );
+		y = 1 + drop_radius + random.RandomInt32( verts_y - 2 * drop_radius - 1 );
 	}
 
 	left=-drop_radius; right = drop_radius;

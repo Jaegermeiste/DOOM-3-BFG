@@ -62,7 +62,7 @@ static const char * renderLogMainBlockLabels[] = {
 	ASSERT_ENUM_STRING( MRB_MAX,							15 )
 };
 
-extern uint64 Sys_Microseconds();
+extern ID_MICROSEC_T Sys_Microseconds() noexcept;
 /*
 ================================================================================================
 

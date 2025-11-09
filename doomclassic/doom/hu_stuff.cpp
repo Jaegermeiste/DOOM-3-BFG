@@ -488,7 +488,6 @@ bool HU_Responder(event_t *ev)
 	if (ev)
 	{
 		const char* macromessage = nullptr;
-		size_t			i = 0;
 
 		static constexpr char destination_keys[MAXPLAYERS] =
 		{

@@ -93,7 +93,7 @@ bool MallocForLump( const index_t lump, const size_t size, _type_ * & ptr, const
 typedef struct memblock_s
 {
 	size_t		size;	// including the header and possibly tiny fragments
-    void**		user;	// NULL if a free block
+    address_t*	user;	// NULL if a free block
     int			tag;	// purgelevel
     int			id;	// should be ZONEID
     struct memblock_s*	next;

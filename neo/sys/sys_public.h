@@ -509,8 +509,8 @@ void			Sys_Sleep( const ID_TIME_T msec );
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
-ID_TIME_T		Sys_Milliseconds();
-uint64  		Sys_Microseconds();
+ID_TIME_T		Sys_Milliseconds() noexcept;
+ID_MICROSEC_T	Sys_Microseconds() noexcept;
 
 // for accurate performance testing
 double			Sys_GetClockTicks();

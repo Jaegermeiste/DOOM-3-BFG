@@ -257,9 +257,9 @@ static void F_Ticker()
 	// check for skipping
 	if ((::g->gamemode == commercial) && (::g->finalecount > 50))
 	{
-		size_t i = 0;
+		index_t i = 0;
 		// go on to the next level
-		for (i = 0; i < MAXPLAYERS; ++i)
+		for (i = 0; std::cmp_less(i, ::g->players.Num()); ++i)
 		{
 			if (::g->players[i].cmd.buttons)
 			{
@@ -267,7 +267,7 @@ static void F_Ticker()
 			}
 		}
 
-		if (finaleButtonPressed || i < MAXPLAYERS)
+		if (finaleButtonPressed || std::cmp_less(i, ::g->players.Num()))
 		{
 			bool castStarted = false;
 			if (::g->gamemission == doom2 || ::g->gamemission == pack_plut || ::g->gamemission == pack_tnt) {

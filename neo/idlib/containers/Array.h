@@ -52,6 +52,26 @@ actual raw data, and the size is fixed.
 */
 template<class T_, size_t numElements > class idArray {
 public:
+	// Default constructor
+	constexpr idArray() noexcept = default;
+
+	// Initializer list constructor
+	constexpr idArray(std::initializer_list<T_> init) noexcept {
+		assert(init.size() <= numElements && "Initializer list too large for idArray");
+		std::copy(init.begin(), init.end(), ptr);
+	}
+
+	// Copy constructor / assignment
+	constexpr idArray(const idArray&) noexcept = default;
+	constexpr idArray& operator=(const idArray&) noexcept = default;
+
+	// Assignment from initializer list
+	constexpr idArray& operator=(std::initializer_list<T_> init) noexcept {
+		assert(init.size() <= numElements && "Initializer list too large for idArray");
+		std::copy(init.begin(), init.end(), ptr);
+		return *this;
+	}
+
 	// returns number of elements in list
 	[[nodiscard]] static size_t			Num() { return numElements; }
 
@@ -65,19 +85,19 @@ public:
 	void			Memset( const char fill ) { memset( ptr, fill, numElements * sizeof( *ptr ) ); }
 
 	// array operators
-	const T_ &		operator[]( const Ordinal auto index ) const { ORDINAL_CHECK(index, numElements); return ptr[index]; }
-	T_ &			operator[]( const Ordinal auto index ) { ORDINAL_CHECK(index, numElements); return ptr[index]; }
+	[[nodiscard]] const T_ &		operator[]( const Ordinal auto index ) const noexcept { ORDINAL_CHECK(index, numElements); return ptr[index]; }
+	[[nodiscard]] T_ &			operator[]( const Ordinal auto index ) noexcept { ORDINAL_CHECK(index, numElements); return ptr[index]; }
 
 	// returns a pointer to the list
 	[[nodiscard]] const T_ *		Ptr() const { return ptr; }
 	[[nodiscard]] T_ *  			Ptr() { return ptr; }
 
-	constexpr       T_* begin()  noexcept { return ptr; }
-	constexpr       T_* end()    noexcept { return ptr + numElements; }
-	constexpr const T_* begin()  const noexcept { return ptr; }
-	constexpr const T_* end()    const noexcept { return ptr + numElements; }
-	constexpr const T_* cbegin() const noexcept { return begin(); }
-	constexpr const T_* cend()   const noexcept { return end(); }
+	[[nodiscard]] constexpr       T_* begin()  noexcept { return ptr; }
+	[[nodiscard]] constexpr       T_* end()    noexcept { return ptr + numElements; }
+	[[nodiscard]] constexpr const T_* begin()  const noexcept { return ptr; }
+	[[nodiscard]] constexpr const T_* end()    const noexcept { return ptr + numElements; }
+	[[nodiscard]] constexpr const T_* cbegin() const noexcept { return begin(); }
+	[[nodiscard]] constexpr const T_* cend()   const noexcept { return end(); }
 
 private:
 	T_				ptr[numElements];

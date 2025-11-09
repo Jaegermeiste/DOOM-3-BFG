@@ -162,8 +162,8 @@ idRenderModel *idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 			g.index = index;
 
 			// bump the random
-			steppingRandom.RandomInt();
-			steppingRandom2.RandomInt();
+			steppingRandom.RandomInt32();
+			steppingRandom2.RandomInt32();
 
 			// calculate local age for this index 
 			int	bunchOffset = stage->particleLife * 1000 * stage->spawnBunching * index / stage->totalParticles;

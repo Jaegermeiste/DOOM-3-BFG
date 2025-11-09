@@ -281,6 +281,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="idlib\Timer.cpp" />
+    <ClCompile Include="idlib\UUID7.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="idlib\bv\Bounds.h" />
@@ -355,6 +356,7 @@
     <ClInclude Include="idlib\sys\sys_assert.h" />
     <ClInclude Include="idlib\sys\sys_builddefines.h" />
     <ClInclude Include="idlib\sys\sys_concept_formattable.h" />
+    <ClInclude Include="idlib\sys\sys_concept_integral_or_enum.h" />
     <ClInclude Include="idlib\sys\sys_concept_stringlikeorenum.h" />
     <ClInclude Include="idlib\sys\sys_defines.h" />
     <ClInclude Include="idlib\sys\sys_filesystem.h" />
@@ -377,6 +379,7 @@
     <ClInclude Include="idlib\MapFile.h" />
     <ClInclude Include="idlib\precompiled.h" />
     <ClInclude Include="idlib\Timer.h" />
+    <ClInclude Include="idlib\UUID7.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

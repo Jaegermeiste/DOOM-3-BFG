@@ -77,6 +77,39 @@ assert_sizeof( uint32,	4 );
 assert_sizeof( int64,	8 );
 assert_sizeof( uint64,	8 );
 
+// ── 128-bit integer detection ────────────────────────────────────────────────
+// ID_HAS_INT128 : 1 if native 128-bit integers exist (GCC/Clang on 64-bit), else 0
+// ID_INT128     : signed 128-bit integer type (when available)
+// ID_UINT128    : unsigned 128-bit integer type (when available)
+
+#if defined(__INT128_TYPE__) && defined(__UINT128_TYPE__)
+// Preferred (GCC/Clang define these on targets that support __int128)
+#define ID_HAS_INT128
+using int128 = __INT128_TYPE__;
+using uint128 = __UINT128_TYPE__;
+#elif defined(__SIZEOF_INT128__)
+// Secondary signal (some toolchains define this)
+#define ID_HAS_INT128
+using int128 = __int128;
+using uint128 = unsigned __int128;
+#else
+#undef ID_HAS_INT128
+// No typedefs emitted
+#endif
+
+// MSVC note: cl.exe does not support __int128; clang-cl does on 64-bit targets.
+// If you want to be explicit under MSVC's cl:
+#if defined(_MSC_VER)
+#undef  ID_HAS_INT128
+#endif
+
+static constexpr bool ID_LDBL_IS_DOUBLE = (std::numeric_limits<long double>::digits == std::numeric_limits<double>::digits) && (sizeof(long double) == sizeof(double));
+
+static constexpr bool ID_LDBL_IS_QUAD = (std::numeric_limits<long double>::digits == 113) && (sizeof(long double) == 16);
+
+// Heuristic: if not double or quad, it’s usually x87 80-bit (extended)
+static constexpr bool ID_LDBL_IS_X87 = !ID_LDBL_IS_DOUBLE && !ID_LDBL_IS_QUAD;
+
 #include "sys_type_qboolean.h"
 
 /*
@@ -88,10 +121,17 @@ assert_sizeof( uint64,	8 );
 
 typedef long long           index_t;
 typedef long long           jointHandle_t;
+#ifndef ID_SECONDS_T
 #define ID_SECONDS_T uint64  // Seconds
+#endif // ID_SECONDS_T
+#ifndef ID_TIME_T
 #define ID_TIME_T int64 // Ticks (D1/II) or ms (D3); Signed because -1 means "File not found" and we don't want that to compare > than any other time
+#endif // ID_TIME_T
+#ifndef ID_MICROSEC_T
 #define ID_MICROSEC_T uint64  // Microseconds
+#endif // ID_MICROSEC_T
 
+#include "sys_concept_integral_or_enum.h"
 #include "sys_type_ordinal.hpp"
 
 namespace sys_types {

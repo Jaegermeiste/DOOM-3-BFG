@@ -398,7 +398,7 @@ idPathCorner *idPathCorner::RandomPath( const idEntity *source, const idEntity *
 		return nullptr;
 	}
 
-	which = gameLocal.random.RandomInt( num );
+	which = gameLocal.random.RandomInt32( num );
 	return path[ which ];
 }
 
@@ -530,7 +530,7 @@ void idDamagable::BecomeBroken( idEntity *activator ) {
 	} else if ( forceState ) {
 		renderEntity.shaderParms[ SHADERPARM_MODE ] = forceState;
 	} else {
-		renderEntity.shaderParms[ SHADERPARM_MODE ] = gameLocal.random.RandomInt( numStates ) + 1;
+		renderEntity.shaderParms[ SHADERPARM_MODE ] = gameLocal.random.RandomInt32( numStates ) + 1;
 	}
 
 	renderEntity.shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
@@ -1505,7 +1505,7 @@ void idStaticEntity::Spawn() {
 	idStr model = spawnArgs.GetString( "model" );
 	if ( model.Find( ".prt" ) >= 0 ) {
 		// we want the parametric particles out of sync with each other
-		renderEntity.shaderParms[ SHADERPARM_TIMEOFFSET ] = gameLocal.random.RandomInt( 32767 );
+		renderEntity.shaderParms[ SHADERPARM_TIMEOFFSET ] = gameLocal.random.RandomInt32( 32767 );
 	}
 
 	fadeFrom.Set( 1, 1, 1, 1 );
@@ -2669,7 +2669,7 @@ void idShaking::BeginShaking() {
 	int			period;
 
 	active = true;
-	phase = gameLocal.random.RandomInt( 1000 );
+	phase = gameLocal.random.RandomInt32( 1000 );
 	shake = spawnArgs.GetAngles( "shake", "0.5 0.5 0.5" );
 	period = spawnArgs.GetFloat( "period", "0.05" ) * 1000;
 	physicsObj.SetAngularExtrapolation( static_cast<extrapolation_t>(EXTRAPOLATION_DECELSINE | EXTRAPOLATION_NOSTOP), phase, period * 0.25f, GetPhysics()->GetAxis().ToAngles(), shake, ang_zero );
@@ -3367,7 +3367,7 @@ void idPhantomObjects::Think() {
 			if ( !end_time ) {
 				targetTime[ i ] = 0;
 			} else {
-				targetTime[ i ] = gameLocal.time + gameLocal.random.RandomInt( max_wait - min_wait ) + min_wait;
+				targetTime[ i ] = gameLocal.time + gameLocal.random.RandomInt32( max_wait - min_wait ) + min_wait;
 			}
 			if ( ent->IsType( idMoveable::Type ) ) {
 				idMoveable *ment = dynamic_cast<idMoveable*>( ent );
