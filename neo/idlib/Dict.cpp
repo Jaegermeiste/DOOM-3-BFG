@@ -31,11 +31,65 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-template < Formattable T >
-idStrPool		idDict<T>::globalKeys;
+static idStrPool		globalKeys;
+static idStrPool		globalValues;
+static idList<idKeyValue<idStr>>	globalKVs;
 
+
+/*
+================
+idKeyValue< T >::ParseValueToT
+================
+*/
 template < Formattable T >
-idStrPool		idDict<T>::globalValues;
+T & idKeyValue< T >::ParseValueToT(const idStr& value) {
+	using U = std::remove_cvref_t<T>;
+
+	if constexpr (std::is_same_v<U, idStr>) {
+		if constexpr (std::is_reference_v<T>) {
+			return const_cast<idStr&>(value);
+		}
+		else {
+			return const_cast<idStr&>(value);
+		}
+	}
+	else if constexpr (std::is_same_v<U, const char*>) {
+		return value.c_str();
+	}
+	else if constexpr (std::is_same_v<U, char*>) {
+		// Caller must ensure lifetime if they really want char*
+		return const_cast<char*>(value.c_str());
+	}
+	else if constexpr (std::is_same_v<U, std::string>) {
+		return std::string{ value.c_str() };
+	}
+	else if constexpr (std::is_same_v<U, std::string_view>) {
+		return std::string_view{ value.c_str() };
+	}
+	else if constexpr (std::is_enum_v<U>) {
+		return enum_from_cstr<T>(value.c_str());
+	}
+	else if constexpr (std::is_integral_v<U>) {
+		return idStr::AtoI<T>(value.c_str());
+	}
+	else if constexpr (std::is_floating_point_v<U>) {
+		return idStr::AtoF<T>(value.c_str());
+	}
+	else if constexpr (std::is_constructible_v<U, const char*>) {
+		return U{ value.c_str() };
+	}
+	else if constexpr (std::is_constructible_v<U, std::string_view>) {
+		return U{ std::string_view{ value.c_str() } };
+	}
+	else {
+		static_assert(!sizeof(U), "T is Formattable but not constructible from string data.");
+	}
+
+	auto t = T{};
+
+	return t;
+}
+
 
 /*
 ================
@@ -56,9 +110,9 @@ idDict< T >  &idDict< T >::operator=( const idDict &other ) {
 	args = other.args;
 	argHash = other.argHash;
 
-	for (size_t i = 0; i < args.Num(); i++ ) {
-		args[i].key = globalKeys.CopyString( args[i].key );
-		args[i].value = globalValues.CopyString( args[i].value );
+	for (auto& arg : args) {
+		arg.key = globalKeys.CopyString( arg.key );
+		arg.value_string = globalValues.CopyString( arg.value_string);
 	}
 
 	return *this;
@@ -74,10 +128,11 @@ idDict< T >::operator[]
 template < Formattable T >
 const T& idDict< T >::operator[](const FormattableNoStrings auto& key) const noexcept
 {
-	const idKeyValue* kv = FindKey(key);
+	const idKeyValue<T>* kv = FindKey(key);
 
-	if (kv) {
-		return ParseValueToT(kv->GetValue());
+	if (kv)
+	{
+		return kv->GetValue();
 	}
 
 	return T{};
@@ -86,10 +141,11 @@ const T& idDict< T >::operator[](const FormattableNoStrings auto& key) const noe
 template < Formattable T >
 T& idDict< T >::operator[](const FormattableNoStrings auto& key) noexcept
 {
-	const idKeyValue* kv = FindKey(key);
+	const idKeyValue<T>* kv = FindKey(key);
 
-	if (kv) {
-		return ParseValueToT(kv->GetValue());
+	if (kv)
+	{
+		return kv->GetValue();
 	}
 
 	return T{};
@@ -98,10 +154,11 @@ T& idDict< T >::operator[](const FormattableNoStrings auto& key) noexcept
 template < Formattable T >
 const T& idDict< T >::operator[](const StringLike auto& key) const noexcept
 {
-	const idKeyValue* kv = FindKey(key);
+	const idKeyValue<T>* kv = FindKey(key);
 
-	if (kv) {
-		return ParseValueToT(kv->GetValue());
+	if (kv)
+	{
+		return kv->GetValue();
 	}
 
 	return T{};
@@ -110,10 +167,11 @@ const T& idDict< T >::operator[](const StringLike auto& key) const noexcept
 template < Formattable T >
 T& idDict< T >::operator[](const StringLike auto& key) noexcept
 {
-	const idKeyValue* kv = FindKey(key);
+	const idKeyValue<T>* kv = FindKey(key);
 
-	if (kv) {
-		return ParseValueToT(kv->GetValue());
+	if (kv)
+	{
+		return kv->GetValue();
 	}
 
 	return T{};
@@ -159,7 +217,7 @@ void idDict< T >::Copy( const idDict &other ) {
 			globalValues.FreeString( oldValue );
 		} else {
 			kv.key = globalKeys.CopyString( other.args[i].key );
-			kv.value = globalValues.CopyString( other.args[i].value );
+			kv.value_string = globalValues.CopyString( other.args[i].value );
 			argHash.Add( argHash.GenerateKey( kv.GetKey(), false ), args.Append( kv ) );
 		}
 	}
@@ -245,11 +303,11 @@ void idDict< T >::SetDefaults( const idDict *dict ) {
 
 	const size_t n = dict->args.Num();
 	for( size_t i = 0; i < n; i++ ) {
-		const idKeyValue* def = &dict->args[i];
-		const idKeyValue* kv = FindKey(def->GetKey());
+		const idKeyValue<T>* def = &dict->args[i];
+		const idKeyValue<T>* kv = FindKey(def->GetKey());
 		if ( !kv ) {
 			newkv.key = globalKeys.CopyString( def->key );
-			newkv.value = globalValues.CopyString( def->value );
+			newkv.value_string = globalValues.CopyString( def->value );
 			argHash.Add( argHash.GenerateKey( newkv.GetKey(), false ), args.Append( newkv ) );
 		}
 	}
@@ -264,7 +322,7 @@ template < Formattable T >
 void idDict< T >::Clear() {
 	for ( size_t i = 0; i < args.Num(); i++ ) {
 		globalKeys.FreeString( args[i].key );
-		globalValues.FreeString( args[i].value );
+		globalValues.FreeString( args[i].value_string);
 	}
 
 	args.Clear();
@@ -284,7 +342,8 @@ void idDict< T >::Print() const {
 	}
 }
 
-static int KeyCompare( const idKeyValue *a, const idKeyValue *b ) {
+template < Formattable T >
+static int KeyCompare( const idKeyValue<T> *a, const idKeyValue<T> *b ) {
 	return idStr::Cmp( a->GetKey(), b->GetKey() );
 }
 
@@ -297,7 +356,7 @@ template < Formattable T >
 int	idDict< T >::Checksum() const {
 	unsigned long ret = 0;
 
-	idList<idKeyValue> sorted = args;
+	idList<idKeyValue<T>> sorted = args;
 	sorted.SortWithTemplate( idSort_KeyValue() );
 	const size_t n = sorted.Num();
 	CRC32_InitChecksum( ret );
@@ -341,12 +400,12 @@ void idDict< T >::Set(const StringLikeOrEnum auto &key, const StringLikeOrEnum a
 
 	if ( i != -1 ) {
 		// first set the new value and then free the old value to allow proper self copying
-		const idPoolStr *oldValue = idDict< T >::args[i].value;
-		args[i].value = globalValues.AllocString( value );
+		const idPoolStr *oldValue = idDict< T >::args[i].value_string;
+		args[i].value_string = globalValues.AllocString( value );
 		globalValues.FreeString( oldValue );
 	} else {
 		kv.key = globalKeys.AllocString( key );
-		kv.value = globalValues.AllocString( value );
+		kv.value_string = globalValues.AllocString( value );
 		argHash.Add( argHash.GenerateKey( kv.GetKey(), false ), args.Append( kv ) );
 	}
 }
@@ -358,10 +417,29 @@ idDict< T >::GetFloat
 */
 template < Formattable T >
 bool idDict< T >::GetFloat( const StringLikeOrEnum auto &key, const char* defaultString, float &out ) const {
-	const char *s = nullptr;
+	using U = std::remove_cvref_t<T>;
+	using V = float;
 
-	const bool found = GetString(key, defaultString, &s);
-	out = idStr::AtoF<float>( s );
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoF<V>(kv->GetValueString());
+		}
+	}
+	else
+	{
+		out = idStr::AtoF<V>(defaultString);
+	}
+
 	return found;
 }
 
@@ -372,10 +450,29 @@ idDict< T >::GetDouble
 */
 template < Formattable T >
 bool idDict< T >::GetDouble(const StringLikeOrEnum auto & key, const char* defaultString, double& out) const {
-	const char * s = nullptr;
+	using U = std::remove_cvref_t<T>;
+	using V = double;
 
-	const bool found = GetString(key, defaultString, &s);
-	out = idStr::AtoF<double>(s);
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoF<V>(kv->GetValueString());
+		}
+	}
+	else
+	{
+		out = idStr::AtoF<V>(defaultString);
+	}
+
 	return found;
 }
 
@@ -386,10 +483,29 @@ idDict< T >::GetInt
 */
 template < Formattable T >
 bool idDict< T >::GetInt( const StringLikeOrEnum auto &key, const char* defaultString, int32 &out ) const {
-	const char *s = nullptr;
+	using U = std::remove_cvref_t<T>;
+	using V = int32;
 
-	const bool found = GetString(key, defaultString, &s);
-	out = idStr::AtoI<int32>( s );
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoI<V>(kv->GetValueString());
+		}
+	}
+	else
+	{
+		out = idStr::AtoI<V>(defaultString);
+	}
+
 	return found;
 }
 
@@ -400,10 +516,29 @@ idDict< T >::GetInt64
 */
 template < Formattable T >
 bool idDict< T >::GetInt64(const StringLikeOrEnum auto & key, const char* defaultString, int64& out) const {
-	const char *s = nullptr;
+	using U = std::remove_cvref_t<T>;
+	using V = int64;
 
-	const bool found = GetString(key, defaultString, &s);
-	out = idStr::AtoI<int64>(s);
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoI<V>(kv->GetValueString());
+		}
+	}
+	else
+	{
+		out = idStr::AtoI<V>(defaultString);
+	}
+
 	return found;
 }
 
@@ -414,10 +549,29 @@ idDict< T >::GetBool
 */
 template < Formattable T >
 bool idDict< T >::GetBool( const StringLikeOrEnum auto &key, const char* defaultString, bool &out ) const {
-	const char *s = nullptr;
+	using U = std::remove_cvref_t<T>;
+	using V = bool;
 
-	const bool found = GetString(key, defaultString, &s);
-	out = ( idStr::AtoI<bool>( s ) != 0 );
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoI<int64>(kv->GetValueString()) ? true : false;
+		}
+	}
+	else
+	{
+		out = idStr::AtoI<V>(defaultString) ? true : false;
+	}
+
 	return found;
 }
 
@@ -428,14 +582,30 @@ idDict< T >::GetFloat
 */
 template < Formattable T >
 bool idDict< T >::GetFloat( const StringLikeOrEnum auto &key, const float defaultFloat, float &out ) const {
-	const idKeyValue *kv = FindKey( key );
-	if ( kv ) {
-		out = idStr::AtoF<float>( kv->GetValue() );
-		return true;
-	} else {
-		out = defaultFloat;
-		return false;
+	using U = std::remove_cvref_t<T>;
+	using V = float;
+
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoF<V>(kv->GetValueString());
+		}
 	}
+	else
+	{
+		out = defaultFloat;
+	}
+
+	return found;
 }
 
 /*
@@ -445,15 +615,30 @@ idDict< T >::GetDouble
 */
 template < Formattable T >
 bool idDict< T >::GetDouble( const StringLikeOrEnum auto & key, const double defaultDouble, double& out) const {
-	const idKeyValue* kv = FindKey(key);
-	if (kv) {
-		out = idStr::AtoF<double>(kv->GetValue());
-		return true;
+	using U = std::remove_cvref_t<T>;
+	using V = double;
+
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoF<V>(kv->GetValueString());
+		}
 	}
-	else {
+	else
+	{
 		out = defaultDouble;
-		return false;
 	}
+
+	return found;
 }
 
 /*
@@ -463,14 +648,30 @@ idDict< T >::GetInt
 */
 template < Formattable T >
 bool idDict< T >::GetInt( const StringLikeOrEnum auto &key, const int32 defaultInt, int32 &out ) const {
-	const idKeyValue *kv = FindKey( key );
-	if ( kv ) {
-		out = idStr::AtoI<int32>( kv->GetValue() );
-		return true;
-	} else {
-		out = defaultInt;
-		return false;
+	using U = std::remove_cvref_t<T>;
+	using V = int32;
+
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoI<V>(kv->GetValueString());
+		}
 	}
+	else
+	{
+		out = defaultInt;
+	}
+
+	return found;
 }
 
 /*
@@ -480,15 +681,30 @@ idDict< T >::GetInt64
 */
 template < Formattable T >
 bool idDict< T >::GetInt64(const StringLikeOrEnum auto & key, const int64 defaultInt, int64& out) const {
-	const idKeyValue* kv = FindKey(key);
-	if (kv) {
-		out = idStr::AtoI<int64>(kv->GetValue());
-		return true;
+	using U = std::remove_cvref_t<T>;
+	using V = int64;
+
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoI<V>(kv->GetValueString());
+		}
 	}
-	else {
+	else
+	{
 		out = defaultInt;
-		return false;
 	}
+
+	return found;
 }
 
 /*
@@ -498,14 +714,30 @@ idDict< T >::GetBool
 */
 template < Formattable T >
 bool idDict< T >::GetBool( const StringLikeOrEnum auto &key, const bool defaultBool, bool &out ) const {
-	const idKeyValue *kv = FindKey( key );
-	if ( kv ) {
-		out = (idStr::AtoI<int64>( kv->GetValue() ) != 0 );
-		return true;
-	} else {
-		out = defaultBool;
-		return false;
+	using U = std::remove_cvref_t<T>;
+	using V = bool;
+
+	bool found = false;
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		found = true;
+
+		if constexpr (std::is_same_v<U, V>) {
+			out = kv->GetValue();
+		}
+		else
+		{
+			out = idStr::AtoI<int64>(kv->GetValueString()) ? true : false;
+		}
 	}
+	else
+	{
+		out = defaultBool;
+	}
+
+	return found;
 }
 
 /*
@@ -622,7 +854,7 @@ idDict< T >::FindKey
 ================
 */
 template < Formattable T >
-const idKeyValue *idDict< T >::FindKey( const Formattable auto &key ) const {
+const idKeyValue<T> *idDict< T >::FindKey( const Formattable auto &key ) const {
 	if ( safe_equal( key,nullptr )) {
 		idLib::common->DWarning( "idDict< T >::FindKey: null key" );
 		return nullptr;
@@ -713,7 +945,7 @@ idDict< T >::MatchPrefix
 ================
 */
 template < Formattable T >
-const idKeyValue *idDict< T >::MatchPrefix( const Formattable auto &prefix, const idKeyValue *lastMatch ) const {
+const idKeyValue<T> *idDict< T >::MatchPrefix( const Formattable auto &prefix, const idKeyValue<T> *lastMatch ) const {
 	assert( prefix );
 
 	index_t start = -1;
@@ -743,7 +975,7 @@ const char *idDict< T >::RandomPrefix( const Formattable auto &prefix, idRandom 
 	size_t count = 0;
 	constexpr int MAX_RANDOM_KEYS = 2048;
 	const char *list[MAX_RANDOM_KEYS] = { nullptr };
-	const idKeyValue *kv = nullptr;
+	const idKeyValue<T> *kv = nullptr;
 
 	list[0] = "";
 	for ( count = 0, kv = idDict< T >::MatchPrefix( prefix ); kv != nullptr && count < MAX_RANDOM_KEYS; kv = idDict< T >::MatchPrefix( prefix, kv ) ) {
@@ -848,7 +1080,7 @@ idDict< T >::WriteToIniFile
 template < Formattable T >
 void idDict< T >::WriteToIniFile( idFile * f ) const {
 	// make a copy so we don't affect the checksum of the original dict
-	idList< idKeyValue > sortedArgs( args );
+	idList< idKeyValue<T> > sortedArgs( args );
 	sortedArgs.SortWithTemplate( idSort_KeyValue() );
 
 	idList< idStr > prefixList;
@@ -860,7 +1092,7 @@ void idDict< T >::WriteToIniFile( idFile * f ) const {
 
 	// Scan for all the prefixes
 	for ( size_t i = 0; i < sortedArgs.Num(); i++ ) {
-		const idKeyValue * kv = &sortedArgs[i];
+		const idKeyValue<T> * kv = &sortedArgs[i];
 		const int64 slashPosition = kv->GetKey().Last( '/' );
 		if ( slashPosition != idStr::INVALID_POSITION ) {
 			idStr prefix = kv->GetKey().Mid( 0, slashPosition );
@@ -898,7 +1130,7 @@ void idDict< T >::WriteToIniFile( idFile * f ) const {
 			f->Write( str.c_str(), str.Length() );
 		}
 
-		const idKeyValue * kv = &sortedArgs[i];
+		const idKeyValue<T> * kv = &sortedArgs[i];
 		idStr str = va( "%s=%s\n", kv->GetKey().c_str() + prefixLength, idStr::CStyleQuote( kv->GetValue() ) );
 		f->Write( str.c_str(), str.Length() );
 	}
@@ -980,7 +1212,7 @@ CONSOLE_COMMAND( TestDictIniFile, "Tests the writing/reading of various items in
 		return;
 	}
 
-	idDict vars;
+	idDict<> vars;
 	vars.SetInt( "section1/section3/a", -1 );
 	vars.SetInt( "section1/section3/b", 0 );
 	vars.SetInt( "section1/section3/c", 3 );
@@ -1000,7 +1232,7 @@ CONSOLE_COMMAND( TestDictIniFile, "Tests the writing/reading of various items in
 		idLib::Printf( "[^1FAILED^0] Couldn't open file for reading.\n" );
 	}
 
-	idDict readVars;
+	idDict<> readVars;
 	readVars.ReadFromIniFile( file );
 	delete file;
 
@@ -1011,57 +1243,10 @@ CONSOLE_COMMAND( TestDictIniFile, "Tests the writing/reading of various items in
 	}
 
 	// Output results
-	for (size_t i = 0; i < readVars.GetNumKeyVals(); i++ ) {
-		const idKeyValue * kv = readVars.GetKeyVal( i );
+	for (index_t i = 0; std::cmp_less(i, readVars.GetNumKeyVals()); ++i ) {
+		const idKeyValue<> * kv = readVars.GetKeyVal( i );
 		idLib::Printf( "%s=%s\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
 	}
-}
-
-/*
-================
-idDict< T >::ParseValueToT
-================
-*/
-template < Formattable T >
-T idDict< T >::ParseValueToT( const idStr &value ) {
-	using U = std::remove_cvref_t<T>;
-
-	if constexpr (std::is_same_v<U, idStr>) {
-		return value;
-	}
-	else if constexpr (std::is_same_v<U, const char*>) {
-		return value.c_str();
-	}
-	else if constexpr (std::is_same_v<U, char*>) {
-		// Caller must ensure lifetime if they really want char*
-		return const_cast<char*>(value.c_str());
-	}
-	else if constexpr (std::is_same_v<U, std::string>) {
-		return std::string{ value.c_str() };
-	}
-	else if constexpr (std::is_same_v<U, std::string_view>) {
-		return std::string_view{ value.c_str() };
-	}
-	else if constexpr (std::is_enum_v<U>) {
-		return enum_from_cstr<T>(value.c_str());
-	}
-	else if constexpr (std::is_integral_v<U>) {
-		return idStr::AtoI<T>(value.c_str());
-	}
-	else if constexpr (std::is_floating_point_v<U>) {
-		return idStr::AtoF<T>(value.c_str());
-	}
-	else if constexpr (std::is_constructible_v<U, const char*>) {
-		return U{ value.c_str() };
-	}
-	else if constexpr (std::is_constructible_v<U, std::string_view>) {
-		return U{ std::string_view{ value.c_str() } };
-	}
-	else {
-		static_assert(!sizeof(U), "T is Formattable but not constructible from string data.");
-	}
-
-	return T{};
 }
 
 /*
@@ -1102,9 +1287,20 @@ void idDict< T >::ShowMemoryUsage_f( const idCmdArgs &args ) {
 idDict< T >::ListKeys_f
 ================
 */
+
+class idSort_PoolStr : public idSort_Quick< idPoolStr, idSort_PoolStr > {
+public:
+	[[nodiscard]] int Compare(const idPoolStr& a, const idPoolStr& b) const { return a.Icmp(b); }
+};
+
+class idSort_PoolStrPtr : public idSort_Quick< idPoolStr*, idSort_PoolStrPtr > {
+public:
+	[[nodiscard]] int Compare(const idPoolStr* a, const idPoolStr* b) const { return a->Icmp(*b); }
+};
+
 template < Formattable T >
 void idDict< T >::ListKeys_f( const idCmdArgs &args ) {
-	idLib::Printf( "Not implemented due to sort impl issues.\n" );
+	/*idLib::Printf( "Not implemented due to sort impl issues.\n" );
 	//int i;
 	//idList<const idPoolStr *> keyStrings;
 
@@ -1115,7 +1311,21 @@ void idDict< T >::ListKeys_f( const idCmdArgs &args ) {
 	//for ( i = 0; i < keyStrings.Num(); i++ ) {
 	//	idLib::common->Printf( "%s\n", keyStrings[i]->c_str() );
 	//}
-	//idLib::common->Printf( "%5d keys\n", keyStrings.Num() );
+	//idLib::common->Printf( "%5d keys\n", keyStrings.Num() );*/
+
+	idList<idPoolStr*> keyStrings = {};
+
+	for (auto& value : globalKeys) {
+		keyStrings.Append( &value );
+	}
+
+	keyStrings.SortWithTemplate( idSort_PoolStrPtr() );
+
+	for (auto& key : keyStrings) {
+		idLib::common->Printf("%s\n", key->c_str());
+	}
+
+	idLib::common->Printf("%5d keys\n", keyStrings.Num());
 }
 
 /*
@@ -1125,7 +1335,7 @@ idDict< T >::ListValues_f
 */
 template < Formattable T >
 void idDict< T >::ListValues_f( const idCmdArgs &args ) {
-	idLib::Printf( "Not implemented due to sort impl issues.\n" );
+	/*idLib::Printf( "Not implemented due to sort impl issues.\n" );
 	//int i;
 	//idList<const idPoolStr *> valueStrings;
 
@@ -1136,5 +1346,48 @@ void idDict< T >::ListValues_f( const idCmdArgs &args ) {
 	//for ( i = 0; i < valueStrings.Num(); i++ ) {
 	//	idLib::common->Printf( "%s\n", valueStrings[i]->c_str() );
 	//}
-	//idLib::common->Printf( "%5d values\n", valueStrings.Num() );
+	//idLib::common->Printf( "%5d values\n", valueStrings.Num() );*/
+
+	idList<idPoolStr*> valueStrings = {};
+
+	for ( auto& value : globalValues ) {
+		valueStrings.Append( &value );
+	}
+
+	valueStrings.SortWithTemplate( idSort_PoolStrPtr() );
+
+	for ( auto& value : valueStrings ) {
+		idLib::common->Printf( "%s\n", value->c_str() );
+	}
+
+	idLib::common->Printf( "%5d values\n", valueStrings.Num() );
+}
+
+/*
+================
+idDict< T >::ListValues_f
+================
+*/
+template < Formattable T >
+void idDict< T >::ListKeyValuePairs_f(const idCmdArgs& args) {
+	idList<idKeyValue<>> kvs = {};
+
+	for (const auto& global_kv : globalKVs ) {
+		kvs.Append(global_kv);
+	}
+
+	kvs.SortWithTemplate(idSort_KeyValue());
+
+	Table<const char*, const char*> table;
+
+	table.SetColumns(
+		Column( "Global Keys",   ColumnAlignment::Right ),
+		Column( "Global Values", ColumnAlignment::Left  )
+	);
+
+	for (const auto& kv : kvs) {
+		table.AppendRow(kv.GetKey().c_str(), kv.GetValue().c_str());
+	}
+
+	table.Printf();
 }

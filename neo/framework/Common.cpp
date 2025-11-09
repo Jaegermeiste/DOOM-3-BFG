@@ -1697,13 +1697,16 @@ CONSOLE_COMMAND( showStringMemory, "shows memory used by strings", NULL ) {
 	idStr::ShowMemoryUsage_f( args );
 }
 CONSOLE_COMMAND( showDictMemory, "shows memory used by dictionaries", NULL ) {
-	idDict::ShowMemoryUsage_f( args );
+	idDict<>::ShowMemoryUsage_f( args );
 }
 CONSOLE_COMMAND( listDictKeys, "lists all keys used by dictionaries", NULL ) {
-	idDict::ListKeys_f( args );
+	idDict<>::ListKeys_f( args );
 }
 CONSOLE_COMMAND( listDictValues, "lists all values used by dictionaries", NULL ) {
-	idDict::ListValues_f( args );
+	idDict<>::ListValues_f( args );
+}
+CONSOLE_COMMAND( listDictKeyValues, "lists all key:value pairs used by dictionaries", NULL) {
+	idDict<>::ListKeyValuePairs_f(args);
 }
 CONSOLE_COMMAND( testSIMD, "test SIMD code", NULL ) {
 	idSIMD::Test_f( args );

@@ -198,7 +198,8 @@ public:
 	void				Empty();
 	[[nodiscard]] bool				IsEmpty() const;
 	void				Clear();
-	void				Append( const char a );
+	void				Appendn( const char a, const size_t count = 1 );
+	void				Appendf( const char* fmt, ... );
 	void				Append( const idStr &text );
 	void				Append( const StringLikeOrEnum auto text );
 	template < Formattable T >
@@ -217,6 +218,7 @@ public:
 	[[nodiscard]] bool	HasLower() const;
 	[[nodiscard]] bool	HasUpper() const;
 	[[nodiscard]] size_t LengthWithoutColors() const;
+	[[nodiscard]] size_t TabExpandedLengthWithoutColors() const;
 	idStr &				RemoveColors();
 	void				CapLength(size_t);
 	void				Fill( const char ch, size_t newlen );
@@ -293,6 +295,7 @@ public:
 	static bool			HasLower( const char *s );
 	static bool			HasUpper( const char *s );
 	static size_t		LengthWithoutColors( const char *s );
+	static size_t		TabExpandedLengthWithoutColors(const char* s);
 	static char *		RemoveColors( char *s );
 	static int			Cmp( const char *s1, const char *s2 );
 	static int			Cmpn( const char *s1, const char *s2, size_t n );
@@ -303,8 +306,20 @@ public:
 	static int			IcmpnPath( const char *s1, const char *s2, size_t n );	// compares paths and makes sure folders come first
 	static void			Append( char *dest, size_t size, const char *src );
 	static void			Copynz( char *dest, const char *src, size_t destsize );
-	static int64        snPrintf( char* dest, size_t size, VERIFY_FORMAT_STRING const char* fmt, ... );
-	static int64		vsnPrintf( char *dest, size_t size, const char *fmt, va_list argptr );
+	static int64        snPrintf(char* dest, size_t size, VERIFY_FORMAT_STRING const char* fmt, ...);
+	template <size_t Size>
+	static int64        snPrintf(char(&dest)[Size], VERIFY_FORMAT_STRING const char* fmt, ...) {
+		va_list ap = {};
+		va_start(ap, fmt);
+		const int64 n = idStr::vsnPrintf(&dest[0], Size, fmt, ap); // or std::data(dest)
+		va_end(ap);
+		return n;
+	}
+	static int64        vsnPrintf(char* dest, size_t size, const char* fmt, va_list argptr);
+	template <size_t Size>
+	static int64        vsnPrintf(char(&dest)[Size], const char* fmt, va_list argptr) {
+		return vsnPrintf(&dest[0], Size, fmt, argptr); // or std::data(dest)
+	}
 	static int64        FindChar(const char* str, const char c);
 	static int64        FindChar( const char* str, const char c, const Ordinal auto start = 0, const Ordinal auto end = -1 );
 	static int64        FindText(const char* str, const char* text, bool casesensitive = true);
@@ -327,7 +342,7 @@ public:
 	E GetEnum( const E fallback = E{} ) const noexcept;
 
 	template < typename T >
-		requires (StringLikeOrEnum< T > || Formattable < T >)
+		requires (StringLike< T > || Formattable < T >)
 	[[nodiscard]] static const char* ToCString( const T &value_in, char* string_out, const size_t buffer_length, const EnumNameOptions options = {} ) noexcept;
 
 	static size_t       WideToUtf8( const wchar_t* src, char* out, const size_t capacity ) noexcept; // Convert a wide string (UTF-16) to UTF-8 in-place.
@@ -839,10 +854,26 @@ ID_INLINE void idStr::Clear() {
 	Construct();
 }
 
-ID_INLINE void idStr::Append( const char a ) {
-	const char char_array[] = { a, '\0' }; // creates a null-terminated string
+ID_INLINE void idStr::Appendn( const char a, const size_t count ) {
+	char char_array[MAX_STRING_CHARS + 1] = { '\0' }; // creates a null-terminated string buffer
+
+	const size_t clamped_count = Min(count, sizeof(char_array) - 1);
+
+	memset(static_cast<void*>(&char_array), a, clamped_count);
+
 	const char* string_pointer = char_array;            // p now points to "x"
-	this->Append(string_pointer, 1);
+	this->Append(string_pointer, clamped_count);
+}
+
+ID_INLINE void idStr::Appendf( const char* fmt, ... ) {
+	char char_array[MAX_STRING_CHARS + 1] = { '\0' }; // creates a null-terminated string buffer
+
+	va_list ap = {};
+	va_start(ap, fmt);
+	std::ignore = idStr::vsnPrintf(char_array, fmt, ap);
+	va_end(ap);
+
+	this->Append(char_array, strlen(char_array));
 }
 
 ID_INLINE void idStr::Append( const idStr &text ) {
@@ -992,6 +1023,10 @@ ID_INLINE idStr &idStr::RemoveColors() {
 
 ID_INLINE size_t idStr::LengthWithoutColors() const {
 	return idStr::LengthWithoutColors( data );
+}
+
+ID_INLINE size_t idStr::TabExpandedLengthWithoutColors() const {
+	return idStr::TabExpandedLengthWithoutColors(data);
 }
 
 ID_INLINE void idStr::CapLength(const size_t newlen ) {
@@ -1165,17 +1200,6 @@ ID_INLINE char *idStr::ToUpper( char *s ) {
 
 ID_INLINE uint32 idStr::Hash( const Formattable auto& string ) {
 
-	/*char string_buffer[MAX_STRING_CHARS] = {};
-
-	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = strlen(cstring);
-
-	int hash = 0;
-	for ( index_t i = 0; std::cmp_less(i ,cstring_length); ++i ) {
-		hash += ( *cstring++ ) * ( numeric_cast<int>(i) + 119 );
-	}
-	return hash;*/
-
 	return idStr::Hash(string, 0);
 }
 
@@ -1186,27 +1210,10 @@ ID_INLINE uint32 idStr::Hash( const Formattable auto& string, const size_t lengt
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = Min(Max(length, 0), strlen(cstring));
 
-	/*int hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += (*cstring++) * (numeric_cast<int>(i) + 119);
-	}
-	return hash;*/
-
 	return hasher32(cstring, cstring_length, 0);
 }
 
 ID_INLINE uint64 idStr::Hash64(const Formattable auto& string) {
-
-	/*char string_buffer[MAX_STRING_CHARS] = {};
-
-	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = strlen(cstring);
-
-	int64 hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
-	}
-	return hash;*/
 
 	return idStr::Hash64(string, 0);
 }
@@ -1218,27 +1225,10 @@ ID_INLINE uint64 idStr::Hash64(const Formattable auto& string, const size_t leng
 	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
 	const size_t cstring_length = Min(Max(length, 0), strlen(cstring));
 
-	/*int64 hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
-	}
-	return hash;*/
-
 	return hasher64(cstring, cstring_length, 0);
 }
 
 ID_INLINE uint32 idStr::IHash( const Formattable auto& string ) {
-
-	/*char string_buffer[MAX_STRING_CHARS] = {};
-
-	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = strlen(cstring);
-
-	int hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += ToLower(*cstring++) * (numeric_cast<int>(i) + 119);
-	}
-	return hash;*/
 
 	const auto& string_lower = idStr(string).ToLower();
 
@@ -1247,17 +1237,6 @@ ID_INLINE uint32 idStr::IHash( const Formattable auto& string ) {
 
 ID_INLINE uint32 idStr::IHash( const Formattable auto& string, const size_t length ) {
 
-	/*char string_buffer[MAX_STRING_CHARS] = {};
-
-	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = Min(length, strlen(cstring));
-
-	int hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += (*cstring++) * (numeric_cast<int>(i) + 119);
-	}
-	return hash;*/
-
 	const auto& string_lower = idStr(string).ToLower();
 
 	return idStr::Hash(string_lower, Min(length, string_lower.Length()));
@@ -1265,34 +1244,12 @@ ID_INLINE uint32 idStr::IHash( const Formattable auto& string, const size_t leng
 
 ID_INLINE uint64 idStr::IHash64(const Formattable auto& string) {
 
-	/*char string_buffer[MAX_STRING_CHARS] = {};
-
-	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = strlen(cstring);
-
-	int64 hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += ToLower(*cstring++) * (numeric_cast<int64>(i) + 119);
-	}
-	return hash;*/
-
 	const auto& string_lower = idStr(string).ToLower();
 
 	return idStr::Hash64(string_lower, string_lower.Length());
 }
 
 ID_INLINE uint64 idStr::IHash64(const Formattable auto& string, const size_t length) {
-
-	/*char string_buffer[MAX_STRING_CHARS] = {};
-
-	const char* cstring = idStr::ToCString(string, string_buffer, sizeof(string_buffer));
-	const size_t cstring_length = Min(length, strlen(cstring));
-
-	int64 hash = 0;
-	for (index_t i = 0; std::cmp_less(i, cstring_length); ++i) {
-		hash += (*cstring++) * (numeric_cast<int64>(i) + 119);
-	}
-	return hash;*/
 
 	const auto& string_lower = idStr(string).ToLower();
 

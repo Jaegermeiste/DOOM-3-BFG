@@ -49,22 +49,28 @@ Does not allocate memory until the first key/value pair is added.
 ===============================================================================
 */
 
+template < Formattable T >
+class idDict;
+
+template < Formattable T = idStr >
 class idKeyValue {
-	template < Formattable T >
-	friend class idDict;
+	friend class idDict<T>;
 
 public:
 	[[nodiscard]] const idStr &		GetKey() const { return *key; }
-	[[nodiscard]] const idStr &		GetValue() const { return *value; }
+	[[nodiscard]] const T&          GetValue() const { return ParseValueToT(*value_string); }
+	[[nodiscard]] const idStr &		GetValueString() const { return *value_string; }
 
-	[[nodiscard]] size_t				Allocated() const { return key->Allocated() + value->Allocated(); }
-	[[nodiscard]] size_t				Size() const { return sizeof( *this ) + key->Size() + value->Size(); }
+	[[nodiscard]] size_t			Allocated() const { return key->Allocated() + value_string->Allocated(); }
+	[[nodiscard]] size_t			Size() const { return sizeof( *this ) + key->Size() + value_string->Size(); }
 
-	bool				operator==( const idKeyValue &kv ) const { return ( key == kv.key && value == kv.value ); }
+	bool			            	operator==( const idKeyValue &kv ) const { return ( key == kv.key && value_string == kv.value_string); }
 
 private:
+	[[nodiscard]] static T &        ParseValueToT( const idStr& value );
+
 	const idPoolStr *	key;
-	const idPoolStr *	value;
+	const idPoolStr *	value_string;
 };
 
 /*
@@ -72,12 +78,13 @@ private:
 idSort_KeyValue 
 ================================================
 */
-class idSort_KeyValue : public idSort_Quick< idKeyValue, idSort_KeyValue > {
+template < Formattable T = idStr >
+class idSort_KeyValue : public idSort_Quick< idKeyValue<T>, idSort_KeyValue<T> > {
 public:
-	[[nodiscard]] int Compare( const idKeyValue & a, const idKeyValue & b ) const { return a.GetKey().Icmp( b.GetKey() ); }
+	[[nodiscard]] int Compare( const idKeyValue<T> & a, const idKeyValue<T> & b ) const { return a.GetKey().Icmp( b.GetKey() ); }
 };
 
-template< Formattable T = idStr >
+template < Formattable T = idStr >
 class idDict {
 public:
 						idDict() noexcept;
@@ -89,7 +96,7 @@ public:
 						// set hash size
 	void				SetHashSize( size_t hashSize );
 						// clear existing key/value pairs and copy all key/value pairs from other
-	idDict<T>&		operator=( const idDict<T>&other );
+	idDict<T> &		    operator=( const idDict<T>& other );
 
 	[[nodiscard]] const T& operator[]( const FormattableNoStrings auto& key ) const noexcept;
 	[[nodiscard]]       T& operator[]( const FormattableNoStrings auto& key ) noexcept;
@@ -162,10 +169,10 @@ public:
 
 	[[nodiscard]] size_t				GetNumKeyVals() const;
 	
-	const idKeyValue *	GetKeyVal( const Ordinal auto index ) const;
+	const idKeyValue<T> *	GetKeyVal( const Ordinal auto index ) const;
 						// returns the key/value pair with the given key
 						// returns NULL if the key/value pair does not exist
-	const idKeyValue *	FindKey( const Formattable auto &key ) const;
+	const idKeyValue<T> *	FindKey( const Formattable auto &key ) const;
 						// returns the index to the key/value pair with the given key
 						// returns -1 if the key/value pair does not exist
 	index_t				FindKeyIndex( const Formattable auto &key ) const;
@@ -173,7 +180,7 @@ public:
 	void				Delete( const Formattable auto &key );
 						// finds the next key/value pair with the given key prefix.
 						// lastMatch can be used to do additional searches past the first match.
-	const idKeyValue *	MatchPrefix( const Formattable auto &prefix, const idKeyValue *lastMatch = nullptr) const;
+	const idKeyValue<T> *	MatchPrefix( const Formattable auto &prefix, const idKeyValue<T> *lastMatch = nullptr) const;
 						// randomly chooses one of the key/value pairs with the given key prefix and returns it's value
 	const char *		RandomPrefix(const Formattable auto &prefix, idRandom &random ) const;
 
@@ -194,15 +201,21 @@ public:
 	static void			ShowMemoryUsage_f( const idCmdArgs &args );
 	static void			ListKeys_f( const idCmdArgs &args );
 	static void			ListValues_f( const idCmdArgs &args );
+	static void			ListKeyValuePairs_f( const idCmdArgs& args );
+
+	// Modern Range-Based for-loop Iteration
+	idKeyValue<T>* begin() noexcept { return args.begin(); }
+	idKeyValue<T>* end() noexcept { return args.end(); }
+
+	const idKeyValue<T>* begin() const noexcept { return args.begin(); }
+	const idKeyValue<T>* end() const noexcept { return args.end(); }
+
+	const idKeyValue<T>* cbegin() const noexcept { return args.begin(); }
+	const idKeyValue<T>* cend()   const noexcept { return args.end(); }
 
 private:
-	idList<idKeyValue>	args;
+	idList<idKeyValue<T>>	args;
 	idHashIndex			argHash;
-
-	static idStrPool	globalKeys;
-	static idStrPool	globalValues;
-
-	T                   ParseValueToT( const idStr& value );
 };
 
 template< Formattable T>
@@ -213,7 +226,7 @@ ID_INLINE idDict<T>::idDict() noexcept {
 }
 
 template< Formattable T>
-ID_INLINE idDict<T>::idDict( const idDict &other ) {
+ID_INLINE idDict<T>::idDict( const idDict<T> &other ) {
 	*this = other;
 }
 
@@ -222,72 +235,72 @@ ID_INLINE idDict<T>::~idDict() {
 	Clear();
 }
 
-template< Formattable T>
-ID_INLINE void idDict<T>::SetGranularity(const size_t granularity ) {
+template<>
+ID_INLINE void idDict<>::SetGranularity(const size_t granularity ) {
 	args.SetGranularity( granularity );
 	argHash.SetGranularity( granularity );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetHashSize(const size_t hashSize ) {
 	if ( args.Num() == 0 ) {
 		argHash.Clear( hashSize, 16 );
 	}
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetFloat( const StringLikeOrEnum auto &key, const float val ) {
 	Set( key, va( "%f", val ) );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetDouble(const StringLikeOrEnum auto & key, const double val) {
 	Set(key, va("%lf", val));
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetInt( const StringLikeOrEnum auto &key, const int32 val ) {
 	Set( key, va( "%i", val ) );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetInt64(const StringLikeOrEnum auto & key, const int64 val) {
 	Set(key, va("%lli", val));
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetBool( const StringLikeOrEnum auto &key, const bool val ) {
 	Set( key, va( "%i", val ) );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetVector( const StringLikeOrEnum auto &key, const idVec3 &val ) {
 	Set( key, val.ToString() );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetVec4( const StringLikeOrEnum auto &key, const idVec4 &val ) {
 	Set( key, val.ToString() );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetVec2( const StringLikeOrEnum auto &key, const idVec2 &val ) {
 	Set( key, val.ToString() );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetAngles( const StringLikeOrEnum auto &key, const idAngles &val ) {
 	Set( key, val.ToString() );
 }
 
-template< Formattable T>
+template<Formattable T>
 ID_INLINE void idDict<T>::SetMatrix( const StringLikeOrEnum auto &key, const idMat3 &val ) {
 	Set( key, val.ToString() );
 }
 
 template< Formattable T>
 ID_INLINE bool idDict<T>::GetString( const StringLikeOrEnum auto &key, const char* defaultString, const char **out ) const {
-	const idKeyValue *kv = FindKey( key );
+	const idKeyValue<T> *kv = FindKey( key );
 
 	if ( kv ) {
 		*out = kv->GetValue();
@@ -302,7 +315,7 @@ ID_INLINE bool idDict<T>::GetString( const StringLikeOrEnum auto &key, const cha
 
 template< Formattable T>
 ID_INLINE bool idDict<T>::GetString( const StringLikeOrEnum auto& key, const char* defaultString, idStr &out ) const {
-	const idKeyValue *kv = FindKey( key );
+	const idKeyValue<T> *kv = FindKey( key );
 
 	if ( kv ) {
 		out = kv->GetValue();
@@ -317,10 +330,10 @@ ID_INLINE bool idDict<T>::GetString( const StringLikeOrEnum auto& key, const cha
 
 template< Formattable T>
 ID_INLINE const char *idDict<T>::GetString( const StringLikeOrEnum auto& key, const char* defaultString ) const {
-	const idKeyValue *kv = FindKey( key );
+	const idKeyValue<T> *kv = FindKey( key );
 
 	if ( kv ) {
-		return kv->GetValue();
+		return kv->GetValueString();
 	}
 
 	return defaultString;
@@ -328,74 +341,192 @@ ID_INLINE const char *idDict<T>::GetString( const StringLikeOrEnum auto& key, co
 
 template< Formattable T>
 ID_INLINE float idDict<T>::GetFloat( const StringLikeOrEnum auto &key, const char* defaultString ) const {
-	return idStr::AtoF<float>(GetString( key, defaultString ) );
+	using U = std::remove_cvref_t<T>;
+	using V = float;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoF<V>(kv->GetValueString());
+	}
+
+	return idStr::AtoF<V>(defaultString);
 }
 
 
 template< Formattable T>
 ID_INLINE double idDict<T>::GetDouble(const StringLikeOrEnum auto& key, const char* defaultString) const {
-	return idStr::AtoF<double>(GetString(key, defaultString));
+	using U = std::remove_cvref_t<T>;
+	using V = double;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoF<V>(kv->GetValueString());
+	}
+
+	return idStr::AtoF<V>(defaultString);
 }
 
 template< Formattable T>
 ID_INLINE int32 idDict<T>::GetInt( const StringLikeOrEnum auto &key, const char* defaultString ) const {
-	return idStr::AtoI<int32>(GetString( key, defaultString ) );
+	using U = std::remove_cvref_t<T>;
+	using V = int32;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoI<V>(kv->GetValueString());
+	}
+
+	return idStr::AtoI<V>(defaultString);
 }
 
 template< Formattable T>
 ID_INLINE int64 idDict<T>::GetInt64(const StringLikeOrEnum auto& key, const char* defaultString) const {
-	return idStr::AtoI<int64>(GetString(key, defaultString));
+	using U = std::remove_cvref_t<T>;
+	using V = int64;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoI<V>(kv->GetValueString());
+	}
+
+	return idStr::AtoI<V>(defaultString);
 }
 
 template< Formattable T>
 ID_INLINE bool idDict<T>::GetBool( const StringLikeOrEnum auto &key, const char* defaultString ) const {
-	return ( idStr::AtoI<bool>(GetString( key, defaultString ) ) != 0 );
+	using U = std::remove_cvref_t<T>;
+	using V = bool;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoI<int64>(kv->GetValueString()) ? true : false;
+	}
+
+	return idStr::AtoI<int64>(defaultString) ? true : false;
 }
 
 template< Formattable T>
 ID_INLINE float idDict<T>::GetFloat( const StringLikeOrEnum auto &key, const float defaultFloat ) const {
-	const idKeyValue *kv = FindKey( key );
-	if ( kv ) 
+	using U = std::remove_cvref_t<T>;
+	using V = float;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
 	{
-		return idStr::AtoF<float>( kv->GetValue() );
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoF<V>(kv->GetValueString());
 	}
+
 	return defaultFloat;
 }
 
 template< Formattable T>
 ID_INLINE double idDict<T>::GetDouble( const StringLikeOrEnum auto& key, const double defaultDouble ) const {
-	const idKeyValue* kv = FindKey(key);
+	using U = std::remove_cvref_t<T>;
+	using V = double;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
 	if (kv)
 	{
-		return idStr::AtoF<double>(kv->GetValue());
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoF<V>(kv->GetValueString());
 	}
+
 	return defaultDouble;
 }
 
 template< Formattable T>
 ID_INLINE int32 idDict<T>::GetInt( const StringLikeOrEnum auto &key, const int32 defaultInt ) const {
-	const idKeyValue *kv = FindKey( key );
-	if ( kv ) {
-		return idStr::AtoI<int32>( kv->GetValue() );
+	using U = std::remove_cvref_t<T>;
+	using V = int32;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoI<V>(kv->GetValueString());
 	}
+
 	return defaultInt;
 }
 
 template< Formattable T>
 ID_INLINE int64 idDict<T>::GetInt64(const StringLikeOrEnum auto& key, const int64 defaultInt) const {
-	const idKeyValue* kv = FindKey(key);
-	if (kv) {
-		return idStr::AtoI<int64>(kv->GetValue());
+	using U = std::remove_cvref_t<T>;
+	using V = int64;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoI<V>(kv->GetValueString());
 	}
+
 	return defaultInt;
 }
 
 template< Formattable T>
 ID_INLINE bool idDict<T>::GetBool( const StringLikeOrEnum auto &key, const bool defaultBool ) const {
-	const idKeyValue *kv = FindKey( key );
-	if ( kv ) {
-		return idStr::AtoI<int8>( kv->GetValue() ) != 0;
+	using U = std::remove_cvref_t<T>;
+	using V = bool;
+
+	const idKeyValue<T>* kv = FindKey(key);
+
+	if (kv)
+	{
+		if constexpr (std::is_same_v<U, V>) {
+			return kv->GetValue();
+		}
+
+		return idStr::AtoI<int64>(kv->GetValueString()) ? true : false;
 	}
+
 	return defaultBool;
 }
 
@@ -440,7 +571,7 @@ ID_INLINE size_t idDict<T>::GetNumKeyVals() const {
 }
 
 template< Formattable T>
-ID_INLINE const idKeyValue *idDict<T>::GetKeyVal( const Ordinal auto index ) const {
+ID_INLINE const idKeyValue<T> *idDict<T>::GetKeyVal( const Ordinal auto index ) const {
 	if ( index >= 0 && std::cmp_less(index, args.Num()) ) {
 		return &args[ index ];
 	}

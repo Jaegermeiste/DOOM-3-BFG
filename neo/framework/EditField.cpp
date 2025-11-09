@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <algorithm>
+#include <utility>
+
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -134,7 +137,7 @@ void idEditField::Clear() {
 idEditField::SetWidthInChars
 ===============
 */
-void idEditField::SetWidthInChars(const int w ) {
+void idEditField::SetWidthInChars(const size_t w ) {
 	assert( w <= MAX_EDIT_LINE );
 	widthInChars = w;
 }
@@ -144,8 +147,8 @@ void idEditField::SetWidthInChars(const int w ) {
 idEditField::SetCursor
 ===============
 */
-void idEditField::SetCursor(const int c ) {
-	assert( c <= MAX_EDIT_LINE );
+void idEditField::SetCursor( const Ordinal auto& c ) {
+	ORDINAL_CHECK( c, MAX_EDIT_LINE );
 	cursor = c;
 }
 
@@ -154,7 +157,7 @@ void idEditField::SetCursor(const int c ) {
 idEditField::GetCursor
 ===============
 */
-int idEditField::GetCursor() const {
+index_t idEditField::GetCursor() const {
 	return cursor;
 }
 
@@ -164,11 +167,9 @@ idEditField::ClearAutoComplete
 ===============
 */
 void idEditField::ClearAutoComplete() {
-	if ( autoComplete.length > 0 && autoComplete.length <= static_cast<int>(strlen(buffer)) ) {
+	if ( (autoComplete.length > 0) && (autoComplete.length <= strlen(buffer)) ) {
 		buffer[autoComplete.length] = '\0';
-		if ( cursor > autoComplete.length ) {
-			cursor = autoComplete.length;
-		}
+		cursor = numeric_cast<index_t>(Min(cursor, autoComplete.length));
 	}
 	autoComplete.length = 0;
 	autoComplete.valid = false;
@@ -179,7 +180,7 @@ void idEditField::ClearAutoComplete() {
 idEditField::GetAutoCompleteLength
 ===============
 */
-int idEditField::GetAutoCompleteLength() const {
+size_t idEditField::GetAutoCompleteLength() const {
 	return autoComplete.length;
 }
 
@@ -190,7 +191,7 @@ idEditField::AutoComplete
 */
 void idEditField::AutoComplete() {
 	char completionArgString[MAX_EDIT_LINE];
-	idCmdArgs args;
+	idCmdArgs args = {};
 
 	if ( !autoComplete.valid ) {
 		args.TokenizeString( buffer, false );
@@ -267,7 +268,7 @@ void idEditField::AutoComplete() {
 
 		// get the next match and show instead
 		autoComplete.matchIndex++;
-		if ( autoComplete.matchIndex == autoComplete.matchCount ) {
+		if (std::equal_to<>()(autoComplete.matchIndex, autoComplete.matchCount)) {
 			autoComplete.matchIndex = 0;
 		}
 		autoComplete.findMatchIndex = 0;
@@ -283,9 +284,7 @@ void idEditField::AutoComplete() {
 
 		// and print it
 		idStr::snPrintf( buffer, sizeof( buffer ), autoComplete.currentMatch );
-		if ( autoComplete.length > static_cast<int>(strlen(buffer)) ) {
-			autoComplete.length = strlen( buffer );
-		}
+		autoComplete.length = Min(autoComplete.length, strlen(buffer));
 		SetCursor( autoComplete.length );
 	}
 }
@@ -296,8 +295,6 @@ idEditField::CharEvent
 ===============
 */
 void idEditField::CharEvent(const int ch ) {
-	int		len;
-
 	if ( ch == 'v' - 'a' + 1 ) {	// ctrl-v is paste
 		Paste();
 		return;
@@ -308,7 +305,7 @@ void idEditField::CharEvent(const int ch ) {
 		return;
 	}
 
-	len = strlen( buffer );
+	int len = strlen(buffer);
 
 	if ( ch == 'h' - 'a' + 1 || ch == K_BACKSPACE ) {	// ctrl-h is backspace
 		if ( cursor > 0 ) {
@@ -371,8 +368,6 @@ idEditField::KeyDownEvent
 ===============
 */
 void idEditField::KeyDownEvent(const int key ) {
-	int		len;
-
 	// shift-insert is paste
 	if ( ( ( key == K_INS ) || ( key == K_KP_0 ) ) && ( idKeyInput::IsDown( K_LSHIFT ) || idKeyInput::IsDown( K_RSHIFT ) ) ) {
 		ClearAutoComplete();
@@ -380,7 +375,7 @@ void idEditField::KeyDownEvent(const int key ) {
 		return;
 	}
 
-	len = strlen( buffer );
+	int len = strlen(buffer);
 
 	if ( key == K_DEL ) {
 		if ( autoComplete.length ) {
@@ -405,9 +400,7 @@ void idEditField::KeyDownEvent(const int key ) {
 			cursor++;
 		}
 
-		if ( cursor > len ) {
-			cursor = len;
-		}
+		cursor = std::min<index_t>(cursor, len);
 
 		if ( cursor >= scroll + widthInChars ) {
 			scroll = cursor - widthInChars + 1;
@@ -433,12 +426,8 @@ void idEditField::KeyDownEvent(const int key ) {
 			cursor--;
 		}
 
-		if ( cursor < 0 ) {
-			cursor = 0;
-		}
-		if ( cursor < scroll ) {
-			scroll = cursor;
-		}
+		cursor = std::max<index_t>(cursor, 0);
+		scroll = std::min<index_t>(cursor, scroll);
 
 		if ( autoComplete.length ) {
 			autoComplete.length = cursor;
@@ -485,18 +474,15 @@ idEditField::Paste
 ===============
 */
 void idEditField::Paste() {
-	char	*cbd;
-	int		pasteLen, i;
-
-	cbd = Sys_GetClipboardData();
+	char* cbd = Sys_GetClipboardData();
 
 	if ( !cbd ) {
 		return;
 	}
 
 	// send as if typed, so insert / overstrike works properly
-	pasteLen = strlen( cbd );
-	for ( i = 0; i < pasteLen; i++ ) {
+	int pasteLen = strlen(cbd);
+	for ( int i = 0; i < pasteLen; i++ ) {
 		CharEvent( cbd[i] );
 	}
 
@@ -528,28 +514,22 @@ void idEditField::SetBuffer( const char *buf ) {
 idEditField::Draw
 ===============
 */
-void idEditField::Draw(const int x, const int y, int width, const bool showCursor ) {
-	int		len;
-	int		drawLen;
-	int		prestep;
-	int		cursorChar;
-	char	str[MAX_EDIT_LINE];
-	int		size;
+void idEditField::Draw(const int x, const int y, size_t width, const bool showCursor ) {
+	index_t		prestep = 0;
+	char	str[MAX_EDIT_LINE] = {};
 
-	size = SMALLCHAR_WIDTH;
+	int size = SMALLCHAR_WIDTH;
 
-	drawLen = widthInChars;
-	len = strlen( buffer ) + 1;
+	size_t drawLen = widthInChars;
+	size_t len = strlen(buffer) + 1;
 
 	// guarantee that cursor will be visible
 	if ( len <= drawLen ) {
 		prestep = 0;
 	} else {
 		if ( scroll + drawLen > len ) {
-			scroll = len - drawLen;
-			if ( scroll < 0 ) {
-				scroll = 0;
-			}
+			scroll = numeric_cast<index_t>(len) - numeric_cast<index_t>(drawLen);
+			scroll = Max(scroll, 0);
 		}
 		prestep = scroll;
 
@@ -558,8 +538,14 @@ void idEditField::Draw(const int x, const int y, int width, const bool showCurso
 			prestep += 2;
 		}
 		if ( prestep > 0 && idStr::IsColor( buffer + prestep - 1 ) ) {
-			prestep++;
+			++prestep;
 		}
+
+		// Expand tabs
+		/*if (buffer[prestep] == '\t') {
+			const size_t advance = TAB_STOP_CHARS - (prestep % TAB_STOP_CHARS);
+			prestep += numeric_cast<index_t>(advance);
+		}*/
 	}
 
 	if ( prestep + drawLen > len ) {
@@ -582,23 +568,22 @@ void idEditField::Draw(const int x, const int y, int width, const bool showCurso
 		return;
 	}
 
-	if ( (int)( idLib::frameNumber >> 4 ) & 1 ) {
+	if ( ( idLib::frameNumber >> 4 ) & 1 ) {
 		return;		// off blink
 	}
 
+	int cursorChar = 10;// _
 	if ( idKeyInput::GetOverstrikeMode() ) {
-		cursorChar = 11;
-	} else {
-		cursorChar = 10;
+		cursorChar = 11; // █
 	}
 
 	// Move the cursor back to account for color codes
-	for ( size_t i = 0; i<cursor; i++ ) {
+	for ( index_t i = 0; i < cursor; ++i ) {
 		if ( idStr::IsColor( &str[i] ) ) {
 			i++;
 			prestep += 2;
 		}
 	}
 
-	renderSystem->DrawSmallChar( x + ( cursor - prestep ) * size, y, cursorChar );
+	renderSystem->DrawSmallChar( x + numeric_cast<int>(( cursor - prestep ) * size), y, cursorChar );
 }

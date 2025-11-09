@@ -166,6 +166,7 @@
     <ClCompile Include="idlib\math\VecX.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="idlib\Table.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="idlib\bv\Bounds.h">
@@ -417,6 +418,7 @@
     <ClInclude Include="idlib\hashing\xx_Hash.h">
       <Filter>Hashing</Filter>
     </ClInclude>
+    <ClInclude Include="idlib\Table.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

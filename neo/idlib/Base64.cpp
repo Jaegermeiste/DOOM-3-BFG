@@ -174,7 +174,7 @@ static void idBase64_TestBase64() {
 	dest.Decode( src );
 	idLib::common->Printf( "%s -> %s\n", dest.c_str(), src.c_str() );
 
-	idDict src_dict;
+	idDict<> src_dict;
 	src_dict.SetFloat("float", 0.5f);
 	src_dict.SetBool("bool", true);
 	src_dict.Set("value", "foo");
@@ -187,7 +187,7 @@ static void idBase64_TestBase64() {
 	idFile_Memory dest_fmem( "build_back" );
 	dest.Decode( &dest_fmem );
 	dest_fmem.MakeReadOnly();
-	idDict dest_dict;
+	idDict<> dest_dict;
 	dest_dict.ReadFromFileHandle( &dest_fmem );
 	idLib::common->Printf( "idDict reconstructed after base64 decode\n");
 	dest_dict.Print();
@@ -195,7 +195,7 @@ static void idBase64_TestBase64() {
 	// test idDict read from file - from python generated files, see idDict.py
 	idFile *file = idLib::fileSystem->OpenFileRead("idDict.test");
 	if (file) {
-		idDict test_dict;
+		idDict<> test_dict;
 		test_dict.ReadFromFileHandle( file );
 		//
 		idLib::common->Printf( "read idDict.test:\n");
@@ -214,7 +214,7 @@ static void idBase64_TestBase64() {
 		base64_src = (char *)buffer;
 		base64_src.Decode( &mem_src );
 		mem_src.MakeReadOnly();
-		idDict test_dict;
+		idDict<> test_dict;
 		test_dict.ReadFromFileHandle( &mem_src );
 		idLib::common->Printf( "read idDict.base64.test:\n");
 		test_dict.Print();

@@ -608,7 +608,7 @@ idWinding::GetCenter
 =============
 */
 idVec3 idWinding::GetCenter() const {
-	idVec3 center;
+	idVec3 center = {};
 
 	center.Zero();
 	for ( size_t i = 0; std::cmp_less(i, numPoints); i++ ) {
@@ -745,7 +745,7 @@ idWinding::AddToConvexHull
 */
 void idWinding::AddToConvexHull( const idWinding *winding, const idVec3 &normal, const float epsilon ) {
 	size_t j = 0;
-	idVec3			dir;
+	idVec3			dir = {};
 
 	if ( !winding ) {
 		return;
@@ -830,7 +830,7 @@ idWinding::AddToConvexHull
 */
 void idWinding::AddToConvexHull( const idVec3 &point, const idVec3 &normal, const float epsilon ) {
 	size_t			j = 0;
-	idVec3			dir;
+	idVec3			dir = {};
 
 	switch( numPoints ) {
 		case 0: {
@@ -1293,7 +1293,7 @@ idWinding::LineIntersection
 =============
 */
 bool idWinding::LineIntersection( const idPlane &windingPlane, const idVec3 &start, const idVec3 &end, const bool backFaceCull ) const {
-	idVec3 mid;
+	idVec3 mid = {};
 
 	const float front = windingPlane.Distance(start);
 	const float back = windingPlane.Distance(end);

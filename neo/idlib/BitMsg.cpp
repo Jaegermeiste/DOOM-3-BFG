@@ -248,7 +248,7 @@ idBitMsg::WriteDeltaDict
 template < Formattable T >
 bool idBitMsg::WriteDeltaDict( const idDict<T> &dict, const idDict<T> *base ) {
 	size_t i = 0;
-	const idKeyValue *kv = nullptr, *basekv = nullptr;
+	const idKeyValue<T> *kv = nullptr, *basekv = nullptr;
 	bool changed = false;
 
 	if ( base != nullptr) {
@@ -534,15 +534,16 @@ int idBitMsg::DirToBits( const idVec3 &dir, short numBits ) {
 	assert( dir.LengthSqr() - 1.0f < 0.01f );
 
 	numBits /= 3;
-	const size_t max = (1 << (numBits - 1)) - 1;
-	const float bias = 0.5f / max;
+	const int max = (1 << (numBits - 1)) - 1;
+	const float maxf = numeric_cast<float>(max);
+	const float bias = 0.5f / maxf;
 
 	int bits = IEEE_FLT_SIGNBITSET(dir.x) << (numBits * 3 - 1);
-	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.x ) + bias ) * max ) ) << ( numBits * 2 );
+	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.x ) + bias ) * maxf ) ) << ( numBits * 2 );
 	bits |= IEEE_FLT_SIGNBITSET( dir.y ) << ( numBits * 2 - 1 );
-	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.y ) + bias ) * max ) ) << ( numBits * 1 );
+	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.y ) + bias ) * maxf ) ) << ( numBits * 1 );
 	bits |= IEEE_FLT_SIGNBITSET( dir.z ) << ( numBits * 1 - 1 );
-	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.z ) + bias ) * max ) ) << ( numBits * 0 );
+	bits |= ( numeric_cast<int>( ( idMath::Fabs( dir.z ) + bias ) * maxf ) ) << ( numBits * 0 );
 	return bits;
 }
 
@@ -558,17 +559,15 @@ idVec3 idBitMsg::BitsToDir(const int bits, short numBits ) {
 	assert( numBits >= 6 && numBits <= 32 );
 
 	numBits /= 3;
-	const size_t max = (1 << (numBits - 1)) - 1;
-	const float invMax = 1.0f / max;
+	const int max = (1 << (numBits - 1)) - 1;
+	const float maxf = numeric_cast<float>(max);
+	const float invMax = 1.0f / maxf;
 
-	dir.x = sign[( bits >> ( numBits * 3 - 1 ) ) & 1] * ( ( bits >> ( numBits * 2 ) ) & max ) 
-					* invMax;
+	dir.x = sign[( bits >> ( numBits * 3 - 1 ) ) & 1] * numeric_cast<float>( ( bits >> ( numBits * 2 ) ) & max ) * invMax;
 
-	dir.y = sign[( bits >> ( numBits * 2 - 1 ) ) & 1] * ( ( bits >> ( numBits * 1 ) ) & max ) 
-					* invMax;
+	dir.y = sign[( bits >> ( numBits * 2 - 1 ) ) & 1] * numeric_cast<float>( ( bits >> ( numBits * 1 ) ) & max ) * invMax;
 
-	dir.z = sign[( bits >> ( numBits * 1 - 1 ) ) & 1] * ( ( bits >> ( numBits * 0 ) ) & max ) 
-					* invMax;
+	dir.z = sign[( bits >> ( numBits * 1 - 1 ) ) & 1] * numeric_cast<float>( ( bits >> ( numBits * 0 ) ) & max ) * invMax;
 
 	dir.NormalizeFast();
 	return dir;

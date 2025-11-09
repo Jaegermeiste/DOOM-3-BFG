@@ -270,7 +270,7 @@ idMapBrush *idMapBrush::Parse( idLexer &src, const idVec3 &origin, const bool ne
 	idVec3 planepts[3] = {{}, {}, {}};
 	idToken token;
 	idList<idMapBrushSide*> sides;
-	idDict epairs;
+	idDict<> epairs;
 
 	if ( !src.ExpectTokenString( "{" ) ) {
 		return nullptr;
@@ -403,7 +403,7 @@ idMapBrush *idMapBrush::ParseQ3( idLexer &src, const idVec3 &origin ) {
 	idVec3 planepts[3] = {};
 	idToken token;
 	idList<idMapBrushSide*> sides;
-	const idDict epairs;
+	const idDict<> epairs;
 
 	do {
 		if ( src.CheckTokenString( "}" ) ) {
@@ -764,7 +764,7 @@ bool idMapFile::Parse( const char *filename, const bool ignoreRegion, const bool
 		size_t i = 0;
 
 		// "removeEntities" "classname" can be set in the worldspawn to remove all entities with the given classname
-		const idKeyValue *removeEntities = entities[0]->epairs.MatchPrefix( "removeEntities", nullptr);
+		const idKeyValue<> *removeEntities = entities[0]->epairs.MatchPrefix( "removeEntities", nullptr);
 		while ( removeEntities ) {
 			RemoveEntities( removeEntities->GetValue() );
 			removeEntities = entities[0]->epairs.MatchPrefix( "removeEntities", removeEntities );

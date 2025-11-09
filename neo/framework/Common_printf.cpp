@@ -33,10 +33,10 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar com_logFile( "logFile", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "1 = buffer log, 2 = flush after each print", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
 idCVar com_logFileName( "logFileName", "qconsole.log", CVAR_SYSTEM | CVAR_NOCHEAT, "name of log file, if empty, qconsole.log will be used" );
-idCVar com_timestampPrints( "com_timestampPrints", "0", CVAR_SYSTEM, "prID_TIME_T time with each console print, 1 = msec, 2 = sec", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
+idCVar com_timestampPrints( "com_timestampPrints", "0", CVAR_SYSTEM, "print time with each console print, 1 = msec, 2 = sec", 0, 2, idCmdSystem::ArgCompletion_Integer<0,2> );
 
 #ifndef ID_RETAIL
-idCVar com_printFilter( "com_printFilter", "", CVAR_SYSTEM, "only print lines that contain this, add multiple filters with a ; delimeter");
+idCVar com_printFilter( "com_printFilter", "", CVAR_SYSTEM, "only print lines that contain this, add multiple filters with a ; delimiter");
 #endif
 
 /*
@@ -108,26 +108,25 @@ void idCommonLocal::VPrintf( const char *fmt, const va_list args ) {
 	}
 	// optionally put a timestamp at the beginning of each print,
 	// so we can see how long different init sections are taking
-	ID_TIME_T timeLength = 0;
-	char msg[MAX_PRINT_MSG_SIZE];
+	char msg[MAX_PRINT_MSG_SIZE] = {};
 	msg[ 0 ] = '\0';
-	if ( com_timestampPrints.GetInteger() ) {
-		int	t = Sys_Milliseconds();
-		if ( com_timestampPrints.GetInteger() == 1 ) {
-			sprintf( msg, "[%5.2f]", t * 0.001f );
+	if ( com_timestampPrints.GetInteger() || com_timestampPrints.GetBool() ) {
+		ID_TIME_T	t = Sys_Milliseconds();
+		if ( com_timestampPrints.GetInteger() == 2 ) {
+			idStr::snPrintf( msg, "[%5.2f]", t * 0.001 );
 		} else {
-			sprintf( msg, "[%i]", t );
+			idStr::snPrintf( msg, "[%i]", t );
 		}
 	} 
-	timeLength = strlen( msg );
+	size_t timeLength = strlen(msg);
 	// don't overflow
-	if ( idStr::vsnPrintf( msg+timeLength, MAX_PRINT_MSG_SIZE-timeLength-1, fmt, args ) < 0 ) {
+	if ( idStr::vsnPrintf( msg + timeLength, MAX_PRINT_MSG_SIZE - timeLength - 1, fmt, args ) < 0 ) {
 		msg[sizeof(msg)-2] = '\n'; msg[sizeof(msg)-1] = '\0'; // avoid output garbling
 		Sys_Printf( "idCommon::VPrintf: truncated to %d characters\n", strlen(msg)-1 );
 	}
 
 	if ( rd_buffer ) {
-		if ( static_cast<int>(strlen(msg) + strlen(rd_buffer)) > ( rd_buffersize - 1 ) ) {
+		if ( (strlen(msg) + strlen(rd_buffer)) > ( rd_buffersize - 1 ) ) {
 			rd_flush( rd_buffer );
 			*rd_buffer = 0;
 		}
@@ -136,18 +135,19 @@ void idCommonLocal::VPrintf( const char *fmt, const va_list args ) {
 	}
 #ifndef ID_RETAIL
 	if ( com_printFilter.GetString() != nullptr && com_printFilter.GetString()[ 0 ] != '\0' ) {
-		idStrStatic< 4096 > filterBuf = com_printFilter.GetString();
-		idStrStatic< 4096 > msgBuf = msg;
+		idStrStatic< MAX_PRINT_MSG_SIZE > filterBuf = com_printFilter.GetString();
+		idStrStatic< MAX_PRINT_MSG_SIZE > msgBuf = msg;
 		filterBuf.ToLower();
 		msgBuf.ToLower();
-		char *sp = strtok( &filterBuf[ 0 ], ";" );
+		char* nextToken = nullptr;
+		char* token = strtok_s( &filterBuf[ 0 ], ";", &nextToken);
 		bool p = false;
-		for( ; sp != nullptr; ) {
-			if ( strstr( msgBuf, sp ) != nullptr) {
+		while(token != nullptr) {
+			if ( strstr( msgBuf, token ) != nullptr) {
 				p = true;
 				break;
 			}
-			sp = strtok(nullptr, ";" );
+			token = strtok_s(nullptr, ";", &nextToken );
 		}
 		if ( !p ) {
 			return;
@@ -203,8 +203,7 @@ void idCommonLocal::VPrintf( const char *fmt, const va_list args ) {
 				logFile->ForceFlush();
 			}
 
-			time_t aclock;
-			time( &aclock );
+			time_t aclock = time(nullptr);
 			struct tm * newtime = localtime( &aclock );
 			Printf( "log file '%s' opened on %s\n", fileName, asctime( newtime ) );
 		}
@@ -325,8 +324,6 @@ idCommonLocal::PrintWarnings
 ==================
 */
 void idCommonLocal::PrintWarnings() {
-	int i;
-
 	if ( !warningList.Num() ) {
 		return;
 	}
@@ -334,7 +331,7 @@ void idCommonLocal::PrintWarnings() {
 	Printf( "------------- Warnings ---------------\n" );
 	Printf( "during %s...\n", warningCaption.c_str() );
 
-	for ( i = 0; i < warningList.Num(); i++ ) {
+	for ( index_t i = 0; i < warningList.Num(); ++i ) {
 		Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s\n", warningList[i].c_str() );
 	}
 	if ( warningList.Num() ) {
@@ -363,13 +360,12 @@ idCommonLocal::DumpWarnings
 */
 void idCommonLocal::DumpWarnings() {
 	int			i;
-	idFile		*warningFile;
 
 	if ( !warningList.Num() ) {
 		return;
 	}
 
-	warningFile = fileSystem->OpenFileWrite( "warnings.txt", "fs_savepath" );
+	idFile* warningFile = fileSystem->OpenFileWrite("warnings.txt", "fs_savepath");
 	if ( warningFile ) {
 
 		warningFile->Printf( "------------- Warnings ---------------\n\n" );
@@ -411,7 +407,6 @@ void idCommonLocal::Error( const char *fmt, ... ) {
 	va_list		argptr;
 	static int	lastErrorTime;
 	static int	errorCount;
-	int			currentTime;
 
 	errorParm_t code = ERP_DROP;
 
@@ -447,7 +442,7 @@ void idCommonLocal::Error( const char *fmt, ... ) {
 	}
 
 	// if we are getting a solid stream of ERP_DROP, do an ERP_FATAL
-	currentTime = Sys_Milliseconds();
+	int currentTime = Sys_Milliseconds();
 	if ( currentTime - lastErrorTime < 100 ) {
 		if ( ++errorCount > 3 ) {
 			code = ERP_FATAL;

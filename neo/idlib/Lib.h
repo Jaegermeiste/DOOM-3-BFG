@@ -121,6 +121,8 @@ constexpr auto MIN_WORLD_COORD = ( -128 * 1024 );
 #define SIZE_MB( x )						( ( ( SIZE_KB( x ) ) + 1023 ) / 1024 )
 #define SIZE_GB( x )						( ( ( SIZE_MB( x ) ) + 1023 ) / 1024 )
 
+constexpr size_t TAB_STOP_CHARS = 4;
+
 // basic colors
 extern	idVec4 colorBlack;
 extern	idVec4 colorWhite;
@@ -341,6 +343,7 @@ public:
 #include "containers/PlaneSet.h"
 
 // misc
+#include "Table.h"
 #include "Dict.h"
 #include "LangDict.h"
 #include "DataQueue.h"

@@ -508,6 +508,18 @@ void idRenderSystemLocal::DrawSmallStringExt( const int x, const int y, const ch
 			s += 2;
 			continue;
 		}
+
+		// Handle tab: advance to next tab stop; render nothing
+		if (*s == '\t') {
+			const int offset = xx - x;                  // current pixel offset from start
+			const int nextTab = ((offset / numeric_cast<int>(SMALLCHAR_TAB_WIDTH)) + 1) * numeric_cast<int>(SMALLCHAR_TAB_WIDTH);
+			const int advance = nextTab - offset;
+			xx += advance;
+			++s;
+			continue;
+		}
+
+		// Normal glyph
 		DrawSmallChar( xx, y, *s );
 		xx += SMALLCHAR_WIDTH;
 		s++;
@@ -578,6 +590,18 @@ void idRenderSystemLocal::DrawBigStringExt( const int x, const int y, const char
 			s += 2;
 			continue;
 		}
+
+		// Handle tab: advance to next tab stop; render nothing
+		if (*s == '\t') {
+			const int offset = xx - x;                  // current pixel offset from start
+			const int nextTab = ((offset / numeric_cast<int>(BIGCHAR_TAB_WIDTH)) + 1) * numeric_cast<int>(BIGCHAR_TAB_WIDTH);
+			const int advance = nextTab - offset;
+			xx += advance;
+			++s;
+			continue;
+		}
+
+		// Normal glyph
 		DrawBigChar( xx, y, *s );
 		xx += BIGCHAR_WIDTH;
 		s++;

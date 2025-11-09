@@ -78,6 +78,16 @@ public:
 	const idPoolStr *	CopyString( const idPoolStr *poolStr );
 	void				Clear();
 
+	// Modern Range-Based for-loop Iteration
+	idPoolStr* begin() noexcept { return *pool.begin(); }
+	idPoolStr* end() noexcept { return *pool.end(); }
+
+	const idPoolStr* begin() const noexcept { return *pool.begin(); }
+	const idPoolStr* end() const noexcept { return *pool.end(); }
+
+	const idPoolStr* cbegin() const noexcept { return begin(); }
+	const idPoolStr* cend()   const noexcept { return end(); }
+
 private:
 	bool				caseSensitive;
 	idList<idPoolStr *>	pool;

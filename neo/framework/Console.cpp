@@ -68,7 +68,7 @@ public:
 	void				Clear();
 
 private:
-	void				KeyDownEvent( int key );
+	void				KeyDownEvent( const keyNum_t key );
 
 	void				Linefeed();
 
@@ -103,13 +103,13 @@ private:
 	int					LOCALSAFE_BOTTOM;
 	int					LOCALSAFE_WIDTH;
 	int					LOCALSAFE_HEIGHT;
-	int					LINE_WIDTH;
-	int					TOTAL_LINES;
+	size_t				LINE_WIDTH;
+	size_t				TOTAL_LINES;
 
 	bool				keyCatching;
 
 	short				text[CON_TEXTSIZE];
-	int					current;		// line where next message will be printed
+	index_t				current;		// line where next message will be printed
 	int					x;				// offset in current line for next print
 	int					display;		// bottom of console displays this line
 	int					lastKeyEvent;	// time of last key event for scroll delay
@@ -121,7 +121,7 @@ private:
 
 	int					vislines;		// in scanlines
 
-	int					times[NUM_CON_TIMES];	// cls.realtime time the line was generated
+	ID_TIME_T			times[NUM_CON_TIMES];	// cls.realtime time the line was generated
 									// for transparent notify lines
 	idVec4				color;
 
@@ -332,8 +332,6 @@ idConsoleLocal::Init
 ==============
 */
 void idConsoleLocal::Init() {
-	int		i;
-
 	keyCatching = false;
 
 	LOCALSAFE_LEFT		= 32;
@@ -352,7 +350,7 @@ void idConsoleLocal::Init() {
 	consoleField.Clear();
 	consoleField.SetWidthInChars( LINE_WIDTH );
 
-	for ( i = 0 ; i < COMMAND_HISTORY ; i++ ) {
+	for ( int i = 0 ; i < COMMAND_HISTORY ; i++ ) {
 		historyEditLines[i].Clear();
 		historyEditLines[i].SetWidthInChars( LINE_WIDTH );
 	}
@@ -388,9 +386,7 @@ idConsoleLocal::ClearNotifyLines
 ================
 */
 void	idConsoleLocal::ClearNotifyLines() {
-	int		i;
-
-	for ( i = 0 ; i < NUM_CON_TIMES ; i++ ) {
+	for ( int i = 0 ; i < NUM_CON_TIMES ; i++ ) {
 		times[i] = 0;
 	}
 }
@@ -413,9 +409,7 @@ idConsoleLocal::Clear
 ================
 */
 void idConsoleLocal::Clear() {
-	int		i;
-
-	for ( i = 0 ; i < CON_TEXTSIZE ; i++ ) {
+	for ( int i = 0 ; i < CON_TEXTSIZE ; i++ ) {
 		text[i] = (idStr::ColorIndex(C_COLOR_CYAN)<<8) | ' ';
 	}
 
@@ -430,19 +424,18 @@ Save the console contents out to a file
 ================
 */
 void idConsoleLocal::Dump( const char *fileName ) {
-	int		l, x, i;
+	int x;
 	short *	line;
-	idFile *f;
 	char	* buffer = static_cast<char*>(alloca(LINE_WIDTH + 3));
 
-	f = fileSystem->OpenFileWrite( fileName );
+	idFile* f = fileSystem->OpenFileWrite(fileName);
 	if ( !f ) {
 		common->Warning( "couldn't open %s", fileName );
 		return;
 	}
 
 	// skip empty lines
-	l = current - TOTAL_LINES + 1;
+	int l = current - TOTAL_LINES + 1;
 	if ( l < 0 ) {
 		l = 0;
 	}
@@ -459,7 +452,7 @@ void idConsoleLocal::Dump( const char *fileName ) {
 	// write the remaining lines
 	for ( ; l <= current; l++ ) {
 		line = text + ( l % TOTAL_LINES ) * LINE_WIDTH;
-		for( i = 0; i < LINE_WIDTH; i++ ) {
+		for( int i = 0; i < LINE_WIDTH; i++ ) {
 			buffer[i] = line[i] & 0xff;
 		}
 		for ( x = LINE_WIDTH-1; x >= 0; x-- ) {
@@ -536,7 +529,7 @@ KeyDownEvent
 Handles history and console scrollback
 ====================
 */
-void idConsoleLocal::KeyDownEvent(const int key ) {
+void idConsoleLocal::KeyDownEvent(const keyNum_t key ) {
 	
 	// Execute F key bindings
 	if ( key >= K_F1 && key <= K_F12 ) {
@@ -761,7 +754,7 @@ bool	idConsoleLocal::ProcessEvent( const sysEvent_t *event, const bool forceAcce
 			return true;
 		}
 
-		KeyDownEvent( event->evValue );
+		KeyDownEvent( static_cast<keyNum_t>(event->evValue) );
 		return true;
 	}
 
@@ -783,8 +776,6 @@ Linefeed
 ===============
 */
 void idConsoleLocal::Linefeed() {
-	int		i;
-
 	// mark time for transparent overlay
 	if ( current >= 0 ) {
 		times[current % NUM_CON_TIMES] = Sys_Milliseconds();
@@ -795,7 +786,7 @@ void idConsoleLocal::Linefeed() {
 		display++;
 	}
 	current++;
-	for ( i = 0; i < LINE_WIDTH; i++ ) {
+	for ( int i = 0; i < LINE_WIDTH; i++ ) {
 		int offset = ( static_cast<unsigned int>(current) % TOTAL_LINES ) * LINE_WIDTH + i;
 		text[offset] = (idStr::ColorIndex(C_COLOR_CYAN)<<8) | ' ';
 	}
@@ -810,16 +801,14 @@ Handles cursor positioning, line wrapping, etc
 ================
 */
 void idConsoleLocal::Print( const char *txt ) {
-	int		y;
 	int		c, l;
-	int		color;
 
 	if ( TOTAL_LINES == 0 ) {
 		// not yet initialized
 		return;
 	}
 
-	color = idStr::ColorIndex( C_COLOR_CYAN );
+	index_t color = idStr::ColorIndex(C_COLOR_CYAN);
 
 	while ( (c = *(const unsigned char*)txt) != 0 ) {
 		if ( idStr::IsColor( txt ) ) {
@@ -832,7 +821,7 @@ void idConsoleLocal::Print( const char *txt ) {
 			continue;
 		}
 
-		y = current % TOTAL_LINES;
+		int y = current % TOTAL_LINES;
 
 		// if we are about to print a new word, check to see
 		// if we should wrap to the new line
@@ -905,12 +894,10 @@ Draw the editline after a ] prompt
 ================
 */
 void idConsoleLocal::DrawInput() {
-	int y, autoCompleteLength;
-
-	y = vislines - ( SMALLCHAR_HEIGHT * 2 );
+	int y = vislines - (SMALLCHAR_HEIGHT * 2);
 
 	if ( consoleField.GetAutoCompleteLength() != 0 ) {
-		autoCompleteLength = strlen( consoleField.GetBuffer() ) - consoleField.GetAutoCompleteLength();
+		int autoCompleteLength = strlen(consoleField.GetBuffer()) - consoleField.GetAutoCompleteLength();
 
 		if ( autoCompleteLength > 0 ) {
 			renderSystem->DrawFilled( idVec4( 0.8f, 0.2f, 0.2f, 0.45f ),
@@ -935,25 +922,19 @@ Draws the last few lines of output transparently over the game top
 ================
 */
 void idConsoleLocal::DrawNotify() {
-	int		x, v;
-	short	*text_p;
-	int		i;
-	int		time;
-	int		currentColor;
-
 	if ( con_noPrint.GetBool() ) {
 		return;
 	}
 
-	currentColor = idStr::ColorIndex( C_COLOR_WHITE );
+	int currentColor = idStr::ColorIndex(C_COLOR_WHITE);
 	renderSystem->SetColor( idStr::ColorForIndex( currentColor ) );
 
-	v = 0;
-	for ( i = current-NUM_CON_TIMES+1; i <= current; i++ ) {
+	int v = 0;
+	for ( int i = current - NUM_CON_TIMES + 1; i <= current; i++ ) {
 		if ( i < 0 ) {
 			continue;
 		}
-		time = times[i % NUM_CON_TIMES];
+		int time = times[i % NUM_CON_TIMES];
 		if ( time == 0 ) {
 			continue;
 		}
@@ -961,9 +942,9 @@ void idConsoleLocal::DrawNotify() {
 		if ( time > con_notifyTime.GetFloat() * 1000 ) {
 			continue;
 		}
-		text_p = text + (i % TOTAL_LINES)*LINE_WIDTH;
+		short* text_p = text + (i % TOTAL_LINES) * LINE_WIDTH;
 		
-		for ( x = 0; x < LINE_WIDTH; x++ ) {
+		for ( int x = 0; x < LINE_WIDTH; x++ ) {
 			if ( ( text_p[x] & 0xff ) == ' ' ) {
 				continue;
 			}
@@ -988,15 +969,9 @@ Draws the console with the solid background
 ================
 */
 void idConsoleLocal::DrawSolidConsole(const float frac ) {
-	int				i, x;
-	float			y;
-	int				rows;
-	short			*text_p;
-	int				row;
-	int				lines;
-	int				currentColor;
+	int x;
 
-	lines = numeric_cast<int>( SCREEN_HEIGHT * frac );
+	int lines = numeric_cast<int>(SCREEN_HEIGHT * frac);
 	if ( lines <= 0 ) {
 		return;
 	}
@@ -1006,7 +981,7 @@ void idConsoleLocal::DrawSolidConsole(const float frac ) {
 	}
 
 	// draw the background
-	y = frac * SCREEN_HEIGHT - 2;
+	float y = frac * SCREEN_HEIGHT - 2;
 	if ( y < 1.0f ) {
 		y = 0.0f;
 	} else {
@@ -1020,7 +995,7 @@ void idConsoleLocal::DrawSolidConsole(const float frac ) {
 	renderSystem->SetColor( idStr::ColorForIndex( C_COLOR_CYAN ) );
 
 	idStr version = va( "%s.%i.%i", ENGINE_VERSION, BUILD_NUMBER, BUILD_NUMBER_MINOR );
-	i = version.Length();
+	int i = version.Length();
 
 	for ( x = 0; x < i; x++ ) {
 		renderSystem->DrawSmallChar( LOCALSAFE_WIDTH - ( i - x ) * SMALLCHAR_WIDTH, 
@@ -1031,7 +1006,7 @@ void idConsoleLocal::DrawSolidConsole(const float frac ) {
 
 	// draw the text
 	vislines = lines;
-	rows = (lines-SMALLCHAR_WIDTH)/SMALLCHAR_WIDTH;		// rows of text to draw
+	int rows = (lines - SMALLCHAR_WIDTH) / SMALLCHAR_WIDTH;		// rows of text to draw
 
 	y = lines - (SMALLCHAR_HEIGHT*3);
 
@@ -1046,13 +1021,13 @@ void idConsoleLocal::DrawSolidConsole(const float frac ) {
 		rows--;
 	}
 	
-	row = display;
+	int row = display;
 
 	if ( x == 0 ) {
 		row--;
 	}
 
-	currentColor = idStr::ColorIndex( C_COLOR_WHITE );
+	int currentColor = idStr::ColorIndex(C_COLOR_WHITE);
 	renderSystem->SetColor( idStr::ColorForIndex( currentColor ) );
 
 	for ( i = 0; i < rows; i++, y -= SMALLCHAR_HEIGHT, row-- ) {
@@ -1064,7 +1039,7 @@ void idConsoleLocal::DrawSolidConsole(const float frac ) {
 			continue;	
 		}
 
-		text_p = text + (row % TOTAL_LINES)*LINE_WIDTH;
+		short* text_p = text + (row % TOTAL_LINES) * LINE_WIDTH;
 
 		for ( x = 0; x < LINE_WIDTH; x++ ) {
 			if ( ( text_p[x] & 0xff ) == ' ' ) {

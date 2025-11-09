@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,54 +26,5 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __EDITFIELD_H__
-#define __EDITFIELD_H__
+#include "precompiled.h"
 
-/*
-===============================================================================
-
-	Edit field
-
-===============================================================================
-*/
-
-constexpr size_t MAX_EDIT_LINE = 256;
-
-typedef struct autoComplete_s {
-	bool			valid;
-	size_t			length;
-	char			completionString[MAX_EDIT_LINE];
-	char			currentMatch[MAX_EDIT_LINE];
-	size_t			matchCount;
-	index_t			matchIndex;
-	index_t			findMatchIndex;
-} autoComplete_t;
-
-class idEditField {
-public:
-					idEditField();
-					~idEditField();
-
-	void			Clear();
-	void			SetWidthInChars( const size_t w );
-	void			SetCursor( const Ordinal auto& c );
-	[[nodiscard]] index_t			GetCursor() const;
-	void			ClearAutoComplete();
-	[[nodiscard]] size_t			GetAutoCompleteLength() const;
-	void			AutoComplete();
-	void			CharEvent( int c );
-	void			KeyDownEvent( int key );
-	void			Paste();
-	char *			GetBuffer();
-	void			Draw( int x, int y, size_t width, bool showCursor );
-	void			SetBuffer( const char *buffer );
-
-private:
-	index_t			cursor;
-	index_t			scroll;
-	size_t			widthInChars;
-	char			buffer[MAX_EDIT_LINE];
-	autoComplete_t	autoComplete;
-};
-
-#endif /* !__EDITFIELD_H__ */

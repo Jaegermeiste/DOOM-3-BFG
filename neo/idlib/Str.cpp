@@ -1355,7 +1355,7 @@ E idStr::GetEnum( const E fallback ) const noexcept
 }
 
 template < typename T >
-	requires (StringLikeOrEnum< T > || Formattable< T>)
+	requires (StringLike< T > || Formattable< T>)
 const char* idStr::ToCString(const T& value, char* string_out, const size_t buffer_length, const EnumNameOptions options) noexcept
 {
 	if (safe_equal(value, nullptr)) {
@@ -1370,6 +1370,9 @@ const char* idStr::ToCString(const T& value, char* string_out, const size_t buff
 		idLib::common->Warning("idStr::ToCString: buffer_length < 1");
 		return nullptr;
 	}
+
+	// Clear the out string buffer
+	memset(string_out, 0, buffer_length);
 
 	using U = std::remove_cvref_t<decltype(value)>;
 
@@ -1449,39 +1452,124 @@ const char* idStr::ToCString(const T& value, char* string_out, const size_t buff
 		return string_out;
 	}
 	else if constexpr (std::is_integral_v<U>) {
-		return std::format("{}", value);
+		idStr::ItoA(string_out, buffer_length, value);
+		return string_out;
+
 	}
 	else if constexpr (std::is_floating_point_v<U>) {
-		constexpr int precision = std::numeric_limits<T>::max_digits10;
-
-		// Step 1: Format in fixed-point with full precision, std::format is locale-independent => '.' is always the decimal separator here.
-		std::string tmp = std::format("{:.{}f}", value, precision);
-
-		// Step 2: Trim trailing zeros
-		tmp.erase(std::find_if(tmp.rbegin(), tmp.rend(), [](const unsigned char ch) { return ch != '0'; }).base(), tmp.end());
-
-		// Step 3: Remove dangling decimal point(s)
-		while (!tmp.empty() && tmp.back() == '.')
-		{
-			tmp.pop_back();
-		}
-
-		// Step 4: Preserve "0.0" form for zero
-		if (tmp.empty() || static_cast<T>(0))
-		{
-			tmp = "0.0";
-		}
-
-		// Step 5: If there's no decimal point left (i.e., now it's an integer value), append ".0"
-		if (tmp.find('.') == std::string::npos)
-		{
-			tmp += ".0";
-		}
-
-		Copynz(string_out, tmp.c_str(), Min(tmp.length() + 1, buffer_length));
+		idStr::FtoA(string_out, buffer_length, value);
 		return string_out;
 	}
-	else {
+	else if constexpr (stringlike::Has_ToString<U>)
+	{
+		using R = stringlike::ToString_Return_t<U>;
+		if constexpr (stringlike::returns_cstring_v<R>)
+		{
+			const char* tmp = value.ToString();
+			Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+			return string_out;
+		}
+		else if constexpr (stringlike::returns_stdstring_v<R>)
+		{
+			idStr tmp = value.ToString();
+			Copynz(string_out, tmp.c_str(), Min(tmp.Length() + 1, buffer_length));
+			return string_out;
+		}
+	}
+	else if constexpr (stringlike::Has_toString<U>)
+	{
+		using R = stringlike::toString_Return_t<U>;
+		if constexpr (stringlike::returns_cstring_v<R>)
+		{
+			const char* tmp = value.toString();
+			Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+			return string_out;
+		}
+		else if constexpr (stringlike::returns_stdstring_v<R>)
+		{
+			idStr tmp = value.toString();
+			Copynz(string_out, tmp.c_str(), Min(tmp.Length() + 1, buffer_length));
+			return string_out;
+		}
+	}
+	else if constexpr (stringlike::Has_AsString<U>)
+	{
+		using R = stringlike::AsString_Return_t<U>;
+		if constexpr (stringlike::returns_cstring_v<R>)
+		{
+			const char* tmp = value.AsString();
+			Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+			return string_out;
+		}
+		else if constexpr (stringlike::returns_stdstring_v<R>)
+		{
+			idStr tmp = value.AsString();
+			Copynz(string_out, tmp.c_str(), Min(tmp.Length() + 1, buffer_length));
+			return string_out;
+		}
+	}
+	else if constexpr (stringlike::Has_String<U>)
+	{
+		using R = stringlike::String_Return_t<U>;
+		if constexpr (stringlike::returns_cstring_v<R>)
+		{
+			const char* tmp = value.String();
+			Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+			return string_out;
+		}
+		else if constexpr (stringlike::returns_stdstring_v<R>)
+		{
+			idStr tmp = value.String();
+			Copynz(string_out, tmp.c_str(), Min(tmp.Length() + 1, buffer_length));
+			return string_out;
+		}
+	}
+	else if constexpr (stringlike::Has_str<U>)
+	{
+		using R = stringlike::str_Return_t<U>;
+		if constexpr (stringlike::returns_cstring_v<R>)
+		{
+			const char* tmp = value.str();
+			Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+			return string_out;
+		}
+		else if constexpr (stringlike::returns_stdstring_v<R>)
+		{
+			idStr tmp = value.str();
+			Copynz(string_out, tmp.c_str(), Min(tmp.Length() + 1, buffer_length));
+			return string_out;
+		}
+	}
+	else if constexpr (stringlike::Has_DebugString<U>)
+	{
+		using R = stringlike::DebugString_Return_t<T>;
+		if constexpr (stringlike::returns_cstring_v<R>)
+		{
+			const char* tmp = value.DebugString();
+			Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+			return string_out;
+		}
+		else if constexpr (stringlike::returns_stdstring_v<R>)
+		{
+			idStr tmp = value.DebugString();
+			Copynz(string_out, tmp.c_str(), Min(tmp.Length() + 1, buffer_length));
+			return string_out;
+		}
+	}
+	else if constexpr (stringlike::HasCStr<U>)
+	{
+		const char* tmp = value.c_str();
+		Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+		return string_out; return value.c_str();
+	}
+	else if constexpr (stringlike::HasCharPtrCast<T>)
+	{
+		const char* tmp = static_cast<const char*>(value);
+		Copynz(string_out, tmp, Min(strlen(tmp) + 1, buffer_length));
+		return string_out;
+	}
+	else 
+	{
 		static_assert(!sizeof(U), "ToCString matched an unsupported case.");
 	}
 
@@ -2205,6 +2293,45 @@ size_t idStr::LengthWithoutColors( const char *s ) {
 
 /*
 ================
+idStr::TabExpandedLengthWithoutColors
+================
+*/
+size_t idStr::TabExpandedLengthWithoutColors(const char* s) {
+	if (!s) {
+		return 0;
+	}
+
+	size_t len = 0;
+	const char* p = s;
+
+	while (*p) {
+		// idTech color
+		if (idStr::IsColor(p)) {
+			p += 2;
+			continue;
+		}
+
+		// Tab expansion
+		unsigned char c = static_cast<unsigned char>(*p);
+		if (c == '\t') {
+			size_t advance = TAB_STOP_CHARS - (len % TAB_STOP_CHARS);
+			if (advance == 0)
+			{
+				advance = TAB_STOP_CHARS; // classic behavior: full tab if on stop
+			}
+			len += advance;
+		}
+
+		// Normal glyph
+		p++;
+		len++;
+	}
+
+	return len;
+}
+
+/*
+================
 idStr::RemoveColors
 ================
 */
@@ -2232,7 +2359,7 @@ char *idStr::RemoveColors( char *string ) {
 idStr::snPrintf
 ================
 */
-index_t idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
+int64 idStr::snPrintf( char *dest, const size_t size, const char *fmt, ...) {
 	va_list argptr = nullptr;
 	char buffer[32000] = {};	// big, but small enough to fit in PPC stack
 
@@ -2268,7 +2395,7 @@ idStr::vsnPrintf: always appends a trailing '\0', returns number of characters w
 or returns -1 on failure or if the buffer would be overflowed.
 ============
 */
-int64 idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, const va_list argptr ) {
+int64 idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, va_list argptr ) {
 	size_t buffer_count = 0;
 
 	if (size > 0)
@@ -2276,7 +2403,7 @@ int64 idStr::vsnPrintf( char *dest, const size_t size, const char *fmt, const va
 		buffer_count = size - 1;
 	}
 #undef _vsnprintf
-	const int64 ret = _vsnprintf(dest, buffer_count, fmt, argptr);
+	const int64 ret = _vsnprintf_s(dest, buffer_count, buffer_count, fmt, argptr);
 #define _vsnprintf	use_idStr_vsnPrintf
 	dest[buffer_count] = '\0';
 
@@ -2584,7 +2711,7 @@ size_t idStr::FtoA(char* buffer, const size_t buffer_size, const std::floating_p
 		constexpr const char* s = "nan";
 		size_t size = 3;
 		if (size < buffer_size) {
-			std::memcpy(buffer, s, size + 1);
+			memcpy(buffer, s, size + 1);
 			return size;
 		}
 
@@ -2592,11 +2719,12 @@ size_t idStr::FtoA(char* buffer, const size_t buffer_size, const std::floating_p
 		*buffer = '\0';
 		return 0;
 	}
+
 	if (std::isinf(value)) {
 		const char* s = (value > 0) ? "inf" : "-inf";
-		size_t size = std::strlen(s);
+		size_t size = strlen(s);
 		if (size < buffer_size) {
-			std::memcpy(buffer, s, size + 1);
+			memcpy(buffer, s, size + 1);
 			return size;
 		}
 
@@ -2605,16 +2733,35 @@ size_t idStr::FtoA(char* buffer, const size_t buffer_size, const std::floating_p
 		return 0;
 	}
 
-	auto [ptr, ec] = std::to_chars(buffer, buffer + buffer_size - 1, value, fmt);
-	if (ec == std::errc()) {
-		// No error
-		*ptr = '\0';  // null terminate
-		return static_cast<size_t>(ptr - buffer);
+	constexpr int precision = std::numeric_limits<BASE_TYPE(value)>::max_digits10;
+
+	// Step 1: Format in fixed-point with full precision, std::format is locale-independent => '.' is always the decimal separator here.
+	std::string tmp = std::format("{:.{}f}", value, precision);
+
+	// Step 2: Trim trailing zeros
+	tmp.erase(std::find_if(tmp.rbegin(), tmp.rend(), [](const unsigned char ch) { return ch != '0'; }).base(), tmp.end());
+
+	// Step 3: Remove dangling decimal point(s)
+	while (!tmp.empty() && tmp.back() == '.')
+	{
+		tmp.pop_back();
 	}
 
-	// Truncate on failure (e.g., buffer too small)
-	*buffer = '\0';
-	return 0;
+	// Step 4: Preserve "0.0" form for zero
+	if (tmp.empty() || static_cast<BASE_TYPE(value)>(0))
+	{
+		tmp = "0.0";
+	}
+
+	// Step 5: If there's no decimal point left (i.e., now it's an integer value), append ".0"
+	if (tmp.find('.') == std::string::npos)
+	{
+		tmp += ".0";
+	}
+
+	Copynz(buffer, tmp.c_str(), Min(tmp.length() + 1, buffer_size));
+
+	return tmp.length();
 }
 
 CONSOLE_COMMAND( testStrId, "prints a localized string", nullptr ) {

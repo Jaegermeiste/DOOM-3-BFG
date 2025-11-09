@@ -39,8 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#define AAS_FILEID					"DewmAAS"
-#define AAS_FILEVERSION				"1.07"
+constexpr auto AAS_FILEID = "DewmAAS";
+constexpr auto AAS_FILEVERSION = "1.07";
 
 // travel flags
 #define TFL_INVALID					BIT(0)		// not valid
@@ -86,10 +86,10 @@ If you have questions concerning this license or the applicable additional terms
 // bits for different bboxes
 #define AREACONTENTS_BBOX_BIT		24
 
-#define MAX_REACH_PER_AREA			256
-#define MAX_AAS_TREE_DEPTH			128
+constexpr size_t MAX_REACH_PER_AREA = 256;
+constexpr size_t MAX_AAS_TREE_DEPTH = 128;
 
-#define MAX_AAS_BOUNDING_BOXES		4
+constexpr size_t MAX_AAS_BOUNDING_BOXES = 4;
 
 // reachability to another area
 class idReachability {

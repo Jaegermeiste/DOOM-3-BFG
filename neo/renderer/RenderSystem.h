@@ -153,8 +153,11 @@ bool R_IsInitialized();
 
 constexpr size_t SMALLCHAR_WIDTH		= 8;
 constexpr size_t SMALLCHAR_HEIGHT		= 16;
+constexpr size_t SMALLCHAR_TAB_WIDTH    = SMALLCHAR_WIDTH * TAB_STOP_CHARS;
 constexpr size_t BIGCHAR_WIDTH			= 16;
-constexpr size_t BIGCHAR_HEIGHT		= 16;
+constexpr size_t BIGCHAR_HEIGHT         = 16;
+constexpr size_t BIGCHAR_TAB_WIDTH      = BIGCHAR_WIDTH * TAB_STOP_CHARS;
+
 
 // all drawing is done to a 640 x 480 virtual screen size
 // and will be automatically scaled to the real resolution

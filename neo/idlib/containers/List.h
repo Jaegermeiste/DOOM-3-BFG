@@ -145,6 +145,7 @@ public:
 	void			AssureSize( size_t newSize );							// assure list has given number of elements, but leave them uninitialized
 	void			AssureSize( size_t newSize, const _type_ &initValue );	// assure list has given number of elements and initialize any new elements
 	void			AssureSizeAlloc( size_t newSize, new_t *allocator );	// assure the pointer list has the given number of elements and allocate any new elements
+	bool            Empty() const { return (Num() == 0); }                             // returns true if the list is empty
 
 	_type_ *		Ptr();												// returns a pointer to the list
 	[[nodiscard]] const _type_ *	Ptr() const;										// returns a pointer to the list
