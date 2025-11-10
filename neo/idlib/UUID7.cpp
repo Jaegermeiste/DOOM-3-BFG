@@ -77,7 +77,7 @@ namespace uuidv7_mono_detail {
 // ============================================================================
 // Uuid methods
 // ============================================================================
-constexpr Uuid Uuid::Null() noexcept { return Uuid{ { { 0 } } }; }
+constexpr Uuid Uuid::Nil() noexcept { return Uuid{ { { 0 } } }; }
 constexpr Uuid Uuid::Max()  noexcept { return Uuid{ { { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } } }; }
 constexpr Uuid Uuid::Fail() noexcept { return Max(); }
 
@@ -92,15 +92,15 @@ const uint8& Uuid::at( const Ordinal auto index) const noexcept {
 uint8& Uuid::operator[]( const Ordinal auto index) noexcept { return at(index); }
 const uint8& Uuid::operator[]( const Ordinal auto index) const noexcept { return at(index); }
 
-bool Uuid::IsNull() const noexcept {
+bool Uuid::IsNil() const noexcept {
 	for (index_t i = 0; std::cmp_less(i, UUID_BYTES); ++i) {
-		if (bytes[static_cast<size_t>(i)] != 0) { return false; }
+		if (bytes[i] != 0) { return false; }
 	}
 	return true;
 }
 bool Uuid::IsMax() const noexcept {
 	for (index_t i = 0; std::cmp_less(i, UUID_BYTES); ++i) {
-		if (bytes[static_cast<size_t>(i)] != 0xFF) { return false; }
+		if (bytes[i] != 0xFF) { return false; }
 	}
 	return true;
 }
@@ -181,7 +181,7 @@ bool Uuid::ParseCanonical(const char* s, Uuid& out) noexcept {
 	index_t out_byte = 0;
 
 	while (out_byte < 16) {
-		if (next_dash < UUID_DASH_POSITIONS_COUNT && i == UUID_DASH_POSITIONS[next_dash]) {
+		if (std::cmp_less(next_dash, UUID_DASH_POSITIONS_COUNT) && i == UUID_DASH_POSITIONS[next_dash]) {
 			++i;
 			++next_dash;
 		}

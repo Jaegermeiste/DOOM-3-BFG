@@ -54,7 +54,7 @@ struct Uuid {
 	idArray<uint8, UUID_BYTES> bytes{};
 
 	// ---- Predefined sentinels ----
-	[[nodiscard]] static constexpr Uuid Null() noexcept;
+	[[nodiscard]] static constexpr Uuid Nil() noexcept;
 	[[nodiscard]] static constexpr Uuid Max()  noexcept;
 	[[nodiscard]] static constexpr Uuid Fail() noexcept;
 
@@ -69,7 +69,7 @@ struct Uuid {
 	[[nodiscard]] const uint8* data() const noexcept { return bytes.Ptr(); }
 
 	// ---- Metadata ----
-	[[nodiscard]] bool IsNull() const noexcept;
+	[[nodiscard]] bool IsNil() const noexcept;
 	[[nodiscard]] bool IsMax() const noexcept;
 	[[nodiscard]] bool IsRfc4122Variant() const noexcept;
 	[[nodiscard]] int32 Version() const noexcept;

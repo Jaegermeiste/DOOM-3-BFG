@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 // M_Random
 // Returns a 0-255 number
 //
+#if defined(OLD_RANDOM)
 constexpr byte rndtable[256] = {
     0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66 ,
     74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36 ,
@@ -55,24 +56,37 @@ constexpr byte rndtable[256] = {
     197, 242,  98,  43,  39, 175, 254, 145, 190,  84, 118, 222, 187, 136 ,
     120, 163, 236, 249
 };
+#endif
 
 
 // Which one is deterministic?
 static int P_Random ()
 {
+#if defined(OLD_RANDOM)
     ::g->prndindex = (::g->prndindex+1)&0xff;
     return rndtable[::g->prndindex];
+#else
+	static idRandom playrand;
+	return playrand.RandomUInt8();
+#endif
 }
 
 static int M_Random ()
 {
+#if defined(OLD_RANDOM)
     ::g->rndindex = (::g->rndindex+1)&0xff;
     return rndtable[::g->rndindex];
+#else
+	static idRandom gamerand;
+	return gamerand.RandomUInt8();
+#endif
 }
 
 static void M_ClearRandom ()
 {
+#if defined(OLD_RANDOM)
     ::g->rndindex = ::g->prndindex = 0;
+#endif
 }
 
 

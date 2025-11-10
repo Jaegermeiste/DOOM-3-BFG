@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+//#define OLD_RANDOM
+
 /*
 ===============================================================================
 
@@ -43,12 +45,12 @@ class idRandom {
 public:
 	// --- lifecycle ---
 	ID_INLINE                    idRandom() noexcept;
-	ID_INLINE explicit           idRandom( uint64 seed ) noexcept;
+	ID_INLINE explicit           idRandom( const uint64 seed ) noexcept;
 	virtual                      ~idRandom() = default;
 
 	// --- canonical virtual (non-templated) API ---
 	// seeding / querying
-	virtual ID_INLINE void       SetSeed64(uint64 seed) noexcept;
+	virtual ID_INLINE void       SetSeed64( const uint64 seed ) noexcept;
 	[[nodiscard]] virtual ID_INLINE int64 GetSeed() const noexcept; // legacy signature
 
 	// unbounded integers (preserve MAX_RAND = 0x7fff semantics)
@@ -82,39 +84,130 @@ public:
 	[[nodiscard]] virtual ID_INLINE long double CRandomLongDouble() noexcept;  // [-1,1)
 
 	// --- non-virtual templated convenience wrappers (const-correct + noexcept) ---
-	ID_INLINE void SetSeed(const integral_or_enum auto& seed) noexcept {
+	ID_INLINE void SetSeed( const integral_or_enum auto& seed ) noexcept {
 		SetSeed64(static_cast<uint64>(integral_or_enum_to_value(seed)));
 	}
 
 	// Bounded integers
-	[[nodiscard]] ID_INLINE byte   RandomByte( const integral_or_enum auto& max ) noexcept { return RandomByte(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE int8   RandomInt8( const integral_or_enum auto& max ) noexcept { return RandomInt8(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE uint8  RandomUInt8( const integral_or_enum auto& max ) noexcept { return RandomUInt8(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE int16  RandomInt16( const integral_or_enum auto& max ) noexcept { return RandomInt16(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE uint16 RandomUInt16( const integral_or_enum auto& max ) noexcept { return RandomUInt16(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE int32  RandomInt32( const integral_or_enum auto& max ) noexcept { return RandomInt32(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE uint32 RandomUInt32( const integral_or_enum auto& max ) noexcept { return RandomUInt32(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE int64  RandomInt64( const integral_or_enum auto& max ) noexcept { return RandomInt64(numeric_cast<uint64>(integral_or_enum_to_value(max))); }
-	[[nodiscard]] ID_INLINE uint64 RandomUInt64( const integral_or_enum auto& max ) noexcept { return RandomUInt64(numeric_cast<uint64>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE byte   RandomByte(const integral_or_enum auto& max) noexcept { return RandomByte(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE int8   RandomInt8(const integral_or_enum auto& max) noexcept { return RandomInt8(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE uint8  RandomUInt8(const integral_or_enum auto& max) noexcept { return RandomUInt8(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE int16  RandomInt16(const integral_or_enum auto& max) noexcept { return RandomInt16(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE uint16 RandomUInt16(const integral_or_enum auto& max) noexcept { return RandomUInt16(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE int32  RandomInt32(const integral_or_enum auto& max) noexcept { return RandomInt32(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE uint32 RandomUInt32(const integral_or_enum auto& max) noexcept { return RandomUInt32(numeric_cast<uint32>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE int64  RandomInt64(const integral_or_enum auto& max) noexcept { return RandomInt64(numeric_cast<uint64>(integral_or_enum_to_value(max))); }
+	[[nodiscard]] ID_INLINE uint64 RandomUInt64(const integral_or_enum auto& max) noexcept { return RandomUInt64(numeric_cast<uint64>(integral_or_enum_to_value(max))); }
 
 	static constexpr int32 MAX_RAND = 0x7fff; // 15 bits
 
 protected:
+#if defined (OLD_RANDOM)
 	// state (protected so derived classes can use it)
 	uint64 state64 = 0;
+#else
+	// WELL512a internal state
+	uint32 state[16] = {};
+	uint32 index = 0;
+	uint32 out = 0;
+#endif // OLD_RANDOM
 
-	// single step (virtual, non-templated)
-	virtual ID_INLINE void PermuteSeed() noexcept { state64 = 69069ull * state64 + 1ull; }
+	virtual ID_INLINE void PermuteSeed() noexcept {
+#if defined (OLD_RANDOM)
+		// single step (virtual, non-templated)
+		state64 = 69069ull * state64 + 1ull;
+#else
+		// Advance one step. We implement WELL512a’s transition.
+
+			// Produce one 32-bit output into out_ and advance idx_
+		out = Next32();
+#endif // OLD_RANDOM
+	}
 
 	// helpers
-	static constexpr uint32 RAND_BITS = 15; // keep old semantics
-	ID_INLINE uint32 Next15() noexcept { PermuteSeed(); return static_cast<uint32>(state64 >> (64 - RAND_BITS)); }
+	static constexpr uint32 RAND_BITS = 15;
+	ID_INLINE uint32 Next15() noexcept
+	{
+		PermuteSeed();
+#if defined(OLD_RANDOM)
+		return static_cast<uint32>(state64 >> (64 - RAND_BITS));
+#else
+		return out >> (32 - RAND_BITS);
+#endif // OLD_RANDOM
+	}
+
+	// Core WELL512a step (returns next 32 bits)
+	ID_INLINE uint32 Next32() noexcept {
+#if defined(OLD_RANDOM)
+		PermuteSeed();
+		return static_cast<uint32>(state64 >> 32);
+#else
+		// Reference: Panneton et al., WELL512a parameters
+		uint32 a = state[index];
+		uint32 c = state[(index + 13) & 15];
+		uint32 b = a ^ c ^ (a << 16) ^ (c << 15);
+		c = state[(index + 9) & 15];
+		c ^= (c >> 11);
+		a = state[index] = b ^ c;
+		uint32 d = a ^ ((a << 5) & 0xDA442D24u);
+		index = (index + 15) & 15;
+		uint32 e = state[index];
+		state[index] = e ^ b ^ d ^ (e << 2) ^ (b << 18) ^ (c << 28);
+		return state[index];
+#endif // OLD_RANDOM
+	}
+
+	// Compose 64 bits from two 32-bit outputs (advances twice)
+	ID_INLINE uint64 Next64() noexcept {
+#if defined(OLD_RANDOM)
+		PermuteSeed();
+		return state64;  // 64-bit LCG state after one step
+#else
+		const uint64 hi = static_cast<uint64>(Next32()) << 32;
+		const uint64 lo = static_cast<uint64>(Next32());
+		return hi | lo;
+#endif // OLD_RANDOM
+	}
 
 	template <class UInt>
 	static ID_INLINE UInt ScaleTo(UInt m, uint32 r) noexcept {
-		if (m == 0) return 0;
+		if (m == 0)
+		{
+			return 0;
+		}
 		// floor(r * m / 2^k), with 64-bit intermediate
 		return static_cast<UInt>((static_cast<uint64>(r) * static_cast<uint64>(m)) >> RAND_BITS);
+	}
+
+	template<class UInt>
+	ID_INLINE UInt ScaleFrom32(UInt m, uint32 r) noexcept {
+		if (!m)
+		{
+			return 0;
+		}
+		return static_cast<UInt>((static_cast<uint64>(r) * static_cast<uint64>(m)) >> 32);
+	}
+
+	template<class UInt>
+	ID_INLINE UInt ScaleFrom64(UInt m, uint64 r) noexcept {
+		if (!m)
+		{
+			return 0;
+		}
+#if ID_HAS_INT128
+		return static_cast<UInt>(
+			(static_cast<ID_UINT128>(r) * static_cast<ID_UINT128>(m)) >> 64
+			);
+#else
+		// fallback unbiased method
+		const uint64 t = (~uint64{ 0 } - m + 1) % m;
+		uint64 x = 0;
+		do
+		{
+			x = Next64();
+		} while (x < t);
+		return static_cast<UInt>(x % m);
+#endif
 	}
 };
 
@@ -126,11 +219,51 @@ ID_INLINE idRandom::idRandom( uint64 seed ) noexcept {
 	SetSeed64(seed);
 }
 
-ID_INLINE void idRandom::SetSeed64( uint64 seed ) noexcept {
+ID_INLINE void idRandom::SetSeed64( const uint64 seed ) noexcept {
+#if defined (OLD_RANDOM)
 	state64 = seed;
+#else
+	// SplitMix64 to fill state_
+	auto next = [s = seed]() mutable noexcept -> uint64 {
+		s += 0x9E3779B97F4A7C15ull;
+		uint64 z = s;
+		z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+		z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+		return z ^ (z >> 31);
+		};
+
+	for (uint32& i : state)
+	{
+		const uint64 z = next();
+		i = static_cast<uint32>(z);            // lower 32 ok
+	}
+	index = 0;
+
+	// Avoid all-zero state (period break) — if degenerate, force a nonzero word
+	uint32 accum = 0;
+	for (uint32 v : state)
+	{
+		accum |= v;
+	}
+	if (accum == 0)
+	{
+		state[0] = 0xA5A5A5A5u;
+	}
+#endif // OLD_RANDOM
 }
+
 ID_INLINE int64 idRandom::GetSeed() const noexcept {
+#if defined(OLD_RANDOM)
 	return numeric_cast<int64>(state64);
+#else
+	// Return a hash of state_ to provide a stable-ish observable
+	static constexpr auto HASH_MAGIC = 0x9E3779B97F4A7C15ull;
+	uint64 hash = HASH_MAGIC;
+	for (uint32 v : state) {
+		hash ^= v + HASH_MAGIC + (hash << 6) + (hash >> 2);
+	}
+	return static_cast<int64>(hash);
+#endif // OLD_RANDOM
 }
 
 /*** unbounded integers ***/
@@ -141,26 +274,137 @@ ID_INLINE uint8  idRandom::RandomUInt8() noexcept { return numeric_cast<uint8>(S
 ID_INLINE int16  idRandom::RandomInt16() noexcept { return numeric_cast<int16>(Next15()); }  // 0..32767
 ID_INLINE uint16 idRandom::RandomUInt16() noexcept { return numeric_cast<uint16>(Next15()); }  // 0..32767
 
-ID_INLINE int32  idRandom::RandomInt32() noexcept { return numeric_cast<int32>(Next15()); }  // 0..32767
-ID_INLINE uint32 idRandom::RandomUInt32() noexcept { return numeric_cast<uint32>(Next15()); }  // 0..32767
+ID_INLINE int32  idRandom::RandomInt32() noexcept
+{
+#if defined(OLD_RANDOM)
+	return numeric_cast<int32>(Next15()); // 0..32767
+#else
+	return static_cast<int32>(Next32());
+#endif
+}
 
-ID_INLINE int64  idRandom::RandomInt64() noexcept { return numeric_cast<int64>(Next15()); }  // 0..32767
-ID_INLINE uint64 idRandom::RandomUInt64() noexcept { return numeric_cast<uint64>(Next15()); }  // 0..32767
+ID_INLINE uint32 idRandom::RandomUInt32() noexcept
+{
+#if defined(OLD_RANDOM)
+	return numeric_cast<uint32>(Next15()); // 0..32767
+#else
+	return Next32();
+#endif
+}
+
+ID_INLINE int64  idRandom::RandomInt64() noexcept
+{
+#if defined(OLD_RANDOM)
+	return numeric_cast<int64>(Next15()); // 0..32767
+#else
+	return static_cast<int64>(Next64());
+#endif
+}
+
+ID_INLINE uint64 idRandom::RandomUInt64() noexcept
+{
+#if defined(OLD_RANDOM)
+	return numeric_cast<uint64>(Next15()); // 0..32767
+#else
+	return Next64();
+#endif
+}
 
 /*** bounded integers ***/
 // Note: For 8-bit types, cap by the type limit; for 16/32/64, cap by MAX_RAND to preserve 15-bit semantics.
-ID_INLINE byte   idRandom::RandomByte(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(UINT8_MAX));  return numeric_cast<byte>(ScaleTo<uint32>(cap, Next15())); }
-ID_INLINE int8   idRandom::RandomInt8(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(INT8_MAX));   return numeric_cast<int8>(ScaleTo<uint32>(cap, Next15())); }
-ID_INLINE uint8  idRandom::RandomUInt8(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(UINT8_MAX));  return numeric_cast<uint8>(ScaleTo<uint32>(cap, Next15())); }
+ID_INLINE byte   idRandom::RandomByte( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+	const uint32 cap = Min(max, static_cast<uint32>(UINT8_MAX));
+	return numeric_cast<byte>(ScaleTo<uint32>(cap, Next15()));
+}
+ID_INLINE int8   idRandom::RandomInt8( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+	const uint32 cap = Min(max, static_cast<uint32>(INT8_MAX));
+	return numeric_cast<int8>(ScaleTo<uint32>(cap, Next15()));
+}
+ID_INLINE uint8  idRandom::RandomUInt8( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+	const uint32 cap = Min(max, static_cast<uint32>(UINT8_MAX));
+	return numeric_cast<uint8>(ScaleTo<uint32>(cap, Next15()));
+}
 
-ID_INLINE int16  idRandom::RandomInt16(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));   return numeric_cast<int16>(ScaleTo<uint32>(cap, Next15())); }
-ID_INLINE uint16 idRandom::RandomUInt16(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));   return numeric_cast<uint16>(ScaleTo<uint32>(cap, Next15())); }
+ID_INLINE int16  idRandom::RandomInt16( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+	const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));
+	return numeric_cast<int16>(ScaleTo<uint32>(cap, Next15()));
+}
+ID_INLINE uint16 idRandom::RandomUInt16( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+	const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));
+	return numeric_cast<uint16>(ScaleTo<uint32>(cap, Next15()));
+}
 
-ID_INLINE int32  idRandom::RandomInt32(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));   return numeric_cast<int32>(ScaleTo<uint32>(cap, Next15())); }
-ID_INLINE uint32 idRandom::RandomUInt32(uint32 max) noexcept { if (!max) return 0; const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));   return numeric_cast<uint32>(ScaleTo<uint32>(cap, Next15())); }
+ID_INLINE int32  idRandom::RandomInt32( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+#if defined(OLD_RANDOM)
+	const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));
+	return numeric_cast<int32>(ScaleTo<uint32>(cap, Next15()));
+#else
+	const int32 cap = numeric_cast<int32>(Min(max, INT32_MAX));
+	return ScaleFrom32<int32>(cap, Next32());
+#endif
+}
+ID_INLINE uint32 idRandom::RandomUInt32( const uint32 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+#if defined(OLD_RANDOM)
+	const uint32 cap = Min(max, static_cast<uint32>(MAX_RAND));
+	return numeric_cast<uint32>(ScaleTo<uint32>(cap, Next15()));
+#else
+	return ScaleFrom32<uint32>(max, Next32());
+#endif
+}
 
-ID_INLINE int64  idRandom::RandomInt64(uint64 max) noexcept { if (!max) return 0; const uint64 cap = Min(max, static_cast<uint64>(MAX_RAND));   return numeric_cast<int64>(ScaleTo<uint64>(cap, Next15())); }
-ID_INLINE uint64 idRandom::RandomUInt64(uint64 max) noexcept { if (!max) return 0; const uint64 cap = Min(max, static_cast<uint64>(MAX_RAND));   return numeric_cast<uint64>(ScaleTo<uint64>(cap, Next15())); }
+ID_INLINE int64  idRandom::RandomInt64( const uint64 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+#if defined(OLD_RANDOM)
+	const uint64 cap = Min(max, static_cast<uint64>(MAX_RAND));
+	return numeric_cast<int64>(ScaleTo<uint64>(cap, Next15()));
+#else
+	const int64 cap = numeric_cast<int64>(Min(max, INT64_MAX));
+	return ScaleFrom64<int64>(cap, Next64());
+#endif
+}
+ID_INLINE uint64 idRandom::RandomUInt64( const uint64 max ) noexcept {
+	if (!max)
+	{
+		return 0;
+	}
+#if defined (OLD_RANDOM)
+	const uint64 cap = Min(max, static_cast<uint64>(MAX_RAND));
+	return numeric_cast<uint64>(ScaleTo<uint64>(cap, Next15()));
+#else
+	return ScaleFrom64<uint64>(max, Next64());
+#endif
+}
 
 /*** reals ***/
 // Base uses integer scaling (portable); derived classes can override with IEEE-mantissa splice.
@@ -196,8 +440,10 @@ public:
 	[[nodiscard]] ID_INLINE long double  CRandomLongDouble() noexcept override;
 
 protected:
+#if defined(OLD_RANDOM)
 	// Stronger 64-bit LCG step (unsigned wraparound)
 	ID_INLINE void PermuteSeed() noexcept override { state64 = 1664525ull * state64 + 1013904223ull; }
+#endif
 
 private:
 	// IEEE layouts
@@ -205,37 +451,56 @@ private:
 	static constexpr uint32 IEEE_MASK_F = 0x007fffffu;               // 23-bit mantissa
 	static constexpr uint64 IEEE_ONE_D = 0x3ff0'0000'0000'0000ull;  // double 1.0
 	static constexpr uint64 IEEE_MASK_D = 0x000f'ffff'ffff'ffffull;  // 52-bit mantissa
-
-	// Helper to get 64 high-quality bits (advance once)
-	ID_INLINE uint64 Next64() noexcept { PermuteSeed(); return state64; }
 };
 
 /*** float/double via IEEE mantissa splice ***/
 ID_INLINE float idRandom2::RandomFloat() noexcept {
+#if defined(OLD_RANDOM)
 	PermuteSeed();
 	const uint32 mant = static_cast<uint32>((state64 >> (64 - 23)) & IEEE_MASK_F);
+#else
+	const uint32 mant = (Next32() >> (32 - 23)) & IEEE_MASK_F;
+#endif // OLD_RANDOM
 	const uint32 bits = IEEE_ONE_F | mant;               // 1.mmmm…
 	const float  f = std::bit_cast<float>(bits);      // [1,2)
 	return f - 1.0f;                                     // [0,1)
 }
 ID_INLINE float idRandom2::CRandomFloat() noexcept {
+#if defined(OLD_RANDOM)
 	PermuteSeed();
 	const uint32 mant = static_cast<uint32>((state64 >> (64 - 23)) & IEEE_MASK_F);
+#else
+	const uint32 mant = (Next32() >> (32 - 23)) & IEEE_MASK_F;
+#endif // OLD_RANDOM
 	const uint32 bits = IEEE_ONE_F | mant;
 	const float  f = std::bit_cast<float>(bits);      // [1,2)
 	return 2.0f * f - 3.0f;                              // [-1,1)
 }
 
 ID_INLINE double idRandom2::RandomDouble() noexcept {
+#if defined(OLD_RANDOM)
 	PermuteSeed();
 	const uint64 mant = (state64 >> (64 - 52)) & IEEE_MASK_D;
+#else
+	// Need 52 bits: combine two 32-bit pulls
+	const uint64 hi = static_cast<uint64>(Next32()) << 20; // take top 32-> use top 20
+	const uint64 lo = static_cast<uint64>(Next32()) >> 12; // take top 12
+	const uint64 mant = (hi | lo) & IEEE_MASK_D;
+#endif // OLD_RANDOM
 	const uint64 bits = IEEE_ONE_D | mant;               // 1.mmmm…
 	const double d = std::bit_cast<double>(bits);     // [1,2)
 	return d - 1.0;                                      // [0,1)
 }
 ID_INLINE double idRandom2::CRandomDouble() noexcept {
+#if defined(OLD_RANDOM)
 	PermuteSeed();
 	const uint64 mant = (state64 >> (64 - 52)) & IEEE_MASK_D;
+#else
+	// Need 52 bits: combine two 32-bit pulls
+	const uint64 hi = static_cast<uint64>(Next32()) << 20; // take top 32-> use top 20
+	const uint64 lo = static_cast<uint64>(Next32()) >> 12; // take top 12
+	const uint64 mant = (hi | lo) & IEEE_MASK_D;
+#endif // OLD_RANDOM
 	const uint64 bits = IEEE_ONE_D | mant;
 	const double d = std::bit_cast<double>(bits);     // [1,2)
 	return 2.0 * d - 3.0;                                // [-1,1)
